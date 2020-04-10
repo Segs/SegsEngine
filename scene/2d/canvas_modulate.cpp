@@ -41,23 +41,23 @@ void CanvasModulate::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_CANVAS) {
 
         if (is_visible_in_tree()) {
-            VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
+            RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
             add_to_group(name);
         }
 
     } else if (p_what == NOTIFICATION_EXIT_CANVAS) {
 
         if (is_visible_in_tree()) {
-            VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
+            RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
             remove_from_group(name);
         }
     } else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
         if (is_visible_in_tree()) {
-            VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
+            RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
             add_to_group(name);
         } else {
-            VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
+            RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), Color(1, 1, 1, 1));
             remove_from_group(name);
         }
 
@@ -77,7 +77,7 @@ void CanvasModulate::set_color(const Color &p_color) {
 
     color = p_color;
     if (is_visible_in_tree()) {
-        VisualServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
+        RenderingServer::get_singleton()->canvas_set_modulate(get_canvas(), color);
     }
 }
 Color CanvasModulate::get_color() const {

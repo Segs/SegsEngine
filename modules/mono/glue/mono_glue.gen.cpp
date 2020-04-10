@@ -299,7 +299,7 @@
 #include "modules/visual_script/visual_script_func_nodes.h"
 #include "modules/visual_script/visual_script_expression.h"
 #include "modules/visual_script/visual_script_yield_nodes.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/resources/visual_shader.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "modules/webrtc/webrtc_data_channel.h"
@@ -44332,38 +44332,38 @@ Object* godot_icall_VisualScriptYieldSignal_Ctor(MonoObject* obj) {
 
 void godot_icall_VisualServer_force_sync_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->sync();
+    static_cast<RenderingServer *>(ptr)->sync();
 }
 
 void godot_icall_VisualServer_force_draw_c783ccca(Object * ptr, MonoBoolean arg1, double* arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
     double arg2_in = static_cast<double>(*arg2);
-    static_cast<VisualServer *>(ptr)->draw(arg1_in, arg2_in);
+    static_cast<RenderingServer *>(ptr)->draw(arg1_in, arg2_in);
 }
 
 void godot_icall_VisualServer_sync_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->sync();
+    static_cast<RenderingServer *>(ptr)->sync();
 }
 
 void godot_icall_VisualServer_draw_c783ccca(Object * ptr, MonoBoolean arg1, double* arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
     double arg2_in = static_cast<double>(*arg2);
-    static_cast<VisualServer *>(ptr)->draw(arg1_in, arg2_in);
+    static_cast<RenderingServer *>(ptr)->draw(arg1_in, arg2_in);
 }
 
 RID* godot_icall_VisualServer_texture_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->texture_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_create();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_texture_create_from_image_c87a7b80(Object * ptr, Object * arg1, uint32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->texture_create_from_image(AutoRef(arg1), arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_create_from_image(AutoRef(arg1), arg2_in);
     return memnew(RID(ret));
 }
 
@@ -44375,13 +44375,13 @@ void godot_icall_VisualServer_texture_allocate_25a9ca24(Object * ptr, RID* arg1,
     int64_t arg5_in = (int64_t)arg5;
     int32_t arg6_in = static_cast<int32_t>(arg6);
     uint32_t arg7_in = static_cast<uint32_t>(arg7);
-    static_cast<VisualServer *>(ptr)->texture_allocate(*arg1, arg2_in, arg3_in, arg4_in, (Image::Format)arg5_in, (VS::TextureType)arg6_in, arg7_in);
+    static_cast<RenderingServer *>(ptr)->texture_allocate(*arg1, arg2_in, arg3_in, arg4_in, (Image::Format)arg5_in, (RS::TextureType)arg6_in, arg7_in);
 }
 
 void godot_icall_VisualServer_texture_set_data_68988578(Object * ptr, RID* arg1, Object * arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->texture_set_data(*arg1, AutoRef(arg2), arg3_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_data(*arg1, AutoRef(arg2), arg3_in);
 }
 
 void godot_icall_VisualServer_texture_set_data_partial_ef9fd2e(Object * ptr, RID* arg1, Object * arg2, int32_t arg3, int32_t arg4, int32_t arg5, int32_t arg6, int32_t arg7, int32_t arg8, int32_t arg9, int32_t arg10) {
@@ -44394,61 +44394,61 @@ void godot_icall_VisualServer_texture_set_data_partial_ef9fd2e(Object * ptr, RID
     int32_t arg8_in = static_cast<int32_t>(arg8);
     int32_t arg9_in = static_cast<int32_t>(arg9);
     int32_t arg10_in = static_cast<int32_t>(arg10);
-    static_cast<VisualServer *>(ptr)->texture_set_data_partial(*arg1, AutoRef(arg2), arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in, arg10_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_data_partial(*arg1, AutoRef(arg2), arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in, arg10_in);
 }
 
 MonoObject* godot_icall_VisualServer_texture_get_data_cea36e64(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_data(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_data(*arg1, arg2_in);
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 void godot_icall_VisualServer_texture_set_flags_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->texture_set_flags(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_flags(*arg1, arg2_in);
 }
 
 uint32_t godot_icall_VisualServer_texture_get_flags_1867c419(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_flags(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_flags(*arg1);
     return static_cast<uint32_t>(ret);
 }
 
 int32_t godot_icall_VisualServer_texture_get_format_25a22d81(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_format(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_format(*arg1);
     return (int32_t)ret;
 }
 
 int32_t godot_icall_VisualServer_texture_get_type_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_type(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_type(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 uint32_t godot_icall_VisualServer_texture_get_texid_1867c419(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_texid(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_texid(*arg1);
     return static_cast<uint32_t>(ret);
 }
 
 uint32_t godot_icall_VisualServer_texture_get_width_1867c419(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_width(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_width(*arg1);
     return static_cast<uint32_t>(ret);
 }
 
 uint32_t godot_icall_VisualServer_texture_get_height_1867c419(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_height(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_height(*arg1);
     return static_cast<uint32_t>(ret);
 }
 
 uint32_t godot_icall_VisualServer_texture_get_depth_1867c419(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_depth(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_depth(*arg1);
     return static_cast<uint32_t>(ret);
 }
 
@@ -44457,108 +44457,108 @@ void godot_icall_VisualServer_texture_set_size_override_c1c02a59(Object * ptr, R
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
     int32_t arg4_in = static_cast<int32_t>(arg4);
-    static_cast<VisualServer *>(ptr)->texture_set_size_override(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_size_override(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_texture_set_path_d45c5753(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
-    static_cast<VisualServer *>(ptr)->texture_set_path(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_path(*arg1, arg2_in);
 }
 
 MonoString* godot_icall_VisualServer_texture_get_path_8e62b7cc(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->texture_get_path(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->texture_get_path(*arg1);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
 void godot_icall_VisualServer_texture_set_shrink_all_x2_on_set_data_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<VisualServer *>(ptr)->texture_set_shrink_all_x2_on_set_data(arg1_in);
+    static_cast<RenderingServer *>(ptr)->texture_set_shrink_all_x2_on_set_data(arg1_in);
 }
 
 void godot_icall_VisualServer_texture_bind_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->texture_bind(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->texture_bind(*arg1, arg2_in);
 }
 
 Array* godot_icall_VisualServer_texture_debug_usage_d80382d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->_texture_debug_usage_bind();
+    auto ret = static_cast<RenderingServer *>(ptr)->_texture_debug_usage_bind();
     return memnew(Array(Variant::from(ret)));
 }
 
 void godot_icall_VisualServer_textures_keep_original_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<VisualServer *>(ptr)->textures_keep_original(arg1_in);
+    static_cast<RenderingServer *>(ptr)->textures_keep_original(arg1_in);
 }
 
 RID* godot_icall_VisualServer_sky_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->sky_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->sky_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_sky_set_texture_980180a6(Object * ptr, RID* arg1, RID* arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->sky_set_texture(*arg1, *arg2, arg3_in);
+    static_cast<RenderingServer *>(ptr)->sky_set_texture(*arg1, *arg2, arg3_in);
 }
 
 RID* godot_icall_VisualServer_shader_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->shader_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->shader_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_shader_set_code_879ee574(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL(ptr);
     String arg2_in = GDMonoMarshal::mono_string_to_godot(arg2);
-    static_cast<VisualServer *>(ptr)->shader_set_code(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->shader_set_code(*arg1, arg2_in);
 }
 
 MonoString* godot_icall_VisualServer_shader_get_code_8e62b7cc(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->shader_get_code(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->shader_get_code(*arg1);
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
 Array* godot_icall_VisualServer_shader_get_param_list_e33ff758(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->_shader_get_param_list_bind(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->_shader_get_param_list_bind(*arg1);
     return memnew(Array(Variant::from(ret)));
 }
 
 void godot_icall_VisualServer_shader_set_default_texture_param_6e3a1204(Object * ptr, RID* arg1, MonoString* arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
-    static_cast<VisualServer *>(ptr)->shader_set_default_texture_param(*arg1, arg2_in, *arg3);
+    static_cast<RenderingServer *>(ptr)->shader_set_default_texture_param(*arg1, arg2_in, *arg3);
 }
 
 RID* godot_icall_VisualServer_shader_get_default_texture_param_136fcc74(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
-    auto ret = static_cast<VisualServer *>(ptr)->shader_get_default_texture_param(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->shader_get_default_texture_param(*arg1, arg2_in);
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_material_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->material_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->material_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_material_set_shader_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->material_set_shader(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->material_set_shader(*arg1, *arg2);
 }
 
 RID* godot_icall_VisualServer_material_get_shader_c09e26c0(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->material_get_shader(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->material_get_shader(*arg1);
     return memnew(RID(ret));
 }
 
@@ -44566,43 +44566,43 @@ void godot_icall_VisualServer_material_set_param_2bd01b16(Object * ptr, RID* arg
     ERR_FAIL_NULL(ptr);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     Variant arg3_in = GDMonoMarshal::mono_object_to_variant(arg3);
-    static_cast<VisualServer *>(ptr)->material_set_param(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->material_set_param(*arg1, arg2_in, arg3_in);
 }
 
 MonoObject* godot_icall_VisualServer_material_get_param_626d676d(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
-    auto ret = static_cast<VisualServer *>(ptr)->material_get_param(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->material_get_param(*arg1, arg2_in);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
 MonoObject* godot_icall_VisualServer_material_get_param_default_626d676d(Object * ptr, RID* arg1, MonoString* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
-    auto ret = static_cast<VisualServer *>(ptr)->material_get_param_default(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->material_get_param_default(*arg1, arg2_in);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
 void godot_icall_VisualServer_material_set_render_priority_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->material_set_render_priority(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->material_set_render_priority(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_material_set_line_width_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->material_set_line_width(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->material_set_line_width(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_material_set_next_pass_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->material_set_next_pass(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->material_set_next_pass(*arg1, *arg2);
 }
 
 RID* godot_icall_VisualServer_mesh_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_create();
     return memnew(RID(ret));
 }
 
@@ -44612,7 +44612,7 @@ uint32_t godot_icall_VisualServer_mesh_surface_get_format_offset_c7c8c828(Object
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
     int32_t arg4_in = static_cast<int32_t>(arg4);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_format_offset(arg1_in, arg2_in, arg3_in, arg4_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_format_offset(arg1_in, arg2_in, arg3_in, arg4_in);
     return static_cast<uint32_t>(ret);
 }
 
@@ -44621,7 +44621,7 @@ uint32_t godot_icall_VisualServer_mesh_surface_get_format_stride_d481a46b(Object
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_format_stride(arg1_in, arg2_in, arg3_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_format_stride(arg1_in, arg2_in, arg3_in);
     return static_cast<uint32_t>(ret);
 }
 
@@ -44629,30 +44629,30 @@ void godot_icall_VisualServer_mesh_add_surface_from_arrays_36892d9(Object * ptr,
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     uint32_t arg5_in = static_cast<uint32_t>(arg5);
-    static_cast<VisualServer *>(ptr)->_mesh_add_surface_from_arrays(*arg1, (VS::PrimitiveType)arg2_in, *arg3, *arg4, arg5_in);
+    static_cast<RenderingServer *>(ptr)->_mesh_add_surface_from_arrays(*arg1, (RS::PrimitiveType)arg2_in, *arg3, *arg4, arg5_in);
 }
 
 void godot_icall_VisualServer_mesh_set_blend_shape_count_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->mesh_set_blend_shape_count(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->mesh_set_blend_shape_count(*arg1, arg2_in);
 }
 
 int32_t godot_icall_VisualServer_mesh_get_blend_shape_count_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_get_blend_shape_count(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_get_blend_shape_count(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_mesh_set_blend_shape_mode_ae1981ce(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->mesh_set_blend_shape_mode(*arg1, (VS::BlendShapeMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->mesh_set_blend_shape_mode(*arg1, (RS::BlendShapeMode)arg2_in);
 }
 
 int32_t godot_icall_VisualServer_mesh_get_blend_shape_mode_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_get_blend_shape_mode(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_get_blend_shape_mode(*arg1);
     return static_cast<int32_t>(ret);
 }
 
@@ -44661,124 +44661,124 @@ void godot_icall_VisualServer_mesh_surface_update_region_a8abd755(Object * ptr, 
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
     auto arg4_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg4);
-    static_cast<VisualServer *>(ptr)->mesh_surface_update_region(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->mesh_surface_update_region(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_mesh_surface_set_material_ee265321(Object * ptr, RID* arg1, int32_t arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->mesh_surface_set_material(*arg1, arg2_in, *arg3);
+    static_cast<RenderingServer *>(ptr)->mesh_surface_set_material(*arg1, arg2_in, *arg3);
 }
 
 RID* godot_icall_VisualServer_mesh_surface_get_material_d5ef04d9(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_material(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_material(*arg1, arg2_in);
     return memnew(RID(ret));
 }
 
 int32_t godot_icall_VisualServer_mesh_surface_get_array_len_9fb6ae46(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_array_len(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_array_len(*arg1, arg2_in);
     return static_cast<int32_t>(ret);
 }
 
 int32_t godot_icall_VisualServer_mesh_surface_get_array_index_len_9fb6ae46(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_array_index_len(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_array_index_len(*arg1, arg2_in);
     return static_cast<int32_t>(ret);
 }
 
 MonoArray* godot_icall_VisualServer_mesh_surface_get_array_c14dbfe6(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_array(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_array(*arg1, arg2_in);
     return GDMonoMarshal::PoolByteArray_to_mono_array(ret);
 }
 
 MonoArray* godot_icall_VisualServer_mesh_surface_get_index_array_c14dbfe6(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_index_array(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_index_array(*arg1, arg2_in);
     return GDMonoMarshal::PoolByteArray_to_mono_array(ret);
 }
 
 Array* godot_icall_VisualServer_mesh_surface_get_arrays_25b24b67(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_arrays(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_arrays(*arg1, arg2_in);
     return memnew(Array(ret));
 }
 
 Array* godot_icall_VisualServer_mesh_surface_get_blend_shape_arrays_25b24b67(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->_mesh_surface_get_blend_shape_arrays(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->_mesh_surface_get_blend_shape_arrays(*arg1, arg2_in);
     return memnew(Array(Variant::from(ret)));
 }
 
 uint32_t godot_icall_VisualServer_mesh_surface_get_format_c5ad1bb6(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_format(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_format(*arg1, arg2_in);
     return static_cast<uint32_t>(ret);
 }
 
 int32_t godot_icall_VisualServer_mesh_surface_get_primitive_type_9fb6ae46(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_primitive_type(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_primitive_type(*arg1, arg2_in);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_mesh_surface_get_aabb_455ffc0(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_surface_get_aabb(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_surface_get_aabb(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 Array* godot_icall_VisualServer_mesh_surface_get_skeleton_aabb_25b24b67(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->_mesh_surface_get_skeleton_aabb_bind(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->_mesh_surface_get_skeleton_aabb_bind(*arg1, arg2_in);
     return memnew(Array(ret));
 }
 
 void godot_icall_VisualServer_mesh_remove_surface_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->mesh_remove_surface(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->mesh_remove_surface(*arg1, arg2_in);
 }
 
 int32_t godot_icall_VisualServer_mesh_get_surface_count_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_get_surface_count(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_get_surface_count(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_mesh_set_custom_aabb_119d5c29(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg2) {
     ERR_FAIL_NULL(ptr);
     AABB arg2_in = MARSHALLED_IN(AABB, arg2);
-    static_cast<VisualServer *>(ptr)->mesh_set_custom_aabb(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->mesh_set_custom_aabb(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_mesh_get_custom_aabb_52100836(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->mesh_get_custom_aabb(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->mesh_get_custom_aabb(*arg1);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualServer_mesh_clear_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->mesh_clear(*arg1);
+    static_cast<RenderingServer *>(ptr)->mesh_clear(*arg1);
 }
 
 RID* godot_icall_VisualServer_multimesh_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_create();
     return memnew(RID(ret));
 }
 
@@ -44788,184 +44788,184 @@ void godot_icall_VisualServer_multimesh_allocate_190d316c(Object * ptr, RID* arg
     int32_t arg3_in = static_cast<int32_t>(arg3);
     int32_t arg4_in = static_cast<int32_t>(arg4);
     int32_t arg5_in = static_cast<int32_t>(arg5);
-    static_cast<VisualServer *>(ptr)->multimesh_allocate(*arg1, arg2_in, (VS::MultimeshTransformFormat)arg3_in, (VS::MultimeshColorFormat)arg4_in, (VS::MultimeshCustomDataFormat)arg5_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_allocate(*arg1, arg2_in, (RS::MultimeshTransformFormat)arg3_in, (RS::MultimeshColorFormat)arg4_in, (RS::MultimeshCustomDataFormat)arg5_in);
 }
 
 int32_t godot_icall_VisualServer_multimesh_get_instance_count_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_get_instance_count(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_get_instance_count(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_multimesh_set_mesh_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->multimesh_set_mesh(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->multimesh_set_mesh(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_multimesh_instance_set_transform_107e50a2(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Transform arg3_in = MARSHALLED_IN(Transform, arg3);
-    static_cast<VisualServer *>(ptr)->multimesh_instance_set_transform(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_instance_set_transform(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_multimesh_instance_set_transform_2d_87074d30(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform2D* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Transform2D arg3_in = MARSHALLED_IN(Transform2D, arg3);
-    static_cast<VisualServer *>(ptr)->multimesh_instance_set_transform_2d(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_instance_set_transform_2d(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_multimesh_instance_set_color_a406a09d(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Color* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Color arg3_in = MARSHALLED_IN(Color, arg3);
-    static_cast<VisualServer *>(ptr)->multimesh_instance_set_color(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_instance_set_color(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_multimesh_instance_set_custom_data_a406a09d(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Color* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Color arg3_in = MARSHALLED_IN(Color, arg3);
-    static_cast<VisualServer *>(ptr)->multimesh_instance_set_custom_data(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_instance_set_custom_data(*arg1, arg2_in, arg3_in);
 }
 
 RID* godot_icall_VisualServer_multimesh_get_mesh_c09e26c0(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_get_mesh(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_get_mesh(*arg1);
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_multimesh_get_aabb_52100836(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_get_aabb(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_get_aabb(*arg1);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualServer_multimesh_instance_get_transform_5be89b94(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_instance_get_transform(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_instance_get_transform(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 void godot_icall_VisualServer_multimesh_instance_get_transform_2d_61871ef9(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform2D* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_instance_get_transform_2d(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_instance_get_transform_2d(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Transform2D, ret);
 }
 
 void godot_icall_VisualServer_multimesh_instance_get_color_17cdf6c7(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_instance_get_color(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_instance_get_color(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
 void godot_icall_VisualServer_multimesh_instance_get_custom_data_17cdf6c7(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_instance_get_custom_data(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_instance_get_custom_data(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
 void godot_icall_VisualServer_multimesh_set_visible_instances_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->multimesh_set_visible_instances(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_set_visible_instances(*arg1, arg2_in);
 }
 
 int32_t godot_icall_VisualServer_multimesh_get_visible_instances_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->multimesh_get_visible_instances(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->multimesh_get_visible_instances(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_multimesh_set_as_bulk_array_5e60a868(Object * ptr, RID* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     PoolRealArray arg2_in = GDMonoMarshal::mono_array_to_PoolRealArray(arg2);
-    static_cast<VisualServer *>(ptr)->multimesh_set_as_bulk_array(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->multimesh_set_as_bulk_array(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_immediate_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->immediate_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->immediate_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_immediate_begin_2979e38c(Object * ptr, RID* arg1, int32_t arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->immediate_begin(*arg1, (VS::PrimitiveType)arg2_in, *arg3);
+    static_cast<RenderingServer *>(ptr)->immediate_begin(*arg1, (RS::PrimitiveType)arg2_in, *arg3);
 }
 
 void godot_icall_VisualServer_immediate_vertex_832e4d15(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector3* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_vertex(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_vertex(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_vertex_2d_832e4d14(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_vertex_2d(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_vertex_2d(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_normal_832e4d15(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector3* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_normal(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_normal(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_tangent_a8e2dec7(Object * ptr, RID* arg1, GDMonoMarshal::M_Plane* arg2) {
     ERR_FAIL_NULL(ptr);
     Plane arg2_in = MARSHALLED_IN(Plane, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_tangent(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_tangent(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_uv_832e4d14(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_uv(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_uv(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_uv2_832e4d14(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<VisualServer *>(ptr)->immediate_uv2(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->immediate_uv2(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_immediate_end_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->immediate_end(*arg1);
+    static_cast<RenderingServer *>(ptr)->immediate_end(*arg1);
 }
 
 void godot_icall_VisualServer_immediate_clear_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->immediate_clear(*arg1);
+    static_cast<RenderingServer *>(ptr)->immediate_clear(*arg1);
 }
 
 void godot_icall_VisualServer_immediate_set_material_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->immediate_set_material(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->immediate_set_material(*arg1, *arg2);
 }
 
 RID* godot_icall_VisualServer_immediate_get_material_c09e26c0(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->immediate_get_material(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->immediate_get_material(*arg1);
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_skeleton_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->skeleton_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->skeleton_create();
     return memnew(RID(ret));
 }
 
@@ -44973,12 +44973,12 @@ void godot_icall_VisualServer_skeleton_allocate_eb795dfc(Object * ptr, RID* arg1
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     bool arg3_in = static_cast<bool>(arg3);
-    static_cast<VisualServer *>(ptr)->skeleton_allocate(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->skeleton_allocate(*arg1, arg2_in, arg3_in);
 }
 
 int32_t godot_icall_VisualServer_skeleton_get_bone_count_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->skeleton_get_bone_count(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->skeleton_get_bone_count(*arg1);
     return static_cast<int32_t>(ret);
 }
 
@@ -44986,13 +44986,13 @@ void godot_icall_VisualServer_skeleton_bone_set_transform_107e50a2(Object * ptr,
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Transform arg3_in = MARSHALLED_IN(Transform, arg3);
-    static_cast<VisualServer *>(ptr)->skeleton_bone_set_transform(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->skeleton_bone_set_transform(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_skeleton_bone_get_transform_5be89b94(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->skeleton_bone_get_transform(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->skeleton_bone_get_transform(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
@@ -45000,538 +45000,538 @@ void godot_icall_VisualServer_skeleton_bone_set_transform_2d_87074d30(Object * p
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     Transform2D arg3_in = MARSHALLED_IN(Transform2D, arg3);
-    static_cast<VisualServer *>(ptr)->skeleton_bone_set_transform_2d(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->skeleton_bone_set_transform_2d(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_skeleton_bone_get_transform_2d_61871ef9(Object * ptr, RID* arg1, int32_t arg2, GDMonoMarshal::M_Transform2D* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->skeleton_bone_get_transform_2d(*arg1, arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->skeleton_bone_get_transform_2d(*arg1, arg2_in);
     *arg_ret = MARSHALLED_OUT(Transform2D, ret);
 }
 
 RID* godot_icall_VisualServer_directional_light_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->directional_light_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->directional_light_create();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_omni_light_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->omni_light_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->omni_light_create();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_spot_light_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->spot_light_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->spot_light_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_light_set_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->light_set_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_param_8508d4e6(Object * ptr, RID* arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     float arg3_in = static_cast<float>(*arg3);
-    static_cast<VisualServer *>(ptr)->light_set_param(*arg1, (VS::LightParam)arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->light_set_param(*arg1, (RS::LightParam)arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_light_set_shadow_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->light_set_shadow(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_shadow(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_shadow_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->light_set_shadow_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_shadow_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_projector_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->light_set_projector(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->light_set_projector(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_light_set_negative_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->light_set_negative(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_negative(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_cull_mask_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->light_set_cull_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_cull_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_reverse_cull_face_mode_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->light_set_reverse_cull_face_mode(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_reverse_cull_face_mode(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_set_use_gi_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->light_set_use_gi(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_set_use_gi(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_omni_set_shadow_mode_b4802e47(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->light_omni_set_shadow_mode(*arg1, (VS::LightOmniShadowMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_omni_set_shadow_mode(*arg1, (RS::LightOmniShadowMode)arg2_in);
 }
 
 void godot_icall_VisualServer_light_omni_set_shadow_detail_3763f70d(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->light_omni_set_shadow_detail(*arg1, (VS::LightOmniShadowDetail)arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_omni_set_shadow_detail(*arg1, (RS::LightOmniShadowDetail)arg2_in);
 }
 
 void godot_icall_VisualServer_light_directional_set_shadow_mode_b83eebe(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->light_directional_set_shadow_mode(*arg1, (VS::LightDirectionalShadowMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_directional_set_shadow_mode(*arg1, (RS::LightDirectionalShadowMode)arg2_in);
 }
 
 void godot_icall_VisualServer_light_directional_set_blend_splits_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->light_directional_set_blend_splits(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_directional_set_blend_splits(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_light_directional_set_shadow_depth_range_mode_8a710de8(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->light_directional_set_shadow_depth_range_mode(*arg1, (VS::LightDirectionalShadowDepthRangeMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->light_directional_set_shadow_depth_range_mode(*arg1, (RS::LightDirectionalShadowDepthRangeMode)arg2_in);
 }
 
 RID* godot_icall_VisualServer_reflection_probe_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->reflection_probe_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->reflection_probe_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_reflection_probe_set_update_mode_18f1538c(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_update_mode(*arg1, (VS::ReflectionProbeUpdateMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_update_mode(*arg1, (RS::ReflectionProbeUpdateMode)arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_intensity_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_intensity(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_intensity(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_interior_ambient_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_interior_ambient(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_interior_ambient(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_interior_ambient_energy_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_interior_ambient_energy(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_interior_ambient_energy(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_interior_ambient_probe_contribution_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_interior_ambient_probe_contribution(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_interior_ambient_probe_contribution(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_max_distance_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_max_distance(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_max_distance(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_extents_832e4d15(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector3* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_extents(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_extents(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_origin_offset_832e4d15(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector3* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_origin_offset(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_origin_offset(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_as_interior_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_as_interior(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_as_interior(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_enable_box_projection_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_enable_box_projection(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_enable_box_projection(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_enable_shadows_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_enable_shadows(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_enable_shadows(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_reflection_probe_set_cull_mask_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->reflection_probe_set_cull_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->reflection_probe_set_cull_mask(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_gi_probe_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_gi_probe_set_bounds_119d5c29(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg2) {
     ERR_FAIL_NULL(ptr);
     AABB arg2_in = MARSHALLED_IN(AABB, arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_bounds(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_bounds(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_bounds_52100836(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_bounds(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_bounds(*arg1);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualServer_gi_probe_set_cell_size_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_cell_size(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_cell_size(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_cell_size_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_cell_size(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_cell_size(*arg1);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualServer_gi_probe_set_to_cell_xform_8bd903e9(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_to_cell_xform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_to_cell_xform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_to_cell_xform_8fc9bb26(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_to_cell_xform(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_to_cell_xform(*arg1);
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 void godot_icall_VisualServer_gi_probe_set_dynamic_data_15f60597(Object * ptr, RID* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     PoolIntArray arg2_in = GDMonoMarshal::mono_array_to_PoolIntArray(arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_dynamic_data(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_dynamic_data(*arg1, arg2_in);
 }
 
 MonoArray* godot_icall_VisualServer_gi_probe_get_dynamic_data_be6d4707(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_dynamic_data(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_dynamic_data(*arg1);
     return GDMonoMarshal::PoolIntArray_to_mono_array(ret);
 }
 
 void godot_icall_VisualServer_gi_probe_set_dynamic_range_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_dynamic_range(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_dynamic_range(*arg1, arg2_in);
 }
 
 int32_t godot_icall_VisualServer_gi_probe_get_dynamic_range_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_dynamic_range(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_dynamic_range(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_gi_probe_set_energy_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_energy(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_energy(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_energy_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_energy(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_energy(*arg1);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualServer_gi_probe_set_bias_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_bias(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_bias(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_bias_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_bias(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_bias(*arg1);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualServer_gi_probe_set_normal_bias_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_normal_bias(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_normal_bias(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_normal_bias_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_normal_bias(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_normal_bias(*arg1);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualServer_gi_probe_set_propagation_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_propagation(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_propagation(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_gi_probe_get_propagation_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_get_propagation(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_get_propagation(*arg1);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_VisualServer_gi_probe_set_interior_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_interior(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_interior(*arg1, arg2_in);
 }
 
 MonoBoolean godot_icall_VisualServer_gi_probe_is_interior_36cc12b4(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_is_interior(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_is_interior(*arg1);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualServer_gi_probe_set_compress_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->gi_probe_set_compress(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->gi_probe_set_compress(*arg1, arg2_in);
 }
 
 MonoBoolean godot_icall_VisualServer_gi_probe_is_compressed_36cc12b4(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisualServer *>(ptr)->gi_probe_is_compressed(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->gi_probe_is_compressed(*arg1);
     return static_cast<MonoBoolean>(ret);
 }
 
 RID* godot_icall_VisualServer_lightmap_capture_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_lightmap_capture_set_bounds_119d5c29(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg2) {
     ERR_FAIL_NULL(ptr);
     AABB arg2_in = MARSHALLED_IN(AABB, arg2);
-    static_cast<VisualServer *>(ptr)->lightmap_capture_set_bounds(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->lightmap_capture_set_bounds(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_lightmap_capture_get_bounds_52100836(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_get_bounds(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_get_bounds(*arg1);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualServer_lightmap_capture_set_octree_36cf44fe(Object * ptr, RID* arg1, MonoArray* arg2) {
     ERR_FAIL_NULL(ptr);
     PoolByteArray arg2_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg2);
-    static_cast<VisualServer *>(ptr)->lightmap_capture_set_octree(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->lightmap_capture_set_octree(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_lightmap_capture_set_octree_cell_transform_8bd903e9(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<VisualServer *>(ptr)->lightmap_capture_set_octree_cell_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->lightmap_capture_set_octree_cell_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_lightmap_capture_get_octree_cell_transform_8fc9bb26(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_get_octree_cell_transform(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_get_octree_cell_transform(*arg1);
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 void godot_icall_VisualServer_lightmap_capture_set_octree_cell_subdiv_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->lightmap_capture_set_octree_cell_subdiv(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->lightmap_capture_set_octree_cell_subdiv(*arg1, arg2_in);
 }
 
 int32_t godot_icall_VisualServer_lightmap_capture_get_octree_cell_subdiv_f1d0c933(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_get_octree_cell_subdiv(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_get_octree_cell_subdiv(*arg1);
     return static_cast<int32_t>(ret);
 }
 
 MonoArray* godot_icall_VisualServer_lightmap_capture_get_octree_4aec9864(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_get_octree(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_get_octree(*arg1);
     return GDMonoMarshal::PoolByteArray_to_mono_array(ret);
 }
 
 void godot_icall_VisualServer_lightmap_capture_set_energy_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->lightmap_capture_set_energy(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->lightmap_capture_set_energy(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_lightmap_capture_get_energy_8194d7a8(Object * ptr, RID* arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->lightmap_capture_get_energy(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->lightmap_capture_get_energy(*arg1);
     *arg_ret = (float)ret;
 }
 
 RID* godot_icall_VisualServer_particles_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->particles_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->particles_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_particles_set_emitting_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_emitting(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_emitting(*arg1, arg2_in);
 }
 
 MonoBoolean godot_icall_VisualServer_particles_get_emitting_36cc12b4(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisualServer *>(ptr)->particles_get_emitting(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->particles_get_emitting(*arg1);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualServer_particles_set_amount_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_amount(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_amount(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_lifetime_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_lifetime(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_lifetime(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_one_shot_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_one_shot(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_one_shot(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_pre_process_time_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_pre_process_time(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_pre_process_time(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_explosiveness_ratio_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_explosiveness_ratio(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_explosiveness_ratio(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_randomness_ratio_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_randomness_ratio(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_randomness_ratio(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_custom_aabb_119d5c29(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg2) {
     ERR_FAIL_NULL(ptr);
     AABB arg2_in = MARSHALLED_IN(AABB, arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_custom_aabb(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_custom_aabb(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_speed_scale_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_speed_scale(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_speed_scale(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_use_local_coordinates_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_use_local_coordinates(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_use_local_coordinates(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_process_material_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->particles_set_process_material(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->particles_set_process_material(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_particles_set_fixed_fps_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_fixed_fps(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_fixed_fps(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_fractional_delta_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_fractional_delta(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_fractional_delta(*arg1, arg2_in);
 }
 
 MonoBoolean godot_icall_VisualServer_particles_is_inactive_36cc12b4(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisualServer *>(ptr)->particles_is_inactive(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->particles_is_inactive(*arg1);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualServer_particles_request_process_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->particles_request_process(*arg1);
+    static_cast<RenderingServer *>(ptr)->particles_request_process(*arg1);
 }
 
 void godot_icall_VisualServer_particles_restart_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->particles_restart(*arg1);
+    static_cast<RenderingServer *>(ptr)->particles_restart(*arg1);
 }
 
 void godot_icall_VisualServer_particles_set_draw_order_2116323a(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_draw_order(*arg1, (VS::ParticlesDrawOrder)arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_draw_order(*arg1, (RS::ParticlesDrawOrder)arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_draw_passes_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_draw_passes(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_draw_passes(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_particles_set_draw_pass_mesh_ee265321(Object * ptr, RID* arg1, int32_t arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_draw_pass_mesh(*arg1, arg2_in, *arg3);
+    static_cast<RenderingServer *>(ptr)->particles_set_draw_pass_mesh(*arg1, arg2_in, *arg3);
 }
 
 void godot_icall_VisualServer_particles_get_current_aabb_52100836(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualServer *>(ptr)->particles_get_current_aabb(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->particles_get_current_aabb(*arg1);
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualServer_particles_set_emission_transform_8bd903e9(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<VisualServer *>(ptr)->particles_set_emission_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->particles_set_emission_transform(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_camera_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->camera_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->camera_create();
     return memnew(RID(ret));
 }
 
@@ -45540,7 +45540,7 @@ void godot_icall_VisualServer_camera_set_perspective_2ce495d3(Object * ptr, RID*
     float arg2_in = static_cast<float>(*arg2);
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
-    static_cast<VisualServer *>(ptr)->camera_set_perspective(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_perspective(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_camera_set_orthogonal_2ce495d3(Object * ptr, RID* arg1, float* arg2, float* arg3, float* arg4) {
@@ -45548,7 +45548,7 @@ void godot_icall_VisualServer_camera_set_orthogonal_2ce495d3(Object * ptr, RID* 
     float arg2_in = static_cast<float>(*arg2);
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
-    static_cast<VisualServer *>(ptr)->camera_set_orthogonal(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_orthogonal(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_camera_set_frustum_4f380ef6(Object * ptr, RID* arg1, float* arg2, GDMonoMarshal::M_Vector2* arg3, float* arg4, float* arg5) {
@@ -45557,262 +45557,262 @@ void godot_icall_VisualServer_camera_set_frustum_4f380ef6(Object * ptr, RID* arg
     Vector2 arg3_in = MARSHALLED_IN(Vector2, arg3);
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
-    static_cast<VisualServer *>(ptr)->camera_set_frustum(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_frustum(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
 }
 
 void godot_icall_VisualServer_camera_set_transform_8bd903e9(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<VisualServer *>(ptr)->camera_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_camera_set_cull_mask_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->camera_set_cull_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_cull_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_camera_set_environment_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->camera_set_environment(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->camera_set_environment(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_camera_set_use_vertical_aspect_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->camera_set_use_vertical_aspect(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->camera_set_use_vertical_aspect(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_viewport_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->viewport_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->viewport_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_viewport_set_use_arvr_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_use_arvr(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_use_arvr(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_size_95c34a97(Object * ptr, RID* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->viewport_set_size(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_size(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_viewport_set_active_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_active(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_active(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_parent_viewport_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_set_parent_viewport(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->viewport_set_parent_viewport(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_viewport_attach_to_screen_d383bf44(Object * ptr, RID* arg1, GDMonoMarshal::M_Rect2* arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     Rect2 arg2_in = MARSHALLED_IN(Rect2, arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->viewport_attach_to_screen(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->viewport_attach_to_screen(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_viewport_set_render_direct_to_screen_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_render_direct_to_screen(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_render_direct_to_screen(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_detach_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_detach(*arg1);
+    static_cast<RenderingServer *>(ptr)->viewport_detach(*arg1);
 }
 
 void godot_icall_VisualServer_viewport_set_update_mode_bad8d8b7(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_update_mode(*arg1, (VS::ViewportUpdateMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_update_mode(*arg1, (RS::ViewportUpdateMode)arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_vflip_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_vflip(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_vflip(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_clear_mode_1216a651(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_clear_mode(*arg1, (VS::ViewportClearMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_clear_mode(*arg1, (RS::ViewportClearMode)arg2_in);
 }
 
 RID* godot_icall_VisualServer_viewport_get_texture_c09e26c0(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->viewport_get_texture(*arg1);
+    auto ret = static_cast<RenderingServer *>(ptr)->viewport_get_texture(*arg1);
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_viewport_set_hide_scenario_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_hide_scenario(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_hide_scenario(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_hide_canvas_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_hide_canvas(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_hide_canvas(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_disable_environment_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_disable_environment(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_disable_environment(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_disable_3d_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_disable_3d(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_disable_3d(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_attach_camera_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_attach_camera(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->viewport_attach_camera(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_viewport_set_scenario_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_set_scenario(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->viewport_set_scenario(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_viewport_attach_canvas_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_attach_canvas(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->viewport_attach_canvas(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_viewport_remove_canvas_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->viewport_remove_canvas(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->viewport_remove_canvas(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_viewport_set_canvas_transform_f5bd827b(Object * ptr, RID* arg1, RID* arg2, GDMonoMarshal::M_Transform2D* arg3) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg3_in = MARSHALLED_IN(Transform2D, arg3);
-    static_cast<VisualServer *>(ptr)->viewport_set_canvas_transform(*arg1, *arg2, arg3_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_canvas_transform(*arg1, *arg2, arg3_in);
 }
 
 void godot_icall_VisualServer_viewport_set_transparent_background_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_transparent_background(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_transparent_background(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_global_canvas_transform_31203f57(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform2D* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_global_canvas_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_global_canvas_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_canvas_stacking_7c21f2b4(Object * ptr, RID* arg1, RID* arg2, int32_t arg3, int32_t arg4) {
     ERR_FAIL_NULL(ptr);
     int32_t arg3_in = static_cast<int32_t>(arg3);
     int32_t arg4_in = static_cast<int32_t>(arg4);
-    static_cast<VisualServer *>(ptr)->viewport_set_canvas_stacking(*arg1, *arg2, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_canvas_stacking(*arg1, *arg2, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_viewport_set_shadow_atlas_size_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_shadow_atlas_size(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_shadow_atlas_size(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_shadow_atlas_quadrant_subdivision_95c34a97(Object * ptr, RID* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->viewport_set_shadow_atlas_quadrant_subdivision(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_shadow_atlas_quadrant_subdivision(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_viewport_set_msaa_f70eaa53(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_msaa(*arg1, (VS::ViewportMSAA)arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_msaa(*arg1, (RS::ViewportMSAA)arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_hdr_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_hdr(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_hdr(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_viewport_set_usage_baeacd0a(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_usage(*arg1, (VS::ViewportUsage)arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_usage(*arg1, (RS::ViewportUsage)arg2_in);
 }
 
 int32_t godot_icall_VisualServer_viewport_get_render_info_2b622867(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->viewport_get_render_info(*arg1, (VS::ViewportRenderInfo)arg2_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->viewport_get_render_info(*arg1, (RS::ViewportRenderInfo)arg2_in);
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_VisualServer_viewport_set_debug_draw_99186904(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->viewport_set_debug_draw(*arg1, (VS::ViewportDebugDraw)arg2_in);
+    static_cast<RenderingServer *>(ptr)->viewport_set_debug_draw(*arg1, (RS::ViewportDebugDraw)arg2_in);
 }
 
 RID* godot_icall_VisualServer_environment_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->environment_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->environment_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_environment_set_background_44fcf58b(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_background(*arg1, (VS::EnvironmentBG)arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_background(*arg1, (RS::EnvironmentBG)arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_sky_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->environment_set_sky(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->environment_set_sky(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_environment_set_sky_custom_fov_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_sky_custom_fov(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_sky_custom_fov(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_sky_orientation_77266e47(Object * ptr, RID* arg1, GDMonoMarshal::M_Basis* arg2) {
     ERR_FAIL_NULL(ptr);
     Basis arg2_in = MARSHALLED_IN(Basis, arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_sky_orientation(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_sky_orientation(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_bg_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_bg_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_bg_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_bg_energy_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_bg_energy(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_bg_energy(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_canvas_max_layer_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->environment_set_canvas_max_layer(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_canvas_max_layer(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_environment_set_ambient_light_db2fa099(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2, float* arg3, float* arg4) {
@@ -45820,7 +45820,7 @@ void godot_icall_VisualServer_environment_set_ambient_light_db2fa099(Object * pt
     Color arg2_in = MARSHALLED_IN(Color, arg2);
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
-    static_cast<VisualServer *>(ptr)->environment_set_ambient_light(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_ambient_light(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_environment_set_dof_blur_near_e2a0d508(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5, int32_t arg6) {
@@ -45830,7 +45830,7 @@ void godot_icall_VisualServer_environment_set_dof_blur_near_e2a0d508(Object * pt
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
     int32_t arg6_in = static_cast<int32_t>(arg6);
-    static_cast<VisualServer *>(ptr)->environment_set_dof_blur_near(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, (VS::EnvironmentDOFBlurQuality)arg6_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_dof_blur_near(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, (RS::EnvironmentDOFBlurQuality)arg6_in);
 }
 
 void godot_icall_VisualServer_environment_set_dof_blur_far_e2a0d508(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5, int32_t arg6) {
@@ -45840,7 +45840,7 @@ void godot_icall_VisualServer_environment_set_dof_blur_far_e2a0d508(Object * ptr
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
     int32_t arg6_in = static_cast<int32_t>(arg6);
-    static_cast<VisualServer *>(ptr)->environment_set_dof_blur_far(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, (VS::EnvironmentDOFBlurQuality)arg6_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_dof_blur_far(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, (RS::EnvironmentDOFBlurQuality)arg6_in);
 }
 
 void godot_icall_VisualServer_environment_set_glow_992e7e68(Object * ptr, RID* arg1, MonoBoolean arg2, int32_t arg3, float* arg4, float* arg5, float* arg6, int32_t arg7, float* arg8, float* arg9, float* arg10, MonoBoolean arg11) {
@@ -45855,7 +45855,7 @@ void godot_icall_VisualServer_environment_set_glow_992e7e68(Object * ptr, RID* a
     float arg9_in = static_cast<float>(*arg9);
     float arg10_in = static_cast<float>(*arg10);
     bool arg11_in = static_cast<bool>(arg11);
-    static_cast<VisualServer *>(ptr)->environment_set_glow(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, (VS::EnvironmentGlowBlendMode)arg7_in, arg8_in, arg9_in, arg10_in, arg11_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_glow(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, (RS::EnvironmentGlowBlendMode)arg7_in, arg8_in, arg9_in, arg10_in, arg11_in);
 }
 
 void godot_icall_VisualServer_environment_set_tonemap_42b444ac(Object * ptr, RID* arg1, int32_t arg2, float* arg3, float* arg4, MonoBoolean arg5, float* arg6, float* arg7, float* arg8, float* arg9) {
@@ -45868,7 +45868,7 @@ void godot_icall_VisualServer_environment_set_tonemap_42b444ac(Object * ptr, RID
     float arg7_in = static_cast<float>(*arg7);
     float arg8_in = static_cast<float>(*arg8);
     float arg9_in = static_cast<float>(*arg9);
-    static_cast<VisualServer *>(ptr)->environment_set_tonemap(*arg1, (VS::EnvironmentToneMapper)arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_tonemap(*arg1, (RS::EnvironmentToneMapper)arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in);
 }
 
 void godot_icall_VisualServer_environment_set_adjustment_4e39fe6d(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5, RID* arg6) {
@@ -45877,7 +45877,7 @@ void godot_icall_VisualServer_environment_set_adjustment_4e39fe6d(Object * ptr, 
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
-    static_cast<VisualServer *>(ptr)->environment_set_adjustment(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, *arg6);
+    static_cast<RenderingServer *>(ptr)->environment_set_adjustment(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, *arg6);
 }
 
 void godot_icall_VisualServer_environment_set_ssr_9d280ac6(Object * ptr, RID* arg1, MonoBoolean arg2, int32_t arg3, float* arg4, float* arg5, float* arg6, MonoBoolean arg7) {
@@ -45888,7 +45888,7 @@ void godot_icall_VisualServer_environment_set_ssr_9d280ac6(Object * ptr, RID* ar
     float arg5_in = static_cast<float>(*arg5);
     float arg6_in = static_cast<float>(*arg6);
     bool arg7_in = static_cast<bool>(arg7);
-    static_cast<VisualServer *>(ptr)->environment_set_ssr(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_ssr(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in);
 }
 
 void godot_icall_VisualServer_environment_set_ssao_fef26a51(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5, float* arg6, float* arg7, float* arg8, float* arg9, GDMonoMarshal::M_Color* arg10, int32_t arg11, int32_t arg12, float* arg13) {
@@ -45905,7 +45905,7 @@ void godot_icall_VisualServer_environment_set_ssao_fef26a51(Object * ptr, RID* a
     int32_t arg11_in = static_cast<int32_t>(arg11);
     int32_t arg12_in = static_cast<int32_t>(arg12);
     float arg13_in = static_cast<float>(*arg13);
-    static_cast<VisualServer *>(ptr)->environment_set_ssao(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in, arg10_in, (VS::EnvironmentSSAOQuality)arg11_in, (VS::EnvironmentSSAOBlur)arg12_in, arg13_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_ssao(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in, arg8_in, arg9_in, arg10_in, (RS::EnvironmentSSAOQuality)arg11_in, (RS::EnvironmentSSAOBlur)arg12_in, arg13_in);
 }
 
 void godot_icall_VisualServer_environment_set_fog_c4839c63(Object * ptr, RID* arg1, MonoBoolean arg2, GDMonoMarshal::M_Color* arg3, GDMonoMarshal::M_Color* arg4, float* arg5) {
@@ -45914,7 +45914,7 @@ void godot_icall_VisualServer_environment_set_fog_c4839c63(Object * ptr, RID* ar
     Color arg3_in = MARSHALLED_IN(Color, arg3);
     Color arg4_in = MARSHALLED_IN(Color, arg4);
     float arg5_in = static_cast<float>(*arg5);
-    static_cast<VisualServer *>(ptr)->environment_set_fog(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_fog(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
 }
 
 void godot_icall_VisualServer_environment_set_fog_depth_9c4190e4(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5, MonoBoolean arg6, float* arg7) {
@@ -45925,7 +45925,7 @@ void godot_icall_VisualServer_environment_set_fog_depth_9c4190e4(Object * ptr, R
     float arg5_in = static_cast<float>(*arg5);
     bool arg6_in = static_cast<bool>(arg6);
     float arg7_in = static_cast<float>(*arg7);
-    static_cast<VisualServer *>(ptr)->environment_set_fog_depth(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_fog_depth(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in, arg7_in);
 }
 
 void godot_icall_VisualServer_environment_set_fog_height_25765caf(Object * ptr, RID* arg1, MonoBoolean arg2, float* arg3, float* arg4, float* arg5) {
@@ -45934,135 +45934,135 @@ void godot_icall_VisualServer_environment_set_fog_height_25765caf(Object * ptr, 
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
-    static_cast<VisualServer *>(ptr)->environment_set_fog_height(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
+    static_cast<RenderingServer *>(ptr)->environment_set_fog_height(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
 }
 
 RID* godot_icall_VisualServer_scenario_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->scenario_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->scenario_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_scenario_set_debug_35ba1cb3(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->scenario_set_debug(*arg1, (VS::ScenarioDebugMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->scenario_set_debug(*arg1, (RS::ScenarioDebugMode)arg2_in);
 }
 
 void godot_icall_VisualServer_scenario_set_environment_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->scenario_set_environment(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->scenario_set_environment(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_scenario_set_reflection_atlas_size_95c34a97(Object * ptr, RID* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->scenario_set_reflection_atlas_size(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->scenario_set_reflection_atlas_size(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_scenario_set_fallback_environment_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->scenario_set_fallback_environment(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->scenario_set_fallback_environment(*arg1, *arg2);
 }
 
 RID* godot_icall_VisualServer_instance_create2_9c923f47(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->instance_create2(*arg1, *arg2);
+    auto ret = static_cast<RenderingServer *>(ptr)->instance_create2(*arg1, *arg2);
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_instance_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->instance_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->instance_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_instance_set_base_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_set_base(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->instance_set_base(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_instance_set_scenario_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_set_scenario(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->instance_set_scenario(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_instance_set_layer_mask_7aa831af(Object * ptr, RID* arg1, uint32_t arg2) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg2_in = static_cast<uint32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_layer_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_layer_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_set_transform_8bd903e9(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_attach_object_instance_id_73956c1a(Object * ptr, RID* arg1, uint64_t* arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg2_in = static_cast<int64_t>(*arg2);
-    static_cast<VisualServer *>(ptr)->instance_attach_object_instance_id(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_attach_object_instance_id(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_set_blend_shape_weight_c69fe5ac(Object * ptr, RID* arg1, int32_t arg2, float* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     float arg3_in = static_cast<float>(*arg3);
-    static_cast<VisualServer *>(ptr)->instance_set_blend_shape_weight(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_blend_shape_weight(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_instance_set_surface_material_ee265321(Object * ptr, RID* arg1, int32_t arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_surface_material(*arg1, arg2_in, *arg3);
+    static_cast<RenderingServer *>(ptr)->instance_set_surface_material(*arg1, arg2_in, *arg3);
 }
 
 void godot_icall_VisualServer_instance_set_visible_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_visible(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_visible(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_set_use_lightmap_5e9a7854(Object * ptr, RID* arg1, RID* arg2, RID* arg3) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_set_use_lightmap(*arg1, *arg2, *arg3);
+    static_cast<RenderingServer *>(ptr)->instance_set_use_lightmap(*arg1, *arg2, *arg3);
 }
 
 void godot_icall_VisualServer_instance_set_custom_aabb_119d5c29(Object * ptr, RID* arg1, GDMonoMarshal::M_AABB* arg2) {
     ERR_FAIL_NULL(ptr);
     AABB arg2_in = MARSHALLED_IN(AABB, arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_custom_aabb(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_custom_aabb(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_attach_skeleton_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_attach_skeleton(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->instance_attach_skeleton(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_instance_set_extra_visibility_margin_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->instance_set_extra_visibility_margin(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_set_extra_visibility_margin(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_instance_geometry_set_flag_5bd5be2(Object * ptr, RID* arg1, int32_t arg2, MonoBoolean arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     bool arg3_in = static_cast<bool>(arg3);
-    static_cast<VisualServer *>(ptr)->instance_geometry_set_flag(*arg1, (VS::InstanceFlags)arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->instance_geometry_set_flag(*arg1, (RS::InstanceFlags)arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_instance_geometry_set_cast_shadows_setting_4480f47e(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->instance_geometry_set_cast_shadows_setting(*arg1, (VS::ShadowCastingSetting)arg2_in);
+    static_cast<RenderingServer *>(ptr)->instance_geometry_set_cast_shadows_setting(*arg1, (RS::ShadowCastingSetting)arg2_in);
 }
 
 void godot_icall_VisualServer_instance_geometry_set_material_override_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_geometry_set_material_override(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->instance_geometry_set_material_override(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_instance_geometry_set_draw_range_1d967e45(Object * ptr, RID* arg1, float* arg2, float* arg3, float* arg4, float* arg5) {
@@ -46071,18 +46071,18 @@ void godot_icall_VisualServer_instance_geometry_set_draw_range_1d967e45(Object *
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
     float arg5_in = static_cast<float>(*arg5);
-    static_cast<VisualServer *>(ptr)->instance_geometry_set_draw_range(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
+    static_cast<RenderingServer *>(ptr)->instance_geometry_set_draw_range(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
 }
 
 void godot_icall_VisualServer_instance_geometry_set_as_instance_lod_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->instance_geometry_set_as_instance_lod(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->instance_geometry_set_as_instance_lod(*arg1, *arg2);
 }
 
 Array* godot_icall_VisualServer_instances_cull_aabb_2b028f03(Object * ptr, GDMonoMarshal::M_AABB* arg1, RID* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
     AABB arg1_in = MARSHALLED_IN(AABB, arg1);
-    auto ret = static_cast<VisualServer *>(ptr)->_instances_cull_aabb_bind(arg1_in, *arg2);
+    auto ret = static_cast<RenderingServer *>(ptr)->_instances_cull_aabb_bind(arg1_in, *arg2);
     return memnew(Array(ret));
 }
 
@@ -46090,98 +46090,98 @@ Array* godot_icall_VisualServer_instances_cull_ray_bf50cee2(Object * ptr, GDMono
     ERR_FAIL_NULL_V(ptr, NULL);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    auto ret = static_cast<VisualServer *>(ptr)->_instances_cull_ray_bind(arg1_in, arg2_in, *arg3);
+    auto ret = static_cast<RenderingServer *>(ptr)->_instances_cull_ray_bind(arg1_in, arg2_in, *arg3);
     return memnew(Array(ret));
 }
 
 Array* godot_icall_VisualServer_instances_cull_convex_1c79d9ea(Object * ptr, Array* arg1, RID* arg2) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->_instances_cull_convex_bind(*arg1, *arg2);
+    auto ret = static_cast<RenderingServer *>(ptr)->_instances_cull_convex_bind(*arg1, *arg2);
     return memnew(Array(Variant::from(ret)));
 }
 
 RID* godot_icall_VisualServer_canvas_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->canvas_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->canvas_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_canvas_set_item_mirroring_3c7b404(Object * ptr, RID* arg1, RID* arg2, GDMonoMarshal::M_Vector2* arg3) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg3_in = MARSHALLED_IN(Vector2, arg3);
-    static_cast<VisualServer *>(ptr)->canvas_set_item_mirroring(*arg1, *arg2, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_set_item_mirroring(*arg1, *arg2, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_set_modulate_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_set_modulate(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_set_modulate(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_canvas_item_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->canvas_item_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->canvas_item_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_canvas_item_set_parent_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_parent(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_parent(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_item_set_visible_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_visible(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_visible(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_light_mask_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_light_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_light_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_transform_31203f57(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform2D* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_clip_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_clip(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_clip(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_distance_field_mode_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_distance_field_mode(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_distance_field_mode(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_custom_rect_986bcedd(Object * ptr, RID* arg1, MonoBoolean arg2, GDMonoMarshal::M_Rect2* arg3) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
     Rect2 arg3_in = MARSHALLED_IN(Rect2, arg3);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_custom_rect(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_custom_rect(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_modulate_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_modulate(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_modulate(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_self_modulate_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_self_modulate(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_self_modulate(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_draw_behind_parent_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_draw_behind_parent(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_draw_behind_parent(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_line_43ef7a80(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2, GDMonoMarshal::M_Vector2* arg3, GDMonoMarshal::M_Color* arg4, float* arg5, MonoBoolean arg6) {
@@ -46191,7 +46191,7 @@ void godot_icall_VisualServer_canvas_item_add_line_43ef7a80(Object * ptr, RID* a
     Color arg4_in = MARSHALLED_IN(Color, arg4);
     float arg5_in = static_cast<float>(*arg5);
     bool arg6_in = static_cast<bool>(arg6);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_line(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_line(*arg1, arg2_in, arg3_in, arg4_in, arg5_in, arg6_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_polyline_6e0e11b1(Object * ptr, RID* arg1, MonoArray* arg2, MonoArray* arg3, float* arg4, MonoBoolean arg5) {
@@ -46200,14 +46200,14 @@ void godot_icall_VisualServer_canvas_item_add_polyline_6e0e11b1(Object * ptr, RI
     auto arg3_in = GDMonoMarshal::mono_array_to_NC_VecColor(arg3);
     float arg4_in = static_cast<float>(*arg4);
     bool arg5_in = static_cast<bool>(arg5);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_polyline(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_polyline(*arg1, arg2_in, arg3_in, arg4_in, arg5_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_rect_e27e994e(Object * ptr, RID* arg1, GDMonoMarshal::M_Rect2* arg2, GDMonoMarshal::M_Color* arg3) {
     ERR_FAIL_NULL(ptr);
     Rect2 arg2_in = MARSHALLED_IN(Rect2, arg2);
     Color arg3_in = MARSHALLED_IN(Color, arg3);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_rect(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_rect(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_circle_2636f0ec(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2, float* arg3, GDMonoMarshal::M_Color* arg4) {
@@ -46215,7 +46215,7 @@ void godot_icall_VisualServer_canvas_item_add_circle_2636f0ec(Object * ptr, RID*
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
     float arg3_in = static_cast<float>(*arg3);
     Color arg4_in = MARSHALLED_IN(Color, arg4);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_circle(*arg1, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_circle(*arg1, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_texture_rect_797e8552(Object * ptr, RID* arg1, GDMonoMarshal::M_Rect2* arg2, RID* arg3, MonoBoolean arg4, GDMonoMarshal::M_Color* arg5, MonoBoolean arg6, RID* arg7) {
@@ -46224,7 +46224,7 @@ void godot_icall_VisualServer_canvas_item_add_texture_rect_797e8552(Object * ptr
     bool arg4_in = static_cast<bool>(arg4);
     Color arg5_in = MARSHALLED_IN(Color, arg5);
     bool arg6_in = static_cast<bool>(arg6);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_texture_rect(*arg1, arg2_in, *arg3, arg4_in, arg5_in, arg6_in, *arg7);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_texture_rect(*arg1, arg2_in, *arg3, arg4_in, arg5_in, arg6_in, *arg7);
 }
 
 void godot_icall_VisualServer_canvas_item_add_texture_rect_region_f589e103(Object * ptr, RID* arg1, GDMonoMarshal::M_Rect2* arg2, RID* arg3, GDMonoMarshal::M_Rect2* arg4, GDMonoMarshal::M_Color* arg5, MonoBoolean arg6, RID* arg7, MonoBoolean arg8) {
@@ -46234,7 +46234,7 @@ void godot_icall_VisualServer_canvas_item_add_texture_rect_region_f589e103(Objec
     Color arg5_in = MARSHALLED_IN(Color, arg5);
     bool arg6_in = static_cast<bool>(arg6);
     bool arg8_in = static_cast<bool>(arg8);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_texture_rect_region(*arg1, arg2_in, *arg3, arg4_in, arg5_in, arg6_in, *arg7, arg8_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_texture_rect_region(*arg1, arg2_in, *arg3, arg4_in, arg5_in, arg6_in, *arg7, arg8_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_nine_patch_1c8b0919(Object * ptr, RID* arg1, GDMonoMarshal::M_Rect2* arg2, GDMonoMarshal::M_Rect2* arg3, RID* arg4, GDMonoMarshal::M_Vector2* arg5, GDMonoMarshal::M_Vector2* arg6, int32_t arg7, int32_t arg8, MonoBoolean arg9, GDMonoMarshal::M_Color* arg10, RID* arg11) {
@@ -46247,8 +46247,8 @@ void godot_icall_VisualServer_canvas_item_add_nine_patch_1c8b0919(Object * ptr, 
     int32_t arg8_in = static_cast<int32_t>(arg8);
     bool arg9_in = static_cast<bool>(arg9);
     Color arg10_in = MARSHALLED_IN(Color, arg10);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_nine_patch(*arg1, arg2_in, arg3_in, *arg4, arg5_in, arg6_in,
-            (VS::NinePatchAxisMode)arg7_in, (VS::NinePatchAxisMode)arg8_in, arg9_in, arg10_in, *arg11);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_nine_patch(*arg1, arg2_in, arg3_in, *arg4, arg5_in, arg6_in,
+            (RS::NinePatchAxisMode)arg7_in, (RS::NinePatchAxisMode)arg8_in, arg9_in, arg10_in, *arg11);
 }
 
 void godot_icall_VisualServer_canvas_item_add_primitive_ddcd3815(Object * ptr, RID* arg1, MonoArray* arg2, MonoArray* arg3, MonoArray* arg4, RID* arg5, float* arg6, RID* arg7) {
@@ -46257,7 +46257,7 @@ void godot_icall_VisualServer_canvas_item_add_primitive_ddcd3815(Object * ptr, R
     PoolColorArray arg3_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg3);
     PoolVector2Array arg4_in = GDMonoMarshal::mono_array_to_PoolVector2Array(arg4);
     float arg6_in = static_cast<float>(*arg6);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_primitive(*arg1, arg2_in, arg3_in, arg4_in, *arg5, arg6_in, *arg7);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_primitive(*arg1, arg2_in, arg3_in, arg4_in, *arg5, arg6_in, *arg7);
 }
 
 void godot_icall_VisualServer_canvas_item_add_polygon_3746c075(Object * ptr, RID* arg1, Array* arg2, MonoArray* arg3, MonoArray* arg4, RID* arg5, RID* arg6, MonoBoolean arg7) {
@@ -46265,7 +46265,7 @@ void godot_icall_VisualServer_canvas_item_add_polygon_3746c075(Object * ptr, RID
     PoolColorArray arg3_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg3);
     PoolVector2Array arg4_in = GDMonoMarshal::mono_array_to_PoolVector2Array(arg4);
     bool arg7_in = static_cast<bool>(arg7);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_polygon(*arg1, asVec<Vector2>(*arg2), arg3_in, arg4_in, *arg5, *arg6, arg7_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_polygon(*arg1, asVec<Vector2>(*arg2), arg3_in, arg4_in, *arg5, *arg6, arg7_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_triangle_array_73226e70(Object * ptr, RID* arg1, MonoArray* arg2, Array* arg3, MonoArray* arg4, MonoArray* arg5, MonoArray* arg6, MonoArray* arg7, RID* arg8, int32_t arg9, RID* arg10, MonoBoolean arg11, MonoBoolean arg12) {
@@ -46278,248 +46278,248 @@ void godot_icall_VisualServer_canvas_item_add_triangle_array_73226e70(Object * p
     int32_t arg9_in = static_cast<int32_t>(arg9);
     bool arg11_in = static_cast<bool>(arg11);
     bool arg12_in = static_cast<bool>(arg12);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_triangle_array(*arg1, arg2_in, asVec<Vector2>(*arg3), arg4_in, arg5_in, arg6_in, arg7_in, *arg8, arg9_in, *arg10, arg11_in, arg12_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_triangle_array(*arg1, arg2_in, asVec<Vector2>(*arg3), arg4_in, arg5_in, arg6_in, arg7_in, *arg8, arg9_in, *arg10, arg11_in, arg12_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_mesh_9aacf2fa(Object * ptr, RID* arg1, RID* arg2, GDMonoMarshal::M_Transform2D* arg3, GDMonoMarshal::M_Color* arg4, RID* arg5, RID* arg6) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg3_in = MARSHALLED_IN(Transform2D, arg3);
     Color arg4_in = MARSHALLED_IN(Color, arg4);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_mesh(*arg1, *arg2, arg3_in, arg4_in, *arg5, *arg6);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_mesh(*arg1, *arg2, arg3_in, arg4_in, *arg5, *arg6);
 }
 
 void godot_icall_VisualServer_canvas_item_add_multimesh_9c05eab8(Object * ptr, RID* arg1, RID* arg2, RID* arg3, RID* arg4) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_multimesh(*arg1, *arg2, *arg3, *arg4);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_multimesh(*arg1, *arg2, *arg3, *arg4);
 }
 
 void godot_icall_VisualServer_canvas_item_add_particles_9c05eab8(Object * ptr, RID* arg1, RID* arg2, RID* arg3, RID* arg4) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_particles(*arg1, *arg2, *arg3, *arg4);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_particles(*arg1, *arg2, *arg3, *arg4);
 }
 
 void godot_icall_VisualServer_canvas_item_add_set_transform_31203f57(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform2D* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_add_clip_ignore_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_add_clip_ignore(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_add_clip_ignore(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_sort_children_by_y_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_sort_children_by_y(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_sort_children_by_y(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_z_index_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_z_index(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_z_index(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_z_as_relative_to_parent_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_z_as_relative_to_parent(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_z_as_relative_to_parent(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_copy_to_backbuffer_986bcedd(Object * ptr, RID* arg1, MonoBoolean arg2, GDMonoMarshal::M_Rect2* arg3) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
     Rect2 arg3_in = MARSHALLED_IN(Rect2, arg3);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_copy_to_backbuffer(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_copy_to_backbuffer(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_item_clear_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_item_clear(*arg1);
+    static_cast<RenderingServer *>(ptr)->canvas_item_clear(*arg1);
 }
 
 void godot_icall_VisualServer_canvas_item_set_draw_index_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_draw_index(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_draw_index(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_item_set_material_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_material(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_material(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_item_set_use_parent_material_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_item_set_use_parent_material(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_item_set_use_parent_material(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_canvas_light_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->canvas_light_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->canvas_light_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_canvas_light_attach_to_canvas_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_light_attach_to_canvas(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_light_attach_to_canvas(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_light_set_enabled_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_enabled(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_enabled(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_scale_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_scale(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_scale(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_transform_31203f57(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform2D* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_texture_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_texture(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_texture(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_light_set_texture_offset_832e4d14(Object * ptr, RID* arg1, GDMonoMarshal::M_Vector2* arg2) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_texture_offset(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_texture_offset(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_height_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_height(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_height(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_energy_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_energy(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_energy(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_z_range_95c34a97(Object * ptr, RID* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_z_range(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_z_range(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_layer_range_95c34a97(Object * ptr, RID* arg1, int32_t arg2, int32_t arg3) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_layer_range(*arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_layer_range(*arg1, arg2_in, arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_item_cull_mask_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_item_cull_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_item_cull_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_item_shadow_cull_mask_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_item_shadow_cull_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_item_shadow_cull_mask(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_mode_4bae9d4c(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_mode(*arg1, (VS::CanvasLightMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_mode(*arg1, (RS::CanvasLightMode)arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_enabled_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_enabled(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_enabled(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_buffer_size_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_buffer_size(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_buffer_size(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_gradient_length_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_gradient_length(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_gradient_length(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_filter_a083ca93(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_filter(*arg1, (VS::CanvasLightShadowFilter)arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_filter(*arg1, (RS::CanvasLightShadowFilter)arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_color_1e215388(Object * ptr, RID* arg1, GDMonoMarshal::M_Color* arg2) {
     ERR_FAIL_NULL(ptr);
     Color arg2_in = MARSHALLED_IN(Color, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_color(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_color(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_set_shadow_smooth_70bf90fb(Object * ptr, RID* arg1, float* arg2) {
     ERR_FAIL_NULL(ptr);
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_set_shadow_smooth(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_set_shadow_smooth(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_canvas_light_occluder_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->canvas_light_occluder_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->canvas_light_occluder_create();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualServer_canvas_light_occluder_attach_to_canvas_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_light_occluder_attach_to_canvas(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_light_occluder_attach_to_canvas(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_light_occluder_set_enabled_56de082b(Object * ptr, RID* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_occluder_set_enabled(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_occluder_set_enabled(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_occluder_set_polygon_48010164(Object * ptr, RID* arg1, RID* arg2) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->canvas_light_occluder_set_polygon(*arg1, *arg2);
+    static_cast<RenderingServer *>(ptr)->canvas_light_occluder_set_polygon(*arg1, *arg2);
 }
 
 void godot_icall_VisualServer_canvas_light_occluder_set_transform_31203f57(Object * ptr, RID* arg1, GDMonoMarshal::M_Transform2D* arg2) {
     ERR_FAIL_NULL(ptr);
     Transform2D arg2_in = MARSHALLED_IN(Transform2D, arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_occluder_set_transform(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_occluder_set_transform(*arg1, arg2_in);
 }
 
 void godot_icall_VisualServer_canvas_light_occluder_set_light_mask_f6439f2(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_light_occluder_set_light_mask(*arg1, arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_light_occluder_set_light_mask(*arg1, arg2_in);
 }
 
 RID* godot_icall_VisualServer_canvas_occluder_polygon_create_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_create();
+    auto ret = static_cast<RenderingServer *>(ptr)->canvas_occluder_polygon_create();
     return memnew(RID(ret));
 }
 
@@ -46528,19 +46528,19 @@ void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_f698a253(Object 
     bool arg3_in = static_cast<bool>(arg3);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
 
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, val.toSpan(), arg3_in);
+    static_cast<RenderingServer *>(ptr)->canvas_occluder_polygon_set_shape(*arg1, val.toSpan(), arg3_in);
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_shape_as_lines_c7e12dae(Object * ptr, RID* arg1, Array* arg2) {
     ERR_FAIL_NULL(ptr);
     auto val = Variant(*arg2).as<PoolVector<Vector2>>();
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, val.toSpan());
+    static_cast<RenderingServer *>(ptr)->canvas_occluder_polygon_set_shape_as_lines(*arg1, val.toSpan());
 }
 
 void godot_icall_VisualServer_canvas_occluder_polygon_set_cull_mode_1096e63d(Object * ptr, RID* arg1, int32_t arg2) {
     ERR_FAIL_NULL(ptr);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<VisualServer *>(ptr)->canvas_occluder_polygon_set_cull_mode(*arg1, (VS::CanvasOccluderPolygonCullMode)arg2_in);
+    static_cast<RenderingServer *>(ptr)->canvas_occluder_polygon_set_cull_mode(*arg1, (RS::CanvasOccluderPolygonCullMode)arg2_in);
 }
 
 void godot_icall_VisualServer_black_bars_set_margins_2b70940c(Object * ptr, int32_t arg1, int32_t arg2, int32_t arg3, int32_t arg4) {
@@ -46549,46 +46549,46 @@ void godot_icall_VisualServer_black_bars_set_margins_2b70940c(Object * ptr, int3
     int32_t arg2_in = static_cast<int32_t>(arg2);
     int32_t arg3_in = static_cast<int32_t>(arg3);
     int32_t arg4_in = static_cast<int32_t>(arg4);
-    static_cast<VisualServer *>(ptr)->black_bars_set_margins(arg1_in, arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->black_bars_set_margins(arg1_in, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_black_bars_set_images_9c05eab8(Object * ptr, RID* arg1, RID* arg2, RID* arg3, RID* arg4) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->black_bars_set_images(*arg1, *arg2, *arg3, *arg4);
+    static_cast<RenderingServer *>(ptr)->black_bars_set_images(*arg1, *arg2, *arg3, *arg4);
 }
 
 void godot_icall_VisualServer_free_rid_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->free_rid(*arg1);
+    static_cast<RenderingServer *>(ptr)->free_rid(*arg1);
 }
 
 void godot_icall_VisualServer_request_frame_drawn_callback_eca64843(Object * ptr, Object * arg1, MonoString* arg2, MonoObject* arg3) {
     ERR_FAIL_NULL(ptr);
     StringName arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
     Variant arg3_in = GDMonoMarshal::mono_object_to_variant(arg3);
-    static_cast<VisualServer *>(ptr)->request_frame_drawn_callback((Object*)arg1, arg2_in, arg3_in);
+    static_cast<RenderingServer *>(ptr)->request_frame_drawn_callback((Object*)arg1, arg2_in, arg3_in);
 }
 
 MonoBoolean godot_icall_VisualServer_has_changed_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisualServer *>(ptr)->has_changed();
+    auto ret = static_cast<RenderingServer *>(ptr)->has_changed();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualServer_init_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->init();
+    static_cast<RenderingServer *>(ptr)->init();
 }
 
 void godot_icall_VisualServer_finish_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualServer *>(ptr)->finish();
+    static_cast<RenderingServer *>(ptr)->finish();
 }
 
 int32_t godot_icall_VisualServer_get_render_info_c9bad872(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<VisualServer *>(ptr)->get_render_info((VS::RenderInfo)arg1_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->get_render_info((RS::RenderInfo)arg1_in);
     return static_cast<int32_t>(ret);
 }
 
@@ -46597,25 +46597,25 @@ RID* godot_icall_VisualServer_make_sphere_mesh_6732e4a6(Object * ptr, int32_t ar
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
     float arg3_in = static_cast<float>(*arg3);
-    auto ret = static_cast<VisualServer *>(ptr)->make_sphere_mesh(arg1_in, arg2_in, arg3_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->make_sphere_mesh(arg1_in, arg2_in, arg3_in);
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_get_test_cube_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->get_test_cube();
+    auto ret = static_cast<RenderingServer *>(ptr)->get_test_cube();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_get_test_texture_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->get_test_texture();
+    auto ret = static_cast<RenderingServer *>(ptr)->get_test_texture();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualServer_get_white_texture_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualServer *>(ptr)->get_white_texture();
+    auto ret = static_cast<RenderingServer *>(ptr)->get_white_texture();
     return memnew(RID(ret));
 }
 
@@ -46624,37 +46624,37 @@ void godot_icall_VisualServer_set_boot_image_f6359177(Object * ptr, Object * arg
     Color arg2_in = MARSHALLED_IN(Color, arg2);
     bool arg3_in = static_cast<bool>(arg3);
     bool arg4_in = static_cast<bool>(arg4);
-    static_cast<VisualServer *>(ptr)->set_boot_image(AutoRef(arg1), arg2_in, arg3_in, arg4_in);
+    static_cast<RenderingServer *>(ptr)->set_boot_image(AutoRef(arg1), arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_VisualServer_set_default_clear_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
     ERR_FAIL_NULL(ptr);
     Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<VisualServer *>(ptr)->set_default_clear_color(arg1_in);
+    static_cast<RenderingServer *>(ptr)->set_default_clear_color(arg1_in);
 }
 
 MonoBoolean godot_icall_VisualServer_has_feature_d61c266(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<VisualServer *>(ptr)->has_feature((VS::Features)arg1_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->has_feature((RS::Features)arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 MonoBoolean godot_icall_VisualServer_has_os_feature_bee64043(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
-    auto ret = static_cast<VisualServer *>(ptr)->has_os_feature(arg1_in);
+    auto ret = static_cast<RenderingServer *>(ptr)->has_os_feature(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualServer_set_debug_generate_wireframes_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<VisualServer *>(ptr)->set_debug_generate_wireframes(arg1_in);
+    static_cast<RenderingServer *>(ptr)->set_debug_generate_wireframes(arg1_in);
 }
 
 Object* godot_icall_VisualServer_get_singleton() {
-    return Engine::get_singleton()->get_singleton_object("VisualServer");
+    return Engine::get_singleton()->get_singleton_object("RenderingServer");
 }
 
 void godot_icall_VisualShader_set_mode_61668cc9(Object * ptr, int32_t arg1) {

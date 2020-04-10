@@ -31,7 +31,7 @@
 #include "concave_polygon_shape_2d.h"
 
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ConcavePolygonShape2D)
@@ -84,7 +84,7 @@ void ConcavePolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     PoolVector<Vector2>::Read r = s.read();
     for (int i = 0; i < len; i += 2) {
-        VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, r[i], r[i + 1], p_color, 2);
+        RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, r[i], r[i + 1], p_color, 2);
     }
 }
 

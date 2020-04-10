@@ -33,7 +33,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/scene_string_names.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/resources/world.h"
 #include "skeleton.h"
 
@@ -54,7 +54,7 @@ void VisualInstance::_update_visibility() {
         return;
 
     Object_change_notify(this,"visible");
-    VisualServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree());
+    RenderingServer::get_singleton()->instance_set_visible(get_instance(), is_visible_in_tree());
 }
 
 void VisualInstance::_notification(int p_what) {
@@ -67,23 +67,23 @@ void VisualInstance::_notification(int p_what) {
             /*
             Skeleton *skeleton=object_cast<Skeleton>(get_parent());
             if (skeleton)
-                VisualServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
+                RenderingServer::get_singleton()->instance_attach_skeleton( instance, skeleton->get_skeleton() );
             */
             ERR_FAIL_COND(not get_world());
-            VisualServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
+            RenderingServer::get_singleton()->instance_set_scenario(instance, get_world()->get_scenario());
             _update_visibility();
 
         } break;
         case NOTIFICATION_TRANSFORM_CHANGED: {
 
             Transform gt = get_global_transform();
-            VisualServer::get_singleton()->instance_set_transform(instance, gt);
+            RenderingServer::get_singleton()->instance_set_transform(instance, gt);
         } break;
         case NOTIFICATION_EXIT_WORLD: {
 
-            VisualServer::get_singleton()->instance_set_scenario(instance, RID());
-            VisualServer::get_singleton()->instance_attach_skeleton(instance, RID());
-            //VisualServer::get_singleton()->instance_geometry_set_baked_light_sampler(instance, RID() );
+            RenderingServer::get_singleton()->instance_set_scenario(instance, RID());
+            RenderingServer::get_singleton()->instance_attach_skeleton(instance, RID());
+            //RenderingServer::get_singleton()->instance_geometry_set_baked_light_sampler(instance, RID() );
 
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -106,7 +106,7 @@ RID VisualInstance::_get_visual_instance_rid() const {
 void VisualInstance::set_layer_mask(uint32_t p_mask) {
 
     layers = p_mask;
-    VisualServer::get_singleton()->instance_set_layer_mask(instance, p_mask);
+    RenderingServer::get_singleton()->instance_set_layer_mask(instance, p_mask);
 }
 
 uint32_t VisualInstance::get_layer_mask() const {
@@ -146,7 +146,7 @@ void VisualInstance::_bind_methods() {
 
 void VisualInstance::set_base(const RID &p_base) {
 
-    VisualServer::get_singleton()->instance_set_base(instance, p_base);
+    RenderingServer::get_singleton()->instance_set_base(instance, p_base);
     base = p_base;
 }
 
@@ -157,21 +157,21 @@ RID VisualInstance::get_base() const {
 
 VisualInstance::VisualInstance() {
 
-    instance = VisualServer::get_singleton()->instance_create();
-    VisualServer::get_singleton()->instance_attach_object_instance_id(instance, get_instance_id());
+    instance = RenderingServer::get_singleton()->instance_create();
+    RenderingServer::get_singleton()->instance_attach_object_instance_id(instance, get_instance_id());
     layers = 1;
     set_notify_transform(true);
 }
 
 VisualInstance::~VisualInstance() {
 
-    VisualServer::get_singleton()->free_rid(instance);
+    RenderingServer::get_singleton()->free_rid(instance);
 }
 
 void GeometryInstance::set_material_override(const Ref<Material> &p_material) {
 
     material_override = p_material;
-    VisualServer::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material ? p_material->get_rid() : RID());
+    RenderingServer::get_singleton()->instance_geometry_set_material_override(get_instance(), p_material ? p_material->get_rid() : RID());
 }
 
 Ref<Material> GeometryInstance::get_material_override() const {
@@ -182,7 +182,7 @@ Ref<Material> GeometryInstance::get_material_override() const {
 void GeometryInstance::set_lod_min_distance(float p_dist) {
 
     lod_min_distance = p_dist;
-    VisualServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
+    RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
 }
 
 float GeometryInstance::get_lod_min_distance() const {
@@ -193,7 +193,7 @@ float GeometryInstance::get_lod_min_distance() const {
 void GeometryInstance::set_lod_max_distance(float p_dist) {
 
     lod_max_distance = p_dist;
-    VisualServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
+    RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
 }
 
 float GeometryInstance::get_lod_max_distance() const {
@@ -204,7 +204,7 @@ float GeometryInstance::get_lod_max_distance() const {
 void GeometryInstance::set_lod_min_hysteresis(float p_dist) {
 
     lod_min_hysteresis = p_dist;
-    VisualServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
+    RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
 }
 
 float GeometryInstance::get_lod_min_hysteresis() const {
@@ -215,7 +215,7 @@ float GeometryInstance::get_lod_min_hysteresis() const {
 void GeometryInstance::set_lod_max_hysteresis(float p_dist) {
 
     lod_max_hysteresis = p_dist;
-    VisualServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
+    RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
 }
 
 float GeometryInstance::get_lod_max_hysteresis() const {
@@ -233,7 +233,7 @@ void GeometryInstance::set_flag(Flags p_flag, bool p_value) {
         return;
 
     flags[p_flag] = p_value;
-    VisualServer::get_singleton()->instance_geometry_set_flag(get_instance(), (VS::InstanceFlags)p_flag, p_value);
+    RenderingServer::get_singleton()->instance_geometry_set_flag(get_instance(), (RS::InstanceFlags)p_flag, p_value);
 }
 
 bool GeometryInstance::get_flag(Flags p_flag) const {
@@ -247,7 +247,7 @@ void GeometryInstance::set_cast_shadows_setting(ShadowCastingSetting p_shadow_ca
 
     shadow_casting_setting = p_shadow_casting_setting;
 
-    VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(get_instance(), (VS::ShadowCastingSetting)p_shadow_casting_setting);
+    RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(get_instance(), (RS::ShadowCastingSetting)p_shadow_casting_setting);
 }
 
 GeometryInstance::ShadowCastingSetting GeometryInstance::get_cast_shadows_setting() const {
@@ -259,7 +259,7 @@ void GeometryInstance::set_extra_cull_margin(float p_margin) {
 
     ERR_FAIL_COND(p_margin < 0);
     extra_cull_margin = p_margin;
-    VisualServer::get_singleton()->instance_set_extra_visibility_margin(get_instance(), extra_cull_margin);
+    RenderingServer::get_singleton()->instance_set_extra_visibility_margin(get_instance(), extra_cull_margin);
 }
 
 float GeometryInstance::get_extra_cull_margin() const {
@@ -269,7 +269,7 @@ float GeometryInstance::get_extra_cull_margin() const {
 
 void GeometryInstance::set_custom_aabb(AABB aabb) {
 
-    VisualServer::get_singleton()->instance_set_custom_aabb(get_instance(), aabb);
+    RenderingServer::get_singleton()->instance_set_custom_aabb(get_instance(), aabb);
 }
 
 void GeometryInstance::_bind_methods() {
@@ -338,5 +338,5 @@ GeometryInstance::GeometryInstance() {
 
     shadow_casting_setting = SHADOW_CASTING_SETTING_ON;
     extra_cull_margin = 0;
-    //VisualServer::get_singleton()->instance_geometry_set_baked_light_texture_index(get_instance(),0);
+    //RenderingServer::get_singleton()->instance_geometry_set_baked_light_texture_index(get_instance(),0);
 }

@@ -169,10 +169,10 @@ class GridMap : public Node3D {
 
     struct BakeLight {
 
-        VS::LightType type;
+        RS::LightType type;
         Vector3 pos;
         Vector3 dir;
-        float param[VS::LIGHT_PARAM_MAX];
+        float param[RS::LIGHT_PARAM_MAX];
     };
     struct BakedMesh {
         Ref<Mesh> mesh;

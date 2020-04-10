@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "servers/visual/rasterizer.h"
+#include "servers/rendering/rasterizer.h"
 
 #include "core/math/geometry.h"
 #include "core/math/octree.h"
@@ -96,7 +96,7 @@ public:
 
     struct Scenario : RID_Data {
 
-        VS::ScenarioDebugMode debug;
+        RS::ScenarioDebugMode debug;
         RID self;
 
         Octree<Instance, true> octree;
@@ -109,7 +109,7 @@ public:
 
         SelfList<Instance>::List instances;
 
-        Scenario() { debug = VS::SCENARIO_DEBUG_DISABLED; }
+        Scenario() { debug = RS::SCENARIO_DEBUG_DISABLED; }
     };
 
     mutable RID_Owner<Scenario> scenario_owner;
@@ -119,7 +119,7 @@ public:
 
     RID scenario_create();
 
-    void scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode);
+    void scenario_set_debug(RID p_scenario, RS::ScenarioDebugMode p_debug_mode);
     void scenario_set_environment(RID p_scenario, RID p_environment);
     void scenario_set_fallback_environment(RID p_scenario, RID p_environment);
     void scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv);
@@ -259,7 +259,7 @@ public:
 
         struct LightCache {
 
-            VS::LightType type= VS::LIGHT_DIRECTIONAL;
+            RS::LightType type= RS::LIGHT_DIRECTIONAL;
             Transform transform;
             Color color;
             float energy=1.0f;
@@ -391,8 +391,8 @@ public:
     Vector<ObjectID> instances_cull_ray(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
     Vector<ObjectID> instances_cull_convex(Span<const Plane> p_convex, RID p_scenario = RID()) const;
 
-    void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled);
-    void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting);
+    void instance_geometry_set_flag(RID p_instance, RS::InstanceFlags p_flags, bool p_enabled);
+    void instance_geometry_set_cast_shadows_setting(RID p_instance, RS::ShadowCastingSetting p_shadow_casting_setting);
     void instance_geometry_set_material_override(RID p_instance, RID p_material);
 
     void instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin);

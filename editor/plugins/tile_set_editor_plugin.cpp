@@ -543,8 +543,8 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     toolbar->add_child(spin_priority);
 
     spin_z_index = memnew(SpinBox);
-    spin_z_index->set_min(VS::CANVAS_ITEM_Z_MIN);
-    spin_z_index->set_max(VS::CANVAS_ITEM_Z_MAX);
+    spin_z_index->set_min(RS::CANVAS_ITEM_Z_MIN);
+    spin_z_index->set_max(RS::CANVAS_ITEM_Z_MAX);
     spin_z_index->set_step(1);
     spin_z_index->set_custom_minimum_size(Size2(100, 0));
     spin_z_index->connect("value_changed", this, "_on_z_index_changed");
@@ -3492,7 +3492,7 @@ void TilesetEditorContext::_get_property_list(Vector<PropertyInfo> *p_list) cons
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_navigation_offset"));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_shape_offset", PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_shape_transform", PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::INT, "tile_z_index", PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "tile_z_index", PropertyHint::Range, itos(RS::CANVAS_ITEM_Z_MIN) + "," + itos(RS::CANVAS_ITEM_Z_MAX) + ",1"));
     }
     if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_COLLISION && tileset_editor->edited_collision_shape) {
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "selected_collision", PropertyHint::ResourceType, tileset_editor->edited_collision_shape->get_class()));

@@ -42,7 +42,7 @@
 #include "drivers/unix/rw_lock_posix.h"
 #include "drivers/unix/semaphore_posix.h"
 #include "drivers/unix/thread_posix.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/string_formatter.h"
 
 #ifdef __APPLE__

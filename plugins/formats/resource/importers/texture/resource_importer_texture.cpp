@@ -328,7 +328,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
                 ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_GENERIC;
                 if (p_force_normal) {
                     csource = ImageCompressSource::COMPRESS_SOURCE_NORMAL;
-                } else if (p_texture_flags & VS::TEXTURE_FLAG_CONVERT_TO_LINEAR) {
+                } else if (p_texture_flags & RS::TEXTURE_FLAG_CONVERT_TO_LINEAR) {
                     csource = ImageCompressSource::COMPRESS_SOURCE_SRGB;
                 }
 

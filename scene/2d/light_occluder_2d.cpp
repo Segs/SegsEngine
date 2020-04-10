@@ -33,7 +33,7 @@
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 #define LINE_GRAB_WIDTH 8
 
@@ -90,7 +90,7 @@ void OccluderPolygon2D::set_polygon(const Vector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     rect_cache_dirty = true;
-    VisualServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, polygon, closed);
+    RenderingServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, polygon, closed);
     emit_changed();
 }
 
@@ -102,7 +102,7 @@ void OccluderPolygon2D::set_closed(bool p_closed) {
         return;
     closed = p_closed;
     if (polygon.size())
-        VisualServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, polygon, closed);
+        RenderingServer::get_singleton()->canvas_occluder_polygon_set_shape(occ_polygon, polygon, closed);
     emit_changed();
 }
 
@@ -114,7 +114,7 @@ bool OccluderPolygon2D::is_closed() const {
 void OccluderPolygon2D::set_cull_mode(CullMode p_mode) {
 
     cull = p_mode;
-    VisualServer::get_singleton()->canvas_occluder_polygon_set_cull_mode(occ_polygon, VS::CanvasOccluderPolygonCullMode(p_mode));
+    RenderingServer::get_singleton()->canvas_occluder_polygon_set_cull_mode(occ_polygon, RS::CanvasOccluderPolygonCullMode(p_mode));
 }
 
 OccluderPolygon2D::CullMode OccluderPolygon2D::get_cull_mode() const {
@@ -149,7 +149,7 @@ void OccluderPolygon2D::_bind_methods() {
 
 OccluderPolygon2D::OccluderPolygon2D() {
 
-    occ_polygon = VisualServer::get_singleton()->canvas_occluder_polygon_create();
+    occ_polygon = RenderingServer::get_singleton()->canvas_occluder_polygon_create();
     closed = true;
     cull = CULL_DISABLED;
     rect_cache_dirty = true;
@@ -157,7 +157,7 @@ OccluderPolygon2D::OccluderPolygon2D() {
 
 OccluderPolygon2D::~OccluderPolygon2D() {
 
-    VisualServer::get_singleton()->free_rid(occ_polygon);
+    RenderingServer::get_singleton()->free_rid(occ_polygon);
 }
 
 void LightOccluder2D::_poly_changed() {
@@ -171,17 +171,17 @@ void LightOccluder2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_CANVAS) {
 
-        VisualServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, get_canvas());
-        VisualServer::get_singleton()->canvas_light_occluder_set_transform(occluder, get_global_transform());
-        VisualServer::get_singleton()->canvas_light_occluder_set_enabled(occluder, is_visible_in_tree());
+        RenderingServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, get_canvas());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_transform(occluder, get_global_transform());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_enabled(occluder, is_visible_in_tree());
     }
     if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
 
-        VisualServer::get_singleton()->canvas_light_occluder_set_transform(occluder, get_global_transform());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_transform(occluder, get_global_transform());
     }
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
-        VisualServer::get_singleton()->canvas_light_occluder_set_enabled(occluder, is_visible_in_tree());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_enabled(occluder, is_visible_in_tree());
     }
 
     if (p_what == NOTIFICATION_DRAW) {
@@ -211,7 +211,7 @@ void LightOccluder2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_EXIT_CANVAS) {
 
-        VisualServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, RID());
+        RenderingServer::get_singleton()->canvas_light_occluder_attach_to_canvas(occluder, RID());
     }
 }
 #ifdef TOOLS_ENABLED
@@ -234,9 +234,9 @@ void LightOccluder2D::set_occluder_polygon(const Ref<OccluderPolygon2D> &p_polyg
     occluder_polygon = p_polygon;
 
     if (occluder_polygon)
-        VisualServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, occluder_polygon->get_rid());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, occluder_polygon->get_rid());
     else
-        VisualServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, RID());
+        RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(occluder, RID());
 
 #ifdef DEBUG_ENABLED
     if (occluder_polygon)
@@ -253,7 +253,7 @@ Ref<OccluderPolygon2D> LightOccluder2D::get_occluder_polygon() const {
 void LightOccluder2D::set_occluder_light_mask(int p_mask) {
 
     mask = p_mask;
-    VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(occluder, mask);
+    RenderingServer::get_singleton()->canvas_light_occluder_set_light_mask(occluder, mask);
 }
 
 int LightOccluder2D::get_occluder_light_mask() const {
@@ -290,12 +290,12 @@ void LightOccluder2D::_bind_methods() {
 
 LightOccluder2D::LightOccluder2D() {
 
-    occluder = VisualServer::get_singleton()->canvas_light_occluder_create();
+    occluder = RenderingServer::get_singleton()->canvas_light_occluder_create();
     mask = 1;
     set_notify_transform(true);
 }
 
 LightOccluder2D::~LightOccluder2D() {
 
-    VisualServer::get_singleton()->free_rid(occluder);
+    RenderingServer::get_singleton()->free_rid(occluder);
 }

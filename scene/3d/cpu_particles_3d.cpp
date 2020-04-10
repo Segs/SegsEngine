@@ -35,7 +35,7 @@
 #include "scene/resources/particles_material.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/mesh.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/mutex.h"
@@ -85,7 +85,7 @@ void CPUParticles3D::set_amount(int p_amount) {
     }
 
     particle_data.resize((12 + 4 + 1) * p_amount);
-    VisualServer::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
+    RenderingServer::get_singleton()->multimesh_allocate(multimesh, p_amount, RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT, RS::MULTIMESH_CUSTOM_DATA_FLOAT);
 
     particle_order.resize(p_amount);
 }
@@ -183,9 +183,9 @@ void CPUParticles3D::set_mesh(const Ref<Mesh> &p_mesh) {
 
     mesh = p_mesh;
     if (mesh) {
-        VisualServer::get_singleton()->multimesh_set_mesh(multimesh, mesh->get_rid());
+        RenderingServer::get_singleton()->multimesh_set_mesh(multimesh, mesh->get_rid());
     } else {
-        VisualServer::get_singleton()->multimesh_set_mesh(multimesh, RID());
+        RenderingServer::get_singleton()->multimesh_set_mesh(multimesh, RID());
     }
 }
 
@@ -1069,17 +1069,17 @@ void CPUParticles3D::_set_redraw(bool p_redraw) {
 #ifndef NO_THREADS
     update_mutex->lock();
 #endif
-    auto VS = VisualServer::get_singleton();
+    auto RS = RenderingServer::get_singleton();
     if (redraw) {
-        VS->connect("frame_pre_draw", this, "_update_render_thread");
-        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
-        VS->multimesh_set_visible_instances(multimesh, -1);
+        RS->connect("frame_pre_draw", this, "_update_render_thread");
+        RS->instance_geometry_set_flag(get_instance(), RS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
+        RS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        if(VS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
-            VS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        if(RS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
+            RS->disconnect("frame_pre_draw", this, "_update_render_thread");
         }
-        VS->instance_geometry_set_flag(get_instance(), VS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
-        VS->multimesh_set_visible_instances(multimesh, 0);
+        RS->instance_geometry_set_flag(get_instance(), RS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
+        RS->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -1092,7 +1092,7 @@ void CPUParticles3D::_update_render_thread() {
     update_mutex->lock();
 #endif
     if (can_update) {
-        VisualServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
+        RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
         can_update = false; //wait for next time
     }
 
@@ -1454,8 +1454,8 @@ CPUParticles3D::CPUParticles3D() {
 #endif
     set_notify_transform(true);
 
-    multimesh = VisualServer::get_singleton()->multimesh_create();
-    VisualServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
+    multimesh = RenderingServer::get_singleton()->multimesh_create();
+    RenderingServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
     set_base(multimesh);
 
     set_one_shot(false);
@@ -1511,7 +1511,7 @@ CPUParticles3D::CPUParticles3D() {
 }
 
 CPUParticles3D::~CPUParticles3D() {
-    VisualServer::get_singleton()->free_rid(multimesh);
+    RenderingServer::get_singleton()->free_rid(multimesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

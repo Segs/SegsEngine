@@ -41,8 +41,8 @@
 #include "drivers/gles3/rasterizer_gles3.h"
 #include <cerrno>
 #include "key_mapping_x11.h"
-#include "servers/visual/visual_server_raster.h"
-#include "servers/visual/visual_server_wrap_mt.h"
+#include "servers/rendering/visual_server_raster.h"
+#include "servers/rendering/visual_server_wrap_mt.h"
 
 #ifdef HAVE_MNTENT
 #include <mntent.h>
@@ -323,9 +323,9 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
 #endif
 
-    visual_server = memnew(VisualServerRaster);
+    rendering_server = memnew(VisualServerRaster);
     if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        visual_server = memnew(VisualServerWrapMT(visual_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+        rendering_server = memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
     }
 
     if (current_videomode.maximized) {
@@ -375,7 +375,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
         set_window_always_on_top(true);
     }
 
-    ERR_FAIL_COND_V(!visual_server, ERR_UNAVAILABLE);
+    ERR_FAIL_COND_V(!rendering_server, ERR_UNAVAILABLE);
     ERR_FAIL_COND_V(x11_window == 0, ERR_UNAVAILABLE);
 
     XSetWindowAttributes new_attr;
@@ -552,7 +552,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     xdnd_selection = XInternAtom(x11_display, "XdndSelection", False);
     requested = 0;
 
-    visual_server->init();
+    rendering_server->init();
 
     AudioDriverManager::initialize(p_audio_driver);
 
@@ -755,8 +755,8 @@ void OS_X11::finalize() {
     memdelete(input);
 
     cursors_cache.clear();
-    visual_server->finish();
-    memdelete(visual_server);
+    rendering_server->finish();
+    memdelete(rendering_server);
     //memdelete(rasterizer);
 
     if (xrandr_handle)

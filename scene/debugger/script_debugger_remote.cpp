@@ -45,7 +45,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 void ScriptDebuggerRemote::_send_video_memory() {
 
@@ -342,9 +342,9 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
         }
         // This is for the camera override to stay live even when the game is paused from the editor
         loop_time_sec = (OS::get_singleton()->get_ticks_usec() - loop_begin_usec) / 1000000.0f;
-        VisualServer::get_singleton()->sync();
-        if (VisualServer::get_singleton()->has_changed()) {
-            VisualServer::get_singleton()->draw(true, loop_time_sec * Engine::get_singleton()->get_time_scale());
+        RenderingServer::get_singleton()->sync();
+        if (RenderingServer::get_singleton()->has_changed()) {
+            RenderingServer::get_singleton()->draw(true, loop_time_sec * Engine::get_singleton()->get_time_scale());
         }
 
     }

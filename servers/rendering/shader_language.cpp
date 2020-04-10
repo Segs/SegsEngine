@@ -39,7 +39,7 @@
 #include "core/math/transform_2d.h"
 #include "core/math/transform.h"
 #include "core/translation_helpers.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 static bool _is_text_char(CharType c) {
 
@@ -4621,7 +4621,7 @@ String ShaderLanguage::_get_shader_type_list(const HashSet<StringName> &p_shader
     return valid_types;
 }
 //Error ShaderLanguage::_validate_datatype(DataType p_type) {
-//	if (VisualServer::get_singleton()->is_low_end()) {
+//	if (RenderingServer::get_singleton()->is_low_end()) {
 //		bool invalid_type = false;
 
 //		switch (p_type) {

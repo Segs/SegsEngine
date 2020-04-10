@@ -108,7 +108,7 @@ void TileMap::_notification(int p_what) {
                 }
 
                 for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-                    VisualServer::get_singleton()->free_rid(F.second.id);
+                    RenderingServer::get_singleton()->free_rid(F.second.id);
                 }
                 q.occluder_instances.clear();
             }
@@ -179,7 +179,7 @@ void TileMap::_update_quadrant_transform() {
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &F : q.occluder_instances) {
-            VisualServer::get_singleton()->canvas_light_occluder_set_transform(F.second.id, global_transform * F.second.xform);
+            RenderingServer::get_singleton()->canvas_light_occluder_set_transform(F.second.id, global_transform * F.second.xform);
         }
     }
 }
@@ -344,7 +344,7 @@ void TileMap::update_dirty_quadrants() {
         return;
     }
 
-    VisualServer *vs = VisualServer::get_singleton();
+    RenderingServer *vs = RenderingServer::get_singleton();
     PhysicsServer2D *ps = PhysicsServer2D::get_singleton();
     Vector2 tofs = get_cell_draw_offset();
     Transform2D nav_rel;
@@ -392,7 +392,7 @@ void TileMap::update_dirty_quadrants() {
         }
 
         for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-            VisualServer::get_singleton()->free_rid(E.second.id);
+            RenderingServer::get_singleton()->free_rid(E.second.id);
         }
         q.occluder_instances.clear();
         Ref<ShaderMaterial> prev_material;
@@ -447,7 +447,7 @@ void TileMap::update_dirty_quadrants() {
                     debug_canvas_item = vs->canvas_item_create();
                     vs->canvas_item_set_parent(debug_canvas_item, canvas_item);
                     vs->canvas_item_set_z_as_relative_to_parent(debug_canvas_item, false);
-                    vs->canvas_item_set_z_index(debug_canvas_item, VS::CANVAS_ITEM_Z_MAX - 1);
+                    vs->canvas_item_set_z_index(debug_canvas_item, RS::CANVAS_ITEM_Z_MAX - 1);
                     q.canvas_items.push_back(debug_canvas_item);
                     prev_debug_canvas_item = debug_canvas_item;
                 }
@@ -634,7 +634,7 @@ void TileMap::update_dirty_quadrants() {
                         RID debug_navigation_item = vs->canvas_item_create();
                         vs->canvas_item_set_parent(debug_navigation_item, canvas_item);
                         vs->canvas_item_set_z_as_relative_to_parent(debug_navigation_item, false);
-                        vs->canvas_item_set_z_index(debug_navigation_item, VS::CANVAS_ITEM_Z_MAX - 2); // Display one below collision debug
+                        vs->canvas_item_set_z_index(debug_navigation_item, RS::CANVAS_ITEM_Z_MAX - 2); // Display one below collision debug
 
                         if (debug_navigation_item.is_valid()) {
                             const auto & navigation_polygon_vertices = navpoly->get_vertices();
@@ -685,11 +685,11 @@ void TileMap::update_dirty_quadrants() {
                 xform.set_origin(offset.floor() + q.pos);
                 _fix_cell_transform(xform, c, occluder_ofs, s);
 
-                RID orid = VisualServer::get_singleton()->canvas_light_occluder_create();
-                VisualServer::get_singleton()->canvas_light_occluder_set_transform(orid, get_global_transform() * xform);
-                VisualServer::get_singleton()->canvas_light_occluder_set_polygon(orid, occluder->get_rid());
-                VisualServer::get_singleton()->canvas_light_occluder_attach_to_canvas(orid, get_canvas());
-                VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(orid, occluder_light_mask);
+                RID orid = RenderingServer::get_singleton()->canvas_light_occluder_create();
+                RenderingServer::get_singleton()->canvas_light_occluder_set_transform(orid, get_global_transform() * xform);
+                RenderingServer::get_singleton()->canvas_light_occluder_set_polygon(orid, occluder->get_rid());
+                RenderingServer::get_singleton()->canvas_light_occluder_attach_to_canvas(orid, get_canvas());
+                RenderingServer::get_singleton()->canvas_light_occluder_set_light_mask(orid, occluder_light_mask);
                 Quadrant::Occluder oc;
                 oc.xform = xform;
                 oc.id = orid;
@@ -711,7 +711,7 @@ void TileMap::update_dirty_quadrants() {
             Quadrant &q = E.second;
             for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
 
-                VisualServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
+                RenderingServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
             }
         }
 
@@ -763,7 +763,7 @@ HashMap<TileMap::PosKey, TileMap::Quadrant>::iterator TileMap::_create_quadrant(
         q.pos.y += cell_size.y;
 
     xform.set_origin(q.pos);
-    //q.canvas_item = VisualServer::get_singleton()->canvas_item_create();
+    //q.canvas_item = RenderingServer::get_singleton()->canvas_item_create();
     if (!use_parent) {
         q.body = PhysicsServer2D::get_singleton()->body_create();
         PhysicsServer2D::get_singleton()->body_set_mode(q.body, use_kinematic ? PhysicsServer2D::BODY_MODE_KINEMATIC : PhysicsServer2D::BODY_MODE_STATIC);
@@ -804,7 +804,7 @@ void TileMap::_erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q) {
 
     for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free_rid(E->deref());
+        RenderingServer::get_singleton()->free_rid(E->deref());
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
@@ -819,7 +819,7 @@ void TileMap::_erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q) {
     }
 
     for (eastl::pair<const PosKey,Quadrant::Occluder> &E : q.occluder_instances) {
-        VisualServer::get_singleton()->free_rid(E.second.id);
+        RenderingServer::get_singleton()->free_rid(E.second.id);
     }
     q.occluder_instances.clear();
 
@@ -1200,7 +1200,7 @@ void TileMap::_update_all_items_material_state() {
 
 void TileMap::_update_item_material_state(const RID &p_canvas_item) {
 
-    VisualServer::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material());
+    RenderingServer::get_singleton()->canvas_item_set_use_parent_material(p_canvas_item, get_use_parent_material() || get_material());
 }
 
 void TileMap::clear() {
@@ -1660,7 +1660,7 @@ void TileMap::set_y_sort_mode(bool p_enable) {
 
     _clear_quadrants();
     y_sort_mode = p_enable;
-    VisualServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), y_sort_mode);
+    RenderingServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), y_sort_mode);
     _recreate_quadrants();
     emit_signal("settings_changed");
 }
@@ -1751,7 +1751,7 @@ void TileMap::set_occluder_light_mask(int p_mask) {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         for (auto &F : E.second.occluder_instances) {
-            VisualServer::get_singleton()->canvas_light_occluder_set_light_mask(F.second.id, occluder_light_mask);
+            RenderingServer::get_singleton()->canvas_light_occluder_set_light_mask(F.second.id, occluder_light_mask);
         }
     }
 }
@@ -1767,7 +1767,7 @@ void TileMap::set_light_mask(int p_light_mask) {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         for (ListOld<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
-            VisualServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
+            RenderingServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
         }
     }
 }

@@ -43,7 +43,7 @@
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
 #include "core/translation_helpers.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 IMPL_GDCLASS(SceneLibraryEditor)
 IMPL_GDCLASS(SceneLibraryEditorPlugin)
 

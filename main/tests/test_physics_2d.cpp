@@ -38,7 +38,7 @@
 #include "core/print_string.h"
 #include "scene/resources/texture.h"
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 
 static const unsigned char convex_png[] = {
@@ -141,7 +141,7 @@ class TestPhysics2DMainLoop : public MainLoop {
     BodyShapeData body_shape_data[8];
 
     void _create_body_shape_data() {
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer2D *ps = PhysicsServer2D::get_singleton();
 
         // SEGMENT
@@ -323,7 +323,7 @@ protected:
 
     RID _add_body(PhysicsServer2D::ShapeType p_shape, const Transform2D &p_xform) {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer2D *ps = PhysicsServer2D::get_singleton();
 
         RID body = ps->body_create();
@@ -366,7 +366,7 @@ protected:
     void _add_concave(const Vector<Vector2> &p_points, const Transform2D &p_xform = Transform2D()) {
 
         PhysicsServer2D *ps = PhysicsServer2D::get_singleton();
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         RID concave = ps->concave_polygon_shape_create();
         ps->shape_set_data(concave, Variant::from(p_points));
@@ -386,7 +386,7 @@ protected:
 
     void _body_moved(Object *p_state, RID p_sprite) {
         PhysicsDirectBodyState2D *state = (PhysicsDirectBodyState2D *)p_state;
-        VisualServer::get_singleton()->canvas_item_set_transform(p_sprite, state->get_transform());
+        RenderingServer::get_singleton()->canvas_item_set_transform(p_sprite, state->get_transform());
     }
 
     void _ray_query_callback(const RID &p_rid, ObjectID p_id, int p_shape, const Vector2 &p_point, const Vector2 &p_normal) {
@@ -399,7 +399,7 @@ protected:
             ray_end = ray_to;
         }
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         vs->canvas_item_clear(ray);
         vs->canvas_item_add_line(ray, ray_from, ray_end, p_rid.is_valid() ? Color(0, 1, 0.4) : Color(1, 0.4, 0), 2);
@@ -416,7 +416,7 @@ protected:
 public:
     void init() override {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer2D *ps = PhysicsServer2D::get_singleton();
 
         space = ps->space_create();

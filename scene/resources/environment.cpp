@@ -32,7 +32,7 @@
 
 #include "core/object_tooling.h"
 #include "core/project_settings.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/resources/texture.h"
 #include "core/method_bind.h"
 
@@ -54,7 +54,7 @@ RID Environment::get_rid() const {
 void Environment::set_background(BGMode p_bg) {
 
     bg_mode = p_bg;
-    VisualServer::get_singleton()->environment_set_background(environment, VS::EnvironmentBG(p_bg));
+    RenderingServer::get_singleton()->environment_set_background(environment, RS::EnvironmentBG(p_bg));
     Object_change_notify(this);
 }
 
@@ -66,27 +66,27 @@ void Environment::set_sky(const Ref<Sky> &p_sky) {
     if (bg_sky)
         sb_rid = bg_sky->get_rid();
 
-    VisualServer::get_singleton()->environment_set_sky(environment, sb_rid);
+    RenderingServer::get_singleton()->environment_set_sky(environment, sb_rid);
 }
 
 void Environment::set_sky_custom_fov(float p_scale) {
 
     bg_sky_custom_fov = p_scale;
-    VisualServer::get_singleton()->environment_set_sky_custom_fov(environment, p_scale);
+    RenderingServer::get_singleton()->environment_set_sky_custom_fov(environment, p_scale);
 }
 void Environment::set_sky_orientation(const Basis &p_orientation) {
 
     bg_sky_orientation = p_orientation;
     Object_change_notify(this,"background_sky_rotation");
     Object_change_notify(this,"background_sky_rotation_degrees");
-    VisualServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
+    RenderingServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
 }
 void Environment::set_sky_rotation(const Vector3 &p_euler_rad) {
 
     bg_sky_orientation.set_euler(p_euler_rad);
     Object_change_notify(this,"background_sky_orientation");
     Object_change_notify(this,"background_sky_rotation_degrees");
-    VisualServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
+    RenderingServer::get_singleton()->environment_set_sky_orientation(environment, bg_sky_orientation);
 }
 void Environment::set_sky_rotation_degrees(const Vector3 &p_euler_deg) {
 
@@ -96,37 +96,37 @@ void Environment::set_sky_rotation_degrees(const Vector3 &p_euler_deg) {
 void Environment::set_bg_color(const Color &p_color) {
 
     bg_color = p_color;
-    VisualServer::get_singleton()->environment_set_bg_color(environment, p_color);
+    RenderingServer::get_singleton()->environment_set_bg_color(environment, p_color);
 }
 void Environment::set_bg_energy(float p_energy) {
 
     bg_energy = p_energy;
-    VisualServer::get_singleton()->environment_set_bg_energy(environment, p_energy);
+    RenderingServer::get_singleton()->environment_set_bg_energy(environment, p_energy);
 }
 void Environment::set_canvas_max_layer(int p_max_layer) {
 
     bg_canvas_max_layer = p_max_layer;
-    VisualServer::get_singleton()->environment_set_canvas_max_layer(environment, p_max_layer);
+    RenderingServer::get_singleton()->environment_set_canvas_max_layer(environment, p_max_layer);
 }
 void Environment::set_ambient_light_color(const Color &p_color) {
 
     ambient_color = p_color;
-    VisualServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
+    RenderingServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
 }
 void Environment::set_ambient_light_energy(float p_energy) {
 
     ambient_energy = p_energy;
-    VisualServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
+    RenderingServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
 }
 void Environment::set_ambient_light_sky_contribution(float p_energy) {
 
     ambient_sky_contribution = p_energy;
-    VisualServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
+    RenderingServer::get_singleton()->environment_set_ambient_light(environment, ambient_color, ambient_energy, ambient_sky_contribution);
 }
 
 void Environment::set_camera_feed_id(int p_camera_feed_id) {
     camera_feed_id = p_camera_feed_id;
-    VisualServer::get_singleton()->environment_set_camera_feed_id(environment, camera_feed_id);
+    RenderingServer::get_singleton()->environment_set_camera_feed_id(environment, camera_feed_id);
 };
 
 Environment::BGMode Environment::get_background() const {
@@ -191,7 +191,7 @@ int Environment::get_camera_feed_id() const {
 void Environment::set_tonemapper(ToneMapper p_tone_mapper) {
 
     tone_mapper = p_tone_mapper;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 
 Environment::ToneMapper Environment::get_tonemapper() const {
@@ -202,7 +202,7 @@ Environment::ToneMapper Environment::get_tonemapper() const {
 void Environment::set_tonemap_exposure(float p_exposure) {
 
     tonemap_exposure = p_exposure;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 
 float Environment::get_tonemap_exposure() const {
@@ -213,7 +213,7 @@ float Environment::get_tonemap_exposure() const {
 void Environment::set_tonemap_white(float p_white) {
 
     tonemap_white = p_white;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 float Environment::get_tonemap_white() const {
 
@@ -223,7 +223,7 @@ float Environment::get_tonemap_white() const {
 void Environment::set_tonemap_auto_exposure(bool p_enabled) {
 
     tonemap_auto_exposure = p_enabled;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
     Object_change_notify(this);
 }
 bool Environment::get_tonemap_auto_exposure() const {
@@ -234,7 +234,7 @@ bool Environment::get_tonemap_auto_exposure() const {
 void Environment::set_tonemap_auto_exposure_max(float p_auto_exposure_max) {
 
     tonemap_auto_exposure_max = p_auto_exposure_max;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 float Environment::get_tonemap_auto_exposure_max() const {
 
@@ -244,7 +244,7 @@ float Environment::get_tonemap_auto_exposure_max() const {
 void Environment::set_tonemap_auto_exposure_min(float p_auto_exposure_min) {
 
     tonemap_auto_exposure_min = p_auto_exposure_min;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 float Environment::get_tonemap_auto_exposure_min() const {
 
@@ -254,7 +254,7 @@ float Environment::get_tonemap_auto_exposure_min() const {
 void Environment::set_tonemap_auto_exposure_speed(float p_auto_exposure_speed) {
 
     tonemap_auto_exposure_speed = p_auto_exposure_speed;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 float Environment::get_tonemap_auto_exposure_speed() const {
 
@@ -264,7 +264,7 @@ float Environment::get_tonemap_auto_exposure_speed() const {
 void Environment::set_tonemap_auto_exposure_grey(float p_auto_exposure_grey) {
 
     tonemap_auto_exposure_grey = p_auto_exposure_grey;
-    VisualServer::get_singleton()->environment_set_tonemap(environment, VS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
+    RenderingServer::get_singleton()->environment_set_tonemap(environment, RS::EnvironmentToneMapper(tone_mapper), tonemap_exposure, tonemap_white, tonemap_auto_exposure, tonemap_auto_exposure_min, tonemap_auto_exposure_max, tonemap_auto_exposure_speed, tonemap_auto_exposure_grey);
 }
 float Environment::get_tonemap_auto_exposure_grey() const {
 
@@ -274,7 +274,7 @@ float Environment::get_tonemap_auto_exposure_grey() const {
 void Environment::set_adjustment_enable(bool p_enable) {
 
     adjustment_enabled = p_enable;
-    VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
     Object_change_notify(this);
 }
 
@@ -286,7 +286,7 @@ bool Environment::is_adjustment_enabled() const {
 void Environment::set_adjustment_brightness(float p_brightness) {
 
     adjustment_brightness = p_brightness;
-    VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
 }
 float Environment::get_adjustment_brightness() const {
 
@@ -296,7 +296,7 @@ float Environment::get_adjustment_brightness() const {
 void Environment::set_adjustment_contrast(float p_contrast) {
 
     adjustment_contrast = p_contrast;
-    VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
 }
 float Environment::get_adjustment_contrast() const {
 
@@ -306,7 +306,7 @@ float Environment::get_adjustment_contrast() const {
 void Environment::set_adjustment_saturation(float p_saturation) {
 
     adjustment_saturation = p_saturation;
-    VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
 }
 float Environment::get_adjustment_saturation() const {
 
@@ -316,7 +316,7 @@ float Environment::get_adjustment_saturation() const {
 void Environment::set_adjustment_color_correction(const Ref<Texture> &p_ramp) {
 
     adjustment_color_correction = p_ramp;
-    VisualServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
+    RenderingServer::get_singleton()->environment_set_adjustment(environment, adjustment_enabled, adjustment_brightness, adjustment_contrast, adjustment_saturation, adjustment_color_correction ? adjustment_color_correction->get_rid() : RID());
 }
 Ref<Texture> Environment::get_adjustment_color_correction() const {
 
@@ -378,7 +378,7 @@ void Environment::_validate_property(PropertyInfo &property) const {
         }
     }
 
-    if (VisualServer::get_singleton()->is_low_end()) {
+    if (RenderingServer::get_singleton()->is_low_end()) {
         for(const char *prefix_val : high_end_prefixes) {
             StringName prefix(StaticCString(prefix_val,true));
 
@@ -393,7 +393,7 @@ void Environment::_validate_property(PropertyInfo &property) const {
 void Environment::set_ssr_enabled(bool p_enable) {
 
     ssr_enabled = p_enable;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
     Object_change_notify(this);
 }
 
@@ -405,7 +405,7 @@ bool Environment::is_ssr_enabled() const {
 void Environment::set_ssr_max_steps(int p_steps) {
 
     ssr_max_steps = p_steps;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
 }
 int Environment::get_ssr_max_steps() const {
 
@@ -415,7 +415,7 @@ int Environment::get_ssr_max_steps() const {
 void Environment::set_ssr_fade_in(float p_fade_in) {
 
     ssr_fade_in = p_fade_in;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
 }
 float Environment::get_ssr_fade_in() const {
 
@@ -425,7 +425,7 @@ float Environment::get_ssr_fade_in() const {
 void Environment::set_ssr_fade_out(float p_fade_out) {
 
     ssr_fade_out = p_fade_out;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
 }
 float Environment::get_ssr_fade_out() const {
 
@@ -435,7 +435,7 @@ float Environment::get_ssr_fade_out() const {
 void Environment::set_ssr_depth_tolerance(float p_depth_tolerance) {
 
     ssr_depth_tolerance = p_depth_tolerance;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
 }
 float Environment::get_ssr_depth_tolerance() const {
 
@@ -445,7 +445,7 @@ float Environment::get_ssr_depth_tolerance() const {
 void Environment::set_ssr_rough(bool p_enable) {
 
     ssr_roughness = p_enable;
-    VisualServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
+    RenderingServer::get_singleton()->environment_set_ssr(environment, ssr_enabled, ssr_max_steps, ssr_fade_in, ssr_fade_out, ssr_depth_tolerance, ssr_roughness);
 }
 bool Environment::is_ssr_rough() const {
 
@@ -455,7 +455,7 @@ bool Environment::is_ssr_rough() const {
 void Environment::set_ssao_enabled(bool p_enable) {
 
     ssao_enabled = p_enable;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
     Object_change_notify(this);
 }
 
@@ -467,7 +467,7 @@ bool Environment::is_ssao_enabled() const {
 void Environment::set_ssao_radius(float p_radius) {
 
     ssao_radius = p_radius;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_radius() const {
 
@@ -477,7 +477,7 @@ float Environment::get_ssao_radius() const {
 void Environment::set_ssao_intensity(float p_intensity) {
 
     ssao_intensity = p_intensity;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 
 float Environment::get_ssao_intensity() const {
@@ -488,7 +488,7 @@ float Environment::get_ssao_intensity() const {
 void Environment::set_ssao_radius2(float p_radius) {
 
     ssao_radius2 = p_radius;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_radius2() const {
 
@@ -498,7 +498,7 @@ float Environment::get_ssao_radius2() const {
 void Environment::set_ssao_intensity2(float p_intensity) {
 
     ssao_intensity2 = p_intensity;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_intensity2() const {
 
@@ -508,7 +508,7 @@ float Environment::get_ssao_intensity2() const {
 void Environment::set_ssao_bias(float p_bias) {
 
     ssao_bias = p_bias;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_bias() const {
 
@@ -518,7 +518,7 @@ float Environment::get_ssao_bias() const {
 void Environment::set_ssao_direct_light_affect(float p_direct_light_affect) {
 
     ssao_direct_light_affect = p_direct_light_affect;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_direct_light_affect() const {
 
@@ -528,7 +528,7 @@ float Environment::get_ssao_direct_light_affect() const {
 void Environment::set_ssao_ao_channel_affect(float p_ao_channel_affect) {
 
     ssao_ao_channel_affect = p_ao_channel_affect;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 float Environment::get_ssao_ao_channel_affect() const {
 
@@ -538,7 +538,7 @@ float Environment::get_ssao_ao_channel_affect() const {
 void Environment::set_ssao_color(const Color &p_color) {
 
     ssao_color = p_color;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 
 Color Environment::get_ssao_color() const {
@@ -549,7 +549,7 @@ Color Environment::get_ssao_color() const {
 void Environment::set_ssao_blur(SSAOBlur p_blur) {
 
     ssao_blur = p_blur;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 Environment::SSAOBlur Environment::get_ssao_blur() const {
 
@@ -559,7 +559,7 @@ Environment::SSAOBlur Environment::get_ssao_blur() const {
 void Environment::set_ssao_quality(SSAOQuality p_quality) {
 
     ssao_quality = p_quality;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 
 Environment::SSAOQuality Environment::get_ssao_quality() const {
@@ -570,7 +570,7 @@ Environment::SSAOQuality Environment::get_ssao_quality() const {
 void Environment::set_ssao_edge_sharpness(float p_edge_sharpness) {
 
     ssao_edge_sharpness = p_edge_sharpness;
-    VisualServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, VS::EnvironmentSSAOQuality(ssao_quality), VS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
+    RenderingServer::get_singleton()->environment_set_ssao(environment, ssao_enabled, ssao_radius, ssao_intensity, ssao_radius2, ssao_intensity2, ssao_bias, ssao_direct_light_affect, ssao_ao_channel_affect, ssao_color, RS::EnvironmentSSAOQuality(ssao_quality), RS::EnvironmentSSAOBlur(ssao_blur), ssao_edge_sharpness);
 }
 
 float Environment::get_ssao_edge_sharpness() const {
@@ -581,7 +581,7 @@ float Environment::get_ssao_edge_sharpness() const {
 void Environment::set_glow_enabled(bool p_enabled) {
 
     glow_enabled = p_enabled;
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
     Object_change_notify(this);
 }
 
@@ -592,18 +592,18 @@ bool Environment::is_glow_enabled() const {
 
 void Environment::set_glow_level(int p_level, bool p_enabled) {
 
-    ERR_FAIL_INDEX(p_level, VS::MAX_GLOW_LEVELS);
+    ERR_FAIL_INDEX(p_level, RS::MAX_GLOW_LEVELS);
 
     if (p_enabled)
         glow_levels |= (1 << p_level);
     else
         glow_levels &= ~(1 << p_level);
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 bool Environment::is_glow_level_enabled(int p_level) const {
 
-    ERR_FAIL_INDEX_V(p_level, VS::MAX_GLOW_LEVELS, false);
+    ERR_FAIL_INDEX_V(p_level, RS::MAX_GLOW_LEVELS, false);
 
     return glow_levels & (1 << p_level);
 }
@@ -612,7 +612,7 @@ void Environment::set_glow_intensity(float p_intensity) {
 
     glow_intensity = p_intensity;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_intensity() const {
 
@@ -622,7 +622,7 @@ float Environment::get_glow_intensity() const {
 void Environment::set_glow_strength(float p_strength) {
 
     glow_strength = p_strength;
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_strength() const {
 
@@ -633,7 +633,7 @@ void Environment::set_glow_bloom(float p_threshold) {
 
     glow_bloom = p_threshold;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_bloom() const {
 
@@ -644,7 +644,7 @@ void Environment::set_glow_blend_mode(GlowBlendMode p_mode) {
 
     glow_blend_mode = p_mode;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 Environment::GlowBlendMode Environment::get_glow_blend_mode() const {
 
@@ -655,7 +655,7 @@ void Environment::set_glow_hdr_bleed_threshold(float p_threshold) {
 
     glow_hdr_bleed_threshold = p_threshold;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_hdr_bleed_threshold() const {
 
@@ -666,7 +666,7 @@ void Environment::set_glow_hdr_luminance_cap(float p_amount) {
 
     glow_hdr_luminance_cap = p_amount;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_hdr_luminance_cap() const {
 
@@ -677,7 +677,7 @@ void Environment::set_glow_hdr_bleed_scale(float p_scale) {
 
     glow_hdr_bleed_scale = p_scale;
 
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 float Environment::get_glow_hdr_bleed_scale() const {
 
@@ -687,7 +687,7 @@ float Environment::get_glow_hdr_bleed_scale() const {
 void Environment::set_glow_bicubic_upscale(bool p_enable) {
 
     glow_bicubic_upscale = p_enable;
-    VisualServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, VS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
+    RenderingServer::get_singleton()->environment_set_glow(environment, glow_enabled, glow_levels, glow_intensity, glow_strength, glow_bloom, RS::EnvironmentGlowBlendMode(glow_blend_mode), glow_hdr_bleed_threshold, glow_hdr_bleed_threshold, glow_hdr_luminance_cap, glow_bicubic_upscale);
 }
 
 bool Environment::is_glow_bicubic_upscale_enabled() const {
@@ -698,7 +698,7 @@ bool Environment::is_glow_bicubic_upscale_enabled() const {
 void Environment::set_dof_blur_far_enabled(bool p_enable) {
 
     dof_blur_far_enabled = p_enable;
-    VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, RS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
     Object_change_notify(this);
 }
 
@@ -710,7 +710,7 @@ bool Environment::is_dof_blur_far_enabled() const {
 void Environment::set_dof_blur_far_distance(float p_distance) {
 
     dof_blur_far_distance = p_distance;
-    VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, RS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
 }
 float Environment::get_dof_blur_far_distance() const {
 
@@ -720,7 +720,7 @@ float Environment::get_dof_blur_far_distance() const {
 void Environment::set_dof_blur_far_transition(float p_distance) {
 
     dof_blur_far_transition = p_distance;
-    VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, RS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
 }
 float Environment::get_dof_blur_far_transition() const {
 
@@ -730,7 +730,7 @@ float Environment::get_dof_blur_far_transition() const {
 void Environment::set_dof_blur_far_amount(float p_amount) {
 
     dof_blur_far_amount = p_amount;
-    VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, RS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
 }
 float Environment::get_dof_blur_far_amount() const {
 
@@ -740,7 +740,7 @@ float Environment::get_dof_blur_far_amount() const {
 void Environment::set_dof_blur_far_quality(DOFBlurQuality p_quality) {
 
     dof_blur_far_quality = p_quality;
-    VisualServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, VS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_far(environment, dof_blur_far_enabled, dof_blur_far_distance, dof_blur_far_transition, dof_blur_far_amount, RS::EnvironmentDOFBlurQuality(dof_blur_far_quality));
 }
 
 Environment::DOFBlurQuality Environment::get_dof_blur_far_quality() const {
@@ -751,7 +751,7 @@ Environment::DOFBlurQuality Environment::get_dof_blur_far_quality() const {
 void Environment::set_dof_blur_near_enabled(bool p_enable) {
 
     dof_blur_near_enabled = p_enable;
-    VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, RS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
     Object_change_notify(this);
 }
 
@@ -763,7 +763,7 @@ bool Environment::is_dof_blur_near_enabled() const {
 void Environment::set_dof_blur_near_distance(float p_distance) {
 
     dof_blur_near_distance = p_distance;
-    VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, RS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
 }
 
 float Environment::get_dof_blur_near_distance() const {
@@ -774,7 +774,7 @@ float Environment::get_dof_blur_near_distance() const {
 void Environment::set_dof_blur_near_transition(float p_distance) {
 
     dof_blur_near_transition = p_distance;
-    VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, RS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
 }
 
 float Environment::get_dof_blur_near_transition() const {
@@ -785,7 +785,7 @@ float Environment::get_dof_blur_near_transition() const {
 void Environment::set_dof_blur_near_amount(float p_amount) {
 
     dof_blur_near_amount = p_amount;
-    VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, RS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
 }
 
 float Environment::get_dof_blur_near_amount() const {
@@ -796,7 +796,7 @@ float Environment::get_dof_blur_near_amount() const {
 void Environment::set_dof_blur_near_quality(DOFBlurQuality p_quality) {
 
     dof_blur_near_quality = p_quality;
-    VisualServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, VS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
+    RenderingServer::get_singleton()->environment_set_dof_blur_near(environment, dof_blur_near_enabled, dof_blur_near_distance, dof_blur_near_transition, dof_blur_near_amount, RS::EnvironmentDOFBlurQuality(dof_blur_near_quality));
 }
 
 Environment::DOFBlurQuality Environment::get_dof_blur_near_quality() const {
@@ -807,7 +807,7 @@ Environment::DOFBlurQuality Environment::get_dof_blur_near_quality() const {
 void Environment::set_fog_enabled(bool p_enabled) {
 
     fog_enabled = p_enabled;
-    VisualServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
+    RenderingServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
     Object_change_notify(this);
 }
 
@@ -819,7 +819,7 @@ bool Environment::is_fog_enabled() const {
 void Environment::set_fog_color(const Color &p_color) {
 
     fog_color = p_color;
-    VisualServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
+    RenderingServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
 }
 Color Environment::get_fog_color() const {
 
@@ -829,7 +829,7 @@ Color Environment::get_fog_color() const {
 void Environment::set_fog_sun_color(const Color &p_color) {
 
     fog_sun_color = p_color;
-    VisualServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
+    RenderingServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
 }
 Color Environment::get_fog_sun_color() const {
 
@@ -839,7 +839,7 @@ Color Environment::get_fog_sun_color() const {
 void Environment::set_fog_sun_amount(float p_amount) {
 
     fog_sun_amount = p_amount;
-    VisualServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
+    RenderingServer::get_singleton()->environment_set_fog(environment, fog_enabled, fog_color, fog_sun_color, fog_sun_amount);
 }
 float Environment::get_fog_sun_amount() const {
 
@@ -849,7 +849,7 @@ float Environment::get_fog_sun_amount() const {
 void Environment::set_fog_depth_enabled(bool p_enabled) {
 
     fog_depth_enabled = p_enabled;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 bool Environment::is_fog_depth_enabled() const {
 
@@ -859,7 +859,7 @@ bool Environment::is_fog_depth_enabled() const {
 void Environment::set_fog_depth_begin(float p_distance) {
 
     fog_depth_begin = p_distance;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 float Environment::get_fog_depth_begin() const {
 
@@ -869,7 +869,7 @@ float Environment::get_fog_depth_begin() const {
 void Environment::set_fog_depth_end(float p_distance) {
 
     fog_depth_end = p_distance;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 
 float Environment::get_fog_depth_end() const {
@@ -880,7 +880,7 @@ float Environment::get_fog_depth_end() const {
 void Environment::set_fog_depth_curve(float p_curve) {
 
     fog_depth_curve = p_curve;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 float Environment::get_fog_depth_curve() const {
 
@@ -890,7 +890,7 @@ float Environment::get_fog_depth_curve() const {
 void Environment::set_fog_transmit_enabled(bool p_enabled) {
 
     fog_transmit_enabled = p_enabled;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 bool Environment::is_fog_transmit_enabled() const {
 
@@ -900,7 +900,7 @@ bool Environment::is_fog_transmit_enabled() const {
 void Environment::set_fog_transmit_curve(float p_curve) {
 
     fog_transmit_curve = p_curve;
-    VisualServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
+    RenderingServer::get_singleton()->environment_set_fog_depth(environment, fog_depth_enabled, fog_depth_begin, fog_depth_end, fog_depth_curve, fog_transmit_enabled, fog_transmit_curve);
 }
 float Environment::get_fog_transmit_curve() const {
 
@@ -910,7 +910,7 @@ float Environment::get_fog_transmit_curve() const {
 void Environment::set_fog_height_enabled(bool p_enabled) {
 
     fog_height_enabled = p_enabled;
-    VisualServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
+    RenderingServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
 }
 bool Environment::is_fog_height_enabled() const {
 
@@ -920,7 +920,7 @@ bool Environment::is_fog_height_enabled() const {
 void Environment::set_fog_height_min(float p_distance) {
 
     fog_height_min = p_distance;
-    VisualServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
+    RenderingServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
 }
 float Environment::get_fog_height_min() const {
 
@@ -930,7 +930,7 @@ float Environment::get_fog_height_min() const {
 void Environment::set_fog_height_max(float p_distance) {
 
     fog_height_max = p_distance;
-    VisualServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
+    RenderingServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
 }
 float Environment::get_fog_height_max() const {
 
@@ -940,7 +940,7 @@ float Environment::get_fog_height_max() const {
 void Environment::set_fog_height_curve(float p_distance) {
 
     fog_height_curve = p_distance;
-    VisualServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
+    RenderingServer::get_singleton()->environment_set_fog_height(environment, fog_height_enabled, fog_height_min, fog_height_max, fog_height_curve);
 }
 float Environment::get_fog_height_curve() const {
 
@@ -1321,7 +1321,7 @@ Environment::Environment() :
         dof_blur_far_quality(DOF_BLUR_QUALITY_LOW),
         dof_blur_near_quality(DOF_BLUR_QUALITY_LOW) {
 
-    environment = VisualServer::get_singleton()->environment_create();
+    environment = RenderingServer::get_singleton()->environment_create();
 
     bg_mode = BG_CLEAR_COLOR;
     bg_sky_custom_fov = 0;
@@ -1418,5 +1418,5 @@ Environment::Environment() :
 
 Environment::~Environment() {
 
-    VisualServer::get_singleton()->free_rid(environment);
+    RenderingServer::get_singleton()->free_rid(environment);
 }

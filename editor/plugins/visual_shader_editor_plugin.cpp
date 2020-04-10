@@ -49,7 +49,7 @@
 #include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/visual_shader_nodes.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
@@ -2215,8 +2215,8 @@ void VisualShaderEditor::_update_preview() {
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(visual_shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(visual_shader->get_mode())),
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(visual_shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(visual_shader->get_mode())),
             ShaderTypes::get_singleton()->get_types());
 
     for (int i = 0; i < preview_text->get_line_count(); i++) {

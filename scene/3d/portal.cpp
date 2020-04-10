@@ -31,7 +31,7 @@
 #include "portal.h"
 #include "core/project_settings.h"
 #include "scene/resources/surface_tool.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 // FIXME: This will be removed, kept as reference for new implementation
@@ -138,7 +138,7 @@ PoolVector<Face3> Portal::get_faces(uint32_t p_usage_flags) const {
 
 void Portal::set_shape(const Vector<Point2> &p_shape) {
 
-    VisualServer::get_singleton()->portal_set_shape(portal, p_shape);
+    RenderingServer::get_singleton()->portal_set_shape(portal, p_shape);
     shape = p_shape;
     update_gizmo();
 }
@@ -151,7 +151,7 @@ Vector<Point2> Portal::get_shape() const {
 void Portal::set_connect_range(float p_range) {
 
     connect_range = p_range;
-    //VisualServer::get_singleton()->portal_set_connect_range(portal,p_range);
+    //RenderingServer::get_singleton()->portal_set_connect_range(portal,p_range);
 }
 
 float Portal::get_connect_range() const {
@@ -162,7 +162,7 @@ float Portal::get_connect_range() const {
 void Portal::set_enabled(bool p_enabled) {
 
     enabled = p_enabled;
-    VisualServer::get_singleton()->portal_set_enabled(portal, enabled);
+    RenderingServer::get_singleton()->portal_set_enabled(portal, enabled);
 }
 
 bool Portal::is_enabled() const {
@@ -173,7 +173,7 @@ bool Portal::is_enabled() const {
 void Portal::set_disable_distance(float p_distance) {
 
     disable_distance = p_distance;
-    VisualServer::get_singleton()->portal_set_disable_distance(portal, disable_distance);
+    RenderingServer::get_singleton()->portal_set_disable_distance(portal, disable_distance);
 }
 float Portal::get_disable_distance() const {
 
@@ -183,7 +183,7 @@ float Portal::get_disable_distance() const {
 void Portal::set_disabled_color(const Color &p_disabled_color) {
 
     disabled_color = p_disabled_color;
-    VisualServer::get_singleton()->portal_set_disabled_color(portal, disabled_color);
+    RenderingServer::get_singleton()->portal_set_disabled_color(portal, disabled_color);
 }
 
 Color Portal::get_disabled_color() const {
@@ -211,7 +211,7 @@ void Portal::_bind_methods() {
 
 Portal::Portal() {
 
-    portal = VisualServer::get_singleton()->portal_create();
+    portal = RenderingServer::get_singleton()->portal_create();
     Vector<Point2> points;
     points.push_back(Point2(-1, 1));
     points.push_back(Point2(1, 1));
@@ -228,6 +228,6 @@ Portal::Portal() {
 
 Portal::~Portal() {
 
-    VisualServer::get_singleton()->free(portal);
+    RenderingServer::get_singleton()->free(portal);
 }
 #endif

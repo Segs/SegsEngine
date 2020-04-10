@@ -43,7 +43,7 @@
 #include "scene/main/scene_tree.h"
 
 #include "servers/physics_server_3d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(SoftBody)
 
@@ -57,15 +57,15 @@ void SoftBodyVisualServerHandler::prepare(RID p_mesh, int p_surface) {
     mesh = p_mesh;
     surface = p_surface;
 
-    const uint32_t surface_format = VisualServer::get_singleton()->mesh_surface_get_format(mesh, surface);
-    const int surface_vertex_len = VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, p_surface);
-    const int surface_index_len = VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, p_surface);
-    uint32_t surface_offsets[VS::ARRAY_MAX];
+    const uint32_t surface_format = RenderingServer::get_singleton()->mesh_surface_get_format(mesh, surface);
+    const int surface_vertex_len = RenderingServer::get_singleton()->mesh_surface_get_array_len(mesh, p_surface);
+    const int surface_index_len = RenderingServer::get_singleton()->mesh_surface_get_array_index_len(mesh, p_surface);
+    uint32_t surface_offsets[RS::ARRAY_MAX];
 
-    buffer = VisualServer::get_singleton()->mesh_surface_get_array(mesh, surface);
-    stride = VisualServer::get_singleton()->mesh_surface_make_offsets_from_format(surface_format, surface_vertex_len, surface_index_len, surface_offsets);
-    offset_vertices = surface_offsets[VS::ARRAY_VERTEX];
-    offset_normal = surface_offsets[VS::ARRAY_NORMAL];
+    buffer = RenderingServer::get_singleton()->mesh_surface_get_array(mesh, surface);
+    stride = RenderingServer::get_singleton()->mesh_surface_make_offsets_from_format(surface_format, surface_vertex_len, surface_index_len, surface_offsets);
+    offset_vertices = surface_offsets[RS::ARRAY_VERTEX];
+    offset_normal = surface_offsets[RS::ARRAY_NORMAL];
 }
 
 void SoftBodyVisualServerHandler::clear() {
@@ -86,7 +86,7 @@ void SoftBodyVisualServerHandler::close() {
 }
 
 void SoftBodyVisualServerHandler::commit_changes() {
-    VisualServer::get_singleton()->mesh_surface_update_region(mesh, surface, 0, buffer);
+    RenderingServer::get_singleton()->mesh_surface_update_region(mesh, surface, 0, buffer);
 }
 
 void SoftBodyVisualServerHandler::set_vertex(int p_vertex_id, const void *p_vector3) {
@@ -98,7 +98,7 @@ void SoftBodyVisualServerHandler::set_normal(int p_vertex_id, const void *p_vect
 }
 
 void SoftBodyVisualServerHandler::set_aabb(const AABB &p_aabb) {
-    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, p_aabb);
+    RenderingServer::get_singleton()->mesh_set_custom_aabb(mesh, p_aabb);
 }
 
 SoftBody::PinnedPoint::PinnedPoint() :
@@ -292,7 +292,7 @@ void SoftBody::_notification(int p_what) {
             PhysicsServer3D::get_singleton()->soft_body_set_transform(physics_rid, get_global_transform());
 
             set_notify_transform(false);
-            // Required to be top level with Transform at center of world in order to modify VisualServer only to support custom Transform
+            // Required to be top level with Transform at center of world in order to modify RenderingServer only to support custom Transform
             set_as_toplevel(true);
             set_transform(Transform());
             set_notify_transform(true);
@@ -462,17 +462,17 @@ void SoftBody::update_physics_server() {
 
         return;
     }
-    auto VS = VisualServer::get_singleton();
+    auto RS = RenderingServer::get_singleton();
     if (get_mesh()) {
 
         become_mesh_owner();
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        VS->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        RS->connect("frame_pre_draw", this, "_draw_soft_mesh");
     } else {
 
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        if(VS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
-            VS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        if(RS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
+            RS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
         }
     }
 }

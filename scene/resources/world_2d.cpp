@@ -35,7 +35,7 @@
 #include "scene/2d/visibility_notifier_2d.h"
 #include "scene/main/viewport.h"
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(World2D)
@@ -386,7 +386,7 @@ PhysicsDirectSpaceState2D *World2D::get_direct_space_state() {
 
 World2D::World2D() {
 
-    canvas = VisualServer::get_singleton()->canvas_create();
+    canvas = RenderingServer::get_singleton()->canvas_create();
     space = PhysicsServer2D::get_singleton()->space_create();
 
     //set space2D to be more friendly with pixels than meters, by adjusting some constants
@@ -402,7 +402,7 @@ World2D::World2D() {
 
 World2D::~World2D() {
 
-    VisualServer::get_singleton()->free_rid(canvas);
+    RenderingServer::get_singleton()->free_rid(canvas);
     PhysicsServer2D::get_singleton()->free_rid(space);
     memdelete(indexer);
 }

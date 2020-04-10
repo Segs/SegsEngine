@@ -39,7 +39,7 @@
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "servers/physics_server_3d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 
 class TestPhysicsMainLoop : public MainLoop {
@@ -74,7 +74,7 @@ class TestPhysicsMainLoop : public MainLoop {
     void body_changed_transform(Object *p_state, RID p_visual_instance) {
 
         PhysicsDirectBodyState *state = (PhysicsDirectBodyState *)p_state;
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         Transform t = state->get_transform();
         vs->instance_set_transform(p_visual_instance, t);
     }
@@ -89,7 +89,7 @@ protected:
 
     RID create_body(PhysicsServer3D::ShapeType p_shape, PhysicsServer3D::BodyMode p_body, const Transform p_location, bool p_active_default = true, const Transform &p_shape_xform = Transform()) {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
 
         RID mesh_instance = vs->instance_create2(type_mesh_map[p_shape], scenario);
@@ -134,7 +134,7 @@ protected:
 
     void init_shapes() {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
 
         /* SPHERE SHAPE */
@@ -192,7 +192,7 @@ protected:
 
     void make_trimesh(Vector<Vector3> p_faces, const Transform &p_xform = Transform()) {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
         RID trimesh_shape = ps->shape_create(PhysicsServer3D::SHAPE_CONCAVE_POLYGON);
         ps->shape_set_data(trimesh_shape, Variant::from(p_faces));
@@ -210,7 +210,7 @@ protected:
         SurfaceArrays d;
         d.set_positions(eastl::move(p_faces));
         d.m_normals = eastl::move(normals);
-        vs->mesh_add_surface_from_arrays(trimesh_mesh, VS::PRIMITIVE_TRIANGLES, d);
+        vs->mesh_add_surface_from_arrays(trimesh_mesh, RS::PRIMITIVE_TRIANGLES, d);
 
         RID triins = vs->instance_create2(trimesh_mesh, scenario);
 
@@ -300,7 +300,7 @@ public:
         space = ps->space_create();
         ps->space_set_active(space, true);
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         /* LIGHT */
         RID lightaux = vs->directional_light_create();
@@ -347,7 +347,7 @@ public:
         cameratr.rotate(Vector3(0, 1, 0), ofs_x);
         cameratr.rotate(Vector3(1, 0, 0), -ofs_y);
         cameratr.translate(Vector3(0, 2, 8));
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         vs->camera_set_transform(camera, cameratr);
 
         return quit;
@@ -363,7 +363,7 @@ public:
 
     void test_character() {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
 
         PoolVector<Plane> capsule_planes = Geometry::build_capsule_planes(0.5, 1, 12, 5, Vector3::AXIS_Y);

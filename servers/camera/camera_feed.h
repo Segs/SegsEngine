@@ -104,7 +104,7 @@ public:
     void set_RGB_img(Ref<Image> p_rgb_img);
     void set_YCbCr_img(Ref<Image> p_ycbcr_img);
     void set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img);
-    void allocate_texture(int p_width, int p_height, Image::Format p_format, VS::TextureType p_texture_type, FeedDataType p_data_type);
+    void allocate_texture(int p_width, int p_height, Image::Format p_format, RS::TextureType p_texture_type, FeedDataType p_data_type);
 
     virtual bool activate_feed();
     virtual void deactivate_feed();

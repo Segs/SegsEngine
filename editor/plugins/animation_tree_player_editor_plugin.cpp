@@ -898,7 +898,7 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
         case NOTIFICATION_DRAW: {
 
             _update_scrollbars();
-            //VisualServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
+            //RenderingServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
             get_stylebox("bg", "Tree")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
 
             for (const StringName &E : order) {

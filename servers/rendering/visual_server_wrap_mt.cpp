@@ -43,7 +43,7 @@ void VisualServerWrapMT::thread_draw(bool p_swap_buffers, double frame_step) {
 
     if (!atomic_decrement(&draw_pending)) {
 
-        visual_server->draw(p_swap_buffers, frame_step);
+        rendering_server->draw(p_swap_buffers, frame_step);
     }
 }
 
@@ -65,7 +65,7 @@ void VisualServerWrapMT::thread_loop() {
 
     OS::get_singleton()->make_rendering_thread();
 
-    visual_server->init();
+    rendering_server->init();
 
     exit = false;
     draw_thread_up = true;
@@ -76,7 +76,7 @@ void VisualServerWrapMT::thread_loop() {
 
     command_queue.flush_all(); // flush all
 
-    visual_server->finish();
+    rendering_server->finish();
 }
 
 /* EVENT QUEUING */
@@ -101,7 +101,7 @@ void VisualServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
         command_queue.push([this,p_swap_buffers,frame_step]() {thread_draw(p_swap_buffers,frame_step); });
     } else {
 
-        visual_server->draw(p_swap_buffers, frame_step);
+        rendering_server->draw(p_swap_buffers, frame_step);
     }
 }
 
@@ -121,7 +121,7 @@ void VisualServerWrapMT::init() {
         print_verbose("VisualServerWrapMT: Finished render thread");
     } else {
 
-        visual_server->init();
+        rendering_server->init();
     }
 }
 
@@ -135,7 +135,7 @@ void VisualServerWrapMT::finish() {
 
         thread = nullptr;
     } else {
-        visual_server->finish();
+        rendering_server->finish();
     }
 
     texture_free_cached_ids();
@@ -171,13 +171,13 @@ void VisualServerWrapMT::set_use_vsync_callback(bool p_enable) {
 
 VisualServerWrapMT *VisualServerWrapMT::singleton_mt = nullptr;
 
-VisualServerWrapMT::VisualServerWrapMT(VisualServer *p_contained, bool p_create_thread) :
+VisualServerWrapMT::VisualServerWrapMT(RenderingServer *p_contained, bool p_create_thread) :
         command_queue(p_create_thread) {
 
     singleton_mt = this;
     OS::switch_vsync_function = set_use_vsync_callback; //as this goes to another thread, make sure it goes properly
 
-    visual_server = p_contained;
+    rendering_server = p_contained;
     create_thread = p_create_thread;
     thread = nullptr;
     draw_pending = 0;
@@ -194,7 +194,7 @@ VisualServerWrapMT::VisualServerWrapMT(VisualServer *p_contained, bool p_create_
 
 VisualServerWrapMT::~VisualServerWrapMT() {
 
-    memdelete(visual_server);
+    memdelete(rendering_server);
     memdelete(alloc_mutex);
     //finish();
 }

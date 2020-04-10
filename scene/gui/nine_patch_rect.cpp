@@ -30,7 +30,7 @@
 
 #include "nine_patch_rect.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(NinePatchRect)
@@ -50,7 +50,7 @@ void NinePatchRect::_notification(int p_what) {
         texture->get_rect_region(rect, src_rect, rect, src_rect);
 
         RID ci = get_canvas_item();
-        VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]), Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), VS::NinePatchAxisMode(axis_h), VS::NinePatchAxisMode(axis_v), draw_center);
+        RenderingServer::get_singleton()->canvas_item_add_nine_patch(ci, rect, src_rect, texture->get_rid(), Vector2(margin[(int8_t)Margin::Left], margin[(int8_t)Margin::Top]), Vector2(margin[(int8_t)Margin::Right], margin[(int8_t)Margin::Bottom]), RS::NinePatchAxisMode(axis_h), RS::NinePatchAxisMode(axis_v), draw_center);
     }
 }
 

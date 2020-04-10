@@ -118,7 +118,7 @@ void EditorSpatialGizmo::clear() {
     for (int i = 0; i < instances.size(); i++) {
 
         if (instances[i].instance.is_valid())
-            VisualServer::get_singleton()->free_rid(instances[i].instance);
+            RenderingServer::get_singleton()->free_rid(instances[i].instance);
     }
 
     billboard_handle = false;
@@ -200,15 +200,15 @@ void EditorSpatialGizmo::set_spatial_node(Node3D *p_node) {
 
 void EditorSpatialGizmo::Instance::create_instance(Node3D *p_base, bool p_hidden) {
 
-    instance = VisualServer::get_singleton()->instance_create2(mesh->get_rid(), p_base->get_world()->get_scenario());
-    VisualServer::get_singleton()->instance_attach_object_instance_id(instance, p_base->get_instance_id());
+    instance = RenderingServer::get_singleton()->instance_create2(mesh->get_rid(), p_base->get_world()->get_scenario());
+    RenderingServer::get_singleton()->instance_attach_object_instance_id(instance, p_base->get_instance_id());
     if (skin_reference)
-        VisualServer::get_singleton()->instance_attach_skeleton(instance, skin_reference->get_skeleton());
+        RenderingServer::get_singleton()->instance_attach_skeleton(instance, skin_reference->get_skeleton());
     if (extra_margin)
-        VisualServer::get_singleton()->instance_set_extra_visibility_margin(instance, 1);
-    VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(instance, VS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_extra_visibility_margin(instance, 1);
+    RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(instance, RS::SHADOW_CASTING_SETTING_OFF);
     uint32_t layer = p_hidden ? 0 : 1 << SpatialEditorViewport::GIZMO_EDIT_LAYER;
-    VisualServer::get_singleton()->instance_set_layer_mask(instance, layer); //gizmos are 26
+    RenderingServer::get_singleton()->instance_set_layer_mask(instance, layer); //gizmos are 26
 }
 
 void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard, const Ref<SkinReference> &p_skin_reference, const Ref<Material> &p_material) {
@@ -222,9 +222,9 @@ void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard
     ins.material = p_material;
     if (valid) {
         ins.create_instance(spatial_node, hidden);
-        VisualServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
+        RenderingServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
         if (ins.material) {
-            VisualServer::get_singleton()->instance_geometry_set_material_override(ins.instance, p_material->get_rid());
+            RenderingServer::get_singleton()->instance_geometry_set_material_override(ins.instance, p_material->get_rid());
         }
     }
 
@@ -281,7 +281,7 @@ void EditorSpatialGizmo::add_lines(const Vector<Vector3> &p_lines, const Ref<Mat
     ins.mesh = mesh;
     if (valid) {
         ins.create_instance(spatial_node, hidden);
-        VisualServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
+        RenderingServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
     }
 
     instances.push_back(ins);
@@ -339,7 +339,7 @@ void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material,
     ins.billboard = true;
     if (valid) {
         ins.create_instance(spatial_node, hidden);
-        VisualServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
+        RenderingServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
     }
 
     selectable_icon_size = p_scale;
@@ -411,7 +411,7 @@ void EditorSpatialGizmo::add_handles(Vector<Vector3> &&p_handles, const Ref<Mate
     ins.extra_margin = true;
     if (valid) {
         ins.create_instance(spatial_node, hidden);
-        VisualServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
+        RenderingServer::get_singleton()->instance_set_transform(ins.instance, spatial_node->get_global_transform());
     }
     instances.push_back(ins);
     if (!p_secondary) {
@@ -731,7 +731,7 @@ void EditorSpatialGizmo::transform() {
     ERR_FAIL_COND(!spatial_node);
     ERR_FAIL_COND(!valid);
     for (int i = 0; i < instances.size(); i++) {
-        VisualServer::get_singleton()->instance_set_transform(instances[i].instance, spatial_node->get_global_transform());
+        RenderingServer::get_singleton()->instance_set_transform(instances[i].instance, spatial_node->get_global_transform());
     }
 }
 
@@ -743,7 +743,7 @@ void EditorSpatialGizmo::free() {
     for (int i = 0; i < instances.size(); i++) {
 
         if (instances[i].instance.is_valid())
-            VisualServer::get_singleton()->free_rid(instances[i].instance);
+            RenderingServer::get_singleton()->free_rid(instances[i].instance);
         instances[i].instance = RID();
     }
 
@@ -756,7 +756,7 @@ void EditorSpatialGizmo::set_hidden(bool p_hidden) {
     hidden = p_hidden;
     int layer = hidden ? 0 : 1 << SpatialEditorViewport::GIZMO_EDIT_LAYER;
     for (int i = 0; i < instances.size(); ++i) {
-        VisualServer::get_singleton()->instance_set_layer_mask(instances[i].instance, layer);
+        RenderingServer::get_singleton()->instance_set_layer_mask(instances[i].instance, layer);
     }
 }
 

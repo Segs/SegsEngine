@@ -40,9 +40,9 @@
 #include "joypad_osx.h"
 #include "main/input_default.h"
 #include "servers/audio_server.h"
-#include "servers/visual/rasterizer.h"
-#include "servers/visual/visual_server_wrap_mt.h"
-#include "servers/visual_server.h"
+#include "servers/rendering/rasterizer.h"
+#include "servers/rendering/visual_server_wrap_mt.h"
+#include "servers/rendering_server.h"
 
 #include <AppKit/AppKit.h>
 #include <AppKit/NSCursor.h>
@@ -68,7 +68,7 @@ public:
     bool force_quit;
     //  rasterizer seems to no longer be given to visual server, its using GLES3 directly?
     //Rasterizer *rasterizer;
-    VisualServer *visual_server;
+    RenderingServer *rendering_server;
 
     CameraServer *camera_server;
 

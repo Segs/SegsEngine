@@ -535,7 +535,7 @@ private:
     ToolMode tool_mode;
     bool orthogonal;
 
-    VS::ScenarioDebugMode scenario_debug;
+    RS::ScenarioDebugMode scenario_debug;
 
     RID origin;
     RID origin_instance;

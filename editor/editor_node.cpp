@@ -385,9 +385,9 @@ void EditorNode::_notification(int p_what) {
             }
             _initializing_addons = false;
         }
-            VisualServer::get_singleton()->viewport_set_hide_scenario(get_scene_root()->get_viewport_rid(), true);
-            VisualServer::get_singleton()->viewport_set_hide_canvas(get_scene_root()->get_viewport_rid(), true);
-            VisualServer::get_singleton()->viewport_set_disable_environment(get_viewport()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_hide_scenario(get_scene_root()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_hide_canvas(get_scene_root()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_disable_environment(get_viewport()->get_viewport_rid(), true);
 
             feature_profile_manager->notify_changed();
 
@@ -5953,8 +5953,8 @@ EditorNode::EditorNode() {
     Input::get_singleton()->set_use_accumulated_input(true);
     Resource::_get_local_scene_func = _resource_get_edited_scene;
 
-    VisualServer::get_singleton()->textures_keep_original(true);
-    VisualServer::get_singleton()->set_debug_generate_wireframes(true);
+    RenderingServer::get_singleton()->textures_keep_original(true);
+    RenderingServer::get_singleton()->set_debug_generate_wireframes(true);
 
     PhysicsServer3D::get_singleton()->set_active(false); // no physics by default if editor
     PhysicsServer2D::get_singleton()->set_active(false); // no physics by default if editor
@@ -6372,7 +6372,7 @@ EditorNode::EditorNode() {
     // scene_root->set_usage(Viewport::USAGE_2D); canvas BG mode prevents usage of this as 2D
     scene_root->set_disable_3d(true);
 
-    VisualServer::get_singleton()->viewport_set_hide_scenario(scene_root->get_viewport_rid(), true);
+    RenderingServer::get_singleton()->viewport_set_hide_scenario(scene_root->get_viewport_rid(), true);
     scene_root->set_disable_input(true);
     scene_root->set_as_audio_listener_2d(true);
 

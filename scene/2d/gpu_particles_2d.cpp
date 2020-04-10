@@ -47,7 +47,7 @@ VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder)
 
 void GPUParticles2D::set_emitting(bool p_emitting) {
 
-    VisualServer::get_singleton()->particles_set_emitting(particles, p_emitting);
+    RenderingServer::get_singleton()->particles_set_emitting(particles, p_emitting);
 
     if (p_emitting && one_shot) {
         set_process_internal(true);
@@ -60,25 +60,25 @@ void GPUParticles2D::set_amount(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
     amount = p_amount;
-    VisualServer::get_singleton()->particles_set_amount(particles, amount);
+    RenderingServer::get_singleton()->particles_set_amount(particles, amount);
 }
 void GPUParticles2D::set_lifetime(float p_lifetime) {
 
     ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
-    VisualServer::get_singleton()->particles_set_lifetime(particles, lifetime);
+    RenderingServer::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
 
 void GPUParticles2D::set_one_shot(bool p_enable) {
 
     one_shot = p_enable;
-    VisualServer::get_singleton()->particles_set_one_shot(particles, one_shot);
+    RenderingServer::get_singleton()->particles_set_one_shot(particles, one_shot);
 
     if (is_emitting()) {
 
         set_process_internal(true);
         if (!one_shot)
-            VisualServer::get_singleton()->particles_restart(particles);
+            RenderingServer::get_singleton()->particles_restart(particles);
     }
 
     if (!one_shot)
@@ -87,17 +87,17 @@ void GPUParticles2D::set_one_shot(bool p_enable) {
 void GPUParticles2D::set_pre_process_time(float p_time) {
 
     pre_process_time = p_time;
-    VisualServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
+    RenderingServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
 }
 void GPUParticles2D::set_explosiveness_ratio(float p_ratio) {
 
     explosiveness_ratio = p_ratio;
-    VisualServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
+    RenderingServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
 }
 void GPUParticles2D::set_randomness_ratio(float p_ratio) {
 
     randomness_ratio = p_ratio;
-    VisualServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
+    RenderingServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
 }
 void GPUParticles2D::set_visibility_rect(const Rect2 &p_visibility_rect) {
 
@@ -108,7 +108,7 @@ void GPUParticles2D::set_visibility_rect(const Rect2 &p_visibility_rect) {
     aabb.size.x = p_visibility_rect.size.x;
     aabb.size.y = p_visibility_rect.size.y;
 
-    VisualServer::get_singleton()->particles_set_custom_aabb(particles, aabb);
+    RenderingServer::get_singleton()->particles_set_custom_aabb(particles, aabb);
 
     Object_change_notify(this,"visibility_rect");
     update();
@@ -116,7 +116,7 @@ void GPUParticles2D::set_visibility_rect(const Rect2 &p_visibility_rect) {
 void GPUParticles2D::set_use_local_coordinates(bool p_enable) {
 
     local_coords = p_enable;
-    VisualServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
+    RenderingServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
     set_notify_transform(!p_enable);
     if (!p_enable && is_inside_tree()) {
         _update_particle_emission_transform();
@@ -131,7 +131,7 @@ void GPUParticles2D::_update_particle_emission_transform() {
     xf.basis.set_axis(1, Vector3(xf2d.get_axis(1).x, xf2d.get_axis(1).y, 0));
     xf.set_origin(Vector3(xf2d.get_origin().x, xf2d.get_origin().y, 0));
 
-    VisualServer::get_singleton()->particles_set_emission_transform(particles, xf);
+    RenderingServer::get_singleton()->particles_set_emission_transform(particles, xf);
 }
 
 void GPUParticles2D::set_process_material(const Ref<Material> &p_material) {
@@ -146,7 +146,7 @@ void GPUParticles2D::set_process_material(const Ref<Material> &p_material) {
     RID material_rid;
     if (process_material)
         material_rid = process_material->get_rid();
-    VisualServer::get_singleton()->particles_set_process_material(particles, material_rid);
+    RenderingServer::get_singleton()->particles_set_process_material(particles, material_rid);
 
     update_configuration_warning();
 }
@@ -154,12 +154,12 @@ void GPUParticles2D::set_process_material(const Ref<Material> &p_material) {
 void GPUParticles2D::set_speed_scale(float p_scale) {
 
     speed_scale = p_scale;
-    VisualServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
+    RenderingServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
 }
 
 bool GPUParticles2D::is_emitting() const {
 
-    return VisualServer::get_singleton()->particles_get_emitting(particles);
+    return RenderingServer::get_singleton()->particles_get_emitting(particles);
 }
 int GPUParticles2D::get_amount() const {
 
@@ -207,7 +207,7 @@ float GPUParticles2D::get_speed_scale() const {
 void GPUParticles2D::set_draw_order(DrawOrder p_order) {
 
     draw_order = p_order;
-    VisualServer::get_singleton()->particles_set_draw_order(particles, VS::ParticlesDrawOrder(p_order));
+    RenderingServer::get_singleton()->particles_set_draw_order(particles, RS::ParticlesDrawOrder(p_order));
 }
 
 GPUParticles2D::DrawOrder GPUParticles2D::get_draw_order() const {
@@ -217,7 +217,7 @@ GPUParticles2D::DrawOrder GPUParticles2D::get_draw_order() const {
 
 void GPUParticles2D::set_fixed_fps(int p_count) {
     fixed_fps = p_count;
-    VisualServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
+    RenderingServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
 }
 
 int GPUParticles2D::get_fixed_fps() const {
@@ -226,7 +226,7 @@ int GPUParticles2D::get_fixed_fps() const {
 
 void GPUParticles2D::set_fractional_delta(bool p_enable) {
     fractional_delta = p_enable;
-    VisualServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
+    RenderingServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
 }
 
 bool GPUParticles2D::get_fractional_delta() const {
@@ -262,7 +262,7 @@ StringName GPUParticles2D::get_configuration_warning() const {
 
 Rect2 GPUParticles2D::capture_rect() const {
 
-    AABB aabb = VisualServer::get_singleton()->particles_get_current_aabb(particles);
+    AABB aabb = RenderingServer::get_singleton()->particles_get_current_aabb(particles);
     Rect2 r;
     r.position.x = aabb.position.x;
     r.position.y = aabb.position.y;
@@ -294,8 +294,8 @@ void GPUParticles2D::_validate_property(PropertyInfo &property) const {
 }
 
 void GPUParticles2D::restart() {
-    VisualServer::get_singleton()->particles_restart(particles);
-    VisualServer::get_singleton()->particles_set_emitting(particles, true);
+    RenderingServer::get_singleton()->particles_restart(particles);
+    RenderingServer::get_singleton()->particles_set_emitting(particles, true);
 }
 
 void GPUParticles2D::_notification(int p_what) {
@@ -309,7 +309,7 @@ void GPUParticles2D::_notification(int p_what) {
         if (normal_map)
             normal_rid = normal_map->get_rid();
 
-        VisualServer::get_singleton()->canvas_item_add_particles(get_canvas_item(), particles, texture_rid, normal_rid);
+        RenderingServer::get_singleton()->canvas_item_add_particles(get_canvas_item(), particles, texture_rid, normal_rid);
 
 #ifdef TOOLS_ENABLED
         if (Engine::get_singleton()->is_editor_hint() && (this == get_tree()->get_edited_scene_root() || get_tree()->get_edited_scene_root()->is_a_parent_of(this))) {
@@ -321,10 +321,10 @@ void GPUParticles2D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, speed_scale);
+            RenderingServer::get_singleton()->particles_set_speed_scale(particles, speed_scale);
         } else {
 
-            VisualServer::get_singleton()->particles_set_speed_scale(particles, 0);
+            RenderingServer::get_singleton()->particles_set_speed_scale(particles, 0);
         }
     }
 
@@ -411,7 +411,7 @@ void GPUParticles2D::_bind_methods() {
 
 GPUParticles2D::GPUParticles2D() {
 
-    particles = VisualServer::get_singleton()->particles_create();
+    particles = RenderingServer::get_singleton()->particles_create();
 
     one_shot = false; // Needed so that set_emitting doesn't access uninitialized values
     set_emitting(true);
@@ -431,5 +431,5 @@ GPUParticles2D::GPUParticles2D() {
 
 GPUParticles2D::~GPUParticles2D() {
 
-    VisualServer::get_singleton()->free_rid(particles);
+    RenderingServer::get_singleton()->free_rid(particles);
 }

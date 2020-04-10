@@ -469,7 +469,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
                         }
                     }
                 }
-                VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, PoolVector<Color>(colors));
+                RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, PoolVector<Color>(colors));
             }
         } break;
     }

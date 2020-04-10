@@ -36,7 +36,7 @@
 #include "core/translation_helpers.h"
 #include "core/object_tooling.h"
 #include "scene/resources/shader_enum_casters.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
 #include "core/string_utils.inl"
 
 #include "EASTL/vector_map.h"
@@ -1197,9 +1197,9 @@ void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
     Map<String, String> blend_mode_enums;
     Set<String> toggles;
 
-    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
+    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
 
-        StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+        StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
         int idx = 0;
         bool in_enum = false;
         while (render_mode_enums[idx].string) {
@@ -1285,8 +1285,8 @@ void VisualShader::_update_shader() const {
 
                     int which = iter->second;
                     int count = 0;
-                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
-                        StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
+                        StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
                         if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
                             if (count == which) {
                                 if (!render_mode.empty()) {
@@ -1304,9 +1304,9 @@ void VisualShader::_update_shader() const {
         }
 
         //fill render mode flags
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
 
-            StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+            StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
             if (flags.contains(mode)) {
                 if (!render_mode.empty()) {
                     render_mode += String(", ");

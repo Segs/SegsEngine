@@ -30,7 +30,7 @@
 
 #include "texture_rect.h"
 #include "core/core_string_names.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(TextureRect)

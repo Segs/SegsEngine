@@ -30,14 +30,14 @@
 
 #include "y_sort.h"
 #include "core/method_bind.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(YSort)
 
 void YSort::set_sort_enabled(bool p_enabled) {
 
     sort_enabled = p_enabled;
-    VisualServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), sort_enabled);
+    RenderingServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), sort_enabled);
 }
 
 bool YSort::is_sort_enabled() const {
@@ -57,5 +57,5 @@ void YSort::_bind_methods() {
 YSort::YSort() {
 
     sort_enabled = true;
-    VisualServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), true);
+    RenderingServer::get_singleton()->canvas_item_set_sort_children_by_y(get_canvas_item(), true);
 }

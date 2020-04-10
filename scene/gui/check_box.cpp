@@ -30,7 +30,7 @@
 
 #include "check_box.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/resources/style_box.h"
 #include "core/property_info.h"
 #include "core/class_db.h"

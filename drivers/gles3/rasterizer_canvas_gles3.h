@@ -31,7 +31,7 @@
 #pragma once
 
 #include "rasterizer_storage_gles3.h"
-#include "servers/visual/rasterizer.h"
+#include "servers/rendering/rasterizer.h"
 
 #include "gles3/shaders/canvas_shadow.glsl.gen.h"
 #include "gles3/shaders/lens_distorted.glsl.gen.h"

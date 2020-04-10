@@ -1333,7 +1333,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     MAIN_PRINT("Main: Load Remaps");
 
     Color clear = GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f));
-    VisualServer::get_singleton()->set_default_clear_color(clear);
+    RenderingServer::get_singleton()->set_default_clear_color(clear);
 
     if (show_logo) { //boot logo!
         String boot_logo_path = GLOBAL_DEF("application/boot_splash/image", String());
@@ -1357,7 +1357,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
         Color boot_bg_color = GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
         if (boot_logo) {
             OS::get_singleton()->_msec_splash = OS::get_singleton()->get_ticks_msec();
-            VisualServer::get_singleton()->set_boot_image(boot_logo, boot_bg_color, boot_logo_scale, boot_logo_filter);
+            RenderingServer::get_singleton()->set_boot_image(boot_logo, boot_bg_color, boot_logo_scale, boot_logo_filter);
 
         } else {
 #ifndef NO_DEFAULT_BOOT_LOGO
@@ -1371,9 +1371,9 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 #endif
 
             MAIN_PRINT("Main: ClearColor");
-            VisualServer::get_singleton()->set_default_clear_color(boot_bg_color);
+            RenderingServer::get_singleton()->set_default_clear_color(boot_bg_color);
             MAIN_PRINT("Main: Image");
-            VisualServer::get_singleton()->set_boot_image(splash, boot_bg_color, false);
+            RenderingServer::get_singleton()->set_boot_image(splash, boot_bg_color, false);
 #endif
         }
 
@@ -1384,7 +1384,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     }
 
     MAIN_PRINT("Main: DCC");
-    VisualServer::get_singleton()->set_default_clear_color(GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f)));
+    RenderingServer::get_singleton()->set_default_clear_color(GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f)));
     MAIN_PRINT("Main: END");
 
     GLOBAL_DEF("application/config/icon", String());
@@ -2129,17 +2129,17 @@ bool Main::iteration() {
     }
     message_queue->flush();
 
-    VisualServer::get_singleton()->sync(); //sync if still drawing from previous frames.
+    RenderingServer::get_singleton()->sync(); //sync if still drawing from previous frames.
 
     if (OS::get_singleton()->can_draw() && !disable_render_loop) {
 
         if ((!force_redraw_requested) && OS::get_singleton()->is_in_low_processor_usage_mode()) {
-            if (VisualServer::get_singleton()->has_changed()) {
-                VisualServer::get_singleton()->draw(true, scaled_step); // flush visual commands
+            if (RenderingServer::get_singleton()->has_changed()) {
+                RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
                 Engine::get_singleton()->frames_drawn++;
             }
         } else {
-            VisualServer::get_singleton()->draw(true, scaled_step); // flush visual commands
+            RenderingServer::get_singleton()->draw(true, scaled_step); // flush visual commands
             Engine::get_singleton()->frames_drawn++;
             force_redraw_requested = false;
         }
@@ -2269,7 +2269,7 @@ void Main::cleanup() {
     ScriptServer::finish_languages();
 
     // Sync pending commands that may have been queued from a different thread during ScriptServer finalization
-    VisualServer::get_singleton()->sync();
+    RenderingServer::get_singleton()->sync();
 
 #ifdef TOOLS_ENABLED
     EditorNode::unregister_editor_types();

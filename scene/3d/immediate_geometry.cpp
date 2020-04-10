@@ -31,7 +31,7 @@
 #include "immediate_geometry.h"
 #include "core/method_bind.h"
 #include "scene/resources/texture.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(ImmediateGeometry)
 //TODO: SEGS: copied from mesh.cpp
@@ -39,39 +39,39 @@ VARIANT_ENUM_CAST(Mesh::PrimitiveType);
 
 void ImmediateGeometry::begin(Mesh::PrimitiveType p_primitive, const Ref<Texture> &p_texture) {
 
-    VisualServer::get_singleton()->immediate_begin(im, (VS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
+    RenderingServer::get_singleton()->immediate_begin(im, (RS::PrimitiveType)p_primitive, p_texture ? p_texture->get_rid() : RID());
     if (p_texture)
         cached_textures.emplace_back(p_texture);
 }
 
 void ImmediateGeometry::set_normal(const Vector3 &p_normal) {
 
-    VisualServer::get_singleton()->immediate_normal(im, p_normal);
+    RenderingServer::get_singleton()->immediate_normal(im, p_normal);
 }
 
 void ImmediateGeometry::set_tangent(const Plane &p_tangent) {
 
-    VisualServer::get_singleton()->immediate_tangent(im, p_tangent);
+    RenderingServer::get_singleton()->immediate_tangent(im, p_tangent);
 }
 
 void ImmediateGeometry::set_color(const Color &p_color) {
 
-    VisualServer::get_singleton()->immediate_color(im, p_color);
+    RenderingServer::get_singleton()->immediate_color(im, p_color);
 }
 
 void ImmediateGeometry::set_uv(const Vector2 &p_uv) {
 
-    VisualServer::get_singleton()->immediate_uv(im, p_uv);
+    RenderingServer::get_singleton()->immediate_uv(im, p_uv);
 }
 
 void ImmediateGeometry::set_uv2(const Vector2 &p_uv2) {
 
-    VisualServer::get_singleton()->immediate_uv2(im, p_uv2);
+    RenderingServer::get_singleton()->immediate_uv2(im, p_uv2);
 }
 
 void ImmediateGeometry::add_vertex(const Vector3 &p_vertex) {
 
-    VisualServer::get_singleton()->immediate_vertex(im, p_vertex);
+    RenderingServer::get_singleton()->immediate_vertex(im, p_vertex);
     if (empty) {
         aabb.position = p_vertex;
         aabb.size = Vector3();
@@ -83,12 +83,12 @@ void ImmediateGeometry::add_vertex(const Vector3 &p_vertex) {
 
 void ImmediateGeometry::end() {
 
-    VisualServer::get_singleton()->immediate_end(im);
+    RenderingServer::get_singleton()->immediate_end(im);
 }
 
 void ImmediateGeometry::clear() {
 
-    VisualServer::get_singleton()->immediate_clear(im);
+    RenderingServer::get_singleton()->immediate_clear(im);
     empty = true;
     cached_textures.clear();
 }
@@ -165,12 +165,12 @@ void ImmediateGeometry::_bind_methods() {
 
 ImmediateGeometry::ImmediateGeometry() {
 
-    im = VisualServer::get_singleton()->immediate_create();
+    im = RenderingServer::get_singleton()->immediate_create();
     set_base(im);
     empty = true;
 }
 
 ImmediateGeometry::~ImmediateGeometry() {
 
-    VisualServer::get_singleton()->free_rid(im);
+    RenderingServer::get_singleton()->free_rid(im);
 }

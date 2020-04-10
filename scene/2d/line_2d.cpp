@@ -34,7 +34,7 @@
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "scene/resources/curve.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Line2D)
 
@@ -317,7 +317,7 @@ void Line2D::_draw() {
 
     lb.build();
 
-    VisualServer::get_singleton()->canvas_item_add_triangle_array(
+    RenderingServer::get_singleton()->canvas_item_add_triangle_array(
                 get_canvas_item(),
                 lb.indices,
                 lb.vertices,

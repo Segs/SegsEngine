@@ -31,7 +31,7 @@
 #include "capsule_shape_2d.h"
 
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CapsuleShape2D)
@@ -84,7 +84,7 @@ void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     Vector<Vector2> points = _get_points();
     PoolVector<Color> col;
     col.push_back(p_color);
-    VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 
 Rect2 CapsuleShape2D::get_rect() const {

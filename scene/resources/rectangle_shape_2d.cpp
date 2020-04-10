@@ -31,7 +31,7 @@
 #include "rectangle_shape_2d.h"
 
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(RectangleShape2D)
@@ -55,7 +55,7 @@ Vector2 RectangleShape2D::get_extents() const {
 
 void RectangleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
-    VisualServer::get_singleton()->canvas_item_add_rect(p_to_rid, Rect2(-extents, extents * 2.0), p_color);
+    RenderingServer::get_singleton()->canvas_item_add_rect(p_to_rid, Rect2(-extents, extents * 2.0), p_color);
 }
 
 Rect2 RectangleShape2D::get_rect() const {

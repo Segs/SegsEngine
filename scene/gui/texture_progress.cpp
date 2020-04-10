@@ -32,7 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(TextureProgress)
 VARIANT_ENUM_CAST(TextureProgress::FillMode);
@@ -305,7 +305,7 @@ void TextureProgress::draw_nine_patch_stretched(const Ref<Texture> &p_texture, F
     p_texture->get_rect_region(dst_rect, src_rect, dst_rect, src_rect);
 
     RID ci = get_canvas_item();
-    VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, dst_rect, src_rect, p_texture->get_rid(), topleft, bottomright, VS::NINE_PATCH_STRETCH, VS::NINE_PATCH_STRETCH, true, p_modulate);
+    RenderingServer::get_singleton()->canvas_item_add_nine_patch(ci, dst_rect, src_rect, p_texture->get_rid(), topleft, bottomright, RS::NINE_PATCH_STRETCH, RS::NINE_PATCH_STRETCH, true, p_modulate);
 }
 
 void TextureProgress::_notification(int p_what) {

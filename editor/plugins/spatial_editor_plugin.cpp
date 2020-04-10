@@ -328,7 +328,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     Vector3 pos = _get_ray_pos(p_pos);
     Vector2 shrinked_pos = p_pos / viewport_container->get_stretch_shrink();
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
@@ -395,7 +395,7 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
     Vector3 ray = _get_ray(p_pos);
     Vector3 pos = _get_ray_pos(p_pos);
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_ray(pos, ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     r_includes_current = false;
@@ -519,7 +519,7 @@ void SpatialEditorViewport::_select_region() {
         frustum.push_back(far);
     }
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_convex(frustum, get_tree()->get_root()->get_world()->get_scenario());
     Vector<Node *> selected;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
@@ -2196,7 +2196,7 @@ void SpatialEditorViewport::_notification(int p_what) {
                 }
                 previewing = cam;
                 previewing->connect("tree_exited", this, "_preview_exited_scene");
-                VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), cam->get_camera_rid());
+                RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), cam->get_camera_rid());
                 surface->update();
             }
         }
@@ -2235,7 +2235,7 @@ void SpatialEditorViewport::_notification(int p_what) {
                 continue;
             changed = true;
             se->last_xform = t;
-            VisualServer::get_singleton()->instance_set_transform(se->sbox_instance, t);
+            RenderingServer::get_singleton()->instance_set_transform(se->sbox_instance, t);
         }
 
         if (changed || (spatial_editor->is_gizmo_visible() && !exist)) {
@@ -2445,7 +2445,7 @@ void SpatialEditorViewport::_draw() {
     if (_edit.mode == TRANSFORM_ROTATE) {
 
         Point2 center = _point_to_screen(_edit.center);
-        VisualServer::get_singleton()->canvas_item_add_line(
+        RenderingServer::get_singleton()->canvas_item_add_line(
                 ci,
                 _edit.mouse_pos,
                 center,
@@ -2792,7 +2792,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_DISPLAY_OVERDRAW: {
 
             viewport->set_debug_draw(Viewport::DEBUG_DRAW_OVERDRAW);
-            VisualServer::get_singleton()->scenario_set_debug(get_tree()->get_root()->get_world()->get_scenario(), VS::SCENARIO_DEBUG_OVERDRAW);
+            RenderingServer::get_singleton()->scenario_set_debug(get_tree()->get_root()->get_world()->get_scenario(), RS::SCENARIO_DEBUG_OVERDRAW);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_NORMAL), false);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_WIREFRAME), false);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_OVERDRAW), true);
@@ -2802,7 +2802,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
         case VIEW_DISPLAY_SHADELESS: {
 
             viewport->set_debug_draw(Viewport::DEBUG_DRAW_UNSHADED);
-            VisualServer::get_singleton()->scenario_set_debug(get_tree()->get_root()->get_world()->get_scenario(), VS::SCENARIO_DEBUG_SHADELESS);
+            RenderingServer::get_singleton()->scenario_set_debug(get_tree()->get_root()->get_world()->get_scenario(), RS::SCENARIO_DEBUG_SHADELESS);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_NORMAL), false);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_WIREFRAME), false);
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_OVERDRAW), false);
@@ -2825,51 +2825,51 @@ void SpatialEditorViewport::_init_gizmo_instance(int p_idx) {
     uint32_t layer = 1 << (GIZMO_BASE_LAYER + p_idx);
 
     for (int i = 0; i < 3; i++) {
-        move_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
-        VisualServer::get_singleton()->instance_set_base(move_gizmo_instance[i], spatial_editor->get_move_gizmo(i)->get_rid());
-        VisualServer::get_singleton()->instance_set_scenario(move_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], false);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(move_gizmo_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(move_gizmo_instance[i], layer);
+        move_gizmo_instance[i] = RenderingServer::get_singleton()->instance_create();
+        RenderingServer::get_singleton()->instance_set_base(move_gizmo_instance[i], spatial_editor->get_move_gizmo(i)->get_rid());
+        RenderingServer::get_singleton()->instance_set_scenario(move_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], false);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(move_gizmo_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(move_gizmo_instance[i], layer);
 
-        move_plane_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
-        VisualServer::get_singleton()->instance_set_base(move_plane_gizmo_instance[i], spatial_editor->get_move_plane_gizmo(i)->get_rid());
-        VisualServer::get_singleton()->instance_set_scenario(move_plane_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], false);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(move_plane_gizmo_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(move_plane_gizmo_instance[i], layer);
+        move_plane_gizmo_instance[i] = RenderingServer::get_singleton()->instance_create();
+        RenderingServer::get_singleton()->instance_set_base(move_plane_gizmo_instance[i], spatial_editor->get_move_plane_gizmo(i)->get_rid());
+        RenderingServer::get_singleton()->instance_set_scenario(move_plane_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], false);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(move_plane_gizmo_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(move_plane_gizmo_instance[i], layer);
 
-        rotate_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
-        VisualServer::get_singleton()->instance_set_base(rotate_gizmo_instance[i], spatial_editor->get_rotate_gizmo(i)->get_rid());
-        VisualServer::get_singleton()->instance_set_scenario(rotate_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], false);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(rotate_gizmo_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(rotate_gizmo_instance[i], layer);
+        rotate_gizmo_instance[i] = RenderingServer::get_singleton()->instance_create();
+        RenderingServer::get_singleton()->instance_set_base(rotate_gizmo_instance[i], spatial_editor->get_rotate_gizmo(i)->get_rid());
+        RenderingServer::get_singleton()->instance_set_scenario(rotate_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], false);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(rotate_gizmo_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(rotate_gizmo_instance[i], layer);
 
-        scale_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
-        VisualServer::get_singleton()->instance_set_base(scale_gizmo_instance[i], spatial_editor->get_scale_gizmo(i)->get_rid());
-        VisualServer::get_singleton()->instance_set_scenario(scale_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], false);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(scale_gizmo_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(scale_gizmo_instance[i], layer);
+        scale_gizmo_instance[i] = RenderingServer::get_singleton()->instance_create();
+        RenderingServer::get_singleton()->instance_set_base(scale_gizmo_instance[i], spatial_editor->get_scale_gizmo(i)->get_rid());
+        RenderingServer::get_singleton()->instance_set_scenario(scale_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], false);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(scale_gizmo_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(scale_gizmo_instance[i], layer);
 
-        scale_plane_gizmo_instance[i] = VisualServer::get_singleton()->instance_create();
-        VisualServer::get_singleton()->instance_set_base(scale_plane_gizmo_instance[i], spatial_editor->get_scale_plane_gizmo(i)->get_rid());
-        VisualServer::get_singleton()->instance_set_scenario(scale_plane_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], false);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(scale_plane_gizmo_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(scale_plane_gizmo_instance[i], layer);
+        scale_plane_gizmo_instance[i] = RenderingServer::get_singleton()->instance_create();
+        RenderingServer::get_singleton()->instance_set_base(scale_plane_gizmo_instance[i], spatial_editor->get_scale_plane_gizmo(i)->get_rid());
+        RenderingServer::get_singleton()->instance_set_scenario(scale_plane_gizmo_instance[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], false);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(scale_plane_gizmo_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(scale_plane_gizmo_instance[i], layer);
     }
 }
 
 void SpatialEditorViewport::_finish_gizmo_instances() {
 
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->free_rid(move_gizmo_instance[i]);
-        VisualServer::get_singleton()->free_rid(move_plane_gizmo_instance[i]);
-        VisualServer::get_singleton()->free_rid(rotate_gizmo_instance[i]);
-        VisualServer::get_singleton()->free_rid(scale_gizmo_instance[i]);
-        VisualServer::get_singleton()->free_rid(scale_plane_gizmo_instance[i]);
+        RenderingServer::get_singleton()->free_rid(move_gizmo_instance[i]);
+        RenderingServer::get_singleton()->free_rid(move_plane_gizmo_instance[i]);
+        RenderingServer::get_singleton()->free_rid(rotate_gizmo_instance[i]);
+        RenderingServer::get_singleton()->free_rid(scale_gizmo_instance[i]);
+        RenderingServer::get_singleton()->free_rid(scale_plane_gizmo_instance[i]);
     }
 }
 void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
@@ -2881,7 +2881,7 @@ void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
         previewing->disconnect("tree_exiting", this, "_preview_exited_scene");
         previewing = nullptr;
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
         if (!preview)
             preview_camera->hide();
         view_menu->set_disabled(false);
@@ -2891,7 +2891,7 @@ void SpatialEditorViewport::_toggle_camera_preview(bool p_activate) {
 
         previewing = preview;
         previewing->connect("tree_exiting", this, "_preview_exited_scene");
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), preview->get_camera_rid()); //replace
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), preview->get_camera_rid()); //replace
         view_menu->set_disabled(true);
         surface->update();
     }
@@ -2904,7 +2904,7 @@ void SpatialEditorViewport::_toggle_cinema_preview(bool p_activate) {
             previewing->disconnect("tree_exited", this, "_preview_exited_scene");
 
         previewing = nullptr;
-        VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), camera->get_camera_rid()); //restore
         preview_camera->set_pressed(false);
         if (!preview) {
             preview_camera->hide();
@@ -2955,11 +2955,11 @@ void SpatialEditorViewport::update_transform_gizmo_view() {
 
     if (xform.origin.distance_squared_to(camera_xform.origin) < 0.01f) {
         for (int i = 0; i < 3; i++) {
-            VisualServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], false);
-            VisualServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], false);
-            VisualServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], false);
-            VisualServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], false);
-            VisualServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], false);
         }
         return;
     }
@@ -2987,16 +2987,16 @@ void SpatialEditorViewport::update_transform_gizmo_view() {
     xform.basis.scale(scale);
 
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->instance_set_transform(move_gizmo_instance[i], xform);
-        VisualServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_MOVE));
-        VisualServer::get_singleton()->instance_set_transform(move_plane_gizmo_instance[i], xform);
-        VisualServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_MOVE));
-        VisualServer::get_singleton()->instance_set_transform(rotate_gizmo_instance[i], xform);
-        VisualServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_ROTATE));
-        VisualServer::get_singleton()->instance_set_transform(scale_gizmo_instance[i], xform);
-        VisualServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SCALE);
-        VisualServer::get_singleton()->instance_set_transform(scale_plane_gizmo_instance[i], xform);
-        VisualServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SCALE);
+        RenderingServer::get_singleton()->instance_set_transform(move_gizmo_instance[i], xform);
+        RenderingServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_MOVE));
+        RenderingServer::get_singleton()->instance_set_transform(move_plane_gizmo_instance[i], xform);
+        RenderingServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_MOVE));
+        RenderingServer::get_singleton()->instance_set_transform(rotate_gizmo_instance[i], xform);
+        RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_ROTATE));
+        RenderingServer::get_singleton()->instance_set_transform(scale_gizmo_instance[i], xform);
+        RenderingServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SCALE);
+        RenderingServer::get_singleton()->instance_set_transform(scale_plane_gizmo_instance[i], xform);
+        RenderingServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SCALE);
     }
 }
 
@@ -3093,7 +3093,7 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
         if (object_cast<Camera>(pv)) {
             previewing = object_cast<Camera>(pv);
             previewing->connect("tree_exiting", this, "_preview_exited_scene");
-            VisualServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), previewing->get_camera_rid()); //replace
+            RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), previewing->get_camera_rid()); //replace
             view_menu->set_disabled(true);
             surface->update();
             preview_camera->set_pressed(true);
@@ -3216,7 +3216,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
     Vector3 world_ray = _get_ray(p_pos);
     Vector3 world_pos = _get_ray_pos(p_pos);
 
-    Vector<ObjectID> instances = VisualServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
+    Vector<ObjectID> instances = RenderingServer::get_singleton()->instances_cull_ray(world_pos, world_ray, get_tree()->get_root()->get_world()->get_scenario());
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     float closest_dist = MAX_DISTANCE;
@@ -4078,7 +4078,7 @@ SpatialEditor *SpatialEditor::singleton = nullptr;
 SpatialEditorSelectedItem::~SpatialEditorSelectedItem() {
 
     if (sbox_instance.is_valid())
-        VisualServer::get_singleton()->free_rid(sbox_instance);
+        RenderingServer::get_singleton()->free_rid(sbox_instance);
 }
 
 void SpatialEditor::select_gizmo_highlight_axis(int p_axis) {
@@ -4164,8 +4164,8 @@ Object *SpatialEditor::_get_editor_data(Object *p_what) {
     SpatialEditorSelectedItem *si = memnew(SpatialEditorSelectedItem);
 
     si->sp = sp;
-    si->sbox_instance = VisualServer::get_singleton()->instance_create2(selection_box->get_rid(), sp->get_world()->get_scenario());
-    VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(si->sbox_instance, VS::SHADOW_CASTING_SETTING_OFF);
+    si->sbox_instance = RenderingServer::get_singleton()->instance_create2(selection_box->get_rid(), sp->get_world()->get_scenario());
+    RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(si->sbox_instance, RS::SHADOW_CASTING_SETTING_OFF);
 
     return si;
 }
@@ -4340,7 +4340,7 @@ void SpatialEditor::set_state(const Dictionary &p_state) {
 
         if (use != view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_ORIGIN))) {
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_ORIGIN), use);
-            VisualServer::get_singleton()->instance_set_visible(origin_instance, use);
+            RenderingServer::get_singleton()->instance_set_visible(origin_instance, use);
         }
     }
 
@@ -4631,7 +4631,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
             bool is_checked = view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(p_option));
 
             origin_enabled = !is_checked;
-            VisualServer::get_singleton()->instance_set_visible(origin_instance, origin_enabled);
+            RenderingServer::get_singleton()->instance_set_visible(origin_instance, origin_enabled);
             // Update the grid since its appearance depends on whether the origin is enabled
             _finish_grid();
             _init_grid();
@@ -4646,7 +4646,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
 
             for (int i = 0; i < 3; ++i) {
                 if (grid_enable[i]) {
-                    VisualServer::get_singleton()->instance_set_visible(grid_instance[i], grid_enabled);
+                    RenderingServer::get_singleton()->instance_set_visible(grid_instance[i], grid_enabled);
                     grid_visible[i] = grid_enabled;
                 }
             }
@@ -4792,17 +4792,17 @@ void SpatialEditor::_init_indicators() {
 
         _init_grid();
 
-        origin = VisualServer::get_singleton()->mesh_create();
+        origin = RenderingServer::get_singleton()->mesh_create();
         SurfaceArrays d(eastl::move(origin_points));
         d.m_colors = eastl::move(origin_colors);
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(origin, VS::PRIMITIVE_LINES, eastl::move(d));
-        VisualServer::get_singleton()->mesh_surface_set_material(origin, 0, indicator_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(origin, RS::PRIMITIVE_LINES, eastl::move(d));
+        RenderingServer::get_singleton()->mesh_surface_set_material(origin, 0, indicator_mat->get_rid());
 
-        origin_instance = VisualServer::get_singleton()->instance_create2(origin, get_tree()->get_root()->get_world()->get_scenario());
-        VisualServer::get_singleton()->instance_set_layer_mask(origin_instance, 1 << SpatialEditorViewport::GIZMO_GRID_LAYER);
+        origin_instance = RenderingServer::get_singleton()->instance_create2(origin, get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->instance_set_layer_mask(origin_instance, 1 << SpatialEditorViewport::GIZMO_GRID_LAYER);
 
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(origin_instance, VS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(origin_instance, RS::SHADOW_CASTING_SETTING_OFF);
     }
 
     {
@@ -5157,32 +5157,32 @@ void SpatialEditor::_init_grid() {
             grid_colors[i].push_back(line_color);
         }
 
-        grid[i] = VisualServer::get_singleton()->mesh_create();
+        grid[i] = RenderingServer::get_singleton()->mesh_create();
         SurfaceArrays d(eastl::move(grid_points[i]));
         d.m_colors = eastl::move(grid_colors[i]);
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VS::PRIMITIVE_LINES, eastl::move(d));
-        VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
-        grid_instance[i] = VisualServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], RS::PRIMITIVE_LINES, eastl::move(d));
+        RenderingServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
+        grid_instance[i] = RenderingServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
 
-        VisualServer::get_singleton()->instance_set_visible(grid_instance[i], grid_visible[i]);
-        VisualServer::get_singleton()->instance_geometry_set_cast_shadows_setting(grid_instance[i], VS::SHADOW_CASTING_SETTING_OFF);
-        VisualServer::get_singleton()->instance_set_layer_mask(grid_instance[i], 1 << SpatialEditorViewport::GIZMO_GRID_LAYER);
+        RenderingServer::get_singleton()->instance_set_visible(grid_instance[i], grid_visible[i]);
+        RenderingServer::get_singleton()->instance_geometry_set_cast_shadows_setting(grid_instance[i], RS::SHADOW_CASTING_SETTING_OFF);
+        RenderingServer::get_singleton()->instance_set_layer_mask(grid_instance[i], 1 << SpatialEditorViewport::GIZMO_GRID_LAYER);
     }
 }
 
 void SpatialEditor::_finish_indicators() {
 
-    VisualServer::get_singleton()->free_rid(origin_instance);
-    VisualServer::get_singleton()->free_rid(origin);
+    RenderingServer::get_singleton()->free_rid(origin_instance);
+    RenderingServer::get_singleton()->free_rid(origin);
 
     _finish_grid();
 }
 
 void SpatialEditor::_finish_grid() {
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->free_rid(grid_instance[i]);
-        VisualServer::get_singleton()->free_rid(grid[i]);
+        RenderingServer::get_singleton()->free_rid(grid_instance[i]);
+        RenderingServer::get_singleton()->free_rid(grid[i]);
     }
 }
 
@@ -5619,11 +5619,11 @@ void SpatialEditor::clear() {
         viewports[i]->reset();
     }
 
-    VisualServer::get_singleton()->instance_set_visible(origin_instance, true);
+    RenderingServer::get_singleton()->instance_set_visible(origin_instance, true);
     view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_ORIGIN), true);
     for (int i = 0; i < 3; ++i) {
         if (grid_enable[i]) {
-            VisualServer::get_singleton()->instance_set_visible(grid_instance[i], true);
+            RenderingServer::get_singleton()->instance_set_visible(grid_instance[i], true);
             grid_visible[i] = true;
         }
     }
@@ -5969,7 +5969,7 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
 
     xform_dialog->connect("confirmed", this, "_xform_dialog_action");
 
-    scenario_debug = VS::SCENARIO_DEBUG_DISABLED;
+    scenario_debug = RS::SCENARIO_DEBUG_DISABLED;
 
     selected = nullptr;
 

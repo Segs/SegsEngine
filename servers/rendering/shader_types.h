@@ -32,7 +32,7 @@
 #define SHADERTYPES_H
 
 #include "core/ordered_hash_map.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "shader_language.h"
 
 class ShaderTypes {
@@ -43,7 +43,7 @@ class ShaderTypes {
         Vector<StringName> modes;
     };
 
-    Map<VS::ShaderMode, Type> shader_modes;
+    Map<RS::ShaderMode, Type> shader_modes;
 
     static ShaderTypes *singleton;
 
@@ -52,8 +52,8 @@ class ShaderTypes {
 public:
     static ShaderTypes *get_singleton() { return singleton; }
 
-    const HashMap<StringName, ShaderLanguage::FunctionInfo> &get_functions(VS::ShaderMode p_mode);
-    const Vector<StringName> &get_modes(VS::ShaderMode p_mode);
+    const HashMap<StringName, ShaderLanguage::FunctionInfo> &get_functions(RS::ShaderMode p_mode);
+    const Vector<StringName> &get_modes(RS::ShaderMode p_mode);
     const HashSet<StringName> &get_types();
 
     ShaderTypes();

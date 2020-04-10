@@ -31,8 +31,8 @@
 #pragma once
 
 #include "core/self_list.h"
-#include "servers/visual/rasterizer.h"
-#include "servers/visual/shader_language.h"
+#include "servers/rendering/rasterizer.h"
+#include "servers/rendering/shader_language.h"
 #include "shader_compiler_gles3.h"
 #include "shader_gles3.h"
 
@@ -242,19 +242,19 @@ public:
 
         RenderTarget *render_target = nullptr;
         Texture *proxy=nullptr;
-        VisualServer::TextureDetectCallback detect_3d = nullptr;
+        RenderingServer::TextureDetectCallback detect_3d = nullptr;
         void *detect_3d_ud = nullptr;
 
-        VisualServer::TextureDetectCallback detect_srgb = nullptr;
+        RenderingServer::TextureDetectCallback detect_srgb = nullptr;
         void *detect_srgb_ud = nullptr;
 
-        VisualServer::TextureDetectCallback detect_normal = nullptr;
+        RenderingServer::TextureDetectCallback detect_normal = nullptr;
         void *detect_normal_ud = nullptr;
 
         int width=0, height=0, depth;
         int alloc_width, alloc_height, alloc_depth;
         Image::Format format=Image::FORMAT_L8;
-        VS::TextureType type=VS::TEXTURE_TYPE_2D;
+        RS::TextureType type=RS::TEXTURE_TYPE_2D;
 
         GLenum target = GL_TEXTURE_2D;
         GLenum gl_format_cache;
@@ -306,14 +306,14 @@ public:
     Ref<Image> _get_gl_image_and_format(const Ref<Image> &p_image, Image::Format p_format, uint32_t p_flags, Image::Format &r_real_format, GLenum &r_gl_format, GLenum &r_gl_internal_format, GLenum &r_gl_type, bool &r_compressed, bool &srgb, bool p_force_decompress) const;
 
     RID texture_create() override;
-    void texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, VS::TextureType p_type, uint32_t p_flags = VS::TEXTURE_FLAGS_DEFAULT) override;
+    void texture_allocate(RID p_texture, int p_width, int p_height, int p_depth_3d, Image::Format p_format, RS::TextureType p_type, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT) override;
     void texture_set_data(RID p_texture, const Ref<Image> &p_image, int p_layer = 0) override;
     void texture_set_data_partial(RID p_texture, const Ref<Image> &p_image, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int p_dst_mip, int p_layer = 0) override;
     Ref<Image> texture_get_data(RID p_texture, int p_layer = 0) const override;
     void texture_set_flags(RID p_texture, uint32_t p_flags) override;
     uint32_t texture_get_flags(RID p_texture) const override;
     Image::Format texture_get_format(RID p_texture) const override;
-    VS::TextureType texture_get_type(RID p_texture) const override;
+    RS::TextureType texture_get_type(RID p_texture) const override;
     uint32_t texture_get_texid(RID p_texture) const override;
     uint32_t texture_get_width(RID p_texture) const override;
     uint32_t texture_get_height(RID p_texture) const override;
@@ -326,15 +326,15 @@ public:
 
     void texture_set_shrink_all_x2_on_set_data(bool p_enable) override;
 
-    void texture_debug_usage(Vector<VisualServer::TextureInfo> *r_info) override;
+    void texture_debug_usage(Vector<RenderingServer::TextureInfo> *r_info) override;
 
     RID texture_create_radiance_cubemap(RID p_source, int p_resolution = -1) const override;
 
     void textures_keep_original(bool p_enable) override;
 
-    void texture_set_detect_3d_callback(RID p_texture, VisualServer::TextureDetectCallback p_callback, void *p_userdata) override;
-    void texture_set_detect_srgb_callback(RID p_texture, VisualServer::TextureDetectCallback p_callback, void *p_userdata) override;
-    void texture_set_detect_normal_callback(RID p_texture, VisualServer::TextureDetectCallback p_callback, void *p_userdata) override;
+    void texture_set_detect_3d_callback(RID p_texture, RenderingServer::TextureDetectCallback p_callback, void *p_userdata) override;
+    void texture_set_detect_srgb_callback(RID p_texture, RenderingServer::TextureDetectCallback p_callback, void *p_userdata) override;
+    void texture_set_detect_normal_callback(RID p_texture, RenderingServer::TextureDetectCallback p_callback, void *p_userdata) override;
 
     void texture_set_proxy(RID p_texture, RID p_proxy) override;
     Size2 texture_size_with_proxy(RID p_texture) const override;
@@ -374,7 +374,7 @@ public:
         RID self;
         ShaderGLES3 *shader;
 
-        VS::ShaderMode mode;
+        RS::ShaderMode mode;
         uint32_t ubo_size;
         uint32_t texture_count;
         uint32_t custom_code_id;
@@ -572,7 +572,7 @@ public:
             GLuint array_id;
         };
 
-        Attrib attribs[VS::ARRAY_MAX];
+        Attrib attribs[RS::ARRAY_MAX];
         Vector<AABB> skeleton_bone_aabb;
         Vector<bool> skeleton_bone_used;
         Vector<BlendShape> blend_shapes;
@@ -598,7 +598,7 @@ public:
         int array_byte_size;
         int index_array_byte_size;
 
-        VS::PrimitiveType primitive;
+        RS::PrimitiveType primitive;
 
         bool active;
 
@@ -623,7 +623,7 @@ public:
                 index_array_len(0),
                 array_byte_size(0),
                 index_array_byte_size(0),
-                primitive(VS::PRIMITIVE_POINTS),
+                primitive(RS::PRIMITIVE_POINTS),
                 active(false),
                 total_data_size(0) {
             type = GEOMETRY_SURFACE;
@@ -640,7 +640,7 @@ public:
         bool active;
         Vector<Surface *> surfaces;
         int blend_shape_count;
-        VS::BlendShapeMode blend_shape_mode;
+        RS::BlendShapeMode blend_shape_mode;
         AABB custom_aabb;
         mutable uint64_t last_pass;
         SelfList<MultiMesh>::List multimeshes;
@@ -656,7 +656,7 @@ public:
         Mesh() :
                 active(false),
                 blend_shape_count(0),
-                blend_shape_mode(VS::BLEND_SHAPE_MODE_NORMALIZED),
+                blend_shape_mode(RS::BLEND_SHAPE_MODE_NORMALIZED),
                 last_pass(0) {
         }
     };
@@ -665,14 +665,14 @@ public:
 
     RID mesh_create() override;
 
-    void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
+    void mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const
                           Vector<PoolVector<uint8_t>> &p_blend_shapes = Vector<PoolVector<uint8_t>>(), Span<const AABB> p_bone_aabbs = {}) override;
 
     void mesh_set_blend_shape_count(RID p_mesh, int p_amount) override;
     int mesh_get_blend_shape_count(RID p_mesh) const override;
 
-    void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) override;
-    VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const override;
+    void mesh_set_blend_shape_mode(RID p_mesh, RS::BlendShapeMode p_mode) override;
+    RS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const override;
 
     void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, Span<const uint8_t> p_data) override;
 
@@ -686,7 +686,7 @@ public:
     PoolVector<uint8_t> mesh_surface_get_index_array(RID p_mesh, int p_surface) const override;
 
     uint32_t mesh_surface_get_format(RID p_mesh, int p_surface) const override;
-    VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
+    RS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const override;
 
     AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const override;
     Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const override;
@@ -708,9 +708,9 @@ public:
     struct MultiMesh : public GeometryOwner {
         RID mesh;
         int size;
-        VS::MultimeshTransformFormat transform_format;
-        VS::MultimeshColorFormat color_format;
-        VS::MultimeshCustomDataFormat custom_data_format;
+        RS::MultimeshTransformFormat transform_format;
+        RS::MultimeshColorFormat color_format;
+        RS::MultimeshCustomDataFormat custom_data_format;
         PoolVector<float> data;
         AABB aabb;
         SelfList<MultiMesh> update_list;
@@ -727,9 +727,9 @@ public:
 
         MultiMesh() :
                 size(0),
-                transform_format(VS::MULTIMESH_TRANSFORM_2D),
-                color_format(VS::MULTIMESH_COLOR_NONE),
-                custom_data_format(VS::MULTIMESH_CUSTOM_DATA_NONE),
+                transform_format(RS::MULTIMESH_TRANSFORM_2D),
+                color_format(RS::MULTIMESH_COLOR_NONE),
+                custom_data_format(RS::MULTIMESH_CUSTOM_DATA_NONE),
                 update_list(this),
                 mesh_list(this),
                 buffer(0),
@@ -750,7 +750,7 @@ public:
 
     RID multimesh_create() override;
 
-    void multimesh_allocate(RID p_multimesh, int p_instances, VS::MultimeshTransformFormat p_transform_format, VS::MultimeshColorFormat p_color_format, VS::MultimeshCustomDataFormat p_data_format = VS::MULTIMESH_CUSTOM_DATA_NONE) override;
+    void multimesh_allocate(RID p_multimesh, int p_instances, RS::MultimeshTransformFormat p_transform_format, RS::MultimeshColorFormat p_color_format, RS::MultimeshCustomDataFormat p_data_format = RS::MULTIMESH_CUSTOM_DATA_NONE) override;
     int multimesh_get_instance_count(RID p_multimesh) const override;
 
     void multimesh_set_mesh(RID p_multimesh, RID p_mesh) override;
@@ -785,7 +785,7 @@ public:
             Vector<Color> colors;
             Vector<Vector2> uvs;
             Vector<Vector2> uvs2;
-            VS::PrimitiveType primitive;
+            RS::PrimitiveType primitive;
         };
 
         eastl::deque<Chunk,wrap_allocator> chunks;
@@ -809,7 +809,7 @@ public:
     mutable RID_Owner<Immediate> immediate_owner;
 
     RID immediate_create() override;
-    void immediate_begin(RID p_immediate, VS::PrimitiveType p_rimitive, RID p_texture = RID()) override;
+    void immediate_begin(RID p_immediate, RS::PrimitiveType p_rimitive, RID p_texture = RID()) override;
     void immediate_vertex(RID p_immediate, const Vector3 &p_vertex) override;
     void immediate_normal(RID p_immediate, const Vector3 &p_normal) override;
     void immediate_tangent(RID p_immediate, const Plane &p_tangent) override;
@@ -854,17 +854,17 @@ public:
     /* Light API */
 
     struct Light : Instantiable {
-        float param[VS::LIGHT_PARAM_MAX];
+        float param[RS::LIGHT_PARAM_MAX];
         Color color;
         Color shadow_color;
         RID projector;
         uint64_t version;
         uint32_t cull_mask;
-        VS::LightType type;
-        VS::LightOmniShadowMode omni_shadow_mode;
-        VS::LightOmniShadowDetail omni_shadow_detail;
-        VS::LightDirectionalShadowMode directional_shadow_mode;
-        VS::LightDirectionalShadowDepthRangeMode directional_range_mode;
+        RS::LightType type;
+        RS::LightOmniShadowMode omni_shadow_mode;
+        RS::LightOmniShadowDetail omni_shadow_detail;
+        RS::LightDirectionalShadowMode directional_shadow_mode;
+        RS::LightDirectionalShadowDepthRangeMode directional_range_mode;
         bool shadow : 1;
         bool negative : 1;
         bool reverse_cull : 1;
@@ -874,10 +874,10 @@ public:
 
     mutable RID_Owner<Light> light_owner;
 
-    RID light_create(VS::LightType p_type) override;
+    RID light_create(RS::LightType p_type) override;
 
     void light_set_color(RID p_light, const Color &p_color) override;
-    void light_set_param(RID p_light, VS::LightParam p_param, float p_value) override;
+    void light_set_param(RID p_light, RS::LightParam p_param, float p_value) override;
     void light_set_shadow(RID p_light, bool p_enabled) override;
     void light_set_shadow_color(RID p_light, const Color &p_color) override;
     void light_set_projector(RID p_light, RID p_texture) override;
@@ -886,23 +886,23 @@ public:
     void light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) override;
     void light_set_use_gi(RID p_light, bool p_enabled) override;
 
-    void light_omni_set_shadow_mode(RID p_light, VS::LightOmniShadowMode p_mode) override;
-    void light_omni_set_shadow_detail(RID p_light, VS::LightOmniShadowDetail p_detail) override;
+    void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) override;
+    void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) override;
 
-    void light_directional_set_shadow_mode(RID p_light, VS::LightDirectionalShadowMode p_mode) override;
+    void light_directional_set_shadow_mode(RID p_light, RS::LightDirectionalShadowMode p_mode) override;
     void light_directional_set_blend_splits(RID p_light, bool p_enable) override;
     bool light_directional_get_blend_splits(RID p_light) const override;
 
-    VS::LightDirectionalShadowMode light_directional_get_shadow_mode(RID p_light) override;
-    VS::LightOmniShadowMode light_omni_get_shadow_mode(RID p_light) override;
+    RS::LightDirectionalShadowMode light_directional_get_shadow_mode(RID p_light) override;
+    RS::LightOmniShadowMode light_omni_get_shadow_mode(RID p_light) override;
 
-    void light_directional_set_shadow_depth_range_mode(RID p_light, VS::LightDirectionalShadowDepthRangeMode p_range_mode) override;
-    VS::LightDirectionalShadowDepthRangeMode light_directional_get_shadow_depth_range_mode(RID p_light) const override;
+    void light_directional_set_shadow_depth_range_mode(RID p_light, RS::LightDirectionalShadowDepthRangeMode p_range_mode) override;
+    RS::LightDirectionalShadowDepthRangeMode light_directional_get_shadow_depth_range_mode(RID p_light) const override;
 
     bool light_has_shadow(RID p_light) const override;
 
-    VS::LightType light_get_type(RID p_light) const override;
-    float light_get_param(RID p_light, VS::LightParam p_param) override;
+    RS::LightType light_get_type(RID p_light) const override;
+    float light_get_param(RID p_light, RS::LightParam p_param) override;
     Color light_get_color(RID p_light) override;
     bool light_get_use_gi(RID p_light) override;
 
@@ -921,7 +921,7 @@ public:
         float interior_ambient_probe_contrib;
         float max_distance;
         uint32_t cull_mask;
-        VS::ReflectionProbeUpdateMode update_mode;
+        RS::ReflectionProbeUpdateMode update_mode;
         bool interior : 1;
         bool box_projection: 1;
         bool enable_shadows: 1;
@@ -931,7 +931,7 @@ public:
 
     RID reflection_probe_create() override;
 
-    void reflection_probe_set_update_mode(RID p_probe, VS::ReflectionProbeUpdateMode p_mode) override;
+    void reflection_probe_set_update_mode(RID p_probe, RS::ReflectionProbeUpdateMode p_mode) override;
     void reflection_probe_set_intensity(RID p_probe, float p_intensity) override;
     void reflection_probe_set_interior_ambient(RID p_probe, const Color &p_ambient) override;
     void reflection_probe_set_interior_ambient_energy(RID p_probe, float p_energy) override;
@@ -946,7 +946,7 @@ public:
     void reflection_probe_set_resolution(RID p_probe, int p_resolution) override;
 
     AABB reflection_probe_get_aabb(RID p_probe) const override;
-    VS::ReflectionProbeUpdateMode reflection_probe_get_update_mode(RID p_probe) const override;
+    RS::ReflectionProbeUpdateMode reflection_probe_get_update_mode(RID p_probe) const override;
     uint32_t reflection_probe_get_cull_mask(RID p_probe) const override;
 
     Vector3 reflection_probe_get_extents(RID p_probe) const override;
@@ -1089,7 +1089,7 @@ public:
         int fixed_fps=0;
         float frame_remainder=0;
 
-        VS::ParticlesDrawOrder draw_order=VS::PARTICLES_DRAW_ORDER_INDEX;
+        RS::ParticlesDrawOrder draw_order=RS::PARTICLES_DRAW_ORDER_INDEX;
 
 
         GLuint particle_buffers[2] = {0,0};
@@ -1150,7 +1150,7 @@ public:
     void particles_set_fractional_delta(RID p_particles, bool p_enable) override;
     void particles_restart(RID p_particles) override;
 
-    void particles_set_draw_order(RID p_particles, VS::ParticlesDrawOrder p_order) override;
+    void particles_set_draw_order(RID p_particles, RS::ParticlesDrawOrder p_order) override;
 
     void particles_set_draw_passes(RID p_particles, int p_passes) override;
     void particles_set_draw_pass_mesh(RID p_particles, int p_pass, RID p_mesh) override;
@@ -1265,7 +1265,7 @@ public:
         bool flags[RENDER_TARGET_FLAG_MAX];
 
         bool used_in_frame;
-        VS::ViewportMSAA msaa;
+        RS::ViewportMSAA msaa;
 
         RID texture;
 
@@ -1276,7 +1276,7 @@ public:
                 width(0),
                 height(0),
                 used_in_frame(false),
-                msaa(VS::VIEWPORT_MSAA_DISABLED) {
+                msaa(RS::VIEWPORT_MSAA_DISABLED) {
             exposure.fbo = 0;
             buffers.fbo = 0;
             external.fbo = 0;
@@ -1303,7 +1303,7 @@ public:
     void render_target_set_flag(RID p_render_target, RenderTargetFlags p_flag, bool p_value) override;
     bool render_target_was_used(RID p_render_target) override;
     void render_target_clear_used(RID p_render_target) override;
-    void render_target_set_msaa(RID p_render_target, VS::ViewportMSAA p_msaa) override;
+    void render_target_set_msaa(RID p_render_target, RS::ViewportMSAA p_msaa) override;
 
     /* CANVAS SHADOW */
 
@@ -1336,7 +1336,7 @@ public:
     RID canvas_light_occluder_create() override;
     void canvas_light_occluder_set_polylines(RID p_occluder, Span<const Vector2> p_lines) override;
 
-    VS::InstanceType get_base_type(RID p_rid) const override;
+    RS::InstanceType get_base_type(RID p_rid) const override;
 
     bool free(RID p_rid) override;
 
@@ -1364,9 +1364,9 @@ public:
 
     void render_info_begin_capture() override;
     void render_info_end_capture() override;
-    int get_captured_render_info(VS::RenderInfo p_info) override;
+    int get_captured_render_info(RS::RenderInfo p_info) override;
 
-    int get_render_info(VS::RenderInfo p_info) override;
+    int get_render_info(RS::RenderInfo p_info) override;
     const char *get_video_adapter_name() const override;
     const char *get_video_adapter_vendor() const override;
     RasterizerStorageGLES3();

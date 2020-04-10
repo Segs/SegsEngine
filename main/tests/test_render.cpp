@@ -38,7 +38,7 @@
 #include "core/string_utils.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 
 #define OBJECT_COUNT 50
@@ -77,7 +77,7 @@ public:
     void init() override {
 
         print_line("INITIALIZING TEST RENDER");
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         test_cube = vs->get_test_cube();
         scenario = vs->scenario_create();
 
@@ -128,7 +128,7 @@ public:
         print_line("ERR: " + itos(err));
         test_cube = vs->mesh_create();
         vs->mesh_add_surface_from_mesh_data(test_cube, eastl::move(md));
-        //vs->scenario_set_debug(scenario,VS::SCENARIO_DEBUG_WIREFRAME);
+        //vs->scenario_set_debug(scenario,RS::SCENARIO_DEBUG_WIREFRAME);
 
         /*
         RID sm = vs->shader_create();
@@ -177,7 +177,7 @@ public:
 
         RID lightaux = vs->directional_light_create();
 
-        //vs->light_set_color( lightaux, VisualServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,0.0) );
+        //vs->light_set_color( lightaux, RenderingServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,0.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 1.0));
         //vs->light_set_shadow( lightaux, true );
         light = vs->instance_create2(lightaux, scenario);
@@ -188,10 +188,10 @@ public:
         vs->instance_set_transform(light, lla);
 
         lightaux = vs->omni_light_create();
-        //vs->light_set_color( lightaux, VisualServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,1.0) );
+        //vs->light_set_color( lightaux, RenderingServer::LIGHT_COLOR_AMBIENT, Color(0.0,0.0,1.0) );
         vs->light_set_color(lightaux, Color(1.0, 1.0, 0.0));
-        vs->light_set_param(lightaux, VS::LIGHT_PARAM_RANGE, 4);
-        vs->light_set_param(lightaux, VS::LIGHT_PARAM_ENERGY, 8);
+        vs->light_set_param(lightaux, RS::LIGHT_PARAM_RANGE, 4);
+        vs->light_set_param(lightaux, RS::LIGHT_PARAM_ENERGY, 8);
         //vs->light_set_shadow( lightaux, true );
         //light = vs->instance_create( lightaux );
 
@@ -200,7 +200,7 @@ public:
     }
     bool iteration(float p_time) override {
 
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
         //Transform t;
         //t.rotate(Vector3(0, 1, 0), ofs);
         //t.translate(Vector3(0,0,20 ));

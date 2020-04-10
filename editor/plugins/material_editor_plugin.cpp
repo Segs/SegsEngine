@@ -261,14 +261,14 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(RenderingServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
     smat->set_shader(shader);
 
     Vector<PropertyInfo> params;
-    VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
+    RenderingServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {
 
@@ -278,7 +278,7 @@ Ref<Resource> SpatialMaterialConversionPlugin::convert(const Ref<Resource> &p_re
         if (texture) {
             smat->set_shader_param(E.name, texture);
         } else {
-            Variant value = VisualServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
+            Variant value = RenderingServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
             smat->set_shader_param(E.name, value);
         }
     }
@@ -305,17 +305,17 @@ Ref<Resource> ParticlesMaterialConversionPlugin::convert(const Ref<Resource> &p_
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(RenderingServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
     smat->set_shader(shader);
 
     Vector<PropertyInfo> params;
-    VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
+    RenderingServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {
-        Variant value = VisualServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
+        Variant value = RenderingServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
         smat->set_shader_param(E.name, value);
     }
 
@@ -341,17 +341,17 @@ Ref<Resource> CanvasItemMaterialConversionPlugin::convert(const Ref<Resource> &p
 
     Ref<Shader> shader(make_ref_counted<Shader>());
 
-    String code(VisualServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
+    String code(RenderingServer::get_singleton()->shader_get_code(mat->get_shader_rid()));
 
     shader->set_code(code);
 
     smat->set_shader(shader);
 
     Vector<PropertyInfo> params;
-    VisualServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
+    RenderingServer::get_singleton()->shader_get_param_list(mat->get_shader_rid(), &params);
 
     for(const PropertyInfo & E : params) {
-        Variant value = VisualServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
+        Variant value = RenderingServer::get_singleton()->material_get_param(mat->get_rid(), E.name);
         smat->set_shader_param(E.name, value);
     }
 

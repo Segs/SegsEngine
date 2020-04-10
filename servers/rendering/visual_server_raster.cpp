@@ -100,7 +100,7 @@ void VisualServerRaster::request_frame_drawn_callback(Object *p_where, const Str
 void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
 
     //needs to be done before changes is reset to 0, to not force the editor to redraw
-    VisualServer::get_singleton()->emit_signal("frame_pre_draw");
+    RenderingServer::get_singleton()->emit_signal("frame_pre_draw");
 
     changes = 0;
 
@@ -130,7 +130,7 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
 
         frame_drawn_callbacks.pop_front();
     }
-    VisualServer::get_singleton()->emit_signal("frame_post_draw");
+    RenderingServer::get_singleton()->emit_signal("frame_post_draw");
 }
 void VisualServerRaster::sync() {
 }
@@ -153,7 +153,7 @@ void VisualServerRaster::finish() {
 
 /* STATUS INFORMATION */
 
-int VisualServerRaster::get_render_info(VS::RenderInfo p_info) {
+int VisualServerRaster::get_render_info(RS::RenderInfo p_info) {
 
     return VSG::storage->get_render_info(p_info);
 }
@@ -177,7 +177,7 @@ void VisualServerRaster::set_default_clear_color(const Color &p_color) {
     VSG::viewport->set_default_clear_color(p_color);
 }
 
-bool VisualServerRaster::has_feature(VS::Features p_feature) const {
+bool VisualServerRaster::has_feature(RS::Features p_feature) const {
 
     return false;
 }

@@ -39,7 +39,7 @@
 #include "core/string.h"
 #include "scene/gui/control.h"
 #include "scene/gui/text_edit.h"
-#include "servers/visual/shader_language.h"
+#include "servers/rendering/shader_language.h"
 
 using SL = ShaderLanguage;
 

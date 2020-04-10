@@ -94,7 +94,7 @@ void Camera::_update_camera() {
     if (!is_inside_tree())
         return;
 
-    VisualServer::get_singleton()->camera_set_transform(camera, get_camera_transform());
+    RenderingServer::get_singleton()->camera_set_transform(camera, get_camera_transform());
 
     // here goes listener stuff
     /*
@@ -185,7 +185,7 @@ void Camera::set_perspective(float p_fovy_degrees, float p_z_near, float p_z_far
     far = p_z_far;
     mode = PROJECTION_PERSPECTIVE;
 
-    VisualServer::get_singleton()->camera_set_perspective(camera, fov, near, far);
+    RenderingServer::get_singleton()->camera_set_perspective(camera, fov, near, far);
     update_gizmo();
     force_change = false;
 }
@@ -201,7 +201,7 @@ void Camera::set_orthogonal(float p_size, float p_z_near, float p_z_far) {
     mode = PROJECTION_ORTHOGONAL;
     force_change = false;
 
-    VisualServer::get_singleton()->camera_set_orthogonal(camera, size, near, far);
+    RenderingServer::get_singleton()->camera_set_orthogonal(camera, size, near, far);
     update_gizmo();
 }
 
@@ -217,7 +217,7 @@ void Camera::set_frustum(float p_size, Vector2 p_offset, float p_z_near, float p
     mode = PROJECTION_FRUSTUM;
     force_change = false;
 
-    VisualServer::get_singleton()->camera_set_frustum(camera, size, frustum_offset, near, far);
+    RenderingServer::get_singleton()->camera_set_frustum(camera, size, frustum_offset, near, far);
     update_gizmo();
 }
 
@@ -434,12 +434,12 @@ void Camera::_camera_make_current(Node *p_camera) {
 
 
     if (p_camera==this) {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport_id,camera);
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport_id,camera);
         active=true;
     } else {
         if (active && p_camera==NULL) {
             //detech camera because no one else will claim it
-            VisualServer::get_singleton()->viewport_attach_camera(viewport_id,RID());
+            RenderingServer::get_singleton()->viewport_attach_camera(viewport_id,RID());
         }
         active=false;
     }
@@ -450,9 +450,9 @@ void Camera::set_environment(const Ref<Environment> &p_environment) {
 
     environment = p_environment;
     if (environment)
-        VisualServer::get_singleton()->camera_set_environment(camera, environment->get_rid());
+        RenderingServer::get_singleton()->camera_set_environment(camera, environment->get_rid());
     else
-        VisualServer::get_singleton()->camera_set_environment(camera, RID());
+        RenderingServer::get_singleton()->camera_set_environment(camera, RID());
     _update_camera_mode();
 }
 
@@ -463,7 +463,7 @@ Ref<Environment> Camera::get_environment() const {
 
 void Camera::set_keep_aspect_mode(KeepAspect p_aspect) {
     keep_aspect = p_aspect;
-    VisualServer::get_singleton()->camera_set_use_vertical_aspect(camera, p_aspect == KEEP_WIDTH);
+    RenderingServer::get_singleton()->camera_set_use_vertical_aspect(camera, p_aspect == KEEP_WIDTH);
     _update_camera_mode();
     Object_change_notify(this);
 }
@@ -628,7 +628,7 @@ void Camera::set_zfar(float p_zfar) {
 
 void Camera::set_cull_mask(uint32_t p_layers) {
     layers = p_layers;
-    VisualServer::get_singleton()->camera_set_cull_mask(camera, layers);
+    RenderingServer::get_singleton()->camera_set_cull_mask(camera, layers);
     _update_camera_mode();
 }
 
@@ -696,7 +696,7 @@ Vector3 Camera::get_doppler_tracked_velocity() const {
 }
 Camera::Camera() {
 
-    camera = VisualServer::get_singleton()->camera_create();
+    camera = RenderingServer::get_singleton()->camera_create();
     size = 1;
     fov = 0;
     frustum_offset = Vector2();
@@ -711,7 +711,7 @@ Camera::Camera() {
     layers = 0xfffff;
     v_offset = 0;
     h_offset = 0;
-    VisualServer::get_singleton()->camera_set_cull_mask(camera, layers);
+    RenderingServer::get_singleton()->camera_set_cull_mask(camera, layers);
     //active=false;
     velocity_tracker = make_ref_counted<SpatialVelocityTracker>();
     doppler_tracking = DOPPLER_TRACKING_DISABLED;
@@ -721,7 +721,7 @@ Camera::Camera() {
 
 Camera::~Camera() {
 
-    VisualServer::get_singleton()->free_rid(camera);
+    RenderingServer::get_singleton()->free_rid(camera);
 }
 
 ////////////////////////////////////////

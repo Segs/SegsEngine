@@ -42,7 +42,7 @@
 #include "core/os/mutex.h"
 #include "core/project_settings.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(EditorResourcePreviewGenerator)
 IMPL_GDCLASS(EditorResourcePreview)
@@ -472,7 +472,7 @@ void EditorResourcePreview::stop() {
         preview_sem->post();
         while (!exited) {
             OS::get_singleton()->delay_usec(10000);
-            VisualServer::get_singleton()->sync(); //sync pending stuff, as thread may be blocked on visual server
+            RenderingServer::get_singleton()->sync(); //sync pending stuff, as thread may be blocked on visual server
         }
         Thread::wait_to_finish(thread);
         memdelete(thread);

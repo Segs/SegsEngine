@@ -31,7 +31,7 @@
 #include "skeleton_2d.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(Bone2D)
@@ -193,7 +193,7 @@ void Skeleton2D::_update_bone_setup() {
         return;
 
     bone_setup_dirty = false;
-    VisualServer::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
+    RenderingServer::get_singleton()->skeleton_allocate(skeleton, bones.size(), true);
     eastl::sort(bones.begin(), bones.end()); //sorty so they are always in the same order/index
 
     for (int i = 0; i < bones.size(); i++) {
@@ -246,7 +246,7 @@ void Skeleton2D::_update_transform() {
     for (int i = 0; i < bones.size(); i++) {
 
         Transform2D final_xform = bones[i].accum_transform * bones[i].rest_inverse;
-        VisualServer::get_singleton()->skeleton_bone_set_transform_2d(skeleton, i, final_xform);
+        RenderingServer::get_singleton()->skeleton_bone_set_transform_2d(skeleton, i, final_xform);
     }
 }
 
@@ -282,7 +282,7 @@ void Skeleton2D::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
-        VisualServer::get_singleton()->skeleton_set_base_transform_2d(skeleton, get_global_transform());
+        RenderingServer::get_singleton()->skeleton_set_base_transform_2d(skeleton, get_global_transform());
     }
 }
 
@@ -306,11 +306,11 @@ Skeleton2D::Skeleton2D() {
     bone_setup_dirty = true;
     transform_dirty = true;
 
-    skeleton = VisualServer::get_singleton()->skeleton_create();
+    skeleton = RenderingServer::get_singleton()->skeleton_create();
     set_notify_transform(true);
 }
 
 Skeleton2D::~Skeleton2D() {
 
-    VisualServer::get_singleton()->free_rid(skeleton);
+    RenderingServer::get_singleton()->free_rid(skeleton);
 }

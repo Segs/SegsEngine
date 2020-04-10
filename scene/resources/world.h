@@ -33,7 +33,7 @@
 #include "core/resource.h"
 #include "scene/resources/environment.h"
 #include "servers/physics_server_3d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 class Camera;
 class VisibilityNotifier;

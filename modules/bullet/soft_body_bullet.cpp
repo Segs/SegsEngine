@@ -129,7 +129,7 @@ void SoftBodyBullet::set_soft_mesh(const Ref<Mesh> &p_mesh) {
     }
 
     SurfaceArrays arrays = soft_mesh->surface_get_arrays(0);
-    ERR_FAIL_COND(!(soft_mesh->surface_get_format(0) & VS::ARRAY_FORMAT_INDEX));
+    ERR_FAIL_COND(!(soft_mesh->surface_get_format(0) & RS::ARRAY_FORMAT_INDEX));
     set_trimesh_body_shape(arrays.m_indices, arrays.positions3());
 }
 

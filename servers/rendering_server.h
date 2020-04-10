@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server.h                                                      */
+/*  rendering_server.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -89,40 +89,40 @@ public:
     }
     explicit operator Array() const {
         Array res;
-        res.resize(VS::ARRAY_MAX);
+        res.resize(RS::ARRAY_MAX);
         if(m_vertices_2d)
-            res[VS::ARRAY_VERTEX] = Variant::from(positions2());
+            res[RS::ARRAY_VERTEX] = Variant::from(positions2());
         else
-            res[VS::ARRAY_VERTEX] = Variant::from(positions3());
-        res[VS::ARRAY_NORMAL] = m_normals;
-        res[VS::ARRAY_TANGENT] = m_tangents;
-        res[VS::ARRAY_COLOR] = m_colors;
-        res[VS::ARRAY_TEX_UV] = Variant::from(m_uv_1);
-        res[VS::ARRAY_TEX_UV2] = Variant::from(m_uv_2);
-        res[VS::ARRAY_BONES] = m_bones;
-        res[VS::ARRAY_WEIGHTS] = m_weights;
-        res[VS::ARRAY_INDEX] = m_indices;
+            res[RS::ARRAY_VERTEX] = Variant::from(positions3());
+        res[RS::ARRAY_NORMAL] = m_normals;
+        res[RS::ARRAY_TANGENT] = m_tangents;
+        res[RS::ARRAY_COLOR] = m_colors;
+        res[RS::ARRAY_TEX_UV] = Variant::from(m_uv_1);
+        res[RS::ARRAY_TEX_UV2] = Variant::from(m_uv_2);
+        res[RS::ARRAY_BONES] = m_bones;
+        res[RS::ARRAY_WEIGHTS] = m_weights;
+        res[RS::ARRAY_INDEX] = m_indices;
         return res;
     }
     static SurfaceArrays fromArray(Array a) {
         if(a.empty())
             return SurfaceArrays();
         SurfaceArrays res;
-        Variant dat=a[VS::ARRAY_VERTEX];
+        Variant dat=a[RS::ARRAY_VERTEX];
         if(dat.get_type()==VariantType::POOL_VECTOR2_ARRAY)
-            res.m_position_data = Vector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<Vector<Vector2>>()),eastl::I_LIVE_DANGEROUSLY);
+            res.m_position_data = Vector<float>(eastl::move(a[RS::ARRAY_VERTEX].as<Vector<Vector2>>()),eastl::I_LIVE_DANGEROUSLY);
         else if (dat.get_type()==VariantType::POOL_VECTOR3_ARRAY) {
-            res.m_position_data = Vector<float>(eastl::move(a[VS::ARRAY_VERTEX].as<Vector<Vector3>>()),eastl::I_LIVE_DANGEROUSLY);
+            res.m_position_data = Vector<float>(eastl::move(a[RS::ARRAY_VERTEX].as<Vector<Vector3>>()),eastl::I_LIVE_DANGEROUSLY);
         }
-        res.m_normals = a[VS::ARRAY_NORMAL].as<Vector<Vector3>>();
-        res.m_tangents = a[VS::ARRAY_TANGENT].as<Vector<float>>();
-        //res[VS::ARRAY_TANGENT] = m_normal_data;
-        res.m_colors = a[VS::ARRAY_COLOR].as<Vector<Color>>();
-        res.m_uv_1 = a[VS::ARRAY_TEX_UV].as<Vector<Vector2>>();
-        res.m_uv_2 = a[VS::ARRAY_TEX_UV2].as<Vector<Vector2>>();
-        res.m_bones = a[VS::ARRAY_BONES].as<Vector<int>>();
-        res.m_weights = a[VS::ARRAY_WEIGHTS].as<Vector<float>>();
-        res.m_indices = a[VS::ARRAY_INDEX].as<Vector<int>>();
+        res.m_normals = a[RS::ARRAY_NORMAL].as<Vector<Vector3>>();
+        res.m_tangents = a[RS::ARRAY_TANGENT].as<Vector<float>>();
+        //res[RS::ARRAY_TANGENT] = m_normal_data;
+        res.m_colors = a[RS::ARRAY_COLOR].as<Vector<Color>>();
+        res.m_uv_1 = a[RS::ARRAY_TEX_UV].as<Vector<Vector2>>();
+        res.m_uv_2 = a[RS::ARRAY_TEX_UV2].as<Vector<Vector2>>();
+        res.m_bones = a[RS::ARRAY_BONES].as<Vector<int>>();
+        res.m_weights = a[RS::ARRAY_WEIGHTS].as<Vector<float>>();
+        res.m_indices = a[RS::ARRAY_INDEX].as<Vector<int>>();
         return res;
     }
     bool empty() const { return m_position_data.empty(); }
@@ -149,31 +149,31 @@ public:
     uint32_t get_flags() const {
         uint32_t lformat=0;
         if (!m_position_data.empty()) {
-            lformat |= VS::ARRAY_FORMAT_VERTEX;
+            lformat |= RS::ARRAY_FORMAT_VERTEX;
         }
         if (!m_normals.empty()) {
-            lformat |= VS::ARRAY_FORMAT_NORMAL;
+            lformat |= RS::ARRAY_FORMAT_NORMAL;
         }
         if (!m_tangents.empty()) {
-            lformat |= VS::ARRAY_FORMAT_TANGENT;
+            lformat |= RS::ARRAY_FORMAT_TANGENT;
         }
         if (!m_colors.empty()) {
-            lformat |= VS::ARRAY_FORMAT_COLOR;
+            lformat |= RS::ARRAY_FORMAT_COLOR;
         }
         if (!m_uv_1.empty()) {
-            lformat |= VS::ARRAY_FORMAT_TEX_UV;
+            lformat |= RS::ARRAY_FORMAT_TEX_UV;
         }
         if (!m_uv_2.empty()) {
-            lformat |= VS::ARRAY_FORMAT_TEX_UV2;
+            lformat |= RS::ARRAY_FORMAT_TEX_UV2;
         }
         if (!m_bones.empty()) {
-            lformat |= VS::ARRAY_FORMAT_BONES;
+            lformat |= RS::ARRAY_FORMAT_BONES;
         }
         if (!m_weights.empty()) {
-            lformat |= VS::ARRAY_FORMAT_WEIGHTS;
+            lformat |= RS::ARRAY_FORMAT_WEIGHTS;
         }
         if(!m_indices.empty()) {
-            lformat |= VS::ARRAY_FORMAT_INDEX;
+            lformat |= RS::ARRAY_FORMAT_INDEX;
         }
         return lformat;
     }
@@ -202,11 +202,11 @@ public:
 /*
     TODO: SEGS: Add function overrides that take ownership of passed buffers Span<> -> Vector<>&&
 */
-class VisualServer : public Object {
+class RenderingServer : public Object {
 
-    GDCLASS(VisualServer,Object)
+    GDCLASS(RenderingServer,Object)
 
-    static VisualServer *singleton;
+    static RenderingServer *singleton;
 
     int mm_policy;
 
@@ -224,26 +224,26 @@ protected:
 
     Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
-    static VisualServer *(*create_func)();
+    static RenderingServer *(*create_func)();
     static void _bind_methods();
 public: // scripting glue helpers
     Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
-    void _mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
+    void _mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = RS::ARRAY_COMPRESS_DEFAULT);
     Array _mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
 public:
-    static VisualServer *get_singleton();
-    static VisualServer *create();
+    static RenderingServer *get_singleton();
+    static RenderingServer *create();
 
     virtual RID texture_create() = 0;
-    RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = VS::TEXTURE_FLAGS_DEFAULT); // helper
+    RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper
     virtual void texture_allocate(RID p_texture,
             int p_width,
             int p_height,
             int p_depth_3d,
             Image::Format p_format,
-            VS::TextureType p_type,
-            uint32_t p_flags = VS::TEXTURE_FLAGS_DEFAULT) = 0;
+            RS::TextureType p_type,
+            uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT) = 0;
 
     virtual void texture_set_data(RID p_texture, const Ref<Image> &p_image, int p_layer = 0) = 0;
     virtual void texture_set_data_partial(RID p_texture,
@@ -258,7 +258,7 @@ public:
     virtual void texture_set_flags(RID p_texture, uint32_t p_flags) = 0;
     virtual uint32_t texture_get_flags(RID p_texture) const = 0;
     virtual Image::Format texture_get_format(RID p_texture) const = 0;
-    virtual VS::TextureType texture_get_type(RID p_texture) const = 0;
+    virtual RS::TextureType texture_get_type(RID p_texture) const = 0;
     virtual uint32_t texture_get_texid(RID p_texture) const = 0;
     virtual uint32_t texture_get_width(RID p_texture) const = 0;
     virtual uint32_t texture_get_height(RID p_texture) const = 0;
@@ -335,14 +335,14 @@ public:
     virtual uint32_t mesh_surface_get_format_stride(uint32_t p_format, int p_vertex_len, int p_index_len) const;
     /// Returns stride
     virtual uint32_t mesh_surface_make_offsets_from_format(uint32_t p_format, int p_vertex_len, int p_index_len, uint32_t *r_offsets) const;
-    virtual void mesh_add_surface_from_arrays(RID p_mesh, VS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, Vector<SurfaceArrays> &&p_blend_shapes = {}, uint32_t p_compress_format = VS::ARRAY_COMPRESS_DEFAULT);
-    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, VS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const PoolVector<AABB> &p_bone_aabbs = PoolVector<AABB>()) = 0;
+    virtual void mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType p_primitive, const SurfaceArrays &p_arrays, Vector<SurfaceArrays> &&p_blend_shapes = {}, uint32_t p_compress_format = RS::ARRAY_COMPRESS_DEFAULT);
+    virtual void mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive, const PoolVector<uint8_t> &p_array, int p_vertex_count, const PoolVector<uint8_t> &p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes = Vector<PoolVector<uint8_t> >(), const PoolVector<AABB> &p_bone_aabbs = PoolVector<AABB>()) = 0;
 
     virtual void mesh_set_blend_shape_count(RID p_mesh, int p_amount) = 0;
     virtual int mesh_get_blend_shape_count(RID p_mesh) const = 0;
 
-    virtual void mesh_set_blend_shape_mode(RID p_mesh, VS::BlendShapeMode p_mode) = 0;
-    virtual VS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const = 0;
+    virtual void mesh_set_blend_shape_mode(RID p_mesh, RS::BlendShapeMode p_mode) = 0;
+    virtual RS::BlendShapeMode mesh_get_blend_shape_mode(RID p_mesh) const = 0;
 
     virtual void mesh_surface_update_region(RID p_mesh, int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) = 0;
 
@@ -359,7 +359,7 @@ public:
     virtual Vector<SurfaceArrays> mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;
 
     virtual uint32_t mesh_surface_get_format(RID p_mesh, int p_surface) const = 0;
-    virtual VS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
+    virtual RS::PrimitiveType mesh_surface_get_primitive_type(RID p_mesh, int p_surface) const = 0;
 
     virtual AABB mesh_surface_get_aabb(RID p_mesh, int p_surface) const = 0;
     virtual Vector<Vector<uint8_t>> mesh_surface_get_blend_shapes(RID p_mesh, int p_surface) const = 0;
@@ -378,7 +378,7 @@ public:
 
     virtual RID multimesh_create() = 0;
 
-    virtual void multimesh_allocate(RID p_multimesh, int p_instances, VS::MultimeshTransformFormat p_transform_format, VS::MultimeshColorFormat p_color_format, VS::MultimeshCustomDataFormat p_data_format = VS::MULTIMESH_CUSTOM_DATA_NONE) = 0;
+    virtual void multimesh_allocate(RID p_multimesh, int p_instances, RS::MultimeshTransformFormat p_transform_format, RS::MultimeshColorFormat p_color_format, RS::MultimeshCustomDataFormat p_data_format = RS::MULTIMESH_CUSTOM_DATA_NONE) = 0;
     virtual int multimesh_get_instance_count(RID p_multimesh) const = 0;
 
     virtual void multimesh_set_mesh(RID p_multimesh, RID p_mesh) = 0;
@@ -403,7 +403,7 @@ public:
     /* IMMEDIATE API */
 
     virtual RID immediate_create() = 0;
-    virtual void immediate_begin(RID p_immediate, VS::PrimitiveType p_rimitive, RID p_texture = RID()) = 0;
+    virtual void immediate_begin(RID p_immediate, RS::PrimitiveType p_rimitive, RID p_texture = RID()) = 0;
     virtual void immediate_vertex(RID p_immediate, const Vector3 &p_vertex) = 0;
     virtual void immediate_vertex_2d(RID p_immediate, const Vector2 &p_vertex);
     virtual void immediate_normal(RID p_immediate, const Vector3 &p_normal) = 0;
@@ -434,7 +434,7 @@ public:
     virtual RID spot_light_create() = 0;
 
     virtual void light_set_color(RID p_light, const Color &p_color) = 0;
-    virtual void light_set_param(RID p_light, VS::LightParam p_param, float p_value) = 0;
+    virtual void light_set_param(RID p_light, RS::LightParam p_param, float p_value) = 0;
     virtual void light_set_shadow(RID p_light, bool p_enabled) = 0;
     virtual void light_set_shadow_color(RID p_light, const Color &p_color) = 0;
     virtual void light_set_projector(RID p_light, RID p_texture) = 0;
@@ -444,16 +444,16 @@ public:
     virtual void light_set_use_gi(RID p_light, bool p_enable) = 0;
 
     // omni light
-    virtual void light_omni_set_shadow_mode(RID p_light, VS::LightOmniShadowMode p_mode) = 0;
-    virtual void light_omni_set_shadow_detail(RID p_light, VS::LightOmniShadowDetail p_detail) = 0;
-    virtual void light_directional_set_shadow_mode(RID p_light, VS::LightDirectionalShadowMode p_mode) = 0;
+    virtual void light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) = 0;
+    virtual void light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) = 0;
+    virtual void light_directional_set_shadow_mode(RID p_light, RS::LightDirectionalShadowMode p_mode) = 0;
     virtual void light_directional_set_blend_splits(RID p_light, bool p_enable) = 0;
-    virtual void light_directional_set_shadow_depth_range_mode(RID p_light, VS::LightDirectionalShadowDepthRangeMode p_range_mode) = 0;
+    virtual void light_directional_set_shadow_depth_range_mode(RID p_light, RS::LightDirectionalShadowDepthRangeMode p_range_mode) = 0;
 
     /* PROBE API */
 
     virtual RID reflection_probe_create() = 0;
-    virtual void reflection_probe_set_update_mode(RID p_probe, VS::ReflectionProbeUpdateMode p_mode) = 0;
+    virtual void reflection_probe_set_update_mode(RID p_probe, RS::ReflectionProbeUpdateMode p_mode) = 0;
     virtual void reflection_probe_set_intensity(RID p_probe, float p_intensity) = 0;
     virtual void reflection_probe_set_interior_ambient(RID p_probe, const Color &p_color) = 0;
     virtual void reflection_probe_set_interior_ambient_energy(RID p_probe, float p_energy) = 0;
@@ -540,7 +540,7 @@ public:
     virtual void particles_request_process(RID p_particles) = 0;
     virtual void particles_restart(RID p_particles) = 0;
 
-    virtual void particles_set_draw_order(RID p_particles, VS::ParticlesDrawOrder p_order) = 0;
+    virtual void particles_set_draw_order(RID p_particles, RS::ParticlesDrawOrder p_order) = 0;
 
     virtual void particles_set_draw_passes(RID p_particles, int p_count) = 0;
     virtual void particles_set_draw_pass_mesh(RID p_particles, int p_pass, RID p_mesh) = 0;
@@ -582,10 +582,10 @@ public:
     virtual void viewport_set_render_direct_to_screen(RID p_viewport, bool p_enable) = 0;
     virtual void viewport_detach(RID p_viewport) = 0;
 
-    virtual void viewport_set_update_mode(RID p_viewport, VS::ViewportUpdateMode p_mode) = 0;
+    virtual void viewport_set_update_mode(RID p_viewport, RS::ViewportUpdateMode p_mode) = 0;
     virtual void viewport_set_vflip(RID p_viewport, bool p_enable) = 0;
 
-    virtual void viewport_set_clear_mode(RID p_viewport, VS::ViewportClearMode p_clear_mode) = 0;
+    virtual void viewport_set_clear_mode(RID p_viewport, RS::ViewportClearMode p_clear_mode) = 0;
 
     virtual RID viewport_get_texture(RID p_viewport) const = 0;
 
@@ -608,20 +608,20 @@ public:
     virtual void viewport_set_shadow_atlas_size(RID p_viewport, int p_size) = 0;
     virtual void viewport_set_shadow_atlas_quadrant_subdivision(RID p_viewport, int p_quadrant, int p_subdiv) = 0;
 
-    virtual void viewport_set_msaa(RID p_viewport, VS::ViewportMSAA p_msaa) = 0;
+    virtual void viewport_set_msaa(RID p_viewport, RS::ViewportMSAA p_msaa) = 0;
 
     virtual void viewport_set_hdr(RID p_viewport, bool p_enabled) = 0;
-    virtual void viewport_set_usage(RID p_viewport, VS::ViewportUsage p_usage) = 0;
+    virtual void viewport_set_usage(RID p_viewport, RS::ViewportUsage p_usage) = 0;
 
-    virtual int viewport_get_render_info(RID p_viewport, VS::ViewportRenderInfo p_info) = 0;
+    virtual int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfo p_info) = 0;
 
-    virtual void viewport_set_debug_draw(RID p_viewport, VS::ViewportDebugDraw p_draw) = 0;
+    virtual void viewport_set_debug_draw(RID p_viewport, RS::ViewportDebugDraw p_draw) = 0;
 
     /* ENVIRONMENT API */
 
     virtual RID environment_create() = 0;
 
-    virtual void environment_set_background(RID p_env, VS::EnvironmentBG p_bg) = 0;
+    virtual void environment_set_background(RID p_env, RS::EnvironmentBG p_bg) = 0;
     virtual void environment_set_sky(RID p_env, RID p_sky) = 0;
     virtual void environment_set_sky_custom_fov(RID p_env, float p_scale) = 0;
     virtual void environment_set_sky_orientation(RID p_env, const Basis &p_orientation) = 0;
@@ -635,13 +635,13 @@ public:
     //set default SSR options
     //set default SSSSS options
 
-    virtual void environment_set_dof_blur_near(RID p_env, bool p_enable, float p_distance, float p_transition, float p_far_amount, VS::EnvironmentDOFBlurQuality p_quality) = 0;
-    virtual void environment_set_dof_blur_far(RID p_env, bool p_enable, float p_distance, float p_transition, float p_far_amount, VS::EnvironmentDOFBlurQuality p_quality) = 0;
-    virtual void environment_set_glow(RID p_env, bool p_enable, int p_level_flags, float p_intensity, float p_strength, float p_bloom_threshold, VS::EnvironmentGlowBlendMode p_blend_mode, float p_hdr_bleed_threshold, float p_hdr_bleed_scale, float p_hdr_luminance_cap, bool p_bicubic_upscale) = 0;
-    virtual void environment_set_tonemap(RID p_env, VS::EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white, bool p_auto_exposure, float p_min_luminance, float p_max_luminance, float p_auto_exp_speed, float p_auto_exp_grey) = 0;
+    virtual void environment_set_dof_blur_near(RID p_env, bool p_enable, float p_distance, float p_transition, float p_far_amount, RS::EnvironmentDOFBlurQuality p_quality) = 0;
+    virtual void environment_set_dof_blur_far(RID p_env, bool p_enable, float p_distance, float p_transition, float p_far_amount, RS::EnvironmentDOFBlurQuality p_quality) = 0;
+    virtual void environment_set_glow(RID p_env, bool p_enable, int p_level_flags, float p_intensity, float p_strength, float p_bloom_threshold, RS::EnvironmentGlowBlendMode p_blend_mode, float p_hdr_bleed_threshold, float p_hdr_bleed_scale, float p_hdr_luminance_cap, bool p_bicubic_upscale) = 0;
+    virtual void environment_set_tonemap(RID p_env, RS::EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white, bool p_auto_exposure, float p_min_luminance, float p_max_luminance, float p_auto_exp_speed, float p_auto_exp_grey) = 0;
     virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, RID p_ramp) = 0;
     virtual void environment_set_ssr(RID p_env, bool p_enable, int p_max_steps, float p_fade_in, float p_fade_out, float p_depth_tolerance, bool p_roughness) = 0;
-    virtual void environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, VS::EnvironmentSSAOQuality p_quality, VS::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) = 0;
+    virtual void environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, RS::EnvironmentSSAOQuality p_quality, RS::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) = 0;
     virtual void environment_set_fog(RID p_env, bool p_enable, const Color &p_color, const Color &p_sun_color, float p_sun_amount) = 0;
     virtual void environment_set_fog_depth(RID p_env, bool p_enable, float p_depth_begin, float p_depth_end, float p_depth_curve, bool p_transmit, float p_transmit_curve) = 0;
     virtual void environment_set_fog_height(RID p_env, bool p_enable, float p_min_height, float p_max_height, float p_height_curve) = 0;
@@ -649,7 +649,7 @@ public:
     /* SCENARIO API */
 
     virtual RID scenario_create() = 0;
-    virtual void scenario_set_debug(RID p_scenario, VS::ScenarioDebugMode p_debug_mode) = 0;
+    virtual void scenario_set_debug(RID p_scenario, RS::ScenarioDebugMode p_debug_mode) = 0;
     virtual void scenario_set_environment(RID p_scenario, RID p_environment) = 0;
     virtual void scenario_set_reflection_atlas_size(RID p_scenario, int p_size, int p_subdiv) = 0;
     virtual void scenario_set_fallback_environment(RID p_scenario, RID p_environment) = 0;
@@ -687,8 +687,8 @@ public:
     Array _instances_cull_ray_bind(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
     Array _instances_cull_convex_bind(const Array &p_convex, RID p_scenario = RID()) const;
 
-    virtual void instance_geometry_set_flag(RID p_instance, VS::InstanceFlags p_flags, bool p_enabled) = 0;
-    virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, VS::ShadowCastingSetting p_shadow_casting_setting) = 0;
+    virtual void instance_geometry_set_flag(RID p_instance, RS::InstanceFlags p_flags, bool p_enabled) = 0;
+    virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, RS::ShadowCastingSetting p_shadow_casting_setting) = 0;
     virtual void instance_geometry_set_material_override(RID p_instance, RID p_material) = 0;
 
     virtual void instance_geometry_set_draw_range(RID p_instance, float p_min, float p_max, float p_min_margin, float p_max_margin) = 0;
@@ -728,7 +728,7 @@ public:
     virtual void canvas_item_add_circle(RID p_item, const Point2 &p_pos, float p_radius, const Color &p_color) = 0;
     virtual void canvas_item_add_texture_rect(RID p_item, const Rect2 &p_rect, RID p_texture, bool p_tile = false, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_texture_rect_region(RID p_item, const Rect2 &p_rect, RID p_texture, const Rect2 &p_src_rect, const Color &p_modulate = Color(1, 1, 1), bool p_transpose = false, RID p_normal_map = RID(), bool p_clip_uv = false) = 0;
-    virtual void canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, VS::NinePatchAxisMode p_x_axis_mode = VS::NINE_PATCH_STRETCH, VS::NinePatchAxisMode p_y_axis_mode = VS::NINE_PATCH_STRETCH, bool p_draw_center = true, const Color &p_modulate = Color(1, 1, 1), RID p_normal_map = RID()) = 0;
+    virtual void canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, RS::NinePatchAxisMode p_x_axis_mode = RS::NINE_PATCH_STRETCH, RS::NinePatchAxisMode p_y_axis_mode = RS::NINE_PATCH_STRETCH, bool p_draw_center = true, const Color &p_modulate = Color(1, 1, 1), RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_primitive(RID p_item, const Vector<Point2> &p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs, RID p_texture, float p_width = 1.0, RID p_normal_map = RID()) = 0;
     virtual void canvas_item_add_polygon(RID p_item, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), RID p_texture = RID(), RID p_normal_map = RID(), bool p_antialiased = false) = 0;
     virtual void canvas_item_add_triangle_array(RID p_item, Span<const int> p_indices, Span<const Point2> p_points, const PoolVector<Color> &p_colors, const PoolVector<Point2> &p_uvs = PoolVector<Point2>(), const PoolVector<int> &p_bones = PoolVector<int>(), const PoolVector<float> &p_weights = PoolVector<float>(), RID p_texture = RID(), int p_count = -1, RID p_normal_map = RID(), bool p_antialiased = false, bool p_antialiasing_use_indices = false) = 0;
@@ -767,11 +767,11 @@ public:
     virtual void canvas_light_set_item_cull_mask(RID p_light, int p_mask) = 0;
     virtual void canvas_light_set_item_shadow_cull_mask(RID p_light, int p_mask) = 0;
 
-    virtual void canvas_light_set_mode(RID p_light, VS::CanvasLightMode p_mode) = 0;
+    virtual void canvas_light_set_mode(RID p_light, RS::CanvasLightMode p_mode) = 0;
     virtual void canvas_light_set_shadow_enabled(RID p_light, bool p_enabled) = 0;
     virtual void canvas_light_set_shadow_buffer_size(RID p_light, int p_size) = 0;
     virtual void canvas_light_set_shadow_gradient_length(RID p_light, float p_length) = 0;
-    virtual void canvas_light_set_shadow_filter(RID p_light, VS::CanvasLightShadowFilter p_filter) = 0;
+    virtual void canvas_light_set_shadow_filter(RID p_light, RS::CanvasLightShadowFilter p_filter) = 0;
     virtual void canvas_light_set_shadow_color(RID p_light, const Color &p_color) = 0;
     virtual void canvas_light_set_shadow_smooth(RID p_light, float p_smooth) = 0;
 
@@ -786,7 +786,7 @@ public:
     virtual void canvas_occluder_polygon_set_shape(RID p_occluder_polygon, Span<const Vector2> p_shape, bool p_closed) = 0;
     virtual void canvas_occluder_polygon_set_shape_as_lines(RID p_occluder_polygon, Span<const Vector2> p_shape) = 0;
 
-    virtual void canvas_occluder_polygon_set_cull_mode(RID p_occluder_polygon, VS::CanvasOccluderPolygonCullMode p_mode) = 0;
+    virtual void canvas_occluder_polygon_set_cull_mode(RID p_occluder_polygon, RS::CanvasOccluderPolygonCullMode p_mode) = 0;
 
     /* BLACK BARS */
 
@@ -809,7 +809,7 @@ public:
 
     /* STATUS INFORMATION */
 
-    virtual int get_render_info(VS::RenderInfo p_info) = 0;
+    virtual int get_render_info(RS::RenderInfo p_info) = 0;
     virtual const char *get_video_adapter_name() const = 0;
     virtual const char *get_video_adapter_vendor() const = 0;
 
@@ -830,7 +830,7 @@ public:
     virtual void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) = 0;
     virtual void set_default_clear_color(const Color &p_color) = 0;
 
-    virtual bool has_feature(VS::Features p_feature) const = 0;
+    virtual bool has_feature(RS::Features p_feature) const = 0;
 
     virtual bool has_os_feature(const StringName &p_feature) const = 0;
 
@@ -840,6 +840,6 @@ public:
 
     virtual bool is_low_end() const = 0;
 
-    VisualServer();
-    ~VisualServer() override;
+    RenderingServer();
+    ~RenderingServer() override;
 };

@@ -42,7 +42,7 @@
 #include "editor/editor_settings.h"
 #include "editor/property_editor.h"
 #include "scene/resources/style_box.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
 
 /*** SHADER SCRIPT EDITOR ****/
 IMPL_GDCLASS(ShaderTextEditor)
@@ -156,16 +156,16 @@ void ShaderTextEditor::_load_theme_settings() {
 
     if (shader) {
 
-        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode()))) {
+        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode()))) {
 
             for (const eastl::pair<const StringName, ShaderLanguage::BuiltInInfo> &F : E.second.built_ins) {
                 keywords.push_back(F.first.asCString());
             }
         }
 
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())).size(); i++) {
 
-            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode()))[i].asCString());
+            keywords.push_back(ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode()))[i].asCString());
         }
     }
 
@@ -207,8 +207,8 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, Vector<Script
     String calltip;
 
     sl.complete(p_code,
-            ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())),
             ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
     get_text_edit()->set_code_hint(calltip);
@@ -224,8 +224,8 @@ void ShaderTextEditor::_validate_script() {
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())),
             ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {

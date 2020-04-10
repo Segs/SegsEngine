@@ -30,7 +30,7 @@
 
 #include "room_instance.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 // FIXME: Will be removed, kept as reference for new implementation

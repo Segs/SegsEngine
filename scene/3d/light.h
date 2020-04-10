@@ -32,7 +32,7 @@
 
 #include "scene/3d/visual_instance.h"
 #include "scene/resources/texture.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 class GODOT_EXPORT Light : public VisualInstance {
 
@@ -42,22 +42,22 @@ class GODOT_EXPORT Light : public VisualInstance {
 
 public:
     enum Param {
-        PARAM_ENERGY = VS::LIGHT_PARAM_ENERGY,
-        PARAM_INDIRECT_ENERGY = VS::LIGHT_PARAM_INDIRECT_ENERGY,
-        PARAM_SPECULAR = VS::LIGHT_PARAM_SPECULAR,
-        PARAM_RANGE = VS::LIGHT_PARAM_RANGE,
-        PARAM_ATTENUATION = VS::LIGHT_PARAM_ATTENUATION,
-        PARAM_SPOT_ANGLE = VS::LIGHT_PARAM_SPOT_ANGLE,
-        PARAM_SPOT_ATTENUATION = VS::LIGHT_PARAM_SPOT_ATTENUATION,
-        PARAM_CONTACT_SHADOW_SIZE = VS::LIGHT_PARAM_CONTACT_SHADOW_SIZE,
-        PARAM_SHADOW_MAX_DISTANCE = VS::LIGHT_PARAM_SHADOW_MAX_DISTANCE,
-        PARAM_SHADOW_SPLIT_1_OFFSET = VS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET,
-        PARAM_SHADOW_SPLIT_2_OFFSET = VS::LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET,
-        PARAM_SHADOW_SPLIT_3_OFFSET = VS::LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET,
-        PARAM_SHADOW_NORMAL_BIAS = VS::LIGHT_PARAM_SHADOW_NORMAL_BIAS,
-        PARAM_SHADOW_BIAS = VS::LIGHT_PARAM_SHADOW_BIAS,
-        PARAM_SHADOW_BIAS_SPLIT_SCALE = VS::LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE,
-        PARAM_MAX = VS::LIGHT_PARAM_MAX
+        PARAM_ENERGY = RS::LIGHT_PARAM_ENERGY,
+        PARAM_INDIRECT_ENERGY = RS::LIGHT_PARAM_INDIRECT_ENERGY,
+        PARAM_SPECULAR = RS::LIGHT_PARAM_SPECULAR,
+        PARAM_RANGE = RS::LIGHT_PARAM_RANGE,
+        PARAM_ATTENUATION = RS::LIGHT_PARAM_ATTENUATION,
+        PARAM_SPOT_ANGLE = RS::LIGHT_PARAM_SPOT_ANGLE,
+        PARAM_SPOT_ATTENUATION = RS::LIGHT_PARAM_SPOT_ATTENUATION,
+        PARAM_CONTACT_SHADOW_SIZE = RS::LIGHT_PARAM_CONTACT_SHADOW_SIZE,
+        PARAM_SHADOW_MAX_DISTANCE = RS::LIGHT_PARAM_SHADOW_MAX_DISTANCE,
+        PARAM_SHADOW_SPLIT_1_OFFSET = RS::LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET,
+        PARAM_SHADOW_SPLIT_2_OFFSET = RS::LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET,
+        PARAM_SHADOW_SPLIT_3_OFFSET = RS::LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET,
+        PARAM_SHADOW_NORMAL_BIAS = RS::LIGHT_PARAM_SHADOW_NORMAL_BIAS,
+        PARAM_SHADOW_BIAS = RS::LIGHT_PARAM_SHADOW_BIAS,
+        PARAM_SHADOW_BIAS_SPLIT_SCALE = RS::LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE,
+        PARAM_MAX = RS::LIGHT_PARAM_MAX
     };
 
     enum BakeMode {
@@ -74,7 +74,7 @@ private:
     bool negative;
     bool reverse_cull;
     uint32_t cull_mask;
-    VS::LightType type;
+    RS::LightType type;
     bool editor_only;
     void _update_visibility();
     BakeMode bake_mode;
@@ -90,10 +90,10 @@ protected:
     void _notification(int p_what);
     void _validate_property(PropertyInfo &property) const override;
 
-    Light(VS::LightType p_type);
+    Light(RS::LightType p_type);
 
 public:
-    VS::LightType get_light_type() const { return type; }
+    RS::LightType get_light_type() const { return type; }
 
     void set_editor_only(bool p_editor_only);
     bool is_editor_only() const;
@@ -141,8 +141,8 @@ public:
     };
 
     enum ShadowDepthRange {
-        SHADOW_DEPTH_RANGE_STABLE = VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE,
-        SHADOW_DEPTH_RANGE_OPTIMIZED = VS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED,
+        SHADOW_DEPTH_RANGE_STABLE = RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE,
+        SHADOW_DEPTH_RANGE_OPTIMIZED = RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED,
     };
 
 private:
@@ -213,5 +213,5 @@ public:
     StringName get_configuration_warning() const override;
 
     SpotLight() :
-            Light(VS::LIGHT_SPOT) {}
+            Light(RS::LIGHT_SPOT) {}
 };

@@ -31,7 +31,7 @@
 #include "segment_shape_2d.h"
 
 #include "servers/physics_server_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(SegmentShape2D)
@@ -75,7 +75,7 @@ Vector2 SegmentShape2D::get_b() const {
 
 void SegmentShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
-    VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, a, b, p_color, 3);
+    RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, a, b, p_color, 3);
 }
 
 Rect2 SegmentShape2D::get_rect() const {
@@ -120,7 +120,7 @@ void RayShape2D::_update_shape() {
 void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     Vector2 tip = Vector2(0, get_length());
-    VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
+    RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, Vector2(), tip, p_color, 3);
     Vector<Vector2> pts;
     float tsize = 4;
     pts.push_back(tip + Vector2(0, tsize));
@@ -130,7 +130,7 @@ void RayShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     for (int i = 0; i < 3; i++)
         cols.push_back(p_color);
 
-    VisualServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, PoolVector<Point2>(), RID());
+    RenderingServer::get_singleton()->canvas_item_add_primitive(p_to_rid, pts, cols, PoolVector<Point2>(), RID());
 }
 
 Rect2 RayShape2D::get_rect() const {

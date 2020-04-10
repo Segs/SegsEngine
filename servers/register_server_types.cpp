@@ -63,15 +63,15 @@
 #include "physics_server_2d.h"
 #include "physics_server_3d.h"
 #include "scene/debugger/script_debugger_remote.h"
-#include "visual/shader_types.h"
-#include "visual_server.h"
+#include "rendering/shader_types.h"
+#include "rendering_server.h"
 
 static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    Vector<VisualServer::TextureInfo> tinfo;
-    VisualServer::get_singleton()->texture_debug_usage(&tinfo);
+    Vector<RenderingServer::TextureInfo> tinfo;
+    RenderingServer::get_singleton()->texture_debug_usage(&tinfo);
 
-    for (const VisualServer::TextureInfo &E : tinfo) {
+    for (const RenderingServer::TextureInfo &E : tinfo) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
         usage.path = E.path;
@@ -95,8 +95,8 @@ PhysicsServer2D *_createGodotPhysics2DCallback() {
 
 static bool has_server_feature_callback(StringView p_feature) {
 
-    if (VisualServer::get_singleton()) {
-        if (VisualServer::get_singleton()->has_os_feature(StringName(p_feature))) {
+    if (RenderingServer::get_singleton()) {
+        if (RenderingServer::get_singleton()->has_os_feature(StringName(p_feature))) {
             return true;
         }
     }
@@ -167,7 +167,7 @@ void register_server_types() {
     AudioBusLayout::initialize_class();
 
 
-    ClassDB::register_virtual_class<VisualServer>();
+    ClassDB::register_virtual_class<RenderingServer>();
     ClassDB::register_class<AudioServer>();
     ClassDB::register_virtual_class<PhysicsServer3D>();
     ClassDB::register_virtual_class<PhysicsServer2D>();
@@ -267,7 +267,7 @@ void unregister_server_types() {
 }
 
 void register_server_singletons() {
-    Engine::get_singleton()->add_singleton(Engine::Singleton("VisualServer", VisualServer::get_singleton()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("RenderingServer", RenderingServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("AudioServer", AudioServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3D", PhysicsServer3D::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer2D", PhysicsServer2D::get_singleton()));

@@ -31,14 +31,14 @@
 #pragma once
 
 #include "core/math/octree.h"
-#include "servers/visual/rasterizer.h"
-#include "servers/visual_server.h"
+#include "servers/rendering/rasterizer.h"
+#include "servers/rendering_server.h"
 #include "visual_server_canvas.h"
 #include "visual_server_globals.h"
 #include "visual_server_scene.h"
 #include "visual_server_viewport.h"
 
-class  VisualServerRaster : public VisualServer {
+class  VisualServerRaster : public RenderingServer {
 
     enum {
 
@@ -142,14 +142,14 @@ public:
     /* TEXTURE API */
 
     RID texture_create() override { return BINDBASE->texture_create(); }
-    void texture_allocate(RID arg1, int arg2, int arg3, int arg4, Image::Format arg5, VS::TextureType arg6, uint32_t arg7) override { DISPLAY_CHANGED BINDBASE->texture_allocate(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
+    void texture_allocate(RID arg1, int arg2, int arg3, int arg4, Image::Format arg5, RS::TextureType arg6, uint32_t arg7) override { DISPLAY_CHANGED BINDBASE->texture_allocate(arg1, arg2, arg3, arg4, arg5, arg6, arg7); }
     void texture_set_data(RID arg1, const Ref<Image> & arg2, int arg3) override { DISPLAY_CHANGED BINDBASE->texture_set_data(arg1, arg2, arg3); }
     void texture_set_data_partial(RID arg1, const Ref<Image> & arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10) override { DISPLAY_CHANGED BINDBASE->texture_set_data_partial(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); }
     Ref<Image> texture_get_data(RID arg1, int arg2) const override { return BINDBASE->texture_get_data(arg1, arg2); }
     void texture_set_flags(RID arg1, uint32_t arg2) override { DISPLAY_CHANGED BINDBASE->texture_set_flags(arg1, arg2); }
     uint32_t texture_get_flags(RID arg1) const override { return BINDBASE->texture_get_flags(arg1); }
     Image::Format texture_get_format(RID arg1) const override { return BINDBASE->texture_get_format(arg1); }
-    VS::TextureType texture_get_type(RID arg1) const override { return BINDBASE->texture_get_type(arg1); }
+    RS::TextureType texture_get_type(RID arg1) const override { return BINDBASE->texture_get_type(arg1); }
     uint32_t texture_get_texid(RID arg1) const override { return BINDBASE->texture_get_texid(arg1); }
     uint32_t texture_get_width(RID arg1) const override { return BINDBASE->texture_get_width(arg1); }
     uint32_t texture_get_height(RID arg1) const override { return BINDBASE->texture_get_height(arg1); }
@@ -208,16 +208,16 @@ public:
 
     RID mesh_create() override { return BINDBASE->mesh_create(); }
 
-    //BIND10(mesh_add_surface, RID, uint32_t, VS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
-    void mesh_add_surface(RID arg1, uint32_t arg2, VS::PrimitiveType arg3, const PoolVector<uint8_t> & arg4, int arg5, const PoolVector<uint8_t> & arg6, int arg7, const AABB & arg8, const Vector<PoolVector<uint8_t> > & arg9, const PoolVector<AABB> & arg10) override {
+    //BIND10(mesh_add_surface, RID, uint32_t, RS::PrimitiveType, const PoolVector<uint8_t> &, int, const PoolVector<uint8_t> &, int, const AABB &, const Vector<PoolVector<uint8_t> > &, const PoolVector<AABB> &)
+    void mesh_add_surface(RID arg1, uint32_t arg2, RS::PrimitiveType arg3, const PoolVector<uint8_t> & arg4, int arg5, const PoolVector<uint8_t> & arg6, int arg7, const AABB & arg8, const Vector<PoolVector<uint8_t> > & arg9, const PoolVector<AABB> & arg10) override {
         DISPLAY_CHANGED
         BINDBASE->mesh_add_surface(arg1, arg2, arg3, arg4.toSpan(), arg5, arg6.toSpan(), arg7, arg8, arg9, arg10.toSpan());
     }
     void mesh_set_blend_shape_count(RID arg1, int arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_blend_shape_count(arg1, arg2); }
     int mesh_get_blend_shape_count(RID arg1) const override { return BINDBASE->mesh_get_blend_shape_count(arg1); }
 
-    void mesh_set_blend_shape_mode(RID arg1, VS::BlendShapeMode arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_blend_shape_mode(arg1, arg2); }
-    VS::BlendShapeMode mesh_get_blend_shape_mode(RID arg1) const override { return BINDBASE->mesh_get_blend_shape_mode(arg1); }
+    void mesh_set_blend_shape_mode(RID arg1, RS::BlendShapeMode arg2) override { DISPLAY_CHANGED BINDBASE->mesh_set_blend_shape_mode(arg1, arg2); }
+    RS::BlendShapeMode mesh_get_blend_shape_mode(RID arg1) const override { return BINDBASE->mesh_get_blend_shape_mode(arg1); }
 
     void mesh_surface_update_region(RID arg1, int arg2, int arg3, const PoolVector<uint8_t> &arg4) override {
         DISPLAY_CHANGED
@@ -235,7 +235,7 @@ public:
     BIND2RC(PoolVector<uint8_t>, mesh_surface_get_index_array, RID, int)
 
     BIND2RC(uint32_t, mesh_surface_get_format, RID, int)
-    BIND2RC(VS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
+    BIND2RC(RS::PrimitiveType, mesh_surface_get_primitive_type, RID, int)
 
     BIND2RC(AABB, mesh_surface_get_aabb, RID, int)
     BIND2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
@@ -253,7 +253,7 @@ public:
 
     BIND0R(RID, multimesh_create)
 
-    BIND5(multimesh_allocate, RID, int, VS::MultimeshTransformFormat, VS::MultimeshColorFormat, VS::MultimeshCustomDataFormat)
+    BIND5(multimesh_allocate, RID, int, RS::MultimeshTransformFormat, RS::MultimeshColorFormat, RS::MultimeshCustomDataFormat)
     BIND1RC(int, multimesh_get_instance_count, RID)
 
     BIND2(multimesh_set_mesh, RID, RID)
@@ -278,7 +278,7 @@ public:
     /* IMMEDIATE API */
 
     BIND0R(RID, immediate_create)
-    BIND3(immediate_begin, RID, VS::PrimitiveType, RID)
+    BIND3(immediate_begin, RID, RS::PrimitiveType, RID)
     BIND2(immediate_vertex, RID, const Vector3 &)
     BIND2(immediate_normal, RID, const Vector3 &)
     BIND2(immediate_tangent, RID, const Plane &)
@@ -308,7 +308,7 @@ public:
     BIND0R(RID, spot_light_create)
 
     BIND2(light_set_color, RID, const Color &)
-    BIND3(light_set_param, RID, VS::LightParam, float)
+    BIND3(light_set_param, RID, RS::LightParam, float)
     BIND2(light_set_shadow, RID, bool)
     BIND2(light_set_shadow_color, RID, const Color &)
     BIND2(light_set_projector, RID, RID)
@@ -317,18 +317,18 @@ public:
     BIND2(light_set_reverse_cull_face_mode, RID, bool)
     BIND2(light_set_use_gi, RID, bool)
 
-    BIND2(light_omni_set_shadow_mode, RID, VS::LightOmniShadowMode)
-    BIND2(light_omni_set_shadow_detail, RID, VS::LightOmniShadowDetail)
+    BIND2(light_omni_set_shadow_mode, RID, RS::LightOmniShadowMode)
+    BIND2(light_omni_set_shadow_detail, RID, RS::LightOmniShadowDetail)
 
-    BIND2(light_directional_set_shadow_mode, RID, VS::LightDirectionalShadowMode)
+    BIND2(light_directional_set_shadow_mode, RID, RS::LightDirectionalShadowMode)
     BIND2(light_directional_set_blend_splits, RID, bool)
-    BIND2(light_directional_set_shadow_depth_range_mode, RID, VS::LightDirectionalShadowDepthRangeMode)
+    BIND2(light_directional_set_shadow_depth_range_mode, RID, RS::LightDirectionalShadowDepthRangeMode)
 
     /* PROBE API */
 
     BIND0R(RID, reflection_probe_create)
 
-    BIND2(reflection_probe_set_update_mode, RID, VS::ReflectionProbeUpdateMode)
+    BIND2(reflection_probe_set_update_mode, RID, RS::ReflectionProbeUpdateMode)
     BIND2(reflection_probe_set_intensity, RID, float)
     BIND2(reflection_probe_set_interior_ambient, RID, const Color &)
     BIND2(reflection_probe_set_interior_ambient_energy, RID, float)
@@ -419,7 +419,7 @@ public:
     BIND1(particles_request_process, RID)
     BIND1(particles_restart, RID)
 
-    BIND2(particles_set_draw_order, RID, VS::ParticlesDrawOrder)
+    BIND2(particles_set_draw_order, RID, RS::ParticlesDrawOrder)
 
     BIND2(particles_set_draw_passes, RID, int)
     BIND3(particles_set_draw_pass_mesh, RID, int, RID)
@@ -442,13 +442,13 @@ public:
     BIND2(viewport_set_active, RID, bool)
     BIND2(viewport_set_parent_viewport, RID, RID)
 
-    BIND2(viewport_set_clear_mode, RID, VS::ViewportClearMode)
+    BIND2(viewport_set_clear_mode, RID, RS::ViewportClearMode)
 
     BIND3(viewport_attach_to_screen, RID, const Rect2 &, int)
     BIND2(viewport_set_render_direct_to_screen, RID, bool)
     BIND1(viewport_detach, RID)
 
-    BIND2(viewport_set_update_mode, RID, VS::ViewportUpdateMode)
+    BIND2(viewport_set_update_mode, RID, RS::ViewportUpdateMode)
     BIND2(viewport_set_vflip, RID, bool)
 
     BIND1RC(RID, viewport_get_texture, RID)
@@ -471,12 +471,12 @@ public:
     BIND4(viewport_set_canvas_stacking, RID, RID, int, int)
     BIND2(viewport_set_shadow_atlas_size, RID, int)
     BIND3(viewport_set_shadow_atlas_quadrant_subdivision, RID, int, int)
-    BIND2(viewport_set_msaa, RID, VS::ViewportMSAA)
+    BIND2(viewport_set_msaa, RID, RS::ViewportMSAA)
     BIND2(viewport_set_hdr, RID, bool)
-    BIND2(viewport_set_usage, RID, VS::ViewportUsage)
+    BIND2(viewport_set_usage, RID, RS::ViewportUsage)
 
-    BIND2R(int, viewport_get_render_info, RID, VS::ViewportRenderInfo)
-    BIND2(viewport_set_debug_draw, RID, VS::ViewportDebugDraw)
+    BIND2R(int, viewport_get_render_info, RID, RS::ViewportRenderInfo)
+    BIND2(viewport_set_debug_draw, RID, RS::ViewportDebugDraw)
 
     /* ENVIRONMENT API */
 
@@ -486,7 +486,7 @@ public:
 
     BIND0R(RID, environment_create)
 
-    BIND2(environment_set_background, RID, VS::EnvironmentBG)
+    BIND2(environment_set_background, RID, RS::EnvironmentBG)
     BIND2(environment_set_sky, RID, RID)
     BIND2(environment_set_sky_custom_fov, RID, float)
     BIND2(environment_set_sky_orientation, RID, const Basis &)
@@ -496,13 +496,13 @@ public:
     BIND4(environment_set_ambient_light, RID, const Color &, float, float)
     BIND2(environment_set_camera_feed_id, RID, int)
     BIND7(environment_set_ssr, RID, bool, int, float, float, float, bool)
-    BIND13(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, const Color &, VS::EnvironmentSSAOQuality, VS::EnvironmentSSAOBlur, float)
+    BIND13(environment_set_ssao, RID, bool, float, float, float, float, float, float, float, const Color &, RS::EnvironmentSSAOQuality, RS::EnvironmentSSAOBlur, float)
 
-    BIND6(environment_set_dof_blur_near, RID, bool, float, float, float, VS::EnvironmentDOFBlurQuality)
-    BIND6(environment_set_dof_blur_far, RID, bool, float, float, float, VS::EnvironmentDOFBlurQuality)
-    BIND11(environment_set_glow, RID, bool, int, float, float, float, VS::EnvironmentGlowBlendMode, float, float, float, bool)
+    BIND6(environment_set_dof_blur_near, RID, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
+    BIND6(environment_set_dof_blur_far, RID, bool, float, float, float, RS::EnvironmentDOFBlurQuality)
+    BIND11(environment_set_glow, RID, bool, int, float, float, float, RS::EnvironmentGlowBlendMode, float, float, float, bool)
 
-    BIND9(environment_set_tonemap, RID, VS::EnvironmentToneMapper, float, float, bool, float, float, float, float)
+    BIND9(environment_set_tonemap, RID, RS::EnvironmentToneMapper, float, float, bool, float, float, float, float)
 
     BIND6(environment_set_adjustment, RID, bool, float, float, float, RID)
 
@@ -530,7 +530,7 @@ public:
     /* SCENARIO API */
     BIND0R(RID, scenario_create)
 
-    BIND2(scenario_set_debug, RID, VS::ScenarioDebugMode)
+    BIND2(scenario_set_debug, RID, RS::ScenarioDebugMode)
     BIND2(scenario_set_environment, RID, RID)
     BIND3(scenario_set_reflection_atlas_size, RID, int, int)
     BIND2(scenario_set_fallback_environment, RID, RID)
@@ -560,8 +560,8 @@ public:
     BIND3RC(Vector<ObjectID>, instances_cull_ray, const Vector3 &, const Vector3 &, RID)
     BIND2RC(Vector<ObjectID>, instances_cull_convex,  Span<const Plane>, RID)
 
-    BIND3(instance_geometry_set_flag, RID, VS::InstanceFlags, bool)
-    BIND2(instance_geometry_set_cast_shadows_setting, RID, VS::ShadowCastingSetting)
+    BIND3(instance_geometry_set_flag, RID, RS::InstanceFlags, bool)
+    BIND2(instance_geometry_set_cast_shadows_setting, RID, RS::ShadowCastingSetting)
     BIND2(instance_geometry_set_material_override, RID, RID)
 
     BIND5(instance_geometry_set_draw_range, RID, float, float, float, float)
@@ -603,7 +603,7 @@ public:
     BIND4(canvas_item_add_circle, RID, const Point2 &, float, const Color &)
     BIND7(canvas_item_add_texture_rect, RID, const Rect2 &, RID, bool, const Color &, bool, RID)
     BIND8(canvas_item_add_texture_rect_region, RID, const Rect2 &, RID, const Rect2 &, const Color &, bool, RID, bool)
-    BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, VS::NinePatchAxisMode, VS::NinePatchAxisMode, bool, const Color &, RID)
+    BIND11(canvas_item_add_nine_patch, RID, const Rect2 &, const Rect2 &, RID, const Vector2 &, const Vector2 &, RS::NinePatchAxisMode, RS::NinePatchAxisMode, bool, const Color &, RID)
     BIND7(canvas_item_add_primitive, RID, const Vector<Point2> &, const PoolVector<Color> &, const PoolVector<Point2> &, RID, float, RID)
     BIND7(canvas_item_add_polygon, RID, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, RID, RID, bool)
     BIND12(canvas_item_add_triangle_array, RID, Span<const int>, Span<const Point2>, const PoolVector<Color> &, const PoolVector<Point2> &, const PoolVector<int> &, const PoolVector<float> &, RID, int, RID, bool,bool)
@@ -640,12 +640,12 @@ public:
     BIND2(canvas_light_set_item_cull_mask, RID, int)
     BIND2(canvas_light_set_item_shadow_cull_mask, RID, int)
 
-    BIND2(canvas_light_set_mode, RID, VS::CanvasLightMode)
+    BIND2(canvas_light_set_mode, RID, RS::CanvasLightMode)
 
     BIND2(canvas_light_set_shadow_enabled, RID, bool)
     BIND2(canvas_light_set_shadow_buffer_size, RID, int)
     BIND2(canvas_light_set_shadow_gradient_length, RID, float)
-    BIND2(canvas_light_set_shadow_filter, RID, VS::CanvasLightShadowFilter)
+    BIND2(canvas_light_set_shadow_filter, RID, RS::CanvasLightShadowFilter)
     BIND2(canvas_light_set_shadow_color, RID, const Color &)
     BIND2(canvas_light_set_shadow_smooth, RID, float)
 
@@ -660,7 +660,7 @@ public:
     BIND3(canvas_occluder_polygon_set_shape, RID, Span<const Vector2>, bool)
     BIND2(canvas_occluder_polygon_set_shape_as_lines, RID, Span<const Vector2>)
 
-    BIND2(canvas_occluder_polygon_set_cull_mode, RID, VS::CanvasOccluderPolygonCullMode)
+    BIND2(canvas_occluder_polygon_set_cull_mode, RID, RS::CanvasOccluderPolygonCullMode)
 
     /* BLACK BARS */
 
@@ -683,7 +683,7 @@ public:
 
     /* STATUS INFORMATION */
 
-    int get_render_info(VS::RenderInfo p_info) override;
+    int get_render_info(RS::RenderInfo p_info) override;
     const char * get_video_adapter_name() const override;
     const char * get_video_adapter_vendor() const override;
 
@@ -694,7 +694,7 @@ public:
     void set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter = true) override;
     void set_default_clear_color(const Color &p_color) override;
 
-    bool has_feature(VS::Features p_feature) const override;
+    bool has_feature(RS::Features p_feature) const override;
 
     bool has_os_feature(const StringName &p_feature) const override;
     void set_debug_generate_wireframes(bool p_generate) override;

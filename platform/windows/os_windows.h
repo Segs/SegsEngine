@@ -41,8 +41,8 @@
 #include "key_mapping_windows.h"
 #include "core/input/input_default.h"
 #include "servers/audio_server.h"
-#include "servers/visual/rasterizer.h"
-#include "servers/visual_server.h"
+#include "servers/rendering/rasterizer.h"
+#include "servers/rendering_server.h"
 #ifdef XAUDIO2_ENABLED
 #include "drivers/xaudio2/audio_driver_xaudio2.h"
 #endif
@@ -167,7 +167,7 @@ class OS_Windows : public OS {
 #if defined(OPENGL_ENABLED)
     ContextGL_Windows *gl_context;
 #endif
-    VisualServer *visual_server;
+    RenderingServer *rendering_server;
     int pressrc;
     HINSTANCE hInstance; // Holds The Instance Of The Application
     HWND hWnd;

@@ -39,7 +39,7 @@
 #include "scene/scene_string_names.h"
 #include "skeleton.h"
 #include "scene/main/scene_tree.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(MeshInstance)
@@ -55,7 +55,7 @@ bool MeshInstance::_set(const StringName &p_name, const Variant &p_value) {
     HashMap<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
         E->second.value = p_value;
-        VisualServer::get_singleton()->instance_set_blend_shape_weight(get_instance(), E->second.idx, E->second.value);
+        RenderingServer::get_singleton()->instance_set_blend_shape_weight(get_instance(), E->second.idx, E->second.value);
         return true;
     }
 
@@ -174,9 +174,9 @@ void MeshInstance::_resolve_skeleton_path() {
     skin_ref = new_skin_reference;
 
     if (skin_ref) {
-        VisualServer::get_singleton()->instance_attach_skeleton(get_instance(), skin_ref->get_skeleton());
+        RenderingServer::get_singleton()->instance_attach_skeleton(get_instance(), skin_ref->get_skeleton());
     } else {
-        VisualServer::get_singleton()->instance_attach_skeleton(get_instance(), RID());
+        RenderingServer::get_singleton()->instance_attach_skeleton(get_instance(), RID());
     }
 }
 
@@ -302,9 +302,9 @@ void MeshInstance::set_surface_material(int p_surface, const Ref<Material> &p_ma
     materials[p_surface] = p_material;
 
     if (materials[p_surface])
-        VisualServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
+        RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, materials[p_surface]->get_rid());
     else
-        VisualServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
+        RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
 }
 
 Ref<Material> MeshInstance::get_surface_material(int p_surface) const {

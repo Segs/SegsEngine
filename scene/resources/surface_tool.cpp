@@ -519,35 +519,35 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
 
     ret.resize(vc);
     Vertex *tgt = ret.data();
-    if (lformat & VS::ARRAY_FORMAT_VERTEX)
+    if (lformat & RS::ARRAY_FORMAT_VERTEX)
         for (int i = 0; i < vc; i++) {
             tgt[i].vertex = varr[i];
         }
-    if (lformat & VS::ARRAY_FORMAT_NORMAL)
+    if (lformat & RS::ARRAY_FORMAT_NORMAL)
         for (int i = 0; i < vc; i++) {
             tgt[i].normal = narr[i];
         }
-    if (lformat & VS::ARRAY_FORMAT_TANGENT) {
+    if (lformat & RS::ARRAY_FORMAT_TANGENT) {
         for (int i = 0; i < vc; i++) {
             Plane p(tarr[i * 4 + 0], tarr[i * 4 + 1], tarr[i * 4 + 2], tarr[i * 4 + 3]);
             tgt[i].tangent = p.normal;
             tgt[i].binormal = p.normal.cross(p.normal).normalized() * p.d;
         }
     }
-    if (lformat & VS::ARRAY_FORMAT_COLOR)
+    if (lformat & RS::ARRAY_FORMAT_COLOR)
         for (int i = 0; i < vc; i++) {
             tgt[i].color = carr[i];
         }
-    if (lformat & VS::ARRAY_FORMAT_TEX_UV)
+    if (lformat & RS::ARRAY_FORMAT_TEX_UV)
         for (int i = 0; i < vc; i++) {
             tgt[i].uv = uvarr[i];
         }
-    if (lformat & VS::ARRAY_FORMAT_TEX_UV2)
+    if (lformat & RS::ARRAY_FORMAT_TEX_UV2)
         for (int i = 0; i < vc; i++) {
             tgt[i].uv2 = uv2arr[i];
         }
 
-    if (lformat & VS::ARRAY_FORMAT_BONES) {
+    if (lformat & RS::ARRAY_FORMAT_BONES) {
         for (int i = 0; i < vc; i++) {
             int b[4] = {
                 barr[i * 4 + 0],
@@ -558,7 +558,7 @@ Vector<SurfaceTool::Vertex> SurfaceTool::create_vertex_array_from_triangle_array
             tgt[i].bones.assign(eastl::begin(b), eastl::end(b));
         }
     }
-    if (lformat & VS::ARRAY_FORMAT_WEIGHTS) {
+    if (lformat & RS::ARRAY_FORMAT_WEIGHTS) {
         for (int i = 0; i < vc; i++) {
             float w[4]{
                 warr[i * 4 + 0],
@@ -592,22 +592,22 @@ void SurfaceTool::_create_list_from_arrays(const SurfaceArrays &arr, Vector<Vert
     for (int i = 0; i < vc; i++) {
 
         Vertex v;
-        if (lformat & VS::ARRAY_FORMAT_VERTEX)
+        if (lformat & RS::ARRAY_FORMAT_VERTEX)
             v.vertex = varr[i];
-        if (lformat & VS::ARRAY_FORMAT_NORMAL)
+        if (lformat & RS::ARRAY_FORMAT_NORMAL)
             v.normal = narr[i];
-        if (lformat & VS::ARRAY_FORMAT_TANGENT) {
+        if (lformat & RS::ARRAY_FORMAT_TANGENT) {
             Plane p(tarr[i * 4 + 0], tarr[i * 4 + 1], tarr[i * 4 + 2], tarr[i * 4 + 3]);
             v.tangent = p.normal;
             v.binormal = p.normal.cross(v.tangent).normalized() * p.d;
         }
-        if (lformat & VS::ARRAY_FORMAT_COLOR)
+        if (lformat & RS::ARRAY_FORMAT_COLOR)
             v.color = carr[i];
-        if (lformat & VS::ARRAY_FORMAT_TEX_UV)
+        if (lformat & RS::ARRAY_FORMAT_TEX_UV)
             v.uv = uvarr[i];
-        if (lformat & VS::ARRAY_FORMAT_TEX_UV2)
+        if (lformat & RS::ARRAY_FORMAT_TEX_UV2)
             v.uv2 = uv2arr[i];
-        if (lformat & VS::ARRAY_FORMAT_BONES) {
+        if (lformat & RS::ARRAY_FORMAT_BONES) {
             int b[4] = {
                 barr[i * 4 + 0],
                 barr[i * 4 + 1],
@@ -616,7 +616,7 @@ void SurfaceTool::_create_list_from_arrays(const SurfaceArrays &arr, Vector<Vert
             };
             v.bones.assign(eastl::begin(b),eastl::end(b));
         }
-        if (lformat & VS::ARRAY_FORMAT_WEIGHTS) {
+        if (lformat & RS::ARRAY_FORMAT_WEIGHTS) {
             float w[4] {
                 warr[i * 4 + 0],
                 warr[i * 4 + 1],
@@ -635,7 +635,7 @@ void SurfaceTool::_create_list_from_arrays(const SurfaceArrays &arr, Vector<Vert
     int is = idx.size();
     if (is) {
 
-        lformat |= VS::ARRAY_FORMAT_INDEX;
+        lformat |= RS::ARRAY_FORMAT_INDEX;
         r_index->push_back(idx);
     }
 }
@@ -692,10 +692,10 @@ void SurfaceTool::append_from(const Ref<Mesh> &p_existing, int p_surface, const 
     for (Vertex v : nvertices) {
 
         v.vertex = p_xform.xform(v.vertex);
-        if (nformat & VS::ARRAY_FORMAT_NORMAL) {
+        if (nformat & RS::ARRAY_FORMAT_NORMAL) {
             v.normal = p_xform.basis.xform(v.normal);
         }
-        if (nformat & VS::ARRAY_FORMAT_TANGENT) {
+        if (nformat & RS::ARRAY_FORMAT_TANGENT) {
             v.tangent = p_xform.basis.xform(v.tangent);
             v.binormal = p_xform.basis.xform(v.binormal);
         }

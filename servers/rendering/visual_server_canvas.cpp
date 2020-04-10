@@ -34,7 +34,7 @@
 #include "visual_server_viewport.h"
 #include "EASTL/sort.h"
 
-static const int z_range = VS::CANVAS_ITEM_Z_MAX - VS::CANVAS_ITEM_Z_MIN + 1;
+static const int z_range = RS::CANVAS_ITEM_Z_MAX - RS::CANVAS_ITEM_Z_MIN + 1;
 
 void VisualServerCanvas::_render_canvas_item_tree(Item *p_canvas_item, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RasterizerCanvas::Light *p_lights) {
 
@@ -46,7 +46,7 @@ void VisualServerCanvas::_render_canvas_item_tree(Item *p_canvas_item, const Tra
     for (int i = 0; i < z_range; i++) {
         if (!z_list[i])
             continue;
-        VSG::canvas_render->canvas_render_items(z_list[i], VS::CANVAS_ITEM_Z_MIN + i, p_modulate, p_lights, p_transform);
+        VSG::canvas_render->canvas_render_items(z_list[i], RS::CANVAS_ITEM_Z_MIN + i, p_modulate, p_lights, p_transform);
     }
 }
 
@@ -145,7 +145,7 @@ void VisualServerCanvas::_render_canvas_item(Item *p_canvas_item, const Transfor
     }
 
     if (ci->z_relative)
-        p_z = CLAMP(p_z + ci->z_index, VS::CANVAS_ITEM_Z_MIN, VS::CANVAS_ITEM_Z_MAX);
+        p_z = CLAMP(p_z + ci->z_index, RS::CANVAS_ITEM_Z_MIN, RS::CANVAS_ITEM_Z_MAX);
     else
         p_z = ci->z_index;
 
@@ -177,7 +177,7 @@ void VisualServerCanvas::_render_canvas_item(Item *p_canvas_item, const Transfor
         ci->global_rect_cache.position -= p_clip_rect.position;
         ci->light_masked = false;
 
-        int zidx = p_z - VS::CANVAS_ITEM_Z_MIN;
+        int zidx = p_z - RS::CANVAS_ITEM_Z_MIN;
 
         if (z_last_list[zidx]) {
             z_last_list[zidx]->next = ci;
@@ -249,7 +249,7 @@ void VisualServerCanvas::render_canvas(Canvas *p_canvas, const Transform2D &p_tr
 
     if (!has_mirror) {
 
-        static const int z_range = VS::CANVAS_ITEM_Z_MAX - VS::CANVAS_ITEM_Z_MIN + 1;
+        static const int z_range = RS::CANVAS_ITEM_Z_MAX - RS::CANVAS_ITEM_Z_MIN + 1;
         RasterizerCanvas::Item *z_list[z_range];
         RasterizerCanvas::Item *z_last_list[z_range];
 
@@ -265,10 +265,10 @@ void VisualServerCanvas::render_canvas(Canvas *p_canvas, const Transform2D &p_tr
                 continue;
 
             if (p_masked_lights) {
-                _light_mask_canvas_items(VS::CANVAS_ITEM_Z_MIN + i, z_list[i], p_masked_lights);
+                _light_mask_canvas_items(RS::CANVAS_ITEM_Z_MIN + i, z_list[i], p_masked_lights);
             }
 
-            VSG::canvas_render->canvas_render_items(z_list[i], VS::CANVAS_ITEM_Z_MIN + i, p_canvas->modulate, p_lights, p_transform);
+            VSG::canvas_render->canvas_render_items(z_list[i], RS::CANVAS_ITEM_Z_MIN + i, p_canvas->modulate, p_lights, p_transform);
         }
     } else {
 
@@ -711,7 +711,7 @@ void VisualServerCanvas::canvas_item_add_texture_rect_region(RID p_item, const R
     canvas_item->commands.push_back(rect);
 }
 
-void VisualServerCanvas::canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, VS::NinePatchAxisMode p_x_axis_mode, VS::NinePatchAxisMode p_y_axis_mode, bool p_draw_center, const Color &p_modulate, RID p_normal_map) {
+void VisualServerCanvas::canvas_item_add_nine_patch(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector2 &p_topleft, const Vector2 &p_bottomright, RS::NinePatchAxisMode p_x_axis_mode, RS::NinePatchAxisMode p_y_axis_mode, bool p_draw_center, const Color &p_modulate, RID p_normal_map) {
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item);
@@ -910,7 +910,7 @@ void VisualServerCanvas::canvas_item_set_sort_children_by_y(RID p_item, bool p_e
 }
 void VisualServerCanvas::canvas_item_set_z_index(RID p_item, int p_z) {
 
-    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN || p_z > VS::CANVAS_ITEM_Z_MAX);
+    ERR_FAIL_COND(p_z < RS::CANVAS_ITEM_Z_MIN || p_z > RS::CANVAS_ITEM_Z_MAX);
 
     Item *canvas_item = canvas_item_owner.getornull(p_item);
     ERR_FAIL_COND(!canvas_item);
@@ -1110,7 +1110,7 @@ void VisualServerCanvas::canvas_light_set_item_shadow_cull_mask(RID p_light, int
 
     clight->item_shadow_mask = p_mask;
 }
-void VisualServerCanvas::canvas_light_set_mode(RID p_light, VS::CanvasLightMode p_mode) {
+void VisualServerCanvas::canvas_light_set_mode(RID p_light, RS::CanvasLightMode p_mode) {
 
     RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
@@ -1160,7 +1160,7 @@ void VisualServerCanvas::canvas_light_set_shadow_gradient_length(RID p_light, fl
 
     clight->shadow_gradient_length = p_length;
 }
-void VisualServerCanvas::canvas_light_set_shadow_filter(RID p_light, VS::CanvasLightShadowFilter p_filter) {
+void VisualServerCanvas::canvas_light_set_shadow_filter(RID p_light, RS::CanvasLightShadowFilter p_filter) {
 
     RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
@@ -1311,7 +1311,7 @@ void VisualServerCanvas::canvas_occluder_polygon_set_shape_as_lines(RID p_occlud
     }
 }
 
-void VisualServerCanvas::canvas_occluder_polygon_set_cull_mode(RID p_occluder_polygon, VS::CanvasOccluderPolygonCullMode p_mode) {
+void VisualServerCanvas::canvas_occluder_polygon_set_cull_mode(RID p_occluder_polygon, RS::CanvasOccluderPolygonCullMode p_mode) {
 
     LightOccluderPolygon *occluder_poly = canvas_light_occluder_polygon_owner.get(p_occluder_polygon);
     ERR_FAIL_COND(!occluder_poly);

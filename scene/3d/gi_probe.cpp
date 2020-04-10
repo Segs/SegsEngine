@@ -45,111 +45,111 @@ VARIANT_ENUM_CAST(GIProbe::Subdiv)
 
 void GIProbeData::set_bounds(const AABB &p_bounds) {
 
-    VisualServer::get_singleton()->gi_probe_set_bounds(probe, p_bounds);
+    RenderingServer::get_singleton()->gi_probe_set_bounds(probe, p_bounds);
 }
 
 AABB GIProbeData::get_bounds() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_bounds(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_bounds(probe);
 }
 
 void GIProbeData::set_cell_size(float p_size) {
 
-    VisualServer::get_singleton()->gi_probe_set_cell_size(probe, p_size);
+    RenderingServer::get_singleton()->gi_probe_set_cell_size(probe, p_size);
 }
 
 float GIProbeData::get_cell_size() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_cell_size(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_cell_size(probe);
 }
 
 void GIProbeData::set_to_cell_xform(const Transform &p_xform) {
 
-    VisualServer::get_singleton()->gi_probe_set_to_cell_xform(probe, p_xform);
+    RenderingServer::get_singleton()->gi_probe_set_to_cell_xform(probe, p_xform);
 }
 
 Transform GIProbeData::get_to_cell_xform() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_to_cell_xform(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_to_cell_xform(probe);
 }
 
 void GIProbeData::set_dynamic_data(const PoolVector<int> &p_data) {
 
-    VisualServer::get_singleton()->gi_probe_set_dynamic_data(probe, p_data);
+    RenderingServer::get_singleton()->gi_probe_set_dynamic_data(probe, p_data);
 }
 PoolVector<int> GIProbeData::get_dynamic_data() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_dynamic_data(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_dynamic_data(probe);
 }
 
 void GIProbeData::set_dynamic_range(int p_range) {
 
-    VisualServer::get_singleton()->gi_probe_set_dynamic_range(probe, p_range);
+    RenderingServer::get_singleton()->gi_probe_set_dynamic_range(probe, p_range);
 }
 
 void GIProbeData::set_energy(float p_range) {
 
-    VisualServer::get_singleton()->gi_probe_set_energy(probe, p_range);
+    RenderingServer::get_singleton()->gi_probe_set_energy(probe, p_range);
 }
 
 float GIProbeData::get_energy() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_energy(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_energy(probe);
 }
 
 void GIProbeData::set_bias(float p_range) {
 
-    VisualServer::get_singleton()->gi_probe_set_bias(probe, p_range);
+    RenderingServer::get_singleton()->gi_probe_set_bias(probe, p_range);
 }
 
 float GIProbeData::get_bias() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_bias(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_bias(probe);
 }
 
 void GIProbeData::set_normal_bias(float p_range) {
 
-    VisualServer::get_singleton()->gi_probe_set_normal_bias(probe, p_range);
+    RenderingServer::get_singleton()->gi_probe_set_normal_bias(probe, p_range);
 }
 
 float GIProbeData::get_normal_bias() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_normal_bias(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_normal_bias(probe);
 }
 
 void GIProbeData::set_propagation(float p_range) {
 
-    VisualServer::get_singleton()->gi_probe_set_propagation(probe, p_range);
+    RenderingServer::get_singleton()->gi_probe_set_propagation(probe, p_range);
 }
 
 float GIProbeData::get_propagation() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_propagation(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_propagation(probe);
 }
 
 void GIProbeData::set_interior(bool p_enable) {
 
-    VisualServer::get_singleton()->gi_probe_set_interior(probe, p_enable);
+    RenderingServer::get_singleton()->gi_probe_set_interior(probe, p_enable);
 }
 
 bool GIProbeData::is_interior() const {
 
-    return VisualServer::get_singleton()->gi_probe_is_interior(probe);
+    return RenderingServer::get_singleton()->gi_probe_is_interior(probe);
 }
 
 bool GIProbeData::is_compressed() const {
 
-    return VisualServer::get_singleton()->gi_probe_is_compressed(probe);
+    return RenderingServer::get_singleton()->gi_probe_is_compressed(probe);
 }
 
 void GIProbeData::set_compress(bool p_enable) {
 
-    VisualServer::get_singleton()->gi_probe_set_compress(probe, p_enable);
+    RenderingServer::get_singleton()->gi_probe_set_compress(probe, p_enable);
 }
 
 int GIProbeData::get_dynamic_range() const {
 
-    return VisualServer::get_singleton()->gi_probe_get_dynamic_range(probe);
+    return RenderingServer::get_singleton()->gi_probe_get_dynamic_range(probe);
 }
 
 RID GIProbeData::get_rid() const {
@@ -208,12 +208,12 @@ void GIProbeData::_bind_methods() {
 
 GIProbeData::GIProbeData() {
 
-    probe = VisualServer::get_singleton()->gi_probe_create();
+    probe = RenderingServer::get_singleton()->gi_probe_create();
 }
 
 GIProbeData::~GIProbeData() {
 
-    VisualServer::get_singleton()->free_rid(probe);
+    RenderingServer::get_singleton()->free_rid(probe);
 }
 
 //////////////////////
@@ -222,9 +222,9 @@ GIProbeData::~GIProbeData() {
 void GIProbe::set_probe_data(const Ref<GIProbeData> &p_data) {
 
     if (p_data) {
-        VisualServer::get_singleton()->instance_set_base(get_instance(), p_data->get_rid());
+        RenderingServer::get_singleton()->instance_set_base(get_instance(), p_data->get_rid());
     } else {
-        VisualServer::get_singleton()->instance_set_base(get_instance(), RID());
+        RenderingServer::get_singleton()->instance_set_base(get_instance(), RID());
     }
 
     probe_data = p_data;
@@ -568,10 +568,10 @@ GIProbe::GIProbe() {
     interior = false;
     compress = false;
 
-    gi_probe = VisualServer::get_singleton()->gi_probe_create();
+    gi_probe = RenderingServer::get_singleton()->gi_probe_create();
     set_disable_scale(true);
 }
 
 GIProbe::~GIProbe() {
-    VisualServer::get_singleton()->free_rid(gi_probe);
+    RenderingServer::get_singleton()->free_rid(gi_probe);
 }

@@ -819,7 +819,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
     return code;
 }
 
-Error ShaderCompilerGLES3::compile(VS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code) {
+Error ShaderCompilerGLES3::compile(RS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code) {
 
     Error err = parser.compile(p_code, ShaderTypes::get_singleton()->get_functions(p_mode),
             ShaderTypes::get_singleton()->get_modes(p_mode), ShaderTypes::get_singleton()->get_types());
@@ -866,190 +866,190 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
 
     /** CANVAS ITEM SHADER **/
 
-    actions[VS::SHADER_CANVAS_ITEM].renames["VERTEX"] = "outvec.xy";
-    actions[VS::SHADER_CANVAS_ITEM].renames["UV"] = "uv";
-    actions[VS::SHADER_CANVAS_ITEM].renames["POINT_SIZE"] = "point_size";
+    actions[RS::SHADER_CANVAS_ITEM].renames["VERTEX"] = "outvec.xy";
+    actions[RS::SHADER_CANVAS_ITEM].renames["UV"] = "uv";
+    actions[RS::SHADER_CANVAS_ITEM].renames["POINT_SIZE"] = "point_size";
 
-    actions[VS::SHADER_CANVAS_ITEM].renames["WORLD_MATRIX"] = "modelview_matrix";
-    actions[VS::SHADER_CANVAS_ITEM].renames["PROJECTION_MATRIX"] = "projection_matrix";
-    actions[VS::SHADER_CANVAS_ITEM].renames["EXTRA_MATRIX"] = "extra_matrix";
-    actions[VS::SHADER_CANVAS_ITEM].renames["TIME"] = "time";
-    actions[VS::SHADER_CANVAS_ITEM].renames["AT_LIGHT_PASS"] = "at_light_pass";
-    actions[VS::SHADER_CANVAS_ITEM].renames["INSTANCE_CUSTOM"] = "instance_custom";
+    actions[RS::SHADER_CANVAS_ITEM].renames["WORLD_MATRIX"] = "modelview_matrix";
+    actions[RS::SHADER_CANVAS_ITEM].renames["PROJECTION_MATRIX"] = "projection_matrix";
+    actions[RS::SHADER_CANVAS_ITEM].renames["EXTRA_MATRIX"] = "extra_matrix";
+    actions[RS::SHADER_CANVAS_ITEM].renames["TIME"] = "time";
+    actions[RS::SHADER_CANVAS_ITEM].renames["AT_LIGHT_PASS"] = "at_light_pass";
+    actions[RS::SHADER_CANVAS_ITEM].renames["INSTANCE_CUSTOM"] = "instance_custom";
 
-    actions[VS::SHADER_CANVAS_ITEM].renames["COLOR"] = "color";
-    actions[VS::SHADER_CANVAS_ITEM].renames["NORMAL"] = "normal";
-    actions[VS::SHADER_CANVAS_ITEM].renames["NORMALMAP"] = "normal_map";
-    actions[VS::SHADER_CANVAS_ITEM].renames["NORMALMAP_DEPTH"] = "normal_depth";
-    actions[VS::SHADER_CANVAS_ITEM].renames["TEXTURE"] = "color_texture";
-    actions[VS::SHADER_CANVAS_ITEM].renames["TEXTURE_PIXEL_SIZE"] = "color_texpixel_size";
-    actions[VS::SHADER_CANVAS_ITEM].renames["NORMAL_TEXTURE"] = "normal_texture";
-    actions[VS::SHADER_CANVAS_ITEM].renames["SCREEN_UV"] = "screen_uv";
-    actions[VS::SHADER_CANVAS_ITEM].renames["SCREEN_TEXTURE"] = "screen_texture";
-    actions[VS::SHADER_CANVAS_ITEM].renames["SCREEN_PIXEL_SIZE"] = "screen_pixel_size";
-    actions[VS::SHADER_CANVAS_ITEM].renames["FRAGCOORD"] = "gl_FragCoord";
-    actions[VS::SHADER_CANVAS_ITEM].renames["POINT_COORD"] = "gl_PointCoord";
+    actions[RS::SHADER_CANVAS_ITEM].renames["COLOR"] = "color";
+    actions[RS::SHADER_CANVAS_ITEM].renames["NORMAL"] = "normal";
+    actions[RS::SHADER_CANVAS_ITEM].renames["NORMALMAP"] = "normal_map";
+    actions[RS::SHADER_CANVAS_ITEM].renames["NORMALMAP_DEPTH"] = "normal_depth";
+    actions[RS::SHADER_CANVAS_ITEM].renames["TEXTURE"] = "color_texture";
+    actions[RS::SHADER_CANVAS_ITEM].renames["TEXTURE_PIXEL_SIZE"] = "color_texpixel_size";
+    actions[RS::SHADER_CANVAS_ITEM].renames["NORMAL_TEXTURE"] = "normal_texture";
+    actions[RS::SHADER_CANVAS_ITEM].renames["SCREEN_UV"] = "screen_uv";
+    actions[RS::SHADER_CANVAS_ITEM].renames["SCREEN_TEXTURE"] = "screen_texture";
+    actions[RS::SHADER_CANVAS_ITEM].renames["SCREEN_PIXEL_SIZE"] = "screen_pixel_size";
+    actions[RS::SHADER_CANVAS_ITEM].renames["FRAGCOORD"] = "gl_FragCoord";
+    actions[RS::SHADER_CANVAS_ITEM].renames["POINT_COORD"] = "gl_PointCoord";
 
-    actions[VS::SHADER_CANVAS_ITEM].renames["LIGHT_VEC"] = "light_vec";
-    actions[VS::SHADER_CANVAS_ITEM].renames["LIGHT_HEIGHT"] = "light_height";
-    actions[VS::SHADER_CANVAS_ITEM].renames["LIGHT_COLOR"] = "light_color";
-    actions[VS::SHADER_CANVAS_ITEM].renames["LIGHT_UV"] = "light_uv";
-    actions[VS::SHADER_CANVAS_ITEM].renames["LIGHT"] = "light";
-    actions[VS::SHADER_CANVAS_ITEM].renames["SHADOW_COLOR"] = "shadow_color";
-    actions[VS::SHADER_CANVAS_ITEM].renames["SHADOW_VEC"] = "shadow_vec";
+    actions[RS::SHADER_CANVAS_ITEM].renames["LIGHT_VEC"] = "light_vec";
+    actions[RS::SHADER_CANVAS_ITEM].renames["LIGHT_HEIGHT"] = "light_height";
+    actions[RS::SHADER_CANVAS_ITEM].renames["LIGHT_COLOR"] = "light_color";
+    actions[RS::SHADER_CANVAS_ITEM].renames["LIGHT_UV"] = "light_uv";
+    actions[RS::SHADER_CANVAS_ITEM].renames["LIGHT"] = "light";
+    actions[RS::SHADER_CANVAS_ITEM].renames["SHADOW_COLOR"] = "shadow_color";
+    actions[RS::SHADER_CANVAS_ITEM].renames["SHADOW_VEC"] = "shadow_vec";
 
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["COLOR"] = "#define COLOR_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_PIXEL_SIZE"] = "@SCREEN_UV";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["NORMAL"] = "#define NORMAL_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["NORMALMAP"] = "#define NORMALMAP_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
-    actions[VS::SHADER_CANVAS_ITEM].usage_defines["SHADOW_VEC"] = "#define SHADOW_VEC_USED\n";
-    actions[VS::SHADER_CANVAS_ITEM].render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["COLOR"] = "#define COLOR_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["SCREEN_PIXEL_SIZE"] = "@SCREEN_UV";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["NORMAL"] = "#define NORMAL_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["NORMALMAP"] = "#define NORMALMAP_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
+    actions[RS::SHADER_CANVAS_ITEM].usage_defines["SHADOW_VEC"] = "#define SHADOW_VEC_USED\n";
+    actions[RS::SHADER_CANVAS_ITEM].render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
 
     /** SPATIAL SHADER **/
 
-    actions[VS::SHADER_SPATIAL].renames["WORLD_MATRIX"] = "world_transform";
-    actions[VS::SHADER_SPATIAL].renames["INV_CAMERA_MATRIX"] = "camera_inverse_matrix";
-    actions[VS::SHADER_SPATIAL].renames["CAMERA_MATRIX"] = "camera_matrix";
-    actions[VS::SHADER_SPATIAL].renames["PROJECTION_MATRIX"] = "projection_matrix";
-    actions[VS::SHADER_SPATIAL].renames["INV_PROJECTION_MATRIX"] = "inv_projection_matrix";
-    actions[VS::SHADER_SPATIAL].renames["MODELVIEW_MATRIX"] = "modelview";
+    actions[RS::SHADER_SPATIAL].renames["WORLD_MATRIX"] = "world_transform";
+    actions[RS::SHADER_SPATIAL].renames["INV_CAMERA_MATRIX"] = "camera_inverse_matrix";
+    actions[RS::SHADER_SPATIAL].renames["CAMERA_MATRIX"] = "camera_matrix";
+    actions[RS::SHADER_SPATIAL].renames["PROJECTION_MATRIX"] = "projection_matrix";
+    actions[RS::SHADER_SPATIAL].renames["INV_PROJECTION_MATRIX"] = "inv_projection_matrix";
+    actions[RS::SHADER_SPATIAL].renames["MODELVIEW_MATRIX"] = "modelview";
 
-    actions[VS::SHADER_SPATIAL].renames["VERTEX"] = "vertex.xyz";
-    actions[VS::SHADER_SPATIAL].renames["NORMAL"] = "normal";
-    actions[VS::SHADER_SPATIAL].renames["TANGENT"] = "tangent";
-    actions[VS::SHADER_SPATIAL].renames["BINORMAL"] = "binormal";
-    actions[VS::SHADER_SPATIAL].renames["POSITION"] = "position";
-    actions[VS::SHADER_SPATIAL].renames["UV"] = "uv_interp";
-    actions[VS::SHADER_SPATIAL].renames["UV2"] = "uv2_interp";
-    actions[VS::SHADER_SPATIAL].renames["COLOR"] = "color_interp";
-    actions[VS::SHADER_SPATIAL].renames["POINT_SIZE"] = "point_size";
-    actions[VS::SHADER_SPATIAL].renames["INSTANCE_ID"] = "gl_InstanceID";
+    actions[RS::SHADER_SPATIAL].renames["VERTEX"] = "vertex.xyz";
+    actions[RS::SHADER_SPATIAL].renames["NORMAL"] = "normal";
+    actions[RS::SHADER_SPATIAL].renames["TANGENT"] = "tangent";
+    actions[RS::SHADER_SPATIAL].renames["BINORMAL"] = "binormal";
+    actions[RS::SHADER_SPATIAL].renames["POSITION"] = "position";
+    actions[RS::SHADER_SPATIAL].renames["UV"] = "uv_interp";
+    actions[RS::SHADER_SPATIAL].renames["UV2"] = "uv2_interp";
+    actions[RS::SHADER_SPATIAL].renames["COLOR"] = "color_interp";
+    actions[RS::SHADER_SPATIAL].renames["POINT_SIZE"] = "point_size";
+    actions[RS::SHADER_SPATIAL].renames["INSTANCE_ID"] = "gl_InstanceID";
 
     //builtins
 
-    actions[VS::SHADER_SPATIAL].renames["TIME"] = "time";
-    actions[VS::SHADER_SPATIAL].renames["VIEWPORT_SIZE"] = "viewport_size";
+    actions[RS::SHADER_SPATIAL].renames["TIME"] = "time";
+    actions[RS::SHADER_SPATIAL].renames["VIEWPORT_SIZE"] = "viewport_size";
 
-    actions[VS::SHADER_SPATIAL].renames["FRAGCOORD"] = "gl_FragCoord";
-    actions[VS::SHADER_SPATIAL].renames["FRONT_FACING"] = "gl_FrontFacing";
-    actions[VS::SHADER_SPATIAL].renames["NORMALMAP"] = "normalmap";
-    actions[VS::SHADER_SPATIAL].renames["NORMALMAP_DEPTH"] = "normaldepth";
-    actions[VS::SHADER_SPATIAL].renames["ALBEDO"] = "albedo";
-    actions[VS::SHADER_SPATIAL].renames["ALPHA"] = "alpha";
-    actions[VS::SHADER_SPATIAL].renames["METALLIC"] = "metallic";
-    actions[VS::SHADER_SPATIAL].renames["SPECULAR"] = "specular";
-    actions[VS::SHADER_SPATIAL].renames["ROUGHNESS"] = "roughness";
-    actions[VS::SHADER_SPATIAL].renames["RIM"] = "rim";
-    actions[VS::SHADER_SPATIAL].renames["RIM_TINT"] = "rim_tint";
-    actions[VS::SHADER_SPATIAL].renames["CLEARCOAT"] = "clearcoat";
-    actions[VS::SHADER_SPATIAL].renames["CLEARCOAT_GLOSS"] = "clearcoat_gloss";
-    actions[VS::SHADER_SPATIAL].renames["ANISOTROPY"] = "anisotropy";
-    actions[VS::SHADER_SPATIAL].renames["ANISOTROPY_FLOW"] = "anisotropy_flow";
-    actions[VS::SHADER_SPATIAL].renames["SSS_STRENGTH"] = "sss_strength";
-    actions[VS::SHADER_SPATIAL].renames["TRANSMISSION"] = "transmission";
-    actions[VS::SHADER_SPATIAL].renames["AO"] = "ao";
-    actions[VS::SHADER_SPATIAL].renames["AO_LIGHT_AFFECT"] = "ao_light_affect";
-    actions[VS::SHADER_SPATIAL].renames["EMISSION"] = "emission";
-    actions[VS::SHADER_SPATIAL].renames["POINT_COORD"] = "gl_PointCoord";
-    actions[VS::SHADER_SPATIAL].renames["INSTANCE_CUSTOM"] = "instance_custom";
-    actions[VS::SHADER_SPATIAL].renames["SCREEN_UV"] = "screen_uv";
-    actions[VS::SHADER_SPATIAL].renames["SCREEN_TEXTURE"] = "screen_texture";
-    actions[VS::SHADER_SPATIAL].renames["DEPTH_TEXTURE"] = "depth_buffer";
-    actions[VS::SHADER_SPATIAL].renames["DEPTH"] = "gl_FragDepth";
-    actions[VS::SHADER_SPATIAL].renames["ALPHA_SCISSOR"] = "alpha_scissor";
-    actions[VS::SHADER_SPATIAL].renames["OUTPUT_IS_SRGB"] = "SHADER_IS_SRGB";
+    actions[RS::SHADER_SPATIAL].renames["FRAGCOORD"] = "gl_FragCoord";
+    actions[RS::SHADER_SPATIAL].renames["FRONT_FACING"] = "gl_FrontFacing";
+    actions[RS::SHADER_SPATIAL].renames["NORMALMAP"] = "normalmap";
+    actions[RS::SHADER_SPATIAL].renames["NORMALMAP_DEPTH"] = "normaldepth";
+    actions[RS::SHADER_SPATIAL].renames["ALBEDO"] = "albedo";
+    actions[RS::SHADER_SPATIAL].renames["ALPHA"] = "alpha";
+    actions[RS::SHADER_SPATIAL].renames["METALLIC"] = "metallic";
+    actions[RS::SHADER_SPATIAL].renames["SPECULAR"] = "specular";
+    actions[RS::SHADER_SPATIAL].renames["ROUGHNESS"] = "roughness";
+    actions[RS::SHADER_SPATIAL].renames["RIM"] = "rim";
+    actions[RS::SHADER_SPATIAL].renames["RIM_TINT"] = "rim_tint";
+    actions[RS::SHADER_SPATIAL].renames["CLEARCOAT"] = "clearcoat";
+    actions[RS::SHADER_SPATIAL].renames["CLEARCOAT_GLOSS"] = "clearcoat_gloss";
+    actions[RS::SHADER_SPATIAL].renames["ANISOTROPY"] = "anisotropy";
+    actions[RS::SHADER_SPATIAL].renames["ANISOTROPY_FLOW"] = "anisotropy_flow";
+    actions[RS::SHADER_SPATIAL].renames["SSS_STRENGTH"] = "sss_strength";
+    actions[RS::SHADER_SPATIAL].renames["TRANSMISSION"] = "transmission";
+    actions[RS::SHADER_SPATIAL].renames["AO"] = "ao";
+    actions[RS::SHADER_SPATIAL].renames["AO_LIGHT_AFFECT"] = "ao_light_affect";
+    actions[RS::SHADER_SPATIAL].renames["EMISSION"] = "emission";
+    actions[RS::SHADER_SPATIAL].renames["POINT_COORD"] = "gl_PointCoord";
+    actions[RS::SHADER_SPATIAL].renames["INSTANCE_CUSTOM"] = "instance_custom";
+    actions[RS::SHADER_SPATIAL].renames["SCREEN_UV"] = "screen_uv";
+    actions[RS::SHADER_SPATIAL].renames["SCREEN_TEXTURE"] = "screen_texture";
+    actions[RS::SHADER_SPATIAL].renames["DEPTH_TEXTURE"] = "depth_buffer";
+    actions[RS::SHADER_SPATIAL].renames["DEPTH"] = "gl_FragDepth";
+    actions[RS::SHADER_SPATIAL].renames["ALPHA_SCISSOR"] = "alpha_scissor";
+    actions[RS::SHADER_SPATIAL].renames["OUTPUT_IS_SRGB"] = "SHADER_IS_SRGB";
 
     //for light
-    actions[VS::SHADER_SPATIAL].renames["VIEW"] = "view";
-    actions[VS::SHADER_SPATIAL].renames["LIGHT_COLOR"] = "light_color";
-    actions[VS::SHADER_SPATIAL].renames["LIGHT"] = "light";
-    actions[VS::SHADER_SPATIAL].renames["ATTENUATION"] = "attenuation";
-    actions[VS::SHADER_SPATIAL].renames["DIFFUSE_LIGHT"] = "diffuse_light";
-    actions[VS::SHADER_SPATIAL].renames["SPECULAR_LIGHT"] = "specular_light";
+    actions[RS::SHADER_SPATIAL].renames["VIEW"] = "view";
+    actions[RS::SHADER_SPATIAL].renames["LIGHT_COLOR"] = "light_color";
+    actions[RS::SHADER_SPATIAL].renames["LIGHT"] = "light";
+    actions[RS::SHADER_SPATIAL].renames["ATTENUATION"] = "attenuation";
+    actions[RS::SHADER_SPATIAL].renames["DIFFUSE_LIGHT"] = "diffuse_light";
+    actions[RS::SHADER_SPATIAL].renames["SPECULAR_LIGHT"] = "specular_light";
 
-    actions[VS::SHADER_SPATIAL].usage_defines["TANGENT"] = "#define ENABLE_TANGENT_INTERP\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["BINORMAL"] = "@TANGENT";
-    actions[VS::SHADER_SPATIAL].usage_defines["RIM"] = "#define LIGHT_USE_RIM\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["RIM_TINT"] = "@RIM";
-    actions[VS::SHADER_SPATIAL].usage_defines["CLEARCOAT"] = "#define LIGHT_USE_CLEARCOAT\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["CLEARCOAT_GLOSS"] = "@CLEARCOAT";
-    actions[VS::SHADER_SPATIAL].usage_defines["ANISOTROPY"] = "#define LIGHT_USE_ANISOTROPY\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["ANISOTROPY_FLOW"] = "@ANISOTROPY";
-    actions[VS::SHADER_SPATIAL].usage_defines["AO"] = "#define ENABLE_AO\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["AO_LIGHT_AFFECT"] = "#define ENABLE_AO\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["UV"] = "#define ENABLE_UV_INTERP\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["UV2"] = "#define ENABLE_UV2_INTERP\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["NORMALMAP"] = "#define ENABLE_NORMALMAP\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["NORMALMAP_DEPTH"] = "@NORMALMAP";
-    actions[VS::SHADER_SPATIAL].usage_defines["COLOR"] = "#define ENABLE_COLOR_INTERP\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["INSTANCE_CUSTOM"] = "#define ENABLE_INSTANCE_CUSTOM\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["ALPHA_SCISSOR"] = "#define ALPHA_SCISSOR_USED\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["POSITION"] = "#define OVERRIDE_POSITION\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["TANGENT"] = "#define ENABLE_TANGENT_INTERP\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["BINORMAL"] = "@TANGENT";
+    actions[RS::SHADER_SPATIAL].usage_defines["RIM"] = "#define LIGHT_USE_RIM\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["RIM_TINT"] = "@RIM";
+    actions[RS::SHADER_SPATIAL].usage_defines["CLEARCOAT"] = "#define LIGHT_USE_CLEARCOAT\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["CLEARCOAT_GLOSS"] = "@CLEARCOAT";
+    actions[RS::SHADER_SPATIAL].usage_defines["ANISOTROPY"] = "#define LIGHT_USE_ANISOTROPY\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["ANISOTROPY_FLOW"] = "@ANISOTROPY";
+    actions[RS::SHADER_SPATIAL].usage_defines["AO"] = "#define ENABLE_AO\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["AO_LIGHT_AFFECT"] = "#define ENABLE_AO\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["UV"] = "#define ENABLE_UV_INTERP\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["UV2"] = "#define ENABLE_UV2_INTERP\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["NORMALMAP"] = "#define ENABLE_NORMALMAP\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["NORMALMAP_DEPTH"] = "@NORMALMAP";
+    actions[RS::SHADER_SPATIAL].usage_defines["COLOR"] = "#define ENABLE_COLOR_INTERP\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["INSTANCE_CUSTOM"] = "#define ENABLE_INSTANCE_CUSTOM\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["ALPHA_SCISSOR"] = "#define ALPHA_SCISSOR_USED\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["POSITION"] = "#define OVERRIDE_POSITION\n";
 
-    actions[VS::SHADER_SPATIAL].usage_defines["SSS_STRENGTH"] = "#define ENABLE_SSS\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["TRANSMISSION"] = "#define TRANSMISSION_USED\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["SSS_STRENGTH"] = "#define ENABLE_SSS\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["TRANSMISSION"] = "#define TRANSMISSION_USED\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
 
-    actions[VS::SHADER_SPATIAL].usage_defines["DIFFUSE_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
-    actions[VS::SHADER_SPATIAL].usage_defines["SPECULAR_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["DIFFUSE_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
+    actions[RS::SHADER_SPATIAL].usage_defines["SPECULAR_LIGHT"] = "#define USE_LIGHT_SHADER_CODE\n";
 
-    actions[VS::SHADER_SPATIAL].render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["world_vertex_coords"] = "#define VERTEX_WORLD_COORDS_USED\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["ensure_correct_normals"] = "#define ENSURE_CORRECT_NORMALS\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["cull_front"] = "#define DO_SIDE_CHECK\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["cull_disabled"] = "#define DO_SIDE_CHECK\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["skip_vertex_transform"] = "#define SKIP_TRANSFORM_USED\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["world_vertex_coords"] = "#define VERTEX_WORLD_COORDS_USED\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["ensure_correct_normals"] = "#define ENSURE_CORRECT_NORMALS\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["cull_front"] = "#define DO_SIDE_CHECK\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["cull_disabled"] = "#define DO_SIDE_CHECK\n";
 
     bool force_lambert = GLOBAL_GET("rendering/quality/shading/force_lambert_over_burley");
 
     if (!force_lambert) {
-        actions[VS::SHADER_SPATIAL].render_mode_defines["diffuse_burley"] = "#define DIFFUSE_BURLEY\n";
+        actions[RS::SHADER_SPATIAL].render_mode_defines["diffuse_burley"] = "#define DIFFUSE_BURLEY\n";
     }
 
-    actions[VS::SHADER_SPATIAL].render_mode_defines["diffuse_oren_nayar"] = "#define DIFFUSE_OREN_NAYAR\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["diffuse_lambert_wrap"] = "#define DIFFUSE_LAMBERT_WRAP\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["diffuse_toon"] = "#define DIFFUSE_TOON\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["diffuse_oren_nayar"] = "#define DIFFUSE_OREN_NAYAR\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["diffuse_lambert_wrap"] = "#define DIFFUSE_LAMBERT_WRAP\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["diffuse_toon"] = "#define DIFFUSE_TOON\n";
 
     bool force_blinn = GLOBAL_GET("rendering/quality/shading/force_blinn_over_ggx");
 
     if (!force_blinn) {
-        actions[VS::SHADER_SPATIAL].render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_SCHLICK_GGX\n";
+        actions[RS::SHADER_SPATIAL].render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_SCHLICK_GGX\n";
     } else {
-        actions[VS::SHADER_SPATIAL].render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_BLINN\n";
+        actions[RS::SHADER_SPATIAL].render_mode_defines["specular_schlick_ggx"] = "#define SPECULAR_BLINN\n";
     }
 
-    actions[VS::SHADER_SPATIAL].render_mode_defines["specular_blinn"] = "#define SPECULAR_BLINN\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["specular_phong"] = "#define SPECULAR_PHONG\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["specular_toon"] = "#define SPECULAR_TOON\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["specular_disabled"] = "#define SPECULAR_DISABLED\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["shadows_disabled"] = "#define SHADOWS_DISABLED\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["ambient_light_disabled"] = "#define AMBIENT_LIGHT_DISABLED\n";
-    actions[VS::SHADER_SPATIAL].render_mode_defines["shadow_to_opacity"] = "#define USE_SHADOW_TO_OPACITY\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["specular_blinn"] = "#define SPECULAR_BLINN\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["specular_phong"] = "#define SPECULAR_PHONG\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["specular_toon"] = "#define SPECULAR_TOON\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["specular_disabled"] = "#define SPECULAR_DISABLED\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["shadows_disabled"] = "#define SHADOWS_DISABLED\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["ambient_light_disabled"] = "#define AMBIENT_LIGHT_DISABLED\n";
+    actions[RS::SHADER_SPATIAL].render_mode_defines["shadow_to_opacity"] = "#define USE_SHADOW_TO_OPACITY\n";
 
     /* PARTICLES SHADER */
 
-    actions[VS::SHADER_PARTICLES].renames["COLOR"] = "out_color";
-    actions[VS::SHADER_PARTICLES].renames["VELOCITY"] = "out_velocity_active.xyz";
-    actions[VS::SHADER_PARTICLES].renames["MASS"] = "mass";
-    actions[VS::SHADER_PARTICLES].renames["ACTIVE"] = "shader_active";
-    actions[VS::SHADER_PARTICLES].renames["RESTART"] = "restart";
-    actions[VS::SHADER_PARTICLES].renames["CUSTOM"] = "out_custom";
-    actions[VS::SHADER_PARTICLES].renames["TRANSFORM"] = "xform";
-    actions[VS::SHADER_PARTICLES].renames["TIME"] = "time";
-    actions[VS::SHADER_PARTICLES].renames["LIFETIME"] = "lifetime";
-    actions[VS::SHADER_PARTICLES].renames["DELTA"] = "local_delta";
-    actions[VS::SHADER_PARTICLES].renames["NUMBER"] = "particle_number";
-    actions[VS::SHADER_PARTICLES].renames["INDEX"] = "index";
-    actions[VS::SHADER_PARTICLES].renames["GRAVITY"] = "current_gravity";
-    actions[VS::SHADER_PARTICLES].renames["EMISSION_TRANSFORM"] = "emission_transform";
-    actions[VS::SHADER_PARTICLES].renames["RANDOM_SEED"] = "random_seed";
+    actions[RS::SHADER_PARTICLES].renames["COLOR"] = "out_color";
+    actions[RS::SHADER_PARTICLES].renames["VELOCITY"] = "out_velocity_active.xyz";
+    actions[RS::SHADER_PARTICLES].renames["MASS"] = "mass";
+    actions[RS::SHADER_PARTICLES].renames["ACTIVE"] = "shader_active";
+    actions[RS::SHADER_PARTICLES].renames["RESTART"] = "restart";
+    actions[RS::SHADER_PARTICLES].renames["CUSTOM"] = "out_custom";
+    actions[RS::SHADER_PARTICLES].renames["TRANSFORM"] = "xform";
+    actions[RS::SHADER_PARTICLES].renames["TIME"] = "time";
+    actions[RS::SHADER_PARTICLES].renames["LIFETIME"] = "lifetime";
+    actions[RS::SHADER_PARTICLES].renames["DELTA"] = "local_delta";
+    actions[RS::SHADER_PARTICLES].renames["NUMBER"] = "particle_number";
+    actions[RS::SHADER_PARTICLES].renames["INDEX"] = "index";
+    actions[RS::SHADER_PARTICLES].renames["GRAVITY"] = "current_gravity";
+    actions[RS::SHADER_PARTICLES].renames["EMISSION_TRANSFORM"] = "emission_transform";
+    actions[RS::SHADER_PARTICLES].renames["RANDOM_SEED"] = "random_seed";
 
-    actions[VS::SHADER_PARTICLES].render_mode_defines["disable_force"] = "#define DISABLE_FORCE\n";
-    actions[VS::SHADER_PARTICLES].render_mode_defines["disable_velocity"] = "#define DISABLE_VELOCITY\n";
-    actions[VS::SHADER_PARTICLES].render_mode_defines["keep_data"] = "#define ENABLE_KEEP_DATA\n";
+    actions[RS::SHADER_PARTICLES].render_mode_defines["disable_force"] = "#define DISABLE_FORCE\n";
+    actions[RS::SHADER_PARTICLES].render_mode_defines["disable_velocity"] = "#define DISABLE_VELOCITY\n";
+    actions[RS::SHADER_PARTICLES].render_mode_defines["keep_data"] = "#define ENABLE_KEEP_DATA\n";
 
     vertex_name = "vertex";
     fragment_name = "fragment";

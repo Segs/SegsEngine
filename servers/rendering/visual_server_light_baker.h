@@ -31,7 +31,7 @@
 #ifndef VISUALSERVERLIGHTBAKER_H
 #define VISUALSERVERLIGHTBAKER_H
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 class VisualServerLightBaker {
 public:

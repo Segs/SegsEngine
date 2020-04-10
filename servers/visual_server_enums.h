@@ -380,5 +380,5 @@ enum Features : int8_t {
 };
 
 }
-//typedef VisualServer VS; // makes it easier to use
-namespace VS=VisualServerEnums;
+//typedef RenderingServer VS; // makes it easier to use
+namespace RS=VisualServerEnums;

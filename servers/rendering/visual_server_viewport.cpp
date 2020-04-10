@@ -89,7 +89,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
         VisualServerScene::Scenario *scenario = VSG::scene->scenario_owner.get(p_viewport->scenario);
         ERR_FAIL_COND(!scenario);
         if (VSG::scene_render->is_environment(scenario->environment)) {
-            scenario_draw_canvas_bg = VSG::scene_render->environment_get_background(scenario->environment) == VS::ENV_BG_CANVAS;
+            scenario_draw_canvas_bg = VSG::scene_render->environment_get_background(scenario->environment) == RS::ENV_BG_CANVAS;
 
             scenario_canvas_max_layer = VSG::scene_render->environment_get_canvas_max_layer(scenario->environment);
         }
@@ -97,10 +97,10 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
 
     bool can_draw_3d = !p_viewport->disable_3d && !p_viewport->disable_3d_by_usage && VisualServerScene::owns_camera(p_viewport->camera);
 
-    if (p_viewport->clear_mode != VS::VIEWPORT_CLEAR_NEVER) {
+    if (p_viewport->clear_mode != RS::VIEWPORT_CLEAR_NEVER) {
         VSG::rasterizer->clear_render_target(p_viewport->transparent_bg ? Color(0, 0, 0, 0) : clear_color);
-        if (p_viewport->clear_mode == VS::VIEWPORT_CLEAR_ONLY_NEXT_FRAME) {
-            p_viewport->clear_mode = VS::VIEWPORT_CLEAR_NEVER;
+        if (p_viewport->clear_mode == RS::VIEWPORT_CLEAR_ONLY_NEXT_FRAME) {
+            p_viewport->clear_mode = RS::VIEWPORT_CLEAR_NEVER;
         }
     }
 
@@ -162,7 +162,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
                         lights_with_shadow = cl;
                         cl->radius_cache = cl->rect_cache.size.length();
                     }
-                    if (cl->mode == VS::CANVAS_LIGHT_MODE_MASK) {
+                    if (cl->mode == RS::CANVAS_LIGHT_MODE_MASK) {
                         cl->mask_next_ptr = lights_with_mask;
                         lights_with_mask = cl;
                     }
@@ -287,12 +287,12 @@ void VisualServerViewport::draw_viewports() {
 
         Viewport *vp = active_viewports[i];
 
-        if (vp->update_mode == VS::VIEWPORT_UPDATE_DISABLED)
+        if (vp->update_mode == RS::VIEWPORT_UPDATE_DISABLED)
             continue;
 
         ERR_CONTINUE(!vp->render_target.is_valid());
 
-        bool visible = vp->viewport_to_screen_rect != Rect2() || vp->update_mode == VS::VIEWPORT_UPDATE_ALWAYS || vp->update_mode == VS::VIEWPORT_UPDATE_ONCE || (vp->update_mode == VS::VIEWPORT_UPDATE_WHEN_VISIBLE && VSG::storage->render_target_was_used(vp->render_target));
+        bool visible = vp->viewport_to_screen_rect != Rect2() || vp->update_mode == RS::VIEWPORT_UPDATE_ALWAYS || vp->update_mode == RS::VIEWPORT_UPDATE_ONCE || (vp->update_mode == RS::VIEWPORT_UPDATE_WHEN_VISIBLE && VSG::storage->render_target_was_used(vp->render_target));
         visible = visible && vp->size.x > 1 && vp->size.y > 1;
 
         if (!visible)
@@ -343,12 +343,12 @@ void VisualServerViewport::draw_viewports() {
             _draw_viewport(vp);
 
             VSG::storage->render_info_end_capture();
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_OBJECTS_IN_FRAME);
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_VERTICES_IN_FRAME);
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_MATERIAL_CHANGES_IN_FRAME);
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_SHADER_CHANGES_IN_FRAME);
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_SURFACE_CHANGES_IN_FRAME);
-            vp->render_info[VS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME] = VSG::storage->get_captured_render_info(VS::INFO_DRAW_CALLS_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_OBJECTS_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_VERTICES_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_MATERIAL_CHANGES_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_SHADER_CHANGES_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_SURFACE_CHANGES_IN_FRAME);
+            vp->render_info[RS::VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_DRAW_CALLS_IN_FRAME);
 
             if (vp->viewport_to_screen_rect != Rect2() && (!vp->viewport_render_direct_to_screen || !VSG::rasterizer->is_low_end())) {
                 //copy to screen if set as such
@@ -357,10 +357,10 @@ void VisualServerViewport::draw_viewports() {
             }
         }
 
-        if (vp->update_mode == VS::VIEWPORT_UPDATE_ONCE) {
-            vp->update_mode = VS::VIEWPORT_UPDATE_DISABLED;
+        if (vp->update_mode == RS::VIEWPORT_UPDATE_ONCE) {
+            vp->update_mode = RS::VIEWPORT_UPDATE_DISABLED;
         }
-        VSG::scene_render->set_debug_draw_mode(VS::VIEWPORT_DEBUG_DRAW_DISABLED);
+        VSG::scene_render->set_debug_draw_mode(RS::VIEWPORT_DEBUG_DRAW_DISABLED);
     }
 }
 
@@ -419,7 +419,7 @@ void VisualServerViewport::viewport_set_parent_viewport(RID p_viewport, RID p_pa
     viewport->parent = p_parent_viewport;
 }
 
-void VisualServerViewport::viewport_set_clear_mode(RID p_viewport, VS::ViewportClearMode p_clear_mode) {
+void VisualServerViewport::viewport_set_clear_mode(RID p_viewport, RS::ViewportClearMode p_clear_mode) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     ERR_FAIL_COND(!viewport);
@@ -485,7 +485,7 @@ void VisualServerViewport::viewport_detach(RID p_viewport) {
     viewport->viewport_to_screen = 0;
 }
 
-void VisualServerViewport::viewport_set_update_mode(RID p_viewport, VS::ViewportUpdateMode p_mode) {
+void VisualServerViewport::viewport_set_update_mode(RID p_viewport, RS::ViewportUpdateMode p_mode) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     ERR_FAIL_COND(!viewport);
@@ -640,7 +640,7 @@ void VisualServerViewport::viewport_set_shadow_atlas_quadrant_subdivision(RID p_
     VSG::scene_render->shadow_atlas_set_quadrant_subdivision(viewport->shadow_atlas, p_quadrant, p_subdiv);
 }
 
-void VisualServerViewport::viewport_set_msaa(RID p_viewport, VS::ViewportMSAA p_msaa) {
+void VisualServerViewport::viewport_set_msaa(RID p_viewport, RS::ViewportMSAA p_msaa) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     ERR_FAIL_COND(!viewport);
@@ -656,13 +656,13 @@ void VisualServerViewport::viewport_set_hdr(RID p_viewport, bool p_enabled) {
     VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_HDR, p_enabled);
 }
 
-void VisualServerViewport::viewport_set_usage(RID p_viewport, VS::ViewportUsage p_usage) {
+void VisualServerViewport::viewport_set_usage(RID p_viewport, RS::ViewportUsage p_usage) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     ERR_FAIL_COND(!viewport);
 
     switch (p_usage) {
-        case VS::VIEWPORT_USAGE_2D: {
+        case RS::VIEWPORT_USAGE_2D: {
 
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D, true);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D_EFFECTS, true);
@@ -670,21 +670,21 @@ void VisualServerViewport::viewport_set_usage(RID p_viewport, VS::ViewportUsage 
 
             viewport->disable_3d_by_usage = true;
         } break;
-        case VS::VIEWPORT_USAGE_2D_NO_SAMPLING: {
+        case RS::VIEWPORT_USAGE_2D_NO_SAMPLING: {
 
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D, true);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D_EFFECTS, true);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_SAMPLING, true);
             viewport->disable_3d_by_usage = true;
         } break;
-        case VS::VIEWPORT_USAGE_3D: {
+        case RS::VIEWPORT_USAGE_3D: {
 
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D, false);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D_EFFECTS, false);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_SAMPLING, false);
             viewport->disable_3d_by_usage = false;
         } break;
-        case VS::VIEWPORT_USAGE_3D_NO_EFFECTS: {
+        case RS::VIEWPORT_USAGE_3D_NO_EFFECTS: {
 
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D, false);
             VSG::storage->render_target_set_flag(viewport->render_target, RasterizerStorage::RENDER_TARGET_NO_3D_EFFECTS, true);
@@ -694,9 +694,9 @@ void VisualServerViewport::viewport_set_usage(RID p_viewport, VS::ViewportUsage 
     }
 }
 
-int VisualServerViewport::viewport_get_render_info(RID p_viewport, VS::ViewportRenderInfo p_info) {
+int VisualServerViewport::viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfo p_info) {
 
-    ERR_FAIL_INDEX_V(p_info, VS::VIEWPORT_RENDER_INFO_MAX, -1);
+    ERR_FAIL_INDEX_V(p_info, RS::VIEWPORT_RENDER_INFO_MAX, -1);
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     if (!viewport)
@@ -705,7 +705,7 @@ int VisualServerViewport::viewport_get_render_info(RID p_viewport, VS::ViewportR
     return viewport->render_info[p_info];
 }
 
-void VisualServerViewport::viewport_set_debug_draw(RID p_viewport, VS::ViewportDebugDraw p_draw) {
+void VisualServerViewport::viewport_set_debug_draw(RID p_viewport, RS::ViewportDebugDraw p_draw) {
 
     Viewport *viewport = viewport_owner.getornull(p_viewport);
     ERR_FAIL_COND(!viewport);

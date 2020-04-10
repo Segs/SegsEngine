@@ -875,7 +875,7 @@ bool SceneTree::idle(float p_time) {
     SCOPE_AUTONAMED
     //print_line("ram: "+itos(OS::get_singleton()->get_static_memory_usage())+" sram: "+itos(OS::get_singleton()->get_dynamic_memory_usage()));
     //print_line("node count: "+itos(get_node_count()));
-    //print_line("TEXTURE RAM: "+itos(VisualServer::get_singleton()->get_render_info(VS::INFO_TEXTURE_MEM_USED)));
+    //print_line("TEXTURE RAM: "+itos(RenderingServer::get_singleton()->get_render_info(RS::INFO_TEXTURE_MEM_USED)));
 
     root_lock++;
 
@@ -1556,14 +1556,14 @@ void SceneTree::_update_root_rect() {
     //black bars and margin
     if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.x < video_mode.x) {
         margin.x = Math::round((video_mode.x - screen_size.x) / 2.0f);
-        VisualServer::get_singleton()->black_bars_set_margins(margin.x, 0, margin.x, 0);
+        RenderingServer::get_singleton()->black_bars_set_margins(margin.x, 0, margin.x, 0);
         offset.x = Math::round(margin.x * viewport_size.y / screen_size.y);
     } else if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.y < video_mode.y) {
         margin.y = Math::round((video_mode.y - screen_size.y) / 2.0f);
-        VisualServer::get_singleton()->black_bars_set_margins(0, margin.y, 0, margin.y);
+        RenderingServer::get_singleton()->black_bars_set_margins(0, margin.y, 0, margin.y);
         offset.y = Math::round(margin.y * viewport_size.x / screen_size.x);
     } else {
-        VisualServer::get_singleton()->black_bars_set_margins(0, 0, 0, 0);
+        RenderingServer::get_singleton()->black_bars_set_margins(0, 0, 0, 0);
     }
 
     switch (stretch_mode) {
@@ -2069,7 +2069,7 @@ SceneTree::SceneTree() {
     bool hdr = GLOBAL_GET("rendering/quality/depth/hdr");
     root->set_hdr(hdr);
 
-    VisualServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
+    RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
 
     { //load default fallback environment
         //get possible extensions

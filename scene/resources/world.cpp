@@ -272,7 +272,7 @@ void World::set_environment(const Ref<Environment> &p_environment) {
         return;
     }
     environment = p_environment;
-    VisualServer::get_singleton()->scenario_set_environment(renderer_scene, environment ? environment->get_rid() : RID());
+    RenderingServer::get_singleton()->scenario_set_environment(renderer_scene, environment ? environment->get_rid() : RID());
 
     emit_changed();
 }
@@ -288,7 +288,7 @@ void World::set_fallback_environment(const Ref<Environment> &p_environment) {
     }
 
     fallback_environment = p_environment;
-    VisualServer::get_singleton()->scenario_set_fallback_environment(renderer_scene, fallback_environment ? fallback_environment->get_rid() : RID());
+    RenderingServer::get_singleton()->scenario_set_fallback_environment(renderer_scene, fallback_environment ? fallback_environment->get_rid() : RID());
 
     emit_changed();
 }
@@ -329,7 +329,7 @@ void World::_bind_methods() {
 World::World() {
 
     physics_space = PhysicsServer3D::get_singleton()->space_create();
-    renderer_scene = VisualServer::get_singleton()->scenario_create();
+    renderer_scene = RenderingServer::get_singleton()->scenario_create();
 
     PhysicsServer3D::get_singleton()->space_set_active(physics_space, true);
     PhysicsServer3D::get_singleton()->area_set_param(physics_space, PhysicsServer3D::AREA_PARAM_GRAVITY, GLOBAL_DEF("physics/3d/default_gravity", 9.8));
@@ -349,7 +349,7 @@ World::World() {
 World::~World() {
 
     PhysicsServer3D::get_singleton()->free_rid(physics_space);
-    VisualServer::get_singleton()->free_rid(renderer_scene);
+    RenderingServer::get_singleton()->free_rid(renderer_scene);
 
 #ifndef _3D_DISABLED
     memdelete(indexer);

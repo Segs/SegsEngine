@@ -1569,7 +1569,7 @@ void EditorInspector::update_tree() {
         } else if (!(p.usage & PROPERTY_USAGE_EDITOR) || _is_property_disabled_by_feature_profile(p.name))
             continue;
 
-        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && VisualServer::get_singleton()->is_low_end())
+        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && RenderingServer::get_singleton()->is_low_end())
             continue; //do not show this property in low end gfx
 
         if (p.name == "script" && (hide_script || bool(object->call_va("_hide_script_from_inspector")))) {

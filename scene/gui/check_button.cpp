@@ -32,7 +32,7 @@
 
 #include "core/class_db.h"
 #include "core/print_string.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/resources/style_box.h"
 #include "core/property_info.h"
 

@@ -39,7 +39,7 @@
 #include "scene/2d/gpu_particles_2d.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/particles_material.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 
 IMPL_GDCLASS(CPUParticles2D)
@@ -72,7 +72,7 @@ void CPUParticles2D::set_amount(int p_amount) {
     }
 
     particle_data.resize((8 + 4 + 1) * p_amount);
-    VisualServer::get_singleton()->multimesh_allocate(multimesh, p_amount, VS::MULTIMESH_TRANSFORM_2D, VS::MULTIMESH_COLOR_8BIT, VS::MULTIMESH_CUSTOM_DATA_FLOAT);
+    RenderingServer::get_singleton()->multimesh_allocate(multimesh, p_amount, RS::MULTIMESH_TRANSFORM_2D, RS::MULTIMESH_COLOR_8BIT, RS::MULTIMESH_CUSTOM_DATA_FLOAT);
 
     particle_order.resize(p_amount);
 }
@@ -219,8 +219,8 @@ void CPUParticles2D::_update_mesh_texture() {
     arr.m_colors = eastl::move(colors);
     arr.m_indices = eastl::move(indices);
 
-    VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, VS::PRIMITIVE_TRIANGLES, eastl::move(arr));
+    RenderingServer::get_singleton()->mesh_clear(mesh);
+    RenderingServer::get_singleton()->mesh_add_surface_from_arrays(mesh, RS::PRIMITIVE_TRIANGLES, eastl::move(arr));
 }
 
 void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {
@@ -935,19 +935,19 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
 #ifndef NO_THREADS
     update_mutex->lock();
 #endif
-    auto VS = VisualServer::get_singleton();
+    auto RS = RenderingServer::get_singleton();
     if (redraw) {
-        VS->connect("frame_pre_draw", this, "_update_render_thread");
-        VS->canvas_item_set_update_when_visible(get_canvas_item(), true);
+        RS->connect("frame_pre_draw", this, "_update_render_thread");
+        RS->canvas_item_set_update_when_visible(get_canvas_item(), true);
 
-        VS->multimesh_set_visible_instances(multimesh, -1);
+        RS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        if(VS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
-            VS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        if(RS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
+            RS->disconnect("frame_pre_draw", this, "_update_render_thread");
         }
-        VS->canvas_item_set_update_when_visible(get_canvas_item(), false);
+        RS->canvas_item_set_update_when_visible(get_canvas_item(), false);
 
-        VS->multimesh_set_visible_instances(multimesh, 0);
+        RS->multimesh_set_visible_instances(multimesh, 0);
     }
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -961,7 +961,7 @@ void CPUParticles2D::_update_render_thread() {
     update_mutex->lock();
 #endif
 
-    VisualServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
+    RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
 
 #ifndef NO_THREADS
     update_mutex->unlock();
@@ -996,7 +996,7 @@ void CPUParticles2D::_notification(int p_what) {
             normrid = normalmap->get_rid();
         }
 
-        VisualServer::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
+        RenderingServer::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
     }
 
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
@@ -1394,9 +1394,9 @@ CPUParticles2D::CPUParticles2D() {
     redraw = false;
     emitting = false;
 
-    mesh = VisualServer::get_singleton()->mesh_create();
-    multimesh = VisualServer::get_singleton()->multimesh_create();
-    VisualServer::get_singleton()->multimesh_set_mesh(multimesh, mesh);
+    mesh = RenderingServer::get_singleton()->mesh_create();
+    multimesh = RenderingServer::get_singleton()->multimesh_create();
+    RenderingServer::get_singleton()->multimesh_set_mesh(multimesh, mesh);
 
     set_emitting(true);
     set_one_shot(false);
@@ -1451,8 +1451,8 @@ CPUParticles2D::CPUParticles2D() {
 }
 
 CPUParticles2D::~CPUParticles2D() {
-    VisualServer::get_singleton()->free_rid(multimesh);
-    VisualServer::get_singleton()->free_rid(mesh);
+    RenderingServer::get_singleton()->free_rid(multimesh);
+    RenderingServer::get_singleton()->free_rid(mesh);
 
 #ifndef NO_THREADS
     memdelete(update_mutex);

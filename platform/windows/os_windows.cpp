@@ -43,8 +43,8 @@
 #include "lang_table.h"
 #include "main/main.h"
 #include "servers/audio_server.h"
-#include "servers/visual/visual_server_raster.h"
-#include "servers/visual/visual_server_wrap_mt.h"
+#include "servers/rendering/visual_server_raster.h"
+#include "servers/rendering/visual_server_wrap_mt.h"
 #include "windows_terminal_logger.h"
 
 #include <QString>
@@ -1440,12 +1440,12 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     set_vsync_via_compositor(video_mode.vsync_via_compositor);
 #endif
 
-    visual_server = memnew(VisualServerRaster);
+    rendering_server = memnew(VisualServerRaster);
     if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        visual_server = memnew(VisualServerWrapMT(visual_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+        rendering_server = memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
     }
 
-    visual_server->init();
+    rendering_server->init();
 
     input = memnew(InputDefault);
     joypad = memnew(JoypadWindows(input, &hWnd));
@@ -1605,8 +1605,8 @@ void OS_Windows::finalize() {
     touch_state.clear();
 
     cursors_cache.clear();
-    visual_server->finish();
-    memdelete(visual_server);
+    rendering_server->finish();
+    memdelete(rendering_server);
 #ifdef OPENGL_ENABLED
     if (gl_context)
         memdelete(gl_context);

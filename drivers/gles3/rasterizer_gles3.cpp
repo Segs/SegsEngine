@@ -185,7 +185,7 @@ void RasterizerGLES3::initialize() {
     }
     */
 
-    print_line(String("OpenGL ES 3.0 Renderer: ") + VisualServer::get_singleton()->get_video_adapter_name());
+    print_line(String("OpenGL ES 3.0 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
     storage->initialize();
     canvas->initialize();
     scene->initialize();
@@ -296,7 +296,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 
     RID texture = storage->texture_create();
     storage->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, p_image->get_format(),
-            VS::TEXTURE_TYPE_2D, p_use_filter ? VS::TEXTURE_FLAG_FILTER : 0);
+            RS::TEXTURE_TYPE_2D, p_use_filter ? RS::TEXTURE_FLAG_FILTER : 0);
     storage->texture_set_data(texture, p_image);
 
     Rect2 imgrect(0, 0, p_image->get_width(), p_image->get_height());
