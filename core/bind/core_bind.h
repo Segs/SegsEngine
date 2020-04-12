@@ -44,7 +44,7 @@ class Image;
 class FileAccess;
 class DirAccess;
 class Thread;
-class SemaphoreOld;
+class Semaphore;
 
 using RES = Ref<Resource>;
 namespace std {
@@ -609,13 +609,13 @@ public:
 class _Semaphore : public RefCounted {
 
     GDCLASS(_Semaphore, RefCounted);
-    SemaphoreOld *semaphore;
+    Semaphore *semaphore;
 
     static void _bind_methods();
 
 public:
-    Error wait();
-    Error post();
+    void wait();
+    void post();
 
     _Semaphore();
     ~_Semaphore() override;

@@ -111,11 +111,11 @@ CommandQueueMT::CommandQueueMT(bool p_sync) {
 
     for (SyncSemaphore & sync_sem : sync_sems) {
 
-        sync_sem.sem = SemaphoreOld::create();
+        sync_sem.sem = memnew(Semaphore);
         sync_sem.in_use = false;
     }
     if (p_sync)
-        sync = SemaphoreOld::create();
+        sync = memnew(Semaphore);
     else
         sync = nullptr;
 }

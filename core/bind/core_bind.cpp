@@ -2566,14 +2566,14 @@ void _Marshalls::_bind_methods() {
 
 ////////////////
 
-Error _Semaphore::wait() {
+void _Semaphore::wait() {
 
-    return semaphore->wait();
+    semaphore->wait();
 }
 
-Error _Semaphore::post() {
+void _Semaphore::post() {
 
-    return semaphore->post();
+    semaphore->post();
 }
 
 IMPL_GDCLASS(_Semaphore)
@@ -2586,7 +2586,7 @@ void _Semaphore::_bind_methods() {
 
 _Semaphore::_Semaphore() {
 
-    semaphore = SemaphoreOld::create();
+    semaphore = memnew(Semaphore);
 }
 
 _Semaphore::~_Semaphore() {
