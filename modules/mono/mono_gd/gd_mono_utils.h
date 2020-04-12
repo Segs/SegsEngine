@@ -35,7 +35,6 @@
 
 #include "../mono_gc_handle.h"
 #include "../utils/macros.h"
-#include "../utils/thread_local.h"
 #include "gd_mono_header.h"
 
 #include "core/object.h"
@@ -123,7 +122,7 @@ void print_unhandled_exception(MonoException *p_exc);
  */
 void set_pending_exception(MonoException *p_exc);
 
-extern _THREAD_LOCAL_(int) current_invoke_count;
+extern thread_local int current_invoke_count;
 
 _FORCE_INLINE_ int get_runtime_invoke_count() {
     return current_invoke_count;
@@ -164,7 +163,7 @@ private:
 
 #define GD_MONO_SCOPE_THREAD_ATTACH                                   \
     GDMonoUtils::ScopeThreadAttach __gdmono__scope__thread__attach__; \
-    (void)__gdmono__scope__thread__attach__;
+    (void)__gdmono__scope__thread__attach__
 
 #ifdef DEBUG_ENABLED
 #define GD_MONO_ASSERT_THREAD_ATTACHED \

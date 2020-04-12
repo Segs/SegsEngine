@@ -39,7 +39,7 @@
 #include "core/engine.h"
 #include "core/func_ref.h"
 #include "core/image.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/io/config_file.h"
 #include "core/io/http_client.h"
 #include "core/io/image_loader.h"

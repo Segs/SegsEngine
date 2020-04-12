@@ -123,8 +123,8 @@ set(core_sources
     plugin_interfaces/ResourceImporterInterface.h
     plugin_interfaces/ResourceLoaderInterface.h
     plugin_interfaces/load_params.h
-	resource/resource_manager.h
-	resource/resource_manager.cpp
+    resource/resource_manager.h
+    resource/resource_manager.cpp
 
     class_db.cpp
     class_db.h
@@ -145,8 +145,6 @@ set(core_sources
     image.cpp
     image.h
     image_enum_casters.h
-    input_map.cpp
-    input_map.h
     message_queue.cpp
     message_queue.h
     method_arg_casters.h

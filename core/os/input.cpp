@@ -30,7 +30,7 @@
 
 #include "input.h"
 
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/list.h"
 #include "core/method_arg_casters.h"
 #include "core/method_bind.h"

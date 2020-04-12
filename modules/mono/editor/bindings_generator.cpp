@@ -941,7 +941,7 @@ Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
                              "using System.Runtime.CompilerServices;\n"
                              "\n");
     cs_icalls_content.append("namespace " BINDINGS_NAMESPACE "\n" OPEN_BLOCK);
-    cs_icalls_content.append(INDENT1 "internal static class " BINDINGS_CLASS_NATIVECALLS "\n" INDENT1 OPEN_BLOCK);
+    cs_icalls_content.append(INDENT1 "internal static class " BINDINGS_CLASS_NATIVECALLS "\n" INDENT1 "{");
 
     cs_icalls_content.append(MEMBER_BEGIN "internal static ulong godot_api_hash = ");
     cs_icalls_content.append(StringUtils::num_uint64(GDMono::get_singleton()->get_api_core_hash()) + ";\n");
@@ -953,7 +953,7 @@ Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
 #define ADD_INTERNAL_CALL(m_icall)                                                               \
     if (!m_icall.editor_only) {                                                                  \
         cs_icalls_content.append(MEMBER_BEGIN "[MethodImpl(MethodImplOptions.InternalCall)]\n"); \
-        cs_icalls_content.append(INDENT2 "internal extern static ");                             \
+        cs_icalls_content.append(INDENT2 "internal static extern ");                             \
         cs_icalls_content.append(m_icall.im_type_out + " ");                                     \
         cs_icalls_content.append(m_icall.name + "(");                                            \
         cs_icalls_content.append(m_icall.im_sig + ");\n");                                       \
@@ -1055,7 +1055,7 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
 #define ADD_INTERNAL_CALL(m_icall)                                                          \
     if (m_icall.editor_only) {                                                              \
         cs_icalls_content.append(INDENT2 "[MethodImpl(MethodImplOptions.InternalCall)]\n"); \
-        cs_icalls_content.append(INDENT2 "internal extern static ");                        \
+        cs_icalls_content.append(INDENT2 "internal static extern ");                        \
         cs_icalls_content.append(m_icall.im_type_out + " ");                                \
         cs_icalls_content.append(m_icall.name + "(");                                       \
         cs_icalls_content.append(m_icall.im_sig + ");\n");                                  \
@@ -1406,7 +1406,8 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     const TypeInterface *current_type = &p_itype;
     while (!setter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG);
+        ERR_FAIL_COND_V_MSG(!base_match, ERR_BUG,
+                "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
         current_type = &base_match.get();
         setter = current_type->find_method_by_name(p_iprop.setter);
     }
@@ -1417,7 +1418,8 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     current_type = &p_itype;
     while (!getter && current_type->base_name != StringName()) {
         OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V(!base_match, ERR_BUG);
+        ERR_FAIL_COND_V_MSG(!base_match, ERR_BUG,
+                "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
         current_type = &base_match.get();
         getter = current_type->find_method_by_name(p_iprop.getter);
     }

@@ -34,7 +34,7 @@
 #include "core/crypto/crypto.h"
 #include "core/external_profiler.h"
 #include "core/input/input_default.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/io/file_access_network.h"
 #include "core/io/file_access_pack.h"
 #include "core/io/image_loader.h"

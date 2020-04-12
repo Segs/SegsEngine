@@ -31,7 +31,7 @@
 #include "input_default.h"
 
 #include "core/class_db.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/input/default_controller_mappings.h"

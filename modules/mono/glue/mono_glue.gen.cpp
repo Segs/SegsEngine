@@ -145,7 +145,7 @@
 #include "scene/3d/immediate_geometry.h"
 #include "core/os/input.h"
 #include "core/input/input_event.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "scene/main/instance_placeholder.h"
 #include "scene/3d/interpolated_camera.h"
 #include "scene/gui/item_list.h"

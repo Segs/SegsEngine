@@ -38,6 +38,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/file_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/os/thread.h"
 #include "core/project_settings.h"
@@ -63,9 +64,7 @@
 #include "mono_gd/gd_mono_utils.h"
 #include "signal_awaiter_utils.h"
 #include "utils/macros.h"
-#include "utils/mutex_utils.h"
 #include "utils/string_utils.h"
-#include "utils/thread_local.h"
 #include "EASTL/sort.h"
 
 
@@ -562,7 +561,13 @@ String CSharpLanguage::debug_get_stack_level_source(int p_level) const {
 Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info() {
 
 #ifdef DEBUG_ENABLED
-    _TLS_RECURSION_GUARD_V_(Vector<StackInfo>())
+    // Printing an error here will result in endless recursion, so we must be careful
+    static thread_local bool _recursion_flag_ = false;
+    if (_recursion_flag_)
+        return Vector<StackInfo>();
+    _recursion_flag_ = true;
+    SCOPE_EXIT { _recursion_flag_ = false; };
+
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     if (!gdmono->is_runtime_initialized() || !GDMono::get_singleton()->get_core_api_assembly() || !GDMonoCache::cached_data.corlib_cache_updated)
@@ -587,7 +592,13 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info()
 #ifdef DEBUG_ENABLED
 Vector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoObject *p_stack_trace) {
 
-    _TLS_RECURSION_GUARD_V_(Vector<StackInfo>());
+    // Printing an error here will result in endless recursion, so we must be careful
+    static thread_local bool _recursion_flag_ = false;
+    if (_recursion_flag_)
+        return Vector<StackInfo>();
+    _recursion_flag_ = true;
+    SCOPE_EXIT { _recursion_flag_ = false; };
+
     GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoException *exc = nullptr;
@@ -636,7 +647,7 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoObjec
 
 void CSharpLanguage::post_unsafe_reference(Object *p_obj) {
 #ifdef DEBUG_ENABLED
-    SCOPED_MUTEX_LOCK(unsafe_object_references_lock);
+    MutexLock lock(*unsafe_object_references_lock);
     ObjectID id = p_obj->get_instance_id();
     unsafe_object_references[id]++;
 #endif
@@ -644,7 +655,7 @@ void CSharpLanguage::post_unsafe_reference(Object *p_obj) {
 
 void CSharpLanguage::pre_unsafe_unreference(Object *p_obj) {
 #ifdef DEBUG_ENABLED
-    SCOPED_MUTEX_LOCK(unsafe_object_references_lock)
+    MutexLock lock(*unsafe_object_references_lock);
     ObjectID id = p_obj->get_instance_id();
     auto elem = unsafe_object_references.find(id);
     ERR_FAIL_COND(elem==unsafe_object_references.end());
@@ -697,7 +708,7 @@ void CSharpLanguage::reload_all_scripts() {
 
 #ifdef GD_MONO_HOT_RELOAD
     if (is_assembly_reloading_needed()) {
-        GD_MONO_SCOPE_THREAD_ATTACH
+        GD_MONO_SCOPE_THREAD_ATTACH;
         reload_assemblies(false);
     }
 #endif
@@ -715,7 +726,7 @@ void CSharpLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_soft
 
 #ifdef GD_MONO_HOT_RELOAD
     if (is_assembly_reloading_needed()) {
-        GD_MONO_SCOPE_THREAD_ATTACH
+        GD_MONO_SCOPE_THREAD_ATTACH;
         reload_assemblies(p_soft_reload);
     }
 #endif
@@ -767,7 +778,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     Vector<Ref<CSharpScript> > scripts;
 
     {
-        SCOPED_MUTEX_LOCK(script_instances_mutex);
+        MutexLock lock(*script_instances_mutex);
 
         for (SelfList<CSharpScript> *elem = script_list.first(); elem; elem = elem->next()) {
             // Cast to CSharpScript to avoid being erased by accident
@@ -1197,7 +1208,7 @@ void CSharpLanguage::set_language_index(int p_idx) {
 void CSharpLanguage::release_script_gchandle(Ref<MonoGCHandle> &p_gchandle) {
 
     if (!p_gchandle->is_released()) { // Do not lock unnecessarily
-        SCOPED_MUTEX_LOCK(get_singleton()->script_gchandle_release_mutex);
+        MutexLock lock(*get_singleton()->script_gchandle_release_mutex);
         p_gchandle->release();
     }
 }
@@ -1207,7 +1218,7 @@ void CSharpLanguage::release_script_gchandle(MonoObject *p_expected_obj, Ref<Mon
     uint32_t pinned_gchandle = MonoGCHandle::new_strong_handle_pinned(p_expected_obj); // We might lock after this, so pin it
 
     if (!p_gchandle->is_released()) { // Do not lock unnecessarily
-        SCOPED_MUTEX_LOCK(get_singleton()->script_gchandle_release_mutex);
+        MutexLock lock(*get_singleton()->script_gchandle_release_mutex);
 
         MonoObject *target = p_gchandle->get_target();
 
@@ -1336,7 +1347,7 @@ bool CSharpLanguage::setup_csharp_script_binding(CSharpScriptBinding &r_script_b
 
 void *CSharpLanguage::alloc_instance_binding_data(Object *p_object) {
 
-    SCOPED_MUTEX_LOCK(language_bind_mutex);
+    MutexLock lock(*language_bind_mutex);
 
     auto itermatch = script_bindings.find(p_object);
     if (itermatch!=script_bindings.end())
@@ -1375,7 +1386,7 @@ void CSharpLanguage::free_instance_binding_data(void *p_data) {
     GD_MONO_ASSERT_THREAD_ATTACHED;
 
     {
-        SCOPED_MUTEX_LOCK(language_bind_mutex);
+        MutexLock lock(*language_bind_mutex);
 
         auto data = from_binding(p_data);
         CSharpScriptBinding &script_binding = data->second;
@@ -1501,7 +1512,7 @@ bool CSharpInstance::set(const StringName &p_name, const Variant &p_value) {
 
     ERR_FAIL_COND_V(!script, false);
 
-    GD_MONO_SCOPE_THREAD_ATTACH
+    GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoObject *mono_object = get_mono_object();
     ERR_FAIL_NULL_V(mono_object, false);
@@ -1650,7 +1661,7 @@ void CSharpInstance::get_property_list(Vector<PropertyInfo> *p_properties) const
 
     ERR_FAIL_COND(!script);
 
-    GD_MONO_SCOPE_THREAD_ATTACH
+    GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoObject *mono_object = get_mono_object();
     ERR_FAIL_NULL(mono_object);
@@ -1716,7 +1727,7 @@ Variant CSharpInstance::call(const StringName &p_method, const Variant **p_args,
         ERR_FAIL_V(Variant());
     }
 
-    GD_MONO_SCOPE_THREAD_ATTACH
+    GD_MONO_SCOPE_THREAD_ATTACH;
 
     MonoObject *mono_object = get_mono_object();
 
@@ -2194,7 +2205,7 @@ CSharpInstance::~CSharpInstance() {
         CSharpScriptBinding &script_binding = from_binding(data)->second;
 
         if (!script_binding.inited) {
-            SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->get_language_bind_mutex())
+            MutexLock lock(*CSharpLanguage::get_singleton()->get_language_bind_mutex());
 
             if (!script_binding.inited) { // Other thread may have set it up
                 // Already had a binding that needs to be setup
@@ -2210,7 +2221,7 @@ CSharpInstance::~CSharpInstance() {
     }
 
     if (script && owner) {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
+        MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
 
 #ifdef DEBUG_ENABLED
         // CSharpInstance must not be created unless it's going to be added to the list for sure
@@ -2985,7 +2996,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
         instance->_reference_owner_unsafe(); // Here, after assigning the gchandle (for the refcount_incremented callback)
 
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
+        MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
         instances.insert(instance->owner);
     }
 
@@ -3075,7 +3086,7 @@ PlaceHolderScriptInstance *CSharpScript::placeholder_instance_create(Object *p_t
 
 bool CSharpScript::instance_has(const Object *p_this) const {
 
-    SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex);
+    MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
     return instances.contains(const_cast<Object *>(p_this));
 }
 
@@ -3148,7 +3159,7 @@ Error CSharpScript::reload(bool p_keep_state) {
 
     bool has_instances;
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
+        MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
         has_instances = !instances.empty();
     }
 
@@ -3349,7 +3360,7 @@ CSharpScript::CSharpScript() :
 
 #ifdef DEBUG_ENABLED
     {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
+        MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
         CSharpLanguage::get_singleton()->script_list.add(&this->script_list);
     }
 #endif
@@ -3358,7 +3369,7 @@ CSharpScript::CSharpScript() :
 CSharpScript::~CSharpScript() {
 
 #ifdef DEBUG_ENABLED
-    SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->script_instances_mutex)
+    MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
     CSharpLanguage::get_singleton()->script_list.remove(&this->script_list);
 #endif
 }

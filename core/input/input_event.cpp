@@ -30,7 +30,7 @@
 
 #include "input_event.h"
 
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
 #include "core/method_bind.h"

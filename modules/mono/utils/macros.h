@@ -76,9 +76,29 @@
 #define GD_UNREACHABLE() __builtin_unreachable()
 #else
 #define GD_UNREACHABLE() \
-	CRASH_NOW();         \
-	do {                 \
-	} while (true);
+    CRASH_NOW();         \
+    do {                 \
+    } while (true);
 #endif
+namespace gdmono {
+
+template <typename F>
+struct ScopeExit {
+    ScopeExit(F p_exit_func) :
+            exit_func(p_exit_func) {}
+    ~ScopeExit() { exit_func(); }
+    F exit_func;
+};
+
+class ScopeExitAux {
+public:
+    template <typename F>
+    ScopeExit<F> operator+(F p_exit_func) { return ScopeExit<F>(p_exit_func); }
+};
+
+} // namespace gdmono
+
+#define SCOPE_EXIT \
+    auto GD_UNIQUE_NAME(gd_scope_exit) = gdmono::ScopeExitAux() + [=]()
 
 #endif // UTIL_MACROS_H
