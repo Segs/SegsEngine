@@ -38,7 +38,7 @@
 #include "core/math/vector3.h"
 #include "core/hash_map.h"
 
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 class Shader;
 class Texture;

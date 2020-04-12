@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_globals.h                                              */
+/*  rendering_server_light_baker.h                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,29 +28,25 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUAL_SERVER_GLOBALS_H
-#define VISUAL_SERVER_GLOBALS_H
+#ifndef VISUALSERVERLIGHTBAKER_H
+#define VISUALSERVERLIGHTBAKER_H
 
-#include "rasterizer.h"
+#include "servers/rendering_server.h"
 
-class VisualServerCanvas;
-class VisualServerViewport;
-class VisualServerScene;
-class ECS_Registry;
-
-class VisualServerGlobals {
+class VisualServerLightBaker {
 public:
-	static RasterizerStorage *storage;
-	static RasterizerCanvas *canvas_render;
-	static RasterizerScene *scene_render;
-	static Rasterizer *rasterizer;
-    static ECS_Registry *ecs;
+	struct BakeCell {
 
-	static VisualServerCanvas *canvas;
-	static VisualServerViewport *viewport;
-	static VisualServerScene *scene;
+		uint32_t cells[8];
+		uint32_t neighbours[7]; //one unused
+		uint32_t albedo; //albedo in RGBE
+		uint32_t emission; //emissive light in RGBE
+		uint32_t light[4]; //accumulated light in 16:16 fixed point (needs to be integer for moving lights fast)
+		float alpha; //used for upsampling
+		uint32_t directional_pass; //used for baking directional
+	};
+
+	VisualServerLightBaker();
 };
 
-#define VSG VisualServerGlobals
-
-#endif // VISUAL_SERVER_GLOBALS_H
+#endif // VISUALSERVERLIGHTBAKER_H

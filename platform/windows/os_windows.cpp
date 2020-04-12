@@ -31,6 +31,7 @@
 #include "os_windows.h"
 
 #include "core/io/marshalls.h"
+#include "core/debugger/script_debugger.h"
 #include "core/version_generated.gen.h"
 #include "core/string_utils.inl"
 #include "drivers/gles3/rasterizer_gles3.h"
@@ -43,8 +44,8 @@
 #include "lang_table.h"
 #include "main/main.h"
 #include "servers/audio_server.h"
-#include "servers/rendering/visual_server_raster.h"
-#include "servers/rendering/visual_server_wrap_mt.h"
+#include "servers/rendering/rendering_server_raster.h"
+#include "servers/rendering/rendering_server_wrap_mt.h"
 #include "windows_terminal_logger.h"
 
 #include <QString>

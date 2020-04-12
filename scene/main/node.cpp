@@ -34,6 +34,7 @@
 #include "viewport.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/io/multiplayer_api.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"

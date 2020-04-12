@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "rendering_server.h"
-#include "visual_server_enum_casters.h"
+#include "rendering_server_enum_casters.h"
 
 #include "core/image_enum_casters.h"
 #include "core/method_bind.h"

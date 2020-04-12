@@ -36,7 +36,7 @@
 #include "core/resource.h"
 #include "scene/resources/gradient.h"
 //
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 #include <EASTL/unique_ptr.h>
 

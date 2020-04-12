@@ -36,7 +36,7 @@
 #include "core/project_settings.h"
 #include "rasterizer_canvas_gles3.h"
 #include "servers/camera/camera_feed.h"
-#include "servers/rendering/visual_server_raster.h"
+#include "servers/rendering/rendering_server_raster.h"
 
 /* SHADOW ATLAS API */
 

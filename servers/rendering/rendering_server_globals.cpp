@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_light_baker.cpp                                        */
+/*  rendering_server_globals.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,6 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "visual_server_light_baker.h"
+#include "rendering_server_globals.h"
 
-VisualServerLightBaker::VisualServerLightBaker() = default;
+RasterizerStorage *VisualServerGlobals::storage = nullptr;
+RasterizerCanvas *VisualServerGlobals::canvas_render = nullptr;
+RasterizerScene *VisualServerGlobals::scene_render = nullptr;
+Rasterizer *VisualServerGlobals::rasterizer = nullptr;
+ECS_Registry *VisualServerGlobals::ecs = nullptr;
+
+VisualServerCanvas *VisualServerGlobals::canvas = nullptr;
+VisualServerViewport *VisualServerGlobals::viewport = nullptr;
+VisualServerScene *VisualServerGlobals::scene = nullptr;

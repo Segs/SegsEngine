@@ -34,7 +34,7 @@
 #include "core/math/transform_2d.h"
 #include "core/string.h"
 #include "servers/camera_server.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 /**
     @author Bastiaan Olij <mux213@gmail.com>

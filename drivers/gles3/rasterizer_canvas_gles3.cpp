@@ -32,7 +32,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "rasterizer_scene_gles3.h"
-#include "servers/rendering/visual_server_raster.h"
+#include "servers/rendering/rendering_server_raster.h"
 
 static void store_transform2d(const Transform2D &p_mtx, float *p_array) {
 

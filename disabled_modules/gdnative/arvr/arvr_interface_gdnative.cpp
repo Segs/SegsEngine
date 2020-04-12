@@ -31,7 +31,7 @@
 #include "arvr_interface_gdnative.h"
 #include "main/input_default.h"
 #include "servers/arvr/arvr_positional_tracker.h"
-#include "servers/rendering/visual_server_globals.h"
+#include "servers/rendering/rendering_server_globals.h"
 #include "core/class_db.h"
 #include "core/print_string.h"
 

@@ -32,7 +32,7 @@
 
 #include "core/resource.h"
 #include "core/rid.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 class Mesh;
 

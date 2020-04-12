@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_raster.cpp                                             */
+/*  rendering_server_raster.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "visual_server_raster.h"
+#include "rendering_server_raster.h"
 
 #include "core/external_profiler.h"
 #include "core/io/marshalls.h"
@@ -37,9 +37,9 @@
 #include "core/ecs_registry.h"
 #include "core/project_settings.h"
 #include "core/sort_array.h"
-#include "visual_server_canvas.h"
-#include "visual_server_globals.h"
-#include "visual_server_scene.h"
+#include "rendering_server_canvas.h"
+#include "rendering_server_globals.h"
+#include "rendering_server_scene.h"
 
 // careful, these may run in different threads than the visual server
 

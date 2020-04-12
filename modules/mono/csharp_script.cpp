@@ -32,6 +32,7 @@
 
 #include <mono/metadata/threads.h>
 
+#include "core/debugger/script_debugger.h"
 #include "core/io/json.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"

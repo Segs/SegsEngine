@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  script_debugger_local.h                                              */
+/*  rendering_server_globals.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,38 +28,29 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#ifndef VISUAL_SERVER_GLOBALS_H
+#define VISUAL_SERVER_GLOBALS_H
 
-#include "core/list.h"
-#include "core/script_language.h"
-#include "core/debugger/script_debugger.h"
+#include "rasterizer.h"
 
-class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
+class VisualServerCanvas;
+class VisualServerViewport;
+class VisualServerScene;
+class ECS_Registry;
 
-    bool profiling;
-    float frame_time, idle_time, physics_time, physics_frame_time;
-    uint64_t idle_accum;
-    String target_function;
-    Map<String, String> options;
-
-    Vector<ScriptLanguage::ProfilingInfo> pinfo;
-
-    Pair<String, int> to_breakpoint(const String &p_line);
-    void print_variables(const Vector<String> &names, const Vector<Variant> &values, StringView variable_prefix);
-
+class VisualServerGlobals {
 public:
-    void debug(ScriptLanguage *p_script, bool p_can_continue, bool p_is_error_breakpoint) override;
-    void send_message(const String &p_message, const Array &p_args) override;
-    void send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) override;
+	static RasterizerStorage *storage;
+	static RasterizerCanvas *canvas_render;
+	static RasterizerScene *scene_render;
+	static Rasterizer *rasterizer;
+    static ECS_Registry *ecs;
 
-    bool is_profiling() const override { return profiling; }
-    void add_profiling_frame_data(const StringName &p_name, const Array &p_data) override {}
-
-    void idle_poll() override;
-
-    void profiling_start() override;
-    void profiling_end() override;
-    void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) override;
-
-    ScriptDebuggerLocal();
+	static VisualServerCanvas *canvas;
+	static VisualServerViewport *viewport;
+	static VisualServerScene *scene;
 };
+
+#define VSG VisualServerGlobals
+
+#endif // VISUAL_SERVER_GLOBALS_H

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_canvas.h                                               */
+/*  rendering_server_canvas.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,7 +31,7 @@
 #pragma once
 
 #include "rasterizer.h"
-#include "visual_server_viewport.h"
+#include "rendering_server_viewport.h"
 
 class VisualServerCanvas {
 public:

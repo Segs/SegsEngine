@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_viewport.cpp                                           */
+/*  rendering_server_viewport.cpp                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "visual_server_viewport.h"
+#include "rendering_server_viewport.h"
 
 #include "core/project_settings.h"
-#include "visual_server_canvas.h"
-#include "visual_server_globals.h"
-#include "visual_server_scene.h"
+#include "rendering_server_canvas.h"
+#include "rendering_server_globals.h"
+#include "rendering_server_scene.h"
 #include "core/map.h"
 #include "EASTL/sort.h"
 

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_raster.h                                               */
+/*  rendering_server_raster.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -33,10 +33,10 @@
 #include "core/math/octree.h"
 #include "servers/rendering/rasterizer.h"
 #include "servers/rendering_server.h"
-#include "visual_server_canvas.h"
-#include "visual_server_globals.h"
-#include "visual_server_scene.h"
-#include "visual_server_viewport.h"
+#include "rendering_server_canvas.h"
+#include "rendering_server_globals.h"
+#include "rendering_server_scene.h"
+#include "rendering_server_viewport.h"
 
 class  VisualServerRaster : public RenderingServer {
 

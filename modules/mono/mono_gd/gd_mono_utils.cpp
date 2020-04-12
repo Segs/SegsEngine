@@ -30,19 +30,16 @@
 
 #include "gd_mono_utils.h"
 
-#include <mono/metadata/exception.h>
-
+#include "core/debugger/script_debugger.h"
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
 #include "core/class_db.h"
 #include "core/print_string.h"
-
 #ifdef TOOLS_ENABLED
 #include "editor/script_editor_debugger.h"
 #endif
-
 #include "../csharp_script.h"
 #include "../utils/macros.h"
 #include "../utils/mutex_utils.h"
@@ -51,6 +48,8 @@
 #include "gd_mono_class.h"
 #include "gd_mono_marshal.h"
 #include "gd_mono_method_thunk.h"
+
+#include <mono/metadata/exception.h>
 
 namespace GDMonoUtils {
 

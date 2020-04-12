@@ -32,7 +32,7 @@
 
 #include <utility>
 #include "servers/rendering_server.h"
-#include "servers/visual_server_enum_casters.h"
+#include "servers/rendering_server_enum_casters.h"
 #include "core/print_string.h"
 #include "core/image_enum_casters.h"
 #include "core/method_bind.h"

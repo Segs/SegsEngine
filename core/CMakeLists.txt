@@ -354,6 +354,7 @@ list(APPEND core_sources ${CMAKE_CURRENT_BINARY_DIR}/donors.gen.h)
 add_subdirectory(plugin_interfaces)
 add_subdirectory(service_interfaces)
 add_subdirectory(crypto)
+add_subdirectory(debugger)
 
 #######################################################################################################################################################################
 # Add 'input' entries, cmake failes to generate proper list of sources when core_sources is extended by ${CMAKE_CURRENT_BINARY_DIR}/default_controller_mappings.gen.cpp

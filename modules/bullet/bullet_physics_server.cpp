@@ -902,11 +902,11 @@ RID BulletPhysicsServer::soft_body_create(bool p_init_sleeping) {
     CreateThenReturnRID(soft_body_owner, body);
 }
 
-void BulletPhysicsServer::soft_body_update_visual_server(RID p_body, class SoftBodyVisualServerHandler *p_visual_server_handler) {
+void BulletPhysicsServer::soft_body_update_rendering_server(RID p_body, class SoftBodyVisualServerHandler *p_rendering_server_handler) {
     SoftBodyBullet *body = soft_body_owner.get(p_body);
     ERR_FAIL_COND(!body);
 
-    body->update_visual_server(p_visual_server_handler);
+    body->update_rendering_server(p_rendering_server_handler);
 }
 
 void BulletPhysicsServer::soft_body_set_space(RID p_body, RID p_space) {

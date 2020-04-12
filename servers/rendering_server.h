@@ -38,7 +38,7 @@
 #include "core/rid.h"
 #include "core/string.h"
 #include "core/variant.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 //SEGS: In the future this is meant to replace passing Surface data in Array
 class GODOT_EXPORT SurfaceArrays {

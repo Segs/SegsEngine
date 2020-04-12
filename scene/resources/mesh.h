@@ -37,7 +37,7 @@
 #include "core/string.h"
 //#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 #include "servers/rendering_server.h"
 
 class Material;

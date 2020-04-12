@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "audio_server.h"
+#include "core/debugger/script_debugger.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/method_arg_casters.h"

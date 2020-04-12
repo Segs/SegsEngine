@@ -33,6 +33,7 @@
 #include "core/os/thread.h"
 #include "core/hash_set.h"
 #include "core/script_language.h"
+#include "core/debugger/script_debugger.h"
 #include "core/string_utils.h"
 #include "core/math/vector2.h"
 #include "core/list.h"

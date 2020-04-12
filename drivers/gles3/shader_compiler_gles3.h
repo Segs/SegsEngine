@@ -35,7 +35,7 @@
 #include "core/hash_map.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering/shader_types.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 class ShaderCompilerGLES3 {
 public:

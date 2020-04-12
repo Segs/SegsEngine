@@ -33,7 +33,7 @@
 #include "core/print_string.h"
 #include "drivers/dummy/rasterizer_dummy.h"
 #include "drivers/dummy/texture_loader_dummy.h"
-#include "servers/rendering/visual_server_raster.h"
+#include "servers/rendering/rendering_server_raster.h"
 
 #include "main/main.h"
 

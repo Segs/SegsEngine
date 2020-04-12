@@ -41,8 +41,8 @@
 #include "drivers/gles3/rasterizer_gles3.h"
 #include <cerrno>
 #include "key_mapping_x11.h"
-#include "servers/rendering/visual_server_raster.h"
-#include "servers/rendering/visual_server_wrap_mt.h"
+#include "servers/rendering/rendering_server_raster.h"
+#include "servers/rendering/rendering_server_wrap_mt.h"
 
 #ifdef HAVE_MNTENT
 #include <mntent.h>

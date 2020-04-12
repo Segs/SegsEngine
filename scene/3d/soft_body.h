@@ -79,7 +79,7 @@ public:
     };
 
 private:
-    SoftBodyVisualServerHandler visual_server_handler;
+    SoftBodyVisualServerHandler rendering_server_handler;
 
     RID physics_rid;
 

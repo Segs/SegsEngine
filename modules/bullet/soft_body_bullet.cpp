@@ -76,7 +76,7 @@ void SoftBodyBullet::on_enter_area(AreaBullet *p_area) {}
 
 void SoftBodyBullet::on_exit_area(AreaBullet *p_area) {}
 
-void SoftBodyBullet::update_visual_server(SoftBodyVisualServerHandler *p_visual_server_handler) {
+void SoftBodyBullet::update_rendering_server(SoftBodyVisualServerHandler *p_rendering_server_handler) {
     if (!bt_soft_body)
         return;
 
@@ -96,8 +96,8 @@ void SoftBodyBullet::update_visual_server(SoftBodyVisualServerHandler *p_visual_
 
         const int vs_indices_size(vs_indices->size());
         for (int x = 0; x < vs_indices_size; ++x) {
-            p_visual_server_handler->set_vertex((*vs_indices)[x], vertex_position);
-            p_visual_server_handler->set_normal((*vs_indices)[x], vertex_normal);
+            p_rendering_server_handler->set_vertex((*vs_indices)[x], vertex_position);
+            p_rendering_server_handler->set_normal((*vs_indices)[x], vertex_normal);
         }
     }
 
@@ -112,7 +112,7 @@ void SoftBodyBullet::update_visual_server(SoftBodyVisualServerHandler *p_visual_
     B_TO_G(aabb_min, aabb.position);
     B_TO_G(size, aabb.size);
 
-    p_visual_server_handler->set_aabb(aabb);
+    p_rendering_server_handler->set_aabb(aabb);
 }
 
 void SoftBodyBullet::set_soft_mesh(const Ref<Mesh> &p_mesh) {

@@ -109,7 +109,8 @@ public:
         bool mirror : 8;
         bool receive_shadows : 8;
         bool visible : 8;
-        bool baked_light : 4; //this flag is only to know if it actually did use baked light
+        bool baked_light : 2; //this flag is only to know if it actually did use baked light
+        bool dynamic_gi : 2;
         bool redraw_if_visible : 4;
 
         float depth; //used for sorting
@@ -133,6 +134,7 @@ public:
             depth_layer = 0;
             layer_mask = 1;
             baked_light = false;
+            dynamic_gi = false;
             redraw_if_visible = false;
             lightmap_capture = nullptr;
         }

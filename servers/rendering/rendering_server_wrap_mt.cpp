@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_wrap_mt.cpp                                            */
+/*  rendering_server_wrap_mt.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "visual_server_wrap_mt.h"
+#include "rendering_server_wrap_mt.h"
 #include "core/os/os.h"
 #include "core/list.h"
 #include "core/print_string.h"

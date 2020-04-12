@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  visual_server_scene.cpp                                              */
+/*  rendering_server_scene.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,10 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "visual_server_scene.h"
+#include "rendering_server_scene.h"
 
-#include "visual_server_globals.h"
-#include "visual_server_raster.h"
+#include "rendering_server_globals.h"
+#include "rendering_server_raster.h"
 
 #include "core/ecs_registry.h"
 #include "core/external_profiler.h"
