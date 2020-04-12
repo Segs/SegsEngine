@@ -31,6 +31,7 @@
 #include "variant.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/string_utils.inl"
 #include "core/hashfuncs.h"
 #include "core/node_path.h"

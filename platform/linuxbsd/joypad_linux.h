@@ -35,7 +35,7 @@
 #ifdef JOYDEV_ENABLED
 #include "core/os/thread.h"
 #include "core/string.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 
 struct input_absinfo;
 

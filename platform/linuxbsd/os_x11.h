@@ -38,7 +38,7 @@
 #include "drivers/pulseaudio/audio_driver_pulseaudio.h"
 #include "drivers/unix/os_unix.h"
 #include "joypad_linux.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 
 #include "servers/audio_server.h"
 #include "servers/rendering/rasterizer.h"

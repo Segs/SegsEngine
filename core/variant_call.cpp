@@ -33,6 +33,7 @@
 #include "core/color_names.inc"
 #include "core/container_tools.h"
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/crypto/crypto_core.h"

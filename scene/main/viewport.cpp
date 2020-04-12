@@ -31,6 +31,7 @@
 #include "viewport.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"

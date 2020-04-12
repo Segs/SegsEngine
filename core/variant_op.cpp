@@ -33,6 +33,7 @@
 #include "core/pool_vector.h"
 #include "core/color.h"
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/list.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
