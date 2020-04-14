@@ -164,6 +164,7 @@ bool is_csharp_keyword(StringView p_name) {
         };
         for(const char *c : kwords)
             keywords.emplace(c);
+        initialized=true;
     }
     // Reserved keywords
     return keywords.contains(p_name);

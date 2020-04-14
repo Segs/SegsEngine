@@ -58,7 +58,7 @@ class BindingsGenerator {
 
     struct EnumInterface {
         StringName cname;
-        List<ConstantInterface> constants;
+        Vector<ConstantInterface> constants;
 
         _FORCE_INLINE_ bool operator==(const EnumInterface &p_ienum) const {
             return p_ienum.cname == cname;
@@ -314,10 +314,10 @@ class BindingsGenerator {
 
         const DocData::ClassDoc *class_doc;
 
-        List<ConstantInterface> constants;
-        List<EnumInterface> enums;
-        List<PropertyInterface> properties;
-        List<MethodInterface> methods;
+        Vector<ConstantInterface> constants;
+        Vector<EnumInterface> enums;
+        Vector<PropertyInterface> properties;
+        Vector<MethodInterface> methods;
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
             for (const MethodInterface &E : methods) {
@@ -481,9 +481,9 @@ class BindingsGenerator {
     Map<StringName, TypeInterface> enum_types;
 
     Vector<EnumInterface> global_enums;
-    List<ConstantInterface> global_constants;
+    Vector<ConstantInterface> global_constants;
 
-    List<InternalCall> method_icalls;
+    HashMap<String,InternalCall> method_icalls;
     Map<const MethodInterface *, const InternalCall *> method_icalls_map;
 
     List<const InternalCall *> generated_icall_funcs;
@@ -559,7 +559,7 @@ class BindingsGenerator {
         return false;
     }
 
-    const ConstantInterface *find_constant_by_name(StringView p_name, const List<ConstantInterface> &p_constants) const {
+    const ConstantInterface *find_constant_by_name(StringView p_name, const Vector<ConstantInterface> &p_constants) const {
         for (const ConstantInterface &E : p_constants) {
             if (E.name == p_name)
                 return &E;

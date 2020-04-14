@@ -762,15 +762,15 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
 
         InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
-        auto iter_match = eastl::find(method_icalls.begin(),method_icalls.end(),im_icall);
+        auto iter_match = method_icalls.find(im_icall.unique_sig);
 
         if (iter_match!=method_icalls.end()) {
             if (p_itype.api_type != ClassDB::API_EDITOR)
-                iter_match->editor_only = false;
-            method_icalls_map.emplace(&imethod, &(*iter_match));
+                iter_match->second.editor_only = false;
+            method_icalls_map.emplace(&imethod, &iter_match->second);
         } else {
-            method_icalls.push_back(im_icall);
-            method_icalls_map.emplace(&imethod, &method_icalls.back());
+            auto loc=method_icalls.emplace(im_icall.unique_sig,im_icall);
+            method_icalls_map.emplace(&imethod, &loc.first->second);
         }
     }
 }
@@ -961,8 +961,10 @@ Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
 
     for (const InternalCall &E : core_custom_icalls)
         ADD_INTERNAL_CALL(E)
-    for (const InternalCall &E : method_icalls)
-        ADD_INTERNAL_CALL(E)
+    auto keys=method_icalls.keys();
+    eastl::sort(keys.begin(),keys.end());
+    for (const auto &E : keys)
+        ADD_INTERNAL_CALL(method_icalls[E])
 
 #undef ADD_INTERNAL_CALL
 
@@ -980,7 +982,7 @@ Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
     includes_props_content.append("<Project>\n"
                                   "  <ItemGroup>\n");
 
-    for (int i = 0; i < compile_items.size(); i++) {
+    for (size_t i = 0; i < compile_items.size(); i++) {
         String include = path::relative_to(compile_items[i], p_proj_dir).replaced("/", "\\");
         includes_props_content.append("    <Compile Include=\"" + include + "\" />\n");
     }
@@ -1063,8 +1065,11 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
 
     for (const InternalCall &E : editor_custom_icalls)
         ADD_INTERNAL_CALL(E)
-    for (const InternalCall &E : method_icalls)
-        ADD_INTERNAL_CALL(E)
+
+    auto keys=method_icalls.keys();
+    eastl::sort(keys.begin(),keys.end());
+    for (const auto &E : keys)
+        ADD_INTERNAL_CALL(method_icalls[E])
 
 #undef ADD_INTERNAL_CALL
 
@@ -1876,21 +1881,26 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
     for (const InternalCall &E : editor_custom_icalls)
         ADD_INTERNAL_CALL_REGISTRATION(E)
     output.append("#endif // TOOLS_ENABLED\n");
-    for (const InternalCall &E : method_icalls) {
+
+    auto keys=method_icalls.keys();
+    eastl::sort(keys.begin(),keys.end());
+    for (const auto &E : keys) {
+        const auto & entry(method_icalls[E]);
+
         if (tools_sequence) {
-            if (!E.editor_only) {
+            if (!entry.editor_only) {
                 tools_sequence = false;
                 output.append("#endif\n");
             }
         }
         else {
-            if (E.editor_only) {
+            if (entry.editor_only) {
                 output.append("#ifdef TOOLS_ENABLED\n");
                 tools_sequence = true;
             }
         }
 
-        ADD_INTERNAL_CALL_REGISTRATION(E)
+        ADD_INTERNAL_CALL_REGISTRATION(entry)
     }
 
     if (tools_sequence) {

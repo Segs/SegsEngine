@@ -38,7 +38,7 @@
 			<argument index="2" name="flags" type="int">
 			</argument>
 			<description>
-				Saves the given resource object to a file at the target [code]path[/code]. [code]flags[/code] is a bitmask composed with [enum ResourceSaver.SaverFlags] constants.
+                Saves the given resource object to a file at the target [code]path[/code]. [code]flags[/code] is a bitmask composed with [enum ResourceManager.SaverFlags] constants.
 				Returns [constant OK] on success, or an [enum Error] constant in case of failure.
 			</description>
 		</method>
