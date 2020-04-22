@@ -36,7 +36,7 @@
 #include "scene/animation/animation_cache.h"
 #include "scene/gui/control.h"
 #include "scene/gui/file_dialog.h"
-//#include "scene/resources/animation.h"
+#include "scene/resources/animation.h"
 #include "scene_tree_editor.h"
 
 #include "EASTL/deque.h"

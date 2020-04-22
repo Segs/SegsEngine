@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_HELP_H
-#define EDITOR_HELP_H
+#pragma once
 
 #include "editor/code_editor.h"
 #include "editor/doc/doc_data.h"
 #include "editor/editor_plugin.h"
+#include "core/ustring.h"
 #include "scene/gui/margin_container.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel_container.h"
@@ -209,5 +209,3 @@ public:
     void set_text(StringView p_text);
     EditorHelpBit();
 };
-
-#endif // EDITOR_HELP_H

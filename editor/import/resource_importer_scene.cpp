@@ -117,17 +117,17 @@ void EditorSceneImporter::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("import_animation_from_other_importer", { "path", "flags", "bake_fps" }),
             &EditorSceneImporter::import_animation_from_other_importer);
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_import_flags"))
-    BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "_get_extensions"))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_import_flags"));
+    BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "_get_extensions"));
 
     MethodInfo mi = MethodInfo(VariantType::OBJECT, "_import_scene", PropertyInfo(VariantType::STRING, "path"),
             PropertyInfo(VariantType::INT, "flags"), PropertyInfo(VariantType::INT, "bake_fps"));
     mi.return_val.class_name = "Node";
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
     mi = MethodInfo(VariantType::OBJECT, "_import_animation", PropertyInfo(VariantType::STRING, "path"),
             PropertyInfo(VariantType::INT, "flags"), PropertyInfo(VariantType::INT, "bake_fps"));
     mi.return_val.class_name = "Animation";
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
 
     BIND_CONSTANT(IMPORT_SCENE)
     BIND_CONSTANT(IMPORT_ANIMATION)

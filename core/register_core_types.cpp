@@ -61,6 +61,7 @@
 #include "core/math/geometry.h"
 #include "core/math/random_number_generator.h"
 #include "core/math/triangle_mesh.h"
+#include "core/resource/manifest.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/main_loop.h"
@@ -147,6 +148,7 @@ void register_core_types() {
     ClassDB::register_class<WeakRef>();
     ClassDB::register_class<Resource>();
     ClassDB::register_class<Image>();
+    ClassDB::register_class<ResourceManifest>();
 
     ClassDB::register_virtual_class<InputEvent>();
     ClassDB::register_virtual_class<InputEventWithModifiers>();

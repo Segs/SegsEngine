@@ -34,6 +34,7 @@
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_help.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "modules/visual_script/visual_script.h"

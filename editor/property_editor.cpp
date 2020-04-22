@@ -79,7 +79,7 @@ void EditorResourceConversionPlugin::_bind_methods() {
     mi.arguments.push_back(mi.return_val);
     mi.arguments[0].name = "resource";
 
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
 
     mi.name = "_handles";
     mi.return_val = PropertyInfo(VariantType::BOOL, "");

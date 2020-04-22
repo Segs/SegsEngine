@@ -32,11 +32,14 @@
 #define SCENE_TREE_EDITOR_H
 
 #include "core/undo_redo.h"
-#include "editor_data.h"
+#include "core/ustring.h"
+
 #include "editor_settings.h"
 #include "scene/gui/button.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/tree.h"
+
+class EditorSelection;
 
 class SceneTreeEditor : public Control {
 

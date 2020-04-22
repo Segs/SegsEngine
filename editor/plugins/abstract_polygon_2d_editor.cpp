@@ -545,7 +545,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
 
     if (k && k->is_pressed()) {
 
-        if (k->get_scancode() == KEY_DELETE || k->get_scancode() == KEY_BACKSPACE) {
+        if (k->get_keycode() == KEY_DELETE || k->get_keycode() == KEY_BACKSPACE) {
 
             if (wip_active && selected_point.polygon == -1) {
 
@@ -567,10 +567,10 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                     return true;
                 }
             }
-        } else if (wip_active && k->get_scancode() == KEY_ENTER) {
+        } else if (wip_active && k->get_keycode() == KEY_ENTER) {
 
             _wip_close();
-        } else if (wip_active && k->get_scancode() == KEY_ESCAPE) {
+        } else if (wip_active && k->get_keycode() == KEY_ESCAPE) {
             _wip_cancel();
         }
     }

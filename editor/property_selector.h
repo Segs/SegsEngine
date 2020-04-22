@@ -28,12 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PROPERTYSELECTOR_H
-#define PROPERTYSELECTOR_H
+#pragma once
 
 #include "editor/property_editor.h"
-#include "editor_help.h"
 #include "scene/gui/rich_text_label.h"
+
+class EditorHelpBit;
 
 class PropertySelector : public ConfirmationDialog {
     GDCLASS(PropertySelector,ConfirmationDialog)
@@ -81,5 +81,3 @@ public:
 
     PropertySelector();
 };
-
-#endif // PROPERTYSELECTOR_H

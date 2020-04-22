@@ -249,7 +249,7 @@ void addActionKeys(InputMap &im,const StringName &n,std::initializer_list<KeyLis
     im.add_action(n);
     for(KeyList key : action_keys) {
         Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
-        k->set_scancode(key);
+        k->set_keycode(key);
         if(shifted)
             k->set_shift(true);
         im.action_add_event(n, k);

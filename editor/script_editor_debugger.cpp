@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
@@ -844,11 +845,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger."); 
+        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.");
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger."); 
+        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.");
 
         // Format time.
         Array time_vals;

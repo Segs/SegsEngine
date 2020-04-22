@@ -2468,7 +2468,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 
             return;
         } else {
-            if (k->get_scancode() != KEY_SHIFT)
+            if (k->get_keycode() != KEY_SHIFT)
                 last_keypress = 0;
         }
     }

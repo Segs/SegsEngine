@@ -35,6 +35,7 @@
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
+#include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
@@ -542,7 +543,7 @@ void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
         }
     }
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
-    if (k && k->is_pressed() && k->get_scancode() == KEY_MENU) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_MENU) {
         TextEdit *tx = shader_editor->get_text_edit();
         _make_context_menu(tx->is_selection_active(), (get_global_transform().inverse() * tx->get_global_transform()).xform(tx->_get_cursor_pixel_pos()));
         context_menu->grab_focus();

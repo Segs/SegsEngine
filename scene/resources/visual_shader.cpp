@@ -467,19 +467,19 @@ String VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, Visua
 
 void VisualShaderNodeCustom::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_name"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_description"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_subcategory"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_return_icon_type"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_type", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_name"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_description"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_subcategory"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_return_icon_type"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_type", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")));
 }
 
 VisualShaderNodeCustom::VisualShaderNodeCustom() {

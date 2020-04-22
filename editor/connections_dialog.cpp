@@ -35,6 +35,7 @@
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "editor_node.h"
+#include "editor/editor_help.h"
 #include "editor/editor_scale.h"
 #include "editor/scene_tree_dock.h"
 #include "editor_settings.h"

@@ -225,14 +225,14 @@ int Expression::get_func_argument_count(BuiltinFunc p_func) {
         r_error.argument = m_arg;                                        \
         r_error.expected = VariantType::FLOAT;                           \
         return;                                                          \
-    }
+    } else
 
 void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant *r_return, Callable::CallError &r_error, String &r_error_str) {
     r_error.error = Callable::CallError::CALL_OK;
     switch (p_func) {
         case MATH_SIN: {
 
-            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(0);
             *r_return = Math::sin(p_inputs[0]->as<double>());
         } break;
         case MATH_COS: {
@@ -427,23 +427,23 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::range_lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>(), p_inputs[3]->as<double>(), p_inputs[4]->as<double>());
         } break;
         case MATH_SMOOTHSTEP: {
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            VALIDATE_ARG_NUM(2)
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(2);
             *r_return = Math::smoothstep(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_MOVE_TOWARD: {
 
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            VALIDATE_ARG_NUM(2)
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(2);
             *r_return = Math::move_toward(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_DECTIME: {
 
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            VALIDATE_ARG_NUM(2)
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(2);
             *r_return = Math::dectime(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case MATH_RANDOMIZE: {
@@ -501,29 +501,29 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             *r_return = Math::db2linear(p_inputs[0]->as<double>());
         } break;
         case MATH_POLAR2CARTESIAN: {
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            double r = p_inputs[0]->as<float>();
-            double th = p_inputs[1]->as<float>();
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            float r = p_inputs[0]->as<float>();
+            float th = p_inputs[1]->as<float>();
             *r_return = Vector2(r * Math::cos(th), r * Math::sin(th));
         } break;
         case MATH_CARTESIAN2POLAR: {
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            double x = p_inputs[0]->as<float>();
-            double y = p_inputs[1]->as<float>();
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            float x = p_inputs[0]->as<float>();
+            float y = p_inputs[1]->as<float>();
             *r_return = Vector2(Math::sqrt(x * x + y * y), Math::atan2(y, x));
         } break;
         case MATH_WRAP: {
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            VALIDATE_ARG_NUM(2)
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(2);
             *r_return = Math::wrapi((int64_t)*p_inputs[0], (int64_t)*p_inputs[1], (int64_t)*p_inputs[2]);
         } break;
         case MATH_WRAPF: {
-            VALIDATE_ARG_NUM(0)
-            VALIDATE_ARG_NUM(1)
-            VALIDATE_ARG_NUM(2)
+            VALIDATE_ARG_NUM(0);
+            VALIDATE_ARG_NUM(1);
+            VALIDATE_ARG_NUM(2);
             *r_return = Math::wrapf(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
         } break;
         case LOGIC_MAX: {
@@ -534,8 +534,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MAX(a, b);
             } else {
-                VALIDATE_ARG_NUM(0)
-                VALIDATE_ARG_NUM(1)
+                VALIDATE_ARG_NUM(0);
+                VALIDATE_ARG_NUM(1);
 
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
@@ -552,8 +552,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t b = *p_inputs[1];
                 *r_return = MIN(a, b);
             } else {
-                VALIDATE_ARG_NUM(0)
-                VALIDATE_ARG_NUM(1)
+                VALIDATE_ARG_NUM(0);
+                VALIDATE_ARG_NUM(1);
 
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
@@ -570,9 +570,9 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 int64_t c = *p_inputs[2];
                 *r_return = CLAMP(a, b, c);
             } else {
-                VALIDATE_ARG_NUM(0)
-                VALIDATE_ARG_NUM(1)
-                VALIDATE_ARG_NUM(2)
+                VALIDATE_ARG_NUM(0);
+                VALIDATE_ARG_NUM(1);
+                VALIDATE_ARG_NUM(2);
 
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
@@ -583,7 +583,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case LOGIC_NEAREST_PO2: {
 
-            VALIDATE_ARG_NUM(0)
+            VALIDATE_ARG_NUM(0);
             int64_t num = *p_inputs[0];
             *r_return = next_power_of_2(num);
         } break;
@@ -650,7 +650,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case TYPE_CONVERT: {
 
-            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(1);
             int type = *p_inputs[1];
             if (type < 0 || type >= int(VariantType::VARIANT_MAX)) {
 
@@ -815,7 +815,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         } break;
         case COLORN: {
 
-            VALIDATE_ARG_NUM(1)
+            VALIDATE_ARG_NUM(1);
 
             Color color = Color::named(p_inputs[0]->as<String>());
             color.a = p_inputs[1]->as<float>();

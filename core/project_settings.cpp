@@ -1058,13 +1058,13 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_ENTER);
+    key->set_keycode(KEY_ENTER);
     events.push_back(key);
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_KP_ENTER);
+    key->set_keycode(KEY_KP_ENTER);
     events.push_back(key);
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_SPACE);
+    key->set_keycode(KEY_SPACE);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_0);
@@ -1077,7 +1077,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_SPACE);
+    key->set_keycode(KEY_SPACE);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_3);
@@ -1090,7 +1090,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_ESCAPE);
+    key->set_keycode(KEY_ESCAPE);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_1);
@@ -1103,7 +1103,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_TAB);
+    key->set_keycode(KEY_TAB);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_next", action);
@@ -1113,7 +1113,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_TAB);
+    key->set_keycode(KEY_TAB);
     key->set_shift(true);
     events.push_back(key);
     action["events"] = events;
@@ -1124,7 +1124,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_LEFT);
+    key->set_keycode(KEY_LEFT);
     events.push_back(key);
         joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_LEFT);
@@ -1137,7 +1137,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_RIGHT);
+    key->set_keycode(KEY_RIGHT);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_RIGHT);
@@ -1150,7 +1150,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_UP);
+    key->set_keycode(KEY_UP);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_UP);
@@ -1163,7 +1163,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_DOWN);
+    key->set_keycode(KEY_DOWN);
     events.push_back(key);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_DOWN);
@@ -1176,7 +1176,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_PAGEUP);
+    key->set_keycode(KEY_PAGEUP);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_up", action);
@@ -1186,7 +1186,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_PAGEDOWN);
+    key->set_keycode(KEY_PAGEDOWN);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_down", action);
@@ -1196,7 +1196,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_HOME);
+    key->set_keycode(KEY_HOME);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_home", action);
@@ -1206,7 +1206,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_END);
+    key->set_keycode(KEY_END);
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_end", action);
@@ -1233,9 +1233,6 @@ ProjectSettings::ProjectSettings() {
 
     Compression::gzip_level = GLOBAL_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
     custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PropertyHint::Range, "-1,9,1");
-
-    // Would ideally be defined in an Android-specific file, but then it doesn't appear in the docs
-    GLOBAL_DEF("android/modules", "");
 
     using_datapack = false;
 }

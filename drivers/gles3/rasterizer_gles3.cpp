@@ -37,6 +37,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 
 RasterizerStorage *RasterizerGLES3::get_storage() {
 

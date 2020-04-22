@@ -31,9 +31,8 @@
 #pragma once
 
 #include "core/script_language.h"
+#include "core/ustring.h"
 #include "editor/code_editor.h"
-#include "editor/editor_help.h"
-#include "editor/editor_help_search.h"
 #include "editor/editor_plugin.h"
 #include "editor/script_create_dialog.h"
 //#include "scene/gui/item_list.h"
@@ -210,7 +209,7 @@ class ScriptEditor : public PanelContainer {
     Button *help_search;
     Button *site_search;
     Button *request_docs;
-    EditorHelpSearch *help_search_dialog;
+    class EditorHelpSearch *help_search_dialog;
 
     ItemList *script_list;
     HSplitContainer *script_split;

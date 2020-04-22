@@ -39,6 +39,7 @@
 #include "core/math/transform_2d.h"
 #include "core/math/transform.h"
 #include "core/translation_helpers.h"
+#include "core/ustring.h"
 #include "servers/rendering_server.h"
 
 static bool _is_text_char(CharType c) {

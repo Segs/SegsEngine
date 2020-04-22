@@ -2800,3 +2800,7 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
 }
 
 FileSystemDock::~FileSystemDock() = default;
+
+bool FileSystemDock::FileInfo::operator<(const FileSystemDock::FileInfo &fi) const {
+    return NaturalNoCaseComparator()(name, fi.name);
+}

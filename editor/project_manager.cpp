@@ -1874,7 +1874,7 @@ void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
         // This is handled by the platform implementation on macOS,
         // so only define the shortcut on other platforms
 #ifndef OSX_ENABLED
-        if (k->get_scancode_with_modifiers() == (KEY_MASK_CMD | KEY_Q)) {
+        if (k->get_keycode_with_modifiers() == (KEY_MASK_CMD | KEY_Q)) {
             _dim_window();
             get_tree()->quit();
         }
@@ -1885,7 +1885,7 @@ void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
 
         bool scancode_handled = true;
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
 
             case KEY_ENTER: {
 

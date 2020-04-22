@@ -45,15 +45,15 @@ void MainLoop::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("idle", {"delta"}), &MainLoop::idle);
     MethodBinder::bind_method(D_METHOD("finish"), &MainLoop::finish);
 
-    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")))
-    BIND_VMETHOD(MethodInfo("_initialize"))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_iteration", PropertyInfo(VariantType::FLOAT, "delta")))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_idle", PropertyInfo(VariantType::FLOAT, "delta")))
-    BIND_VMETHOD(MethodInfo("_drop_files", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files"), PropertyInfo(VariantType::INT, "from_screen")))
-    BIND_VMETHOD(MethodInfo("_finalize"))
+    BIND_VMETHOD(MethodInfo("_input_event", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_input_text", PropertyInfo(VariantType::STRING, "text")));
+    BIND_VMETHOD(MethodInfo("_initialize"));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_iteration", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_idle", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo("_drop_files", PropertyInfo(VariantType::POOL_STRING_ARRAY, "files"), PropertyInfo(VariantType::INT, "from_screen")));
+    BIND_VMETHOD(MethodInfo("_finalize"));
 
-    BIND_VMETHOD(MethodInfo("_global_menu_action", PropertyInfo(VariantType::NIL, "id"), PropertyInfo(VariantType::NIL, "meta")))
+    BIND_VMETHOD(MethodInfo("_global_menu_action", PropertyInfo(VariantType::NIL, "id"), PropertyInfo(VariantType::NIL, "meta")));
 
     BIND_CONSTANT(NOTIFICATION_WM_MOUSE_ENTER)
     BIND_CONSTANT(NOTIFICATION_WM_MOUSE_EXIT)

@@ -1881,11 +1881,11 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
         if (!orthogonal && ED_IS_SHORTCUT("spatial_editor/freelook_toggle", p_event)) {
             set_freelook_active(!is_freelook_active());
 
-        } else if (k->get_scancode() == KEY_ESCAPE) {
+        } else if (k->get_keycode() == KEY_ESCAPE) {
             set_freelook_active(false);
         }
 
-        if (k->get_scancode() == KEY_SPACE) {
+        if (k->get_keycode() == KEY_SPACE) {
             if (!k->is_pressed()) emit_signal("toggle_maximize_view", Variant(this));
         }
     }
@@ -2082,7 +2082,7 @@ static bool is_shortcut_pressed(StringView p_path) {
         return false;
     }
     const Input &input = *Input::get_singleton();
-    int scancode = k->get_scancode();
+    int scancode = k->get_keycode();
     return input.is_key_pressed(scancode);
 }
 
@@ -6292,8 +6292,8 @@ Ref<EditorSpatialGizmo> EditorSpatialGizmoPlugin::get_gizmo(Node3D *p_spatial) {
 void EditorSpatialGizmoPlugin::_bind_methods() {
 #define GIZMO_REF PropertyInfo(VariantType::OBJECT, "gizmo", PropertyHint::ResourceType, "EditorSpatialGizmo")
 
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "has_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Node3D")))
-    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Node3D")))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "has_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Node3D")));
+    BIND_VMETHOD(MethodInfo(GIZMO_REF, "create_gizmo", PropertyInfo(VariantType::OBJECT, "spatial", PropertyHint::ResourceType, "Node3D")));
 
     MethodBinder::bind_method(D_METHOD("create_material", {"name", "color", "billboard", "on_top", "use_vertex_color"}), &EditorSpatialGizmoPlugin::create_material, {DEFVAL(false), DEFVAL(false), DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("create_icon_material", {"name", "texture", "on_top", "color"}), &EditorSpatialGizmoPlugin::create_icon_material, {DEFVAL(false), DEFVAL(Color(1, 1, 1, 1))});
@@ -6302,24 +6302,24 @@ void EditorSpatialGizmoPlugin::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_material", {"name", "gizmo"}), &EditorSpatialGizmoPlugin::get_material); //, {DEFVAL(Ref<EditorSpatialGizmo>())});
 
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_name"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_priority"))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_be_hidden"))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_selectable_when_hidden"))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_name"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_priority"));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_be_hidden"));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_selectable_when_hidden"));
 
-    BIND_VMETHOD(MethodInfo("redraw", GIZMO_REF))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_handle_name", GIZMO_REF, PropertyInfo(VariantType::INT, "index")))
+    BIND_VMETHOD(MethodInfo("redraw", GIZMO_REF));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "get_handle_name", GIZMO_REF, PropertyInfo(VariantType::INT, "index")));
 
     MethodInfo hvget(VariantType::NIL, "get_handle_value", GIZMO_REF, PropertyInfo(VariantType::INT, "index"));
     hvget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-    BIND_VMETHOD(hvget)
+    BIND_VMETHOD(hvget);
 
-    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")))
+    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")));
     MethodInfo cm = MethodInfo("commit_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::NIL, "restore"), PropertyInfo(VariantType::BOOL, "cancel"));
     cm.default_arguments.push_back(false);
-    BIND_VMETHOD(cm)
+    BIND_VMETHOD(cm);
 
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_handle_highlighted", GIZMO_REF, PropertyInfo(VariantType::INT, "index")))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "is_handle_highlighted", GIZMO_REF, PropertyInfo(VariantType::INT, "index")));
 
 #undef GIZMO_REF
 }

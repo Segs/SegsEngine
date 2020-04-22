@@ -29,18 +29,21 @@
 /*************************************************************************/
 
 #include "editor_inspector.h"
+
 #include "array_property_edit.h"
 #include "dictionary_property_edit.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "multi_node_edit.h"
 #include "editor_feature_profile.h"
-#include "scene/resources/packed_scene.h"
-#include "scene/gui/rich_text_label.h"
+#include "editor_help.h"
+
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "scene/gui/rich_text_label.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
+#include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorProperty)

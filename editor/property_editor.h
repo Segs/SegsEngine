@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PROPERTY_EDITOR_H
-#define PROPERTY_EDITOR_H
+#pragma once
 
 #include "editor/editor_file_dialog.h"
 #include "editor/scene_tree_editor.h"
@@ -49,6 +48,7 @@
 class PropertyValueEvaluator;
 class CreateDialog;
 class PropertySelector;
+class TextEdit;
 
 class EditorResourceConversionPlugin : public RefCounted {
 
@@ -173,5 +173,3 @@ public:
 
     CustomPropertyEditor();
 };
-
-#endif

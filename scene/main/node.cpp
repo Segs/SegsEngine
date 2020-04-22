@@ -2990,15 +2990,15 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_priority"), "set_process_priority", "get_process_priority");
 
 
-    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::FLOAT, "delta")))
-    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::FLOAT, "delta")))
-    BIND_VMETHOD(MethodInfo("_enter_tree"))
-    BIND_VMETHOD(MethodInfo("_exit_tree"))
-    BIND_VMETHOD(MethodInfo("_ready"))
-    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEventKey")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"))
+    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo("_enter_tree"));
+    BIND_VMETHOD(MethodInfo("_exit_tree"));
+    BIND_VMETHOD(MethodInfo("_ready"));
+    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEventKey")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"));
 }
 
 Node::Node() {

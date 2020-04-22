@@ -34,6 +34,8 @@
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_node.h"
+#include "editor/editor_help.h"
+
 #include "editor_scale.h"
 
 IMPL_GDCLASS(PropertySelector)
@@ -49,7 +51,7 @@ void PropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     if (k) {
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
             case KEY_UP:
             case KEY_DOWN:
             case KEY_PAGEUP:

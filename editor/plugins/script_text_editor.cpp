@@ -33,8 +33,9 @@
 #include <utility>
 
 #include "core/math/expression.h"
-#include "core/os/keyboard.h"
 #include "core/method_bind.h"
+#include "core/os/keyboard.h"
+#include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
@@ -44,6 +45,7 @@
 #include "editor/script_editor_debugger.h"
 #include "scene/main/scene_tree.h"
 #include "scene/gui/rich_text_label.h"
+
 
 IMPL_GDCLASS(ConnectionInfoDialog)
 IMPL_GDCLASS(ScriptTextEditor)
@@ -1580,7 +1582,7 @@ void ScriptTextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
     if (mb && mb->get_button_index() == BUTTON_RIGHT && mb->is_pressed()) {
         local_pos = mb->get_global_position() - tx->get_global_position();
         create_menu = true;
-    } else if (k && k->get_scancode() == KEY_MENU) {
+    } else if (k && k->get_keycode() == KEY_MENU) {
         local_pos = tx->_get_cursor_pixel_pos();
         create_menu = true;
     }

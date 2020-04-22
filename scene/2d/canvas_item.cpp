@@ -35,12 +35,14 @@
 #include "core/object_tooling.h"
 #include "core/os/input.h"
 #include "core/os/mutex.h"
+#include "core/script_language.h"
 #include "core/object_tooling.h"
 #include "editor/animation_track_editor.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/font.h"
+#include "scene/resources/mesh.h"
 #include "scene/resources/shader.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/texture.h"
@@ -1249,7 +1251,7 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("make_canvas_position_local", {"screen_point"}), &CanvasItem::make_canvas_position_local);
     MethodBinder::bind_method(D_METHOD("make_input_local", {"event"}), &CanvasItem::make_input_local);
 
-    BIND_VMETHOD(MethodInfo("_draw"))
+    BIND_VMETHOD(MethodInfo("_draw"));
 
     ADD_GROUP("Visibility", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");

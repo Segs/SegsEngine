@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"

@@ -769,7 +769,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
     if (k) {
         if (k->is_pressed()) {
-            if (k->get_scancode() == KEY_ESCAPE) {
+            if (k->get_keycode() == KEY_ESCAPE) {
 
                 if (input_action == INPUT_PASTE) {
                     _clear_clipboard_data();
@@ -790,12 +790,12 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
             if (k->get_shift() && selection.active && input_action != INPUT_PASTE) {
 
-                if (k->get_scancode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_PREV_LEVEL))) {
+                if (k->get_keycode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_PREV_LEVEL))) {
                     selection.click[edit_axis]--;
                     _validate_selection();
                     return true;
                 }
-                if (k->get_scancode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_NEXT_LEVEL))) {
+                if (k->get_keycode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_NEXT_LEVEL))) {
                     selection.click[edit_axis]++;
                     _validate_selection();
                     return true;
@@ -859,7 +859,7 @@ void GridMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     const Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
 
-    if (k && (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_PAGEUP || k->get_scancode() == KEY_PAGEDOWN)) {
+    if (k && (k->get_keycode() == KEY_UP || k->get_keycode() == KEY_DOWN || k->get_keycode() == KEY_PAGEUP || k->get_keycode() == KEY_PAGEDOWN)) {
         // Forward the key input to the ItemList so it can be scrolled
         mesh_library_palette->call_va("_gui_input", k);
         mesh_library_palette->_gui_input(k);

@@ -468,7 +468,7 @@ void Resource::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_name"), "set_name", "get_name");
 
-    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"))
+    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"));
 }
 
 Resource::Resource() :
@@ -488,7 +488,7 @@ Resource::~Resource() {
         cached_resources.erase(impl_data->path_cache);
     }
     gResourceRemapper().remove_remap(this);
-    
+
     if (!impl_data->owners.empty()) {
         WARN_PRINT("Resource is still owned.");
     }

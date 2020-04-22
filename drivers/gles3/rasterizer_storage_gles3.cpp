@@ -29,11 +29,15 @@
 /*************************************************************************/
 
 #include "rasterizer_storage_gles3.h"
-#include "core/engine.h"
-#include "core/project_settings.h"
+
 #include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
+
+#include "core/engine.h"
+#include "core/project_settings.h"
+#include "core/string_utils.h"
 #include "glad/glad.h"
+
 /* TEXTURE API */
 
 #define _EXT_COMPRESSED_RGB_PVRTC_4BPPV1_IMG 0x8C00
@@ -7991,11 +7995,11 @@ void RasterizerStorageGLES3::initialize() {
 
     config.shrink_textures_x2 = false;
     config.use_fast_texture_filter = int(ProjectSettings::get_singleton()->get("rendering/quality/filters/use_nearest_mipmap_filter"));
-    config.use_anisotropic_filter = config.extensions.contains(UIString("rendering/quality/filters/anisotropic_filter_level"));
+    config.use_anisotropic_filter = config.extensions.contains("rendering/quality/filters/anisotropic_filter_level");
 
-    config.etc_supported = config.extensions.contains(UIString("GL_OES_compressed_ETC1_RGB8_texture"));
-    config.latc_supported = config.extensions.contains(UIString("GL_EXT_texture_compression_latc"));
-    config.bptc_supported = config.extensions.contains(UIString("GL_ARB_texture_compression_bptc"));
+    config.etc_supported = config.extensions.contains("GL_OES_compressed_ETC1_RGB8_texture");
+    config.latc_supported = config.extensions.contains("GL_EXT_texture_compression_latc");
+    config.bptc_supported = config.extensions.contains("GL_ARB_texture_compression_bptc");
 
     config.etc2_supported = false;
     config.s3tc_supported = true;
@@ -8004,11 +8008,11 @@ void RasterizerStorageGLES3::initialize() {
     config.framebuffer_float_supported = true;
     config.framebuffer_half_float_supported = true;
 
-    config.pvrtc_supported = config.extensions.contains(UIString("GL_IMG_texture_compression_pvrtc"));
-    config.srgb_decode_supported = config.extensions.contains(UIString("GL_EXT_texture_sRGB_decode"));
+    config.pvrtc_supported = config.extensions.contains("GL_IMG_texture_compression_pvrtc");
+    config.srgb_decode_supported = config.extensions.contains("GL_EXT_texture_sRGB_decode");
 
     config.anisotropic_level = 1.0;
-    config.use_anisotropic_filter = config.extensions.contains(UIString("GL_EXT_texture_filter_anisotropic"));
+    config.use_anisotropic_filter = config.extensions.contains("GL_EXT_texture_filter_anisotropic");
     if (config.use_anisotropic_filter) {
         glGetFloatv(_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &config.anisotropic_level);
         config.anisotropic_level = MIN(int(ProjectSettings::get_singleton()->get("rendering/quality/filters/anisotropic_filter_level")), config.anisotropic_level);

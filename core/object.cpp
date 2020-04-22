@@ -1602,13 +1602,13 @@ void Object::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("script_changed"));
 
-    BIND_VMETHOD(MethodInfo("_notification", PropertyInfo(VariantType::INT, "what")))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_set", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value")))
+    BIND_VMETHOD(MethodInfo("_notification", PropertyInfo(VariantType::INT, "what")));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_set", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value")));
 
     Object_add_tooling_methods();
 
-    BIND_VMETHOD(MethodInfo("_init"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_to_string"))
+    BIND_VMETHOD(MethodInfo("_init"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_to_string"));
 
     BIND_CONSTANT(NOTIFICATION_POSTINITIALIZE)
     BIND_CONSTANT(NOTIFICATION_PREDELETE)

@@ -90,7 +90,7 @@ void ProjectSettingsEditor::_unhandled_input(const Ref<InputEvent> &p_event) {
 
     if (k && is_window_modal_on_top() && k->is_pressed()) {
 
-        if (k->get_scancode_with_modifiers() == (KEY_MASK_CMD | KEY_F)) {
+        if (k->get_keycode_with_modifiers() == (KEY_MASK_CMD | KEY_F)) {
             if (search_button->is_pressed()) {
                 search_box->grab_focus();
                 search_box->select_all();
@@ -363,7 +363,7 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
         return;
 
     Ref<InputEventKey> ie(make_ref_counted<InputEventKey>());
-    ie->set_scancode(last_wait_for_key->get_scancode());
+    ie->set_keycode(last_wait_for_key->get_keycode());
     ie->set_shift(last_wait_for_key->get_shift());
     ie->set_alt(last_wait_for_key->get_alt());
     ie->set_control(last_wait_for_key->get_control());
@@ -381,7 +381,7 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
         Ref<InputEventKey> aie(events[i]);
         if (not aie)
             continue;
-        if (aie->get_scancode_with_modifiers() == ie->get_scancode_with_modifiers()) {
+        if (aie->get_keycode_with_modifiers() == ie->get_keycode_with_modifiers()) {
             return;
         }
     }
@@ -443,10 +443,10 @@ void ProjectSettingsEditor::_wait_for_key(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k && k->is_pressed() && k->get_scancode() != 0) {
+    if (k && k->is_pressed() && k->get_keycode() != 0) {
 
         last_wait_for_key = dynamic_ref_cast<InputEventKey>(p_event);
-        const String str = keycode_get_string(k->get_scancode_with_modifiers());
+        const String str = keycode_get_string(k->get_keycode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->get_ok()->set_disabled(false);
         press_a_key->accept_event();
@@ -738,7 +738,7 @@ void ProjectSettingsEditor::_update_actions() {
 
             Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(event);
             if (k) {
-                const String str = keycode_get_string(k->get_scancode_with_modifiers());
+                const String str = keycode_get_string(k->get_keycode_with_modifiers());
                 action2->set_text_utf8(0, str);
                 action2->set_icon(0, get_icon("Keyboard", "EditorIcons"));
             }

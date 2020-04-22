@@ -2938,7 +2938,7 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo("drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "_make_custom_tooltip", PropertyInfo(VariantType::STRING, "for_text")));
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"));
 
     ADD_GROUP("Anchor", "anchor_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);

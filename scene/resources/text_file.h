@@ -30,25 +30,25 @@
 
 #pragma once
 
-#include "core/io/resource_loader.h"
-#include "core/io/resource_saver.h"
+#include "core/resource.h"
+#include "core/string.h"
 
 class TextFile : public Resource {
 
-	GDCLASS(TextFile,Resource)
+    GDCLASS(TextFile,Resource)
 
 private:
     String text;
     String path;
 
 public:
-	virtual bool has_text() const;
+    virtual bool has_text() const;
     virtual const String & get_text() const {
         return text;
     }
     virtual void set_text(const String &p_code);
-	void reload_from_file() override;
+    void reload_from_file() override;
 
-	void set_file_path(StringView p_path) { path = p_path; }
-	Error load_text(StringView p_path);
+    void set_file_path(StringView p_path) { path = p_path; }
+    Error load_text(StringView p_path);
 };

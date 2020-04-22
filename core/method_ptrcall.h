@@ -30,20 +30,3 @@
 
 #pragma once
 
-//#include "core/color.h"
-//#include "core/io/ip_address.h"
-//#include "core/math/face3.h"
-//#include "core/math/quat.h"
-//#include "core/math/transform.h"
-//#include "core/math/transform_2d.h"
-//#include "core/pool_vector.h"
-//#include "core/rid.h"
-//#include "core/typedefs.h"
-//#include "core/ustring.h"
-//#include "core/string.h"
-//#include "core/string_utils.h"
-//#include "core/variant.h"
-//#include "core/vector.h"
-//#include "core/dictionary.h"
-//#include "core/array.h"
-

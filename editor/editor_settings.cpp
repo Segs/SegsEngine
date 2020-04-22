@@ -855,10 +855,10 @@ void EditorSettings::create() {
             }
         }
 
-        if (dir->change_dir_utf8("templates") != OK) {
-            dir->make_dir_utf8("templates");
+        if (dir->change_dir("templates") != OK) {
+            dir->make_dir("templates");
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
 
         // Validate/create cache dir
@@ -885,33 +885,33 @@ void EditorSettings::create() {
             }
         }
 
-        if (dir->change_dir_utf8("text_editor_themes") != OK) {
-            dir->make_dir_utf8("text_editor_themes");
+        if (dir->change_dir("text_editor_themes") != OK) {
+            dir->make_dir("text_editor_themes");
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
 
-        if (dir->change_dir_utf8("script_templates") != OK) {
-            dir->make_dir_utf8("script_templates");
+        if (dir->change_dir("script_templates") != OK) {
+            dir->make_dir("script_templates");
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
-        if (dir->change_dir_utf8("feature_profiles") != OK) {
-            dir->make_dir_utf8("feature_profiles");
+        if (dir->change_dir("feature_profiles") != OK) {
+            dir->make_dir("feature_profiles");
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
         _create_script_templates(PathUtils::plus_file(dir->get_current_dir(),"script_templates"));
 
-        if (dir->change_dir_utf8("projects") != OK) {
-            dir->make_dir_utf8("projects");
+        if (dir->change_dir("projects") != OK) {
+            dir->make_dir("projects");
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
 
         // Validate/create project-specific config dir
 
-        dir->change_dir_utf8("projects");
+        dir->change_dir("projects");
         String project_config_dir = ProjectSettings::get_singleton()->get_resource_path();
         if (StringUtils::ends_with(project_config_dir,"/"))
             project_config_dir = StringUtils::substr(config_path,0, project_config_dir.size() - 1);
@@ -920,9 +920,9 @@ void EditorSettings::create() {
         if (dir->change_dir(project_config_dir) != OK) {
             dir->make_dir(project_config_dir);
         } else {
-            dir->change_dir_utf8("..");
+            dir->change_dir("..");
         }
-        dir->change_dir_utf8("..");
+        dir->change_dir("..");
 
         // Validate editor config file
 
@@ -1535,7 +1535,7 @@ Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t 
         ie = make_ref_counted<InputEventKey>();
 
         ie->set_unicode(p_keycode & KEY_CODE_MASK);
-        ie->set_scancode(p_keycode & KEY_CODE_MASK);
+        ie->set_keycode(p_keycode & KEY_CODE_MASK);
         ie->set_shift(bool(p_keycode & KEY_MASK_SHIFT));
         ie->set_alt(bool(p_keycode & KEY_MASK_ALT));
         ie->set_control(bool(p_keycode & KEY_MASK_CTRL));

@@ -74,6 +74,7 @@
 #include "editor/editor_audio_buses.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_help.h"
+#include "editor/editor_help_search.h"
 #include "editor/editor_network_profiler.h"
 #include "editor/editor_path.h"
 #include "editor/editor_profiler.h"

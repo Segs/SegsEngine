@@ -278,7 +278,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
         }
 #endif
 
-        unsigned int code = k->get_scancode();
+        unsigned int code = k->get_keycode();
 
         if (k->get_command() && is_shortcut_keys_enabled()) {
 
@@ -630,7 +630,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             if (handled) {
                 accept_event();
             } else if (!k->get_command()) {
-                if (k->get_unicode() >= 32 && k->get_scancode() != KEY_DELETE) {
+                if (k->get_unicode() >= 32 && k->get_keycode() != KEY_DELETE) {
 
                     if (editable) {
                         selection_delete();

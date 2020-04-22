@@ -1778,13 +1778,13 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
 
                 k->set_pressed(keypress);
 
-                k->set_scancode(keycode);
+                k->set_keycode(keycode);
 
                 k->set_echo(false);
 
-                if (k->get_scancode() == KEY_BACKTAB) {
+                if (k->get_keycode() == KEY_BACKTAB) {
                     //make it consistent across platforms.
-                    k->set_scancode(KEY_TAB);
+                    k->set_keycode(KEY_TAB);
                     k->set_shift(true);
                 }
 
@@ -1896,30 +1896,30 @@ void OS_X11::handle_key_event(XKeyEvent *p_event, bool p_echo) {
     if (keycode >= 'a' && keycode <= 'z')
         keycode -= 'a' - 'A';
 
-    k->set_scancode(keycode);
+    k->set_keycode(keycode);
     k->set_unicode(unicode);
     k->set_echo(p_echo);
 
-    if (k->get_scancode() == KEY_BACKTAB) {
+    if (k->get_keycode() == KEY_BACKTAB) {
         //make it consistent across platforms.
-        k->set_scancode(KEY_TAB);
+        k->set_keycode(KEY_TAB);
         k->set_shift(true);
     }
 
     //don't set mod state if modifier keys are released by themselves
     //else event.is_action() will not work correctly here
     if (!k->is_pressed()) {
-        if (k->get_scancode() == KEY_SHIFT)
+        if (k->get_keycode() == KEY_SHIFT)
             k->set_shift(false);
-        else if (k->get_scancode() == KEY_CONTROL)
+        else if (k->get_keycode() == KEY_CONTROL)
             k->set_control(false);
-        else if (k->get_scancode() == KEY_ALT)
+        else if (k->get_keycode() == KEY_ALT)
             k->set_alt(false);
-        else if (k->get_scancode() == KEY_META)
+        else if (k->get_keycode() == KEY_META)
             k->set_metakey(false);
     }
 
-    bool last_is_pressed = Input::get_singleton()->is_key_pressed(k->get_scancode());
+    bool last_is_pressed = Input::get_singleton()->is_key_pressed(k->get_keycode());
     if (k->is_pressed()) {
         if (last_is_pressed) {
             k->set_echo(true);

@@ -168,7 +168,7 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
                 EditorNode::get_log()->add_message_utf8("Redo: " + action, EditorLog::MSG_TYPE_EDITOR);
             handled = true;
         }
-        if (k->get_scancode_with_modifiers() == (KEY_MASK_CMD | KEY_F)) {
+        if (k->get_keycode_with_modifiers() == (KEY_MASK_CMD | KEY_F)) {
             _focus_current_search_box();
             handled = true;
         }
@@ -319,10 +319,10 @@ void EditorSettingsDialog::_wait_for_key(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
     //TODO: SEGS: removed shortcut internationalization, was it really needed ?
-    if (k && k->is_pressed() && k->get_scancode() != 0) {
+    if (k && k->is_pressed() && k->get_keycode() != 0) {
 
         last_wait_for_key = k;
-        const String str = keycode_get_string(k->get_scancode_with_modifiers());
+        const String str = keycode_get_string(k->get_keycode_with_modifiers());
         press_a_key_label->set_text(StringName(str));
         press_a_key->accept_event();
     }
@@ -334,7 +334,7 @@ void EditorSettingsDialog::_press_a_key_confirm() {
         return;
 
     Ref<InputEventKey> ie(make_ref_counted<InputEventKey>());
-    ie->set_scancode(last_wait_for_key->get_scancode());
+    ie->set_keycode(last_wait_for_key->get_keycode());
     ie->set_shift(last_wait_for_key->get_shift());
     ie->set_control(last_wait_for_key->get_control());
     ie->set_alt(last_wait_for_key->get_alt());

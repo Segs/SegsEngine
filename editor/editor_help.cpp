@@ -82,7 +82,7 @@ void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
 
-    if (k && k->get_control() && k->get_scancode() == KEY_F) {
+    if (k && k->get_control() && k->get_keycode() == KEY_F) {
 
         search->grab_focus();
         search->select_all();
@@ -1824,7 +1824,7 @@ void FindBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 
             bool accepted = true;
 
-            switch (k->get_scancode()) {
+            switch (k->get_keycode()) {
 
                 case KEY_ESCAPE: {
 

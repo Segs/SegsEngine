@@ -266,8 +266,8 @@ public:
     void set_pressed(bool p_pressed);
     bool is_pressed() const override;
 
-    void set_scancode(uint32_t p_scancode);
-    uint32_t get_scancode() const;
+    void set_keycode(uint32_t p_scancode);
+    uint32_t get_keycode() const;
 
     void set_unicode(uint32_t p_unicode);
     uint32_t get_unicode() const;
@@ -275,7 +275,7 @@ public:
     void set_echo(bool p_enable);
     bool is_echo() const override;
 
-    uint32_t get_scancode_with_modifiers() const;
+    uint32_t get_keycode_with_modifiers() const;
 
     bool action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const override;
     bool shortcut_match(const Ref<InputEvent> &p_event) const override;

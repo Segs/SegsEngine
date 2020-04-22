@@ -37,7 +37,7 @@
 #include "scene/gui/scroll_bar.h"
 #include "scene/main/timer.h"
 #include "core/hash_set.h"
-#include "core/ustring.h"
+
 #include <utility>
 
 class SyntaxHighlighter;
@@ -56,114 +56,24 @@ public:
         Color color;
     };
 
-    struct ColorRegion {
-
+    struct ColorRegionData {
         Color color;
-        UIString begin_key;
-        UIString end_key;
+        uint32_t begin_key_len=0;
+        uint32_t end_key_len=0;
+        bool eq=true;
         bool line_only;
-        bool eq;
-        ColorRegion(const UIString &p_begin_key = UIString(), const UIString &p_end_key = UIString(), const Color &p_color = Color(), bool p_line_only = false) {
-            begin_key = p_begin_key;
-            end_key = p_end_key;
-            color = p_color;
-            line_only = p_line_only || p_end_key.isEmpty();
-            eq = begin_key == end_key;
-        }
     };
 
 private:
     struct PrivateData;
     PrivateData *m_priv=nullptr;
-    struct Cursor {
-        int last_fit_x=0;
-        int line=0, column=0; ///< cursor
-        int x_ofs=0, line_ofs=0, wrap_ofs=0;
-    } cursor = {};
 
-    struct Selection {
-
-        enum Mode {
-
-            MODE_NONE,
-            MODE_SHIFT,
-            MODE_POINTER,
-            MODE_WORD,
-            MODE_LINE
-        };
-
-        Mode selecting_mode=MODE_NONE;
-        int selecting_line=0, selecting_column=0;
-        int selected_word_beg=0, selected_word_end=0, selected_word_origin=0;
-        bool selecting_text=false;
-
-        bool active=false;
-
-        int from_line=0, from_column=0;
-        int to_line=0, to_column=0;
-
-        bool shiftclick_left=false;
-
-    } selection;
-
-
-    Map<int, int> color_region_cache;
-
-    struct TextOperation {
-
-        enum Type : uint8_t {
-            TYPE_NONE=0,
-            TYPE_INSERT,
-            TYPE_REMOVE
-        };
-
-        UIString text;
-        int from_line=0, from_column=0;
-        int to_line=0, to_column=0;
-        uint32_t prev_version=0;
-        uint32_t version=0;
-        Type type=TYPE_NONE;
-        bool chain_forward=false;
-        bool chain_backward=false;
-    };
-
-    UIString ime_text;
-    Point2 ime_selection;
-
-    TextOperation current_op;
-
-    ListOld<TextOperation> undo_stack;
-    ListOld<TextOperation>::Element *undo_stack_pos;
-
-    void _clear_redo();
-    void _do_text_op(const TextOperation &p_op, bool p_reverse);
-
-
-    HashSet<UIString> completion_prefixes;
-    bool completion_enabled;
-    Vector<ScriptCodeCompletionOption> completion_sources;
-    Vector<ScriptCodeCompletionOption> completion_options;
-    bool completion_active;
-    bool completion_forced;
-    ScriptCodeCompletionOption completion_current;
-    String completion_base;
-    int completion_index;
-    Rect2i completion_rect;
-    int completion_line_ofs;
-    String completion_hint;
-    int completion_hint_offset;
-
-    bool setting_text;
-
-    uint32_t version;
-    uint32_t saved_version;
 
     int max_chars=0;
     bool readonly;
     bool syntax_coloring;
     bool indent_using_spaces;
     int indent_size;
-    UIString space_indent;
 
     Timer *caret_blink_timer;
     bool caret_blink_enabled;
@@ -172,18 +82,10 @@ private:
     bool block_caret;
     bool right_click_moves_caret;
 
-    bool wrap_enabled=false;
-    int wrap_at=0;
-    int wrap_right_offset=10;
-
     bool first_draw;
-    bool setting_row=false;
     bool draw_tabs=false;
     bool draw_spaces=false;
     bool override_selected_font_color=false;
-    bool cursor_changed_dirty;
-    bool text_changed_dirty;
-    bool undo_enabled;
     bool line_numbers;
     bool line_numbers_zero_padded;
     bool line_length_guideline;
@@ -193,7 +95,6 @@ private:
     int breakpoint_gutter_width;
     bool draw_fold_gutter;
     int fold_gutter_width;
-    bool hiding_enabled;
     bool draw_info_gutter;
     int info_gutter_width;
     bool draw_minimap;
@@ -207,7 +108,7 @@ private:
     bool brace_matching_enabled;
     bool highlight_current_line;
     bool auto_indent;
-    UIString cut_copy_line;
+
     bool insert_mode;
     bool select_identifiers_enabled;
 
@@ -222,7 +123,6 @@ private:
     float target_v_scroll;
     float v_scroll_speed;
 
-    UIString highlighted_word;
 
     uint64_t last_dblclk;
 
@@ -236,17 +136,12 @@ private:
     StringName tooltip_func;
     Variant tooltip_ud;
 
-    bool next_operation_is_complex;
-
     bool callhint_below;
     Vector2 callhint_offset;
 
-    UIString search_text;
-    uint32_t search_flags;
     int search_result_line;
     int search_result_col;
 
-    bool selecting_enabled;
     bool context_menu_enabled;
     bool shortcut_keys_enabled;
 
@@ -290,7 +185,6 @@ public:
 
     void _update_selection_mode_pointer();
     void _update_selection_mode_word();
-    void _update_selection_mode_line();
 
     void _update_minimap_click();
     void _update_minimap_drag();
@@ -315,25 +209,11 @@ public:
     void _update_caches();
     void _cursor_changed_emit();
     void _text_changed_emit();
-    void _line_edited_from(int p_line);
 
-    void _push_current_op();
-
-    /* super internal api, undo/redo builds on it */
-
-    void _base_insert_text(int p_line, int p_char, const UIString &p_text, int &r_end_line, int &r_end_column);
-    UIString _base_get_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column) const;
-    void _base_remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
-
-    int _get_column_pos_of_word(const UIString &p_key, const UIString &p_search, uint32_t p_search_flags, int p_from_column);
-
-    PoolVector<int> _search_bind(StringView p_key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
     PopupMenu *menu;
 
     void _clear();
-    void _cancel_completion();
-    void _cancel_code_hint();
     void _confirm_completion();
     void _update_completion_candidates();
 
@@ -343,14 +223,11 @@ public:
 protected:
     StringName get_tooltip(const Point2 &p_pos) const override;
 
-    void _insert_text(int p_line, int p_char, const UIString &p_text, int *r_end_line = nullptr, int *r_end_char = nullptr);
-    void _remove_text(int p_from_line, int p_from_column, int p_to_line, int p_to_column);
-    void _insert_text_at_cursor(const UIString &p_text);
     void _gui_input(const Ref<InputEvent> &p_gui_input);
     void _notification(int p_what);
+    void _push_current_op(); // slot
 
-    void _consume_pair_symbol(CharType ch);
-    void _consume_backspace_for_pair_symbol(int prev_line, int prev_column);
+    PoolVector<int> _search_bind(StringView _key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
     static void _bind_methods();
 
@@ -359,7 +236,7 @@ public:
     void _set_syntax_highlighting(SyntaxHighlighter *p_syntax_highlighter);
 
     int _is_line_in_region(int p_line);
-    ColorRegion _get_color_region(int p_region) const;
+    ColorRegionData _get_color_region(int p_region) const;
     Map<int, TextColorRegionInfo> _get_line_color_region_info(int p_line) const;
 
     enum MenuItems {

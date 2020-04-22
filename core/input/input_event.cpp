@@ -64,20 +64,20 @@ int InputEvent::get_device() const {
 
 bool InputEvent::is_action(const StringName &p_action) const {
 
-    return InputMap::get_singleton()->event_is_action(Ref<InputEvent>((InputEvent *)this), p_action);
+    return InputMap::get_singleton()->event_is_action(Ref<InputEvent>(const_cast<InputEvent *>(this)), p_action);
 }
 
 bool InputEvent::is_action_pressed(const StringName &p_action, bool p_allow_echo) const {
 
     bool pressed;
-    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>((InputEvent *)this), p_action, &pressed);
+    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>(const_cast<InputEvent *>(this)), p_action, &pressed);
     return valid && pressed && (p_allow_echo || !is_echo());
 }
 
 bool InputEvent::is_action_released(const StringName &p_action) const {
 
     bool pressed;
-    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>((InputEvent *)this), p_action, &pressed);
+    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>(const_cast<InputEvent *>(this)), p_action, &pressed);
     return valid && !pressed;
 }
 
@@ -85,7 +85,7 @@ float InputEvent::get_action_strength(const StringName &p_action) const {
 
     bool pressed;
     float strength;
-    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>((InputEvent *)this), p_action, &pressed, &strength);
+    bool valid = InputMap::get_singleton()->event_get_action_status(Ref<InputEvent>(const_cast<InputEvent *>(this)), p_action, &pressed, &strength);
     return valid ? strength : 0.0f;
 }
 
@@ -255,11 +255,11 @@ bool InputEventKey::is_pressed() const {
     return pressed;
 }
 
-void InputEventKey::set_scancode(uint32_t p_scancode) {
+void InputEventKey::set_keycode(uint32_t p_scancode) {
 
     scancode = p_scancode;
 }
-uint32_t InputEventKey::get_scancode() const {
+uint32_t InputEventKey::get_keycode() const {
 
     return scancode;
 }
@@ -282,7 +282,7 @@ bool InputEventKey::is_echo() const {
     return echo;
 }
 
-uint32_t InputEventKey::get_scancode_with_modifiers() const {
+uint32_t InputEventKey::get_keycode_with_modifiers() const {
 
     uint32_t sc = scancode;
     if (get_control())
@@ -324,10 +324,10 @@ bool InputEventKey::action_match(const Ref<InputEvent> &p_event, bool *p_pressed
     if (not key)
         return false;
 
-    uint32_t code = get_scancode_with_modifiers();
-    uint32_t event_code = key->get_scancode_with_modifiers();
+    uint32_t code = get_keycode_with_modifiers();
+    uint32_t event_code = key->get_keycode_with_modifiers();
 
-    bool match = get_scancode() == key->get_scancode() && (!key->is_pressed() || (code & event_code) == code);
+    bool match = get_keycode() == key->get_keycode() && (!key->is_pressed() || (code & event_code) == code);
     if (match) {
         if (p_pressed != nullptr)
             *p_pressed = key->is_pressed();
@@ -343,8 +343,8 @@ bool InputEventKey::shortcut_match(const Ref<InputEvent> &p_event) const {
     if (not key)
         return false;
 
-    uint32_t code = get_scancode_with_modifiers();
-    uint32_t event_code = key->get_scancode_with_modifiers();
+    uint32_t code = get_keycode_with_modifiers();
+    uint32_t event_code = key->get_keycode_with_modifiers();
 
     return code == event_code;
 }
@@ -353,15 +353,15 @@ void InputEventKey::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_pressed", {"pressed"}), &InputEventKey::set_pressed);
 
-    MethodBinder::bind_method(D_METHOD("set_scancode", {"scancode"}), &InputEventKey::set_scancode);
-    MethodBinder::bind_method(D_METHOD("get_scancode"), &InputEventKey::get_scancode);
+    MethodBinder::bind_method(D_METHOD("set_scancode", {"scancode"}), &InputEventKey::set_keycode);
+    MethodBinder::bind_method(D_METHOD("get_scancode"), &InputEventKey::get_keycode);
 
     MethodBinder::bind_method(D_METHOD("set_unicode", {"unicode"}), &InputEventKey::set_unicode);
     MethodBinder::bind_method(D_METHOD("get_unicode"), &InputEventKey::get_unicode);
 
     MethodBinder::bind_method(D_METHOD("set_echo", {"echo"}), &InputEventKey::set_echo);
 
-    MethodBinder::bind_method(D_METHOD("get_scancode_with_modifiers"), &InputEventKey::get_scancode_with_modifiers);
+    MethodBinder::bind_method(D_METHOD("get_scancode_with_modifiers"), &InputEventKey::get_keycode_with_modifiers);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pressed"), "set_pressed", "is_pressed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "scancode"), "set_scancode", "get_scancode");

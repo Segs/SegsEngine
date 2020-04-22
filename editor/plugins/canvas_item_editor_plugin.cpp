@@ -484,7 +484,7 @@ void CanvasItemEditor::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
     if (!is_visible_in_tree() || get_viewport()->gui_has_modal_stack())
         return;
 
-    if (k->get_scancode() == KEY_CONTROL || k->get_scancode() == KEY_ALT || k->get_scancode() == KEY_SHIFT) {
+    if (k->get_keycode() == KEY_CONTROL || k->get_keycode() == KEY_ALT || k->get_keycode() == KEY_SHIFT) {
         viewport->update();
     }
 
@@ -1344,7 +1344,7 @@ bool CanvasItemEditor::_gui_input_pivot(const Ref<InputEvent> &p_event) {
     // Drag the pivot (in pivot mode / with V key)
     if (drag_type == DRAG_NONE) {
         if ((b && b->is_pressed() && b->get_button_index() == BUTTON_LEFT && tool == TOOL_EDIT_PIVOT) ||
-                (k && k->is_pressed() && !k->is_echo() && k->get_scancode() == KEY_V)) {
+                (k && k->is_pressed() && !k->is_echo() && k->get_keycode() == KEY_V)) {
             Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
             // Filters the selection with nodes that allow setting the pivot
@@ -1393,7 +1393,7 @@ bool CanvasItemEditor::_gui_input_pivot(const Ref<InputEvent> &p_event) {
 
         // Confirm the pivot move
         if ((b && !b->is_pressed() && b->get_button_index() == BUTTON_LEFT && tool == TOOL_EDIT_PIVOT) ||
-                (k && !k->is_pressed() && k->get_scancode() == KEY_V)) {
+                (k && !k->is_pressed() && k->get_keycode() == KEY_V)) {
             _commit_canvas_item_state(drag_selection, TTR("Move pivot"));
             drag_type = DRAG_NONE;
             return true;
@@ -2115,7 +2115,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
 
     // Move the canvas items with the arrow keys
     if (k && k->is_pressed() && (tool == TOOL_SELECT || tool == TOOL_MOVE) &&
-            (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_LEFT || k->get_scancode() == KEY_RIGHT)) {
+            (k->get_keycode() == KEY_UP || k->get_keycode() == KEY_DOWN || k->get_keycode() == KEY_LEFT || k->get_keycode() == KEY_RIGHT)) {
         if (!k->is_echo()) {
             // Start moving the canvas items with the keyboard
             drag_selection = _get_edited_canvas_items();
@@ -2141,13 +2141,13 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
             bool move_local_base_rotated = k->get_control() || k->get_metakey();
 
             Vector2 dir;
-            if (k->get_scancode() == KEY_UP)
+            if (k->get_keycode() == KEY_UP)
                 dir += Vector2(0, -1);
-            else if (k->get_scancode() == KEY_DOWN)
+            else if (k->get_keycode() == KEY_DOWN)
                 dir += Vector2(0, 1);
-            else if (k->get_scancode() == KEY_LEFT)
+            else if (k->get_keycode() == KEY_LEFT)
                 dir += Vector2(-1, 0);
-            else if (k->get_scancode() == KEY_RIGHT)
+            else if (k->get_keycode() == KEY_RIGHT)
                 dir += Vector2(1, 0);
             if (k->get_shift())
                 dir *= grid_step * Math::pow(2.0f, grid_step_multiplier);
@@ -2202,7 +2202,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
     }
 
     if (k && !k->is_pressed() && drag_type == DRAG_KEY_MOVE && tool == TOOL_SELECT &&
-            (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_LEFT || k->get_scancode() == KEY_RIGHT)) {
+            (k->get_keycode() == KEY_UP || k->get_keycode() == KEY_DOWN || k->get_keycode() == KEY_LEFT || k->get_keycode() == KEY_RIGHT)) {
         // Confirm canvas items move by arrow keys
         if ((!Input::get_singleton()->is_key_pressed(KEY_UP)) &&
                 (!Input::get_singleton()->is_key_pressed(KEY_DOWN)) &&
@@ -2215,7 +2215,7 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
         return true;
     }
 
-    return (k && (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_LEFT || k->get_scancode() == KEY_RIGHT)); // Accept the key event in any case
+    return (k && (k->get_keycode() == KEY_UP || k->get_keycode() == KEY_DOWN || k->get_keycode() == KEY_LEFT || k->get_keycode() == KEY_RIGHT)); // Accept the key event in any case
 }
 
 bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
@@ -2372,7 +2372,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
         }
     }
 
-    if (k && k->is_pressed() && k->get_scancode() == KEY_ESCAPE && drag_type == DRAG_NONE && tool == TOOL_SELECT) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_ESCAPE && drag_type == DRAG_NONE && tool == TOOL_SELECT) {
         // Unselect everything
         editor_selection->clear();
         viewport->update();

@@ -40,6 +40,13 @@ class Viewport;
 class Label;
 class Panel;
 class Theme;
+class RichTextLabel;
+class PanelContainer;
+class ScrollContainer;
+class OptionButton;
+class CheckBox;
+class CheckButton;
+class TabContainer;
 
 class GODOT_EXPORT Control : public CanvasItem {
 

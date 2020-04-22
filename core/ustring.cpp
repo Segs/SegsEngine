@@ -3941,6 +3941,18 @@ StringName TTR(StringView p_text) {
     return StringName(p_text);
 }
 
+StringName DTR(StringView p_text) {
+    using namespace StringUtils;
+    if (TranslationServer::get_singleton()) {
+        // Comes straight from the XML, so remove indentation and any trailing whitespace.
+        String ded=dedent(p_text);
+        StringView text = strip_edges(ded);
+        return TranslationServer::get_singleton()->doc_translate(StringName(text));
+    }
+
+    return StringName(p_text);
+}
+
 #endif
 
 StringName RTR(const char *p_text) {

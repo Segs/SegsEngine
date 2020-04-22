@@ -36,6 +36,7 @@
 #include "core/object_db.h"
 #include "core/print_string.h"
 #include "core/string_formatter.h"
+#include "editor/editor_data.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/editor_file_system.h"

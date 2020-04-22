@@ -271,11 +271,11 @@ void InputDefault::_parse_input_event_impl(const Ref<InputEvent> &p_event, bool 
     _THREAD_SAFE_METHOD_
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-    if (k && !k->is_echo() && k->get_scancode() != 0) {
+    if (k && !k->is_echo() && k->get_keycode() != 0) {
         if (k->is_pressed())
-            keys_pressed.insert(k->get_scancode());
+            keys_pressed.insert(k->get_keycode());
         else
-            keys_pressed.erase(k->get_scancode());
+            keys_pressed.erase(k->get_keycode());
     }
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
