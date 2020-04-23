@@ -450,6 +450,6 @@ file(
      "${CMAKE_CURRENT_SOURCE_DIR}"
      *.c *.cpp *.h
 )
-message(tree_source_list " " ${tree_source_list})
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${tree_source_list})
 
