@@ -1101,8 +1101,9 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
     //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
-    int idx  = header_file.find("SegsEngine");
-    String hdr(header_file.substr(idx+11));
+    String hdr_path=PathUtils::from_native_path(header_file);
+    int idx  = hdr_path.find("SegsEngine");
+    String hdr(hdr_path.substr(idx+12));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
 

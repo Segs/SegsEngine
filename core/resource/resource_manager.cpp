@@ -1015,16 +1015,15 @@ void ResourceManager::initialize() {
 void ResourceManager::finalize()
 {
     s_savers.clear();
-#ifndef NO_THREADS
+
     for (const auto& e : loading_map) {
         ERR_PRINT("Exited while resource is being loaded: " + e.first.path);
     }
     loading_map.clear();
     memdelete(loading_map_mutex);
     loading_map_mutex = nullptr;
-    for (auto& ldr : s_loaders)
-        ldr.reset();
-#endif
+    s_loaders.clear();
+
 }
 ResourceManager& gResourceManager() {
     return s_resource_manager;

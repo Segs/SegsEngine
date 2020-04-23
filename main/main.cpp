@@ -418,7 +418,8 @@ Error Main::setup(bool p_second_phase) {
 #else
     OS::register_feature("release");
 #endif
-    OS::get_singleton()->initialize_core();
+    OS *os = OS::get_singleton();
+    os->initialize_core();
     engine = memnew(Engine);
 
     ClassDB::init();
@@ -455,6 +456,7 @@ Error Main::setup(bool p_second_phase) {
     Vector<String> main_args;
     QStringList q_args = qApp->arguments();
     String execpath = StringUtils::to_utf8(q_args.takeFirst());
+    ProjectSettings* project_settings = ProjectSettings::get_singleton();
 
     for (const QString &arg : q_args) {
         args.push_back(StringUtils::to_utf8(arg));
@@ -513,7 +515,7 @@ Error Main::setup(bool p_second_phase) {
 
         } else if (*I == "-v" || *I == "--verbose") { // verbose output
 
-            OS::get_singleton()->_verbose_stdout = true;
+            os->_verbose_stdout = true;
         } else if (*I == "--quiet") { // quieter output
 
             quiet_stdout = true;
@@ -524,32 +526,32 @@ Error Main::setup(bool p_second_phase) {
 
                 audio_driver = StringName(*N);
                 bool found = false;
-                for (int i = 0; i < OS::get_singleton()->get_audio_driver_count(); i++) {
-                    if (audio_driver == OS::get_singleton()->get_audio_driver_name(i)) {
+                for (int i = 0; i < os->get_audio_driver_count(); i++) {
+                    if (audio_driver == os->get_audio_driver_name(i)) {
                         found = true;
                     }
                 }
 
                 if (!found) {
-                    OS::get_singleton()->print(FormatVE("Unknown audio driver '%s', aborting.\nValid options are ", audio_driver.asCString()));
+                    os->print(FormatVE("Unknown audio driver '%s', aborting.\nValid options are ", audio_driver.asCString()));
 
-                    for (int i = 0; i < OS::get_singleton()->get_audio_driver_count(); i++) {
-                        if (i == OS::get_singleton()->get_audio_driver_count() - 1) {
-                            OS::get_singleton()->print(" and ");
+                    for (int i = 0; i < os->get_audio_driver_count(); i++) {
+                        if (i == os->get_audio_driver_count() - 1) {
+                            os->print(" and ");
                         } else if (i != 0) {
-                            OS::get_singleton()->print(", ");
+                            os->print(", ");
                         }
 
-                        OS::get_singleton()->print(FormatVE("'%s'",OS::get_singleton()->get_audio_driver_name(i)));
+                        os->print(FormatVE("'%s'",OS::get_singleton()->get_audio_driver_name(i)));
                     }
 
-                    OS::get_singleton()->print(".\n");
+                    os->print(".\n");
 
                     goto error;
                 }
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing audio driver argument, aborting.\n");
+                os->print("Missing audio driver argument, aborting.\n");
                 goto error;
             }
 
@@ -559,32 +561,32 @@ Error Main::setup(bool p_second_phase) {
 
                 video_driver = StringName(*N);
                 bool found = false;
-                for (int i = 0; i < OS::get_singleton()->get_video_driver_count(); i++) {
-                    if (video_driver == OS::get_singleton()->get_video_driver_name(i)) {
+                for (int i = 0; i < os->get_video_driver_count(); i++) {
+                    if (video_driver == os->get_video_driver_name(i)) {
                         found = true;
                     }
                 }
 
                 if (!found) {
-                    OS::get_singleton()->print(FormatVE("Unknown video driver '%s', aborting.\nValid options are ", video_driver.asCString()));
+                    os->print(FormatVE("Unknown video driver '%s', aborting.\nValid options are ", video_driver.asCString()));
 
-                    for (int i = 0; i < OS::get_singleton()->get_video_driver_count(); i++) {
-                        if (i == OS::get_singleton()->get_video_driver_count() - 1) {
-                            OS::get_singleton()->print(" and ");
+                    for (int i = 0; i < os->get_video_driver_count(); i++) {
+                        if (i == os->get_video_driver_count() - 1) {
+                            os->print(" and ");
                         } else if (i != 0) {
-                            OS::get_singleton()->print(", ");
+                            os->print(", ");
                         }
 
-                        OS::get_singleton()->print(FormatVE("'%s'", OS::get_singleton()->get_video_driver_name(i)));
+                        os->print(FormatVE("'%s'", OS::get_singleton()->get_video_driver_name(i)));
                     }
 
-                    OS::get_singleton()->print(".\n");
+                    os->print(".\n");
 
                     goto error;
                 }
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing video driver argument, aborting.\n");
+                os->print("Missing video driver argument, aborting.\n");
                 goto error;
             }
 #ifndef SERVER_ENABLED
@@ -610,7 +612,7 @@ Error Main::setup(bool p_second_phase) {
 
                 if (not StringUtils::contains(vm,'x')) { // invalid parameter format
 
-                    OS::get_singleton()->print("Invalid resolution '"+vm+"', it should be e.g. '1280x720'.\n");
+                    os->print("Invalid resolution '"+vm+"', it should be e.g. '1280x720'.\n");
                     goto error;
                 }
 
@@ -619,7 +621,7 @@ Error Main::setup(bool p_second_phase) {
 
                 if (w <= 0 || h <= 0) {
 
-                    OS::get_singleton()->print("Invalid resolution '"+vm+"', width and height must be above 0.\n");
+                    os->print("Invalid resolution '"+vm+"', width and height must be above 0.\n");
                     goto error;
                 }
 
@@ -629,7 +631,7 @@ Error Main::setup(bool p_second_phase) {
 
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing resolution argument, aborting.\n");
+                os->print("Missing resolution argument, aborting.\n");
                 goto error;
             }
         } else if (*I == "--position") { // set window position
@@ -640,7 +642,7 @@ Error Main::setup(bool p_second_phase) {
 
                 if (not StringUtils::contains(vm,',')) { // invalid parameter format
 
-                    OS::get_singleton()->print("Invalid position '"+vm+"', it should be e.g. '80,128'.\n");
+                    os->print("Invalid position '"+vm+"', it should be e.g. '80,128'.\n");
                     goto error;
                 }
 
@@ -652,7 +654,7 @@ Error Main::setup(bool p_second_phase) {
 
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing position argument, aborting.\n");
+                os->print("Missing position argument, aborting.\n");
                 goto error;
             }
 
@@ -661,7 +663,7 @@ Error Main::setup(bool p_second_phase) {
             force_lowdpi = true;
         } else if (*I == "--no-window") { // disable window creation (Windows only)
 
-            OS::get_singleton()->set_no_window_mode(true);
+            os->set_no_window_mode(true);
         } else if (*I == "--enable-vsync-via-compositor") {
 
             video_mode.vsync_via_compositor = true;
@@ -682,7 +684,7 @@ Error Main::setup(bool p_second_phase) {
                 locale = *N;
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing language argument, aborting.\n");
+                os->print("Missing language argument, aborting.\n");
                 goto error;
             }
 
@@ -693,7 +695,7 @@ Error Main::setup(bool p_second_phase) {
                 remotefs = (*N);
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing remote filesystem address, aborting.\n");
+                os->print("Missing remote filesystem address, aborting.\n");
                 goto error;
             }
         } else if (*I == "--remote-fs-password") { // remote filesystem password
@@ -703,7 +705,7 @@ Error Main::setup(bool p_second_phase) {
                 remotefs_pass = *N;
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing remote filesystem password, aborting.\n");
+                os->print("Missing remote filesystem password, aborting.\n");
                 goto error;
             }
         } else if (*I == "--render-thread") { // render thread mode
@@ -719,7 +721,7 @@ Error Main::setup(bool p_second_phase) {
 
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing render thread mode argument, aborting.\n");
+                os->print("Missing render thread mode argument, aborting.\n");
                 goto error;
             }
 
@@ -752,14 +754,14 @@ Error Main::setup(bool p_second_phase) {
             if (N != args.end()) {
 
                 String p = *N;
-                if (OS::get_singleton()->set_cwd(p) == OK) {
+                if (os->set_cwd(p) == OK) {
                     //nothing
                 } else {
                     project_path = *N; //use project_path instead
                 }
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing relative or absolute path, aborting.\n");
+                os->print("Missing relative or absolute path, aborting.\n");
                 goto error;
             }
         } else if (*I == "-u" || *I == "--upwards") { // scan folders upwards
@@ -788,7 +790,7 @@ Error Main::setup(bool p_second_phase) {
                 breakpoints = StringUtils::split(bplist,',');
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing list of breakpoints, aborting.\n");
+                os->print("Missing list of breakpoints, aborting.\n");
                 goto error;
             }
 
@@ -799,7 +801,7 @@ Error Main::setup(bool p_second_phase) {
                 frame_delay = StringUtils::to_int(*N);
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing frame delay argument, aborting.\n");
+                os->print("Missing frame delay argument, aborting.\n");
                 goto error;
             }
 
@@ -810,7 +812,7 @@ Error Main::setup(bool p_second_phase) {
                 Engine::get_singleton()->set_time_scale(StringUtils::to_float(*N));
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing time scale argument, aborting.\n");
+                os->print("Missing time scale argument, aborting.\n");
                 goto error;
             }
 
@@ -821,7 +823,7 @@ Error Main::setup(bool p_second_phase) {
                 main_pack = *N;
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing path to main pack file, aborting.\n");
+                os->print("Missing path to main pack file, aborting.\n");
                 goto error;
             }
 
@@ -839,12 +841,12 @@ Error Main::setup(bool p_second_phase) {
                 debug_mode = "remote";
                 debug_host = *N;
                 if (not StringUtils::contains(debug_host,':')) { // wrong address
-                    OS::get_singleton()->print("Invalid debug host address, it should be of the form <host/IP>:<port>.\n");
+                    os->print("Invalid debug host address, it should be of the form <host/IP>:<port>.\n");
                     goto error;
                 }
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing remote debug host address, aborting.\n");
+                os->print("Missing remote debug host address, aborting.\n");
                 goto error;
             }
         } else if (*I == "--allow_focus_steal_pid") { // not exposed to user
@@ -853,7 +855,7 @@ Error Main::setup(bool p_second_phase) {
                 allow_focus_steal_pid = StringUtils::to_int64(*N);
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing editor PID argument, aborting.\n");
+                os->print("Missing editor PID argument, aborting.\n");
                 goto error;
             }
         } else if (*I == "--disable-render-loop") {
@@ -863,13 +865,13 @@ Error Main::setup(bool p_second_phase) {
                 fixed_fps = StringUtils::to_int(*N);
                 ++N;
             } else {
-                OS::get_singleton()->print("Missing fixed-fps argument, aborting.\n");
+                os->print("Missing fixed-fps argument, aborting.\n");
                 goto error;
             }
         } else if (*I == "--print-fps") {
             print_fps = true;
         } else if (*I == "--disable-crash-handler") {
-            OS::get_singleton()->disable_crash_handler();
+            os->disable_crash_handler();
         } else if (*I == "--skip-breakpoints") {
             skip_breakpoints = true;
         } else {
@@ -880,7 +882,7 @@ Error Main::setup(bool p_second_phase) {
     }
 #ifdef TOOLS_ENABLED
     if (editor && project_manager) {
-        OS::get_singleton()->print("Error: Command line arguments implied opening both editor and project manager, which is not possible. Aborting.\n");
+        os->print("Error: Command line arguments implied opening both editor and project manager, which is not possible. Aborting.\n");
         goto error;
     }
 #endif
@@ -900,7 +902,7 @@ Error Main::setup(bool p_second_phase) {
 
         Error err = file_access_network_client->connect(remotefs, port, remotefs_pass);
         if (err) {
-            OS::get_singleton()->printerr(("Could not connect to remotefs: "+remotefs+":"+::to_string(port)+".\n").c_str());
+            os->printerr(("Could not connect to remotefs: "+remotefs+":"+::to_string(port)+".\n").c_str());
             goto error;
         }
 
@@ -924,23 +926,24 @@ Error Main::setup(bool p_second_phase) {
     }
 
     GLOBAL_DEF("memory/limits/multithreaded_server/rid_pool_prealloc", 60);
-    ProjectSettings::get_singleton()->set_custom_property_info("memory/limits/multithreaded_server/rid_pool_prealloc",
+
+    project_settings->set_custom_property_info("memory/limits/multithreaded_server/rid_pool_prealloc",
             PropertyInfo(VariantType::INT, "memory/limits/multithreaded_server/rid_pool_prealloc", PropertyHint::Range,
                     "0,500,1")); // No negative and limit to 500 due to crashes
     GLOBAL_DEF("network/limits/debugger_stdout/max_chars_per_second", 2048);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/debugger_stdout/max_chars_per_second",
+    project_settings->set_custom_property_info("network/limits/debugger_stdout/max_chars_per_second",
             PropertyInfo(VariantType::INT, "network/limits/debugger_stdout/max_chars_per_second", PropertyHint::Range,
                     "0, 4096, 1, or_greater"));
     GLOBAL_DEF("network/limits/debugger_stdout/max_messages_per_frame", 10);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/debugger_stdout/max_messages_per_frame",
+    project_settings->set_custom_property_info("network/limits/debugger_stdout/max_messages_per_frame",
             PropertyInfo(VariantType::INT, "network/limits/debugger_stdout/max_messages_per_frame", PropertyHint::Range,
                     "0, 20, 1, or_greater"));
     GLOBAL_DEF("network/limits/debugger_stdout/max_errors_per_second", 100);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/debugger_stdout/max_errors_per_second",
+    project_settings->set_custom_property_info("network/limits/debugger_stdout/max_errors_per_second",
             PropertyInfo(VariantType::INT, "network/limits/debugger_stdout/max_errors_per_second", PropertyHint::Range,
                     "0, 200, 1, or_greater"));
     GLOBAL_DEF("network/limits/debugger_stdout/max_warnings_per_second", 100);
-    ProjectSettings::get_singleton()->set_custom_property_info("network/limits/debugger_stdout/max_warnings_per_second",
+    project_settings->set_custom_property_info("network/limits/debugger_stdout/max_warnings_per_second",
             PropertyInfo(VariantType::INT, "network/limits/debugger_stdout/max_warnings_per_second", PropertyHint::Range,
                     "0, 200, 1, or_greater"));
 
@@ -965,7 +968,7 @@ Error Main::setup(bool p_second_phase) {
     } else if (debug_mode == "local") {
 
         script_debugger = memnew(ScriptDebuggerLocal);
-        OS::get_singleton()->initialize_debugging();
+        os->initialize_debugging();
     }
 
     if (script_debugger) {
@@ -991,14 +994,14 @@ Error Main::setup(bool p_second_phase) {
     GLOBAL_DEF("logging/file_logging/enable_file_logging", false);
     GLOBAL_DEF("logging/file_logging/log_path", "user://logs/log.txt");
     GLOBAL_DEF("logging/file_logging/max_log_files", 10);
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    project_settings->set_custom_property_info(
             "logging/file_logging/max_log_files", PropertyInfo(VariantType::INT, "logging/file_logging/max_log_files",
                                                           PropertyHint::Range, "0,20,1,or_greater")); // no negative numbers
     if (FileAccess::get_create_func(FileAccess::ACCESS_USERDATA) &&
             GLOBAL_GET("logging/file_logging/enable_file_logging")) {
         String base_path = GLOBAL_GET("logging/file_logging/log_path");
         int max_files = GLOBAL_GET("logging/file_logging/max_log_files");
-        OS::get_singleton()->add_logger(memnew(RotatedFileLogger(base_path, max_files)));
+        os->add_logger(memnew(RotatedFileLogger(base_path, max_files)));
     }
 
 #ifdef TOOLS_ENABLED
@@ -1021,7 +1024,7 @@ Error Main::setup(bool p_second_phase) {
 #ifdef TOOLS_ENABLED
         if (!editor && !project_manager) {
 #endif
-            OS::get_singleton()->print("Error: Can't run project: no main scene defined.\n");
+            os->print("Error: Can't run project: no main scene defined.\n");
             goto error;
 #ifdef TOOLS_ENABLED
         }
@@ -1036,20 +1039,20 @@ Error Main::setup(bool p_second_phase) {
         input_map->load_from_globals(); //keys for game
     }
 
-    if (bool(ProjectSettings::get_singleton()->get("application/run/disable_stdout"))) {
+    if (bool(project_settings->get("application/run/disable_stdout"))) {
         quiet_stdout = true;
     }
-    if (bool(ProjectSettings::get_singleton()->get("application/run/disable_stderr"))) {
+    if (bool(project_settings->get("application/run/disable_stderr"))) {
         _print_error_enabled = false;
     }
 
     if (quiet_stdout)
         _print_line_enabled = false;
 
-    OS::get_singleton()->set_cmdline(execpath, eastl::move(main_args));
+    os->set_cmdline(execpath, eastl::move(main_args));
 
     GLOBAL_DEF("rendering/quality/driver/driver_name", "GLES3");
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/driver/driver_name",
+    project_settings->set_custom_property_info("rendering/quality/driver/driver_name",
             PropertyInfo(VariantType::STRING, "rendering/quality/driver/driver_name", PropertyHint::Enum, "GLES2,GLES3"));
     if (video_driver.empty()) {
         video_driver = GLOBAL_GET("rendering/quality/driver/driver_name");
@@ -1060,11 +1063,11 @@ Error Main::setup(bool p_second_phase) {
     // Assigning here even though it's GLES2-specific, to be sure that it appears in docs
     GLOBAL_DEF("rendering/quality/2d/gles2_use_nvidia_rect_flicker_workaround", false);
     GLOBAL_DEF("display/window/size/width", 1024);
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    project_settings->set_custom_property_info(
             "display/window/size/width", PropertyInfo(VariantType::INT, "display/window/size/width", PropertyHint::Range,
                                                  "0,7680,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/height", 600);
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    project_settings->set_custom_property_info(
             "display/window/size/height", PropertyInfo(VariantType::INT, "display/window/size/height", PropertyHint::Range,
                                                   "0,4320,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/resizable", true);
@@ -1072,11 +1075,11 @@ Error Main::setup(bool p_second_phase) {
     GLOBAL_DEF("display/window/size/fullscreen", false);
     GLOBAL_DEF("display/window/size/always_on_top", false);
     GLOBAL_DEF("display/window/size/test_width", 0);
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    project_settings->set_custom_property_info(
             "display/window/size/test_width", PropertyInfo(VariantType::INT, "display/window/size/test_width",
                                                       PropertyHint::Range, "0,7680,or_greater")); // 8K resolution
     GLOBAL_DEF("display/window/size/test_height", 0);
-    ProjectSettings::get_singleton()->set_custom_property_info(
+    project_settings->set_custom_property_info(
             "display/window/size/test_height", PropertyInfo(VariantType::INT, "display/window/size/test_height",
                                                        PropertyHint::Range, "0,4320,or_greater")); // 8K resolution
 
@@ -1105,12 +1108,12 @@ Error Main::setup(bool p_second_phase) {
     }
 
     if (!force_lowdpi) {
-        OS::get_singleton()->_allow_hidpi = GLOBAL_DEF("display/window/dpi/allow_hidpi", false);
+        os->_allow_hidpi = GLOBAL_DEF("display/window/dpi/allow_hidpi", false);
     }
 
 
     video_mode.use_vsync = GLOBAL_DEF_RST("display/window/vsync/use_vsync", true);
-    OS::get_singleton()->_use_vsync = video_mode.use_vsync;
+    os->_use_vsync = video_mode.use_vsync;
 
     if (!saw_vsync_via_compositor_override) {
         // If one of the command line options to enable/disable vsync via the
@@ -1120,9 +1123,9 @@ Error Main::setup(bool p_second_phase) {
         video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", false);
     }
 
-    OS::get_singleton()->_vsync_via_compositor = video_mode.vsync_via_compositor;
+    os->_vsync_via_compositor = video_mode.vsync_via_compositor;
 
-    OS::get_singleton()->_allow_layered = GLOBAL_DEF("display/window/per_pixel_transparency/allowed", false);
+    os->_allow_layered = GLOBAL_DEF("display/window/per_pixel_transparency/allowed", false);
     video_mode.layered = GLOBAL_DEF("display/window/per_pixel_transparency/enabled", false);
 
     GLOBAL_DEF("rendering/quality/intended_usage/framebuffer_allocation", 2);
@@ -1130,12 +1133,12 @@ Error Main::setup(bool p_second_phase) {
 
     if (editor || project_manager) {
         // The editor and project manager always detect and use hiDPI if needed
-        OS::get_singleton()->_allow_hidpi = true;
-        OS::get_singleton()->_allow_layered = false;
+        os->_allow_hidpi = true;
+        os->_allow_layered = false;
     }
 
     Engine::get_singleton()->_pixel_snap = GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false);
-    OS::get_singleton()->_keep_screen_on = GLOBAL_DEF("display/window/energy_saving/keep_screen_on", true);
+    os->_keep_screen_on = GLOBAL_DEF("display/window/energy_saving/keep_screen_on", true);
     if (rtm == -1) {
         rtm = GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
     }
@@ -1144,14 +1147,14 @@ Error Main::setup(bool p_second_phase) {
         if (editor) {
             rtm = OS::RENDER_THREAD_SAFE;
         }
-        OS::get_singleton()->_render_thread_mode = OS::RenderThreadMode(rtm);
+        os->_render_thread_mode = OS::RenderThreadMode(rtm);
     }
 
     /* Determine audio and video drivers */
 
-    for (int i = 0; i < OS::get_singleton()->get_video_driver_count(); i++) {
+    for (int i = 0; i < os->get_video_driver_count(); i++) {
 
-        if (video_driver == OS::get_singleton()->get_video_driver_name(i)) {
+        if (video_driver == os->get_video_driver_name(i)) {
 
             video_driver_idx = i;
             break;
@@ -1166,9 +1169,9 @@ Error Main::setup(bool p_second_phase) {
         audio_driver = GLOBAL_DEF_RST("audio/driver", OS::get_singleton()->get_audio_driver_name(0));
     }
 
-    for (int i = 0; i < OS::get_singleton()->get_audio_driver_count(); i++) {
+    for (int i = 0; i < os->get_audio_driver_count(); i++) {
 
-        if (audio_driver == OS::get_singleton()->get_audio_driver_name(i)) {
+        if (audio_driver == os->get_audio_driver_name(i)) {
 
             audio_driver_idx = i;
             break;
@@ -1183,40 +1186,40 @@ Error Main::setup(bool p_second_phase) {
         UIString orientation = GLOBAL_DEF("display/window/handheld/orientation", "landscape");
 
         if (orientation == "portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_PORTRAIT);
+            os->set_screen_orientation(OS::SCREEN_PORTRAIT);
         else if (orientation == "reverse_landscape")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_REVERSE_LANDSCAPE);
+            os->set_screen_orientation(OS::SCREEN_REVERSE_LANDSCAPE);
         else if (orientation == "reverse_portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_REVERSE_PORTRAIT);
+            os->set_screen_orientation(OS::SCREEN_REVERSE_PORTRAIT);
         else if (orientation == "sensor_landscape")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR_LANDSCAPE);
+            os->set_screen_orientation(OS::SCREEN_SENSOR_LANDSCAPE);
         else if (orientation == "sensor_portrait")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR_PORTRAIT);
+            os->set_screen_orientation(OS::SCREEN_SENSOR_PORTRAIT);
         else if (orientation == "sensor")
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_SENSOR);
+            os->set_screen_orientation(OS::SCREEN_SENSOR);
         else
-            OS::get_singleton()->set_screen_orientation(OS::SCREEN_LANDSCAPE);
+            os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
     }
 
     Engine::get_singleton()->set_iterations_per_second(GLOBAL_DEF("physics/common/physics_fps", 60));
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));
+    project_settings->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));
     Engine::get_singleton()->set_physics_jitter_fix(GLOBAL_DEF("physics/common/physics_jitter_fix", 0.5));
     Engine::get_singleton()->set_target_fps(GLOBAL_DEF("debug/settings/fps/force_fps", 0));
-    ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/fps/force_fps", PropertyInfo(VariantType::INT, "debug/settings/fps/force_fps", PropertyHint::Range, "0,120,1,or_greater"));
+    project_settings->set_custom_property_info("debug/settings/fps/force_fps", PropertyInfo(VariantType::INT, "debug/settings/fps/force_fps", PropertyHint::Range, "0,120,1,or_greater"));
 
     GLOBAL_DEF("debug/settings/stdout/print_fps", false);
 
-    if (!OS::get_singleton()->_verbose_stdout) //overridden
-        OS::get_singleton()->_verbose_stdout = GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
+    if (!os->_verbose_stdout) //overridden
+        os->_verbose_stdout = GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
 
     if (frame_delay == 0) {
         frame_delay = GLOBAL_DEF("application/run/frame_delay_msec", 0);
-        ProjectSettings::get_singleton()->set_custom_property_info("application/run/frame_delay_msec", PropertyInfo(VariantType::INT, "application/run/frame_delay_msec", PropertyHint::Range, "0,100,1,or_greater")); // No negative numbers
+        project_settings->set_custom_property_info("application/run/frame_delay_msec", PropertyInfo(VariantType::INT, "application/run/frame_delay_msec", PropertyHint::Range, "0,100,1,or_greater")); // No negative numbers
     }
 
-    OS::get_singleton()->set_low_processor_usage_mode(GLOBAL_DEF("application/run/low_processor_mode", false));
-    OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(GLOBAL_DEF("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
-    ProjectSettings::get_singleton()->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PropertyHint::Range, "0,33200,1,or_greater")); // No negative numbers
+    os->set_low_processor_usage_mode(GLOBAL_DEF("application/run/low_processor_mode", false));
+    os->set_low_processor_usage_mode_sleep_usec(GLOBAL_DEF("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
+    project_settings->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PropertyHint::Range, "0,33200,1,or_greater")); // No negative numbers
 
     GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
 
@@ -1263,11 +1266,11 @@ error:
     unregister_core_driver_types();
     unregister_core_types();
 
-    OS::get_singleton()->_cmdline.clear();
+    os->_cmdline.clear();
 
     if (message_queue)
         memdelete(message_queue);
-    OS::get_singleton()->finalize_core();
+    os->finalize_core();
     locale.clear();
 
     return ERR_INVALID_PARAMETER;

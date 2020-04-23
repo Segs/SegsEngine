@@ -3123,30 +3123,30 @@ void VisualScriptCustomNode::_script_changed() {
 
 void VisualScriptCustomNode::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_sequence_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_has_input_sequence_port"))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_sequence_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_has_input_sequence_port"));
 
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_sequence_port_text", PropertyInfo(VariantType::INT, "idx")))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_value_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_value_port_count"))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_sequence_port_text", PropertyInfo(VariantType::INT, "idx")));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_value_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_value_port_count"));
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_value_port_type", PropertyInfo(VariantType::INT, "idx")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_value_port_name", PropertyInfo(VariantType::INT, "idx")))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_value_port_type", PropertyInfo(VariantType::INT, "idx")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_value_port_name", PropertyInfo(VariantType::INT, "idx")));
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_value_port_type", PropertyInfo(VariantType::INT, "idx")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_value_port_name", PropertyInfo(VariantType::INT, "idx")))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_value_port_type", PropertyInfo(VariantType::INT, "idx")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_value_port_name", PropertyInfo(VariantType::INT, "idx")));
 
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_caption"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_text"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_caption"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_text"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"));
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_working_memory_size"))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_working_memory_size"));
 
     MethodInfo stepmi(VariantType::NIL, "_step", PropertyInfo(VariantType::ARRAY, "inputs"),
             PropertyInfo(VariantType::ARRAY, "outputs"), PropertyInfo(VariantType::INT, "start_mode"),
             PropertyInfo(VariantType::ARRAY, "working_mem"));
     stepmi.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
-    BIND_VMETHOD(stepmi)
+    BIND_VMETHOD(stepmi);
 
     MethodBinder::bind_method(D_METHOD("_script_changed"), &VisualScriptCustomNode::_script_changed);
 

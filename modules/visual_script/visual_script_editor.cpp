@@ -1846,7 +1846,7 @@ void VisualScriptEditor::_fn_name_box_input(const Ref<InputEvent> &p_event) {
         return;
 
     Ref<InputEventKey> key = dynamic_ref_cast<InputEventKey>(p_event);
-    if (key && key->is_pressed() && key->get_scancode() == KEY_ENTER) {
+    if (key && key->is_pressed() && key->get_keycode() == KEY_ENTER) {
         function_name_edit->hide();
         _rename_function(selected, StringName(function_name_box->get_text()));
         function_name_box->clear();

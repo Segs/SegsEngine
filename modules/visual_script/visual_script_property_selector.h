@@ -27,12 +27,12 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
-#ifndef VISUALSCRIPT_PROPERTYSELECTOR_H
-#define VISUALSCRIPT_PROPERTYSELECTOR_H
+#pragma once
 
 #include "editor/property_editor.h"
 #include "scene/gui/rich_text_label.h"
+
+class EditorHelpBit;
 
 class VisualScriptPropertySelector : public ConfirmationDialog {
     GDCLASS(VisualScriptPropertySelector,ConfirmationDialog)
@@ -87,5 +87,3 @@ public:
 
     VisualScriptPropertySelector();
 };
-
-#endif // VISUALSCRIPT_PROPERTYSELECTOR_H

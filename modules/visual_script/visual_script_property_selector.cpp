@@ -59,7 +59,7 @@ void VisualScriptPropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     if (k) {
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
             case KEY_UP:
             case KEY_DOWN:
             case KEY_PAGEUP:

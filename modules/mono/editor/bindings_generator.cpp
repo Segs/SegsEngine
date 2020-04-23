@@ -30,6 +30,7 @@
 
 #include "bindings_generator.h"
 
+
 #if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
 
 #include "core/engine.h"
@@ -40,14 +41,19 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/register_core_types.h"
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
 #include "glue/cs_glue_version.gen.h"
+#include "modules/register_module_types.h"
+#include "plugins/plugin_registry_interface.h"
+#include "scene/register_scene_types.h"
 
 #include "../godotsharp_defs.h"
 #include "../mono_gd/gd_mono_marshal.h"
 #include "../utils/path_utils.h"
 #include "../utils/string_utils.h"
+#include "main/main.h"
 #include "csharp_project.h"
 #include "EASTL/sort.h"
 #include "EASTL/unordered_set.h"
@@ -3359,6 +3365,10 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
         }
 
         // Exit once done
+        unload_plugins();
+        unregister_scene_types();
+        unregister_module_types();
+        unregister_core_types();
         ::exit(0);
     }
 }
