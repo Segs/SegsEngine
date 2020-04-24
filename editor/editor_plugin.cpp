@@ -62,8 +62,8 @@ Array EditorInterface::_make_mesh_previews(const Array &p_meshes, int p_preview_
 
     Vector<Ref<Texture> > textures = make_mesh_previews(meshes, nullptr, p_preview_size);
     Array ret;
-    for (int i = 0; i < textures.size(); i++) {
-        ret.push_back(textures[i]);
+    for (auto & texture : textures) {
+        ret.push_back(texture);
     }
 
     return ret;

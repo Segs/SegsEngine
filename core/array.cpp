@@ -159,9 +159,9 @@ uint32_t Array::hash() const {
 
     uint32_t h = hash_djb2_one_32(0);
 
-    for (int i = 0; i < _p->array.size(); i++) {
+    for (const Variant & v : _p->array) {
 
-        h = hash_djb2_one_32(_p->array[i].hash(), h);
+        h = hash_djb2_one_32(v.hash(), h);
     }
     return h;
 }

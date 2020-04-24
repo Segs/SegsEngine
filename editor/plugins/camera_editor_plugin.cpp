@@ -128,5 +128,4 @@ CameraEditorPlugin::CameraEditorPlugin(EditorNode *p_node) {
 */
 }
 
-CameraEditorPlugin::~CameraEditorPlugin() {
-}
+CameraEditorPlugin::~CameraEditorPlugin() = default;

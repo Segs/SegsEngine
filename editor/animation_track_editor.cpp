@@ -3398,8 +3398,8 @@ void AnimationTrackEditor::cleanup() {
 
 void AnimationTrackEditor::_name_limit_changed() {
 
-    for (int i = 0; i < track_edits.size(); i++) {
-        track_edits[i]->update();
+    for (auto & track_edit : track_edits) {
+        track_edit->update();
     }
 }
 
@@ -3448,11 +3448,11 @@ void AnimationTrackEditor::_track_grab_focus(int p_track) {
 void AnimationTrackEditor::set_anim_pos(float p_pos) {
 
     timeline->set_play_position(p_pos);
-    for (int i = 0; i < track_edits.size(); i++) {
-        track_edits[i]->set_play_position(p_pos);
+    for (auto & track_edit : track_edits) {
+        track_edit->set_play_position(p_pos);
     }
-    for (int i = 0; i < groups.size(); i++) {
-        groups[i]->update();
+    for (auto & group : groups) {
+        group->update();
     }
     bezier_edit->set_play_position(p_pos);
 }

@@ -469,7 +469,6 @@ Error JSON::parse(const String &p_json, Variant &r_ret, String &r_err_str, int &
     int len = p_json.length();
     Token token;
     r_err_line = 0;
-    UIString aux_key;
 
     Error err = _get_token(str, idx, len, token, r_err_line, r_err_str);
     if (err)

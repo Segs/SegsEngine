@@ -677,8 +677,8 @@ void CanvasItemEditor::_get_bones_at_pos(const Point2 &p_pos, Vector<CanvasItemE
 
         // Check if the item is already in the list
         bool duplicate = false;
-        for (size_t i = 0; i < r_items.size(); i++) {
-            if (r_items[i].item == from_node) {
+        for (auto & r_item : r_items) {
+            if (r_item.item == from_node) {
                 duplicate = true;
                 break;
             }
@@ -2427,8 +2427,8 @@ bool CanvasItemEditor::_gui_input_hover(const Ref<InputEvent> &p_event) {
 
     // Compute the nodes names and icon position
     Vector<_HoverResult> hovering_results_tmp;
-    for (int i = 0; i < hovering_results_items.size(); i++) {
-        CanvasItem *canvas_item = hovering_results_items[i].item;
+    for (auto & hovering_results_item : hovering_results_items) {
+        CanvasItem *canvas_item = hovering_results_item.item;
 
         if (canvas_item->_edit_use_rect())
             continue;
@@ -2992,8 +2992,8 @@ void CanvasItemEditor::_draw_control_anchors(Control *control) {
         anchor_rects[2] = Rect2(anchors_pos[2], -anchor_handle->get_size());
         anchor_rects[3] = Rect2(anchors_pos[3] - Vector2(anchor_handle->get_size().x, 0.0), Point2(anchor_handle->get_size().x, -anchor_handle->get_size().y));
 
-        for (int i = 0; i < 4; i++) {
-            anchor_handle->draw_rect(ci, anchor_rects[i]);
+        for (auto anchor_rect : anchor_rects) {
+            anchor_handle->draw_rect(ci, anchor_rect);
         }
     }
 }

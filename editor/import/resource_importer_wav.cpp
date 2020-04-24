@@ -540,5 +540,4 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     return OK;
 }
 
-ResourceImporterWAV::ResourceImporterWAV() {
-}
+ResourceImporterWAV::ResourceImporterWAV() = default;

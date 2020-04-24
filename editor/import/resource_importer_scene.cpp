@@ -171,7 +171,7 @@ void EditorScenePostImport::init(StringView p_source_folder, StringView p_source
     source_file = p_source_file;
 }
 
-EditorScenePostImport::EditorScenePostImport() {}
+EditorScenePostImport::EditorScenePostImport() = default;
 
 StringName ResourceImporterScene::get_importer_name() const {
 
@@ -829,9 +829,9 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
         Set<String> keep;
         Set<String> keep_local;
 
-        for (int i = 0; i < strings.size(); i++) {
+        for (auto & string : strings) {
 
-            if (StringUtils::begins_with(strings[i], "@")) {
+            if (StringUtils::begins_with(string, "@")) {
 
                 valid_for_this = false;
                 for (const String &F : keep_local) {
@@ -840,7 +840,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
                 keep_local.clear();
 
                 Vector<StringView> filters =
-                        StringUtils::split(StringUtils::substr(strings[i], 1, strings[i].length()), ',');
+                        StringUtils::split(StringUtils::substr(string, 1, string.length()), ',');
                 for (StringView val : filters) {
 
                     StringView fname = StringUtils::strip_edges(val);
@@ -871,7 +871,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
 
                     String path(a->track_get_path(j));
 
-                    StringView tname = strings[i];
+                    StringView tname = string;
                     if (tname.empty()) continue;
                     int fc = tname[0];
                     bool plus;
@@ -1301,9 +1301,9 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
         Vector<String> extensions;
         E->get_extensions(extensions);
 
-        for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
+        for (auto & extension : extensions) {
 
-            if (StringUtils::to_lower(extensions[i]) == ext) {
+            if (StringUtils::to_lower(extension) == ext) {
 
                 importer = E;
                 break;

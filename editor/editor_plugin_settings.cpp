@@ -93,10 +93,10 @@ void EditorPluginSettings::update_plugins() {
 
     eastl::sort(plugins.begin(), plugins.end());
 
-    for (int i = 0; i < plugins.size(); i++) {
+    for (auto & plugin : plugins) {
 
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
-        String path = "res://addons/" + plugins[i] + "/plugin.cfg";
+        String path = "res://addons/" + plugin + "/plugin.cfg";
 
         Error err2 = cf->load(path);
 
@@ -130,7 +130,7 @@ void EditorPluginSettings::update_plugins() {
         if (key_missing)
             continue;
 
-        StringName d2(plugins[i]);
+        StringName d2(plugin);
         StringName name = cf->get_value("plugin", "name");
         StringName author = cf->get_value("plugin", "author");
         StringName version = cf->get_value("plugin", "version");
