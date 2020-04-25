@@ -31,16 +31,16 @@
 #pragma once
 
 #include "editor/editor_plugin.h"
-#include "scene/3d/immediate_geometry.h"
-#include "scene/3d/light.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/immediate_geometry_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/spin_box.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "core/string.h"
 
 
-class Camera;
+class Camera3D;
 class SpatialEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
@@ -119,7 +119,7 @@ public:
     virtual bool is_handle_highlighted(int p_idx) const;
     virtual StringName get_handle_name(int p_idx) const;
     virtual Variant get_handle_value(int p_idx);
-    virtual void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point);
+    virtual void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
 
     void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Node3D>(p_node)); }
@@ -127,8 +127,8 @@ public:
     Node3D *get_spatial_node() const { return spatial_node; }
     Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }
     Vector3 get_handle_pos(int p_idx) const;
-    bool intersect_frustum(const Camera *p_camera, Span<const Plane> p_frustum);
-    bool intersect_ray(Camera *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
+    bool intersect_frustum(const Camera3D *p_camera, Span<const Plane> p_frustum);
+    bool intersect_ray(Camera3D *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
 
     void clear() override;
     void create() override;
@@ -228,7 +228,7 @@ private:
 
     Control *surface;
     Viewport *viewport;
-    Camera *camera;
+    Camera3D *camera;
     bool transforming;
     bool orthogonal;
     bool lock_rotation;
@@ -381,8 +381,8 @@ private:
     void _update_freelook(real_t delta);
     SpatialEditor *spatial_editor;
 
-    Camera *previewing;
-    Camera *preview;
+    Camera3D *previewing;
+    Camera3D *preview;
 
     bool previewing_cinema;
     bool _is_node_locked(const Node *p_node);
@@ -415,7 +415,7 @@ public:
     void update_surface() { surface->update(); }
     void update_transform_gizmo_view();
 
-    void set_can_preview(Camera *p_preview);
+    void set_can_preview(Camera3D *p_preview);
     void set_state(const Dictionary &p_state);
     Dictionary get_state() const;
     void reset();
@@ -429,7 +429,7 @@ public:
             AcceptDialog *p_accept);
 
     Viewport *get_viewport_node() { return viewport; }
-    Camera *get_camera() { return camera; } // return the default camera object.
+    Camera3D *get_camera() { return camera; } // return the default camera object.
 
     SpatialEditorViewport(SpatialEditor *p_spatial_editor, EditorNode *p_editor, int p_index);
 };
@@ -738,7 +738,7 @@ public:
     int get_over_gizmo_handle() const { return over_gizmo_handle; }
     void set_over_gizmo_handle(int idx) { over_gizmo_handle = idx; }
 
-    void set_can_preview(Camera *p_preview);
+    void set_can_preview(Camera3D *p_preview);
 
     SpatialEditorViewport *get_editor_viewport(int p_idx) {
         ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr);
@@ -820,7 +820,7 @@ public:
     virtual void redraw(EditorSpatialGizmo *p_gizmo);
     virtual StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
     virtual Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const;
-    virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point);
+    virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point);
     virtual void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false);
     virtual bool is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
 

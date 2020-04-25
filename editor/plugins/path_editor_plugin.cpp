@@ -87,7 +87,7 @@ Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 
     return ofs;
 }
-void PathSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p_point) {
+void PathSpatialGizmo::set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
     Ref<Curve3D> c = path->get_curve();
     if (not c)
@@ -299,7 +299,7 @@ PathSpatialGizmo::PathSpatialGizmo(Path3D *p_path) {
     set_spatial_node(p_path);
 }
 
-bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) {
+bool PathEditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 
     if (!path)
         return false;

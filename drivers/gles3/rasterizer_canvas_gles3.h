@@ -118,7 +118,7 @@ public:
     RID_Owner<LightInternal> light_internal_owner;
 
     RID light_internal_create() override;
-    void light_internal_update(RID p_rid, Light *p_light) override;
+    void light_internal_update(RID p_rid, Light3D *p_light) override;
     void light_internal_free(RID p_rid) override;
 
     void canvas_begin() override;
@@ -138,8 +138,8 @@ public:
     void _canvas_item_render_commands(Item *p_item, Item *current_clip, bool &reclip);
     void _copy_texscreen(const Rect2 &p_rect);
 
-    void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_transform) override;
-    void canvas_debug_viewport_shadows(Light *p_lights_with_shadow) override;
+    void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_transform) override;
+    void canvas_debug_viewport_shadows(Light3D *p_lights_with_shadow) override;
 
     void canvas_light_shadow_buffer_update(RID p_buffer, const Transform2D &p_light_xform, int p_light_mask, float p_near, float p_far, LightOccluderInstance *p_occluders, CameraMatrix *p_xform_cache) override;
 

@@ -834,7 +834,7 @@ void Collada::_parse_camera(XMLParser &parser) {
             break; //end of <asset>
     }
 
-    COLLADA_PRINT("Camera ID:" + id);
+    COLLADA_PRINT("Camera3D ID:" + id);
 }
 
 void Collada::_parse_light(XMLParser &parser) {

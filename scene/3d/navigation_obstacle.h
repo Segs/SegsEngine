@@ -33,12 +33,12 @@
 #include "scene/main/node.h"
 #include "core/rid.h"
 
-class Navigation;
+class Navigation3D;
 
 class NavigationObstacle : public Node {
     GDCLASS(NavigationObstacle, Node);
 
-    Navigation *navigation;
+    Navigation3D *navigation;
 
     RID agent;
 
@@ -50,8 +50,8 @@ public:
     NavigationObstacle();
     virtual ~NavigationObstacle();
 
-    void set_navigation(Navigation *p_nav);
-    const Navigation *get_navigation() const {
+    void set_navigation(Navigation3D *p_nav);
+    const Navigation3D *get_navigation() const {
         return navigation;
     }
 

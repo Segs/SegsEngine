@@ -30,7 +30,7 @@
 
 #include "cpu_particles_3d.h"
 
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/3d/particles.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/curve_texture.h"
@@ -991,7 +991,7 @@ void CPUParticles3D::_update_particle_data_buffer() {
                 sorter.compare.particles = r.ptr();
                 sorter.sort(order, pc);
             } else if (draw_order == DRAW_ORDER_VIEW_DEPTH) {
-                Camera *c = get_viewport()->get_camera();
+                Camera3D *c = get_viewport()->get_camera();
                 if (c) {
                     Vector3 dir = c->get_global_transform().basis.get_axis(2); //far away to close
 

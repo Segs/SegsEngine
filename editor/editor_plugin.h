@@ -40,7 +40,7 @@
 
 class EditorNode;
 class Node3D;
-class Camera;
+class Camera3D;
 class EditorSelection;
 class EditorExport;
 class EditorSettings;
@@ -183,7 +183,7 @@ public:
     virtual void forward_canvas_draw_over_viewport(Control *p_overlay);
     virtual void forward_canvas_force_draw_over_viewport(Control *p_overlay);
 
-    virtual bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event);
+    virtual bool forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event);
     virtual void forward_spatial_draw_over_viewport(Control *p_overlay);
     virtual void forward_spatial_force_draw_over_viewport(Control *p_overlay);
 

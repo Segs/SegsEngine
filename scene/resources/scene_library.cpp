@@ -175,8 +175,8 @@ int SceneLibrary::get_last_unused_item_id() const {
 
     if (item_map.empty())
         return 0;
-    else
-        return item_map.rbegin()->first + 1;
+
+    return item_map.rbegin()->first + 1;
 }
 
 void SceneLibrary::_bind_methods() {
@@ -194,7 +194,5 @@ void SceneLibrary::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_last_unused_item_id"), &SceneLibrary::get_last_unused_item_id);
 }
 
-SceneLibrary::SceneLibrary() {
-}
-SceneLibrary::~SceneLibrary() {
-}
+SceneLibrary::SceneLibrary() = default;
+SceneLibrary::~SceneLibrary() = default;

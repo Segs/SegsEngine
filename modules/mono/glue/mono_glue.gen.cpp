@@ -10,7 +10,7 @@
 #include "servers/arvr_server.h"
 #include "core/math/a_star.h"
 #include "scene/gui/dialogs.h"
-#include "scene/2d/animated_sprite.h"
+#include "scene/2d/animated_sprite_2d.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/animation.h"
@@ -22,8 +22,8 @@
 #include "scene/animation/animation_player.h"
 #include "editor/animation_track_editor.h"
 #include "scene/animation/animation_tree_player.h"
-#include "scene/3d/area.h"
 #include "scene/2d/area_2d.h"
+#include "scene/3d/area_3d.h"
 #include "scene/resources/mesh.h"
 #include "servers/audio_server.h"
 #include "servers/audio/audio_effect.h"
@@ -55,15 +55,15 @@
 #include "scene/resources/bit_map.h"
 #include "scene/resources/font.h"
 #include "scene/2d/skeleton_2d.h"
-#include "scene/3d/bone_attachment.h"
+#include "scene/3d/bone_attachment_3d.h"
 #include "scene/gui/box_container.h"
 #include "scene/resources/box_shape.h"
 #include "scene/gui/button.h"
-#include "scene/3d/cpu_particles.h"
 #include "scene/2d/cpu_particles_2d.h"
+#include "scene/3d/cpu_particles_3d.h"
 #include "modules/csg/csg_shape.h"
 #include "modules/mono/csharp_script.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/2d/camera_2d.h"
 #include "servers/camera/camera_feed.h"
 #include "servers/camera_server.h"
@@ -79,17 +79,17 @@
 #include "scene/gui/check_box.h"
 #include "scene/gui/check_button.h"
 #include "scene/resources/circle_shape_2d.h"
-#include "scene/3d/collision_object.h"
 #include "scene/2d/collision_object_2d.h"
+#include "scene/3d/collision_object_3d.h"
 #include "scene/3d/collision_polygon.h"
 #include "scene/2d/collision_polygon_2d.h"
-#include "scene/3d/collision_shape.h"
+#include "scene/3d/collision_shape_3d.h"
 #include "scene/2d/collision_shape_2d.h"
 #include "scene/gui/color_picker.h"
 #include "scene/gui/color_rect.h"
 #include "scene/resources/concave_polygon_shape.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
-#include "scene/3d/physics_joint.h"
+#include "scene/3d/physics_joint_3d.h"
 #include "core/io/config_file.h"
 #include "scene/gui/container.h"
 #include "scene/gui/control.h"
@@ -99,7 +99,7 @@
 #include "scene/resources/curve.h"
 #include "scene/resources/cylinder_shape.h"
 #include "scene/2d/joints_2d.h"
-#include "scene/3d/light.h"
+#include "scene/3d/light_3d.h"
 #include "scene/resources/dynamic_font.h"
 #include "editor/editor_export.h"
 #include "editor/editor_feature_profile.h"
@@ -108,7 +108,6 @@
 #include "editor/import/editor_import_plugin.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_plugin.h"
-#include "modules/gdnavigation/navigation_mesh_generator.h"
 #include "editor/property_editor.h"
 #include "editor/editor_resource_preview.h"
 #include "editor/import/resource_importer_scene.h"
@@ -126,7 +125,8 @@
 #include "modules/gdscript/gdscript.h"
 #include "modules/gdscript/gdscript_function.h"
 #include "scene/3d/gi_probe.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/2d/gpu_particles_2d.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/gradient.h"
 #include "scene/gui/graph_edit.h"
 #include "scene/gui/graph_node.h"
@@ -142,7 +142,7 @@
 #include "scene/resources/height_map_shape.h"
 #include "core/io/ip.h"
 #include "core/image.h"
-#include "scene/3d/immediate_geometry.h"
+#include "scene/3d/immediate_geometry_3d.h"
 #include "core/os/input.h"
 #include "core/input/input_event.h"
 #include "core/input/input_map.h"
@@ -151,7 +151,7 @@
 #include "scene/gui/item_list.h"
 #include "core/bind/core_bind.h"
 #include "modules/jsonrpc/jsonrpc.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/2d/physics_body_2d.h"
 #include "scene/gui/label.h"
 #include "scene/2d/light_2d.h"
@@ -160,23 +160,24 @@
 #include "scene/gui/line_edit.h"
 #include "scene/resources/line_shape_2d.h"
 #include "scene/gui/link_button.h"
-#include "scene/3d/listener.h"
+#include "scene/3d/listener_3d.h"
 #include "core/os/main_loop.h"
 #include "scene/gui/margin_container.h"
 #include "scene/resources/material.h"
 #include "scene/gui/menu_button.h"
 #include "scene/resources/mesh_data_tool.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/2d/mesh_instance_2d.h"
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/multimesh.h"
-#include "scene/3d/multimesh_instance.h"
+#include "scene/3d/multimesh_instance_3d.h"
 #include "scene/2d/multimesh_instance_2d.h"
 #include "core/io/multiplayer_api.h"
-#include "scene/3d/navigation.h"
+#include "scene/3d/navigation_3d.h"
 #include "scene/2d/navigation_2d.h"
 #include "scene/3d/navigation_agent.h"
 #include "scene/2d/navigation_agent_2d.h"
+#include "scene/resources/navigation_mesh.h"
 #include "modules/gdnavigation/navigation_mesh_generator.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/navigation_obstacle.h"
@@ -187,6 +188,7 @@
 #include "scene/gui/nine_patch_rect.h"
 #include "scene/main/node.h"
 #include "scene/2d/node_2d.h"
+#include "scene/3d/node_3d.h"
 #include "modules/opensimplex/noise_texture.h"
 #include "core/object.h"
 #include "modules/opensimplex/open_simplex_noise.h"
@@ -203,10 +205,9 @@
 #include "scene/2d/parallax_background.h"
 #include "scene/2d/parallax_layer.h"
 #include "scene/3d/particles.h"
-#include "scene/2d/particles_2d.h"
 #include "scene/resources/particles_material.h"
-#include "scene/3d/path.h"
 #include "scene/2d/path_2d.h"
+#include "scene/3d/path_3d.h"
 #include "main/performance.h"
 #include "servers/physics_server_2d.h"
 #include "servers/physics_server_3d.h"
@@ -220,11 +221,11 @@
 #include "scene/3d/position_3d.h"
 #include "scene/gui/progress_bar.h"
 #include "core/project_settings.h"
-#include "scene/3d/proximity_group.h"
+#include "scene/3d/proximity_group_3d.h"
 #include "core/math/random_number_generator.h"
 #include "scene/gui/range.h"
-#include "scene/3d/ray_cast.h"
 #include "scene/2d/ray_cast_2d.h"
+#include "scene/3d/ray_cast_3d.h"
 #include "scene/resources/ray_shape.h"
 #include "scene/resources/segment_shape_2d.h"
 #include "scene/resources/rectangle_shape_2d.h"
@@ -232,14 +233,17 @@
 #include "scene/gui/reference_rect.h"
 #include "scene/3d/reflection_probe.h"
 #include "modules/regex/regex.h"
-#include "scene/3d/remote_transform.h"
+#include "scene/3d/remote_transform_3d.h"
 #include "scene/2d/remote_transform_2d.h"
+#include "servers/rendering_server.h"
 #include "core/resource.h"
 #include "core/io/resource_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/io/resource_importer.h"
+#include "core/resource/manifest.h"
 #include "scene/main/resource_preloader.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/resources/scene_library.h"
 #include "scene/main/scene_tree.h"
 #include "core/script_language.h"
 #include "editor/script_create_dialog.h"
@@ -249,16 +253,15 @@
 #include "scene/resources/shape.h"
 #include "scene/resources/shape_2d.h"
 #include "scene/gui/shortcut.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "scene/animation/skeleton_ik.h"
 #include "scene/resources/skin.h"
-#include "scene/3d/soft_body.h"
-#include "scene/3d/node_3d.h"
-#include "scene/3d/spatial_velocity_tracker.h"
+#include "scene/3d/soft_body_3d.h"
+#include "scene/3d/velocity_tracker_3d.h"
 #include "scene/resources/sphere_shape.h"
 #include "scene/gui/spin_box.h"
-#include "scene/3d/spring_arm.h"
-#include "scene/2d/sprite.h"
+#include "scene/3d/spring_arm_3d.h"
+#include "scene/2d/sprite_2d.h"
 #include "core/io/stream_peer.h"
 #include "core/io/stream_peer_ssl.h"
 #include "core/io/stream_peer_tcp.h"
@@ -285,12 +288,12 @@
 #include "modules/upnp/upnp.h"
 #include "modules/upnp/upnp_device.h"
 #include "core/undo_redo.h"
-#include "scene/3d/vehicle_body.h"
+#include "scene/3d/vehicle_body_3d.h"
 #include "scene/gui/video_player.h"
 #include "scene/resources/video_stream.h"
 #include "scene/main/viewport.h"
 #include "scene/gui/viewport_container.h"
-#include "scene/3d/visibility_notifier.h"
+#include "scene/3d/visibility_notifier_3d.h"
 #include "scene/2d/visibility_notifier_2d.h"
 #include "modules/visual_script/visual_script.h"
 #include "modules/visual_script/visual_script_nodes.h"
@@ -299,7 +302,6 @@
 #include "modules/visual_script/visual_script_func_nodes.h"
 #include "modules/visual_script/visual_script_expression.h"
 #include "modules/visual_script/visual_script_yield_nodes.h"
-#include "servers/rendering_server.h"
 #include "scene/resources/visual_shader.h"
 #include "scene/resources/visual_shader_nodes.h"
 #include "modules/webrtc/webrtc_data_channel.h"
@@ -311,7 +313,6 @@
 #include "modules/websocket/websocket_server.h"
 #include "scene/resources/world.h"
 #include "scene/resources/world_2d.h"
-#include "scene/resources/curve_texture.h"
 #include "scene/3d/world_environment.h"
 #include "core/io/xml_parser.h"
 #include "scene/2d/y_sort.h"
@@ -559,6 +560,12 @@ int32_t godot_icall_ARVRPositionalTracker_get_type_3def433(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
     auto ret = static_cast<ARVRPositionalTracker *>(ptr)->get_type();
     return (int32_t)ret;
+}
+
+int32_t godot_icall_ARVRPositionalTracker_get_tracker_id_1f886eb0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<ARVRPositionalTracker *>(ptr)->get_tracker_id();
+	return static_cast<int32_t>(ret);
 }
 
 MonoString* godot_icall_ARVRPositionalTracker_get_name_97be4a2e(Object * ptr) {
@@ -1144,133 +1151,133 @@ Object* godot_icall_AcceptDialog_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_AnimatedSprite_set_sprite_frames_abe58830(Object * ptr, Object * arg1) {
+void godot_icall_AnimatedSprite2D_set_sprite_frames_abe58830(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<AnimatedSprite *>(ptr)->set_sprite_frames(AutoRef(arg1));
+	static_cast<AnimatedSprite2D *>(ptr)->set_sprite_frames(AutoRef(arg1));
 }
 
-MonoObject* godot_icall_AnimatedSprite_get_sprite_frames_593d5734(Object * ptr) {
+MonoObject* godot_icall_AnimatedSprite2D_get_sprite_frames_593d5734(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<AnimatedSprite *>(ptr)->get_sprite_frames();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->get_sprite_frames();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_AnimatedSprite_set_animation_2f29e819(Object * ptr, MonoString* arg1) {
+void godot_icall_AnimatedSprite2D_set_animation_2f29e819(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
-    static_cast<AnimatedSprite *>(ptr)->set_animation(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_animation(arg1_in);
 }
 
-MonoString* godot_icall_AnimatedSprite_get_animation_97be4a2e(Object * ptr) {
+MonoString* godot_icall_AnimatedSprite2D_get_animation_97be4a2e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<AnimatedSprite *>(ptr)->get_animation();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->get_animation();
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-void godot_icall_AnimatedSprite__set_playing_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_AnimatedSprite2D__set_playing_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<AnimatedSprite *>(ptr)->_set_playing(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->_set_playing(arg1_in);
 }
 
-MonoBoolean godot_icall_AnimatedSprite__is_playing_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_AnimatedSprite2D__is_playing_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->_is_playing();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->_is_playing();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimatedSprite_play_f253b141(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
+void godot_icall_AnimatedSprite2D_play_f253b141(Object * ptr, MonoString* arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<AnimatedSprite *>(ptr)->play(arg1_in, arg2_in);
+	static_cast<AnimatedSprite2D *>(ptr)->play(arg1_in, arg2_in);
 }
 
-void godot_icall_AnimatedSprite_stop_c8e54a7b(Object * ptr) {
+void godot_icall_AnimatedSprite2D_stop_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<AnimatedSprite *>(ptr)->stop();
+	static_cast<AnimatedSprite2D *>(ptr)->stop();
 }
 
-MonoBoolean godot_icall_AnimatedSprite_is_playing_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_AnimatedSprite2D_is_playing_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->is_playing();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->is_playing();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimatedSprite_set_centered_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_AnimatedSprite2D_set_centered_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_centered(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_centered(arg1_in);
 }
 
-MonoBoolean godot_icall_AnimatedSprite_is_centered_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_AnimatedSprite2D_is_centered_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->is_centered();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->is_centered();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimatedSprite_set_offset_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+void godot_icall_AnimatedSprite2D_set_offset_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_offset(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_offset(arg1_in);
 }
 
-void godot_icall_AnimatedSprite_get_offset_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_AnimatedSprite2D_get_offset_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<AnimatedSprite *>(ptr)->get_offset();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->get_offset();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_AnimatedSprite_set_flip_h_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_AnimatedSprite2D_set_flip_h_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_flip_h(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_flip_h(arg1_in);
 }
 
-MonoBoolean godot_icall_AnimatedSprite_is_flipped_h_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_AnimatedSprite2D_is_flipped_h_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->is_flipped_h();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->is_flipped_h();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimatedSprite_set_flip_v_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_AnimatedSprite2D_set_flip_v_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_flip_v(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_flip_v(arg1_in);
 }
 
-MonoBoolean godot_icall_AnimatedSprite_is_flipped_v_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_AnimatedSprite2D_is_flipped_v_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->is_flipped_v();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->is_flipped_v();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_AnimatedSprite_set_frame_e1ae93bc(Object * ptr, int32_t arg1) {
+void godot_icall_AnimatedSprite2D_set_frame_e1ae93bc(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_frame(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_frame(arg1_in);
 }
 
-int32_t godot_icall_AnimatedSprite_get_frame_1f886eb0(Object * ptr) {
+int32_t godot_icall_AnimatedSprite2D_get_frame_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<AnimatedSprite *>(ptr)->get_frame();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->get_frame();
     return static_cast<int32_t>(ret);
 }
 
-void godot_icall_AnimatedSprite_set_speed_scale_904508bb(Object * ptr, float* arg1) {
+void godot_icall_AnimatedSprite2D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<AnimatedSprite *>(ptr)->set_speed_scale(arg1_in);
+	static_cast<AnimatedSprite2D *>(ptr)->set_speed_scale(arg1_in);
 }
 
-void godot_icall_AnimatedSprite_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_AnimatedSprite2D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<AnimatedSprite *>(ptr)->get_speed_scale();
+	auto ret = static_cast<AnimatedSprite2D *>(ptr)->get_speed_scale();
     *arg_ret = (float)ret;
 }
 
-Object* godot_icall_AnimatedSprite_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "AnimatedSprite")
+Object* godot_icall_AnimatedSprite2D_Ctor(MonoObject* obj) {
+	GODOTSHARP_INSTANCE_OBJECT(instance, "AnimatedSprite2D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -3709,280 +3716,6 @@ Object* godot_icall_AnimationTreePlayer_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Area_set_space_override_mode_f76f65b6(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<Area *>(ptr)->set_space_override_mode((Area::SpaceOverride)arg1_in);
-}
-
-int32_t godot_icall_Area_get_space_override_mode_56d1dce1(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Area *>(ptr)->get_space_override_mode();
-    return (int32_t)ret;
-}
-
-void godot_icall_Area_set_gravity_is_point_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Area *>(ptr)->set_gravity_is_point(arg1_in);
-}
-
-MonoBoolean godot_icall_Area_is_gravity_a_point_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->is_gravity_a_point();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_gravity_distance_scale_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_gravity_distance_scale(arg1_in);
-}
-
-void godot_icall_Area_get_gravity_distance_scale_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_gravity_distance_scale();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_gravity_vector_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Area *>(ptr)->set_gravity_vector(arg1_in);
-}
-
-void godot_icall_Area_get_gravity_vector_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_gravity_vector();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Area_set_gravity_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_gravity(arg1_in);
-}
-
-void godot_icall_Area_get_gravity_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_gravity();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_angular_damp_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_angular_damp(arg1_in);
-}
-
-void godot_icall_Area_get_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_angular_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_linear_damp_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_linear_damp(arg1_in);
-}
-
-void godot_icall_Area_get_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_linear_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_priority_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_priority(arg1_in);
-}
-
-void godot_icall_Area_get_priority_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_priority();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<Area *>(ptr)->set_collision_mask(arg1_in);
-}
-
-uint32_t godot_icall_Area_get_collision_mask_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<Area *>(ptr)->get_collision_mask();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_Area_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<Area *>(ptr)->set_collision_layer(arg1_in);
-}
-
-uint32_t godot_icall_Area_get_collision_layer_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<Area *>(ptr)->get_collision_layer();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_Area_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<Area *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_Area_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<Area *>(ptr)->get_collision_mask_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<Area *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_Area_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<Area *>(ptr)->get_collision_layer_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_monitorable_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Area *>(ptr)->set_monitorable(arg1_in);
-}
-
-MonoBoolean godot_icall_Area_is_monitorable_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->is_monitorable();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_monitoring_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Area *>(ptr)->set_monitoring(arg1_in);
-}
-
-MonoBoolean godot_icall_Area_is_monitoring_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->is_monitoring();
-    return static_cast<MonoBoolean>(ret);
-}
-
-Array* godot_icall_Area_get_overlapping_bodies_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Area *>(ptr)->get_overlapping_bodies();
-    return memnew(Array(Variant::from(ret)));
-}
-
-Array* godot_icall_Area_get_overlapping_areas_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Area *>(ptr)->get_overlapping_areas();
-    return memnew(Array(Variant::from(ret)));
-}
-
-MonoBoolean godot_icall_Area_overlaps_body_1746f8cd(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->overlaps_body((Node*)arg1);
-    return static_cast<MonoBoolean>(ret);
-}
-
-MonoBoolean godot_icall_Area_overlaps_area_1746f8cd(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->overlaps_area((Node*)arg1);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_audio_bus_override_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Area *>(ptr)->set_audio_bus_override(arg1_in);
-}
-
-MonoBoolean godot_icall_Area_is_overriding_audio_bus_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->is_overriding_audio_bus();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_audio_bus_2f29e819(Object * ptr, MonoString* arg1) {
-    ERR_FAIL_NULL(ptr);
-    StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
-    static_cast<Area *>(ptr)->set_audio_bus(arg1_in);
-}
-
-MonoString* godot_icall_Area_get_audio_bus_97be4a2e(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Area *>(ptr)->get_audio_bus();
-    return GDMonoMarshal::mono_string_from_godot(ret);
-}
-
-void godot_icall_Area_set_use_reverb_bus_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Area *>(ptr)->set_use_reverb_bus(arg1_in);
-}
-
-MonoBoolean godot_icall_Area_is_using_reverb_bus_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Area *>(ptr)->is_using_reverb_bus();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Area_set_reverb_bus_2f29e819(Object * ptr, MonoString* arg1) {
-    ERR_FAIL_NULL(ptr);
-    StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
-    static_cast<Area *>(ptr)->set_reverb_bus(arg1_in);
-}
-
-MonoString* godot_icall_Area_get_reverb_bus_97be4a2e(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Area *>(ptr)->get_reverb_bus();
-    return GDMonoMarshal::mono_string_from_godot(ret);
-}
-
-void godot_icall_Area_set_reverb_amount_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_reverb_amount(arg1_in);
-}
-
-void godot_icall_Area_get_reverb_amount_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_reverb_amount();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Area_set_reverb_uniformity_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Area *>(ptr)->set_reverb_uniformity(arg1_in);
-}
-
-void godot_icall_Area_get_reverb_uniformity_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Area *>(ptr)->get_reverb_uniformity();
-    *arg_ret = (float)ret;
-}
-
-Object* godot_icall_Area_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Area")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
 void godot_icall_Area2D_set_space_override_mode_aebe927c(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
@@ -4209,6 +3942,280 @@ Object* godot_icall_Area2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
+void godot_icall_Area3D_set_space_override_mode_351cae79(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+	static_cast<Area3D *>(ptr)->set_space_override_mode((Area3D::SpaceOverride)arg1_in);
+}
+
+int32_t godot_icall_Area3D_get_space_override_mode_ab632294(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<Area3D *>(ptr)->get_space_override_mode();
+    return (int32_t)ret;
+}
+
+void godot_icall_Area3D_set_gravity_is_point_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Area3D *>(ptr)->set_gravity_is_point(arg1_in);
+}
+
+MonoBoolean godot_icall_Area3D_is_gravity_a_point_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->is_gravity_a_point();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_gravity_distance_scale_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_gravity_distance_scale(arg1_in);
+}
+
+void godot_icall_Area3D_get_gravity_distance_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_gravity_distance_scale();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_gravity_vector_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Area3D *>(ptr)->set_gravity_vector(arg1_in);
+}
+
+void godot_icall_Area3D_get_gravity_vector_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_gravity_vector();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Area3D_set_gravity_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_gravity(arg1_in);
+}
+
+void godot_icall_Area3D_get_gravity_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_gravity();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_angular_damp_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_angular_damp(arg1_in);
+}
+
+void godot_icall_Area3D_get_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_angular_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_linear_damp_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_linear_damp(arg1_in);
+}
+
+void godot_icall_Area3D_get_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_linear_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_priority_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_priority(arg1_in);
+}
+
+void godot_icall_Area3D_get_priority_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_priority();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+	static_cast<Area3D *>(ptr)->set_collision_mask(arg1_in);
+}
+
+uint32_t godot_icall_Area3D_get_collision_mask_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+	auto ret = static_cast<Area3D *>(ptr)->get_collision_mask();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_Area3D_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+	static_cast<Area3D *>(ptr)->set_collision_layer(arg1_in);
+}
+
+uint32_t godot_icall_Area3D_get_collision_layer_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+	auto ret = static_cast<Area3D *>(ptr)->get_collision_layer();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_Area3D_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+	static_cast<Area3D *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_Area3D_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+	auto ret = static_cast<Area3D *>(ptr)->get_collision_mask_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+	static_cast<Area3D *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_Area3D_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+	auto ret = static_cast<Area3D *>(ptr)->get_collision_layer_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_monitorable_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Area3D *>(ptr)->set_monitorable(arg1_in);
+}
+
+MonoBoolean godot_icall_Area3D_is_monitorable_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->is_monitorable();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_monitoring_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Area3D *>(ptr)->set_monitoring(arg1_in);
+}
+
+MonoBoolean godot_icall_Area3D_is_monitoring_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->is_monitoring();
+    return static_cast<MonoBoolean>(ret);
+}
+
+Array* godot_icall_Area3D_get_overlapping_bodies_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Area3D *>(ptr)->get_overlapping_bodies();
+    return memnew(Array(Variant::from(ret)));
+}
+
+Array* godot_icall_Area3D_get_overlapping_areas_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Area3D *>(ptr)->get_overlapping_areas();
+    return memnew(Array(Variant::from(ret)));
+}
+
+MonoBoolean godot_icall_Area3D_overlaps_body_1746f8cd(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->overlaps_body((Node*)arg1);
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_Area3D_overlaps_area_1746f8cd(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->overlaps_area((Node*)arg1);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_audio_bus_override_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Area3D *>(ptr)->set_audio_bus_override(arg1_in);
+}
+
+MonoBoolean godot_icall_Area3D_is_overriding_audio_bus_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->is_overriding_audio_bus();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_audio_bus_2f29e819(Object * ptr, MonoString* arg1) {
+    ERR_FAIL_NULL(ptr);
+    StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
+	static_cast<Area3D *>(ptr)->set_audio_bus(arg1_in);
+}
+
+MonoString* godot_icall_Area3D_get_audio_bus_97be4a2e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Area3D *>(ptr)->get_audio_bus();
+    return GDMonoMarshal::mono_string_from_godot(ret);
+}
+
+void godot_icall_Area3D_set_use_reverb_bus_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Area3D *>(ptr)->set_use_reverb_bus(arg1_in);
+}
+
+MonoBoolean godot_icall_Area3D_is_using_reverb_bus_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Area3D *>(ptr)->is_using_reverb_bus();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Area3D_set_reverb_bus_2f29e819(Object * ptr, MonoString* arg1) {
+    ERR_FAIL_NULL(ptr);
+    StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
+	static_cast<Area3D *>(ptr)->set_reverb_bus(arg1_in);
+}
+
+MonoString* godot_icall_Area3D_get_reverb_bus_97be4a2e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Area3D *>(ptr)->get_reverb_bus();
+    return GDMonoMarshal::mono_string_from_godot(ret);
+}
+
+void godot_icall_Area3D_set_reverb_amount_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_reverb_amount(arg1_in);
+}
+
+void godot_icall_Area3D_get_reverb_amount_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_reverb_amount();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Area3D_set_reverb_uniformity_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+	static_cast<Area3D *>(ptr)->set_reverb_uniformity(arg1_in);
+}
+
+void godot_icall_Area3D_get_reverb_uniformity_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Area3D *>(ptr)->get_reverb_uniformity();
+    *arg_ret = (float)ret;
+}
+
+Object* godot_icall_Area3D_Ctor(MonoObject* obj) {
+	GODOTSHARP_INSTANCE_OBJECT(instance, "Area3D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
 void godot_icall_ArrayMesh_add_blend_shape_2f29e819(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
@@ -4262,7 +4269,7 @@ void godot_icall_ArrayMesh_surface_update_region_677e35b2(Object * ptr, int32_t 
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto arg3_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg3);
+	PoolByteArray arg3_in = GDMonoMarshal::mono_array_to_PoolByteArray(arg3);
     static_cast<ArrayMesh *>(ptr)->surface_update_region(arg1_in, arg2_in, arg3_in);
 }
 
@@ -7197,19 +7204,19 @@ Object* godot_icall_Bone2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_BoneAttachment_set_bone_name_6964ff3e(Object * ptr, MonoString* arg1) {
+void godot_icall_BoneAttachment3D_set_bone_name_6964ff3e(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     String arg1_in = GDMonoMarshal::mono_string_to_godot(arg1);
     static_cast<BoneAttachment3D *>(ptr)->set_bone_name(arg1_in);
 }
 
-MonoString* godot_icall_BoneAttachment_get_bone_name_97be4a2e(Object * ptr) {
+MonoString* godot_icall_BoneAttachment3D_get_bone_name_97be4a2e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<BoneAttachment3D *>(ptr)->get_bone_name();
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
-Object* godot_icall_BoneAttachment_Ctor(MonoObject* obj) {
+Object* godot_icall_BoneAttachment3D_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "BoneAttachment3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
@@ -7342,387 +7349,6 @@ Array* godot_icall_ButtonGroup_get_buttons_d80382d4(Object * ptr) {
 
 Object* godot_icall_ButtonGroup_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "ButtonGroup")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
-void godot_icall_CPUParticles3D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emitting(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_amount(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_lifetime_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_lifetime(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_one_shot(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_pre_process_time(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_explosiveness_ratio(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_randomness_ratio(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_lifetime_randomness_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_lifetime_randomness(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_use_local_coordinates(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_fixed_fps(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_fractional_delta(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_speed_scale(arg1_in);
-}
-
-MonoBoolean godot_icall_CPUParticles3D_is_emitting_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->is_emitting();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_CPUParticles3D_get_amount_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_amount();
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_CPUParticles3D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime();
-    *arg_ret = (float)ret;
-}
-
-MonoBoolean godot_icall_CPUParticles3D_get_one_shot_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_one_shot();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_CPUParticles3D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_pre_process_time();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_explosiveness_ratio();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_randomness_ratio();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_get_lifetime_randomness_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime_randomness();
-    *arg_ret = (float)ret;
-}
-
-MonoBoolean godot_icall_CPUParticles3D_get_use_local_coordinates_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_use_local_coordinates();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_CPUParticles3D_get_fixed_fps_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fixed_fps();
-    return static_cast<int32_t>(ret);
-}
-
-MonoBoolean godot_icall_CPUParticles3D_get_fractional_delta_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fractional_delta();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_CPUParticles3D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_speed_scale();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_draw_order_2112a4ca(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles3D *>(ptr)->set_draw_order((CPUParticles3D::DrawOrder)arg1_in);
-}
-
-int32_t godot_icall_CPUParticles3D_get_draw_order_57695d85(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_draw_order();
-    return (int32_t)ret;
-}
-
-void godot_icall_CPUParticles3D_set_mesh_d5d30806(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles3D *>(ptr)->set_mesh(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_CPUParticles3D_get_mesh_1372d766(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_mesh();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_CPUParticles3D_restart_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles3D *>(ptr)->restart();
-}
-
-void godot_icall_CPUParticles3D_set_direction_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_direction(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_direction_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_direction();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_CPUParticles3D_set_spread_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_spread(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_spread_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_spread();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_flatness_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_flatness(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_flatness_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_flatness();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_param_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    float arg2_in = static_cast<float>(*arg2);
-    static_cast<CPUParticles3D *>(ptr)->set_param((CPUParticles3D::Parameter)arg1_in, arg2_in);
-}
-
-void godot_icall_CPUParticles3D_get_param_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param((CPUParticles3D::Parameter)arg1_in);
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_param_randomness_a810fa37(Object * ptr, int32_t arg1, float* arg2) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    float arg2_in = static_cast<float>(*arg2);
-    static_cast<CPUParticles3D *>(ptr)->set_param_randomness((CPUParticles3D::Parameter)arg1_in, arg2_in);
-}
-
-void godot_icall_CPUParticles3D_get_param_randomness_6b4f30f5(Object * ptr, int32_t arg1, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_randomness((CPUParticles3D::Parameter)arg1_in);
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_param_curve_6fa1bca6(Object * ptr, int32_t arg1, Object * arg2) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles3D *>(ptr)->set_param_curve((CPUParticles3D::Parameter)arg1_in, AutoRef(arg2));
-}
-
-MonoObject* godot_icall_CPUParticles3D_get_param_curve_c99d09e2(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_curve((CPUParticles3D::Parameter)arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_CPUParticles3D_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_color(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color();
-    *arg_ret = MARSHALLED_OUT(Color, ret);
-}
-
-void godot_icall_CPUParticles3D_set_color_ramp_487c5873(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles3D *>(ptr)->set_color_ramp(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_CPUParticles3D_get_color_ramp_76d5a6f1(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color_ramp();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_CPUParticles3D_set_particle_flag_440013aa(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<CPUParticles3D *>(ptr)->set_particle_flag((CPUParticles3D::Flags)arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_CPUParticles3D_get_particle_flag_8b445db5(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_particle_flag((CPUParticles3D::Flags)arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_CPUParticles3D_set_emission_shape_1801db0(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<CPUParticles3D *>(ptr)->set_emission_shape((CPUParticles3D::EmissionShape)arg1_in);
-}
-
-int32_t godot_icall_CPUParticles3D_get_emission_shape_12316583(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_shape();
-    return (int32_t)ret;
-}
-
-void godot_icall_CPUParticles3D_set_emission_sphere_radius_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emission_sphere_radius(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_emission_sphere_radius_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_sphere_radius();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_CPUParticles3D_set_emission_box_extents_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emission_box_extents(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_get_emission_box_extents_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_box_extents();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_CPUParticles3D_set_emission_points_88c6a314(Object * ptr, MonoArray* arg1) {
-    ERR_FAIL_NULL(ptr);
-    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emission_points(arg1_in);
-}
-
-MonoArray* godot_icall_CPUParticles3D_get_emission_points_36607e58(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_points();
-    return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
-}
-
-void godot_icall_CPUParticles3D_set_emission_normals_88c6a314(Object * ptr, MonoArray* arg1) {
-    ERR_FAIL_NULL(ptr);
-    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emission_normals(arg1_in);
-}
-
-MonoArray* godot_icall_CPUParticles3D_get_emission_normals_36607e58(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_normals();
-    return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
-}
-
-void godot_icall_CPUParticles3D_set_emission_colors_22e90985(Object * ptr, MonoArray* arg1) {
-    ERR_FAIL_NULL(ptr);
-    PoolColorArray arg1_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_emission_colors(arg1_in);
-}
-
-MonoArray* godot_icall_CPUParticles3D_get_emission_colors_e048d8e7(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_colors();
-    return GDMonoMarshal::PoolColorArray_to_mono_array(ret);
-}
-
-void godot_icall_CPUParticles3D_get_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CPUParticles3D *>(ptr)->get_gravity();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_CPUParticles3D_set_gravity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<CPUParticles3D *>(ptr)->set_gravity(arg1_in);
-}
-
-void godot_icall_CPUParticles3D_convert_from_particles_598860a7(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<CPUParticles3D *>(ptr)->convert_from_particles((Node*)arg1);
-}
-
-Object* godot_icall_CPUParticles3D_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "CPUParticles3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -8103,6 +7729,387 @@ void godot_icall_CPUParticles2D_convert_from_particles_598860a7(Object * ptr, Ob
 
 Object* godot_icall_CPUParticles2D_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "CPUParticles2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+void godot_icall_CPUParticles3D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emitting(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_amount(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_lifetime_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_lifetime(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_one_shot(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_pre_process_time(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_explosiveness_ratio(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_randomness_ratio(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_lifetime_randomness_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_lifetime_randomness(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_use_local_coordinates(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_fixed_fps(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_fractional_delta(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_speed_scale(arg1_in);
+}
+
+MonoBoolean godot_icall_CPUParticles3D_is_emitting_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->is_emitting();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_CPUParticles3D_get_amount_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_amount();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_CPUParticles3D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime();
+    *arg_ret = (float)ret;
+}
+
+MonoBoolean godot_icall_CPUParticles3D_get_one_shot_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_one_shot();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_CPUParticles3D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_pre_process_time();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_explosiveness_ratio();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_randomness_ratio();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_get_lifetime_randomness_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_lifetime_randomness();
+    *arg_ret = (float)ret;
+}
+
+MonoBoolean godot_icall_CPUParticles3D_get_use_local_coordinates_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_use_local_coordinates();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_CPUParticles3D_get_fixed_fps_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fixed_fps();
+    return static_cast<int32_t>(ret);
+}
+
+MonoBoolean godot_icall_CPUParticles3D_get_fractional_delta_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_fractional_delta();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_CPUParticles3D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_speed_scale();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_draw_order_3dea4089(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<CPUParticles3D *>(ptr)->set_draw_order((CPUParticles3D::DrawOrder)arg1_in);
+}
+
+int32_t godot_icall_CPUParticles3D_get_draw_order_59a06064(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_draw_order();
+    return (int32_t)ret;
+}
+
+void godot_icall_CPUParticles3D_set_mesh_d5d30806(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<CPUParticles3D *>(ptr)->set_mesh(AutoRef(arg1));
+}
+
+MonoObject* godot_icall_CPUParticles3D_get_mesh_1372d766(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_mesh();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_CPUParticles3D_restart_c8e54a7b(Object * ptr) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<CPUParticles3D *>(ptr)->restart();
+}
+
+void godot_icall_CPUParticles3D_set_direction_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_direction(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_direction_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_direction();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_CPUParticles3D_set_spread_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_spread(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_spread_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_spread();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_flatness_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_flatness(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_flatness_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_flatness();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_param_6227e5a8(Object * ptr, int32_t arg1, float* arg2) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    float arg2_in = static_cast<float>(*arg2);
+    static_cast<CPUParticles3D *>(ptr)->set_param((CPUParticles3D::Parameter)arg1_in, arg2_in);
+}
+
+void godot_icall_CPUParticles3D_get_param_3ccb4426(Object * ptr, int32_t arg1, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int64_t arg1_in = (int64_t)arg1;
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param((CPUParticles3D::Parameter)arg1_in);
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_param_randomness_6227e5a8(Object * ptr, int32_t arg1, float* arg2) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    float arg2_in = static_cast<float>(*arg2);
+    static_cast<CPUParticles3D *>(ptr)->set_param_randomness((CPUParticles3D::Parameter)arg1_in, arg2_in);
+}
+
+void godot_icall_CPUParticles3D_get_param_randomness_3ccb4426(Object * ptr, int32_t arg1, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int64_t arg1_in = (int64_t)arg1;
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_randomness((CPUParticles3D::Parameter)arg1_in);
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_param_curve_a9773e39(Object * ptr, int32_t arg1, Object * arg2) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<CPUParticles3D *>(ptr)->set_param_curve((CPUParticles3D::Parameter)arg1_in, AutoRef(arg2));
+}
+
+MonoObject* godot_icall_CPUParticles3D_get_param_curve_518dc31(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int64_t arg1_in = (int64_t)arg1;
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_param_curve((CPUParticles3D::Parameter)arg1_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_CPUParticles3D_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Color arg1_in = MARSHALLED_IN(Color, arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_color(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color();
+    *arg_ret = MARSHALLED_OUT(Color, ret);
+}
+
+void godot_icall_CPUParticles3D_set_color_ramp_487c5873(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<CPUParticles3D *>(ptr)->set_color_ramp(AutoRef(arg1));
+}
+
+MonoObject* godot_icall_CPUParticles3D_get_color_ramp_76d5a6f1(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_color_ramp();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_CPUParticles3D_set_particle_flag_2836cd3f(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<CPUParticles3D *>(ptr)->set_particle_flag((CPUParticles3D::Flags)arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_CPUParticles3D_get_particle_flag_da26ac4e(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int64_t arg1_in = (int64_t)arg1;
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_particle_flag((CPUParticles3D::Flags)arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_CPUParticles3D_set_emission_shape_a99c076f(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<CPUParticles3D *>(ptr)->set_emission_shape((CPUParticles3D::EmissionShape)arg1_in);
+}
+
+int32_t godot_icall_CPUParticles3D_get_emission_shape_6a52efba(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_shape();
+    return (int32_t)ret;
+}
+
+void godot_icall_CPUParticles3D_set_emission_sphere_radius_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_sphere_radius(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_emission_sphere_radius_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_sphere_radius();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_CPUParticles3D_set_emission_box_extents_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_box_extents(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_get_emission_box_extents_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_box_extents();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_CPUParticles3D_set_emission_points_88c6a314(Object * ptr, MonoArray* arg1) {
+    ERR_FAIL_NULL(ptr);
+    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_points(arg1_in);
+}
+
+MonoArray* godot_icall_CPUParticles3D_get_emission_points_36607e58(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_points();
+    return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
+}
+
+void godot_icall_CPUParticles3D_set_emission_normals_88c6a314(Object * ptr, MonoArray* arg1) {
+    ERR_FAIL_NULL(ptr);
+    PoolVector3Array arg1_in = GDMonoMarshal::mono_array_to_PoolVector3Array(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_normals(arg1_in);
+}
+
+MonoArray* godot_icall_CPUParticles3D_get_emission_normals_36607e58(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_normals();
+    return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
+}
+
+void godot_icall_CPUParticles3D_set_emission_colors_22e90985(Object * ptr, MonoArray* arg1) {
+    ERR_FAIL_NULL(ptr);
+    PoolColorArray arg1_in = GDMonoMarshal::mono_array_to_PoolColorArray(arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_emission_colors(arg1_in);
+}
+
+MonoArray* godot_icall_CPUParticles3D_get_emission_colors_e048d8e7(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_emission_colors();
+    return GDMonoMarshal::PoolColorArray_to_mono_array(ret);
+}
+
+void godot_icall_CPUParticles3D_get_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<CPUParticles3D *>(ptr)->get_gravity();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_CPUParticles3D_set_gravity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<CPUParticles3D *>(ptr)->set_gravity(arg1_in);
+}
+
+void godot_icall_CPUParticles3D_convert_from_particles_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<CPUParticles3D *>(ptr)->convert_from_particles((Node*)arg1);
+}
+
+Object* godot_icall_CPUParticles3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "CPUParticles3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -8722,35 +8729,35 @@ Object* godot_icall_CSharpScript_Ctor(MonoObject* obj) {
 void godot_icall_Camera_project_ray_normal_af4cfa15(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    auto ret = static_cast<Camera *>(ptr)->project_ray_normal(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->project_ray_normal(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Camera_project_local_ray_normal_af4cfa15(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    auto ret = static_cast<Camera *>(ptr)->project_local_ray_normal(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->project_local_ray_normal(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Camera_project_ray_origin_af4cfa15(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    auto ret = static_cast<Camera *>(ptr)->project_ray_origin(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->project_ray_origin(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Camera_unproject_position_af4cfa55(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Camera *>(ptr)->unproject_position(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->unproject_position(arg1_in);
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
 MonoBoolean godot_icall_Camera_is_position_behind_fba3d547(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Camera *>(ptr)->is_position_behind(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->is_position_behind(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
@@ -8758,7 +8765,7 @@ void godot_icall_Camera_project_position_436aef32(Object * ptr, GDMonoMarshal::M
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
     float arg2_in = static_cast<float>(*arg2);
-    auto ret = static_cast<Camera *>(ptr)->project_position(arg1_in, arg2_in);
+    auto ret = static_cast<Camera3D *>(ptr)->project_position(arg1_in, arg2_in);
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
@@ -8767,7 +8774,7 @@ void godot_icall_Camera_set_perspective_106d7437(Object * ptr, float* arg1, floa
     float arg1_in = static_cast<float>(*arg1);
     float arg2_in = static_cast<float>(*arg2);
     float arg3_in = static_cast<float>(*arg3);
-    static_cast<Camera *>(ptr)->set_perspective(arg1_in, arg2_in, arg3_in);
+    static_cast<Camera3D *>(ptr)->set_perspective(arg1_in, arg2_in, arg3_in);
 }
 
 void godot_icall_Camera_set_orthogonal_106d7437(Object * ptr, float* arg1, float* arg2, float* arg3) {
@@ -8775,7 +8782,7 @@ void godot_icall_Camera_set_orthogonal_106d7437(Object * ptr, float* arg1, float
     float arg1_in = static_cast<float>(*arg1);
     float arg2_in = static_cast<float>(*arg2);
     float arg3_in = static_cast<float>(*arg3);
-    static_cast<Camera *>(ptr)->set_orthogonal(arg1_in, arg2_in, arg3_in);
+    static_cast<Camera3D *>(ptr)->set_orthogonal(arg1_in, arg2_in, arg3_in);
 }
 
 void godot_icall_Camera_set_frustum_6524c12b(Object * ptr, float* arg1, GDMonoMarshal::M_Vector2* arg2, float* arg3, float* arg4) {
@@ -8784,190 +8791,190 @@ void godot_icall_Camera_set_frustum_6524c12b(Object * ptr, float* arg1, GDMonoMa
     Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
     float arg3_in = static_cast<float>(*arg3);
     float arg4_in = static_cast<float>(*arg4);
-    static_cast<Camera *>(ptr)->set_frustum(arg1_in, arg2_in, arg3_in, arg4_in);
+    static_cast<Camera3D *>(ptr)->set_frustum(arg1_in, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_Camera_make_current_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Camera *>(ptr)->make_current();
+    static_cast<Camera3D *>(ptr)->make_current();
 }
 
 void godot_icall_Camera_clear_current_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Camera *>(ptr)->clear_current(arg1_in);
+    static_cast<Camera3D *>(ptr)->clear_current(arg1_in);
 }
 
 void godot_icall_Camera_set_current_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Camera *>(ptr)->set_current(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_current(arg1_in);
 }
 
 MonoBoolean godot_icall_Camera_is_current_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Camera *>(ptr)->is_current();
+    auto ret = static_cast<Camera3D *>(ptr)->is_current();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Camera_get_camera_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_camera_transform();
+    auto ret = static_cast<Camera3D *>(ptr)->get_camera_transform();
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 void godot_icall_Camera_get_fov_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_fov();
+    auto ret = static_cast<Camera3D *>(ptr)->get_fov();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_get_frustum_offset_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_frustum_offset();
+    auto ret = static_cast<Camera3D *>(ptr)->get_frustum_offset();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
 void godot_icall_Camera_get_size_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_size();
+    auto ret = static_cast<Camera3D *>(ptr)->get_size();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_get_zfar_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_zfar();
+    auto ret = static_cast<Camera3D *>(ptr)->get_zfar();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_get_znear_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_znear();
+    auto ret = static_cast<Camera3D *>(ptr)->get_znear();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_set_fov_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_fov(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_fov(arg1_in);
 }
 
 void godot_icall_Camera_set_frustum_offset_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<Camera *>(ptr)->set_frustum_offset(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_frustum_offset(arg1_in);
 }
 
 void godot_icall_Camera_set_size_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_size(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_size(arg1_in);
 }
 
 void godot_icall_Camera_set_zfar_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_zfar(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_zfar(arg1_in);
 }
 
 void godot_icall_Camera_set_znear_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_znear(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_znear(arg1_in);
 }
 
 int32_t godot_icall_Camera_get_projection_88fcd902(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Camera *>(ptr)->get_projection();
+    auto ret = static_cast<Camera3D *>(ptr)->get_projection();
     return (int32_t)ret;
 }
 
 void godot_icall_Camera_set_projection_a16bdaa7(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<Camera *>(ptr)->set_projection((Camera::Projection)arg1_in);
+    static_cast<Camera3D *>(ptr)->set_projection((Camera3D::Projection)arg1_in);
 }
 
 void godot_icall_Camera_set_h_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_h_offset(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_h_offset(arg1_in);
 }
 
 void godot_icall_Camera_get_h_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_h_offset();
+    auto ret = static_cast<Camera3D *>(ptr)->get_h_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_set_v_offset_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Camera *>(ptr)->set_v_offset(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_v_offset(arg1_in);
 }
 
 void godot_icall_Camera_get_v_offset_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Camera *>(ptr)->get_v_offset();
+    auto ret = static_cast<Camera3D *>(ptr)->get_v_offset();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Camera_set_cull_mask_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<Camera *>(ptr)->set_cull_mask(arg1_in);
+    static_cast<Camera3D *>(ptr)->set_cull_mask(arg1_in);
 }
 
 uint32_t godot_icall_Camera_get_cull_mask_54cc76d5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<Camera *>(ptr)->get_cull_mask();
+    auto ret = static_cast<Camera3D *>(ptr)->get_cull_mask();
     return static_cast<uint32_t>(ret);
 }
 
 void godot_icall_Camera_set_environment_5a081814(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Camera *>(ptr)->set_environment(AutoRef(arg1));
+    static_cast<Camera3D *>(ptr)->set_environment(AutoRef(arg1));
 }
 
 MonoObject* godot_icall_Camera_get_environment_8929e758(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Camera *>(ptr)->get_environment();
+    auto ret = static_cast<Camera3D *>(ptr)->get_environment();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 void godot_icall_Camera_set_keep_aspect_mode_5ba4721b(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<Camera *>(ptr)->set_keep_aspect_mode((Camera::KeepAspect)arg1_in);
+    static_cast<Camera3D *>(ptr)->set_keep_aspect_mode((Camera3D::KeepAspect)arg1_in);
 }
 
 int32_t godot_icall_Camera_get_keep_aspect_mode_fa75fc56(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Camera *>(ptr)->get_keep_aspect_mode();
+    auto ret = static_cast<Camera3D *>(ptr)->get_keep_aspect_mode();
     return (int32_t)ret;
 }
 
 void godot_icall_Camera_set_doppler_tracking_5f2987cf(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<Camera *>(ptr)->set_doppler_tracking((Camera::DopplerTracking)arg1_in);
+    static_cast<Camera3D *>(ptr)->set_doppler_tracking((Camera3D::DopplerTracking)arg1_in);
 }
 
 int32_t godot_icall_Camera_get_doppler_tracking_60c0809a(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Camera *>(ptr)->get_doppler_tracking();
+    auto ret = static_cast<Camera3D *>(ptr)->get_doppler_tracking();
     return (int32_t)ret;
 }
 
 Array* godot_icall_Camera_get_frustum_d80382d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Camera *>(ptr)->get_frustum();
+    auto ret = static_cast<Camera3D *>(ptr)->get_frustum();
     return memnew(Array(Variant::from(ret)));
 }
 
 RID* godot_icall_Camera_get_camera_rid_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Camera *>(ptr)->get_camera_rid();
+    auto ret = static_cast<Camera3D *>(ptr)->get_camera_rid();
     return memnew(RID(ret));
 }
 
@@ -8975,18 +8982,18 @@ void godot_icall_Camera_set_cull_mask_bit_4ae8febd(Object * ptr, int32_t arg1, M
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<Camera *>(ptr)->set_cull_mask_bit(arg1_in, arg2_in);
+    static_cast<Camera3D *>(ptr)->set_cull_mask_bit(arg1_in, arg2_in);
 }
 
 MonoBoolean godot_icall_Camera_get_cull_mask_bit_7f690926(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<Camera *>(ptr)->get_cull_mask_bit(arg1_in);
+    auto ret = static_cast<Camera3D *>(ptr)->get_cull_mask_bit(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_Camera_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Camera")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Camera3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -10392,138 +10399,6 @@ Object* godot_icall_ClippedCamera_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_CollisionObject3D_set_ray_pickable_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionObject3D *>(ptr)->set_ray_pickable(arg1_in);
-}
-
-MonoBoolean godot_icall_CollisionObject3D_is_ray_pickable_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionObject3D *>(ptr)->is_ray_pickable();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_CollisionObject3D_set_capture_input_on_drag_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionObject3D *>(ptr)->set_capture_input_on_drag(arg1_in);
-}
-
-MonoBoolean godot_icall_CollisionObject3D_get_capture_input_on_drag_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionObject3D *>(ptr)->get_capture_input_on_drag();
-    return static_cast<MonoBoolean>(ret);
-}
-
-RID* godot_icall_CollisionObject3D_get_rid_6623661e(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->get_rid();
-    return memnew(RID(ret));
-}
-
-uint32_t godot_icall_CollisionObject3D_create_shape_owner_16add217(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<CollisionObject3D *>(ptr)->create_shape_owner((Object*)arg1);
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_CollisionObject3D_remove_shape_owner_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject3D *>(ptr)->remove_shape_owner(arg1_in);
-}
-
-Array* godot_icall_CollisionObject3D_get_shape_owners_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->_get_shape_owners();
-    return memnew(Array(Variant::from(ret)));
-}
-
-void godot_icall_CollisionObject3D_shape_owner_set_transform_9412c56e(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg2) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    Transform arg2_in = MARSHALLED_IN(Transform, arg2);
-    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_transform(arg1_in, arg2_in);
-}
-
-void godot_icall_CollisionObject3D_shape_owner_get_transform_b92094ef(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_transform(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Transform, ret);
-}
-
-MonoObject* godot_icall_CollisionObject3D_shape_owner_get_owner_5b891387(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_owner(arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-void godot_icall_CollisionObject3D_shape_owner_set_disabled_5111c220(Object * ptr, uint32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_disabled(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_CollisionObject3D_is_shape_owner_disabled_242501fd(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->is_shape_owner_disabled(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_CollisionObject3D_shape_owner_add_shape_4d99221(Object * ptr, uint32_t arg1, Object * arg2) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject3D *>(ptr)->shape_owner_add_shape(arg1_in, AutoRef(arg2));
-}
-
-int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_count_c289d68a(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_count(arg1_in);
-    return static_cast<int32_t>(ret);
-}
-
-MonoObject* godot_icall_CollisionObject3D_shape_owner_get_shape_ea16b84(Object * ptr, uint32_t arg1, int32_t arg2) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape(arg1_in, arg2_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_index_5251d601(Object * ptr, uint32_t arg1, int32_t arg2) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_index(arg1_in, arg2_in);
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_CollisionObject3D_shape_owner_remove_shape_e86fd299(Object * ptr, uint32_t arg1, int32_t arg2) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    int32_t arg2_in = static_cast<int32_t>(arg2);
-    static_cast<CollisionObject3D *>(ptr)->shape_owner_remove_shape(arg1_in, arg2_in);
-}
-
-void godot_icall_CollisionObject3D_shape_owner_clear_shapes_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<CollisionObject3D *>(ptr)->shape_owner_clear_shapes(arg1_in);
-}
-
-uint32_t godot_icall_CollisionObject3D_shape_find_owner_52dccd8b(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_find_owner(arg1_in);
-    return static_cast<uint32_t>(ret);
-}
-
 RID* godot_icall_CollisionObject2D_get_rid_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<CollisionObject2D *>(ptr)->get_rid();
@@ -10672,44 +10547,176 @@ uint32_t godot_icall_CollisionObject2D_shape_find_owner_52dccd8b(Object * ptr, i
     return static_cast<uint32_t>(ret);
 }
 
+void godot_icall_CollisionObject3D_set_ray_pickable_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CollisionObject3D *>(ptr)->set_ray_pickable(arg1_in);
+}
+
+MonoBoolean godot_icall_CollisionObject3D_is_ray_pickable_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CollisionObject3D *>(ptr)->is_ray_pickable();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_CollisionObject3D_set_capture_input_on_drag_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<CollisionObject3D *>(ptr)->set_capture_input_on_drag(arg1_in);
+}
+
+MonoBoolean godot_icall_CollisionObject3D_get_capture_input_on_drag_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<CollisionObject3D *>(ptr)->get_capture_input_on_drag();
+    return static_cast<MonoBoolean>(ret);
+}
+
+RID* godot_icall_CollisionObject3D_get_rid_6623661e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->get_rid();
+    return memnew(RID(ret));
+}
+
+uint32_t godot_icall_CollisionObject3D_create_shape_owner_16add217(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<CollisionObject3D *>(ptr)->create_shape_owner((Object*)arg1);
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_CollisionObject3D_remove_shape_owner_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<CollisionObject3D *>(ptr)->remove_shape_owner(arg1_in);
+}
+
+Array* godot_icall_CollisionObject3D_get_shape_owners_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->_get_shape_owners();
+    return memnew(Array(Variant::from(ret)));
+}
+
+void godot_icall_CollisionObject3D_shape_owner_set_transform_9412c56e(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg2) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    Transform arg2_in = MARSHALLED_IN(Transform, arg2);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_transform(arg1_in, arg2_in);
+}
+
+void godot_icall_CollisionObject3D_shape_owner_get_transform_b92094ef(Object * ptr, uint32_t arg1, GDMonoMarshal::M_Transform* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_transform(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Transform, ret);
+}
+
+MonoObject* godot_icall_CollisionObject3D_shape_owner_get_owner_5b891387(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_owner(arg1_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+void godot_icall_CollisionObject3D_shape_owner_set_disabled_5111c220(Object * ptr, uint32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_set_disabled(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_CollisionObject3D_is_shape_owner_disabled_242501fd(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->is_shape_owner_disabled(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_CollisionObject3D_shape_owner_add_shape_4d99221(Object * ptr, uint32_t arg1, Object * arg2) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_add_shape(arg1_in, AutoRef(arg2));
+}
+
+int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_count_c289d68a(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_count(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+MonoObject* godot_icall_CollisionObject3D_shape_owner_get_shape_ea16b84(Object * ptr, uint32_t arg1, int32_t arg2) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape(arg1_in, arg2_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+int32_t godot_icall_CollisionObject3D_shape_owner_get_shape_index_5251d601(Object * ptr, uint32_t arg1, int32_t arg2) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_owner_get_shape_index(arg1_in, arg2_in);
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_CollisionObject3D_shape_owner_remove_shape_e86fd299(Object * ptr, uint32_t arg1, int32_t arg2) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_remove_shape(arg1_in, arg2_in);
+}
+
+void godot_icall_CollisionObject3D_shape_owner_clear_shapes_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<CollisionObject3D *>(ptr)->shape_owner_clear_shapes(arg1_in);
+}
+
+uint32_t godot_icall_CollisionObject3D_shape_find_owner_52dccd8b(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<CollisionObject3D *>(ptr)->shape_find_owner(arg1_in);
+    return static_cast<uint32_t>(ret);
+}
+
 void godot_icall_CollisionPolygon_set_depth_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<CollisionPolygon *>(ptr)->set_depth(arg1_in);
+    static_cast<CollisionPolygon3D *>(ptr)->set_depth(arg1_in);
 }
 
 void godot_icall_CollisionPolygon_get_depth_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<CollisionPolygon *>(ptr)->get_depth();
+    auto ret = static_cast<CollisionPolygon3D *>(ptr)->get_depth();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_CollisionPolygon_set_polygon_b8a866ba(Object * ptr, MonoArray* arg1) {
     ERR_FAIL_NULL(ptr);
     auto arg1_in = GDMonoMarshal::mono_array_to_NC_VecVector2(arg1);
-    static_cast<CollisionPolygon *>(ptr)->set_polygon(arg1_in);
+    static_cast<CollisionPolygon3D *>(ptr)->set_polygon(arg1_in);
 }
 
 MonoArray* godot_icall_CollisionPolygon_get_polygon_e910f1af(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionPolygon *>(ptr)->get_polygon();
+    auto ret = static_cast<CollisionPolygon3D *>(ptr)->get_polygon();
     return GDMonoMarshal::PoolVector2Array_to_mono_array(ret);
 }
 
 void godot_icall_CollisionPolygon_set_disabled_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionPolygon *>(ptr)->set_disabled(arg1_in);
+    static_cast<CollisionPolygon3D *>(ptr)->set_disabled(arg1_in);
 }
 
 MonoBoolean godot_icall_CollisionPolygon_is_disabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionPolygon *>(ptr)->is_disabled();
+    auto ret = static_cast<CollisionPolygon3D *>(ptr)->is_disabled();
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_CollisionPolygon_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "CollisionPolygon")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "CollisionPolygon3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -10782,39 +10789,39 @@ Object* godot_icall_CollisionPolygon2D_Ctor(MonoObject* obj) {
 
 void godot_icall_CollisionShape_resource_changed_7ce53eb(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CollisionShape *>(ptr)->resource_changed(AutoRef(arg1));
+    static_cast<CollisionShape3D *>(ptr)->resource_changed(AutoRef(arg1));
 }
 
 void godot_icall_CollisionShape_set_shape_f51cd014(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CollisionShape *>(ptr)->set_shape(AutoRef(arg1));
+    static_cast<CollisionShape3D *>(ptr)->set_shape(AutoRef(arg1));
 }
 
 MonoObject* godot_icall_CollisionShape_get_shape_34362f58(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<CollisionShape *>(ptr)->get_shape();
+    auto ret = static_cast<CollisionShape3D *>(ptr)->get_shape();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 void godot_icall_CollisionShape_set_disabled_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<CollisionShape *>(ptr)->set_disabled(arg1_in);
+    static_cast<CollisionShape3D *>(ptr)->set_disabled(arg1_in);
 }
 
 MonoBoolean godot_icall_CollisionShape_is_disabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<CollisionShape *>(ptr)->is_disabled();
+    auto ret = static_cast<CollisionShape3D *>(ptr)->is_disabled();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_CollisionShape_make_convex_from_brothers_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<CollisionShape *>(ptr)->make_convex_from_brothers();
+    static_cast<CollisionShape3D *>(ptr)->make_convex_from_brothers();
 }
 
 Object* godot_icall_CollisionShape_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "CollisionShape")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "CollisionShape3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -11080,42 +11087,42 @@ void godot_icall_ConeTwistJoint_set_param_6f26d559(Object * ptr, int32_t arg1, f
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<ConeTwistJoint *>(ptr)->set_param((ConeTwistJoint::Param)arg1_in, arg2_in);
+    static_cast<ConeTwistJoint3D *>(ptr)->set_param((ConeTwistJoint3D::Param)arg1_in, arg2_in);
 }
 
 void godot_icall_ConeTwistJoint_get_param_63b80b0(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<ConeTwistJoint *>(ptr)->get_param((ConeTwistJoint::Param)arg1_in);
+    auto ret = static_cast<ConeTwistJoint3D *>(ptr)->get_param((ConeTwistJoint3D::Param)arg1_in);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_ConeTwistJoint__set_swing_span_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<ConeTwistJoint *>(ptr)->_set_swing_span(arg1_in);
+    static_cast<ConeTwistJoint3D *>(ptr)->_set_swing_span(arg1_in);
 }
 
 void godot_icall_ConeTwistJoint__get_swing_span_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<ConeTwistJoint *>(ptr)->_get_swing_span();
+    auto ret = static_cast<ConeTwistJoint3D *>(ptr)->_get_swing_span();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_ConeTwistJoint__set_twist_span_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<ConeTwistJoint *>(ptr)->_set_twist_span(arg1_in);
+    static_cast<ConeTwistJoint3D *>(ptr)->_set_twist_span(arg1_in);
 }
 
 void godot_icall_ConeTwistJoint__get_twist_span_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<ConeTwistJoint *>(ptr)->_get_twist_span();
+    auto ret = static_cast<ConeTwistJoint3D *>(ptr)->_get_twist_span();
     *arg_ret = (float)ret;
 }
 
 Object* godot_icall_ConeTwistJoint_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "ConeTwistJoint")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "ConeTwistJoint3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -12846,41 +12853,41 @@ Object* godot_icall_DampedSpringJoint2D_Ctor(MonoObject* obj) {
 void godot_icall_DirectionalLight_set_shadow_mode_db240190(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<DirectionalLight *>(ptr)->set_shadow_mode((DirectionalLight::ShadowMode)arg1_in);
+    static_cast<DirectionalLight3D *>(ptr)->set_shadow_mode((DirectionalLight3D::ShadowMode)arg1_in);
 }
 
 int32_t godot_icall_DirectionalLight_get_shadow_mode_9fde0d4(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<DirectionalLight *>(ptr)->get_shadow_mode();
+    auto ret = static_cast<DirectionalLight3D *>(ptr)->get_shadow_mode();
     return (int32_t)ret;
 }
 
 void godot_icall_DirectionalLight_set_shadow_depth_range_3e6f5b29(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<DirectionalLight *>(ptr)->set_shadow_depth_range((DirectionalLight::ShadowDepthRange)arg1_in);
+    static_cast<DirectionalLight3D *>(ptr)->set_shadow_depth_range((DirectionalLight3D::ShadowDepthRange)arg1_in);
 }
 
 int32_t godot_icall_DirectionalLight_get_shadow_depth_range_ecc6a63b(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<DirectionalLight *>(ptr)->get_shadow_depth_range();
+    auto ret = static_cast<DirectionalLight3D *>(ptr)->get_shadow_depth_range();
     return (int32_t)ret;
 }
 
 void godot_icall_DirectionalLight_set_blend_splits_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<DirectionalLight *>(ptr)->set_blend_splits(arg1_in);
+    static_cast<DirectionalLight3D *>(ptr)->set_blend_splits(arg1_in);
 }
 
 MonoBoolean godot_icall_DirectionalLight_is_blend_splits_enabled_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<DirectionalLight *>(ptr)->is_blend_splits_enabled();
+    auto ret = static_cast<DirectionalLight3D *>(ptr)->is_blend_splits_enabled();
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_DirectionalLight_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "DirectionalLight")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "DirectionalLight3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -14568,7 +14575,7 @@ void godot_icall_EditorSpatialGizmo_set_spatial_node_598860a7(Object * ptr, Obje
 
 #endif // TOOLS_ENABLED
 #ifdef TOOLS_ENABLED
-MonoObject* godot_icall_EditorSpatialGizmo_get_spatial_node_5ca237df(Object * ptr) {
+MonoObject* godot_icall_EditorSpatialGizmo_get_spatial_node_548d9e00(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<EditorSpatialGizmo *>(ptr)->get_spatial_node();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
@@ -16368,6 +16375,212 @@ Object* godot_icall_GIProbeData_Ctor(MonoObject* obj) {
     return instance;
 }
 
+void godot_icall_GPUParticles2D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_emitting(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_amount(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_lifetime_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_lifetime(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_one_shot(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_pre_process_time(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_explosiveness_ratio(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_randomness_ratio(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_visibility_rect_a5ed61f1(Object * ptr, GDMonoMarshal::M_Rect2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Rect2 arg1_in = MARSHALLED_IN(Rect2, arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_visibility_rect(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_use_local_coordinates(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_fixed_fps(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_fractional_delta(arg1_in);
+}
+
+void godot_icall_GPUParticles2D_set_process_material_be2d0ec2(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<GPUParticles2D *>(ptr)->set_process_material(AutoRef(arg1));
+}
+
+void godot_icall_GPUParticles2D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<GPUParticles2D *>(ptr)->set_speed_scale(arg1_in);
+}
+
+MonoBoolean godot_icall_GPUParticles2D_is_emitting_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->is_emitting();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_GPUParticles2D_get_amount_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_amount();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_GPUParticles2D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_lifetime();
+    *arg_ret = (float)ret;
+}
+
+MonoBoolean godot_icall_GPUParticles2D_get_one_shot_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_one_shot();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_GPUParticles2D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_pre_process_time();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles2D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_explosiveness_ratio();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles2D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_randomness_ratio();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles2D_get_visibility_rect_6344c073(Object * ptr, GDMonoMarshal::M_Rect2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Rect2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_visibility_rect();
+    *arg_ret = MARSHALLED_OUT(Rect2, ret);
+}
+
+MonoBoolean godot_icall_GPUParticles2D_get_use_local_coordinates_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_use_local_coordinates();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_GPUParticles2D_get_fixed_fps_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_fixed_fps();
+    return static_cast<int32_t>(ret);
+}
+
+MonoBoolean godot_icall_GPUParticles2D_get_fractional_delta_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_fractional_delta();
+    return static_cast<MonoBoolean>(ret);
+}
+
+MonoObject* godot_icall_GPUParticles2D_get_process_material_6d04d9a2(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_process_material();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_GPUParticles2D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_speed_scale();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles2D_set_draw_order_5a0261d0(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<GPUParticles2D *>(ptr)->set_draw_order((GPUParticles2D::DrawOrder)arg1_in);
+}
+
+int32_t godot_icall_GPUParticles2D_get_draw_order_921396a3(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_draw_order();
+    return (int32_t)ret;
+}
+
+void godot_icall_GPUParticles2D_set_texture_7eecd31a(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<GPUParticles2D *>(ptr)->set_texture(AutoRef(arg1));
+}
+
+MonoObject* godot_icall_GPUParticles2D_get_texture_ac462e4a(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_texture();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_GPUParticles2D_set_normal_map_7eecd31a(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<GPUParticles2D *>(ptr)->set_normal_map(AutoRef(arg1));
+}
+
+MonoObject* godot_icall_GPUParticles2D_get_normal_map_ac462e4a(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<GPUParticles2D *>(ptr)->get_normal_map();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_GPUParticles2D_capture_rect_6344c073(Object * ptr, GDMonoMarshal::M_Rect2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Rect2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<GPUParticles2D *>(ptr)->capture_rect();
+    *arg_ret = MARSHALLED_OUT(Rect2, ret);
+}
+
+void godot_icall_GPUParticles2D_restart_c8e54a7b(Object * ptr) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<GPUParticles2D *>(ptr)->restart();
+}
+
+Object* godot_icall_GPUParticles2D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "GPUParticles2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
 void godot_icall_Generic6DOFJoint__set_angular_hi_limit_x_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
@@ -17773,13 +17986,13 @@ void godot_icall_HingeJoint_set_param_e82ed057(Object * ptr, int32_t arg1, float
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<HingeJoint *>(ptr)->set_param((HingeJoint::Param)arg1_in, arg2_in);
+    static_cast<HingeJoint3D *>(ptr)->set_param((HingeJoint3D::Param)arg1_in, arg2_in);
 }
 
 void godot_icall_HingeJoint_get_param_7686921f(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<HingeJoint *>(ptr)->get_param((HingeJoint::Param)arg1_in);
+    auto ret = static_cast<HingeJoint3D *>(ptr)->get_param((HingeJoint3D::Param)arg1_in);
     *arg_ret = (float)ret;
 }
 
@@ -17787,42 +18000,42 @@ void godot_icall_HingeJoint_set_flag_92fa1aab(Object * ptr, int32_t arg1, MonoBo
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<HingeJoint *>(ptr)->set_flag((HingeJoint::Flag)arg1_in, arg2_in);
+    static_cast<HingeJoint3D *>(ptr)->set_flag((HingeJoint3D::Flag)arg1_in, arg2_in);
 }
 
 MonoBoolean godot_icall_HingeJoint_get_flag_81e2bcb4(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<HingeJoint *>(ptr)->get_flag((HingeJoint::Flag)arg1_in);
+    auto ret = static_cast<HingeJoint3D *>(ptr)->get_flag((HingeJoint3D::Flag)arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_HingeJoint__set_upper_limit_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<HingeJoint *>(ptr)->_set_upper_limit(arg1_in);
+    static_cast<HingeJoint3D *>(ptr)->_set_upper_limit(arg1_in);
 }
 
 void godot_icall_HingeJoint__get_upper_limit_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<HingeJoint *>(ptr)->_get_upper_limit();
+    auto ret = static_cast<HingeJoint3D *>(ptr)->_get_upper_limit();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_HingeJoint__set_lower_limit_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<HingeJoint *>(ptr)->_set_lower_limit(arg1_in);
+    static_cast<HingeJoint3D *>(ptr)->_set_lower_limit(arg1_in);
 }
 
 void godot_icall_HingeJoint__get_lower_limit_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<HingeJoint *>(ptr)->_get_lower_limit();
+    auto ret = static_cast<HingeJoint3D *>(ptr)->_get_lower_limit();
     *arg_ret = (float)ret;
 }
 
 Object* godot_icall_HingeJoint_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "HingeJoint")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "HingeJoint3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -18311,43 +18524,43 @@ Object* godot_icall_ImageTexture_Ctor(MonoObject* obj) {
 void godot_icall_ImmediateGeometry_begin_950bef01(Object * ptr, int32_t arg1, Object * arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<ImmediateGeometry *>(ptr)->begin((Mesh::PrimitiveType)arg1_in, AutoRef(arg2));
+    static_cast<ImmediateGeometry3D *>(ptr)->begin((Mesh::PrimitiveType)arg1_in, AutoRef(arg2));
 }
 
 void godot_icall_ImmediateGeometry_set_normal_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->set_normal(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->set_normal(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_set_tangent_582036ef(Object * ptr, GDMonoMarshal::M_Plane* arg1) {
     ERR_FAIL_NULL(ptr);
     Plane arg1_in = MARSHALLED_IN(Plane, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->set_tangent(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->set_tangent(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
     ERR_FAIL_NULL(ptr);
     Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->set_color(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->set_color(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_set_uv_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->set_uv(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->set_uv(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_set_uv2_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->set_uv2(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->set_uv2(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_add_vertex_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<ImmediateGeometry *>(ptr)->add_vertex(arg1_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->add_vertex(arg1_in);
 }
 
 void godot_icall_ImmediateGeometry_add_sphere_fa9aeafe(Object * ptr, int32_t arg1, int32_t arg2, float* arg3, MonoBoolean arg4) {
@@ -18356,21 +18569,21 @@ void godot_icall_ImmediateGeometry_add_sphere_fa9aeafe(Object * ptr, int32_t arg
     int32_t arg2_in = static_cast<int32_t>(arg2);
     float arg3_in = static_cast<float>(*arg3);
     bool arg4_in = static_cast<bool>(arg4);
-    static_cast<ImmediateGeometry *>(ptr)->add_sphere(arg1_in, arg2_in, arg3_in, arg4_in);
+    static_cast<ImmediateGeometry3D *>(ptr)->add_sphere(arg1_in, arg2_in, arg3_in, arg4_in);
 }
 
 void godot_icall_ImmediateGeometry_end_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<ImmediateGeometry *>(ptr)->end();
+    static_cast<ImmediateGeometry3D *>(ptr)->end();
 }
 
 void godot_icall_ImmediateGeometry_clear_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<ImmediateGeometry *>(ptr)->clear();
+    static_cast<ImmediateGeometry3D *>(ptr)->clear();
 }
 
 Object* godot_icall_ImmediateGeometry_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "ImmediateGeometry")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "ImmediateGeometry3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -20002,47 +20215,47 @@ Object* godot_icall_JSONRPC_Ctor(MonoObject* obj) {
 
 void godot_icall_Joint_set_node_a_1e08804(Object * ptr, NodePath* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Joint *>(ptr)->set_node_a(*arg1);
+    static_cast<Joint3D *>(ptr)->set_node_a(*arg1);
 }
 
 NodePath* godot_icall_Joint_get_node_a_bf425768(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Joint *>(ptr)->get_node_a();
+    auto ret = static_cast<Joint3D *>(ptr)->get_node_a();
     return memnew(NodePath(ret));
 }
 
 void godot_icall_Joint_set_node_b_1e08804(Object * ptr, NodePath* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Joint *>(ptr)->set_node_b(*arg1);
+    static_cast<Joint3D *>(ptr)->set_node_b(*arg1);
 }
 
 NodePath* godot_icall_Joint_get_node_b_bf425768(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Joint *>(ptr)->get_node_b();
+    auto ret = static_cast<Joint3D *>(ptr)->get_node_b();
     return memnew(NodePath(ret));
 }
 
 void godot_icall_Joint_set_solver_priority_e1ae93bc(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<Joint *>(ptr)->set_solver_priority(arg1_in);
+    static_cast<Joint3D *>(ptr)->set_solver_priority(arg1_in);
 }
 
 int32_t godot_icall_Joint_get_solver_priority_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Joint *>(ptr)->get_solver_priority();
+    auto ret = static_cast<Joint3D *>(ptr)->get_solver_priority();
     return static_cast<int32_t>(ret);
 }
 
 void godot_icall_Joint_set_exclude_nodes_from_collision_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Joint *>(ptr)->set_exclude_nodes_from_collision(arg1_in);
+    static_cast<Joint3D *>(ptr)->set_exclude_nodes_from_collision(arg1_in);
 }
 
 MonoBoolean godot_icall_Joint_get_exclude_nodes_from_collision_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Joint *>(ptr)->get_exclude_nodes_from_collision();
+    auto ret = static_cast<Joint3D *>(ptr)->get_exclude_nodes_from_collision();
     return static_cast<MonoBoolean>(ret);
 }
 
@@ -20166,14 +20379,14 @@ void godot_icall_KinematicBody_get_floor_velocity_9b4ea24f(Object * ptr, GDMonoM
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_KinematicBody_set_axis_lock_cb8f1f44(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+void godot_icall_KinematicBody_set_axis_lock_336473d(Object * ptr, int32_t arg1, MonoBoolean arg2) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     bool arg2_in = static_cast<bool>(arg2);
     static_cast<KinematicBody *>(ptr)->set_axis_lock((PhysicsServer3D::BodyAxis)arg1_in, arg2_in);
 }
 
-MonoBoolean godot_icall_KinematicBody_get_axis_lock_81481178(Object * ptr, int32_t arg1) {
+MonoBoolean godot_icall_KinematicBody_get_axis_lock_68289119(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int64_t arg1_in = (int64_t)arg1;
     auto ret = static_cast<KinematicBody *>(ptr)->get_axis_lock((PhysicsServer3D::BodyAxis)arg1_in);
@@ -20693,12 +20906,12 @@ Object* godot_icall_LargeTexture_Ctor(MonoObject* obj) {
 void godot_icall_Light_set_editor_only_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Light *>(ptr)->set_editor_only(arg1_in);
+    static_cast<Light3D *>(ptr)->set_editor_only(arg1_in);
 }
 
 MonoBoolean godot_icall_Light_is_editor_only_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Light *>(ptr)->is_editor_only();
+    auto ret = static_cast<Light3D *>(ptr)->is_editor_only();
     return static_cast<MonoBoolean>(ret);
 }
 
@@ -20706,97 +20919,97 @@ void godot_icall_Light_set_param_f9d26d1(Object * ptr, int32_t arg1, float* arg2
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<Light *>(ptr)->set_param((Light::Param)arg1_in, arg2_in);
+    static_cast<Light3D *>(ptr)->set_param((Light3D::Param)arg1_in, arg2_in);
 }
 
 void godot_icall_Light_get_param_178e6d10(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<Light *>(ptr)->get_param((Light::Param)arg1_in);
+    auto ret = static_cast<Light3D *>(ptr)->get_param((Light3D::Param)arg1_in);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Light_set_shadow_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Light *>(ptr)->set_shadow(arg1_in);
+    static_cast<Light3D *>(ptr)->set_shadow(arg1_in);
 }
 
 MonoBoolean godot_icall_Light_has_shadow_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Light *>(ptr)->has_shadow();
+    auto ret = static_cast<Light3D *>(ptr)->has_shadow();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Light_set_negative_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Light *>(ptr)->set_negative(arg1_in);
+    static_cast<Light3D *>(ptr)->set_negative(arg1_in);
 }
 
 MonoBoolean godot_icall_Light_is_negative_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Light *>(ptr)->is_negative();
+    auto ret = static_cast<Light3D *>(ptr)->is_negative();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Light_set_cull_mask_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<Light *>(ptr)->set_cull_mask(arg1_in);
+    static_cast<Light3D *>(ptr)->set_cull_mask(arg1_in);
 }
 
 uint32_t godot_icall_Light_get_cull_mask_54cc76d5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<Light *>(ptr)->get_cull_mask();
+    auto ret = static_cast<Light3D *>(ptr)->get_cull_mask();
     return static_cast<uint32_t>(ret);
 }
 
 void godot_icall_Light_set_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
     ERR_FAIL_NULL(ptr);
     Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<Light *>(ptr)->set_color(arg1_in);
+    static_cast<Light3D *>(ptr)->set_color(arg1_in);
 }
 
 void godot_icall_Light_get_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Light *>(ptr)->get_color();
+    auto ret = static_cast<Light3D *>(ptr)->get_color();
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
 void godot_icall_Light_set_shadow_reverse_cull_face_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Light *>(ptr)->set_shadow_reverse_cull_face(arg1_in);
+    static_cast<Light3D *>(ptr)->set_shadow_reverse_cull_face(arg1_in);
 }
 
 MonoBoolean godot_icall_Light_get_shadow_reverse_cull_face_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Light *>(ptr)->get_shadow_reverse_cull_face();
+    auto ret = static_cast<Light3D *>(ptr)->get_shadow_reverse_cull_face();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Light_set_shadow_color_f2e3b5aa(Object * ptr, GDMonoMarshal::M_Color* arg1) {
     ERR_FAIL_NULL(ptr);
     Color arg1_in = MARSHALLED_IN(Color, arg1);
-    static_cast<Light *>(ptr)->set_shadow_color(arg1_in);
+    static_cast<Light3D *>(ptr)->set_shadow_color(arg1_in);
 }
 
 void godot_icall_Light_get_shadow_color_304394ba(Object * ptr, GDMonoMarshal::M_Color* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Color(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Light *>(ptr)->get_shadow_color();
+    auto ret = static_cast<Light3D *>(ptr)->get_shadow_color();
     *arg_ret = MARSHALLED_OUT(Color, ret);
 }
 
 void godot_icall_Light_set_bake_mode_492dba53(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<Light *>(ptr)->set_bake_mode((Light::BakeMode)arg1_in);
+    static_cast<Light3D *>(ptr)->set_bake_mode((Light3D::BakeMode)arg1_in);
 }
 
 int32_t godot_icall_Light_get_bake_mode_78058511(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Light *>(ptr)->get_bake_mode();
+    auto ret = static_cast<Light3D *>(ptr)->get_bake_mode();
     return (int32_t)ret;
 }
 
@@ -21594,28 +21807,28 @@ Object* godot_icall_LinkButton_Ctor(MonoObject* obj) {
 
 void godot_icall_Listener_make_current_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Listener *>(ptr)->make_current();
+    static_cast<Listener3D *>(ptr)->make_current();
 }
 
 void godot_icall_Listener_clear_current_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<Listener *>(ptr)->clear_current();
+    static_cast<Listener3D *>(ptr)->clear_current();
 }
 
 MonoBoolean godot_icall_Listener_is_current_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Listener *>(ptr)->is_current();
+    auto ret = static_cast<Listener3D *>(ptr)->is_current();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_Listener_get_listener_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Listener *>(ptr)->get_listener_transform();
+    auto ret = static_cast<Listener3D *>(ptr)->get_listener_transform();
     *arg_ret = MARSHALLED_OUT(Transform, ret);
 }
 
 Object* godot_icall_Listener_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Listener")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Listener3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -22547,17 +22760,17 @@ Object* godot_icall_MultiMesh_Ctor(MonoObject* obj) {
 
 void godot_icall_MultiMeshInstance_set_multimesh_872cf6cd(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<MultiMeshInstance *>(ptr)->set_multimesh(AutoRef(arg1));
+    static_cast<MultiMeshInstance3D *>(ptr)->set_multimesh(AutoRef(arg1));
 }
 
 MonoObject* godot_icall_MultiMeshInstance_get_multimesh_4606519f(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<MultiMeshInstance *>(ptr)->get_multimesh();
+    auto ret = static_cast<MultiMeshInstance3D *>(ptr)->get_multimesh();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
 Object* godot_icall_MultiMeshInstance_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "MultiMeshInstance")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "MultiMeshInstance3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -22698,7 +22911,7 @@ Object* godot_icall_MultiplayerAPI_Ctor(MonoObject* obj) {
 
 RID* godot_icall_Navigation_get_rid_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Navigation *>(ptr)->get_rid();
+    auto ret = static_cast<Navigation3D *>(ptr)->get_rid();
     return memnew(RID(ret));
 }
 
@@ -22707,48 +22920,48 @@ MonoArray* godot_icall_Navigation_get_simple_path_b6e4683e(Object * ptr, GDMonoM
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
     Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
     bool arg3_in = static_cast<bool>(arg3);
-    auto ret = static_cast<Navigation *>(ptr)->get_simple_path(arg1_in, arg2_in, arg3_in);
+    auto ret = static_cast<Navigation3D *>(ptr)->get_simple_path(arg1_in, arg2_in, arg3_in);
     return GDMonoMarshal::PoolVector3Array_to_mono_array(ret);
 }
 
 void godot_icall_Navigation_set_up_vector_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Navigation *>(ptr)->set_up_vector(arg1_in);
+    static_cast<Navigation3D *>(ptr)->set_up_vector(arg1_in);
 }
 
 void godot_icall_Navigation_get_up_vector_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Navigation *>(ptr)->get_up_vector();
+    auto ret = static_cast<Navigation3D *>(ptr)->get_up_vector();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
 void godot_icall_Navigation_set_cell_size_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Navigation *>(ptr)->set_cell_size(arg1_in);
+    static_cast<Navigation3D *>(ptr)->set_cell_size(arg1_in);
 }
 
 void godot_icall_Navigation_get_cell_size_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Navigation *>(ptr)->get_cell_size();
+    auto ret = static_cast<Navigation3D *>(ptr)->get_cell_size();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_Navigation_set_edge_connection_margin_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<Navigation *>(ptr)->set_edge_connection_margin(arg1_in);
+    static_cast<Navigation3D *>(ptr)->set_edge_connection_margin(arg1_in);
 }
 
 void godot_icall_Navigation_get_edge_connection_margin_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Navigation *>(ptr)->get_edge_connection_margin();
+    auto ret = static_cast<Navigation3D *>(ptr)->get_edge_connection_margin();
     *arg_ret = (float)ret;
 }
 
 Object* godot_icall_Navigation_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Navigation")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Navigation3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -22848,7 +23061,7 @@ MonoBoolean godot_icall_NavigationAgent_get_ignore_y_68fe5f59(Object * ptr) {
 
 void godot_icall_NavigationAgent_set_navigation_598860a7(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<NavigationAgent *>(ptr)->set_navigation((Navigation*)arg1);
+    static_cast<NavigationAgent *>(ptr)->set_navigation((Navigation3D*)arg1);
 }
 
 MonoObject* godot_icall_NavigationAgent_get_navigation_87a9bfc5(Object * ptr) {
@@ -23521,6 +23734,7 @@ void godot_icall_NavigationMeshInstance_bake_navigation_mesh_c8e54a7b(Object * p
     ERR_FAIL_NULL(ptr);
     static_cast<NavigationMeshInstance *>(ptr)->bake_navigation_mesh();
 }
+
 Object* godot_icall_NavigationMeshInstance_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "NavigationMeshInstance")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
@@ -23529,7 +23743,7 @@ Object* godot_icall_NavigationMeshInstance_Ctor(MonoObject* obj) {
 
 void godot_icall_NavigationObstacle_set_navigation_598860a7(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<NavigationObstacle *>(ptr)->set_navigation((Navigation *)arg1);
+    static_cast<NavigationObstacle *>(ptr)->set_navigation((Navigation3D *)arg1);
 }
 
 MonoObject* godot_icall_NavigationObstacle_get_navigation_87a9bfc5(Object * ptr) {
@@ -24769,6 +24983,307 @@ Object* godot_icall_Node2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
+void godot_icall_Node3D_set_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Transform arg1_in = MARSHALLED_IN(Transform, arg1);
+	static_cast<Node3D *>(ptr)->set_transform(arg1_in);
+}
+
+void godot_icall_Node3D_get_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_transform();
+	*arg_ret = MARSHALLED_OUT(Transform, ret);
+}
+
+void godot_icall_Node3D_set_translation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->set_translation(arg1_in);
+}
+
+void godot_icall_Node3D_get_translation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_translation();
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Node3D_set_rotation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->set_rotation(arg1_in);
+}
+
+void godot_icall_Node3D_get_rotation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_rotation();
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Node3D_set_rotation_degrees_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->set_rotation_degrees(arg1_in);
+}
+
+void godot_icall_Node3D_get_rotation_degrees_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_rotation_degrees();
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Node3D_set_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->set_scale(arg1_in);
+}
+
+void godot_icall_Node3D_get_scale_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_scale();
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Node3D_set_global_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Transform arg1_in = MARSHALLED_IN(Transform, arg1);
+	static_cast<Node3D *>(ptr)->set_global_transform(arg1_in);
+}
+
+void godot_icall_Node3D_get_global_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<Node3D *>(ptr)->get_global_transform();
+	*arg_ret = MARSHALLED_OUT(Transform, ret);
+}
+
+MonoObject* godot_icall_Node3D_get_parent_spatial_548d9e00(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Node3D *>(ptr)->get_parent_spatial();
+	return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+void godot_icall_Node3D_set_ignore_transform_notification_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_ignore_transform_notification(arg1_in);
+}
+
+void godot_icall_Node3D_set_as_toplevel_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_as_toplevel(arg1_in);
+}
+
+MonoBoolean godot_icall_Node3D_is_set_as_toplevel_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_set_as_toplevel();
+	return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Node3D_set_disable_scale_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_disable_scale(arg1_in);
+}
+
+MonoBoolean godot_icall_Node3D_is_scale_disabled_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_scale_disabled();
+	return static_cast<MonoBoolean>(ret);
+}
+
+MonoObject* godot_icall_Node3D_get_world_1e353b0f(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Node3D *>(ptr)->get_world();
+	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_Node3D_force_update_transform_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->force_update_transform();
+}
+
+void godot_icall_Node3D_update_gizmo_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->update_gizmo();
+}
+
+void godot_icall_Node3D_set_gizmo_93c13e2a(Object * ptr, Object * arg1) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->set_gizmo(AutoRef(arg1));
+}
+
+MonoObject* godot_icall_Node3D_get_gizmo_5161093a(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Node3D *>(ptr)->get_gizmo();
+	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_Node3D_set_visible_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_visible(arg1_in);
+}
+
+MonoBoolean godot_icall_Node3D_is_visible_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_visible();
+	return static_cast<MonoBoolean>(ret);
+}
+
+MonoBoolean godot_icall_Node3D_is_visible_in_tree_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_visible_in_tree();
+	return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Node3D_show_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->show();
+}
+
+void godot_icall_Node3D_hide_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->hide();
+}
+
+void godot_icall_Node3D_set_notify_local_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_notify_local_transform(arg1_in);
+}
+
+MonoBoolean godot_icall_Node3D_is_local_transform_notification_enabled_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_local_transform_notification_enabled();
+	return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Node3D_set_notify_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<Node3D *>(ptr)->set_notify_transform(arg1_in);
+}
+
+MonoBoolean godot_icall_Node3D_is_transform_notification_enabled_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<Node3D *>(ptr)->is_transform_notification_enabled();
+	return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Node3D_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	float arg2_in = static_cast<float>(*arg2);
+	static_cast<Node3D *>(ptr)->rotate(arg1_in, arg2_in);
+}
+
+void godot_icall_Node3D_global_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	float arg2_in = static_cast<float>(*arg2);
+	static_cast<Node3D *>(ptr)->global_rotate(arg1_in, arg2_in);
+}
+
+void godot_icall_Node3D_global_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->global_scale(arg1_in);
+}
+
+void godot_icall_Node3D_global_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->global_translate(arg1_in);
+}
+
+void godot_icall_Node3D_rotate_object_local_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	float arg2_in = static_cast<float>(*arg2);
+	static_cast<Node3D *>(ptr)->rotate_object_local(arg1_in, arg2_in);
+}
+
+void godot_icall_Node3D_scale_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->scale_object_local(arg1_in);
+}
+
+void godot_icall_Node3D_translate_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->translate_object_local(arg1_in);
+}
+
+void godot_icall_Node3D_rotate_x_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<Node3D *>(ptr)->rotate_x(arg1_in);
+}
+
+void godot_icall_Node3D_rotate_y_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<Node3D *>(ptr)->rotate_y(arg1_in);
+}
+
+void godot_icall_Node3D_rotate_z_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<Node3D *>(ptr)->rotate_z(arg1_in);
+}
+
+void godot_icall_Node3D_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	static_cast<Node3D *>(ptr)->translate(arg1_in);
+}
+
+void godot_icall_Node3D_orthonormalize_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->orthonormalize();
+}
+
+void godot_icall_Node3D_set_identity_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<Node3D *>(ptr)->set_identity();
+}
+
+void godot_icall_Node3D_look_at_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+	static_cast<Node3D *>(ptr)->look_at(arg1_in, arg2_in);
+}
+
+void godot_icall_Node3D_look_at_from_position_8d29af1e(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, GDMonoMarshal::M_Vector3* arg3) {
+	ERR_FAIL_NULL(ptr);
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+	Vector3 arg3_in = MARSHALLED_IN(Vector3, arg3);
+	static_cast<Node3D *>(ptr)->look_at_from_position(arg1_in, arg2_in, arg3_in);
+}
+
+void godot_icall_Node3D_to_local_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	auto ret = static_cast<Node3D *>(ptr)->to_local(arg1_in);
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_Node3D_to_global_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+	auto ret = static_cast<Node3D *>(ptr)->to_global(arg1_in);
+	*arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+Object* godot_icall_Node3D_Ctor(MonoObject* obj) {
+	GODOTSHARP_INSTANCE_OBJECT(instance, "Node3D")
+	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+	return instance;
+}
+
 void godot_icall_NoiseTexture_set_width_e1ae93bc(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
@@ -25165,29 +25680,29 @@ Object* godot_icall_OccluderPolygon2D_Ctor(MonoObject* obj) {
 void godot_icall_OmniLight_set_shadow_mode_95b9edab(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<OmniLight *>(ptr)->set_shadow_mode((OmniLight::ShadowMode)arg1_in);
+    static_cast<OmniLight3D *>(ptr)->set_shadow_mode((OmniLight3D::ShadowMode)arg1_in);
 }
 
 int32_t godot_icall_OmniLight_get_shadow_mode_53993cb9(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<OmniLight *>(ptr)->get_shadow_mode();
+    auto ret = static_cast<OmniLight3D *>(ptr)->get_shadow_mode();
     return (int32_t)ret;
 }
 
 void godot_icall_OmniLight_set_shadow_detail_6d75c611(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<OmniLight *>(ptr)->set_shadow_detail((OmniLight::ShadowDetail)arg1_in);
+    static_cast<OmniLight3D *>(ptr)->set_shadow_detail((OmniLight3D::ShadowDetail)arg1_in);
 }
 
 int32_t godot_icall_OmniLight_get_shadow_detail_9bcd2153(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<OmniLight *>(ptr)->get_shadow_detail();
+    auto ret = static_cast<OmniLight3D *>(ptr)->get_shadow_detail();
     return (int32_t)ret;
 }
 
 Object* godot_icall_OmniLight_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "OmniLight")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "OmniLight3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -26142,212 +26657,6 @@ Object* godot_icall_Particles_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Particles2D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_emitting(arg1_in);
-}
-
-void godot_icall_Particles2D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_amount(arg1_in);
-}
-
-void godot_icall_Particles2D_set_lifetime_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_lifetime(arg1_in);
-}
-
-void godot_icall_Particles2D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_one_shot(arg1_in);
-}
-
-void godot_icall_Particles2D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_pre_process_time(arg1_in);
-}
-
-void godot_icall_Particles2D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_explosiveness_ratio(arg1_in);
-}
-
-void godot_icall_Particles2D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_randomness_ratio(arg1_in);
-}
-
-void godot_icall_Particles2D_set_visibility_rect_a5ed61f1(Object * ptr, GDMonoMarshal::M_Rect2* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Rect2 arg1_in = MARSHALLED_IN(Rect2, arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_visibility_rect(arg1_in);
-}
-
-void godot_icall_Particles2D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_use_local_coordinates(arg1_in);
-}
-
-void godot_icall_Particles2D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_fixed_fps(arg1_in);
-}
-
-void godot_icall_Particles2D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_fractional_delta(arg1_in);
-}
-
-void godot_icall_Particles2D_set_process_material_be2d0ec2(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<GPUParticles2D *>(ptr)->set_process_material(AutoRef(arg1));
-}
-
-void godot_icall_Particles2D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<GPUParticles2D *>(ptr)->set_speed_scale(arg1_in);
-}
-
-MonoBoolean godot_icall_Particles2D_is_emitting_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->is_emitting();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_Particles2D_get_amount_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_amount();
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Particles2D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_lifetime();
-    *arg_ret = (float)ret;
-}
-
-MonoBoolean godot_icall_Particles2D_get_one_shot_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_one_shot();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Particles2D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_pre_process_time();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Particles2D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_explosiveness_ratio();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Particles2D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_randomness_ratio();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Particles2D_get_visibility_rect_6344c073(Object * ptr, GDMonoMarshal::M_Rect2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Rect2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_visibility_rect();
-    *arg_ret = MARSHALLED_OUT(Rect2, ret);
-}
-
-MonoBoolean godot_icall_Particles2D_get_use_local_coordinates_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_use_local_coordinates();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_Particles2D_get_fixed_fps_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_fixed_fps();
-    return static_cast<int32_t>(ret);
-}
-
-MonoBoolean godot_icall_Particles2D_get_fractional_delta_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_fractional_delta();
-    return static_cast<MonoBoolean>(ret);
-}
-
-MonoObject* godot_icall_Particles2D_get_process_material_6d04d9a2(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_process_material();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Particles2D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_speed_scale();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Particles2D_set_draw_order_cb74df8(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<GPUParticles2D *>(ptr)->set_draw_order((GPUParticles2D::DrawOrder)arg1_in);
-}
-
-int32_t godot_icall_Particles2D_get_draw_order_4249d31b(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_draw_order();
-    return (int32_t)ret;
-}
-
-void godot_icall_Particles2D_set_texture_7eecd31a(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<GPUParticles2D *>(ptr)->set_texture(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_Particles2D_get_texture_ac462e4a(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_texture();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Particles2D_set_normal_map_7eecd31a(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<GPUParticles2D *>(ptr)->set_normal_map(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_Particles2D_get_normal_map_ac462e4a(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<GPUParticles2D *>(ptr)->get_normal_map();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Particles2D_capture_rect_6344c073(Object * ptr, GDMonoMarshal::M_Rect2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Rect2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<GPUParticles2D *>(ptr)->capture_rect();
-    *arg_ret = MARSHALLED_OUT(Rect2, ret);
-}
-
-void godot_icall_Particles2D_restart_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<GPUParticles2D *>(ptr)->restart();
-}
-
-Object* godot_icall_Particles2D_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "GPUParticles2D")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
 void godot_icall_ParticlesMaterial_set_direction_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
@@ -26607,23 +26916,6 @@ Object* godot_icall_ParticlesMaterial_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Path3D_set_curve_77a8e9c1(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Path3D *>(ptr)->set_curve(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_Path3D_get_curve_b58a38a3(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Path3D *>(ptr)->get_curve();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-Object* godot_icall_Path3D_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Path3D")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
 void godot_icall_Path2D_set_curve_76a8e85c(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
     static_cast<Path2D *>(ptr)->set_curve(AutoRef(arg1));
@@ -26641,92 +26933,19 @@ Object* godot_icall_Path2D_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_PathFollow_set_offset_904508bb(Object * ptr, float* arg1) {
+void godot_icall_Path3D_set_curve_77a8e9c1(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow3D *>(ptr)->set_offset(arg1_in);
+    static_cast<Path3D *>(ptr)->set_curve(AutoRef(arg1));
 }
 
-void godot_icall_PathFollow_get_offset_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_offset();
-    *arg_ret = (float)ret;
+MonoObject* godot_icall_Path3D_get_curve_b58a38a3(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<Path3D *>(ptr)->get_curve();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_PathFollow_set_h_offset_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow3D *>(ptr)->set_h_offset(arg1_in);
-}
-
-void godot_icall_PathFollow_get_h_offset_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_h_offset();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PathFollow_set_v_offset_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow3D *>(ptr)->set_v_offset(arg1_in);
-}
-
-void godot_icall_PathFollow_get_v_offset_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_v_offset();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PathFollow_set_unit_offset_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PathFollow3D *>(ptr)->set_unit_offset(arg1_in);
-}
-
-void godot_icall_PathFollow_get_unit_offset_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_unit_offset();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PathFollow_set_rotation_mode_5bf2100(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int64_t arg1_in = (int64_t)arg1;
-    static_cast<PathFollow3D *>(ptr)->set_rotation_mode((PathFollow3D::RotationMode)arg1_in);
-}
-
-int32_t godot_icall_PathFollow_get_rotation_mode_e8cd06d3(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_rotation_mode();
-    return (int32_t)ret;
-}
-
-void godot_icall_PathFollow_set_cubic_interpolation_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PathFollow3D *>(ptr)->set_cubic_interpolation(arg1_in);
-}
-
-MonoBoolean godot_icall_PathFollow_get_cubic_interpolation_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PathFollow3D *>(ptr)->get_cubic_interpolation();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_PathFollow_set_loop_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PathFollow3D *>(ptr)->set_loop(arg1_in);
-}
-
-MonoBoolean godot_icall_PathFollow_has_loop_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PathFollow3D *>(ptr)->has_loop();
-    return static_cast<MonoBoolean>(ret);
-}
-
-Object* godot_icall_PathFollow_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "PathFollow3D")
+Object* godot_icall_Path3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Path3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -26829,6 +27048,96 @@ void godot_icall_PathFollow2D_get_lookahead_4edcd7a9(Object * ptr, float* arg_re
 
 Object* godot_icall_PathFollow2D_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "PathFollow2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+void godot_icall_PathFollow3D_set_offset_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PathFollow3D *>(ptr)->set_offset(arg1_in);
+}
+
+void godot_icall_PathFollow3D_get_offset_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_offset();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PathFollow3D_set_h_offset_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PathFollow3D *>(ptr)->set_h_offset(arg1_in);
+}
+
+void godot_icall_PathFollow3D_get_h_offset_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_h_offset();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PathFollow3D_set_v_offset_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PathFollow3D *>(ptr)->set_v_offset(arg1_in);
+}
+
+void godot_icall_PathFollow3D_get_v_offset_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_v_offset();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PathFollow3D_set_unit_offset_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PathFollow3D *>(ptr)->set_unit_offset(arg1_in);
+}
+
+void godot_icall_PathFollow3D_get_unit_offset_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_unit_offset();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PathFollow3D_set_rotation_mode_dea33771(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int64_t arg1_in = (int64_t)arg1;
+    static_cast<PathFollow3D *>(ptr)->set_rotation_mode((PathFollow3D::RotationMode)arg1_in);
+}
+
+int32_t godot_icall_PathFollow3D_get_rotation_mode_c3a1613c(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_rotation_mode();
+    return (int32_t)ret;
+}
+
+void godot_icall_PathFollow3D_set_cubic_interpolation_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PathFollow3D *>(ptr)->set_cubic_interpolation(arg1_in);
+}
+
+MonoBoolean godot_icall_PathFollow3D_get_cubic_interpolation_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PathFollow3D *>(ptr)->get_cubic_interpolation();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_PathFollow3D_set_loop_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PathFollow3D *>(ptr)->set_loop(arg1_in);
+}
+
+MonoBoolean godot_icall_PathFollow3D_has_loop_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PathFollow3D *>(ptr)->has_loop();
+    return static_cast<MonoBoolean>(ret);
+}
+
+Object* godot_icall_PathFollow3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "PathFollow3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -26983,213 +27292,64 @@ Object* godot_icall_PhysicalBone_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_Physics2DDirectBodyState_get_total_gravity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_motion_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_gravity();
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_motion();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_Physics2DDirectBodyState_get_total_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_linear_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_get_total_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_angular_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_get_inverse_mass_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_inverse_mass();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_get_inverse_inertia_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_inverse_inertia();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_set_linear_velocity_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_linear_velocity(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_linear_velocity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_motion_remainder_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_linear_velocity();
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_motion_remainder();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_Physics2DDirectBodyState_set_angular_velocity_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_angular_velocity(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_angular_velocity_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_angular_velocity();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_set_transform_dfe2915f(Object * ptr, GDMonoMarshal::M_Transform2D* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Transform2D arg1_in = MARSHALLED_IN(Transform2D, arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_transform(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_transform_d44700d(Object * ptr, GDMonoMarshal::M_Transform2D* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_transform();
-    *arg_ret = MARSHALLED_OUT(Transform2D, ret);
-}
-
-void godot_icall_Physics2DDirectBodyState_add_central_force_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_central_force(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_add_force_bf22f250(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_force(arg1_in, arg2_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_add_torque_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_torque(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_apply_central_impulse_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_central_impulse(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_apply_torque_impulse_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_torque_impulse(arg1_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_apply_impulse_bf22f250(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_impulse(arg1_in, arg2_in);
-}
-
-void godot_icall_Physics2DDirectBodyState_set_sleep_state_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_sleep_state(arg1_in);
-}
-
-MonoBoolean godot_icall_Physics2DDirectBodyState_is_sleeping_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->is_sleeping();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_Physics2DDirectBodyState_get_contact_count_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_count();
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_contact_local_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_collision_point_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_position(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collision_point();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_Physics2DDirectBodyState_get_contact_local_normal_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_collision_normal_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_normal(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collision_normal();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-int32_t godot_icall_Physics2DDirectBodyState_get_contact_local_shape_b835dea5(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_shape(arg1_in);
-    return static_cast<int32_t>(ret);
-}
-
-RID* godot_icall_Physics2DDirectBodyState_get_contact_collider_6012f6e(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider(arg1_in);
-    return memnew(RID(ret));
-}
-
-void godot_icall_Physics2DDirectBodyState_get_contact_collider_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_collider_velocity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_position(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_velocity();
     *arg_ret = MARSHALLED_OUT(Vector2, ret);
 }
 
-void godot_icall_Physics2DDirectBodyState_get_contact_collider_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
+void godot_icall_Physics2DTestMotionResult_get_collider_id_4bb7c348(Object * ptr, uint64_t* arg_ret) {
     if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_id(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_id();
     *arg_ret = (uint64_t)ret;
 }
 
-MonoObject* godot_icall_Physics2DDirectBodyState_get_contact_collider_object_90d51b7a(Object * ptr, int32_t arg1) {
+RID* godot_icall_Physics2DTestMotionResult_get_collider_rid_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_object(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_rid();
+    return memnew(RID(ret));
+}
+
+MonoObject* godot_icall_Physics2DTestMotionResult_get_collider_5bd95814(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
 }
 
-int32_t godot_icall_Physics2DDirectBodyState_get_contact_collider_shape_b835dea5(Object * ptr, int32_t arg1) {
+int32_t godot_icall_Physics2DTestMotionResult_get_collider_shape_1f886eb0(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_shape(arg1_in);
+    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_shape();
     return static_cast<int32_t>(ret);
 }
 
-MonoObject* godot_icall_Physics2DDirectBodyState_get_contact_collider_shape_metadata_a9b2673d(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_shape_metadata(arg1_in);
-    return GDMonoMarshal::variant_to_mono_object(ret);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_contact_collider_velocity_at_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_velocity_at_position(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DDirectBodyState_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_step();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DDirectBodyState_integrate_forces_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsDirectBodyState2D *>(ptr)->integrate_forces();
-}
-
-MonoObject* godot_icall_Physics2DDirectBodyState_get_space_state_f8934848(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_space_state();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+Object* godot_icall_Physics2DTestMotionResult_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "Physics2DTestMotionResult")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
 }
 
 Array* godot_icall_Physics2DDirectSpaceState_intersect_point_10cea668(Object * ptr, GDMonoMarshal::M_Vector2* arg1, int32_t arg2, Array* arg3, uint32_t arg4, MonoBoolean arg5, MonoBoolean arg6) {
@@ -27899,673 +28059,6 @@ int32_t godot_icall_Physics2DServer_get_process_info_79431e17(Object * ptr, int3
 
 Object* godot_icall_Physics2DServer_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("PhysicsServer2D");
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_shape_7ce53eb(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_shape(AutoRef(arg1));
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_shape_rid_a7039b4e(Object * ptr, RID* arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_shape_rid(*arg1);
-}
-
-RID* godot_icall_Physics2DShapeQueryParameters_get_shape_rid_6623661e(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_shape_rid();
-    return memnew(RID(ret));
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_transform_dfe2915f(Object * ptr, GDMonoMarshal::M_Transform2D* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Transform2D arg1_in = MARSHALLED_IN(Transform2D, arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_transform(arg1_in);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_get_transform_d44700d(Object * ptr, GDMonoMarshal::M_Transform2D* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_transform();
-    *arg_ret = MARSHALLED_OUT(Transform2D, ret);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_motion_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_motion(arg1_in);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_get_motion_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_motion();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_margin_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_margin(arg1_in);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_get_margin_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_margin();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collision_mask(arg1_in);
-}
-
-int32_t godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_collision_mask();
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_exclude_2923a790(Object * ptr, Array* arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_exclude(asPool<RID>(*arg1));
-}
-
-Array* godot_icall_Physics2DShapeQueryParameters_get_exclude_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_exclude();
-    return memnew(Array(Variant::from(ret)));
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_collide_with_bodies_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collide_with_bodies(arg1_in);
-}
-
-MonoBoolean godot_icall_Physics2DShapeQueryParameters_is_collide_with_bodies_enabled_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->is_collide_with_bodies_enabled();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Physics2DShapeQueryParameters_set_collide_with_areas_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collide_with_areas(arg1_in);
-}
-
-MonoBoolean godot_icall_Physics2DShapeQueryParameters_is_collide_with_areas_enabled_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->is_collide_with_areas_enabled();
-    return static_cast<MonoBoolean>(ret);
-}
-
-Object* godot_icall_Physics2DShapeQueryParameters_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "PhysicsShapeQueryParameters2D")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
-int32_t godot_icall_Physics2DShapeQueryResult_get_result_count_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_count();
-    return static_cast<int32_t>(ret);
-}
-
-RID* godot_icall_Physics2DShapeQueryResult_get_result_rid_6012f6e(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_rid(arg1_in);
-    return memnew(RID(ret));
-}
-
-void godot_icall_Physics2DShapeQueryResult_get_result_object_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object_id(arg1_in);
-    *arg_ret = (uint64_t)ret;
-}
-
-MonoObject* godot_icall_Physics2DShapeQueryResult_get_result_object_90d51b7a(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object(arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-int32_t godot_icall_Physics2DShapeQueryResult_get_result_object_shape_b835dea5(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object_shape(arg1_in);
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_motion_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_motion();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_motion_remainder_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_motion_remainder();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_collision_point_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collision_point();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_collision_normal_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collision_normal();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_collider_velocity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_velocity();
-    *arg_ret = MARSHALLED_OUT(Vector2, ret);
-}
-
-void godot_icall_Physics2DTestMotionResult_get_collider_id_4bb7c348(Object * ptr, uint64_t* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_id();
-    *arg_ret = (uint64_t)ret;
-}
-
-RID* godot_icall_Physics2DTestMotionResult_get_collider_rid_6623661e(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_rid();
-    return memnew(RID(ret));
-}
-
-MonoObject* godot_icall_Physics2DTestMotionResult_get_collider_5bd95814(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-int32_t godot_icall_Physics2DTestMotionResult_get_collider_shape_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<Physics2DTestMotionResult *>(ptr)->get_collider_shape();
-    return static_cast<int32_t>(ret);
-}
-
-Object* godot_icall_Physics2DTestMotionResult_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Physics2DTestMotionResult")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
-void godot_icall_PhysicsBody_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<PhysicsBody *>(ptr)->set_collision_layer(arg1_in);
-}
-
-uint32_t godot_icall_PhysicsBody_get_collision_layer_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<PhysicsBody *>(ptr)->get_collision_layer();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_PhysicsBody_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<PhysicsBody *>(ptr)->set_collision_mask(arg1_in);
-}
-
-uint32_t godot_icall_PhysicsBody_get_collision_mask_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<PhysicsBody *>(ptr)->get_collision_mask();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_PhysicsBody_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<PhysicsBody *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_PhysicsBody_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsBody *>(ptr)->get_collision_mask_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_PhysicsBody_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<PhysicsBody *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_PhysicsBody_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsBody *>(ptr)->get_collision_layer_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-Array* godot_icall_PhysicsBody_get_collision_exceptions_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsBody *>(ptr)->get_collision_exceptions();
-    return memnew(Array(Variant::from(ret)));
-}
-
-void godot_icall_PhysicsBody_add_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsBody *>(ptr)->add_collision_exception_with((Node*)arg1);
-}
-
-void godot_icall_PhysicsBody_remove_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsBody *>(ptr)->remove_collision_exception_with((Node*)arg1);
-}
-
-void godot_icall_PhysicsBody2D_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<PhysicsBody2D *>(ptr)->set_collision_layer(arg1_in);
-}
-
-uint32_t godot_icall_PhysicsBody2D_get_collision_layer_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_layer();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_PhysicsBody2D_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<PhysicsBody2D *>(ptr)->set_collision_mask(arg1_in);
-}
-
-uint32_t godot_icall_PhysicsBody2D_get_collision_mask_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_mask();
-    return static_cast<uint32_t>(ret);
-}
-
-void godot_icall_PhysicsBody2D_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<PhysicsBody2D *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_PhysicsBody2D_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_mask_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_PhysicsBody2D_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
-    ERR_FAIL_NULL(ptr);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    bool arg2_in = static_cast<bool>(arg2);
-    static_cast<PhysicsBody2D *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
-}
-
-MonoBoolean godot_icall_PhysicsBody2D_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_layer_bit(arg1_in);
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_PhysicsBody2D__set_layers_966aab97(Object * ptr, uint32_t arg1) {
-    ERR_FAIL_NULL(ptr);
-    uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<PhysicsBody2D *>(ptr)->_set_layers(arg1_in);
-}
-
-uint32_t godot_icall_PhysicsBody2D__get_layers_54cc76d5(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->_get_layers();
-    return static_cast<uint32_t>(ret);
-}
-
-Array* godot_icall_PhysicsBody2D_get_collision_exceptions_d80382d4(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_exceptions();
-    return memnew(Array(Variant::from(ret)));
-}
-
-void godot_icall_PhysicsBody2D_add_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsBody2D *>(ptr)->add_collision_exception_with((Node*)arg1);
-}
-
-void godot_icall_PhysicsBody2D_remove_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsBody2D *>(ptr)->remove_collision_exception_with((Node*)arg1);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_total_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_gravity();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_total_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_linear_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsDirectBodyState_get_total_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_angular_damp();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsDirectBodyState_get_center_of_mass_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_center_of_mass();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_principal_inertia_axes_4746c0fd(Object * ptr, GDMonoMarshal::M_Basis* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Basis(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_principal_inertia_axes();
-    *arg_ret = MARSHALLED_OUT(Basis, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_inverse_mass_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_inverse_mass();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsDirectBodyState_get_inverse_inertia_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_inverse_inertia();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_set_linear_velocity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->set_linear_velocity(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_linear_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_linear_velocity();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_set_angular_velocity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->set_angular_velocity(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_angular_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_angular_velocity();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_set_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Transform arg1_in = MARSHALLED_IN(Transform, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->set_transform(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_transform();
-    *arg_ret = MARSHALLED_OUT(Transform, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_add_central_force_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->add_central_force(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_add_force_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<PhysicsDirectBodyState *>(ptr)->add_force(arg1_in, arg2_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_add_torque_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->add_torque(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_apply_central_impulse_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->apply_central_impulse(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_apply_impulse_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<PhysicsDirectBodyState *>(ptr)->apply_impulse(arg1_in, arg2_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_apply_torque_impulse_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->apply_torque_impulse(arg1_in);
-}
-
-void godot_icall_PhysicsDirectBodyState_set_sleep_state_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsDirectBodyState *>(ptr)->set_sleep_state(arg1_in);
-}
-
-MonoBoolean godot_icall_PhysicsDirectBodyState_is_sleeping_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->is_sleeping();
-    return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_PhysicsDirectBodyState_get_contact_count_1f886eb0(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_count();
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_local_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_position(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_local_normal_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_normal(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_impulse_c671df3a(Object * ptr, int32_t arg1, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_impulse(arg1_in);
-    *arg_ret = (float)ret;
-}
-
-int32_t godot_icall_PhysicsDirectBodyState_get_contact_local_shape_b835dea5(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_shape(arg1_in);
-    return static_cast<int32_t>(ret);
-}
-
-RID* godot_icall_PhysicsDirectBodyState_get_contact_collider_6012f6e(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider(arg1_in);
-    return memnew(RID(ret));
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_collider_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_position(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_collider_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_id(arg1_in);
-    *arg_ret = (uint64_t)ret;
-}
-
-MonoObject* godot_icall_PhysicsDirectBodyState_get_contact_collider_object_90d51b7a(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_object(arg1_in);
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-int32_t godot_icall_PhysicsDirectBodyState_get_contact_collider_shape_b835dea5(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, int32_t());
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_shape(arg1_in);
-    return static_cast<int32_t>(ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_contact_collider_velocity_at_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_velocity_at_position(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_PhysicsDirectBodyState_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_step();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsDirectBodyState_integrate_forces_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<PhysicsDirectBodyState *>(ptr)->integrate_forces();
-}
-
-MonoObject* godot_icall_PhysicsDirectBodyState_get_space_state_bfc60632(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_space_state();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-Dictionary* godot_icall_PhysicsDirectSpaceState_intersect_ray_4195d84b(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, Array* arg3, uint32_t arg4, MonoBoolean arg5, MonoBoolean arg6) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    uint32_t arg4_in = static_cast<uint32_t>(arg4);
-    bool arg5_in = static_cast<bool>(arg5);
-    bool arg6_in = static_cast<bool>(arg6);
-    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_intersect_ray(arg1_in, arg2_in, asVec<RID>(*arg3), arg4_in, arg5_in, arg6_in);
-    return memnew(Dictionary(ret));
-}
-
-Array* godot_icall_PhysicsDirectSpaceState_intersect_shape_6ae46979(Object * ptr, Object * arg1, int32_t arg2) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_intersect_shape(AutoRef(arg1), arg2_in);
-    return memnew(Array(Variant::from(ret)));
-}
-
-Array* godot_icall_PhysicsDirectSpaceState_cast_motion_e6a21d1a(Object * ptr, Object * arg1, GDMonoMarshal::M_Vector3* arg2) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_cast_motion(AutoRef(arg1), arg2_in);
-    return memnew(Array(Variant::from(ret)));
-}
-
-Array* godot_icall_PhysicsDirectSpaceState_collide_shape_6ae46979(Object * ptr, Object * arg1, int32_t arg2) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int32_t arg2_in = static_cast<int32_t>(arg2);
-    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_collide_shape(AutoRef(arg1), arg2_in);
-    return memnew(Array(Variant::from(ret)));
-}
-
-Dictionary* godot_icall_PhysicsDirectSpaceState_get_rest_info_b0c480e8(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_get_rest_info(AutoRef(arg1));
-    return memnew(Dictionary(ret));
-}
-
-void godot_icall_PhysicsMaterial_set_friction_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsMaterial *>(ptr)->set_friction(arg1_in);
-}
-
-void godot_icall_PhysicsMaterial_get_friction_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsMaterial *>(ptr)->get_friction();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsMaterial_set_rough_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsMaterial *>(ptr)->set_rough(arg1_in);
-}
-
-MonoBoolean godot_icall_PhysicsMaterial_is_rough_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsMaterial *>(ptr)->is_rough();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_PhysicsMaterial_set_bounce_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<PhysicsMaterial *>(ptr)->set_bounce(arg1_in);
-}
-
-void godot_icall_PhysicsMaterial_get_bounce_4edcd7a9(Object * ptr, float* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<PhysicsMaterial *>(ptr)->get_bounce();
-    *arg_ret = (float)ret;
-}
-
-void godot_icall_PhysicsMaterial_set_absorbent_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<PhysicsMaterial *>(ptr)->set_absorbent(arg1_in);
-}
-
-MonoBoolean godot_icall_PhysicsMaterial_is_absorbent_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<PhysicsMaterial *>(ptr)->is_absorbent();
-    return static_cast<MonoBoolean>(ret);
-}
-
-Object* godot_icall_PhysicsMaterial_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "PhysicsMaterial")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
-RID* godot_icall_PhysicsServer_shape_create_982ca4d2(Object * ptr, int32_t arg1) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<PhysicsServer3D *>(ptr)->shape_create((PhysicsServer3D::ShapeType)arg1_in);
-    return memnew(RID(ret));
 }
 
 void godot_icall_PhysicsServer_shape_set_data_8e6f3852(Object * ptr, RID* arg1, MonoObject* arg2) {
@@ -29291,6 +28784,822 @@ Object* godot_icall_PhysicsServer_get_singleton() {
     return Engine::get_singleton()->get_singleton_object("PhysicsServer3D");
 }
 
+
+void godot_icall_Physics2DShapeQueryParameters_set_shape_7ce53eb(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_shape(AutoRef(arg1));
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_shape_rid_a7039b4e(Object * ptr, RID* arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_shape_rid(*arg1);
+}
+
+RID* godot_icall_Physics2DShapeQueryParameters_get_shape_rid_6623661e(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_shape_rid();
+    return memnew(RID(ret));
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_transform_dfe2915f(Object * ptr, GDMonoMarshal::M_Transform2D* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Transform2D arg1_in = MARSHALLED_IN(Transform2D, arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_transform(arg1_in);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_get_transform_d44700d(Object * ptr, GDMonoMarshal::M_Transform2D* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_transform();
+    *arg_ret = MARSHALLED_OUT(Transform2D, ret);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_motion_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_motion(arg1_in);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_get_motion_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_motion();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_margin_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_margin(arg1_in);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_get_margin_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_margin();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_collision_mask_e1ae93bc(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collision_mask(arg1_in);
+}
+
+int32_t godot_icall_Physics2DShapeQueryParameters_get_collision_mask_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_collision_mask();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_exclude_2923a790(Object * ptr, Array* arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_exclude(asPool<RID>(*arg1));
+}
+
+Array* godot_icall_Physics2DShapeQueryParameters_get_exclude_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->get_exclude();
+    return memnew(Array(Variant::from(ret)));
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_collide_with_bodies_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collide_with_bodies(arg1_in);
+}
+
+MonoBoolean godot_icall_Physics2DShapeQueryParameters_is_collide_with_bodies_enabled_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->is_collide_with_bodies_enabled();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_Physics2DShapeQueryParameters_set_collide_with_areas_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsShapeQueryParameters2D *>(ptr)->set_collide_with_areas(arg1_in);
+}
+
+MonoBoolean godot_icall_Physics2DShapeQueryParameters_is_collide_with_areas_enabled_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsShapeQueryParameters2D *>(ptr)->is_collide_with_areas_enabled();
+    return static_cast<MonoBoolean>(ret);
+}
+
+Object* godot_icall_Physics2DShapeQueryParameters_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "PhysicsShapeQueryParameters2D")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+int32_t godot_icall_Physics2DShapeQueryResult_get_result_count_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_count();
+    return static_cast<int32_t>(ret);
+}
+
+RID* godot_icall_Physics2DShapeQueryResult_get_result_rid_6012f6e(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_rid(arg1_in);
+    return memnew(RID(ret));
+}
+
+void godot_icall_Physics2DShapeQueryResult_get_result_object_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object_id(arg1_in);
+    *arg_ret = (uint64_t)ret;
+}
+
+MonoObject* godot_icall_Physics2DShapeQueryResult_get_result_object_90d51b7a(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object(arg1_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+int32_t godot_icall_Physics2DShapeQueryResult_get_result_object_shape_b835dea5(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsShapeQueryResult2D *>(ptr)->get_result_object_shape(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_PhysicsBody_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<PhysicsBody3D *>(ptr)->set_collision_layer(arg1_in);
+}
+
+uint32_t godot_icall_PhysicsBody_get_collision_layer_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<PhysicsBody3D *>(ptr)->get_collision_layer();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_PhysicsBody_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<PhysicsBody3D *>(ptr)->set_collision_mask(arg1_in);
+}
+
+uint32_t godot_icall_PhysicsBody_get_collision_mask_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<PhysicsBody3D *>(ptr)->get_collision_mask();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_PhysicsBody_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<PhysicsBody3D *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_PhysicsBody_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsBody3D *>(ptr)->get_collision_mask_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_PhysicsBody_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<PhysicsBody3D *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_PhysicsBody_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsBody3D *>(ptr)->get_collision_layer_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+Array* godot_icall_PhysicsBody_get_collision_exceptions_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsBody3D *>(ptr)->get_collision_exceptions();
+    return memnew(Array(Variant::from(ret)));
+}
+
+void godot_icall_PhysicsBody_add_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsBody3D *>(ptr)->add_collision_exception_with((Node*)arg1);
+}
+
+void godot_icall_PhysicsBody_remove_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsBody3D *>(ptr)->remove_collision_exception_with((Node*)arg1);
+}
+
+void godot_icall_PhysicsBody2D_set_collision_layer_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<PhysicsBody2D *>(ptr)->set_collision_layer(arg1_in);
+}
+
+uint32_t godot_icall_PhysicsBody2D_get_collision_layer_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_layer();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_PhysicsBody2D_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<PhysicsBody2D *>(ptr)->set_collision_mask(arg1_in);
+}
+
+uint32_t godot_icall_PhysicsBody2D_get_collision_mask_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_mask();
+    return static_cast<uint32_t>(ret);
+}
+
+void godot_icall_PhysicsBody2D_set_collision_mask_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<PhysicsBody2D *>(ptr)->set_collision_mask_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_PhysicsBody2D_get_collision_mask_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_mask_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_PhysicsBody2D_set_collision_layer_bit_4ae8febd(Object * ptr, int32_t arg1, MonoBoolean arg2) {
+    ERR_FAIL_NULL(ptr);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    bool arg2_in = static_cast<bool>(arg2);
+    static_cast<PhysicsBody2D *>(ptr)->set_collision_layer_bit(arg1_in, arg2_in);
+}
+
+MonoBoolean godot_icall_PhysicsBody2D_get_collision_layer_bit_7f690926(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_layer_bit(arg1_in);
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_PhysicsBody2D__set_layers_966aab97(Object * ptr, uint32_t arg1) {
+    ERR_FAIL_NULL(ptr);
+    uint32_t arg1_in = static_cast<uint32_t>(arg1);
+    static_cast<PhysicsBody2D *>(ptr)->_set_layers(arg1_in);
+}
+
+uint32_t godot_icall_PhysicsBody2D__get_layers_54cc76d5(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, uint32_t());
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->_get_layers();
+    return static_cast<uint32_t>(ret);
+}
+
+Array* godot_icall_PhysicsBody2D_get_collision_exceptions_d80382d4(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsBody2D *>(ptr)->get_collision_exceptions();
+    return memnew(Array(Variant::from(ret)));
+}
+
+void godot_icall_PhysicsBody2D_add_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsBody2D *>(ptr)->add_collision_exception_with((Node*)arg1);
+}
+
+void godot_icall_PhysicsBody2D_remove_collision_exception_with_598860a7(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsBody2D *>(ptr)->remove_collision_exception_with((Node*)arg1);
+}
+void godot_icall_Physics2DDirectBodyState_get_total_gravity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_gravity();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_total_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_linear_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_get_total_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_total_angular_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_get_inverse_mass_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_inverse_mass();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_get_inverse_inertia_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_inverse_inertia();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_set_linear_velocity_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_linear_velocity(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_linear_velocity_9b4ea24e(Object * ptr, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_linear_velocity();
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_set_angular_velocity_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_angular_velocity(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_angular_velocity_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_angular_velocity();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_set_transform_dfe2915f(Object * ptr, GDMonoMarshal::M_Transform2D* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Transform2D arg1_in = MARSHALLED_IN(Transform2D, arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_transform(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_transform_d44700d(Object * ptr, GDMonoMarshal::M_Transform2D* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform2D(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_transform();
+    *arg_ret = MARSHALLED_OUT(Transform2D, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_add_central_force_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_central_force(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_add_force_bf22f250(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg2) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_force(arg1_in, arg2_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_add_torque_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->add_torque(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_apply_central_impulse_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_central_impulse(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_apply_torque_impulse_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_torque_impulse(arg1_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_apply_impulse_bf22f250(Object * ptr, GDMonoMarshal::M_Vector2* arg1, GDMonoMarshal::M_Vector2* arg2) {
+    ERR_FAIL_NULL(ptr);
+    Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
+    Vector2 arg2_in = MARSHALLED_IN(Vector2, arg2);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->apply_impulse(arg1_in, arg2_in);
+}
+
+void godot_icall_Physics2DDirectBodyState_set_sleep_state_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->set_sleep_state(arg1_in);
+}
+
+MonoBoolean godot_icall_Physics2DDirectBodyState_is_sleeping_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->is_sleeping();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_Physics2DDirectBodyState_get_contact_count_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_count();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_contact_local_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_contact_local_normal_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_normal(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+int32_t godot_icall_Physics2DDirectBodyState_get_contact_local_shape_b835dea5(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_local_shape(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+RID* godot_icall_Physics2DDirectBodyState_get_contact_collider_6012f6e(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider(arg1_in);
+    return memnew(RID(ret));
+}
+
+void godot_icall_Physics2DDirectBodyState_get_contact_collider_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_contact_collider_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_id(arg1_in);
+    *arg_ret = (uint64_t)ret;
+}
+
+MonoObject* godot_icall_Physics2DDirectBodyState_get_contact_collider_object_90d51b7a(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_object(arg1_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+int32_t godot_icall_Physics2DDirectBodyState_get_contact_collider_shape_b835dea5(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_shape(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+MonoObject* godot_icall_Physics2DDirectBodyState_get_contact_collider_shape_metadata_a9b2673d(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_shape_metadata(arg1_in);
+    return GDMonoMarshal::variant_to_mono_object(ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_contact_collider_velocity_at_position_23728632(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector2* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector2(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_contact_collider_velocity_at_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector2, ret);
+}
+
+void godot_icall_Physics2DDirectBodyState_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_step();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_Physics2DDirectBodyState_integrate_forces_c8e54a7b(Object * ptr) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsDirectBodyState2D *>(ptr)->integrate_forces();
+}
+
+MonoObject* godot_icall_Physics2DDirectBodyState_get_space_state_f8934848(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsDirectBodyState2D *>(ptr)->get_space_state();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_total_gravity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_gravity();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_total_linear_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_linear_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsDirectBodyState_get_total_angular_damp_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_total_angular_damp();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsDirectBodyState_get_center_of_mass_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_center_of_mass();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_principal_inertia_axes_4746c0fd(Object * ptr, GDMonoMarshal::M_Basis* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Basis(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_principal_inertia_axes();
+    *arg_ret = MARSHALLED_OUT(Basis, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_inverse_mass_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_inverse_mass();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsDirectBodyState_get_inverse_inertia_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_inverse_inertia();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_set_linear_velocity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->set_linear_velocity(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_linear_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_linear_velocity();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_set_angular_velocity_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->set_angular_velocity(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_angular_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_angular_velocity();
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_set_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Transform arg1_in = MARSHALLED_IN(Transform, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->set_transform(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_transform();
+    *arg_ret = MARSHALLED_OUT(Transform, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_add_central_force_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->add_central_force(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_add_force_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+    static_cast<PhysicsDirectBodyState *>(ptr)->add_force(arg1_in, arg2_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_add_torque_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->add_torque(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_apply_central_impulse_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->apply_central_impulse(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_apply_impulse_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+    static_cast<PhysicsDirectBodyState *>(ptr)->apply_impulse(arg1_in, arg2_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_apply_torque_impulse_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+    ERR_FAIL_NULL(ptr);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->apply_torque_impulse(arg1_in);
+}
+
+void godot_icall_PhysicsDirectBodyState_set_sleep_state_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsDirectBodyState *>(ptr)->set_sleep_state(arg1_in);
+}
+
+MonoBoolean godot_icall_PhysicsDirectBodyState_is_sleeping_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->is_sleeping();
+    return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_PhysicsDirectBodyState_get_contact_count_1f886eb0(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_count();
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_local_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_local_normal_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_normal(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_impulse_c671df3a(Object * ptr, int32_t arg1, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_impulse(arg1_in);
+    *arg_ret = (float)ret;
+}
+
+int32_t godot_icall_PhysicsDirectBodyState_get_contact_local_shape_b835dea5(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_local_shape(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+RID* godot_icall_PhysicsDirectBodyState_get_contact_collider_6012f6e(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider(arg1_in);
+    return memnew(RID(ret));
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_collider_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_collider_id_f5296873(Object * ptr, int32_t arg1, uint64_t* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = uint64_t(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_id(arg1_in);
+    *arg_ret = (uint64_t)ret;
+}
+
+MonoObject* godot_icall_PhysicsDirectBodyState_get_contact_collider_object_90d51b7a(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_object(arg1_in);
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+int32_t godot_icall_PhysicsDirectBodyState_get_contact_collider_shape_b835dea5(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, int32_t());
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_shape(arg1_in);
+    return static_cast<int32_t>(ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_contact_collider_velocity_at_position_237286f3(Object * ptr, int32_t arg1, GDMonoMarshal::M_Vector3* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    int32_t arg1_in = static_cast<int32_t>(arg1);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_contact_collider_velocity_at_position(arg1_in);
+    *arg_ret = MARSHALLED_OUT(Vector3, ret);
+}
+
+void godot_icall_PhysicsDirectBodyState_get_step_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_step();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsDirectBodyState_integrate_forces_c8e54a7b(Object * ptr) {
+    ERR_FAIL_NULL(ptr);
+    static_cast<PhysicsDirectBodyState *>(ptr)->integrate_forces();
+}
+
+MonoObject* godot_icall_PhysicsDirectBodyState_get_space_state_bfc60632(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsDirectBodyState *>(ptr)->get_space_state();
+    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
+}
+
+Dictionary* godot_icall_PhysicsDirectSpaceState_intersect_ray_4195d84b(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, Array* arg3, uint32_t arg4, MonoBoolean arg5, MonoBoolean arg6) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
+    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+    uint32_t arg4_in = static_cast<uint32_t>(arg4);
+    bool arg5_in = static_cast<bool>(arg5);
+    bool arg6_in = static_cast<bool>(arg6);
+    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_intersect_ray(arg1_in, arg2_in, asVec<RID>(*arg3), arg4_in, arg5_in, arg6_in);
+    return memnew(Dictionary(ret));
+}
+
+Array* godot_icall_PhysicsDirectSpaceState_intersect_shape_6ae46979(Object * ptr, Object * arg1, int32_t arg2) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_intersect_shape(AutoRef(arg1), arg2_in);
+    return memnew(Array(Variant::from(ret)));
+}
+
+Array* godot_icall_PhysicsDirectSpaceState_cast_motion_e6a21d1a(Object * ptr, Object * arg1, GDMonoMarshal::M_Vector3* arg2) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
+    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_cast_motion(AutoRef(arg1), arg2_in);
+    return memnew(Array(Variant::from(ret)));
+}
+
+Array* godot_icall_PhysicsDirectSpaceState_collide_shape_6ae46979(Object * ptr, Object * arg1, int32_t arg2) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int32_t arg2_in = static_cast<int32_t>(arg2);
+    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_collide_shape(AutoRef(arg1), arg2_in);
+    return memnew(Array(Variant::from(ret)));
+}
+
+Dictionary* godot_icall_PhysicsDirectSpaceState_get_rest_info_b0c480e8(Object * ptr, Object * arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    auto ret = static_cast<PhysicsDirectSpaceState *>(ptr)->_get_rest_info(AutoRef(arg1));
+    return memnew(Dictionary(ret));
+}
+
+void godot_icall_PhysicsMaterial_set_friction_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsMaterial *>(ptr)->set_friction(arg1_in);
+}
+
+void godot_icall_PhysicsMaterial_get_friction_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsMaterial *>(ptr)->get_friction();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsMaterial_set_rough_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsMaterial *>(ptr)->set_rough(arg1_in);
+}
+
+MonoBoolean godot_icall_PhysicsMaterial_is_rough_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsMaterial *>(ptr)->is_rough();
+    return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_PhysicsMaterial_set_bounce_904508bb(Object * ptr, float* arg1) {
+    ERR_FAIL_NULL(ptr);
+    float arg1_in = static_cast<float>(*arg1);
+    static_cast<PhysicsMaterial *>(ptr)->set_bounce(arg1_in);
+}
+
+void godot_icall_PhysicsMaterial_get_bounce_4edcd7a9(Object * ptr, float* arg_ret) {
+    if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+    auto ret = static_cast<PhysicsMaterial *>(ptr)->get_bounce();
+    *arg_ret = (float)ret;
+}
+
+void godot_icall_PhysicsMaterial_set_absorbent_ba24800b(Object * ptr, MonoBoolean arg1) {
+    ERR_FAIL_NULL(ptr);
+    bool arg1_in = static_cast<bool>(arg1);
+    static_cast<PhysicsMaterial *>(ptr)->set_absorbent(arg1_in);
+}
+
+MonoBoolean godot_icall_PhysicsMaterial_is_absorbent_68fe5f59(Object * ptr) {
+    ERR_FAIL_NULL_V(ptr, MonoBoolean());
+    auto ret = static_cast<PhysicsMaterial *>(ptr)->is_absorbent();
+    return static_cast<MonoBoolean>(ret);
+}
+
+Object* godot_icall_PhysicsMaterial_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "PhysicsMaterial")
+    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+    return instance;
+}
+
+RID* godot_icall_PhysicsServer_shape_create_982ca4d2(Object * ptr, int32_t arg1) {
+    ERR_FAIL_NULL_V(ptr, NULL);
+    int64_t arg1_in = (int64_t)arg1;
+    auto ret = static_cast<PhysicsServer3D *>(ptr)->shape_create((PhysicsServer3D::ShapeType)arg1_in);
+    return memnew(RID(ret));
+}
+
 void godot_icall_PhysicsShapeQueryParameters_set_shape_7ce53eb(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
     static_cast<PhysicsShapeQueryParameters *>(ptr)->set_shape(AutoRef(arg1));
@@ -29422,18 +29731,18 @@ void godot_icall_PinJoint_set_param_54a63c46(Object * ptr, int32_t arg1, float* 
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<PinJoint *>(ptr)->set_param((PinJoint::Param)arg1_in, arg2_in);
+    static_cast<PinJoint3D *>(ptr)->set_param((PinJoint3D::Param)arg1_in, arg2_in);
 }
 
 void godot_icall_PinJoint_get_param_1203a663(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<PinJoint *>(ptr)->get_param((PinJoint::Param)arg1_in);
+    auto ret = static_cast<PinJoint3D *>(ptr)->get_param((PinJoint3D::Param)arg1_in);
     *arg_ret = (float)ret;
 }
 
 Object* godot_icall_PinJoint_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "PinJoint")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "PinJoint3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -30815,36 +31124,36 @@ Object* godot_icall_ProjectSettings_get_singleton() {
 void godot_icall_ProximityGroup_set_group_name_2f29e819(Object * ptr, MonoString* arg1) {
     ERR_FAIL_NULL(ptr);
     StringName arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
-    static_cast<ProximityGroup *>(ptr)->set_group_name(arg1_in);
+    static_cast<ProximityGroup3D *>(ptr)->set_group_name(arg1_in);
 }
 
 MonoString* godot_icall_ProximityGroup_get_group_name_97be4a2e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<ProximityGroup *>(ptr)->get_group_name();
+    auto ret = static_cast<ProximityGroup3D *>(ptr)->get_group_name();
     return GDMonoMarshal::mono_string_from_godot(ret);
 }
 
 void godot_icall_ProximityGroup_set_dispatch_mode_93c07036(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
-    static_cast<ProximityGroup *>(ptr)->set_dispatch_mode((ProximityGroup::DispatchMode)arg1_in);
+    static_cast<ProximityGroup3D *>(ptr)->set_dispatch_mode((ProximityGroup3D::DispatchMode)arg1_in);
 }
 
 int32_t godot_icall_ProximityGroup_get_dispatch_mode_21b30f61(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, int32_t());
-    auto ret = static_cast<ProximityGroup *>(ptr)->get_dispatch_mode();
+    auto ret = static_cast<ProximityGroup3D *>(ptr)->get_dispatch_mode();
     return (int32_t)ret;
 }
 
 void godot_icall_ProximityGroup_set_grid_radius_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<ProximityGroup *>(ptr)->set_grid_radius(arg1_in);
+    static_cast<ProximityGroup3D *>(ptr)->set_grid_radius(arg1_in);
 }
 
 void godot_icall_ProximityGroup_get_grid_radius_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<ProximityGroup *>(ptr)->get_grid_radius();
+    auto ret = static_cast<ProximityGroup3D *>(ptr)->get_grid_radius();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
@@ -30852,11 +31161,11 @@ void godot_icall_ProximityGroup_broadcast_4a9ec68e(Object * ptr, MonoString* arg
     ERR_FAIL_NULL(ptr);
     TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
     Variant arg2_in = GDMonoMarshal::mono_object_to_variant(arg2);
-    static_cast<ProximityGroup *>(ptr)->broadcast(arg1_in, arg2_in);
+    static_cast<ProximityGroup3D *>(ptr)->broadcast(arg1_in, arg2_in);
 }
 
 Object* godot_icall_ProximityGroup_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "ProximityGroup")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "ProximityGroup3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -31795,70 +32104,70 @@ Object* godot_icall_RegExMatch_Ctor(MonoObject* obj) {
 
 void godot_icall_RemoteTransform_set_remote_node_1e08804(Object * ptr, NodePath* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RemoteTransform *>(ptr)->set_remote_node(*arg1);
+    static_cast<RemoteTransform3D *>(ptr)->set_remote_node(*arg1);
 }
 
 NodePath* godot_icall_RemoteTransform_get_remote_node_bf425768(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<RemoteTransform *>(ptr)->get_remote_node();
+    auto ret = static_cast<RemoteTransform3D *>(ptr)->get_remote_node();
     return memnew(NodePath(ret));
 }
 
 void godot_icall_RemoteTransform_force_update_cache_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<RemoteTransform *>(ptr)->force_update_cache();
+    static_cast<RemoteTransform3D *>(ptr)->force_update_cache();
 }
 
 void godot_icall_RemoteTransform_set_use_global_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RemoteTransform *>(ptr)->set_use_global_coordinates(arg1_in);
+    static_cast<RemoteTransform3D *>(ptr)->set_use_global_coordinates(arg1_in);
 }
 
 MonoBoolean godot_icall_RemoteTransform_get_use_global_coordinates_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RemoteTransform *>(ptr)->get_use_global_coordinates();
+    auto ret = static_cast<RemoteTransform3D *>(ptr)->get_use_global_coordinates();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_RemoteTransform_set_update_position_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RemoteTransform *>(ptr)->set_update_position(arg1_in);
+    static_cast<RemoteTransform3D *>(ptr)->set_update_position(arg1_in);
 }
 
 MonoBoolean godot_icall_RemoteTransform_get_update_position_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RemoteTransform *>(ptr)->get_update_position();
+    auto ret = static_cast<RemoteTransform3D *>(ptr)->get_update_position();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_RemoteTransform_set_update_rotation_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RemoteTransform *>(ptr)->set_update_rotation(arg1_in);
+    static_cast<RemoteTransform3D *>(ptr)->set_update_rotation(arg1_in);
 }
 
 MonoBoolean godot_icall_RemoteTransform_get_update_rotation_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RemoteTransform *>(ptr)->get_update_rotation();
+    auto ret = static_cast<RemoteTransform3D *>(ptr)->get_update_rotation();
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_RemoteTransform_set_update_scale_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<RemoteTransform *>(ptr)->set_update_scale(arg1_in);
+    static_cast<RemoteTransform3D *>(ptr)->set_update_scale(arg1_in);
 }
 
 MonoBoolean godot_icall_RemoteTransform_get_update_scale_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<RemoteTransform *>(ptr)->get_update_scale();
+    auto ret = static_cast<RemoteTransform3D *>(ptr)->get_update_scale();
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_RemoteTransform_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "RemoteTransform")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "RemoteTransform3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -34428,42 +34737,42 @@ void godot_icall_SliderJoint_set_param_1b52038e(Object * ptr, int32_t arg1, floa
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     float arg2_in = static_cast<float>(*arg2);
-    static_cast<SliderJoint *>(ptr)->set_param((SliderJoint::Param)arg1_in, arg2_in);
+    static_cast<SliderJoint3D *>(ptr)->set_param((SliderJoint3D::Param)arg1_in, arg2_in);
 }
 
 void godot_icall_SliderJoint_get_param_c1ceba83(Object * ptr, int32_t arg1, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<SliderJoint *>(ptr)->get_param((SliderJoint::Param)arg1_in);
+    auto ret = static_cast<SliderJoint3D *>(ptr)->get_param((SliderJoint3D::Param)arg1_in);
     *arg_ret = (float)ret;
 }
 
 void godot_icall_SliderJoint__set_upper_limit_angular_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<SliderJoint *>(ptr)->_set_upper_limit_angular(arg1_in);
+    static_cast<SliderJoint3D *>(ptr)->_set_upper_limit_angular(arg1_in);
 }
 
 void godot_icall_SliderJoint__get_upper_limit_angular_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SliderJoint *>(ptr)->_get_upper_limit_angular();
+    auto ret = static_cast<SliderJoint3D *>(ptr)->_get_upper_limit_angular();
     *arg_ret = (float)ret;
 }
 
 void godot_icall_SliderJoint__set_lower_limit_angular_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<SliderJoint *>(ptr)->_set_lower_limit_angular(arg1_in);
+    static_cast<SliderJoint3D *>(ptr)->_set_lower_limit_angular(arg1_in);
 }
 
 void godot_icall_SliderJoint__get_lower_limit_angular_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SliderJoint *>(ptr)->_get_lower_limit_angular();
+    auto ret = static_cast<SliderJoint3D *>(ptr)->_get_lower_limit_angular();
     *arg_ret = (float)ret;
 }
 
 Object* godot_icall_SliderJoint_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "SliderJoint")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "SliderJoint3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -34669,307 +34978,6 @@ MonoBoolean godot_icall_SoftBody_is_ray_pickable_68fe5f59(Object * ptr) {
 
 Object* godot_icall_SoftBody_Ctor(MonoObject* obj) {
     GODOTSHARP_INSTANCE_OBJECT(instance, "SoftBody")
-    GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-    return instance;
-}
-
-void godot_icall_Spatial_set_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Transform arg1_in = MARSHALLED_IN(Transform, arg1);
-    static_cast<Node3D *>(ptr)->set_transform(arg1_in);
-}
-
-void godot_icall_Spatial_get_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_transform();
-    *arg_ret = MARSHALLED_OUT(Transform, ret);
-}
-
-void godot_icall_Spatial_set_translation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->set_translation(arg1_in);
-}
-
-void godot_icall_Spatial_get_translation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_translation();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Spatial_set_rotation_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->set_rotation(arg1_in);
-}
-
-void godot_icall_Spatial_get_rotation_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_rotation();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Spatial_set_rotation_degrees_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->set_rotation_degrees(arg1_in);
-}
-
-void godot_icall_Spatial_get_rotation_degrees_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_rotation_degrees();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Spatial_set_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->set_scale(arg1_in);
-}
-
-void godot_icall_Spatial_get_scale_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_scale();
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Spatial_set_global_transform_655b85c9(Object * ptr, GDMonoMarshal::M_Transform* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Transform arg1_in = MARSHALLED_IN(Transform, arg1);
-    static_cast<Node3D *>(ptr)->set_global_transform(arg1_in);
-}
-
-void godot_icall_Spatial_get_global_transform_a3fb649b(Object * ptr, GDMonoMarshal::M_Transform* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Transform(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<Node3D *>(ptr)->get_global_transform();
-    *arg_ret = MARSHALLED_OUT(Transform, ret);
-}
-
-MonoObject* godot_icall_Spatial_get_parent_spatial_5ca237df(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Node3D *>(ptr)->get_parent_spatial();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret);
-}
-
-void godot_icall_Spatial_set_ignore_transform_notification_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_ignore_transform_notification(arg1_in);
-}
-
-void godot_icall_Spatial_set_as_toplevel_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_as_toplevel(arg1_in);
-}
-
-MonoBoolean godot_icall_Spatial_is_set_as_toplevel_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_set_as_toplevel();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Spatial_set_disable_scale_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_disable_scale(arg1_in);
-}
-
-MonoBoolean godot_icall_Spatial_is_scale_disabled_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_scale_disabled();
-    return static_cast<MonoBoolean>(ret);
-}
-
-MonoObject* godot_icall_Spatial_get_world_1e353b0f(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Node3D *>(ptr)->get_world();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Spatial_force_update_transform_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->force_update_transform();
-}
-
-void godot_icall_Spatial_update_gizmo_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->update_gizmo();
-}
-
-void godot_icall_Spatial_set_gizmo_b6a1956d(Object * ptr, Object * arg1) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->set_gizmo(AutoRef(arg1));
-}
-
-MonoObject* godot_icall_Spatial_get_gizmo_748173ff(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<Node3D *>(ptr)->get_gizmo();
-    return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Spatial_set_visible_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_visible(arg1_in);
-}
-
-MonoBoolean godot_icall_Spatial_is_visible_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_visible();
-    return static_cast<MonoBoolean>(ret);
-}
-
-MonoBoolean godot_icall_Spatial_is_visible_in_tree_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_visible_in_tree();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Spatial_show_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->show();
-}
-
-void godot_icall_Spatial_hide_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->hide();
-}
-
-void godot_icall_Spatial_set_notify_local_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_notify_local_transform(arg1_in);
-}
-
-MonoBoolean godot_icall_Spatial_is_local_transform_notification_enabled_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_local_transform_notification_enabled();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Spatial_set_notify_transform_ba24800b(Object * ptr, MonoBoolean arg1) {
-    ERR_FAIL_NULL(ptr);
-    bool arg1_in = static_cast<bool>(arg1);
-    static_cast<Node3D *>(ptr)->set_notify_transform(arg1_in);
-}
-
-MonoBoolean godot_icall_Spatial_is_transform_notification_enabled_68fe5f59(Object * ptr) {
-    ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<Node3D *>(ptr)->is_transform_notification_enabled();
-    return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Spatial_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    float arg2_in = static_cast<float>(*arg2);
-    static_cast<Node3D *>(ptr)->rotate(arg1_in, arg2_in);
-}
-
-void godot_icall_Spatial_global_rotate_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    float arg2_in = static_cast<float>(*arg2);
-    static_cast<Node3D *>(ptr)->global_rotate(arg1_in, arg2_in);
-}
-
-void godot_icall_Spatial_global_scale_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->global_scale(arg1_in);
-}
-
-void godot_icall_Spatial_global_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->global_translate(arg1_in);
-}
-
-void godot_icall_Spatial_rotate_object_local_eb94ad74(Object * ptr, GDMonoMarshal::M_Vector3* arg1, float* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    float arg2_in = static_cast<float>(*arg2);
-    static_cast<Node3D *>(ptr)->rotate_object_local(arg1_in, arg2_in);
-}
-
-void godot_icall_Spatial_scale_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->scale_object_local(arg1_in);
-}
-
-void godot_icall_Spatial_translate_object_local_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->translate_object_local(arg1_in);
-}
-
-void godot_icall_Spatial_rotate_x_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Node3D *>(ptr)->rotate_x(arg1_in);
-}
-
-void godot_icall_Spatial_rotate_y_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Node3D *>(ptr)->rotate_y(arg1_in);
-}
-
-void godot_icall_Spatial_rotate_z_904508bb(Object * ptr, float* arg1) {
-    ERR_FAIL_NULL(ptr);
-    float arg1_in = static_cast<float>(*arg1);
-    static_cast<Node3D *>(ptr)->rotate_z(arg1_in);
-}
-
-void godot_icall_Spatial_translate_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<Node3D *>(ptr)->translate(arg1_in);
-}
-
-void godot_icall_Spatial_orthonormalize_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->orthonormalize();
-}
-
-void godot_icall_Spatial_set_identity_c8e54a7b(Object * ptr) {
-    ERR_FAIL_NULL(ptr);
-    static_cast<Node3D *>(ptr)->set_identity();
-}
-
-void godot_icall_Spatial_look_at_bf22f212(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    static_cast<Node3D *>(ptr)->look_at(arg1_in, arg2_in);
-}
-
-void godot_icall_Spatial_look_at_from_position_8d29af1e(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg2, GDMonoMarshal::M_Vector3* arg3) {
-    ERR_FAIL_NULL(ptr);
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    Vector3 arg2_in = MARSHALLED_IN(Vector3, arg2);
-    Vector3 arg3_in = MARSHALLED_IN(Vector3, arg3);
-    static_cast<Node3D *>(ptr)->look_at_from_position(arg1_in, arg2_in, arg3_in);
-}
-
-void godot_icall_Spatial_to_local_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Node3D *>(ptr)->to_local(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-void godot_icall_Spatial_to_global_af4cfa14(Object * ptr, GDMonoMarshal::M_Vector3* arg1, GDMonoMarshal::M_Vector3* arg_ret) {
-    if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    auto ret = static_cast<Node3D *>(ptr)->to_global(arg1_in);
-    *arg_ret = MARSHALLED_OUT(Vector3, ret);
-}
-
-Object* godot_icall_Spatial_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "Node3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -35669,38 +35677,38 @@ Object* godot_icall_SpatialMaterial_Ctor(MonoObject* obj) {
     return instance;
 }
 
-void godot_icall_SpatialVelocityTracker_set_track_physics_step_ba24800b(Object * ptr, MonoBoolean arg1) {
+void godot_icall_VelocityTracker3D_set_track_physics_step_ba24800b(Object * ptr, MonoBoolean arg1) {
     ERR_FAIL_NULL(ptr);
     bool arg1_in = static_cast<bool>(arg1);
-    static_cast<SpatialVelocityTracker *>(ptr)->set_track_physics_step(arg1_in);
+    static_cast<VelocityTracker3D *>(ptr)->set_track_physics_step(arg1_in);
 }
 
-MonoBoolean godot_icall_SpatialVelocityTracker_is_tracking_physics_step_68fe5f59(Object * ptr) {
+MonoBoolean godot_icall_VelocityTracker3D_is_tracking_physics_step_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<SpatialVelocityTracker *>(ptr)->is_tracking_physics_step();
+    auto ret = static_cast<VelocityTracker3D *>(ptr)->is_tracking_physics_step();
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_SpatialVelocityTracker_update_position_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_VelocityTracker3D_update_position_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<SpatialVelocityTracker *>(ptr)->update_position(arg1_in);
+    static_cast<VelocityTracker3D *>(ptr)->update_position(arg1_in);
 }
 
-void godot_icall_SpatialVelocityTracker_get_tracked_linear_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
+void godot_icall_VelocityTracker3D_get_tracked_linear_velocity_9b4ea24f(Object * ptr, GDMonoMarshal::M_Vector3* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_Vector3(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SpatialVelocityTracker *>(ptr)->get_tracked_linear_velocity();
+    auto ret = static_cast<VelocityTracker3D *>(ptr)->get_tracked_linear_velocity();
     *arg_ret = MARSHALLED_OUT(Vector3, ret);
 }
 
-void godot_icall_SpatialVelocityTracker_reset_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
+void godot_icall_VelocityTracker3D_reset_6df7471d(Object * ptr, GDMonoMarshal::M_Vector3* arg1) {
     ERR_FAIL_NULL(ptr);
     Vector3 arg1_in = MARSHALLED_IN(Vector3, arg1);
-    static_cast<SpatialVelocityTracker *>(ptr)->reset(arg1_in);
+    static_cast<VelocityTracker3D *>(ptr)->reset(arg1_in);
 }
 
-Object* godot_icall_SpatialVelocityTracker_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "SpatialVelocityTracker")
+Object* godot_icall_VelocityTracker3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "VelocityTracker3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -35896,82 +35904,82 @@ int32_t godot_icall_SplitContainer_get_dragger_visibility_bceaa729(Object * ptr)
 }
 
 Object* godot_icall_SpotLight_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "SpotLight")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "SpotLight3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
 
-void godot_icall_SpringArm_get_hit_length_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_SpringArm3D_get_hit_length_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SpringArm *>(ptr)->get_hit_length();
+    auto ret = static_cast<SpringArm3D *>(ptr)->get_hit_length();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_SpringArm_set_length_904508bb(Object * ptr, float* arg1) {
+void godot_icall_SpringArm3D_set_length_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<SpringArm *>(ptr)->set_length(arg1_in);
+    static_cast<SpringArm3D *>(ptr)->set_length(arg1_in);
 }
 
-void godot_icall_SpringArm_get_length_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_SpringArm3D_get_length_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SpringArm *>(ptr)->get_length();
+    auto ret = static_cast<SpringArm3D *>(ptr)->get_length();
     *arg_ret = (float)ret;
 }
 
-void godot_icall_SpringArm_set_shape_f51cd014(Object * ptr, Object * arg1) {
+void godot_icall_SpringArm3D_set_shape_f51cd014(Object * ptr, Object * arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<SpringArm *>(ptr)->set_shape(AutoRef(arg1));
+    static_cast<SpringArm3D *>(ptr)->set_shape(AutoRef(arg1));
 }
 
-MonoObject* godot_icall_SpringArm_get_shape_34362f58(Object * ptr) {
+MonoObject* godot_icall_SpringArm3D_get_shape_34362f58(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<SpringArm *>(ptr)->get_shape();
+    auto ret = static_cast<SpringArm3D *>(ptr)->get_shape();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
-void godot_icall_SpringArm_add_excluded_object_a7039b4e(Object * ptr, RID* arg1) {
+void godot_icall_SpringArm3D_add_excluded_object_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<SpringArm *>(ptr)->add_excluded_object(*arg1);
+    static_cast<SpringArm3D *>(ptr)->add_excluded_object(*arg1);
 }
 
-MonoBoolean godot_icall_SpringArm_remove_excluded_object_36cc12b4(Object * ptr, RID* arg1) {
+MonoBoolean godot_icall_SpringArm3D_remove_excluded_object_36cc12b4(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<SpringArm *>(ptr)->remove_excluded_object(*arg1);
+    auto ret = static_cast<SpringArm3D *>(ptr)->remove_excluded_object(*arg1);
     return static_cast<MonoBoolean>(ret);
 }
 
-void godot_icall_SpringArm_clear_excluded_objects_c8e54a7b(Object * ptr) {
+void godot_icall_SpringArm3D_clear_excluded_objects_c8e54a7b(Object * ptr) {
     ERR_FAIL_NULL(ptr);
-    static_cast<SpringArm *>(ptr)->clear_excluded_objects();
+    static_cast<SpringArm3D *>(ptr)->clear_excluded_objects();
 }
 
-void godot_icall_SpringArm_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
+void godot_icall_SpringArm3D_set_collision_mask_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<SpringArm *>(ptr)->set_mask(arg1_in);
+    static_cast<SpringArm3D *>(ptr)->set_mask(arg1_in);
 }
 
-uint32_t godot_icall_SpringArm_get_collision_mask_54cc76d5(Object * ptr) {
+uint32_t godot_icall_SpringArm3D_get_collision_mask_54cc76d5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<SpringArm *>(ptr)->get_mask();
+    auto ret = static_cast<SpringArm3D *>(ptr)->get_mask();
     return static_cast<uint32_t>(ret);
 }
 
-void godot_icall_SpringArm_set_margin_904508bb(Object * ptr, float* arg1) {
+void godot_icall_SpringArm3D_set_margin_904508bb(Object * ptr, float* arg1) {
     ERR_FAIL_NULL(ptr);
     float arg1_in = static_cast<float>(*arg1);
-    static_cast<SpringArm *>(ptr)->set_margin(arg1_in);
+    static_cast<SpringArm3D *>(ptr)->set_margin(arg1_in);
 }
 
-void godot_icall_SpringArm_get_margin_4edcd7a9(Object * ptr, float* arg_ret) {
+void godot_icall_SpringArm3D_get_margin_4edcd7a9(Object * ptr, float* arg_ret) {
     if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<SpringArm *>(ptr)->get_margin();
+    auto ret = static_cast<SpringArm3D *>(ptr)->get_margin();
     *arg_ret = (float)ret;
 }
 
-Object* godot_icall_SpringArm_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "SpringArm")
+Object* godot_icall_SpringArm3D_Ctor(MonoObject* obj) {
+    GODOTSHARP_INSTANCE_OBJECT(instance, "SpringArm3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -42647,18 +42655,18 @@ void godot_icall_VisibilityEnabler_set_enabler_138f911d(Object * ptr, int32_t ar
     ERR_FAIL_NULL(ptr);
     int64_t arg1_in = (int64_t)arg1;
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisibilityEnabler *>(ptr)->set_enabler((VisibilityEnabler::Enabler)arg1_in, arg2_in);
+    static_cast<VisibilityEnabler3D *>(ptr)->set_enabler((VisibilityEnabler3D::Enabler)arg1_in, arg2_in);
 }
 
 MonoBoolean godot_icall_VisibilityEnabler_is_enabler_enabled_3911799(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int64_t arg1_in = (int64_t)arg1;
-    auto ret = static_cast<VisibilityEnabler *>(ptr)->is_enabler_enabled((VisibilityEnabler::Enabler)arg1_in);
+    auto ret = static_cast<VisibilityEnabler3D *>(ptr)->is_enabler_enabled((VisibilityEnabler3D::Enabler)arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_VisibilityEnabler_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "VisibilityEnabler")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "VisibilityEnabler3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -42686,23 +42694,23 @@ Object* godot_icall_VisibilityEnabler2D_Ctor(MonoObject* obj) {
 void godot_icall_VisibilityNotifier_set_aabb_ff67b409(Object * ptr, GDMonoMarshal::M_AABB* arg1) {
     ERR_FAIL_NULL(ptr);
     AABB arg1_in = MARSHALLED_IN(AABB, arg1);
-    static_cast<VisibilityNotifier *>(ptr)->set_aabb(arg1_in);
+    static_cast<VisibilityNotifier3D *>(ptr)->set_aabb(arg1_in);
 }
 
 void godot_icall_VisibilityNotifier_get_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisibilityNotifier *>(ptr)->get_aabb();
+    auto ret = static_cast<VisibilityNotifier3D *>(ptr)->get_aabb();
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 MonoBoolean godot_icall_VisibilityNotifier_is_on_screen_68fe5f59(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
-    auto ret = static_cast<VisibilityNotifier *>(ptr)->is_on_screen();
+    auto ret = static_cast<VisibilityNotifier3D *>(ptr)->is_on_screen();
     return static_cast<MonoBoolean>(ret);
 }
 
 Object* godot_icall_VisibilityNotifier_Ctor(MonoObject* obj) {
-    GODOTSHARP_INSTANCE_OBJECT(instance, "VisibilityNotifier")
+    GODOTSHARP_INSTANCE_OBJECT(instance, "VisibilityNotifier3D")
     GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
     return instance;
 }
@@ -42733,30 +42741,30 @@ Object* godot_icall_VisibilityNotifier2D_Ctor(MonoObject* obj) {
 
 void godot_icall_VisualInstance_set_base_a7039b4e(Object * ptr, RID* arg1) {
     ERR_FAIL_NULL(ptr);
-    static_cast<VisualInstance *>(ptr)->set_base(*arg1);
+    static_cast<VisualInstance3D *>(ptr)->set_base(*arg1);
 }
 
 RID* godot_icall_VisualInstance_get_base_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualInstance *>(ptr)->get_base();
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_base();
     return memnew(RID(ret));
 }
 
 RID* godot_icall_VisualInstance_get_instance_6623661e(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
-    auto ret = static_cast<VisualInstance *>(ptr)->get_instance();
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_instance();
     return memnew(RID(ret));
 }
 
 void godot_icall_VisualInstance_set_layer_mask_966aab97(Object * ptr, uint32_t arg1) {
     ERR_FAIL_NULL(ptr);
     uint32_t arg1_in = static_cast<uint32_t>(arg1);
-    static_cast<VisualInstance *>(ptr)->set_layer_mask(arg1_in);
+    static_cast<VisualInstance3D *>(ptr)->set_layer_mask(arg1_in);
 }
 
 uint32_t godot_icall_VisualInstance_get_layer_mask_54cc76d5(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, uint32_t());
-    auto ret = static_cast<VisualInstance *>(ptr)->get_layer_mask();
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_layer_mask();
     return static_cast<uint32_t>(ret);
 }
 
@@ -42764,25 +42772,25 @@ void godot_icall_VisualInstance_set_layer_mask_bit_4ae8febd(Object * ptr, int32_
     ERR_FAIL_NULL(ptr);
     int32_t arg1_in = static_cast<int32_t>(arg1);
     bool arg2_in = static_cast<bool>(arg2);
-    static_cast<VisualInstance *>(ptr)->set_layer_mask_bit(arg1_in, arg2_in);
+    static_cast<VisualInstance3D *>(ptr)->set_layer_mask_bit(arg1_in, arg2_in);
 }
 
 MonoBoolean godot_icall_VisualInstance_get_layer_mask_bit_7f690926(Object * ptr, int32_t arg1) {
     ERR_FAIL_NULL_V(ptr, MonoBoolean());
     int32_t arg1_in = static_cast<int32_t>(arg1);
-    auto ret = static_cast<VisualInstance *>(ptr)->get_layer_mask_bit(arg1_in);
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_layer_mask_bit(arg1_in);
     return static_cast<MonoBoolean>(ret);
 }
 
 void godot_icall_VisualInstance_get_transformed_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualInstance *>(ptr)->get_transformed_aabb();
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_transformed_aabb();
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
 void godot_icall_VisualInstance_get_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
     if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-    auto ret = static_cast<VisualInstance *>(ptr)->get_aabb();
+    auto ret = static_cast<VisualInstance3D *>(ptr)->get_aabb();
     *arg_ret = MARSHALLED_OUT(AABB, ret);
 }
 
@@ -48266,7 +48274,7 @@ RID* godot_icall_World2D_get_space_6623661e(Object * ptr) {
     return memnew(RID(ret));
 }
 
-MonoObject* godot_icall_World2D_get_direct_space_state_f8934848(Object * ptr) {
+MonoObject* godot_icall_World2D_get_direct_space_state_4d900f88(Object * ptr) {
     ERR_FAIL_NULL_V(ptr, NULL);
     auto ret = static_cast<World2D *>(ptr)->get_direct_space_state();
     return GDMonoUtils::unmanaged_get_managed((Object *)ret);
@@ -50924,12 +50932,12 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_SoftBody_Ctor", (void*)godot_icall_SoftBody_Ctor},
 	{"Godot.NativeCalls::godot_icall_Spatial_Ctor", (void*)godot_icall_Spatial_Ctor},
 	{"Godot.NativeCalls::godot_icall_SpatialMaterial_Ctor", (void*)godot_icall_SpatialMaterial_Ctor},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_Ctor", (void*)godot_icall_SpatialVelocityTracker_Ctor},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_Ctor", (void*)godot_icall_VelocityTracker3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_SphereMesh_Ctor", (void*)godot_icall_SphereMesh_Ctor},
 	{"Godot.NativeCalls::godot_icall_SphereShape_Ctor", (void*)godot_icall_SphereShape_Ctor},
 	{"Godot.NativeCalls::godot_icall_SpinBox_Ctor", (void*)godot_icall_SpinBox_Ctor},
 	{"Godot.NativeCalls::godot_icall_SpotLight_Ctor", (void*)godot_icall_SpotLight_Ctor},
-	{"Godot.NativeCalls::godot_icall_SpringArm_Ctor", (void*)godot_icall_SpringArm_Ctor},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_Ctor", (void*)godot_icall_SpringArm3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_Sprite_Ctor", (void*)godot_icall_Sprite_Ctor},
 	{"Godot.NativeCalls::godot_icall_Sprite3D_Ctor", (void*)godot_icall_Sprite3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_SpriteFrames_Ctor", (void*)godot_icall_SpriteFrames_Ctor},
@@ -56405,11 +56413,11 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_SpatialMaterial_get_distance_fade_max_distance_4edcd7a9", (void*)godot_icall_SpatialMaterial_get_distance_fade_max_distance_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_SpatialMaterial_set_distance_fade_min_distance_904508bb", (void*)godot_icall_SpatialMaterial_set_distance_fade_min_distance_904508bb},
 	{"Godot.NativeCalls::godot_icall_SpatialMaterial_get_distance_fade_min_distance_4edcd7a9", (void*)godot_icall_SpatialMaterial_get_distance_fade_min_distance_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_set_track_physics_step_ba24800b", (void*)godot_icall_SpatialVelocityTracker_set_track_physics_step_ba24800b},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_is_tracking_physics_step_68fe5f59", (void*)godot_icall_SpatialVelocityTracker_is_tracking_physics_step_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_update_position_6df7471d", (void*)godot_icall_SpatialVelocityTracker_update_position_6df7471d},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_get_tracked_linear_velocity_9b4ea24f", (void*)godot_icall_SpatialVelocityTracker_get_tracked_linear_velocity_9b4ea24f},
-	{"Godot.NativeCalls::godot_icall_SpatialVelocityTracker_reset_6df7471d", (void*)godot_icall_SpatialVelocityTracker_reset_6df7471d},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_set_track_physics_step_ba24800b", (void*)godot_icall_VelocityTracker3D_set_track_physics_step_ba24800b},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_is_tracking_physics_step_68fe5f59", (void*)godot_icall_VelocityTracker3D_is_tracking_physics_step_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_update_position_6df7471d", (void*)godot_icall_VelocityTracker3D_update_position_6df7471d},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_get_tracked_linear_velocity_9b4ea24f", (void*)godot_icall_VelocityTracker3D_get_tracked_linear_velocity_9b4ea24f},
+	{"Godot.NativeCalls::godot_icall_VelocityTracker3D_reset_6df7471d", (void*)godot_icall_VelocityTracker3D_reset_6df7471d},
 	{"Godot.NativeCalls::godot_icall_SphereMesh_set_radius_904508bb", (void*)godot_icall_SphereMesh_set_radius_904508bb},
 	{"Godot.NativeCalls::godot_icall_SphereMesh_get_radius_4edcd7a9", (void*)godot_icall_SphereMesh_get_radius_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_SphereMesh_set_height_904508bb", (void*)godot_icall_SphereMesh_set_height_904508bb},
@@ -56439,18 +56447,18 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_SplitContainer_is_collapsed_68fe5f59", (void*)godot_icall_SplitContainer_is_collapsed_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_SplitContainer_set_dragger_visibility_939602ae", (void*)godot_icall_SplitContainer_set_dragger_visibility_939602ae},
 	{"Godot.NativeCalls::godot_icall_SplitContainer_get_dragger_visibility_bceaa729", (void*)godot_icall_SplitContainer_get_dragger_visibility_bceaa729},
-	{"Godot.NativeCalls::godot_icall_SpringArm_get_hit_length_4edcd7a9", (void*)godot_icall_SpringArm_get_hit_length_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_SpringArm_set_length_904508bb", (void*)godot_icall_SpringArm_set_length_904508bb},
-	{"Godot.NativeCalls::godot_icall_SpringArm_get_length_4edcd7a9", (void*)godot_icall_SpringArm_get_length_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_SpringArm_set_shape_f51cd014", (void*)godot_icall_SpringArm_set_shape_f51cd014},
-	{"Godot.NativeCalls::godot_icall_SpringArm_get_shape_34362f58", (void*)godot_icall_SpringArm_get_shape_34362f58},
-	{"Godot.NativeCalls::godot_icall_SpringArm_add_excluded_object_a7039b4e", (void*)godot_icall_SpringArm_add_excluded_object_a7039b4e},
-	{"Godot.NativeCalls::godot_icall_SpringArm_remove_excluded_object_36cc12b4", (void*)godot_icall_SpringArm_remove_excluded_object_36cc12b4},
-	{"Godot.NativeCalls::godot_icall_SpringArm_clear_excluded_objects_c8e54a7b", (void*)godot_icall_SpringArm_clear_excluded_objects_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_SpringArm_set_collision_mask_966aab97", (void*)godot_icall_SpringArm_set_collision_mask_966aab97},
-	{"Godot.NativeCalls::godot_icall_SpringArm_get_collision_mask_54cc76d5", (void*)godot_icall_SpringArm_get_collision_mask_54cc76d5},
-	{"Godot.NativeCalls::godot_icall_SpringArm_set_margin_904508bb", (void*)godot_icall_SpringArm_set_margin_904508bb},
-	{"Godot.NativeCalls::godot_icall_SpringArm_get_margin_4edcd7a9", (void*)godot_icall_SpringArm_get_margin_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_get_hit_length_4edcd7a9", (void*)godot_icall_SpringArm3D_get_hit_length_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_set_length_904508bb", (void*)godot_icall_SpringArm3D_set_length_904508bb},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_get_length_4edcd7a9", (void*)godot_icall_SpringArm3D_get_length_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_set_shape_f51cd014", (void*)godot_icall_SpringArm3D_set_shape_f51cd014},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_get_shape_34362f58", (void*)godot_icall_SpringArm3D_get_shape_34362f58},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_add_excluded_object_a7039b4e", (void*)godot_icall_SpringArm3D_add_excluded_object_a7039b4e},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_remove_excluded_object_36cc12b4", (void*)godot_icall_SpringArm3D_remove_excluded_object_36cc12b4},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_clear_excluded_objects_c8e54a7b", (void*)godot_icall_SpringArm3D_clear_excluded_objects_c8e54a7b},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_set_collision_mask_966aab97", (void*)godot_icall_SpringArm3D_set_collision_mask_966aab97},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_get_collision_mask_54cc76d5", (void*)godot_icall_SpringArm3D_get_collision_mask_54cc76d5},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_set_margin_904508bb", (void*)godot_icall_SpringArm3D_set_margin_904508bb},
+	{"Godot.NativeCalls::godot_icall_SpringArm3D_get_margin_4edcd7a9", (void*)godot_icall_SpringArm3D_get_margin_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_Sprite_set_texture_7eecd31a", (void*)godot_icall_Sprite_set_texture_7eecd31a},
 	{"Godot.NativeCalls::godot_icall_Sprite_get_texture_ac462e4a", (void*)godot_icall_Sprite_get_texture_ac462e4a},
 	{"Godot.NativeCalls::godot_icall_Sprite_set_normal_map_7eecd31a", (void*)godot_icall_Sprite_set_normal_map_7eecd31a},

@@ -32,7 +32,7 @@
 
 #include "core/rid.h"
 #include "core/pool_vector.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/visual_instance_3d.h"
 
 class Curve;
 class Mesh;

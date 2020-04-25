@@ -32,8 +32,8 @@
 #include "core/engine.h"
 #include "core/object_tooling.h"
 #include "scene/3d/area_3d.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/listener.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/listener_3d.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
 #include "servers/physics_server_3d.h"
@@ -418,10 +418,10 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 break;
             }
 
-            Vector<Camera *> cameras;
+            Vector<Camera3D *> cameras;
             world->get_camera_list(&cameras);
 
-            for (Camera *camera : cameras) {
+            for (Camera3D *camera : cameras) {
 
                 Viewport *vp = camera->get_viewport();
                 if (!vp->is_audio_listener())
@@ -430,7 +430,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 bool listener_is_camera = true;
                 Node3D *listener_node = camera;
 
-                Listener *listener = vp->get_listener();
+                Listener3D *listener = vp->get_listener();
                 if (listener) {
                     listener_node = listener;
                     listener_is_camera = false;
@@ -1075,7 +1075,7 @@ AudioStreamPlayer3D::AudioStreamPlayer3D() {
     stream_paused_fade_in = false;
     stream_paused_fade_out = false;
 
-    velocity_tracker = make_ref_counted<SpatialVelocityTracker>();
+    velocity_tracker = make_ref_counted<VelocityTracker3D>();
     AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
     set_disable_scale(true);
 }

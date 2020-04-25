@@ -31,7 +31,7 @@
 #ifndef ROOM_INSTANCE_H
 #define ROOM_INSTANCE_H
 
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/room.h"
 
 /* RoomInstance Logic:
@@ -44,9 +44,9 @@
 // FIXME: this will be removed, left for reference
 #if 0
 
-class Room : public VisualInstance {
+class Room : public VisualInstance3D {
 
-	GDCLASS(Room,VisualInstance)
+	GDCLASS(Room,VisualInstance3D)
 IMPL_GDCLASS(Room)
 
 public:

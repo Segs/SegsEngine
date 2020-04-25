@@ -59,7 +59,7 @@ void InterpolatedCamera::_notification(int p_what) {
                 Transform local_transform = get_global_transform();
                 local_transform = local_transform.interpolate_with(target_xform, delta);
                 set_global_transform(local_transform);
-                Camera *cam = object_cast<Camera>(node);
+                Camera3D *cam = object_cast<Camera3D>(node);
                 if (cam) {
 
                     if (cam->get_projection() == get_projection()) {

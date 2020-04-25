@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Listener" inherits="Node3D" version="4.0">
+<class name="Listener3D" inherits="Node3D" version="4.0">
 	<brief_description>
 		Overrides the location sounds are heard from.
 	</brief_description>
 	<description>
-		Once added to the scene tree and enabled using [method make_current], this node will override the location sounds are heard from. This can be used to listen from a location different from the [Camera].
+		Once added to the scene tree and enabled using [method make_current], this node will override the location sounds are heard from. This can be used to listen from a location different from the [Camera3D].
 		[b]Note:[/b] There is no 2D equivalent for this node yet.
 	</description>
 	<tutorials>
@@ -29,7 +29,7 @@
 			</return>
 			<description>
 				Returns [code]true[/code] if the listener was made current using [method make_current], [code]false[/code] otherwise.
-				[b]Note:[/b] There may be more than one Listener marked as "current" in the scene tree, but only the one that was made current last will be used.
+				[b]Note:[/b] There may be more than one Listener3D marked as "current" in the scene tree, but only the one that was made current last will be used.
 			</description>
 		</method>
 		<method name="make_current">

@@ -31,9 +31,9 @@
 #ifndef BAKED_INDIRECT_LIGHT_H
 #define BAKED_INDIRECT_LIGHT_H
 
-#include "multimesh_instance.h"
-#include "scene/3d/light.h"
-#include "scene/3d/visual_instance.h"
+#include "multimesh_instance_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 
 class BakedLightmapData : public Resource {
     GDCLASS(BakedLightmapData,Resource)
@@ -87,8 +87,8 @@ public:
     ~BakedLightmapData() override;
 };
 
-class BakedLightmap : public VisualInstance {
-    GDCLASS(BakedLightmap,VisualInstance)
+class BakedLightmap : public VisualInstance3D {
+    GDCLASS(BakedLightmap,VisualInstance3D)
 
 public:
     enum BakeQuality {
@@ -139,7 +139,7 @@ private:
     };
 
     struct PlotLight {
-        Light *light;
+        Light3D *light;
         Transform local_xform;
     };
 

@@ -31,9 +31,9 @@
 #include "mesh_instance_editor_plugin.h"
 
 #include "core/method_bind.h"
-#include "scene/3d/collision_shape.h"
+#include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/gui/box_container.h"
 #include "scene/main/scene_tree.h"
 #include "spatial_editor_plugin.h"
@@ -83,7 +83,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                     return;
                 }
 
-                CollisionShape *cshape = memnew(CollisionShape);
+                CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(shape);
                 StaticBody *body = memnew(StaticBody);
                 body->add_child(cshape);
@@ -116,7 +116,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 if (not shape)
                     continue;
 
-                CollisionShape *cshape = memnew(CollisionShape);
+                CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(shape);
                 StaticBody *body = memnew(StaticBody);
                 body->add_child(cshape);
@@ -145,7 +145,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
         if (not shape)
             return;
 
-        CollisionShape *cshape = memnew(CollisionShape);
+        CollisionShape3D *cshape = memnew(CollisionShape3D);
         cshape->set_shape(shape);
 
         Node *owner = node->get_owner();
@@ -180,7 +180,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
         ur->create_action(TTR("Create Single Convex Shape"));
 
-        CollisionShape *cshape = memnew(CollisionShape);
+        CollisionShape3D *cshape = memnew(CollisionShape3D);
         cshape->set_shape(shape);
         cshape->set_transform(node->get_transform());
 
@@ -218,7 +218,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             for (int i = 0; i < shapes.size(); i++) {
 
-                CollisionShape *cshape = memnew(CollisionShape);
+                CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(shapes[i]);
                 cshape->set_transform(node->get_transform());
 

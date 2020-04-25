@@ -4,7 +4,7 @@
 		Box shape resource.
 	</brief_description>
 	<description>
-        3D box shape that can be a child of a [PhysicsBody] or [Area3D].
+        3D box shape that can be a child of a [PhysicsBody3D] or [Area3D].
 	</description>
 	<tutorials>
 	</tutorials>

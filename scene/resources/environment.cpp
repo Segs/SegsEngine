@@ -978,7 +978,7 @@ void Environment::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_camera_feed_id"), &Environment::get_camera_feed_id);
 
     ADD_GROUP("Background", "background_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "background_mode", PropertyHint::Enum, "Clear Color,Custom Color,Sky,Color+Sky,Canvas,Keep,Camera Feed"), "set_background", "get_background");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "background_mode", PropertyHint::Enum, "Clear Color,Custom Color,Sky,Color+Sky,Canvas,Keep,Camera3D Feed"), "set_background", "get_background");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "background_sky", PropertyHint::ResourceType, "Sky"), "set_sky", "get_sky");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "background_sky_custom_fov", PropertyHint::Range, "0,180,0.1"), "set_sky_custom_fov", "get_sky_custom_fov");
     ADD_PROPERTY(PropertyInfo(VariantType::BASIS, "background_sky_orientation"), "set_sky_orientation", "get_sky_orientation");

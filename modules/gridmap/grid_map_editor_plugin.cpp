@@ -39,7 +39,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/slider.h"
@@ -377,7 +377,7 @@ void GridMapEditor::_set_selection(bool p_active, const Vector3 &p_begin, const 
 
 }
 
-bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, bool p_click) {
+bool GridMapEditor::do_input_action(Camera3D *p_camera, const Point2 &p_point, bool p_click) {
 
     if (!spatial_editor)
         return false;
@@ -390,7 +390,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
     if (input_action != INPUT_PICK && input_action != INPUT_SELECT && input_action != INPUT_PASTE && !mesh_library->has_item(selected_palette))
         return false;
 
-    Camera *camera = p_camera;
+    Camera3D *camera = p_camera;
     Vector3 from = camera->project_ray_origin(p_point);
     Vector3 normal = camera->project_ray_normal(p_point);
     Transform local_xform = node->get_global_transform().affine_inverse();
@@ -656,7 +656,7 @@ void GridMapEditor::_do_paste() {
     _clear_clipboard_data();
 }
 
-bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<InputEvent> &p_event) {
+bool GridMapEditor::forward_spatial_input_event(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
     if (!node) {
         return false;
     }

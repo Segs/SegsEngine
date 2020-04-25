@@ -973,7 +973,7 @@
 			<argument index="3" name="local_ref_B" type="Transform">
 			</argument>
 			<description>
-				Creates a [ConeTwistJoint].
+				Creates a [ConeTwistJoint3D].
 			</description>
 		</method>
 		<method name="joint_create_generic_6dof">
@@ -1003,7 +1003,7 @@
 			<argument index="3" name="hinge_B" type="Transform">
 			</argument>
 			<description>
-				Creates a [HingeJoint].
+				Creates a [HingeJoint3D].
 			</description>
 		</method>
 		<method name="joint_create_pin">
@@ -1018,7 +1018,7 @@
 			<argument index="3" name="local_B" type="Vector3">
 			</argument>
 			<description>
-				Creates a [PinJoint].
+				Creates a [PinJoint3D].
 			</description>
 		</method>
 		<method name="joint_create_slider">
@@ -1033,7 +1033,7 @@
 			<argument index="3" name="local_ref_B" type="Transform">
 			</argument>
 			<description>
-				Creates a [SliderJoint].
+				Creates a [SliderJoint3D].
 			</description>
 		</method>
 		<method name="joint_get_solver_priority" qualifiers="const">
@@ -1042,7 +1042,7 @@
 			<argument index="0" name="joint" type="RID">
 			</argument>
 			<description>
-				Gets the priority value of the Joint.
+				Gets the priority value of the Joint3D.
 			</description>
 		</method>
 		<method name="joint_get_type" qualifiers="const">
@@ -1051,7 +1051,7 @@
 			<argument index="0" name="joint" type="RID">
 			</argument>
 			<description>
-				Returns the type of the Joint.
+				Returns the type of the Joint3D.
 			</description>
 		</method>
 		<method name="joint_set_solver_priority">
@@ -1062,7 +1062,7 @@
 			<argument index="1" name="priority" type="int">
 			</argument>
 			<description>
-				Sets the priority value of the Joint.
+				Sets the priority value of the Joint3D.
 			</description>
 		</method>
 		<method name="pin_joint_get_local_a" qualifiers="const">
@@ -1263,19 +1263,19 @@
 	</methods>
 	<constants>
 		<constant name="JOINT_PIN" value="0" enum="JointType">
-			The [Joint] is a [PinJoint].
+			The [Joint3D] is a [PinJoint3D].
 		</constant>
 		<constant name="JOINT_HINGE" value="1" enum="JointType">
-			The [Joint] is a [HingeJoint].
+			The [Joint3D] is a [HingeJoint3D].
 		</constant>
 		<constant name="JOINT_SLIDER" value="2" enum="JointType">
-			The [Joint] is a [SliderJoint].
+			The [Joint3D] is a [SliderJoint3D].
 		</constant>
 		<constant name="JOINT_CONE_TWIST" value="3" enum="JointType">
-			The [Joint] is a [ConeTwistJoint].
+			The [Joint3D] is a [ConeTwistJoint3D].
 		</constant>
 		<constant name="JOINT_6DOF" value="4" enum="JointType">
-			The [Joint] is a [Generic6DOFJoint].
+			The [Joint3D] is a [Generic6DOFJoint].
 		</constant>
 		<constant name="PIN_JOINT_BIAS" value="0" enum="PinJointParam">
 			The strength with which the pinned objects try to stay in positional relation to each other.
@@ -1286,7 +1286,7 @@
 			The higher, the stronger.
 		</constant>
 		<constant name="PIN_JOINT_IMPULSE_CLAMP" value="2" enum="PinJointParam">
-			If above 0, this value is the maximum value for an impulse that this Joint puts on its ends.
+			If above 0, this value is the maximum value for an impulse that this Joint3D puts on its ends.
 		</constant>
 		<constant name="HINGE_JOINT_BIAS" value="0" enum="HingeJointParam">
 			The speed with which the two bodies get pulled together when they move in different directions.
@@ -1389,7 +1389,7 @@
 		<constant name="CONE_TWIST_JOINT_SWING_SPAN" value="0" enum="ConeTwistJointParam">
 			Swing is rotation from side to side, around the axis perpendicular to the twist axis.
 			The swing span defines, how much rotation will not get corrected allong the swing axis.
-			Could be defined as looseness in the [ConeTwistJoint].
+			Could be defined as looseness in the [ConeTwistJoint3D].
 			If below 0.05, this behavior is locked.
 		</constant>
 		<constant name="CONE_TWIST_JOINT_TWIST_SPAN" value="1" enum="ConeTwistJointParam">
@@ -1401,7 +1401,7 @@
 			The higher, the faster.
 		</constant>
 		<constant name="CONE_TWIST_JOINT_SOFTNESS" value="3" enum="ConeTwistJointParam">
-			The ease with which the Joint twists, if it's too low, it takes more force to twist the joint.
+			The ease with which the Joint3D twists, if it's too low, it takes more force to twist the joint.
 		</constant>
 		<constant name="CONE_TWIST_JOINT_RELAXATION" value="4" enum="ConeTwistJointParam">
 			Defines, how fast the swing- and twist-speed-difference on both sides gets synced.

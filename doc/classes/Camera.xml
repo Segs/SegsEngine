@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Camera" inherits="Node3D" version="4.0">
+<class name="Camera3D" inherits="Node3D" version="4.0">
 	<brief_description>
-		Camera node, displays from a point of view.
+		Camera3D node, displays from a point of view.
 	</brief_description>
 	<description>
-		Camera is a special node that displays what is visible from its current location. Cameras register themselves in the nearest [Viewport] node (when ascending the tree). Only one camera can be active per viewport. If no viewport is available ascending the tree, the camera will register in the global viewport. In other words, a camera just provides 3D display capabilities to a [Viewport], and, without one, a scene registered in that [Viewport] (or higher viewports) can't be displayed.
+		Camera3D is a special node that displays what is visible from its current location. Cameras register themselves in the nearest [Viewport] node (when ascending the tree). Only one camera can be active per viewport. If no viewport is available ascending the tree, the camera will register in the global viewport. In other words, a camera just provides 3D display capabilities to a [Viewport], and, without one, a scene registered in that [Viewport] (or higher viewports) can't be displayed.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -172,7 +172,7 @@
 		<member name="current" type="bool" setter="set_current" getter="is_current" default="false">
 			If [code]true[/code], the ancestor [Viewport] is currently using this camera.
 		</member>
-		<member name="doppler_tracking" type="int" setter="set_doppler_tracking" getter="get_doppler_tracking" enum="Camera.DopplerTracking" default="0">
+		<member name="doppler_tracking" type="int" setter="set_doppler_tracking" getter="get_doppler_tracking" enum="Camera3D.DopplerTracking" default="0">
 			If not [constant DOPPLER_TRACKING_DISABLED], this camera will simulate the [url=https://en.wikipedia.org/wiki/Doppler_effect]Doppler effect[/url] for objects changed in particular [code]_process[/code] methods. See [enum DopplerTracking] for possible values.
 		</member>
 		<member name="environment" type="Environment" setter="set_environment" getter="get_environment">
@@ -190,13 +190,13 @@
 		<member name="h_offset" type="float" setter="set_h_offset" getter="get_h_offset" default="0.0">
 			The horizontal (X) offset of the camera viewport.
 		</member>
-		<member name="keep_aspect" type="int" setter="set_keep_aspect_mode" getter="get_keep_aspect_mode" enum="Camera.KeepAspect" default="1">
+		<member name="keep_aspect" type="int" setter="set_keep_aspect_mode" getter="get_keep_aspect_mode" enum="Camera3D.KeepAspect" default="1">
 			The axis to lock during [member fov]/[member size] adjustments. Can be either [constant KEEP_WIDTH] or [constant KEEP_HEIGHT].
 		</member>
 		<member name="near" type="float" setter="set_znear" getter="get_znear" default="0.05">
 			The distance to the near culling boundary for this camera relative to its local Z axis.
 		</member>
-		<member name="projection" type="int" setter="set_projection" getter="get_projection" enum="Camera.Projection" default="0">
+		<member name="projection" type="int" setter="set_projection" getter="get_projection" enum="Camera3D.Projection" default="0">
 			The camera's projection mode. In [constant PROJECTION_PERSPECTIVE] mode, objects' Z distance from the camera's local space scales their perceived size.
 		</member>
 		<member name="size" type="float" setter="set_size" getter="get_size" default="1.0">

@@ -129,16 +129,16 @@ MeshEditor::MeshEditor() {
     viewport->set_disable_input(true);
     viewport->set_msaa(Viewport::MSAA_2X);
     set_stretch(true);
-    camera = memnew(Camera);
+    camera = memnew(Camera3D);
     camera->set_transform(Transform(Basis(), Vector3(0, 0, 1.1f)));
     camera->set_perspective(45, 0.1f, 10);
     viewport->add_child(camera);
 
-    light1 = memnew(DirectionalLight);
+    light1 = memnew(DirectionalLight3D);
     light1->set_transform(Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
     viewport->add_child(light1);
 
-    light2 = memnew(DirectionalLight);
+    light2 = memnew(DirectionalLight3D);
     light2->set_transform(Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
     light2->set_color(Color(0.7f, 0.7f, 0.7f));
     viewport->add_child(light2);

@@ -33,7 +33,7 @@
 #include "core/map.h"
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
-#include "scene/3d/soft_body.h"
+#include "scene/3d/soft_body_3d.h"
 #include "space_bullet.h"
 
 SoftBodyBullet::SoftBodyBullet() :

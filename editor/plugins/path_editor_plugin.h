@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "editor/spatial_editor_gizmos.h"
+#include "editor/node_3d_editor_gizmos.h"
 
 
 class Separator;
@@ -48,7 +48,7 @@ class PathSpatialGizmo : public EditorSpatialGizmo {
 public:
     StringName get_handle_name(int p_idx) const override;
     Variant get_handle_value(int p_idx) override;
-    void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point) override;
+    void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
     void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     void redraw() override;
@@ -103,7 +103,7 @@ public:
     Path3D *get_edited_path() { return path; }
 
     static PathEditorPlugin *singleton;
-    bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) override;
+    bool forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
 
     //virtual bool forward_gui_input(const InputEvent& p_event) { return collision_polygon_editor->forward_gui_input(p_event); }
     //virtual Ref<SpatialEditorGizmo> create_spatial_gizmo(Node3D *p_spatial);

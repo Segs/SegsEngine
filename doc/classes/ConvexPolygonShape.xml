@@ -4,7 +4,7 @@
 		Convex polygon shape for 3D physics.
 	</brief_description>
 	<description>
-		Convex polygon shape resource, which can be added to a [PhysicsBody] or area.
+		Convex polygon shape resource, which can be added to a [PhysicsBody3D] or area.
 	</description>
 	<tutorials>
 	</tutorials>

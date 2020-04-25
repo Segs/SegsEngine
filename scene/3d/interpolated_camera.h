@@ -31,11 +31,11 @@
 #ifndef INTERPOLATED_CAMERA_H
 #define INTERPOLATED_CAMERA_H
 
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 
-class InterpolatedCamera : public Camera {
+class InterpolatedCamera : public Camera3D {
 
-	GDCLASS(InterpolatedCamera,Camera)
+	GDCLASS(InterpolatedCamera,Camera3D)
 
 	bool enabled;
 	real_t speed;

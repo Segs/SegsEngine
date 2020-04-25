@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="PinJoint" inherits="Joint" version="4.0">
+<class name="PinJoint3D" inherits="Joint3D" version="4.0">
 	<brief_description>
 		Pin joint for 3D shapes.
 	</brief_description>
@@ -12,7 +12,7 @@
 		<method name="get_param" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="PinJoint.Param">
+			<argument index="0" name="param" type="int" enum="PinJoint3D.Param">
 			</argument>
 			<description>
 			</description>
@@ -20,7 +20,7 @@
 		<method name="set_param">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="PinJoint.Param">
+			<argument index="0" name="param" type="int" enum="PinJoint3D.Param">
 			</argument>
 			<argument index="1" name="value" type="float">
 			</argument>
@@ -36,7 +36,7 @@
 			The force with which the pinned objects stay in velocity relation to each other. The higher, the stronger.
 		</member>
 		<member name="params/impulse_clamp" type="float" setter="set_param" getter="get_param" default="0.0">
-			If above 0, this value is the maximum value for an impulse that this Joint produces.
+            If above 0, this value is the maximum value for an impulse that this [Joint3D] produces.
 		</member>
 	</members>
 	<constants>
@@ -47,7 +47,7 @@
 			The force with which the pinned objects stay in velocity relation to each other. The higher, the stronger.
 		</constant>
 		<constant name="PARAM_IMPULSE_CLAMP" value="2" enum="Param">
-			If above 0, this value is the maximum value for an impulse that this Joint produces.
+            If above 0, this value is the maximum value for an impulse that this [Joint3D] produces.
 		</constant>
 	</constants>
 </class>

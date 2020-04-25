@@ -61,7 +61,7 @@ public:
 
     /* CAMERA API */
 
-    struct Camera : public RID_Data {
+    struct Camera3D : public RID_Data {
 
         enum Type {
             PERSPECTIVE,

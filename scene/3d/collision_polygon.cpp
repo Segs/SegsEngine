@@ -37,9 +37,9 @@
 #include "core/math/geometry.h"
 #include "core/translation_helpers.h"
 
-IMPL_GDCLASS(CollisionPolygon)
+IMPL_GDCLASS(CollisionPolygon3D)
 
-void CollisionPolygon::_build_polygon() {
+void CollisionPolygon3D::_build_polygon() {
 
     if (!parent)
         return;
@@ -76,7 +76,7 @@ void CollisionPolygon::_build_polygon() {
     }
 }
 
-void CollisionPolygon::_update_in_shape_owner(bool p_xform_only) {
+void CollisionPolygon3D::_update_in_shape_owner(bool p_xform_only) {
 
     parent->shape_owner_set_transform(owner_id, get_transform());
     if (p_xform_only)
@@ -84,7 +84,7 @@ void CollisionPolygon::_update_in_shape_owner(bool p_xform_only) {
     parent->shape_owner_set_disabled(owner_id, disabled);
 }
 
-void CollisionPolygon::_notification(int p_what) {
+void CollisionPolygon3D::_notification(int p_what) {
 
     switch (p_what) {
 
@@ -120,7 +120,7 @@ void CollisionPolygon::_notification(int p_what) {
     }
 }
 
-void CollisionPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
+void CollisionPolygon3D::set_polygon(const Vector<Vector2> &p_polygon) {
 
     polygon = p_polygon;
     if (parent) {
@@ -130,29 +130,29 @@ void CollisionPolygon::set_polygon(const Vector<Vector2> &p_polygon) {
     update_gizmo();
 }
 
-const Vector<Vector2> &CollisionPolygon::get_polygon() const {
+const Vector<Vector2> &CollisionPolygon3D::get_polygon() const {
 
     return polygon;
 }
 
-AABB CollisionPolygon::get_item_rect() const {
+AABB CollisionPolygon3D::get_item_rect() const {
 
     return aabb;
 }
 
-void CollisionPolygon::set_depth(float p_depth) {
+void CollisionPolygon3D::set_depth(float p_depth) {
 
     depth = p_depth;
     _build_polygon();
     update_gizmo();
 }
 
-float CollisionPolygon::get_depth() const {
+float CollisionPolygon3D::get_depth() const {
 
     return depth;
 }
 
-void CollisionPolygon::set_disabled(bool p_disabled) {
+void CollisionPolygon3D::set_disabled(bool p_disabled) {
     disabled = p_disabled;
     update_gizmo();
 
@@ -161,45 +161,45 @@ void CollisionPolygon::set_disabled(bool p_disabled) {
     }
 }
 
-bool CollisionPolygon::is_disabled() const {
+bool CollisionPolygon3D::is_disabled() const {
     return disabled;
 }
 
-StringName CollisionPolygon::get_configuration_warning() const {
+StringName CollisionPolygon3D::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject3D>(get_parent())) {
-        return TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+        return TTR("CollisionPolygon3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
     if (polygon.empty()) {
-        return TTR("An empty CollisionPolygon has no effect on collision.");
+        return TTR("An empty CollisionPolygon3D has no effect on collision.");
     }
 
     return StringName();
 }
 
-bool CollisionPolygon::_is_editable_3d_polygon() const {
+bool CollisionPolygon3D::_is_editable_3d_polygon() const {
     return true;
 }
-void CollisionPolygon::_bind_methods() {
+void CollisionPolygon3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CollisionPolygon::set_depth);
-    MethodBinder::bind_method(D_METHOD("get_depth"), &CollisionPolygon::get_depth);
+    MethodBinder::bind_method(D_METHOD("set_depth", {"depth"}), &CollisionPolygon3D::set_depth);
+    MethodBinder::bind_method(D_METHOD("get_depth"), &CollisionPolygon3D::get_depth);
 
-    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CollisionPolygon::set_polygon);
-    MethodBinder::bind_method(D_METHOD("get_polygon"), &CollisionPolygon::get_polygon);
+    MethodBinder::bind_method(D_METHOD("set_polygon", {"polygon"}), &CollisionPolygon3D::set_polygon);
+    MethodBinder::bind_method(D_METHOD("get_polygon"), &CollisionPolygon3D::get_polygon);
 
-    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionPolygon::set_disabled);
-    MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionPolygon::is_disabled);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"disabled"}), &CollisionPolygon3D::set_disabled);
+    MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionPolygon3D::is_disabled);
 
-    MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CollisionPolygon::_is_editable_3d_polygon);
+    MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CollisionPolygon3D::_is_editable_3d_polygon);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth"), "set_depth", "get_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
 }
 
-CollisionPolygon::CollisionPolygon() {
+CollisionPolygon3D::CollisionPolygon3D() {
 
     aabb = AABB(Vector3(-1, -1, -1), Vector3(2, 2, 2));
     depth = 1.0;

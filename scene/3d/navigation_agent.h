@@ -37,13 +37,13 @@
 #include "scene/main/node.h"
 
 class Node3D;
-class Navigation;
+class Navigation3D;
 
 class NavigationAgent : public Node {
     GDCLASS(NavigationAgent, Node);
 
     Node3D *agent_parent;
-    Navigation *navigation;
+    Navigation3D *navigation;
 
     RID agent;
 
@@ -78,8 +78,8 @@ public:
     NavigationAgent();
     virtual ~NavigationAgent();
 
-    void set_navigation(Navigation *p_nav);
-    const Navigation *get_navigation() const {
+    void set_navigation(Navigation3D *p_nav);
+    const Navigation3D *get_navigation() const {
         return navigation;
     }
 

@@ -29,8 +29,8 @@
 /*************************************************************************/
 
 #include "navigation_mesh_instance.h"
-#include "mesh_instance.h"
-#include "navigation.h"
+#include "mesh_instance_3d.h"
+#include "navigation_3d.h"
 
 #include "core/class_db.h"
 #include "core/method_bind.h"
@@ -90,7 +90,7 @@ void NavigationMeshInstance::_notification(int p_what) {
             Node3D *c = this;
             while (c) {
 
-                navigation = object_cast<Navigation>(c);
+                navigation = object_cast<Navigation3D>(c);
                 if (navigation) {
 
                     if (enabled) {
@@ -217,7 +217,7 @@ StringName NavigationMeshInstance::get_configuration_warning() const {
     const Node3D *c = this;
     while (c) {
 
-        if (object_cast<Navigation>(c))
+        if (object_cast<Navigation3D>(c))
             return StringName();
 
         c = object_cast<Node3D>(c->get_parent());

@@ -34,7 +34,7 @@
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "scene/3d/navigation.h"
+#include "scene/3d/navigation_3d.h"
 #include "servers/navigation_server.h"
 
 IMPL_GDCLASS(NavigationAgent)
@@ -111,10 +111,10 @@ void NavigationAgent::_notification(int p_what) {
 
             // Search the navigation node and set it
             {
-                Navigation *nav = nullptr;
+                Navigation3D *nav = nullptr;
                 Node *p = get_parent();
                 while (p != nullptr) {
-                    nav = object_cast<Navigation>(p);
+                    nav = object_cast<Navigation3D>(p);
                     if (nav != nullptr)
                         p = nullptr;
                     else
@@ -170,7 +170,7 @@ NavigationAgent::~NavigationAgent() {
     agent = RID(); // Pointless
 }
 
-void NavigationAgent::set_navigation(Navigation *p_nav) {
+void NavigationAgent::set_navigation(Navigation3D *p_nav) {
     if (navigation == p_nav)
         return; // Pointless
 
@@ -179,7 +179,7 @@ void NavigationAgent::set_navigation(Navigation *p_nav) {
 }
 
 void NavigationAgent::set_navigation_node(Node *p_nav) {
-    Navigation *nav = object_cast<Navigation>(p_nav);
+    Navigation3D *nav = object_cast<Navigation3D>(p_nav);
     ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }

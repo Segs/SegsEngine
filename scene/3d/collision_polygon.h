@@ -35,9 +35,9 @@
 #include "core/math/vector2.h"
 
 class CollisionObject3D;
-class CollisionPolygon : public Node3D {
+class CollisionPolygon3D : public Node3D {
 
-	GDCLASS(CollisionPolygon,Node3D)
+    GDCLASS(CollisionPolygon3D,Node3D)
 
 protected:
     AABB aabb;
@@ -73,5 +73,5 @@ public:
 
     StringName get_configuration_warning() const override;
 
-	CollisionPolygon();
+    CollisionPolygon3D();
 };

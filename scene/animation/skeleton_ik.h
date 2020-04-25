@@ -38,7 +38,7 @@
  */
 
 #include "core/math/transform.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 
 class FabrikInverseKinematic {
 

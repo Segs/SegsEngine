@@ -35,9 +35,9 @@
 #include "editor/import/resource_importer_scene.h"
 #include "editor/editor_settings.h"
 #include "import_utils.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/light.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/main/node.h"
 #include "scene/resources/material.h"
@@ -1419,16 +1419,16 @@ Node3D *EditorSceneImporterAssimp::create_light(
         ImportState &state,
         const String &node_name,
         Transform &look_at_transform) {
-    Light *light = nullptr;
+    Light3D *light = nullptr;
     aiLight *assimp_light = state.assimp_scene->mLights[state.light_cache[node_name]];
     ERR_FAIL_COND_V(!assimp_light, nullptr);
 
     if (assimp_light->mType == aiLightSource_DIRECTIONAL) {
-        light = memnew(DirectionalLight);
+        light = memnew(DirectionalLight3D);
     } else if (assimp_light->mType == aiLightSource_POINT) {
-        light = memnew(OmniLight);
+        light = memnew(OmniLight3D);
     } else if (assimp_light->mType == aiLightSource_SPOT) {
-        light = memnew(SpotLight);
+        light = memnew(SpotLight3D);
     }
     ERR_FAIL_COND_V(light == nullptr, nullptr);
 
@@ -1468,7 +1468,7 @@ Node3D *EditorSceneImporterAssimp::create_camera(
     aiCamera *camera = state.assimp_scene->mCameras[state.camera_cache[node_name]];
     ERR_FAIL_COND_V(!camera, nullptr);
 
-    Camera *camera_node = memnew(Camera);
+    Camera3D *camera_node = memnew(Camera3D);
     ERR_FAIL_COND_V(!camera_node, nullptr);
     float near = camera->mClipPlaneNear;
     if (Math::is_equal_approx(near, 0.0f)) {

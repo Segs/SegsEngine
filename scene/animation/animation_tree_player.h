@@ -33,7 +33,7 @@
 
 #include "animation_player.h"
 #include "core/hash_map.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 

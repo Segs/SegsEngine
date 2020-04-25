@@ -1,0 +1,253 @@
+/*************************************************************************/
+/*  collision_shape.cpp                                                  */
+/*************************************************************************/
+/*                       This file is part of:                           */
+/*                           GODOT ENGINE                                */
+/*                      https://godotengine.org                          */
+/*************************************************************************/
+/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/*                                                                       */
+/* Permission is hereby granted, free of charge, to any person obtaining */
+/* a copy of this software and associated documentation files (the       */
+/* "Software"), to deal in the Software without restriction, including   */
+/* without limitation the rights to use, copy, modify, merge, publish,   */
+/* distribute, sublicense, and/or sell copies of the Software, and to    */
+/* permit persons to whom the Software is furnished to do so, subject to */
+/* the following conditions:                                             */
+/*                                                                       */
+/* The above copyright notice and this permission notice shall be        */
+/* included in all copies or substantial portions of the Software.       */
+/*                                                                       */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
+/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
+/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
+/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
+/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
+/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
+/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
+/*************************************************************************/
+
+#include "collision_shape_3d.h"
+
+#include "core/method_bind.h"
+#include "core/translation_helpers.h"
+#include "scene/main/scene_tree.h"
+#include "scene/resources/box_shape.h"
+#include "scene/resources/capsule_shape.h"
+#include "scene/resources/concave_polygon_shape.h"
+#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/plane_shape.h"
+#include "scene/resources/ray_shape.h"
+#include "scene/resources/sphere_shape.h"
+#include "servers/rendering_server.h"
+//TODO: Implement CylinderShape and HeightMapShape?
+#include "core/math/quick_hull.h"
+#include "mesh_instance_3d.h"
+#include "physics_body_3d.h"
+
+IMPL_GDCLASS(CollisionShape3D)
+
+void CollisionShape3D::make_convex_from_brothers() {
+
+    Node *p = get_parent();
+    if (!p)
+        return;
+
+    for (int i = 0; i < p->get_child_count(); i++) {
+
+        Node *n = p->get_child(i);
+        MeshInstance *mi = object_cast<MeshInstance>(n);
+        if (mi) {
+
+            Ref<Mesh> m = mi->get_mesh();
+            if (m) {
+
+                Ref<Shape> s = m->create_convex_shape();
+                set_shape(s);
+            }
+        }
+    }
+}
+
+void CollisionShape3D::_update_in_shape_owner(bool p_xform_only) {
+    parent->shape_owner_set_transform(owner_id, get_transform());
+    if (p_xform_only)
+        return;
+    parent->shape_owner_set_disabled(owner_id, disabled);
+}
+
+void CollisionShape3D::_notification(int p_what) {
+
+    switch (p_what) {
+
+        case NOTIFICATION_PARENTED: {
+            parent = object_cast<CollisionObject3D>(get_parent());
+            if (parent) {
+                owner_id = parent->create_shape_owner(this);
+                if (shape) {
+                    parent->shape_owner_add_shape(owner_id, shape);
+                }
+                _update_in_shape_owner();
+            }
+        } break;
+        case NOTIFICATION_ENTER_TREE: {
+            if (parent) {
+                _update_in_shape_owner();
+            }
+            if (get_tree()->is_debugging_collisions_hint()) {
+                _update_debug_shape();
+            }
+        } break;
+        case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
+            if (parent) {
+                _update_in_shape_owner(true);
+            }
+        } break;
+        case NOTIFICATION_UNPARENTED: {
+            if (parent) {
+                parent->remove_shape_owner(owner_id);
+            }
+            owner_id = 0;
+            parent = nullptr;
+        } break;
+    }
+}
+
+void CollisionShape3D::resource_changed(const RES& res) {
+
+    update_gizmo();
+}
+
+StringName CollisionShape3D::get_configuration_warning() const {
+
+    if (!object_cast<CollisionObject3D>(get_parent())) {
+        return TTR("CollisionShape3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+    }
+
+    if (not shape) {
+        return TTR("A shape must be provided for CollisionShape3D to function. Please create a shape resource for it.");
+    }
+
+    if (shape->is_class("PlaneShape")) {
+        return TTR("Plane shapes don't work well and will be removed in future versions. Please don't use them.");
+    }
+
+    if (object_cast<RigidBody>(get_parent())) {
+        if (object_cast<ConcavePolygonShape>(shape.get())) {
+            if (object_cast<RigidBody>(get_parent())->get_mode() != RigidBody::MODE_STATIC) {
+                return TTR("ConcavePolygonShape doesn't support RigidBody in another mode than static.");
+            }
+        }
+    }
+
+    return StringName();
+}
+
+void CollisionShape3D::_bind_methods() {
+
+    //not sure if this should do anything
+    MethodBinder::bind_method(D_METHOD("resource_changed", {"resource"}), &CollisionShape3D::resource_changed);
+    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &CollisionShape3D::set_shape);
+    MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape3D::get_shape);
+    MethodBinder::bind_method(D_METHOD("set_disabled", {"enable"}), &CollisionShape3D::set_disabled);
+    MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape3D::is_disabled);
+    MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers);
+    ClassDB::set_method_flags("CollisionShape3D", "make_convex_from_brothers", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+
+    MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape3D::_shape_changed);
+    MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape3D::_update_debug_shape);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
+}
+
+void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
+
+    if (shape) {
+        shape->unregister_owner(this);
+        shape->disconnect("changed", this, "_shape_changed");
+    }
+    shape = p_shape;
+    if (shape) {
+        shape->register_owner(this);
+        shape->connect("changed", this, "_shape_changed");
+    }
+    update_gizmo();
+    if (parent) {
+        parent->shape_owner_clear_shapes(owner_id);
+        if (shape) {
+            parent->shape_owner_add_shape(owner_id, shape);
+        }
+    }
+
+    if (is_inside_tree())
+        _shape_changed();
+    update_configuration_warning();
+}
+
+Ref<Shape> CollisionShape3D::get_shape() const {
+
+    return shape;
+}
+
+void CollisionShape3D::set_disabled(bool p_disabled) {
+
+    disabled = p_disabled;
+    update_gizmo();
+    if (parent) {
+        parent->shape_owner_set_disabled(owner_id, p_disabled);
+    }
+}
+
+bool CollisionShape3D::is_disabled() const {
+
+    return disabled;
+}
+
+CollisionShape3D::CollisionShape3D() {
+
+    //indicator = RenderingServer::get_singleton()->mesh_create();
+    disabled = false;
+    debug_shape = nullptr;
+    parent = nullptr;
+    owner_id = 0;
+    set_notify_local_transform(true);
+}
+
+CollisionShape3D::~CollisionShape3D() {
+    if (shape)
+        shape->unregister_owner(this);
+    //RenderingServer::get_singleton()->free(indicator);
+}
+
+void CollisionShape3D::_update_debug_shape() {
+    debug_shape_dirty = false;
+
+    if (debug_shape) {
+        debug_shape->queue_delete();
+        debug_shape = nullptr;
+    }
+
+    Ref<Shape> s = get_shape();
+    if (not s)
+        return;
+
+    Ref<Mesh> mesh = s->get_debug_mesh();
+    MeshInstance *mi = memnew(MeshInstance);
+    mi->set_mesh(mesh);
+    add_child(mi);
+    debug_shape = mi;
+}
+
+void CollisionShape3D::_shape_changed() {
+    // If this is a heightfield shape our center may have changed
+    if (parent) {
+        _update_in_shape_owner(true);
+    }
+
+    if (is_inside_tree() && get_tree()->is_debugging_collisions_hint() && !debug_shape_dirty) {
+        debug_shape_dirty = true;
+        call_deferred("_update_debug_shape");
+    }
+}

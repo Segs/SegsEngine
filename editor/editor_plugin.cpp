@@ -41,7 +41,7 @@
 #include "project_settings_editor.h"
 #include "plugins/canvas_item_editor_plugin.h"
 #include "plugins/spatial_editor_plugin.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/gui/popup_menu.h"
 #include "servers/rendering_server.h"
 #include "filesystem_dock.h"
@@ -585,7 +585,7 @@ int EditorPlugin::update_overlays() const {
     }
 }
 
-bool EditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) {
+bool EditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 
     if (get_script_instance() && get_script_instance()->has_method("forward_spatial_gui_input")) {
         return get_script_instance()->call("forward_spatial_gui_input", Variant(p_camera), p_event);
@@ -886,7 +886,7 @@ void EditorPlugin::_bind_methods() {
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_canvas_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("forward_canvas_force_draw_over_viewport", PropertyInfo(VariantType::OBJECT, "overlay", PropertyHint::ResourceType, "Control")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_spatial_gui_input", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "forward_spatial_gui_input", PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera3D"), PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_plugin_name"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::OBJECT, "get_plugin_icon"));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "get_plugin_icon"));

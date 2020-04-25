@@ -979,7 +979,7 @@
             Max index buffer size for drawing polygons. Any polygon bigger than this will not work.
         </member>
         <member name="rendering/limits/buffers/immediate_buffer_size_kb" type="int" setter="" getter="" default="2048">
-            Max buffer size for drawing immediate objects (ImmediateGeometry nodes). Nodes using more than this size will not work.
+            Max buffer size for drawing immediate objects (ImmediateGeometry3D nodes). Nodes using more than this size will not work.
         </member>
         <member name="rendering/limits/rendering/max_renderable_elements" type="int" setter="" getter="" default="65536">
             Max amount of elements renderable in a frame. If more than this are visible per frame, they will be dropped. Keep in mind elements refer to mesh surfaces and not meshes themselves.

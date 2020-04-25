@@ -31,7 +31,7 @@
 #ifndef PORTAL_H
 #define PORTAL_H
 
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/visual_instance_3d.h"
 
 /* Portal Logic:
    If a portal is placed next (very close to) a similar, opposing portal, they automatically connect,
@@ -40,9 +40,9 @@
 // FIXME: This will be redone and replaced by area portals, left for reference
 // since a new class with this name will have to exist and want to reuse the gizmos
 #if 0
-class Portal : public VisualInstance {
+class Portal : public VisualInstance3D {
 
-	GDCLASS(Portal,VisualInstance)
+	GDCLASS(Portal,VisualInstance3D)
 IMPL_GDCLASS(Portal)
 
 	RID portal;

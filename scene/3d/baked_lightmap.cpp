@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "baked_lightmap.h"
-#include "voxel_light_baker.h"
+#include "voxelizer.h"
 
 #include "scene/main/scene_tree.h"
 #include "core/io/config_file.h"
@@ -303,9 +303,9 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
         }
     }
 
-    Light *light = object_cast<Light>(p_at_node);
+    Light3D *light = object_cast<Light3D>(p_at_node);
 
-    if (light && light->get_bake_mode() != Light::BAKE_DISABLED) {
+    if (light && light->get_bake_mode() != Light3D::BAKE_DISABLED) {
         PlotLight pl;
         Transform xf = get_global_transform().affine_inverse() * light->get_global_transform();
 
@@ -443,22 +443,22 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
         switch (pl.light->get_light_type()) {
             case RS::LIGHT_DIRECTIONAL: {
                 baker.plot_light_directional(-pl.local_xform.basis.get_axis(2), pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
             } break;
             case RS::LIGHT_OMNI: {
                 baker.plot_light_omni(pl.local_xform.origin, pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_param(Light::PARAM_RANGE), pl.light->get_param(Light::PARAM_ATTENUATION),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_param(Light3D::PARAM_RANGE), pl.light->get_param(Light3D::PARAM_ATTENUATION),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
             } break;
             case RS::LIGHT_SPOT: {
                 baker.plot_light_spot(pl.local_xform.origin, pl.local_xform.basis.get_axis(2), pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_param(Light::PARAM_RANGE), pl.light->get_param(Light::PARAM_ATTENUATION),
-                        pl.light->get_param(Light::PARAM_SPOT_ANGLE),
-                        pl.light->get_param(Light::PARAM_SPOT_ATTENUATION),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_param(Light3D::PARAM_RANGE), pl.light->get_param(Light3D::PARAM_ATTENUATION),
+                        pl.light->get_param(Light3D::PARAM_SPOT_ANGLE),
+                        pl.light->get_param(Light3D::PARAM_SPOT_ATTENUATION),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
 
             } break;
         }
@@ -651,7 +651,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
     // create the data for visual server
 
     if (p_create_visual_debug) {
-        MultiMeshInstance *mmi = memnew(MultiMeshInstance);
+        MultiMeshInstance3D *mmi = memnew(MultiMeshInstance3D);
         mmi->set_multimesh(baker.create_debug_multimesh(VoxelLightBaker::DEBUG_LIGHT));
         add_child(mmi);
 #ifdef TOOLS_ENABLED
@@ -703,7 +703,7 @@ void BakedLightmap::_assign_lightmaps() {
                 RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
         } else {
-            VisualInstance *vi = object_cast<VisualInstance>(node);
+            VisualInstance3D *vi = object_cast<VisualInstance3D>(node);
             ERR_CONTINUE(!vi);
             RenderingServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
         }
@@ -721,7 +721,7 @@ void BakedLightmap::_clear_lightmaps() {
                 RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }
         } else {
-            VisualInstance *vi = object_cast<VisualInstance>(node);
+            VisualInstance3D *vi = object_cast<VisualInstance3D>(node);
             ERR_CONTINUE(!vi);
             RenderingServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
         }

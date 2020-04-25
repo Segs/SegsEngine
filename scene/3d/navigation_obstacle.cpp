@@ -32,9 +32,9 @@
 
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/navigation.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/navigation_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "core/translation_helpers.h"
 #include "servers/navigation_server.h"
 
@@ -54,10 +54,10 @@ void NavigationObstacle::_notification(int p_what) {
 
             // Search the navigation node and set it
             {
-                Navigation *nav = nullptr;
+                Navigation3D *nav = nullptr;
                 Node *p = get_parent();
                 while (p != nullptr) {
-                    nav = object_cast<Navigation>(p);
+                    nav = object_cast<Navigation3D>(p);
                     if (nav != nullptr)
                         p = nullptr;
                     else
@@ -79,7 +79,7 @@ void NavigationObstacle::_notification(int p_what) {
                 NavigationServer::get_singleton()->agent_set_position(agent, spatial->get_global_transform().origin);
             }
 
-            PhysicsBody *rigid = object_cast<PhysicsBody>(get_parent());
+            PhysicsBody3D *rigid = object_cast<PhysicsBody3D>(get_parent());
             if (rigid) {
 
                 Vector3 v = rigid->get_linear_velocity();
@@ -102,7 +102,7 @@ NavigationObstacle::~NavigationObstacle() {
     agent = RID(); // Pointless
 }
 
-void NavigationObstacle::set_navigation(Navigation *p_nav) {
+void NavigationObstacle::set_navigation(Navigation3D *p_nav) {
     if (navigation == p_nav)
         return; // Pointless
 
@@ -111,7 +111,7 @@ void NavigationObstacle::set_navigation(Navigation *p_nav) {
 }
 
 void NavigationObstacle::set_navigation_node(Node *p_nav) {
-    Navigation *nav = object_cast<Navigation>(p_nav);
+    Navigation3D *nav = object_cast<Navigation3D>(p_nav);
     ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
@@ -136,7 +136,7 @@ void NavigationObstacle::update_agent_shape() {
     real_t radius = 0.0;
     for (int i(0); i < node->get_child_count(); i++) {
         // For each collision shape
-        CollisionShape *cs = object_cast<CollisionShape>(node->get_child(i));
+        CollisionShape3D *cs = object_cast<CollisionShape3D>(node->get_child(i));
         if (cs) {
             // Take the distance between the Body center to the shape center
             real_t r = cs->get_transform().origin.length();

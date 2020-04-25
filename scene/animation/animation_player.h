@@ -31,7 +31,7 @@
 #pragma once
 
 //#include "scene/2d/node_2d.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 #include "core/map.h"

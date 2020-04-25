@@ -612,7 +612,7 @@ public:
         CANVAS_RECT_CLIP_UV = 32
     };
 
-    struct Light : public RID_Data {
+    struct Light3D : public RID_Data {
 
         bool enabled;
         Color color;
@@ -646,14 +646,14 @@ public:
         Transform2D light_shader_xform;
         Vector2 light_shader_pos;
 
-        Light *shadows_next_ptr;
-        Light *filter_next_ptr;
-        Light *next_ptr;
-        Light *mask_next_ptr;
+        Light3D *shadows_next_ptr;
+        Light3D *filter_next_ptr;
+        Light3D *next_ptr;
+        Light3D *mask_next_ptr;
 
         RID light_internal;
 
-        Light() {
+        Light3D() {
             enabled = true;
             color = Color(1, 1, 1);
             shadow_color = Color(0, 0, 0, 0);
@@ -679,7 +679,7 @@ public:
     };
 
     virtual RID light_internal_create() = 0;
-    virtual void light_internal_update(RID p_rid, Light *p_light) = 0;
+    virtual void light_internal_update(RID p_rid, Light3D *p_light) = 0;
     virtual void light_internal_free(RID p_rid) = 0;
 
     struct Item : public RID_Data {
@@ -1066,8 +1066,8 @@ public:
     virtual void canvas_begin() = 0;
     virtual void canvas_end() = 0;
 
-    virtual void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_base_transform) = 0;
-    virtual void canvas_debug_viewport_shadows(Light *p_lights_with_shadow) = 0;
+    virtual void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform) = 0;
+    virtual void canvas_debug_viewport_shadows(Light3D *p_lights_with_shadow) = 0;
 
     struct LightOccluderInstance : public RID_Data {
 

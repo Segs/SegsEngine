@@ -32,9 +32,9 @@
 
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/physics_body.h"
-#include "scene/3d/physics_joint.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/physics_body_3d.h"
+#include "scene/3d/physics_joint_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape.h"
 #include "scene/resources/sphere_shape.h"
@@ -116,7 +116,7 @@ PhysicalBone *SkeletonEditor::create_physical_bone(int bone_id, int bone_child_i
     bone_shape_capsule->set_height((half_height - radius) * 2);
     bone_shape_capsule->set_radius(radius);
 
-    CollisionShape *bone_shape = memnew(CollisionShape);
+    CollisionShape3D *bone_shape = memnew(CollisionShape3D);
     bone_shape->set_shape(Ref<Shape>(bone_shape_capsule));
 
     Transform body_transform;

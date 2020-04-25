@@ -36,7 +36,7 @@
 
 static const int z_range = RS::CANVAS_ITEM_Z_MAX - RS::CANVAS_ITEM_Z_MIN + 1;
 
-void VisualServerCanvas::_render_canvas_item_tree(Item *p_canvas_item, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RasterizerCanvas::Light *p_lights) {
+void VisualServerCanvas::_render_canvas_item_tree(Item *p_canvas_item, const Transform2D &p_transform, const Rect2 &p_clip_rect, const Color &p_modulate, RasterizerCanvas::Light3D *p_lights) {
 
     memset(z_list, 0, z_range * sizeof(RasterizerCanvas::Item *));
     memset(z_last_list, 0, z_range * sizeof(RasterizerCanvas::Item *));
@@ -203,7 +203,7 @@ void VisualServerCanvas::_render_canvas_item(Item *p_canvas_item, const Transfor
     }
 }
 
-void VisualServerCanvas::_light_mask_canvas_items(int p_z, RasterizerCanvas::Item *p_canvas_item, RasterizerCanvas::Light *p_masked_lights) {
+void VisualServerCanvas::_light_mask_canvas_items(int p_z, RasterizerCanvas::Item *p_canvas_item, RasterizerCanvas::Light3D *p_masked_lights) {
 
     if (!p_masked_lights)
         return;
@@ -212,7 +212,7 @@ void VisualServerCanvas::_light_mask_canvas_items(int p_z, RasterizerCanvas::Ite
 
     while (ci) {
 
-        RasterizerCanvas::Light *light = p_masked_lights;
+        RasterizerCanvas::Light3D *light = p_masked_lights;
         while (light) {
 
             if (ci->light_mask & light->item_mask && p_z >= light->z_min && p_z <= light->z_max && ci->global_rect_cache.intersects_transformed(light->xform_cache, light->rect_cache)) {
@@ -226,7 +226,7 @@ void VisualServerCanvas::_light_mask_canvas_items(int p_z, RasterizerCanvas::Ite
     }
 }
 
-void VisualServerCanvas::render_canvas(Canvas *p_canvas, const Transform2D &p_transform, RasterizerCanvas::Light *p_lights, RasterizerCanvas::Light *p_masked_lights, const Rect2 &p_clip_rect) {
+void VisualServerCanvas::render_canvas(Canvas *p_canvas, const Transform2D &p_transform, RasterizerCanvas::Light3D *p_lights, RasterizerCanvas::Light3D *p_masked_lights, const Rect2 &p_clip_rect) {
 
     VSG::canvas_render->canvas_begin();
 
@@ -997,13 +997,13 @@ void VisualServerCanvas::canvas_item_set_use_parent_material(RID p_item, bool p_
 
 RID VisualServerCanvas::canvas_light_create() {
 
-    RasterizerCanvas::Light *clight = memnew(RasterizerCanvas::Light);
+    RasterizerCanvas::Light3D *clight = memnew(RasterizerCanvas::Light3D);
     clight->light_internal = VSG::canvas_render->light_internal_create();
     return canvas_light_owner.make_rid(clight);
 }
 void VisualServerCanvas::canvas_light_attach_to_canvas(RID p_light, RID p_canvas) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     if (clight->canvas.is_valid()) {
@@ -1026,63 +1026,63 @@ void VisualServerCanvas::canvas_light_attach_to_canvas(RID p_light, RID p_canvas
 
 void VisualServerCanvas::canvas_light_set_enabled(RID p_light, bool p_enabled) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->enabled = p_enabled;
 }
 void VisualServerCanvas::canvas_light_set_scale(RID p_light, float p_scale) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->scale = p_scale;
 }
 void VisualServerCanvas::canvas_light_set_transform(RID p_light, const Transform2D &p_transform) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->xform = p_transform;
 }
 void VisualServerCanvas::canvas_light_set_texture(RID p_light, RID p_texture) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->texture = p_texture;
 }
 void VisualServerCanvas::canvas_light_set_texture_offset(RID p_light, const Vector2 &p_offset) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->texture_offset = p_offset;
 }
 void VisualServerCanvas::canvas_light_set_color(RID p_light, const Color &p_color) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->color = p_color;
 }
 void VisualServerCanvas::canvas_light_set_height(RID p_light, float p_height) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->height = p_height;
 }
 void VisualServerCanvas::canvas_light_set_energy(RID p_light, float p_energy) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->energy = p_energy;
 }
 void VisualServerCanvas::canvas_light_set_z_range(RID p_light, int p_min_z, int p_max_z) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->z_min = p_min_z;
@@ -1090,7 +1090,7 @@ void VisualServerCanvas::canvas_light_set_z_range(RID p_light, int p_min_z, int 
 }
 void VisualServerCanvas::canvas_light_set_layer_range(RID p_light, int p_min_layer, int p_max_layer) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->layer_max = p_max_layer;
@@ -1098,21 +1098,21 @@ void VisualServerCanvas::canvas_light_set_layer_range(RID p_light, int p_min_lay
 }
 void VisualServerCanvas::canvas_light_set_item_cull_mask(RID p_light, int p_mask) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->item_mask = p_mask;
 }
 void VisualServerCanvas::canvas_light_set_item_shadow_cull_mask(RID p_light, int p_mask) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->item_shadow_mask = p_mask;
 }
 void VisualServerCanvas::canvas_light_set_mode(RID p_light, RS::CanvasLightMode p_mode) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->mode = p_mode;
@@ -1120,7 +1120,7 @@ void VisualServerCanvas::canvas_light_set_mode(RID p_light, RS::CanvasLightMode 
 
 void VisualServerCanvas::canvas_light_set_shadow_enabled(RID p_light, bool p_enabled) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     if (clight->shadow_buffer.is_valid() == p_enabled)
@@ -1136,7 +1136,7 @@ void VisualServerCanvas::canvas_light_set_shadow_buffer_size(RID p_light, int p_
 
     ERR_FAIL_COND(p_size < 32 || p_size > 16384);
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     int new_size = next_power_of_2(p_size);
@@ -1155,21 +1155,21 @@ void VisualServerCanvas::canvas_light_set_shadow_gradient_length(RID p_light, fl
 
     ERR_FAIL_COND(p_length < 0);
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->shadow_gradient_length = p_length;
 }
 void VisualServerCanvas::canvas_light_set_shadow_filter(RID p_light, RS::CanvasLightShadowFilter p_filter) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->shadow_filter = p_filter;
 }
 void VisualServerCanvas::canvas_light_set_shadow_color(RID p_light, const Color &p_color) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
 
     clight->shadow_color = p_color;
@@ -1177,7 +1177,7 @@ void VisualServerCanvas::canvas_light_set_shadow_color(RID p_light, const Color 
 
 void VisualServerCanvas::canvas_light_set_shadow_smooth(RID p_light, float p_smooth) {
 
-    RasterizerCanvas::Light *clight = canvas_light_owner.get(p_light);
+    RasterizerCanvas::Light3D *clight = canvas_light_owner.get(p_light);
     ERR_FAIL_COND(!clight);
     clight->shadow_smooth = p_smooth;
 }
@@ -1345,7 +1345,7 @@ bool VisualServerCanvas::free(RID p_rid) {
             canvas->child_items[i].item->parent = RID();
         }
 
-        for (RasterizerCanvas::Light * E : canvas->lights) {
+        for (RasterizerCanvas::Light3D * E : canvas->lights) {
 
             E->canvas = RID();
         }
@@ -1398,7 +1398,7 @@ bool VisualServerCanvas::free(RID p_rid) {
 
     } else if (canvas_light_owner.owns(p_rid)) {
 
-        RasterizerCanvas::Light *canvas_light = canvas_light_owner.get(p_rid);
+        RasterizerCanvas::Light3D *canvas_light = canvas_light_owner.get(p_rid);
         ERR_FAIL_COND_V(!canvas_light, true);
 
         if (canvas_light->canvas.is_valid()) {

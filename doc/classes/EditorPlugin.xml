@@ -229,7 +229,7 @@
         <method name="forward_spatial_gui_input" qualifiers="virtual">
             <return type="bool">
             </return>
-            <argument index="0" name="camera" type="Camera">
+            <argument index="0" name="camera" type="Camera3D">
             </argument>
             <argument index="1" name="event" type="InputEvent">
             </argument>

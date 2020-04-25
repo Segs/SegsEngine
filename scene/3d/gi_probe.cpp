@@ -32,8 +32,8 @@
 
 #include "core/os/os.h"
 
-#include "mesh_instance.h"
-#include "voxel_light_baker.h"
+#include "mesh_instance_3d.h"
+#include "voxelizer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
@@ -443,7 +443,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
     PoolVector<int> data = baker.create_gi_probe_data();
 
     if (p_create_visual_debug) {
-        MultiMeshInstance *mmi = memnew(MultiMeshInstance);
+        MultiMeshInstance3D *mmi = memnew(MultiMeshInstance3D);
         mmi->set_multimesh(baker.create_debug_multimesh());
         add_child(mmi);
 #ifdef TOOLS_ENABLED

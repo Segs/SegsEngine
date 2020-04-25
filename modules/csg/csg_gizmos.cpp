@@ -116,7 +116,7 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo
 
     return Variant();
 }
-void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point) {
+void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 

@@ -34,7 +34,7 @@
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/resource/resource_manager.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/mesh.h"

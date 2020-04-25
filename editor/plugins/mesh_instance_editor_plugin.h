@@ -33,7 +33,7 @@
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/spin_box.h"
 
 class MeshInstanceEditor : public Control {

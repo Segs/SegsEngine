@@ -107,7 +107,7 @@ Ref<RoomBounds> Room::get_room() const {
 
 void Room::_parse_node_faces(PoolVector<Face3> &all_faces, const Node *p_node) const {
 
-    const VisualInstance *vi = object_cast<VisualInstance>(p_node);
+    const VisualInstance3D *vi = object_cast<VisualInstance3D>(p_node);
 
     if (vi) {
         PoolVector<Face3> faces = vi->get_faces(FACES_ENCLOSING);

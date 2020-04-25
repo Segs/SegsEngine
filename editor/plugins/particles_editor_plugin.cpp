@@ -185,14 +185,14 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
         return;
     }
 
-    VisualInstance *vi = object_cast<VisualInstance>(sel);
+    VisualInstance3D *vi = object_cast<VisualInstance3D>(sel);
     if (!vi) {
 
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't contain geometry.").asCString(), sel->get_name().asCString()));
         return;
     }
 
-    geometry = vi->get_faces(VisualInstance::FACES_SOLID);
+    geometry = vi->get_faces(VisualInstance3D::FACES_SOLID);
 
     if (geometry.empty()) {
 

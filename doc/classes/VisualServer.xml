@@ -64,7 +64,7 @@
             <argument index="1" name="layers" type="int">
             </argument>
             <description>
-                Sets the cull mask associated with this camera. The cull mask describes which 3D layers are rendered by this camera. Equivalent to [member Camera.cull_mask].
+                Sets the cull mask associated with this camera. The cull mask describes which 3D layers are rendered by this camera. Equivalent to [member Camera3D.cull_mask].
             </description>
         </method>
         <method name="camera_set_environment">
@@ -75,7 +75,7 @@
             <argument index="1" name="env" type="RID">
             </argument>
             <description>
-                Sets the environment used by this camera. Equivalent to [member Camera.environment].
+                Sets the environment used by this camera. Equivalent to [member Camera3D.environment].
             </description>
         </method>
         <method name="camera_set_frustum">
@@ -144,7 +144,7 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], preserves the horizontal aspect ratio which is equivalent to [constant Camera.KEEP_WIDTH]. If [code]false[/code], preserves the vertical aspect ratio which is equivalent to [constant Camera.KEEP_HEIGHT].
+                If [code]true[/code], preserves the horizontal aspect ratio which is equivalent to [constant Camera3D.KEEP_WIDTH]. If [code]false[/code], preserves the vertical aspect ratio which is equivalent to [constant Camera3D.KEEP_HEIGHT].
             </description>
         </method>
         <method name="canvas_create">
@@ -1692,7 +1692,7 @@
             <argument index="2" name="texture" type="RID">
             </argument>
             <description>
-                Sets up [ImmediateGeometry] internals to prepare for drawing. Equivalent to [method ImmediateGeometry.begin].
+                Sets up [ImmediateGeometry3D] internals to prepare for drawing. Equivalent to [method ImmediateGeometry3D.begin].
             </description>
         </method>
         <method name="immediate_clear">
@@ -1701,7 +1701,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Clears everything that was set up between [method immediate_begin] and [method immediate_end]. Equivalent to [method ImmediateGeometry.clear].
+                Clears everything that was set up between [method immediate_begin] and [method immediate_end]. Equivalent to [method ImmediateGeometry3D.clear].
             </description>
         </method>
         <method name="immediate_color">
@@ -1712,7 +1712,7 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color to be used with next vertex. Equivalent to [method ImmediateGeometry.set_color].
+                Sets the color to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_color].
             </description>
         </method>
         <method name="immediate_create">
@@ -1730,7 +1730,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Ends drawing the [ImmediateGeometry] and displays it. Equivalent to [method ImmediateGeometry.end].
+                Ends drawing the [ImmediateGeometry3D] and displays it. Equivalent to [method ImmediateGeometry3D.end].
             </description>
         </method>
         <method name="immediate_get_material" qualifiers="const">
@@ -1739,7 +1739,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Returns the material assigned to the [ImmediateGeometry].
+                Returns the material assigned to the [ImmediateGeometry3D].
             </description>
         </method>
         <method name="immediate_normal">
@@ -1750,7 +1750,7 @@
             <argument index="1" name="normal" type="Vector3">
             </argument>
             <description>
-                Sets the normal to be used with next vertex. Equivalent to [method ImmediateGeometry.set_normal].
+                Sets the normal to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_normal].
             </description>
         </method>
         <method name="immediate_set_material">
@@ -1761,7 +1761,7 @@
             <argument index="1" name="material" type="RID">
             </argument>
             <description>
-                Sets the material to be used to draw the [ImmediateGeometry].
+                Sets the material to be used to draw the [ImmediateGeometry3D].
             </description>
         </method>
         <method name="immediate_tangent">
@@ -1772,7 +1772,7 @@
             <argument index="1" name="tangent" type="Plane">
             </argument>
             <description>
-                Sets the tangent to be used with next vertex. Equivalent to [method ImmediateGeometry.set_tangent].
+                Sets the tangent to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_tangent].
             </description>
         </method>
         <method name="immediate_uv">
@@ -1783,7 +1783,7 @@
             <argument index="1" name="tex_uv" type="Vector2">
             </argument>
             <description>
-                Sets the UV to be used with next vertex. Equivalent to [method ImmediateGeometry.set_uv].
+                Sets the UV to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_uv].
             </description>
         </method>
         <method name="immediate_uv2">
@@ -1794,7 +1794,7 @@
             <argument index="1" name="tex_uv" type="Vector2">
             </argument>
             <description>
-                Sets the UV2 to be used with next vertex. Equivalent to [method ImmediateGeometry.set_uv2].
+                Sets the UV2 to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_uv2].
             </description>
         </method>
         <method name="immediate_vertex">
@@ -1805,7 +1805,7 @@
             <argument index="1" name="vertex" type="Vector3">
             </argument>
             <description>
-                Adds the next vertex using the information provided in advance. Equivalent to [method ImmediateGeometry.add_vertex].
+                Adds the next vertex using the information provided in advance. Equivalent to [method ImmediateGeometry3D.add_vertex].
             </description>
         </method>
         <method name="immediate_vertex_2d">
@@ -1816,7 +1816,7 @@
             <argument index="1" name="vertex" type="Vector2">
             </argument>
             <description>
-                Adds the next vertex using the information provided in advance. This is a helper class that calls [method immediate_vertex] under the hood. Equivalent to [method ImmediateGeometry.add_vertex].
+                Adds the next vertex using the information provided in advance. This is a helper class that calls [method immediate_vertex] under the hood. Equivalent to [method ImmediateGeometry3D.add_vertex].
             </description>
         </method>
         <method name="init">
@@ -1986,7 +1986,7 @@
             <argument index="1" name="mask" type="int">
             </argument>
             <description>
-                Sets the render layers that this instance will be drawn to. Equivalent to [member VisualInstance.layers].
+                Sets the render layers that this instance will be drawn to. Equivalent to [member VisualInstance3D.layers].
             </description>
         </method>
         <method name="instance_set_scenario">
@@ -2056,7 +2056,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2068,7 +2068,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2082,7 +2082,7 @@
             <argument index="2" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2094,7 +2094,7 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], this directional light will blend between shadow map splits resulting in a smoother transition between them. Equivalent to [member DirectionalLight.directional_shadow_blend_splits].
+                If [code]true[/code], this directional light will blend between shadow map splits resulting in a smoother transition between them. Equivalent to [member DirectionalLight3D.directional_shadow_blend_splits].
             </description>
         </method>
         <method name="light_directional_set_shadow_depth_range_mode">
@@ -2105,7 +2105,7 @@
             <argument index="1" name="range_mode" type="int" enum="RenderingServer.LightDirectionalShadowDepthRangeMode">
             </argument>
             <description>
-                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight.directional_shadow_depth_range]. See [enum LightDirectionalShadowDepthRangeMode] for options.
+                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_depth_range]. See [enum LightDirectionalShadowDepthRangeMode] for options.
             </description>
         </method>
         <method name="light_directional_set_shadow_mode">
@@ -2116,7 +2116,7 @@
             <argument index="1" name="mode" type="int" enum="RenderingServer.LightDirectionalShadowMode">
             </argument>
             <description>
-                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight.directional_shadow_mode]. See [enum LightDirectionalShadowMode] for options.
+                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_mode]. See [enum LightDirectionalShadowMode] for options.
             </description>
         </method>
         <method name="light_omni_set_shadow_detail">
@@ -2127,7 +2127,7 @@
             <argument index="1" name="detail" type="int" enum="RenderingServer.LightOmniShadowDetail">
             </argument>
             <description>
-                Sets whether to use vertical or horizontal detail for this omni light. This can be used to alleviate artifacts in the shadow map. Equivalent to [member OmniLight.omni_shadow_detail].
+                Sets whether to use vertical or horizontal detail for this omni light. This can be used to alleviate artifacts in the shadow map. Equivalent to [member OmniLight3D.omni_shadow_detail].
             </description>
         </method>
         <method name="light_omni_set_shadow_mode">
@@ -2138,7 +2138,7 @@
             <argument index="1" name="mode" type="int" enum="RenderingServer.LightOmniShadowMode">
             </argument>
             <description>
-                Sets whether to use a dual paraboloid or a cubemap for the shadow map. Dual paraboloid is faster but may suffer from artifacts. Equivalent to [member OmniLight.omni_shadow_mode].
+                Sets whether to use a dual paraboloid or a cubemap for the shadow map. Dual paraboloid is faster but may suffer from artifacts. Equivalent to [member OmniLight3D.omni_shadow_mode].
             </description>
         </method>
         <method name="light_set_color">
@@ -2149,7 +2149,7 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color of the light. Equivalent to [member Light.light_color].
+                Sets the color of the light. Equivalent to [member Light3D.light_color].
             </description>
         </method>
         <method name="light_set_cull_mask">
@@ -2160,7 +2160,7 @@
             <argument index="1" name="mask" type="int">
             </argument>
             <description>
-                Sets the cull mask for this Light. Lights only affect objects in the selected layers. Equivalent to [member Light.light_cull_mask].
+                Sets the cull mask for this Light3D. Lights only affect objects in the selected layers. Equivalent to [member Light3D.light_cull_mask].
             </description>
         </method>
         <method name="light_set_negative">
@@ -2171,7 +2171,7 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], light will subtract light instead of adding light. Equivalent to [member Light.light_negative].
+                If [code]true[/code], light will subtract light instead of adding light. Equivalent to [member Light3D.light_negative].
             </description>
         </method>
         <method name="light_set_param">
@@ -2184,7 +2184,7 @@
             <argument index="2" name="value" type="float">
             </argument>
             <description>
-                Sets the specified light parameter. See [enum LightParam] for options. Equivalent to [method Light.set_param].
+                Sets the specified light parameter. See [enum LightParam] for options. Equivalent to [method Light3D.set_param].
             </description>
         </method>
         <method name="light_set_projector">
@@ -2206,7 +2206,7 @@
             <argument index="1" name="enabled" type="bool">
             </argument>
             <description>
-                If [code]true[/code], reverses the backface culling of the mesh. This can be useful when you have a flat mesh that has a light behind it. If you need to cast a shadow on both sides of the mesh, set the mesh to use double sided shadows with [method instance_geometry_set_cast_shadows_setting]. Equivalent to [member Light.shadow_reverse_cull_face].
+                If [code]true[/code], reverses the backface culling of the mesh. This can be useful when you have a flat mesh that has a light behind it. If you need to cast a shadow on both sides of the mesh, set the mesh to use double sided shadows with [method instance_geometry_set_cast_shadows_setting]. Equivalent to [member Light3D.shadow_reverse_cull_face].
             </description>
         </method>
         <method name="light_set_shadow">
@@ -2217,7 +2217,7 @@
             <argument index="1" name="enabled" type="bool">
             </argument>
             <description>
-                If [code]true[/code], light will cast shadows. Equivalent to [member Light.shadow_enabled].
+                If [code]true[/code], light will cast shadows. Equivalent to [member Light3D.shadow_enabled].
             </description>
         </method>
         <method name="light_set_shadow_color">
@@ -2228,7 +2228,7 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color of the shadow cast by the light. Equivalent to [member Light.shadow_color].
+                Sets the color of the shadow cast by the light. Equivalent to [member Light3D.shadow_color].
             </description>
         </method>
         <method name="light_set_use_gi">

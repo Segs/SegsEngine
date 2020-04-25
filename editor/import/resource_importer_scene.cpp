@@ -37,10 +37,10 @@
 #include "editor/editor_node.h"
 #include "scene/resources/packed_scene.h"
 
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/navigation.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/navigation_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/3d/portal.h"
 #include "scene/3d/room_instance.h"
 #include "scene/3d/vehicle_body_3d.h"
@@ -437,7 +437,7 @@ Node *ResourceImporterScene::_fix_node(
                     int idx = 0;
                     for (const Ref<Shape> &E : shapes) {
 
-                        CollisionShape *cshape = memnew(CollisionShape);
+                        CollisionShape3D *cshape = memnew(CollisionShape3D);
                         cshape->set_shape(E);
                         col->add_child(cshape);
 
@@ -456,7 +456,7 @@ Node *ResourceImporterScene::_fix_node(
             p_node->replace_by(sb);
             memdelete(p_node);
             p_node = nullptr;
-            CollisionShape *colshape = memnew(CollisionShape);
+            CollisionShape3D *colshape = memnew(CollisionShape3D);
             if (empty_draw_type == "CUBE") {
                 BoxShape *boxShape = memnew(BoxShape);
                 boxShape->set_extents(Vector3(1, 1, 1));
@@ -510,7 +510,7 @@ Node *ResourceImporterScene::_fix_node(
             int idx = 0;
             for (const Ref<Shape> &E : shapes) {
 
-                CollisionShape *cshape = memnew(CollisionShape);
+                CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(E);
                 rigid_body->add_child(cshape);
 
@@ -560,7 +560,7 @@ Node *ResourceImporterScene::_fix_node(
                 int idx = 0;
                 for (const Ref<Shape> &E : shapes) {
 
-                    CollisionShape *cshape = memnew(CollisionShape);
+                    CollisionShape3D *cshape = memnew(CollisionShape3D);
                     cshape->set_shape(E);
                     col->add_child(cshape);
 
@@ -659,7 +659,7 @@ Node *ResourceImporterScene::_fix_node(
                 int idx = 0;
                 for (const Ref<Shape> &E : shapes) {
 
-                    CollisionShape *cshape = memnew(CollisionShape);
+                    CollisionShape3D *cshape = memnew(CollisionShape3D);
                     cshape->set_shape(E);
                     col->add_child(cshape);
 

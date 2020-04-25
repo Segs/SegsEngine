@@ -85,7 +85,7 @@ RID RasterizerCanvasGLES3::light_internal_create() {
     return light_internal_owner.make_rid(li);
 }
 
-void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light *p_light) {
+void RasterizerCanvasGLES3::light_internal_update(RID p_rid, Light3D *p_light) {
 
     LightInternal *li = light_internal_owner.getornull(p_rid);
     ERR_FAIL_COND(!li);
@@ -1295,7 +1295,7 @@ void RasterizerCanvasGLES3::_copy_texscreen(const Rect2 &p_rect) {
     glEnable(GL_BLEND);
 }
 
-void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light *p_light, const Transform2D &p_transform) {
+void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_transform) {
 
     Item *current_clip = nullptr;
     RasterizerStorageGLES3::Shader *shader_cache = nullptr;
@@ -1589,7 +1589,7 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
 
         if ((blend_mode == RasterizerStorageGLES3::Shader::CanvasItem::BLEND_MODE_MIX || blend_mode == RasterizerStorageGLES3::Shader::CanvasItem::BLEND_MODE_PMALPHA) && p_light && !unshaded) {
 
-            Light *light = p_light;
+            Light3D *light = p_light;
             bool light_used = false;
             RS::CanvasLightMode mode = RS::CANVAS_LIGHT_MODE_ADD;
             state.canvas_item_modulate = ci->final_modulate; // remove the canvas modulate
@@ -1757,9 +1757,9 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
     state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_SHADOWS, false);
 }
 
-void RasterizerCanvasGLES3::canvas_debug_viewport_shadows(Light *p_lights_with_shadow) {
+void RasterizerCanvasGLES3::canvas_debug_viewport_shadows(Light3D *p_lights_with_shadow) {
 
-    Light *light = p_lights_with_shadow;
+    Light3D *light = p_lights_with_shadow;
 
     canvas_begin(); //reset
     glVertexAttrib4f(RS::ARRAY_COLOR, 1, 1, 1, 1);

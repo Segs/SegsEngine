@@ -41,15 +41,15 @@
 #include "core/os/os.h"
 #include "core/resource/resource_manager.h"
 #include "scene/3d/bone_attachment_3d.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/surface_tool.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "scene/resources/material.h"
 #include "scene/resources/texture.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
 
 #include "EASTL/sort.h"
@@ -2657,7 +2657,7 @@ namespace {
                 }
             }
             else {
-                ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'");
+                ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera3D should be in 'orthographic' or 'perspective'");
             }
 
             state.cameras.push_back(camera);
@@ -2828,7 +2828,7 @@ namespace {
                     n->name = "Mesh";
                 }
                 else if (n->camera >= 0) {
-                    n->name = "Camera";
+                    n->name = "Camera3D";
                 }
                 else {
                     n->name = "Node";
@@ -2874,12 +2874,12 @@ namespace {
         return mi;
     }
 
-    Camera* _generate_camera(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    Camera3D* _generate_camera(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
         ERR_FAIL_INDEX_V(gltf_node->camera, state.cameras.size(), nullptr);
 
-        Camera* camera = memnew(Camera);
+        Camera3D* camera = memnew(Camera3D);
         print_verbose("glTF: Creating camera for: " + gltf_node->name);
 
         const GLTFCamera& c = state.cameras[gltf_node->camera];

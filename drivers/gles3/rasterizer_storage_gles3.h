@@ -851,9 +851,9 @@ public:
     Transform2D skeleton_bone_get_transform_2d(RID p_skeleton, int p_bone) const override;
     void skeleton_set_base_transform_2d(RID p_skeleton, const Transform2D &p_base_transform) override;
 
-    /* Light API */
+    /* Light3D API */
 
-    struct Light : Instantiable {
+    struct Light3D : Instantiable {
         float param[RS::LIGHT_PARAM_MAX];
         Color color;
         Color shadow_color;
@@ -872,7 +872,7 @@ public:
         bool directional_blend_splits : 1;
     };
 
-    mutable RID_Owner<Light> light_owner;
+    mutable RID_Owner<Light3D> light_owner;
 
     RID light_create(RS::LightType p_type) override;
 

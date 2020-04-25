@@ -33,7 +33,7 @@
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
-#include "mesh_instance.h"
+#include "mesh_instance_3d.h"
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
 #include "servers/physics_server_3d.h"

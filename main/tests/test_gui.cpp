@@ -53,7 +53,7 @@
 #include "scene/gui/tree.h"
 #include "scene/main/scene_tree.h"
 
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/theme.h"
 #include "scene/resources/font.h"

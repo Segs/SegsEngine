@@ -34,7 +34,7 @@
 #include "core/pair.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
-#include "scene/3d/light.h"
+#include "scene/3d/light_3d.h"
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/surface_tool.h"
 #include "scene/scene_string_names.h"
@@ -500,7 +500,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             }
         }
 
-        // add the item's navmesh at given xform to GridMap's Navigation ancestor
+        // add the item's navmesh at given xform to GridMap's Navigation3D ancestor
         Ref<NavigationMesh> navmesh = mesh_library->get_item_navmesh(c.item);
         if (navmesh) {
             Octant::NavMesh nm;
@@ -678,7 +678,7 @@ void GridMap::_notification(int p_what) {
 
             Node3D *c = this;
             while (c) {
-                navigation = object_cast<Navigation>(c);
+                navigation = object_cast<Navigation3D>(c);
                 if (navigation) {
                     break;
                 }

@@ -33,8 +33,8 @@
 #include "core/math/camera_matrix.h"
 #include "core/math/octree.h"
 #include "core/list.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/visibility_notifier.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/visibility_notifier_3d.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 
@@ -43,7 +43,7 @@ RES_BASE_EXTENSION_IMPL(World,"world")
 
 struct SpatialIndexer {
 
-    Octree<VisibilityNotifier> octree;
+    Octree<VisibilityNotifier3D> octree;
 
     struct NotifierData {
 
@@ -51,25 +51,25 @@ struct SpatialIndexer {
         OctreeElementID id;
     };
 
-    HashMap<VisibilityNotifier *, NotifierData> notifiers;
+    HashMap<VisibilityNotifier3D *, NotifierData> notifiers;
     struct CameraData {
 
-        HashMap<VisibilityNotifier *, uint64_t> notifiers;
+        HashMap<VisibilityNotifier3D *, uint64_t> notifiers;
     };
 
-    HashMap<Camera *, CameraData> cameras;
+    HashMap<Camera3D *, CameraData> cameras;
 
     enum {
         VISIBILITY_CULL_MAX = 32768
     };
 
-    Vector<VisibilityNotifier *> cull;
+    Vector<VisibilityNotifier3D *> cull;
 
     uint64_t pass;
     uint64_t last_frame;
     bool changed;
 
-    void _notifier_add(VisibilityNotifier *p_notifier, const AABB &p_rect) {
+    void _notifier_add(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
         ERR_FAIL_COND(notifiers.contains(p_notifier));
         notifiers[p_notifier].aabb = p_rect;
@@ -77,9 +77,9 @@ struct SpatialIndexer {
         changed = true;
     }
 
-    void _notifier_update(VisibilityNotifier *p_notifier, const AABB &p_rect) {
+    void _notifier_update(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
-        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier3D *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E==notifiers.end());
         if (E->second.aabb == p_rect)
             return;
@@ -89,18 +89,18 @@ struct SpatialIndexer {
         changed = true;
     }
 
-    void _notifier_remove(VisibilityNotifier *p_notifier) {
+    void _notifier_remove(VisibilityNotifier3D *p_notifier) {
 
-        HashMap<VisibilityNotifier *, NotifierData>::iterator E = notifiers.find(p_notifier);
+        HashMap<VisibilityNotifier3D *, NotifierData>::iterator E = notifiers.find(p_notifier);
         ERR_FAIL_COND(E!=notifiers.end());
 
         octree.erase(E->second.id);
         notifiers.erase(p_notifier);
 
-        Vector<Camera *> removed;
-        for (eastl::pair< Camera *const,CameraData> &F : cameras) {
+        Vector<Camera3D *> removed;
+        for (eastl::pair< Camera3D *const,CameraData> &F : cameras) {
 
-            HashMap<VisibilityNotifier *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
+            HashMap<VisibilityNotifier3D *, uint64_t>::iterator G = F.second.notifiers.find(p_notifier);
 
             if (G!=F.second.notifiers.end()) {
                 F.second.notifiers.erase(G);
@@ -108,14 +108,14 @@ struct SpatialIndexer {
             }
         }
 
-        for(Camera *c : removed) {
+        for(Camera3D *c : removed) {
             p_notifier->_exit_camera(c);
         }
 
         changed = true;
     }
 
-    void _add_camera(Camera *p_camera) {
+    void _add_camera(Camera3D *p_camera) {
 
         ERR_FAIL_COND(cameras.contains(p_camera));
         CameraData vd;
@@ -123,16 +123,16 @@ struct SpatialIndexer {
         changed = true;
     }
 
-    void _update_camera(Camera *p_camera) {
+    void _update_camera(Camera3D *p_camera) {
 
-        HashMap<Camera *, CameraData>::iterator E = cameras.find(p_camera);
+        HashMap<Camera3D *, CameraData>::iterator E = cameras.find(p_camera);
         ERR_FAIL_COND(E==cameras.end());
         changed = true;
     }
 
-    void _remove_camera(Camera *p_camera) {
+    void _remove_camera(Camera3D *p_camera) {
         ERR_FAIL_COND(!cameras.contains(p_camera));
-        Vector<VisibilityNotifier *> removed;
+        Vector<VisibilityNotifier3D *> removed;
         for (auto &E : cameras[p_camera].notifiers) {
 
             removed.push_back(E.first);
@@ -154,26 +154,26 @@ struct SpatialIndexer {
         if (!changed)
             return;
 
-        for (eastl::pair<Camera *const,CameraData> &E : cameras) {
+        for (eastl::pair<Camera3D *const,CameraData> &E : cameras) {
 
             pass++;
 
-            Camera *c = E.first;
+            Camera3D *c = E.first;
 
             Frustum planes = c->get_frustum();
 
             int culled = octree.cull_convex(planes, cull.data(), cull.size());
 
-            VisibilityNotifier **ptr = cull.data();
+            VisibilityNotifier3D **ptr = cull.data();
 
-            Vector<VisibilityNotifier *> added;
-            Vector<VisibilityNotifier *> removed;
+            Vector<VisibilityNotifier3D *> added;
+            Vector<VisibilityNotifier3D *> removed;
 
             for (int i = 0; i < culled; i++) {
 
                 //notifiers in frustum
 
-                HashMap<VisibilityNotifier *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
+                HashMap<VisibilityNotifier3D *, uint64_t>::iterator H = E.second.notifiers.find(ptr[i]);
                 if (H==E.second.notifiers.end()) {
 
                     E.second.notifiers.emplace(ptr[i], pass);
@@ -189,11 +189,11 @@ struct SpatialIndexer {
                     removed.push_back(F.first);
             }
 
-            for(VisibilityNotifier * vn : added) {
+            for(VisibilityNotifier3D * vn : added) {
                 vn->_enter_camera(E.first);
             }
 
-            for(VisibilityNotifier * r : removed) {
+            for(VisibilityNotifier3D * r : removed) {
                 E.second.notifiers.erase(r);
                 r->_exit_camera(E.first);
             }
@@ -210,41 +210,41 @@ struct SpatialIndexer {
     }
 };
 
-void World::_register_camera(Camera *p_camera) {
+void World::_register_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_add_camera(p_camera);
 #endif
 }
 
-void World::_update_camera(Camera *p_camera) {
+void World::_update_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_update_camera(p_camera);
 #endif
 }
-void World::_remove_camera(Camera *p_camera) {
+void World::_remove_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_remove_camera(p_camera);
 #endif
 }
 
-void World::_register_notifier(VisibilityNotifier *p_notifier, const AABB &p_rect) {
+void World::_register_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_add(p_notifier, p_rect);
 #endif
 }
 
-void World::_update_notifier(VisibilityNotifier *p_notifier, const AABB &p_rect) {
+void World::_update_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_update(p_notifier, p_rect);
 #endif
 }
 
-void World::_remove_notifier(VisibilityNotifier *p_notifier) {
+void World::_remove_notifier(VisibilityNotifier3D *p_notifier) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_remove(p_notifier);
@@ -303,9 +303,9 @@ PhysicsDirectSpaceState *World::get_direct_space_state() {
     return PhysicsServer3D::get_singleton()->space_get_direct_state(physics_space);
 }
 
-void World::get_camera_list(Vector<Camera *> *r_cameras) {
+void World::get_camera_list(Vector<Camera3D *> *r_cameras) {
 
-    for (const eastl::pair<Camera *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
+    for (const eastl::pair<Camera3D *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
         r_cameras->push_back(E.first);
     }
 }

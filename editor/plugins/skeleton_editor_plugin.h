@@ -33,10 +33,10 @@
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 
 class PhysicalBone;
-class Joint;
+class Joint3D;
 
 class SkeletonEditor : public Node {
 	GDCLASS(SkeletonEditor,Node)

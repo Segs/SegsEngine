@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "core/string.h"
 
 class GODOT_EXPORT BoneAttachment3D : public Node3D {

@@ -79,7 +79,7 @@ void VisualServerViewport::_draw_3d(Viewport *p_viewport, ARVREyes p_eye) {
 
 void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) {
 
-    /* Camera should always be BEFORE any other 3D */
+    /* Camera3D should always be BEFORE any other 3D */
 
     bool scenario_draw_canvas_bg = false; //draw canvas, or some layer of it, as BG for 3D instead of in front
     int scenario_canvas_max_layer = 0;
@@ -114,9 +114,9 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
         Map<Viewport::CanvasKey, Viewport::CanvasData *> canvas_map;
 
         Rect2 clip_rect(0, 0, p_viewport->size.x, p_viewport->size.y);
-        RasterizerCanvas::Light *lights = nullptr;
-        RasterizerCanvas::Light *lights_with_shadow = nullptr;
-        RasterizerCanvas::Light *lights_with_mask = nullptr;
+        RasterizerCanvas::Light3D *lights = nullptr;
+        RasterizerCanvas::Light3D *lights_with_shadow = nullptr;
+        RasterizerCanvas::Light3D *lights_with_mask = nullptr;
         Rect2 shadow_rect;
 
         int light_count = 0;
@@ -129,7 +129,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
 
             //find lights in canvas
 
-            for (RasterizerCanvas::Light * cl : canvas->lights) {
+            for (RasterizerCanvas::Light3D * cl : canvas->lights) {
 
                 if (!cl || !cl->enabled || !cl->texture.is_valid())
                     continue;
@@ -199,7 +199,7 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
                 }
             }
             //update the light shadowmaps with them
-            RasterizerCanvas::Light *light = lights_with_shadow;
+            RasterizerCanvas::Light3D *light = lights_with_shadow;
             while (light) {
 
                 VSG::canvas_render->canvas_light_shadow_buffer_update(light->shadow_buffer, light->xform_cache.affine_inverse(), light->item_shadow_mask, light->radius_cache / 1000.0, light->radius_cache * 1.1, occluders, &light->shadow_matrix_cache);
@@ -226,9 +226,9 @@ void VisualServerViewport::_draw_viewport(Viewport *p_viewport, ARVREyes p_eye) 
 
             Transform2D xform = _canvas_get_transform(p_viewport, canvas, E.second, clip_rect.size);
 
-            RasterizerCanvas::Light *canvas_lights = nullptr;
+            RasterizerCanvas::Light3D *canvas_lights = nullptr;
 
-            RasterizerCanvas::Light *ptr = lights;
+            RasterizerCanvas::Light3D *ptr = lights;
             while (ptr) {
                 if (E.second->layer >= ptr->layer_min && E.second->layer <= ptr->layer_max) {
                     ptr->next_ptr = canvas_lights;

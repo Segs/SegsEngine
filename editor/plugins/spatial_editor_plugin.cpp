@@ -53,12 +53,12 @@
 #include "editor/inspector_dock.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/script_editor_debugger.h"
-#include "editor/spatial_editor_gizmos.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/physics_body.h"
-#include "scene/3d/visual_instance.h"
+#include "editor/node_3d_editor_gizmos.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/physics_body_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/gui/viewport_container.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
@@ -104,7 +104,7 @@ IMPL_GDCLASS(SpatialEditorPlugin)
 
 void SpatialEditorViewport::_update_camera(float p_interp_delta) {
 
-    bool is_orthogonal = camera->get_projection() == Camera::PROJECTION_ORTHOGONAL;
+    bool is_orthogonal = camera->get_projection() == Camera3D::PROJECTION_ORTHOGONAL;
 
     Cursor old_camera_cursor = camera_cursor;
     camera_cursor = cursor;
@@ -2188,7 +2188,7 @@ void SpatialEditorViewport::_notification(int p_what) {
 
         Node *scene_root = editor->get_scene_tree_dock()->get_editor_data()->get_edited_scene_root();
         if (previewing_cinema && scene_root != nullptr) {
-            Camera *cam = scene_root->get_viewport()->get_camera();
+            Camera3D *cam = scene_root->get_viewport()->get_camera();
             if (cam != nullptr && cam != previewing) {
                 //then switch the viewport's camera to the scene's viewport camera
                 if (previewing != nullptr) {
@@ -2218,7 +2218,7 @@ void SpatialEditorViewport::_notification(int p_what) {
             if (!se)
                 continue;
 
-            VisualInstance *vi = object_cast<VisualInstance>(sp);
+            VisualInstance3D *vi = object_cast<VisualInstance3D>(sp);
 
             se->aabb = vi ? vi->get_aabb() : _calculate_spatial_bounds(sp);
 
@@ -2285,7 +2285,7 @@ void SpatialEditorViewport::_notification(int p_what) {
         bool show_info = view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(VIEW_INFORMATION));
         info_label->set_visible(show_info);
 
-        Camera *current_camera;
+        Camera3D *current_camera;
 
         if (previewing) {
             current_camera = previewing;
@@ -2357,7 +2357,7 @@ void SpatialEditorViewport::_notification(int p_what) {
     if (p_what == NOTIFICATION_THEME_CHANGED) {
 
         view_menu->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
-        preview_camera->set_button_icon(get_icon("Camera", "EditorIcons"));
+        preview_camera->set_button_icon(get_icon("Camera3D", "EditorIcons"));
 
         view_menu->add_style_override("normal", editor->get_gui_base()->get_stylebox("Information3dViewport", "EditorStyles"));
         view_menu->add_style_override("hover", editor->get_gui_base()->get_stylebox("Information3dViewport", "EditorStyles"));
@@ -2462,14 +2462,14 @@ void SpatialEditorViewport::_draw() {
         Rect2 draw_rect;
 
         switch (previewing->get_keep_aspect_mode()) {
-            case Camera::KEEP_WIDTH: {
+            case Camera3D::KEEP_WIDTH: {
 
                 draw_rect.size = Size2(s.width, s.width / aspect);
                 draw_rect.position.x = 0;
                 draw_rect.position.y = (s.height - draw_rect.size.y) * 0.5f;
 
             } break;
-            case Camera::KEEP_HEIGHT: {
+            case Camera3D::KEEP_HEIGHT: {
 
                 draw_rect.size = Size2(s.height * aspect, s.height);
                 draw_rect.position.y = 0;
@@ -2718,7 +2718,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
             int idx = view_menu->get_popup()->get_item_index(VIEW_AUDIO_DOPPLER);
             bool current = view_menu->get_popup()->is_item_checked(idx);
             current = !current;
-            camera->set_doppler_tracking(current ? Camera::DOPPLER_TRACKING_IDLE_STEP : Camera::DOPPLER_TRACKING_DISABLED);
+            camera->set_doppler_tracking(current ? Camera3D::DOPPLER_TRACKING_IDLE_STEP : Camera3D::DOPPLER_TRACKING_DISABLED);
             view_menu->get_popup()->set_item_checked(idx, current);
 
         } break;
@@ -2936,7 +2936,7 @@ void SpatialEditorViewport::_selection_menu_hide() {
     selection_menu->set_size(Vector2(0, 0));
 }
 
-void SpatialEditorViewport::set_can_preview(Camera *p_preview) {
+void SpatialEditorViewport::set_can_preview(Camera3D *p_preview) {
 
     preview = p_preview;
 
@@ -3049,7 +3049,7 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
         bool doppler = p_state["doppler"];
 
         int idx = view_menu->get_popup()->get_item_index(VIEW_AUDIO_DOPPLER);
-        camera->set_doppler_tracking(doppler ? Camera::DOPPLER_TRACKING_IDLE_STEP : Camera::DOPPLER_TRACKING_DISABLED);
+        camera->set_doppler_tracking(doppler ? Camera3D::DOPPLER_TRACKING_IDLE_STEP : Camera3D::DOPPLER_TRACKING_DISABLED);
         view_menu->get_popup()->set_item_checked(idx, doppler);
     }
     if (p_state.has("gizmos")) {
@@ -3090,8 +3090,8 @@ void SpatialEditorViewport::set_state(const Dictionary &p_state) {
     }
     if (p_state.has("previewing")) {
         Node *pv = EditorNode::get_singleton()->get_edited_scene()->get_node(p_state["previewing"]);
-        if (object_cast<Camera>(pv)) {
-            previewing = object_cast<Camera>(pv);
+        if (object_cast<Camera3D>(pv)) {
+            previewing = object_cast<Camera3D>(pv);
             previewing->connect("tree_exiting", this, "_preview_exited_scene");
             RenderingServer::get_singleton()->viewport_attach_camera(viewport->get_viewport_rid(), previewing->get_camera_rid()); //replace
             view_menu->set_disabled(true);
@@ -3111,7 +3111,7 @@ Dictionary SpatialEditorViewport::get_state() const {
     d["y_rotation"] = cursor.y_rot;
     d["distance"] = cursor.distance;
     d["use_environment"] = camera->get_environment()!=nullptr;
-    d["use_orthogonal"] = camera->get_projection() == Camera::PROJECTION_ORTHOGONAL;
+    d["use_orthogonal"] = camera->get_projection() == Camera3D::PROJECTION_ORTHOGONAL;
     if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_NORMAL)))
         d["display_mode"] = VIEW_DISPLAY_NORMAL;
     else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_WIREFRAME)))
@@ -3587,7 +3587,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     add_child(surface);
     surface->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     surface->set_clip_contents(true);
-    camera = memnew(Camera);
+    camera = memnew(Camera3D);
     camera->set_disable_gizmo(true);
     camera->set_cull_mask((1 << 20) - 1 | 1 << (GIZMO_BASE_LAYER + p_index) | 1 << GIZMO_EDIT_LAYER | 1 << GIZMO_GRID_LAYER);
     viewport->add_child(camera);
@@ -3635,7 +3635,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     view_menu->get_popup()->add_separator();
     view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_half_resolution", TTR("Half Resolution")), VIEW_HALF_RESOLUTION);
     view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_listener", TTR("Audio Listener")), VIEW_AUDIO_LISTENER);
+    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_listener", TTR("Audio Listener3D")), VIEW_AUDIO_LISTENER);
     view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_doppler", TTR("Enable Doppler")), VIEW_AUDIO_DOPPLER);
     view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_GIZMOS), true);
 
@@ -4498,11 +4498,11 @@ void SpatialEditor::_update_camera_override_button(bool p_game_running) {
 
     if (p_game_running) {
         button->set_disabled(false);
-        button->set_tooltip(TTR("Game Camera Override\nNo game instance running."));
+        button->set_tooltip(TTR("Game Camera3D Override\nNo game instance running."));
     } else {
         button->set_disabled(true);
         button->set_pressed(false);
-        button->set_tooltip(TTR("Game Camera Override\nOverrides game camera with editor viewport camera."));
+        button->set_tooltip(TTR("Game Camera3D Override\nOverrides game camera with editor viewport camera."));
     }
 }
 
@@ -5247,14 +5247,14 @@ HashSet<T *> _get_child_nodes(Node *parent_node) {
 
 HashSet<RID> _get_physics_bodies_rid(Node *node) {
     HashSet<RID> rids;
-    PhysicsBody *pb = object_cast<PhysicsBody>(node);
-    HashSet<PhysicsBody *> child_nodes = _get_child_nodes<PhysicsBody>(node);
+    PhysicsBody3D *pb = object_cast<PhysicsBody3D>(node);
+    HashSet<PhysicsBody3D *> child_nodes = _get_child_nodes<PhysicsBody3D>(node);
 
     rids.reserve((pb ? 1 : 0)+child_nodes.size());
     if (pb) {
         rids.insert(pb->get_rid());
     }
-    for (const PhysicsBody * I : child_nodes) {
+    for (const PhysicsBody3D * I : child_nodes) {
         rids.insert(I->get_rid());
     }
 
@@ -5272,12 +5272,12 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
             Vector3 position_offset = Vector3();
 
             // Priorities for snapping to floor are CollisionShapes, VisualInstances and then origin
-            HashSet<VisualInstance *> vi = _get_child_nodes<VisualInstance>(sp);
-            HashSet<CollisionShape *> cs = _get_child_nodes<CollisionShape>(sp);
+            HashSet<VisualInstance3D *> vi = _get_child_nodes<VisualInstance3D>(sp);
+            HashSet<CollisionShape3D *> cs = _get_child_nodes<CollisionShape3D>(sp);
 
             if (!cs.empty()) {
                 AABB aabb = sp->get_global_transform().xform((*cs.begin())->get_shape()->get_debug_mesh()->get_aabb());
-                for (CollisionShape * I : cs) {
+                for (CollisionShape3D * I : cs) {
                     aabb.merge_with(sp->get_global_transform().xform(I->get_shape()->get_debug_mesh()->get_aabb()));
                 }
                 Vector3 size = aabb.size * Vector3(0.5, 0.0, 0.5);
@@ -5285,7 +5285,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
                 position_offset.y = from.y - sp->get_global_transform().origin.y;
             } else if (!vi.empty()) {
                 AABB aabb = (*vi.begin())->get_transformed_aabb();
-                for (VisualInstance * I : vi) {
+                for (VisualInstance3D * I : vi) {
                     aabb.merge_with(I->get_transformed_aabb());
                 }
                 Vector3 size = aabb.size * Vector3(0.5, 0.0, 0.5);
@@ -5389,7 +5389,7 @@ void SpatialEditor::_notification(int p_what) {
 
         tool_option_button[SpatialEditor::TOOL_OPT_LOCAL_COORDS]->set_button_icon(get_icon("Object", "EditorIcons"));
         tool_option_button[SpatialEditor::TOOL_OPT_USE_SNAP]->set_button_icon(get_icon("Snap", "EditorIcons"));
-        tool_option_button[SpatialEditor::TOOL_OPT_OVERRIDE_CAMERA]->set_button_icon(get_icon("Camera", "EditorIcons"));
+        tool_option_button[SpatialEditor::TOOL_OPT_OVERRIDE_CAMERA]->set_button_icon(get_icon("Camera3D", "EditorIcons"));
 
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_1_VIEWPORT), get_icon("Panels1", "EditorIcons"));
         view_menu->get_popup()->set_item_icon(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_2_VIEWPORTS), get_icon("Panels2", "EditorIcons"));
@@ -5462,7 +5462,7 @@ void SpatialEditor::remove_control_from_menu_panel(Control *p_control) {
     hbc_menu->remove_child(p_control);
 }
 
-void SpatialEditor::set_can_preview(Camera *p_preview) {
+void SpatialEditor::set_can_preview(Camera3D *p_preview) {
 
     for (int i = 0; i < 4; i++) {
         viewports[i]->set_can_preview(p_preview);
@@ -5574,7 +5574,7 @@ void SpatialEditor::_register_all_gizmos() {
     register_gizmo_class<SkeletonSpatialGizmoPlugin>(this);
     register_gizmo_class<Position3DSpatialGizmoPlugin>(this);
     register_gizmo_class<RayCastSpatialGizmoPlugin>(this);
-    register_gizmo_class<SpringArmSpatialGizmoPlugin>(this);
+    register_gizmo_class<SpringArm3DSpatialGizmoPlugin>(this);
     register_gizmo_class<VehicleWheelSpatialGizmoPlugin>(this);
     register_gizmo_class<VisibilityNotifierGizmoPlugin>(this);
     register_gizmo_class<ParticlesGizmoPlugin>(this);
@@ -6314,7 +6314,7 @@ void EditorSpatialGizmoPlugin::_bind_methods() {
     hvget.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
     BIND_VMETHOD(hvget);
 
-    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera"), PropertyInfo(VariantType::VECTOR2, "point")));
+    BIND_VMETHOD(MethodInfo("set_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::OBJECT, "camera", PropertyHint::ResourceType, "Camera3D"), PropertyInfo(VariantType::VECTOR2, "point")));
     MethodInfo cm = MethodInfo("commit_handle", GIZMO_REF, PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::NIL, "restore"), PropertyInfo(VariantType::BOOL, "cancel"));
     cm.default_arguments.push_back(false);
     BIND_VMETHOD(cm);
@@ -6378,7 +6378,7 @@ Variant EditorSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, 
     return Variant();
 }
 
-void EditorSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point) {
+void EditorSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
     if (get_script_instance() && get_script_instance()->has_method("set_handle")) {
         get_script_instance()->call("set_handle", Variant(p_gizmo), p_idx, Variant(p_camera), p_point);
     }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VisibilityEnabler" inherits="VisibilityNotifier" version="4.0">
+<class name="VisibilityEnabler3D" inherits="VisibilityNotifier3D" version="4.0">
 	<brief_description>
 		Enables certain nodes only when visible.
 	</brief_description>
 	<description>
-		The VisibilityEnabler will disable [RigidBody] and [AnimationPlayer] nodes when they are not visible. It will only affect other nodes within the same scene as the VisibilityEnabler itself.
+		The VisibilityEnabler3D will disable [RigidBody] and [AnimationPlayer] nodes when they are not visible. It will only affect other nodes within the same scene as the VisibilityEnabler3D itself.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -12,7 +12,7 @@
 		<method name="is_enabler_enabled" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="enabler" type="int" enum="VisibilityEnabler.Enabler">
+			<argument index="0" name="enabler" type="int" enum="VisibilityEnabler3D.Enabler">
 			</argument>
 			<description>
 				Returns whether the enabler identified by given [enum Enabler] constant is active.
@@ -21,7 +21,7 @@
 		<method name="set_enabler">
 			<return type="void">
 			</return>
-			<argument index="0" name="enabler" type="int" enum="VisibilityEnabler.Enabler">
+			<argument index="0" name="enabler" type="int" enum="VisibilityEnabler3D.Enabler">
 			</argument>
 			<argument index="1" name="enabled" type="bool">
 			</argument>

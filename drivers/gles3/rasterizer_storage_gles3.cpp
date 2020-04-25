@@ -5213,11 +5213,11 @@ void RasterizerStorageGLES3::update_dirty_skeletons() {
     }
 }
 
-/* Light API */
+/* Light3D API */
 
 RID RasterizerStorageGLES3::light_create(RS::LightType p_type) {
 
-    Light *light = memnew(Light);
+    Light3D *light = memnew(Light3D);
     light->type = p_type;
 
     light->param[RS::LIGHT_PARAM_ENERGY] = 1.0f;
@@ -5251,14 +5251,14 @@ RID RasterizerStorageGLES3::light_create(RS::LightType p_type) {
 
 void RasterizerStorageGLES3::light_set_color(RID p_light, const Color &p_color) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->color = p_color;
 }
 void RasterizerStorageGLES3::light_set_param(RID p_light, RS::LightParam p_param, float p_value) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
     ERR_FAIL_INDEX(p_param, RS::LIGHT_PARAM_MAX);
 
@@ -5283,7 +5283,7 @@ void RasterizerStorageGLES3::light_set_param(RID p_light, RS::LightParam p_param
 }
 void RasterizerStorageGLES3::light_set_shadow(RID p_light, bool p_enabled) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
     light->shadow = p_enabled;
 
@@ -5293,14 +5293,14 @@ void RasterizerStorageGLES3::light_set_shadow(RID p_light, bool p_enabled) {
 
 void RasterizerStorageGLES3::light_set_shadow_color(RID p_light, const Color &p_color) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
     light->shadow_color = p_color;
 }
 
 void RasterizerStorageGLES3::light_set_projector(RID p_light, RID p_texture) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->projector = p_texture;
@@ -5308,14 +5308,14 @@ void RasterizerStorageGLES3::light_set_projector(RID p_light, RID p_texture) {
 
 void RasterizerStorageGLES3::light_set_negative(RID p_light, bool p_enable) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->negative = p_enable;
 }
 void RasterizerStorageGLES3::light_set_cull_mask(RID p_light, uint32_t p_mask) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->cull_mask = p_mask;
@@ -5326,7 +5326,7 @@ void RasterizerStorageGLES3::light_set_cull_mask(RID p_light, uint32_t p_mask) {
 
 void RasterizerStorageGLES3::light_set_reverse_cull_face_mode(RID p_light, bool p_enabled) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->reverse_cull = p_enabled;
@@ -5336,7 +5336,7 @@ void RasterizerStorageGLES3::light_set_reverse_cull_face_mode(RID p_light, bool 
 }
 
 void RasterizerStorageGLES3::light_set_use_gi(RID p_light, bool p_enabled) {
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->use_gi = p_enabled;
@@ -5346,7 +5346,7 @@ void RasterizerStorageGLES3::light_set_use_gi(RID p_light, bool p_enabled) {
 }
 void RasterizerStorageGLES3::light_omni_set_shadow_mode(RID p_light, RS::LightOmniShadowMode p_mode) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->omni_shadow_mode = p_mode;
@@ -5357,7 +5357,7 @@ void RasterizerStorageGLES3::light_omni_set_shadow_mode(RID p_light, RS::LightOm
 
 RS::LightOmniShadowMode RasterizerStorageGLES3::light_omni_get_shadow_mode(RID p_light) {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_OMNI_SHADOW_CUBE);
 
     return light->omni_shadow_mode;
@@ -5365,7 +5365,7 @@ RS::LightOmniShadowMode RasterizerStorageGLES3::light_omni_get_shadow_mode(RID p
 
 void RasterizerStorageGLES3::light_omni_set_shadow_detail(RID p_light, RS::LightOmniShadowDetail p_detail) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->omni_shadow_detail = p_detail;
@@ -5375,7 +5375,7 @@ void RasterizerStorageGLES3::light_omni_set_shadow_detail(RID p_light, RS::Light
 
 void RasterizerStorageGLES3::light_directional_set_shadow_mode(RID p_light, RS::LightDirectionalShadowMode p_mode) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->directional_shadow_mode = p_mode;
@@ -5385,7 +5385,7 @@ void RasterizerStorageGLES3::light_directional_set_shadow_mode(RID p_light, RS::
 
 void RasterizerStorageGLES3::light_directional_set_blend_splits(RID p_light, bool p_enable) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->directional_blend_splits = p_enable;
@@ -5395,7 +5395,7 @@ void RasterizerStorageGLES3::light_directional_set_blend_splits(RID p_light, boo
 
 bool RasterizerStorageGLES3::light_directional_get_blend_splits(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, false);
 
     return light->directional_blend_splits;
@@ -5403,7 +5403,7 @@ bool RasterizerStorageGLES3::light_directional_get_blend_splits(RID p_light) con
 
 RS::LightDirectionalShadowMode RasterizerStorageGLES3::light_directional_get_shadow_mode(RID p_light) {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL);
 
     return light->directional_shadow_mode;
@@ -5411,7 +5411,7 @@ RS::LightDirectionalShadowMode RasterizerStorageGLES3::light_directional_get_sha
 
 void RasterizerStorageGLES3::light_directional_set_shadow_depth_range_mode(RID p_light, RS::LightDirectionalShadowDepthRangeMode p_range_mode) {
 
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND(!light);
 
     light->directional_range_mode = p_range_mode;
@@ -5419,7 +5419,7 @@ void RasterizerStorageGLES3::light_directional_set_shadow_depth_range_mode(RID p
 
 RS::LightDirectionalShadowDepthRangeMode RasterizerStorageGLES3::light_directional_get_shadow_depth_range_mode(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE);
 
     return light->directional_range_mode;
@@ -5427,7 +5427,7 @@ RS::LightDirectionalShadowDepthRangeMode RasterizerStorageGLES3::light_direction
 
 RS::LightType RasterizerStorageGLES3::light_get_type(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL);
 
     return light->type;
@@ -5435,7 +5435,7 @@ RS::LightType RasterizerStorageGLES3::light_get_type(RID p_light) const {
 
 float RasterizerStorageGLES3::light_get_param(RID p_light, RS::LightParam p_param) {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL);
 
     return light->param[p_param];
@@ -5443,14 +5443,14 @@ float RasterizerStorageGLES3::light_get_param(RID p_light, RS::LightParam p_para
 
 Color RasterizerStorageGLES3::light_get_color(RID p_light) {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, Color());
 
     return light->color;
 }
 
 bool RasterizerStorageGLES3::light_get_use_gi(RID p_light) {
-    Light *light = light_owner.getornull(p_light);
+    Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, false);
 
     return light->use_gi;
@@ -5458,7 +5458,7 @@ bool RasterizerStorageGLES3::light_get_use_gi(RID p_light) {
 
 bool RasterizerStorageGLES3::light_has_shadow(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, RS::LIGHT_DIRECTIONAL);
 
     return light->shadow;
@@ -5466,7 +5466,7 @@ bool RasterizerStorageGLES3::light_has_shadow(RID p_light) const {
 
 uint64_t RasterizerStorageGLES3::light_get_version(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, 0);
 
     return light->version;
@@ -5474,7 +5474,7 @@ uint64_t RasterizerStorageGLES3::light_get_version(RID p_light) const {
 
 AABB RasterizerStorageGLES3::light_get_aabb(RID p_light) const {
 
-    const Light *light = light_owner.getornull(p_light);
+    const Light3D *light = light_owner.getornull(p_light);
     ERR_FAIL_COND_V(!light, AABB());
 
     switch (light->type) {
@@ -7792,7 +7792,7 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
     } else if (light_owner.owns(p_rid)) {
 
         // delete the texture
-        Light *light = light_owner.get(p_rid);
+        Light3D *light = light_owner.get(p_rid);
         light->instance_remove_deps();
 
         light_owner.free(p_rid);

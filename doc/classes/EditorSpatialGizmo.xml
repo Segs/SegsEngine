@@ -158,13 +158,13 @@
 			</return>
 			<argument index="0" name="index" type="int">
 			</argument>
-			<argument index="1" name="camera" type="Camera">
+			<argument index="1" name="camera" type="Camera3D">
 			</argument>
 			<argument index="2" name="point" type="Vector2">
 			</argument>
 			<description>
 				This function is used when the user drags a gizmo handle (previously added with [method add_handles]) in screen coordinates.
-				The [Camera] is also provided so screen coordinates can be converted to raycasts.
+				The [Camera3D] is also provided so screen coordinates can be converted to raycasts.
 			</description>
 		</method>
 		<method name="set_hidden">

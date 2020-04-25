@@ -34,7 +34,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/navigation_mesh.h"
 
-class Navigation;
+class Navigation3D;
 
 class NavigationMeshInstance : public Node3D {
 
@@ -44,7 +44,7 @@ class NavigationMeshInstance : public Node3D {
     RID region;
     Ref<NavigationMesh> navmesh;
 
-    Navigation *navigation;
+    Navigation3D *navigation;
     Node *debug_view;
     class Thread *bake_thread;
 

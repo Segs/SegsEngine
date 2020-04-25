@@ -518,7 +518,7 @@ public:
 
         RID self;
         RID light;
-        RasterizerStorageGLES3::Light *light_ptr;
+        RasterizerStorageGLES3::Light3D *light_ptr;
         Transform transform;
 
         Vector3 light_vector;

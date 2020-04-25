@@ -4580,7 +4580,7 @@ void RasterizerSceneGLES3::render_shadow(RID p_light, RID p_shadow_atlas, int p_
 
     LightInstance *light_instance = light_instance_owner.getornull(p_light);
     ERR_FAIL_COND(!light_instance);
-    RasterizerStorageGLES3::Light *light = storage->light_owner.getornull(light_instance->light);
+    RasterizerStorageGLES3::Light3D *light = storage->light_owner.getornull(light_instance->light);
     ERR_FAIL_COND(!light);
 
     uint32_t x, y, width, height;

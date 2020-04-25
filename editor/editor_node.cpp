@@ -99,10 +99,10 @@
 #include "editor/plugins/asset_library_editor_plugin.h"
 #include "editor/plugins/audio_stream_editor_plugin.h"
 #include "editor/plugins/baked_lightmap_editor_plugin.h"
-#include "editor/plugins/camera_editor_plugin.h"
+#include "editor/plugins/camera_3d_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/collision_polygon_2d_editor_plugin.h"
-#include "editor/plugins/collision_polygon_editor_plugin.h"
+#include "editor/plugins/collision_polygon_3d_editor_plugin.h"
 #include "editor/plugins/collision_shape_2d_editor_plugin.h"
 #include "editor/plugins/cpu_particles_2d_editor_plugin.h"
 #include "editor/plugins/cpu_particles_editor_plugin.h"
@@ -3841,8 +3841,8 @@ void EditorNode::register_editor_types() {
     ParticlesMaterialConversionPlugin::initialize_class();
     CanvasItemMaterialConversionPlugin::initialize_class();
     register_visual_shader_editor_classes();
-    CameraEditor::initialize_class();
-    CameraEditorPlugin::initialize_class();
+    Camera3DEditor::initialize_class();
+    Camera3DEditorPlugin::initialize_class();
     PhysicalBoneEditor::initialize_class();
     PhysicalBonePlugin::initialize_class();
     TileMapEditor::initialize_class();
@@ -3859,8 +3859,8 @@ void EditorNode::register_editor_types() {
     AssetLibraryEditorPlugin::initialize_class();
     TextureRegionEditor::initialize_class();
     TextureRegionEditorPlugin::initialize_class();
-    Polygon3DEditor::initialize_class();
-    Polygon3DEditorPlugin::initialize_class();
+    CollisionPolygon3DEditor::initialize_class();
+    CollisionPolygon3DEditorPlugin::initialize_class();
     CollisionShape2DEditor::initialize_class();
     CollisionShape2DEditorPlugin::initialize_class();
     CPUParticles2DEditorPlugin::initialize_class();
@@ -7033,7 +7033,7 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(ShaderEditorPlugin(this)));
     add_editor_plugin(memnew(VisualShaderEditorPlugin(this)));
 
-    add_editor_plugin(memnew(CameraEditorPlugin(this)));
+    add_editor_plugin(memnew(Camera3DEditorPlugin(this)));
     add_editor_plugin(memnew(ThemeEditorPlugin(this)));
     add_editor_plugin(memnew(MultiMeshEditorPlugin(this)));
     add_editor_plugin(memnew(MeshInstanceEditorPlugin(this)));
@@ -7049,7 +7049,7 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(CPUParticlesEditorPlugin(this)));
     add_editor_plugin(memnew(ResourcePreloaderEditorPlugin(this)));
     add_editor_plugin(memnew(ItemListEditorPlugin(this)));
-    add_editor_plugin(memnew(Polygon3DEditorPlugin(this)));
+    add_editor_plugin(memnew(CollisionPolygon3DEditorPlugin(this)));
     add_editor_plugin(memnew(CollisionPolygon2DEditorPlugin(this)));
     add_editor_plugin(memnew(TileSetEditorPlugin(this)));
     add_editor_plugin(memnew(TileMapEditorPlugin(this)));
@@ -7276,7 +7276,7 @@ bool EditorPluginList::forward_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 bool EditorPluginList::forward_spatial_gui_input(
-        Camera *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
+        Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
     bool discard = false;
 
     for (int i = 0; i < plugins_list.size(); i++) {

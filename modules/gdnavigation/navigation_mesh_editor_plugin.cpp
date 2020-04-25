@@ -36,7 +36,7 @@
 #include "core/method_bind.h"
 #include "core/method_bind_interface.h"
 #include "navigation_mesh_generator.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/box_container.h"
 
 IMPL_GDCLASS(NavigationMeshEditor)

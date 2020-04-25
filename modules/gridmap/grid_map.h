@@ -31,7 +31,7 @@
 #ifndef GRID_MAP_H
 #define GRID_MAP_H
 
-#include "scene/3d/navigation.h"
+#include "scene/3d/navigation_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/mesh_library.h"
 #include "scene/resources/multimesh.h"
@@ -154,7 +154,7 @@ class GridMap : public Node3D {
     bool clip;
     bool clip_above;
     int clip_floor;
-    Navigation *navigation;
+    Navigation3D *navigation;
 
     bool recreating_octants;
 

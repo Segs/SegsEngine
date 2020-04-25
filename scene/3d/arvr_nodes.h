@@ -31,7 +31,7 @@
 #ifndef ARVR_NODES_H
 #define ARVR_NODES_H
 
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/resources/mesh.h"
 #include "servers/arvr/arvr_positional_tracker.h"
@@ -43,9 +43,9 @@
 /*
 	ARVRCamera is a subclass of camera which will register itself with its parent ARVROrigin and as a result is automatically positioned
 */
-class ARVRCamera : public Camera {
+class ARVRCamera : public Camera3D {
 
-	GDCLASS(ARVRCamera,Camera)
+	GDCLASS(ARVRCamera,Camera3D)
 
 protected:
 	void _notification(int p_what);

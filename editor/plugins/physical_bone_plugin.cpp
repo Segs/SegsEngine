@@ -33,7 +33,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/plugins/spatial_editor_plugin.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_3d.h"
 
 IMPL_GDCLASS(PhysicalBoneEditor)
 IMPL_GDCLASS(PhysicalBonePlugin)

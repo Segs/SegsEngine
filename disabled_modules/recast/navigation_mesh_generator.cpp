@@ -37,9 +37,9 @@
 #include "core/os/thread.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape.h"
 #include "scene/resources/capsule_shape.h"
@@ -175,8 +175,8 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
 
             for (int i = 0; i < p_node->get_child_count(); ++i) {
                 Node *child = p_node->get_child(i);
-                if (object_cast<CollisionShape>(child)) {
-                    CollisionShape *col_shape = object_cast<CollisionShape>(child);
+                if (object_cast<CollisionShape3D>(child)) {
+                    CollisionShape3D *col_shape = object_cast<CollisionShape3D>(child);
 
                     Transform transform = p_accumulated_transform * static_body->get_transform() * col_shape->get_transform();
 

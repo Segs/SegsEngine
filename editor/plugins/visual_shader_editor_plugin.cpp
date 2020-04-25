@@ -2516,7 +2516,7 @@ VisualShaderEditor::VisualShaderEditor() {
 
     // SPATIAL-FOR-ALL
     const StringName input_param_shader_modes = TTR("'%s' input parameter for all shader modes.");
-    add_options.push_back(AddOption("Camera", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "camera"), "camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
+    add_options.push_back(AddOption("Camera3D", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "camera"), "camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("InvCamera", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "inv_camera"), "inv_camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("InvProjection", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "inv_projection"), "inv_projection", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Normal", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "normal"), "normal", VisualShaderNode::PORT_TYPE_VECTOR, -1, (int)ShaderMode::SPATIAL));

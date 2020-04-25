@@ -38,7 +38,7 @@
 			<return type="Array">
 			</return>
 			<description>
-				Returns a list of intersecting [PhysicsBody]s. For performance reasons (collisions are all processed at the same time) this list is modified once during the physics step, not immediately after objects are moved. Consider using signals instead.
+				Returns a list of intersecting [PhysicsBody3D]s. For performance reasons (collisions are all processed at the same time) this list is modified once during the physics step, not immediately after objects are moved. Consider using signals instead.
 			</description>
 		</method>
 		<method name="overlaps_area" qualifiers="const">
@@ -59,7 +59,7 @@
 			<description>
 				If [code]true[/code], the given physics body overlaps the Area.
 				[b]Note:[/b] The result of this test is not immediate after moving objects. For performance, list of overlaps is updated once per frame and before the physics step. Consider using signals instead.
-				The [code]body[/code] argument can either be a [PhysicsBody] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
+				The [code]body[/code] argument can either be a [PhysicsBody3D] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
 			</description>
 		</method>
 		<method name="set_collision_layer_bit">
@@ -187,7 +187,7 @@
 			</argument>
 			<description>
 				Emitted when a physics body enters.
-				The [code]body[/code] argument can either be a [PhysicsBody] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
+				The [code]body[/code] argument can either be a [PhysicsBody3D] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
 			</description>
 		</signal>
 		<signal name="body_exited">
@@ -195,7 +195,7 @@
 			</argument>
 			<description>
 				Emitted when a physics body exits.
-				The [code]body[/code] argument can either be a [PhysicsBody] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
+				The [code]body[/code] argument can either be a [PhysicsBody3D] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
 			</description>
 		</signal>
 		<signal name="body_shape_entered">
@@ -209,7 +209,7 @@
 			</argument>
 			<description>
 				Emitted when a physics body enters, reporting which shapes overlapped.
-				The [code]body[/code] argument can either be a [PhysicsBody] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
+				The [code]body[/code] argument can either be a [PhysicsBody3D] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
 			</description>
 		</signal>
 		<signal name="body_shape_exited">
@@ -223,7 +223,7 @@
 			</argument>
 			<description>
 				Emitted when a physics body exits, reporting which shapes were overlapping.
-				The [code]body[/code] argument can either be a [PhysicsBody] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
+				The [code]body[/code] argument can either be a [PhysicsBody3D] or a [GridMap] instance (while GridMaps are not physics body themselves, they register their tiles with collision shapes as a virtual physics body).
 			</description>
 		</signal>
 	</signals>

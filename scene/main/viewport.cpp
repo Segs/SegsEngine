@@ -39,9 +39,9 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "scene/2d/collision_object_2d.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/3d/collision_object_3d.h"
-#include "scene/3d/listener.h"
+#include "scene/3d/listener_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/3d/world_environment.h"
 #include "scene/gui/control.h"
@@ -256,7 +256,7 @@ void Viewport::update_worlds() {
     find_world()->_update(get_tree()->get_frame());
 }
 
-void Viewport::_collision_object_input_event(CollisionObject3D *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
+void Viewport::_collision_object_input_event(CollisionObject3D *p_object, Camera3D *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
 
     Transform object_transform = p_object->get_global_transform();
     Transform camera_transform = p_camera->get_global_transform();
@@ -339,8 +339,8 @@ void Viewport::_notification(int p_what) {
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
             if (!listeners.empty() && !listener) {
-                Listener *first = nullptr;
-                for (Listener * E : listeners) {
+                Listener3D *first = nullptr;
+                for (Listener3D * E : listeners) {
 
                     if (first == nullptr || first->is_greater_than(E)) {
                         first = E;
@@ -353,8 +353,8 @@ void Viewport::_notification(int p_what) {
 
             if (!cameras.empty() && !camera) {
                 //there are cameras but no current camera, pick first in tree and make it current
-                Camera *first = nullptr;
-                for (Camera * E : cameras) {
+                Camera3D *first = nullptr;
+                for (Camera3D * E : cameras) {
 
                     if (first == nullptr || first->is_greater_than(E)) {
                         first = E;
@@ -893,7 +893,7 @@ void Viewport::_listener_transform_changed_notify() {
 #endif
 }
 
-void Viewport::_listener_set(Listener *p_listener) {
+void Viewport::_listener_set(Listener3D *p_listener) {
 
 #ifndef _3D_DISABLED
 
@@ -907,13 +907,13 @@ void Viewport::_listener_set(Listener *p_listener) {
 #endif
 }
 
-bool Viewport::_listener_add(Listener *p_listener) {
+bool Viewport::_listener_add(Listener3D *p_listener) {
 
     listeners.insert(p_listener);
     return listeners.size() == 1;
 }
 
-void Viewport::_listener_remove(Listener *p_listener) {
+void Viewport::_listener_remove(Listener3D *p_listener) {
 
     listeners.erase(p_listener);
     if (listener == p_listener) {
@@ -922,10 +922,10 @@ void Viewport::_listener_remove(Listener *p_listener) {
 }
 
 #ifndef _3D_DISABLED
-void Viewport::_listener_make_next_current(Listener *p_exclude) {
+void Viewport::_listener_make_next_current(Listener3D *p_exclude) {
 
     if (!listeners.empty()) {
-        for (Listener * E : listeners) {
+        for (Listener3D * E : listeners) {
 
             if (p_exclude == E)
                 continue;
@@ -955,7 +955,7 @@ void Viewport::_camera_transform_changed_notify() {
 #endif
 }
 
-void Viewport::_camera_set(Camera *p_camera) {
+void Viewport::_camera_set(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
 
@@ -963,7 +963,7 @@ void Viewport::_camera_set(Camera *p_camera) {
         return;
 
     if (camera) {
-        camera->notification(Camera::NOTIFICATION_LOST_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_LOST_CURRENT);
     }
     camera = p_camera;
     if (!camera_override) {
@@ -973,7 +973,7 @@ void Viewport::_camera_set(Camera *p_camera) {
             RenderingServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
     if (camera) {
-        camera->notification(Camera::NOTIFICATION_BECAME_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_BECAME_CURRENT);
     }
 
     _update_listener();
@@ -981,25 +981,25 @@ void Viewport::_camera_set(Camera *p_camera) {
 #endif
 }
 
-bool Viewport::_camera_add(Camera *p_camera) {
+bool Viewport::_camera_add(Camera3D *p_camera) {
 
     cameras.insert(p_camera);
     return cameras.size() == 1;
 }
 
-void Viewport::_camera_remove(Camera *p_camera) {
+void Viewport::_camera_remove(Camera3D *p_camera) {
 
     cameras.erase(p_camera);
     if (camera == p_camera) {
-        camera->notification(Camera::NOTIFICATION_LOST_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_LOST_CURRENT);
         camera = nullptr;
     }
 }
 
 #ifndef _3D_DISABLED
-void Viewport::_camera_make_next_current(Camera *p_exclude) {
+void Viewport::_camera_make_next_current(Camera3D *p_exclude) {
 
-    for (Camera * E : cameras) {
+    for (Camera3D * E : cameras) {
 
         if (p_exclude == E)
             continue;
@@ -1190,12 +1190,12 @@ Ref<World> Viewport::find_world() const {
         return Ref<World>();
 }
 
-Listener *Viewport::get_listener() const {
+Listener3D *Viewport::get_listener() const {
 
     return listener;
 }
 
-Camera *Viewport::get_camera() const {
+Camera3D *Viewport::get_camera() const {
 
     return camera;
 }
@@ -3254,7 +3254,7 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_target_v_flip"), "set_vflip", "get_vflip");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PropertyHint::Enum, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PropertyHint::Enum, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
-    ADD_GROUP("Audio Listener", "audio_listener_");
+    ADD_GROUP("Audio Listener3D", "audio_listener_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_2d"), "set_as_audio_listener_2d", "is_audio_listener_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_3d"), "set_as_audio_listener", "is_audio_listener");
     ADD_GROUP("Physics", "physics_");

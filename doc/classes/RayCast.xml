@@ -6,7 +6,7 @@
 	<description>
         A RayCast3D represents a line from its origin to its destination position, [code]cast_to[/code]. It is used to query the 3D space in order to find the closest object along the path of the ray.
         RayCast3D can ignore some objects by adding them to the exception list via [code]add_exception[/code] or by setting proper filtering with collision layers and masks.
-        RayCast3D can be configured to report collisions with [Area3D]s ([member collide_with_areas]) and/or [PhysicsBody]s ([member collide_with_bodies]).
+        RayCast3D can be configured to report collisions with [Area3D]s ([member collide_with_areas]) and/or [PhysicsBody3D]s ([member collide_with_bodies]).
 		Only enabled raycasts will be able to query the space and report collisions.
         RayCast3D calculates intersection every physics frame (see [Node]), and the result is cached so it can be used later until the next frame. If multiple queries are required between physics frames (or during the same frame), use [method force_raycast_update] after adjusting the raycast.
 	</description>
@@ -133,7 +133,7 @@
             If [code]true[/code], collision with [Area3D]s will be reported.
 		</member>
 		<member name="collide_with_bodies" type="bool" setter="set_collide_with_bodies" getter="is_collide_with_bodies_enabled" default="true">
-			If [code]true[/code], collision with [PhysicsBody]s will be reported.
+			If [code]true[/code], collision with [PhysicsBody3D]s will be reported.
 		</member>
 		<member name="collision_mask" type="int" setter="set_collision_mask" getter="get_collision_mask" default="1">
 			The ray's collision mask. Only objects in at least one collision layer enabled in the mask will be detected.

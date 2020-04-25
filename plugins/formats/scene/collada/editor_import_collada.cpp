@@ -34,11 +34,11 @@
 #include "core/string.h"
 #include "collada.h"
 #include "editor/editor_node.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/light.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/path_3d.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
@@ -212,7 +212,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
         } break;
         case Collada::Node::TYPE_LIGHT: {
 
-            //node = memnew( Light)
+            //node = memnew( Light3D)
             Collada::NodeLight *light = static_cast<Collada::NodeLight *>(p_node);
             if (collada.state.light_data_map.contains(light->light)) {
 
@@ -226,39 +226,39 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
                     if (!bool(GLOBAL_DEF("collada/use_ambient", false)))
                         return OK;
                     //well, it's an ambient light..
-                    Light *l = memnew(DirectionalLight);
-                    //l->set_color(Light::COLOR_AMBIENT,ld.color);
-                    //l->set_color(Light::COLOR_DIFFUSE,Color(0,0,0));
-                    //l->set_color(Light::COLOR_SPECULAR,Color(0,0,0));
+                    Light3D *l = memnew(DirectionalLight3D);
+                    //l->set_color(Light3D::COLOR_AMBIENT,ld.color);
+                    //l->set_color(Light3D::COLOR_DIFFUSE,Color(0,0,0));
+                    //l->set_color(Light3D::COLOR_SPECULAR,Color(0,0,0));
                     node = l;
 
                 } else if (ld.mode == Collada::LightData::MODE_DIRECTIONAL) {
 
                     //well, it's an ambient light..
-                    Light *l = memnew(DirectionalLight);
+                    Light3D *l = memnew(DirectionalLight3D);
                     /*
                     if (found_ambient) //use it here
-                        l->set_color(Light::COLOR_AMBIENT,ambient);
+                        l->set_color(Light3D::COLOR_AMBIENT,ambient);
 
-                    l->set_color(Light::COLOR_DIFFUSE,ld.color);
-                    l->set_color(Light::COLOR_SPECULAR,Color(1,1,1));
+                    l->set_color(Light3D::COLOR_DIFFUSE,ld.color);
+                    l->set_color(Light3D::COLOR_SPECULAR,Color(1,1,1));
                     */
                     node = l;
                 } else {
 
-                    Light *l;
+                    Light3D *l;
 
                     if (ld.mode == Collada::LightData::MODE_OMNI)
-                        l = memnew(OmniLight);
+                        l = memnew(OmniLight3D);
                     else {
-                        l = memnew(SpotLight);
-                        //l->set_parameter(Light::PARAM_SPOT_ANGLE,ld.spot_angle);
-                        //l->set_parameter(Light::PARAM_SPOT_ATTENUATION,ld.spot_exp);
+                        l = memnew(SpotLight3D);
+                        //l->set_parameter(Light3D::PARAM_SPOT_ANGLE,ld.spot_angle);
+                        //l->set_parameter(Light3D::PARAM_SPOT_ATTENUATION,ld.spot_exp);
                     }
 
                     //
-                    //l->set_color(Light::COLOR_DIFFUSE,ld.color);
-                    //l->set_color(Light::COLOR_SPECULAR,Color(1,1,1));
+                    //l->set_color(Light3D::COLOR_DIFFUSE,ld.color);
+                    //l->set_color(Light3D::COLOR_SPECULAR,Color(1,1,1));
                     //l->approximate_opengl_attenuation(ld.constant_att,ld.linear_att,ld.quad_att);
                     node = l;
                 }
@@ -271,7 +271,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
         case Collada::Node::TYPE_CAMERA: {
 
             Collada::NodeCamera *cam = static_cast<Collada::NodeCamera *>(p_node);
-            Camera *camera = memnew(Camera);
+            Camera3D *camera = memnew(Camera3D);
 
             if (collada.state.camera_data_map.contains(cam->camera)) {
 
@@ -283,12 +283,12 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
 
                         if (cd.orthogonal.y_mag) {
 
-                            camera->set_keep_aspect_mode(Camera::KEEP_HEIGHT);
+                            camera->set_keep_aspect_mode(Camera3D::KEEP_HEIGHT);
                             camera->set_orthogonal(cd.orthogonal.y_mag * 2.0f, cd.z_near, cd.z_far);
 
                         } else if (!cd.orthogonal.y_mag && cd.orthogonal.x_mag) {
 
-                            camera->set_keep_aspect_mode(Camera::KEEP_WIDTH);
+                            camera->set_keep_aspect_mode(Camera3D::KEEP_WIDTH);
                             camera->set_orthogonal(cd.orthogonal.x_mag * 2.0f, cd.z_near, cd.z_far);
                         }
 

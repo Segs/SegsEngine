@@ -32,12 +32,12 @@
 #define AUDIO_STREAM_PLAYER_3D_H
 
 #include "scene/3d/node_3d.h"
-#include "scene/3d/spatial_velocity_tracker.h"
+#include "scene/3d/velocity_tracker_3d.h"
 #include "servers/audio/audio_filter_sw.h"
 #include "servers/audio/audio_stream.h"
 #include "servers/audio_server.h"
 
-class Camera;
+class Camera3D;
 class AudioStreamPlayer3D : public Node3D {
 
 	GDCLASS(AudioStreamPlayer3D,Node3D)
@@ -124,7 +124,7 @@ private:
 
     float max_distance;
 
-    Ref<SpatialVelocityTracker> velocity_tracker;
+    Ref<VelocityTracker3D> velocity_tracker;
 
     DopplerTracking doppler_tracking;
 
