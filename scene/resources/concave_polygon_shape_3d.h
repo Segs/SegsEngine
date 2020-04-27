@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ray_shape.h                                                          */
+/*  concave_polygon_shape_3d.h                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,31 +28,27 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef RAY_SHAPE_H
-#define RAY_SHAPE_H
+#pragma once
+
 #include "scene/resources/shape.h"
+#include "core/math/vector3.h"
 
-class RayShape : public Shape {
+class ConcavePolygonShape3D : public Shape {
 
-    GDCLASS(RayShape,Shape)
-
-    float length;
-    bool slips_on_slope;
+    GDCLASS(ConcavePolygonShape3D,Shape)
 
 protected:
     static void _bind_methods();
+
     void _update_shape() override;
-    Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
-    void set_length(float p_length);
-    float get_length() const;
-    real_t get_enclosing_radius() const override {
-        return length;
-    }
-    void set_slips_on_slope(bool p_active);
-    bool get_slips_on_slope() const;
+    Vector<Vector3> get_debug_mesh_lines() override;
 
-    RayShape();
+    void set_faces(const PoolVector<Vector3> &p_faces);
+    PoolVector<Vector3> get_faces() const;
+
+    real_t get_enclosing_radius() const override;
+
+    ConcavePolygonShape3D();
 };
-#endif // RAY_SHAPE_H

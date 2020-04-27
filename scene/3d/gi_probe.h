@@ -123,7 +123,7 @@ private:
     };
 public:
     void _find_meshes(Node *p_at_node, Vector<PlotMesh> &plot_meshes) const;
-    void _debug_bake();
+    void debug_bake();
 
 protected:
     static void _bind_methods();

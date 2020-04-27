@@ -485,7 +485,7 @@ void BodyPair2DSW::solve(real_t p_step) {
 
         real_t jbn = (c.bias - vbn) * c.mass_normal;
         real_t jbnOld = c.acc_bias_impulse;
-        c.acc_bias_impulse = MAX(jbnOld + jbn, 0.0f);
+        c.acc_bias_impulse = M_MAX(jbnOld + jbn, 0.0f);
 
         Vector2 jb = c.normal * (c.acc_bias_impulse - jbnOld);
 
@@ -494,7 +494,7 @@ void BodyPair2DSW::solve(real_t p_step) {
 
         real_t jn = -(c.bounce + vn) * c.mass_normal;
         real_t jnOld = c.acc_normal_impulse;
-        c.acc_normal_impulse = MAX(jnOld + jn, 0.0f);
+        c.acc_normal_impulse = M_MAX(jnOld + jn, 0.0f);
 
         real_t friction = combine_friction(A, B);
 

@@ -33,15 +33,15 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/box_shape.h"
-#include "scene/resources/capsule_shape.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/box_shape_3d.h"
+#include "scene/resources/capsule_shape_3d.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
 #include "scene/resources/plane_shape.h"
-#include "scene/resources/ray_shape.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/ray_shape_3d.h"
+#include "scene/resources/sphere_shape_3d.h"
 #include "servers/rendering_server.h"
-//TODO: Implement CylinderShape and HeightMapShape?
+//TODO: Implement CylinderShape3D and HeightMapShape3D?
 #include "core/math/quick_hull.h"
 #include "mesh_instance_3d.h"
 #include "physics_body_3d.h"
@@ -57,7 +57,7 @@ void CollisionShape3D::make_convex_from_brothers() {
     for (int i = 0; i < p->get_child_count(); i++) {
 
         Node *n = p->get_child(i);
-        MeshInstance *mi = object_cast<MeshInstance>(n);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(n);
         if (mi) {
 
             Ref<Mesh> m = mi->get_mesh();
@@ -122,7 +122,7 @@ void CollisionShape3D::resource_changed(const RES& res) {
 StringName CollisionShape3D::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject3D>(get_parent())) {
-        return TTR("CollisionShape3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+        return TTR("CollisionShape3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody3D, RigidBody, KinematicBody3D, etc. to give them a shape.");
     }
 
     if (not shape) {
@@ -134,9 +134,9 @@ StringName CollisionShape3D::get_configuration_warning() const {
     }
 
     if (object_cast<RigidBody>(get_parent())) {
-        if (object_cast<ConcavePolygonShape>(shape.get())) {
+        if (object_cast<ConcavePolygonShape3D>(shape.get())) {
             if (object_cast<RigidBody>(get_parent())->get_mode() != RigidBody::MODE_STATIC) {
-                return TTR("ConcavePolygonShape doesn't support RigidBody in another mode than static.");
+                return TTR("ConcavePolygonShape3D doesn't support RigidBody in another mode than static.");
             }
         }
     }
@@ -234,7 +234,7 @@ void CollisionShape3D::_update_debug_shape() {
         return;
 
     Ref<Mesh> mesh = s->get_debug_mesh();
-    MeshInstance *mi = memnew(MeshInstance);
+    MeshInstance3D *mi = memnew(MeshInstance3D);
     mi->set_mesh(mesh);
     add_child(mi);
     debug_shape = mi;

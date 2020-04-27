@@ -483,7 +483,7 @@ Vector<Color> VoxelLightBaker::_get_bake_texture(Ref<Image> p_image, const Color
 
     Vector<Color> ret;
 
-    if (not p_image || p_image->empty()) {
+    if (not p_image || p_image->is_empty()) {
 
         ret.resize(bake_texture_size * bake_texture_size);
         for (int i = 0; i < bake_texture_size * bake_texture_size; i++) {
@@ -889,7 +889,7 @@ void VoxelLightBaker::plot_light_directional(const Vector3 &p_direction, const C
             } else {
 
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-normal));
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-normal));
                     light->accum[i][0] += light_energy.x * cells[idx].albedo[0] * s;
                     light->accum[i][1] += light_energy.y * cells[idx].albedo[1] * s;
                     light->accum[i][2] += light_energy.z * cells[idx].albedo[2] * s;
@@ -898,7 +898,7 @@ void VoxelLightBaker::plot_light_directional(const Vector3 &p_direction, const C
 
             if (p_direct) {
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
                     light->direct_accum[i][0] += light_energy.x * s;
                     light->direct_accum[i][1] += light_energy.y * s;
                     light->direct_accum[i][2] += light_energy.z * s;
@@ -1019,7 +1019,7 @@ void VoxelLightBaker::plot_light_omni(const Vector3 &p_pos, const Color &p_color
             } else {
 
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-normal));
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-normal));
                     light->accum[i][0] += light_energy.x * cells[idx].albedo[0] * s * att;
                     light->accum[i][1] += light_energy.y * cells[idx].albedo[1] * s * att;
                     light->accum[i][2] += light_energy.z * cells[idx].albedo[2] * s * att;
@@ -1028,7 +1028,7 @@ void VoxelLightBaker::plot_light_omni(const Vector3 &p_pos, const Color &p_color
 
             if (p_direct) {
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
                     light->direct_accum[i][0] += light_energy.x * s * att;
                     light->direct_accum[i][1] += light_energy.y * s * att;
                     light->direct_accum[i][2] += light_energy.z * s * att;
@@ -1153,7 +1153,7 @@ void VoxelLightBaker::plot_light_spot(const Vector3 &p_pos, const Vector3 &p_axi
             } else {
 
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-normal));
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-normal));
                     light->accum[i][0] += light_energy.x * cells[idx].albedo[0] * s * att;
                     light->accum[i][1] += light_energy.y * cells[idx].albedo[1] * s * att;
                     light->accum[i][2] += light_energy.z * cells[idx].albedo[2] * s * att;
@@ -1162,7 +1162,7 @@ void VoxelLightBaker::plot_light_spot(const Vector3 &p_pos, const Vector3 &p_axi
 
             if (p_direct) {
                 for (int i = 0; i < 6; i++) {
-                    float s = MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
+                    float s = M_MAX(0.0, aniso_normal[i].dot(-light_axis)); //light depending on normal for direct
                     light->direct_accum[i][0] += light_energy.x * s * att;
                     light->direct_accum[i][1] += light_energy.y * s * att;
                     light->direct_accum[i][2] += light_energy.z * s * att;
@@ -1424,7 +1424,7 @@ void VoxelLightBaker::_sample_baked_octree_filtered_and_anisotropic(const Vector
 
     for (int c = 0; c < 2; c++) {
 
-        int current_level = MAX(0, target_level - c);
+        int current_level = M_MAX(0, target_level - c);
         int level_cell_size = (1 << (cell_subdiv - 1)) >> current_level;
 
         for (int n = 0; n < 8; n++) {
@@ -1504,7 +1504,7 @@ void VoxelLightBaker::_sample_baked_octree_filtered_and_anisotropic(const Vector
     pos_fract[0].y = Math::fmod(pos.y, target_level_size) / target_level_size;
     pos_fract[0].z = Math::fmod(pos.z, target_level_size) / target_level_size;
 
-    target_level_size = size >> MAX(0, target_level - 1);
+    target_level_size = size >> M_MAX(0, target_level - 1);
 
     pos_fract[1].x = Math::fmod(pos.x, target_level_size) / target_level_size;
     pos_fract[1].y = Math::fmod(pos.y, target_level_size) / target_level_size;
@@ -1553,7 +1553,7 @@ Vector3 VoxelLightBaker::_voxel_cone_trace(const Vector3 &p_pos, const Vector3 &
     float salpha;
 
     while (dist < max_distance && alpha < 0.95f) {
-        float diameter = MAX(1.0f, 2.0f * p_aperture * dist);
+        float diameter = M_MAX(1.0f, 2.0f * p_aperture * dist);
         _sample_baked_octree_filtered_and_anisotropic(p_pos + dist * p_normal, p_normal, log2(diameter), scolor, salpha);
         float a = (1.0f - alpha);
         color += scolor * a;
@@ -1896,7 +1896,7 @@ Error VoxelLightBaker::make_lightmap(const Transform &p_xform, Ref<Mesh> &p_mesh
 
             thread_process_array(width, this, &VoxelLightBaker::_lightmap_bake_point, &lightmap_ptr[i * width]);
 
-            lines = MAX(lines, i); //for multithread
+            lines = M_MAX(lines, i); //for multithread
             if (p_bake_time_func) {
                 uint64_t elapsed = OS::get_singleton()->get_ticks_usec() - begin_time;
                 float elapsed_sec = double(elapsed) / 1000000.0;

@@ -78,7 +78,7 @@ public:
 
     RID get_rid() const override;
 
-    virtual ShaderMode get_shader_mode() const = 0;
+    virtual RenderingServerEnums::ShaderMode get_shader_mode() const = 0;
     Material();
     ~Material() override;
 };
@@ -113,7 +113,7 @@ public:
     void set_shader_param(const StringName &p_param, const Variant &p_value);
     Variant get_shader_param(const StringName &p_param) const;
 
-    ShaderMode get_shader_mode() const override;
+    RenderingServerEnums::ShaderMode get_shader_mode() const override;
 
     ShaderMaterial();
     ~ShaderMaterial() override;
@@ -649,7 +649,7 @@ public:
 
     RID get_shader_rid() const;
 
-    ShaderMode get_shader_mode() const override;
+    RenderingServerEnums::ShaderMode get_shader_mode() const override;
 
     SpatialMaterial();
     ~SpatialMaterial() override;

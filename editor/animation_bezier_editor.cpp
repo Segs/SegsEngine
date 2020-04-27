@@ -125,7 +125,7 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
         if (to_x < limit) //not visible
             continue;
 
-        from_x = MAX(from_x, limit);
+        from_x = M_MAX(from_x, limit);
         to_x = MIN(to_x, right_limit);
 
         Vector<Vector2> lines;
@@ -300,7 +300,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
                 Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(node, "Node");
 
-                h = MAX(h, icon->get_height());
+                h = M_MAX(h, icon->get_height());
 
                 draw_texture(icon, Point2(ofs, vofs + int(h - icon->get_height()) / 2));
 

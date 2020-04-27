@@ -1644,5 +1644,21 @@
             Behave like [constant RPC_MODE_PUPPET] but also make the call or property change locally. Analogous to the [code]puppetsync[/code] keyword.
         </constant>
 
+        <constant name="COMPRESS_S3TC" value="0" enum="ImageCompressMode">
+            Use S3TC compression.
+        </constant>
+        <constant name="COMPRESS_PVRTC2" value="1" enum="ImageCompressMode">
+            Use PVRTC2 compression.
+        </constant>
+        <constant name="COMPRESS_PVRTC4" value="2" enum="ImageCompressMode">
+            Use PVRTC4 compression.
+        </constant>
+        <constant name="COMPRESS_ETC" value="3" enum="ImageCompressMode">
+            Use ETC compression.
+        </constant>
+        <constant name="COMPRESS_ETC2" value="4" enum="ImageCompressMode">
+            Use ETC2 compression.
+        </constant>
+
   </constants>
 </class>

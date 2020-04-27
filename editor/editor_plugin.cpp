@@ -122,7 +122,7 @@ Vector<Ref<Texture>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>>
         xform.basis = Basis().rotated(Vector3(0, 1, 0), -Math_PI / 6);
         xform.basis = Basis().rotated(Vector3(1, 0, 0), Math_PI / 6) * xform.basis;
         AABB rot_aabb = xform.xform(aabb);
-        float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5f;
+        float m = M_MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5f;
         if (m == 0.0f) {
             textures.push_back(Ref<Texture>());
             continue;
@@ -142,7 +142,7 @@ Vector<Ref<Texture>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh>>
         Main::iteration();
         Main::iteration();
         Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
-        ERR_CONTINUE(not img || img->empty());
+        ERR_CONTINUE(not img || img->is_empty());
         Ref<ImageTexture> it(make_ref_counted<ImageTexture>());
         it->create_from_image(img);
 
@@ -300,7 +300,7 @@ void EditorInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_open_scenes"), &EditorInterface::get_open_scenes);
     MethodBinder::bind_method(D_METHOD("get_edited_scene_root"), &EditorInterface::get_edited_scene_root);
     MethodBinder::bind_method(D_METHOD("get_resource_previewer"), &EditorInterface::get_resource_previewer);
-    MethodBinder::bind_method(D_METHOD("get_resource_filesystem"), &EditorInterface::get_resource_file_system);
+    MethodBinder::bind_method(D_METHOD("get_resource_file_system"), &EditorInterface::get_resource_file_system);
     MethodBinder::bind_method(D_METHOD("get_editor_viewport"), &EditorInterface::get_editor_viewport);
     MethodBinder::bind_method(D_METHOD("make_mesh_previews", {"meshes", "preview_size"}), &EditorInterface::_make_mesh_previews);
     MethodBinder::bind_method(D_METHOD("select_file", {"file"}), &EditorInterface::select_file);

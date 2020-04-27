@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "world.h"
+#include "world_3d.h"
 
 #include "core/math/camera_matrix.h"
 #include "core/math/octree.h"
@@ -38,8 +38,8 @@
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 
-IMPL_GDCLASS(World)
-RES_BASE_EXTENSION_IMPL(World,"world")
+IMPL_GDCLASS(World3D)
+RES_BASE_EXTENSION_IMPL(World3D,"world")
 
 struct SpatialIndexer {
 
@@ -210,64 +210,64 @@ struct SpatialIndexer {
     }
 };
 
-void World::_register_camera(Camera3D *p_camera) {
+void World3D::_register_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_add_camera(p_camera);
 #endif
 }
 
-void World::_update_camera(Camera3D *p_camera) {
+void World3D::_update_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_update_camera(p_camera);
 #endif
 }
-void World::_remove_camera(Camera3D *p_camera) {
+void World3D::_remove_camera(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
     indexer->_remove_camera(p_camera);
 #endif
 }
 
-void World::_register_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
+void World3D::_register_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_add(p_notifier, p_rect);
 #endif
 }
 
-void World::_update_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
+void World3D::_update_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_update(p_notifier, p_rect);
 #endif
 }
 
-void World::_remove_notifier(VisibilityNotifier3D *p_notifier) {
+void World3D::_remove_notifier(VisibilityNotifier3D *p_notifier) {
 
 #ifndef _3D_DISABLED
     indexer->_notifier_remove(p_notifier);
 #endif
 }
 
-void World::_update(uint64_t p_frame) {
+void World3D::_update(uint64_t p_frame) {
 
 #ifndef _3D_DISABLED
     indexer->_update(p_frame);
 #endif
 }
 
-RID World::get_space() const {
+RID World3D::get_space() const {
 
     return physics_space;
 }
-RID World::get_scenario() const {
+RID World3D::get_scenario() const {
 
     return renderer_scene;
 }
 
-void World::set_environment(const Ref<Environment> &p_environment) {
+void World3D::set_environment(const Ref<Environment> &p_environment) {
     if (environment == p_environment) {
         return;
     }
@@ -277,12 +277,12 @@ void World::set_environment(const Ref<Environment> &p_environment) {
     emit_changed();
 }
 
-Ref<Environment> World::get_environment() const {
+Ref<Environment> World3D::get_environment() const {
 
     return environment;
 }
 
-void World::set_fallback_environment(const Ref<Environment> &p_environment) {
+void World3D::set_fallback_environment(const Ref<Environment> &p_environment) {
     if (fallback_environment == p_environment) {
         return;
     }
@@ -293,40 +293,40 @@ void World::set_fallback_environment(const Ref<Environment> &p_environment) {
     emit_changed();
 }
 
-Ref<Environment> World::get_fallback_environment() const {
+Ref<Environment> World3D::get_fallback_environment() const {
 
     return fallback_environment;
 }
 
-PhysicsDirectSpaceState *World::get_direct_space_state() {
+PhysicsDirectSpaceState3D *World3D::get_direct_space_state() {
 
     return PhysicsServer3D::get_singleton()->space_get_direct_state(physics_space);
 }
 
-void World::get_camera_list(Vector<Camera3D *> *r_cameras) {
+void World3D::get_camera_list(Vector<Camera3D *> *r_cameras) {
 
     for (const eastl::pair<Camera3D *const,SpatialIndexer::CameraData> &E : indexer->cameras) {
         r_cameras->push_back(E.first);
     }
 }
 
-void World::_bind_methods() {
+void World3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_space"), &World::get_space);
-    MethodBinder::bind_method(D_METHOD("get_scenario"), &World::get_scenario);
-    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &World::set_environment);
-    MethodBinder::bind_method(D_METHOD("get_environment"), &World::get_environment);
-    MethodBinder::bind_method(D_METHOD("set_fallback_environment", {"env"}), &World::set_fallback_environment);
-    MethodBinder::bind_method(D_METHOD("get_fallback_environment"), &World::get_fallback_environment);
-    MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World::get_direct_space_state);
+    MethodBinder::bind_method(D_METHOD("get_space"), &World3D::get_space);
+    MethodBinder::bind_method(D_METHOD("get_scenario"), &World3D::get_scenario);
+    MethodBinder::bind_method(D_METHOD("set_environment", {"env"}), &World3D::set_environment);
+    MethodBinder::bind_method(D_METHOD("get_environment"), &World3D::get_environment);
+    MethodBinder::bind_method(D_METHOD("set_fallback_environment", {"env"}), &World3D::set_fallback_environment);
+    MethodBinder::bind_method(D_METHOD("get_fallback_environment"), &World3D::get_fallback_environment);
+    MethodBinder::bind_method(D_METHOD("get_direct_space_state"), &World3D::get_direct_space_state);
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "environment", PropertyHint::ResourceType, "Environment"), "set_environment", "get_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback_environment", PropertyHint::ResourceType, "Environment"), "set_fallback_environment", "get_fallback_environment");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "space", PropertyHint::None, "", 0), "", "get_space");
     ADD_PROPERTY(PropertyInfo(VariantType::_RID, "scenario", PropertyHint::None, "", 0), "", "get_scenario");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "PhysicsDirectSpaceState", 0), "", "get_direct_space_state");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "direct_space_state", PropertyHint::ResourceType, "PhysicsDirectSpaceState3D", 0), "", "get_direct_space_state");
 }
 
-World::World() {
+World3D::World3D() {
 
     physics_space = PhysicsServer3D::get_singleton()->space_create();
     renderer_scene = RenderingServer::get_singleton()->scenario_create();
@@ -346,7 +346,7 @@ World::World() {
 #endif
 }
 
-World::~World() {
+World3D::~World3D() {
 
     PhysicsServer3D::get_singleton()->free_rid(physics_space);
     RenderingServer::get_singleton()->free_rid(renderer_scene);

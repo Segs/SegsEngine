@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  box_shape.cpp                                                        */
+/*  height_map_shape_3d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,58 +28,35 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "box_shape.h"
-#include "servers/physics_server_3d.h"
-#include "core/method_bind.h"
+#pragma once
 
-IMPL_GDCLASS(BoxShape)
+#include "scene/resources/shape.h"
+#include "core/pool_vector.h"
 
-Vector<Vector3> BoxShape::get_debug_mesh_lines() {
+class HeightMapShape3D : public Shape {
+    GDCLASS(HeightMapShape3D,Shape)
 
-    Vector<Vector3> lines;
-    AABB aabb;
-    aabb.position = -get_extents();
-    aabb.size = aabb.position * -2;
+    int map_width;
+    int map_depth;
+    PoolRealArray map_data;
+    float min_height;
+    float max_height;
 
-    for (int i = 0; i < 12; i++) {
-        Vector3 a, b;
-        aabb.get_edge(i, a, b);
-        lines.push_back(a);
-        lines.push_back(b);
-    }
+protected:
+    static void _bind_methods();
+    void _update_shape() override;
 
-    return lines;
-}
+    Vector<Vector3> get_debug_mesh_lines() override;
 
-void BoxShape::_update_shape() {
+public:
+    void set_map_width(int p_new);
+    int get_map_width() const;
+    void set_map_depth(int p_new);
+    int get_map_depth() const;
+    void set_map_data(const PoolRealArray& p_new);
+    PoolRealArray get_map_data() const;
 
-    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), extents);
-    Shape::_update_shape();
-}
+    real_t get_enclosing_radius() const override;
 
-void BoxShape::set_extents(const Vector3 &p_extents) {
-
-    extents = p_extents;
-    _update_shape();
-    notify_change_to_owners();
-    Object_change_notify(this,"extents");
-}
-
-Vector3 BoxShape::get_extents() const {
-
-    return extents;
-}
-
-void BoxShape::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &BoxShape::set_extents);
-    MethodBinder::bind_method(D_METHOD("get_extents"), &BoxShape::get_extents);
-
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
-}
-
-BoxShape::BoxShape() :
-        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_BOX)) {
-
-    set_extents(Vector3(1, 1, 1));
-}
+    HeightMapShape3D();
+};

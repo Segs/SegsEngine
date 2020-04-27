@@ -289,7 +289,7 @@ float AnimationNode::_blend_node(const StringName &p_subpath, const Vector<Strin
     if (r_max) {
         *r_max = 0;
         for (int i = 0; i < blend_count; i++) {
-            *r_max = MAX(*r_max, blendw[i]);
+            *r_max = M_MAX(*r_max, blendw[i]);
         }
     }
 
@@ -1159,7 +1159,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             }
                         }
 
-                        float db = Math::linear2db(MAX(blend, 0.00001));
+                        float db = Math::linear2db(M_MAX(blend, 0.00001));
                         if (t->object->has_method("set_unit_db")) {
                             t->object->call_va("set_unit_db", db);
                         } else {
@@ -1194,7 +1194,7 @@ void AnimationTree::_process_graph(float p_delta) {
                             if (anim->has_loop()) {
                                 at_anim_pos = Math::fposmod(time - pos, anim->get_length()); //seek to loop
                             } else {
-                                at_anim_pos = MAX(anim->get_length(), time - pos); //seek to end
+                                at_anim_pos = M_MAX(anim->get_length(), time - pos); //seek to end
                             }
 
                             if (player2->is_playing() || seeked) {

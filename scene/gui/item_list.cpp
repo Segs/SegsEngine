@@ -914,7 +914,7 @@ void ItemList::_notification(int p_what) {
                     //s.width=MIN(s.width,fixed_column_width);
 
                     if (icon_mode == ICON_MODE_TOP) {
-                        minsize.x = MAX(minsize.x, s.width);
+                        minsize.x = M_MAX(minsize.x, s.width);
                         if (max_text_lines > 0) {
                             minsize.y += (font_height + line_separation) * max_text_lines;
                         } else {
@@ -922,14 +922,14 @@ void ItemList::_notification(int p_what) {
                         }
 
                     } else {
-                        minsize.y = MAX(minsize.y, s.height);
+                        minsize.y = M_MAX(minsize.y, s.height);
                         minsize.x += s.width;
                     }
                 }
 
                 if (fixed_column_width > 0)
                     minsize.x = fixed_column_width;
-                max_column_width = MAX(max_column_width, minsize.x);
+                max_column_width = M_MAX(max_column_width, minsize.x);
 
                 // elements need to adapt to the selected size
                 minsize.y += vseparation;
@@ -956,7 +956,7 @@ void ItemList::_notification(int p_what) {
 
                     if (current_columns > 1 && items[i].rect_cache.size.width + ofs.x > fit_size) {
                         //went past
-                        current_columns = MAX(col, 1);
+                        current_columns = M_MAX(col, 1);
                         all_fit = false;
                         break;
                     }
@@ -964,7 +964,7 @@ void ItemList::_notification(int p_what) {
                     if (same_column_width)
                         items[i].rect_cache.size.x = max_column_width;
                     items[i].rect_cache.position = ofs;
-                    max_h = MAX(max_h, items[i].rect_cache.size.y);
+                    max_h = M_MAX(max_h, items[i].rect_cache.size.y);
                     ofs.x += items[i].rect_cache.size.x + hseparation;
                     col++;
                     if (col == current_columns) {
@@ -988,8 +988,8 @@ void ItemList::_notification(int p_what) {
                 }
 
                 if (all_fit) {
-                    float page = MAX(0, size.height - bg->get_minimum_size().height);
-                    float max = MAX(page, ofs.y + max_h);
+                    float page = M_MAX(0, size.height - bg->get_minimum_size().height);
+                    float max = M_MAX(page, ofs.y + max_h);
                     if (auto_height)
                         auto_height_value = ofs.y + max_h + bg->get_minimum_size().height;
                     scroll_bar->set_max(max);

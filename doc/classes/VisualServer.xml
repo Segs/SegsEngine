@@ -249,9 +249,9 @@
             </argument>
             <argument index="5" name="bottomright" type="Vector2">
             </argument>
-            <argument index="6" name="x_axis_mode" type="int" enum="RenderingServer.NinePatchAxisMode" default="0">
+            <argument index="6" name="x_axis_mode" type="int" enum="RenderingServerEnums.NinePatchAxisMode" default="0">
             </argument>
-            <argument index="7" name="y_axis_mode" type="int" enum="RenderingServer.NinePatchAxisMode" default="0">
+            <argument index="7" name="y_axis_mode" type="int" enum="RenderingServerEnums.NinePatchAxisMode" default="0">
             </argument>
             <argument index="8" name="draw_center" type="bool" default="true">
             </argument>
@@ -812,10 +812,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.CanvasLightMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.CanvasLightMode">
             </argument>
             <description>
-                The mode of the light, see [enum CanvasLightMode] constants.
+                The mode of the light, see [enum RenderingServerEnums.CanvasLightMode] constants.
             </description>
         </method>
         <method name="canvas_light_set_scale">
@@ -867,10 +867,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="filter" type="int" enum="RenderingServer.CanvasLightShadowFilter">
+            <argument index="1" name="filter" type="int" enum="RenderingServerEnums.CanvasLightShadowFilter">
             </argument>
             <description>
-                Sets the canvas light's shadow's filter, see [enum CanvasLightShadowFilter] constants.
+                Sets the canvas light's shadow's filter, see [enum RenderingServerEnums.CanvasLightShadowFilter] constants.
             </description>
         </method>
         <method name="canvas_light_set_shadow_gradient_length">
@@ -954,10 +954,10 @@
             </return>
             <argument index="0" name="occluder_polygon" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.CanvasOccluderPolygonCullMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             </argument>
             <description>
-                Sets an occluder polygons cull mode. See [enum CanvasOccluderPolygonCullMode] constants.
+                Sets an occluder polygons cull mode. See [enum RenderingServerEnums.CanvasOccluderPolygonCullMode] constants.
             </description>
         </method>
         <method name="canvas_occluder_polygon_set_shape">
@@ -1075,7 +1075,7 @@
             </return>
             <argument index="0" name="env" type="RID">
             </argument>
-            <argument index="1" name="bg" type="int" enum="RenderingServer.EnvironmentBG">
+            <argument index="1" name="bg" type="int" enum="RenderingServerEnums.EnvironmentBG">
             </argument>
             <description>
                 Sets the [i]BGMode[/i] of the environment. Equivalent to [member Environment.background_mode].
@@ -1127,7 +1127,7 @@
             </argument>
             <argument index="4" name="far_amount" type="float">
             </argument>
-            <argument index="5" name="quality" type="int" enum="RenderingServer.EnvironmentDOFBlurQuality">
+            <argument index="5" name="quality" type="int" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             </argument>
             <description>
                 Sets the values to be used with the "DoF Far Blur" post-process effect. See [Environment] for more details.
@@ -1146,7 +1146,7 @@
             </argument>
             <argument index="4" name="far_amount" type="float">
             </argument>
-            <argument index="5" name="quality" type="int" enum="RenderingServer.EnvironmentDOFBlurQuality">
+            <argument index="5" name="quality" type="int" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             </argument>
             <description>
                 Sets the values to be used with the "DoF Near Blur" post-process effect. See [Environment] for more details.
@@ -1222,7 +1222,7 @@
             </argument>
             <argument index="5" name="bloom_threshold" type="float">
             </argument>
-            <argument index="6" name="blend_mode" type="int" enum="RenderingServer.EnvironmentGlowBlendMode">
+            <argument index="6" name="blend_mode" type="int" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             </argument>
             <argument index="7" name="hdr_bleed_threshold" type="float">
             </argument>
@@ -1292,9 +1292,9 @@
             </argument>
             <argument index="9" name="color" type="Color">
             </argument>
-            <argument index="10" name="quality" type="int" enum="RenderingServer.EnvironmentSSAOQuality">
+            <argument index="10" name="quality" type="int" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             </argument>
-            <argument index="11" name="blur" type="int" enum="RenderingServer.EnvironmentSSAOBlur">
+            <argument index="11" name="blur" type="int" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             </argument>
             <argument index="12" name="bilateral_sharpness" type="float">
             </argument>
@@ -1328,7 +1328,7 @@
             </return>
             <argument index="0" name="env" type="RID">
             </argument>
-            <argument index="1" name="tone_mapper" type="int" enum="RenderingServer.EnvironmentToneMapper">
+            <argument index="1" name="tone_mapper" type="int" enum="RenderingServerEnums.EnvironmentToneMapper">
             </argument>
             <argument index="2" name="exposure" type="float">
             </argument>
@@ -1385,10 +1385,10 @@
         <method name="get_render_info">
             <return type="int">
             </return>
-            <argument index="0" name="info" type="int" enum="RenderingServer.RenderInfo">
+            <argument index="0" name="info" type="int" enum="RenderingServerEnums.RenderInfo">
             </argument>
             <description>
-                Returns a certain information, see [enum RenderInfo] for options.
+                Returns a certain information, see [enum RenderingServerEnums.RenderInfo] for options.
             </description>
         </method>
         <method name="get_test_cube">
@@ -1667,7 +1667,7 @@
         <method name="has_feature" qualifiers="const">
             <return type="bool">
             </return>
-            <argument index="0" name="feature" type="int" enum="RenderingServer.Features">
+            <argument index="0" name="feature" type="int" enum="RenderingServerEnums.Features">
             </argument>
             <description>
                 Not yet implemented. Always returns [code]false[/code].
@@ -1687,7 +1687,7 @@
             </return>
             <argument index="0" name="immediate" type="RID">
             </argument>
-            <argument index="1" name="primitive" type="int" enum="RenderingServer.PrimitiveType">
+            <argument index="1" name="primitive" type="int" enum="RenderingServerEnums.PrimitiveType">
             </argument>
             <argument index="2" name="texture" type="RID">
             </argument>
@@ -1885,10 +1885,10 @@
             </return>
             <argument index="0" name="instance" type="RID">
             </argument>
-            <argument index="1" name="shadow_casting_setting" type="int" enum="RenderingServer.ShadowCastingSetting">
+            <argument index="1" name="shadow_casting_setting" type="int" enum="RenderingServerEnums.ShadowCastingSetting">
             </argument>
             <description>
-                Sets the shadow casting setting to one of [enum ShadowCastingSetting]. Equivalent to [member GeometryInstance.cast_shadow].
+                Sets the shadow casting setting to one of [enum RenderingServerEnums.ShadowCastingSetting]. Equivalent to [member GeometryInstance.cast_shadow].
             </description>
         </method>
         <method name="instance_geometry_set_draw_range">
@@ -1913,12 +1913,12 @@
             </return>
             <argument index="0" name="instance" type="RID">
             </argument>
-            <argument index="1" name="flag" type="int" enum="VisualServerEnums.InstanceFlags">
+            <argument index="1" name="flag" type="int" enum="RenderingServerEnums.InstanceFlags">
             </argument>
             <argument index="2" name="enabled" type="bool">
             </argument>
             <description>
-                Sets the flag for a given [enum VisualServerEnums.InstanceFlags]. See [enum VisualServerEnums.InstanceFlags] for more details.
+                Sets the flag for a given [enum RenderingServerEnums.InstanceFlags]. See [enum RenderingServerEnums.InstanceFlags] for more details.
             </description>
         </method>
         <method name="instance_geometry_set_material_override">
@@ -2010,7 +2010,7 @@
             <argument index="2" name="material" type="RID">
             </argument>
             <description>
-                Sets the material of a specific surface. Equivalent to [method MeshInstance.set_surface_material].
+                Sets the material of a specific surface. Equivalent to [method MeshInstance3D.set_surface_material].
             </description>
         </method>
         <method name="instance_set_transform">
@@ -2056,7 +2056,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2068,7 +2068,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2082,7 +2082,7 @@
             <argument index="2" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2102,10 +2102,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="range_mode" type="int" enum="RenderingServer.LightDirectionalShadowDepthRangeMode">
+            <argument index="1" name="range_mode" type="int" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             </argument>
             <description>
-                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_depth_range]. See [enum LightDirectionalShadowDepthRangeMode] for options.
+                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_depth_range]. See [enum RenderingServerEnums.LightDirectionalShadowDepthRangeMode] for options.
             </description>
         </method>
         <method name="light_directional_set_shadow_mode">
@@ -2113,10 +2113,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.LightDirectionalShadowMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.LightDirectionalShadowMode">
             </argument>
             <description>
-                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_mode]. See [enum LightDirectionalShadowMode] for options.
+                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_mode]. See [enum RenderingServerEnums.LightDirectionalShadowMode] for options.
             </description>
         </method>
         <method name="light_omni_set_shadow_detail">
@@ -2124,7 +2124,7 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="detail" type="int" enum="RenderingServer.LightOmniShadowDetail">
+            <argument index="1" name="detail" type="int" enum="RenderingServerEnums.LightOmniShadowDetail">
             </argument>
             <description>
                 Sets whether to use vertical or horizontal detail for this omni light. This can be used to alleviate artifacts in the shadow map. Equivalent to [member OmniLight3D.omni_shadow_detail].
@@ -2135,7 +2135,7 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.LightOmniShadowMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.LightOmniShadowMode">
             </argument>
             <description>
                 Sets whether to use a dual paraboloid or a cubemap for the shadow map. Dual paraboloid is faster but may suffer from artifacts. Equivalent to [member OmniLight3D.omni_shadow_mode].
@@ -2184,7 +2184,7 @@
             <argument index="2" name="value" type="float">
             </argument>
             <description>
-                Sets the specified light parameter. See [enum LightParam] for options. Equivalent to [method Light3D.set_param].
+                Sets the specified light parameter. See [enum RenderingServerEnums.LightParam] for options. Equivalent to [method Light3D.set_param].
             </description>
         </method>
         <method name="light_set_projector">
@@ -2465,7 +2465,7 @@
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
-            <argument index="1" name="primitive" type="int" enum="RenderingServer.PrimitiveType">
+            <argument index="1" name="primitive" type="int" enum="RenderingServerEnums.PrimitiveType">
             </argument>
             <argument index="2" name="arrays" type="Array">
             </argument>
@@ -2474,7 +2474,7 @@
             <argument index="4" name="compress_format" type="int" default="97280">
             </argument>
             <description>
-                Adds a surface generated from the Arrays to a mesh. See [enum PrimitiveType] constants for types.
+                Adds a surface generated from the Arrays to a mesh. See [enum RenderingServerEnums.PrimitiveType] constants for types.
             </description>
         </method>
         <method name="mesh_clear">
@@ -2505,7 +2505,7 @@
             </description>
         </method>
         <method name="mesh_get_blend_shape_mode" qualifiers="const">
-            <return type="int" enum="RenderingServer.BlendShapeMode">
+            <return type="int" enum="RenderingServerEnums.BlendShapeMode">
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
@@ -2558,7 +2558,7 @@
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.BlendShapeMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.BlendShapeMode">
             </argument>
             <description>
                 Sets a mesh's blend shape mode.
@@ -2759,14 +2759,14 @@
             </argument>
             <argument index="1" name="instances" type="int">
             </argument>
-            <argument index="2" name="transform_format" type="int" enum="RenderingServer.MultimeshTransformFormat">
+            <argument index="2" name="transform_format" type="int" enum="RenderingServerEnums.MultimeshTransformFormat">
             </argument>
-            <argument index="3" name="color_format" type="int" enum="RenderingServer.MultimeshColorFormat">
+            <argument index="3" name="color_format" type="int" enum="RenderingServerEnums.MultimeshColorFormat">
             </argument>
-            <argument index="4" name="custom_data_format" type="int" enum="RenderingServer.MultimeshCustomDataFormat" default="0">
+            <argument index="4" name="custom_data_format" type="int" enum="RenderingServerEnums.MultimeshCustomDataFormat" default="0">
             </argument>
             <description>
-                Allocates space for the multimesh data. Format parameters determine how the data will be stored by OpenGL. See [enum MultimeshTransformFormat], [enum MultimeshColorFormat], and [enum MultimeshCustomDataFormat] for usage. Equivalent to [member MultiMesh.instance_count].
+                Allocates space for the multimesh data. Format parameters determine how the data will be stored by OpenGL. See [enum RenderingServerEnums.MultimeshTransformFormat], [enum RenderingServerEnums.MultimeshColorFormat], and [enum RenderingServerEnums.MultimeshCustomDataFormat] for usage. Equivalent to [member MultiMesh.instance_count].
             </description>
         </method>
         <method name="multimesh_create">
@@ -3037,10 +3037,10 @@
             </return>
             <argument index="0" name="particles" type="RID">
             </argument>
-            <argument index="1" name="order" type="int" enum="RenderingServer.ParticlesDrawOrder">
+            <argument index="1" name="order" type="int" enum="RenderingServerEnums.ParticlesDrawOrder">
             </argument>
             <description>
-                Sets the draw order of the particles to one of the named enums from [enum ParticlesDrawOrder]. See [enum ParticlesDrawOrder] for options. Equivalent to [member Particles.draw_order].
+                Sets the draw order of the particles to one of the named enums from [enum RenderingServerEnums.ParticlesDrawOrder]. See [enum RenderingServerEnums.ParticlesDrawOrder] for options. Equivalent to [member Particles.draw_order].
             </description>
         </method>
         <method name="particles_set_draw_pass_mesh">
@@ -3334,10 +3334,10 @@
             </return>
             <argument index="0" name="probe" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="RenderingServer.ReflectionProbeUpdateMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             </argument>
             <description>
-                Sets how often the reflection probe updates. Can either be once or every frame. See [enum ReflectionProbeUpdateMode] for options.
+                Sets how often the reflection probe updates. Can either be once or every frame. See [enum RenderingServerEnums.ReflectionProbeUpdateMode] for options.
             </description>
         </method>
         <method name="request_frame_drawn_callback">
@@ -3368,10 +3368,10 @@
             </return>
             <argument index="0" name="scenario" type="RID">
             </argument>
-            <argument index="1" name="debug_mode" type="int" enum="RenderingServer.ScenarioDebugMode">
+            <argument index="1" name="debug_mode" type="int" enum="RenderingServerEnums.ScenarioDebugMode">
             </argument>
             <description>
-                Sets the [enum ScenarioDebugMode] for this scenario. See [enum ScenarioDebugMode] for options.
+                Sets the [enum RenderingServerEnums.ScenarioDebugMode] for this scenario. See [enum RenderingServerEnums.ScenarioDebugMode] for options.
             </description>
         </method>
         <method name="scenario_set_environment">
@@ -3631,7 +3631,7 @@
             </argument>
             <argument index="4" name="format" type="int" enum="Image.Format">
             </argument>
-            <argument index="5" name="type" type="int" enum="RenderingServer.TextureType">
+            <argument index="5" name="type" type="int" enum="RenderingServerEnums.TextureType">
             </argument>
             <argument index="6" name="flags" type="int" default="7">
             </argument>
@@ -3742,12 +3742,12 @@
             </description>
         </method>
         <method name="texture_get_type" qualifiers="const">
-            <return type="int" enum="RenderingServer.TextureType">
+            <return type="int" enum="RenderingServerEnums.TextureType">
             </return>
             <argument index="0" name="texture" type="RID">
             </argument>
             <description>
-                Returns the type of the texture, can be any of the [enum TextureType].
+                Returns the type of the texture, can be any of the [enum RenderingServerEnums.TextureType].
             </description>
         </method>
         <method name="texture_get_width" qualifiers="const">
@@ -3807,7 +3807,7 @@
             <argument index="1" name="flags" type="int">
             </argument>
             <description>
-                Sets the texture's flags. See [enum TextureFlags] for options.
+                Sets the texture's flags. See [enum RenderingServerEnums.TextureFlags] for options.
             </description>
         </method>
         <method name="texture_set_path">
@@ -3918,10 +3918,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="info" type="int" enum="RenderingServer.ViewportRenderInfo">
+            <argument index="1" name="info" type="int" enum="RenderingServerEnums.ViewportRenderInfo">
             </argument>
             <description>
-                Returns a viewport's render information. For options, see the [enum ViewportRenderInfo] constants.
+                Returns a viewport's render information. For options, see the [enum RenderingServerEnums.ViewportRenderInfo] constants.
             </description>
         </method>
         <method name="viewport_get_texture" qualifiers="const">
@@ -3989,10 +3989,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="clear_mode" type="int" enum="RenderingServer.ViewportClearMode">
+            <argument index="1" name="clear_mode" type="int" enum="RenderingServerEnums.ViewportClearMode">
             </argument>
             <description>
-                Sets the clear mode of a viewport. See [enum ViewportClearMode] for options.
+                Sets the clear mode of a viewport. See [enum RenderingServerEnums.ViewportClearMode] for options.
             </description>
         </method>
         <method name="viewport_set_debug_draw">
@@ -4000,10 +4000,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="draw" type="int" enum="RenderingServer.ViewportDebugDraw">
+            <argument index="1" name="draw" type="int" enum="RenderingServerEnums.ViewportDebugDraw">
             </argument>
             <description>
-                Sets the debug draw mode of a viewport. See [enum ViewportDebugDraw] for options.
+                Sets the debug draw mode of a viewport. See [enum RenderingServerEnums.ViewportDebugDraw] for options.
             </description>
         </method>
         <method name="viewport_set_disable_3d">
@@ -4077,10 +4077,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="msaa" type="int" enum="RenderingServer.ViewportMSAA">
+            <argument index="1" name="msaa" type="int" enum="RenderingServerEnums.ViewportMSAA">
             </argument>
             <description>
-                Sets the anti-aliasing mode. See [enum ViewportMSAA] for options.
+                Sets the anti-aliasing mode. See [enum RenderingServerEnums.ViewportMSAA] for options.
             </description>
         </method>
         <method name="viewport_set_parent_viewport">
@@ -4114,7 +4114,7 @@
             </argument>
             <description>
                 Sets a viewport's scenario.
-                The scenario contains information about the [enum ScenarioDebugMode], environment information, reflection atlas etc.
+                The scenario contains information about the [enum RenderingServerEnums.ScenarioDebugMode], environment information, reflection atlas etc.
             </description>
         </method>
         <method name="viewport_set_shadow_atlas_quadrant_subdivision">
@@ -4170,10 +4170,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="update_mode" type="int" enum="RenderingServer.ViewportUpdateMode">
+            <argument index="1" name="update_mode" type="int" enum="RenderingServerEnums.ViewportUpdateMode">
             </argument>
             <description>
-                Sets when the viewport should be updated. See [enum ViewportUpdateMode] constants for options.
+                Sets when the viewport should be updated. See [enum RenderingServerEnums.ViewportUpdateMode] constants for options.
             </description>
         </method>
         <method name="viewport_set_usage">
@@ -4181,10 +4181,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="usage" type="int" enum="RenderingServer.ViewportUsage">
+            <argument index="1" name="usage" type="int" enum="RenderingServerEnums.ViewportUsage">
             </argument>
             <description>
-                Sets the viewport's 2D/3D mode. See [enum ViewportUsage] constants for options.
+                Sets the viewport's 2D/3D mode. See [enum RenderingServerEnums.ViewportUsage] constants for options.
             </description>
         </method>
         <method name="viewport_set_use_arvr">
@@ -4247,626 +4247,626 @@
         <constant name="MATERIAL_RENDER_PRIORITY_MAX" value="127">
             The maximum renderpriority of all materials.
         </constant>
-        <constant name="CUBEMAP_LEFT" value="0" enum="CubeMapSide">
+        <constant name="CUBEMAP_LEFT" value="0" enum="RenderingServerEnums.CubeMapSide">
             Marks the left side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_RIGHT" value="1" enum="CubeMapSide">
+        <constant name="CUBEMAP_RIGHT" value="1" enum="RenderingServerEnums.CubeMapSide">
             Marks the right side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_BOTTOM" value="2" enum="CubeMapSide">
+        <constant name="CUBEMAP_BOTTOM" value="2" enum="RenderingServerEnums.CubeMapSide">
             Marks the bottom side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_TOP" value="3" enum="CubeMapSide">
+        <constant name="CUBEMAP_TOP" value="3" enum="RenderingServerEnums.CubeMapSide">
             Marks the top side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_FRONT" value="4" enum="CubeMapSide">
+        <constant name="CUBEMAP_FRONT" value="4" enum="RenderingServerEnums.CubeMapSide">
             Marks the front side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_BACK" value="5" enum="CubeMapSide">
+        <constant name="CUBEMAP_BACK" value="5" enum="RenderingServerEnums.CubeMapSide">
             Marks the back side of a cubemap.
         </constant>
-        <constant name="TEXTURE_TYPE_2D" value="0" enum="TextureType">
+        <constant name="TEXTURE_TYPE_2D" value="0" enum="RenderingServerEnums.TextureType">
             Normal texture with 2 dimensions, width and height.
         </constant>
-        <constant name="TEXTURE_TYPE_CUBEMAP" value="1" enum="TextureType">
+        <constant name="TEXTURE_TYPE_CUBEMAP" value="1" enum="RenderingServerEnums.TextureType">
             Texture made up of six faces, can be looked up with a [code]vec3[/code] in shader.
         </constant>
-        <constant name="TEXTURE_TYPE_2D_ARRAY" value="2" enum="TextureType">
+        <constant name="TEXTURE_TYPE_2D_ARRAY" value="2" enum="RenderingServerEnums.TextureType">
             An array of 2-dimensional textures.
         </constant>
-        <constant name="TEXTURE_TYPE_3D" value="3" enum="TextureType">
+        <constant name="TEXTURE_TYPE_3D" value="3" enum="RenderingServerEnums.TextureType">
             A 3-dimensional texture with width, height, and depth.
         </constant>
-        <constant name="TEXTURE_FLAG_MIPMAPS" value="1" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_MIPMAPS" value="1" enum="RenderingServerEnums.TextureFlags">
             Generates mipmaps, which are smaller versions of the same texture to use when zoomed out, keeping the aspect ratio.
         </constant>
-        <constant name="TEXTURE_FLAG_REPEAT" value="2" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_REPEAT" value="2" enum="RenderingServerEnums.TextureFlags">
             Repeats the texture (instead of clamp to edge).
         </constant>
-        <constant name="TEXTURE_FLAG_FILTER" value="4" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_FILTER" value="4" enum="RenderingServerEnums.TextureFlags">
             Uses a magnifying filter, to enable smooth zooming in of the texture.
         </constant>
-        <constant name="TEXTURE_FLAG_ANISOTROPIC_FILTER" value="8" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_ANISOTROPIC_FILTER" value="8" enum="RenderingServerEnums.TextureFlags">
             Uses anisotropic mipmap filtering. Generates smaller versions of the same texture with different aspect ratios.
             This results in better-looking textures when viewed from oblique angles.
         </constant>
-        <constant name="TEXTURE_FLAG_CONVERT_TO_LINEAR" value="16" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_CONVERT_TO_LINEAR" value="16" enum="RenderingServerEnums.TextureFlags">
             Converts the texture to the sRGB color space.
         </constant>
-        <constant name="TEXTURE_FLAG_MIRRORED_REPEAT" value="32" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_MIRRORED_REPEAT" value="32" enum="RenderingServerEnums.TextureFlags">
             Repeats the texture with alternate sections mirrored.
         </constant>
-        <constant name="TEXTURE_FLAG_USED_FOR_STREAMING" value="2048" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_USED_FOR_STREAMING" value="2048" enum="RenderingServerEnums.TextureFlags">
             Texture is a video surface.
         </constant>
-        <constant name="TEXTURE_FLAGS_DEFAULT" value="7" enum="TextureFlags">
-            Default flags. [constant TEXTURE_FLAG_MIPMAPS], [constant TEXTURE_FLAG_REPEAT] and [constant TEXTURE_FLAG_FILTER] are enabled.
+        <constant name="TEXTURE_FLAGS_DEFAULT" value="7" enum="RenderingServerEnums.TextureFlags">
+            Default flags. [constant RenderingServerEnums.TEXTURE_FLAG_MIPMAPS], [constant RenderingServerEnums.TEXTURE_FLAG_REPEAT] and [constant RenderingServerEnums.TEXTURE_FLAG_FILTER] are enabled.
         </constant>
-        <constant name="SHADER_SPATIAL" value="0" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_SPATIAL" value="0" enum="RenderingServerEnums.ShaderMode">
             Shader is a 3D shader.
         </constant>
-        <constant name="SHADER_CANVAS_ITEM" value="1" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_CANVAS_ITEM" value="1" enum="RenderingServerEnums.ShaderMode">
             Shader is a 2D shader.
         </constant>
-        <constant name="SHADER_PARTICLES" value="2" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_PARTICLES" value="2" enum="RenderingServerEnums.ShaderMode">
             Shader is a particle shader.
         </constant>
-        <constant name="SHADER_MAX" value="3" enum="VisualServerEnums.ShaderMode">
-            Represents the size of the [enum VisualServerEnums.ShaderMode] enum.
+        <constant name="SHADER_MAX" value="3" enum="RenderingServerEnums.ShaderMode">
+            Represents the size of the [enum RenderingServerEnums.ShaderMode] enum.
         </constant>
-        <constant name="ARRAY_VERTEX" value="0" enum="ArrayType">
+        <constant name="ARRAY_VERTEX" value="0" enum="RenderingServerEnums.ArrayType">
             Array is a vertex array.
         </constant>
-        <constant name="ARRAY_NORMAL" value="1" enum="ArrayType">
+        <constant name="ARRAY_NORMAL" value="1" enum="RenderingServerEnums.ArrayType">
             Array is a normal array.
         </constant>
-        <constant name="ARRAY_TANGENT" value="2" enum="ArrayType">
+        <constant name="ARRAY_TANGENT" value="2" enum="RenderingServerEnums.ArrayType">
             Array is a tangent array.
         </constant>
-        <constant name="ARRAY_COLOR" value="3" enum="ArrayType">
+        <constant name="ARRAY_COLOR" value="3" enum="RenderingServerEnums.ArrayType">
             Array is a color array.
         </constant>
-        <constant name="ARRAY_TEX_UV" value="4" enum="ArrayType">
+        <constant name="ARRAY_TEX_UV" value="4" enum="RenderingServerEnums.ArrayType">
             Array is an UV coordinates array.
         </constant>
-        <constant name="ARRAY_TEX_UV2" value="5" enum="ArrayType">
+        <constant name="ARRAY_TEX_UV2" value="5" enum="RenderingServerEnums.ArrayType">
             Array is an UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_BONES" value="6" enum="ArrayType">
+        <constant name="ARRAY_BONES" value="6" enum="RenderingServerEnums.ArrayType">
             Array contains bone information.
         </constant>
-        <constant name="ARRAY_WEIGHTS" value="7" enum="ArrayType">
+        <constant name="ARRAY_WEIGHTS" value="7" enum="RenderingServerEnums.ArrayType">
             Array is weight information.
         </constant>
-        <constant name="ARRAY_INDEX" value="8" enum="ArrayType">
+        <constant name="ARRAY_INDEX" value="8" enum="RenderingServerEnums.ArrayType">
             Array is index array.
         </constant>
-        <constant name="ARRAY_MAX" value="9" enum="ArrayType">
-            Represents the size of the [enum ArrayType] enum.
+        <constant name="ARRAY_MAX" value="9" enum="RenderingServerEnums.ArrayType">
+            Represents the size of the [enum RenderingServerEnums.ArrayType] enum.
         </constant>
-        <constant name="ARRAY_FORMAT_VERTEX" value="1" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_VERTEX" value="1" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a vertex array.
         </constant>
-        <constant name="ARRAY_FORMAT_NORMAL" value="2" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_NORMAL" value="2" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a normal array.
         </constant>
-        <constant name="ARRAY_FORMAT_TANGENT" value="4" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TANGENT" value="4" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a tangent array.
         </constant>
-        <constant name="ARRAY_FORMAT_COLOR" value="8" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_COLOR" value="8" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a color array.
         </constant>
-        <constant name="ARRAY_FORMAT_TEX_UV" value="16" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TEX_UV" value="16" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an UV coordinates array.
         </constant>
-        <constant name="ARRAY_FORMAT_TEX_UV2" value="32" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TEX_UV2" value="32" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_FORMAT_BONES" value="64" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_BONES" value="64" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a bone information array.
         </constant>
-        <constant name="ARRAY_FORMAT_WEIGHTS" value="128" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_WEIGHTS" value="128" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a weights array.
         </constant>
-        <constant name="ARRAY_FORMAT_INDEX" value="256" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_INDEX" value="256" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an index array.
         </constant>
-        <constant name="ARRAY_COMPRESS_VERTEX" value="512" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_VERTEX" value="512" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) vertex array.
         </constant>
-        <constant name="ARRAY_COMPRESS_NORMAL" value="1024" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_NORMAL" value="1024" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) normal array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TANGENT" value="2048" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TANGENT" value="2048" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) tangent array.
         </constant>
-        <constant name="ARRAY_COMPRESS_COLOR" value="4096" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_COLOR" value="4096" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) color array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TEX_UV" value="8192" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TEX_UV" value="8192" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) UV coordinates array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TEX_UV2" value="16384" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TEX_UV2" value="16384" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_COMPRESS_BONES" value="32768" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_BONES" value="32768" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed bone array.
         </constant>
-        <constant name="ARRAY_COMPRESS_WEIGHTS" value="65536" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_WEIGHTS" value="65536" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) weight array.
         </constant>
-        <constant name="ARRAY_COMPRESS_INDEX" value="131072" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_INDEX" value="131072" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed index array.
         </constant>
-        <constant name="ARRAY_FLAG_USE_2D_VERTICES" value="262144" enum="ArrayFormat">
+        <constant name="ARRAY_FLAG_USE_2D_VERTICES" value="262144" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark that the array contains 2D vertices.
         </constant>
-        <constant name="ARRAY_FLAG_USE_16_BIT_BONES" value="524288" enum="ArrayFormat">
+        <constant name="ARRAY_FLAG_USE_16_BIT_BONES" value="524288" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark that the array uses 16-bit bones instead of 8-bit.
         </constant>
-        <constant name="ARRAY_COMPRESS_DEFAULT" value="97280" enum="ArrayFormat">
-            Used to set flags [constant ARRAY_COMPRESS_VERTEX], [constant ARRAY_COMPRESS_NORMAL], [constant ARRAY_COMPRESS_TANGENT], [constant ARRAY_COMPRESS_COLOR], [constant ARRAY_COMPRESS_TEX_UV], [constant ARRAY_COMPRESS_TEX_UV2] and [constant ARRAY_COMPRESS_WEIGHTS] quickly.
+        <constant name="ARRAY_COMPRESS_DEFAULT" value="97280" enum="RenderingServerEnums.ArrayFormat">
+            Used to set flags [constant RenderingServerEnums.ARRAY_COMPRESS_VERTEX], [constant RenderingServerEnums.ARRAY_COMPRESS_NORMAL], [constant RenderingServerEnums.ARRAY_COMPRESS_TANGENT], [constant RenderingServerEnums.ARRAY_COMPRESS_COLOR], [constant RenderingServerEnums.ARRAY_COMPRESS_TEX_UV], [constant RenderingServerEnums.ARRAY_COMPRESS_TEX_UV2] and [constant RenderingServerEnums.ARRAY_COMPRESS_WEIGHTS] quickly.
         </constant>
-        <constant name="PRIMITIVE_POINTS" value="0" enum="PrimitiveType">
+        <constant name="PRIMITIVE_POINTS" value="0" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of points.
         </constant>
-        <constant name="PRIMITIVE_LINES" value="1" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINES" value="1" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of lines.
         </constant>
-        <constant name="PRIMITIVE_LINE_STRIP" value="2" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINE_STRIP" value="2" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a line strip from start to end.
         </constant>
-        <constant name="PRIMITIVE_LINE_LOOP" value="3" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINE_LOOP" value="3" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a line loop (a line strip with a line between the last and the first vertex).
         </constant>
-        <constant name="PRIMITIVE_TRIANGLES" value="4" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLES" value="4" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of triangles.
         </constant>
-        <constant name="PRIMITIVE_TRIANGLE_STRIP" value="5" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLE_STRIP" value="5" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a triangle strip (the last 3 vertices are always combined to make a triangle).
         </constant>
-        <constant name="PRIMITIVE_TRIANGLE_FAN" value="6" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLE_FAN" value="6" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a triangle strip (the last 2 vertices are always combined with the first to make a triangle).
         </constant>
-        <constant name="PRIMITIVE_MAX" value="7" enum="PrimitiveType">
-            Represents the size of the [enum PrimitiveType] enum.
+        <constant name="PRIMITIVE_MAX" value="7" enum="RenderingServerEnums.PrimitiveType">
+            Represents the size of the [enum RenderingServerEnums.PrimitiveType] enum.
         </constant>
-        <constant name="BLEND_SHAPE_MODE_NORMALIZED" value="0" enum="BlendShapeMode">
+        <constant name="BLEND_SHAPE_MODE_NORMALIZED" value="0" enum="RenderingServerEnums.BlendShapeMode">
             Blend shapes are normalized.
         </constant>
-        <constant name="BLEND_SHAPE_MODE_RELATIVE" value="1" enum="BlendShapeMode">
+        <constant name="BLEND_SHAPE_MODE_RELATIVE" value="1" enum="RenderingServerEnums.BlendShapeMode">
             Blend shapes are relative to base weight.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL" value="0" enum="LightType">
+        <constant name="LIGHT_DIRECTIONAL" value="0" enum="RenderingServerEnums.LightType">
             Is a directional (sun) light.
         </constant>
-        <constant name="LIGHT_OMNI" value="1" enum="LightType">
+        <constant name="LIGHT_OMNI" value="1" enum="RenderingServerEnums.LightType">
             Is an omni light.
         </constant>
-        <constant name="LIGHT_SPOT" value="2" enum="LightType">
+        <constant name="LIGHT_SPOT" value="2" enum="RenderingServerEnums.LightType">
             Is a spot light.
         </constant>
-        <constant name="LIGHT_PARAM_ENERGY" value="0" enum="LightParam">
+        <constant name="LIGHT_PARAM_ENERGY" value="0" enum="RenderingServerEnums.LightParam">
             The light's energy.
         </constant>
-        <constant name="LIGHT_PARAM_SPECULAR" value="2" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPECULAR" value="2" enum="RenderingServerEnums.LightParam">
             The light's influence on specularity.
         </constant>
-        <constant name="LIGHT_PARAM_RANGE" value="3" enum="LightParam">
+        <constant name="LIGHT_PARAM_RANGE" value="3" enum="RenderingServerEnums.LightParam">
             The light's range.
         </constant>
-        <constant name="LIGHT_PARAM_ATTENUATION" value="4" enum="LightParam">
+        <constant name="LIGHT_PARAM_ATTENUATION" value="4" enum="RenderingServerEnums.LightParam">
             The light's attenuation.
         </constant>
-        <constant name="LIGHT_PARAM_SPOT_ANGLE" value="5" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPOT_ANGLE" value="5" enum="RenderingServerEnums.LightParam">
             The spotlight's angle.
         </constant>
-        <constant name="LIGHT_PARAM_SPOT_ATTENUATION" value="6" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPOT_ATTENUATION" value="6" enum="RenderingServerEnums.LightParam">
             The spotlight's attenuation.
         </constant>
-        <constant name="LIGHT_PARAM_CONTACT_SHADOW_SIZE" value="7" enum="LightParam">
+        <constant name="LIGHT_PARAM_CONTACT_SHADOW_SIZE" value="7" enum="RenderingServerEnums.LightParam">
             Scales the shadow color.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_MAX_DISTANCE" value="8" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_MAX_DISTANCE" value="8" enum="RenderingServerEnums.LightParam">
             Max distance that shadows will be rendered.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET" value="9" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET" value="9" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the first split.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET" value="10" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET" value="10" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the second split.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET" value="11" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET" value="11" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the third split. The fourth split occupies the rest.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_NORMAL_BIAS" value="12" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_NORMAL_BIAS" value="12" enum="RenderingServerEnums.LightParam">
             Normal bias used to offset shadow lookup by object normal. Can be used to fix self-shadowing artifacts.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_BIAS" value="13" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_BIAS" value="13" enum="RenderingServerEnums.LightParam">
             Bias the shadow lookup to fix self-shadowing artifacts.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE" value="14" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE" value="14" enum="RenderingServerEnums.LightParam">
             Increases bias on further splits to fix self-shadowing that only occurs far away from the camera.
         </constant>
-        <constant name="LIGHT_PARAM_MAX" value="15" enum="LightParam">
-            Represents the size of the [enum LightParam] enum.
+        <constant name="LIGHT_PARAM_MAX" value="15" enum="RenderingServerEnums.LightParam">
+            Represents the size of the [enum RenderingServerEnums.LightParam] enum.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DUAL_PARABOLOID" value="0" enum="LightOmniShadowMode">
+        <constant name="LIGHT_OMNI_SHADOW_DUAL_PARABOLOID" value="0" enum="RenderingServerEnums.LightOmniShadowMode">
             Use a dual paraboloid shadow map for omni lights.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_CUBE" value="1" enum="LightOmniShadowMode">
+        <constant name="LIGHT_OMNI_SHADOW_CUBE" value="1" enum="RenderingServerEnums.LightOmniShadowMode">
             Use a cubemap shadow map for omni lights. Slower but better quality than dual paraboloid.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DETAIL_VERTICAL" value="0" enum="LightOmniShadowDetail">
+        <constant name="LIGHT_OMNI_SHADOW_DETAIL_VERTICAL" value="0" enum="RenderingServerEnums.LightOmniShadowDetail">
             Use more detail vertically when computing shadow map.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL" value="1" enum="LightOmniShadowDetail">
+        <constant name="LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL" value="1" enum="RenderingServerEnums.LightOmniShadowDetail">
             Use more detail horizontally when computing shadow map.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL" value="0" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL" value="0" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use orthogonal shadow projection for directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS" value="1" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS" value="1" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use 2 splits for shadow projection when using directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS" value="2" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS" value="2" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use 4 splits for shadow projection when using directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE" value="0" enum="LightDirectionalShadowDepthRangeMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE" value="0" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             Keeps shadows stable as camera moves but has lower effective resolution.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED" value="1" enum="LightDirectionalShadowDepthRangeMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED" value="1" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             Optimize use of shadow maps, increasing the effective resolution. But may result in shadows moving or flickering slightly.
         </constant>
-        <constant name="VIEWPORT_UPDATE_DISABLED" value="0" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_DISABLED" value="0" enum="RenderingServerEnums.ViewportUpdateMode">
             Do not update the viewport.
         </constant>
-        <constant name="VIEWPORT_UPDATE_ONCE" value="1" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_ONCE" value="1" enum="RenderingServerEnums.ViewportUpdateMode">
             Update the viewport once then set to disabled.
         </constant>
-        <constant name="VIEWPORT_UPDATE_WHEN_VISIBLE" value="2" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_WHEN_VISIBLE" value="2" enum="RenderingServerEnums.ViewportUpdateMode">
             Update the viewport whenever it is visible.
         </constant>
-        <constant name="VIEWPORT_UPDATE_ALWAYS" value="3" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_ALWAYS" value="3" enum="RenderingServerEnums.ViewportUpdateMode">
             Always update the viewport.
         </constant>
-        <constant name="VIEWPORT_CLEAR_ALWAYS" value="0" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_ALWAYS" value="0" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is always cleared before drawing.
         </constant>
-        <constant name="VIEWPORT_CLEAR_NEVER" value="1" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_NEVER" value="1" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is never cleared before drawing.
         </constant>
-        <constant name="VIEWPORT_CLEAR_ONLY_NEXT_FRAME" value="2" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_ONLY_NEXT_FRAME" value="2" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is cleared once, then the clear mode is set to [constant VIEWPORT_CLEAR_NEVER].
         </constant>
-        <constant name="VIEWPORT_MSAA_DISABLED" value="0" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_DISABLED" value="0" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is disabled.
         </constant>
-        <constant name="VIEWPORT_MSAA_2X" value="1" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_2X" value="1" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 2×.
         </constant>
-        <constant name="VIEWPORT_MSAA_4X" value="2" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_4X" value="2" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 4×.
         </constant>
-        <constant name="VIEWPORT_MSAA_8X" value="3" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_8X" value="3" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 8×.
         </constant>
-        <constant name="VIEWPORT_MSAA_16X" value="4" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_16X" value="4" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 16×.
         </constant>
-        <constant name="VIEWPORT_MSAA_EXT_2X" value="5" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_EXT_2X" value="5" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 2× on external texture. Special mode for GLES2 Android VR (Oculus Quest and Go).
         </constant>
-        <constant name="VIEWPORT_MSAA_EXT_4X" value="6" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_EXT_4X" value="6" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 4× on external texture. Special mode for GLES2 Android VR (Oculus Quest and Go).
         </constant>
-        <constant name="VIEWPORT_USAGE_2D" value="0" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_2D" value="0" enum="RenderingServerEnums.ViewportUsage">
             The Viewport does not render 3D but samples.
         </constant>
-        <constant name="VIEWPORT_USAGE_2D_NO_SAMPLING" value="1" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_2D_NO_SAMPLING" value="1" enum="RenderingServerEnums.ViewportUsage">
             The Viewport does not render 3D and does not sample.
         </constant>
-        <constant name="VIEWPORT_USAGE_3D" value="2" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_3D" value="2" enum="RenderingServerEnums.ViewportUsage">
             The Viewport renders 3D with effects.
         </constant>
-        <constant name="VIEWPORT_USAGE_3D_NO_EFFECTS" value="3" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_3D_NO_EFFECTS" value="3" enum="RenderingServerEnums.ViewportUsage">
             The Viewport renders 3D but without effects.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME" value="0" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME" value="0" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of objects drawn in a single frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME" value="1" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME" value="1" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of vertices drawn in a single frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of material changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of shader changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of surface changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME" value="5" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of draw calls during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_MAX" value="6" enum="ViewportRenderInfo">
-            Represents the size of the [enum ViewportRenderInfo] enum.
+        <constant name="VIEWPORT_RENDER_INFO_MAX" value="6" enum="RenderingServerEnums.ViewportRenderInfo">
+            Represents the size of the [enum RenderingServerEnums.ViewportRenderInfo] enum.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_DISABLED" value="0" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_DISABLED" value="0" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw is disabled. Default setting.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_UNSHADED" value="1" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_UNSHADED" value="1" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw sets objects to unshaded.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_OVERDRAW" value="2" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_OVERDRAW" value="2" enum="RenderingServerEnums.ViewportDebugDraw">
             Overwrites clear color to [code](0,0,0,0)[/code].
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_WIREFRAME" value="3" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_WIREFRAME" value="3" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw draws objects in wireframe.
         </constant>
-        <constant name="SCENARIO_DEBUG_DISABLED" value="0" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_DISABLED" value="0" enum="RenderingServerEnums.ScenarioDebugMode">
             Do not use a debug mode.
         </constant>
-        <constant name="SCENARIO_DEBUG_WIREFRAME" value="1" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_WIREFRAME" value="1" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects as wireframe models.
         </constant>
-        <constant name="SCENARIO_DEBUG_OVERDRAW" value="2" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_OVERDRAW" value="2" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects in a way that displays how much overdraw is occurring. Overdraw occurs when a section of pixels is drawn and shaded and then another object covers it up. To optimize a scene, you should reduce overdraw.
         </constant>
-        <constant name="SCENARIO_DEBUG_SHADELESS" value="3" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_SHADELESS" value="3" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects without shading. Equivalent to setting all objects shaders to [code]unshaded[/code].
         </constant>
-        <constant name="INSTANCE_NONE" value="0" enum="InstanceType">
+        <constant name="INSTANCE_NONE" value="0" enum="RenderingServerEnums.InstanceType">
             The instance does not have a type.
         </constant>
-        <constant name="INSTANCE_MESH" value="1" enum="InstanceType">
+        <constant name="INSTANCE_MESH" value="1" enum="RenderingServerEnums.InstanceType">
             The instance is a mesh.
         </constant>
-        <constant name="INSTANCE_MULTIMESH" value="2" enum="InstanceType">
+        <constant name="INSTANCE_MULTIMESH" value="2" enum="RenderingServerEnums.InstanceType">
             The instance is a multimesh.
         </constant>
-        <constant name="INSTANCE_IMMEDIATE" value="3" enum="InstanceType">
+        <constant name="INSTANCE_IMMEDIATE" value="3" enum="RenderingServerEnums.InstanceType">
             The instance is an immediate geometry.
         </constant>
-        <constant name="INSTANCE_PARTICLES" value="4" enum="InstanceType">
+        <constant name="INSTANCE_PARTICLES" value="4" enum="RenderingServerEnums.InstanceType">
             The instance is a particle emitter.
         </constant>
-        <constant name="INSTANCE_LIGHT" value="5" enum="InstanceType">
+        <constant name="INSTANCE_LIGHT" value="5" enum="RenderingServerEnums.InstanceType">
             The instance is a light.
         </constant>
-        <constant name="INSTANCE_REFLECTION_PROBE" value="6" enum="InstanceType">
+        <constant name="INSTANCE_REFLECTION_PROBE" value="6" enum="RenderingServerEnums.InstanceType">
             The instance is a reflection probe.
         </constant>
-        <constant name="INSTANCE_GI_PROBE" value="7" enum="InstanceType">
+        <constant name="INSTANCE_GI_PROBE" value="7" enum="RenderingServerEnums.InstanceType">
             The instance is a GI probe.
         </constant>
-        <constant name="INSTANCE_LIGHTMAP_CAPTURE" value="8" enum="InstanceType">
+        <constant name="INSTANCE_LIGHTMAP_CAPTURE" value="8" enum="RenderingServerEnums.InstanceType">
             The instance is a lightmap capture.
         </constant>
-        <constant name="INSTANCE_MAX" value="9" enum="InstanceType">
+        <constant name="INSTANCE_MAX" value="9" enum="RenderingServerEnums.InstanceType">
             Represents the size of the [enum InstanceType] enum.
         </constant>
-        <constant name="INSTANCE_GEOMETRY_MASK" value="30" enum="InstanceType">
+        <constant name="INSTANCE_GEOMETRY_MASK" value="30" enum="RenderingServerEnums.InstanceType">
             A combination of the flags of geometry instances (mesh, multimesh, immediate and particles).
         </constant>
-        <constant name="INSTANCE_FLAG_USE_BAKED_LIGHT" value="0" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_USE_BAKED_LIGHT" value="0" enum="RenderingServerEnums.InstanceFlags">
             Allows the instance to be used in baked lighting.
         </constant>
-        <constant name="INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE" value="1" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE" value="1" enum="RenderingServerEnums.InstanceFlags">
             When set, manually requests to draw geometry on next frame.
         </constant>
-        <constant name="INSTANCE_FLAG_MAX" value="2" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_MAX" value="2" enum="RenderingServerEnums.InstanceFlags">
             Represents the size of the [enum InstanceFlags] enum.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_OFF" value="0" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_OFF" value="0" enum="RenderingServerEnums.ShadowCastingSetting">
             Disable shadows from this instance.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_ON" value="1" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_ON" value="1" enum="RenderingServerEnums.ShadowCastingSetting">
             Cast shadows from this instance.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_DOUBLE_SIDED" value="2" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_DOUBLE_SIDED" value="2" enum="RenderingServerEnums.ShadowCastingSetting">
             Disable backface culling when rendering the shadow of the object. This is slightly slower but may result in more correct shadows.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_SHADOWS_ONLY" value="3" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_SHADOWS_ONLY" value="3" enum="RenderingServerEnums.ShadowCastingSetting">
             Only render the shadows from the object. The object itself will not be drawn.
         </constant>
-        <constant name="NINE_PATCH_STRETCH" value="0" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_STRETCH" value="0" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets stretched where needed.
         </constant>
-        <constant name="NINE_PATCH_TILE" value="1" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_TILE" value="1" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets filled with tiles where needed.
         </constant>
-        <constant name="NINE_PATCH_TILE_FIT" value="2" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_TILE_FIT" value="2" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets filled with tiles where needed and stretches them a bit if needed.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_ADD" value="0" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_ADD" value="0" enum="RenderingServerEnums.CanvasLightMode">
             Adds light color additive to the canvas.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_SUB" value="1" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_SUB" value="1" enum="RenderingServerEnums.CanvasLightMode">
             Adds light color subtractive to the canvas.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_MIX" value="2" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_MIX" value="2" enum="RenderingServerEnums.CanvasLightMode">
             The light adds color depending on transparency.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_MASK" value="3" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_MASK" value="3" enum="RenderingServerEnums.CanvasLightMode">
             The light adds color depending on mask.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_NONE" value="0" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_NONE" value="0" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Do not apply a filter to canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF3" value="1" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF3" value="1" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF3 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF5" value="2" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF5" value="2" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF5 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF7" value="3" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF7" value="3" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF7 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF9" value="4" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF9" value="4" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF9 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF13" value="5" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF13" value="5" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF13 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_DISABLED" value="0" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_DISABLED" value="0" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is disabled.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE" value="1" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE" value="1" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is clockwise.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE" value="2" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE" value="2" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is counterclockwise.
         </constant>
-        <constant name="INFO_OBJECTS_IN_FRAME" value="0" enum="RenderInfo">
+        <constant name="INFO_OBJECTS_IN_FRAME" value="0" enum="RenderingServerEnums.RenderInfo">
             The amount of objects in the frame.
         </constant>
-        <constant name="INFO_VERTICES_IN_FRAME" value="1" enum="RenderInfo">
+        <constant name="INFO_VERTICES_IN_FRAME" value="1" enum="RenderingServerEnums.RenderInfo">
             The amount of vertices in the frame.
         </constant>
-        <constant name="INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderInfo">
+        <constant name="INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderingServerEnums.RenderInfo">
             The amount of modified materials in the frame.
         </constant>
-        <constant name="INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderInfo">
+        <constant name="INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderingServerEnums.RenderInfo">
             The amount of shader rebinds in the frame.
         </constant>
-        <constant name="INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderInfo">
+        <constant name="INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderingServerEnums.RenderInfo">
             The amount of surface changes in the frame.
         </constant>
-        <constant name="INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderInfo">
+        <constant name="INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderingServerEnums.RenderInfo">
             The amount of draw calls in frame.
         </constant>
-        <constant name="INFO_USAGE_VIDEO_MEM_TOTAL" value="6" enum="RenderInfo">
+        <constant name="INFO_USAGE_VIDEO_MEM_TOTAL" value="6" enum="RenderingServerEnums.RenderInfo">
             Unimplemented in the GLES2 and GLES3 rendering backends, always returns 0.
         </constant>
-        <constant name="INFO_VIDEO_MEM_USED" value="7" enum="RenderInfo">
+        <constant name="INFO_VIDEO_MEM_USED" value="7" enum="RenderingServerEnums.RenderInfo">
             The amount of video memory used, i.e. texture and vertex memory combined.
         </constant>
-        <constant name="INFO_TEXTURE_MEM_USED" value="8" enum="RenderInfo">
+        <constant name="INFO_TEXTURE_MEM_USED" value="8" enum="RenderingServerEnums.RenderInfo">
             The amount of texture memory used.
         </constant>
-        <constant name="INFO_VERTEX_MEM_USED" value="9" enum="RenderInfo">
+        <constant name="INFO_VERTEX_MEM_USED" value="9" enum="RenderingServerEnums.RenderInfo">
             The amount of vertex memory used.
         </constant>
-        <constant name="FEATURE_SHADERS" value="0" enum="Features">
+        <constant name="FEATURE_SHADERS" value="0" enum="RenderingServerEnums.Features">
             Hardware supports shaders. This enum is currently unused in Godot 3.x.
         </constant>
-        <constant name="FEATURE_MULTITHREADED" value="1" enum="Features">
+        <constant name="FEATURE_MULTITHREADED" value="1" enum="RenderingServerEnums.Features">
             Hardware supports multithreading. This enum is currently unused in Godot 3.x.
         </constant>
-        <constant name="MULTIMESH_TRANSFORM_2D" value="0" enum="MultimeshTransformFormat">
+        <constant name="MULTIMESH_TRANSFORM_2D" value="0" enum="RenderingServerEnums.MultimeshTransformFormat">
             Use [Transform2D] to store MultiMesh transform.
         </constant>
-        <constant name="MULTIMESH_TRANSFORM_3D" value="1" enum="MultimeshTransformFormat">
+        <constant name="MULTIMESH_TRANSFORM_3D" value="1" enum="RenderingServerEnums.MultimeshTransformFormat">
             Use [Transform] to store MultiMesh transform.
         </constant>
-        <constant name="MULTIMESH_COLOR_NONE" value="0" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_NONE" value="0" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh does not use per-instance color.
         </constant>
-        <constant name="MULTIMESH_COLOR_8BIT" value="1" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_8BIT" value="1" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh color uses 8 bits per component. This packs the color into a single float.
         </constant>
-        <constant name="MULTIMESH_COLOR_FLOAT" value="2" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_FLOAT" value="2" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh color uses a float per channel.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_NONE" value="0" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_NONE" value="0" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh does not use custom data.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_8BIT" value="1" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_8BIT" value="1" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh custom data uses 8 bits per component. This packs the 4-component custom data into a single float.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_FLOAT" value="2" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_FLOAT" value="2" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh custom data uses a float per component.
         </constant>
-        <constant name="REFLECTION_PROBE_UPDATE_ONCE" value="0" enum="ReflectionProbeUpdateMode">
+        <constant name="REFLECTION_PROBE_UPDATE_ONCE" value="0" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             Reflection probe will update reflections once and then stop.
         </constant>
-        <constant name="REFLECTION_PROBE_UPDATE_ALWAYS" value="1" enum="ReflectionProbeUpdateMode">
+        <constant name="REFLECTION_PROBE_UPDATE_ALWAYS" value="1" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             Reflection probe will update each frame. This mode is necessary to capture moving objects.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_INDEX" value="0" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_INDEX" value="0" enum="RenderingServerEnums.ParticlesDrawOrder">
             Draw particles in the order that they appear in the particles array.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_LIFETIME" value="1" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_LIFETIME" value="1" enum="RenderingServerEnums.ParticlesDrawOrder">
             Sort particles based on their lifetime.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_VIEW_DEPTH" value="2" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_VIEW_DEPTH" value="2" enum="RenderingServerEnums.ParticlesDrawOrder">
             Sort particles based on their distance to the camera.
         </constant>
-        <constant name="ENV_BG_CLEAR_COLOR" value="0" enum="EnvironmentBG">
+        <constant name="ENV_BG_CLEAR_COLOR" value="0" enum="RenderingServerEnums.EnvironmentBG">
             Use the clear color as background.
         </constant>
-        <constant name="ENV_BG_COLOR" value="1" enum="EnvironmentBG">
+        <constant name="ENV_BG_COLOR" value="1" enum="RenderingServerEnums.EnvironmentBG">
             Use a specified color as the background.
         </constant>
-        <constant name="ENV_BG_SKY" value="2" enum="EnvironmentBG">
+        <constant name="ENV_BG_SKY" value="2" enum="RenderingServerEnums.EnvironmentBG">
             Use a sky resource for the background.
         </constant>
-        <constant name="ENV_BG_COLOR_SKY" value="3" enum="EnvironmentBG">
+        <constant name="ENV_BG_COLOR_SKY" value="3" enum="RenderingServerEnums.EnvironmentBG">
             Use a custom color for background, but use a sky for shading and reflections.
         </constant>
-        <constant name="ENV_BG_CANVAS" value="4" enum="EnvironmentBG">
+        <constant name="ENV_BG_CANVAS" value="4" enum="RenderingServerEnums.EnvironmentBG">
             Use a specified canvas layer as the background. This can be useful for instantiating a 2D scene in a 3D world.
         </constant>
-        <constant name="ENV_BG_KEEP" value="5" enum="EnvironmentBG">
+        <constant name="ENV_BG_KEEP" value="5" enum="RenderingServerEnums.EnvironmentBG">
             Do not clear the background, use whatever was rendered last frame as the background.
         </constant>
-        <constant name="ENV_BG_MAX" value="7" enum="EnvironmentBG">
+        <constant name="ENV_BG_MAX" value="7" enum="RenderingServerEnums.EnvironmentBG">
             Represents the size of the [enum EnvironmentBG] enum.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_LOW" value="0" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_LOW" value="0" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Use lowest blur quality. Fastest, but may look bad.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_MEDIUM" value="1" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_MEDIUM" value="1" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Use medium blur quality.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_HIGH" value="2" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_HIGH" value="2" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Used highest blur quality. Looks the best, but is the slowest.
         </constant>
-        <constant name="GLOW_BLEND_MODE_ADDITIVE" value="0" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_ADDITIVE" value="0" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Add the effect of the glow on top of the scene.
         </constant>
-        <constant name="GLOW_BLEND_MODE_SCREEN" value="1" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_SCREEN" value="1" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Blends the glow effect with the screen. Does not get as bright as additive.
         </constant>
-        <constant name="GLOW_BLEND_MODE_SOFTLIGHT" value="2" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_SOFTLIGHT" value="2" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Produces a subtle color disturbance around objects.
         </constant>
-        <constant name="GLOW_BLEND_MODE_REPLACE" value="3" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_REPLACE" value="3" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Shows the glow effect by itself without the underlying scene.
         </constant>
-        <constant name="ENV_TONE_MAPPER_LINEAR" value="0" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_LINEAR" value="0" enum="RenderingServerEnums.EnvironmentToneMapper">
             Output color as they came in.
         </constant>
-        <constant name="ENV_TONE_MAPPER_REINHARD" value="1" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_REINHARD" value="1" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the Reinhard tonemapper.
         </constant>
-        <constant name="ENV_TONE_MAPPER_FILMIC" value="2" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_FILMIC" value="2" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the filmic tonemapper.
         </constant>
-        <constant name="ENV_TONE_MAPPER_ACES" value="3" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_ACES" value="3" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the ACES tonemapper.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_LOW" value="0" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_LOW" value="0" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Lowest quality of screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_MEDIUM" value="1" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_MEDIUM" value="1" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Medium quality screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_HIGH" value="2" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_HIGH" value="2" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Highest quality screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_BLUR_DISABLED" value="0" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_DISABLED" value="0" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Disables the blur set for SSAO. Will make SSAO look noisier.
         </constant>
-        <constant name="ENV_SSAO_BLUR_1x1" value="1" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_1x1" value="1" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Perform a 1x1 blur on the SSAO output.
         </constant>
-        <constant name="ENV_SSAO_BLUR_2x2" value="2" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_2x2" value="2" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Performs a 2x2 blur on the SSAO output.
         </constant>
-        <constant name="ENV_SSAO_BLUR_3x3" value="3" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_3x3" value="3" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Performs a 3x3 blur on the SSAO output. Use this for smoothest SSAO.
         </constant>
     </constants>

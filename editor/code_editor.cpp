@@ -193,7 +193,7 @@ void FindReplaceBar::_replace() {
 
         text_edit->unfold_line(result_line);
         text_edit->select(result_line, result_col, result_line, result_col + get_search_text().length());
-        text_edit->insert_text_at_cursor(get_replace_text());
+        text_edit->insert_text_at_cursor_ui(get_replace_text());
 
         text_edit->end_complex_operation();
 
@@ -254,14 +254,14 @@ void FindReplaceBar::_replace_all() {
                 }
 
                 // Replace but adjust selection bounds.
-                text_edit->insert_text_at_cursor(replace_text);
+                text_edit->insert_text_at_cursor_ui(replace_text);
                 if (match_to.x == selection_end.x) {
                     selection_end.y += replace_text.length() - search_text_len;
                 }
 
             } else {
                 // Just replace.
-                text_edit->insert_text_at_cursor(replace_text);
+                text_edit->insert_text_at_cursor_ui(replace_text);
             }
 
             rc++;
@@ -758,12 +758,12 @@ void CodeTextEditor::_text_editor_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 void CodeTextEditor::_zoom_in() {
-    font_resize_val += MAX(EDSCALE, 1.0f);
+    font_resize_val += M_MAX(EDSCALE, 1.0f);
     _zoom_changed();
 }
 
 void CodeTextEditor::_zoom_out() {
-    font_resize_val -= MAX(EDSCALE, 1.0f);
+    font_resize_val -= M_MAX(EDSCALE, 1.0f);
     _zoom_changed();
 }
 
@@ -1256,7 +1256,7 @@ void CodeTextEditor::clone_lines_down() {
         text_editor->unfold_line(i);
     }
     text_editor->deselect();
-    text_editor->insert_text_at_cursor(new_text);
+    text_editor->insert_text_at_cursor_ui(new_text);
     text_editor->cursor_set_line(cursor_new_line);
     text_editor->cursor_set_column(cursor_new_column);
     if (selection_active) {

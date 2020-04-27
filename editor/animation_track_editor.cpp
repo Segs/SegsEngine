@@ -1425,7 +1425,7 @@ void AnimationTimelineEdit::_anim_length_changed(double p_new_len) {
     if (editing)
         return;
 
-    p_new_len = MAX(0.001, p_new_len);
+    p_new_len = M_MAX(0.001, p_new_len);
     if (use_fps && animation->get_step() > 0) {
         p_new_len *= animation->get_step();
     }
@@ -1467,7 +1467,7 @@ int AnimationTimelineEdit::get_name_limit() const {
 
     Ref<Texture> hsize_icon = get_icon("Hsize", "EditorIcons");
 
-    int limit = MAX(name_limit, add_track->get_minimum_size().width + hsize_icon->get_width());
+    int limit = M_MAX(name_limit, add_track->get_minimum_size().width + hsize_icon->get_width());
 
     limit = MIN(limit, get_size().width - get_buttons_width() - 1);
 
@@ -1598,7 +1598,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
         int max_digit_width = font->get_char_size('0').width;
         for (int i = 1; i <= 9; i++) {
             const int digit_width = font->get_char_size('0' + i).width;
-            max_digit_width = MAX(digit_width, max_digit_width);
+            max_digit_width = M_MAX(digit_width, max_digit_width);
         }
         const int max_sc = int(Math::ceil(zoomw / scale));
         const int max_sc_width = StringUtils::num(max_sc).length() * max_digit_width;
@@ -1697,7 +1697,7 @@ Size2 AnimationTimelineEdit::get_minimum_size() const {
 
     Size2 ms = add_track->get_minimum_size();
     Ref<Font> font = get_font("font", "Label");
-    ms.height = MAX(ms.height, font->get_height());
+    ms.height = M_MAX(ms.height, font->get_height());
     ms.width = get_buttons_width() + add_track->get_minimum_size().width + get_icon("Hsize", "EditorIcons")->get_width() + 2;
     return ms;
 }
@@ -2268,7 +2268,7 @@ void AnimationTrackEdit::draw_key_link(int p_index, float p_pixels_sec, int p_x,
     Color color = get_color("font_color", "Label");
     color.a = 0.5;
 
-    int from_x = MAX(p_x, p_clip_left);
+    int from_x = M_MAX(p_x, p_clip_left);
     int to_x = MIN(p_next_x, p_clip_right);
 
     draw_line(Point2(from_x + 1, get_size().height / 2), Point2(to_x, get_size().height / 2), color, Math::round(2 * EDSCALE));
@@ -2317,7 +2317,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         }
         text += ")";
 
-        int limit = MAX(0, p_clip_right - p_x - icon_to_draw->get_width());
+        int limit = M_MAX(0, p_clip_right - p_x - icon_to_draw->get_width());
         if (limit > 0) {
             draw_string(font, Vector2(p_x + icon_to_draw->get_width(), int(get_size().height - font->get_height()) / 2 + font->get_ascent()), text, color, limit);
         }
@@ -2428,8 +2428,8 @@ Size2 AnimationTrackEdit::get_minimum_size() const {
     Ref<Font> font = get_font("font", "Label");
     int separation = get_constant("vseparation", "ItemList");
 
-    int max_h = MAX(texture->get_height(), font->get_height());
-    max_h = MAX(max_h, get_key_height());
+    int max_h = M_MAX(texture->get_height(), font->get_height());
+    max_h = M_MAX(max_h, get_key_height());
 
     return Vector2(1, max_h + separation);
 }
@@ -3225,7 +3225,7 @@ Size2 AnimationTrackEditGroup::get_minimum_size() const {
     Ref<Font> font = get_font("font", "Label");
     int separation = get_constant("vseparation", "ItemList");
 
-    return Vector2(0, MAX(font->get_height(), icon->get_height()) + separation);
+    return Vector2(0, M_MAX(font->get_height(), icon->get_height()) + separation);
 }
 
 void AnimationTrackEditGroup::set_timeline(AnimationTimelineEdit *p_timeline) {

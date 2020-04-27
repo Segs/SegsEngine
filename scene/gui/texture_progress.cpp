@@ -252,10 +252,10 @@ void TextureProgress::draw_nine_patch_stretched(const Ref<Texture> &p_texture, F
         }
 
         double width_filled = width_total * p_ratio;
-        double middle_section_size = MAX(0.0, width_texture - first_section_size - last_section_size);
+        double middle_section_size = M_MAX(0.0, width_texture - first_section_size - last_section_size);
 
-        middle_section_size *= MIN(1.0, (MAX(0.0, width_filled - first_section_size) / MAX(1.0, width_total - first_section_size - last_section_size)));
-        last_section_size = MAX(0.0, last_section_size - (width_total - width_filled));
+        middle_section_size *= MIN(1.0, (M_MAX(0.0, width_filled - first_section_size) / M_MAX(1.0, width_total - first_section_size - last_section_size)));
+        last_section_size = M_MAX(0.0, last_section_size - (width_total - width_filled));
         first_section_size = MIN(first_section_size, width_filled);
         width_texture = MIN(width_texture, first_section_size + middle_section_size + last_section_size);
 
@@ -370,7 +370,7 @@ void TextureProgress::_notification(int p_what) {
                                 pts.append(start);
                                 pts.append(end);
                                 float from = MIN(start, end);
-                                float to = MAX(start, end);
+                                float to = M_MAX(start, end);
                                 for (int i = 0; i < 12; i++)
                                     if (corners[i] > from && corners[i] < to)
                                         pts.append(corners[i]);

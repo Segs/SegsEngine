@@ -144,9 +144,9 @@ void RootMotionView::_notification(int p_what) {
                 from_j = accumulated.xform(from_j);
 
                 Color c = color, c_i = color, c_j = color;
-                c.a *= MAX(0, 1.0 - from.length() / radius);
-                c_i.a *= MAX(0, 1.0 - from_i.length() / radius);
-                c_j.a *= MAX(0, 1.0 - from_j.length() / radius);
+                c.a *= M_MAX(0, 1.0 - from.length() / radius);
+                c_i.a *= M_MAX(0, 1.0 - from_i.length() / radius);
+                c_j.a *= M_MAX(0, 1.0 - from_j.length() / radius);
 
                 RenderingServer::get_singleton()->immediate_color(immediate, c);
                 RenderingServer::get_singleton()->immediate_vertex(immediate, from);

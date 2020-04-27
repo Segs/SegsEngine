@@ -85,11 +85,11 @@ void MultiMeshEditor::_populate() {
             return;
         }
 
-        MeshInstance *ms_instance = object_cast<MeshInstance>(ms_node);
+        MeshInstance3D *ms_instance = object_cast<MeshInstance3D>(ms_node);
 
         if (!ms_instance) {
 
-            err_dialog->set_text(TTR("Mesh source is invalid (not a MeshInstance)."));
+            err_dialog->set_text(TTR("Mesh source is invalid (not a MeshInstance3D)."));
             err_dialog->popup_centered_minsize();
             return;
         }
@@ -120,7 +120,7 @@ void MultiMeshEditor::_populate() {
         return;
     }
 
-    GeometryInstance *ss_instance = object_cast<MeshInstance>(ss_node);
+    GeometryInstance *ss_instance = object_cast<MeshInstance3D>(ss_node);
 
     if (!ss_instance) {
 

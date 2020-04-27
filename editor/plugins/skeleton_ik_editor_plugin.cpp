@@ -32,7 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "scene/animation/skeleton_ik.h"
+#include "scene/animation/skeleton_ik_3d.h"
 
 IMPL_GDCLASS(SkeletonIKEditorPlugin)
 
@@ -73,7 +73,7 @@ void SkeletonIKEditorPlugin::edit(Object *p_object) {
         }
     }
 
-    SkeletonIK *s = object_cast<SkeletonIK>(p_object);
+    SkeletonIK3D *s = object_cast<SkeletonIK3D>(p_object);
     if (!s)
         return;
 
@@ -82,7 +82,7 @@ void SkeletonIKEditorPlugin::edit(Object *p_object) {
 
 bool SkeletonIKEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("SkeletonIK");
+    return p_object->is_class("SkeletonIK3D");
 }
 
 void SkeletonIKEditorPlugin::make_visible(bool p_visible) {

@@ -630,7 +630,7 @@ void Skeleton::localize_rests() {
 
 #ifndef _3D_DISABLED
 
-void Skeleton::bind_physical_bone_to_bone(int p_bone, PhysicalBone *p_physical_bone) {
+void Skeleton::bind_physical_bone_to_bone(int p_bone, PhysicalBone3D *p_physical_bone) {
     ERR_FAIL_INDEX(p_bone, bones.size());
     ERR_FAIL_COND(bones[p_bone].physical_bone);
     ERR_FAIL_COND(!p_physical_bone);
@@ -646,13 +646,13 @@ void Skeleton::unbind_physical_bone_from_bone(int p_bone) {
     _rebuild_physical_bones_cache();
 }
 
-PhysicalBone *Skeleton::get_physical_bone(int p_bone) {
+PhysicalBone3D *Skeleton::get_physical_bone(int p_bone) {
     ERR_FAIL_INDEX_V(p_bone, bones.size(), nullptr);
 
     return bones[p_bone].physical_bone;
 }
 
-PhysicalBone *Skeleton::get_physical_bone_parent(int p_bone) {
+PhysicalBone3D *Skeleton::get_physical_bone_parent(int p_bone) {
     ERR_FAIL_INDEX_V(p_bone, bones.size(), nullptr);
 
     if (bones[p_bone].cache_parent_physical_bone) {
@@ -662,7 +662,7 @@ PhysicalBone *Skeleton::get_physical_bone_parent(int p_bone) {
     return _get_physical_bone_parent(p_bone);
 }
 
-PhysicalBone *Skeleton::_get_physical_bone_parent(int p_bone) {
+PhysicalBone3D *Skeleton::_get_physical_bone_parent(int p_bone) {
     ERR_FAIL_INDEX_V(p_bone, bones.size(), nullptr);
 
     const int parent_bone = bones[p_bone].parent;
@@ -670,7 +670,7 @@ PhysicalBone *Skeleton::_get_physical_bone_parent(int p_bone) {
         return nullptr;
     }
 
-    PhysicalBone *pb = bones[parent_bone].physical_bone;
+    PhysicalBone3D *pb = bones[parent_bone].physical_bone;
     if (pb) {
         return pb;
     } else {
@@ -681,7 +681,7 @@ PhysicalBone *Skeleton::_get_physical_bone_parent(int p_bone) {
 void Skeleton::_rebuild_physical_bones_cache() {
     const int b_size = bones.size();
     for (int i = 0; i < b_size; ++i) {
-        PhysicalBone *parent_pb = _get_physical_bone_parent(i);
+        PhysicalBone3D *parent_pb = _get_physical_bone_parent(i);
         if (parent_pb != bones[i].physical_bone) {
             bones[i].cache_parent_physical_bone = parent_pb;
             if (bones[i].physical_bone)
@@ -696,7 +696,7 @@ void _pb_stop_simulation(Node *p_node) {
         _pb_stop_simulation(p_node->get_child(i));
     }
 
-    PhysicalBone *pb = object_cast<PhysicalBone>(p_node);
+    PhysicalBone3D *pb = object_cast<PhysicalBone3D>(p_node);
     if (pb) {
         pb->set_simulate_physics(false);
         pb->set_static_body(false);
@@ -713,7 +713,7 @@ void _pb_start_simulation(const Skeleton *p_skeleton, Node *p_node, const Vector
         _pb_start_simulation(p_skeleton, p_node->get_child(i), p_sim_bones);
     }
 
-    PhysicalBone *pb = object_cast<PhysicalBone>(p_node);
+    PhysicalBone3D *pb = object_cast<PhysicalBone3D>(p_node);
     if (pb) {
         bool sim = false;
         for (int i = p_sim_bones.size() - 1; 0 <= i; --i) {

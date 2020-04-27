@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="PhysicsShapeQueryParameters" inherits="Reference" version="4.0">
+<class name="PhysicsShapeQueryParameters3D" inherits="Reference" version="4.0">
 	<brief_description>
 		Parameters to be sent to a 3D shape physics query.
 	</brief_description>
 	<description>
-		This class contains the shape and other parameters for 3D intersection/collision queries. See also [PhysicsShapeQueryResult].
+		This class contains the shape and other parameters for 3D intersection/collision queries. See also [PhysicsShapeQueryResult3D].
 	</description>
 	<tutorials>
 	</tutorials>

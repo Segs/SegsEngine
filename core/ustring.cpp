@@ -3444,7 +3444,7 @@ StringView PathUtils::get_file(StringView path) {
 UIString PathUtils::get_extension(const UIString &path) {
 
     int pos = path.lastIndexOf(".");
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+    if (pos < 0 || pos < M_MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
         return UIString();
 
     return StringUtils::substr(path,pos + 1);
@@ -3573,7 +3573,7 @@ String StringUtils::percent_decode(StringView str) {
 UIString PathUtils::get_basename(const UIString &path) {
 
     int pos = path.lastIndexOf('.');
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+    if (pos < 0 || pos < M_MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
         return path;
 
     return StringUtils::substr(path,0, pos);

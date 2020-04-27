@@ -678,7 +678,7 @@ void GraphEdit::_draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const
     if (diff > 0) {
         cp_offset = MIN(cp_len, diff * 0.5);
     } else {
-        cp_offset = MAX(MIN(cp_len - diff, cp_neg_len), -diff * 0.5);
+        cp_offset = M_MAX(MIN(cp_len - diff, cp_neg_len), -diff * 0.5);
     }
 
     Vector2 c1 = Vector2(cp_offset * zoom, 0);

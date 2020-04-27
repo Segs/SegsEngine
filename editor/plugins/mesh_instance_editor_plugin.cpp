@@ -51,7 +51,7 @@ void MeshInstanceEditor::_node_removed(Node *p_node) {
     }
 }
 
-void MeshInstanceEditor::edit(MeshInstance *p_mesh) {
+void MeshInstanceEditor::edit(MeshInstance3D *p_mesh) {
 
     node = p_mesh;
 }
@@ -85,7 +85,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
                 CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(shape);
-                StaticBody *body = memnew(StaticBody);
+                StaticBody3D *body = memnew(StaticBody3D);
                 body->add_child(cshape);
 
                 Node *owner = node == get_tree()->get_edited_scene_root() ? node : node->get_owner();
@@ -104,7 +104,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
             for (Node * E : selection) {
 
-                MeshInstance *instance = object_cast<MeshInstance>(E);
+                MeshInstance3D *instance = object_cast<MeshInstance3D>(E);
                 if (!instance)
                     continue;
 
@@ -118,7 +118,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
                 CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(shape);
-                StaticBody *body = memnew(StaticBody);
+                StaticBody3D *body = memnew(StaticBody3D);
                 body->add_child(cshape);
 
                 Node *owner = instance == get_tree()->get_edited_scene_root() ? instance : instance->get_owner();
@@ -409,7 +409,7 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
     Ref<Mesh> mesh = node->get_mesh();
     if (not mesh) {
-        err_dialog->set_text(TTR("MeshInstance lacks a Mesh!"));
+        err_dialog->set_text(TTR("MeshInstance3D lacks a Mesh!"));
         err_dialog->popup_centered_minsize();
         return;
     }
@@ -432,7 +432,7 @@ void MeshInstanceEditor::_create_outline_mesh() {
         return;
     }
 
-    MeshInstance *mi = memnew(MeshInstance);
+    MeshInstance3D *mi = memnew(MeshInstance3D);
     mi->set_mesh(mesho);
     Node *owner = node->get_owner();
     if (get_tree()->get_edited_scene_root() == node) {
@@ -465,10 +465,10 @@ MeshInstanceEditor::MeshInstanceEditor() {
     SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Mesh"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshInstance", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshInstance3D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create Trimesh Static Body"), MENU_OPTION_CREATE_STATIC_TRIMESH_BODY);
-    options->get_popup()->set_item_tooltip(options->get_popup()->get_item_count() - 1, TTR("Creates a StaticBody and assigns a polygon-based collision shape to it automatically.\nThis is the most accurate (but slowest) option for collision detection."));
+    options->get_popup()->set_item_tooltip(options->get_popup()->get_item_count() - 1, TTR("Creates a StaticBody3D and assigns a polygon-based collision shape to it automatically.\nThis is the most accurate (but slowest) option for collision detection."));
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Create Trimesh Collision Sibling"), MENU_OPTION_CREATE_TRIMESH_COLLISION_SHAPE);
     options->get_popup()->set_item_tooltip(options->get_popup()->get_item_count() - 1, TTR("Creates a polygon-based collision shape.\nThis is the most accurate (but slowest) option for collision detection."));
@@ -520,12 +520,12 @@ MeshInstanceEditor::MeshInstanceEditor() {
 
 void MeshInstanceEditorPlugin::edit(Object *p_object) {
 
-    mesh_editor->edit(object_cast<MeshInstance>(p_object));
+    mesh_editor->edit(object_cast<MeshInstance3D>(p_object));
 }
 
 bool MeshInstanceEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("MeshInstance");
+    return p_object->is_class("MeshInstance3D");
 }
 
 void MeshInstanceEditorPlugin::make_visible(bool p_visible) {

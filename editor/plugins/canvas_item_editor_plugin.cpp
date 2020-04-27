@@ -1806,14 +1806,14 @@ bool CanvasItemEditor::_gui_input_resize(const Ref<InputEvent> &p_event) {
             if (drag_type == DRAG_LEFT || drag_type == DRAG_TOP_LEFT || drag_type == DRAG_BOTTOM_LEFT) {
                 current_begin.x = MIN(drag_begin.x, max_begin.x);
             } else if (drag_type == DRAG_RIGHT || drag_type == DRAG_TOP_RIGHT || drag_type == DRAG_BOTTOM_RIGHT) {
-                current_end.x = MAX(drag_end.x, min_end.x);
+                current_end.x = M_MAX(drag_end.x, min_end.x);
             }
 
             // Vertical resize
             if (drag_type == DRAG_TOP || drag_type == DRAG_TOP_LEFT || drag_type == DRAG_TOP_RIGHT) {
                 current_begin.y = MIN(drag_begin.y, max_begin.y);
             } else if (drag_type == DRAG_BOTTOM || drag_type == DRAG_BOTTOM_LEFT || drag_type == DRAG_BOTTOM_RIGHT) {
-                current_end.y = MAX(drag_end.y, min_end.y);
+                current_end.y = M_MAX(drag_end.y, min_end.y);
             }
 
             // Uniform resize
@@ -2879,16 +2879,16 @@ void CanvasItemEditor::_draw_ruler_tool() {
             const int vertical_angle = round(180 * vertical_angle_rad / Math_PI);
 
             Point2 text_pos2 = text_pos;
-            text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
+            text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : M_MAX(text_pos.x + text_width, begin.x - text_width / 2);
             viewport->draw_string(font, text_pos2, FormatVE("%.2f px", length_vector.y), font_secondary_color);
 
             Point2 v_angle_text_pos = Point2();
             v_angle_text_pos.x = CLAMP(begin.x - angle_text_width / 2, angle_text_width / 2, viewport->get_rect().size.x - angle_text_width);
-            v_angle_text_pos.y = begin.y < end.y ? MIN(text_pos2.y - 2 * text_height, begin.y - text_height * 0.5f) : MAX(text_pos2.y + text_height * 3, begin.y + text_height * 1.5f);
+            v_angle_text_pos.y = begin.y < end.y ? MIN(text_pos2.y - 2 * text_height, begin.y - text_height * 0.5f) : M_MAX(text_pos2.y + text_height * 3, begin.y + text_height * 1.5f);
             viewport->draw_string(font, v_angle_text_pos, FormatVE("%d deg", vertical_angle), font_secondary_color);
 
             text_pos2 = text_pos;
-            text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
+            text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y - text_height / 2) : M_MAX(text_pos.y + text_height * 2, end.y - text_height / 2);
             viewport->draw_string(font, text_pos2, FormatVE("%.2f px", length_vector.x), font_secondary_color);
 
             Point2 h_angle_text_pos = Point2();
@@ -2897,7 +2897,7 @@ void CanvasItemEditor::_draw_ruler_tool() {
                 h_angle_text_pos.y = end.y + text_height * 1.5f;
                 if (ABS(text_pos2.x - h_angle_text_pos.x) < text_width) {
                     int height_multiplier = 1.5f + (int)grid_snap_active;
-                    h_angle_text_pos.y = MAX(text_pos.y + height_multiplier * text_height, MAX(end.y + text_height * 1.5f, text_pos2.y + height_multiplier * text_height));
+                    h_angle_text_pos.y = M_MAX(text_pos.y + height_multiplier * text_height, M_MAX(end.y + text_height * 1.5f, text_pos2.y + height_multiplier * text_height));
                 }
             } else {
                 h_angle_text_pos.y = end.y - text_height * 0.5f;
@@ -2948,11 +2948,11 @@ void CanvasItemEditor::_draw_ruler_tool() {
                 viewport->draw_string(font, text_pos, FormatVE("%.2f units", (length_vector / grid_step).length()), font_color);
 
                 Point2 text_pos2 = text_pos;
-                text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : MAX(text_pos.x + text_width, begin.x - text_width / 2);
+                text_pos2.x = begin.x < text_pos.x ? MIN(text_pos.x - text_width, begin.x - text_width / 2) : M_MAX(text_pos.x + text_width, begin.x - text_width / 2);
                 viewport->draw_string(font, text_pos2, FormatVE("%d units", (int)(length_vector.y / grid_step.y)), font_secondary_color);
 
                 text_pos2 = text_pos;
-                text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y + text_height / 2) : MAX(text_pos.y + text_height * 2, end.y + text_height / 2);
+                text_pos2.y = end.y < text_pos.y ? MIN(text_pos.y - text_height * 2, end.y + text_height / 2) : M_MAX(text_pos.y + text_height * 2, end.y + text_height / 2);
                 viewport->draw_string(font, text_pos2, FormatVE("%d units", (int)(length_vector.x / grid_step.x)), font_secondary_color);
             } else {
                 viewport->draw_string(font, text_pos, FormatVE("%d units", roundf((length_vector / grid_step).length())), font_color);
@@ -3526,7 +3526,7 @@ void CanvasItemEditor::_draw_hover() {
 
         Ref<Font> font = get_font("font", "Label");
         Size2 node_name_size = font->get_string_size(node_name);
-        Size2 item_size = Size2(node_icon->get_size().x + 4 + node_name_size.x, MAX(node_icon->get_size().y, node_name_size.y - 3));
+        Size2 item_size = Size2(node_icon->get_size().x + 4 + node_name_size.x, M_MAX(node_icon->get_size().y, node_name_size.y - 3));
 
         Point2 pos = transform.xform(hovering_results[i].position) - Point2(0, item_size.y) + (Point2(node_icon->get_size().x, -node_icon->get_size().y) / 4);
         // Rectify the position to avoid overlapping items
@@ -4090,7 +4090,7 @@ void CanvasItemEditor::_update_scrollbars() {
         v_scroll->hide();
     } else {
         if (constrain_editor_view && view_offset.y > end.y && view_offset.y > previous_update_view_offset.y) {
-            view_offset.y = MAX(end.y, previous_update_view_offset.y);
+            view_offset.y = M_MAX(end.y, previous_update_view_offset.y);
         }
         if (constrain_editor_view && view_offset.y < begin.y && view_offset.y < previous_update_view_offset.y) {
             view_offset.y = MIN(begin.y, previous_update_view_offset.y);
@@ -4098,7 +4098,7 @@ void CanvasItemEditor::_update_scrollbars() {
 
         v_scroll->show();
         v_scroll->set_min(MIN(view_offset.y, begin.y));
-        v_scroll->set_max(MAX(view_offset.y, end.y) + screen_rect.y);
+        v_scroll->set_max(M_MAX(view_offset.y, end.y) + screen_rect.y);
         v_scroll->set_page(screen_rect.y);
     }
 
@@ -4111,7 +4111,7 @@ void CanvasItemEditor::_update_scrollbars() {
         h_scroll->hide();
     } else {
         if (constrain_editor_view && view_offset.x > end.x && view_offset.x > previous_update_view_offset.x) {
-            view_offset.x = MAX(end.x, previous_update_view_offset.x);
+            view_offset.x = M_MAX(end.x, previous_update_view_offset.x);
         }
         if (constrain_editor_view && view_offset.x < begin.x && view_offset.x < previous_update_view_offset.x) {
             view_offset.x = MIN(begin.x, previous_update_view_offset.x);
@@ -4119,7 +4119,7 @@ void CanvasItemEditor::_update_scrollbars() {
 
         h_scroll->show();
         h_scroll->set_min(MIN(view_offset.x, begin.x));
-        h_scroll->set_max(MAX(view_offset.x, end.x) + screen_rect.x);
+        h_scroll->set_max(M_MAX(view_offset.x, end.x) + screen_rect.x);
         h_scroll->set_page(screen_rect.x);
     }
 
@@ -4286,9 +4286,9 @@ void CanvasItemEditor::_update_zoom_label() {
     // even if their display doesn't have a particularly low DPI.
     if (zoom >= 10) {
         // Don't show a decimal when the zoom level is higher than 1000 %.
-        zoom_text = rtos(Math::round((zoom / MAX(1, EDSCALE)) * 100)) + " %";
+        zoom_text = rtos(Math::round((zoom / M_MAX(1, EDSCALE)) * 100)) + " %";
     } else {
-        zoom_text = rtos(Math::stepify((zoom / MAX(1, EDSCALE)) * 100, 0.1f)) + " %";
+        zoom_text = rtos(Math::stepify((zoom / M_MAX(1, EDSCALE)) * 100, 0.1f)) + " %";
     }
 
     zoom_reset->set_text_utf8(zoom_text);
@@ -4299,7 +4299,7 @@ void CanvasItemEditor::_button_zoom_minus() {
 }
 
 void CanvasItemEditor::_button_zoom_reset() {
-    _zoom_on_position(1.0 * MAX(1, EDSCALE), viewport_scrollable->get_size() / 2.0);
+    _zoom_on_position(1.0 * M_MAX(1, EDSCALE), viewport_scrollable->get_size() / 2.0);
 }
 
 void CanvasItemEditor::_button_zoom_plus() {
@@ -5065,7 +5065,7 @@ Dictionary CanvasItemEditor::get_state() const {
 
     Dictionary state;
     // Take the editor scale into account.
-    state["zoom"] = zoom / MAX(1, EDSCALE);
+    state["zoom"] = zoom / M_MAX(1, EDSCALE);
     state["ofs"] = view_offset;
     state["grid_offset"] = grid_offset;
     state["grid_step"] = grid_step;
@@ -5104,7 +5104,7 @@ void CanvasItemEditor::set_state(const Dictionary &p_state) {
     if (state.has("zoom")) {
         // Compensate the editor scale, so that the editor scale can be changed
         // and the zoom level will still be the same (relative to the editor scale).
-        zoom = float(p_state["zoom"]) * MAX(1, EDSCALE);
+        zoom = float(p_state["zoom"]) * M_MAX(1, EDSCALE);
         _update_zoom_label();
     }
 
@@ -5320,7 +5320,7 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     show_rulers = true;
     show_guides = true;
     show_edit_locks = true;
-    zoom = 1.0 / MAX(1, EDSCALE);
+    zoom = 1.0 / M_MAX(1, EDSCALE);
     view_offset = Point2(-150 - RULER_WIDTH, -95 - RULER_WIDTH);
     previous_update_view_offset = view_offset; // Moves the view a little bit to the left so that (0,0) is visible. The values a relative to a 16/10 screen
     grid_offset = Point2();

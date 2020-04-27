@@ -579,19 +579,19 @@ inline void set_inner_corner_radius(const Rect2 style_rect, const Rect2 inner_re
     int rad;
     //tl
     rad = MIN(border_top, border_left);
-    inner_corner_radius[0] = MAX(corner_radius[0] - rad, 0);
+    inner_corner_radius[0] = M_MAX(corner_radius[0] - rad, 0);
 
     //tr
     rad = MIN(border_top, border_right);
-    inner_corner_radius[1] = MAX(corner_radius[1] - rad, 0);
+    inner_corner_radius[1] = M_MAX(corner_radius[1] - rad, 0);
 
     //br
     rad = MIN(border_bottom, border_right);
-    inner_corner_radius[2] = MAX(corner_radius[2] - rad, 0);
+    inner_corner_radius[2] = M_MAX(corner_radius[2] - rad, 0);
 
     //bl
     rad = MIN(border_bottom, border_left);
-    inner_corner_radius[3] = MAX(corner_radius[3] - rad, 0);
+    inner_corner_radius[3] = M_MAX(corner_radius[3] - rad, 0);
 }
 inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<Color> &colors, const Rect2 &style_rect, const int corner_radius[4],
         Rect2 ring_rect, Rect2 inner_rect, const Color &inner_color, const Color &outer_color, const int corner_detail, const bool fill_center = false) {
@@ -733,8 +733,8 @@ void StyleBoxFlat::draw(RID p_canvas_item, const Rect2 &p_rect) const {
     Color border_color_inner = blend_on ? border_color_blend : border_color;
 
     //adapt borders (prevent weird overlapping/glitchy drawings)
-    int width = MAX(style_rect.size.width, 0);
-    int height = MAX(style_rect.size.height, 0);
+    int width = M_MAX(style_rect.size.width, 0);
+    int height = M_MAX(style_rect.size.height, 0);
     int adapted_border[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
     adapt_values((int)Margin::Top, (int)Margin::Bottom, adapted_border, border_width, height, height, height);
     adapt_values((int)Margin::Left, (int)Margin::Right, adapted_border, border_width, width, width, width);

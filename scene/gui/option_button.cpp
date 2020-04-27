@@ -45,7 +45,7 @@ Size2 OptionButton::get_minimum_size() const {
 
         Size2 content_size = minsize - padding;
         content_size.width += arrow_size.width + get_constant("hseparation");
-        content_size.height = MAX(content_size.height, arrow_size.height);
+        content_size.height = M_MAX(content_size.height, arrow_size.height);
 
         minsize = content_size + padding;
     }

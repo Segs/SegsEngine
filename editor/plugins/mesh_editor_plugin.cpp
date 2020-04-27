@@ -31,7 +31,7 @@
 #include "mesh_editor_plugin.h"
 
 #include "editor/editor_scale.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(MeshEditor)
@@ -123,7 +123,7 @@ void MeshEditor::_bind_methods() {
 MeshEditor::MeshEditor() {
 
     viewport = memnew(Viewport);
-    Ref<World> world(make_ref_counted<World>());
+    Ref<World3D> world(make_ref_counted<World3D>());
     viewport->set_world(world); //use own world
     add_child(viewport);
     viewport->set_disable_input(true);
@@ -145,7 +145,7 @@ MeshEditor::MeshEditor() {
 
     rotation = memnew(Node3D);
     viewport->add_child(rotation);
-    mesh_instance = memnew(MeshInstance);
+    mesh_instance = memnew(MeshInstance3D);
     rotation->add_child(mesh_instance);
 
     set_custom_minimum_size(Size2(1, 150) * EDSCALE);

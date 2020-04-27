@@ -111,7 +111,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
-
+    p_classes->reserve(p_classes->size()+classes.size());
     for(const auto &k : classes) {
 
         p_classes->push_back(k.first);
@@ -399,7 +399,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
     ti.inherits = p_inherits;
     ti.api = current_api;
 
-    if (ti.inherits) {
+    if (!ti.inherits.empty()) {
 
         ERR_FAIL_COND(!classes.contains(ti.inherits)); // it MUST be registered.
         ti.inherits_ptr = &classes[ti.inherits];
@@ -1103,7 +1103,7 @@ void ClassDB::_set_class_header(const StringName &p_class, StringView header_fil
     //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
     String hdr_path=PathUtils::from_native_path(header_file);
     int idx  = hdr_path.find("SegsEngine");
-    String hdr(hdr_path.substr(idx+12));
+    String hdr(hdr_path.substr(idx+strlen("SegsEngine")+1));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
 

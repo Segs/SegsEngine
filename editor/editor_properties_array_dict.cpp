@@ -324,7 +324,7 @@ void EditorPropertyArray::update_property() {
 
         length->set_value(len);
 
-        int pages = MAX(0, len - 1) / page_len + 1;
+        int pages = M_MAX(0, len - 1) / page_len + 1;
 
         page->set_max(pages);
         page_idx = MIN(page_idx, pages - 1);
@@ -681,7 +681,7 @@ void EditorPropertyDictionary::update_property() {
 
         int len = dict.size();
 
-        int pages = MAX(0, len - 1) / page_len + 1;
+        int pages = M_MAX(0, len - 1) / page_len + 1;
 
         page->set_max(pages);
         page_idx = MIN(page_idx, pages - 1);

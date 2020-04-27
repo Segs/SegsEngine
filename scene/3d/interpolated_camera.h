@@ -35,29 +35,32 @@
 
 class InterpolatedCamera : public Camera3D {
 
-	GDCLASS(InterpolatedCamera,Camera3D)
+    GDCLASS(InterpolatedCamera,Camera3D)
 
-	bool enabled;
-	real_t speed;
-	NodePath target;
+    bool enabled;
+    real_t speed;
+    NodePath target;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
-	void _set_target(const Object *p_target);
+    void _notification(int p_what);
+    static void _bind_methods();
+public:
+    // public in scripting api
+    void _set_target(const Object *p_target);
 
 public:
-	void set_target(const Node3D *p_target);
-	void set_target_path(const NodePath &p_path);
-	NodePath get_target_path() const;
 
-	void set_speed(real_t p_speed);
-	real_t get_speed() const;
+    void set_target(const Node3D *p_target);
+    void set_target_path(const NodePath &p_path);
+    NodePath get_target_path() const;
 
-	void set_interpolation_enabled(bool p_enable);
-	bool is_interpolation_enabled() const;
+    void set_speed(real_t p_speed);
+    real_t get_speed() const;
 
-	InterpolatedCamera();
+    void set_interpolation_enabled(bool p_enable);
+    bool is_interpolation_enabled() const;
+
+    InterpolatedCamera();
 };
 
 #endif // INTERPOLATED_CAMERA_H

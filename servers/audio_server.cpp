@@ -502,7 +502,7 @@ void AudioServer::_mix_step() {
             if (!bus->channels[k].used) {
                 //see if any audio is contained, because channel was not used
 
-                if (MAX(peak.r, peak.l) > Math::db2linear(channel_disable_threshold_db)) {
+                if (M_MAX(peak.r, peak.l) > Math::db2linear(channel_disable_threshold_db)) {
                     bus->channels[k].last_mix_with_audio = mix_frames;
                 } else if (mix_frames - bus->channels[k].last_mix_with_audio > channel_disable_frames) {
                     bus->channels[k].active = false;
@@ -1201,7 +1201,7 @@ void *AudioServer::audio_data_alloc(uint32_t p_data_len, const uint8_t *p_from_d
     MutexLock scoped(*audio_data_lock);
     audio_data[ad] = p_data_len;
     audio_data_total_mem += p_data_len;
-    audio_data_max_mem = MAX(audio_data_total_mem, audio_data_max_mem);
+    audio_data_max_mem = M_MAX(audio_data_total_mem, audio_data_max_mem);
     return ad;
 }
 

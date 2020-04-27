@@ -449,12 +449,12 @@
 			</description>
 		</method>
 		<method name="body_get_direct_state">
-			<return type="PhysicsDirectBodyState">
+			<return type="PhysicsDirectBodyState3D">
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
 			<description>
-				Returns the [PhysicsDirectBodyState] of the body.
+				Returns the [PhysicsDirectBodyState3D] of the body.
 			</description>
 		</method>
 		<method name="body_get_kinematic_safe_margin" qualifiers="const">
@@ -988,7 +988,7 @@
 			<argument index="3" name="local_ref_B" type="Transform">
 			</argument>
 			<description>
-				Creates a [Generic6DOFJoint].
+				Creates a [Generic6DOFJoint3D].
 			</description>
 		</method>
 		<method name="joint_create_hinge">
@@ -1208,12 +1208,12 @@
 			</description>
 		</method>
 		<method name="space_get_direct_state">
-			<return type="PhysicsDirectSpaceState">
+			<return type="PhysicsDirectSpaceState3D">
 			</return>
 			<argument index="0" name="space" type="RID">
 			</argument>
 			<description>
-				Returns the state of a space, a [PhysicsDirectSpaceState]. This object can be used to make collision/intersection queries.
+				Returns the state of a space, a [PhysicsDirectSpaceState3D]. This object can be used to make collision/intersection queries.
 			</description>
 		</method>
 		<method name="space_get_param" qualifiers="const">
@@ -1275,7 +1275,7 @@
 			The [Joint3D] is a [ConeTwistJoint3D].
 		</constant>
 		<constant name="JOINT_6DOF" value="4" enum="JointType">
-			The [Joint3D] is a [Generic6DOFJoint].
+			The [Joint3D] is a [Generic6DOFJoint3D].
 		</constant>
 		<constant name="PIN_JOINT_BIAS" value="0" enum="PinJointParam">
 			The strength with which the pinned objects try to stay in positional relation to each other.
@@ -1470,28 +1470,28 @@
 			The [Shape] is a [PlaneShape].
 		</constant>
 		<constant name="SHAPE_RAY" value="1" enum="ShapeType">
-			The [Shape] is a [RayShape].
+			The [Shape] is a [RayShape3D].
 		</constant>
 		<constant name="SHAPE_SPHERE" value="2" enum="ShapeType">
-			The [Shape] is a [SphereShape].
+			The [Shape] is a [SphereShape3D].
 		</constant>
 		<constant name="SHAPE_BOX" value="3" enum="ShapeType">
-			The [Shape] is a [BoxShape].
+			The [Shape] is a [BoxShape3D].
 		</constant>
 		<constant name="SHAPE_CAPSULE" value="4" enum="ShapeType">
-			The [Shape] is a [CapsuleShape].
+			The [Shape] is a [CapsuleShape3D].
 		</constant>
 		<constant name="SHAPE_CYLINDER" value="5" enum="ShapeType">
-			The [Shape] is a [CylinderShape].
+			The [Shape] is a [CylinderShape3D].
 		</constant>
 		<constant name="SHAPE_CONVEX_POLYGON" value="6" enum="ShapeType">
-			The [Shape] is a [ConvexPolygonShape].
+			The [Shape] is a [ConvexPolygonShape3D].
 		</constant>
 		<constant name="SHAPE_CONCAVE_POLYGON" value="7" enum="ShapeType">
-			The [Shape] is a [ConcavePolygonShape].
+			The [Shape] is a [ConcavePolygonShape3D].
 		</constant>
 		<constant name="SHAPE_HEIGHTMAP" value="8" enum="ShapeType">
-			The [Shape] is a [HeightMapShape].
+			The [Shape] is a [HeightMapShape3D].
 		</constant>
 		<constant name="SHAPE_CUSTOM" value="9" enum="ShapeType">
 			This constant is used internally by the engine. Any attempt to create this kind of shape results in an error.

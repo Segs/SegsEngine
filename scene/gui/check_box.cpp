@@ -47,11 +47,11 @@ Size2 CheckBox::get_icon_size() const {
     if (checked)
         tex_size = Size2(checked->get_width(), checked->get_height());
     if (unchecked)
-        tex_size = Size2(MAX(tex_size.width, unchecked->get_width()), MAX(tex_size.height, unchecked->get_height()));
+        tex_size = Size2(M_MAX(tex_size.width, unchecked->get_width()), M_MAX(tex_size.height, unchecked->get_height()));
     if (radio_checked)
-        tex_size = Size2(MAX(tex_size.width, radio_checked->get_width()), MAX(tex_size.height, radio_checked->get_height()));
+        tex_size = Size2(M_MAX(tex_size.width, radio_checked->get_width()), M_MAX(tex_size.height, radio_checked->get_height()));
     if (radio_unchecked)
-        tex_size = Size2(MAX(tex_size.width, radio_unchecked->get_width()), MAX(tex_size.height, radio_unchecked->get_height()));
+        tex_size = Size2(M_MAX(tex_size.width, radio_unchecked->get_width()), M_MAX(tex_size.height, radio_unchecked->get_height()));
     return tex_size;
 }
 
@@ -64,7 +64,7 @@ Size2 CheckBox::get_minimum_size() const {
         minsize.width += get_constant("hseparation");
     }
     Ref<StyleBox> sb = get_stylebox("normal");
-    minsize.height = MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
+    minsize.height = M_MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
 
     return minsize;
 }

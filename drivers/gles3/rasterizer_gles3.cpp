@@ -275,7 +275,7 @@ void RasterizerGLES3::clear_render_target(const Color &p_color) {
 
 void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter) {
 
-    if (not p_image || p_image->empty())
+    if (not p_image || p_image->is_empty())
         return;
 
     begin_frame(0.0);

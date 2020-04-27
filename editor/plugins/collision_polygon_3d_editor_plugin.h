@@ -28,17 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef COLLISION_POLYGON_EDITOR_PLUGIN_H
-#define COLLISION_POLYGON_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/3d/collision_polygon.h"
-#include "scene/3d/immediate_geometry_3d.h"
-#include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/tool_button.h"
 
 class CanvasItemEditor;
+class ImmediateGeometry3D;
+class MeshInstance3D;
 
 class CollisionPolygon3DEditor : public HBoxContainer {
 
@@ -64,7 +62,7 @@ class CollisionPolygon3DEditor : public HBoxContainer {
     Panel *panel;
     Node3D *node;
     ImmediateGeometry3D *imgeom;
-    MeshInstance *pointsm;
+    MeshInstance3D *pointsm;
     Ref<ArrayMesh> m;
 
     MenuButton *options;
@@ -115,5 +113,3 @@ public:
     CollisionPolygon3DEditorPlugin(EditorNode *p_node);
     ~CollisionPolygon3DEditorPlugin() override;
 };
-
-#endif // COLLISION_POLYGON_EDITOR_PLUGIN_H

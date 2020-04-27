@@ -43,13 +43,13 @@ Size2 ProgressBar::get_minimum_size() const {
     Ref<Font> font = get_font("font");
 
     Size2 minimum_size = bg->get_minimum_size();
-    minimum_size.height = MAX(minimum_size.height, fg->get_minimum_size().height);
-    minimum_size.width = MAX(minimum_size.width, fg->get_minimum_size().width);
+    minimum_size.height = M_MAX(minimum_size.height, fg->get_minimum_size().height);
+    minimum_size.width = M_MAX(minimum_size.width, fg->get_minimum_size().width);
     if (percent_visible) {
-        minimum_size.height = MAX(minimum_size.height, bg->get_minimum_size().height + font->get_height());
+        minimum_size.height = M_MAX(minimum_size.height, bg->get_minimum_size().height + font->get_height());
     } else { // this is needed, else the progressbar will collapse
-        minimum_size.width = MAX(minimum_size.width, 1);
-        minimum_size.height = MAX(minimum_size.height, 1);
+        minimum_size.width = M_MAX(minimum_size.width, 1);
+        minimum_size.height = M_MAX(minimum_size.height, 1);
     }
     return minimum_size;
 }

@@ -37,7 +37,7 @@
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
 #include "servers/physics_server_3d.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
 VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel)
@@ -385,7 +385,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 linear_velocity = velocity_tracker->get_tracked_linear_velocity();
             }
 
-            Ref<World> world = get_world();
+            Ref<World3D> world = get_world();
             ERR_FAIL_COND(not world);
 
             int new_output_count = 0;
@@ -396,9 +396,9 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
             //check if any area is diverting sound into a bus
 
-            PhysicsDirectSpaceState *space_state = PhysicsServer3D::get_singleton()->space_get_direct_state(world->get_space());
+            PhysicsDirectSpaceState3D *space_state = PhysicsServer3D::get_singleton()->space_get_direct_state(world->get_space());
 
-            PhysicsDirectSpaceState::ShapeResult sr[MAX_INTERSECT_AREAS];
+            PhysicsDirectSpaceState3D::ShapeResult sr[MAX_INTERSECT_AREAS];
 
             int areas = space_state->intersect_point(global_pos, sr, MAX_INTERSECT_AREAS, HashSet<RID>(), area_mask, false, true);
             Area3D *area = nullptr;
@@ -453,7 +453,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                     float total_max = max_distance;
 
                     if (area && area->is_using_reverb_bus() && area->get_reverb_uniformity() > 0) {
-                        total_max = MAX(total_max, listener_area_pos.length());
+                        total_max = M_MAX(total_max, listener_area_pos.length());
                     }
                     if (total_max > max_distance) {
                         continue; //can't hear this sound in this listener
@@ -462,7 +462,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                 float multiplier = Math::db2linear(_get_attenuation_db(dist));
                 if (max_distance > 0) {
-                    multiplier *= MAX(0, 1.0f - (dist / max_distance));
+                    multiplier *= M_MAX(0, 1.0f - (dist / max_distance));
                 }
 
                 Output output;

@@ -422,7 +422,7 @@ void Node::move_child(Node *p_child, int p_pos) {
         return; //do nothing
 
     int motion_from = MIN(p_pos, p_child->data->pos);
-    int motion_to = MAX(p_pos, p_child->data->pos);
+    int motion_to = M_MAX(p_pos, p_child->data->pos);
 
     data->children.erase_at(p_child->data->pos);
     data->children.insert_at(p_pos, p_child);

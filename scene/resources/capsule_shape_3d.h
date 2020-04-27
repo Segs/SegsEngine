@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  height_map_shape.h                                                   */
+/*  capsule_shape_3d.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,32 +31,30 @@
 #pragma once
 
 #include "scene/resources/shape.h"
-#include "core/pool_vector.h"
 
-class HeightMapShape : public Shape {
-    GDCLASS(HeightMapShape,Shape)
+class CapsuleShape3D : public Shape {
 
-    int map_width;
-    int map_depth;
-    PoolRealArray map_data;
-    float min_height;
-    float max_height;
+    GDCLASS(CapsuleShape3D,Shape)
+
+    float radius;
+    float height;
 
 protected:
     static void _bind_methods();
+
     void _update_shape() override;
 
     Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
-    void set_map_width(int p_new);
-    int get_map_width() const;
-    void set_map_depth(int p_new);
-    int get_map_depth() const;
-    void set_map_data(const PoolRealArray& p_new);
-    PoolRealArray get_map_data() const;
+    void set_radius(float p_radius);
+    float get_radius() const;
+    void set_height(float p_height);
+    float get_height() const;
 
-    real_t get_enclosing_radius() const override;
+    real_t get_enclosing_radius() const override {
+        return radius + height * 0.5;
+    }
 
-    HeightMapShape();
+    CapsuleShape3D();
 };

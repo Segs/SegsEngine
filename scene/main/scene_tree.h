@@ -33,7 +33,7 @@
 #include "core/os/main_loop.h"
 #include "core/os/thread_safe.h"
 #include "core/self_list.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 #include "scene/resources/world_2d.h"
 #include "scene/main/scene_tree_notifications.h"
 #include "core/hash_map.h"

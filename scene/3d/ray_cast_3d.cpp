@@ -201,10 +201,10 @@ void RayCast3D::_notification(int p_what) {
 }
 
 void RayCast3D::_update_raycast_state() {
-    Ref<World> w3d = get_world();
+    Ref<World3D> w3d = get_world();
     ERR_FAIL_COND(not w3d);
 
-    PhysicsDirectSpaceState *dss = PhysicsServer3D::get_singleton()->space_get_direct_state(w3d->get_space());
+    PhysicsDirectSpaceState3D *dss = PhysicsServer3D::get_singleton()->space_get_direct_state(w3d->get_space());
     ERR_FAIL_COND(!dss);
 
     Transform gt = get_global_transform();
@@ -213,7 +213,7 @@ void RayCast3D::_update_raycast_state() {
     if (to == Vector3())
         to = Vector3(0, 0.01f, 0);
 
-    PhysicsDirectSpaceState::RayResult rr;
+    PhysicsDirectSpaceState3D::RayResult rr;
 
     if (dss->intersect_ray(gt.get_origin(), gt.xform(to), rr, exclude, collision_mask, collide_with_bodies, collide_with_areas)) {
 
@@ -348,7 +348,7 @@ void RayCast3D::_create_debug_shape() {
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 
-    MeshInstance *mi = memnew(MeshInstance);
+    MeshInstance3D *mi = memnew(MeshInstance3D);
     mi->set_mesh(mesh);
 
     add_child(mi);
@@ -363,7 +363,7 @@ void RayCast3D::_update_debug_shape() {
     if (!debug_shape)
         _create_debug_shape();
 
-    MeshInstance *mi = static_cast<MeshInstance *>(debug_shape);
+    MeshInstance3D *mi = static_cast<MeshInstance3D *>(debug_shape);
     if (not mi->get_mesh())
         return;
 
@@ -383,7 +383,7 @@ void RayCast3D::_clear_debug_shape() {
     if (!debug_shape)
         return;
 
-    MeshInstance *mi = static_cast<MeshInstance *>(debug_shape);
+    MeshInstance3D *mi = static_cast<MeshInstance3D *>(debug_shape);
     if (mi->is_inside_tree())
         mi->queue_delete();
     else

@@ -42,9 +42,9 @@
 #include "servers/rendering_server.h"
 #include "EASTL/sort.h"
 
-IMPL_GDCLASS(MeshInstance)
+IMPL_GDCLASS(MeshInstance3D)
 
-bool MeshInstance::_set(const StringName &p_name, const Variant &p_value) {
+bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
 
     //this is not _too_ bad performance wise, really. it only arrives here if the property was not set anywhere else.
     //add to it that it's probably found on first call to _set anyway.
@@ -71,7 +71,7 @@ bool MeshInstance::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
+bool MeshInstance3D::_get(const StringName &p_name, Variant &r_ret) const {
 
     if (!get_instance().is_valid())
         return false;
@@ -92,7 +92,7 @@ bool MeshInstance::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void MeshInstance::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void MeshInstance3D::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Vector<StringName> ls;
     ls.reserve(blend_shape_tracks.size());
@@ -114,7 +114,7 @@ void MeshInstance::_get_property_list(Vector<PropertyInfo> *p_list) const {
     }
 }
 
-void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
+void MeshInstance3D::set_mesh(const Ref<Mesh> &p_mesh) {
 
     if (mesh == p_mesh)
         return;
@@ -150,12 +150,12 @@ void MeshInstance::set_mesh(const Ref<Mesh> &p_mesh) {
 
     Object_change_notify(this);
 }
-Ref<Mesh> MeshInstance::get_mesh() const {
+Ref<Mesh> MeshInstance3D::get_mesh() const {
 
     return mesh;
 }
 
-void MeshInstance::_resolve_skeleton_path() {
+void MeshInstance3D::_resolve_skeleton_path() {
 
     Ref<SkinReference> new_skin_reference;
 
@@ -180,7 +180,7 @@ void MeshInstance::_resolve_skeleton_path() {
     }
 }
 
-void MeshInstance::set_skin(const Ref<Skin> &p_skin) {
+void MeshInstance3D::set_skin(const Ref<Skin> &p_skin) {
     skin_internal = p_skin;
     skin = p_skin;
     if (!is_inside_tree())
@@ -188,11 +188,11 @@ void MeshInstance::set_skin(const Ref<Skin> &p_skin) {
     _resolve_skeleton_path();
 }
 
-Ref<Skin> MeshInstance::get_skin() const {
+Ref<Skin> MeshInstance3D::get_skin() const {
     return skin;
 }
 
-void MeshInstance::set_skeleton_path(const NodePath &p_skeleton) {
+void MeshInstance3D::set_skeleton_path(const NodePath &p_skeleton) {
 
     skeleton_path = p_skeleton;
     if (!is_inside_tree())
@@ -200,11 +200,11 @@ void MeshInstance::set_skeleton_path(const NodePath &p_skeleton) {
     _resolve_skeleton_path();
 }
 
-NodePath MeshInstance::get_skeleton_path() {
+NodePath MeshInstance3D::get_skeleton_path() {
     return skeleton_path;
 }
 
-AABB MeshInstance::get_aabb() const {
+AABB MeshInstance3D::get_aabb() const {
 
     if (mesh)
         return mesh->get_aabb();
@@ -212,7 +212,7 @@ AABB MeshInstance::get_aabb() const {
     return AABB();
 }
 
-Vector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> MeshInstance3D::get_faces(uint32_t p_usage_flags) const {
 
     if (!(p_usage_flags & (FACES_SOLID | FACES_ENCLOSING)))
         return Vector<Face3>();
@@ -223,7 +223,7 @@ Vector<Face3> MeshInstance::get_faces(uint32_t p_usage_flags) const {
     return mesh->get_faces();
 }
 
-Node *MeshInstance::create_trimesh_collision_node() {
+Node *MeshInstance3D::create_trimesh_collision_node() {
 
     if (not mesh)
         return nullptr;
@@ -232,16 +232,16 @@ Node *MeshInstance::create_trimesh_collision_node() {
     if (not shape)
         return nullptr;
 
-    StaticBody *static_body = memnew(StaticBody);
+    StaticBody3D *static_body = memnew(StaticBody3D);
     CollisionShape3D *cshape = memnew(CollisionShape3D);
     cshape->set_shape(shape);
     static_body->add_child(cshape);
     return static_body;
 }
 
-void MeshInstance::create_trimesh_collision() {
+void MeshInstance3D::create_trimesh_collision() {
 
-    StaticBody *static_body = object_cast<StaticBody>(create_trimesh_collision_node());
+    StaticBody3D *static_body = object_cast<StaticBody3D>(create_trimesh_collision_node());
     ERR_FAIL_COND(!static_body);
     static_body->set_name(String(get_name()) + "_col");
 
@@ -253,7 +253,7 @@ void MeshInstance::create_trimesh_collision() {
     }
 }
 
-Node *MeshInstance::create_convex_collision_node() {
+Node *MeshInstance3D::create_convex_collision_node() {
 
     if (not mesh)
         return nullptr;
@@ -262,16 +262,16 @@ Node *MeshInstance::create_convex_collision_node() {
     if (not shape)
         return nullptr;
 
-    StaticBody *static_body = memnew(StaticBody);
+    StaticBody3D *static_body = memnew(StaticBody3D);
     CollisionShape3D *cshape = memnew(CollisionShape3D);
     cshape->set_shape(shape);
     static_body->add_child(cshape);
     return static_body;
 }
 
-void MeshInstance::create_convex_collision() {
+void MeshInstance3D::create_convex_collision() {
 
-    StaticBody *static_body = object_cast<StaticBody>(create_convex_collision_node());
+    StaticBody3D *static_body = object_cast<StaticBody3D>(create_convex_collision_node());
     ERR_FAIL_COND(!static_body);
     static_body->set_name(String(get_name()) + "_col");
 
@@ -283,19 +283,19 @@ void MeshInstance::create_convex_collision() {
     }
 }
 
-void MeshInstance::_notification(int p_what) {
+void MeshInstance3D::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
         _resolve_skeleton_path();
     }
 }
 
-int MeshInstance::get_surface_material_count() const {
+int MeshInstance3D::get_surface_material_count() const {
 
     return materials.size();
 }
 
-void MeshInstance::set_surface_material(int p_surface, const Ref<Material> &p_material) {
+void MeshInstance3D::set_surface_material(int p_surface, const Ref<Material> &p_material) {
 
     ERR_FAIL_INDEX(p_surface, materials.size());
 
@@ -307,19 +307,19 @@ void MeshInstance::set_surface_material(int p_surface, const Ref<Material> &p_ma
         RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), p_surface, RID());
 }
 
-Ref<Material> MeshInstance::get_surface_material(int p_surface) const {
+Ref<Material> MeshInstance3D::get_surface_material(int p_surface) const {
 
     ERR_FAIL_INDEX_V(p_surface, materials.size(), Ref<Material>());
 
     return materials[p_surface];
 }
 
-void MeshInstance::_mesh_changed() {
+void MeshInstance3D::_mesh_changed() {
 
     materials.resize(mesh->get_surface_count());
 }
 
-void MeshInstance::create_debug_tangents() {
+void MeshInstance3D::create_debug_tangents() {
 
     Vector<Vector3> lines;
     Vector<Color> colors;
@@ -376,7 +376,7 @@ void MeshInstance::create_debug_tangents() {
         am->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, eastl::move(a));
         am->surface_set_material(0, sm);
 
-        MeshInstance *mi = memnew(MeshInstance);
+        MeshInstance3D *mi = memnew(MeshInstance3D);
         mi->set_mesh(am);
         mi->set_name("DebugTangents");
         add_child(mi);
@@ -390,36 +390,36 @@ void MeshInstance::create_debug_tangents() {
     }
 }
 
-void MeshInstance::_bind_methods() {
+void MeshInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &MeshInstance::set_mesh);
-    MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshInstance::get_mesh);
-    MethodBinder::bind_method(D_METHOD("set_skeleton_path", {"skeleton_path"}), &MeshInstance::set_skeleton_path);
-    MethodBinder::bind_method(D_METHOD("get_skeleton_path"), &MeshInstance::get_skeleton_path);
-    MethodBinder::bind_method(D_METHOD("set_skin", {"skin"}), &MeshInstance::set_skin);
-    MethodBinder::bind_method(D_METHOD("get_skin"), &MeshInstance::get_skin);
+    MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &MeshInstance3D::set_mesh);
+    MethodBinder::bind_method(D_METHOD("get_mesh"), &MeshInstance3D::get_mesh);
+    MethodBinder::bind_method(D_METHOD("set_skeleton_path", {"skeleton_path"}), &MeshInstance3D::set_skeleton_path);
+    MethodBinder::bind_method(D_METHOD("get_skeleton_path"), &MeshInstance3D::get_skeleton_path);
+    MethodBinder::bind_method(D_METHOD("set_skin", {"skin"}), &MeshInstance3D::set_skin);
+    MethodBinder::bind_method(D_METHOD("get_skin"), &MeshInstance3D::get_skin);
 
-    MethodBinder::bind_method(D_METHOD("get_surface_material_count"), &MeshInstance::get_surface_material_count);
-    MethodBinder::bind_method(D_METHOD("set_surface_material", {"surface", "material"}), &MeshInstance::set_surface_material);
-    MethodBinder::bind_method(D_METHOD("get_surface_material", {"surface"}), &MeshInstance::get_surface_material);
+    MethodBinder::bind_method(D_METHOD("get_surface_material_count"), &MeshInstance3D::get_surface_material_count);
+    MethodBinder::bind_method(D_METHOD("set_surface_material", {"surface", "material"}), &MeshInstance3D::set_surface_material);
+    MethodBinder::bind_method(D_METHOD("get_surface_material", {"surface"}), &MeshInstance3D::get_surface_material);
 
-    MethodBinder::bind_method(D_METHOD("create_trimesh_collision"), &MeshInstance::create_trimesh_collision);
-    ClassDB::set_method_flags("MeshInstance", "create_trimesh_collision", METHOD_FLAGS_DEFAULT);
-    MethodBinder::bind_method(D_METHOD("create_convex_collision"), &MeshInstance::create_convex_collision);
-    ClassDB::set_method_flags("MeshInstance", "create_convex_collision", METHOD_FLAGS_DEFAULT);
-    MethodBinder::bind_method(D_METHOD("_mesh_changed"), &MeshInstance::_mesh_changed);
+    MethodBinder::bind_method(D_METHOD("create_trimesh_collision"), &MeshInstance3D::create_trimesh_collision);
+    ClassDB::set_method_flags("MeshInstance3D", "create_trimesh_collision", METHOD_FLAGS_DEFAULT);
+    MethodBinder::bind_method(D_METHOD("create_convex_collision"), &MeshInstance3D::create_convex_collision);
+    ClassDB::set_method_flags("MeshInstance3D", "create_convex_collision", METHOD_FLAGS_DEFAULT);
+    MethodBinder::bind_method(D_METHOD("_mesh_changed"), &MeshInstance3D::_mesh_changed);
 
-    MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance::create_debug_tangents);
-    ClassDB::set_method_flags("MeshInstance", "create_debug_tangents", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+    MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents);
+    ClassDB::set_method_flags("MeshInstance3D", "create_debug_tangents", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PropertyHint::ResourceType, "Skin"), "set_skin", "get_skin");
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "skeleton", PropertyHint::NodePathValidTypes, "Skeleton"), "set_skeleton_path", "get_skeleton_path");
 }
 
-MeshInstance::MeshInstance() {
+MeshInstance3D::MeshInstance3D() {
     skeleton_path = NodePath("..");
 }
 
-MeshInstance::~MeshInstance() {
+MeshInstance3D::~MeshInstance3D() {
 }

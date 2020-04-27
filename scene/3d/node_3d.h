@@ -36,7 +36,7 @@
 #include "core/math/transform.h"
 #include "core/list.h"
 
-class World;
+class World3D;
 /**
  * @brief The CSGRootInfo struct is a helper for passing data to navigation
  * @todo Find a better places for this struct definition ?
@@ -135,7 +135,7 @@ public:
 
     Node3D *get_parent_spatial() const;
 
-    Ref<World> get_world() const;
+    Ref<World3D> get_world() const;
 
     void set_translation(const Vector3 &p_translation);
     void set_rotation(const Vector3 &p_euler_rad);

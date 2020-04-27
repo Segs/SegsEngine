@@ -71,8 +71,8 @@ Size2 EditorProperty::get_minimum_size() const {
             continue;
 
         Size2 minsize = c->get_combined_minimum_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     if (keying) {
@@ -90,7 +90,7 @@ Size2 EditorProperty::get_minimum_size() const {
         Size2 bems = bottom_editor->get_combined_minimum_size();
         //bems.width += get_constant("item_margin", "Tree");
         ms.height += bems.height;
-        ms.width = MAX(ms.width, bems.width);
+        ms.width = M_MAX(ms.width, bems.width);
     }
 
     return ms;
@@ -133,8 +133,8 @@ void EditorProperty::_notification(int p_what) {
                     continue;
 
                 Size2 minsize = c->get_combined_minimum_size();
-                child_room = MAX(child_room, minsize.width);
-                height = MAX(height, minsize.height);
+                child_room = M_MAX(child_room, minsize.width);
+                height = M_MAX(height, minsize.height);
                 no_children = false;
             }
 
@@ -142,7 +142,7 @@ void EditorProperty::_notification(int p_what) {
                 text_size = size.width;
                 rect = Rect2(size.width - 1, 0, 1, height);
             } else {
-                text_size = MAX(0, size.width - (child_room + 4 * EDSCALE));
+                text_size = M_MAX(0, size.width - (child_room + 4 * EDSCALE));
                 rect = Rect2(size.width - child_room, 0, child_room, height);
             }
 
@@ -1053,7 +1053,7 @@ Size2 EditorInspectorCategory::get_minimum_size() const {
     ms.width = 1;
     ms.height = font->get_height();
     if (icon) {
-        ms.height = MAX(icon->get_height(), ms.height);
+        ms.height = M_MAX(icon->get_height(), ms.height);
     }
     ms.height += get_constant("vseparation", "Tree");
 
@@ -1099,7 +1099,7 @@ void EditorInspectorSection::_notification(int p_what) {
         Point2 offset;
         offset.y = font->get_height();
         if (arrow) {
-            offset.y = MAX(offset.y, arrow->get_height());
+            offset.y = M_MAX(offset.y, arrow->get_height());
         }
 
         offset.y += get_constant("vseparation", "Tree");
@@ -1137,7 +1137,7 @@ void EditorInspectorSection::_notification(int p_what) {
 
         int h = font->get_height();
         if (arrow) {
-            h = MAX(h, arrow->get_height());
+            h = M_MAX(h, arrow->get_height());
         }
         h += get_constant("vseparation", "Tree");
 
@@ -1167,8 +1167,8 @@ Size2 EditorInspectorSection::get_minimum_size() const {
         if (!c->is_visible())
             continue;
         Size2 minsize = c->get_combined_minimum_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     Ref<Font> font = get_font("font", "Tree");

@@ -242,7 +242,7 @@ public:
             int p_height,
             int p_depth_3d,
             Image::Format p_format,
-            RS::TextureType p_type,
+            RenderingServerEnums::TextureType p_type,
             uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT) = 0;
 
     virtual void texture_set_data(RID p_texture, const Ref<Image> &p_image, int p_layer = 0) = 0;
@@ -687,7 +687,7 @@ public:
     Array _instances_cull_ray_bind(const Vector3 &p_from, const Vector3 &p_to, RID p_scenario = RID()) const;
     Array _instances_cull_convex_bind(const Array &p_convex, RID p_scenario = RID()) const;
 
-    virtual void instance_geometry_set_flag(RID p_instance, RS::InstanceFlags p_flags, bool p_enabled) = 0;
+    virtual void instance_geometry_set_flag(RID p_instance, RenderingServerEnums::InstanceFlags p_flags, bool p_enabled) = 0;
     virtual void instance_geometry_set_cast_shadows_setting(RID p_instance, RS::ShadowCastingSetting p_shadow_casting_setting) = 0;
     virtual void instance_geometry_set_material_override(RID p_instance, RID p_material) = 0;
 

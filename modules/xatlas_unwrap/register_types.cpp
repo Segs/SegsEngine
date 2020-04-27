@@ -92,8 +92,8 @@ bool xatlas_mesh_lightmap_unwrap_callback(float p_texel_size, const float *p_ver
         (*r_vertex)[i] = output.vertexArray[i].xref;
         (*r_uv)[i * 2 + 0] = output.vertexArray[i].uv[0] / w;
         (*r_uv)[i * 2 + 1] = output.vertexArray[i].uv[1] / h;
-        max_x = MAX(max_x, output.vertexArray[i].uv[0]);
-        max_y = MAX(max_y, output.vertexArray[i].uv[1]);
+        max_x = M_MAX(max_x, output.vertexArray[i].uv[0]);
+        max_y = M_MAX(max_y, output.vertexArray[i].uv[1]);
     }
 
     printf("Final texture size: %f,%f - max %f,%f\n", w, h, max_x, max_y);

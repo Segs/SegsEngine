@@ -84,7 +84,7 @@ void SplitContainer::_resort() {
     // Determine the separation between items
     Ref<Texture> g = get_icon("grabber");
     int sep = get_constant("separation");
-    sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
+    sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? M_MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
 
     // Compute the minimum size
     Size2 ms_first = first->get_combined_minimum_size();
@@ -133,7 +133,7 @@ Size2 SplitContainer::get_minimum_size() const {
     Size2i minimum;
     Ref<Texture> g = get_icon("grabber");
     int sep = get_constant("separation");
-    sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
+    sep = (dragger_visibility != DRAGGER_HIDDEN_COLLAPSED) ? M_MAX(sep, vertical ? g->get_height() : g->get_width()) : 0;
 
     for (int i = 0; i < 2; i++) {
 
@@ -153,11 +153,11 @@ Size2 SplitContainer::get_minimum_size() const {
         if (vertical) {
 
             minimum.height += ms.height;
-            minimum.width = MAX(minimum.width, ms.width);
+            minimum.width = M_MAX(minimum.width, ms.width);
         } else {
 
             minimum.width += ms.width;
-            minimum.height = MAX(minimum.height, ms.height);
+            minimum.height = M_MAX(minimum.height, ms.height);
         }
     }
 

@@ -1082,9 +1082,9 @@ void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
     }
 }
 
-ShaderMode ParticlesMaterial::get_shader_mode() const {
+RenderingServerEnums::ShaderMode ParticlesMaterial::get_shader_mode() const {
 
-    return ShaderMode::PARTICLES;
+    return RenderingServerEnums::ShaderMode::PARTICLES;
 }
 
 void ParticlesMaterial::_bind_methods() {

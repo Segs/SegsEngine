@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  sphere_shape.h                                                       */
+/*  cylinder_shape_3d.h                                                  */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,32 +28,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SPHERE_SHAPE_H
-#define SPHERE_SHAPE_H
+#pragma once
 
 #include "scene/resources/shape.h"
+#include "core/math/math_funcs.h"
 
-class SphereShape : public Shape {
+class CylinderShape3D : public Shape {
 
-    GDCLASS(SphereShape,Shape)
+    GDCLASS(CylinderShape3D,Shape)
 
     float radius;
+    float height;
 
 protected:
     static void _bind_methods();
-
     void _update_shape() override;
+
     Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
     void set_radius(float p_radius);
-    float get_radius() const;
+    float get_radius() const { return radius; }
+    void set_height(float p_height);
+    float get_height() const { return height; }
 
     real_t get_enclosing_radius() const override {
-        return radius;
+        return Math::sqrt(radius * radius + (height*0.5f) * (height*0.5f));
     }
 
-    SphereShape();
+    CylinderShape3D();
 };
-
-#endif // SPHERE_SHAPE_H

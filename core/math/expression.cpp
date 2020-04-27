@@ -532,7 +532,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
                 int64_t a = *p_inputs[0];
                 int64_t b = *p_inputs[1];
-                *r_return = MAX(a, b);
+                *r_return = M_MAX(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
                 VALIDATE_ARG_NUM(1);
@@ -540,7 +540,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 real_t a = p_inputs[0]->as<float>();
                 real_t b = p_inputs[1]->as<float>();
 
-                *r_return = MAX(a, b);
+                *r_return = M_MAX(a, b);
             }
 
         } break;

@@ -434,7 +434,7 @@ void TileMapEditor::_update_palette() {
     palette->add_constant_override("hseparation", hseparation * EDSCALE);
 
     palette->set_fixed_icon_size(Size2(min_size, min_size));
-    palette->set_fixed_column_width(min_size * MAX(size_slider->get_value(), 1));
+    palette->set_fixed_column_width(min_size * M_MAX(size_slider->get_value(), 1));
     palette->set_same_column_width(true);
     manual_palette->set_fixed_icon_size(Size2(min_size, min_size));
     manual_palette->set_same_column_width(true);

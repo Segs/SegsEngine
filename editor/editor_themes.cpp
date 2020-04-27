@@ -373,8 +373,8 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     // white (dark theme) or black (light theme), will be used to generate the rest of the colors
     const Color mono_color = dark_theme ? Color(1, 1, 1) : Color(0, 0, 0);
 
-    const Color contrast_color_1 = base_color.linear_interpolate(mono_color, MAX(contrast, default_contrast));
-    const Color contrast_color_2 = base_color.linear_interpolate(mono_color, MAX(contrast * 1.5f, default_contrast * 1.5f));
+    const Color contrast_color_1 = base_color.linear_interpolate(mono_color, M_MAX(contrast, default_contrast));
+    const Color contrast_color_2 = base_color.linear_interpolate(mono_color, M_MAX(contrast * 1.5f, default_contrast * 1.5f));
 
     const Color font_color = mono_color.linear_interpolate(base_color, 0.25f);
     const Color font_color_hl = mono_color.linear_interpolate(base_color, 0.15f);
@@ -507,26 +507,26 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     style_popup->set_default_margin(Margin::Right, popup_margin_size);
     style_popup->set_default_margin(Margin::Bottom, popup_margin_size);
     style_popup->set_border_color(contrast_color_1);
-    style_popup->set_border_width_all(MAX(EDSCALE, border_width));
+    style_popup->set_border_width_all(M_MAX(EDSCALE, border_width));
     const Color shadow_color = Color(0, 0, 0, dark_theme ? 0.3f : 0.1f);
     style_popup->set_shadow_color(shadow_color);
     style_popup->set_shadow_size(4 * EDSCALE);
 
     Ref<StyleBoxLine> style_popup_separator(make_ref_counted<StyleBoxLine>());
     style_popup_separator->set_color(separator_color);
-    style_popup_separator->set_grow_begin(popup_margin_size - MAX(EDSCALE, border_width));
-    style_popup_separator->set_grow_end(popup_margin_size - MAX(EDSCALE, border_width));
-    style_popup_separator->set_thickness(MAX(EDSCALE, border_width));
+    style_popup_separator->set_grow_begin(popup_margin_size - M_MAX(EDSCALE, border_width));
+    style_popup_separator->set_grow_end(popup_margin_size - M_MAX(EDSCALE, border_width));
+    style_popup_separator->set_thickness(M_MAX(EDSCALE, border_width));
 
     Ref<StyleBoxLine> style_popup_labeled_separator_left(make_ref_counted<StyleBoxLine>());
-    style_popup_labeled_separator_left->set_grow_begin(popup_margin_size - MAX(EDSCALE, border_width));
+    style_popup_labeled_separator_left->set_grow_begin(popup_margin_size - M_MAX(EDSCALE, border_width));
     style_popup_labeled_separator_left->set_color(separator_color);
-    style_popup_labeled_separator_left->set_thickness(MAX(EDSCALE, border_width));
+    style_popup_labeled_separator_left->set_thickness(M_MAX(EDSCALE, border_width));
 
     Ref<StyleBoxLine> style_popup_labeled_separator_right(make_ref_counted<StyleBoxLine>());
-    style_popup_labeled_separator_right->set_grow_end(popup_margin_size - MAX(EDSCALE, border_width));
+    style_popup_labeled_separator_right->set_grow_end(popup_margin_size - M_MAX(EDSCALE, border_width));
     style_popup_labeled_separator_right->set_color(separator_color);
-    style_popup_labeled_separator_right->set_thickness(MAX(EDSCALE, border_width));
+    style_popup_labeled_separator_right->set_thickness(M_MAX(EDSCALE, border_width));
     Ref<StyleBoxEmpty> style_empty = make_empty_stylebox(default_margin_size, default_margin_size, default_margin_size, default_margin_size);
 
     // Tabs
@@ -1053,7 +1053,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 
     // TooltipPanel
     Ref<StyleBoxFlat> style_tooltip = dynamic_ref_cast<StyleBoxFlat>(style_popup->duplicate());
-    float v = MAX(border_size * EDSCALE, 1.0f);
+    float v = M_MAX(border_size * EDSCALE, 1.0f);
     style_tooltip->set_default_margin(Margin::Left, v);
     style_tooltip->set_default_margin(Margin::Top, v);
     style_tooltip->set_default_margin(Margin::Right, v);

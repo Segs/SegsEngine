@@ -123,7 +123,7 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         }
     }
 
-    if (not img || img->empty())
+    if (not img || img->is_empty())
         return Ref<Texture>();
 
     img->clear_mipmaps();
@@ -166,7 +166,7 @@ Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &
 
     Ref<Image> img = dynamic_ref_cast<Image>(p_from);
 
-    if (not img || img->empty())
+    if (not img || img->is_empty())
         return Ref<Texture>();
 
     img = dynamic_ref_cast<Image>(img->duplicate());
@@ -337,7 +337,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
     Ref<Material> material = dynamic_ref_cast<Material>(p_from);
     ERR_FAIL_COND_V(not material, Ref<Texture>());
 
-    if (material->get_shader_mode() == ShaderMode::SPATIAL) {
+    if (material->get_shader_mode() == RenderingServerEnums::ShaderMode::SPATIAL) {
 
         RenderingServer::get_singleton()->mesh_surface_set_material(sphere, 0, material->get_rid());
 
@@ -356,7 +356,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
         img->convert(Image::FORMAT_RGBA8);
-        int thumbnail_size = MAX(p_size.x, p_size.y);
+        int thumbnail_size = M_MAX(p_size.x, p_size.y);
         img->resize(thumbnail_size, thumbnail_size, Image::INTERPOLATE_CUBIC);
         post_process_preview(img);
         Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
@@ -518,7 +518,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     int line = 0;
     int col = 0;
     Ref<Image> img(make_ref_counted<Image>());
-    int thumbnail_size = MAX(p_size.x, p_size.y);
+    int thumbnail_size = M_MAX(p_size.x, p_size.y);
     img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
 
     Color bg_color = EditorSettings::get_singleton()->get("text_editor/highlighting/background_color");
@@ -530,7 +530,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     if (bg_color.a == 0.0f)
         bg_color = Color(0, 0, 0, 0);
-    bg_color.a = MAX(bg_color.a, 0.2f); // some background
+    bg_color.a = M_MAX(bg_color.a, 0.2f); // some background
 
     for (int i = 0; i < thumbnail_size; i++) {
         for (int j = 0; j < thumbnail_size; j++) {
@@ -660,8 +660,8 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
 
         for (int j = from; j < to; j++) {
 
-            max = MAX(max, frames[j].l);
-            max = MAX(max, frames[j].r);
+            max = M_MAX(max, frames[j].l);
+            max = M_MAX(max, frames[j].r);
 
             min = MIN(min, frames[j].l);
             min = MIN(min, frames[j].r);
@@ -727,7 +727,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     xform.basis = Basis().rotated(Vector3(0, 1, 0), -Math_PI * 0.125);
     xform.basis = Basis().rotated(Vector3(1, 0, 0), Math_PI * 0.125) * xform.basis;
     AABB rot_aabb = xform.xform(aabb);
-    float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
+    float m = M_MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
     if (m == 0)
         return Ref<Texture>();
     m = 1.0 / m;

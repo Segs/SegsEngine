@@ -69,7 +69,7 @@ void Gradient::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("interpolate", {"offset"}), &Gradient::get_color_at_offset);
 
-    MethodBinder::bind_method(D_METHOD("get_point_count"), &Gradient::get_points_count);
+    MethodBinder::bind_method(D_METHOD("get_point_count"), &Gradient::get_point_count);
 
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_SET_OFFSETS, {"offsets"}), &Gradient::set_offsets);
     MethodBinder::bind_method(D_METHOD(COLOR_RAMP_GET_OFFSETS), &Gradient::get_offsets);
@@ -225,6 +225,6 @@ Color Gradient::get_color(int pos) const {
     return points[pos].color;
 }
 
-int Gradient::get_points_count() const {
+int Gradient::get_point_count() const {
     return points.size();
 }

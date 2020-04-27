@@ -49,8 +49,8 @@ public:
     Array opaque_to_polygons(const Rect2 &p_rect, float p_epsilon) const;
 
 public:
-    void _set_data(const Dictionary &p_d);
-    Dictionary _get_data() const;
+    void set_data(const Dictionary &p_d);
+    Dictionary get_data() const;
 
 protected:
     static void _bind_methods();

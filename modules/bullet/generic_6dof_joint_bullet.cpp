@@ -266,7 +266,7 @@ bool Generic6DOFJointBullet::get_flag(Vector3::Axis p_axis, PhysicsServer3D::G6D
 }
 
 void Generic6DOFJointBullet::set_precision(int p_precision) {
-    sixDOFConstraint->setOverrideNumSolverIterations(MAX(1, p_precision));
+    sixDOFConstraint->setOverrideNumSolverIterations(M_MAX(1, p_precision));
 }
 
 int Generic6DOFJointBullet::get_precision() const {

@@ -590,8 +590,7 @@ void UndoRedo::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create_action", {"name", "merge_mode"}), &UndoRedo::create_action, {DEFVAL(int(MERGE_DISABLE))});
     MethodBinder::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
-    // FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
-    MethodBinder::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
+    MethodBinder::bind_method(D_METHOD("is_committing_action"), &UndoRedo::is_committing_action);
 
     {
         MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));

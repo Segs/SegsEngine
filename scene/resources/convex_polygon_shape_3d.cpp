@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  sphere_shape.cpp                                                     */
+/*  convex_polygon_shape.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,67 +28,65 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "sphere_shape.h"
+#include "convex_polygon_shape_3d.h"
+#include "core/math/quick_hull.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
-#include "core/math/vector2.h"
 
+IMPL_GDCLASS(ConvexPolygonShape3D)
 
-IMPL_GDCLASS(SphereShape)
+Vector<Vector3> ConvexPolygonShape3D::get_debug_mesh_lines() {
 
-Vector<Vector3> SphereShape::get_debug_mesh_lines() {
+    Vector<Vector3> points = get_points();
 
-    float r = get_radius();
+    if (points.size() > 3) {
 
-    Vector<Vector3> points;
-
-    for (int i = 0; i <= 360; i++) {
-
-        float ra = Math::deg2rad((float)i);
-        float rb = Math::deg2rad((float)i + 1);
-        Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * r;
-        Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * r;
-
-        points.push_back(Vector3(a.x, 0, a.y));
-        points.push_back(Vector3(b.x, 0, b.y));
-        points.push_back(Vector3(0, a.x, a.y));
-        points.push_back(Vector3(0, b.x, b.y));
-        points.push_back(Vector3(a.x, a.y, 0));
-        points.push_back(Vector3(b.x, b.y, 0));
+        Geometry::MeshData md;
+        Error err = QuickHull::build(points, md);
+        if (err == OK) {
+            Vector<Vector3> lines;
+            lines.resize(md.edges.size() * 2);
+            for (int i = 0; i < md.edges.size(); i++) {
+                lines[i * 2 + 0] = md.vertices[md.edges[i].a];
+                lines[i * 2 + 1] = md.vertices[md.edges[i].b];
+            }
+            return lines;
+        }
     }
 
-    return points;
+    return Vector<Vector3>();
 }
 
-void SphereShape::_update_shape() {
+void ConvexPolygonShape3D::_update_shape() {
 
-    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), radius);
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), points);
     Shape::_update_shape();
 }
 
-void SphereShape::set_radius(float p_radius) {
-
-    radius = p_radius;
+void ConvexPolygonShape3D::set_points(Vector<Vector3> &&p_points) {
+    points = eastl::move(p_points);
     _update_shape();
     notify_change_to_owners();
-    Object_change_notify(this,"radius");
 }
 
-float SphereShape::get_radius() const {
-
-    return radius;
+real_t ConvexPolygonShape3D::get_enclosing_radius() const {
+    const auto &data = get_points();
+    real_t r = 0;
+    for (int i(0); i < data.size(); i++) {
+        r = M_MAX(data[i].length_squared(), r);
+    }
+    return Math::sqrt(r);
 }
 
-void SphereShape::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &SphereShape::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &SphereShape::get_radius);
+void ConvexPolygonShape3D::_bind_methods() {
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0,4096,0.01"), "set_radius", "get_radius");
+    MethodBinder::bind_method(D_METHOD("set_points", {"points"}), &ConvexPolygonShape3D::set_points);
+    MethodBinder::bind_method(D_METHOD("get_points"), &ConvexPolygonShape3D::get_points);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "points"), "set_points", "get_points");
 }
 
-SphereShape::SphereShape() :
-        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_SPHERE)) {
-
-    set_radius(1.0);
+ConvexPolygonShape3D::ConvexPolygonShape3D() :
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONVEX_POLYGON)) {
 }

@@ -297,9 +297,9 @@ RID CanvasItemMaterial::get_shader_rid() const {
     return shader_map[current_key].shader;
 }
 
-ShaderMode CanvasItemMaterial::get_shader_mode() const {
+RenderingServerEnums::ShaderMode CanvasItemMaterial::get_shader_mode() const {
 
-    return ShaderMode::CANVAS_ITEM;
+    return RenderingServerEnums::ShaderMode::CANVAS_ITEM;
 }
 
 void CanvasItemMaterial::_bind_methods() {

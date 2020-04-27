@@ -36,9 +36,9 @@
 class Skin;
 class SkinReference;
 
-class GODOT_EXPORT MeshInstance : public GeometryInstance {
+class GODOT_EXPORT MeshInstance3D : public GeometryInstance {
 
-    GDCLASS(MeshInstance,GeometryInstance)
+    GDCLASS(MeshInstance3D,GeometryInstance)
 
 protected:
     Ref<Mesh> mesh;
@@ -96,6 +96,6 @@ public:
     AABB get_aabb() const override;
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
 
-    MeshInstance();
-    ~MeshInstance() override;
+    MeshInstance3D();
+    ~MeshInstance3D() override;
 };

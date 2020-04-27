@@ -32,17 +32,17 @@
 #include "shader_serialization.h"
 
 #include "texture.h"
-#include "shader_enum_casters.h"
 
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "scene/scene_string_names.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering_server.h"
+#include "servers/rendering_server_enum_casters.h"
 
 IMPL_GDCLASS(Shader)
 
-ShaderMode Shader::get_mode() const {
+RenderingServerEnums::ShaderMode Shader::get_mode() const {
 
     return mode;
 }
@@ -52,11 +52,11 @@ void Shader::set_code(const String &p_code) {
     String type(ShaderLanguage::get_shader_type(p_code));
 
     if (type == "canvas_item") {
-        mode = ShaderMode::CANVAS_ITEM;
+        mode = RenderingServerEnums::ShaderMode::CANVAS_ITEM;
     } else if (type == "particles") {
-        mode = ShaderMode::PARTICLES;
+        mode = RenderingServerEnums::ShaderMode::PARTICLES;
     } else {
-        mode = ShaderMode::SPATIAL;
+        mode = RenderingServerEnums::ShaderMode::SPATIAL;
     }
 
     RenderingServer::get_singleton()->shader_set_code(shader, p_code);
@@ -158,16 +158,11 @@ void Shader::_bind_methods() {
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
-#ifdef DEBUG_METHODS_ENABLED
-    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::SPATIAL, "MODE_SPATIAL"), "MODE_SPATIAL", (int)ShaderMode::SPATIAL);
-    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::CANVAS_ITEM, "MODE_CANVAS_ITEM"), "MODE_CANVAS_ITEM", (int)ShaderMode::CANVAS_ITEM);
-    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(ShaderMode::PARTICLES, "MODE_PARTICLES"), "MODE_PARTICLES", (int)ShaderMode::PARTICLES);
-#endif
 }
 
 Shader::Shader() {
 
-    mode = ShaderMode::SPATIAL;
+    mode = RenderingServerEnums::ShaderMode::SPATIAL;
     shader = RenderingServer::get_singleton()->shader_create();
     params_cache_dirty = true;
 }

@@ -32,7 +32,7 @@
 #include "core/engine.h"
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/sphere_shape_3d.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 
@@ -72,8 +72,8 @@ void SpringArm3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("remove_excluded_object", {"RID"}), &SpringArm3D::remove_excluded_object);
     MethodBinder::bind_method(D_METHOD("clear_excluded_objects"), &SpringArm3D::clear_excluded_objects);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &SpringArm3D::set_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SpringArm3D::get_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &SpringArm3D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &SpringArm3D::get_collision_mask);
 
     MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &SpringArm3D::set_margin);
     MethodBinder::bind_method(D_METHOD("get_margin"), &SpringArm3D::get_margin);
@@ -103,7 +103,7 @@ Ref<Shape> SpringArm3D::get_shape() const {
     return shape;
 }
 
-void SpringArm3D::set_mask(uint32_t p_mask) {
+void SpringArm3D::set_collision_mask(uint32_t p_mask) {
     mask = p_mask;
 }
 
@@ -133,7 +133,7 @@ void SpringArm3D::process_spring() {
 
     if (not shape) {
         motion = Vector3(cast_direction * (spring_length));
-        PhysicsDirectSpaceState::RayResult r;
+        PhysicsDirectSpaceState3D::RayResult r;
         bool intersected = get_world()->get_direct_space_state()->intersect_ray(get_global_transform().origin, get_global_transform().origin + motion, r, excluded_objects, mask);
         if (intersected) {
             float dist = get_global_transform().origin.distance_to(r.position);

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  ray_shape.cpp                                                        */
+/*  world_3d.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,72 +28,59 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "ray_shape.h"
+#pragma once
 
+#include "core/resource.h"
+#include "scene/resources/environment.h"
 #include "servers/physics_server_3d.h"
-#include "core/method_bind.h"
+#include "servers/rendering_server.h"
 
-IMPL_GDCLASS(RayShape)
+class Camera3D;
+class VisibilityNotifier3D;
+struct SpatialIndexer;
 
-Vector<Vector3> RayShape::get_debug_mesh_lines() {
-    return {Vector3(),Vector3(0, 0, get_length())};
-}
+class World3D : public Resource {
+    GDCLASS(World3D,Resource)
 
-void RayShape::_update_shape() {
+    RES_BASE_EXTENSION("world")
 
-    Dictionary d;
-    d["length"] = length;
-    d["slips_on_slope"] = slips_on_slope;
-    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), d);
-    Shape::_update_shape();
-}
+private:
+    RID physics_space;
+    RID renderer_scene;
+    SpatialIndexer *indexer;
+    Ref<Environment> environment;
+    Ref<Environment> fallback_environment;
 
-void RayShape::set_length(float p_length) {
+protected:
+    static void _bind_methods();
 
-    length = p_length;
-    _update_shape();
-    notify_change_to_owners();
-    Object_change_notify(this,"length");
-}
+    friend class Camera3D;
+    friend class VisibilityNotifier3D;
 
-float RayShape::get_length() const {
+    void _register_camera(Camera3D *p_camera);
+    void _update_camera(Camera3D *p_camera);
+    void _remove_camera(Camera3D *p_camera);
 
-    return length;
-}
+    void _register_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect);
+    void _update_notifier(VisibilityNotifier3D *p_notifier, const AABB &p_rect);
+    void _remove_notifier(VisibilityNotifier3D *p_notifier);
+    friend class Viewport;
+    void _update(uint64_t p_frame);
 
-void RayShape::set_slips_on_slope(bool p_active) {
+public:
+    RID get_space() const;
+    RID get_scenario() const;
 
-    slips_on_slope = p_active;
-    _update_shape();
-    notify_change_to_owners();
-    Object_change_notify(this,"slips_on_slope");
-}
+    void set_environment(const Ref<Environment> &p_environment);
+    Ref<Environment> get_environment() const;
 
-bool RayShape::get_slips_on_slope() const {
-    return slips_on_slope;
-}
+    void set_fallback_environment(const Ref<Environment> &p_environment);
+    Ref<Environment> get_fallback_environment() const;
 
-void RayShape::_bind_methods() {
+    void get_camera_list(Vector<Camera3D *> *r_cameras);
 
-    MethodBinder::bind_method(D_METHOD("set_length", {"length"}), &RayShape::set_length);
-    MethodBinder::bind_method(D_METHOD("get_length"), &RayShape::get_length);
+    PhysicsDirectSpaceState3D *get_direct_space_state();
 
-    MethodBinder::bind_method(D_METHOD("set_slips_on_slope", {"active"}), &RayShape::set_slips_on_slope);
-    MethodBinder::bind_method(D_METHOD("get_slips_on_slope"), &RayShape::get_slips_on_slope);
-
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0,4096,0.01"), "set_length", "get_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "slips_on_slope"), "set_slips_on_slope", "get_slips_on_slope");
-}
-
-RayShape::RayShape() :
-        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_RAY)) {
-
-    length = 1.0;
-    slips_on_slope = false;
-
-    /* Code copied from setters to prevent the use of uninitialized variables */
-    _update_shape();
-    notify_change_to_owners();
-    Object_change_notify(this,"length");
-    Object_change_notify(this,"slips_on_slope");
-}
+    World3D();
+    ~World3D() override;
+};

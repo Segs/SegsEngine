@@ -65,7 +65,7 @@
 IMPL_GDCLASS(BulletPhysicsDirectSpaceState)
 
 BulletPhysicsDirectSpaceState::BulletPhysicsDirectSpaceState(SpaceBullet *p_space) :
-        PhysicsDirectSpaceState(),
+        PhysicsDirectSpaceState3D(),
         space(p_space) {}
 
 int BulletPhysicsDirectSpaceState::intersect_point(const Vector3 &p_point, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
@@ -190,7 +190,7 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
     if (btResult.hasHit()) {
         const btScalar l = bt_motion.length();
         r_closest_unsafe = btResult.m_closestHitFraction;
-        r_closest_safe = MAX(r_closest_unsafe - (1 - ((l - 0.01) / l)), 0);
+        r_closest_safe = M_MAX(r_closest_unsafe - (1 - ((l - 0.01) / l)), 0);
         if (r_info) {
             if (btCollisionObject::CO_RIGID_BODY == btResult.m_hitCollisionObject->getInternalType()) {
                 B_TO_G(static_cast<const btRigidBody *>(btResult.m_hitCollisionObject)->getVelocityInLocalPoint(btResult.m_hitPointWorld), r_info->linear_velocity);

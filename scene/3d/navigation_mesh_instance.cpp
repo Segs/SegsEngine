@@ -64,7 +64,7 @@ void NavigationMeshInstance::set_enabled(bool p_enabled) {
     }
 
     if (debug_view) {
-        MeshInstance *dm = object_cast<MeshInstance>(debug_view);
+        MeshInstance3D *dm = object_cast<MeshInstance3D>(debug_view);
         if (is_enabled()) {
             dm->set_material_override(get_tree()->get_debug_navigation_material());
         } else {
@@ -105,7 +105,7 @@ void NavigationMeshInstance::_notification(int p_what) {
 
             if (navmesh && get_tree()->is_debugging_navigation_hint()) {
 
-                MeshInstance *dm = memnew(MeshInstance);
+                MeshInstance3D *dm = memnew(MeshInstance3D);
                 dm->set_mesh(navmesh->get_debug_mesh());
                 if (is_enabled()) {
                     dm->set_material_override(get_tree()->get_debug_navigation_material());
@@ -156,7 +156,7 @@ void NavigationMeshInstance::set_navigation_mesh(const Ref<NavigationMesh> &p_na
     NavigationServer::get_singleton()->region_set_navmesh(region, p_navmesh);
 
     if (debug_view && navmesh) {
-        object_cast<MeshInstance>(debug_view)->set_mesh(navmesh->get_debug_mesh());
+        object_cast<MeshInstance3D>(debug_view)->set_mesh(navmesh->get_debug_mesh());
     }
 
     emit_signal("navigation_mesh_changed");

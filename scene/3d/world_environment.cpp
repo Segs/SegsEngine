@@ -34,7 +34,7 @@
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/environment.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(WorldEnvironment)
 

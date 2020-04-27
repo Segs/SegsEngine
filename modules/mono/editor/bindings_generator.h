@@ -45,7 +45,7 @@ class BindingsGenerator {
         String name;
         String proxy_name;
         int value;
-        const DocData::ConstantDoc *const_doc;
+        const DocData::ConstantDoc *const_doc=nullptr;
 
         ConstantInterface() {}
 
@@ -181,6 +181,7 @@ class BindingsGenerator {
         bool is_object_type;
         bool is_singleton;
         bool is_reference;
+        bool is_namespace=false;
 
         /**
          * Used only by Object-derived types.
@@ -631,6 +632,9 @@ public:
             initialized(false) {
         _initialize();
     }
+private:
+    Error generate_cs_type_docs(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
+    void generate_cs_type_doc_summary(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
 };
 
 #endif

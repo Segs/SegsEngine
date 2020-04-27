@@ -363,8 +363,8 @@ static void decompress_pvrtc(PVRTCBlock *p_comp_img, const int p_2bit, const int
     else
         x_block_size = BLK_X_4BPP;
 
-    block_width = MAX(2, p_width / x_block_size);
-    block_height = MAX(2, p_height / BLK_Y_SIZE);
+    block_width = M_MAX(2, p_width / x_block_size);
+    block_height = M_MAX(2, p_height / BLK_Y_SIZE);
 
     for (y = 0; y < p_height; y++) {
         for (x = 0; x < p_width; x++) {
@@ -638,7 +638,7 @@ RES ResourceFormatPVR::load(StringView p_path, StringView p_original_path, Error
         tex_flags |= Texture::FLAG_MIPMAPS;
 
     Ref<Image> image(make_ref_counted<Image>(width, height, mipmaps, format, data));
-    ERR_FAIL_COND_V(image->empty(), RES());
+    ERR_FAIL_COND_V(image->is_empty(), RES());
 
     Ref<ImageTexture> texture(make_ref_counted<ImageTexture>());
     texture->create_from_image(image, tex_flags);

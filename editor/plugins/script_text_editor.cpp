@@ -155,7 +155,7 @@ void ScriptTextEditor::set_edited_resource(const RES &p_res) {
     script = dynamic_ref_cast<Script>(p_res);
     _set_theme_for_script();
 
-    code_editor->get_text_edit()->set_text_utf8(script->get_source_code());
+    code_editor->get_text_edit()->set_text(script->get_source_code());
     code_editor->get_text_edit()->clear_undo_history();
     code_editor->get_text_edit()->tag_saved_version();
 
@@ -410,7 +410,7 @@ void ScriptTextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text_utf8(script->get_source_code());
+    te->set_text(script->get_source_code());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -442,7 +442,7 @@ void ScriptTextEditor::add_callback(const StringName &p_function, const PoolVect
         //code=code+func;
         code_editor->get_text_edit()->cursor_set_line(pos + 1);
         code_editor->get_text_edit()->cursor_set_column(1000000); //none shall be that big
-        code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8("\n\n" + func));
+        code_editor->get_text_edit()->insert_text_at_cursor_ui(StringUtils::from_utf8("\n\n" + func));
     }
     code_editor->get_text_edit()->cursor_set_line(pos);
     code_editor->get_text_edit()->cursor_set_column(1);
@@ -1232,7 +1232,7 @@ void ScriptTextEditor::_edit_option(int p_op) {
             }
 
             code_editor->get_text_edit()->begin_complex_operation(); //prevents creating a two-step undo
-            code_editor->get_text_edit()->insert_text_at_cursor(StringUtils::from_utf8(String::joined(results,"\n")));
+            code_editor->get_text_edit()->insert_text_at_cursor_ui(StringUtils::from_utf8(String::joined(results,"\n")));
             code_editor->get_text_edit()->end_complex_operation();
         } break;
         case SEARCH_FIND: {
@@ -1519,7 +1519,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(StringUtils::from_utf8(res->get_path()));
+        te->insert_text_at_cursor_ui(StringUtils::from_utf8(res->get_path()));
     }
 
     if (d.has("type") && (UIString(d["type"]) == "files" || UIString(d["type"]) == "files_and_dirs")) {
@@ -1536,7 +1536,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(StringUtils::from_utf8(text_to_drop));
+        te->insert_text_at_cursor_ui(StringUtils::from_utf8(text_to_drop));
     }
 
     if (d.has("type") && UIString(d["type"]) == "nodes") {
@@ -1567,7 +1567,7 @@ void ScriptTextEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data
 
         te->cursor_set_line(row);
         te->cursor_set_column(col);
-        te->insert_text_at_cursor(StringUtils::from_utf8(text_to_drop));
+        te->insert_text_at_cursor_ui(StringUtils::from_utf8(text_to_drop));
     }
 }
 

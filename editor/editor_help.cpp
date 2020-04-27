@@ -191,7 +191,7 @@ void EditorHelp::_class_desc_resized() {
     // The margins increase as the width of the editor help container increases.
     Ref<Font> doc_code_font = get_font("doc_source", "EditorFonts");
     real_t char_width = doc_code_font->get_char_size('x').width;
-    const int display_margin = MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - char_width * 120 * EDSCALE) * 0.5f;
+    const int display_margin = M_MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - char_width * 120 * EDSCALE) * 0.5f;
 
     Ref<StyleBox> class_desc_stylebox = dynamic_ref_cast<StyleBox>(EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "RichTextLabel")->duplicate());
     class_desc_stylebox->set_default_margin(Margin::Left, display_margin);

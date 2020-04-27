@@ -515,7 +515,7 @@ Size2 ScrollBar::get_minimum_size() const {
 
     if (orientation == VERTICAL) {
 
-        minsize.width = MAX(incr->get_size().width, (bg->get_minimum_size() + bg->get_center_size()).width);
+        minsize.width = M_MAX(incr->get_size().width, (bg->get_minimum_size() + bg->get_center_size()).width);
         minsize.height += incr->get_size().height;
         minsize.height += decr->get_size().height;
         minsize.height += bg->get_minimum_size().height;
@@ -524,7 +524,7 @@ Size2 ScrollBar::get_minimum_size() const {
 
     if (orientation == HORIZONTAL) {
 
-        minsize.height = MAX(incr->get_size().height, (bg->get_center_size() + bg->get_minimum_size()).height);
+        minsize.height = M_MAX(incr->get_size().height, (bg->get_center_size() + bg->get_minimum_size()).height);
         minsize.width += incr->get_size().width;
         minsize.width += decr->get_size().width;
         minsize.width += bg->get_minimum_size().width;

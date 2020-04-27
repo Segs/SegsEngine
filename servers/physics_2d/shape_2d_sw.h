@@ -155,7 +155,7 @@ public:
         project_range(p_normal, p_transform, mina, maxa);                                                                                                        \
         project_range(p_normal, ofsb, minb, maxb);                                                                                                               \
         r_min = MIN(mina, minb);                                                                                                                                 \
-        r_max = MAX(maxa, maxb);                                                                                                                                 \
+        r_max = M_MAX(maxa, maxb);                                                                                                                                 \
     }
 
 class LineShape2DSW : public Shape2DSW {

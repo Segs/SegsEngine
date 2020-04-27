@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="ConcavePolygonShape" inherits="Shape" version="4.0">
+<class name="ConcavePolygonShape3D" inherits="Shape" version="4.0">
     <brief_description>
         Concave polygon shape.
     </brief_description>
     <description>
         Concave polygon shape resource, which can be set into a [PhysicsBody3D] or area. This shape is created by feeding a list of triangles.
-        Note: when used for collision, [ConcavePolygonShape] is intended to work with static [PhysicsBody3D] nodes like [StaticBody] and will not work with [KinematicBody] or [RigidBody] with a mode other than Static.
+        Note: when used for collision, [ConcavePolygonShape3D] is intended to work with static [PhysicsBody3D] nodes like [StaticBody3D] and will not work with [KinematicBody3D] or [RigidBody] with a mode other than Static.
     </description>
     <tutorials>
     </tutorials>

@@ -37,10 +37,10 @@
 #include "editor/scene_tree_editor.h"
 #include "scene/resources/environment.h"
 
-IMPL_GDCLASS(CPUParticlesEditor)
-IMPL_GDCLASS(CPUParticlesEditorPlugin)
+IMPL_GDCLASS(CPUParticles3DEditor)
+IMPL_GDCLASS(CPUParticles3DEditorPlugin)
 
-void CPUParticlesEditor::_node_removed(Node *p_node) {
+void CPUParticles3DEditor::_node_removed(Node *p_node) {
 
     if (p_node == node) {
         node = nullptr;
@@ -48,14 +48,14 @@ void CPUParticlesEditor::_node_removed(Node *p_node) {
     }
 }
 
-void CPUParticlesEditor::_notification(int p_notification) {
+void CPUParticles3DEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
-        options->set_button_icon(options->get_popup()->get_icon("CPUParticles", "EditorIcons"));
+        options->set_button_icon(options->get_popup()->get_icon("CPUParticles3D", "EditorIcons"));
     }
 }
 
-void CPUParticlesEditor::_menu_option(int p_option) {
+void CPUParticles3DEditor::_menu_option(int p_option) {
 
     switch (p_option) {
 
@@ -79,13 +79,13 @@ void CPUParticlesEditor::_menu_option(int p_option) {
     }
 }
 
-void CPUParticlesEditor::edit(CPUParticles3D *p_particles) {
+void CPUParticles3DEditor::edit(CPUParticles3D *p_particles) {
 
     base_node = p_particles;
     node = p_particles;
 }
 
-void CPUParticlesEditor::_generate_emission_points() {
+void CPUParticles3DEditor::_generate_emission_points() {
 
     /// hacer codigo aca
     PoolVector<Vector3> points;
@@ -105,12 +105,12 @@ void CPUParticlesEditor::_generate_emission_points() {
     }
 }
 
-void CPUParticlesEditor::_bind_methods() {
+void CPUParticles3DEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_menu_option", &CPUParticlesEditor::_menu_option);
+    MethodBinder::bind_method("_menu_option", &CPUParticles3DEditor::_menu_option);
 }
 
-CPUParticlesEditor::CPUParticlesEditor() {
+CPUParticles3DEditor::CPUParticles3DEditor() {
 
     particles_editor_hb = memnew(HBoxContainer);
     SpatialEditor::get_singleton()->add_control_to_menu_panel(particles_editor_hb);
@@ -119,7 +119,7 @@ CPUParticlesEditor::CPUParticlesEditor() {
     particles_editor_hb->add_child(options);
     particles_editor_hb->hide();
 
-    options->set_text(TTR("CPUParticles"));
+    options->set_text(TTR("CPUParticles3D"));
     options->get_popup()->add_item(TTR("Create Emission Points From Mesh"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH);
     options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
     options->get_popup()->add_separator();
@@ -127,17 +127,17 @@ CPUParticlesEditor::CPUParticlesEditor() {
     options->get_popup()->connect("id_pressed", this, "_menu_option");
 }
 
-void CPUParticlesEditorPlugin::edit(Object *p_object) {
+void CPUParticles3DEditorPlugin::edit(Object *p_object) {
 
     particles_editor->edit(object_cast<CPUParticles3D>(p_object));
 }
 
-bool CPUParticlesEditorPlugin::handles(Object *p_object) const {
+bool CPUParticles3DEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("CPUParticles");
+    return p_object->is_class("CPUParticles3D");
 }
 
-void CPUParticlesEditorPlugin::make_visible(bool p_visible) {
+void CPUParticles3DEditorPlugin::make_visible(bool p_visible) {
 
     if (p_visible) {
         particles_editor->show();
@@ -149,14 +149,14 @@ void CPUParticlesEditorPlugin::make_visible(bool p_visible) {
     }
 }
 
-CPUParticlesEditorPlugin::CPUParticlesEditorPlugin(EditorNode *p_node) {
+CPUParticles3DEditorPlugin::CPUParticles3DEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
-    particles_editor = memnew(CPUParticlesEditor);
+    particles_editor = memnew(CPUParticles3DEditor);
     editor->get_viewport()->add_child(particles_editor);
 
     particles_editor->hide();
 }
 
-CPUParticlesEditorPlugin::~CPUParticlesEditorPlugin() {
+CPUParticles3DEditorPlugin::~CPUParticles3DEditorPlugin() {
 }

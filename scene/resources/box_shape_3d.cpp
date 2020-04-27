@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  box_shape.h                                                          */
+/*  box_shape_3d.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,30 +28,58 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#pragma once
+#include "box_shape_3d.h"
+#include "servers/physics_server_3d.h"
+#include "core/method_bind.h"
 
-#include "scene/resources/shape.h"
-#include "core/math/vector3.h"
+IMPL_GDCLASS(BoxShape3D)
 
-class BoxShape : public Shape {
+Vector<Vector3> BoxShape3D::get_debug_mesh_lines() {
 
-    GDCLASS(BoxShape,Shape)
+    Vector<Vector3> lines;
+    AABB aabb;
+    aabb.position = -get_extents();
+    aabb.size = aabb.position * -2;
 
-    Vector3 extents;
-
-protected:
-    static void _bind_methods();
-
-    void _update_shape() override;
-    Vector<Vector3> get_debug_mesh_lines() override;
-
-public:
-    void set_extents(const Vector3 &p_extents);
-    Vector3 get_extents() const;
-    /// Returns the radius of a sphere that fully enclose this shape
-    real_t get_enclosing_radius() const override {
-        return extents.length();
+    for (int i = 0; i < 12; i++) {
+        Vector3 a, b;
+        aabb.get_edge(i, a, b);
+        lines.push_back(a);
+        lines.push_back(b);
     }
 
-    BoxShape();
-};
+    return lines;
+}
+
+void BoxShape3D::_update_shape() {
+
+    PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), extents);
+    Shape::_update_shape();
+}
+
+void BoxShape3D::set_extents(const Vector3 &p_extents) {
+
+    extents = p_extents;
+    _update_shape();
+    notify_change_to_owners();
+    Object_change_notify(this,"extents");
+}
+
+Vector3 BoxShape3D::get_extents() const {
+
+    return extents;
+}
+
+void BoxShape3D::_bind_methods() {
+
+    MethodBinder::bind_method(D_METHOD("set_extents", {"extents"}), &BoxShape3D::set_extents);
+    MethodBinder::bind_method(D_METHOD("get_extents"), &BoxShape3D::get_extents);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
+}
+
+BoxShape3D::BoxShape3D() :
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_BOX)) {
+
+    set_extents(Vector3(1, 1, 1));
+}

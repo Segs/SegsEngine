@@ -145,7 +145,7 @@ EditorPropertyText::EditorPropertyText() {
 ///////////////////// MULTILINE TEXT /////////////////////////
 
 void EditorPropertyMultilineText::_big_text_changed() {
-    text->set_text_utf8(big_text->get_text());
+    text->set_text(big_text->get_text());
     emit_changed(get_edited_property(), big_text->get_text_utf8(), "", true);
 }
 
@@ -166,15 +166,15 @@ void EditorPropertyMultilineText::_open_big_text() {
     }
 
     big_text_dialog->popup_centered_clamped(Size2(1000, 900) * EDSCALE, 0.8f);
-    big_text->set_text_utf8(text->get_text());
+    big_text->set_text(text->get_text());
     big_text->grab_focus();
 }
 
 void EditorPropertyMultilineText::update_property() {
     UIString t = get_edited_object()->get(get_edited_property());
-    text->set_text(t);
+    text->set_text_ui(t);
     if (big_text && big_text->is_visible_in_tree()) {
-        big_text->set_text(t);
+        big_text->set_text_ui(t);
     }
 }
 

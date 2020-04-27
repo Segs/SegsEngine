@@ -69,7 +69,7 @@ VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
 void Material::set_next_pass(const Ref<Material> &p_pass) {
 
     for (Ref<Material> pass_child = p_pass; pass_child != nullptr; pass_child = pass_child->get_next_pass()) {
-        ERR_FAIL_COND_MSG(pass_child == this, "Can't set as next_pass one of its parents to prevent crashes due to recursive loop."); 
+        ERR_FAIL_COND_MSG(pass_child == this, "Can't set as next_pass one of its parents to prevent crashes due to recursive loop.");
     }
 
     if (next_pass == p_pass)
@@ -293,7 +293,7 @@ void ShaderMaterial::get_argument_options(const StringName &p_function, int p_id
     }
     Resource::get_argument_options(p_function, p_idx, r_options);
 }
-
+using namespace RenderingServerEnums;
 bool ShaderMaterial::_can_do_next_pass() const {
 
     return shader && shader->get_mode() == ShaderMode::SPATIAL;

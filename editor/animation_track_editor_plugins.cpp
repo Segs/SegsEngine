@@ -283,7 +283,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (get_animation()->track_get_key_count(get_track()) > p_index + 1) {
@@ -641,7 +641,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (to_x <= from_x)
@@ -901,7 +901,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     if (pixel_begin > p_clip_right)
         return;
 
-    int from_x = MAX(pixel_begin, p_clip_left);
+    int from_x = M_MAX(pixel_begin, p_clip_left);
     int to_x = MIN(pixel_end, p_clip_right);
 
     if (get_animation()->track_get_key_count(get_track()) > p_index + 1) {
@@ -1224,7 +1224,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (to_x <= from_x)
@@ -1315,7 +1315,7 @@ AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Obj
         return audio;
     }
 
-    if (p_property == "frame" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite") || p_object->is_class("AnimatedSprite3D"))) {
+    if (p_property == "frame" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite2D") || p_object->is_class("AnimatedSprite3D"))) {
 
         AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
         sprite->set_node(p_object);

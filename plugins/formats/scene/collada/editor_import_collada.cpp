@@ -320,8 +320,8 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
                 node = memnew(Path3D);
             } else {
                 //mesh since nothing else
-                node = memnew(MeshInstance);
-                //object_cast<MeshInstance>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
+                node = memnew(MeshInstance3D);
+                //object_cast<MeshInstance3D>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
             }
         } break;
         case Collada::Node::TYPE_SKELETON: {
@@ -1080,11 +1080,11 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
             }
         }
 
-        if (object_cast<MeshInstance>(node)) {
+        if (object_cast<MeshInstance3D>(node)) {
 
             Collada::NodeGeometry *ng2 = static_cast<Collada::NodeGeometry *>(p_node);
 
-            MeshInstance *mi = object_cast<MeshInstance>(node);
+            MeshInstance3D *mi = object_cast<MeshInstance3D>(node);
 
             ERR_FAIL_COND_V(!mi, ERR_BUG);
 

@@ -220,7 +220,7 @@ void InspectorDock::_paste_resource() const {
 void InspectorDock::_prepare_history() {
     EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
 
-    int history_to = MAX(0, editor_history->get_history_len() - 25);
+    int history_to = M_MAX(0, editor_history->get_history_len() - 25);
 
     history_menu->get_popup()->clear();
 

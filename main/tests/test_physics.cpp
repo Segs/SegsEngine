@@ -73,7 +73,7 @@ class TestPhysicsMainLoop : public MainLoop {
 
     void body_changed_transform(Object *p_state, RID p_visual_instance) {
 
-        PhysicsDirectBodyState *state = (PhysicsDirectBodyState *)p_state;
+        PhysicsDirectBodyState3D *state = (PhysicsDirectBodyState3D *)p_state;
         RenderingServer *vs = RenderingServer::get_singleton();
         Transform t = state->get_transform();
         vs->instance_set_transform(p_visual_instance, t);

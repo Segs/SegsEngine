@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="PhysicsDirectSpaceState" inherits="Object" version="4.0">
+<class name="PhysicsDirectSpaceState3D" inherits="Object" version="4.0">
 	<brief_description>
 		Direct access object to a space in the [PhysicsServer3D].
 	</brief_description>
@@ -13,7 +13,7 @@
 		<method name="cast_motion">
 			<return type="Array">
 			</return>
-			<argument index="0" name="shape" type="PhysicsShapeQueryParameters">
+			<argument index="0" name="shape" type="PhysicsShapeQueryParameters3D">
 			</argument>
 			<argument index="1" name="motion" type="Vector3">
 			</argument>
@@ -25,21 +25,21 @@
 		<method name="collide_shape">
 			<return type="Array">
 			</return>
-			<argument index="0" name="shape" type="PhysicsShapeQueryParameters">
+			<argument index="0" name="shape" type="PhysicsShapeQueryParameters3D">
 			</argument>
 			<argument index="1" name="max_results" type="int" default="32">
 			</argument>
 			<description>
-				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters] object, against the space. The resulting array contains a list of points where the shape intersects another. Like with [method intersect_shape], the number of returned results can be limited to save processing time.
+				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters3D] object, against the space. The resulting array contains a list of points where the shape intersects another. Like with [method intersect_shape], the number of returned results can be limited to save processing time.
 			</description>
 		</method>
 		<method name="get_rest_info">
 			<return type="Dictionary">
 			</return>
-			<argument index="0" name="shape" type="PhysicsShapeQueryParameters">
+			<argument index="0" name="shape" type="PhysicsShapeQueryParameters3D">
 			</argument>
 			<description>
-				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters] object, against the space. If it collides with more than one shape, the nearest one is selected. The returned object is a dictionary containing the following fields:
+				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters3D] object, against the space. If it collides with more than one shape, the nearest one is selected. The returned object is a dictionary containing the following fields:
 				[code]collider_id[/code]: The colliding object's ID.
                 [code]linear_velocity[/code]: The colliding object's velocity [Vector3]. If the object is an [Area3D], the result is [code](0, 0, 0)[/code].
 				[code]normal[/code]: The object's surface normal at the intersection point.
@@ -79,12 +79,12 @@
 		<method name="intersect_shape">
 			<return type="Array">
 			</return>
-			<argument index="0" name="shape" type="PhysicsShapeQueryParameters">
+			<argument index="0" name="shape" type="PhysicsShapeQueryParameters3D">
 			</argument>
 			<argument index="1" name="max_results" type="int" default="32">
 			</argument>
 			<description>
-				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters] object, against the space. The intersected shapes are returned in an array containing dictionaries with the following fields:
+				Checks the intersections of a shape, given through a [PhysicsShapeQueryParameters3D] object, against the space. The intersected shapes are returned in an array containing dictionaries with the following fields:
 				[code]collider[/code]: The colliding object.
 				[code]collider_id[/code]: The colliding object's ID.
 				[code]rid[/code]: The intersecting object's [RID].

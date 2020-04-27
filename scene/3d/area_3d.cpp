@@ -224,7 +224,7 @@ void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
 
 void Area3D::_clear_monitoring() {
 
-    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal."); 
+    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal.");
 
     {
         auto bmcopy = eastl::move(body_map); // move map into temporary
@@ -294,7 +294,7 @@ void Area3D::_notification(int p_what) {
 
 void Area3D::set_monitoring(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false)."); 
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).");
 
     if (p_enable == monitoring)
         return;
@@ -441,7 +441,7 @@ Array Area3D::get_overlapping_bodies() const {
 
 void Area3D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer3D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer3D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).");
 
     if (p_enable == monitorable)
         return;
@@ -705,10 +705,10 @@ void Area3D::_bind_methods() {
     ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
 
-    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
-    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area")));
-    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area")));
+    ADD_SIGNAL(MethodInfo("area_shape_entered", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area3D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_shape_exited", PropertyInfo(VariantType::INT, "area_id"), PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area3D"), PropertyInfo(VariantType::INT, "area_shape"), PropertyInfo(VariantType::INT, "self_shape")));
+    ADD_SIGNAL(MethodInfo("area_entered", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area3D")));
+    ADD_SIGNAL(MethodInfo("area_exited", PropertyInfo(VariantType::OBJECT, "area", PropertyHint::ResourceType, "Area3D")));
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "space_override", PropertyHint::Enum, "Disabled,Combine,Combine-Replace,Replace,Replace-Combine"), "set_space_override_mode", "get_space_override_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gravity_point"), "set_gravity_is_point", "is_gravity_a_point");

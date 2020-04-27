@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="GridMap.svg">icons/icon_grid_map.svg</file>
+        <file alias="GridMap.svg">icons/GridMap.svg</file>
     </qresource>
 </RCC>

@@ -28,14 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "concave_polygon_shape.h"
+#include "concave_polygon_shape_3d.h"
 
 #include "core/pool_vector.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 #include "core/set.h"
 
-IMPL_GDCLASS(ConcavePolygonShape)
+IMPL_GDCLASS(ConcavePolygonShape3D)
 
 namespace {
 struct DrawEdge {
@@ -59,7 +59,7 @@ struct DrawEdge {
 };
 } // end of anonymous namespace
 
-Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
+Vector<Vector3> ConcavePolygonShape3D::get_debug_mesh_lines() {
 
     Set<DrawEdge> edges;
 
@@ -91,40 +91,40 @@ Vector<Vector3> ConcavePolygonShape::get_debug_mesh_lines() {
     return points;
 }
 
-void ConcavePolygonShape::_update_shape() {
+void ConcavePolygonShape3D::_update_shape() {
     Shape::_update_shape();
 }
 
-real_t ConcavePolygonShape::get_enclosing_radius() const {
+real_t ConcavePolygonShape3D::get_enclosing_radius() const {
     PoolVector<Vector3> data = get_faces();
     PoolVector<Vector3>::Read read = data.read();
     real_t r = 0;
     for (int i(0); i < data.size(); i++) {
-        r = MAX(read[i].length_squared(), r);
+        r = M_MAX(read[i].length_squared(), r);
     }
     return Math::sqrt(r);
 }
 
 
-void ConcavePolygonShape::set_faces(const PoolVector<Vector3> &p_faces) {
+void ConcavePolygonShape3D::set_faces(const PoolVector<Vector3> &p_faces) {
 
     PhysicsServer3D::get_singleton()->shape_set_data(get_shape(), p_faces);
     notify_change_to_owners();
 }
 
-PoolVector<Vector3> ConcavePolygonShape::get_faces() const {
+PoolVector<Vector3> ConcavePolygonShape3D::get_faces() const {
 
     return PhysicsServer3D::get_singleton()->shape_get_data(get_shape());
 }
 
-void ConcavePolygonShape::_bind_methods() {
+void ConcavePolygonShape3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape::set_faces);
-    MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape::get_faces);
+    MethodBinder::bind_method(D_METHOD("set_faces", {"faces"}), &ConcavePolygonShape3D::set_faces);
+    MethodBinder::bind_method(D_METHOD("get_faces"), &ConcavePolygonShape3D::get_faces);
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR3_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_faces", "get_faces");
 }
 
-ConcavePolygonShape::ConcavePolygonShape() :
+ConcavePolygonShape3D::ConcavePolygonShape3D() :
         Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CONCAVE_POLYGON)) {
 
     //set_planes(Vector3(1,1,1));

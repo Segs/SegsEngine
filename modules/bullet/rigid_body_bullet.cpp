@@ -203,7 +203,7 @@ Vector3 BulletPhysicsDirectBodyState::get_contact_collider_velocity_at_position(
     return velocityAtPoint;
 }
 
-PhysicsDirectSpaceState *BulletPhysicsDirectBodyState::get_space_state() {
+PhysicsDirectSpaceState3D *BulletPhysicsDirectBodyState::get_space_state() {
     return body->get_space()->get_direct_state();
 }
 

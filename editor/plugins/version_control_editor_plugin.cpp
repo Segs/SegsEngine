@@ -157,7 +157,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
 
         EditorVCSInterface::get_singleton()->commit(msg);
 
-        commit_message->set_text(UIString());
+        commit_message->set_text_ui(UIString());
         version_control_dock_button->set_pressed(false);
     } else {
 
@@ -435,7 +435,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     set_up_vbc->add_child(set_up_hbc);
 
     set_up_vcs_status = memnew(RichTextLabel);
-    set_up_vcs_status->set_text_utf8(TTR("VCS Addon is not initialized"));
+    set_up_vcs_status->set_text(TTR("VCS Addon is not initialized"));
     set_up_vbc->add_child(set_up_vcs_status);
 
     set_up_vcs_label = memnew(Label);
@@ -532,7 +532,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     commit_message->set_v_grow_direction(Control::GrowDirection::GROW_DIRECTION_END);
     commit_message->set_custom_minimum_size(Size2(200, 100));
     commit_message->set_wrap_enabled(true);
-    commit_message->set_text(TTR("Add a commit message").asString());
+    commit_message->set_text_ui(TTR("Add a commit message").asString());
     commit_box_vbc->add_child(commit_message);
 
     commit_button = memnew(Button);

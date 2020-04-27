@@ -518,8 +518,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
 #define ENSURE_WIDTH(m_width)                                                                                                                                   \
     if (p_mode == PROCESS_CACHE) {                                                                                                                              \
-        l.maximum_width = MAX(l.maximum_width, MIN(p_width, wofs + m_width));                                                                                   \
-        l.minimum_width = MAX(l.minimum_width, m_width);                                                                                                        \
+        l.maximum_width = M_MAX(l.maximum_width, MIN(p_width, wofs + m_width));                                                                                   \
+        l.minimum_width = M_MAX(l.minimum_width, m_width);                                                                                                        \
     }                                                                                                                                                           \
     if (wofs - backtrack + m_width > p_width) {                                                                                             \
         line_wrapped = true;                                                                                                                                    \
@@ -674,8 +674,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                     CHECK_HEIGHT(fh);
                     ENSURE_WIDTH(w);
 
-                    line_ascent = MAX(line_ascent, ascent);
-                    line_descent = MAX(line_descent, descent);
+                    line_ascent = M_MAX(line_ascent, ascent);
+                    line_descent = M_MAX(line_descent, descent);
                     fh = line_ascent + line_descent;
 
                     if (end && c[end - 1] == ' ') {
@@ -945,8 +945,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         for (int i = 0; i < frame->lines.size(); i++) {
 
                             _process_line(frame, Point2(), ly, available_width, i, PROCESS_CACHE, cfont, Color(), font_color_shadow, use_outline, shadow_ofs2);
-                            table->columns[column].min_width = MAX(table->columns[column].min_width, frame->lines[i].minimum_width);
-                            table->columns[column].max_width = MAX(table->columns[column].max_width, frame->lines[i].maximum_width);
+                            table->columns[column].min_width = M_MAX(table->columns[column].min_width, frame->lines[i].minimum_width);
+                            table->columns[column].max_width = M_MAX(table->columns[column].max_width, frame->lines[i].maximum_width);
                         }
                         idx++;
                     }
@@ -1065,7 +1065,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         }
                     }
 
-                    row_height = MAX(yofs, row_height);
+                    row_height = M_MAX(yofs, row_height);
                     offset.x += table->columns[column].width + hseparation;
 
                     if (column == table->columns.size() - 1) {
@@ -2900,11 +2900,11 @@ String RichTextLabel::get_text() {
     return StringUtils::to_utf8(text);
 }
 
-void RichTextLabel::set_text(const UIString &p_string) {
+void RichTextLabel::set_text_ui(const UIString &p_string) {
     clear();
     add_text_uistring(p_string);
 }
-void RichTextLabel::set_text_utf8(StringView p_string) {
+void RichTextLabel::set_text(StringView p_string) {
     clear();
     add_text(p_string);
 }
@@ -2967,7 +2967,7 @@ void RichTextLabel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_scroll_changed"), &RichTextLabel::_scroll_changed);
     MethodBinder::bind_method(D_METHOD("get_text"), &RichTextLabel::get_text);
     MethodBinder::bind_method(D_METHOD("add_text", {"text"}), &RichTextLabel::add_text);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text_utf8);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text);
     MethodBinder::bind_method(D_METHOD("add_image", {"image", "width", "height"}), &RichTextLabel::add_image, {DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);
     MethodBinder::bind_method(D_METHOD("remove_line", {"line"}), &RichTextLabel::remove_line);

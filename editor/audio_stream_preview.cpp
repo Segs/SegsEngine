@@ -143,8 +143,8 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 
             for (int j = from; j < to; j++) {
 
-                max = MAX(max, mix_chunk[j].l);
-                max = MAX(max, mix_chunk[j].r);
+                max = M_MAX(max, mix_chunk[j].l);
+                max = M_MAX(max, mix_chunk[j].r);
 
                 min = MIN(min, mix_chunk[j].l);
                 min = MIN(min, mix_chunk[j].r);

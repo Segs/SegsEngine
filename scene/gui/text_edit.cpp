@@ -1416,7 +1416,7 @@ struct TextEdit::PrivateData {
             cursor_set_column(0);
 
             m_owner->begin_complex_operation();
-            _remove_text(0, 0, MAX(0, text.size() - 1), MAX(get_line(MAX(text.size() - 1, 0)).size(), 0));
+            _remove_text(0, 0, M_MAX(0, text.size() - 1), M_MAX(get_line(M_MAX(text.size() - 1, 0)).size(), 0));
             _insert_text_at_cursor(p_text);
             end_complex_operation();
             selection.active = false;
@@ -1727,7 +1727,7 @@ int Text::get_max_width(bool p_exclude_hidden) const {
     int max = 0;
     for (int i = 0; i < text.size(); i++) {
         if (!p_exclude_hidden || !is_hidden(i))
-            max = MAX(max, get_line_width(i));
+            max = M_MAX(max, get_line_width(i));
     }
     return max;
 }
@@ -2458,7 +2458,7 @@ void TextEdit::_notification(int p_what) {
                             if (characters > 0) {
                                 previous_color.a *= 0.6f;
                                 // take one for zero indexing, and if we hit whitespace / the end of a word.
-                                int chars = MAX(0, (j - (characters - 1)) - (is_whitespace ? 1 : 0)) + 1;
+                                int chars = M_MAX(0, (j - (characters - 1)) - (is_whitespace ? 1 : 0)) + 1;
                                 int char_x_ofs = indent_px + ((xmargin_end + minimap_char_size.x) + (minimap_char_size.x * chars)) + tabs;
                                 RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(char_x_ofs, minimap_line_height * i), Point2(minimap_char_size.x * characters, minimap_char_size.y)), previous_color);
                             }
@@ -3115,7 +3115,7 @@ void TextEdit::_notification(int p_what) {
 
                     StringView l = StringUtils::get_slice(m_priv->completion_hint,"\n", i);
                     int len = font->get_string_size(l).x;
-                    max_w = MAX(len, max_w);
+                    max_w = M_MAX(len, max_w);
                     if (i == 0) {
                         offset = font->get_string_size(StringUtils::substr(l,0, StringUtils::find(l,c_cursor_marker))).x;
                     } else {
@@ -4244,7 +4244,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                     }
                 }
 
-                insert_text_at_cursor(ins);
+                insert_text_at_cursor_ui(ins);
 
                 if (first_line) {
                     cursor_set_line(0);
@@ -4292,7 +4292,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                                 // Tabs unindentation.
                                 m_priv->_remove_text(m_priv->cursor.line, cc - 1, m_priv->cursor.line, cc);
                                 if (m_priv->cursor.column >= left)
-                                    cursor_set_column(MAX(0, m_priv->cursor.column - 1));
+                                    cursor_set_column(M_MAX(0, m_priv->cursor.column - 1));
                                 update();
                             } else {
                                 // Spaces unindentation.
@@ -4300,7 +4300,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
                                 if (spaces_to_remove > 0) {
                                     m_priv->_remove_text(m_priv->cursor.line, cc - spaces_to_remove, m_priv->cursor.line, cc);
                                     if (m_priv->cursor.column > left - spaces_to_remove) // Inside text?
-                                        cursor_set_column(MAX(0, m_priv->cursor.column - spaces_to_remove));
+                                        cursor_set_column(M_MAX(0, m_priv->cursor.column - spaces_to_remove));
                                     update();
                                 }
                             }
@@ -5703,12 +5703,12 @@ int TextEdit::get_column_x_offset(int p_char, const UIString& p_str) const {
     return px;
 }
 
-void TextEdit::insert_text_at_cursor(const UIString &p_text) {
+void TextEdit::insert_text_at_cursor_ui(const UIString &p_text) {
 
     m_priv->insert_text_at_cursor(p_text);
 }
-void TextEdit::insert_text_at_cursor_utf8(StringView _text) {
-    insert_text_at_cursor(StringUtils::from_utf8(_text));
+void TextEdit::insert_text_at_cursor(StringView _text) {
+    insert_text_at_cursor_ui(StringUtils::from_utf8(_text));
 }
 Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
     if (!m_priv->highlighted_word.isEmpty())
@@ -5769,7 +5769,7 @@ Control::CursorShape TextEdit::get_cursor_shape(const Point2 &p_pos) const {
     return get_default_cursor_shape();
 }
 
-void TextEdit::set_text(const UIString& p_text) {
+void TextEdit::set_text_ui(const UIString& p_text) {
 
     m_priv->set_text(p_text);
 }
@@ -6546,7 +6546,7 @@ int TextEdit::num_lines_from_rows(int p_line_from, int p_wrap_index_from, int vi
         }
         wrap_index = (num_visible - visible_amount);
     }
-    wrap_index = MAX(wrap_index, 0);
+    wrap_index = M_MAX(wrap_index, 0);
     return num_total;
 }
 
@@ -6846,9 +6846,9 @@ bool TextEdit::is_insert_text_operation() {
     return (m_priv->current_op.type == TextEdit::PrivateData::TextOperation::TYPE_INSERT);
 }
 
-void TextEdit::set_text_utf8(StringView p_text)
+void TextEdit::set_text(StringView p_text)
 {
-    set_text(StringUtils::from_utf8(p_text));
+    set_text_ui(StringUtils::from_utf8(p_text));
 }
 
 uint32_t TextEdit::get_version() const {
@@ -7004,7 +7004,7 @@ void TextEdit::_confirm_completion() {
 
     m_priv->_remove_text(m_priv->cursor.line, m_priv->cursor.column - m_priv->completion_base.length(), m_priv->cursor.line, m_priv->cursor.column);
     cursor_set_column(m_priv->cursor.column - m_priv->completion_base.length(), false);
-    insert_text_at_cursor(StringUtils::from_utf8(m_priv->completion_current.insert_text));
+    insert_text_at_cursor_ui(StringUtils::from_utf8(m_priv->completion_current.insert_text));
 
     // When inserted into the middle of an existing string/method, don't add an unnecessary quote/bracket.
     UIString line = m_priv->text[m_priv->cursor.line];
@@ -7023,7 +7023,7 @@ void TextEdit::_confirm_completion() {
         if (next_char == last_completion_char) {
             m_priv->_base_remove_text(m_priv->cursor.line, m_priv->cursor.column - 1, m_priv->cursor.line, m_priv->cursor.column);
         } else if (auto_brace_completion_enabled) {
-            insert_text_at_cursor(UIString(")"));
+            insert_text_at_cursor_ui(UIString(")"));
             m_priv->cursor.column--;
         }
     } else if (last_completion_char == ')' && next_char == '(') {
@@ -7553,8 +7553,8 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("delete_line"),&TextEdit::delete_line);
 */
 
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &TextEdit::set_text_utf8);
-    MethodBinder::bind_method(D_METHOD("insert_text_at_cursor", {"text"}), &TextEdit::insert_text_at_cursor_utf8);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &TextEdit::set_text);
+    MethodBinder::bind_method(D_METHOD("insert_text_at_cursor", {"text"}), &TextEdit::insert_text_at_cursor);
 
     MethodBinder::bind_method(D_METHOD("get_line_count"), &TextEdit::get_line_count);
     MethodBinder::bind_method(D_METHOD("get_text"), &TextEdit::get_text);
@@ -7644,7 +7644,7 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_highlight_current_line", {"enabled"}), &TextEdit::set_highlight_current_line);
     MethodBinder::bind_method(D_METHOD("is_highlight_current_line_enabled"), &TextEdit::is_highlight_current_line_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_smooth_scroll_enable", {"enable"}), &TextEdit::set_smooth_scroll_enabled);
+    MethodBinder::bind_method(D_METHOD("set_smooth_scroll_enabled", {"enable"}), &TextEdit::set_smooth_scroll_enabled);
     MethodBinder::bind_method(D_METHOD("is_smooth_scroll_enabled"), &TextEdit::is_smooth_scroll_enabled);
     MethodBinder::bind_method(D_METHOD("set_v_scroll_speed", {"speed"}), &TextEdit::set_v_scroll_speed);
     MethodBinder::bind_method(D_METHOD("get_v_scroll_speed"), &TextEdit::get_v_scroll_speed);

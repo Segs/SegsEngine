@@ -36,8 +36,8 @@
 #include "core/pair.h"
 #include "core/print_string.h"
 #include "core/set.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_enum_casters.h"
 #include "servers/rendering_server.h"
@@ -235,12 +235,12 @@ Ref<Shape> Mesh::create_convex_shape() const {
     for (int i = 0; i < get_surface_count(); i++) {
 
         SurfaceArrays a = surface_get_arrays(i);
-        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape>());
+        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape3D>());
         auto vals=a.positions3();
         vertices.insert(vertices.end(),vals.begin(),vals.end());
     }
 
-    Ref<ConvexPolygonShape> shape(make_ref_counted<ConvexPolygonShape>());
+    Ref<ConvexPolygonShape3D> shape(make_ref_counted<ConvexPolygonShape3D>());
     shape->set_points(eastl::move(vertices));
     return shape;
 }
@@ -260,7 +260,7 @@ Ref<Shape> Mesh::create_trimesh_shape() const {
         face_points.set(i, f.vertex[i % 3]);
     }
 
-    Ref<ConcavePolygonShape> shape(make_ref_counted<ConcavePolygonShape>());
+    Ref<ConcavePolygonShape3D> shape(make_ref_counted<ConcavePolygonShape3D>());
     shape->set_faces(face_points);
     return shape;
 }
@@ -542,7 +542,7 @@ Vector<Ref<Shape>> Mesh::convex_decompose() const {
             convex_points.emplace_back(E);
         }
 
-        Ref<ConvexPolygonShape> shape(make_ref_counted<ConvexPolygonShape>());
+        Ref<ConvexPolygonShape3D> shape(make_ref_counted<ConvexPolygonShape3D>());
         shape->set_points(eastl::move(convex_points));
         ret.emplace_back(eastl::move(shape));
     }

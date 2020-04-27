@@ -158,7 +158,7 @@ public:
 
     RID get_shader_rid() const;
 
-    ShaderMode get_shader_mode() const override;
+    RenderingServerEnums::ShaderMode get_shader_mode() const override;
 
     CanvasItemMaterial();
     ~CanvasItemMaterial() override;

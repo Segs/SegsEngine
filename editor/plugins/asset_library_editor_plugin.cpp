@@ -749,7 +749,7 @@ void EditorAssetLibrary::_image_update(bool use_cache, bool final, const PoolByt
             }
         }
 
-        if (!image->empty()) {
+        if (!image->is_empty()) {
             switch (image_queue[p_queue_id].image_type) {
                 case IMAGE_QUEUE_ICON:
 

@@ -303,7 +303,7 @@ StringName VisualShaderEditor::_get_description(int p_idx) {
 
 void VisualShaderEditor::_update_options_menu() {
 
-    node_desc->set_text_utf8(StringView());
+    node_desc->set_text(StringView());
     members_dialog->get_ok()->set_disabled(true);
 
     StringName prev_category;
@@ -406,7 +406,7 @@ void VisualShaderEditor::_update_options_menu() {
                 item->set_text(0, add_options[i].name);
                 if (is_first_item && use_filter) {
                     item->select(0);
-                    node_desc->set_text_utf8(_get_description(i));
+                    node_desc->set_text(_get_description(i));
                     is_first_item = false;
                 }
                 switch (add_options[i].return_type) {
@@ -632,7 +632,7 @@ void VisualShaderEditor::_update_graph() {
             }
         }
 
-        for (int i = 0; i < MAX(vsnode->get_input_port_count(), vsnode->get_output_port_count()); i++) {
+        for (int i = 0; i < M_MAX(vsnode->get_input_port_count(), vsnode->get_output_port_count()); i++) {
 
             if (vsnode->is_port_separator(i)) {
                 node->add_child(memnew(HSeparator));
@@ -866,7 +866,7 @@ void VisualShaderEditor::_update_graph() {
             expression_box->add_color_region("/*", "*/", comment_color, false);
             expression_box->add_color_region("//", "", comment_color, false);
 
-            expression_box->set_text_utf8(expression);
+            expression_box->set_text(expression);
             expression_box->set_context_menu_enabled(false);
             expression_box->set_show_line_numbers(true);
 
@@ -2045,10 +2045,10 @@ void VisualShaderEditor::_member_selected() {
 
     if (item != nullptr && item->has_meta("id")) {
         members_dialog->get_ok()->set_disabled(false);
-        node_desc->set_text_utf8(_get_description(item->get_meta("id")));
+        node_desc->set_text(_get_description(item->get_meta("id")));
     } else {
         members_dialog->get_ok()->set_disabled(true);
-        node_desc->set_text_utf8(StringView());
+        node_desc->set_text(StringView());
     }
 }
 
@@ -2211,7 +2211,7 @@ void VisualShaderEditor::_update_preview() {
 
     String code(visual_shader->get_code());
 
-    preview_text->set_text_utf8(code);
+    preview_text->set_text(code);
 
     ShaderLanguage sl;
 
@@ -2513,7 +2513,7 @@ VisualShaderEditor::VisualShaderEditor() {
     add_options.push_back(AddOption("BooleanUniform", "Conditional", "Variables", "VisualShaderNodeBooleanUniform", TTR("Boolean uniform."), -1, VisualShaderNode::PORT_TYPE_BOOLEAN));
 
     // INPUT
-
+    using namespace RenderingServerEnums;
     // SPATIAL-FOR-ALL
     const StringName input_param_shader_modes = TTR("'%s' input parameter for all shader modes.");
     add_options.push_back(AddOption("Camera3D", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "camera"), "camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
@@ -3122,7 +3122,7 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
 
     Ref<VisualShader> visual_shader(object_cast<VisualShader>(get_edited_object()));
 
-    if (visual_shader->get_mode() == (ShaderMode)p_which)
+    if (visual_shader->get_mode() == (RenderingServerEnums::ShaderMode)p_which)
         return;
 
     UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();

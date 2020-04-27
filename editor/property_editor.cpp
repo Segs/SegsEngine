@@ -582,7 +582,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::MultilineText) {
 
                 text_edit->show();
-                text_edit->set_text(v);
+                text_edit->set_text_ui(v);
                 text_edit->deselect();
 
                 int button_margin = get_constant("button_margin", "Dialogs");

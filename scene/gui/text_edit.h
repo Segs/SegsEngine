@@ -275,10 +275,10 @@ public:
 
     bool is_insert_text_operation();
 
-    void set_text_utf8(StringView p_text);
-    void set_text(const UIString& p_text);
-    void insert_text_at_cursor_utf8(StringView p_text);
-    void insert_text_at_cursor(const UIString &p_text);
+    void set_text(StringView p_text);
+    void set_text_ui(const UIString& p_text);
+    void insert_text_at_cursor(StringView p_text);
+    void insert_text_at_cursor_ui(const UIString &p_text);
     void insert_at(const UIString &p_text, int at);
     int get_line_count() const;
     void set_line_as_marked(int p_line, bool p_marked);

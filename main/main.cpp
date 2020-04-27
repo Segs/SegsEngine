@@ -2118,8 +2118,8 @@ bool Main::iteration() {
 
         message_queue->flush();
 
-        physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
-        physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
+        physics_process_ticks = M_MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
+        physics_process_max = M_MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
         Engine::get_singleton()->_physics_frames++;
     }
 
@@ -2149,7 +2149,7 @@ bool Main::iteration() {
     }
 
     idle_process_ticks = OS::get_singleton()->get_ticks_usec() - idle_begin;
-    idle_process_max = MAX(idle_process_ticks, idle_process_max);
+    idle_process_max = M_MAX(idle_process_ticks, idle_process_max);
     uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
 
     for (int i = 0; i < ScriptServer::get_language_count(); i++) {
@@ -2208,7 +2208,7 @@ bool Main::iteration() {
         uint64_t current_ticks = OS::get_singleton()->get_ticks_usec();
         if (current_ticks < target_ticks) OS::get_singleton()->delay_usec(target_ticks - current_ticks);
         current_ticks = OS::get_singleton()->get_ticks_usec();
-        target_ticks = MIN(MAX(target_ticks, current_ticks - time_step), current_ticks + time_step);
+        target_ticks = MIN(M_MAX(target_ticks, current_ticks - time_step), current_ticks + time_step);
     }
 
 #ifdef TOOLS_ENABLED

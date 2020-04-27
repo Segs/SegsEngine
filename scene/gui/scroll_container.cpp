@@ -62,10 +62,10 @@ Size2 ScrollContainer::get_minimum_size() const {
         Size2 minsize = c->get_combined_minimum_size();
 
         if (!scroll_h) {
-            min_size.x = MAX(min_size.x, minsize.x);
+            min_size.x = M_MAX(min_size.x, minsize.x);
         }
         if (!scroll_v) {
-            min_size.y = MAX(min_size.y, minsize.y);
+            min_size.y = M_MAX(min_size.y, minsize.y);
         }
     }
 
@@ -259,9 +259,9 @@ void ScrollContainer::_ensure_focused_visible(Control *p_control) {
             bottom_margin += h_scroll->get_size().y;
         }
 
-        float diff = MAX(MIN(other_rect.position.y, global_rect.position.y), other_rect.position.y + other_rect.size.y - global_rect.size.y + bottom_margin);
+        float diff = M_MAX(MIN(other_rect.position.y, global_rect.position.y), other_rect.position.y + other_rect.size.y - global_rect.size.y + bottom_margin);
         set_v_scroll(get_v_scroll() + (diff - global_rect.position.y));
-        diff = MAX(MIN(other_rect.position.x, global_rect.position.x), other_rect.position.x + other_rect.size.x - global_rect.size.x + right_margin);
+        diff = M_MAX(MIN(other_rect.position.x, global_rect.position.x), other_rect.position.x + other_rect.size.x - global_rect.size.x + right_margin);
         set_h_scroll(get_h_scroll() + (diff - global_rect.position.x));
     }
 }
@@ -304,21 +304,21 @@ void ScrollContainer::_notification(int p_what) {
             if (c == h_scroll || c == v_scroll)
                 continue;
             Size2 minsize = c->get_combined_minimum_size();
-            child_max_size.x = MAX(child_max_size.x, minsize.x);
-            child_max_size.y = MAX(child_max_size.y, minsize.y);
+            child_max_size.x = M_MAX(child_max_size.x, minsize.x);
+            child_max_size.y = M_MAX(child_max_size.y, minsize.y);
 
             Rect2 r = Rect2(-scroll, minsize);
             if (!scroll_h || (!h_scroll->is_visible_in_tree() && c->get_h_size_flags() & SIZE_EXPAND)) {
                 r.position.x = 0;
                 if (c->get_h_size_flags() & SIZE_EXPAND)
-                    r.size.width = MAX(size.width, minsize.width);
+                    r.size.width = M_MAX(size.width, minsize.width);
                 else
                     r.size.width = minsize.width;
             }
             if (!scroll_v || (!v_scroll->is_visible_in_tree() && c->get_v_size_flags() & SIZE_EXPAND)) {
                 r.position.y = 0;
                 if (c->get_v_size_flags() & SIZE_EXPAND)
-                    r.size.height = MAX(size.height, minsize.height);
+                    r.size.height = M_MAX(size.height, minsize.height);
                 else
                     r.size.height = minsize.height;
             }

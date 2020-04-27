@@ -1061,7 +1061,7 @@ bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_m
     } */
 
     if (state.current_line_width != p_material->line_width) {
-        //glLineWidth(MAX(p_material->line_width,1.0));
+        //glLineWidth(M_MAX(p_material->line_width,1.0));
         state.current_line_width = p_material->line_width;
     }
 
@@ -2768,7 +2768,7 @@ void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_c
                 ubo_data.light_pos_inv_radius[0] = pos.x;
                 ubo_data.light_pos_inv_radius[1] = pos.y;
                 ubo_data.light_pos_inv_radius[2] = pos.z;
-                ubo_data.light_pos_inv_radius[3] = 1.0f / MAX(0.001f, li->light_ptr->param[RS::LIGHT_PARAM_RANGE]);
+                ubo_data.light_pos_inv_radius[3] = 1.0f / M_MAX(0.001f, li->light_ptr->param[RS::LIGHT_PARAM_RANGE]);
 
                 ubo_data.light_direction_attenuation[0] = 0;
                 ubo_data.light_direction_attenuation[1] = 0;
@@ -2848,7 +2848,7 @@ void RasterizerSceneGLES3::_setup_lights(RID *p_light_cull_result, int p_light_c
                 ubo_data.light_pos_inv_radius[0] = pos.x;
                 ubo_data.light_pos_inv_radius[1] = pos.y;
                 ubo_data.light_pos_inv_radius[2] = pos.z;
-                ubo_data.light_pos_inv_radius[3] = 1.0f / MAX(0.001f, li->light_ptr->param[RS::LIGHT_PARAM_RANGE]);
+                ubo_data.light_pos_inv_radius[3] = 1.0f / M_MAX(0.001f, li->light_ptr->param[RS::LIGHT_PARAM_RANGE]);
 
                 Vector3 direction = p_camera_inverse_transform.basis.xform(li->transform.basis.xform(Vector3(0, 0, -1))).normalized();
                 ubo_data.light_direction_attenuation[0] = direction.x;
@@ -3248,7 +3248,7 @@ void RasterizerSceneGLES3::_render_mrts(Environment *env, const CameraMatrix &p_
             state.ssao_minify_shader.bind();
             state.ssao_minify_shader.set_uniform(SsaoMinifyShaderGLES3::CAMERA_Z_FAR, p_cam_projection.get_z_far());
             state.ssao_minify_shader.set_uniform(SsaoMinifyShaderGLES3::CAMERA_Z_NEAR, p_cam_projection.get_z_near());
-            state.ssao_minify_shader.set_uniform(SsaoMinifyShaderGLES3::SOURCE_MIPMAP, MAX(0, i - 1));
+            state.ssao_minify_shader.set_uniform(SsaoMinifyShaderGLES3::SOURCE_MIPMAP, M_MAX(0, i - 1));
             glUniform2iv(state.ssao_minify_shader.get_uniform(SsaoMinifyShaderGLES3::FROM_SIZE), 1, ss);
             ss[0] >>= 1;
             ss[1] >>= 1;

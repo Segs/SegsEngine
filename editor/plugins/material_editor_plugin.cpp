@@ -35,7 +35,7 @@
 #include "scene/gui/viewport_container.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/shader.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(MaterialEditor)
 IMPL_GDCLASS(EditorInspectorPluginMaterial)
@@ -126,7 +126,7 @@ MaterialEditor::MaterialEditor() {
     add_child(vc);
     vc->set_anchors_and_margins_preset(PRESET_WIDE);
     viewport = memnew(Viewport);
-    Ref<World> world(make_ref_counted<World>());
+    Ref<World3D> world(make_ref_counted<World3D>());
     viewport->set_world(world); //use own world
     vc->add_child(viewport);
     viewport->set_disable_input(true);
@@ -148,10 +148,10 @@ MaterialEditor::MaterialEditor() {
     light2->set_color(Color(0.7f, 0.7f, 0.7f));
     viewport->add_child(light2);
 
-    sphere_instance = memnew(MeshInstance);
+    sphere_instance = memnew(MeshInstance3D);
     viewport->add_child(sphere_instance);
 
-    box_instance = memnew(MeshInstance);
+    box_instance = memnew(MeshInstance3D);
     viewport->add_child(box_instance);
 
     Transform box_xform;
@@ -214,7 +214,7 @@ bool EditorInspectorPluginMaterial::can_handle(Object *p_object) {
     if (!material)
         return false;
 
-    return material->get_shader_mode() == ShaderMode::SPATIAL;
+    return material->get_shader_mode() == RenderingServerEnums::ShaderMode::SPATIAL;
 }
 
 void EditorInspectorPluginMaterial::parse_begin(Object *p_object) {

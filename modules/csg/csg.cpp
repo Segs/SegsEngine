@@ -555,10 +555,10 @@ void CSGBrushOperation::_collision_callback(const CSGBrush *A, int p_face_a, Map
                 for (int k = 0; k < 3; k++) {
                     real_t d = sep_axis.dot(va[k]);
                     min_a = MIN(min_a, d);
-                    max_a = MAX(max_a, d);
+                    max_a = M_MAX(max_a, d);
                     d = sep_axis.dot(vb[k]);
                     min_b = MIN(min_b, d);
-                    max_b = MAX(max_b, d);
+                    max_b = M_MAX(max_b, d);
                 }
 
                 min_b -= (max_a - min_a) * 0.5f;
@@ -820,8 +820,8 @@ void CSGBrushOperation::_merge_poly(MeshMerge &mesh, int p_face_idx, const Build
 
                 for (int k = 0; k < pp.points.size(); k++) {
                     Vector2 p = p_poly.points[pp.points[k]].point;
-                    out_point.x = MAX(out_point.x, p.x);
-                    out_point.y = MAX(out_point.y, p.y);
+                    out_point.x = M_MAX(out_point.x, p.x);
+                    out_point.y = M_MAX(out_point.y, p.y);
                 }
 
                 out_point += Vector2(0.12341234, 0.4123412); // move to a random place to avoid direct edge-point chances

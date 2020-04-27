@@ -1151,6 +1151,108 @@ Error BindingsGenerator::generate_cs_api(StringView p_output_dir) {
     return OK;
 }
 
+Error BindingsGenerator::generate_cs_type_docs(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output)
+{
+    if (!class_doc)
+        return OK;
+    // Add constants
+
+    for (const ConstantInterface &iconstant : itype.constants) {
+
+        if (iconstant.const_doc && iconstant.const_doc->description.size()) {
+            String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
+            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+            if (summary_lines.size()) {
+                output.append(MEMBER_BEGIN "/// <summary>\n");
+
+                for (int i = 0; i < summary_lines.size(); i++) {
+                    output.append(INDENT2 "/// ");
+                    output.append(summary_lines[i]);
+                    output.append("\n");
+                }
+
+                output.append(INDENT2 "/// </summary>");
+            }
+        }
+
+        output.append(MEMBER_BEGIN "public const int ");
+        output.append(iconstant.proxy_name);
+        output.append(" = ");
+        output.append(itos(iconstant.value));
+        output.append(";");
+    }
+
+    if (itype.constants.size())
+        output.append("\n");
+
+    // Add enums
+
+    for (const EnumInterface &ienum : itype.enums) {
+
+        ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG);
+
+        output.append(MEMBER_BEGIN "public enum ");
+        output.append(ienum.cname);
+        output.append(MEMBER_BEGIN OPEN_BLOCK);
+
+        for (const ConstantInterface &iconstant : ienum.constants) {
+
+            if (iconstant.const_doc && iconstant.const_doc->description.size()) {
+                String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
+                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+                if (summary_lines.size()) {
+                    output.append(INDENT3 "/// <summary>\n");
+
+                    for (size_t i = 0; i < summary_lines.size(); i++) {
+                        output.append(INDENT3 "/// ");
+                        output.append(summary_lines[i]);
+                        output.append("\n");
+                    }
+
+                    output.append(INDENT3 "/// </summary>\n");
+                }
+            }
+
+            output.append(INDENT3);
+            output.append(iconstant.proxy_name);
+            output.append(" = ");
+            output.append(itos(iconstant.value));
+            output.append(&iconstant != &ienum.constants.back() ? ",\n" : "\n");
+        }
+
+        output.append(INDENT2 CLOSE_BLOCK);
+    }
+
+    // Add properties
+
+    for (const PropertyInterface &iprop : itype.properties) {
+        Error prop_err = _generate_cs_property(itype, iprop, output);
+        ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
+                String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
+    }
+    return OK;
+}
+void BindingsGenerator::generate_cs_type_doc_summary(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output)
+{
+    if (class_doc && !class_doc->description.empty()) {
+        String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), &itype);
+        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+        if (summary_lines.size()) {
+            output.append(INDENT1 "/// <summary>\n");
+
+            for (size_t i = 0; i < summary_lines.size(); i++) {
+                output.append(INDENT1 "/// ");
+                output.append(summary_lines[i]);
+                output.append("\n");
+            }
+
+            output.append(INDENT1 "/// </summary>\n");
+        }
+    }
+}
 // FIXME: There are some members that hide other inherited members.
 // - In the case of both members being the same kind, the new one must be declared
 // explicitly as 'new' to avoid the warning (and we must print a message about it).
@@ -1158,13 +1260,15 @@ Error BindingsGenerator::generate_cs_api(StringView p_output_dir) {
 // be renamed to avoid the name collision (and we must print a warning about it).
 // - Csc warning e.g.:
 // ObjectType/LineEdit.cs(140,38): warning CS0108: 'LineEdit.FocusMode' hides inherited member 'Control.FocusMode'. Use the new keyword if hiding was intended.
+
+
 Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringView p_output_file) {
 
     CRASH_COND(!itype.is_object_type);
 
     bool is_derived_type = itype.base_name != StringName();
 
-    if (!is_derived_type) {
+    if (!is_derived_type && !itype.is_namespace) {
         // Some Godot.Object assertions
         CRASH_COND(itype.cname != name_cache.type_Object);
         CRASH_COND(!itype.is_instantiable);
@@ -1194,32 +1298,20 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
 
     const DocData::ClassDoc *class_doc = itype.class_doc;
 
-    if (class_doc && class_doc->description.size()) {
-        String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), &itype);
-        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-        if (summary_lines.size()) {
-            output.append(INDENT1 "/// <summary>\n");
-
-            for (size_t i = 0; i < summary_lines.size(); i++) {
-                output.append(INDENT1 "/// ");
-                output.append(summary_lines[i]);
-                output.append("\n");
-            }
-
-            output.append(INDENT1 "/// </summary>\n");
-        }
-    }
+    generate_cs_type_doc_summary(itype, class_doc, output);
 
     output.append(INDENT1 "public ");
     if (itype.is_singleton) {
         output.append("static partial class ");
     } else {
-        output.append(itype.is_instantiable ? "partial class " : "abstract partial class ");
+        if(itype.is_namespace)
+            output.append("namespace ");
+        else
+            output.append(itype.is_instantiable ? "partial class " : "abstract partial class ");
     }
     output.append(itype.proxy_name);
 
-    if (itype.is_singleton) {
+    if (itype.is_singleton || itype.is_namespace) {
         output.append("\n");
     } else if (is_derived_type) {
         if (obj_types.has(itype.base_name)) {
@@ -1234,86 +1326,9 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
 
     output.append(INDENT1 "{");
 
-    if (class_doc) {
-
-        // Add constants
-
-        for (const ConstantInterface &iconstant : itype.constants) {
-
-            if (iconstant.const_doc && iconstant.const_doc->description.size()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
-                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-                if (summary_lines.size()) {
-                    output.append(MEMBER_BEGIN "/// <summary>\n");
-
-                    for (int i = 0; i < summary_lines.size(); i++) {
-                        output.append(INDENT2 "/// ");
-                        output.append(summary_lines[i]);
-                        output.append("\n");
-                    }
-
-                    output.append(INDENT2 "/// </summary>");
-                }
-            }
-
-            output.append(MEMBER_BEGIN "public const int ");
-            output.append(iconstant.proxy_name);
-            output.append(" = ");
-            output.append(itos(iconstant.value));
-            output.append(";");
-        }
-
-        if (itype.constants.size())
-            output.append("\n");
-
-        // Add enums
-
-        for (const EnumInterface &ienum : itype.enums) {
-
-            ERR_FAIL_COND_V(ienum.constants.empty(), ERR_BUG);
-
-            output.append(MEMBER_BEGIN "public enum ");
-            output.append(ienum.cname);
-            output.append(MEMBER_BEGIN OPEN_BLOCK);
-
-            for (const ConstantInterface &iconstant : ienum.constants) {
-
-                if (iconstant.const_doc && iconstant.const_doc->description.size()) {
-                    String xml_summary = bbcode_to_xml(fix_doc_description(iconstant.const_doc->description), &itype);
-                    Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-                    if (summary_lines.size()) {
-                        output.append(INDENT3 "/// <summary>\n");
-
-                        for (size_t i = 0; i < summary_lines.size(); i++) {
-                            output.append(INDENT3 "/// ");
-                            output.append(summary_lines[i]);
-                            output.append("\n");
-                        }
-
-                        output.append(INDENT3 "/// </summary>\n");
-                    }
-                }
-
-                output.append(INDENT3);
-                output.append(iconstant.proxy_name);
-                output.append(" = ");
-                output.append(itos(iconstant.value));
-                output.append(&iconstant != &ienum.constants.back() ? ",\n" : "\n");
-            }
-
-            output.append(INDENT2 CLOSE_BLOCK);
-        }
-
-        // Add properties
-
-        for (const PropertyInterface &iprop : itype.properties) {
-            Error prop_err = _generate_cs_property(itype, iprop, output);
-            ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
-                    String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
-        }
-    }
+    Error res=generate_cs_type_docs(itype, class_doc, output);
+    if(res!=OK)
+        return res;
 
     // TODO: BINDINGS_NATIVE_NAME_FIELD should be StringName, once we support it in C#
 
@@ -1758,14 +1773,6 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
     output.append("#include \"core/method_bind.h\"\n");
     output.append("#include \"core/pool_vector.h\"\n");
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
-    output.append("\nstruct AutoRef {\n");
-    output.append("    Object *self;\n");
-    output.append("    AutoRef(Object *s) : self(s) {}\n");
-    output.append("    template<class T>\n");
-    output.append("    operator Ref<T>() {\n");
-    output.append("        return Ref<T>((T*)self);\n");
-    output.append("    }\n");
-    output.append("};\n");
 
     eastl::unordered_set<String> used;
     for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
@@ -1777,10 +1784,20 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
 
     }
 
+    output.append("\nstruct AutoRef {\n");
+    output.append("    Object *self;\n");
+    output.append("    AutoRef(Object *s) : self(s) {}\n");
+    output.append("    template<class T>\n");
+    output.append("    operator Ref<T>() {\n");
+    output.append("        return Ref<T>((T*)self);\n");
+    output.append("    }\n");
+    output.append("};\n");
     generated_icall_funcs.clear();
 
     for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
         const TypeInterface &itype = type_elem.get();
+        if(itype.is_namespace)
+            continue;
 
         bool is_derived_type = itype.base_name != StringName();
 
@@ -1952,6 +1969,97 @@ static Error _save_file(StringView p_path, const StringBuilder &p_content) {
 
     return OK;
 }
+static StringView replace_method_name(StringView from) {
+    StringView res = from;
+    static const HashMap<StringView, StringView> s_entries = {
+        { "_set_import_path", "set_import_path" },
+        { "_get_slide_collision", "get_slide_collision" },
+        { "add_property_info", "_add_property_info_bind" },
+        { "add_surface_from_arrays", "_add_surface_from_arrays" },
+        { "body_test_motion", "_body_test_motion" },
+        { "copy_from", "copy_internals_from" },
+        { "create_from_data", "_create_from_data" },
+        { "get_connection_list", "_get_connection_list" },
+        { "get_groups", "_get_groups" },
+        { "get_item_shapes", "_get_item_shapes" },
+        { "get_local_addresses", "_get_local_addresses" },
+        { "get_local_interfaces", "_get_local_interfaces" },
+        { "get_node_and_resource", "_get_node_and_resource" },
+        { "get_node_connections", "_get_node_connections" },
+        { "get_response_headers", "_get_response_headers" },
+        { "get_shape_owners", "_get_shape_owners" },
+        { "get_slide_collision", "_get_slide_collision" },
+        { "get_action_list", "_get_action_list" },
+
+        { "get_transformable_selected_nodes", "_get_transformable_selected_nodes" },
+        { "make_mesh_previews", "_make_mesh_previews" },
+        { "move_and_collide", "_move" },
+        { "move_local_x", "move_x" },
+        { "move_local_y", "move_y" },
+        { "new", "_new" },
+        { "open_encrypted_with_pass", "open_encrypted_pass" },
+        { "queue_free", "queue_delete" },
+        { "rpc", "_rpc_bind" },
+        { "rpc_id", "_rpc_id_bind" },
+        { "rpc_unreliable", "_rpc_unreliable_bind" },
+        { "rpc_unreliable_id", "_rpc_unreliable_id_bind" },
+        { "set_item_shapes", "_set_item_shapes" },
+        { "set_navigation", "set_navigation_node" },
+        { "surface_get_blend_shape_arrays", "_surface_get_blend_shape_arrays" },
+        { "take_over_path", "set_path" },
+        { "get_named_attribute_value", "get_attribute_value" },
+        { "get_named_attribute_value_safe", "get_attribute_value_safe" },
+        { "add_undo_method", "_add_undo_method" },
+        { "add_do_method", "_add_do_method" },
+        { "call_recursive", "_call_recursive_bind" },
+        { "remove_child", "_remove_child" },
+        { "search", "_search_bind" },
+        { "set_target", "_set_target" },
+        { "class_has_signal", "has_signal" },
+        { "class_get_signal", "get_signal" },
+        { "class_get_signal_list", "get_signal_list" },
+        { "class_get_property_list", "get_property_list" },
+        { "class_get_property", "get_property" },
+        { "class_set_property", "set_property" },
+        { "class_has_method", "has_method" },
+        { "class_get_method_list", "get_method_list" },
+        { "class_get_integer_constant_list", "get_integer_constant_list" },
+        { "class_has_integer_constant", "has_integer_constant" },
+        { "class_get_integer_constant", "get_integer_constant" },
+        { "class_get_category", "get_category" },
+        { "set_variable_info","_set_variable_info"},
+        { "get_range_config","_get_range_config"},
+        { "get_item_area_rect","_get_item_rect"},
+        { "get_next_selected","_get_next_selected"},
+        { "get_tiles_ids","_get_tiles_ids"},
+
+        {"set_expand_margin","set_expand_margin_size"},
+        {"set_expand_margin_individual","set_expand_margin_size_individual"},
+        {"set_expand_margin_all","set_expand_margin_size_all"},
+
+        {"put_data","_put_data"},
+        {"put_partial_data","_put_partial_data"},
+        {"get_partial_data","_get_partial_data"},
+
+        {"get_default_font","get_default_theme_font"},
+        {"get_color_list","_get_color_list"},
+        {"get_font_list","_get_font_list"},
+        {"get_stylebox_list","_get_stylebox_list"},
+        {"get_icon_list","_get_icon_list"},
+        {"get_breakpoints","get_breakpoints_array"},
+
+        {"get_constant_list","_get_constant_list"},
+        {"get_type_list","_get_type_list"},
+        {"_create_item","create_item"},
+
+        {"test_motion","_test_motion"},
+        {"newline","add_newline"},
+
+    };
+    auto iter = s_entries.find(from);
+    if (iter != s_entries.end()) return iter->second;
+    return res;
+}
 
 Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInterface &p_itype,
         const BindingsGenerator::MethodInterface &p_imethod, StringBuilder &p_output) {
@@ -1968,8 +2076,8 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
     String c_func_sig = p_itype.c_type_in + " " CS_PARAM_INSTANCE;
     String c_in_statements;
     String c_args_var_content;
-
     // Get arguments information
+
     int i = 0;
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
         const TypeInterface *arg_type = _get_type_or_placeholder(iarg.type);
@@ -2126,6 +2234,8 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         }
     }
 
+    StringView method_to_call(replace_method_name(p_imethod.cname));
+
     if (p_imethod.is_vararg) {
         p_output.append("\tCallable::CallError vcall_error;\n\t");
 
@@ -2137,9 +2247,6 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
                 p_output.append("auto " C_LOCAL_RET " = ");
             }
         }
-        StringView method_to_call(p_imethod.cname);
-        if(StringView("new")==method_to_call)
-            method_to_call=StringView("_new");
         p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%.*s(", p_itype.cname.asCString(), method_to_call.length(),method_to_call.data()));
         p_output.append(!p_imethod.arguments.empty() ? C_LOCAL_PTRCALL_ARGS ".data()" : "nullptr");
         p_output.append(", total_length, vcall_error);\n");
@@ -2154,7 +2261,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
         p_output.append("\t");
         if(!ret_void)
             p_output.append("auto " C_LOCAL_RET " = ");
-        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%s(", p_itype.cname.asCString(),p_imethod.cname.asCString()));
+        p_output.append(FormatVE("static_cast<%s *>(" CS_PARAM_INSTANCE ")->%s(", p_itype.cname.asCString(),method_to_call.data()));
         p_output.append(p_imethod.arguments.empty() ? "" : c_args_var_content);
         p_output.append(");\n");
     }
@@ -2316,6 +2423,10 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
     while (!class_list.empty()) {
         StringName type_cname = class_list.front();
+        if(type_cname=="@") {
+            class_list.pop_front();
+            continue;
+        }
         ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
 
         if (api_type == ClassDB::API_NONE) {
@@ -2344,6 +2455,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         itype.is_instantiable = class_iter->second.creation_func && !itype.is_singleton;
         itype.is_reference = ClassDB::is_parent_class(type_cname, name_cache.type_Reference);
         itype.memory_own = itype.is_reference;
+        itype.is_namespace = class_iter->second.is_namespace;
 
         itype.c_out = "\treturn ";
         itype.c_out += C_METHOD_UNMANAGED_GET_MANAGED;
@@ -3149,6 +3261,22 @@ void BindingsGenerator::_populate_global_constants() {
 
     int global_constants_count = GlobalConstants::get_global_constant_count();
     auto *dd=EditorHelp::get_doc_data();
+    auto synth_global_iter = ClassDB::classes.find("@");
+    if(synth_global_iter!=ClassDB::classes.end()) {
+        for(const auto &e : synth_global_iter->second.enum_map) {
+            EnumInterface ienum(StringName(String(e.first).replaced("::",".")));
+            for(const auto &valname : e.second) {
+                ConstantInterface iconstant;
+                int constant_value = synth_global_iter->second.constant_map[valname];
+                if(allUpperCase(valname))
+                    iconstant= ConstantInterface(valname.asCString(), snake_to_pascal_case(valname, true), constant_value);
+                else
+                    iconstant = ConstantInterface(valname.asCString(), valname.asCString(), constant_value);
+                ienum.constants.emplace_back(eastl::move(iconstant));
+            }
+            global_enums.emplace_back(eastl::move(ienum));
+        }
+    }
     if (global_constants_count > 0) {
         HashMap<StringName, DocData::ClassDoc>::iterator match = dd->class_list.find("@GlobalScope");
 

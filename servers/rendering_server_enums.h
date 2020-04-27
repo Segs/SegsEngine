@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace VisualServerEnums {
+namespace RenderingServerEnums {
 enum {
 
     NO_INDEX_ARRAY = -1,
@@ -44,12 +44,12 @@ enum CubeMapSide : int8_t  {
 };
 /* SHADER API */
 
-enum ShaderMode : int8_t  {
+enum class ShaderMode : int8_t  {
 
-    SHADER_SPATIAL,
-    SHADER_CANVAS_ITEM,
-    SHADER_PARTICLES,
-    SHADER_MAX
+    SPATIAL,
+    CANVAS_ITEM,
+    PARTICLES,
+    MAX
 };
 
 /* COMMON MATERIAL API */
@@ -381,4 +381,4 @@ enum Features : int8_t {
 
 }
 //typedef RenderingServer VS; // makes it easier to use
-namespace RS=VisualServerEnums;
+namespace RS=RenderingServerEnums;

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  skeleton_ik.h                                                        */
+/*  skeleton_ik_3d.h                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -53,7 +53,7 @@ class FabrikInverseKinematic {
         ChainItem *parent_item = nullptr;
 
         // Bone info
-        PhysicalBone *pb = nullptr;
+        PhysicalBone3D *pb = nullptr;
         BoneId bone = -1;
 
         real_t length = 0;
@@ -138,8 +138,8 @@ public:
     static void solve(Task *p_task, real_t blending_delta, bool override_tip_basis, bool p_use_magnet, const Vector3 &p_magnet_position);
 };
 
-class SkeletonIK : public Node {
-    GDCLASS(SkeletonIK,Node)
+class SkeletonIK3D : public Node {
+    GDCLASS(SkeletonIK3D,Node)
 
     StringName root_bone;
     StringName tip_bone;
@@ -165,8 +165,8 @@ protected:
     virtual void _notification(int p_what);
 
 public:
-    SkeletonIK();
-    ~SkeletonIK() override;
+    SkeletonIK3D();
+    ~SkeletonIK3D() override;
 
     void set_root_bone(const StringName &p_root_bone);
     StringName get_root_bone() const;

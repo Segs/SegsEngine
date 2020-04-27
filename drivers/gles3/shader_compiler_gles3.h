@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #pragma once
-
 #include "core/pair.h"
 #include "core/string.h"
 #include "core/hash_map.h"
@@ -93,7 +92,7 @@ private:
     HashSet<StringName> used_rmode_defines;
     HashSet<StringName> internal_functions;
 
-    DefaultIdentifierActions actions[RS::SHADER_MAX];
+    DefaultIdentifierActions actions[int(RenderingServerEnums::ShaderMode::MAX)];
 
 public:
     Error compile(RS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code);

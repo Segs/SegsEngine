@@ -83,7 +83,7 @@ void ConvexPolygonShape2D::_bind_methods() {
 real_t ConvexPolygonShape2D::get_enclosing_radius() const {
     real_t r = 0;
     for (int i(0); i < get_points().size(); i++) {
-        r = MAX(get_points()[i].length_squared(), r);
+        r = M_MAX(get_points()[i].length_squared(), r);
     }
     return Math::sqrt(r);
 }

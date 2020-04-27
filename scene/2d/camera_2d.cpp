@@ -114,7 +114,7 @@ Transform2D Camera2D::get_camera_transform() {
 
             if (h_drag_enabled && !Engine::get_singleton()->is_editor_hint() && !h_offset_changed) {
                 camera_pos.x = MIN(camera_pos.x, (new_camera_pos.x + screen_size.x * 0.5f * zoom.x * drag_margin[(int8_t)Margin::Left]));
-                camera_pos.x = MAX(camera_pos.x, (new_camera_pos.x - screen_size.x * 0.5f * zoom.x * drag_margin[(int8_t)Margin::Right]));
+                camera_pos.x = M_MAX(camera_pos.x, (new_camera_pos.x - screen_size.x * 0.5f * zoom.x * drag_margin[(int8_t)Margin::Right]));
             } else {
 
                 if (h_ofs < 0) {
@@ -129,7 +129,7 @@ Transform2D Camera2D::get_camera_transform() {
             if (v_drag_enabled && !Engine::get_singleton()->is_editor_hint() && !v_offset_changed) {
 
                 camera_pos.y = MIN(camera_pos.y, (new_camera_pos.y + screen_size.y * 0.5f * zoom.y * drag_margin[(int8_t)Margin::Top]));
-                camera_pos.y = MAX(camera_pos.y, (new_camera_pos.y - screen_size.y * 0.5f * zoom.y * drag_margin[(int8_t)Margin::Bottom]));
+                camera_pos.y = M_MAX(camera_pos.y, (new_camera_pos.y - screen_size.y * 0.5f * zoom.y * drag_margin[(int8_t)Margin::Bottom]));
 
             } else {
 

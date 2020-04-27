@@ -533,7 +533,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
             Transform node_transform = AssimpUtils::assimp_matrix_transform(assimp_node->mTransformation);
 
             if (assimp_node->mNumMeshes > 0) {
-                MeshInstance *mesh = create_mesh(state, assimp_node, node_name, parent_node, node_transform);
+                MeshInstance3D *mesh = create_mesh(state, assimp_node, node_name, parent_node, node_transform);
                 if (mesh) {
 
                     parent_node->remove_child(mesh_template);
@@ -845,7 +845,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
         Node *item = get_node_by_name(state, mesh_name);
         ERR_CONTINUE_MSG(!item, "failed to look up node by name");
-        const MeshInstance *mesh_instance = object_cast<MeshInstance>(item);
+        const MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(item);
 
         ERR_CONTINUE(mesh_instance == nullptr);
 
@@ -1307,7 +1307,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
 /**
  * Create a new mesh for the node supplied
  */
-MeshInstance *
+MeshInstance3D *
 EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *active_node, Transform node_transform) {
     /* MESH NODE */
     Ref<Mesh> mesh;
@@ -1341,7 +1341,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
         state.mesh_cache[mesh_key] = mesh;
     }
 
-    MeshInstance *mesh_node = memnew(MeshInstance);
+    MeshInstance3D *mesh_node = memnew(MeshInstance3D);
     mesh = state.mesh_cache[mesh_key];
     mesh_node->set_mesh(mesh);
 

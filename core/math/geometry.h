@@ -873,8 +873,8 @@ public:
         Vector2 further_away_opposite(1e20f, 1e20f);
 
         for (Vector2 pv : p_polygon) {
-            further_away.x = MAX(pv.x, further_away.x);
-            further_away.y = MAX(pv.y, further_away.y);
+            further_away.x = M_MAX(pv.x, further_away.x);
+            further_away.y = M_MAX(pv.y, further_away.y);
             further_away_opposite.x = MIN(pv.x, further_away_opposite.x);
             further_away_opposite.y = MIN(pv.y, further_away_opposite.y);
         }

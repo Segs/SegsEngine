@@ -2044,7 +2044,7 @@ SceneTree::SceneTree() {
     root->set_name("root");
     root->set_handle_input_locally(false);
     if (not root->get_world())
-        root->set_world(make_ref_counted<World>());
+        root->set_world(make_ref_counted<World3D>());
 
     // Initialize network state
     multiplayer_poll = true;

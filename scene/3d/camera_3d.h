@@ -176,9 +176,9 @@ public:
     ~Camera3D() override;
 };
 
-class ClippedCamera : public Camera3D {
+class ClippedCamera3D : public Camera3D {
 
-    GDCLASS(ClippedCamera,Camera3D)
+    GDCLASS(ClippedCamera3D,Camera3D)
 
 public:
     enum ProcessMode {
@@ -231,7 +231,7 @@ public:
 
     float get_clip_offset() const;
 
-    ClippedCamera();
-    ~ClippedCamera() override;
+    ClippedCamera3D();
+    ~ClippedCamera3D() override;
 };
 

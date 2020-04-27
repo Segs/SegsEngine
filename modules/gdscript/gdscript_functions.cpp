@@ -534,7 +534,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
                 int64_t a = *p_args[0];
                 int64_t b = *p_args[1];
-                r_ret = MAX(a, b);
+                r_ret = M_MAX(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
                 VALIDATE_ARG_NUM(1);
@@ -542,7 +542,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                 real_t a = *p_args[0];
                 real_t b = *p_args[1];
 
-                r_ret = MAX(a, b);
+                r_ret = M_MAX(a, b);
             }
 
         } break;

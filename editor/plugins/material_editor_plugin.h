@@ -48,8 +48,8 @@ class MaterialEditor : public Control {
 
     ViewportContainer *vc;
     Viewport *viewport;
-    MeshInstance *sphere_instance;
-    MeshInstance *box_instance;
+    MeshInstance3D *sphere_instance;
+    MeshInstance3D *box_instance;
     DirectionalLight3D *light1;
     DirectionalLight3D *light2;
     Camera3D *camera;

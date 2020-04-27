@@ -1295,7 +1295,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         Size2 workspace_minsize = workspace->get_custom_minimum_size();
                         // If the new region is bigger, just directly change the workspace size to avoid checking all other tiles.
                         if (tile_workspace_size.x > workspace_minsize.x || tile_workspace_size.y > workspace_minsize.y) {
-                            Size2 max_workspace_size = Size2(MAX(tile_workspace_size.x, workspace_minsize.x), MAX(tile_workspace_size.y, workspace_minsize.y));
+                            Size2 max_workspace_size = Size2(M_MAX(tile_workspace_size.x, workspace_minsize.x), M_MAX(tile_workspace_size.y, workspace_minsize.y));
                             undo_redo->add_do_method(workspace, "set_custom_minimum_size", max_workspace_size);
                             undo_redo->add_undo_method(workspace, "set_custom_minimum_size", workspace_minsize);
                             undo_redo->add_do_method(workspace_container, "set_custom_minimum_size", max_workspace_size);
@@ -1336,7 +1336,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         Size2 tile_workspace_size = edited_region.position + edited_region.size + WORKSPACE_MARGIN * 2;
                         Size2 workspace_minsize = workspace->get_custom_minimum_size();
                         if (tile_workspace_size.x > workspace_minsize.x || tile_workspace_size.y > workspace_minsize.y) {
-                            Size2 new_workspace_minsize = Size2(MAX(tile_workspace_size.x, workspace_minsize.x), MAX(tile_workspace_size.y, workspace_minsize.y));
+                            Size2 new_workspace_minsize = Size2(M_MAX(tile_workspace_size.x, workspace_minsize.x), M_MAX(tile_workspace_size.y, workspace_minsize.y));
                             undo_redo->add_do_method(workspace, "set_custom_minimum_size", new_workspace_minsize);
                             undo_redo->add_undo_method(workspace, "set_custom_minimum_size", workspace_minsize);
                             undo_redo->add_do_method(workspace_container, "set_custom_minimum_size", new_workspace_minsize);
@@ -2426,9 +2426,9 @@ void TileSetEditor::draw_highlight_current_tile() {
         if (region.position.y >= 0)
             workspace->draw_rect(Rect2(0, 0, workspace->get_rect().size.x, region.position.y), shadow_color);
         if (region.position.x >= 0)
-            workspace->draw_rect(Rect2(0, MAX(0, region.position.y), region.position.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
+            workspace->draw_rect(Rect2(0, M_MAX(0, region.position.y), region.position.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
         if (region.position.x + region.size.x <= workspace->get_rect().size.x)
-            workspace->draw_rect(Rect2(region.position.x + region.size.x, MAX(0, region.position.y), workspace->get_rect().size.x - region.position.x - region.size.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
+            workspace->draw_rect(Rect2(region.position.x + region.size.x, M_MAX(0, region.position.y), workspace->get_rect().size.x - region.position.x - region.size.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
         if (region.position.y + region.size.y <= workspace->get_rect().size.y)
             workspace->draw_rect(Rect2(0, region.position.y + region.size.y, workspace->get_rect().size.x, workspace->get_rect().size.y - region.size.y - region.position.y), shadow_color);
     } else {
@@ -2450,9 +2450,9 @@ void TileSetEditor::draw_highlight_subtile(Vector2 coord, const Vector<Vector2> 
     if (coord.y >= 0)
         workspace->draw_rect(Rect2(0, 0, workspace->get_rect().size.x, coord.y), shadow_color);
     if (coord.x >= 0)
-        workspace->draw_rect(Rect2(0, MAX(0, coord.y), coord.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
+        workspace->draw_rect(Rect2(0, M_MAX(0, coord.y), coord.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
     if (coord.x + size.x <= workspace->get_rect().size.x)
-        workspace->draw_rect(Rect2(coord.x + size.x, MAX(0, coord.y), workspace->get_rect().size.x - coord.x - size.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
+        workspace->draw_rect(Rect2(coord.x + size.x, M_MAX(0, coord.y), workspace->get_rect().size.x - coord.x - size.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
     if (coord.y + size.y <= workspace->get_rect().size.y)
         workspace->draw_rect(Rect2(0, coord.y + size.y, workspace->get_rect().size.x, workspace->get_rect().size.y - size.y - coord.y), shadow_color);
 

@@ -63,7 +63,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 
     _load_theme_settings();
 
-    get_text_edit()->set_text_utf8(p_shader->get_code());
+    get_text_edit()->set_text(p_shader->get_code());
     get_text_edit()->clear_undo_history();
 
     _validate_script();
@@ -79,7 +79,7 @@ void ShaderTextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text_utf8(shader->get_code());
+    te->set_text(shader->get_code());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -183,7 +183,7 @@ void ShaderTextEditor::_load_theme_settings() {
 void ShaderTextEditor::_check_shader_mode() {
 
     String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
-
+    using namespace RenderingServerEnums;
     ShaderMode mode;
 
     if (type == "canvas_item") {

@@ -108,8 +108,8 @@
 void glTexStorage2DCustom(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type) {
     for (int i = 0; i < levels; i++) {
         glTexImage2D(target, i, internalformat, width, height, 0, format, type, nullptr);
-        width = MAX(1, (width / 2));
-        height = MAX(1, (height / 2));
+        width = M_MAX(1, (width / 2));
+        height = M_MAX(1, (height / 2));
     }
 }
 
@@ -641,9 +641,9 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
         int mipmaps = 0;
 
         while (width > 0 || height > 0 || (p_type == RS::TEXTURE_TYPE_3D && depth > 0)) {
-            width = MAX(1, width);
-            height = MAX(1, height);
-            depth = MAX(1, depth);
+            width = M_MAX(1, width);
+            height = M_MAX(1, height);
+            depth = M_MAX(1, depth);
 
             glTexImage3D(texture->target, mipmaps, internal_format, width, height, depth, 0, format, type, nullptr);
 
@@ -696,8 +696,8 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
 
     if (config.shrink_textures_x2 && (p_image->has_mipmaps() || !p_image->is_compressed()) && !(texture->flags & RS::TEXTURE_FLAG_USED_FOR_STREAMING)) {
 
-        texture->alloc_height = MAX(1, texture->alloc_height / 2);
-        texture->alloc_width = MAX(1, texture->alloc_width / 2);
+        texture->alloc_height = M_MAX(1, texture->alloc_height / 2);
+        texture->alloc_width = M_MAX(1, texture->alloc_width / 2);
 
         if (texture->alloc_width == img->get_width() / 2 && texture->alloc_height == img->get_height() / 2) {
 
@@ -864,12 +864,12 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
         }
         tsize += size;
 
-        w = MAX(1, w >> 1);
-        h = MAX(1, h >> 1);
+        w = M_MAX(1, w >> 1);
+        h = M_MAX(1, h >> 1);
     }
 
     // Handle array and 3D textures, as those set their data per layer.
-    tsize *= MAX(texture->alloc_depth, 1);
+    tsize *= M_MAX(texture->alloc_depth, 1);
 
     info.texture_mem -= texture->total_data_size;
     texture->total_data_size = tsize;
@@ -1729,7 +1729,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
         // Very large Panoramas require way too much effort to compute irradiance so use a mipmap
         // level that corresponds to a panorama of 1024x512
-        shaders.cubemap_filter.set_uniform(CubemapFilterShaderGLES3::SOURCE_MIP_LEVEL, MAX(Math::floor(Math::log(float(texture->width)) / Math::log(2.0f)) - 10.0f, 0.0f));
+        shaders.cubemap_filter.set_uniform(CubemapFilterShaderGLES3::SOURCE_MIP_LEVEL, M_MAX(Math::floor(Math::log(float(texture->width)) / Math::log(2.0f)) - 10.0f, 0.0f));
 
         // Compute Irradiance for a large texture, specified by radiance size and then pull out a low mipmap corresponding to 32x32
         for (int i = 0; i < 2; i++) {
@@ -1752,7 +1752,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
         shaders.copy.set_conditional(CopyShaderGLES3::USE_LOD, true);
         shaders.copy.bind();
-        shaders.copy.set_uniform(CopyShaderGLES3::MIP_LEVEL, MAX(Math::floor(Math::log(float(upscale_size)) / Math::log(2.0f)) - 5.0f, 0.0f)); // Mip level that corresponds to a 32x32 texture
+        shaders.copy.set_uniform(CopyShaderGLES3::MIP_LEVEL, M_MAX(Math::floor(Math::log(float(upscale_size)) / Math::log(2.0f)) - 5.0f, 0.0f)); // Mip level that corresponds to a 32x32 texture
 
         glViewport(0, 0, size, size * 2.0);
         glBindVertexArray(resources.quadie_array);
@@ -2021,7 +2021,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 RID RasterizerStorageGLES3::shader_create() {
 
     Shader *shader = memnew(Shader);
-    shader->mode = RS::SHADER_SPATIAL;
+    shader->mode = RS::ShaderMode::SPATIAL;
     shader->shader = &scene->state.scene_shader;
     RID rid = shader_owner.make_rid(shader);
     _shader_make_dirty(shader);
@@ -2049,11 +2049,11 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code)
     RS::ShaderMode mode;
 
     if (mode_string == "canvas_item")
-        mode = RS::SHADER_CANVAS_ITEM;
+        mode = RS::ShaderMode::CANVAS_ITEM;
     else if (mode_string == "particles")
-        mode = RS::SHADER_PARTICLES;
+        mode = RS::ShaderMode::PARTICLES;
     else
-        mode = RS::SHADER_SPATIAL;
+        mode = RS::ShaderMode::SPATIAL;
 
     if (shader->custom_code_id && mode != shader->mode) {
 
@@ -2063,14 +2063,14 @@ void RasterizerStorageGLES3::shader_set_code(RID p_shader, const String &p_code)
 
     shader->mode = mode;
 
-    ShaderGLES3 *shaders[RS::SHADER_MAX] = {
+    ShaderGLES3 *shaders[(int)RS::ShaderMode::MAX] = {
         &scene->state.scene_shader,
         &canvas->state.canvas_shader,
         &this->shaders.particles,
 
     };
 
-    shader->shader = shaders[mode];
+    shader->shader = shaders[(int)mode];
 
     if (shader->custom_code_id == 0) {
         shader->custom_code_id = shader->shader->create_custom_shader();
@@ -2103,7 +2103,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
     ShaderCompilerGLES3::IdentifierActions *actions = nullptr;
 
     switch (p_shader->mode) {
-        case RS::SHADER_CANVAS_ITEM: {
+        case RS::ShaderMode::CANVAS_ITEM: {
 
             p_shader->canvas_item.light_mode = Shader::CanvasItem::LIGHT_MODE_NORMAL;
             p_shader->canvas_item.blend_mode = Shader::CanvasItem::BLEND_MODE_MIX;
@@ -2131,7 +2131,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
         } break;
 
-        case RS::SHADER_SPATIAL: {
+        case RS::ShaderMode::SPATIAL: {
 
             p_shader->spatial.blend_mode = Shader::Node3D::BLEND_MODE_MIX;
             p_shader->spatial.depth_draw_mode = Shader::Node3D::DEPTH_DRAW_OPAQUE;
@@ -2188,12 +2188,12 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             actions->uniforms = &p_shader->uniforms;
 
         } break;
-        case RS::SHADER_PARTICLES: {
+        case RS::ShaderMode::PARTICLES: {
 
             actions = &shaders.actions_particles;
             actions->uniforms = &p_shader->uniforms;
         } break;
-        case RS::SHADER_MAX:
+        case RS::ShaderMode::MAX:
             break; // Can't happen, but silences warning
     }
 
@@ -3033,7 +3033,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
         bool can_cast_shadow = false;
         bool is_animated = false;
 
-        if (material->shader && material->shader->mode == RS::SHADER_SPATIAL) {
+        if (material->shader && material->shader->mode == RS::ShaderMode::SPATIAL) {
 
             if (material->shader->spatial.blend_mode == Shader::Node3D::BLEND_MODE_MIX &&
                     (!material->shader->spatial.uses_alpha || material->shader->spatial.depth_draw_mode == Shader::Node3D::DEPTH_DRAW_ALPHA_PREPASS)) {
@@ -3100,7 +3100,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
 
             if (V!=material->params.end()) {
                 //user provided
-                _fill_std140_variant_ubo_value(E.second.type, V->second, data, material->shader->mode == RS::SHADER_SPATIAL);
+                _fill_std140_variant_ubo_value(E.second.type, V->second, data, material->shader->mode == RS::ShaderMode::SPATIAL);
 
             } else if (!E.second.default_value.empty()) {
                 //default value
@@ -3110,7 +3110,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
                 //zero because it was not provided
                 if (E.second.type == ShaderLanguage::TYPE_VEC4 && E.second.hint == ShaderLanguage::ShaderNode::Uniform::HINT_COLOR) {
                     //colors must be set as black, with alpha as 1.0
-                    _fill_std140_variant_ubo_value(E.second.type, Color(0, 0, 0, 1), data, material->shader->mode == RS::SHADER_SPATIAL);
+                    _fill_std140_variant_ubo_value(E.second.type, Color(0, 0, 0, 1), data, material->shader->mode == RS::ShaderMode::SPATIAL);
                 } else {
                     //else just zero it out
                     _fill_std140_ubo_empty(E.second.type, data);
@@ -6357,7 +6357,7 @@ AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
     for (int i = 0; i < particles->draw_passes.size(); i++) {
         if (particles->draw_passes[i].is_valid()) {
             AABB maabb = mesh_get_aabb(particles->draw_passes[i], RID());
-            longest_axis = MAX(maabb.get_longest_axis_size(), longest_axis);
+            longest_axis = M_MAX(maabb.get_longest_axis_size(), longest_axis);
         }
     }
 
@@ -6516,7 +6516,7 @@ void RasterizerStorageGLES3::update_particles() {
         }
 
         Material *material = material_owner.getornull(particles->process_material);
-        if (!material || !material->shader || material->shader->mode != RS::SHADER_PARTICLES) {
+        if (!material || !material->shader || material->shader->mode != RS::ShaderMode::PARTICLES) {
 
             shaders.particles.set_custom_shader(0);
         } else {

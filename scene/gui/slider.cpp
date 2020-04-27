@@ -48,9 +48,9 @@ Size2 Slider::get_minimum_size() const {
     Size2i rs = grabber->get_size();
 
     if (orientation == HORIZONTAL)
-        return Size2i(ss.width, MAX(ss.height, rs.height));
+        return Size2i(ss.width, M_MAX(ss.height, rs.height));
     else
-        return Size2i(MAX(ss.width, rs.width), ss.height);
+        return Size2i(M_MAX(ss.width, rs.width), ss.height);
 }
 
 void Slider::_gui_input(Ref<InputEvent> p_event) {

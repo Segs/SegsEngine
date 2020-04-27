@@ -109,7 +109,7 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
 
     float name_w = font->get_string_size(p_node).width;
     float type_w = font->get_string_size(_node_type_names[type]).width;
-    float max_w = MAX(name_w, type_w);
+    float max_w = M_MAX(name_w, type_w);
 
     switch (type) {
         case AnimationTreePlayer::NODE_TIMESEEK:
@@ -651,7 +651,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
         y -= 2 * h;
 
         int inputs = anim_tree->node_get_input_count(node);
-        int count = MAX(inputs, 1);
+        int count = M_MAX(inputs, 1);
 
         if (inputs == 0 || (pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT)) {
 

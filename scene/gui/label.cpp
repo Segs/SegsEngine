@@ -395,7 +395,7 @@ void Label::regenerate_word_cache() {
     int width;
     if (autowrap) {
         Ref<StyleBox> style = get_stylebox("normal");
-        width = MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
+        width = M_MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
     } else {
         width = get_longest_line_width();
     }

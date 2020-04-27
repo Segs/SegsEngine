@@ -58,6 +58,7 @@ public:
     const Variant &get(int p_idx) const;
 
     const Vector<Variant> &vals() const;
+    operator const Vector<Variant>&() const { return vals(); }
 
     int size() const;
     bool empty() const;

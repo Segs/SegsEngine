@@ -1150,7 +1150,7 @@ void EditorNode::_save_scene_with_preview(StringView p_file, int p_idx) {
                 img->crop_from_point(x, y, vp_size, vp_size);
             } else {
                 int ratio = vp_size / preview_size;
-                int size = preview_size * MAX(1, ratio / 2);
+                int size = preview_size * M_MAX(1, ratio / 2);
 
                 x = (img->get_width() - size) / 2;
                 y = (img->get_height() - size) / 2;
@@ -3802,8 +3802,8 @@ void EditorNode::register_editor_types() {
     EditorInspectorPluginCurve::initialize_class();
     CurveEditorPlugin::initialize_class();
     CurvePreviewGenerator::initialize_class();
-    CPUParticlesEditor::initialize_class();
-    CPUParticlesEditorPlugin::initialize_class();
+    CPUParticles3DEditor::initialize_class();
+    CPUParticles3DEditorPlugin::initialize_class();
     AudioStreamEditor::initialize_class();
     AudioStreamEditorPlugin::initialize_class();
 
@@ -7046,7 +7046,7 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(Skeleton2DEditorPlugin(this)));
     add_editor_plugin(memnew(ParticlesEditorPlugin(this)));
     add_editor_plugin(memnew(CPUParticles2DEditorPlugin(this)));
-    add_editor_plugin(memnew(CPUParticlesEditorPlugin(this)));
+    add_editor_plugin(memnew(CPUParticles3DEditorPlugin(this)));
     add_editor_plugin(memnew(ResourcePreloaderEditorPlugin(this)));
     add_editor_plugin(memnew(ItemListEditorPlugin(this)));
     add_editor_plugin(memnew(CollisionPolygon3DEditorPlugin(this)));

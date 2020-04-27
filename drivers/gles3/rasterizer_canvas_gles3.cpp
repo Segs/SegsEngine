@@ -1219,7 +1219,7 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
 
 void RasterizerCanvasGLES3::_copy_texscreen(const Rect2 &p_rect) {
 
-    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers."); 
+    ERR_FAIL_COND_MSG(storage->frame.current_rt->effects.mip_maps[0].sizes.empty(), "Can't use screen texture copying in a render target configured without copy buffers.");
 
     glDisable(GL_BLEND);
 
@@ -1404,7 +1404,7 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
 
                 shader_ptr = material_ptr->shader;
 
-                if (shader_ptr && shader_ptr->mode != RS::SHADER_CANVAS_ITEM) {
+                if (shader_ptr && shader_ptr->mode != RS::ShaderMode::CANVAS_ITEM) {
                     shader_ptr = nullptr; //do not use non canvasitem shader
                 }
             }
@@ -2139,7 +2139,7 @@ void RasterizerCanvasGLES3::initialize() {
         uint32_t poly_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
         poly_size *= 1024; //kb
-        poly_size = MAX(poly_size, (2 + 2 + 4) * 4 * sizeof(float));
+        poly_size = M_MAX(poly_size, (2 + 2 + 4) * 4 * sizeof(float));
         glGenBuffers(1, &data.polygon_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, data.polygon_buffer);
         glBufferData(GL_ARRAY_BUFFER, poly_size, nullptr, GL_DYNAMIC_DRAW); //allocate max size

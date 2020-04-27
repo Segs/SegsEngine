@@ -37,7 +37,7 @@
 #include "editor/editor_node.h"
 #include "scene/3d/audio_stream_player_3d.h"
 #include "scene/3d/baked_lightmap.h"
-#include "scene/3d/collision_polygon.h"
+#include "scene/3d/collision_polygon_3d.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/cpu_particles_3d.h"
 #include "scene/3d/gi_probe.h"
@@ -58,16 +58,16 @@
 #include "scene/3d/vehicle_body_3d.h"
 #include "scene/3d/visibility_notifier_3d.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/box_shape.h"
-#include "scene/resources/capsule_shape.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
-#include "scene/resources/cylinder_shape.h"
-#include "scene/resources/height_map_shape.h"
+#include "scene/resources/box_shape_3d.h"
+#include "scene/resources/capsule_shape_3d.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
+#include "scene/resources/cylinder_shape_3d.h"
+#include "scene/resources/height_map_shape_3d.h"
 #include "scene/resources/plane_shape.h"
 #include "scene/resources/primitive_meshes.h"
-#include "scene/resources/ray_shape.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/ray_shape_3d.h"
+#include "scene/resources/sphere_shape_3d.h"
 #include "scene/resources/surface_tool.h"
 
 #define HANDLE_HALF_SIZE 9.5
@@ -246,7 +246,7 @@ void EditorSpatialGizmo::add_lines(const Vector<Vector3> &p_lines, const Ref<Mat
         float md = 0;
         for (size_t i = 0; i < p_lines.size(); i++) {
 
-            md = MAX(0, p_lines[i].length());
+            md = M_MAX(0, p_lines[i].length());
         }
         if (md!=0.0f) {
             custom_aabb = AABB(Vector3(-md, -md, -md), Vector3(md, md, md) * 2.0f);
@@ -315,7 +315,7 @@ void EditorSpatialGizmo::add_unscaled_billboard(const Ref<Material> &p_material,
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
     float md = 0;
     for (size_t i = 0; i < vs.size(); i++) {
-        md = MAX(0, vs[i].length());
+        md = M_MAX(0, vs[i].length());
     }
 
     SurfaceArrays a(eastl::move(vs));
@@ -376,7 +376,7 @@ void EditorSpatialGizmo::add_handles(Vector<Vector3> &&p_handles, const Ref<Mate
     float md = 0;
     if (p_billboard) {
         for (int i = 0; i < p_handles.size(); i++) {
-            md = MAX(0, p_handles[i].length());
+            md = M_MAX(0, p_handles[i].length());
         }
     }
 
@@ -826,9 +826,9 @@ LightSpatialGizmoPlugin::LightSpatialGizmoPlugin() {
     create_material("lines_secondary", Color(1, 1, 1, 0.35f), false, false, true);
     create_material("lines_billboard", Color(1, 1, 1), true, false, true);
 
-    create_icon_material("light_directional_icon", SpatialEditor::get_singleton()->get_icon("GizmoDirectionalLight", "EditorIcons"));
-    create_icon_material("light_omni_icon", SpatialEditor::get_singleton()->get_icon("GizmoLight", "EditorIcons"));
-    create_icon_material("light_spot_icon", SpatialEditor::get_singleton()->get_icon("GizmoSpotLight", "EditorIcons"));
+    create_icon_material("light_directional_icon", SpatialEditor::get_singleton()->get_icon("GizmoDirectionalLight3D", "EditorIcons"));
+    create_icon_material("light_omni_icon", SpatialEditor::get_singleton()->get_icon("GizmoLight3D", "EditorIcons"));
+    create_icon_material("light_spot_icon", SpatialEditor::get_singleton()->get_icon("GizmoSpotLight3D", "EditorIcons"));
 
     create_handle_material("handles");
     create_handle_material("handles_billboard", true);
@@ -1480,7 +1480,7 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     p_gizmo->add_unscaled_billboard(icon, 0.05f);
     p_gizmo->add_handles(eastl::move(handles), get_material("handles"));
 
-    ClippedCamera *clipcam = object_cast<ClippedCamera>(camera);
+    ClippedCamera3D *clipcam = object_cast<ClippedCamera3D>(camera);
     if (clipcam) {
         Node3D *parent = object_cast<Node3D>(camera->get_parent());
         if (!parent) {
@@ -1524,11 +1524,11 @@ void CameraSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 MeshInstanceSpatialGizmoPlugin::MeshInstanceSpatialGizmoPlugin() = default;
 
 bool MeshInstanceSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<MeshInstance>(p_spatial) != nullptr && object_cast<SoftBody>(p_spatial) == nullptr;
+    return object_cast<MeshInstance3D>(p_spatial) != nullptr && object_cast<SoftBody3D>(p_spatial) == nullptr;
 }
 
 StringView MeshInstanceSpatialGizmoPlugin::get_name() const {
-    return "MeshInstance";
+    return "MeshInstance3D";
 }
 
 int MeshInstanceSpatialGizmoPlugin::get_priority() const {
@@ -1541,7 +1541,7 @@ bool MeshInstanceSpatialGizmoPlugin::can_be_hidden() const {
 
 void MeshInstanceSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
-    MeshInstance *mesh = object_cast<MeshInstance>(p_gizmo->get_spatial_node());
+    MeshInstance3D *mesh = object_cast<MeshInstance3D>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
@@ -1857,7 +1857,7 @@ PhysicalBoneSpatialGizmoPlugin::PhysicalBoneSpatialGizmoPlugin() {
 }
 
 bool PhysicalBoneSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<PhysicalBone>(p_spatial) != nullptr;
+    return object_cast<PhysicalBone3D>(p_spatial) != nullptr;
 }
 
 StringView PhysicalBoneSpatialGizmoPlugin::get_name() const {
@@ -1872,7 +1872,7 @@ void PhysicalBoneSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     p_gizmo->clear();
 
-    PhysicalBone *physical_bone = object_cast<PhysicalBone>(p_gizmo->get_spatial_node());
+    PhysicalBone3D *physical_bone = object_cast<PhysicalBone3D>(p_gizmo->get_spatial_node());
 
     if (!physical_bone)
         return;
@@ -1881,24 +1881,24 @@ void PhysicalBoneSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
     if (!sk)
         return;
 
-    PhysicalBone *pb(sk->get_physical_bone(physical_bone->get_bone_id()));
+    PhysicalBone3D *pb(sk->get_physical_bone(physical_bone->get_bone_id()));
     if (!pb)
         return;
 
-    PhysicalBone *pbp(sk->get_physical_bone_parent(physical_bone->get_bone_id()));
+    PhysicalBone3D *pbp(sk->get_physical_bone_parent(physical_bone->get_bone_id()));
     if (!pbp)
         return;
 
     Vector<Vector3> points;
 
     switch (physical_bone->get_joint_type()) {
-        case PhysicalBone::JOINT_TYPE_PIN: {
+        case PhysicalBone3D::JOINT_TYPE_PIN: {
 
             JointSpatialGizmoPlugin::CreatePinJointGizmo(physical_bone->get_joint_offset(), points);
         } break;
-        case PhysicalBone::JOINT_TYPE_CONE: {
+        case PhysicalBone3D::JOINT_TYPE_CONE: {
 
-            const PhysicalBone::ConeJointData *cjd(static_cast<const PhysicalBone::ConeJointData *>(physical_bone->get_joint_data()));
+            const PhysicalBone3D::ConeJointData *cjd(static_cast<const PhysicalBone3D::ConeJointData *>(physical_bone->get_joint_data()));
             JointSpatialGizmoPlugin::CreateConeTwistJointGizmo(
                     physical_bone->get_joint_offset(),
                     physical_bone->get_global_transform() * physical_bone->get_joint_offset(),
@@ -1909,9 +1909,9 @@ void PhysicalBoneSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                     &points,
                     &points);
         } break;
-        case PhysicalBone::JOINT_TYPE_HINGE: {
+        case PhysicalBone3D::JOINT_TYPE_HINGE: {
 
-            const PhysicalBone::HingeJointData *hjd(static_cast<const PhysicalBone::HingeJointData *>(physical_bone->get_joint_data()));
+            const PhysicalBone3D::HingeJointData *hjd(static_cast<const PhysicalBone3D::HingeJointData *>(physical_bone->get_joint_data()));
             JointSpatialGizmoPlugin::CreateHingeJointGizmo(
                     physical_bone->get_joint_offset(),
                     physical_bone->get_global_transform() * physical_bone->get_joint_offset(),
@@ -1924,9 +1924,9 @@ void PhysicalBoneSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                     &points,
                     &points);
         } break;
-        case PhysicalBone::JOINT_TYPE_SLIDER: {
+        case PhysicalBone3D::JOINT_TYPE_SLIDER: {
 
-            const PhysicalBone::SliderJointData *sjd(static_cast<const PhysicalBone::SliderJointData *>(physical_bone->get_joint_data()));
+            const PhysicalBone3D::SliderJointData *sjd(static_cast<const PhysicalBone3D::SliderJointData *>(physical_bone->get_joint_data()));
             JointSpatialGizmoPlugin::CreateSliderJointGizmo(
                     physical_bone->get_joint_offset(),
                     physical_bone->get_global_transform() * physical_bone->get_joint_offset(),
@@ -1940,9 +1940,9 @@ void PhysicalBoneSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                     &points,
                     &points);
         } break;
-        case PhysicalBone::JOINT_TYPE_6DOF: {
+        case PhysicalBone3D::JOINT_TYPE_6DOF: {
 
-            const PhysicalBone::SixDOFJointData *sdofjd(static_cast<const PhysicalBone::SixDOFJointData *>(physical_bone->get_joint_data()));
+            const PhysicalBone3D::SixDOFJointData *sdofjd(static_cast<const PhysicalBone3D::SixDOFJointData *>(physical_bone->get_joint_data()));
             JointSpatialGizmoPlugin::CreateGeneric6DOFJointGizmo(
                     physical_bone->get_joint_offset(),
 
@@ -2107,7 +2107,7 @@ bool RayCastSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
 }
 
 StringView RayCastSpatialGizmoPlugin::get_name() const {
-    return "RayCast";
+    return "RayCast3D";
 }
 
 int RayCastSpatialGizmoPlugin::get_priority() const {
@@ -2171,11 +2171,11 @@ VehicleWheelSpatialGizmoPlugin::VehicleWheelSpatialGizmoPlugin() {
 }
 
 bool VehicleWheelSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<VehicleWheel>(p_spatial) != nullptr;
+    return object_cast<VehicleWheel3D>(p_spatial) != nullptr;
 }
 
 StringView VehicleWheelSpatialGizmoPlugin::get_name() const {
-    return "VehicleWheel";
+    return "VehicleWheel3D";
 }
 
 int VehicleWheelSpatialGizmoPlugin::get_priority() const {
@@ -2184,7 +2184,7 @@ int VehicleWheelSpatialGizmoPlugin::get_priority() const {
 
 void VehicleWheelSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
-    VehicleWheel *car_wheel = object_cast<VehicleWheel>(p_gizmo->get_spatial_node());
+    VehicleWheel3D *car_wheel = object_cast<VehicleWheel3D>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
@@ -2248,11 +2248,11 @@ SoftBodySpatialGizmoPlugin::SoftBodySpatialGizmoPlugin() {
 }
 
 bool SoftBodySpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<SoftBody>(p_spatial) != nullptr;
+    return object_cast<SoftBody3D>(p_spatial) != nullptr;
 }
 
 StringView SoftBodySpatialGizmoPlugin::get_name() const {
-    return "SoftBody";
+    return "SoftBody3D";
 }
 
 int SoftBodySpatialGizmoPlugin::get_priority() const {
@@ -2264,7 +2264,7 @@ bool SoftBodySpatialGizmoPlugin::is_selectable_when_hidden() const {
 }
 
 void SoftBodySpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
-    SoftBody *soft_body = object_cast<SoftBody>(p_gizmo->get_spatial_node());
+    SoftBody3D *soft_body = object_cast<SoftBody3D>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
@@ -2295,21 +2295,21 @@ void SoftBodySpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 }
 
 StringName SoftBodySpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
-    return "SoftBody pin point";
+    return "SoftBody3D pin point";
 }
 
 Variant SoftBodySpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
-    SoftBody *soft_body = object_cast<SoftBody>(p_gizmo->get_spatial_node());
+    SoftBody3D *soft_body = object_cast<SoftBody3D>(p_gizmo->get_spatial_node());
     return Variant(soft_body->is_point_pinned(p_idx));
 }
 
 void SoftBodySpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
-    SoftBody *soft_body = object_cast<SoftBody>(p_gizmo->get_spatial_node());
+    SoftBody3D *soft_body = object_cast<SoftBody3D>(p_gizmo->get_spatial_node());
     soft_body->pin_point_toggle(p_idx);
 }
 
 bool SoftBodySpatialGizmoPlugin::is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int idx) const {
-    SoftBody *soft_body = object_cast<SoftBody>(p_gizmo->get_spatial_node());
+    SoftBody3D *soft_body = object_cast<SoftBody3D>(p_gizmo->get_spatial_node());
     return soft_body->is_point_pinned(idx);
 }
 
@@ -2477,7 +2477,7 @@ void VisibilityNotifierGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 ////
 
 CPUParticlesGizmoPlugin::CPUParticlesGizmoPlugin() {
-    create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoCPUParticles", "EditorIcons"));
+    create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoCPUParticles3D", "EditorIcons"));
 }
 
 bool CPUParticlesGizmoPlugin::has_gizmo(Node3D *p_spatial) {
@@ -2508,7 +2508,7 @@ ParticlesGizmoPlugin::ParticlesGizmoPlugin() {
     create_material("particles_material", gizmo_color);
     gizmo_color.a = 0.1f;
     create_material("particles_solid_material", gizmo_color);
-    create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoParticles", "EditorIcons"));
+    create_icon_material("particles_icon", SpatialEditor::get_singleton()->get_icon("GizmoGPUParticles3D", "EditorIcons"));
     create_handle_material("handles");
 }
 
@@ -3202,31 +3202,31 @@ StringName CollisionShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatial
     if (not s)
         return "";
 
-    if (dynamic_ref_cast<SphereShape>(s)) {
+    if (dynamic_ref_cast<SphereShape3D>(s)) {
 
         return "Radius";
     }
 
-    if (dynamic_ref_cast<BoxShape>(s)) {
+    if (dynamic_ref_cast<BoxShape3D>(s)) {
 
         return "Extents";
     }
 
-    if (dynamic_ref_cast<CapsuleShape>(s)) {
+    if (dynamic_ref_cast<CapsuleShape3D>(s)) {
 
         if (p_idx == 0)
             return StringName("Radius");
         return StringName("Height");
     }
 
-    if (dynamic_ref_cast<CylinderShape>(s)) {
+    if (dynamic_ref_cast<CylinderShape3D>(s)) {
 
         if (p_idx == 0)
             return StringName("Radius");
         return StringName("Height");
     }
 
-    if (dynamic_ref_cast<RayShape>(s)) {
+    if (dynamic_ref_cast<RayShape3D>(s)) {
 
         return "Length";
     }
@@ -3242,33 +3242,33 @@ Variant CollisionShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p
     if (not s)
         return Variant();
 
-    if (dynamic_ref_cast<SphereShape>(s)) {
+    if (dynamic_ref_cast<SphereShape3D>(s)) {
 
-        Ref<SphereShape> ss = dynamic_ref_cast<SphereShape>(s);
+        Ref<SphereShape3D> ss = dynamic_ref_cast<SphereShape3D>(s);
         return ss->get_radius();
     }
 
-    if (dynamic_ref_cast<BoxShape>(s)) {
+    if (dynamic_ref_cast<BoxShape3D>(s)) {
 
-        Ref<BoxShape> bs = dynamic_ref_cast<BoxShape>(s);
+        Ref<BoxShape3D> bs = dynamic_ref_cast<BoxShape3D>(s);
         return bs->get_extents();
     }
 
-    if (dynamic_ref_cast<CapsuleShape>(s)) {
+    if (dynamic_ref_cast<CapsuleShape3D>(s)) {
 
-        Ref<CapsuleShape> cs2 = dynamic_ref_cast<CapsuleShape>(s);
+        Ref<CapsuleShape3D> cs2 = dynamic_ref_cast<CapsuleShape3D>(s);
         return p_idx == 0 ? cs2->get_radius() : cs2->get_height();
     }
 
-    if (dynamic_ref_cast<CylinderShape>(s)) {
+    if (dynamic_ref_cast<CylinderShape3D>(s)) {
 
-        Ref<CylinderShape> cs2 = dynamic_ref_cast<CylinderShape>(s);
+        Ref<CylinderShape3D> cs2 = dynamic_ref_cast<CylinderShape3D>(s);
         return p_idx == 0 ? cs2->get_radius() : cs2->get_height();
     }
 
-    if (dynamic_ref_cast<RayShape>(s)) {
+    if (dynamic_ref_cast<RayShape3D>(s)) {
 
-        Ref<RayShape> cs2 = dynamic_ref_cast<RayShape>(s);
+        Ref<RayShape3D> cs2 = dynamic_ref_cast<RayShape3D>(s);
         return cs2->get_length();
     }
 
@@ -3291,9 +3291,9 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
 
     Vector3 sg[2] = { gi.xform(ray_from), gi.xform(ray_from + ray_dir * 4096) };
 
-    if (dynamic_ref_cast<SphereShape>(s)) {
+    if (dynamic_ref_cast<SphereShape3D>(s)) {
 
-        Ref<SphereShape> ss = dynamic_ref_cast<SphereShape>(s);
+        Ref<SphereShape3D> ss = dynamic_ref_cast<SphereShape3D>(s);
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), Vector3(4096, 0, 0), sg[0], sg[1], ra, rb);
         float d = ra.x;
@@ -3307,9 +3307,9 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
         ss->set_radius(d);
     }
 
-    if (dynamic_ref_cast<RayShape>(s)) {
+    if (dynamic_ref_cast<RayShape3D>(s)) {
 
-        Ref<RayShape> rs = dynamic_ref_cast<RayShape>(s);
+        Ref<RayShape3D> rs = dynamic_ref_cast<RayShape3D>(s);
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), Vector3(0, 0, 4096), sg[0], sg[1], ra, rb);
         float d = ra.z;
@@ -3323,11 +3323,11 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
         rs->set_length(d);
     }
 
-    if (dynamic_ref_cast<BoxShape>(s)) {
+    if (dynamic_ref_cast<BoxShape3D>(s)) {
 
         Vector3 axis;
         axis[p_idx] = 1.0;
-        Ref<BoxShape> bs = dynamic_ref_cast<BoxShape>(s);
+        Ref<BoxShape3D> bs = dynamic_ref_cast<BoxShape3D>(s);
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = ra[p_idx];
@@ -3343,11 +3343,11 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
         bs->set_extents(he);
     }
 
-    if (dynamic_ref_cast<CapsuleShape>(s)) {
+    if (dynamic_ref_cast<CapsuleShape3D>(s)) {
 
         Vector3 axis;
         axis[p_idx == 0 ? 0 : 2] = 1.0;
-        Ref<CapsuleShape> cs2 = dynamic_ref_cast<CapsuleShape>(s);
+        Ref<CapsuleShape3D> cs2 = dynamic_ref_cast<CapsuleShape3D>(s);
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = axis.dot(ra);
@@ -3367,11 +3367,11 @@ void CollisionShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, i
             cs2->set_height(d * 2.0f);
     }
 
-    if (dynamic_ref_cast<CylinderShape>(s)) {
+    if (dynamic_ref_cast<CylinderShape3D>(s)) {
 
         Vector3 axis;
         axis[p_idx == 0 ? 0 : 1] = 1.0;
-        Ref<CylinderShape> cs2 = dynamic_ref_cast<CylinderShape>(s);
+        Ref<CylinderShape3D> cs2 = dynamic_ref_cast<CylinderShape3D>(s);
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = axis.dot(ra);
@@ -3396,9 +3396,9 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
     if (not s)
         return;
 
-    if (dynamic_ref_cast<SphereShape>(s)) {
+    if (dynamic_ref_cast<SphereShape3D>(s)) {
 
-        Ref<SphereShape> ss = dynamic_ref_cast<SphereShape>(s);
+        Ref<SphereShape3D> ss = dynamic_ref_cast<SphereShape3D>(s);
         if (p_cancel) {
             ss->set_radius(p_restore);
             return;
@@ -3411,9 +3411,9 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         ur->commit_action();
     }
 
-    if (dynamic_ref_cast<BoxShape>(s)) {
+    if (dynamic_ref_cast<BoxShape3D>(s)) {
 
-        Ref<BoxShape> ss = dynamic_ref_cast<BoxShape>(s);
+        Ref<BoxShape3D> ss = dynamic_ref_cast<BoxShape3D>(s);
         if (p_cancel) {
             ss->set_extents(p_restore);
             return;
@@ -3426,9 +3426,9 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         ur->commit_action();
     }
 
-    if (dynamic_ref_cast<CapsuleShape>(s)) {
+    if (dynamic_ref_cast<CapsuleShape3D>(s)) {
 
-        Ref<CapsuleShape> ss = dynamic_ref_cast<CapsuleShape>(s);
+        Ref<CapsuleShape3D> ss = dynamic_ref_cast<CapsuleShape3D>(s);
         if (p_cancel) {
             if (p_idx == 0)
                 ss->set_radius(p_restore);
@@ -3451,9 +3451,9 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         ur->commit_action();
     }
 
-    if (dynamic_ref_cast<CylinderShape>(s)) {
+    if (dynamic_ref_cast<CylinderShape3D>(s)) {
 
-        Ref<CylinderShape> ss = dynamic_ref_cast<CylinderShape>(s);
+        Ref<CylinderShape3D> ss = dynamic_ref_cast<CylinderShape3D>(s);
         if (p_cancel) {
             if (p_idx == 0)
                 ss->set_radius(p_restore);
@@ -3480,9 +3480,9 @@ void CollisionShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo
         ur->commit_action();
     }
 
-    if (dynamic_ref_cast<RayShape>(s)) {
+    if (dynamic_ref_cast<RayShape3D>(s)) {
 
-        Ref<RayShape> ss = dynamic_ref_cast<RayShape>(s);
+        Ref<RayShape3D> ss = dynamic_ref_cast<RayShape3D>(s);
         if (p_cancel) {
             ss->set_length(p_restore);
             return;
@@ -3510,9 +3510,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
             get_material(!cs->is_disabled() ? "shape_material" : "shape_material_disabled", ref_gizmo);
     Ref<Material> handles_material = get_material("handles");
 
-    if (dynamic_ref_cast<SphereShape>(s)) {
+    if (dynamic_ref_cast<SphereShape3D>(s)) {
 
-        Ref<SphereShape> sp = dynamic_ref_cast<SphereShape>(s);
+        Ref<SphereShape3D> sp = dynamic_ref_cast<SphereShape3D>(s);
         float r = sp->get_radius();
 
         Vector<Vector3> points;
@@ -3557,9 +3557,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
-    if (dynamic_ref_cast<BoxShape>(s)) {
+    if (dynamic_ref_cast<BoxShape3D>(s)) {
 
-        Ref<BoxShape> bs = dynamic_ref_cast<BoxShape>(s);
+        Ref<BoxShape3D> bs = dynamic_ref_cast<BoxShape3D>(s);
         Vector<Vector3> lines;
         AABB aabb;
         aabb.position = -bs->get_extents();
@@ -3586,9 +3586,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
-    if (dynamic_ref_cast<CapsuleShape>(s)) {
+    if (dynamic_ref_cast<CapsuleShape3D>(s)) {
 
-        Ref<CapsuleShape> cs2 = dynamic_ref_cast<CapsuleShape>(s);
+        Ref<CapsuleShape3D> cs2 = dynamic_ref_cast<CapsuleShape3D>(s);
         float radius = cs2->get_radius();
         float height = cs2->get_height();
 
@@ -3662,9 +3662,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
-    if (dynamic_ref_cast<CylinderShape>(s)) {
+    if (dynamic_ref_cast<CylinderShape3D>(s)) {
 
-        Ref<CylinderShape> cs2 = dynamic_ref_cast<CylinderShape>(s);
+        Ref<CylinderShape3D> cs2 = dynamic_ref_cast<CylinderShape3D>(s);
         float radius = cs2->get_radius();
         float height = cs2->get_height();
 
@@ -3755,9 +3755,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_collision_segments(points);
     }
 
-    if (dynamic_ref_cast<ConvexPolygonShape>(s)) {
+    if (dynamic_ref_cast<ConvexPolygonShape3D>(s)) {
 
-        const Vector<Vector3> &points = dynamic_ref_cast<ConvexPolygonShape>(s)->get_points();
+        const Vector<Vector3> &points = dynamic_ref_cast<ConvexPolygonShape3D>(s)->get_points();
 
         if (points.size() > 3) {
 
@@ -3777,17 +3777,17 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         }
     }
 
-    if (dynamic_ref_cast<ConcavePolygonShape>(s)) {
+    if (dynamic_ref_cast<ConcavePolygonShape3D>(s)) {
 
-        Ref<ConcavePolygonShape> cs2 = dynamic_ref_cast<ConcavePolygonShape>(s);
+        Ref<ConcavePolygonShape3D> cs2 = dynamic_ref_cast<ConcavePolygonShape3D>(s);
         Ref<ArrayMesh> mesh = cs2->get_debug_mesh();
         p_gizmo->add_mesh(mesh, false, Ref<SkinReference>(), material);
         p_gizmo->add_collision_segments(cs2->get_debug_mesh_lines());
     }
 
-    if (dynamic_ref_cast<RayShape>(s)) {
+    if (dynamic_ref_cast<RayShape3D>(s)) {
 
-        Ref<RayShape> rs = dynamic_ref_cast<RayShape>(s);
+        Ref<RayShape3D> rs = dynamic_ref_cast<RayShape3D>(s);
 
         Vector<Vector3> points {Vector3(),Vector3(0, 0, rs->get_length()) };
         p_gizmo->add_lines(points, material);
@@ -3798,9 +3798,9 @@ void CollisionShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_handles(eastl::move(handles), handles_material);
     }
 
-    if (dynamic_ref_cast<HeightMapShape>(s)) {
+    if (dynamic_ref_cast<HeightMapShape3D>(s)) {
 
-        Ref<HeightMapShape> hms = dynamic_ref_cast<HeightMapShape>(s);
+        Ref<HeightMapShape3D> hms = dynamic_ref_cast<HeightMapShape3D>(s);
 
         Ref<ArrayMesh> mesh = hms->get_debug_mesh();
         p_gizmo->add_mesh(mesh, false, Ref<SkinReference>(), material);
@@ -4348,7 +4348,7 @@ void JointSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
         p_gizmo->add_lines(body_b_points, body_b_material);
     }
 
-    Generic6DOFJoint *gen = object_cast<Generic6DOFJoint>(joint);
+    Generic6DOFJoint3D *gen = object_cast<Generic6DOFJoint3D>(joint);
     if (gen) {
 
         CreateGeneric6DOFJointGizmo(
@@ -4357,26 +4357,26 @@ void JointSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
                 node_body_a ? node_body_a->get_global_transform() : Transform(),
                 node_body_b ? node_body_b->get_global_transform() : Transform(),
 
-                gen->get_param_x(Generic6DOFJoint::PARAM_ANGULAR_LOWER_LIMIT),
-                gen->get_param_x(Generic6DOFJoint::PARAM_ANGULAR_UPPER_LIMIT),
-                gen->get_param_x(Generic6DOFJoint::PARAM_LINEAR_LOWER_LIMIT),
-                gen->get_param_x(Generic6DOFJoint::PARAM_LINEAR_UPPER_LIMIT),
-                gen->get_flag_x(Generic6DOFJoint::FLAG_ENABLE_ANGULAR_LIMIT),
-                gen->get_flag_x(Generic6DOFJoint::FLAG_ENABLE_LINEAR_LIMIT),
+                gen->get_param_x(Generic6DOFJoint3D::PARAM_ANGULAR_LOWER_LIMIT),
+                gen->get_param_x(Generic6DOFJoint3D::PARAM_ANGULAR_UPPER_LIMIT),
+                gen->get_param_x(Generic6DOFJoint3D::PARAM_LINEAR_LOWER_LIMIT),
+                gen->get_param_x(Generic6DOFJoint3D::PARAM_LINEAR_UPPER_LIMIT),
+                gen->get_flag_x(Generic6DOFJoint3D::FLAG_ENABLE_ANGULAR_LIMIT),
+                gen->get_flag_x(Generic6DOFJoint3D::FLAG_ENABLE_LINEAR_LIMIT),
 
-                gen->get_param_y(Generic6DOFJoint::PARAM_ANGULAR_LOWER_LIMIT),
-                gen->get_param_y(Generic6DOFJoint::PARAM_ANGULAR_UPPER_LIMIT),
-                gen->get_param_y(Generic6DOFJoint::PARAM_LINEAR_LOWER_LIMIT),
-                gen->get_param_y(Generic6DOFJoint::PARAM_LINEAR_UPPER_LIMIT),
-                gen->get_flag_y(Generic6DOFJoint::FLAG_ENABLE_ANGULAR_LIMIT),
-                gen->get_flag_y(Generic6DOFJoint::FLAG_ENABLE_LINEAR_LIMIT),
+                gen->get_param_y(Generic6DOFJoint3D::PARAM_ANGULAR_LOWER_LIMIT),
+                gen->get_param_y(Generic6DOFJoint3D::PARAM_ANGULAR_UPPER_LIMIT),
+                gen->get_param_y(Generic6DOFJoint3D::PARAM_LINEAR_LOWER_LIMIT),
+                gen->get_param_y(Generic6DOFJoint3D::PARAM_LINEAR_UPPER_LIMIT),
+                gen->get_flag_y(Generic6DOFJoint3D::FLAG_ENABLE_ANGULAR_LIMIT),
+                gen->get_flag_y(Generic6DOFJoint3D::FLAG_ENABLE_LINEAR_LIMIT),
 
-                gen->get_param_z(Generic6DOFJoint::PARAM_ANGULAR_LOWER_LIMIT),
-                gen->get_param_z(Generic6DOFJoint::PARAM_ANGULAR_UPPER_LIMIT),
-                gen->get_param_z(Generic6DOFJoint::PARAM_LINEAR_LOWER_LIMIT),
-                gen->get_param_z(Generic6DOFJoint::PARAM_LINEAR_UPPER_LIMIT),
-                gen->get_flag_z(Generic6DOFJoint::FLAG_ENABLE_ANGULAR_LIMIT),
-                gen->get_flag_z(Generic6DOFJoint::FLAG_ENABLE_LINEAR_LIMIT),
+                gen->get_param_z(Generic6DOFJoint3D::PARAM_ANGULAR_LOWER_LIMIT),
+                gen->get_param_z(Generic6DOFJoint3D::PARAM_ANGULAR_UPPER_LIMIT),
+                gen->get_param_z(Generic6DOFJoint3D::PARAM_LINEAR_LOWER_LIMIT),
+                gen->get_param_z(Generic6DOFJoint3D::PARAM_LINEAR_UPPER_LIMIT),
+                gen->get_flag_z(Generic6DOFJoint3D::FLAG_ENABLE_ANGULAR_LIMIT),
+                gen->get_flag_z(Generic6DOFJoint3D::FLAG_ENABLE_LINEAR_LIMIT),
 
                 points,
                 node_body_a ? &body_a_points : nullptr,

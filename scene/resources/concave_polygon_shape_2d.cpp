@@ -69,7 +69,7 @@ real_t ConcavePolygonShape2D::get_enclosing_radius() const {
     PoolVector<Vector2>::Read read = data.read();
     real_t r = 0;
     for (int i(0); i < data.size(); i++) {
-        r = MAX(read[i].length_squared(), r);
+        r = M_MAX(read[i].length_squared(), r);
     }
     return Math::sqrt(r);
 }

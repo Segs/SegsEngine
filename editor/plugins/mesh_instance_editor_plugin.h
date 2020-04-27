@@ -53,7 +53,7 @@ class MeshInstanceEditor : public Control {
         MENU_OPTION_DEBUG_UV2,
     };
 
-    MeshInstance *node;
+    MeshInstance3D *node;
 
     MenuButton *options;
 
@@ -79,7 +79,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(MeshInstance *p_mesh);
+    void edit(MeshInstance3D *p_mesh);
     MeshInstanceEditor();
 };
 
@@ -91,7 +91,7 @@ class MeshInstanceEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    StringView get_name() const override { return "MeshInstance"; }
+    StringView get_name() const override { return "MeshInstance3D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

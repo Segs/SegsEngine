@@ -1,12 +1,12 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="CSGBox.svg">icons/icon_c_s_g_box.svg</file>
-        <file alias="CSGCapsule.svg">icons/icon_c_s_g_capsule.svg</file>
-        <file alias="CSGCombiner.svg">icons/icon_c_s_g_combiner.svg</file>
-        <file alias="CSGCylinder.svg">icons/icon_c_s_g_cylinder.svg</file>
-        <file alias="CSGMesh.svg">icons/icon_c_s_g_mesh.svg</file>
-        <file alias="CSGPolygon.svg">icons/icon_c_s_g_polygon.svg</file>
-        <file alias="CSGSphere.svg">icons/icon_c_s_g_sphere.svg</file>
-        <file alias="CSGTorus.svg">icons/icon_c_s_g_torus.svg</file>
+        <file alias="CSGBox.svg">icons/CSGBox.svg</file>
+        <file alias="CSGCapsule.svg">icons/CSGCapsule.svg</file>
+        <file alias="CSGCombiner.svg">icons/CSGCombiner.svg</file>
+        <file alias="CSGCylinder.svg">icons/CSGCylinder.svg</file>
+        <file alias="CSGMesh.svg">icons/CSGMesh.svg</file>
+        <file alias="CSGPolygon.svg">icons/CSGPolygon.svg</file>
+        <file alias="CSGSphere.svg">icons/CSGSphere.svg</file>
+        <file alias="CSGTorus.svg">icons/CSGTorus.svg</file>
     </qresource>
 </RCC>

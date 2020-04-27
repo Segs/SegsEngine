@@ -81,7 +81,7 @@ private:
     Node3D *create_light(ImportState &state, const String &node_name, Transform &look_at_transform);
     Node3D *create_camera(ImportState &state, const String &node_name, Transform &look_at_transform);
     // non recursive - linear so must not use recursive arguments
-    MeshInstance * create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *active_node, Transform node_transform);
+    MeshInstance3D * create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *active_node, Transform node_transform);
 
     // recursive node generator
     void _generate_node(ImportState &state, const aiNode *assimp_node);

@@ -799,11 +799,11 @@ void LineEdit::_notification(int p_what) {
                     if (m_priv->window_pos != 0)
                         x_ofs = style->get_offset().x;
                     else
-                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
+                        x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
+                    x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
                 } break;
             }
 
@@ -840,10 +840,10 @@ void LineEdit::_notification(int p_what) {
 
                 if (align == ALIGN_CENTER) {
                     if (m_priv->window_pos == 0) {
-                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
+                        x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
                     }
                 } else {
-                    x_ofs = MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
+                    x_ofs = M_MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
                 }
 
                 ofs_max -= r_icon->get_width();
@@ -1250,7 +1250,7 @@ void LineEdit::delete_char() {
 
     set_cursor_position(get_cursor_position() - 1);
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, MAX(0,m_priv->text.length() - 1));
+        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, M_MAX(0,m_priv->text.length() - 1));
     }
     _text_changed();
 }
@@ -1279,7 +1279,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         m_priv->window_pos = cursor_pos;
     }
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, MAX(0,m_priv->text.length() - 1));
+        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, M_MAX(0,m_priv->text.length() - 1));
     }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
@@ -1375,7 +1375,7 @@ void LineEdit::set_cursor_position(int p_pos) {
 
     if (cursor_pos <= m_priv->window_pos) {
         // Adjust window if cursor goes too much to the left.
-        set_window_pos(MAX(0, cursor_pos - 1));
+        set_window_pos(M_MAX(0, cursor_pos - 1));
     } else {
         // Adjust window if cursor goes too much to the right.
         int window_width = get_size().width - style->get_minimum_size().width;
@@ -1465,19 +1465,19 @@ Size2 LineEdit::get_minimum_size() const {
 
     if (expand_to_text_length) {
         // Add a space because some fonts are too exact, and because cursor needs a bit more when at the end.
-        min_size.width = MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
+        min_size.width = M_MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
     }
 
     min_size.height = font->get_height();
 
     // Take icons into account.
     if (!m_priv->text.isEmpty() && is_editable() && clear_button_enabled) {
-        min_size.width = MAX(min_size.width, Control::get_icon("clear")->get_width());
-        min_size.height = MAX(min_size.height, Control::get_icon("clear")->get_height());
+        min_size.width = M_MAX(min_size.width, Control::get_icon("clear")->get_width());
+        min_size.height = M_MAX(min_size.height, Control::get_icon("clear")->get_height());
     }
     if (right_icon) {
-        min_size.width = MAX(min_size.width, right_icon->get_width());
-        min_size.height = MAX(min_size.height, right_icon->get_height());
+        min_size.width = M_MAX(min_size.width, right_icon->get_width());
+        min_size.height = M_MAX(min_size.height, right_icon->get_height());
     }
 
     return style->get_minimum_size() + min_size;

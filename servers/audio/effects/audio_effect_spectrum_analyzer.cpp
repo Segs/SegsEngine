@@ -209,8 +209,8 @@ Vector2 AudioEffectSpectrumAnalyzerInstance::get_magnitude_for_frequency_range(f
         Vector2 max;
 
         for (int i = begin_pos; i <= end_pos; i++) {
-            max.x = MAX(max.x, r[i].l);
-            max.y = MAX(max.y, r[i].r);
+            max.x = M_MAX(max.x, r[i].l);
+            max.y = M_MAX(max.y, r[i].r);
         }
 
         return max;

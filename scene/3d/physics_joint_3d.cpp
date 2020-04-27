@@ -36,14 +36,14 @@ IMPL_GDCLASS(PinJoint3D)
 IMPL_GDCLASS(HingeJoint3D)
 IMPL_GDCLASS(SliderJoint3D)
 IMPL_GDCLASS(ConeTwistJoint3D)
-IMPL_GDCLASS(Generic6DOFJoint)
+IMPL_GDCLASS(Generic6DOFJoint3D)
 VARIANT_ENUM_CAST(PinJoint3D::Param);
 VARIANT_ENUM_CAST(HingeJoint3D::Param);
 VARIANT_ENUM_CAST(HingeJoint3D::Flag);
 VARIANT_ENUM_CAST(SliderJoint3D::Param);
 VARIANT_ENUM_CAST(ConeTwistJoint3D::Param);
-VARIANT_ENUM_CAST(Generic6DOFJoint::Param);
-VARIANT_ENUM_CAST(Generic6DOFJoint::Flag);
+VARIANT_ENUM_CAST(Generic6DOFJoint3D::Param);
+VARIANT_ENUM_CAST(Generic6DOFJoint3D::Flag);
 
 void Joint3D::_update_joint(bool p_only_free) {
 
@@ -624,106 +624,106 @@ ConeTwistJoint3D::ConeTwistJoint3D() {
 
 /////////////////////////////////////////////////////////////////////
 
-void Generic6DOFJoint::_set_angular_hi_limit_x(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_hi_limit_x(float p_limit_angular) {
 
     set_param_x(PARAM_ANGULAR_UPPER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_hi_limit_x() const {
+float Generic6DOFJoint3D::_get_angular_hi_limit_x() const {
 
     return Math::rad2deg(get_param_x(PARAM_ANGULAR_UPPER_LIMIT));
 }
 
-void Generic6DOFJoint::_set_angular_lo_limit_x(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_lo_limit_x(float p_limit_angular) {
 
     set_param_x(PARAM_ANGULAR_LOWER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_lo_limit_x() const {
+float Generic6DOFJoint3D::_get_angular_lo_limit_x() const {
 
     return Math::rad2deg(get_param_x(PARAM_ANGULAR_LOWER_LIMIT));
 }
 
-void Generic6DOFJoint::_set_angular_hi_limit_y(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_hi_limit_y(float p_limit_angular) {
 
     set_param_y(PARAM_ANGULAR_UPPER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_hi_limit_y() const {
+float Generic6DOFJoint3D::_get_angular_hi_limit_y() const {
 
     return Math::rad2deg(get_param_y(PARAM_ANGULAR_UPPER_LIMIT));
 }
 
-void Generic6DOFJoint::_set_angular_lo_limit_y(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_lo_limit_y(float p_limit_angular) {
 
     set_param_y(PARAM_ANGULAR_LOWER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_lo_limit_y() const {
+float Generic6DOFJoint3D::_get_angular_lo_limit_y() const {
 
     return Math::rad2deg(get_param_y(PARAM_ANGULAR_LOWER_LIMIT));
 }
 
-void Generic6DOFJoint::_set_angular_hi_limit_z(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_hi_limit_z(float p_limit_angular) {
 
     set_param_z(PARAM_ANGULAR_UPPER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_hi_limit_z() const {
+float Generic6DOFJoint3D::_get_angular_hi_limit_z() const {
 
     return Math::rad2deg(get_param_z(PARAM_ANGULAR_UPPER_LIMIT));
 }
 
-void Generic6DOFJoint::_set_angular_lo_limit_z(float p_limit_angular) {
+void Generic6DOFJoint3D::_set_angular_lo_limit_z(float p_limit_angular) {
 
     set_param_z(PARAM_ANGULAR_LOWER_LIMIT, Math::deg2rad(p_limit_angular));
 }
 
-float Generic6DOFJoint::_get_angular_lo_limit_z() const {
+float Generic6DOFJoint3D::_get_angular_lo_limit_z() const {
 
     return Math::rad2deg(get_param_z(PARAM_ANGULAR_LOWER_LIMIT));
 }
 
-void Generic6DOFJoint::_bind_methods() {
+void Generic6DOFJoint3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_x", {"angle"}), &Generic6DOFJoint::_set_angular_hi_limit_x);
-    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_x"), &Generic6DOFJoint::_get_angular_hi_limit_x);
+    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_x", {"angle"}), &Generic6DOFJoint3D::_set_angular_hi_limit_x);
+    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_x"), &Generic6DOFJoint3D::_get_angular_hi_limit_x);
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_x", {"angle"}), &Generic6DOFJoint::_set_angular_lo_limit_x);
-    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_x"), &Generic6DOFJoint::_get_angular_lo_limit_x);
+    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_x", {"angle"}), &Generic6DOFJoint3D::_set_angular_lo_limit_x);
+    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_x"), &Generic6DOFJoint3D::_get_angular_lo_limit_x);
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_y", {"angle"}), &Generic6DOFJoint::_set_angular_hi_limit_y);
-    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_y"), &Generic6DOFJoint::_get_angular_hi_limit_y);
+    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_y", {"angle"}), &Generic6DOFJoint3D::_set_angular_hi_limit_y);
+    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_y"), &Generic6DOFJoint3D::_get_angular_hi_limit_y);
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_y", {"angle"}), &Generic6DOFJoint::_set_angular_lo_limit_y);
-    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_y"), &Generic6DOFJoint::_get_angular_lo_limit_y);
+    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_y", {"angle"}), &Generic6DOFJoint3D::_set_angular_lo_limit_y);
+    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_y"), &Generic6DOFJoint3D::_get_angular_lo_limit_y);
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_z", {"angle"}), &Generic6DOFJoint::_set_angular_hi_limit_z);
-    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_z"), &Generic6DOFJoint::_get_angular_hi_limit_z);
+    MethodBinder::bind_method(D_METHOD("_set_angular_hi_limit_z", {"angle"}), &Generic6DOFJoint3D::_set_angular_hi_limit_z);
+    MethodBinder::bind_method(D_METHOD("_get_angular_hi_limit_z"), &Generic6DOFJoint3D::_get_angular_hi_limit_z);
 
-    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_z", {"angle"}), &Generic6DOFJoint::_set_angular_lo_limit_z);
-    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_z"), &Generic6DOFJoint::_get_angular_lo_limit_z);
+    MethodBinder::bind_method(D_METHOD("_set_angular_lo_limit_z", {"angle"}), &Generic6DOFJoint3D::_set_angular_lo_limit_z);
+    MethodBinder::bind_method(D_METHOD("_get_angular_lo_limit_z"), &Generic6DOFJoint3D::_get_angular_lo_limit_z);
 
-    MethodBinder::bind_method(D_METHOD("set_param_x", {"param", "value"}), &Generic6DOFJoint::set_param_x);
-    MethodBinder::bind_method(D_METHOD("get_param_x", {"param"}), &Generic6DOFJoint::get_param_x);
+    MethodBinder::bind_method(D_METHOD("set_param_x", {"param", "value"}), &Generic6DOFJoint3D::set_param_x);
+    MethodBinder::bind_method(D_METHOD("get_param_x", {"param"}), &Generic6DOFJoint3D::get_param_x);
 
-    MethodBinder::bind_method(D_METHOD("set_param_y", {"param", "value"}), &Generic6DOFJoint::set_param_y);
-    MethodBinder::bind_method(D_METHOD("get_param_y", {"param"}), &Generic6DOFJoint::get_param_y);
+    MethodBinder::bind_method(D_METHOD("set_param_y", {"param", "value"}), &Generic6DOFJoint3D::set_param_y);
+    MethodBinder::bind_method(D_METHOD("get_param_y", {"param"}), &Generic6DOFJoint3D::get_param_y);
 
-    MethodBinder::bind_method(D_METHOD("set_param_z", {"param", "value"}), &Generic6DOFJoint::set_param_z);
-    MethodBinder::bind_method(D_METHOD("get_param_z", {"param"}), &Generic6DOFJoint::get_param_z);
+    MethodBinder::bind_method(D_METHOD("set_param_z", {"param", "value"}), &Generic6DOFJoint3D::set_param_z);
+    MethodBinder::bind_method(D_METHOD("get_param_z", {"param"}), &Generic6DOFJoint3D::get_param_z);
 
-    MethodBinder::bind_method(D_METHOD("set_flag_x", {"flag", "value"}), &Generic6DOFJoint::set_flag_x);
-    MethodBinder::bind_method(D_METHOD("get_flag_x", {"flag"}), &Generic6DOFJoint::get_flag_x);
+    MethodBinder::bind_method(D_METHOD("set_flag_x", {"flag", "value"}), &Generic6DOFJoint3D::set_flag_x);
+    MethodBinder::bind_method(D_METHOD("get_flag_x", {"flag"}), &Generic6DOFJoint3D::get_flag_x);
 
-    MethodBinder::bind_method(D_METHOD("set_flag_y", {"flag", "value"}), &Generic6DOFJoint::set_flag_y);
-    MethodBinder::bind_method(D_METHOD("get_flag_y", {"flag"}), &Generic6DOFJoint::get_flag_y);
+    MethodBinder::bind_method(D_METHOD("set_flag_y", {"flag", "value"}), &Generic6DOFJoint3D::set_flag_y);
+    MethodBinder::bind_method(D_METHOD("get_flag_y", {"flag"}), &Generic6DOFJoint3D::get_flag_y);
 
-    MethodBinder::bind_method(D_METHOD("set_flag_z", {"flag", "value"}), &Generic6DOFJoint::set_flag_z);
-    MethodBinder::bind_method(D_METHOD("get_flag_z", {"flag"}), &Generic6DOFJoint::get_flag_z);
+    MethodBinder::bind_method(D_METHOD("set_flag_z", {"flag", "value"}), &Generic6DOFJoint3D::set_flag_z);
+    MethodBinder::bind_method(D_METHOD("get_flag_z", {"flag"}), &Generic6DOFJoint3D::get_flag_z);
 
-    MethodBinder::bind_method(D_METHOD("set_precision", {"precision"}), &Generic6DOFJoint::set_precision);
-    MethodBinder::bind_method(D_METHOD("get_precision"), &Generic6DOFJoint::get_precision);
+    MethodBinder::bind_method(D_METHOD("set_precision", {"precision"}), &Generic6DOFJoint3D::set_precision);
+    MethodBinder::bind_method(D_METHOD("get_precision"), &Generic6DOFJoint3D::get_precision);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_limit_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/upper_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_UPPER_LIMIT);
@@ -842,7 +842,7 @@ void Generic6DOFJoint::_bind_methods() {
     BIND_ENUM_CONSTANT(FLAG_MAX)
 }
 
-void Generic6DOFJoint::set_param_x(Param p_param, float p_value) {
+void Generic6DOFJoint3D::set_param_x(Param p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
     params_x[p_param] = p_value;
@@ -851,13 +851,13 @@ void Generic6DOFJoint::set_param_x(Param p_param, float p_value) {
 
     update_gizmo();
 }
-float Generic6DOFJoint::get_param_x(Param p_param) const {
+float Generic6DOFJoint3D::get_param_x(Param p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, 0);
     return params_x[p_param];
 }
 
-void Generic6DOFJoint::set_param_y(Param p_param, float p_value) {
+void Generic6DOFJoint3D::set_param_y(Param p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
     params_y[p_param] = p_value;
@@ -865,13 +865,13 @@ void Generic6DOFJoint::set_param_y(Param p_param, float p_value) {
         PhysicsServer3D::get_singleton()->generic_6dof_joint_set_param(get_joint(), Vector3::AXIS_Y, PhysicsServer3D::G6DOFJointAxisParam(p_param), p_value);
     update_gizmo();
 }
-float Generic6DOFJoint::get_param_y(Param p_param) const {
+float Generic6DOFJoint3D::get_param_y(Param p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, 0);
     return params_y[p_param];
 }
 
-void Generic6DOFJoint::set_param_z(Param p_param, float p_value) {
+void Generic6DOFJoint3D::set_param_z(Param p_param, float p_value) {
 
     ERR_FAIL_INDEX(p_param, PARAM_MAX);
     params_z[p_param] = p_value;
@@ -879,13 +879,13 @@ void Generic6DOFJoint::set_param_z(Param p_param, float p_value) {
         PhysicsServer3D::get_singleton()->generic_6dof_joint_set_param(get_joint(), Vector3::AXIS_Z, PhysicsServer3D::G6DOFJointAxisParam(p_param), p_value);
     update_gizmo();
 }
-float Generic6DOFJoint::get_param_z(Param p_param) const {
+float Generic6DOFJoint3D::get_param_z(Param p_param) const {
 
     ERR_FAIL_INDEX_V(p_param, PARAM_MAX, 0);
     return params_z[p_param];
 }
 
-void Generic6DOFJoint::set_flag_x(Flag p_flag, bool p_enabled) {
+void Generic6DOFJoint3D::set_flag_x(Flag p_flag, bool p_enabled) {
 
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags_x[p_flag] = p_enabled;
@@ -893,13 +893,13 @@ void Generic6DOFJoint::set_flag_x(Flag p_flag, bool p_enabled) {
         PhysicsServer3D::get_singleton()->generic_6dof_joint_set_flag(get_joint(), Vector3::AXIS_X, PhysicsServer3D::G6DOFJointAxisFlag(p_flag), p_enabled);
     update_gizmo();
 }
-bool Generic6DOFJoint::get_flag_x(Flag p_flag) const {
+bool Generic6DOFJoint3D::get_flag_x(Flag p_flag) const {
 
     ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false);
     return flags_x[p_flag];
 }
 
-void Generic6DOFJoint::set_flag_y(Flag p_flag, bool p_enabled) {
+void Generic6DOFJoint3D::set_flag_y(Flag p_flag, bool p_enabled) {
 
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags_y[p_flag] = p_enabled;
@@ -907,13 +907,13 @@ void Generic6DOFJoint::set_flag_y(Flag p_flag, bool p_enabled) {
         PhysicsServer3D::get_singleton()->generic_6dof_joint_set_flag(get_joint(), Vector3::AXIS_Y, PhysicsServer3D::G6DOFJointAxisFlag(p_flag), p_enabled);
     update_gizmo();
 }
-bool Generic6DOFJoint::get_flag_y(Flag p_flag) const {
+bool Generic6DOFJoint3D::get_flag_y(Flag p_flag) const {
 
     ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false);
     return flags_y[p_flag];
 }
 
-void Generic6DOFJoint::set_flag_z(Flag p_flag, bool p_enabled) {
+void Generic6DOFJoint3D::set_flag_z(Flag p_flag, bool p_enabled) {
 
     ERR_FAIL_INDEX(p_flag, FLAG_MAX);
     flags_z[p_flag] = p_enabled;
@@ -921,13 +921,13 @@ void Generic6DOFJoint::set_flag_z(Flag p_flag, bool p_enabled) {
         PhysicsServer3D::get_singleton()->generic_6dof_joint_set_flag(get_joint(), Vector3::AXIS_Z, PhysicsServer3D::G6DOFJointAxisFlag(p_flag), p_enabled);
     update_gizmo();
 }
-bool Generic6DOFJoint::get_flag_z(Flag p_flag) const {
+bool Generic6DOFJoint3D::get_flag_z(Flag p_flag) const {
 
     ERR_FAIL_INDEX_V(p_flag, FLAG_MAX, false);
     return flags_z[p_flag];
 }
 
-void Generic6DOFJoint::set_precision(int p_precision) {
+void Generic6DOFJoint3D::set_precision(int p_precision) {
     precision = p_precision;
 
     PhysicsServer3D::get_singleton()->generic_6dof_joint_set_precision(
@@ -935,7 +935,7 @@ void Generic6DOFJoint::set_precision(int p_precision) {
             precision);
 }
 
-RID Generic6DOFJoint::_configure_joint(PhysicsBody3D *body_a, PhysicsBody3D *body_b) {
+RID Generic6DOFJoint3D::_configure_joint(PhysicsBody3D *body_a, PhysicsBody3D *body_b) {
 
     Transform gt = get_global_transform();
     //Vector3 cone_twistpos = gt.origin;
@@ -969,7 +969,7 @@ RID Generic6DOFJoint::_configure_joint(PhysicsBody3D *body_a, PhysicsBody3D *bod
     return j;
 }
 
-Generic6DOFJoint::Generic6DOFJoint() :
+Generic6DOFJoint3D::Generic6DOFJoint3D() :
         precision(1) {
 
     set_param_x(PARAM_LINEAR_LOWER_LIMIT, 0);

@@ -226,7 +226,7 @@ real_t BulletPhysicsServer::space_get_param(RID p_space, SpaceParameter p_param)
     return space->get_param(p_param);
 }
 
-PhysicsDirectSpaceState *BulletPhysicsServer::space_get_direct_state(RID p_space) {
+PhysicsDirectSpaceState3D *BulletPhysicsServer::space_get_direct_state(RID p_space) {
     SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, nullptr);
 
@@ -871,7 +871,7 @@ bool BulletPhysicsServer::body_is_ray_pickable(RID p_body) const {
     return body->is_ray_pickable();
 }
 
-PhysicsDirectBodyState *BulletPhysicsServer::body_get_direct_state(RID p_body) {
+PhysicsDirectBodyState3D *BulletPhysicsServer::body_get_direct_state(RID p_body) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, nullptr);
     return BulletPhysicsDirectBodyState::get_singleton(body);

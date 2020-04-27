@@ -33,11 +33,11 @@
 
 #include "scene/3d/mesh_instance_3d.h"
 
-class SoftBody;
+class SoftBody3D;
 
 class SoftBodyVisualServerHandler {
 
-    friend class SoftBody;
+    friend class SoftBody3D;
 
     RID mesh;
     int surface;
@@ -63,8 +63,8 @@ public:
     void set_aabb(const AABB &p_aabb);
 };
 
-class SoftBody : public MeshInstance {
-    GDCLASS(SoftBody,MeshInstance)
+class SoftBody3D : public MeshInstance3D {
+    GDCLASS(SoftBody3D,MeshInstance3D)
 
 public:
     struct PinnedPoint {
@@ -92,7 +92,7 @@ private:
     bool pinned_points_cache_dirty;
 
     Ref<ArrayMesh> debug_mesh_cache;
-    class MeshInstance *debug_mesh;
+    class MeshInstance3D *debug_mesh;
 
     bool capture_input_on_drag;
     bool ray_pickable;
@@ -180,8 +180,8 @@ public:
     void set_ray_pickable(bool p_ray_pickable);
     bool is_ray_pickable() const;
 
-    SoftBody();
-    ~SoftBody() override;
+    SoftBody3D();
+    ~SoftBody3D() override;
 
 private:
     void reset_softbody_pin();

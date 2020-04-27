@@ -46,7 +46,7 @@ Size2 CheckButton::get_icon_size() const {
     if (on)
         tex_size = Size2(on->get_width(), on->get_height());
     if (off)
-        tex_size = Size2(MAX(tex_size.width, off->get_width()), MAX(tex_size.height, off->get_height()));
+        tex_size = Size2(M_MAX(tex_size.width, off->get_width()), M_MAX(tex_size.height, off->get_height()));
 
     return tex_size;
 }
@@ -59,7 +59,7 @@ Size2 CheckButton::get_minimum_size() const {
     if (not get_text().empty())
         minsize.width += get_constant("hseparation");
     Ref<StyleBox> sb = get_stylebox("normal");
-    minsize.height = MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
+    minsize.height = M_MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
 
     return minsize;
 }

@@ -506,7 +506,7 @@ void ScriptEditorDebugger::_video_mem_request() {
 Size2 ScriptEditorDebugger::get_minimum_size() const {
 
     Size2 ms = MarginContainer::get_minimum_size();
-    ms.y = MAX(ms.y, 250 * EDSCALE);
+    ms.y = M_MAX(ms.y, 250 * EDSCALE);
     return ms;
 }
 

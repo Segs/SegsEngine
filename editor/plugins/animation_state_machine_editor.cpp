@@ -643,7 +643,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Size2 s = sb->get_minimum_size();
         int strsize = font->get_string_size(E).width;
         s.width += strsize;
-        s.height += MAX(font->get_height(), play->get_height());
+        s.height += M_MAX(font->get_height(), play->get_height());
         s.width += sep + play->get_width();
         if (needs_editor) {
             s.width += sep + edit->get_width();
@@ -886,7 +886,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
     }
     to.y = from.y;
 
-    float len = MAX(0.0001f, current_length);
+    float len = M_MAX(0.0001f, current_length);
 
     float pos = CLAMP(play_pos, 0, len);
     float c = pos / len;

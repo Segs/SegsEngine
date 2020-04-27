@@ -546,7 +546,7 @@ void AnimatedSprite2D::set_speed_scale(float p_speed_scale) {
 
     float elapsed = _get_frame_duration() - timeout;
 
-    speed_scale = MAX(p_speed_scale, 0.0f);
+    speed_scale = M_MAX(p_speed_scale, 0.0f);
 
     // We adapt the timeout so that the animation speed adapts as soon as the speed scale is changed
     _reset_timeout();

@@ -50,7 +50,7 @@ void BitMap::create(const Size2 &p_size) {
 
 void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshold) {
 
-    ERR_FAIL_COND(not p_image || p_image->empty());
+    ERR_FAIL_COND(not p_image || p_image->is_empty());
     Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
     img->convert(Image::FORMAT_LA8);
     ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8);
@@ -162,7 +162,7 @@ Size2 BitMap::get_size() const {
     return Size2(width, height);
 }
 
-void BitMap::_set_data(const Dictionary &p_d) {
+void BitMap::set_data(const Dictionary &p_d) {
 
     ERR_FAIL_COND(!p_d.has("size"));
     ERR_FAIL_COND(!p_d.has("data"));
@@ -171,7 +171,7 @@ void BitMap::_set_data(const Dictionary &p_d) {
     bitmask = p_d["data"].as<PoolVector<uint8_t>>();
 }
 
-Dictionary BitMap::_get_data() const {
+Dictionary BitMap::get_data() const {
 
     Dictionary d;
     d["size"] = get_size();
@@ -470,7 +470,7 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
                     p_map->set_bit(Vector2(i, j), true);
 
                     FillBitsStackEntry se = { pos, i, j };
-                    stack.resize(MAX(stack_size + 1, stack.size()));
+                    stack.resize(M_MAX(stack_size + 1, stack.size()));
                     stack.set(stack_size, se);
                     stack_size++;
 
@@ -683,8 +683,8 @@ void BitMap::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_size"), &BitMap::get_size);
 
-    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::get_data);
 
     MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
     MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});

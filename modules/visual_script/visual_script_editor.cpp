@@ -700,7 +700,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 }
             }
 
-            for (int i = 0; i < MAX(node->get_output_value_port_count(), MAX(mixed_seq_ports, node->get_input_value_port_count())); i++) {
+            for (int i = 0; i < M_MAX(node->get_output_value_port_count(), M_MAX(mixed_seq_ports, node->get_input_value_port_count())); i++) {
 
                 bool left_ok = false;
                 VariantType left_type = VariantType::NIL;

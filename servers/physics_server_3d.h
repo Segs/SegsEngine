@@ -37,11 +37,11 @@
 
 #include <utility>
 
-class PhysicsDirectSpaceState;
+class PhysicsDirectSpaceState3D;
 
-class PhysicsDirectBodyState : public Object {
+class PhysicsDirectBodyState3D : public Object {
 
-    GDCLASS(PhysicsDirectBodyState,Object)
+    GDCLASS(PhysicsDirectBodyState3D,Object)
 
 protected:
     static void _bind_methods();
@@ -93,18 +93,18 @@ public:
     virtual real_t get_step() const = 0;
     virtual void integrate_forces();
 
-    virtual PhysicsDirectSpaceState *get_space_state() = 0;
+    virtual PhysicsDirectSpaceState3D *get_space_state() = 0;
 
-    PhysicsDirectBodyState();
+    PhysicsDirectBodyState3D();
 };
 
-class PhysicsShapeQueryResult;
+class PhysicsShapeQueryResult3D;
 
-class PhysicsShapeQueryParameters : public RefCounted {
+class PhysicsShapeQueryParameters3D : public RefCounted {
 
-    GDCLASS(PhysicsShapeQueryParameters,RefCounted)
+    GDCLASS(PhysicsShapeQueryParameters3D,RefCounted)
 
-    friend class PhysicsDirectSpaceState;
+    friend class PhysicsDirectSpaceState3D;
 
     RID shape;
     Transform transform;
@@ -141,19 +141,19 @@ public:
     void set_collide_with_areas(bool p_enable);
     bool is_collide_with_areas_enabled() const;
 
-    PhysicsShapeQueryParameters();
+    PhysicsShapeQueryParameters3D();
 };
 
-class PhysicsDirectSpaceState : public Object {
+class PhysicsDirectSpaceState3D : public Object {
 
-    GDCLASS(PhysicsDirectSpaceState,Object)
+    GDCLASS(PhysicsDirectSpaceState3D,Object)
 
 public:
     Dictionary _intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_collision_mask = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
-    Array _intersect_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results = 32);
-    Array _cast_motion(const Ref<PhysicsShapeQueryParameters> &p_shape_query, const Vector3 &p_motion);
-    Array _collide_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results = 32);
-    Dictionary _get_rest_info(const Ref<PhysicsShapeQueryParameters> &p_shape_query);
+    Array _intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
+    Array _cast_motion(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, const Vector3 &p_motion);
+    Array _collide_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
+    Dictionary _get_rest_info(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query);
 
 protected:
     static void _bind_methods();
@@ -201,16 +201,16 @@ public:
 
     virtual Vector3 get_closest_point_to_object_volume(RID p_object, const Vector3 p_point) const = 0;
 
-    PhysicsDirectSpaceState();
+    PhysicsDirectSpaceState3D();
 };
 
-class PhysicsShapeQueryResult : public RefCounted {
+class PhysicsShapeQueryResult3D : public RefCounted {
 
-    GDCLASS(PhysicsShapeQueryResult,RefCounted)
+    GDCLASS(PhysicsShapeQueryResult3D,RefCounted)
 
-    Vector<PhysicsDirectSpaceState::ShapeResult> result;
+    Vector<PhysicsDirectSpaceState3D::ShapeResult> result;
 
-    friend class PhysicsDirectSpaceState;
+    friend class PhysicsDirectSpaceState3D;
 
 protected:
     static void _bind_methods();
@@ -222,7 +222,7 @@ public:
     Object *get_result_object(int p_idx) const;
     int get_result_object_shape(int p_idx) const;
 
-    PhysicsShapeQueryResult();
+    PhysicsShapeQueryResult3D();
 };
 
 class PhysicsServer3D : public Object {
@@ -285,7 +285,7 @@ public:
     virtual real_t space_get_param(RID p_space, SpaceParameter p_param) const = 0;
 
     // this function only works on physics process, errors and returns null otherwise
-    virtual PhysicsDirectSpaceState *space_get_direct_state(RID p_space) = 0;
+    virtual PhysicsDirectSpaceState3D *space_get_direct_state(RID p_space) = 0;
 
     virtual void space_set_debug_contacts(RID p_space, int p_max_contacts) = 0;
     virtual const Vector<Vector3> &space_get_contacts(RID p_space) const = 0;
@@ -482,7 +482,7 @@ public:
     virtual bool body_is_ray_pickable(RID p_body) const = 0;
 
     // this function only works on physics process, errors and returns null otherwise
-    virtual PhysicsDirectBodyState *body_get_direct_state(RID p_body) = 0;
+    virtual PhysicsDirectBodyState3D *body_get_direct_state(RID p_body) = 0;
 
     struct MotionResult {
 

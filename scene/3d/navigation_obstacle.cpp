@@ -145,15 +145,15 @@ void NavigationObstacle::update_agent_shape() {
                 r += cs->get_shape()->get_enclosing_radius();
             }
             Vector3 s = cs->get_global_transform().basis.get_scale();
-            r *= MAX(s.x, MAX(s.y, s.z));
+            r *= M_MAX(s.x, M_MAX(s.y, s.z));
             // Takes the biggest radius
-            radius = MAX(radius, r);
+            radius = M_MAX(radius, r);
         }
     }
     Node3D *spa = object_cast<Node3D>(node);
     if (spa) {
         Vector3 s = spa->get_global_transform().basis.get_scale();
-        radius *= MAX(s.x, MAX(s.y, s.z));
+        radius *= M_MAX(s.x, M_MAX(s.y, s.z));
     }
 
     if (radius == 0.0f)

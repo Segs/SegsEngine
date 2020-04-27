@@ -168,7 +168,7 @@ void ProgressDialog::_notification(int p_what) {
 void ProgressDialog::_popup() {
 
     Size2 ms = main->get_combined_minimum_size();
-    ms.width = MAX(500 * EDSCALE, ms.width);
+    ms.width = M_MAX(500 * EDSCALE, ms.width);
 
     Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
     ms += style->get_minimum_size();

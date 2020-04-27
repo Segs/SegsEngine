@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="World" inherits="Resource" version="4.0">
+<class name="World3D" inherits="Resource" version="4.0">
 	<brief_description>
 		Class that has everything pertaining to a world.
 	</brief_description>
@@ -12,7 +12,7 @@
 	<methods>
 	</methods>
 	<members>
-		<member name="direct_space_state" type="PhysicsDirectSpaceState" setter="" getter="get_direct_space_state">
+		<member name="direct_space_state" type="PhysicsDirectSpaceState3D" setter="" getter="get_direct_space_state">
 			The World's physics direct space state, used for making various queries. Might be used only during [code]_physics_process[/code].
 		</member>
 		<member name="environment" type="Environment" setter="set_environment" getter="get_environment">

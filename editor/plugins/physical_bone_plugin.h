@@ -33,7 +33,7 @@
 
 #include "editor/editor_node.h"
 
-class PhysicalBone;
+class PhysicalBone3D;
 
 class PhysicalBoneEditor : public Object {
     GDCLASS(PhysicalBoneEditor,Object)
@@ -42,7 +42,7 @@ class PhysicalBoneEditor : public Object {
     HBoxContainer *spatial_editor_hb;
     ToolButton *button_transform_joint;
 
-    PhysicalBone *selected;
+    PhysicalBone3D *selected;
 
 protected:
     static void _bind_methods();
@@ -55,7 +55,7 @@ public:
     PhysicalBoneEditor(EditorNode *p_editor);
     ~PhysicalBoneEditor() override;
 
-    void set_selected(PhysicalBone *p_pb);
+    void set_selected(PhysicalBone3D *p_pb);
 
     void hide();
     void show();
@@ -65,12 +65,12 @@ class PhysicalBonePlugin : public EditorPlugin {
     GDCLASS(PhysicalBonePlugin,EditorPlugin)
 
     EditorNode *editor;
-    PhysicalBone *selected;
+    PhysicalBone3D *selected;
     PhysicalBoneEditor physical_bone_editor;
 
 public:
-    StringView get_name() const override { return "PhysicalBone"; }
-    bool handles(Object *p_object) const override { return p_object->is_class("PhysicalBone"); }
+    StringView get_name() const override { return "PhysicalBone3D"; }
+    bool handles(Object *p_object) const override { return p_object->is_class("PhysicalBone3D"); }
     void make_visible(bool p_visible) override;
     void edit(Object *p_node) override;
 

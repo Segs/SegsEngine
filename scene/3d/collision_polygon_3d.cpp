@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  collision_polygon.cpp                                                */
+/*  collision_polygon_3d.cpp                                             */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,11 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "collision_polygon.h"
+#include "collision_polygon_3d.h"
 
 #include "scene/3d/collision_object_3d.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"
 #include "core/translation_helpers.h"
@@ -57,7 +57,7 @@ void CollisionPolygon3D::_build_polygon() {
     //decompose concave into multiple convex polygons and add them
 
     for (size_t i = 0; i < decomp.size(); i++) {
-        Ref<ConvexPolygonShape> convex(make_ref_counted<ConvexPolygonShape>());
+        Ref<ConvexPolygonShape3D> convex(make_ref_counted<ConvexPolygonShape3D>());
         Vector<Vector3> cp;
         size_t cs = decomp[i].size();
         cp.reserve(cs * 2);
@@ -168,7 +168,7 @@ bool CollisionPolygon3D::is_disabled() const {
 StringName CollisionPolygon3D::get_configuration_warning() const {
 
     if (!object_cast<CollisionObject3D>(get_parent())) {
-        return TTR("CollisionPolygon3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
+        return TTR("CollisionPolygon3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody3D, RigidBody, KinematicBody3D, etc. to give them a shape.");
     }
 
     if (polygon.empty()) {

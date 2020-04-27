@@ -646,8 +646,8 @@ Error StreamTexture::_load_data(StringView p_path, int &tw, int &th, int &tw_cus
             mipmaps = f->get_32();
             size = f->get_32();
 
-            sw = MAX(sw >> 1, 1);
-            sh = MAX(sh >> 1, 1);
+            sw = M_MAX(sw >> 1, 1);
+            sh = M_MAX(sh >> 1, 1);
             mipmaps--;
         }
 
@@ -671,9 +671,9 @@ Error StreamTexture::_load_data(StringView p_path, int &tw, int &th, int &tw_cus
                 img = Image::lossy_unpacker(pv);
             }
 
-            if (not img || img->empty()) {
+            if (not img || img->is_empty()) {
                 memdelete(f);
-                ERR_FAIL_COND_V(not img || img->empty(), ERR_FILE_CORRUPT);
+                ERR_FAIL_COND_V(not img || img->is_empty(), ERR_FILE_CORRUPT);
             }
 
             total_size += img->get_data().size();
@@ -744,8 +744,8 @@ Error StreamTexture::_load_data(StringView p_path, int &tw, int &th, int &tw_cus
 
             while (mipmaps2 > 1 && p_size_limit > 0 && (sw > p_size_limit || sh > p_size_limit)) {
 
-                sw = MAX(sw >> 1, 1);
-                sh = MAX(sh >> 1, 1);
+                sw = M_MAX(sw >> 1, 1);
+                sh = M_MAX(sh >> 1, 1);
                 mipmaps2--;
                 idx++;
             }
@@ -1570,7 +1570,7 @@ uint32_t CubeMap::get_flags() const {
 void CubeMap::set_side(Side p_side, const Ref<Image> &p_image) {
 
     ERR_FAIL_COND(not p_image);
-    ERR_FAIL_COND(p_image->empty());
+    ERR_FAIL_COND(p_image->is_empty());
     ERR_FAIL_INDEX(p_side, 6);
 
     if (!_is_valid()) {
@@ -2490,7 +2490,7 @@ RES ResourceFormatLoaderTextureLayered::load(StringView p_path, StringView p_ori
 
                 Ref<Image> img = Image::lossless_unpacker(pv);
 
-                if (not img || img->empty() || format != img->get_format()) {
+                if (not img || img->is_empty() || format != img->get_format()) {
                     if (r_error) {
                         *r_error = ERR_FILE_CORRUPT;
                     }
@@ -2526,7 +2526,7 @@ RES ResourceFormatLoaderTextureLayered::load(StringView p_path, StringView p_ori
                 }
 
                 image->create(tw, th, true, format, img_data);
-                if (image->empty()) {
+                if (image->is_empty()) {
                     if (r_error) {
                         *r_error = ERR_FILE_CORRUPT;
                     }

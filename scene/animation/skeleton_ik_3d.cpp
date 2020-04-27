@@ -32,12 +32,12 @@
  * @author AndreaCatania
  */
 
-#include "skeleton_ik.h"
+#include "skeleton_ik_3d.h"
 #include "core/method_bind.h"
 
 #ifndef _3D_DISABLED
 
-IMPL_GDCLASS(SkeletonIK)
+IMPL_GDCLASS(SkeletonIK3D)
 
 FabrikInverseKinematic::ChainItem *FabrikInverseKinematic::ChainItem::find_child(const BoneId p_bone_id) {
     for (int i = children.size() - 1; 0 <= i; --i) {
@@ -332,7 +332,7 @@ void FabrikInverseKinematic::solve(Task *p_task, real_t blending_delta, bool ove
     }
 }
 
-void SkeletonIK::_validate_property(PropertyInfo &property) const {
+void SkeletonIK3D::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "root_bone" || property.name == "tip_bone") {
 
@@ -355,43 +355,43 @@ void SkeletonIK::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void SkeletonIK::_bind_methods() {
+void SkeletonIK3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_root_bone", {"root_bone"}), &SkeletonIK::set_root_bone);
-    MethodBinder::bind_method(D_METHOD("get_root_bone"), &SkeletonIK::get_root_bone);
+    MethodBinder::bind_method(D_METHOD("set_root_bone", {"root_bone"}), &SkeletonIK3D::set_root_bone);
+    MethodBinder::bind_method(D_METHOD("get_root_bone"), &SkeletonIK3D::get_root_bone);
 
-    MethodBinder::bind_method(D_METHOD("set_tip_bone", {"tip_bone"}), &SkeletonIK::set_tip_bone);
-    MethodBinder::bind_method(D_METHOD("get_tip_bone"), &SkeletonIK::get_tip_bone);
+    MethodBinder::bind_method(D_METHOD("set_tip_bone", {"tip_bone"}), &SkeletonIK3D::set_tip_bone);
+    MethodBinder::bind_method(D_METHOD("get_tip_bone"), &SkeletonIK3D::get_tip_bone);
 
-    MethodBinder::bind_method(D_METHOD("set_interpolation", {"interpolation"}), &SkeletonIK::set_interpolation);
-    MethodBinder::bind_method(D_METHOD("get_interpolation"), &SkeletonIK::get_interpolation);
+    MethodBinder::bind_method(D_METHOD("set_interpolation", {"interpolation"}), &SkeletonIK3D::set_interpolation);
+    MethodBinder::bind_method(D_METHOD("get_interpolation"), &SkeletonIK3D::get_interpolation);
 
-    MethodBinder::bind_method(D_METHOD("set_target_transform", {"target"}), &SkeletonIK::set_target_transform);
-    MethodBinder::bind_method(D_METHOD("get_target_transform"), &SkeletonIK::get_target_transform);
+    MethodBinder::bind_method(D_METHOD("set_target_transform", {"target"}), &SkeletonIK3D::set_target_transform);
+    MethodBinder::bind_method(D_METHOD("get_target_transform"), &SkeletonIK3D::get_target_transform);
 
-    MethodBinder::bind_method(D_METHOD("set_target_node", {"node"}), &SkeletonIK::set_target_node);
-    MethodBinder::bind_method(D_METHOD("get_target_node"), &SkeletonIK::get_target_node);
+    MethodBinder::bind_method(D_METHOD("set_target_node", {"node"}), &SkeletonIK3D::set_target_node);
+    MethodBinder::bind_method(D_METHOD("get_target_node"), &SkeletonIK3D::get_target_node);
 
-    MethodBinder::bind_method(D_METHOD("set_override_tip_basis", {"override"}), &SkeletonIK::set_override_tip_basis);
-    MethodBinder::bind_method(D_METHOD("is_override_tip_basis"), &SkeletonIK::is_override_tip_basis);
+    MethodBinder::bind_method(D_METHOD("set_override_tip_basis", {"override"}), &SkeletonIK3D::set_override_tip_basis);
+    MethodBinder::bind_method(D_METHOD("is_override_tip_basis"), &SkeletonIK3D::is_override_tip_basis);
 
-    MethodBinder::bind_method(D_METHOD("set_use_magnet", {"use"}), &SkeletonIK::set_use_magnet);
-    MethodBinder::bind_method(D_METHOD("is_using_magnet"), &SkeletonIK::is_using_magnet);
+    MethodBinder::bind_method(D_METHOD("set_use_magnet", {"use"}), &SkeletonIK3D::set_use_magnet);
+    MethodBinder::bind_method(D_METHOD("is_using_magnet"), &SkeletonIK3D::is_using_magnet);
 
-    MethodBinder::bind_method(D_METHOD("set_magnet_position", {"local_position"}), &SkeletonIK::set_magnet_position);
-    MethodBinder::bind_method(D_METHOD("get_magnet_position"), &SkeletonIK::get_magnet_position);
+    MethodBinder::bind_method(D_METHOD("set_magnet_position", {"local_position"}), &SkeletonIK3D::set_magnet_position);
+    MethodBinder::bind_method(D_METHOD("get_magnet_position"), &SkeletonIK3D::get_magnet_position);
 
-    MethodBinder::bind_method(D_METHOD("get_parent_skeleton"), &SkeletonIK::get_parent_skeleton);
-    MethodBinder::bind_method(D_METHOD("is_running"), &SkeletonIK::is_running);
+    MethodBinder::bind_method(D_METHOD("get_parent_skeleton"), &SkeletonIK3D::get_parent_skeleton);
+    MethodBinder::bind_method(D_METHOD("is_running"), &SkeletonIK3D::is_running);
 
-    MethodBinder::bind_method(D_METHOD("set_min_distance", {"min_distance"}), &SkeletonIK::set_min_distance);
-    MethodBinder::bind_method(D_METHOD("get_min_distance"), &SkeletonIK::get_min_distance);
+    MethodBinder::bind_method(D_METHOD("set_min_distance", {"min_distance"}), &SkeletonIK3D::set_min_distance);
+    MethodBinder::bind_method(D_METHOD("get_min_distance"), &SkeletonIK3D::get_min_distance);
 
-    MethodBinder::bind_method(D_METHOD("set_max_iterations", {"iterations"}), &SkeletonIK::set_max_iterations);
-    MethodBinder::bind_method(D_METHOD("get_max_iterations"), &SkeletonIK::get_max_iterations);
+    MethodBinder::bind_method(D_METHOD("set_max_iterations", {"iterations"}), &SkeletonIK3D::set_max_iterations);
+    MethodBinder::bind_method(D_METHOD("get_max_iterations"), &SkeletonIK3D::get_max_iterations);
 
-    MethodBinder::bind_method(D_METHOD("start", {"one_time"}), &SkeletonIK::start, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("stop"), &SkeletonIK::stop);
+    MethodBinder::bind_method(D_METHOD("start", {"one_time"}), &SkeletonIK3D::start, {DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("stop"), &SkeletonIK3D::stop);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "root_bone"), "set_root_bone", "get_root_bone");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "tip_bone"), "set_tip_bone", "get_tip_bone");
@@ -405,7 +405,7 @@ void SkeletonIK::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_iterations"), "set_max_iterations", "get_max_iterations");
 }
 
-void SkeletonIK::_notification(int p_what) {
+void SkeletonIK3D::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
             skeleton = object_cast<Skeleton>(get_parent());
@@ -426,7 +426,7 @@ void SkeletonIK::_notification(int p_what) {
     }
 }
 
-SkeletonIK::SkeletonIK() :
+SkeletonIK3D::SkeletonIK3D() :
         interpolation(1),
         override_tip_basis(true),
         use_magnet(false),
@@ -437,93 +437,93 @@ SkeletonIK::SkeletonIK() :
         task(nullptr) {
 }
 
-SkeletonIK::~SkeletonIK() {
+SkeletonIK3D::~SkeletonIK3D() {
     FabrikInverseKinematic::free_task(task);
     task = nullptr;
 }
 
-void SkeletonIK::set_root_bone(const StringName &p_root_bone) {
+void SkeletonIK3D::set_root_bone(const StringName &p_root_bone) {
     root_bone = p_root_bone;
     reload_chain();
 }
 
-StringName SkeletonIK::get_root_bone() const {
+StringName SkeletonIK3D::get_root_bone() const {
     return root_bone;
 }
 
-void SkeletonIK::set_tip_bone(const StringName &p_tip_bone) {
+void SkeletonIK3D::set_tip_bone(const StringName &p_tip_bone) {
     tip_bone = p_tip_bone;
     reload_chain();
 }
 
-StringName SkeletonIK::get_tip_bone() const {
+StringName SkeletonIK3D::get_tip_bone() const {
     return tip_bone;
 }
 
-void SkeletonIK::set_interpolation(real_t p_interpolation) {
+void SkeletonIK3D::set_interpolation(real_t p_interpolation) {
     interpolation = p_interpolation;
 }
 
-real_t SkeletonIK::get_interpolation() const {
+real_t SkeletonIK3D::get_interpolation() const {
     return interpolation;
 }
 
-void SkeletonIK::set_target_transform(const Transform &p_target) {
+void SkeletonIK3D::set_target_transform(const Transform &p_target) {
     target = p_target;
     reload_goal();
 }
 
-const Transform &SkeletonIK::get_target_transform() const {
+const Transform &SkeletonIK3D::get_target_transform() const {
     return target;
 }
 
-void SkeletonIK::set_target_node(const NodePath &p_node) {
+void SkeletonIK3D::set_target_node(const NodePath &p_node) {
     target_node_path_override = p_node;
     target_node_override = nullptr;
     reload_goal();
 }
 
-NodePath SkeletonIK::get_target_node() {
+NodePath SkeletonIK3D::get_target_node() {
     return target_node_path_override;
 }
 
-void SkeletonIK::set_override_tip_basis(bool p_override) {
+void SkeletonIK3D::set_override_tip_basis(bool p_override) {
     override_tip_basis = p_override;
 }
 
-bool SkeletonIK::is_override_tip_basis() const {
+bool SkeletonIK3D::is_override_tip_basis() const {
     return override_tip_basis;
 }
 
-void SkeletonIK::set_use_magnet(bool p_use) {
+void SkeletonIK3D::set_use_magnet(bool p_use) {
     use_magnet = p_use;
 }
 
-bool SkeletonIK::is_using_magnet() const {
+bool SkeletonIK3D::is_using_magnet() const {
     return use_magnet;
 }
 
-void SkeletonIK::set_magnet_position(const Vector3 &p_local_position) {
+void SkeletonIK3D::set_magnet_position(const Vector3 &p_local_position) {
     magnet_position = p_local_position;
 }
 
-const Vector3 &SkeletonIK::get_magnet_position() const {
+const Vector3 &SkeletonIK3D::get_magnet_position() const {
     return magnet_position;
 }
 
-void SkeletonIK::set_min_distance(real_t p_min_distance) {
+void SkeletonIK3D::set_min_distance(real_t p_min_distance) {
     min_distance = p_min_distance;
 }
 
-void SkeletonIK::set_max_iterations(int p_iterations) {
+void SkeletonIK3D::set_max_iterations(int p_iterations) {
     max_iterations = p_iterations;
 }
 
-bool SkeletonIK::is_running() {
+bool SkeletonIK3D::is_running() {
     return is_processing_internal();
 }
 
-void SkeletonIK::start(bool p_one_time) {
+void SkeletonIK3D::start(bool p_one_time) {
     if (p_one_time) {
         set_process_internal(false);
         _solve_chain();
@@ -532,11 +532,11 @@ void SkeletonIK::start(bool p_one_time) {
     }
 }
 
-void SkeletonIK::stop() {
+void SkeletonIK3D::stop() {
     set_process_internal(false);
 }
 
-Transform SkeletonIK::_get_target_transform() {
+Transform SkeletonIK3D::_get_target_transform() {
 
     if (!target_node_override && !target_node_path_override.is_empty())
         target_node_override = object_cast<Node3D>(get_node(target_node_path_override));
@@ -547,7 +547,7 @@ Transform SkeletonIK::_get_target_transform() {
         return target;
 }
 
-void SkeletonIK::reload_chain() {
+void SkeletonIK3D::reload_chain() {
 
     FabrikInverseKinematic::free_task(task);
     task = nullptr;
@@ -562,14 +562,14 @@ void SkeletonIK::reload_chain() {
     }
 }
 
-void SkeletonIK::reload_goal() {
+void SkeletonIK3D::reload_goal() {
     if (!task)
         return;
 
     FabrikInverseKinematic::set_goal(task, _get_target_transform());
 }
 
-void SkeletonIK::_solve_chain() {
+void SkeletonIK3D::_solve_chain() {
     if (!task)
         return;
     FabrikInverseKinematic::solve(task, interpolation, override_tip_basis, use_magnet, magnet_position);

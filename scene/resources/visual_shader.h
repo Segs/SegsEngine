@@ -87,11 +87,11 @@ public:
     } graph[TYPE_MAX];
 
     mutable String previous_code;
-    ShaderMode shader_mode;
+    RenderingServerEnums::ShaderMode shader_mode;
     Vector2 graph_offset;
 
     struct RenderModeEnums {
-        ShaderMode mode;
+        RenderingServerEnums::ShaderMode mode;
         const char *string;
     };
 
@@ -143,8 +143,8 @@ public:
     void rebuild();
     void get_node_connections(Type p_type, ListOld<Connection> *r_connections) const;
 
-    void set_mode(ShaderMode p_mode);
-    ShaderMode get_mode() const override;
+    void set_mode(RenderingServerEnums::ShaderMode p_mode);
+    RenderingServerEnums::ShaderMode get_mode() const override;
 
     bool is_text_shader() const override;
 
@@ -211,12 +211,12 @@ public:
     virtual Vector<StringName> get_editable_properties() const;
 
     virtual Vector<VisualShader::DefaultTextureParam> get_default_texture_parameters(VisualShader::Type p_type, int p_id) const;
-    virtual String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual String generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
-    virtual String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const = 0; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
+    virtual String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_global_per_node(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_global_per_func(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const;
+    virtual String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const = 0; //if no output is connected, the output var passed will be empty. if no input is connected and input is NIL, the input var passed will be empty
 
-    virtual StringName get_warning(ShaderMode p_mode, VisualShader::Type p_type) const;
+    virtual StringName get_warning(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type) const;
 
 
     VisualShaderNode();
@@ -247,8 +247,8 @@ protected:
     StringName get_output_port_name(int p_port) const override;
 
 protected:
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
-    String generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_global_per_node(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 
     static void _bind_methods();
 
@@ -264,10 +264,10 @@ class VisualShaderNodeInput : public VisualShaderNode {
 
     friend class VisualShader;
     VisualShader::Type shader_type;
-    ShaderMode shader_mode;
+    RenderingServerEnums::ShaderMode shader_mode;
 
     struct Port {
-        ShaderMode mode;
+        RenderingServerEnums::ShaderMode mode;
         VisualShader::Type shader_type;
         PortType type;
         const char *name;
@@ -294,7 +294,7 @@ public:
 
     StringView get_caption() const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     void set_input_name(StringName p_name);
     StringName get_input_name() const;
@@ -319,10 +319,10 @@ class VisualShaderNodeOutput : public VisualShaderNode {
 public:
     friend class VisualShader;
     VisualShader::Type shader_type;
-    ShaderMode shader_mode;
+    RenderingServerEnums::ShaderMode shader_mode;
 
     struct Port {
-        ShaderMode mode;
+        RenderingServerEnums::ShaderMode mode;
         VisualShader::Type shader_type;
         PortType type;
         const char *name;
@@ -345,7 +345,7 @@ public:
 
     StringView get_caption() const override;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeOutput();
 };
@@ -434,7 +434,7 @@ public:
     void set_editable(bool p_enabled);
     bool is_editable() const;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeGroupBase();
 };
@@ -453,7 +453,7 @@ public:
     void set_expression(const String &p_expression);
     String get_expression() const;
 
-    String generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
 
     VisualShaderNodeExpression();
 };
@@ -464,7 +464,7 @@ class VisualShaderNodeGlobalExpression : public VisualShaderNodeExpression {
 public:
     StringView get_caption() const override;
 
-    String generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
+    String generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const override;
 
     VisualShaderNodeGlobalExpression();
 };

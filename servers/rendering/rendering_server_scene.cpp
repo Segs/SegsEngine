@@ -1245,7 +1245,7 @@ _FORCE_INLINE_ static void _light_capture_sample_octree(const RasterizerStorage:
 
     for (int c = 0; c < 2; c++) {
 
-        int current_level = MAX(0, target_level - c);
+        int current_level = M_MAX(0, target_level - c);
         int level_cell_size = (1 << (p_cell_subdiv - 1)) >> current_level;
 
         for (int n = 0; n < 8; n++) {
@@ -1323,7 +1323,7 @@ _FORCE_INLINE_ static void _light_capture_sample_octree(const RasterizerStorage:
     pos_fract[0].y = Math::fmod(pos.y, target_level_size) / target_level_size;
     pos_fract[0].z = Math::fmod(pos.z, target_level_size) / target_level_size;
 
-    target_level_size = size >> MAX(0, target_level - 1);
+    target_level_size = size >> M_MAX(0, target_level - 1);
 
     pos_fract[1].x = Math::fmod(pos.x, target_level_size) / target_level_size;
     pos_fract[1].y = Math::fmod(pos.y, target_level_size) / target_level_size;
@@ -1374,7 +1374,7 @@ _FORCE_INLINE_ static Color _light_capture_voxel_cone_trace(const RasterizerStor
     float salpha;
 
     while (dist < max_distance && alpha < 0.95f) {
-        float diameter = MAX(1.0, 2.0f * p_aperture * dist);
+        float diameter = M_MAX(1.0, 2.0f * p_aperture * dist);
         _light_capture_sample_octree(p_octree, p_cell_subdiv, p_pos + dist * p_dir, p_dir, log2(diameter), scolor, salpha);
         float a = (1.0f - alpha);
         color += scolor * a;
@@ -1456,7 +1456,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
             if (shadow_max > 0 && !p_cam_orthogonal) { //its impractical (and leads to unwanted behaviors) to set max distance in orthogonal camera
                 max_distance = MIN(shadow_max, max_distance);
             }
-            max_distance = MAX(max_distance, p_cam_projection.get_z_near() + 0.001f);
+            max_distance = M_MAX(max_distance, p_cam_projection.get_z_near() + 0.001f);
             float min_distance = MIN(p_cam_projection.get_z_near(), max_distance);
 
             RS::LightDirectionalShadowDepthRangeMode depth_range_mode = VSG::storage->light_directional_get_shadow_depth_range_mode(p_instance->base);
@@ -1502,7 +1502,7 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                 }
 
                 if (found_items) {
-                    min_distance = MAX(min_distance, z_min);
+                    min_distance = M_MAX(min_distance, z_min);
                     max_distance = MIN(max_distance, z_max);
                 }
             }
@@ -2384,7 +2384,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
         Vector3 edge = view_normals[p_step] * extents;
         float distance = ABS(view_normals[p_step].dot(edge) - view_normals[p_step].dot(origin_offset)); //distance from origin offset to actual view distance limit
 
-        max_distance = MAX(max_distance, distance);
+        max_distance = M_MAX(max_distance, distance);
 
         //render cubemap side
         CameraMatrix cm;
@@ -3165,7 +3165,7 @@ void VisualServerScene::_bake_gi_probe(Instance *p_gi_probe) {
                     //find max distance in normal from average
                     for (uint32_t j = 0; j < b.source_count; j++) {
                         float d = average.dot(colors[j]);
-                        distance = MAX(d, distance);
+                        distance = M_MAX(d, distance);
                     }
 
                     from = Vector3(); //from black

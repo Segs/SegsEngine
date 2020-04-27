@@ -1097,7 +1097,7 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
     }
 
     String s = p_string;
-    int allowed_chars = MIN(MAX(sdr->max_cps - sdr->char_count, 0), s.length());
+    int allowed_chars = MIN(M_MAX(sdr->max_cps - sdr->char_count, 0), s.length());
 
     if (allowed_chars == 0)
         return;

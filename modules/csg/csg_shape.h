@@ -34,7 +34,7 @@
 
 #include "csg.h"
 #include "scene/3d/visual_instance_3d.h"
-#include "scene/resources/concave_polygon_shape.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
 #include "thirdparty/misc/mikktspace.h"
 
 class Mesh;
@@ -65,7 +65,7 @@ private:
     bool use_collision;
     uint32_t collision_layer;
     uint32_t collision_mask;
-    Ref<ConcavePolygonShape> root_collision_shape;
+    Ref<ConcavePolygonShape3D> root_collision_shape;
     RID root_collision_instance;
 
     bool calculate_tangents;

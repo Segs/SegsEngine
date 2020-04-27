@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  convex_polygon_shape.h                                               */
+/*  box_shape_3d.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,27 +31,27 @@
 #pragma once
 
 #include "scene/resources/shape.h"
-#include "core/pool_vector.h"
+#include "core/math/vector3.h"
 
-class ConvexPolygonShape : public Shape {
+class BoxShape3D : public Shape {
 
-    GDCLASS(ConvexPolygonShape,Shape)
+    GDCLASS(BoxShape3D,Shape)
 
-    Vector<Vector3> points;
+    Vector3 extents;
 
 protected:
     static void _bind_methods();
 
     void _update_shape() override;
-
     Vector<Vector3> get_debug_mesh_lines() override;
 
 public:
-    void set_points(Vector<Vector3> &&p_points);
-    const Vector<Vector3> &get_points() const { return points; }
+    void set_extents(const Vector3 &p_extents);
+    Vector3 get_extents() const;
+    /// Returns the radius of a sphere that fully enclose this shape
+    real_t get_enclosing_radius() const override {
+        return extents.length();
+    }
 
-    real_t get_enclosing_radius() const override;
-
-
-    ConvexPolygonShape();
+    BoxShape3D();
 };

@@ -484,7 +484,7 @@ void JoypadOSX::process_joypads() {
                 if (strength.x == 0 && strength.y == 0) {
                     joypad_vibration_stop(joy.id, timestamp);
                 } else {
-                    float gain = MAX(strength.x, strength.y);
+                    float gain = M_MAX(strength.x, strength.y);
                     joypad_vibration_start(joy.id, gain, duration, timestamp);
                 }
             }

@@ -282,7 +282,7 @@ void Viewport::_own_world_changed() {
         _propagate_exit_world(this);
     }
 
-    own_world = dynamic_ref_cast<World>(world->duplicate());
+    own_world = dynamic_ref_cast<World3D>(world->duplicate());
 
     if (is_inside_tree()) {
         _propagate_enter_world(this);
@@ -439,7 +439,7 @@ void Viewport::_notification(int p_what) {
                 CollisionObject3D *last_object = nullptr;
                 ObjectID last_id = 0;
 #endif
-                PhysicsDirectSpaceState::RayResult result;
+                PhysicsDirectSpaceState3D::RayResult result;
                 PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
 
                 if (physics_has_last_mousepos) {
@@ -653,7 +653,7 @@ void Viewport::_notification(int p_what) {
                             Vector3 from = camera->project_ray_origin(pos);
                             Vector3 dir = camera->project_ray_normal(pos);
 
-                            PhysicsDirectSpaceState *space = PhysicsServer3D::get_singleton()->space_get_direct_state(find_world()->get_space());
+                            PhysicsDirectSpaceState3D *space = PhysicsServer3D::get_singleton()->space_get_direct_state(find_world()->get_space());
                             if (space) {
 
                                 bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
@@ -1137,7 +1137,7 @@ void Viewport::_propagate_exit_world(Node *p_node) {
     }
 }
 
-void Viewport::set_world(const Ref<World> &p_world) {
+void Viewport::set_world(const Ref<World3D> &p_world) {
 
     if (world == p_world)
         return;
@@ -1151,10 +1151,10 @@ void Viewport::set_world(const Ref<World> &p_world) {
     world = p_world;
     if (own_world) {
         if (world) {
-            own_world = dynamic_ref_cast<World>(world->duplicate());
+            own_world = dynamic_ref_cast<World3D>(world->duplicate());
             world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         } else {
-            own_world = Ref<World>(memnew(World));
+            own_world = Ref<World3D>(memnew(World3D));
         }
     }
 
@@ -1168,7 +1168,7 @@ void Viewport::set_world(const Ref<World> &p_world) {
     _update_listener();
 }
 
-Ref<World> Viewport::get_world() const {
+Ref<World3D> Viewport::get_world() const {
 
     return world;
 }
@@ -1178,7 +1178,7 @@ Ref<World2D> Viewport::get_world_2d() const {
     return world_2d;
 }
 
-Ref<World> Viewport::find_world() const {
+Ref<World3D> Viewport::find_world() const {
 
     if (own_world)
         return own_world;
@@ -1187,7 +1187,7 @@ Ref<World> Viewport::find_world() const {
     else if (parent)
         return parent->find_world();
     else
-        return Ref<World>();
+        return Ref<World3D>();
 }
 
 Listener3D *Viewport::get_listener() const {
@@ -2871,16 +2871,16 @@ void Viewport::set_use_own_world(bool p_world) {
         _propagate_exit_world(this);
 
     if (!p_world) {
-        own_world = Ref<World>();
+        own_world = Ref<World3D>();
         if (world) {
             world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         }
     } else {
         if (world) {
-            own_world = dynamic_ref_cast<World>(world->duplicate());
+            own_world = dynamic_ref_cast<World3D>(world->duplicate());
             world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         } else {
-            own_world = make_ref_counted<World>();
+            own_world = make_ref_counted<World3D>();
         }
     }
 
@@ -3238,7 +3238,7 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "size_override_stretch"), "set_size_override_stretch", "is_size_override_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "own_world"), "set_use_own_world", "is_using_own_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World"), "set_world", "get_world");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World3D"), "set_world", "get_world");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PropertyHint::ResourceType, "World2D", 0), "set_world_2d", "get_world_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");

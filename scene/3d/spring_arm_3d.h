@@ -38,7 +38,7 @@ class Shape;
 class SpringArm3D : public Node3D {
     GDCLASS(SpringArm3D,Node3D)
 
-	Ref<Shape> shape;
+    Ref<Shape> shape;
     HashSet<RID> excluded_objects;
     float spring_length=1.0f;
     float current_spring_length=0.0f;
@@ -47,25 +47,25 @@ class SpringArm3D : public Node3D {
     bool keep_child_basis=false;
 
 protected:
-	void _notification(int p_what);
-	static void _bind_methods();
+    void _notification(int p_what);
+    static void _bind_methods();
 
 public:
-	void set_length(float p_length);
-	float get_length() const;
-	void set_shape(const Ref<Shape>& p_shape);
-	Ref<Shape> get_shape() const;
-	void set_mask(uint32_t p_mask);
-    uint32_t get_mask() { return mask; }
-	void add_excluded_object(RID p_rid);
-	bool remove_excluded_object(RID p_rid);
-	void clear_excluded_objects();
+    void set_length(float p_length);
+    float get_length() const;
+    void set_shape(const Ref<Shape>& p_shape);
+    Ref<Shape> get_shape() const;
+    void set_collision_mask(uint32_t p_mask);
+    uint32_t get_collision_mask() { return mask; }
+    void add_excluded_object(RID p_rid);
+    bool remove_excluded_object(RID p_rid);
+    void clear_excluded_objects();
     float get_hit_length() const { return current_spring_length; }
-	void set_margin(float p_margin);
+    void set_margin(float p_margin);
     float get_margin() const { return margin; }
 
     SpringArm3D();
 
 private:
-	void process_spring();
+    void process_spring();
 };

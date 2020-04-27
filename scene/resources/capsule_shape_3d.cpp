@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  cylinder_shape.cpp                                                   */
+/*  capsule_shape.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,45 +28,52 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "cylinder_shape.h"
-
+#include "capsule_shape_3d.h"
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 #include "core/math/vector2.h"
 
-IMPL_GDCLASS(CylinderShape)
+IMPL_GDCLASS(CapsuleShape3D)
 
-Vector<Vector3> CylinderShape::get_debug_mesh_lines() {
+Vector<Vector3> CapsuleShape3D::get_debug_mesh_lines() {
 
     float radius = get_radius();
     float height = get_height();
-    Vector3 work_area[360*4 + 3*2];
-    size_t widx=0;
 
-    Vector3 d(0, height * 0.5f, 0);
+    Vector<Vector3> points;
+
+    Vector3 d(0, 0, height * 0.5f);
     for (int i = 0; i < 360; i++) {
 
         float ra = Math::deg2rad((float)i);
         float rb = Math::deg2rad((float)i + 1);
         Point2 a = Vector2(Math::sin(ra), Math::cos(ra)) * radius;
         Point2 b = Vector2(Math::sin(rb), Math::cos(rb)) * radius;
-
-        work_area[widx++] = Vector3(a.x, 0, a.y) + d;
-        work_area[widx++] = Vector3(b.x, 0, b.y) + d;
-
-        work_area[widx++] = Vector3(a.x, 0, a.y) - d;
-        work_area[widx++] = Vector3(b.x, 0, b.y) - d;
-
+        const Vector3 addme[] = {
+            Vector3(a.x, a.y, 0) + d,
+            Vector3(b.x, b.y, 0) + d,
+            Vector3(a.x, a.y, 0) - d,
+            Vector3(b.x, b.y, 0) - d,
+        };
+        points.insert(points.end(),eastl::begin(addme),eastl::end(addme));
         if (i % 90 == 0) {
 
-            work_area[widx++] = Vector3(a.x, 0, a.y) + d;
-            work_area[widx++] = Vector3(a.x, 0, a.y) - d;
+            points.emplace_back(addme[0]);
+            points.emplace_back(addme[2]);
         }
+
+        Vector3 dud = i < 180 ? d : -d;
+
+        points.emplace_back(Vector3(0, a.y, a.x) + dud);
+        points.emplace_back(Vector3(0, b.y, b.x) + dud);
+        points.emplace_back(Vector3(a.y, 0, a.x) + dud);
+        points.emplace_back(Vector3(b.y, 0, b.x) + dud);
     }
-    return {work_area,work_area+widx};
+
+    return points;
 }
 
-void CylinderShape::_update_shape() {
+void CapsuleShape3D::_update_shape() {
 
     Dictionary d;
     d["radius"] = radius;
@@ -75,7 +82,7 @@ void CylinderShape::_update_shape() {
     Shape::_update_shape();
 }
 
-void CylinderShape::set_radius(float p_radius) {
+void CapsuleShape3D::set_radius(float p_radius) {
 
     radius = p_radius;
     _update_shape();
@@ -83,9 +90,12 @@ void CylinderShape::set_radius(float p_radius) {
     Object_change_notify(this,"radius");
 }
 
+float CapsuleShape3D::get_radius() const {
 
+    return radius;
+}
 
-void CylinderShape::set_height(float p_height) {
+void CapsuleShape3D::set_height(float p_height) {
 
     height = p_height;
     _update_shape();
@@ -93,23 +103,26 @@ void CylinderShape::set_height(float p_height) {
     Object_change_notify(this,"height");
 }
 
+float CapsuleShape3D::get_height() const {
 
+    return height;
+}
 
-void CylinderShape::_bind_methods() {
+void CapsuleShape3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CylinderShape::set_radius);
-    MethodBinder::bind_method(D_METHOD("get_radius"), &CylinderShape::get_radius);
-    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CylinderShape::set_height);
-    MethodBinder::bind_method(D_METHOD("get_height"), &CylinderShape::get_height);
+    MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CapsuleShape3D::set_radius);
+    MethodBinder::bind_method(D_METHOD("get_radius"), &CapsuleShape3D::get_radius);
+    MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape3D::set_height);
+    MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape3D::get_height);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,4096,0.01"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.01,4096,0.01"), "set_height", "get_height");
 }
 
-CylinderShape::CylinderShape() :
-        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CYLINDER)) {
+CapsuleShape3D::CapsuleShape3D() :
+        Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_CAPSULE)) {
 
     radius = 1.0;
-    height = 2.0;
+    height = 1.0;
     _update_shape();
 }

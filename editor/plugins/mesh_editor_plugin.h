@@ -48,7 +48,7 @@ class MeshEditor : public ViewportContainer {
     float rot_y;
 
     Viewport *viewport;
-    MeshInstance *mesh_instance;
+    MeshInstance3D *mesh_instance;
     Node3D *rotation;
     DirectionalLight3D *light1;
     DirectionalLight3D *light2;

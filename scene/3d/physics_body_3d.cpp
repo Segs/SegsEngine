@@ -48,15 +48,15 @@
 
 IMPL_GDCLASS(PhysicsBody3D)
 IMPL_GDCLASS(RigidBody)
-IMPL_GDCLASS(KinematicBody)
+IMPL_GDCLASS(KinematicBody3D)
 IMPL_GDCLASS(KinematicCollision)
-IMPL_GDCLASS(PhysicalBone)
-IMPL_GDCLASS(StaticBody)
+IMPL_GDCLASS(PhysicalBone3D)
+IMPL_GDCLASS(StaticBody3D)
 
 //TODO: SEGS: this is duplicating instantiation in physics_server_3d.cpp
 VARIANT_ENUM_CAST(PhysicsServer3D::BodyAxis);
 VARIANT_ENUM_CAST(RigidBody::Mode);
-VARIANT_ENUM_CAST(PhysicalBone::JointType);
+VARIANT_ENUM_CAST(PhysicalBone3D::JointType);
 
 
 void PhysicsBody3D::_notification(int p_what) {
@@ -201,7 +201,7 @@ PhysicsBody3D::PhysicsBody3D(PhysicsServer3D::BodyMode p_mode) :
 //WARN_DEPRECATED_MSG("The method set_bounce has been deprecated and will be removed in the future, use physics material instead.");
 //WARN_DEPRECATED_MSG("The method get_bounce has been deprecated and will be removed in the future, use physics material instead.");
 
-void StaticBody::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
+void StaticBody3D::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
     if (physics_material_override) {
         if (physics_material_override->is_connected(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics"))
             physics_material_override->disconnect(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics");
@@ -215,42 +215,42 @@ void StaticBody::set_physics_material_override(const Ref<PhysicsMaterial> &p_phy
     _reload_physics_characteristics();
 }
 
-Ref<PhysicsMaterial> StaticBody::get_physics_material_override() const {
+Ref<PhysicsMaterial> StaticBody3D::get_physics_material_override() const {
     return physics_material_override;
 }
 
-void StaticBody::set_constant_linear_velocity(const Vector3 &p_vel) {
+void StaticBody3D::set_constant_linear_velocity(const Vector3 &p_vel) {
 
     constant_linear_velocity = p_vel;
     PhysicsServer3D::get_singleton()->body_set_state(get_rid(), PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY, constant_linear_velocity);
 }
 
-void StaticBody::set_constant_angular_velocity(const Vector3 &p_vel) {
+void StaticBody3D::set_constant_angular_velocity(const Vector3 &p_vel) {
 
     constant_angular_velocity = p_vel;
     PhysicsServer3D::get_singleton()->body_set_state(get_rid(), PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY, constant_angular_velocity);
 }
 
-Vector3 StaticBody::get_constant_linear_velocity() const {
+Vector3 StaticBody3D::get_constant_linear_velocity() const {
 
     return constant_linear_velocity;
 }
-Vector3 StaticBody::get_constant_angular_velocity() const {
+Vector3 StaticBody3D::get_constant_angular_velocity() const {
 
     return constant_angular_velocity;
 }
 
-void StaticBody::_bind_methods() {
+void StaticBody3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_constant_linear_velocity", {"vel"}), &StaticBody::set_constant_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("set_constant_angular_velocity", {"vel"}), &StaticBody::set_constant_angular_velocity);
-    MethodBinder::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody::get_constant_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody::get_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_linear_velocity", {"vel"}), &StaticBody3D::set_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_constant_angular_velocity", {"vel"}), &StaticBody3D::set_constant_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_linear_velocity"), &StaticBody3D::get_constant_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_constant_angular_velocity"), &StaticBody3D::get_constant_angular_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &StaticBody::set_physics_material_override);
-    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody::get_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &StaticBody3D::set_physics_material_override);
+    MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody3D::get_physics_material_override);
 
-    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody::_reload_physics_characteristics);
+    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody3D::_reload_physics_characteristics);
 
     MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody3D::get_collision_exceptions);
     MethodBinder::bind_method(D_METHOD("add_collision_exception_with", {"body"}), &PhysicsBody3D::add_collision_exception_with);
@@ -261,13 +261,13 @@ void StaticBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "constant_angular_velocity"), "set_constant_angular_velocity", "get_constant_angular_velocity");
 }
 
-StaticBody::StaticBody() :
+StaticBody3D::StaticBody3D() :
         PhysicsBody3D(PhysicsServer3D::BODY_MODE_STATIC) {
 }
 
-StaticBody::~StaticBody() {}
+StaticBody3D::~StaticBody3D() {}
 
-void StaticBody::_reload_physics_characteristics() {
+void StaticBody3D::_reload_physics_characteristics() {
     if (not physics_material_override) {
         PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_BOUNCE, 0);
         PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_FRICTION, 1);
@@ -396,9 +396,9 @@ struct _RigidBodyInOut {
 void RigidBody::_direct_state_changed(Object *p_state) {
 
 #ifdef DEBUG_ENABLED
-    state = object_cast<PhysicsDirectBodyState>(p_state);
+    state = object_cast<PhysicsDirectBodyState3D>(p_state);
 #else
-    state = (PhysicsDirectBodyState *)p_state; //trust it
+    state = (PhysicsDirectBodyState3D *)p_state; //trust it
 #endif
 
     set_ignore_transform_notification(true);
@@ -897,7 +897,7 @@ void RigidBody::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_colliding_bodies"), &RigidBody::get_colliding_bodies);
 
-    BIND_VMETHOD(MethodInfo("_integrate_forces", PropertyInfo(VariantType::OBJECT, "state", PropertyHint::ResourceType, "PhysicsDirectBodyState")));
+    BIND_VMETHOD(MethodInfo("_integrate_forces", PropertyInfo(VariantType::OBJECT, "state", PropertyHint::ResourceType, "PhysicsDirectBodyState3D")));
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Rigid,Static,Character,Kinematic"), "set_mode", "get_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mass", PropertyHint::ExpRange, "0.01,65535,0.01"), "set_mass", "get_mass");
@@ -980,7 +980,7 @@ void RigidBody::_reload_physics_characteristics() {
 //////////////////////////////////////////////////////
 //////////////////////////
 
-Ref<KinematicCollision> KinematicBody::_move(const Vector3 &p_motion, bool p_infinite_inertia, bool p_exclude_raycast_shapes, bool p_test_only) {
+Ref<KinematicCollision> KinematicBody3D::_move(const Vector3 &p_motion, bool p_infinite_inertia, bool p_exclude_raycast_shapes, bool p_test_only) {
 
     Collision col;
     if (move_and_collide(p_motion, p_infinite_inertia, col, p_exclude_raycast_shapes, p_test_only)) {
@@ -997,7 +997,7 @@ Ref<KinematicCollision> KinematicBody::_move(const Vector3 &p_motion, bool p_inf
     return Ref<KinematicCollision>();
 }
 
-bool KinematicBody::move_and_collide(const Vector3 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes, bool p_test_only) {
+bool KinematicBody3D::move_and_collide(const Vector3 &p_motion, bool p_infinite_inertia, Collision &r_collision, bool p_exclude_raycast_shapes, bool p_test_only) {
 
     Transform gt = get_global_transform();
     PhysicsServer3D::MotionResult result;
@@ -1033,7 +1033,7 @@ bool KinematicBody::move_and_collide(const Vector3 &p_motion, bool p_infinite_in
 //so, if you pass 45 as limit, avoid numerical precision errors when angle is 45.
 static constexpr float FLOOR_ANGLE_THRESHOLD = 0.01f;
 
-Vector3 KinematicBody::move_and_slide(const Vector3 &p_linear_velocity, const Vector3 &p_up_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
+Vector3 KinematicBody3D::move_and_slide(const Vector3 &p_linear_velocity, const Vector3 &p_up_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
 
     Vector3 body_velocity = p_linear_velocity;
     Vector3 body_velocity_normal = body_velocity.normalized();
@@ -1127,7 +1127,7 @@ Vector3 KinematicBody::move_and_slide(const Vector3 &p_linear_velocity, const Ve
     return body_velocity;
 }
 
-Vector3 KinematicBody::move_and_slide_with_snap(const Vector3 &p_linear_velocity, const Vector3 &p_snap, const Vector3 &p_up_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
+Vector3 KinematicBody3D::move_and_slide_with_snap(const Vector3 &p_linear_velocity, const Vector3 &p_snap, const Vector3 &p_up_direction, bool p_stop_on_slope, int p_max_slides, float p_floor_max_angle, bool p_infinite_inertia) {
 
     bool was_on_floor = on_floor;
 
@@ -1166,32 +1166,32 @@ Vector3 KinematicBody::move_and_slide_with_snap(const Vector3 &p_linear_velocity
     return ret;
 }
 
-bool KinematicBody::is_on_floor() const {
+bool KinematicBody3D::is_on_floor() const {
 
     return on_floor;
 }
 
-bool KinematicBody::is_on_wall() const {
+bool KinematicBody3D::is_on_wall() const {
 
     return on_wall;
 }
-bool KinematicBody::is_on_ceiling() const {
+bool KinematicBody3D::is_on_ceiling() const {
 
     return on_ceiling;
 }
-Vector3 KinematicBody::get_floor_normal() const {
+Vector3 KinematicBody3D::get_floor_normal() const {
 
     return floor_normal;
 }
 
-bool KinematicBody::test_move(const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia) {
+bool KinematicBody3D::test_move(const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia) {
 
     ERR_FAIL_COND_V(!is_inside_tree(), false);
 
     return PhysicsServer3D::get_singleton()->body_test_motion(get_rid(), p_from, p_motion, p_infinite_inertia);
 }
 
-bool KinematicBody::separate_raycast_shapes(bool p_infinite_inertia, Collision &r_collision) {
+bool KinematicBody3D::separate_raycast_shapes(bool p_infinite_inertia, Collision &r_collision) {
 
     PhysicsServer3D::SeparationResult sep_res[8]; //max 8 rays
 
@@ -1228,35 +1228,35 @@ bool KinematicBody::separate_raycast_shapes(bool p_infinite_inertia, Collision &
     }
 }
 
-void KinematicBody::set_axis_lock(PhysicsServer3D::BodyAxis p_axis, bool p_lock) {
+void KinematicBody3D::set_axis_lock(PhysicsServer3D::BodyAxis p_axis, bool p_lock) {
     PhysicsServer3D::get_singleton()->body_set_axis_lock(get_rid(), p_axis, p_lock);
 }
 
-bool KinematicBody::get_axis_lock(PhysicsServer3D::BodyAxis p_axis) const {
+bool KinematicBody3D::get_axis_lock(PhysicsServer3D::BodyAxis p_axis) const {
     return PhysicsServer3D::get_singleton()->body_is_axis_locked(get_rid(), p_axis);
 }
 
-void KinematicBody::set_safe_margin(float p_margin) {
+void KinematicBody3D::set_safe_margin(float p_margin) {
 
     margin = p_margin;
     PhysicsServer3D::get_singleton()->body_set_kinematic_safe_margin(get_rid(), margin);
 }
 
-float KinematicBody::get_safe_margin() const {
+float KinematicBody3D::get_safe_margin() const {
 
     return margin;
 }
-int KinematicBody::get_slide_count() const {
+int KinematicBody3D::get_slide_count() const {
 
     return colliders.size();
 }
 
-KinematicBody::Collision KinematicBody::get_slide_collision(int p_bounce) const {
+KinematicBody3D::Collision KinematicBody3D::get_slide_collision(int p_bounce) const {
     ERR_FAIL_INDEX_V(p_bounce, colliders.size(), Collision());
     return colliders[p_bounce];
 }
 
-Ref<KinematicCollision> KinematicBody::_get_slide_collision(int p_bounce) {
+Ref<KinematicCollision> KinematicBody3D::_get_slide_collision(int p_bounce) {
 
     ERR_FAIL_INDEX_V(p_bounce, colliders.size(), Ref<KinematicCollision>());
     if (p_bounce >= slide_colliders.size()) {
@@ -1272,7 +1272,7 @@ Ref<KinematicCollision> KinematicBody::_get_slide_collision(int p_bounce) {
     return slide_colliders[p_bounce];
 }
 
-void KinematicBody::_notification(int p_what) {
+void KinematicBody3D::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
         // Reset move_and_slide() data.
         on_floor = false;
@@ -1284,28 +1284,28 @@ void KinematicBody::_notification(int p_what) {
     }
 }
 
-void KinematicBody::_bind_methods() {
+void KinematicBody3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("move_and_collide", {"rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"}), &KinematicBody::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("move_and_slide", {"linear_velocity", "up_direction", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"}), &KinematicBody::move_and_slide, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("move_and_slide_with_snap", {"linear_velocity", "snap", "up_direction", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"}), &KinematicBody::move_and_slide_with_snap, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_collide", {"rel_vec", "infinite_inertia", "exclude_raycast_shapes", "test_only"}), &KinematicBody3D::_move, {DEFVAL(true), DEFVAL(true), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide", {"linear_velocity", "up_direction", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"}), &KinematicBody3D::move_and_slide, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("move_and_slide_with_snap", {"linear_velocity", "snap", "up_direction", "stop_on_slope", "max_slides", "floor_max_angle", "infinite_inertia"}), &KinematicBody3D::move_and_slide_with_snap, {DEFVAL(Vector3(0, 0, 0)), DEFVAL(false), DEFVAL(4), DEFVAL(Math::deg2rad((float)45)), DEFVAL(true)});
 
-    MethodBinder::bind_method(D_METHOD("test_move", {"from", "rel_vec", "infinite_inertia"}), &KinematicBody::test_move, {DEFVAL(true)});
+    MethodBinder::bind_method(D_METHOD("test_move", {"from", "rel_vec", "infinite_inertia"}), &KinematicBody3D::test_move, {DEFVAL(true)});
 
-    MethodBinder::bind_method(D_METHOD("is_on_floor"), &KinematicBody::is_on_floor);
-    MethodBinder::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody::is_on_ceiling);
-    MethodBinder::bind_method(D_METHOD("is_on_wall"), &KinematicBody::is_on_wall);
-    MethodBinder::bind_method(D_METHOD("get_floor_normal"), &KinematicBody::get_floor_normal);
-    MethodBinder::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody::get_floor_velocity);
+    MethodBinder::bind_method(D_METHOD("is_on_floor"), &KinematicBody3D::is_on_floor);
+    MethodBinder::bind_method(D_METHOD("is_on_ceiling"), &KinematicBody3D::is_on_ceiling);
+    MethodBinder::bind_method(D_METHOD("is_on_wall"), &KinematicBody3D::is_on_wall);
+    MethodBinder::bind_method(D_METHOD("get_floor_normal"), &KinematicBody3D::get_floor_normal);
+    MethodBinder::bind_method(D_METHOD("get_floor_velocity"), &KinematicBody3D::get_floor_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_axis_lock", {"axis", "lock"}), &KinematicBody::set_axis_lock);
-    MethodBinder::bind_method(D_METHOD("get_axis_lock", {"axis"}), &KinematicBody::get_axis_lock);
+    MethodBinder::bind_method(D_METHOD("set_axis_lock", {"axis", "lock"}), &KinematicBody3D::set_axis_lock);
+    MethodBinder::bind_method(D_METHOD("get_axis_lock", {"axis"}), &KinematicBody3D::get_axis_lock);
 
-    MethodBinder::bind_method(D_METHOD("set_safe_margin", {"pixels"}), &KinematicBody::set_safe_margin);
-    MethodBinder::bind_method(D_METHOD("get_safe_margin"), &KinematicBody::get_safe_margin);
+    MethodBinder::bind_method(D_METHOD("set_safe_margin", {"pixels"}), &KinematicBody3D::set_safe_margin);
+    MethodBinder::bind_method(D_METHOD("get_safe_margin"), &KinematicBody3D::get_safe_margin);
 
-    MethodBinder::bind_method(D_METHOD("get_slide_count"), &KinematicBody::get_slide_count);
-    MethodBinder::bind_method(D_METHOD("get_slide_collision", {"slide_idx"}), &KinematicBody::_get_slide_collision);
+    MethodBinder::bind_method(D_METHOD("get_slide_count"), &KinematicBody3D::get_slide_count);
+    MethodBinder::bind_method(D_METHOD("get_slide_collision", {"slide_idx"}), &KinematicBody3D::_get_slide_collision);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "move_lock_x", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_axis_lock", "get_axis_lock", PhysicsServer3D::BODY_AXIS_LINEAR_X);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "move_lock_y", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_axis_lock", "get_axis_lock", PhysicsServer3D::BODY_AXIS_LINEAR_Y);
@@ -1314,7 +1314,7 @@ void KinematicBody::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "collision/safe_margin", PropertyHint::Range, "0.001,256,0.001"), "set_safe_margin", "get_safe_margin");
 }
 
-KinematicBody::KinematicBody() :
+KinematicBody3D::KinematicBody3D() :
         PhysicsBody3D(PhysicsServer3D::BODY_MODE_KINEMATIC) {
 
     margin = 0.001;
@@ -1323,7 +1323,7 @@ KinematicBody::KinematicBody() :
     on_ceiling = false;
     on_wall = false;
 }
-KinematicBody::~KinematicBody() {
+KinematicBody3D::~KinematicBody3D() {
 
     if (motion_cache) {
         motion_cache->owner = nullptr;
@@ -1430,25 +1430,25 @@ KinematicCollision::KinematicCollision() {
 
 ///////////////////////////////////////
 
-bool PhysicalBone::JointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::JointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     return false;
 }
 
-bool PhysicalBone::JointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::JointData::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void PhysicalBone::JointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::JointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
 }
 
-void PhysicalBone::apply_central_impulse(const Vector3 &p_impulse) {
+void PhysicalBone3D::apply_central_impulse(const Vector3 &p_impulse) {
     PhysicsServer3D::get_singleton()->body_apply_central_impulse(get_rid(), p_impulse);
 }
 
-void PhysicalBone::apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse) {
+void PhysicalBone3D::apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse) {
     PhysicsServer3D::get_singleton()->body_apply_impulse(get_rid(), p_pos, p_impulse);
 }
-bool PhysicalBone::PinJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::PinJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     using namespace eastl;
     if (JointData::_set(p_name, p_value, j)) {
         return true;
@@ -1476,7 +1476,7 @@ bool PhysicalBone::PinJointData::_set(const StringName &p_name, const Variant &p
     return true;
 }
 
-bool PhysicalBone::PinJointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::PinJointData::_get(const StringName &p_name, Variant &r_ret) const {
     using namespace eastl;
     if (JointData::_get(p_name, r_ret)) {
         return true;
@@ -1495,7 +1495,7 @@ bool PhysicalBone::PinJointData::_get(const StringName &p_name, Variant &r_ret) 
     return true;
 }
 
-void PhysicalBone::PinJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::PinJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/bias", PropertyHint::Range, "0.01,0.99,0.01"));
@@ -1503,7 +1503,7 @@ void PhysicalBone::PinJointData::_get_property_list(Vector<PropertyInfo> *p_list
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/impulse_clamp", PropertyHint::Range, "0.0,64.0,0.01"));
 }
 
-bool PhysicalBone::ConeJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::ConeJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     if (JointData::_set(p_name, p_value, j)) {
         return true;
     }
@@ -1540,7 +1540,7 @@ bool PhysicalBone::ConeJointData::_set(const StringName &p_name, const Variant &
     return true;
 }
 
-bool PhysicalBone::ConeJointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::ConeJointData::_get(const StringName &p_name, Variant &r_ret) const {
 
     if (JointData::_get(p_name, r_ret)) {
         return true;
@@ -1563,7 +1563,7 @@ bool PhysicalBone::ConeJointData::_get(const StringName &p_name, Variant &r_ret)
     return true;
 }
 
-void PhysicalBone::ConeJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::ConeJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/swing_span", PropertyHint::Range, "-180,180,0.01"));
@@ -1573,7 +1573,7 @@ void PhysicalBone::ConeJointData::_get_property_list(Vector<PropertyInfo> *p_lis
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/relaxation", PropertyHint::Range, "0.01,16.0,0.01"));
 }
 
-bool PhysicalBone::HingeJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::HingeJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     if (JointData::_set(p_name, p_value, j)) {
         return true;
     }
@@ -1615,7 +1615,7 @@ bool PhysicalBone::HingeJointData::_set(const StringName &p_name, const Variant 
     return true;
 }
 
-bool PhysicalBone::HingeJointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::HingeJointData::_get(const StringName &p_name, Variant &r_ret) const {
     if (JointData::_get(p_name, r_ret)) {
         return true;
     }
@@ -1638,7 +1638,7 @@ bool PhysicalBone::HingeJointData::_get(const StringName &p_name, Variant &r_ret
     return true;
 }
 
-void PhysicalBone::HingeJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::HingeJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::BOOL, "joint_constraints/angular_limit_enabled"));
@@ -1649,7 +1649,7 @@ void PhysicalBone::HingeJointData::_get_property_list(Vector<PropertyInfo> *p_li
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/angular_limit_relaxation", PropertyHint::Range, "0.01,16,0.01"));
 }
 
-bool PhysicalBone::SliderJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::SliderJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     if (JointData::_set(p_name, p_value, j)) {
         return true;
     }
@@ -1711,7 +1711,7 @@ bool PhysicalBone::SliderJointData::_set(const StringName &p_name, const Variant
     return true;
 }
 
-bool PhysicalBone::SliderJointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::SliderJointData::_get(const StringName &p_name, Variant &r_ret) const {
     if (JointData::_get(p_name, r_ret)) {
         return true;
     }
@@ -1742,7 +1742,7 @@ bool PhysicalBone::SliderJointData::_get(const StringName &p_name, Variant &r_re
     return true;
 }
 
-void PhysicalBone::SliderJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::SliderJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
     JointData::_get_property_list(p_list);
 
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/linear_limit_upper"));
@@ -1758,7 +1758,7 @@ void PhysicalBone::SliderJointData::_get_property_list(Vector<PropertyInfo> *p_l
     p_list->push_back(PropertyInfo(VariantType::FLOAT, "joint_constraints/angular_limit_damping", PropertyHint::Range, "0,16.0,0.01"));
 }
 
-bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
+bool PhysicalBone3D::SixDOFJointData::_set(const StringName &p_name, const Variant &p_value, RID j) {
     using namespace eastl;
 
     if (JointData::_set(p_name, p_value, j)) {
@@ -1895,7 +1895,7 @@ bool PhysicalBone::SixDOFJointData::_set(const StringName &p_name, const Variant
     return true;
 }
 
-bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::SixDOFJointData::_get(const StringName &p_name, Variant &r_ret) const {
 
     using namespace eastl;
 
@@ -1970,7 +1970,7 @@ bool PhysicalBone::SixDOFJointData::_get(const StringName &p_name, Variant &r_re
     return true;
 }
 
-void PhysicalBone::SixDOFJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::SixDOFJointData::_get_property_list(Vector<PropertyInfo> *p_list) const {
     const char * axis_names[] = { "x", "y", "z" };
     for (int i = 0; i < 3; ++i) {
         String prefix(String("joint_constraints/") + axis_names[i]);
@@ -1998,7 +1998,7 @@ void PhysicalBone::SixDOFJointData::_get_property_list(Vector<PropertyInfo> *p_l
     }
 }
 
-bool PhysicalBone::_set(const StringName &p_name, const Variant &p_value) {
+bool PhysicalBone3D::_set(const StringName &p_name, const Variant &p_value) {
     if (p_name == "bone_name") {
         set_bone_name(p_value.as<String>());
         return true;
@@ -2017,7 +2017,7 @@ bool PhysicalBone::_set(const StringName &p_name, const Variant &p_value) {
     return false;
 }
 
-bool PhysicalBone::_get(const StringName &p_name, Variant &r_ret) const {
+bool PhysicalBone3D::_get(const StringName &p_name, Variant &r_ret) const {
     if (p_name == "bone_name") {
         r_ret = get_bone_name();
         return true;
@@ -2030,7 +2030,7 @@ bool PhysicalBone::_get(const StringName &p_name, Variant &r_ret) const {
     return false;
 }
 
-void PhysicalBone::_get_property_list(Vector<PropertyInfo> *p_list) const {
+void PhysicalBone3D::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Skeleton *parent = find_skeleton_parent(get_parent());
 
@@ -2054,7 +2054,7 @@ void PhysicalBone::_get_property_list(Vector<PropertyInfo> *p_list) const {
     }
 }
 
-void PhysicalBone::_notification(int p_what) {
+void PhysicalBone3D::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE:
             parent_skeleton = find_skeleton_parent(get_parent());
@@ -2086,7 +2086,7 @@ void PhysicalBone::_notification(int p_what) {
     }
 }
 
-void PhysicalBone::_direct_state_changed(Object *p_state) {
+void PhysicalBone3D::_direct_state_changed(Object *p_state) {
 
     if (!simulate_physics || !_internal_simulate_physics) {
         return;
@@ -2094,12 +2094,12 @@ void PhysicalBone::_direct_state_changed(Object *p_state) {
 
     /// Update bone transform
 
-    PhysicsDirectBodyState *state;
+    PhysicsDirectBodyState3D *state;
 
 #ifdef DEBUG_ENABLED
-    state = object_cast<PhysicsDirectBodyState>(p_state);
+    state = object_cast<PhysicsDirectBodyState3D>(p_state);
 #else
-    state = (PhysicsDirectBodyState *)p_state; //trust it
+    state = (PhysicsDirectBodyState3D *)p_state; //trust it
 #endif
 
     Transform global_transform(state->get_transform());
@@ -2116,43 +2116,43 @@ void PhysicalBone::_direct_state_changed(Object *p_state) {
     }
 }
 
-void PhysicalBone::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("apply_central_impulse", {"impulse"}), &PhysicalBone::apply_central_impulse);
-    MethodBinder::bind_method(D_METHOD("apply_impulse", {"position", "impulse"}), &PhysicalBone::apply_impulse);
+void PhysicalBone3D::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("apply_central_impulse", {"impulse"}), &PhysicalBone3D::apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_impulse", {"position", "impulse"}), &PhysicalBone3D::apply_impulse);
 
-    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &PhysicalBone::_direct_state_changed);
+    MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &PhysicalBone3D::_direct_state_changed);
 
-    MethodBinder::bind_method(D_METHOD("set_joint_type", {"joint_type"}), &PhysicalBone::set_joint_type);
-    MethodBinder::bind_method(D_METHOD("get_joint_type"), &PhysicalBone::get_joint_type);
+    MethodBinder::bind_method(D_METHOD("set_joint_type", {"joint_type"}), &PhysicalBone3D::set_joint_type);
+    MethodBinder::bind_method(D_METHOD("get_joint_type"), &PhysicalBone3D::get_joint_type);
 
-    MethodBinder::bind_method(D_METHOD("set_joint_offset", {"offset"}), &PhysicalBone::set_joint_offset);
-    MethodBinder::bind_method(D_METHOD("get_joint_offset"), &PhysicalBone::get_joint_offset);
+    MethodBinder::bind_method(D_METHOD("set_joint_offset", {"offset"}), &PhysicalBone3D::set_joint_offset);
+    MethodBinder::bind_method(D_METHOD("get_joint_offset"), &PhysicalBone3D::get_joint_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_body_offset", {"offset"}), &PhysicalBone::set_body_offset);
-    MethodBinder::bind_method(D_METHOD("get_body_offset"), &PhysicalBone::get_body_offset);
+    MethodBinder::bind_method(D_METHOD("set_body_offset", {"offset"}), &PhysicalBone3D::set_body_offset);
+    MethodBinder::bind_method(D_METHOD("get_body_offset"), &PhysicalBone3D::get_body_offset);
 
-    MethodBinder::bind_method(D_METHOD("is_static_body"), &PhysicalBone::is_static_body);
+    MethodBinder::bind_method(D_METHOD("is_static_body"), &PhysicalBone3D::is_static_body);
 
-    MethodBinder::bind_method(D_METHOD("get_simulate_physics"), &PhysicalBone::get_simulate_physics);
+    MethodBinder::bind_method(D_METHOD("get_simulate_physics"), &PhysicalBone3D::get_simulate_physics);
 
-    MethodBinder::bind_method(D_METHOD("is_simulating_physics"), &PhysicalBone::is_simulating_physics);
+    MethodBinder::bind_method(D_METHOD("is_simulating_physics"), &PhysicalBone3D::is_simulating_physics);
 
-    MethodBinder::bind_method(D_METHOD("get_bone_id"), &PhysicalBone::get_bone_id);
+    MethodBinder::bind_method(D_METHOD("get_bone_id"), &PhysicalBone3D::get_bone_id);
 
-    MethodBinder::bind_method(D_METHOD("set_mass", {"mass"}), &PhysicalBone::set_mass);
-    MethodBinder::bind_method(D_METHOD("get_mass"), &PhysicalBone::get_mass);
+    MethodBinder::bind_method(D_METHOD("set_mass", {"mass"}), &PhysicalBone3D::set_mass);
+    MethodBinder::bind_method(D_METHOD("get_mass"), &PhysicalBone3D::get_mass);
 
-    MethodBinder::bind_method(D_METHOD("set_weight", {"weight"}), &PhysicalBone::set_weight);
-    MethodBinder::bind_method(D_METHOD("get_weight"), &PhysicalBone::get_weight);
+    MethodBinder::bind_method(D_METHOD("set_weight", {"weight"}), &PhysicalBone3D::set_weight);
+    MethodBinder::bind_method(D_METHOD("get_weight"), &PhysicalBone3D::get_weight);
 
-    MethodBinder::bind_method(D_METHOD("set_friction", {"friction"}), &PhysicalBone::set_friction);
-    MethodBinder::bind_method(D_METHOD("get_friction"), &PhysicalBone::get_friction);
+    MethodBinder::bind_method(D_METHOD("set_friction", {"friction"}), &PhysicalBone3D::set_friction);
+    MethodBinder::bind_method(D_METHOD("get_friction"), &PhysicalBone3D::get_friction);
 
-    MethodBinder::bind_method(D_METHOD("set_bounce", {"bounce"}), &PhysicalBone::set_bounce);
-    MethodBinder::bind_method(D_METHOD("get_bounce"), &PhysicalBone::get_bounce);
+    MethodBinder::bind_method(D_METHOD("set_bounce", {"bounce"}), &PhysicalBone3D::set_bounce);
+    MethodBinder::bind_method(D_METHOD("get_bounce"), &PhysicalBone3D::get_bounce);
 
-    MethodBinder::bind_method(D_METHOD("set_gravity_scale", {"gravity_scale"}), &PhysicalBone::set_gravity_scale);
-    MethodBinder::bind_method(D_METHOD("get_gravity_scale"), &PhysicalBone::get_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("set_gravity_scale", {"gravity_scale"}), &PhysicalBone3D::set_gravity_scale);
+    MethodBinder::bind_method(D_METHOD("get_gravity_scale"), &PhysicalBone3D::get_gravity_scale);
 
     ADD_GROUP("Joint3D", "joint_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "joint_type", PropertyHint::Enum, "None,PinJoint3D,ConeJoint,HingeJoint3D,SliderJoint3D,6DOFJoint"), "set_joint_type", "get_joint_type");
@@ -2174,7 +2174,7 @@ void PhysicalBone::_bind_methods() {
     BIND_ENUM_CONSTANT(JOINT_TYPE_6DOF)
 }
 
-Skeleton *PhysicalBone::find_skeleton_parent(Node *p_parent) {
+Skeleton *PhysicalBone3D::find_skeleton_parent(Node *p_parent) {
     if (!p_parent) {
         return nullptr;
     }
@@ -2182,14 +2182,14 @@ Skeleton *PhysicalBone::find_skeleton_parent(Node *p_parent) {
     return s ? s : find_skeleton_parent(p_parent->get_parent());
 }
 
-void PhysicalBone::_fix_joint_offset() {
+void PhysicalBone3D::_fix_joint_offset() {
     // Clamp joint origin to bone origin
     if (parent_skeleton) {
         joint_offset.origin = body_offset.affine_inverse().origin;
     }
 }
 
-void PhysicalBone::_reload_joint() {
+void PhysicalBone3D::_reload_joint() {
 
     if (joint.is_valid()) {
         PhysicsServer3D::get_singleton()->free_rid(joint);
@@ -2200,7 +2200,7 @@ void PhysicalBone::_reload_joint() {
         return;
     }
 
-    PhysicalBone *body_a = parent_skeleton->get_physical_bone_parent(bone_id);
+    PhysicalBone3D *body_a = parent_skeleton->get_physical_bone_parent(bone_id);
     if (!body_a) {
         return;
     }
@@ -2292,11 +2292,11 @@ void PhysicalBone::_reload_joint() {
     }
 }
 
-void PhysicalBone::_on_bone_parent_changed() {
+void PhysicalBone3D::_on_bone_parent_changed() {
     _reload_joint();
 }
 
-void PhysicalBone::_set_gizmo_move_joint(bool p_move_joint) {
+void PhysicalBone3D::_set_gizmo_move_joint(bool p_move_joint) {
 #ifdef TOOLS_ENABLED
     gizmo_move_joint = p_move_joint;
     SpatialEditor::get_singleton()->update_transform_gizmo();
@@ -2304,24 +2304,24 @@ void PhysicalBone::_set_gizmo_move_joint(bool p_move_joint) {
 }
 
 #ifdef TOOLS_ENABLED
-Transform PhysicalBone::get_global_gizmo_transform() const {
+Transform PhysicalBone3D::get_global_gizmo_transform() const {
     return gizmo_move_joint ? get_global_transform() * joint_offset : get_global_transform();
 }
 
-Transform PhysicalBone::get_local_gizmo_transform() const {
+Transform PhysicalBone3D::get_local_gizmo_transform() const {
     return gizmo_move_joint ? get_transform() * joint_offset : get_transform();
 }
 #endif
 
-const PhysicalBone::JointData *PhysicalBone::get_joint_data() const {
+const PhysicalBone3D::JointData *PhysicalBone3D::get_joint_data() const {
     return joint_data;
 }
 
-Skeleton *PhysicalBone::find_skeleton_parent() {
+Skeleton *PhysicalBone3D::find_skeleton_parent() {
     return find_skeleton_parent(this);
 }
 
-void PhysicalBone::set_joint_type(JointType p_joint_type) {
+void PhysicalBone3D::set_joint_type(JointType p_joint_type) {
 
     if (p_joint_type == get_joint_type())
         return;
@@ -2358,11 +2358,11 @@ void PhysicalBone::set_joint_type(JointType p_joint_type) {
 #endif
 }
 
-PhysicalBone::JointType PhysicalBone::get_joint_type() const {
+PhysicalBone3D::JointType PhysicalBone3D::get_joint_type() const {
     return joint_data ? joint_data->get_joint_type() : JOINT_TYPE_NONE;
 }
 
-void PhysicalBone::set_joint_offset(const Transform &p_offset) {
+void PhysicalBone3D::set_joint_offset(const Transform &p_offset) {
     joint_offset = p_offset;
 
     _fix_joint_offset();
@@ -2377,11 +2377,11 @@ void PhysicalBone::set_joint_offset(const Transform &p_offset) {
 #endif
 }
 
-const Transform &PhysicalBone::get_body_offset() const {
+const Transform &PhysicalBone3D::get_body_offset() const {
     return body_offset;
 }
 
-void PhysicalBone::set_body_offset(const Transform &p_offset) {
+void PhysicalBone3D::set_body_offset(const Transform &p_offset) {
     body_offset = p_offset;
     body_offset_inverse = body_offset.affine_inverse();
 
@@ -2397,11 +2397,11 @@ void PhysicalBone::set_body_offset(const Transform &p_offset) {
 #endif
 }
 
-const Transform &PhysicalBone::get_joint_offset() const {
+const Transform &PhysicalBone3D::get_joint_offset() const {
     return joint_offset;
 }
 
-void PhysicalBone::set_static_body(bool p_static) {
+void PhysicalBone3D::set_static_body(bool p_static) {
 
     static_body = p_static;
 
@@ -2410,11 +2410,11 @@ void PhysicalBone::set_static_body(bool p_static) {
     _reset_physics_simulation_state();
 }
 
-bool PhysicalBone::is_static_body() {
+bool PhysicalBone3D::is_static_body() {
     return static_body;
 }
 
-void PhysicalBone::set_simulate_physics(bool p_simulate) {
+void PhysicalBone3D::set_simulate_physics(bool p_simulate) {
     if (simulate_physics == p_simulate) {
         return;
     }
@@ -2423,15 +2423,15 @@ void PhysicalBone::set_simulate_physics(bool p_simulate) {
     _reset_physics_simulation_state();
 }
 
-bool PhysicalBone::get_simulate_physics() {
+bool PhysicalBone3D::get_simulate_physics() {
     return simulate_physics;
 }
 
-bool PhysicalBone::is_simulating_physics() {
+bool PhysicalBone3D::is_simulating_physics() {
     return _internal_simulate_physics && !_internal_static_body;
 }
 
-void PhysicalBone::set_bone_name(StringView p_name) {
+void PhysicalBone3D::set_bone_name(StringView p_name) {
 
     bone_name = StringName(p_name);
     bone_id = -1;
@@ -2440,34 +2440,34 @@ void PhysicalBone::set_bone_name(StringView p_name) {
     reset_to_rest_position();
 }
 
-const StringName &PhysicalBone::get_bone_name() const {
+const StringName &PhysicalBone3D::get_bone_name() const {
 
     return bone_name;
 }
 
-void PhysicalBone::set_mass(real_t p_mass) {
+void PhysicalBone3D::set_mass(real_t p_mass) {
 
     ERR_FAIL_COND(p_mass <= 0);
     mass = p_mass;
     PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_MASS, mass);
 }
 
-real_t PhysicalBone::get_mass() const {
+real_t PhysicalBone3D::get_mass() const {
 
     return mass;
 }
 
-void PhysicalBone::set_weight(real_t p_weight) {
+void PhysicalBone3D::set_weight(real_t p_weight) {
 
     set_mass(p_weight / real_t(GLOBAL_DEF("physics/3d/default_gravity", 9.8)));
 }
 
-real_t PhysicalBone::get_weight() const {
+real_t PhysicalBone3D::get_weight() const {
 
     return mass * real_t(GLOBAL_DEF("physics/3d/default_gravity", 9.8));
 }
 
-void PhysicalBone::set_friction(real_t p_friction) {
+void PhysicalBone3D::set_friction(real_t p_friction) {
 
     ERR_FAIL_COND(p_friction < 0 || p_friction > 1);
 
@@ -2475,12 +2475,12 @@ void PhysicalBone::set_friction(real_t p_friction) {
     PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_FRICTION, friction);
 }
 
-real_t PhysicalBone::get_friction() const {
+real_t PhysicalBone3D::get_friction() const {
 
     return friction;
 }
 
-void PhysicalBone::set_bounce(real_t p_bounce) {
+void PhysicalBone3D::set_bounce(real_t p_bounce) {
 
     ERR_FAIL_COND(p_bounce < 0 || p_bounce > 1);
 
@@ -2488,23 +2488,23 @@ void PhysicalBone::set_bounce(real_t p_bounce) {
     PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_BOUNCE, bounce);
 }
 
-real_t PhysicalBone::get_bounce() const {
+real_t PhysicalBone3D::get_bounce() const {
 
     return bounce;
 }
 
-void PhysicalBone::set_gravity_scale(real_t p_gravity_scale) {
+void PhysicalBone3D::set_gravity_scale(real_t p_gravity_scale) {
 
     gravity_scale = p_gravity_scale;
     PhysicsServer3D::get_singleton()->body_set_param(get_rid(), PhysicsServer3D::BODY_PARAM_GRAVITY_SCALE, gravity_scale);
 }
 
-real_t PhysicalBone::get_gravity_scale() const {
+real_t PhysicalBone3D::get_gravity_scale() const {
 
     return gravity_scale;
 }
 
-PhysicalBone::PhysicalBone() :
+PhysicalBone3D::PhysicalBone3D() :
         PhysicsBody3D(PhysicsServer3D::BODY_MODE_STATIC),
 #ifdef TOOLS_ENABLED
         gizmo_move_joint(false),
@@ -2526,12 +2526,12 @@ PhysicalBone::PhysicalBone() :
     _reset_physics_simulation_state();
 }
 
-PhysicalBone::~PhysicalBone() {
+PhysicalBone3D::~PhysicalBone3D() {
     if (joint_data)
         memdelete(joint_data);
 }
 
-void PhysicalBone::update_bone_id() {
+void PhysicalBone3D::update_bone_id() {
     if (!parent_skeleton) {
         return;
     }
@@ -2555,7 +2555,7 @@ void PhysicalBone::update_bone_id() {
     }
 }
 
-void PhysicalBone::update_offset() {
+void PhysicalBone3D::update_offset() {
 #ifdef TOOLS_ENABLED
     if (parent_skeleton) {
 
@@ -2573,7 +2573,7 @@ void PhysicalBone::update_offset() {
 #endif
 }
 
-void PhysicalBone::reset_to_rest_position() {
+void PhysicalBone3D::reset_to_rest_position() {
     if (parent_skeleton) {
         if (-1 == bone_id) {
             set_global_transform(parent_skeleton->get_global_transform() * body_offset);
@@ -2583,7 +2583,7 @@ void PhysicalBone::reset_to_rest_position() {
     }
 }
 
-void PhysicalBone::_reset_physics_simulation_state() {
+void PhysicalBone3D::_reset_physics_simulation_state() {
     if (simulate_physics && !static_body) {
         _start_physics_simulation();
     } else {
@@ -2593,7 +2593,7 @@ void PhysicalBone::_reset_physics_simulation_state() {
     _reset_staticness_state();
 }
 
-void PhysicalBone::_reset_staticness_state() {
+void PhysicalBone3D::_reset_staticness_state() {
 
     if (parent_skeleton && -1 != bone_id) {
         if (static_body && simulate_physics) { // With this check I'm sure the position of this body is updated only when it's necessary
@@ -2616,7 +2616,7 @@ void PhysicalBone::_reset_staticness_state() {
     }
 }
 
-void PhysicalBone::_start_physics_simulation() {
+void PhysicalBone3D::_start_physics_simulation() {
     if (_internal_simulate_physics || !parent_skeleton) {
         return;
     }
@@ -2628,7 +2628,7 @@ void PhysicalBone::_start_physics_simulation() {
     _internal_simulate_physics = true;
 }
 
-void PhysicalBone::_stop_physics_simulation() {
+void PhysicalBone3D::_stop_physics_simulation() {
     if (!_internal_simulate_physics || !parent_skeleton) {
         return;
     }

@@ -336,7 +336,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
                 float mu = frac;
 
-                float y0 = data[MAX(0, ipos - 1) * format_channels + c];
+                float y0 = data[M_MAX(0, ipos - 1) * format_channels + c];
                 float y1 = data[ipos * format_channels + c];
                 float y2 = data[MIN(frames - 1, ipos + 1) * format_channels + c];
                 float y3 = data[MIN(frames - 1, ipos + 2) * format_channels + c];

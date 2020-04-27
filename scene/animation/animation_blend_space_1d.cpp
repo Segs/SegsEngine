@@ -306,7 +306,7 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
     for (int i = 0; i < blend_points_used; i++) {
         float remaining = blend_node(blend_points[i].name, blend_points[i].node, p_time, p_seek, weights[i], FILTER_IGNORE, false);
 
-        max_time_remaining = MAX(max_time_remaining, remaining);
+        max_time_remaining = M_MAX(max_time_remaining, remaining);
     }
 
     return max_time_remaining;

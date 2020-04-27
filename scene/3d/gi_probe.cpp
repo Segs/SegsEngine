@@ -344,7 +344,7 @@ bool GIProbe::is_compressed() const {
 
 void GIProbe::_find_meshes(Node *p_at_node, Vector<GIProbe::PlotMesh> &plot_meshes) const {
 
-    MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
+    MeshInstance3D *mi = object_cast<MeshInstance3D>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
         Ref<Mesh> mesh = mi->get_mesh();
         if (mesh) {
@@ -483,7 +483,7 @@ void GIProbe::bake(Node *p_from_node, bool p_create_visual_debug) {
     }
 }
 
-void GIProbe::_debug_bake() {
+void GIProbe::debug_bake() {
 
     bake(nullptr, true);
 }
@@ -535,7 +535,7 @@ void GIProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_compressed"), &GIProbe::is_compressed);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &GIProbe::bake, {DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::_debug_bake);
+    MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake);
     ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdiv", PropertyHint::Enum, "64,128,256,512"), "set_subdiv", "get_subdiv");

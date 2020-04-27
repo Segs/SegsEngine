@@ -332,7 +332,7 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
         new_arr[0] = ARRAY_GET_DEEP(Array::_clamp_index(p_begin), p_deep);
         return new_arr;
     } else {
-        int element_count = ceil((int)MAX(0, (p_end - p_begin) / p_step)) + 1;
+        int element_count = ceil((int)M_MAX(0, (p_end - p_begin) / p_step)) + 1;
         if (element_count == 1) { // delta going in wrong direction to reach end
             new_arr.resize(0);
             return new_arr;

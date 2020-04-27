@@ -60,7 +60,7 @@
         </member>
         <member name="spring_length" type="float" setter="set_length" getter="get_length" default="1.0">
             The maximum extent of the SpringArm3D. This is used as a length for both the ray and the shape cast used internally to calculate the desired position of the SpringArm3D's child nodes.
-            To know more about how to perform a shape cast or a ray cast, please consult the [PhysicsDirectSpaceState] documentation.
+            To know more about how to perform a shape cast or a ray cast, please consult the [PhysicsDirectSpaceState3D] documentation.
         </member>
     </members>
     <constants>

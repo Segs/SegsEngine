@@ -924,7 +924,7 @@
             Time (in seconds) of inactivity before which a 2D physics body will put to sleep. See [constant PhysicsServer2D.SPACE_PARAM_BODY_TIME_TO_SLEEP].
         </member>
         <member name="physics/3d/active_soft_world" type="bool" setter="" getter="" default="true">
-            Sets whether the 3D physics world will be created with support for [SoftBody] physics. Only applies to the Bullet physics engine.
+            Sets whether the 3D physics world will be created with support for [SoftBody3D] physics. Only applies to the Bullet physics engine.
         </member>
         <member name="physics/3d/default_angular_damp" type="float" setter="" getter="" default="0.1">
             The default angular damp in 3D.

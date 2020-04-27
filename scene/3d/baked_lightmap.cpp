@@ -247,7 +247,7 @@ float BakedLightmap::get_bake_default_texels_per_unit() const {
 
 void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightmap::PlotMesh> &plot_meshes, Vector<BakedLightmap::PlotLight> &plot_lights) {
 
-    MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
+    MeshInstance3D *mi = object_cast<MeshInstance3D>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
         Ref<Mesh> mesh = mi->get_mesh();
         if (mesh) {

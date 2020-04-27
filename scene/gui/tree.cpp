@@ -195,7 +195,7 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
                 value = StringUtils::to_int(StringUtils::get_slice(strings[i],':', 1));
             }
             cells[p_column].min = MIN(cells[p_column].min, value);
-            cells[p_column].max = MAX(cells[p_column].max, value);
+            cells[p_column].max = M_MAX(cells[p_column].max, value);
         }
         cells[p_column].step = 0;
     }
@@ -1127,10 +1127,10 @@ void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, co
         case TreeItem::ALIGN_LEFT:
             break; //do none
         case TreeItem::ALIGN_CENTER:
-            rect.position.x += MAX(0, (rect.size.width - w) / 2);
+            rect.position.x += M_MAX(0, (rect.size.width - w) / 2);
             break; //do none
         case TreeItem::ALIGN_RIGHT:
-            rect.position.x += MAX(0, (rect.size.width - w));
+            rect.position.x += M_MAX(0, (rect.size.width - w));
             break; //do none
     }
 

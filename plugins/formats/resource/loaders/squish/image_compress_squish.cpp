@@ -155,9 +155,9 @@ void image_compress_squish(Image *p_image, float p_lossy_quality, ImageUsedChann
 
             int src_ofs = p_image->get_mipmap_offset(i);
             squish::CompressImage(&rb[src_ofs], w, h, &wb[dst_ofs], squish_comp);
-            dst_ofs += (MAX(4, bw) * MAX(4, bh)) >> shift;
-            w = MAX(w / 2, 1);
-            h = MAX(h / 2, 1);
+            dst_ofs += (M_MAX(4, bw) * M_MAX(4, bh)) >> shift;
+            w = M_MAX(w / 2, 1);
+            h = M_MAX(h / 2, 1);
         }
 
         rb.release();

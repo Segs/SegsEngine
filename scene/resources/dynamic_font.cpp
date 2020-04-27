@@ -364,7 +364,7 @@ struct DynamicFontAtSize::ImplData
             ret.x = 0;
             ret.y = 0;
 
-            int texsize = MAX(id.size * oversampling * 8, 256);
+            int texsize = M_MAX(id.size * oversampling * 8, 256);
             if (mw > texsize)
                 texsize = mw; //special case, adapt to it?
             if (mh > texsize)

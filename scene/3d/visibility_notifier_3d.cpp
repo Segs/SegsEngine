@@ -37,7 +37,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/scene_string_names.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(VisibilityNotifier3D)
 IMPL_GDCLASS(VisibilityEnabler3D)

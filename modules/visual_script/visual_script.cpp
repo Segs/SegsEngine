@@ -86,7 +86,7 @@ void VisualScriptNode::_set_default_input_values(Array p_values) {
 }
 
 void VisualScriptNode::validate_input_default_values() {
-    default_input_values.resize(MAX(default_input_values.size(), get_input_value_port_count())); //let it grow as big as possible, we don't want to lose values on resize
+    default_input_values.resize(M_MAX(default_input_values.size(), get_input_value_port_count())); //let it grow as big as possible, we don't want to lose values on resize
 
     //actually validate on save
     for (int i = 0; i < get_input_value_port_count(); i++) {
@@ -846,7 +846,7 @@ int VisualScript::get_available_id() const {
             continue;
 
         int last_id = E.second.nodes.rbegin()->first;
-        max_id = MAX(max_id, last_id + 1);
+        max_id = M_MAX(max_id, last_id + 1);
     }
 
     return max_id;
@@ -2135,7 +2135,7 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
             function.argument_count = func_node->get_argument_count();
             function.max_stack += function.argument_count;
             function.flow_stack_size = func_node->is_stack_less() ? 0 : func_node->get_stack_size();
-            max_input_args = MAX(max_input_args, function.argument_count);
+            max_input_args = M_MAX(max_input_args, function.argument_count);
         }
 
         //multiple passes are required to set up this complex thing..
@@ -2206,8 +2206,8 @@ void VisualScriptInstance::create(const Ref<VisualScript> &p_script, Object *p_o
                 instance->working_mem_idx = -1; //no working mem
             }
 
-            max_input_args = MAX(max_input_args, instance->input_port_count);
-            max_output_args = MAX(max_output_args, instance->output_port_count);
+            max_input_args = M_MAX(max_input_args, instance->input_port_count);
+            max_output_args = M_MAX(max_output_args, instance->output_port_count);
 
             instances[F.first] = instance;
         }

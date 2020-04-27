@@ -123,8 +123,8 @@ void Popup::set_as_minsize() {
             minsize[j] += margin_begin * (ANCHOR_END - anchor_begin) + margin_end * anchor_end;
         }
 
-        total_minsize.width = MAX(total_minsize.width, minsize.width);
-        total_minsize.height = MAX(total_minsize.height, minsize.height);
+        total_minsize.width = M_MAX(total_minsize.width, minsize.width);
+        total_minsize.height = M_MAX(total_minsize.height, minsize.height);
     }
 
     set_size(total_minsize);
@@ -266,8 +266,8 @@ Size2 PopupPanel::get_minimum_size() const {
             continue;
 
         Size2 cms = c->get_combined_minimum_size();
-        ms.x = MAX(cms.x, ms.x);
-        ms.y = MAX(cms.y, ms.y);
+        ms.x = M_MAX(cms.x, ms.x);
+        ms.y = M_MAX(cms.y, ms.y);
     }
 
     return ms + p->get_minimum_size();

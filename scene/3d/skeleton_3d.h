@@ -38,7 +38,7 @@
 #ifndef _3D_DISABLED
 using BoneId = int;
 
-class PhysicalBone;
+class PhysicalBone3D;
 #endif // _3D_DISABLED
 
 class Skeleton;
@@ -91,8 +91,8 @@ private:
         Transform global_pose_override;
 
 #ifndef _3D_DISABLED
-        PhysicalBone* physical_bone;
-        PhysicalBone* cache_parent_physical_bone;
+        PhysicalBone3D* physical_bone;
+        PhysicalBone3D* cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
         Vector<uint32_t> nodes_bound;
@@ -200,15 +200,15 @@ public:
 #ifndef _3D_DISABLED
     // Physical bone API
 
-    void bind_physical_bone_to_bone(int p_bone, PhysicalBone *p_physical_bone);
+    void bind_physical_bone_to_bone(int p_bone, PhysicalBone3D *p_physical_bone);
     void unbind_physical_bone_from_bone(int p_bone);
 
-    PhysicalBone *get_physical_bone(int p_bone);
-    PhysicalBone *get_physical_bone_parent(int p_bone);
+    PhysicalBone3D *get_physical_bone(int p_bone);
+    PhysicalBone3D *get_physical_bone_parent(int p_bone);
 
 private:
     /// This is a slow API os it's cached
-    PhysicalBone *_get_physical_bone_parent(int p_bone);
+    PhysicalBone3D *_get_physical_bone_parent(int p_bone);
     void _rebuild_physical_bones_cache();
 
 public:

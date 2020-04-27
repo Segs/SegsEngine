@@ -70,7 +70,7 @@ void AudioEffectCompressorInstance::process(const AudioFrame *p_src_frames, Audi
         s.l = Math::abs(s.l);
         s.r = Math::abs(s.r);
 
-        float peak = MAX(s.l, s.r);
+        float peak = M_MAX(s.l, s.r);
 
         float overdb = 2.08136898f * Math::linear2db(peak / threshold);
 

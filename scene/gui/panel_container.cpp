@@ -56,8 +56,8 @@ Size2 PanelContainer::get_minimum_size() const {
             continue;
 
         Size2 minsize = c->get_combined_minimum_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     if (style)

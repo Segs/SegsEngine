@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="PhysicalBone" inherits="PhysicsBody3D" version="4.0">
+<class name="PhysicalBone3D" inherits="PhysicsBody3D" version="4.0">
 	<brief_description>
 	</brief_description>
 	<description>
@@ -61,7 +61,7 @@
 		</member>
 		<member name="joint_offset" type="Transform" setter="set_joint_offset" getter="get_joint_offset" default="Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 )">
 		</member>
-		<member name="joint_type" type="int" setter="set_joint_type" getter="get_joint_type" enum="PhysicalBone.JointType" default="0">
+		<member name="joint_type" type="int" setter="set_joint_type" getter="get_joint_type" enum="PhysicalBone3D.JointType" default="0">
 		</member>
 		<member name="mass" type="float" setter="set_mass" getter="get_mass" default="1.0">
 		</member>

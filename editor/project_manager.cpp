@@ -2434,7 +2434,7 @@ ProjectManager::ProjectManager() {
 #ifndef OSX_ENABLED
         // The macOS platform implementation uses its own hiDPI window resizing code
         // TODO: Resize windows on hiDPI displays on Windows and Linux and remove the line below
-        OS::get_singleton()->set_window_size(OS::get_singleton()->get_window_size() * MAX(1, EDSCALE));
+        OS::get_singleton()->set_window_size(OS::get_singleton()->get_window_size() * M_MAX(1, EDSCALE));
 #endif
     }
 

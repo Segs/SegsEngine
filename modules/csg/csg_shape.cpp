@@ -35,7 +35,7 @@
 #include "core/object_tooling.h"
 #include "scene/3d/path_3d.h"
 #include "scene/resources/mesh.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 #include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(CSGShape)
@@ -73,7 +73,7 @@ void CSGShape::set_use_collision(bool p_enable) {
         return;
 
     if (use_collision) {
-        root_collision_shape = make_ref_counted<ConcavePolygonShape>();
+        root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
         root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
         PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
         PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
@@ -524,7 +524,7 @@ void CSGShape::_notification(int p_what) {
         }
 
         if (use_collision && is_root_shape()) {
-            root_collision_shape = make_ref_counted<ConcavePolygonShape>();
+            root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
             root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
             PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
             PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
@@ -1842,7 +1842,7 @@ CSGBrush *CSGPolygon::_build_brush() {
         case MODE_SPIN: face_count = (spin_degrees < 360 ? triangles.size() * 2 / 3 : 0) + (final_polygon.size()) * 2 * spin_sides; break;
         case MODE_PATH: {
             float bl = curve->get_baked_length();
-            int splits = MAX(2, Math::ceil(bl / path_interval));
+            int splits = M_MAX(2, Math::ceil(bl / path_interval));
             if (path_joined) {
                 face_count = splits * final_polygon.size() * 2;
             } else {
@@ -2061,7 +2061,7 @@ CSGBrush *CSGPolygon::_build_brush() {
             case MODE_PATH: {
 
                 float bl = curve->get_baked_length();
-                int splits = MAX(2, Math::ceil(bl / path_interval));
+                int splits = M_MAX(2, Math::ceil(bl / path_interval));
                 float u1 = 0.0;
                 float u2 = path_continuous_u ? 0.0 : 1.0;
 

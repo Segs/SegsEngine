@@ -205,7 +205,7 @@ void WSLPeer::make_context(PeerData *p_data, unsigned int p_in_buf_size, unsigne
     ERR_FAIL_COND(p_data == nullptr);
 
     _in_buffer.resize(p_in_pkt_size, p_in_buf_size);
-    _packet_buffer.resize((1 << MAX(p_in_buf_size, p_out_buf_size)));
+    _packet_buffer.resize((1 << M_MAX(p_in_buf_size, p_out_buf_size)));
 
     _data = p_data;
     _data->peer = this;

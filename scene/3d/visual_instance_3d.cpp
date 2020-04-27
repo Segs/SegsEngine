@@ -34,7 +34,7 @@
 #include "core/object_tooling.h"
 #include "scene/scene_string_names.h"
 #include "servers/rendering_server.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 #include "skeleton_3d.h"
 
 IMPL_GDCLASS(VisualInstance3D)
@@ -63,7 +63,7 @@ void VisualInstance3D::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_WORLD: {
 
-            // CHECK SKELETON => moving skeleton attaching logic to MeshInstance
+            // CHECK SKELETON => moving skeleton attaching logic to MeshInstance3D
             /*
             Skeleton *skeleton=object_cast<Skeleton>(get_parent());
             if (skeleton)

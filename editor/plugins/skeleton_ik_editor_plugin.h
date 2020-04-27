@@ -33,13 +33,13 @@
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
 
-class SkeletonIK;
+class SkeletonIK3D;
 
 class SkeletonIKEditorPlugin : public EditorPlugin {
 
 	GDCLASS(SkeletonIKEditorPlugin,EditorPlugin)
 
-	SkeletonIK *skeleton_ik;
+	SkeletonIK3D *skeleton_ik;
 
 	Button *play_btn;
 	EditorNode *editor;
@@ -51,7 +51,7 @@ protected:
 	static void _bind_methods();
 
 public:
-    StringView get_name() const override { return "SkeletonIK"; }
+    StringView get_name() const override { return "SkeletonIK3D"; }
 	bool has_main_screen() const override { return false; }
 	void edit(Object *p_object) override;
 	bool handles(Object *p_object) const override;

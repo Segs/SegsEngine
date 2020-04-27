@@ -28,15 +28,15 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "height_map_shape.h"
+#include "height_map_shape_3d.h"
 
 #include "servers/physics_server_3d.h"
 #include "core/method_bind.h"
 #include "core/math/vector2.h"
 
-IMPL_GDCLASS(HeightMapShape)
+IMPL_GDCLASS(HeightMapShape3D)
 
-Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
+Vector<Vector3> HeightMapShape3D::get_debug_mesh_lines() {
     Vector<Vector3> points;
 
     if ((map_width != 0) && (map_depth != 0)) {
@@ -81,7 +81,7 @@ Vector<Vector3> HeightMapShape::get_debug_mesh_lines() {
     return points;
 }
 
-void HeightMapShape::_update_shape() {
+void HeightMapShape3D::_update_shape() {
 
     Dictionary d;
     d["width"] = map_width;
@@ -93,7 +93,7 @@ void HeightMapShape::_update_shape() {
     Shape::_update_shape();
 }
 
-void HeightMapShape::set_map_width(int p_new) {
+void HeightMapShape3D::set_map_width(int p_new) {
     if (p_new < 1) {
         // ignore
     } else if (map_width != p_new) {
@@ -115,11 +115,11 @@ void HeightMapShape::set_map_width(int p_new) {
     }
 }
 
-int HeightMapShape::get_map_width() const {
+int HeightMapShape3D::get_map_width() const {
     return map_width;
 }
 
-void HeightMapShape::set_map_depth(int p_new) {
+void HeightMapShape3D::set_map_depth(int p_new) {
     if (p_new < 1) {
         // ignore
     } else if (map_depth != p_new) {
@@ -141,11 +141,11 @@ void HeightMapShape::set_map_depth(int p_new) {
     }
 }
 
-int HeightMapShape::get_map_depth() const {
+int HeightMapShape3D::get_map_depth() const {
     return map_depth;
 }
 
-void HeightMapShape::set_map_data(const PoolRealArray& p_new) {
+void HeightMapShape3D::set_map_data(const PoolRealArray& p_new) {
     int size = (map_width * map_depth);
     if (p_new.size() != size) {
         // fail
@@ -175,26 +175,26 @@ void HeightMapShape::set_map_data(const PoolRealArray& p_new) {
     Object_change_notify(this,"map_data");
 }
 
-PoolRealArray HeightMapShape::get_map_data() const {
+PoolRealArray HeightMapShape3D::get_map_data() const {
     return map_data;
 }
-real_t HeightMapShape::get_enclosing_radius() const {
+real_t HeightMapShape3D::get_enclosing_radius() const {
     return Vector3(real_t(map_width), max_height - min_height, real_t(map_depth)).length();
 }
-void HeightMapShape::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("set_map_width", {"width"}), &HeightMapShape::set_map_width);
-    MethodBinder::bind_method(D_METHOD("get_map_width"), &HeightMapShape::get_map_width);
-    MethodBinder::bind_method(D_METHOD("set_map_depth", {"height"}), &HeightMapShape::set_map_depth);
-    MethodBinder::bind_method(D_METHOD("get_map_depth"), &HeightMapShape::get_map_depth);
-    MethodBinder::bind_method(D_METHOD("set_map_data", {"data"}), &HeightMapShape::set_map_data);
-    MethodBinder::bind_method(D_METHOD("get_map_data"), &HeightMapShape::get_map_data);
+void HeightMapShape3D::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("set_map_width", {"width"}), &HeightMapShape3D::set_map_width);
+    MethodBinder::bind_method(D_METHOD("get_map_width"), &HeightMapShape3D::get_map_width);
+    MethodBinder::bind_method(D_METHOD("set_map_depth", {"height"}), &HeightMapShape3D::set_map_depth);
+    MethodBinder::bind_method(D_METHOD("get_map_depth"), &HeightMapShape3D::get_map_depth);
+    MethodBinder::bind_method(D_METHOD("set_map_data", {"data"}), &HeightMapShape3D::set_map_data);
+    MethodBinder::bind_method(D_METHOD("get_map_data"), &HeightMapShape3D::get_map_data);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_width", PropertyHint::Range, "1,4096,1"), "set_map_width", "get_map_width");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "map_depth", PropertyHint::Range, "1,4096,1"), "set_map_depth", "get_map_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_REAL_ARRAY, "map_data"), "set_map_data", "get_map_data");
 }
 
-HeightMapShape::HeightMapShape() :
+HeightMapShape3D::HeightMapShape3D() :
         Shape(PhysicsServer3D::get_singleton()->shape_create(PhysicsServer3D::SHAPE_HEIGHTMAP)) {
 
     map_width = 2;

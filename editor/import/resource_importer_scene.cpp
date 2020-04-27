@@ -46,11 +46,11 @@
 #include "scene/3d/vehicle_body_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
-#include "scene/resources/box_shape.h"
+#include "scene/resources/box_shape_3d.h"
 #include "scene/resources/plane_shape.h"
-#include "scene/resources/ray_shape.h"
+#include "scene/resources/ray_shape_3d.h"
 #include "scene/resources/resource_format_text.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/sphere_shape_3d.h"
 
 IMPL_GDCLASS(EditorSceneImporter)
 IMPL_GDCLASS(EditorScenePostImport)
@@ -340,9 +340,9 @@ Node *ResourceImporterScene::_fix_node(
         return nullptr;
     }
 
-    if (object_cast<MeshInstance>(p_node)) {
+    if (object_cast<MeshInstance3D>(p_node)) {
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> m = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
 
@@ -400,7 +400,7 @@ Node *ResourceImporterScene::_fix_node(
     if (_teststr(name, "colonly") || _teststr(name, "convcolonly")) {
 
         if (isroot) return p_node;
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
         if (mi) {
             Ref<Mesh> mesh = mi->get_mesh();
 
@@ -427,7 +427,7 @@ Node *ResourceImporterScene::_fix_node(
 
                 if (!shapes.empty()) {
 
-                    StaticBody *col = memnew(StaticBody);
+                    StaticBody3D *col = memnew(StaticBody3D);
                     col->set_transform(mi->get_transform());
                     col->set_name(fixed_name);
                     p_node->replace_by(col);
@@ -450,7 +450,7 @@ Node *ResourceImporterScene::_fix_node(
 
         } else if (p_node->has_meta("empty_draw_type")) {
             String empty_draw_type = String(p_node->get_meta("empty_draw_type"));
-            StaticBody *sb = memnew(StaticBody);
+            StaticBody3D *sb = memnew(StaticBody3D);
             sb->set_name(_fixstr(name, "colonly"));
             object_cast<Node3D>(sb)->set_transform(object_cast<Node3D>(p_node)->get_transform());
             p_node->replace_by(sb);
@@ -458,35 +458,35 @@ Node *ResourceImporterScene::_fix_node(
             p_node = nullptr;
             CollisionShape3D *colshape = memnew(CollisionShape3D);
             if (empty_draw_type == "CUBE") {
-                BoxShape *boxShape = memnew(BoxShape);
+                BoxShape3D *boxShape = memnew(BoxShape3D);
                 boxShape->set_extents(Vector3(1, 1, 1));
                 colshape->set_shape(Ref<Shape>(boxShape));
-                colshape->set_name("BoxShape");
+                colshape->set_name("BoxShape3D");
             } else if (empty_draw_type == "SINGLE_ARROW") {
-                RayShape *rayShape = memnew(RayShape);
+                RayShape3D *rayShape = memnew(RayShape3D);
                 rayShape->set_length(1);
                 colshape->set_shape(Ref<Shape>(rayShape));
-                colshape->set_name("RayShape");
+                colshape->set_name("RayShape3D");
                 object_cast<Node3D>(sb)->rotate_x(Math_PI / 2);
             } else if (empty_draw_type == "IMAGE") {
                 PlaneShape *planeShape = memnew(PlaneShape);
                 colshape->set_shape(Ref<Shape>(planeShape));
                 colshape->set_name("PlaneShape");
             } else {
-                SphereShape *sphereShape = memnew(SphereShape);
+                SphereShape3D *sphereShape = memnew(SphereShape3D);
                 sphereShape->set_radius(1);
                 colshape->set_shape(Ref<Shape>(sphereShape));
-                colshape->set_name("SphereShape");
+                colshape->set_name("SphereShape3D");
             }
             sb->add_child(colshape);
             colshape->set_owner(sb->get_owner());
         }
 
-    } else if (_teststr(name, "rigid") && object_cast<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "rigid") && object_cast<MeshInstance3D>(p_node)) {
 
         if (isroot) return p_node;
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
@@ -520,9 +520,9 @@ Node *ResourceImporterScene::_fix_node(
             }
         }
 
-    } else if ((_teststr(name, "col") || _teststr(name, "convcol")) && object_cast<MeshInstance>(p_node)) {
+    } else if ((_teststr(name, "col") || _teststr(name, "convcol")) && object_cast<MeshInstance3D>(p_node)) {
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<Mesh> mesh = mi->get_mesh();
 
@@ -552,7 +552,7 @@ Node *ResourceImporterScene::_fix_node(
             }
 
             if (!shapes.empty()) {
-                StaticBody *col = memnew(StaticBody);
+                StaticBody3D *col = memnew(StaticBody3D);
                 col->set_name("static_collision");
                 mi->add_child(col);
                 col->set_owner(mi->get_owner());
@@ -572,11 +572,11 @@ Node *ResourceImporterScene::_fix_node(
             }
         }
 
-    } else if (_teststr(name, "navmesh") && object_cast<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "navmesh") && object_cast<MeshInstance3D>(p_node)) {
 
         if (isroot) return p_node;
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         ERR_FAIL_COND_V(not mesh, nullptr);
@@ -615,7 +615,7 @@ Node *ResourceImporterScene::_fix_node(
 
         Node *owner = p_node->get_owner();
         Node3D *s = object_cast<Node3D>(p_node);
-        VehicleWheel *bv = memnew(VehicleWheel);
+        VehicleWheel3D *bv = memnew(VehicleWheel3D);
         String n(_fixstr(p_node->get_name(), "wheel"));
         bv->set_name(n);
         p_node->replace_by(bv);
@@ -628,11 +628,11 @@ Node *ResourceImporterScene::_fix_node(
 
         p_node = bv;
 
-    } else if (object_cast<MeshInstance>(p_node)) {
+    } else if (object_cast<MeshInstance3D>(p_node)) {
 
         // last attempt, maybe collision inside the mesh data
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         if (mesh) {
@@ -651,7 +651,7 @@ Node *ResourceImporterScene::_fix_node(
             }
 
             if (!shapes.empty()) {
-                StaticBody *col = memnew(StaticBody);
+                StaticBody3D *col = memnew(StaticBody3D);
                 col->set_name("static_collision");
                 p_node->add_child(col);
                 col->set_owner(p_node->get_owner());
@@ -943,7 +943,7 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
     Vector<PropertyInfo> pi;
     p_node->get_property_list(&pi);
 
-    MeshInstance *mi = object_cast<MeshInstance>(p_node);
+    MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
     if (mi) {
 
@@ -1487,7 +1487,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         if (light_bake_mode == 2) {
 
             float texel_size = p_options.at("meshes/lightmap_texel_size");
-            texel_size = MAX(0.001f, texel_size);
+            texel_size = M_MAX(0.001f, texel_size);
 
             EditorProgress progress2(("gen_lightmaps"), TTR("Generating Lightmaps"), meshes.size());
             int step = 0;

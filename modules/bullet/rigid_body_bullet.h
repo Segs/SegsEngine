@@ -53,8 +53,8 @@ class BulletPhysicsDirectBodyState;
 /// In the system there is only one object at a time that manage all bodies and is
 /// created by BulletPhysicsServer and is held by the "singleton" variable of this class
 /// Each time something require it, the body must be set again.
-class BulletPhysicsDirectBodyState : public PhysicsDirectBodyState {
-    GDCLASS(BulletPhysicsDirectBodyState,PhysicsDirectBodyState)
+class BulletPhysicsDirectBodyState : public PhysicsDirectBodyState3D {
+    GDCLASS(BulletPhysicsDirectBodyState,PhysicsDirectBodyState3D)
 
     static BulletPhysicsDirectBodyState *singleton;
 
@@ -138,7 +138,7 @@ public:
         // Skip the execution of this function
     }
 
-    PhysicsDirectSpaceState *get_space_state() override;
+    PhysicsDirectSpaceState3D *get_space_state() override;
 };
 
 class RigidBodyBullet : public RigidCollisionObjectBullet {

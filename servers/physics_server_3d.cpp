@@ -35,10 +35,10 @@
 #include "core/project_settings.h"
 #include "core/pool_vector.h"
 
-IMPL_GDCLASS(PhysicsDirectBodyState)
-IMPL_GDCLASS(PhysicsShapeQueryParameters)
-IMPL_GDCLASS(PhysicsDirectSpaceState)
-IMPL_GDCLASS(PhysicsShapeQueryResult)
+IMPL_GDCLASS(PhysicsDirectBodyState3D)
+IMPL_GDCLASS(PhysicsShapeQueryParameters3D)
+IMPL_GDCLASS(PhysicsDirectSpaceState3D)
+IMPL_GDCLASS(PhysicsShapeQueryResult3D)
 IMPL_GDCLASS(PhysicsServer3D)
 
 VARIANT_ENUM_CAST(PhysicsServer3D::ShapeType);
@@ -62,7 +62,7 @@ VARIANT_ENUM_CAST(PhysicsServer3D::ProcessInfo);
 
 PhysicsServer3D *PhysicsServer3D::singleton = nullptr;
 
-void PhysicsDirectBodyState::integrate_forces() {
+void PhysicsDirectBodyState3D::integrate_forces() {
 
     real_t step = get_step();
     Vector3 lv = get_linear_velocity();
@@ -87,7 +87,7 @@ void PhysicsDirectBodyState::integrate_forces() {
     set_angular_velocity(av);
 }
 
-Object *PhysicsDirectBodyState::get_contact_collider_object(int p_contact_idx) const {
+Object *PhysicsDirectBodyState3D::get_contact_collider_object(int p_contact_idx) const {
 
     ObjectID objid = get_contact_collider_id(p_contact_idx);
     Object *obj = ObjectDB::get_instance(objid);
@@ -99,52 +99,52 @@ PhysicsServer3D *PhysicsServer3D::get_singleton() {
     return singleton;
 }
 
-void PhysicsDirectBodyState::_bind_methods() {
+void PhysicsDirectBodyState3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_total_gravity"), &PhysicsDirectBodyState::get_total_gravity);
-    MethodBinder::bind_method(D_METHOD("get_total_linear_damp"), &PhysicsDirectBodyState::get_total_linear_damp);
-    MethodBinder::bind_method(D_METHOD("get_total_angular_damp"), &PhysicsDirectBodyState::get_total_angular_damp);
+    MethodBinder::bind_method(D_METHOD("get_total_gravity"), &PhysicsDirectBodyState3D::get_total_gravity);
+    MethodBinder::bind_method(D_METHOD("get_total_linear_damp"), &PhysicsDirectBodyState3D::get_total_linear_damp);
+    MethodBinder::bind_method(D_METHOD("get_total_angular_damp"), &PhysicsDirectBodyState3D::get_total_angular_damp);
 
-    MethodBinder::bind_method(D_METHOD("get_center_of_mass"), &PhysicsDirectBodyState::get_center_of_mass);
-    MethodBinder::bind_method(D_METHOD("get_principal_inertia_axes"), &PhysicsDirectBodyState::get_principal_inertia_axes);
+    MethodBinder::bind_method(D_METHOD("get_center_of_mass"), &PhysicsDirectBodyState3D::get_center_of_mass);
+    MethodBinder::bind_method(D_METHOD("get_principal_inertia_axes"), &PhysicsDirectBodyState3D::get_principal_inertia_axes);
 
-    MethodBinder::bind_method(D_METHOD("get_inverse_mass"), &PhysicsDirectBodyState::get_inverse_mass);
-    MethodBinder::bind_method(D_METHOD("get_inverse_inertia"), &PhysicsDirectBodyState::get_inverse_inertia);
+    MethodBinder::bind_method(D_METHOD("get_inverse_mass"), &PhysicsDirectBodyState3D::get_inverse_mass);
+    MethodBinder::bind_method(D_METHOD("get_inverse_inertia"), &PhysicsDirectBodyState3D::get_inverse_inertia);
 
-    MethodBinder::bind_method(D_METHOD("set_linear_velocity", {"velocity"}), &PhysicsDirectBodyState::set_linear_velocity);
-    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &PhysicsDirectBodyState::get_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("set_linear_velocity", {"velocity"}), &PhysicsDirectBodyState3D::set_linear_velocity);
+    MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &PhysicsDirectBodyState3D::get_linear_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_angular_velocity", {"velocity"}), &PhysicsDirectBodyState::set_angular_velocity);
-    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &PhysicsDirectBodyState::get_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("set_angular_velocity", {"velocity"}), &PhysicsDirectBodyState3D::set_angular_velocity);
+    MethodBinder::bind_method(D_METHOD("get_angular_velocity"), &PhysicsDirectBodyState3D::get_angular_velocity);
 
-    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsDirectBodyState::set_transform);
-    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsDirectBodyState::get_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsDirectBodyState3D::set_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsDirectBodyState3D::get_transform);
 
-    MethodBinder::bind_method(D_METHOD("add_central_force", {"force"}), &PhysicsDirectBodyState::add_central_force);
-    MethodBinder::bind_method(D_METHOD("add_force", {"force", "position"}), &PhysicsDirectBodyState::add_force);
-    MethodBinder::bind_method(D_METHOD("add_torque", {"torque"}), &PhysicsDirectBodyState::add_torque);
-    MethodBinder::bind_method(D_METHOD("apply_central_impulse", {"j"}), &PhysicsDirectBodyState::apply_central_impulse);
-    MethodBinder::bind_method(D_METHOD("apply_impulse", {"position", "j"}), &PhysicsDirectBodyState::apply_impulse);
-    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", {"j"}), &PhysicsDirectBodyState::apply_torque_impulse);
+    MethodBinder::bind_method(D_METHOD("add_central_force", {"force"}), &PhysicsDirectBodyState3D::add_central_force);
+    MethodBinder::bind_method(D_METHOD("add_force", {"force", "position"}), &PhysicsDirectBodyState3D::add_force);
+    MethodBinder::bind_method(D_METHOD("add_torque", {"torque"}), &PhysicsDirectBodyState3D::add_torque);
+    MethodBinder::bind_method(D_METHOD("apply_central_impulse", {"j"}), &PhysicsDirectBodyState3D::apply_central_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_impulse", {"position", "j"}), &PhysicsDirectBodyState3D::apply_impulse);
+    MethodBinder::bind_method(D_METHOD("apply_torque_impulse", {"j"}), &PhysicsDirectBodyState3D::apply_torque_impulse);
 
-    MethodBinder::bind_method(D_METHOD("set_sleep_state", {"enabled"}), &PhysicsDirectBodyState::set_sleep_state);
-    MethodBinder::bind_method(D_METHOD("is_sleeping"), &PhysicsDirectBodyState::is_sleeping);
+    MethodBinder::bind_method(D_METHOD("set_sleep_state", {"enabled"}), &PhysicsDirectBodyState3D::set_sleep_state);
+    MethodBinder::bind_method(D_METHOD("is_sleeping"), &PhysicsDirectBodyState3D::is_sleeping);
 
-    MethodBinder::bind_method(D_METHOD("get_contact_count"), &PhysicsDirectBodyState::get_contact_count);
+    MethodBinder::bind_method(D_METHOD("get_contact_count"), &PhysicsDirectBodyState3D::get_contact_count);
 
-    MethodBinder::bind_method(D_METHOD("get_contact_local_position", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_local_position);
-    MethodBinder::bind_method(D_METHOD("get_contact_local_normal", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_local_normal);
-    MethodBinder::bind_method(D_METHOD("get_contact_impulse", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_impulse);
-    MethodBinder::bind_method(D_METHOD("get_contact_local_shape", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_local_shape);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_position", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider_position);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_id", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider_id);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_object", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider_object);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_shape", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider_shape);
-    MethodBinder::bind_method(D_METHOD("get_contact_collider_velocity_at_position", {"contact_idx"}), &PhysicsDirectBodyState::get_contact_collider_velocity_at_position);
-    MethodBinder::bind_method(D_METHOD("get_step"), &PhysicsDirectBodyState::get_step);
-    MethodBinder::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState::integrate_forces);
-    MethodBinder::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState::get_space_state);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_position", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_local_position);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_normal", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_local_normal);
+    MethodBinder::bind_method(D_METHOD("get_contact_impulse", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_impulse);
+    MethodBinder::bind_method(D_METHOD("get_contact_local_shape", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_local_shape);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_position", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider_position);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_id", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider_id);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_object", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider_object);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_shape", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider_shape);
+    MethodBinder::bind_method(D_METHOD("get_contact_collider_velocity_at_position", {"contact_idx"}), &PhysicsDirectBodyState3D::get_contact_collider_velocity_at_position);
+    MethodBinder::bind_method(D_METHOD("get_step"), &PhysicsDirectBodyState3D::get_step);
+    MethodBinder::bind_method(D_METHOD("integrate_forces"), &PhysicsDirectBodyState3D::integrate_forces);
+    MethodBinder::bind_method(D_METHOD("get_space_state"), &PhysicsDirectBodyState3D::get_space_state);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "", "get_step");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inverse_mass"), "", "get_inverse_mass");
@@ -160,62 +160,62 @@ void PhysicsDirectBodyState::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform"), "set_transform", "get_transform");
 }
 
-PhysicsDirectBodyState::PhysicsDirectBodyState() {}
+PhysicsDirectBodyState3D::PhysicsDirectBodyState3D() {}
 
 ///////////////////////////////////////////////////////
 
-void PhysicsShapeQueryParameters::set_shape(const RES &p_shape) {
+void PhysicsShapeQueryParameters3D::set_shape(const RES &p_shape) {
 
     ERR_FAIL_COND(not p_shape);
     shape = p_shape->get_rid();
 }
 
-void PhysicsShapeQueryParameters::set_shape_rid(const RID &p_shape) {
+void PhysicsShapeQueryParameters3D::set_shape_rid(const RID &p_shape) {
 
     shape = p_shape;
 }
 
-RID PhysicsShapeQueryParameters::get_shape_rid() const {
+RID PhysicsShapeQueryParameters3D::get_shape_rid() const {
 
     return shape;
 }
 
-void PhysicsShapeQueryParameters::set_transform(const Transform &p_transform) {
+void PhysicsShapeQueryParameters3D::set_transform(const Transform &p_transform) {
 
     transform = p_transform;
 }
-Transform PhysicsShapeQueryParameters::get_transform() const {
+Transform PhysicsShapeQueryParameters3D::get_transform() const {
 
     return transform;
 }
 
-void PhysicsShapeQueryParameters::set_margin(float p_margin) {
+void PhysicsShapeQueryParameters3D::set_margin(float p_margin) {
 
     margin = p_margin;
 }
 
-float PhysicsShapeQueryParameters::get_margin() const {
+float PhysicsShapeQueryParameters3D::get_margin() const {
 
     return margin;
 }
 
-void PhysicsShapeQueryParameters::set_collision_mask(int p_collision_mask) {
+void PhysicsShapeQueryParameters3D::set_collision_mask(int p_collision_mask) {
 
     collision_mask = p_collision_mask;
 }
-int PhysicsShapeQueryParameters::get_collision_mask() const {
+int PhysicsShapeQueryParameters3D::get_collision_mask() const {
 
     return collision_mask;
 }
 
-void PhysicsShapeQueryParameters::set_exclude(const PoolVector<RID> &p_exclude) {
+void PhysicsShapeQueryParameters3D::set_exclude(const PoolVector<RID> &p_exclude) {
 
     exclude.clear();
     for (int i = 0; i < p_exclude.size(); i++)
         exclude.insert(p_exclude[i]);
 }
 
-PoolVector<RID> PhysicsShapeQueryParameters::get_exclude() const {
+PoolVector<RID> PhysicsShapeQueryParameters3D::get_exclude() const {
 
     PoolVector<RID> ret;
     ret.resize(exclude.size());
@@ -227,45 +227,45 @@ PoolVector<RID> PhysicsShapeQueryParameters::get_exclude() const {
     return ret;
 }
 
-void PhysicsShapeQueryParameters::set_collide_with_bodies(bool p_enable) {
+void PhysicsShapeQueryParameters3D::set_collide_with_bodies(bool p_enable) {
     collide_with_bodies = p_enable;
 }
 
-bool PhysicsShapeQueryParameters::is_collide_with_bodies_enabled() const {
+bool PhysicsShapeQueryParameters3D::is_collide_with_bodies_enabled() const {
     return collide_with_bodies;
 }
 
-void PhysicsShapeQueryParameters::set_collide_with_areas(bool p_enable) {
+void PhysicsShapeQueryParameters3D::set_collide_with_areas(bool p_enable) {
     collide_with_areas = p_enable;
 }
 
-bool PhysicsShapeQueryParameters::is_collide_with_areas_enabled() const {
+bool PhysicsShapeQueryParameters3D::is_collide_with_areas_enabled() const {
     return collide_with_areas;
 }
 
-void PhysicsShapeQueryParameters::_bind_methods() {
+void PhysicsShapeQueryParameters3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &PhysicsShapeQueryParameters::set_shape);
-    MethodBinder::bind_method(D_METHOD("set_shape_rid", {"shape"}), &PhysicsShapeQueryParameters::set_shape_rid);
-    MethodBinder::bind_method(D_METHOD("get_shape_rid"), &PhysicsShapeQueryParameters::get_shape_rid);
+    MethodBinder::bind_method(D_METHOD("set_shape", {"shape"}), &PhysicsShapeQueryParameters3D::set_shape);
+    MethodBinder::bind_method(D_METHOD("set_shape_rid", {"shape"}), &PhysicsShapeQueryParameters3D::set_shape_rid);
+    MethodBinder::bind_method(D_METHOD("get_shape_rid"), &PhysicsShapeQueryParameters3D::get_shape_rid);
 
-    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsShapeQueryParameters::set_transform);
-    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsShapeQueryParameters::get_transform);
+    MethodBinder::bind_method(D_METHOD("set_transform", {"transform"}), &PhysicsShapeQueryParameters3D::set_transform);
+    MethodBinder::bind_method(D_METHOD("get_transform"), &PhysicsShapeQueryParameters3D::get_transform);
 
-    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &PhysicsShapeQueryParameters::set_margin);
-    MethodBinder::bind_method(D_METHOD("get_margin"), &PhysicsShapeQueryParameters::get_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &PhysicsShapeQueryParameters3D::set_margin);
+    MethodBinder::bind_method(D_METHOD("get_margin"), &PhysicsShapeQueryParameters3D::get_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"collision_mask"}), &PhysicsShapeQueryParameters::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsShapeQueryParameters::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"collision_mask"}), &PhysicsShapeQueryParameters3D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &PhysicsShapeQueryParameters3D::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_exclude", {"exclude"}), &PhysicsShapeQueryParameters::set_exclude);
-    MethodBinder::bind_method(D_METHOD("get_exclude"), &PhysicsShapeQueryParameters::get_exclude);
+    MethodBinder::bind_method(D_METHOD("set_exclude", {"exclude"}), &PhysicsShapeQueryParameters3D::set_exclude);
+    MethodBinder::bind_method(D_METHOD("get_exclude"), &PhysicsShapeQueryParameters3D::get_exclude);
 
-    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", {"enable"}), &PhysicsShapeQueryParameters::set_collide_with_bodies);
-    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &PhysicsShapeQueryParameters::is_collide_with_bodies_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_bodies", {"enable"}), &PhysicsShapeQueryParameters3D::set_collide_with_bodies);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_bodies_enabled"), &PhysicsShapeQueryParameters3D::is_collide_with_bodies_enabled);
 
-    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", {"enable"}), &PhysicsShapeQueryParameters::set_collide_with_areas);
-    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &PhysicsShapeQueryParameters::is_collide_with_areas_enabled);
+    MethodBinder::bind_method(D_METHOD("set_collide_with_areas", {"enable"}), &PhysicsShapeQueryParameters3D::set_collide_with_areas);
+    MethodBinder::bind_method(D_METHOD("is_collide_with_areas_enabled"), &PhysicsShapeQueryParameters3D::is_collide_with_areas_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "exclude", PropertyHint::None, itos(int8_t(VariantType::_RID)) + ":"), "set_exclude", "get_exclude");
@@ -277,7 +277,7 @@ void PhysicsShapeQueryParameters::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collide_with_areas"), "set_collide_with_areas", "is_collide_with_areas_enabled");
 }
 
-PhysicsShapeQueryParameters::PhysicsShapeQueryParameters() {
+PhysicsShapeQueryParameters3D::PhysicsShapeQueryParameters3D() {
 
     margin = 0;
     collision_mask = 0x7FFFFFFF;
@@ -287,7 +287,7 @@ PhysicsShapeQueryParameters::PhysicsShapeQueryParameters() {
 
 /////////////////////////////////////
 
-Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Dictionary PhysicsDirectSpaceState3D::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
     HashSet<RID> exclude;
@@ -310,7 +310,7 @@ Dictionary PhysicsDirectSpaceState::_intersect_ray(const Vector3 &p_from, const 
     return d;
 }
 
-Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results) {
+Array PhysicsDirectSpaceState3D::_intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results) {
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
@@ -332,7 +332,7 @@ Array PhysicsDirectSpaceState::_intersect_shape(const Ref<PhysicsShapeQueryParam
     return Array(eastl::move(ret));
 }
 
-Array PhysicsDirectSpaceState::_cast_motion(const Ref<PhysicsShapeQueryParameters> &p_shape_query, const Vector3 &p_motion) {
+Array PhysicsDirectSpaceState3D::_cast_motion(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, const Vector3 &p_motion) {
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
@@ -346,7 +346,7 @@ Array PhysicsDirectSpaceState::_cast_motion(const Ref<PhysicsShapeQueryParameter
     ret[1] = closest_unsafe;
     return ret;
 }
-Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParameters> &p_shape_query, int p_max_results) {
+Array PhysicsDirectSpaceState3D::_collide_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results) {
 
     ERR_FAIL_COND_V(not p_shape_query, Array());
 
@@ -362,7 +362,7 @@ Array PhysicsDirectSpaceState::_collide_shape(const Ref<PhysicsShapeQueryParamet
         r[i] = ret[i];
     return Array(eastl::move(r));
 }
-Dictionary PhysicsDirectSpaceState::_get_rest_info(const Ref<PhysicsShapeQueryParameters> &p_shape_query) {
+Dictionary PhysicsDirectSpaceState3D::_get_rest_info(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query) {
 
     ERR_FAIL_COND_V(not p_shape_query, Dictionary());
 
@@ -383,49 +383,49 @@ Dictionary PhysicsDirectSpaceState::_get_rest_info(const Ref<PhysicsShapeQueryPa
     return r;
 }
 
-PhysicsDirectSpaceState::PhysicsDirectSpaceState() {
+PhysicsDirectSpaceState3D::PhysicsDirectSpaceState3D() {
 }
 
-void PhysicsDirectSpaceState::_bind_methods() {
+void PhysicsDirectSpaceState3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("intersect_ray", {"from", "to", "exclude", "collision_mask", "collide_with_bodies", "collide_with_areas"}), &PhysicsDirectSpaceState::_intersect_ray, {DEFVAL(Array()), DEFVAL(0x7FFFFFFF), DEFVAL(true), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("intersect_shape", {"shape", "max_results"}), &PhysicsDirectSpaceState::_intersect_shape, {DEFVAL(32)});
-    MethodBinder::bind_method(D_METHOD("cast_motion", {"shape", "motion"}), &PhysicsDirectSpaceState::_cast_motion);
-    MethodBinder::bind_method(D_METHOD("collide_shape", {"shape", "max_results"}), &PhysicsDirectSpaceState::_collide_shape, {DEFVAL(32)});
-    MethodBinder::bind_method(D_METHOD("get_rest_info", {"shape"}), &PhysicsDirectSpaceState::_get_rest_info);
+    MethodBinder::bind_method(D_METHOD("intersect_ray", {"from", "to", "exclude", "collision_mask", "collide_with_bodies", "collide_with_areas"}), &PhysicsDirectSpaceState3D::_intersect_ray, {DEFVAL(Array()), DEFVAL(0x7FFFFFFF), DEFVAL(true), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("intersect_shape", {"shape", "max_results"}), &PhysicsDirectSpaceState3D::_intersect_shape, {DEFVAL(32)});
+    MethodBinder::bind_method(D_METHOD("cast_motion", {"shape", "motion"}), &PhysicsDirectSpaceState3D::_cast_motion);
+    MethodBinder::bind_method(D_METHOD("collide_shape", {"shape", "max_results"}), &PhysicsDirectSpaceState3D::_collide_shape, {DEFVAL(32)});
+    MethodBinder::bind_method(D_METHOD("get_rest_info", {"shape"}), &PhysicsDirectSpaceState3D::_get_rest_info);
 }
 
-int PhysicsShapeQueryResult::get_result_count() const {
+int PhysicsShapeQueryResult3D::get_result_count() const {
 
     return result.size();
 }
-RID PhysicsShapeQueryResult::get_result_rid(int p_idx) const {
+RID PhysicsShapeQueryResult3D::get_result_rid(int p_idx) const {
 
     return result[p_idx].rid;
 }
-ObjectID PhysicsShapeQueryResult::get_result_object_id(int p_idx) const {
+ObjectID PhysicsShapeQueryResult3D::get_result_object_id(int p_idx) const {
 
     return result[p_idx].collider_id;
 }
-Object *PhysicsShapeQueryResult::get_result_object(int p_idx) const {
+Object *PhysicsShapeQueryResult3D::get_result_object(int p_idx) const {
 
     return result[p_idx].collider;
 }
-int PhysicsShapeQueryResult::get_result_object_shape(int p_idx) const {
+int PhysicsShapeQueryResult3D::get_result_object_shape(int p_idx) const {
 
     return result[p_idx].shape;
 }
 
-PhysicsShapeQueryResult::PhysicsShapeQueryResult() {
+PhysicsShapeQueryResult3D::PhysicsShapeQueryResult3D() {
 }
 
-void PhysicsShapeQueryResult::_bind_methods() {
+void PhysicsShapeQueryResult3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("get_result_count"), &PhysicsShapeQueryResult::get_result_count);
-    MethodBinder::bind_method(D_METHOD("get_result_rid", {"idx"}), &PhysicsShapeQueryResult::get_result_rid);
-    MethodBinder::bind_method(D_METHOD("get_result_object_id", {"idx"}), &PhysicsShapeQueryResult::get_result_object_id);
-    MethodBinder::bind_method(D_METHOD("get_result_object", {"idx"}), &PhysicsShapeQueryResult::get_result_object);
-    MethodBinder::bind_method(D_METHOD("get_result_object_shape", {"idx"}), &PhysicsShapeQueryResult::get_result_object_shape);
+    MethodBinder::bind_method(D_METHOD("get_result_count"), &PhysicsShapeQueryResult3D::get_result_count);
+    MethodBinder::bind_method(D_METHOD("get_result_rid", {"idx"}), &PhysicsShapeQueryResult3D::get_result_rid);
+    MethodBinder::bind_method(D_METHOD("get_result_object_id", {"idx"}), &PhysicsShapeQueryResult3D::get_result_object_id);
+    MethodBinder::bind_method(D_METHOD("get_result_object", {"idx"}), &PhysicsShapeQueryResult3D::get_result_object);
+    MethodBinder::bind_method(D_METHOD("get_result_object_shape", {"idx"}), &PhysicsShapeQueryResult3D::get_result_object_shape);
 }
 
 ///////////////////////////////////////

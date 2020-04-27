@@ -855,7 +855,7 @@ int ConcavePolygonShape2DSW::_generate_bvh(BVH *p_bvh, int p_len, int p_depth) {
 
     if (p_len == 1) {
 
-        bvh_depth = MAX(p_depth, bvh_depth);
+        bvh_depth = M_MAX(p_depth, bvh_depth);
         bvh.push_back(*p_bvh);
         return bvh.size() - 1;
     }

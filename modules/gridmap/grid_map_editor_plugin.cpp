@@ -898,7 +898,7 @@ void GridMapEditor::update_palette() {
     if (display_mode == DISPLAY_THUMBNAIL) {
         mesh_library_palette->set_max_columns(0);
         mesh_library_palette->set_icon_mode(ItemList::ICON_MODE_TOP);
-        mesh_library_palette->set_fixed_column_width(min_size * MAX(size_slider->get_value(), 1.5));
+        mesh_library_palette->set_fixed_column_width(min_size * M_MAX(size_slider->get_value(), 1.5));
     } else if (display_mode == DISPLAY_LIST) {
         mesh_library_palette->set_max_columns(1);
         mesh_library_palette->set_icon_mode(ItemList::ICON_MODE_LEFT);
@@ -1060,13 +1060,13 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
             for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
 
                 Vector3 p = axis_n1 * j + axis_n2 * k;
-                float trans = Math::pow(MAX(0, 1.0f - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
+                float trans = Math::pow(M_MAX(0, 1.0f - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pj = axis_n1 * (j + 1) + axis_n2 * k;
-                float transj = Math::pow(MAX(0, 1.0f - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
+                float transj = Math::pow(M_MAX(0, 1.0f - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pk = axis_n1 * j + axis_n2 * (k + 1);
-                float transk = Math::pow(MAX(0, 1.0f - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
+                float transk = Math::pow(M_MAX(0, 1.0f - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
 
                 grid_points[i].push_back(p);
                 grid_points[i].push_back(pk);
@@ -1083,7 +1083,7 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         SurfaceArrays d;
         d.set_positions(eastl::move(grid_points[i]));
         d.m_colors = eastl::move(grid_colors[i]);
-        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServerEnums::PRIMITIVE_LINES, d);
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], RenderingServerEnums::PRIMITIVE_LINES, d);
         RenderingServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
     }
 }

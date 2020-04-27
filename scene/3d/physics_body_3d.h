@@ -75,9 +75,9 @@ public:
     PhysicsBody3D();
 };
 
-class StaticBody : public PhysicsBody3D {
+class StaticBody3D : public PhysicsBody3D {
 
-    GDCLASS(StaticBody,PhysicsBody3D)
+    GDCLASS(StaticBody3D,PhysicsBody3D)
 
     Vector3 constant_linear_velocity;
     Vector3 constant_angular_velocity;
@@ -98,8 +98,8 @@ public:
     Vector3 get_constant_linear_velocity() const;
     Vector3 get_constant_angular_velocity() const;
 
-    StaticBody();
-    ~StaticBody() override;
+    StaticBody3D();
+    ~StaticBody3D() override;
 
 private:
     void _reload_physics_characteristics();
@@ -119,7 +119,7 @@ public:
 
 protected:
     bool can_sleep;
-    PhysicsDirectBodyState *state;
+    PhysicsDirectBodyState3D *state;
     Mode mode;
 
     real_t mass;
@@ -260,9 +260,9 @@ private:
 
 class KinematicCollision;
 
-class KinematicBody : public PhysicsBody3D {
+class KinematicBody3D : public PhysicsBody3D {
 
-    GDCLASS(KinematicBody,PhysicsBody3D)
+    GDCLASS(KinematicBody3D,PhysicsBody3D)
 
 public:
     struct Collision {
@@ -325,17 +325,17 @@ public:
     int get_slide_count() const;
     Collision get_slide_collision(int p_bounce) const;
 
-    KinematicBody();
-    ~KinematicBody() override;
+    KinematicBody3D();
+    ~KinematicBody3D() override;
 };
 
 class KinematicCollision : public RefCounted {
 
     GDCLASS(KinematicCollision,RefCounted)
 
-    KinematicBody *owner;
-    friend class KinematicBody;
-    KinematicBody::Collision collision;
+    KinematicBody3D *owner;
+    friend class KinematicBody3D;
+    KinematicBody3D::Collision collision;
 
 protected:
     static void _bind_methods();
@@ -356,9 +356,9 @@ public:
     KinematicCollision();
 };
 
-class PhysicalBone : public PhysicsBody3D {
+class PhysicalBone3D : public PhysicsBody3D {
 
-    GDCLASS(PhysicalBone,PhysicsBody3D)
+    GDCLASS(PhysicalBone3D,PhysicsBody3D)
 
 public:
     enum JointType {
@@ -601,8 +601,8 @@ public:
     void apply_central_impulse(const Vector3 &p_impulse);
     void apply_impulse(const Vector3 &p_pos, const Vector3 &p_impulse);
 
-    PhysicalBone();
-    ~PhysicalBone() override;
+    PhysicalBone3D();
+    ~PhysicalBone3D() override;
 
 private:
     void update_bone_id();

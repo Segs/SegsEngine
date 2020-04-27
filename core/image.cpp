@@ -137,13 +137,13 @@ static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format
 
         if (p_mipmaps >= 0) {
 
-            w = MAX(minw, w >> 1);
-            h = MAX(minh, h >> 1);
+            w = M_MAX(minw, w >> 1);
+            h = M_MAX(minh, h >> 1);
         } else {
             if (w == minw && h == minh)
                 break;
-            w = MAX(minw, w >> 1);
-            h = MAX(minh, h >> 1);
+            w = M_MAX(minw, w >> 1);
+            h = M_MAX(minh, h >> 1);
         }
         mm++;
     }
@@ -151,7 +151,7 @@ static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format
     r_mipmaps = mm;
     return size;
 }
-struct CodecPluginResolver : public ResolverInterface
+struct CodecPluginResolver final : public ResolverInterface
 {
     bool new_plugin_detected(QObject * ob) final {
         bool res=false;
@@ -499,8 +499,8 @@ void Image::_get_mipmap_offset_and_size(int p_mipmap, int &r_offset, int &r_widt
         s *= pixel_size;
         s >>= pixel_rshift;
         ofs += s;
-        w = MAX(minw, w >> 1);
-        h = MAX(minh, h >> 1);
+        w = M_MAX(minw, w >> 1);
+        h = M_MAX(minh, h >> 1);
     }
 
     r_offset = ofs;
@@ -573,7 +573,7 @@ int Image::get_mipmap_count() const {
 template <uint32_t read_bytes, bool read_alpha, uint32_t write_bytes, bool write_alpha, bool read_gray, bool write_gray>
 static void _convert(int p_width, int p_height, const uint8_t *p_src, uint8_t *p_dst) {
 
-    uint32_t max_bytes = MAX(read_bytes, write_bytes);
+    uint32_t max_bytes = M_MAX(read_bytes, write_bytes);
 
     for (int y = 0; y < p_height; y++) {
         for (int x = 0; x < p_width; x++) {
@@ -951,7 +951,7 @@ static void _scale_lanczos(const uint8_t *__restrict p_src, uint8_t *__restrict 
 
         float x_scale = float(src_width) / float(dst_width);
 
-        float scale_factor = MAX(x_scale, 1); // A larger kernel is required only when downscaling
+        float scale_factor = M_MAX(x_scale, 1); // A larger kernel is required only when downscaling
         int32_t half_kernel = int32_t(LANCZOS_TYPE * scale_factor);
 
         float *kernel = memnew_arr(float, half_kernel * 2);
@@ -960,7 +960,7 @@ static void _scale_lanczos(const uint8_t *__restrict p_src, uint8_t *__restrict 
 
             // The corresponding point on the source image
             float src_x = (buffer_x + 0.5f) * x_scale; // Offset by 0.5 so it uses the pixel's center
-            int32_t start_x = MAX(0, int32_t(src_x) - half_kernel + 1);
+            int32_t start_x = M_MAX(0, int32_t(src_x) - half_kernel + 1);
             int32_t end_x = MIN(src_width - 1, int32_t(src_x) + half_kernel);
 
             // Create the kernel used by all the pixels of the column
@@ -1001,7 +1001,7 @@ static void _scale_lanczos(const uint8_t *__restrict p_src, uint8_t *__restrict 
 
         float y_scale = float(src_height) / float(dst_height);
 
-        float scale_factor = MAX(y_scale, 1);
+        float scale_factor = M_MAX(y_scale, 1);
         int32_t half_kernel = int(LANCZOS_TYPE * scale_factor);
 
         float *kernel = memnew_arr(float, half_kernel * 2);
@@ -1009,7 +1009,7 @@ static void _scale_lanczos(const uint8_t *__restrict p_src, uint8_t *__restrict 
         for (int32_t dst_y = 0; dst_y < dst_height; dst_y++) {
 
             float buffer_y = (dst_y + 0.5f) * y_scale;
-            int32_t start_y = MAX(0, int32_t(buffer_y) - half_kernel + 1);
+            int32_t start_y = M_MAX(0, int32_t(buffer_y) - half_kernel + 1);
             int32_t end_y = MIN(src_height - 1, int32_t(buffer_y) + half_kernel);
 
             for (int32_t target_y = start_y; target_y <= end_y; target_y++)
@@ -1430,8 +1430,8 @@ template <class Component, int CC, bool renormalize,
 static void _generate_po2_mipmap(const Component *p_src, Component *p_dst, uint32_t p_width, uint32_t p_height) {
 
     //fast power of 2 mipmap generation
-    uint32_t dst_w = MAX(p_width >> 1, 1);
-    uint32_t dst_h = MAX(p_height >> 1, 1);
+    uint32_t dst_w = M_MAX(p_width >> 1, 1);
+    uint32_t dst_h = M_MAX(p_height >> 1, 1);
 
     int right_step = (p_width == 1) ? 0 : CC;
     int down_step = (p_height == 1) ? 0 : (p_width * CC);
@@ -1522,8 +1522,8 @@ void Image::shrink_x2() {
             memcpy(w.ptr(), &r[ofs], new_size);
         }
 
-        width = MAX(width / 2, 1);
-        height = MAX(height / 2, 1);
+        width = M_MAX(width / 2, 1);
+        height = M_MAX(height / 2, 1);
         data = new_img;
 
     } else {
@@ -1708,7 +1708,7 @@ Error Image::generate_mipmap_roughness(RoughnessChannel p_roughness_channel, con
     double *normal_sat = nullptr; //summed area table for normalmap
     int normal_w = 0, normal_h = 0;
 
-    ERR_FAIL_COND_V_MSG(!p_normal_map || p_normal_map->empty(), ERR_INVALID_PARAMETER, "Must provide a valid normalmap for roughness mipmaps");
+    ERR_FAIL_COND_V_MSG(!p_normal_map || p_normal_map->is_empty(), ERR_INVALID_PARAMETER, "Must provide a valid normalmap for roughness mipmaps");
 
     Ref<Image> nm((Image *)p_normal_map->duplicate().get());
     if (nm->is_compressed()) {
@@ -1732,7 +1732,7 @@ Error Image::generate_mipmap_roughness(RoughnessChannel p_roughness_channel, con
             Color color = nm->get_pixel(x, y);
             normal[0] = color.r * 2.0 - 1.0;
             normal[1] = color.g * 2.0 - 1.0;
-            normal[2] = Math::sqrt(MAX(0.0, 1.0 - (normal[0] * normal[0] + normal[1] * normal[1]))); //reconstruct if missing
+            normal[2] = Math::sqrt(M_MAX(0.0, 1.0 - (normal[0] * normal[0] + normal[1] * normal[1]))); //reconstruct if missing
 
             line_sum[0] += normal[0];
             line_sum[1] += normal[1];
@@ -1906,7 +1906,7 @@ void Image::clear_mipmaps() {
     if (!mipmaps)
         return;
 
-    if (empty())
+    if (is_empty())
         return;
 
     int ofs, w, h;
@@ -1916,7 +1916,7 @@ void Image::clear_mipmaps() {
     mipmaps = false;
 }
 
-bool Image::empty() const {
+bool Image::is_empty() const {
 
     return (data.size() == 0);
 }
@@ -3114,7 +3114,7 @@ void Image::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("create", {"width", "height", "use_mipmaps", "format"}), &Image::_create_empty);
     MethodBinder::bind_method(D_METHOD("create_from_data", {"width", "height", "use_mipmaps", "format", "data"}), &Image::_create_from_data);
 
-    MethodBinder::bind_method(D_METHOD("is_empty"), &Image::empty);
+    MethodBinder::bind_method(D_METHOD("is_empty"), &Image::is_empty);
 
     MethodBinder::bind_method(D_METHOD("load", {"path"}), &Image::load);
     MethodBinder::bind_method(D_METHOD("save_png", {"path"}), &Image::save_png);
@@ -3125,7 +3125,7 @@ void Image::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("detect_used_channels", {"source"}), &Image::detect_used_channels, {DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC))});
     MethodBinder::bind_method(D_METHOD("compress", {"mode", "source", "lossy_quality"}), &Image::compress, {DEFVAL(int(ImageCompressSource::COMPRESS_SOURCE_GENERIC)), DEFVAL(0.7f)});
-    MethodBinder::bind_method(D_METHOD("compress_from_channels", {"mode", "channels", "lossy_quality"}), &Image::compress, {DEFVAL(0.7)});
+    MethodBinder::bind_method(D_METHOD("compress_from_channels", {"mode", "channels", "lossy_quality"}), &Image::compress_from_channels, {DEFVAL(0.7)});
     MethodBinder::bind_method(D_METHOD("decompress"), &Image::decompress);
     MethodBinder::bind_method(D_METHOD("is_compressed"), &Image::is_compressed);
 
@@ -3217,22 +3217,24 @@ void Image::_bind_methods() {
     BIND_ENUM_CONSTANT(ALPHA_BIT)
     BIND_ENUM_CONSTANT(ALPHA_BLEND)
 
-    BIND_ENUM_CONSTANT(COMPRESS_S3TC)
-    BIND_ENUM_CONSTANT(COMPRESS_PVRTC2)
-    BIND_ENUM_CONSTANT(COMPRESS_PVRTC4)
-    BIND_ENUM_CONSTANT(COMPRESS_ETC)
-    BIND_ENUM_CONSTANT(COMPRESS_ETC2)
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_S3TC);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_PVRTC2);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_PVRTC4);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_ETC);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_ETC2);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_BPTC);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressMode::COMPRESS_MAX);
 
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_L)
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_LA)
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_R)
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RG)
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RGB)
-    BIND_NS_ENUM_CONSTANT(ImageUsedChannels,USED_CHANNELS_RGBA)
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_L);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_LA);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_R);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_RG);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_RGB);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageUsedChannels::USED_CHANNELS_RGBA);
 
-    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_GENERIC)
-    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_SRGB)
-    BIND_NS_ENUM_CONSTANT(ImageCompressSource,COMPRESS_SOURCE_NORMAL)
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressSource::COMPRESS_SOURCE_GENERIC);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressSource::COMPRESS_SOURCE_SRGB);
+    BIND_GLOBAL_ENUM_CONSTANT(ImageCompressSource::COMPRESS_SOURCE_NORMAL);
 }
 
 void Image::normalmap_to_xy() {
@@ -3449,9 +3451,9 @@ void Image::fix_alpha_edges() {
             int closest_dist = max_dist;
             uint8_t closest_color[3];
 
-            int from_x = MAX(0, j - max_radius);
+            int from_x = M_MAX(0, j - max_radius);
             int to_x = MIN(width - 1, j + max_radius);
-            int from_y = MAX(0, i - max_radius);
+            int from_y = M_MAX(0, i - max_radius);
             int to_y = MIN(height - 1, i + max_radius);
 
             for (int k = from_y; k <= to_y; k++) {

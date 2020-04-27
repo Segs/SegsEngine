@@ -39,6 +39,10 @@
 #include "editor/editor_settings.h"
 #include "scene/main/scene_tree.h"
 #include "scene/3d/camera_3d.h"
+#include "scene/3d/collision_polygon_3d.h"
+#include "scene/3d/immediate_geometry_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+
 #include "spatial_editor_plugin.h"
 
 IMPL_GDCLASS(CollisionPolygon3DEditor)
@@ -567,7 +571,7 @@ CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
     handle_material->set_point_size(handle->get_width());
     handle_material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, handle);
 
-    pointsm = memnew(MeshInstance);
+    pointsm = memnew(MeshInstance3D);
     imgeom->add_child(pointsm);
     m = make_ref_counted<ArrayMesh>();
     pointsm->set_mesh(m);

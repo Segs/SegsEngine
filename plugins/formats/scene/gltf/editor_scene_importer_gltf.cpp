@@ -2854,12 +2854,12 @@ namespace {
         return bone_attachment;
     }
 
-    MeshInstance* _generate_mesh_instance(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    MeshInstance3D* _generate_mesh_instance(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
         ERR_FAIL_INDEX_V(gltf_node->mesh, state.meshes.size(), nullptr);
 
-        MeshInstance* mi = memnew(MeshInstance);
+        MeshInstance3D* mi = memnew(MeshInstance3D);
         print_verbose("glTF: Creating mesh for: " + gltf_node->name);
 
         GLTFMesh& mesh = state.meshes[gltf_node->mesh];
@@ -3041,18 +3041,18 @@ namespace {
             }
 
             for (size_t i = 0; i < track.rotation_track.times.size(); i++) {
-                length = MAX(length, track.rotation_track.times[i]);
+                length = M_MAX(length, track.rotation_track.times[i]);
             }
             for (size_t i = 0; i < track.translation_track.times.size(); i++) {
-                length = MAX(length, track.translation_track.times[i]);
+                length = M_MAX(length, track.translation_track.times[i]);
             }
             for (size_t i = 0; i < track.scale_track.times.size(); i++) {
-                length = MAX(length, track.scale_track.times[i]);
+                length = M_MAX(length, track.scale_track.times[i]);
             }
 
             for (size_t i = 0; i < track.weight_tracks.size(); i++) {
                 for (size_t j = 0; j < track.weight_tracks[i].times.size(); j++) {
-                    length = MAX(length, track.weight_tracks[i].times[j]);
+                    length = M_MAX(length, track.weight_tracks[i].times[j]);
                 }
             }
 
@@ -3189,7 +3189,7 @@ namespace {
             const GLTFSkinIndex skin_i = node->skin;
 
             auto mi_element = state.scene_nodes.find(node_i);
-            MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
+            MeshInstance3D* mi = object_cast<MeshInstance3D>(mi_element->second);
             ERR_FAIL_COND(mi == nullptr);
 
             const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;

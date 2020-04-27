@@ -119,14 +119,14 @@ void SpatialEditorViewport::_update_camera(float p_interp_delta) {
             // Higher inertia should increase "lag" (lerp with factor between 0 and 1)
             // Inertia of zero should produce instant movement (lerp with factor of 1) in this case it returns a really high value and gets clamped to 1.
             real_t inertia = EDITOR_GET("editors/3d/freelook/freelook_inertia");
-            inertia = MAX(0.001f, inertia);
+            inertia = M_MAX(0.001f, inertia);
             real_t factor = 1.0f / inertia * p_interp_delta;
 
             // We interpolate a different point here, because in freelook mode the focus point (cursor.pos) orbits around eye_pos
             camera_cursor.eye_pos = old_camera_cursor.eye_pos.linear_interpolate(cursor.eye_pos, CLAMP(factor, 0, 1));
 
             float orbit_inertia = EDITOR_GET("editors/3d/navigation_feel/orbit_inertia");
-            orbit_inertia = MAX(0.0001f, orbit_inertia);
+            orbit_inertia = M_MAX(0.0001f, orbit_inertia);
             camera_cursor.x_rot = Math::lerp(old_camera_cursor.x_rot, cursor.x_rot, MIN(1.f, p_interp_delta * (1 / orbit_inertia)));
             camera_cursor.y_rot = Math::lerp(old_camera_cursor.y_rot, cursor.y_rot, MIN(1.f, p_interp_delta * (1 / orbit_inertia)));
 
@@ -150,9 +150,9 @@ void SpatialEditorViewport::_update_camera(float p_interp_delta) {
             manipulated |= Input::get_singleton()->is_key_pressed(KEY_ALT);
             manipulated |= Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 
-            float orbit_inertia = MAX(0.00001f, manipulated ? manip_orbit_inertia : free_orbit_inertia);
-            float translation_inertia = MAX(0.0001f, manipulated ? manip_translation_inertia : free_translation_inertia);
-            zoom_inertia = MAX(0.0001f, zoom_inertia);
+            float orbit_inertia = M_MAX(0.00001f, manipulated ? manip_orbit_inertia : free_orbit_inertia);
+            float translation_inertia = M_MAX(0.0001f, manipulated ? manip_translation_inertia : free_translation_inertia);
+            zoom_inertia = M_MAX(0.0001f, zoom_inertia);
 
             camera_cursor.x_rot = Math::lerp(old_camera_cursor.x_rot, cursor.x_rot, MIN(1.f, p_interp_delta * (1 / orbit_inertia)));
             camera_cursor.y_rot = Math::lerp(old_camera_cursor.y_rot, cursor.y_rot, MIN(1.f, p_interp_delta * (1 / orbit_inertia)));
@@ -471,7 +471,7 @@ void SpatialEditorViewport::_select_region() {
     if (cursor.region_begin == cursor.region_end)
         return; //nothing really
 
-    float z_offset = MAX(0.0f, 5.0f - get_znear());
+    float z_offset = M_MAX(0.0f, 5.0f - get_znear());
 
     Vector3 box[4] = {
         Vector3(
@@ -479,16 +479,16 @@ void SpatialEditorViewport::_select_region() {
                 MIN(cursor.region_begin.y, cursor.region_end.y),
                 z_offset),
         Vector3(
-                MAX(cursor.region_begin.x, cursor.region_end.x),
+                M_MAX(cursor.region_begin.x, cursor.region_end.x),
                 MIN(cursor.region_begin.y, cursor.region_end.y),
                 z_offset),
         Vector3(
-                MAX(cursor.region_begin.x, cursor.region_end.x),
-                MAX(cursor.region_begin.y, cursor.region_end.y),
+                M_MAX(cursor.region_begin.x, cursor.region_end.x),
+                M_MAX(cursor.region_begin.y, cursor.region_end.y),
                 z_offset),
         Vector3(
                 MIN(cursor.region_begin.x, cursor.region_end.x),
-                MAX(cursor.region_begin.y, cursor.region_end.y),
+                M_MAX(cursor.region_begin.y, cursor.region_end.y),
                 z_offset)
     };
 
@@ -2977,9 +2977,9 @@ void SpatialEditorViewport::update_transform_gizmo_view() {
     float gizmo_size = EditorSettings::get_singleton()->get("editors/3d/manipulator_gizmo_size");
     // At low viewport heights, multiply the gizmo scale based on the viewport height.
     // This prevents the gizmo from growing very large and going outside the viewport.
-    const int viewport_base_height = 400 * MAX(1, EDSCALE);
+    const int viewport_base_height = 400 * M_MAX(1, EDSCALE);
     gizmo_scale =
-            gizmo_size / Math::abs(dd) * MAX(1, EDSCALE) *
+            gizmo_size / Math::abs(dd) * M_MAX(1, EDSCALE) *
             MIN(viewport_base_height, viewport_container->get_size().height) / viewport_base_height /
             viewport_container->get_stretch_shrink();
     Vector3 scale = Vector3(1, 1, 1) * gizmo_scale;
@@ -3226,7 +3226,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
 
     for (int i = 0; i < instances.size(); i++) {
 
-        MeshInstance *mesh_instance = object_cast<MeshInstance>(ObjectDB::get_instance(instances[i]));
+        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(ObjectDB::get_instance(instances[i]));
 
         if (!mesh_instance)
             continue;
@@ -3270,7 +3270,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
 AABB SpatialEditorViewport::_calculate_spatial_bounds(const Node3D *p_parent, bool p_exclude_toplevel_transform) {
     AABB bounds;
 
-    const MeshInstance *mesh_instance = object_cast<MeshInstance>(p_parent);
+    const MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(p_parent);
     if (mesh_instance) {
         bounds = mesh_instance->get_aabb();
     }
@@ -3308,7 +3308,7 @@ void SpatialEditorViewport::_create_preview(const Vector<String> &files) const {
             continue;
 
         if (mesh != nullptr) {
-            MeshInstance *mesh_instance = memnew(MeshInstance);
+            MeshInstance3D *mesh_instance = memnew(MeshInstance3D);
             mesh_instance->set_mesh(mesh);
             preview_node->add_child(mesh_instance);
         } else {
@@ -3360,7 +3360,7 @@ bool SpatialEditorViewport::_create_instance(Node *parent, StringView path, cons
 
     if (mesh != nullptr || scene != nullptr) {
         if (mesh != nullptr) {
-            MeshInstance *mesh_instance = memnew(MeshInstance);
+            MeshInstance3D *mesh_instance = memnew(MeshInstance3D);
             mesh_instance->set_mesh(mesh);
             mesh_instance->set_name(PathUtils::get_basename(PathUtils::get_file(path)));
             instanced_scene = mesh_instance;
@@ -5308,8 +5308,8 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
         }
     }
 
-    PhysicsDirectSpaceState *ss = get_tree()->get_root()->get_world()->get_direct_space_state();
-    PhysicsDirectSpaceState::RayResult result;
+    PhysicsDirectSpaceState3D *ss = get_tree()->get_root()->get_world()->get_direct_space_state();
+    PhysicsDirectSpaceState3D::RayResult result;
 
     Array keys = snap_data.keys();
 

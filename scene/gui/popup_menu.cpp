@@ -66,7 +66,7 @@ Size2 PopupMenu::get_minimum_size() const {
     float max_w = 0;
     float icon_w = 0;
     int font_h = font->get_height();
-    int check_w = MAX(get_icon("checked")->get_width(), get_icon("radio_checked")->get_width()) + hseparation;
+    int check_w = M_MAX(get_icon("checked")->get_width(), get_icon("radio_checked")->get_width()) + hseparation;
     int accel_max_w = 0;
     bool has_check = false;
 
@@ -76,8 +76,8 @@ Size2 PopupMenu::get_minimum_size() const {
         if (items[i].icon) {
 
             Size2 icon_size = items[i].icon->get_size();
-            size.height = MAX(icon_size.height, font_h);
-            icon_w = MAX(icon_size.width + hseparation, icon_w);
+            size.height = M_MAX(icon_size.height, font_h);
+            icon_w = M_MAX(icon_size.width + hseparation, icon_w);
         } else {
 
             size.height = font_h;
@@ -97,13 +97,13 @@ Size2 PopupMenu::get_minimum_size() const {
 
             int accel_w = hseparation * 2;
             accel_w += font->get_string_size(_get_accel_text(i)).width;
-            accel_max_w = MAX(accel_w, accel_max_w);
+            accel_max_w = M_MAX(accel_w, accel_max_w);
         }
 
         if (!items[i].submenu.empty())
             size.width += get_icon("submenu")->get_width();
 
-        max_w = MAX(max_w, size.width);
+        max_w = M_MAX(max_w, size.width);
 
         minsize.height += size.height;
     }
@@ -139,7 +139,7 @@ int PopupMenu::_get_mouse_over(const Point2 &p_over) const {
         if (items[i].icon) {
 
             Size2 icon_size = items[i].icon->get_size();
-            h = MAX(icon_size.height, font_h);
+            h = M_MAX(icon_size.height, font_h);
         } else {
 
             h = font_h;
@@ -498,7 +498,7 @@ void PopupMenu::_notification(int p_what) {
             for (int i = 0; i < items.size(); i++) {
 
                 if (items[i].icon)
-                    icon_ofs = MAX(items[i].icon->get_size().width, icon_ofs);
+                    icon_ofs = M_MAX(items[i].icon->get_size().width, icon_ofs);
 
                 if (items[i].checkable_type)
                     has_check = true;
@@ -508,7 +508,7 @@ void PopupMenu::_notification(int p_what) {
 
             float check_ofs = 0.0;
             if (has_check)
-                check_ofs = MAX(get_icon("checked")->get_width(), get_icon("radio_checked")->get_width()) + hseparation;
+                check_ofs = M_MAX(get_icon("checked")->get_width(), get_icon("radio_checked")->get_width()) + hseparation;
 
             for (int i = 0; i < items.size(); i++) {
 
@@ -521,7 +521,7 @@ void PopupMenu::_notification(int p_what) {
                 if (items[i].icon) {
 
                     icon_size = items[i].icon->get_size();
-                    h = MAX(icon_size.height, font_h);
+                    h = M_MAX(icon_size.height, font_h);
                 } else {
 
                     h = font_h;
@@ -544,10 +544,10 @@ void PopupMenu::_notification(int p_what) {
                         int l = center - ss / 2;
                         int r = center + ss / 2;
                         if (l > item_ofs.x) {
-                            labeled_separator_left->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, l - item_ofs.x), sep_h)));
+                            labeled_separator_left->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(M_MAX(0, l - item_ofs.x), sep_h)));
                         }
                         if (r < get_size().width - style->get_margin(Margin::Right)) {
-                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0f)), Size2(MAX(0, get_size().width - style->get_margin(Margin::Right) - r), sep_h)));
+                            labeled_separator_right->draw(ci, Rect2(Point2(r, item_ofs.y + Math::floor((h - sep_h) / 2.0f)), Size2(M_MAX(0, get_size().width - style->get_margin(Margin::Right) - r), sep_h)));
                         }
                     } else {
                         separator->draw(ci, Rect2(item_ofs + Point2(0, Math::floor((h - sep_h) / 2.0f)), Size2(get_size().width - style->get_minimum_size().width, sep_h)));

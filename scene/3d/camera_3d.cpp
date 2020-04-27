@@ -36,16 +36,16 @@
 #include "core/object_tooling.h"
 #include "scene/3d/collision_object_3d.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 #include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(Camera3D)
-IMPL_GDCLASS(ClippedCamera)
+IMPL_GDCLASS(ClippedCamera3D)
 
 VARIANT_ENUM_CAST(Camera3D::Projection);
 VARIANT_ENUM_CAST(Camera3D::KeepAspect);
 VARIANT_ENUM_CAST(Camera3D::DopplerTracking);
-VARIANT_ENUM_CAST(ClippedCamera::ProcessMode);
+VARIANT_ENUM_CAST(ClippedCamera3D::ProcessMode);
 
 void Camera3D::_update_audio_listener_state() {
 }
@@ -726,13 +726,13 @@ Camera3D::~Camera3D() {
 
 ////////////////////////////////////////
 
-void ClippedCamera::set_margin(float p_margin) {
+void ClippedCamera3D::set_margin(float p_margin) {
     margin = p_margin;
 }
-float ClippedCamera::get_margin() const {
+float ClippedCamera3D::get_margin() const {
     return margin;
 }
-void ClippedCamera::set_process_mode(ProcessMode p_mode) {
+void ClippedCamera3D::set_process_mode(ProcessMode p_mode) {
 
     if (process_mode == p_mode) {
         return;
@@ -741,18 +741,18 @@ void ClippedCamera::set_process_mode(ProcessMode p_mode) {
     set_process_internal(process_mode == CLIP_PROCESS_IDLE);
     set_physics_process_internal(process_mode == CLIP_PROCESS_PHYSICS);
 }
-ClippedCamera::ProcessMode ClippedCamera::get_process_mode() const {
+ClippedCamera3D::ProcessMode ClippedCamera3D::get_process_mode() const {
     return process_mode;
 }
 
-Transform ClippedCamera::get_camera_transform() const {
+Transform ClippedCamera3D::get_camera_transform() const {
 
     Transform t = Camera3D::get_camera_transform();
     t.origin += -t.basis.get_axis(Vector3::AXIS_Z).normalized() * clip_offset;
     return t;
 }
 
-void ClippedCamera::_notification(int p_what) {
+void ClippedCamera3D::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS || p_what == NOTIFICATION_INTERNAL_PHYSICS_PROCESS) {
 
         Node3D *parent = object_cast<Node3D>(get_parent());
@@ -760,7 +760,7 @@ void ClippedCamera::_notification(int p_what) {
             return;
         }
 
-        PhysicsDirectSpaceState *dspace = get_world()->get_direct_space_state();
+        PhysicsDirectSpaceState3D *dspace = get_world()->get_direct_space_state();
         ERR_FAIL_COND(!dspace); // most likely physics set to threads
 
         Vector3 cam_fw = -get_global_transform().basis.get_axis(Vector3::AXIS_Z).normalized();
@@ -813,17 +813,17 @@ void ClippedCamera::_notification(int p_what) {
     }
 }
 
-void ClippedCamera::set_collision_mask(uint32_t p_mask) {
+void ClippedCamera3D::set_collision_mask(uint32_t p_mask) {
 
     collision_mask = p_mask;
 }
 
-uint32_t ClippedCamera::get_collision_mask() const {
+uint32_t ClippedCamera3D::get_collision_mask() const {
 
     return collision_mask;
 }
 
-void ClippedCamera::set_collision_mask_bit(int p_bit, bool p_value) {
+void ClippedCamera3D::set_collision_mask_bit(int p_bit, bool p_value) {
 
     uint32_t mask = get_collision_mask();
     if (p_value)
@@ -833,17 +833,17 @@ void ClippedCamera::set_collision_mask_bit(int p_bit, bool p_value) {
     set_collision_mask(mask);
 }
 
-bool ClippedCamera::get_collision_mask_bit(int p_bit) const {
+bool ClippedCamera3D::get_collision_mask_bit(int p_bit) const {
 
     return get_collision_mask() & (1 << p_bit);
 }
 
-void ClippedCamera::add_exception_rid(const RID &p_rid) {
+void ClippedCamera3D::add_exception_rid(const RID &p_rid) {
 
     exclude.insert(p_rid);
 }
 
-void ClippedCamera::add_exception(const Object *p_object) {
+void ClippedCamera3D::add_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
     const CollisionObject3D *co = object_cast<CollisionObject3D>(p_object);
@@ -852,12 +852,12 @@ void ClippedCamera::add_exception(const Object *p_object) {
     add_exception_rid(co->get_rid());
 }
 
-void ClippedCamera::remove_exception_rid(const RID &p_rid) {
+void ClippedCamera3D::remove_exception_rid(const RID &p_rid) {
 
     exclude.erase(p_rid);
 }
 
-void ClippedCamera::remove_exception(const Object *p_object) {
+void ClippedCamera3D::remove_exception(const Object *p_object) {
 
     ERR_FAIL_NULL(p_object);
     const CollisionObject3D *co = object_cast<CollisionObject3D>(p_object);
@@ -866,65 +866,65 @@ void ClippedCamera::remove_exception(const Object *p_object) {
     remove_exception_rid(co->get_rid());
 }
 
-void ClippedCamera::clear_exceptions() {
+void ClippedCamera3D::clear_exceptions() {
 
     exclude.clear();
 }
 
-float ClippedCamera::get_clip_offset() const {
+float ClippedCamera3D::get_clip_offset() const {
 
     return clip_offset;
 }
 
-void ClippedCamera::set_clip_to_areas(bool p_clip) {
+void ClippedCamera3D::set_clip_to_areas(bool p_clip) {
 
     clip_to_areas = p_clip;
 }
 
-bool ClippedCamera::is_clip_to_areas_enabled() const {
+bool ClippedCamera3D::is_clip_to_areas_enabled() const {
 
     return clip_to_areas;
 }
 
-void ClippedCamera::set_clip_to_bodies(bool p_clip) {
+void ClippedCamera3D::set_clip_to_bodies(bool p_clip) {
 
     clip_to_bodies = p_clip;
 }
 
-bool ClippedCamera::is_clip_to_bodies_enabled() const {
+bool ClippedCamera3D::is_clip_to_bodies_enabled() const {
 
     return clip_to_bodies;
 }
 
-void ClippedCamera::_bind_methods() {
+void ClippedCamera3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &ClippedCamera::set_margin);
-    MethodBinder::bind_method(D_METHOD("get_margin"), &ClippedCamera::get_margin);
+    MethodBinder::bind_method(D_METHOD("set_margin", {"margin"}), &ClippedCamera3D::set_margin);
+    MethodBinder::bind_method(D_METHOD("get_margin"), &ClippedCamera3D::get_margin);
 
-    MethodBinder::bind_method(D_METHOD("set_process_mode", {"process_mode"}), &ClippedCamera::set_process_mode);
-    MethodBinder::bind_method(D_METHOD("get_process_mode"), &ClippedCamera::get_process_mode);
+    MethodBinder::bind_method(D_METHOD("set_process_mode", {"process_mode"}), &ClippedCamera3D::set_process_mode);
+    MethodBinder::bind_method(D_METHOD("get_process_mode"), &ClippedCamera3D::get_process_mode);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &ClippedCamera::set_collision_mask);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &ClippedCamera::get_collision_mask);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask", {"mask"}), &ClippedCamera3D::set_collision_mask);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask"), &ClippedCamera3D::get_collision_mask);
 
-    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &ClippedCamera::set_collision_mask_bit);
-    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &ClippedCamera::get_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("set_collision_mask_bit", {"bit", "value"}), &ClippedCamera3D::set_collision_mask_bit);
+    MethodBinder::bind_method(D_METHOD("get_collision_mask_bit", {"bit"}), &ClippedCamera3D::get_collision_mask_bit);
 
-    MethodBinder::bind_method(D_METHOD("add_exception_rid", {"rid"}), &ClippedCamera::add_exception_rid);
-    MethodBinder::bind_method(D_METHOD("add_exception", {"node"}), &ClippedCamera::add_exception);
+    MethodBinder::bind_method(D_METHOD("add_exception_rid", {"rid"}), &ClippedCamera3D::add_exception_rid);
+    MethodBinder::bind_method(D_METHOD("add_exception", {"node"}), &ClippedCamera3D::add_exception);
 
-    MethodBinder::bind_method(D_METHOD("remove_exception_rid", {"rid"}), &ClippedCamera::remove_exception_rid);
-    MethodBinder::bind_method(D_METHOD("remove_exception", {"node"}), &ClippedCamera::remove_exception);
+    MethodBinder::bind_method(D_METHOD("remove_exception_rid", {"rid"}), &ClippedCamera3D::remove_exception_rid);
+    MethodBinder::bind_method(D_METHOD("remove_exception", {"node"}), &ClippedCamera3D::remove_exception);
 
-    MethodBinder::bind_method(D_METHOD("set_clip_to_areas", {"enable"}), &ClippedCamera::set_clip_to_areas);
-    MethodBinder::bind_method(D_METHOD("is_clip_to_areas_enabled"), &ClippedCamera::is_clip_to_areas_enabled);
+    MethodBinder::bind_method(D_METHOD("set_clip_to_areas", {"enable"}), &ClippedCamera3D::set_clip_to_areas);
+    MethodBinder::bind_method(D_METHOD("is_clip_to_areas_enabled"), &ClippedCamera3D::is_clip_to_areas_enabled);
 
-    MethodBinder::bind_method(D_METHOD("get_clip_offset"), &ClippedCamera::get_clip_offset);
+    MethodBinder::bind_method(D_METHOD("get_clip_offset"), &ClippedCamera3D::get_clip_offset);
 
-    MethodBinder::bind_method(D_METHOD("set_clip_to_bodies", {"enable"}), &ClippedCamera::set_clip_to_bodies);
-    MethodBinder::bind_method(D_METHOD("is_clip_to_bodies_enabled"), &ClippedCamera::is_clip_to_bodies_enabled);
+    MethodBinder::bind_method(D_METHOD("set_clip_to_bodies", {"enable"}), &ClippedCamera3D::set_clip_to_bodies);
+    MethodBinder::bind_method(D_METHOD("is_clip_to_bodies_enabled"), &ClippedCamera3D::is_clip_to_bodies_enabled);
 
-    MethodBinder::bind_method(D_METHOD("clear_exceptions"), &ClippedCamera::clear_exceptions);
+    MethodBinder::bind_method(D_METHOD("clear_exceptions"), &ClippedCamera3D::clear_exceptions);
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "margin", PropertyHint::Range, "0,32,0.01"), "set_margin", "get_margin");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_process_mode", "get_process_mode");
@@ -937,7 +937,7 @@ void ClippedCamera::_bind_methods() {
     BIND_ENUM_CONSTANT(CLIP_PROCESS_PHYSICS)
     BIND_ENUM_CONSTANT(CLIP_PROCESS_IDLE)
 }
-ClippedCamera::ClippedCamera() {
+ClippedCamera3D::ClippedCamera3D() {
     margin = 0;
     clip_offset = 0;
     process_mode = CLIP_PROCESS_PHYSICS;
@@ -949,6 +949,6 @@ ClippedCamera::ClippedCamera() {
     clip_to_areas = false;
     clip_to_bodies = true;
 }
-ClippedCamera::~ClippedCamera() {
+ClippedCamera3D::~ClippedCamera3D() {
     PhysicsServer3D::get_singleton()->free_rid(pyramid_shape);
 }

@@ -125,8 +125,8 @@ struct GODOT_EXPORT Rect2 {
         if (!intersects(new_rect))
             return Rect2();
 
-        new_rect.position.x = MAX(p_rect.position.x, position.x);
-        new_rect.position.y = MAX(p_rect.position.y, position.y);
+        new_rect.position.x = M_MAX(p_rect.position.x, position.x);
+        new_rect.position.y = M_MAX(p_rect.position.y, position.y);
 
         Point2 p_rect_end = p_rect.position + p_rect.size;
         Point2 end = position + size;
@@ -144,8 +144,8 @@ struct GODOT_EXPORT Rect2 {
         new_rect.position.x = MIN(p_rect.position.x, position.x);
         new_rect.position.y = MIN(p_rect.position.y, position.y);
 
-        new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
-        new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
+        new_rect.size.x = M_MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
+        new_rect.size.y = M_MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
 
         new_rect.size = new_rect.size - new_rect.position; //make relative again
 
@@ -291,8 +291,8 @@ struct Rect2i {
         if (!intersects(new_rect))
             return Rect2i();
 
-        new_rect.position.x = MAX(p_rect.position.x, position.x);
-        new_rect.position.y = MAX(p_rect.position.y, position.y);
+        new_rect.position.x = M_MAX(p_rect.position.x, position.x);
+        new_rect.position.y = M_MAX(p_rect.position.y, position.y);
 
         Point2 p_rect_end = p_rect.position + p_rect.size;
         Point2 end = position + size;
@@ -310,8 +310,8 @@ struct Rect2i {
         new_rect.position.x = MIN(p_rect.position.x, position.x);
         new_rect.position.y = MIN(p_rect.position.y, position.y);
 
-        new_rect.size.x = MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
-        new_rect.size.y = MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
+        new_rect.size.x = M_MAX(p_rect.position.x + p_rect.size.x, position.x + size.x);
+        new_rect.size.y = M_MAX(p_rect.position.y + p_rect.size.y, position.y + size.y);
 
         new_rect.size = new_rect.size - new_rect.position; //make relative again
 

@@ -419,13 +419,13 @@ MainLoop *test() {
 
         float sharedexp = 65408.000f;
 
-        float cRed = MAX(0.0f, MIN(sharedexp, r));
-        float cGreen = MAX(0.0f, MIN(sharedexp, g));
-        float cBlue = MAX(0.0f, MIN(sharedexp, b));
+        float cRed = M_MAX(0.0f, MIN(sharedexp, r));
+        float cGreen = M_MAX(0.0f, MIN(sharedexp, g));
+        float cBlue = M_MAX(0.0f, MIN(sharedexp, b));
 
-        float cMax = MAX(cRed, MAX(cGreen, cBlue));
+        float cMax = M_MAX(cRed, M_MAX(cGreen, cBlue));
 
-        float expp = MAX(-B - 1.0f, floor(Math::log(cMax) / Math_LN2)) + 1.0f + B;
+        float expp = M_MAX(-B - 1.0f, floor(Math::log(cMax) / Math_LN2)) + 1.0f + B;
 
         float sMax = (float)floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
 

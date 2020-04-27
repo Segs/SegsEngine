@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  concave_polygon_shape.h                                              */
+/*  convex_polygon_shape_3d.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,24 +31,27 @@
 #pragma once
 
 #include "scene/resources/shape.h"
-#include "core/math/vector3.h"
+#include "core/pool_vector.h"
 
-class ConcavePolygonShape : public Shape {
+class ConvexPolygonShape3D : public Shape {
 
-    GDCLASS(ConcavePolygonShape,Shape)
+    GDCLASS(ConvexPolygonShape3D,Shape)
+
+    Vector<Vector3> points;
 
 protected:
     static void _bind_methods();
 
     void _update_shape() override;
 
-public:
     Vector<Vector3> get_debug_mesh_lines() override;
 
-    void set_faces(const PoolVector<Vector3> &p_faces);
-    PoolVector<Vector3> get_faces() const;
+public:
+    void set_points(Vector<Vector3> &&p_points);
+    const Vector<Vector3> &get_points() const { return points; }
 
     real_t get_enclosing_radius() const override;
 
-    ConcavePolygonShape();
+
+    ConvexPolygonShape3D();
 };

@@ -160,7 +160,7 @@ void register_server_types() {
     Physics2DServerSW::initialize_class();
     Physics2DDirectSpaceStateSW::initialize_class();
     Physics2DServerWrapMT::initialize_class();
-    PhysicsShapeQueryParameters::initialize_class();
+    PhysicsShapeQueryParameters3D::initialize_class();
     PhysicsShapeQueryParameters2D::initialize_class();
     Physics2DTestMotionResult::initialize_class();
     AudioServer::initialize_class();
@@ -236,10 +236,10 @@ void register_server_types() {
     ClassDB::register_class<Physics2DTestMotionResult>();
     ClassDB::register_class<PhysicsShapeQueryParameters2D>();
 
-    ClassDB::register_class<PhysicsShapeQueryParameters>();
-    ClassDB::register_virtual_class<PhysicsDirectBodyState>();
-    ClassDB::register_virtual_class<PhysicsDirectSpaceState>();
-    ClassDB::register_virtual_class<PhysicsShapeQueryResult>();
+    ClassDB::register_class<PhysicsShapeQueryParameters3D>();
+    ClassDB::register_virtual_class<PhysicsDirectBodyState3D>();
+    ClassDB::register_virtual_class<PhysicsDirectSpaceState3D>();
+    ClassDB::register_virtual_class<PhysicsShapeQueryResult3D>();
 
     ScriptDebuggerRemote::resource_usage_func = _debugger_get_resource_usage;
 

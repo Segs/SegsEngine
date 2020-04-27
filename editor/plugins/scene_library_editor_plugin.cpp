@@ -79,7 +79,7 @@ void SceneLibraryEditor::_import_scene(Node *p_scene,const Ref<SceneLibrary> &p_
     if (!p_merge)
         p_library->clear();
 
-    Map<int, MeshInstance *> mesh_instances;
+    Map<int, MeshInstance3D *> mesh_instances;
     int id = p_library->find_item_by_name(p_scene->get_name());
     if (id < 0) {
 

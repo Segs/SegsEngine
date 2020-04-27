@@ -35,6 +35,8 @@
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
+using namespace RenderingServerEnums;
+
 IMPL_GDCLASS(VisualShaderNodeScalarConstant)
 IMPL_GDCLASS(VisualShaderNodeBooleanConstant)
 IMPL_GDCLASS(VisualShaderNodeColorConstant)
@@ -3898,7 +3900,7 @@ Vector<StringName> VisualShaderNodeIs::get_editable_properties() const {
     Vector<StringName> props {
         StringName("function")
     };
-    
+
     return props;
 }
 
