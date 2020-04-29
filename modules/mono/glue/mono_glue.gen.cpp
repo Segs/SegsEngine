@@ -50759,7 +50759,7 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 1408831263071925205U; }
+uint64_t get_core_api_hash() { return 5789091870823520871U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 12055476466618613286U; }
 #endif // TOOLS_ENABLED
@@ -58613,6 +58613,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall__OS_get_granted_permissions_4cc8f2a7", (void*)godot_icall__OS_get_granted_permissions_4cc8f2a7},
 	{"Godot.NativeCalls::godot_icall__OS_get_ime_selection_9b4ea24e", (void*)godot_icall__OS_get_ime_selection_9b4ea24e},
 	{"Godot.NativeCalls::godot_icall__OS_get_ime_text_97be4a2e", (void*)godot_icall__OS_get_ime_text_97be4a2e},
+	{"Godot.NativeCalls::godot_icall__OS_get_keycode_string_9f3844b7", (void*)godot_icall__OS_get_keycode_string_9f3844b7},
 	{"Godot.NativeCalls::godot_icall__OS_get_latin_keyboard_variant_97be4a2e", (void*)godot_icall__OS_get_latin_keyboard_variant_97be4a2e},
 	{"Godot.NativeCalls::godot_icall__OS_get_locale_97be4a2e", (void*)godot_icall__OS_get_locale_97be4a2e},
 	{"Godot.NativeCalls::godot_icall__OS_get_low_processor_usage_mode_sleep_usec_1f886eb0", (void*)godot_icall__OS_get_low_processor_usage_mode_sleep_usec_1f886eb0},
@@ -58623,7 +58624,6 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall__OS_get_process_id_1f886eb0", (void*)godot_icall__OS_get_process_id_1f886eb0},
 	{"Godot.NativeCalls::godot_icall__OS_get_processor_count_1f886eb0", (void*)godot_icall__OS_get_processor_count_1f886eb0},
 	{"Godot.NativeCalls::godot_icall__OS_get_real_window_size_9b4ea24e", (void*)godot_icall__OS_get_real_window_size_9b4ea24e},
-	{"Godot.NativeCalls::godot_icall__OS_get_keycode_string_9f3844b7", (void*)godot_icall__OS_get_keycode_string_9f3844b7},
 	{"Godot.NativeCalls::godot_icall__OS_get_screen_count_1f886eb0", (void*)godot_icall__OS_get_screen_count_1f886eb0},
 	{"Godot.NativeCalls::godot_icall__OS_get_screen_dpi_b835dea5", (void*)godot_icall__OS_get_screen_dpi_b835dea5},
 	{"Godot.NativeCalls::godot_icall__OS_get_screen_orientation_fcb46861", (void*)godot_icall__OS_get_screen_orientation_fcb46861},
@@ -58662,8 +58662,8 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall__OS_is_debug_build_68fe5f59", (void*)godot_icall__OS_is_debug_build_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_in_low_processor_usage_mode_68fe5f59", (void*)godot_icall__OS_is_in_low_processor_usage_mode_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_keep_screen_on_68fe5f59", (void*)godot_icall__OS_is_keep_screen_on_68fe5f59},
-	{"Godot.NativeCalls::godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59", (void*)godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_keycode_unicode_242501fd", (void*)godot_icall__OS_is_keycode_unicode_242501fd},
+	{"Godot.NativeCalls::godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59", (void*)godot_icall__OS_is_ok_left_and_cancel_right_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_stdout_verbose_68fe5f59", (void*)godot_icall__OS_is_stdout_verbose_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_userfs_persistent_68fe5f59", (void*)godot_icall__OS_is_userfs_persistent_68fe5f59},
 	{"Godot.NativeCalls::godot_icall__OS_is_vsync_enabled_68fe5f59", (void*)godot_icall__OS_is_vsync_enabled_68fe5f59},
