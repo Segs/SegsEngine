@@ -149,7 +149,7 @@ class PhysicsDirectSpaceState3D : public Object {
     GDCLASS(PhysicsDirectSpaceState3D,Object)
 
 public:
-    Dictionary _intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude = Vector<RID>(), uint32_t p_collision_mask = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
+    Dictionary _intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Array &p_exclude = Array(), uint32_t p_collision_mask = 0, bool p_collide_with_bodies = true, bool p_collide_with_areas = false);
     Array _intersect_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);
     Array _cast_motion(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, const Vector3 &p_motion);
     Array _collide_shape(const Ref<PhysicsShapeQueryParameters3D> &p_shape_query, int p_max_results = 32);

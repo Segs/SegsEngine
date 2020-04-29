@@ -343,7 +343,7 @@ void VisualScriptFunctionCall::set_singleton(const StringName &p_type) {
         return;
 
     singleton = p_type;
-    Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+    Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
     if (obj) {
         base_type = obj->get_class_name();
     }
@@ -379,7 +379,7 @@ void VisualScriptFunctionCall::_update_method_cache() {
 
     } else if (call_mode == CALL_MODE_SINGLETON) {
 
-        Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+        Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
         if (obj) {
             type = obj->get_class_name();
             script = refFromRefPtr<Script>(obj->get_script());
@@ -599,7 +599,7 @@ void VisualScriptFunctionCall::_validate_property(PropertyInfo &property) const 
             property.hint_string = itos(get_visual_script()->get_instance_id());
         } else if (call_mode == CALL_MODE_SINGLETON) {
 
-            Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+            Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
             if (obj) {
                 property.hint = PropertyHint::MethodOfInstance;
                 property.hint_string = itos(obj->get_instance_id());
@@ -875,7 +875,7 @@ public:
             } break;
             case VisualScriptFunctionCall::CALL_MODE_SINGLETON: {
 
-                Object *object = Engine::get_singleton()->get_singleton_object(singleton);
+                Object *object = Engine::get_singleton()->get_named_singleton(singleton);
                 if (!object) {
                     r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Invalid singleton name: '" + String(singleton) + "'";

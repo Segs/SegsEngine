@@ -162,7 +162,7 @@ Size2 BitMap::get_size() const {
     return Size2(width, height);
 }
 
-void BitMap::set_data(const Dictionary &p_d) {
+void BitMap::_set_data(const Dictionary &p_d) {
 
     ERR_FAIL_COND(!p_d.has("size"));
     ERR_FAIL_COND(!p_d.has("data"));
@@ -171,7 +171,7 @@ void BitMap::set_data(const Dictionary &p_d) {
     bitmask = p_d["data"].as<PoolVector<uint8_t>>();
 }
 
-Dictionary BitMap::get_data() const {
+Dictionary BitMap::_get_data() const {
 
     Dictionary d;
     d["size"] = get_size();
@@ -683,8 +683,8 @@ void BitMap::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_size"), &BitMap::get_size);
 
-    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::set_data);
-    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::get_data);
+    MethodBinder::bind_method(D_METHOD("_set_data"), &BitMap::_set_data);
+    MethodBinder::bind_method(D_METHOD("_get_data"), &BitMap::_get_data);
 
     MethodBinder::bind_method(D_METHOD("grow_mask", {"pixels", "rect"}), &BitMap::grow_mask);
     MethodBinder::bind_method(D_METHOD("opaque_to_polygons", {"rect", "epsilon"}), &BitMap::opaque_to_polygons, {DEFVAL(2.0)});

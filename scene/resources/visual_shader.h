@@ -173,7 +173,9 @@ protected:
     bool simple_decl;
 
     static void _bind_methods();
-
+public:
+    Array _get_default_input_values() const;
+    void _set_default_input_values(const Array &p_values);
 public:
     enum PortType {
         PORT_TYPE_SCALAR,
@@ -194,8 +196,6 @@ public:
 
     void set_input_port_default_value(int p_port, const Variant &p_value);
     Variant get_input_port_default_value(int p_port) const; // if NIL (default if node does not set anything) is returned, it means no default value is wanted if disconnected, thus no input var must be supplied (empty string will be supplied)
-    Array get_default_input_values() const;
-    void set_default_input_values(const Array &p_values);
 
     virtual int get_output_port_count() const = 0;
     virtual PortType get_output_port_type(int p_port) const = 0;

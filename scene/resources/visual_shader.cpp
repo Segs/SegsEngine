@@ -285,7 +285,7 @@ Vector<StringName> VisualShaderNode::get_editable_properties() const {
     return Vector<StringName>();
 }
 
-Array VisualShaderNode::get_default_input_values() const {
+Array VisualShaderNode::_get_default_input_values() const {
 
     Array ret;
     for (const eastl::pair<const int,Variant> &E : default_input_values) {
@@ -294,7 +294,7 @@ Array VisualShaderNode::get_default_input_values() const {
     }
     return ret;
 }
-void VisualShaderNode::set_default_input_values(const Array &p_values) {
+void VisualShaderNode::_set_default_input_values(const Array &p_values) {
 
     if (p_values.size() % 2 == 0) {
         for (int i = 0; i < p_values.size(); i += 2) {
@@ -321,8 +321,8 @@ void VisualShaderNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_input_port_default_value", {"port", "value"}), &VisualShaderNode::set_input_port_default_value);
     MethodBinder::bind_method(D_METHOD("get_input_port_default_value", {"port"}), &VisualShaderNode::get_input_port_default_value);
 
-    MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualShaderNode::set_default_input_values);
-    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::get_default_input_values);
+    MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualShaderNode::_set_default_input_values);
+    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::_get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_port_for_preview"), "set_output_port_for_preview", "get_output_port_for_preview");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PropertyHint::None, "",

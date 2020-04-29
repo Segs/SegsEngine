@@ -40,6 +40,7 @@
 #include "core/math/basis.h"
 #include "core/math/quat.h"
 #include "core/color.h"
+#include "core/io/ip_address.h"
 #include "gd_mono.h"
 #include "gd_mono_utils.h"
 
@@ -84,7 +85,7 @@ _FORCE_INLINE_ String mono_string_to_godot_not_null(MonoString *p_mono_string) {
 }
 
 _FORCE_INLINE_ String mono_string_to_godot(MonoString *p_mono_string) {
-    if (p_mono_string == NULL)
+    if (p_mono_string == nullptr)
         return String();
 
     return mono_string_to_godot_not_null(p_mono_string);
@@ -98,11 +99,15 @@ _FORCE_INLINE_ MonoString *mono_from_utf16_string(const UIString &p_string) {
     return mono_string_from_utf16((mono_unichar2 *)p_string.data());
 }
 
-_FORCE_INLINE_ MonoString *mono_string_from_godot(const UIString &p_string) {
+/*_FORCE_INLINE_ MonoString *mono_string_from_godot(const UIString &p_string) {
     return mono_from_utf16_string(p_string);
-}
+}*/
 _FORCE_INLINE_ MonoString *mono_string_from_godot(StringView p_string) {
     return mono_from_utf8_string(p_string);
+}
+// Helper to allow auto-conversion from IP_Address to string
+_FORCE_INLINE_ MonoString* mono_string_from_godot(IP_Address p_string) {
+    return mono_from_utf8_string((String)p_string);
 }
 
 // Variant
@@ -170,7 +175,8 @@ Vector<Color> mono_array_to_NC_VecColor(MonoArray* p_array);
 // PoolVector2Array
 
 MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array);
-MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array);
+//MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array);
+MonoArray *PoolVector2Array_to_mono_array(Span< const Vector2> p_array);
 PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array);
 Vector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
 // PoolVector3Array

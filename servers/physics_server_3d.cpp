@@ -287,12 +287,14 @@ PhysicsShapeQueryParameters3D::PhysicsShapeQueryParameters3D() {
 
 /////////////////////////////////////
 
-Dictionary PhysicsDirectSpaceState3D::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Vector<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
+Dictionary PhysicsDirectSpaceState3D::_intersect_ray(const Vector3 &p_from, const Vector3 &p_to, const Array &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
 
     RayResult inters;
     HashSet<RID> exclude;
+    exclude.reserve(p_exclude.size());
 
-    exclude.insert(p_exclude.begin(),p_exclude.end());
+    for(const Variant & v : p_exclude.vals())
+        exclude.insert(v.as<RID>());
 
     bool res = intersect_ray(p_from, p_to, inters, exclude, p_collision_mask, p_collide_with_bodies, p_collide_with_areas);
 

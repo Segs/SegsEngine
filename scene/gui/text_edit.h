@@ -226,10 +226,10 @@ protected:
     void _gui_input(const Ref<InputEvent> &p_gui_input);
     void _notification(int p_what);
     void _push_current_op(); // slot
-
-    PoolVector<int> _search_bind(StringView _key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
-
     static void _bind_methods();
+public:
+    // made public in _bind_methods as "search"
+    PoolVector<int> _search_bind(StringView _key, uint32_t p_search_flags, int p_from_line, int p_from_column) const;
 
 public:
     SyntaxHighlighter *_get_syntax_highlighting();

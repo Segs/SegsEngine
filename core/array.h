@@ -114,6 +114,7 @@ public:
         _p = from._p;
         from._p = nullptr;
     }
+
     Array();
     ~Array();
 };

@@ -323,7 +323,7 @@ String Object::wrap_get_class() const {
 }
 
 bool Object::wrap_is_class(StringView p_class) const {
-    return is_class(String(p_class).c_str());
+    return is_class(p_class);
 }
 
 void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid) {

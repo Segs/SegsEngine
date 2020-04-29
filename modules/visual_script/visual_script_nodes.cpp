@@ -2436,13 +2436,13 @@ public:
 VisualScriptNodeInstance *VisualScriptEngineSingleton::instance(VisualScriptInstance *p_instance) {
 
     VisualScriptNodeInstanceEngineSingleton *instance = memnew(VisualScriptNodeInstanceEngineSingleton);
-    instance->singleton = Engine::get_singleton()->get_singleton_object(singleton);
+    instance->singleton = Engine::get_singleton()->get_named_singleton(singleton);
     return instance;
 }
 
 VisualScriptEngineSingleton::TypeGuess VisualScriptEngineSingleton::guess_output_type(TypeGuess *p_inputs, int p_output) const {
 
-    Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+    Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
     TypeGuess tg;
     tg.type = VariantType::OBJECT;
     if (obj) {

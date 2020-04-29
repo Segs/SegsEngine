@@ -4037,7 +4037,7 @@ void TextEdit::_gui_input(const Ref<InputEvent> &p_gui_input) {
             }
 
             if (remap_key != KEY_UNKNOWN) {
-                k->set_scancode(remap_key);
+                k->set_keycode(remap_key);
                 k->set_control(false);
             }
         }
@@ -7683,7 +7683,7 @@ void TextEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "context_menu_enabled"), "set_context_menu_enabled", "is_context_menu_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shortcut_keys_enabled"), "set_shortcut_keys_enabled", "is_shortcut_keys_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "selecting_enabled"), "set_selecting_enabled", "is_selecting_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_scrolling"), "set_smooth_scroll_enable", "is_smooth_scroll_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_scrolling"), "set_smooth_scroll_enabled", "is_smooth_scroll_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "v_scroll_speed"), "set_v_scroll_speed", "get_v_scroll_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hiding_enabled"), "set_hiding_enabled", "is_hiding_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "wrap_enabled"), "set_wrap_enabled", "is_wrap_enabled");

@@ -30,6 +30,8 @@
 
 #include "base_object_glue.h"
 
+#include "core/debugger/script_debugger.h"
+
 #ifdef MONO_GLUE_ENABLED
 
 #include "core/reference.h"

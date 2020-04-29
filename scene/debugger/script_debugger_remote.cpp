@@ -1190,7 +1190,7 @@ ScriptDebuggerRemote::ScriptDebuggerRemote() :
         last_perf_time(0),
         last_net_prof_time(0),
         last_net_bandwidth_time(0),
-        performance(Engine::get_singleton()->get_singleton_object(StringName("Performance"))),
+        performance(Engine::get_singleton()->get_named_singleton(StringName("Performance"))),
         requested_quit(false),
         mutex(memnew(Mutex)),
         max_messages_per_frame(GLOBAL_GET("network/limits/debugger_stdout/max_messages_per_frame")),

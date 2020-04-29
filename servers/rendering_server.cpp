@@ -1993,10 +1993,10 @@ void RenderingServer::_bind_methods() {
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,TEXTURE_FLAG_USED_FOR_STREAMING);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,TEXTURE_FLAGS_DEFAULT);
 
-    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ShaderMode::SPATIAL);
-    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ShaderMode::CANVAS_ITEM);
-    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ShaderMode::PARTICLES);
-    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ShaderMode::MAX);
+    BIND_NS_ENUM_CLASS_CONSTANT(RenderingServerEnums,ShaderMode,SPATIAL);
+    BIND_NS_ENUM_CLASS_CONSTANT(RenderingServerEnums,ShaderMode,CANVAS_ITEM);
+    BIND_NS_ENUM_CLASS_CONSTANT(RenderingServerEnums,ShaderMode,PARTICLES);
+    BIND_NS_ENUM_CLASS_CONSTANT(RenderingServerEnums,ShaderMode,MAX);
 
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ARRAY_VERTEX);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,ARRAY_NORMAL);

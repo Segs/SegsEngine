@@ -1,6 +1,6 @@
 namespace Godot
 {
-    public static partial class ResourceLoader
+    public static partial class ResourceManager
     {
         public static T Load<T>(string path, string typeHint = null, bool noCache = false) where T : class
         {

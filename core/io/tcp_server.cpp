@@ -38,7 +38,7 @@ void TCP_Server::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_listening"), &TCP_Server::is_listening);
     MethodBinder::bind_method(D_METHOD("take_connection"), &TCP_Server::take_connection);
     MethodBinder::bind_method(D_METHOD("stop"), &TCP_Server::stop);
-    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address"}), &TCP_Server::listen, {DEFVAL("*")});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address"}), &TCP_Server::_listen, {DEFVAL("*")});
 }
 
 Error TCP_Server::listen(uint16_t p_port, const IP_Address &p_bind_address) {

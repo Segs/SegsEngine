@@ -55,7 +55,7 @@ void WebSocketServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "code", "reason"}), &WebSocketServer::disconnect_peer, {DEFVAL(1000), DEFVAL("")});
 
     MethodBinder::bind_method(D_METHOD("get_bind_ip"), &WebSocketServer::get_bind_ip);
-    MethodBinder::bind_method(D_METHOD("set_bind_ip"), &WebSocketServer::set_bind_ip);
+    MethodBinder::bind_method(D_METHOD("set_bind_ip"), (void (WebSocketServer::*)(StringView))&WebSocketServer::set_bind_ip);
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bind_ip"), "set_bind_ip", "get_bind_ip");
 
     MethodBinder::bind_method(D_METHOD("get_private_key"), &WebSocketServer::get_private_key);

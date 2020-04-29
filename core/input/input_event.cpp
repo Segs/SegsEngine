@@ -257,11 +257,11 @@ bool InputEventKey::is_pressed() const {
 
 void InputEventKey::set_keycode(uint32_t p_scancode) {
 
-    scancode = p_scancode;
+    keycode = p_scancode;
 }
 uint32_t InputEventKey::get_keycode() const {
 
-    return scancode;
+    return keycode;
 }
 
 void InputEventKey::set_unicode(uint32_t p_unicode) {
@@ -284,7 +284,7 @@ bool InputEventKey::is_echo() const {
 
 uint32_t InputEventKey::get_keycode_with_modifiers() const {
 
-    uint32_t sc = scancode;
+    uint32_t sc = keycode;
     if (get_control())
         sc |= KEY_MASK_CTRL;
     if (get_alt())
@@ -299,7 +299,7 @@ uint32_t InputEventKey::get_keycode_with_modifiers() const {
 
 String InputEventKey::as_text() const {
 
-    String kc = keycode_get_string(scancode);
+    String kc = keycode_get_string(keycode);
     if (kc.empty())
         return kc;
 
@@ -353,18 +353,18 @@ void InputEventKey::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_pressed", {"pressed"}), &InputEventKey::set_pressed);
 
-    MethodBinder::bind_method(D_METHOD("set_scancode", {"scancode"}), &InputEventKey::set_keycode);
-    MethodBinder::bind_method(D_METHOD("get_scancode"), &InputEventKey::get_keycode);
+    MethodBinder::bind_method(D_METHOD("set_keycode", {"keycode"}), &InputEventKey::set_keycode);
+    MethodBinder::bind_method(D_METHOD("get_keycode"), &InputEventKey::get_keycode);
 
     MethodBinder::bind_method(D_METHOD("set_unicode", {"unicode"}), &InputEventKey::set_unicode);
     MethodBinder::bind_method(D_METHOD("get_unicode"), &InputEventKey::get_unicode);
 
     MethodBinder::bind_method(D_METHOD("set_echo", {"echo"}), &InputEventKey::set_echo);
 
-    MethodBinder::bind_method(D_METHOD("get_scancode_with_modifiers"), &InputEventKey::get_keycode_with_modifiers);
+    MethodBinder::bind_method(D_METHOD("get_keycode_with_modifiers"), &InputEventKey::get_keycode_with_modifiers);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pressed"), "set_pressed", "is_pressed");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "scancode"), "set_scancode", "get_scancode");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "keycode"), "set_keycode", "get_keycode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "unicode"), "set_unicode", "get_unicode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "echo"), "set_echo", "is_echo");
 }
@@ -372,7 +372,7 @@ void InputEventKey::_bind_methods() {
 InputEventKey::InputEventKey() {
 
     pressed = false;
-    scancode = 0;
+    keycode = 0;
     unicode = 0; ///unicode
     echo = false;
 }

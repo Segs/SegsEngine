@@ -93,7 +93,7 @@
                 Returns the fraction through the current physics tick we are at the time of rendering the frame. This can be used to implement fixed timestep interpolation.
             </description>
         </method>
-        <method name="get_singleton" qualifiers="const">
+        <method name="get_named_singleton" qualifiers="const">
             <return type="Object">
             </return>
             <argument index="0" name="name" type="String">

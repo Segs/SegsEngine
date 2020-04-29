@@ -843,7 +843,7 @@ void TreeItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_next_visible", {"wrap"}), &TreeItem::get_next_visible, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_prev_visible", {"wrap"}), &TreeItem::get_prev_visible, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), &TreeItem::_remove_child);
+    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), (void (TreeItem::*)(Object *))&TreeItem::remove_child);
 
     MethodBinder::bind_method(D_METHOD("set_selectable", {"column", "selectable"}), &TreeItem::set_selectable);
     MethodBinder::bind_method(D_METHOD("is_selectable", {"column"}), &TreeItem::is_selectable);

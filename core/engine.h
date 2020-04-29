@@ -105,7 +105,7 @@ public:
     void add_singleton(const Singleton &p_singleton);
     const Vector<Singleton> &get_singletons() { return singletons; }
     bool has_singleton(const StringName &p_name) const;
-    Object *get_singleton_object(const StringName &p_name) const;
+    Object *get_named_singleton(const StringName &p_name) const;
 
     bool get_use_pixel_snap() const { return _pixel_snap; }
 

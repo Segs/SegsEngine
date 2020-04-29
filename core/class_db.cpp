@@ -1100,10 +1100,12 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 }
 
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
-    //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
+    //TODO: SEGS: fragile piece of code, assumes this file is always at `core/class_db.cpp` path.
+    StringView current_path = __FILE__;
+    int prefix_len=current_path.length()-strlen("core/class_db.cpp");
     String hdr_path=PathUtils::from_native_path(header_file);
-    int idx  = hdr_path.find("SegsEngine");
-    String hdr(hdr_path.substr(idx+strlen("SegsEngine")+1));
+    assert(hdr_path.size()>=prefix_len);
+    String hdr(hdr_path.substr(prefix_len));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
 
@@ -1220,7 +1222,7 @@ Variant ClassDB::class_get_default_property_value(
         bool cleanup_c = false;
 
         if (Engine::get_singleton()->has_singleton(p_class)) {
-            c = Engine::get_singleton()->get_singleton_object(p_class);
+            c = Engine::get_singleton()->get_named_singleton(p_class);
             cleanup_c = false;
         } else if (ClassDB::can_instance(p_class)) {
             c = ClassDB::instance(p_class);

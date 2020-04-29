@@ -141,8 +141,8 @@ public:                                                                         
     static const char *get_parent_class_static() {                                                      \
         return BaseClassName::get_class_static();                                                                        \
     }                                                                                                                  \
-    virtual bool is_class(const char *p_class) const override {                                                        \
-            return (0==strcmp(p_class,#m_class)) ? true : BaseClassName::is_class(p_class); }                            \
+    virtual bool is_class(StringView p_class) const override {                                                        \
+            return (p_class==#m_class) ? true : BaseClassName::is_class(p_class); }                            \
     virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
             return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
                                                                                                                        \
@@ -322,6 +322,7 @@ protected:
     bool _get(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
     void _get_property_list(Vector<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
+    bool wrap_is_class(StringView p_class) const;
 
     static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
@@ -396,8 +397,7 @@ public:
 
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
-    virtual bool is_class(const char *p_class) const { return 0==strcmp(p_class,"Object"); }
-    bool wrap_is_class(StringView p_class) const;
+    virtual bool is_class(StringView p_class) const { return p_class == "Object"; }
     virtual bool is_class_ptr(void *p_ptr) const { return get_type_info_static() == p_ptr; }
 
     _FORCE_INLINE_ const StringName &get_class_name() const {

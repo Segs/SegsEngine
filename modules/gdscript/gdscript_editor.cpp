@@ -1385,7 +1385,7 @@ static bool _guess_identifier_type(GDScriptCompletionContext &p_context, const S
             r_type.type.native_type = target_id;
             if (Engine::get_singleton()->has_singleton(target_id)) {
                 r_type.type.is_meta_type = false;
-                r_type.value = Variant(Engine::get_singleton()->get_singleton_object(target_id));
+                r_type.value = Variant(Engine::get_singleton()->get_named_singleton(target_id));
             } else {
                 r_type.type.is_meta_type = true;
                 const Map<StringName, int>::const_iterator target_elem = GDScriptLanguage::get_singleton()->get_global_map().find(target_id);

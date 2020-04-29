@@ -57,6 +57,7 @@
 #include "csharp_project.h"
 #include "EASTL/sort.h"
 #include "EASTL/unordered_set.h"
+#include "EASTL/unordered_set.h"
 
 
 #define CS_INDENT "    " // 4 whitespaces
@@ -765,7 +766,8 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
         // godot_icall_{argc}_{icallcount}
         String icall_method = ICALL_PREFIX;
         icall_method += method_signature;
-
+        if(p_itype.cname=="Object" && imethod.cname=="free")
+            continue;
         InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
         auto iter_match = method_icalls.find(im_icall.unique_sig);
@@ -1305,7 +1307,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
         output.append("static partial class ");
     } else {
         if(itype.is_namespace)
-            output.append("namespace ");
+            output.append("static class ");
         else
             output.append(itype.is_instantiable ? "partial class " : "abstract partial class ");
     }
@@ -1338,7 +1340,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
         output.append(MEMBER_BEGIN "private static Godot.Object singleton;\n");
         output.append(MEMBER_BEGIN "public static Godot.Object Singleton\n" INDENT2 "{\n" INDENT3
                                    "get\n" INDENT3 "{\n" INDENT4 "if (singleton == null)\n" INDENT5
-                                   "singleton = Engine.GetSingleton(typeof(");
+                                   "singleton = Engine.GetNamedSingleton(typeof(");
         output.append(itype.proxy_name);
         output.append(").Name);\n" INDENT4 "return singleton;\n" INDENT3 "}\n" INDENT2 "}\n");
 
@@ -1784,14 +1786,81 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
 
     }
 
-    output.append("\nstruct AutoRef {\n");
-    output.append("    Object *self;\n");
-    output.append("    AutoRef(Object *s) : self(s) {}\n");
-    output.append("    template<class T>\n");
-    output.append("    operator Ref<T>() {\n");
-    output.append("        return Ref<T>((T*)self);\n");
-    output.append("    }\n");
-    output.append("};\n");
+    output.append(R"RAW(
+struct AutoRef {
+    Object *self;
+    AutoRef(Object *s) : self(s) {}
+    template<class T>
+    operator Ref<T>() {
+        return Ref<T>((T*)self);
+    }
+    operator RefPtr() {
+        return Ref<RefCounted>((RefCounted*)self).get_ref_ptr();
+    }
+ };
+struct ArrConverter {
+    Array &a;
+    constexpr ArrConverter(Array &v):a(v) {}
+    constexpr ArrConverter(Array *v):a(*v) {}
+    operator Array() const { return a; }
+    template<class T>
+    operator Vector<T>() const {
+        Vector<T> res;
+        res.reserve(a.size());
+        for (const Variant& v : a.vals()) {
+            res.emplace_back(v.as<T>());
+        }
+        return res;
+    }
+    template<class T>
+    operator PoolVector<T>() const {
+        PoolVector<T> res;
+        for (const Variant& v : a.vals()) {
+            res.push_back(v.as<T>());
+        }
+        return res;
+    }
+};
+Array *ToArray(Array && v) {
+    return memnew(Array(eastl::move(v)));
+}
+template<class T>
+Array *ToArray(Vector<T> && v) {
+    Array * res = memnew(Array());
+    for(const T &val : v) {
+        res->emplace_back(Variant::from(val));
+    }
+    return res;
+}
+template<>
+Array* ToArray(Vector<SurfaceArrays>&& v) {
+    Array* res = memnew(Array());
+    for (const auto& val : v) {
+        res->emplace_back(Array(val));
+    }
+    return res;
+}
+
+template<class T>
+Array *ToArray(PoolVector<T> && v) {
+    Array * res = memnew(Array());
+    for(size_t idx=0,fin=v.size();idx<fin; ++idx) {
+        res->emplace_back(Variant::from(v[idx]));
+    }
+    return res;
+}
+Array* ToArray(Frustum&& v) {
+    Array* res = memnew(Array());
+    for (const auto& val : v) {
+        res->emplace_back(Variant::from(val));
+    }
+    return res;
+}
+
+Array* ToArray(SurfaceArrays&& v) {
+    return memnew(Array(v));
+}
+    )RAW");
     generated_icall_funcs.clear();
 
     for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
@@ -1817,6 +1886,7 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
         String ctor_method(ICALL_PREFIX + itype.proxy_name + "_Ctor"); // Used only for derived types
 
         for (const MethodInterface &imethod : itype.methods) {
+            imethod.is_virtual;
             Error method_err = _generate_glue_method(itype, imethod, output);
             ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
                     "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
@@ -1831,7 +1901,7 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
 
             output.append("Object* ");
             output.append(singleton_icall_name);
-            output.append("() " OPEN_BLOCK "\treturn Engine::get_singleton()->get_singleton_object(\"");
+            output.append("() " OPEN_BLOCK "\treturn Engine::get_singleton()->get_named_singleton(\"");
             output.append(itype.proxy_name);
             output.append("\");\n" CLOSE_BLOCK "\n");
         }
@@ -1972,25 +2042,45 @@ static Error _save_file(StringView p_path, const StringBuilder &p_content) {
 static StringView replace_method_name(StringView from) {
     StringView res = from;
     static const HashMap<StringView, StringView> s_entries = {
-        { "_set_import_path", "set_import_path" },
         { "_get_slide_collision", "get_slide_collision" },
+        { "_set_import_path", "set_import_path" },
+        { "add_do_method", "_add_do_method" },
         { "add_property_info", "_add_property_info_bind" },
         { "add_surface_from_arrays", "_add_surface_from_arrays" },
+        { "add_undo_method", "_add_undo_method" },
         { "body_test_motion", "_body_test_motion" },
+        { "call_recursive", "_call_recursive_bind" },
+        { "class_get_category", "get_category" },
+        { "class_get_integer_constant", "get_integer_constant" },
+        { "class_get_integer_constant_list", "get_integer_constant_list" },
+        { "class_get_method_list", "get_method_list" },
+        { "class_get_property", "get_property" },
+        { "class_get_property_list", "get_property_list" },
+        { "class_get_signal", "get_signal" },
+        { "class_get_signal_list", "get_signal_list" },
+        { "class_has_integer_constant", "has_integer_constant" },
+        { "class_has_method", "has_method" },
+        { "class_has_signal", "has_signal" },
+        { "class_set_property", "set_property" },
         { "copy_from", "copy_internals_from" },
         { "create_from_data", "_create_from_data" },
+        { "get_action_list", "_get_action_list" },
         { "get_connection_list", "_get_connection_list" },
         { "get_groups", "_get_groups" },
+        { "get_item_area_rect","_get_item_rect"},
         { "get_item_shapes", "_get_item_shapes" },
         { "get_local_addresses", "_get_local_addresses" },
         { "get_local_interfaces", "_get_local_interfaces" },
+        { "get_named_attribute_value", "get_attribute_value" },
+        { "get_named_attribute_value_safe", "get_attribute_value_safe" },
+        { "get_next_selected","_get_next_selected"},
         { "get_node_and_resource", "_get_node_and_resource" },
         { "get_node_connections", "_get_node_connections" },
+        { "get_range_config","_get_range_config"},
         { "get_response_headers", "_get_response_headers" },
         { "get_shape_owners", "_get_shape_owners" },
         { "get_slide_collision", "_get_slide_collision" },
-        { "get_action_list", "_get_action_list" },
-
+        { "get_tiles_ids","_get_tiles_ids"},
         { "get_transformable_selected_nodes", "_get_transformable_selected_nodes" },
         { "make_mesh_previews", "_make_mesh_previews" },
         { "move_and_collide", "_move" },
@@ -2005,55 +2095,84 @@ static StringView replace_method_name(StringView from) {
         { "rpc_unreliable_id", "_rpc_unreliable_id_bind" },
         { "set_item_shapes", "_set_item_shapes" },
         { "set_navigation", "set_navigation_node" },
+        { "set_target", "_set_target" },
+        { "set_variable_info","_set_variable_info"},
         { "surface_get_blend_shape_arrays", "_surface_get_blend_shape_arrays" },
         { "take_over_path", "set_path" },
-        { "get_named_attribute_value", "get_attribute_value" },
-        { "get_named_attribute_value_safe", "get_attribute_value_safe" },
-        { "add_undo_method", "_add_undo_method" },
-        { "add_do_method", "_add_do_method" },
-        { "call_recursive", "_call_recursive_bind" },
-        { "remove_child", "_remove_child" },
-        { "search", "_search_bind" },
-        { "set_target", "_set_target" },
-        { "class_has_signal", "has_signal" },
-        { "class_get_signal", "get_signal" },
-        { "class_get_signal_list", "get_signal_list" },
-        { "class_get_property_list", "get_property_list" },
-        { "class_get_property", "get_property" },
-        { "class_set_property", "set_property" },
-        { "class_has_method", "has_method" },
-        { "class_get_method_list", "get_method_list" },
-        { "class_get_integer_constant_list", "get_integer_constant_list" },
-        { "class_has_integer_constant", "has_integer_constant" },
-        { "class_get_integer_constant", "get_integer_constant" },
-        { "class_get_category", "get_category" },
-        { "set_variable_info","_set_variable_info"},
-        { "get_range_config","_get_range_config"},
-        { "get_item_area_rect","_get_item_rect"},
-        { "get_next_selected","_get_next_selected"},
-        { "get_tiles_ids","_get_tiles_ids"},
-
-        {"set_expand_margin","set_expand_margin_size"},
-        {"set_expand_margin_individual","set_expand_margin_size_individual"},
-        {"set_expand_margin_all","set_expand_margin_size_all"},
-
-        {"put_data","_put_data"},
-        {"put_partial_data","_put_partial_data"},
-        {"get_partial_data","_get_partial_data"},
-
-        {"get_default_font","get_default_theme_font"},
-        {"get_color_list","_get_color_list"},
-        {"get_font_list","_get_font_list"},
-        {"get_stylebox_list","_get_stylebox_list"},
-        {"get_icon_list","_get_icon_list"},
+        {"_get_gizmo_extents","get_gizmo_extents"},
+        {"_set_gizmo_extents","set_gizmo_extents"},
+        {"add_user_signal","_add_user_signal"},
+        {"call","_call_bind"},
+        {"call_deferred","_call_deferred_bind"},
+        {"call_group_flags","_call_group_flags"},
+        {"cast_motion","_cast_motion"},
+        {"collide_shape","_collide_shape"},
+        {"emit_signal","_emit_signal"},
+        {"force_draw","draw"},
+        {"force_sync","sync"},
+        {"get_bound_child_nodes_to_bone","_get_bound_child_nodes_to_bone"},
         {"get_breakpoints","get_breakpoints_array"},
-
+        {"get_color_list","_get_color_list"},
         {"get_constant_list","_get_constant_list"},
+        {"get_current_script","_get_current_script"},
+        {"get_default_font","get_default_theme_font"},
+        {"get_expand_margin","get_expand_margin_size"},
+        {"get_font_list","_get_font_list"},
+        {"get_icon_list","_get_icon_list"},
+        {"get_incoming_connections","_get_incoming_connections"},
+        {"get_indexed","_get_indexed_bind"},
+        {"get_message_list","_get_message_list"},
+        {"get_meta_list","_get_meta_list_bind"},
+        {"get_method_list","_get_method_list_bind"},
+        {"get_open_scripts","_get_open_scripts"},
+        {"get_packet","_get_packet"},
+        {"get_packet_error","_get_packet_error"},
+        {"get_packet_ip","_get_packet_ip"},
+        {"get_partial_data","_get_partial_data"},
+        {"get_property_list","_get_property_list_bind"},
+        {"get_property_default_value","_get_property_default_value"},
+        {"get_resource_list","_get_resource_list"},
+        {"get_rest_info","_get_rest_info"},
+        //{"get_scancode_with_modifiers","get_keycode_with_modifiers"},
+        {"get_script_method_list","_get_script_method_list"},
+        {"get_script_signal_list","_get_script_signal_list"},
+        {"get_script_property_list","_get_script_property_list"},
+        {"get_signal_connection_list","_get_signal_connection_list"},
+        {"get_script_constant_map","_get_script_constant_map"},
+        {"get_signal_list","_get_signal_list"},
+        {"get_stylebox_list","_get_stylebox_list"},
         {"get_type_list","_get_type_list"},
-        {"_create_item","create_item"},
-
-        {"test_motion","_test_motion"},
+        {"has_user_signal","_has_user_signal"},
+        {"instances_cull_convex","_instances_cull_convex_bind"},
+        {"intersect_point","_intersect_point"},
+        {"intersect_point_on_canvas","_intersect_point_on_canvas"},
+        {"intersect_ray","_intersect_ray"},
+        {"intersect_shape","_intersect_shape"},
+        {"is_hide_on_state_item_selection","is_hide_on_multistate_item_selection"},
+        {"listen","_listen"},
+        {"load_resource_pack","_load_resource_pack"},
+        {"mesh_add_surface_from_arrays","_mesh_add_surface_from_arrays"},
         {"newline","add_newline"},
+        {"physical_bones_start_simulation","physical_bones_start_simulation_on"},
+        {"put_data","_put_data"},
+        {"put_packet","_put_packet"},
+        {"put_partial_data","_put_partial_data"},
+        {"set_dest_address","_set_dest_address"},
+        {"set_expand_margin","set_expand_margin_size"},
+        {"set_expand_margin_all","set_expand_margin_size_all"},
+        {"set_expand_margin_individual","set_expand_margin_size_individual"},
+        {"set_hide_on_state_item_selection","set_hide_on_multistate_item_selection"},
+        {"set_indexed","_set_indexed_bind"},
+        {"shader_get_param_list","_shader_get_param_list_bind"},
+        {"share","_share"},
+        {"test_motion","_test_motion"},
+        {"texture_debug_usage","_texture_debug_usage_bind"},
+        {"tile_set_shapes","_tile_set_shapes"},
+
+        {"call_group","_call_group"},
+        {"get_expand_margin","get_expand_margin_size"},
+        {"get_nodes_in_group","_get_nodes_in_group"},
+        {"tile_get_shapes","_tile_get_shapes"},
 
     };
     auto iter = s_entries.find(from);
@@ -2066,6 +2185,9 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
 
     if (p_imethod.is_virtual)
         return OK; // Ignore
+
+    if (p_itype.cname == name_cache.type_Object && p_imethod.name == "free")
+        return OK;
 
     bool ret_void = p_imethod.return_type.cname == name_cache.type_void;
 
@@ -2117,12 +2239,14 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             else {
                 switch(iarg.type.pass_by) {
                 case TypePassBy::Value:
-                    if(arg_type->c_type_in.ends_with('*')) // input as pointer, deref
+                    if(arg_type->c_type_in.ends_with('*') && arg_type->cname!=StringView("Array")) // input as pointer, deref, unless Array which gets handled by ArrConverter
                         c_args_var_content.push_back('*');
                     c_args_var_content.append(sformat(arg_type->c_arg_in, c_param_name));
                     break;
                 case TypePassBy::Reference:
-                    c_args_var_content += "*"+sformat(arg_type->c_arg_in, c_param_name);
+                    if(arg_type->cname != StringView("Array"))
+                        c_args_var_content.push_back('*');
+                    c_args_var_content += sformat(arg_type->c_arg_in, c_param_name);
                     break;
                 case TypePassBy::Move:
                     c_args_var_content += "eastl::move(*" + sformat(arg_type->c_arg_in, c_param_name) +")";
@@ -2233,8 +2357,43 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             p_output.append(c_in_statements);
         }
     }
-
+        
     StringView method_to_call(replace_method_name(p_imethod.cname));
+    if(p_itype.cname=="Node") {
+        if(method_to_call== "get_children")
+           method_to_call = "_get_children";
+    }
+    else if(p_itype.cname=="PacketPeer") {
+        if(method_to_call== "get_var")
+            method_to_call = "_bnd_get_var";
+    }
+    else if(p_itype.cname=="TextEdit") {
+        if(method_to_call== "search")
+            method_to_call = "_search_bind";
+    }
+    else if(p_itype.cname=="StreamPeer") {
+        if(method_to_call== "get_data")
+            method_to_call = "_get_data";
+    }
+    else if(p_itype.cname=="ScriptEditor") {
+        if(method_to_call== "goto_line")
+            method_to_call = "_goto_script_line2";
+    }
+    else if(p_itype.cname=="WebSocketServer") {
+        //sigh, udp and tcp servers `_listen` but WebSocketServer `listen`s
+        if(method_to_call== "_listen")
+            method_to_call = "listen";
+    }
+    else if(p_itype.cname=="Tree") {
+        if(method_to_call== "create_item")
+            method_to_call = "_create_item";
+
+    }
+    else if(p_itype.cname=="StreamPeerTCP") {
+        if(method_to_call== "connect_to_host")
+            method_to_call = "_connect";
+
+    }
 
     if (p_imethod.is_vararg) {
         p_output.append("\tCallable::CallError vcall_error;\n\t");
@@ -2510,9 +2669,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
             iprop.prop_doc = nullptr;
 
-            for (int i = 0; i < itype.class_doc->properties.size(); i++) {
-                const DocData::PropertyDoc &prop_doc = itype.class_doc->properties[i];
-
+            for (const auto & prop_doc : itype.class_doc->properties) {
                 if (prop_doc.name == iprop.cname) {
                     iprop.prop_doc = &prop_doc;
                     break;
@@ -3178,6 +3335,23 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
         itype.im_type_out = itype.proxy_name;                                 \
         builtin_types.emplace(StringName(itype.name), itype);                 \
     }
+#define INSERT_ARRAY_TPL_FULL(m_name, m_type, m_proxy_t)                      \
+    {                                                                         \
+        itype = TypeInterface();                                              \
+        itype.name = #m_name;                                                 \
+        itype.cname = StringName(itype.name);                                 \
+        itype.proxy_name = #m_proxy_t "[]";                                   \
+        itype.c_in = "\tauto %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
+        itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";  \
+        itype.c_arg_in = "%s_in";                                             \
+        itype.c_type = #m_type;                                               \
+        itype.c_type_in = "MonoArray*";                                       \
+        itype.c_type_out = "MonoArray*";                                      \
+        itype.cs_type = itype.proxy_name;                                     \
+        itype.im_type_in = itype.proxy_name;                                  \
+        itype.im_type_out = itype.proxy_name;                                 \
+        builtin_types.emplace(StringName(itype.name), itype);                 \
+    }
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
 
     INSERT_ARRAY(PoolIntArray, int)
@@ -3188,6 +3362,7 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     INSERT_ARRAY_NC_FULL(VecVector2, VecVector2, Vector2)
     INSERT_ARRAY_NC_FULL(VecVector3, VecVector3, Vector3)
     INSERT_ARRAY_NC_FULL(VecColor, VecColor, Color)
+
     INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
 
 
@@ -3210,10 +3385,11 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.name = "Array";
     itype.cname = StringName(itype.name);
     itype.proxy_name = StringName(itype.name);
-    itype.c_out = "\treturn memnew(Array(Variant::from(%1)));\n";
+    itype.c_out = "\treturn ToArray(eastl::move(%1));\n";
     itype.c_type = itype.name;
     itype.c_type_in = itype.c_type + "*";
     itype.c_type_out = itype.c_type + "*";
+    itype.c_arg_in = "ArrConverter(%0)";
     itype.cs_type = BINDINGS_NAMESPACE_COLLECTIONS "." + itype.proxy_name;
     itype.cs_in = "%0." CS_SMETHOD_GETINSTANCE "()";
     itype.cs_out = "return new " + itype.cs_type + "(%0(%1));";

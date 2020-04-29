@@ -254,7 +254,7 @@ class GODOT_EXPORT InputEventKey : public InputEventWithModifiers {
 
     bool pressed; /// otherwise release
 
-    uint32_t scancode; ///< check keyboard.h , KeyCode enum, without modifier masks
+    uint32_t keycode; ///< check keyboard.h , KeyCode enum, without modifier masks
     uint32_t unicode; ///unicode
 
     bool echo; /// true if this is an echo key

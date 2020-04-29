@@ -168,7 +168,7 @@ public:
 
         return d;
     }
-    void _remove_child(Object *p_child) {
+    void remove_child(Object *p_child) {
         remove_child(object_cast<TreeItem>(p_child));
     }
 

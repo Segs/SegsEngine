@@ -1112,15 +1112,15 @@ String _OS::get_system_dir(SystemDir p_dir) const {
     return OS::get_system_dir(OS::SystemDir(p_dir));
 }
 
-String _OS::get_scancode_string(uint32_t p_code) const {
+String _OS::get_keycode_string(uint32_t p_code) const {
 
     return keycode_get_string(p_code);
 }
-bool _OS::is_scancode_unicode(uint32_t p_unicode) const {
+bool _OS::is_keycode_unicode(uint32_t p_unicode) const {
 
     return keycode_has_unicode(p_unicode);
 }
-int _OS::find_scancode_from_string(StringView p_code) const {
+int _OS::find_keycode_from_string(StringView p_code) const {
 
     return find_keycode(p_code);
 }
@@ -1312,9 +1312,9 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("native_video_pause"), &_OS::native_video_pause);
     MethodBinder::bind_method(D_METHOD("native_video_unpause"), &_OS::native_video_unpause);
 
-    MethodBinder::bind_method(D_METHOD("get_scancode_string", {"code"}), &_OS::get_scancode_string);
-    MethodBinder::bind_method(D_METHOD("is_scancode_unicode", {"code"}), &_OS::is_scancode_unicode);
-    MethodBinder::bind_method(D_METHOD("find_scancode_from_string", {"string"}), &_OS::find_scancode_from_string);
+    MethodBinder::bind_method(D_METHOD("get_keycode_string", {"code"}), &_OS::get_keycode_string);
+    MethodBinder::bind_method(D_METHOD("is_keycode_unicode", {"code"}), &_OS::is_keycode_unicode);
+    MethodBinder::bind_method(D_METHOD("find_keycode_from_string", {"string"}), &_OS::find_keycode_from_string);
 
     MethodBinder::bind_method(D_METHOD("set_use_file_access_save_and_swap", {"enabled"}), &_OS::set_use_file_access_save_and_swap);
 
@@ -3066,9 +3066,9 @@ bool _Engine::has_singleton(StringView p_name) const {
     return Engine::get_singleton()->has_singleton(StringName(p_name));
 }
 
-Object *_Engine::get_singleton_object(const StringName &p_name) const {
+Object *_Engine::get_named_singleton(const StringName &p_name) const {
 
-    return Engine::get_singleton()->get_singleton_object(p_name);
+    return Engine::get_singleton()->get_named_singleton(p_name);
 }
 
 void _Engine::set_editor_hint(bool p_enabled) {
@@ -3114,7 +3114,7 @@ void _Engine::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_in_physics_frame"), &_Engine::is_in_physics_frame);
 
     MethodBinder::bind_method(D_METHOD("has_singleton", {"name"}), &_Engine::has_singleton);
-    MethodBinder::bind_method(D_METHOD("get_singleton", {"name"}), &_Engine::get_singleton_object);
+    MethodBinder::bind_method(D_METHOD("get_named_singleton", {"name"}), &_Engine::get_named_singleton);
 
     MethodBinder::bind_method(D_METHOD("set_editor_hint", {"enabled"}), &_Engine::set_editor_hint);
     MethodBinder::bind_method(D_METHOD("is_editor_hint"), &_Engine::is_editor_hint);

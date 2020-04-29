@@ -327,6 +327,8 @@ public:
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(#m_namespace, __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant))
+#define BIND_NS_ENUM_CLASS_CONSTANT(m_namespace,m_eclass,m_constant) \
+    ClassDB::bind_integer_constant(#m_namespace, __constant_get_enum_name(m_namespace::m_eclass::m_constant, #m_eclass "::" #m_constant), #m_constant, int(m_namespace::m_eclass::m_constant))
 
 #define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant("@", __constant_get_enum_name(m_constant, #m_constant), #m_constant, int(m_constant))

@@ -2085,7 +2085,7 @@ Variant::Variant(const RefPtr &p_resource) {
 
     type = VariantType::OBJECT;
     memnew_placement(_data._mem, ObjData);
-    REF *ref = reinterpret_cast<REF *>(p_resource.get_data());
+    REF *ref = reinterpret_cast<REF *>(p_resource.get());
     _get_obj().obj = ref->get();
     _get_obj().ref = p_resource;
 }

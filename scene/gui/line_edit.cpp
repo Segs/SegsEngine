@@ -272,7 +272,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             }
 
             if (remap_key != KEY_UNKNOWN) {
-                k->set_scancode(remap_key);
+                k->set_keycode(remap_key);
                 k->set_control(false);
             }
         }

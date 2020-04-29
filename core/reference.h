@@ -176,7 +176,7 @@ public:
     RefPtr get_ref_ptr() const {
 
         RefPtr refptr;
-        Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(refptr.get_data());
+        Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(refptr.get());
         *irr = *this;
         return refptr;
     }
@@ -241,7 +241,7 @@ inline Ref<T> make_ref_counted(Args&&... args)
 template<class T>
 inline Ref<T> refFromRefPtr(const RefPtr &p_refptr) {
 
-    Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(p_refptr.get_data());
+    Ref<RefCounted> *irr = reinterpret_cast<Ref<RefCounted> *>(p_refptr.get());
     RefCounted *refb = irr->get();
     if (!refb) {
         return Ref<T>();

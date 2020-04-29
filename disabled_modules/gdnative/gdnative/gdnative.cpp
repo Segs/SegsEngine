@@ -54,7 +54,7 @@ void GDAPI godot_object_destroy(godot_object *p_o) {
 // Singleton API
 
 godot_object GDAPI *godot_global_get_singleton(char *p_name) {
-    return (godot_object *)Engine::get_singleton()->get_singleton_object(String(p_name));
+    return (godot_object *)Engine::get_singleton()->get_named_singleton(String(p_name));
 } // result shouldn't be freed
 
 // MethodBind API
