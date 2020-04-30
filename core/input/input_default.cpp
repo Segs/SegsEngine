@@ -731,14 +731,14 @@ InputDefault::InputDefault() {
 
     // If defined, parse SDL_GAMECONTROLLERCONFIG for possible new mappings/overrides.
     String env_var = OS::get_singleton()->get_environment("SDL_GAMECONTROLLERCONFIG");
-    String env_mapping(env_var);
+    const String& env_mapping(env_var);
     if (!env_mapping.empty()) {
 
         Vector<StringView> entries = StringUtils::split(env_mapping,'\n');
-        for (size_t i = 0; i < entries.size(); i++) {
-            if (entries[i].empty())
+        for (auto & entry : entries) {
+            if (entry.empty())
                 continue;
-            parse_mapping(entries[i]);
+            parse_mapping(entry);
         }
     }
 }
@@ -951,7 +951,7 @@ void InputDefault::_axis_event(int p_device, int p_axis, float p_value) {
     parse_input_event(ievent);
 };
 
-InputDefault::JoyEvent InputDefault::_find_to_event(StringName p_to) {
+InputDefault::JoyEvent InputDefault::_find_to_event(const StringName &p_to) {
 
     // string names of the SDL buttons in the same order as input_event.h godot buttons
     static const char *buttons[] = { "a", "b", "x", "y", "leftshoulder", "rightshoulder", "lefttrigger", "righttrigger", "leftstick", "rightstick", "back", "start", "dpup", "dpdown", "dpleft", "dpright", "guide", nullptr };
@@ -1081,7 +1081,7 @@ void InputDefault::remove_joy_mapping(StringName p_guid) {
     }
 }
 
-void InputDefault::set_fallback_mapping(StringName p_guid) {
+void InputDefault::set_fallback_mapping(const StringName &p_guid) {
 
     for (int i = 0; i < map_db.size(); i++) {
         if (map_db[i].uid == p_guid) {

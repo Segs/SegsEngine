@@ -184,7 +184,7 @@ private:
 
     Vector<JoyDeviceMapping> map_db;
 
-    JoyEvent _find_to_event(StringName p_to);
+    JoyEvent _find_to_event(const StringName &p_to);
     void _button_event(int p_device, int p_index, bool p_pressed);
     void _axis_event(int p_device, int p_axis, float p_value);
     float _handle_deadzone(int p_device, int p_axis, float p_value);
@@ -275,7 +275,7 @@ public:
 
     bool is_joy_mapped(int p_device);
     StringName get_joy_guid_remapped(int p_device) const;
-    void set_fallback_mapping(StringName p_guid);
+    void set_fallback_mapping(const StringName &p_guid);
 
     void accumulate_input_event(const Ref<InputEvent> &p_event) override;
     void flush_accumulated_events() override;

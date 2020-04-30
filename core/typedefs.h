@@ -145,7 +145,7 @@ T *_nullptr() {
 
 //TODO: SGN is incorrect, for 0 it should return 0?
 template<class T>
-T SGN(T m_v) {
+constexpr T SGN(T m_v) {
     return (((m_v) < 0) ? T(-1) : T(1));
 }
 

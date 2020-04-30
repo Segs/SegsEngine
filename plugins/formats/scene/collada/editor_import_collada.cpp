@@ -600,7 +600,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         if (p.sources.contains("COLOR")) {
 
             String color_source_id = p.sources.at("COLOR").source;
-            color_ofs = p.sources.at("COLRO").offset;
+            color_ofs = p.sources.at("COLOR").offset;
             ERR_FAIL_COND_V(!meshdata.sources.contains(color_source_id), ERR_INVALID_DATA);
             color_src = &meshdata.sources.at(color_source_id);
         }

@@ -88,11 +88,11 @@ void AssimpUtils::find_texture_path(const String &r_p_path, String &r_path, bool
         return;
     }
 
-    for (int32_t i = 0; i < exts.size(); i++) {
+    for (auto & ext : exts) {
         if (r_found) {
             return;
         }
-        find_texture_path(r_p_path, dir.get(), r_path, r_found, "." + exts[i]);
+        find_texture_path(r_p_path, dir.get(), r_path, r_found, "." + ext);
     }
 }
 

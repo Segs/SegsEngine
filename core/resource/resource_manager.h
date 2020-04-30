@@ -33,11 +33,12 @@ class GODOT_EXPORT ResourceManager {
     void* dep_err_notify_ud = nullptr;
     DependencyErrorNotify dep_err_notify = nullptr;
     bool abort_on_missing_resource = false;
-
+    void *m_priv;
 public:
     ResourceManager();
     ResourceManager(const ResourceManager&) = delete;
     ResourceManager& operator=(const ResourceManager&) = delete;
+    ~ResourceManager();
 
     enum SaverFlags {
 

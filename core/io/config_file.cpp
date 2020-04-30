@@ -188,14 +188,14 @@ Error ConfigFile::save_encrypted_pass(StringView p_path, StringView p_pass) {
 Error ConfigFile::_internal_save(FileAccess *file) {
 
     bool first=true;
-    for (const eastl::pair<String, Map<String, Variant> > &E : values) {
+    for (const eastl::pair<const String, Map<String, Variant> > &E : values) {
 
         if (!first)
             file->store_string("\n");
         first = false;
         file->store_string("[" + E.first + "]\n\n");
 
-        for (const eastl::pair<String, Variant> &F : E.second) {
+        for (const eastl::pair<const String, Variant> &F : E.second) {
 
             String vstr;
             VariantWriter::write_to_string(F.second, vstr);

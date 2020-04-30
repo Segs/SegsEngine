@@ -80,7 +80,7 @@ aiBone *get_bone_by_name(const aiScene *scene, aiString bone_name) {
 class AssimpStream : public Assimp::LogStream {
 public:
     // Constructor
-    AssimpStream() {}
+    AssimpStream() = default;
 
     // Destructor
     ~AssimpStream() override {}

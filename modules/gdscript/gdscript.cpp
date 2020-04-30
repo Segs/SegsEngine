@@ -274,9 +274,9 @@ void GDScript::get_script_property_list(Vector<PropertyInfo> *p_list) const {
         //TODO: SEGS: code below is inefficient, it should sort in reverse instead of sorting+reversing
         eastl::sort(msort.begin(), msort.end());
         eastl::reverse(msort.begin(), msort.end());
-        for (int i = 0; i < msort.size(); i++) {
+        for (auto & i : msort) {
 
-            props.push_front(sptr->member_info.at(msort[i].name));
+            props.push_front(sptr->member_info.at(i.name));
         }
 
         sptr = sptr->_base;
