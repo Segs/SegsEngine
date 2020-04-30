@@ -410,6 +410,10 @@ public:
     void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
     const MultiplayerAPI_RPCMode *get_node_rpc_mode(const StringName &p_method);
     const MultiplayerAPI_RPCMode *get_node_rset_mode(const StringName &p_property);
+#ifdef DEBUG_ENABLED
+    /// Used in ObjectDB::cleanup() warning print
+    const char *get_dbg_name() const override { return get_name().asCString(); }
+#endif
 
     Node();
     ~Node() override;

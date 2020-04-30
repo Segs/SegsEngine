@@ -484,6 +484,10 @@ public:
 
     virtual void get_translatable_strings(List<StringName> *p_strings) const;
     virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
+#ifdef DEBUG_ENABLED
+    /// Used in ObjectDB::cleanup() warning print
+    virtual const char *get_dbg_name() const { return nullptr; }
+#endif
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 

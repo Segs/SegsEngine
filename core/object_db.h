@@ -24,18 +24,17 @@ class ObjectDB {
 
     static HashMap<ObjectID, Object *> instances;
     static HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
-
     static ObjectID instance_counter;
-    friend class Object;
-    friend void unregister_core_types();
-
     static RWLock *rw_lock;
+
     static void cleanup();
     static ObjectID add_instance(Object *p_object);
     static void remove_instance(Object *p_object);
-    friend void register_core_types();
     static void setup();
 
+    friend class Object;
+    friend void unregister_core_types();
+    friend void register_core_types();
 public:
     using DebugFunc = void (*)(Object *);
 

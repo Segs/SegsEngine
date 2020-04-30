@@ -406,6 +406,17 @@ int Resource::get_id_for_path(StringView p_path) const {
     }
     return -1;
 }
+
+
+#endif
+#ifdef DEBUG_ENABLED
+const char *Resource::get_dbg_name() const {
+    static TmpString<2048,false> s_data;
+    s_data.assign(get_name().c_str());
+    s_data.append(" Path: ");
+    s_data.append(get_path().c_str());
+    return s_data.c_str();
+}
 #endif
 VariantType fromQVariantType(QVariant::Type t) {
     switch(t) {

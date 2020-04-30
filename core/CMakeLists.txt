@@ -158,7 +158,7 @@ set(core_sources
     method_ptrcall.h
     object_tooling.h
     object_tooling.cpp
-    object_db.h
+
     packed_data_container.cpp
     packed_data_container.h
     precompiled.h
@@ -305,6 +305,8 @@ set(generic_core_sources
     timing_assert.h
     typedefs.h
 
+    object_db.cpp
+    object_db.h
     object.cpp
     object.h
 

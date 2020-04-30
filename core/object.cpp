@@ -1758,6 +1758,9 @@ void Object::set_script_instance_binding(int p_script_language_index, void *p_da
 #endif
     _script_instance_bindings[p_script_language_index] = p_data;
 }
+void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, List<String> * /*r_options*/) const {
+}
+
 
 Object::Object() {
     private_data = memnew_args_basic(ObjectPrivate,this);
@@ -1810,96 +1813,4 @@ bool predelete_handler(Object *p_object) {
 void postinitialize_handler(Object *p_object) {
 
     p_object->_postinitialize();
-}
-
-HashMap<ObjectID, Object *> ObjectDB::instances;
-ObjectID ObjectDB::instance_counter = 1;
-HashMap<Object *, ObjectID, Hasher<Object *>> ObjectDB::instance_checks;
-ObjectID ObjectDB::add_instance(Object *p_object) {
-
-    ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0);
-
-    rw_lock->write_lock();
-    ObjectID instance_id = ++instance_counter;
-    instances[instance_id] = p_object;
-    instance_checks[p_object] = instance_id;
-
-    rw_lock->write_unlock();
-
-    return instance_id;
-}
-
-void ObjectDB::remove_instance(Object *p_object) {
-
-    rw_lock->write_lock();
-
-    instances.erase(p_object->get_instance_id());
-    instance_checks.erase(p_object);
-
-    rw_lock->write_unlock();
-}
-Object *ObjectDB::get_instance(ObjectID p_instance_id) {
-
-    rw_lock->read_lock();
-    auto iter= instances.find(p_instance_id);
-    Object *obj = iter!=instances.end() ? iter->second : nullptr;
-    rw_lock->read_unlock();
-
-    return obj;
-}
-
-void ObjectDB::debug_objects(DebugFunc p_func) {
-
-    rw_lock->read_lock();
-
-    for(const auto &e : instances) {
-
-        p_func(e.second);
-    }
-
-    rw_lock->read_unlock();
-}
-
-void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, List<String> * /*r_options*/) const {
-}
-
-int ObjectDB::get_object_count() {
-
-    rw_lock->read_lock();
-    int count = instances.size();
-    rw_lock->read_unlock();
-
-    return count;
-}
-
-RWLock *ObjectDB::rw_lock = nullptr;
-
-void ObjectDB::setup() {
-
-    rw_lock = RWLock::create();
-}
-
-void ObjectDB::cleanup() {
-
-    rw_lock->write_lock();
-    if (!instances.empty()) {
-
-        WARN_PRINT("ObjectDB Instances still exist!");
-        if (OS::get_singleton()->is_stdout_verbose()) {
-            for (const auto &e : instances) {
-                //TODO: SEGS: use object_cast and direct calls here??
-                String node_name;
-                if (e.second->is_class("Node"))
-                    node_name = " - Node name: " + e.second->call_va("get_name").as<String>();
-                if (e.second->is_class("Resource"))
-                    node_name = " - Resource name: " + e.second->call_va("get_name").as<String>() +
-                                " Path: " + e.second->call_va("get_path").as<String>();
-                print_line(FormatVE("Leaked instance: %s:%zu%s", e.second->get_class(), e.second,node_name.c_str()));
-            }
-        }
-    }
-    instances.clear();
-    instance_checks.clear();
-    rw_lock->write_unlock();
-    memdelete(rw_lock);
 }
