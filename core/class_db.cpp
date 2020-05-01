@@ -1198,7 +1198,7 @@ void ClassDB::add_resource_base_extension(const StringName &p_extension, const S
 void ClassDB::get_resource_base_extensions(Vector<String> &p_extensions) {
     for(const auto &p : resource_base_extensions)
     {
-        p_extensions.push_back(p.first.asCString());
+        p_extensions.emplace_back(p.first.asCString());
     }
 }
 
