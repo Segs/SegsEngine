@@ -530,7 +530,7 @@ void GDScript::update_exports() {
     HashSet<ObjectID> copy = inheriters_cache; //might get modified
 
     for (ObjectID E : copy) {
-        Object *id = ObjectDB::get_instance(E);
+        Object *id = gObjectDB().get_instance(E);
         GDScript *s = object_cast<GDScript>(id);
         if (!s)
             continue;
@@ -947,7 +947,7 @@ void GDScript::_save_orphaned_subclasses() {
     // keep orphan subclass only for subclasses that are still in use
     for (int i = 0; i < weak_subclasses.size(); i++) {
         ClassRefWithName subclass = weak_subclasses[i];
-        Object *obj = ObjectDB::get_instance(subclass.id);
+        Object *obj = gObjectDB().get_instance(subclass.id);
         if (!obj)
             continue;
         // subclass is not released
@@ -1733,7 +1733,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
             Vector<Pair<StringName, Variant> > &saved_state = F.second;
 
-            Object *obj = ObjectDB::get_instance(F.first);
+            Object *obj = gObjectDB().get_instance(F.first);
             if (!obj)
                 continue;
 
@@ -2220,7 +2220,7 @@ Ref<GDScript> GDScriptLanguage::get_orphan_subclass(const String &p_qualified_na
     if (orphan_subclasses.end()==orphan_subclass_element)
         return Ref<GDScript>();
     ObjectID orphan_subclass = orphan_subclass_element->second;
-    Object *obj = ObjectDB::get_instance(orphan_subclass);
+    Object *obj = gObjectDB().get_instance(orphan_subclass);
     orphan_subclasses.erase(orphan_subclass_element);
     if (!obj)
         return Ref<GDScript>();

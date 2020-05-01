@@ -2379,7 +2379,7 @@ void VisualScriptEditor::_button_resource_previewed(StringView p_path, const Ref
     ERR_FAIL_COND(ud.size() != 2);
 
     ObjectID id = ud[0];
-    Object *obj = ObjectDB::get_instance(id);
+    Object *obj = gObjectDB().get_instance(id);
 
     if (!obj)
         return;

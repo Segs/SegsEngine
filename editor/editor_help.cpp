@@ -532,7 +532,7 @@ void EditorHelp::_update_doc() {
         class_desc->push_table(2);
         class_desc->set_table_column_expand(1, true);
 
-        for (int i = 0; i < cd.properties.size(); i++) {
+        for (size_t i = 0; i < cd.properties.size(); i++) {
             property_line[cd.properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
 
             class_desc->push_cell();
@@ -608,7 +608,7 @@ void EditorHelp::_update_doc() {
 
     Vector<DocData::MethodDoc> methods;
 
-    for (int i = 0; i < cd.methods.size(); i++) {
+    for (size_t i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
             if (cd.methods[i].arguments.empty() /* getter */ ||
                     (cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */)) {

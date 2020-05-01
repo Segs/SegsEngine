@@ -113,7 +113,7 @@ void PhysicsDirectBodyState2D::integrate_forces() {
 Object *PhysicsDirectBodyState2D::get_contact_collider_object(int p_contact_idx) const {
 
     ObjectID objid = get_contact_collider_id(p_contact_idx);
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     return obj;
 }
 
@@ -544,7 +544,7 @@ RID Physics2DTestMotionResult::get_collider_rid() const {
 }
 
 Object *Physics2DTestMotionResult::get_collider() const {
-    return ObjectDB::get_instance(result.collider_id);
+    return gObjectDB().get_instance(result.collider_id);
 }
 
 int Physics2DTestMotionResult::get_collider_shape() const {

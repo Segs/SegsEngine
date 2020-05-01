@@ -141,7 +141,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
 
         for (uint32_t E : bones[which].nodes_bound) {
 
-            Object *obj = ObjectDB::get_instance(E);
+            Object *obj = gObjectDB().get_instance(E);
             ERR_CONTINUE(!obj);
             Node *node = object_cast<Node>(obj);
             ERR_CONTINUE(!node);
@@ -309,7 +309,7 @@ void Skeleton::_notification(int p_what) {
 
                 for (uint32_t E : b.nodes_bound) {
 
-                    Object *obj = ObjectDB::get_instance(E);
+                    Object *obj = gObjectDB().get_instance(E);
                     ERR_CONTINUE(!obj);
                     Node3D *sp = object_cast<Node3D>(obj);
                     ERR_CONTINUE(!sp);
@@ -552,7 +552,7 @@ void Skeleton::get_bound_child_nodes_to_bone(int p_bone, Vector<Node *> *p_bound
 
     for (uint32_t E : bones[p_bone].nodes_bound) {
 
-        Object *obj = ObjectDB::get_instance(E);
+        Object *obj = gObjectDB().get_instance(E);
         ERR_CONTINUE(!obj);
         p_bound->push_back(object_cast<Node>(obj));
     }

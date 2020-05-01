@@ -52,8 +52,8 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (ObjectDB::get_instance(p_id))
-            type = ObjectDB::get_instance(p_id)->get_class();
+        if (gObjectDB().get_instance(p_id))
+            type = gObjectDB().get_instance(p_id)->get_class();
         print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
@@ -102,8 +102,8 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
-        if (ObjectDB::get_instance(p_id))
-            type = ObjectDB::get_instance(p_id)->get_class();
+        if (gObjectDB().get_instance(p_id))
+            type = gObjectDB().get_instance(p_id)->get_class();
         print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
@@ -175,7 +175,7 @@ void MessageQueue::statistics() {
     while (read_pos < buffer_end) {
         Message *message = (Message *)&buffer[read_pos];
 
-        Object *target = ObjectDB::get_instance(message->instance_id);
+        Object *target = gObjectDB().get_instance(message->instance_id);
 
         if (target != nullptr) {
 
@@ -287,7 +287,7 @@ void MessageQueue::flush() {
 
         _THREAD_SAFE_UNLOCK_
 
-        Object *target = ObjectDB::get_instance(message->instance_id);
+        Object *target = gObjectDB().get_instance(message->instance_id);
 
         if (target != nullptr) {
 

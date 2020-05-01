@@ -372,7 +372,7 @@ void RigidBodyBullet::dispatch_callbacks() {
 
         Variant variantBodyDirect(bodyDirect);
 
-        Object *obj = ObjectDB::get_instance(force_integration_callback->id);
+        Object *obj = gObjectDB().get_instance(force_integration_callback->id);
         if (!obj) {
             // Remove integration callback
             set_force_integration_callback(0, StringName());

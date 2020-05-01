@@ -1274,7 +1274,7 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
             //only if debugging!
-            if (!ObjectDB::instance_validate(obj)) {
+            if (!gObjectDB().instance_validate(obj)) {
                 r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
                 return;
             }
@@ -1450,7 +1450,7 @@ bool Variant::has_method(const StringName &p_method) const {
             return false;
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            if (ObjectDB::instance_validate(obj)) {
+            if (gObjectDB().instance_validate(obj)) {
 #endif
                 return obj->has_method(p_method);
 #ifdef DEBUG_ENABLED

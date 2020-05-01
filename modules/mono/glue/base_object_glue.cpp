@@ -234,7 +234,7 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 
     if (ScriptDebugger::get_singleton() && !object_cast<RefCounted>(p_ptr)) { // Only if debugging!
         // Cannot happen either in C#; the handle is nullified when the object is destroyed
-        CRASH_COND(!ObjectDB::instance_validate(p_ptr));
+        CRASH_COND(!gObjectDB().instance_validate(p_ptr));
     }
 #endif
 

@@ -90,7 +90,7 @@ void PhysicsDirectBodyState3D::integrate_forces() {
 Object *PhysicsDirectBodyState3D::get_contact_collider_object(int p_contact_idx) const {
 
     ObjectID objid = get_contact_collider_id(p_contact_idx);
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     return obj;
 }
 

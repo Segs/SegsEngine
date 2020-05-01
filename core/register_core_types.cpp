@@ -103,7 +103,7 @@ extern void unregister_variant_methods();
 
 void register_core_types() {
 
-    ObjectDB::setup();
+    gObjectDB().setup();
     ResourceCache::setup();
     MemoryPool::setup();
 
@@ -324,7 +324,7 @@ void unregister_core_types() {
 
     gResourceManager().finalize();
     ClassDB::cleanup_defaults();
-    ObjectDB::cleanup();
+    gObjectDB().cleanup();
 
     unregister_variant_methods();
     unregister_global_constants();

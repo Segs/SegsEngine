@@ -145,7 +145,7 @@ void CanvasLayer::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            if (custom_viewport && ObjectDB::get_instance(custom_viewport_id)) {
+            if (custom_viewport && gObjectDB().get_instance(custom_viewport_id)) {
 
                 vp = custom_viewport;
             } else {

@@ -224,7 +224,7 @@ void AudioStreamPreviewGenerator::_notification(int p_what) {
                 Thread::wait_to_finish(E.second.thread);
                 E.second.thread = nullptr;
             }
-            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+            if (!gObjectDB().get_instance(E.first)) { //no longer in use, get rid of preview
                 to_erase.push_back(E.first);
             }
         }

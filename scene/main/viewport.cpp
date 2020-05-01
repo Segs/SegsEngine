@@ -596,7 +596,7 @@ void Viewport::_notification(int p_what) {
 
                             for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
-                                    Object *o = ObjectDB::get_instance(iter->first);
+                                    Object *o = gObjectDB().get_instance(iter->first);
                                     if (o) {
 
                                         CollisionObject2D *co = object_cast<CollisionObject2D>(o);
@@ -620,7 +620,7 @@ void Viewport::_notification(int p_what) {
 
                     if (physics_object_capture != 0) {
 
-                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_capture));
+                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_capture));
                         if (co && camera) {
                             _collision_object_input_event(co, camera, ev, Vector3(), Vector3(), 0);
                             captured = true;
@@ -638,7 +638,7 @@ void Viewport::_notification(int p_what) {
                     } else if (pos == last_pos) {
 
                         if (last_id) {
-                            if (ObjectDB::get_instance(last_id) && last_object) {
+                            if (gObjectDB().get_instance(last_id) && last_object) {
                                 //good, exists
                                 _collision_object_input_event(last_object, camera, ev, result.position, result.normal, result.shape);
                                 if (last_object->get_capture_input_on_drag() && mb && mb->get_button_index() == 1 && mb->is_pressed()) {
@@ -677,7 +677,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (physics_object_over) {
 
-                                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_over));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
                                         if (co) {
                                             co->_mouse_exit();
                                         }
@@ -685,7 +685,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (new_collider) {
 
-                                        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(new_collider));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(new_collider));
                                         if (co) {
                                             co->_mouse_enter();
                                         }
@@ -2538,7 +2538,7 @@ void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, Obj
 
         if (!next) { //top of stack
 
-            Object *pfo = ObjectDB::get_instance(p_prev_focus_owner);
+            Object *pfo = gObjectDB().get_instance(p_prev_focus_owner);
             Control *pfoc = object_cast<Control>(pfo);
             if (!pfoc)
                 return;
@@ -2718,7 +2718,7 @@ void Viewport::_drop_physics_mouseover() {
     physics_has_last_mousepos = false;
 
     while (!physics_2d_mouseover.empty()) {
-        Object *o = ObjectDB::get_instance(physics_2d_mouseover.begin()->first);
+        Object *o = gObjectDB().get_instance(physics_2d_mouseover.begin()->first);
         if (o) {
             CollisionObject2D *co = object_cast<CollisionObject2D>(o);
             co->_mouse_exit();
@@ -2728,7 +2728,7 @@ void Viewport::_drop_physics_mouseover() {
 
 #ifndef _3D_DISABLED
     if (physics_object_over) {
-        CollisionObject3D *co = object_cast<CollisionObject3D>(ObjectDB::get_instance(physics_object_over));
+        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
         }

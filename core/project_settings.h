@@ -56,19 +56,20 @@ public:
 
 protected:
     struct VariantContainer {
-        int order=0;
-        bool persist=false;
         Variant variant;
         Variant initial;
+        int order=0;
+        bool persist=false;
         bool hide_from_editor=false;
         bool overridden=false;
         bool restart_if_changed=false;
         VariantContainer() {}
 
         VariantContainer(const Variant &p_variant, int p_order, bool p_persist = false) :
+                variant(p_variant),
                 order(p_order),
-                persist(p_persist),
-                variant(p_variant) {
+                persist(p_persist)
+        {
         }
     };
 

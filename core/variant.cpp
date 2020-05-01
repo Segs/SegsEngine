@@ -1563,7 +1563,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
-                    if (!ObjectDB::instance_validate(_get_obj().obj)) {
+                    if (!gObjectDB().instance_validate(_get_obj().obj)) {
                         return ("[Deleted Object]");
                     }
                 }
@@ -1681,7 +1681,7 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
+            ERR_FAIL_COND_V_MSG(!gObjectDB().instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
         }
 #endif
         Callable::CallError ce;

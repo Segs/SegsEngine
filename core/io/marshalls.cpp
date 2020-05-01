@@ -831,7 +831,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 #ifdef DEBUG_ENABLED
             // Test for potential wrong values sent by the debugger when it breaks.
             Object *obj = p_variant;
-            if (!obj || !ObjectDB::instance_validate(obj)) {
+            if (!obj || !gObjectDB().instance_validate(obj)) {
                 // Object is invalid, send a NULL instead.
                 if (buf) {
                     encode_uint32((uint32_t)VariantType::NIL, buf);
@@ -1153,7 +1153,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
                     Object *obj = p_variant;
                     ObjectID id = 0;
-                    if (obj && ObjectDB::instance_validate(obj)) {
+                    if (obj && gObjectDB().instance_validate(obj)) {
                         id = obj->get_instance_id();
                     }
 

@@ -106,7 +106,7 @@ void AreaBullet::dispatch_callbacks() {
 void AreaBullet::call_event(CollisionObjectBullet *p_otherObject, PhysicsServer3D::AreaBodyStatus p_status) {
 
     InOutEventCallback &event = eventsCallbacks[static_cast<int>(p_otherObject->getType())];
-    Object *areaGodoObject = ObjectDB::get_instance(event.event_callback_id);
+    Object *areaGodoObject = gObjectDB().get_instance(event.event_callback_id);
 
     if (!areaGodoObject) {
         event.event_callback_id = 0;

@@ -2322,8 +2322,8 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
-    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
+    ERR_FAIL_COND_V_MSG(instance_id && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
+    ERR_FAIL_COND_V_MSG(script_id && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
 
 #endif
 
@@ -2393,8 +2393,8 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
     ERR_FAIL_COND_V(function == StringName(), Variant());
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !ObjectDB::get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
-    ERR_FAIL_COND_V_MSG(script_id && !ObjectDB::get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
+    ERR_FAIL_COND_V_MSG(instance_id && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
+    ERR_FAIL_COND_V_MSG(script_id && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
 
 #endif
 

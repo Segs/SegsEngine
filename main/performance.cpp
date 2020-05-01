@@ -144,7 +144,7 @@ float Performance::get_monitor(Monitor p_monitor) const {
         case MEMORY_STATIC_MAX: return Memory::get_mem_max_usage();
         case MEMORY_DYNAMIC_MAX: return MemoryPool::max_memory;
         case MEMORY_MESSAGE_BUFFER_MAX: return MessageQueue::get_singleton()->get_max_buffer_usage();
-        case OBJECT_COUNT: return ObjectDB::get_object_count();
+        case OBJECT_COUNT: return gObjectDB().get_object_count();
         case OBJECT_RESOURCE_COUNT: return ResourceCache::get_cached_resource_count();
         case OBJECT_NODE_COUNT: return _get_node_count();
         case OBJECT_ORPHAN_NODE_COUNT: return Node::orphan_node_count;

@@ -20,7 +20,7 @@
 #include "core/pool_vector.h"
 
 #include "EASTL/deque.h"
-
+/// Note: resource manager private data is using default 'new'/'delete'
 namespace {
 struct ResourceManagerPriv {
     Mutex loading_map_mutex;
@@ -255,7 +255,7 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
 ResourceManager::ResourceManager()
 {
-    m_priv = memnew(ResourceManagerPriv);
+    m_priv = new ResourceManagerPriv;
 }
 
 ResourceManager::~ResourceManager()
@@ -490,8 +490,8 @@ void ResourceManager::remove_custom_loaders() {
         }
     }
 
-    for (int i = 0; i < custom_loaders.size(); ++i) {
-        remove_resource_format_loader(custom_loaders[i]);
+    for (const Ref<ResourceFormatLoader> & ldr : custom_loaders) {
+        remove_resource_format_loader(ldr);
     }
 }
 void ResourceManager::get_recognized_extensions_for_type(StringView p_type, Vector<String>& p_extensions) {
@@ -1045,3 +1045,5 @@ bool ResourceRemapper::is_translation_remapped(const Resource *resource) {
 ResourceRemapper& gResourceRemapper() {
     return s_resource_remapper;
 }
+
+#undef D

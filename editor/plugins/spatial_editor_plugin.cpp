@@ -281,7 +281,7 @@ void SpatialEditorViewport::_select_clicked(bool p_append, bool p_single, bool p
     if (!clicked)
         return;
 
-    Node *node = object_cast<Node>(ObjectDB::get_instance(clicked));
+    Node *node = object_cast<Node>(gObjectDB().get_instance(clicked));
     Node3D *selected = object_cast<Node3D>(node);
     if (!selected)
         return;
@@ -339,7 +339,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *spat = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
+        Node3D *spat = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
 
         if (!spat)
             continue;
@@ -402,7 +402,7 @@ void SpatialEditorViewport::_find_items_at_pos(const Point2 &p_pos, bool &r_incl
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *spat = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
+        Node3D *spat = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
 
         if (!spat)
             continue;
@@ -526,7 +526,7 @@ void SpatialEditorViewport::_select_region() {
 
     for (size_t i = 0; i < instances.size(); i++) {
 
-        Node3D *sp = object_cast<Node3D>(ObjectDB::get_instance(instances[i]));
+        Node3D *sp = object_cast<Node3D>(gObjectDB().get_instance(instances[i]));
         if (!sp || _is_node_locked(sp))
             continue;
 
@@ -1156,7 +1156,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                     if (clicked && gizmo_handle >= 0) {
 
-                        Node3D *spa = object_cast<Node3D>(ObjectDB::get_instance(clicked));
+                        Node3D *spa = object_cast<Node3D>(gObjectDB().get_instance(clicked));
                         if (spa) {
 
                             Ref<EditorSpatialGizmo> seg = dynamic_ref_cast<EditorSpatialGizmo>(spa->get_gizmo());
@@ -3226,7 +3226,7 @@ Vector3 SpatialEditorViewport::_get_instance_position(const Point2 &p_pos) const
 
     for (int i = 0; i < instances.size(); i++) {
 
-        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(ObjectDB::get_instance(instances[i]));
+        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(gObjectDB().get_instance(instances[i]));
 
         if (!mesh_instance)
             continue;

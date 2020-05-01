@@ -148,7 +148,7 @@ static String _get_var_type(const Variant *p_var) {
         if (!bobj) {
             basestr = "null instance";
         } else {
-            if (ObjectDB::instance_validate(bobj)) {
+            if (gObjectDB().instance_validate(bobj)) {
                 if (bobj->get_script_instance())
                     basestr = String(bobj->get_class()) + " (" + PathUtils::get_file(bobj->get_script_instance()->get_script()->get_path()) + ")";
                 else
@@ -506,7 +506,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                     Object *obj_A = *a;
                     Object *obj_B = *b;
 #ifdef DEBUG_ENABLED
-                    if (!ObjectDB::instance_validate(obj_A)) {
+                    if (!gObjectDB().instance_validate(obj_A)) {
                         err_text = "Left operand of 'is' was already freed.";
                         OPCODE_BREAK;
                     }
@@ -1311,7 +1311,7 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
                         OPCODE_BREAK;
                     }
                     if (ScriptDebugger::get_singleton()) {
-                        if (!ObjectDB::instance_validate(obj)) {
+                        if (!gObjectDB().instance_validate(obj)) {
                             err_text = "First argument of yield() is a previously freed instance.";
                             OPCODE_BREAK;
                         }
@@ -1572,14 +1572,14 @@ Variant GDScriptFunction::call(GDScriptInstance *p_instance, const Variant **p_a
         //error
         // function, file, line, error, explanation
         String err_file;
-        if (p_instance && ObjectDB::instance_validate(p_instance->owner) && p_instance->script->is_valid() && not p_instance->script->path.empty())
+        if (p_instance && gObjectDB().instance_validate(p_instance->owner) && p_instance->script->is_valid() && not p_instance->script->path.empty())
             err_file = p_instance->script->path;
         else if (script)
             err_file = script->path;
         if (err_file.empty())
             err_file = "<built-in>";
         String err_func(name.asCString());
-        if (p_instance && ObjectDB::instance_validate(p_instance->owner) && p_instance->script->is_valid() && not p_instance->script->name.empty())
+        if (p_instance && gObjectDB().instance_validate(p_instance->owner) && p_instance->script->is_valid() && not p_instance->script->name.empty())
             err_func = String(p_instance->script->name.asCString()) + "." + err_func;
         int err_line = line;
         if (err_text.empty()) {
@@ -1831,7 +1831,7 @@ bool GDScriptFunctionState::is_valid(bool p_extended_check) const {
 
     if (p_extended_check) {
         //class instance gone?
-        if (state.instance_id && !ObjectDB::get_instance(state.instance_id))
+        if (state.instance_id && !gObjectDB().get_instance(state.instance_id))
             return false;
     }
 
@@ -1841,7 +1841,7 @@ bool GDScriptFunctionState::is_valid(bool p_extended_check) const {
 Variant GDScriptFunctionState::resume(const Variant &p_arg) {
 
     ERR_FAIL_COND_V(!function, Variant());
-    if (state.instance_id && !ObjectDB::get_instance(state.instance_id)) {
+    if (state.instance_id && !gObjectDB().get_instance(state.instance_id)) {
 #ifdef DEBUG_ENABLED
         ERR_FAIL_V_MSG(Variant(), "Resumed function '" + String(function->get_name()) + "()' after yield, but class instance is gone. At script: " + state.script->get_path() + ":" + ::to_string(state.line));
 #else
@@ -1937,7 +1937,7 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
             return false;
         }
         Object *obj = p_variant.operator Object *();
-        if (!obj || !ObjectDB::instance_validate(obj)) {
+        if (!obj || !gObjectDB().instance_validate(obj)) {
             return false;
         }
         if (!ClassDB::is_parent_class(obj->get_class_name(), native_type)) {
@@ -1958,7 +1958,7 @@ bool GDScriptDataType::is_type(const Variant &p_variant, bool p_allow_implicit_c
             return false;
         }
         Object *obj = p_variant.operator Object *();
-        if (!obj || !ObjectDB::instance_validate(obj)) {
+        if (!obj || !gObjectDB().instance_validate(obj)) {
             return false;
         }
         Ref<Script> base = obj->get_script_instance() ? obj->get_script_instance()->get_script() : Ref<Script>();

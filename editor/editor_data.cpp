@@ -53,7 +53,7 @@ void EditorHistory::cleanup_history() {
             if (history[i].path[j].ref)
                 continue;
 
-            Object *obj = ObjectDB::get_instance(history[i].path[j].object);
+            Object *obj = gObjectDB().get_instance(history[i].path[j].object);
             if (obj) {
                 Node *n = object_cast<Node>(obj);
                 if (n && n->is_inside_tree())
@@ -85,7 +85,7 @@ void EditorHistory::cleanup_history() {
 
 void EditorHistory::_add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only) {
 
-    Object *obj = ObjectDB::get_instance(p_object);
+    Object *obj = gObjectDB().get_instance(p_object);
     ERR_FAIL_COND(!obj);
     RefCounted *r = object_cast<RefCounted>(obj);
     Obj o;
@@ -212,7 +212,7 @@ ObjectID EditorHistory::get_current() {
         return 0;
 
     History &h = history[current];
-    Object *obj = ObjectDB::get_instance(h.path[h.level].object);
+    Object *obj = gObjectDB().get_instance(h.path[h.level].object);
     if (!obj)
         return 0;
 
@@ -237,7 +237,7 @@ ObjectID EditorHistory::get_path_object(int p_index) const {
 
     ERR_FAIL_INDEX_V(p_index, h.path.size(), 0);
 
-    Object *obj = ObjectDB::get_instance(h.path[p_index].object);
+    Object *obj = gObjectDB().get_instance(h.path[p_index].object);
     if (!obj)
         return 0;
 

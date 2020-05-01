@@ -309,7 +309,7 @@ void Resource::notify_change_to_owners() {
 
     for (const ObjectID E : impl_data->owners) {
 
-        Object *obj = ObjectDB::get_instance(E);
+        Object *obj = gObjectDB().get_instance(E);
         ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
         obj->call_va("resource_changed", RES(this));

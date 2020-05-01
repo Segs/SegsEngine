@@ -150,7 +150,7 @@ void VisualScriptPropertySelector::_update_search() {
             if (instance) {
                 instance->get_property_list(&props, true);
             } else {
-                Object *obj = ObjectDB::get_instance(script);
+                Object *obj = gObjectDB().get_instance(script);
                 if (object_cast<Script>(obj)) {
                     object_cast<Script>(obj)->get_script_property_list(&props);
                 } else {
@@ -207,7 +207,7 @@ void VisualScriptPropertySelector::_update_search() {
                 v.get_method_list(&methods);
             } else {
 
-                Object *obj = ObjectDB::get_instance(script);
+                Object *obj = gObjectDB().get_instance(script);
                 if (object_cast<Script>(obj)) {
                     object_cast<Script>(obj)->get_script_method_list(&methods);
                 }

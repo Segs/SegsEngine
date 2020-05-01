@@ -612,7 +612,7 @@ void Body2DSW::call_queries() {
         Variant v(dbs);
         const Variant *vp[2] = { &v, &fi_callback->callback_udata };
 
-        Object *obj = ObjectDB::get_instance(fi_callback->id);
+        Object *obj = gObjectDB().get_instance(fi_callback->id);
         if (!obj) {
 
             set_force_integration_callback(0, StringName());

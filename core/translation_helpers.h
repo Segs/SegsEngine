@@ -2,6 +2,7 @@
 
 #include "core/forward_decls.h"
 
+class StringName;
 using UIString = class QString;
 namespace StringUtils {
     [[nodiscard]] String to_utf8(const UIString &s);

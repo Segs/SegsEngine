@@ -86,7 +86,7 @@ Object *RayCast2D::get_collider() const {
     if (against == 0)
         return nullptr;
 
-    return ObjectDB::get_instance(against);
+    return gObjectDB().get_instance(against);
 }
 
 int RayCast2D::get_collider_shape() const {

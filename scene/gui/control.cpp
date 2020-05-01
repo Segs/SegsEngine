@@ -712,7 +712,7 @@ void Control::set_drag_forwarding(Control *p_target) {
 Variant Control::get_drag_data(const Point2 &p_point) {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             return c->call_va("get_drag_data_fw", p_point, Variant(this));
@@ -734,7 +734,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
 bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
@@ -755,7 +755,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
 void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             c->call_va("drop_data_fw", p_point, p_data, Variant(this));

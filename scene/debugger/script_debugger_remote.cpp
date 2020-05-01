@@ -109,7 +109,7 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
     packet_peer_stream->put_var(p_name);
 
     Variant var = p_variable;
-    if (p_variable.get_type() == VariantType::OBJECT && !ObjectDB::instance_validate(p_variable)) {
+    if (p_variable.get_type() == VariantType::OBJECT && !gObjectDB().instance_validate(p_variable)) {
         var = Variant();
     }
 
@@ -128,7 +128,7 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
 
 void ScriptDebuggerRemote::_save_node(ObjectID id, StringView p_path) {
 
-    Node *node = object_cast<Node>(ObjectDB::get_instance(id));
+    Node *node = object_cast<Node>(gObjectDB().get_instance(id));
     ERR_FAIL_COND(!node);
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
@@ -565,7 +565,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
     using ScriptMemberMap = Map<const Script *, HashSet<StringName> >;
     using ScriptConstantsMap = Map<const Script *, HashMap<StringName, Variant> >;
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     if (!obj)
         return;
 
@@ -711,7 +711,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
 void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     if (!obj)
         return;
     //TODO: SEGS: fix this madness..

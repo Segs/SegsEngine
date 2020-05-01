@@ -2687,7 +2687,7 @@ void Node::_print_stray_nodes() {
 void Node::print_stray_nodes() {
 
 #ifdef DEBUG_ENABLED
-    ObjectDB::debug_objects(_Node_debug_sn);
+    gObjectDB().debug_objects(_Node_debug_sn);
 #endif
 }
 

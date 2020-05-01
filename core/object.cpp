@@ -1073,7 +1073,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 
         const Connection &c = slot_map.getv(i).conn;
 
-        Object *target = ObjectDB::get_instance(slot_map.getk(i)._id);
+        Object *target = gObjectDB().get_instance(slot_map.getk(i)._id);
         if (!target) {
             // Target might have been deleted during signal callback, this is expected and OK.
             continue;
@@ -1768,7 +1768,7 @@ Object::Object() {
     _block_signals = false;
     _predelete_ok = 0;
     _instance_id = 0;
-    _instance_id = ObjectDB::add_instance(this);
+    _instance_id = gObjectDB().add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;
     _emitting = false;
@@ -1792,7 +1792,7 @@ Object::~Object() {
     if(private_data)
         memdelete(private_data);
 
-    ObjectDB::remove_instance(this);
+    gObjectDB().remove_instance(this);
     _instance_id = 0;
     _predelete_ok = 2;
 

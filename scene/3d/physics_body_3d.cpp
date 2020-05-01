@@ -135,7 +135,7 @@ Array PhysicsBody3D::get_collision_exceptions() {
     for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer3D::get_singleton()->body_get_object_instance_id(body);
-        Object *obj = ObjectDB::get_instance(instance_id);
+        Object *obj = gObjectDB().get_instance(instance_id);
         PhysicsBody3D *physics_body = object_cast<PhysicsBody3D>(obj);
         ret.append(Variant(physics_body));
     }
@@ -279,7 +279,7 @@ void StaticBody3D::_reload_physics_characteristics() {
 
 void RigidBody::_body_enter_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -304,7 +304,7 @@ void RigidBody::_body_enter_tree(ObjectID p_id) {
 
 void RigidBody::_body_exit_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     ERR_FAIL_COND(!contact_monitor);
@@ -330,7 +330,7 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
     bool body_in = p_status == 1;
     ObjectID objid = p_instance;
 
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     ERR_FAIL_COND(!contact_monitor);
@@ -762,7 +762,7 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
             //clean up mess
-            Object *obj = ObjectDB::get_instance(E.first);
+            Object *obj = gObjectDB().get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (node) {
@@ -802,7 +802,7 @@ Array RigidBody::get_colliding_bodies() const {
     ret.resize(contact_monitor->body_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
-        Object *obj = ObjectDB::get_instance(E.first);
+        Object *obj = gObjectDB().get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {
@@ -1359,7 +1359,7 @@ Object *KinematicCollision::get_local_shape() const {
 Object *KinematicCollision::get_collider() const {
 
     if (collision.collider) {
-        return ObjectDB::get_instance(collision.collider);
+        return gObjectDB().get_instance(collision.collider);
     }
 
     return nullptr;

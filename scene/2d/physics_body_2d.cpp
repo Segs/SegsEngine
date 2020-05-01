@@ -158,7 +158,7 @@ Array PhysicsBody2D::get_collision_exceptions() {
     for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
         RID body = E->deref();
         ObjectID instance_id = PhysicsServer2D::get_singleton()->body_get_object_instance_id(body);
-        Object *obj = ObjectDB::get_instance(instance_id);
+        Object *obj = gObjectDB().get_instance(instance_id);
         PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(obj);
         ret.append(Variant(physics_body));
     }
@@ -263,7 +263,7 @@ void StaticBody2D::_reload_physics_characteristics() {
 
 void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -287,7 +287,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 
 void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     ERR_FAIL_COND(!contact_monitor);
@@ -313,7 +313,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
     bool body_in = p_status == 1;
     ObjectID objid = p_instance;
 
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     ERR_FAIL_COND(!contact_monitor);
@@ -769,7 +769,7 @@ Array RigidBody2D::get_colliding_bodies() const {
     ret.resize(contact_monitor->body_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
-        Object *obj = ObjectDB::get_instance(E.first);
+        Object *obj = gObjectDB().get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {
@@ -792,7 +792,7 @@ void RigidBody2D::set_contact_monitor(bool p_enabled) {
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
             //clean up mess
-            Object *obj = ObjectDB::get_instance(E.first);
+            Object *obj = gObjectDB().get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (node) {
@@ -1431,7 +1431,7 @@ Object *KinematicCollision2D::get_local_shape() const {
 Object *KinematicCollision2D::get_collider() const {
 
     if (collision.collider) {
-        return ObjectDB::get_instance(collision.collider);
+        return gObjectDB().get_instance(collision.collider);
     }
 
     return nullptr;

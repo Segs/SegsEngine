@@ -120,7 +120,7 @@ Variant WeakRef::get_ref() const {
     if (ref == 0)
         return Variant();
 
-    Object *obj = ObjectDB::get_instance(ref);
+    Object *obj = gObjectDB().get_instance(ref);
     if (!obj)
         return Variant();
     RefCounted *r = object_cast<RefCounted>(obj);

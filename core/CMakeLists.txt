@@ -180,6 +180,7 @@ set(core_sources
     script_language.h
     translation.cpp
     translation.h
+    translation_helpers.cpp
     translation_helpers.h
     type_info.h
     undo_redo.cpp

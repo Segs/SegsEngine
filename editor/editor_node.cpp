@@ -1545,7 +1545,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
-            Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+            Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
@@ -1748,7 +1748,7 @@ static bool overrides_external_editor(Object *p_object) {
 void EditorNode::_edit_current() {
 
     uint32_t current = editor_history.get_current();
-    Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
     bool inspector_only = editor_history.is_current_inspector_only();
 
     this->current = current_obj;
@@ -2761,7 +2761,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
                 Array params = tool_menu->get_item_metadata(p_idx);
 
-                Object *handler = ObjectDB::get_instance(params[0]);
+                Object *handler = gObjectDB().get_instance(params[0]);
                 StringName callback = params[1];
                 Variant *ud = &params[2];
                 Callable::CallError ce;

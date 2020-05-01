@@ -1397,7 +1397,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
 
             uint32_t id = *p_args[0];
             //TODO: SEGS: make sure get_instance(id) does not return Reference pointer here
-            r_ret = Variant(ObjectDB::get_instance(id));
+            r_ret = Variant(gObjectDB().get_instance(id));
 
         } break;
         case LEN: {
@@ -1471,7 +1471,7 @@ void GDScriptFunctions::call(Function p_func, const Variant **p_args, int p_arg_
                 r_ret = false;
             } else {
                 Object *obj = *p_args[0];
-                r_ret = ObjectDB::instance_validate(obj);
+                r_ret = gObjectDB().instance_validate(obj);
             }
 
         } break;

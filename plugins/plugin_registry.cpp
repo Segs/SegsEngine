@@ -23,7 +23,7 @@ static void load_all_plugins() {
 
     print_line("Retrieving statically linked plugins");
     get_static_plugins(s_common_plugins);
-
+    print_line("Finding dynamically loadable plugins");
 
     auto base_path = QFileInfo(OS::get_singleton()->get_executable_path().c_str()).path();
 
@@ -43,7 +43,6 @@ static void load_all_plugins() {
 
         if(fi.suffix()!="dll"&&fi.suffix()!="so")
             continue;
-        qDebug() << "Filename: " << filename;
 
         s_common_plugins.add_plugin(plugins_dir.absoluteFilePath(filename));
     }

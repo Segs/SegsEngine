@@ -438,13 +438,13 @@ void EditorPropertyMember::_property_select() {
 
     } else if (hint == MEMBER_METHOD_OF_INSTANCE) {
 
-        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+        Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
         if (instance)
             selector->select_method_from_instance(instance, current);
 
     } else if (hint == MEMBER_METHOD_OF_SCRIPT) {
 
-        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+        Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
         if (object_cast<Script>(obj)) {
             selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
         }
@@ -470,13 +470,13 @@ void EditorPropertyMember::_property_select() {
 
     } else if (hint == MEMBER_PROPERTY_OF_INSTANCE) {
 
-        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+        Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
         if (instance)
             selector->select_property_from_instance(instance, current);
 
     } else if (hint == MEMBER_PROPERTY_OF_SCRIPT) {
 
-        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+        Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
         if (object_cast<Script>(obj)) {
             selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
         }
@@ -1991,7 +1991,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
         if (!base_node) {
             //try a base node within history
             if (EditorNode::get_singleton()->get_editor_history()->get_path_size() > 0) {
-                Object *base = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
+                Object *base = gObjectDB().get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
                 if (base) {
                     base_node = object_cast<Node>(base);
                 }

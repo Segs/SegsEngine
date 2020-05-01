@@ -316,6 +316,7 @@ IP::~IP() {
         resolver->thread_abort = true;
         resolver->sem.post();
         Thread::wait_to_finish(resolver->thread);
+        memdelete(resolver->thread);
     }
     memdelete(resolver);
 #endif

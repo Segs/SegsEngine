@@ -269,7 +269,7 @@ void OS::print_all_resources(StringView p_to_file) {
         }
     }
 
-    ObjectDB::debug_objects(_OS_printres);
+    gObjectDB().debug_objects(_OS_printres);
 
     if (!p_to_file.empty()) {
 

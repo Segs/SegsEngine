@@ -97,7 +97,7 @@ int Physics2DDirectSpaceStateSW::_intersect_point_impl(const Vector2 &p_point, S
 
         r_results[cc].collider_id = col_obj->get_instance_id();
         if (r_results[cc].collider_id != 0)
-            r_results[cc].collider = ObjectDB::get_instance(r_results[cc].collider_id);
+            r_results[cc].collider = gObjectDB().get_instance(r_results[cc].collider_id);
         r_results[cc].rid = col_obj->get_self();
         r_results[cc].shape = shape_idx;
         r_results[cc].metadata = col_obj->get_shape_metadata(shape_idx);
@@ -188,7 +188,7 @@ bool Physics2DDirectSpaceStateSW::intersect_ray(const Vector2 &p_from, const Vec
 
     r_result.collider_id = res_obj->get_instance_id();
     if (r_result.collider_id != 0)
-        r_result.collider = ObjectDB::get_instance(r_result.collider_id);
+        r_result.collider = gObjectDB().get_instance(r_result.collider_id);
     r_result.normal = res_normal;
     r_result.metadata = res_obj->get_shape_metadata(res_shape);
     r_result.position = res_point;
@@ -232,7 +232,7 @@ int Physics2DDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Trans
 
         r_results[cc].collider_id = col_obj->get_instance_id();
         if (r_results[cc].collider_id != 0)
-            r_results[cc].collider = ObjectDB::get_instance(r_results[cc].collider_id);
+            r_results[cc].collider = gObjectDB().get_instance(r_results[cc].collider_id);
         r_results[cc].rid = col_obj->get_self();
         r_results[cc].shape = shape_idx;
         r_results[cc].metadata = col_obj->get_shape_metadata(shape_idx);

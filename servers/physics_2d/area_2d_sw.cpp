@@ -182,7 +182,7 @@ void Area2DSW::call_queries() {
         for (int i = 0; i < 5; i++)
             resptr[i] = &res[i];
 
-        Object *obj = ObjectDB::get_instance(monitor_callback_id);
+        Object *obj = gObjectDB().get_instance(monitor_callback_id);
         if (!obj) {
             monitored_bodies.clear();
             monitor_callback_id = 0;
@@ -214,7 +214,7 @@ void Area2DSW::call_queries() {
         for (int i = 0; i < 5; i++)
             resptr[i] = &res[i];
 
-        Object *obj = ObjectDB::get_instance(area_monitor_callback_id);
+        Object *obj = gObjectDB().get_instance(area_monitor_callback_id);
         if (!obj) {
             monitored_areas.clear();
             area_monitor_callback_id = 0;

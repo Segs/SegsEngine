@@ -117,7 +117,7 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
 
     while (frame_drawn_callbacks.front()) {
 
-        Object *obj = ObjectDB::get_instance(frame_drawn_callbacks.front()->deref().object);
+        Object *obj = gObjectDB().get_instance(frame_drawn_callbacks.front()->deref().object);
         if (obj) {
             Callable::CallError ce;
             const Variant *v = &frame_drawn_callbacks.front()->deref().param;

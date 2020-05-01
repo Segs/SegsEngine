@@ -223,7 +223,7 @@ void SectionedInspector::update_category_list() {
     using namespace StringUtils;
     sections->clear();
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = gObjectDB().get_instance(obj);
 
     if (!o)
         return;

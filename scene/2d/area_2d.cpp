@@ -121,7 +121,7 @@ real_t Area2D::get_priority() const {
 
 void Area2D::_body_enter_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -139,7 +139,7 @@ void Area2D::_body_enter_tree(ObjectID p_id) {
 
 void Area2D::_body_exit_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     auto E = body_map.find(p_id);
@@ -158,7 +158,7 @@ void Area2D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
     bool body_in = p_status == PhysicsServer2D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     auto E = body_map.find(objid);
@@ -224,7 +224,7 @@ void Area2D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
 
 void Area2D::_area_enter_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
 
@@ -242,7 +242,7 @@ void Area2D::_area_enter_tree(ObjectID p_id) {
 
 void Area2D::_area_exit_tree(ObjectID p_id) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     Node *node = object_cast<Node>(obj);
     ERR_FAIL_COND(!node);
     auto E = area_map.find(p_id);
@@ -261,7 +261,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
     bool area_in = p_status == PhysicsServer2D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
 
-    Object *obj = ObjectDB::get_instance(objid);
+    Object *obj = gObjectDB().get_instance(objid);
     Node *node = object_cast<Node>(obj);
 
     auto E = area_map.find(objid);
@@ -335,7 +335,7 @@ void Area2D::_clear_monitoring() {
 
         for (eastl::pair<const ObjectID,BodyState> &E : bmcopy) {
 
-            Object *obj = ObjectDB::get_instance(E.first);
+            Object *obj = gObjectDB().get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
@@ -365,7 +365,7 @@ void Area2D::_clear_monitoring() {
 
         for (eastl::pair<const ObjectID,AreaState> &E : bmcopy) {
 
-            Object *obj = ObjectDB::get_instance(E.first);
+            Object *obj = gObjectDB().get_instance(E.first);
             Node *node = object_cast<Node>(obj);
 
             if (!node) //node may have been deleted in previous frame or at other legiminate point
@@ -448,7 +448,7 @@ Array Area2D::get_overlapping_bodies() const {
     ret.resize(body_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,BodyState> &E : body_map) {
-        Object *obj = ObjectDB::get_instance(E.first);
+        Object *obj = gObjectDB().get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {
@@ -466,7 +466,7 @@ Array Area2D::get_overlapping_areas() const {
     ret.resize(area_map.size());
     int idx = 0;
     for (const eastl::pair<const ObjectID,AreaState> &E : area_map) {
-        Object *obj = ObjectDB::get_instance(E.first);
+        Object *obj = gObjectDB().get_instance(E.first);
         if (!obj) {
             ret.resize(ret.size() - 1); //ops
         } else {

@@ -489,7 +489,7 @@ Ref<InputEvent> InputEventMouseButton::xformed_by(const Transform2D &p_xform, co
     return mb;
 }
 
-bool InputEventMouseButton::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float p_deadzone) const {
+bool InputEventMouseButton::action_match(const Ref<InputEvent> &p_event, bool *p_pressed, float *p_strength, float /*p_deadzone*/) const {
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     if (not mb)
@@ -1173,7 +1173,7 @@ void InputEventMagnifyGesture::_bind_methods() {
 
 InputEventMagnifyGesture::InputEventMagnifyGesture() {
 
-    factor = 1.0;
+    factor = 1.0f;
 }
 /////////////////////////////
 

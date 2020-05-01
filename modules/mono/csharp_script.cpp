@@ -170,7 +170,7 @@ void CSharpLanguage::finish() {
 #ifdef DEBUG_ENABLED
     for (auto &E : unsafe_object_references) {
         const ObjectID &id = E.first;
-        Object *obj = ObjectDB::get_instance(id);
+        Object *obj = gObjectDB().get_instance(id);
 
         if (obj) {
             ERR_PRINT(String("Leaked unsafe reference to object: ") + obj->to_string());
@@ -876,7 +876,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
         for (const Ref<CSharpScript> &scr : to_reload) {
 
             for (const auto &F : scr->pending_reload_state) {
-                Object *obj = ObjectDB::get_instance(F.first);
+                Object *obj = gObjectDB().get_instance(F.first);
 
                 if (!obj)
                     continue;
@@ -966,7 +966,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
 
         {
             for (ObjectID obj_id :script->pending_reload_instances) {
-                Object *obj = ObjectDB::get_instance(obj_id);
+                Object *obj = gObjectDB().get_instance(obj_id);
 
                 if (!obj) {
                     script->pending_reload_state.erase(obj_id);
@@ -1019,7 +1019,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     for (const Ref<CSharpScript> &script : to_reload_state) {
 
         for (ObjectID obj_id : script->pending_reload_instances) {
-            Object *obj = ObjectDB::get_instance(obj_id);
+            Object *obj = gObjectDB().get_instance(obj_id);
 
             if (!obj) {
                 script->pending_reload_state.erase(obj_id);
