@@ -31,7 +31,7 @@
 #include "item_list.h"
 
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "scene/resources/font.h"
@@ -878,9 +878,9 @@ void ItemList::_notification(int p_what) {
         }
 
         if (has_focus()) {
-            VisualServer::get_singleton()->canvas_item_add_clip_ignore(get_canvas_item(), true);
+            RenderingServer::get_singleton()->canvas_item_add_clip_ignore(get_canvas_item(), true);
             draw_style_box(get_stylebox("bg_focus"), Rect2(Point2(), size));
-            VisualServer::get_singleton()->canvas_item_add_clip_ignore(get_canvas_item(), false);
+            RenderingServer::get_singleton()->canvas_item_add_clip_ignore(get_canvas_item(), false);
         }
 
         if (shape_changed) {
@@ -914,7 +914,7 @@ void ItemList::_notification(int p_what) {
                     //s.width=MIN(s.width,fixed_column_width);
 
                     if (icon_mode == ICON_MODE_TOP) {
-                        minsize.x = MAX(minsize.x, s.width);
+                        minsize.x = M_MAX(minsize.x, s.width);
                         if (max_text_lines > 0) {
                             minsize.y += (font_height + line_separation) * max_text_lines;
                         } else {
@@ -922,14 +922,14 @@ void ItemList::_notification(int p_what) {
                         }
 
                     } else {
-                        minsize.y = MAX(minsize.y, s.height);
+                        minsize.y = M_MAX(minsize.y, s.height);
                         minsize.x += s.width;
                     }
                 }
 
                 if (fixed_column_width > 0)
                     minsize.x = fixed_column_width;
-                max_column_width = MAX(max_column_width, minsize.x);
+                max_column_width = M_MAX(max_column_width, minsize.x);
 
                 // elements need to adapt to the selected size
                 minsize.y += vseparation;
@@ -956,7 +956,7 @@ void ItemList::_notification(int p_what) {
 
                     if (current_columns > 1 && items[i].rect_cache.size.width + ofs.x > fit_size) {
                         //went past
-                        current_columns = MAX(col, 1);
+                        current_columns = M_MAX(col, 1);
                         all_fit = false;
                         break;
                     }
@@ -964,7 +964,7 @@ void ItemList::_notification(int p_what) {
                     if (same_column_width)
                         items[i].rect_cache.size.x = max_column_width;
                     items[i].rect_cache.position = ofs;
-                    max_h = MAX(max_h, items[i].rect_cache.size.y);
+                    max_h = M_MAX(max_h, items[i].rect_cache.size.y);
                     ofs.x += items[i].rect_cache.size.x + hseparation;
                     col++;
                     if (col == current_columns) {
@@ -988,8 +988,8 @@ void ItemList::_notification(int p_what) {
                 }
 
                 if (all_fit) {
-                    float page = MAX(0, size.height - bg->get_minimum_size().height);
-                    float max = MAX(page, ofs.y + max_h);
+                    float page = M_MAX(0, size.height - bg->get_minimum_size().height);
+                    float max = M_MAX(page, ofs.y + max_h);
                     if (auto_height)
                         auto_height_value = ofs.y + max_h + bg->get_minimum_size().height;
                     scroll_bar->set_max(max);
@@ -1583,7 +1583,7 @@ void ItemList::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PropertyHint::Range, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
     ADD_GROUP("Icon", "");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PropertyHint::Enum, "Top,Left"), "set_icon_mode", "get_icon_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "icon_scale"), "set_icon_scale", "get_icon_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "icon_scale"), "set_icon_scale", "get_icon_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "fixed_icon_size"), "set_fixed_icon_size", "get_fixed_icon_size");
 
     BIND_ENUM_CONSTANT(ICON_MODE_TOP)

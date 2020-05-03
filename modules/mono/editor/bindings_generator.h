@@ -45,7 +45,7 @@ class BindingsGenerator {
         String name;
         String proxy_name;
         int value;
-        const DocData::ConstantDoc *const_doc;
+        const DocData::ConstantDoc *const_doc=nullptr;
 
         ConstantInterface() {}
 
@@ -58,7 +58,7 @@ class BindingsGenerator {
 
     struct EnumInterface {
         StringName cname;
-        List<ConstantInterface> constants;
+        Vector<ConstantInterface> constants;
 
         _FORCE_INLINE_ bool operator==(const EnumInterface &p_ienum) const {
             return p_ienum.cname == cname;
@@ -181,6 +181,7 @@ class BindingsGenerator {
         bool is_object_type;
         bool is_singleton;
         bool is_reference;
+        bool is_namespace=false;
 
         /**
          * Used only by Object-derived types.
@@ -314,10 +315,10 @@ class BindingsGenerator {
 
         const DocData::ClassDoc *class_doc;
 
-        List<ConstantInterface> constants;
-        List<EnumInterface> enums;
-        List<PropertyInterface> properties;
-        List<MethodInterface> methods;
+        Vector<ConstantInterface> constants;
+        Vector<EnumInterface> enums;
+        Vector<PropertyInterface> properties;
+        Vector<MethodInterface> methods;
 
         const MethodInterface *find_method_by_name(const StringName &p_cname) const {
             for (const MethodInterface &E : methods) {
@@ -481,9 +482,9 @@ class BindingsGenerator {
     Map<StringName, TypeInterface> enum_types;
 
     Vector<EnumInterface> global_enums;
-    List<ConstantInterface> global_constants;
+    Vector<ConstantInterface> global_constants;
 
-    List<InternalCall> method_icalls;
+    HashMap<String,InternalCall> method_icalls;
     Map<const MethodInterface *, const InternalCall *> method_icalls_map;
 
     List<const InternalCall *> generated_icall_funcs;
@@ -559,7 +560,7 @@ class BindingsGenerator {
         return false;
     }
 
-    const ConstantInterface *find_constant_by_name(StringView p_name, const List<ConstantInterface> &p_constants) const {
+    const ConstantInterface *find_constant_by_name(StringView p_name, const Vector<ConstantInterface> &p_constants) const {
         for (const ConstantInterface &E : p_constants) {
             if (E.name == p_name)
                 return &E;
@@ -631,6 +632,9 @@ public:
             initialized(false) {
         _initialize();
     }
+private:
+    Error generate_cs_type_docs(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
+    void generate_cs_type_doc_summary(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
 };
 
 #endif

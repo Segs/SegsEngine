@@ -32,7 +32,7 @@
 
 #include "core/project_settings.h"
 #include "core/resource.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 class VisibilityNotifier2D;
 class Viewport;
@@ -66,7 +66,7 @@ public:
 	RID get_canvas();
 	RID get_space();
 
-	Physics2DDirectSpaceState *get_direct_space_state();
+	PhysicsDirectSpaceState2D *get_direct_space_state();
 
     void get_viewport_list(Vector<Viewport *> *r_viewports);
 

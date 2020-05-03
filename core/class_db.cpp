@@ -111,7 +111,7 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 void ClassDB::get_class_list(Vector<StringName> *p_classes) {
 
     RWLockRead _rw_lockr_(lock);
-
+    p_classes->reserve(p_classes->size()+classes.size());
     for(const auto &k : classes) {
 
         p_classes->push_back(k.first);
@@ -399,7 +399,7 @@ void ClassDB::_add_class2(const StringName &p_class, const StringName &p_inherit
     ti.inherits = p_inherits;
     ti.api = current_api;
 
-    if (ti.inherits) {
+    if (!ti.inherits.empty()) {
 
         ERR_FAIL_COND(!classes.contains(ti.inherits)); // it MUST be registered.
         ti.inherits_ptr = &classes[ti.inherits];
@@ -845,7 +845,7 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
                 return true; // return true but do nothing
             }
 
-            Variant::CallError ce;
+            Callable::CallError ce;
 
             if (psg.index >= 0) {
                 Variant index = psg.index;
@@ -867,7 +867,7 @@ bool ClassDB::set_property(Object *p_object, const StringName &p_property, const
             }
 
             if (r_valid)
-                *r_valid = ce.error == Variant::CallError::CALL_OK;
+                *r_valid = ce.error == Callable::CallError::CALL_OK;
 
             return true;
         }
@@ -891,12 +891,12 @@ bool ClassDB::get_property(Object *p_object, const StringName &p_property, Varia
             if (psg.index >= 0) {
                 Variant index = psg.index;
                 const Variant *arg[1] = { &index };
-                Variant::CallError ce;
+                Callable::CallError ce;
                 r_value = p_object->call(psg.getter, arg, 1, ce);
 
             } else {
 
-                Variant::CallError ce;
+                Callable::CallError ce;
                 if (psg._getptr) {
 
                     r_value = psg._getptr->call(p_object, nullptr, 0, ce);
@@ -1100,9 +1100,12 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 }
 
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
-    //TODO: SEGS: fragile piece of code, assumes that 'project dir' is named SegsEngine.
-    int idx  = header_file.find("SegsEngine");
-    String hdr(header_file.substr(idx+11));
+    //TODO: SEGS: fragile piece of code, assumes this file is always at `core/class_db.cpp` path.
+    StringView current_path = __FILE__;
+    int prefix_len=current_path.length()-strlen("core/class_db.cpp");
+    String hdr_path=PathUtils::from_native_path(header_file);
+    assert(hdr_path.size()>=prefix_len);
+    String hdr(hdr_path.substr(prefix_len));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
 
@@ -1195,7 +1198,7 @@ void ClassDB::add_resource_base_extension(const StringName &p_extension, const S
 void ClassDB::get_resource_base_extensions(Vector<String> &p_extensions) {
     for(const auto &p : resource_base_extensions)
     {
-        p_extensions.push_back(p.first.asCString());
+        p_extensions.emplace_back(p.first.asCString());
     }
 }
 
@@ -1219,7 +1222,7 @@ Variant ClassDB::class_get_default_property_value(
         bool cleanup_c = false;
 
         if (Engine::get_singleton()->has_singleton(p_class)) {
-            c = Engine::get_singleton()->get_singleton_object(p_class);
+            c = Engine::get_singleton()->get_named_singleton(p_class);
             cleanup_c = false;
         } else if (ClassDB::can_instance(p_class)) {
             c = ClassDB::instance(p_class);

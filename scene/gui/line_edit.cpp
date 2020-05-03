@@ -272,13 +272,13 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             }
 
             if (remap_key != KEY_UNKNOWN) {
-                k->set_scancode(remap_key);
+                k->set_keycode(remap_key);
                 k->set_control(false);
             }
         }
 #endif
 
-        unsigned int code = k->get_scancode();
+        unsigned int code = k->get_keycode();
 
         if (k->get_command() && is_shortcut_keys_enabled()) {
 
@@ -630,7 +630,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
             if (handled) {
                 accept_event();
             } else if (!k->get_command()) {
-                if (k->get_unicode() >= 32 && k->get_scancode() != KEY_DELETE) {
+                if (k->get_unicode() >= 32 && k->get_keycode() != KEY_DELETE) {
 
                     if (editable) {
                         selection_delete();
@@ -799,11 +799,11 @@ void LineEdit::_notification(int p_what) {
                     if (m_priv->window_pos != 0)
                         x_ofs = style->get_offset().x;
                     else
-                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
+                        x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - (cached_text_width)) / 2);
                 } break;
                 case ALIGN_RIGHT: {
 
-                    x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
+                    x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - style->get_margin(Margin::Right) - (cached_text_width)));
                 } break;
             }
 
@@ -840,10 +840,10 @@ void LineEdit::_notification(int p_what) {
 
                 if (align == ALIGN_CENTER) {
                     if (m_priv->window_pos == 0) {
-                        x_ofs = MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
+                        x_ofs = M_MAX(style->get_margin(Margin::Left), int(size.width - cached_text_width - r_icon->get_width() - style->get_margin(Margin::Right) * 2) / 2);
                     }
                 } else {
-                    x_ofs = MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
+                    x_ofs = M_MAX(style->get_margin(Margin::Left), x_ofs - r_icon->get_width() - style->get_margin(Margin::Right));
                 }
 
                 ofs_max -= r_icon->get_width();
@@ -875,9 +875,9 @@ void LineEdit::_notification(int p_what) {
 
                             bool selected = ofs >= ime_selection.x && ofs < ime_selection.x + ime_selection.y;
                             if (selected) {
-                                VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 3)), font_color);
+                                RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 3)), font_color);
                             } else {
-                                VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 1)), font_color);
+                                RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 1)), font_color);
                             }
 
                             drawer.draw_char(ci, Point2(x_ofs, y_ofs + font_ascent), cchar, next, font_color);
@@ -898,7 +898,7 @@ void LineEdit::_notification(int p_what) {
                 bool selected = selection.enabled && char_ofs >= selection.begin && char_ofs < selection.end;
 
                 if (selected)
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(char_width, caret_height)), selection_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(char_width, caret_height)), selection_color);
 
                 int yofs = y_ofs + (caret_height - font->get_height()) / 2;
                 drawer.draw_char(ci, Point2(x_ofs, yofs + font_ascent), cchar, next, selected ? font_color_selected : font_color);
@@ -906,9 +906,9 @@ void LineEdit::_notification(int p_what) {
                 if (char_ofs == cursor_pos && draw_caret && !using_placeholder) {
                     if (m_priv->ime_text.length() == 0) {
 #ifdef TOOLS_ENABLED
-                        VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
+                        RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
 #else
-                        VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
+                        RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
 #endif
                     }
                 }
@@ -934,9 +934,9 @@ void LineEdit::_notification(int p_what) {
 
                         bool selected = ofs >= ime_selection.x && ofs < ime_selection.x + ime_selection.y;
                         if (selected) {
-                            VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 3)), font_color);
+                            RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 3)), font_color);
                         } else {
-                            VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 1)), font_color);
+                            RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(x_ofs, y_ofs + caret_height), Size2(im_char_width, 1)), font_color);
                         }
 
                         drawer.draw_char(ci, Point2(x_ofs, y_ofs + font_ascent), cchar, next, font_color);
@@ -965,9 +965,9 @@ void LineEdit::_notification(int p_what) {
                         }
                     }
 #ifdef TOOLS_ENABLED
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(Math::round(EDSCALE), caret_height)), cursor_color);
 #else
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(Point2(caret_x_ofs, y_ofs), Size2(1, caret_height)), cursor_color);
 #endif
                 }
             }
@@ -1250,7 +1250,7 @@ void LineEdit::delete_char() {
 
     set_cursor_position(get_cursor_position() - 1);
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, MAX(0,m_priv->text.length() - 1));
+        m_priv->window_pos = CLAMP(m_priv->window_pos - 1, 0, M_MAX(0,m_priv->text.length() - 1));
     }
     _text_changed();
 }
@@ -1279,7 +1279,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         m_priv->window_pos = cursor_pos;
     }
     if (align == ALIGN_CENTER || align == ALIGN_RIGHT) {
-        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, MAX(0,m_priv->text.length() - 1));
+        m_priv->window_pos = CLAMP(m_priv->window_pos - (p_to_column - p_from_column), 0, M_MAX(0,m_priv->text.length() - 1));
     }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
@@ -1375,7 +1375,7 @@ void LineEdit::set_cursor_position(int p_pos) {
 
     if (cursor_pos <= m_priv->window_pos) {
         // Adjust window if cursor goes too much to the left.
-        set_window_pos(MAX(0, cursor_pos - 1));
+        set_window_pos(M_MAX(0, cursor_pos - 1));
     } else {
         // Adjust window if cursor goes too much to the right.
         int window_width = get_size().width - style->get_minimum_size().width;
@@ -1465,19 +1465,19 @@ Size2 LineEdit::get_minimum_size() const {
 
     if (expand_to_text_length) {
         // Add a space because some fonts are too exact, and because cursor needs a bit more when at the end.
-        min_size.width = MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
+        min_size.width = M_MAX(min_size.width, font->get_ui_string_size(m_priv->text).x + space_size);
     }
 
     min_size.height = font->get_height();
 
     // Take icons into account.
     if (!m_priv->text.isEmpty() && is_editable() && clear_button_enabled) {
-        min_size.width = MAX(min_size.width, Control::get_icon("clear")->get_width());
-        min_size.height = MAX(min_size.height, Control::get_icon("clear")->get_height());
+        min_size.width = M_MAX(min_size.width, Control::get_icon("clear")->get_width());
+        min_size.height = M_MAX(min_size.height, Control::get_icon("clear")->get_height());
     }
     if (right_icon) {
-        min_size.width = MAX(min_size.width, right_icon->get_width());
-        min_size.height = MAX(min_size.height, right_icon->get_height());
+        min_size.width = M_MAX(min_size.width, right_icon->get_width());
+        min_size.height = M_MAX(min_size.height, right_icon->get_height());
     }
 
     return style->get_minimum_size() + min_size;
@@ -1876,10 +1876,10 @@ void LineEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "right_icon", PropertyHint::ResourceType, "Texture"), "set_right_icon", "get_right_icon");
     ADD_GROUP("Placeholder", "placeholder_");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "placeholder_text"), "set_placeholder", "get_placeholder");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "placeholder_alpha", PropertyHint::Range, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "placeholder_alpha", PropertyHint::Range, "0,1,0.001"), "set_placeholder_alpha", "get_placeholder_alpha");
     ADD_GROUP("Caret", "caret_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "caret_blink"), "cursor_set_blink_enabled", "cursor_get_blink_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "caret_blink_speed", PropertyHint::Range, "0.1,10,0.01"), "cursor_set_blink_speed", "cursor_get_blink_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "caret_position"), "set_cursor_position", "get_cursor_position");
 }
 

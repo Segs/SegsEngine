@@ -253,9 +253,7 @@ private:
         Vector<String> sources;
         bool import_broken;
 
-        bool operator<(const FileInfo &fi) const {
-            return NaturalNoCaseComparator()(name, fi.name);
-        }
+        bool operator<(const FileInfo &fi) const;
     };
 
     void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);

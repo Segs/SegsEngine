@@ -34,6 +34,7 @@
 #include "viewport.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/io/multiplayer_api.h"
 #include "core/io/resource_loader.h"
 #include "core/message_queue.h"
@@ -42,13 +43,14 @@
 //#include "core/map.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-#include "scene/2d/animated_sprite.h"
+#include "scene/2d/animated_sprite_2d.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"
@@ -420,7 +422,7 @@ void Node::move_child(Node *p_child, int p_pos) {
         return; //do nothing
 
     int motion_from = MIN(p_pos, p_child->data->pos);
-    int motion_to = MAX(p_pos, p_child->data->pos);
+    int motion_to = M_MAX(p_pos, p_child->data->pos);
 
     data->children.erase_at(p_child->data->pos);
     data->children.insert_at(p_pos, p_child);
@@ -654,16 +656,16 @@ void Node::rpc_unreliable_id(int p_peer_id, const StringName &p_method, VARIANT_
     rpcp(p_peer_id, true, p_method, argptr, argc);
 }
 
-Variant Node::_rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Node::_rpc_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 1) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 1;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -673,27 +675,27 @@ Variant Node::_rpc_bind(const Variant **p_args, int p_argcount, Variant::CallErr
 
     rpcp(0, false, method, &p_args[1], p_argcount - 1);
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     return Variant();
 }
 
-Variant Node::_rpc_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Node::_rpc_id_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 2) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 2;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::INT) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::INT;
         return Variant();
     }
 
     if (p_args[1]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -704,20 +706,20 @@ Variant Node::_rpc_id_bind(const Variant **p_args, int p_argcount, Variant::Call
 
     rpcp(peer_id, false, method, &p_args[2], p_argcount - 2);
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     return Variant();
 }
 
-Variant Node::_rpc_unreliable_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Node::_rpc_unreliable_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 1) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 1;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -727,27 +729,27 @@ Variant Node::_rpc_unreliable_bind(const Variant **p_args, int p_argcount, Varia
 
     rpcp(0, true, method, &p_args[1], p_argcount - 1);
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     return Variant();
 }
 
-Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 2) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 2;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::INT) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::INT;
         return Variant();
     }
 
     if (p_args[1]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -758,7 +760,7 @@ Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Va
 
     rpcp(peer_id, true, method, &p_args[2], p_argcount - 2);
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
     return Variant();
 }
 
@@ -2685,7 +2687,7 @@ void Node::_print_stray_nodes() {
 void Node::print_stray_nodes() {
 
 #ifdef DEBUG_ENABLED
-    ObjectDB::debug_objects(_Node_debug_sn);
+    gObjectDB().debug_objects(_Node_debug_sn);
 #endif
 }
 
@@ -2988,15 +2990,15 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_priority"), "set_process_priority", "get_process_priority");
 
 
-    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::REAL, "delta")))
-    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::REAL, "delta")))
-    BIND_VMETHOD(MethodInfo("_enter_tree"))
-    BIND_VMETHOD(MethodInfo("_exit_tree"))
-    BIND_VMETHOD(MethodInfo("_ready"))
-    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")))
-    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEventKey")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"))
+    BIND_VMETHOD(MethodInfo("_process", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo("_physics_process", PropertyInfo(VariantType::FLOAT, "delta")));
+    BIND_VMETHOD(MethodInfo("_enter_tree"));
+    BIND_VMETHOD(MethodInfo("_exit_tree"));
+    BIND_VMETHOD(MethodInfo("_ready"));
+    BIND_VMETHOD(MethodInfo("_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
+    BIND_VMETHOD(MethodInfo("_unhandled_key_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEventKey")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_configuration_warning"));
 }
 
 Node::Node() {

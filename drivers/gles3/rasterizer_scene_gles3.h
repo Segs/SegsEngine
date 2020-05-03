@@ -210,7 +210,7 @@ public:
         bool prepared_depth_texture;
         bool bound_depth_texture;
 
-        VS::ViewportDebugDraw debug_draw;
+        RS::ViewportDebugDraw debug_draw;
     } state;
 
     /* SHADOW ATLAS API */
@@ -353,7 +353,7 @@ public:
 
     struct Environment : public RID_Data {
 
-        VS::EnvironmentBG bg_mode = VS::ENV_BG_CLEAR_COLOR;
+        RS::EnvironmentBG bg_mode = RS::ENV_BG_CLEAR_COLOR;
 
         RID sky;
         float sky_custom_fov = 0.0;
@@ -387,22 +387,22 @@ public:
         float ssao_light_affect = 0;
         float ssao_ao_channel_affect = 0;
         Color ssao_color;
-        VS::EnvironmentSSAOQuality ssao_quality = VS::ENV_SSAO_QUALITY_LOW;
+        RS::EnvironmentSSAOQuality ssao_quality = RS::ENV_SSAO_QUALITY_LOW;
         float ssao_bilateral_sharpness = 4;
-        VS::EnvironmentSSAOBlur ssao_filter = VS::ENV_SSAO_BLUR_3x3;
+        RS::EnvironmentSSAOBlur ssao_filter = RS::ENV_SSAO_BLUR_3x3;
 
         bool glow_enabled = false;
         int glow_levels = (1 << 2) | (1 << 4);
         float glow_intensity = 0.8f;
         float glow_strength = 1.0f;
         float glow_bloom = 0.0;
-        VS::EnvironmentGlowBlendMode glow_blend_mode = VS::GLOW_BLEND_MODE_SOFTLIGHT;
+        RS::EnvironmentGlowBlendMode glow_blend_mode = RS::GLOW_BLEND_MODE_SOFTLIGHT;
         float glow_hdr_bleed_threshold = 1.0f;
         float glow_hdr_bleed_scale = 2.0f;
         float glow_hdr_luminance_cap = 12.0f;
         bool glow_bicubic_upscale = false;
 
-        VS::EnvironmentToneMapper tone_mapper = VS::ENV_TONE_MAPPER_LINEAR;
+        RS::EnvironmentToneMapper tone_mapper = RS::ENV_TONE_MAPPER_LINEAR;
         float tone_mapper_exposure = 1.0f;
         float tone_mapper_exposure_white = 1.0f;
         bool auto_exposure = false;
@@ -415,13 +415,13 @@ public:
         float dof_blur_far_distance = 10;
         float dof_blur_far_transition = 5;
         float dof_blur_far_amount = 0.1f;
-        VS::EnvironmentDOFBlurQuality dof_blur_far_quality = VS::ENV_DOF_BLUR_QUALITY_MEDIUM;
+        RS::EnvironmentDOFBlurQuality dof_blur_far_quality = RS::ENV_DOF_BLUR_QUALITY_MEDIUM;
 
         bool dof_blur_near_enabled = false;
         float dof_blur_near_distance = 2;
         float dof_blur_near_transition = 1;
         float dof_blur_near_amount = 0.1f;
-        VS::EnvironmentDOFBlurQuality dof_blur_near_quality = VS::ENV_DOF_BLUR_QUALITY_MEDIUM;
+        RS::EnvironmentDOFBlurQuality dof_blur_near_quality = RS::ENV_DOF_BLUR_QUALITY_MEDIUM;
 
         bool adjustments_enabled = false;
         float adjustments_brightness = 1.0f;
@@ -450,7 +450,7 @@ public:
 
     RID environment_create() override;
 
-    void environment_set_background(RID p_env, VS::EnvironmentBG p_bg) override;
+    void environment_set_background(RID p_env, RS::EnvironmentBG p_bg) override;
     void environment_set_sky(RID p_env, RID p_sky) override;
     void environment_set_sky_custom_fov(RID p_env, float p_scale) override;
     void environment_set_sky_orientation(RID p_env, const Basis &p_orientation) override;
@@ -460,15 +460,15 @@ public:
     void environment_set_ambient_light(RID p_env, const Color &p_color, float p_energy = 1.0, float p_sky_contribution = 0.0) override;
     void environment_set_camera_feed_id(RID p_env, int p_camera_feed_id) override;
 
-    void environment_set_dof_blur_near(RID p_env, bool p_enable, float p_distance, float p_transition, float p_amount, VS::EnvironmentDOFBlurQuality p_quality) override;
-    void environment_set_dof_blur_far(RID p_env, bool p_enable, float p_distance, float p_transition, float p_amount, VS::EnvironmentDOFBlurQuality p_quality) override;
-    void environment_set_glow(RID p_env, bool p_enable, int p_level_flags, float p_intensity, float p_strength, float p_bloom_threshold, VS::EnvironmentGlowBlendMode p_blend_mode, float p_hdr_bleed_threshold, float p_hdr_bleed_scale, float p_hdr_luminance_cap, bool p_bicubic_upscale) override;
+    void environment_set_dof_blur_near(RID p_env, bool p_enable, float p_distance, float p_transition, float p_amount, RS::EnvironmentDOFBlurQuality p_quality) override;
+    void environment_set_dof_blur_far(RID p_env, bool p_enable, float p_distance, float p_transition, float p_amount, RS::EnvironmentDOFBlurQuality p_quality) override;
+    void environment_set_glow(RID p_env, bool p_enable, int p_level_flags, float p_intensity, float p_strength, float p_bloom_threshold, RS::EnvironmentGlowBlendMode p_blend_mode, float p_hdr_bleed_threshold, float p_hdr_bleed_scale, float p_hdr_luminance_cap, bool p_bicubic_upscale) override;
     void environment_set_fog(RID p_env, bool p_enable, float p_begin, float p_end, RID p_gradient_texture) override;
 
     void environment_set_ssr(RID p_env, bool p_enable, int p_max_steps, float p_fade_in, float p_fade_out, float p_depth_tolerance, bool p_roughness) override;
-    void environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, VS::EnvironmentSSAOQuality p_quality, VS::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) override;
+    void environment_set_ssao(RID p_env, bool p_enable, float p_radius, float p_intensity, float p_radius2, float p_intensity2, float p_bias, float p_light_affect, float p_ao_channel_affect, const Color &p_color, RS::EnvironmentSSAOQuality p_quality, RS::EnvironmentSSAOBlur p_blur, float p_bilateral_sharpness) override;
 
-    void environment_set_tonemap(RID p_env, VS::EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white, bool p_auto_exposure, float p_min_luminance, float p_max_luminance, float p_auto_exp_speed, float p_auto_exp_scale) override;
+    void environment_set_tonemap(RID p_env, RS::EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white, bool p_auto_exposure, float p_min_luminance, float p_max_luminance, float p_auto_exp_speed, float p_auto_exp_scale) override;
 
     void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, RID p_ramp) override;
 
@@ -478,7 +478,7 @@ public:
 
     bool is_environment(RID p_env) override;
 
-    VS::EnvironmentBG environment_get_background(RID p_env) override;
+    RS::EnvironmentBG environment_get_background(RID p_env) override;
     int environment_get_canvas_max_layer(RID p_env) override;
 
     /* LIGHT INSTANCE */
@@ -518,7 +518,7 @@ public:
 
         RID self;
         RID light;
-        RasterizerStorageGLES3::Light *light_ptr;
+        RasterizerStorageGLES3::Light3D *light_ptr;
         Transform transform;
 
         Vector3 light_vector;
@@ -779,7 +779,7 @@ public:
     bool free(RID p_rid) override;
 
     void set_scene_pass(uint64_t p_pass) override;
-    void set_debug_draw_mode(VS::ViewportDebugDraw p_debug_draw) override;
+    void set_debug_draw_mode(RS::ViewportDebugDraw p_debug_draw) override;
 
     void iteration();
     void initialize();

@@ -34,12 +34,12 @@
 #include "core/string.h"
 #include "collada.h"
 #include "editor/editor_node.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/light.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/path.h"
-#include "scene/3d/skeleton.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/path_3d.h"
+#include "scene/3d/skeleton_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/packed_scene.h"
@@ -53,13 +53,13 @@
 struct ColladaImport {
 
     Collada collada;
-    Spatial *scene;
+    Node3D *scene;
 
     Vector<Ref<Animation> > animations;
 
     struct NodeMap {
         //String path;
-        Spatial *node = nullptr;
+        Node3D *node = nullptr;
         int bone = -1;
         Vector<int> anim_tracks;
     };
@@ -87,7 +87,7 @@ struct ColladaImport {
 
     Error _populate_skeleton(Skeleton *p_skeleton, Collada::Node *p_node, int &r_bone, int p_parent);
     Error _create_scene_skeletons(Collada::Node *p_node);
-    Error _create_scene(Collada::Node *p_node, Spatial *p_parent);
+    Error _create_scene(Collada::Node *p_node, Node3D *p_parent);
     Error _create_resources(Collada::Node *p_node, bool p_use_compression);
     Error _create_material(const String &p_target);
     Error _create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_mesh, const HashMap<String, Collada::NodeGeometry::Material> &p_material_map, const Collada::MeshData &meshdata, const Transform &p_local_xform, const
@@ -196,15 +196,15 @@ Error ColladaImport::_create_scene_skeletons(Collada::Node *p_node) {
     return OK;
 }
 
-Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
+Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
 
-    Spatial *node = nullptr;
+    Node3D *node = nullptr;
 
     switch (p_node->type) {
 
         case Collada::Node::TYPE_NODE: {
 
-            node = memnew(Spatial);
+            node = memnew(Node3D);
         } break;
         case Collada::Node::TYPE_JOINT: {
 
@@ -212,7 +212,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
         } break;
         case Collada::Node::TYPE_LIGHT: {
 
-            //node = memnew( Light)
+            //node = memnew( Light3D)
             Collada::NodeLight *light = static_cast<Collada::NodeLight *>(p_node);
             if (collada.state.light_data_map.contains(light->light)) {
 
@@ -226,52 +226,52 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
                     if (!bool(GLOBAL_DEF("collada/use_ambient", false)))
                         return OK;
                     //well, it's an ambient light..
-                    Light *l = memnew(DirectionalLight);
-                    //l->set_color(Light::COLOR_AMBIENT,ld.color);
-                    //l->set_color(Light::COLOR_DIFFUSE,Color(0,0,0));
-                    //l->set_color(Light::COLOR_SPECULAR,Color(0,0,0));
+                    Light3D *l = memnew(DirectionalLight3D);
+                    //l->set_color(Light3D::COLOR_AMBIENT,ld.color);
+                    //l->set_color(Light3D::COLOR_DIFFUSE,Color(0,0,0));
+                    //l->set_color(Light3D::COLOR_SPECULAR,Color(0,0,0));
                     node = l;
 
                 } else if (ld.mode == Collada::LightData::MODE_DIRECTIONAL) {
 
                     //well, it's an ambient light..
-                    Light *l = memnew(DirectionalLight);
+                    Light3D *l = memnew(DirectionalLight3D);
                     /*
                     if (found_ambient) //use it here
-                        l->set_color(Light::COLOR_AMBIENT,ambient);
+                        l->set_color(Light3D::COLOR_AMBIENT,ambient);
 
-                    l->set_color(Light::COLOR_DIFFUSE,ld.color);
-                    l->set_color(Light::COLOR_SPECULAR,Color(1,1,1));
+                    l->set_color(Light3D::COLOR_DIFFUSE,ld.color);
+                    l->set_color(Light3D::COLOR_SPECULAR,Color(1,1,1));
                     */
                     node = l;
                 } else {
 
-                    Light *l;
+                    Light3D *l;
 
                     if (ld.mode == Collada::LightData::MODE_OMNI)
-                        l = memnew(OmniLight);
+                        l = memnew(OmniLight3D);
                     else {
-                        l = memnew(SpotLight);
-                        //l->set_parameter(Light::PARAM_SPOT_ANGLE,ld.spot_angle);
-                        //l->set_parameter(Light::PARAM_SPOT_ATTENUATION,ld.spot_exp);
+                        l = memnew(SpotLight3D);
+                        //l->set_parameter(Light3D::PARAM_SPOT_ANGLE,ld.spot_angle);
+                        //l->set_parameter(Light3D::PARAM_SPOT_ATTENUATION,ld.spot_exp);
                     }
 
                     //
-                    //l->set_color(Light::COLOR_DIFFUSE,ld.color);
-                    //l->set_color(Light::COLOR_SPECULAR,Color(1,1,1));
+                    //l->set_color(Light3D::COLOR_DIFFUSE,ld.color);
+                    //l->set_color(Light3D::COLOR_SPECULAR,Color(1,1,1));
                     //l->approximate_opengl_attenuation(ld.constant_att,ld.linear_att,ld.quad_att);
                     node = l;
                 }
 
             } else {
 
-                node = memnew(Spatial);
+                node = memnew(Node3D);
             }
         } break;
         case Collada::Node::TYPE_CAMERA: {
 
             Collada::NodeCamera *cam = static_cast<Collada::NodeCamera *>(p_node);
-            Camera *camera = memnew(Camera);
+            Camera3D *camera = memnew(Camera3D);
 
             if (collada.state.camera_data_map.contains(cam->camera)) {
 
@@ -283,12 +283,12 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
 
                         if (cd.orthogonal.y_mag) {
 
-                            camera->set_keep_aspect_mode(Camera::KEEP_HEIGHT);
+                            camera->set_keep_aspect_mode(Camera3D::KEEP_HEIGHT);
                             camera->set_orthogonal(cd.orthogonal.y_mag * 2.0f, cd.z_near, cd.z_far);
 
                         } else if (!cd.orthogonal.y_mag && cd.orthogonal.x_mag) {
 
-                            camera->set_keep_aspect_mode(Camera::KEEP_WIDTH);
+                            camera->set_keep_aspect_mode(Camera3D::KEEP_WIDTH);
                             camera->set_orthogonal(cd.orthogonal.x_mag * 2.0f, cd.z_near, cd.z_far);
                         }
 
@@ -317,11 +317,11 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Spatial *p_parent) {
 
             if (collada.state.curve_data_map.contains(ng->source)) {
 
-                node = memnew(Path);
+                node = memnew(Path3D);
             } else {
                 //mesh since nothing else
-                node = memnew(MeshInstance);
-                //object_cast<MeshInstance>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
+                node = memnew(MeshInstance3D);
+                //object_cast<MeshInstance3D>(node)->set_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT, true);
             }
         } break;
         case Collada::Node::TYPE_SKELETON: {
@@ -600,7 +600,7 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
         if (p.sources.contains("COLOR")) {
 
             String color_source_id = p.sources.at("COLOR").source;
-            color_ofs = p.sources.at("COLRO").offset;
+            color_ofs = p.sources.at("COLOR").offset;
             ERR_FAIL_COND_V(!meshdata.sources.contains(color_source_id), ERR_INVALID_DATA);
             color_src = &meshdata.sources.at(color_source_id);
         }
@@ -921,10 +921,10 @@ Error ColladaImport::_create_mesh_surfaces(bool p_optimize, Ref<ArrayMesh> &p_me
                 if (has_weights) {
                     Vector<float> weights;
                     Vector<int> bones;
-                    weights.resize(VS::ARRAY_WEIGHTS_SIZE);
-                    bones.resize(VS::ARRAY_WEIGHTS_SIZE);
+                    weights.resize(RS::ARRAY_WEIGHTS_SIZE);
+                    bones.resize(RS::ARRAY_WEIGHTS_SIZE);
                     //float sum=0.0;
-                    for (int l = 0; l < VS::ARRAY_WEIGHTS_SIZE; l++) {
+                    for (int l = 0; l < RS::ARRAY_WEIGHTS_SIZE; l++) {
                         if (l < vertex_array[k].weights.size()) {
                             weights[l] = vertex_array[k].weights[l].weight;
                             bones[l] = vertex_array[k].weights[l].bone_idx;
@@ -1007,12 +1007,12 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
 
     if (p_node->type == Collada::Node::TYPE_GEOMETRY && node_map.contains(p_node->id)) {
 
-        Spatial *node = node_map[p_node->id].node;
+        Node3D *node = node_map[p_node->id].node;
         Collada::NodeGeometry *ng = static_cast<Collada::NodeGeometry *>(p_node);
 
-        if (object_cast<Path>(node)) {
+        if (object_cast<Path3D>(node)) {
 
-            Path *path = object_cast<Path>(node);
+            Path3D *path = object_cast<Path3D>(node);
 
             if (curve_cache.contains(ng->source)) {
 
@@ -1080,11 +1080,11 @@ Error ColladaImport::_create_resources(Collada::Node *p_node, bool p_use_compres
             }
         }
 
-        if (object_cast<MeshInstance>(node)) {
+        if (object_cast<MeshInstance3D>(node)) {
 
             Collada::NodeGeometry *ng2 = static_cast<Collada::NodeGeometry *>(p_node);
 
-            MeshInstance *mi = object_cast<MeshInstance>(node);
+            MeshInstance3D *mi = object_cast<MeshInstance3D>(node);
 
             ERR_FAIL_COND_V(!mi, ERR_BUG);
 
@@ -1261,7 +1261,7 @@ Error ColladaImport::load(StringView p_path, int p_flags, bool p_force_make_tang
     ERR_FAIL_COND_V(!collada.state.visual_scene_map.contains(collada.state.root_visual_scene), ERR_INVALID_DATA);
     Collada::VisualScene &vs = collada.state.visual_scene_map[collada.state.root_visual_scene];
 
-    scene = memnew(Spatial); // root
+    scene = memnew(Node3D); // root
 
     //determine what's going on with the lights
     for (size_t i = 0; i < vs.root_nodes.size(); i++) {

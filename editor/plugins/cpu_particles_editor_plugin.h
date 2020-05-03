@@ -31,11 +31,11 @@
 #pragma once
 
 #include "editor/plugins/particles_editor_plugin.h"
-#include "scene/3d/cpu_particles.h"
+#include "scene/3d/cpu_particles_3d.h"
 
-class CPUParticlesEditor : public ParticlesEditorBase {
+class CPUParticles3DEditor : public ParticlesEditorBase {
 
-    GDCLASS(CPUParticlesEditor,ParticlesEditorBase)
+    GDCLASS(CPUParticles3DEditor,ParticlesEditorBase)
 
     enum Menu {
 
@@ -46,11 +46,11 @@ class CPUParticlesEditor : public ParticlesEditorBase {
 
     };
 
-    CPUParticles *node;
+    CPUParticles3D *node;
 
     void _menu_option(int);
 
-    friend class CPUParticlesEditorPlugin;
+    friend class CPUParticles3DEditorPlugin;
 
     void _generate_emission_points() override;
 
@@ -60,24 +60,24 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(CPUParticles *p_particles);
-    CPUParticlesEditor();
+    void edit(CPUParticles3D *p_particles);
+    CPUParticles3DEditor();
 };
 
-class CPUParticlesEditorPlugin : public EditorPlugin {
+class CPUParticles3DEditorPlugin : public EditorPlugin {
 
-    GDCLASS(CPUParticlesEditorPlugin,EditorPlugin)
+    GDCLASS(CPUParticles3DEditorPlugin,EditorPlugin)
 
-    CPUParticlesEditor *particles_editor;
+    CPUParticles3DEditor *particles_editor;
     EditorNode *editor;
 
 public:
-    StringView get_name() const override { return "CPUParticles"; }
+    StringView get_name() const override { return "CPUParticles3D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;
     void make_visible(bool p_visible) override;
 
-    CPUParticlesEditorPlugin(EditorNode *p_node);
-    ~CPUParticlesEditorPlugin() override;
+    CPUParticles3DEditorPlugin(EditorNode *p_node);
+    ~CPUParticles3DEditorPlugin() override;
 };

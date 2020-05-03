@@ -34,40 +34,40 @@
 #include "core/color.h"
 
 class Gradient : public Resource {
-	GDCLASS(Gradient,Resource)
+    GDCLASS(Gradient,Resource)
     OBJ_SAVE_TYPE(Gradient)
 
 public:
-	struct Point {
-		float offset;
-		Color color;
-		bool operator<(const Point &p_ponit) const {
-			return offset < p_ponit.offset;
-		}
-	};
+    struct Point {
+        float offset;
+        Color color;
+        bool operator<(const Point &p_ponit) const {
+            return offset < p_ponit.offset;
+        }
+    };
 
 private:
     Vector<Point> points;
-	bool is_sorted;
+    bool is_sorted;
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-	Gradient();
-	~Gradient() override;
+    Gradient();
+    ~Gradient() override;
 
-	void add_point(float p_offset, const Color &p_color);
-	void remove_point(int p_index);
+    void add_point(float p_offset, const Color &p_color);
+    void remove_point(int p_index);
 
     void set_points(const Vector<Point> &p_points);
     Vector<Point> &get_points();
 
-	void set_offset(int pos, const float offset);
-	float get_offset(int pos) const;
+    void set_offset(int pos, const float offset);
+    float get_offset(int pos) const;
 
-	void set_color(int pos, const Color &color);
-	Color get_color(int pos) const;
+    void set_color(int pos, const Color &color);
+    Color get_color(int pos) const;
 
     void set_offsets(const Vector<float> &p_offsets);
     Vector<float> get_offsets() const;
@@ -76,5 +76,10 @@ public:
     Vector<Color> get_colors() const;
 
     Color get_color_at_offset(float p_offset);
-    int get_points_count() const;
+    Color interpolate(float p_offset) {
+        // c# scripting api helper
+        return get_color_at_offset(p_offset);
+    }
+
+    int get_point_count() const;
 };

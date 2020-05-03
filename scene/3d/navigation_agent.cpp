@@ -34,7 +34,7 @@
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
-#include "scene/3d/navigation.h"
+#include "scene/3d/navigation_3d.h"
 #include "servers/navigation_server.h"
 
 IMPL_GDCLASS(NavigationAgent)
@@ -85,14 +85,14 @@ void NavigationAgent::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_avoidance_done", {"new_velocity"}),&NavigationAgent::_avoidance_done);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent_height_offset", PropertyHint::Range, "-100.0,100,0.01"), "set_agent_height_offset", "get_agent_height_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "neighbor_dist", PropertyHint::Range, "0.1,10000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "target_desired_distance", PropertyHint::Range, "0.1,100,0.01"), "set_target_desired_distance", "get_target_desired_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,100,0.01"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent_height_offset", PropertyHint::Range, "-100.0,100,0.01"), "set_agent_height_offset", "get_agent_height_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "neighbor_dist", PropertyHint::Range, "0.1,10000,0.01"), "set_neighbor_dist", "get_neighbor_dist");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_neighbors", PropertyHint::Range, "1,10000,1"), "set_max_neighbors", "get_max_neighbors");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_horizon", PropertyHint::Range, "0.01,100,0.01"), "set_time_horizon", "get_time_horizon");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_speed", PropertyHint::Range, "0.1,10000,0.01"), "set_max_speed", "get_max_speed");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "path_max_distance", PropertyHint::Range, "0.01,100,0.1"), "set_path_max_distance", "get_path_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_horizon", PropertyHint::Range, "0.01,100,0.01"), "set_time_horizon", "get_time_horizon");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_speed", PropertyHint::Range, "0.1,10000,0.01"), "set_max_speed", "get_max_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_max_distance", PropertyHint::Range, "0.01,100,0.1"), "set_path_max_distance", "get_path_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ignore_y"), "set_ignore_y", "get_ignore_y");
 
     ADD_SIGNAL(MethodInfo("path_changed"));
@@ -105,16 +105,16 @@ void NavigationAgent::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_READY: {
 
-            agent_parent = object_cast<Spatial>(get_parent());
+            agent_parent = object_cast<Node3D>(get_parent());
 
             NavigationServer::get_singleton()->agent_set_callback(agent, this, "_avoidance_done");
 
             // Search the navigation node and set it
             {
-                Navigation *nav = nullptr;
+                Navigation3D *nav = nullptr;
                 Node *p = get_parent();
                 while (p != nullptr) {
-                    nav = object_cast<Navigation>(p);
+                    nav = object_cast<Navigation3D>(p);
                     if (nav != nullptr)
                         p = nullptr;
                     else
@@ -170,7 +170,7 @@ NavigationAgent::~NavigationAgent() {
     agent = RID(); // Pointless
 }
 
-void NavigationAgent::set_navigation(Navigation *p_nav) {
+void NavigationAgent::set_navigation(Navigation3D *p_nav) {
     if (navigation == p_nav)
         return; // Pointless
 
@@ -179,7 +179,7 @@ void NavigationAgent::set_navigation(Navigation *p_nav) {
 }
 
 void NavigationAgent::set_navigation_node(Node *p_nav) {
-    Navigation *nav = object_cast<Navigation>(p_nav);
+    Navigation3D *nav = object_cast<Navigation3D>(p_nav);
     ERR_FAIL_COND(nav == nullptr);
     set_navigation(nav);
 }
@@ -301,7 +301,7 @@ void NavigationAgent::_avoidance_done(Vector3 p_new_velocity) {
 }
 
 StringName NavigationAgent::get_configuration_warning() const {
-    if (!object_cast<Spatial>(get_parent())) {
+    if (!object_cast<Node3D>(get_parent())) {
         return TTR("The NavigationAgent can be used only under a spatial node.");
     }
 

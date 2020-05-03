@@ -70,8 +70,8 @@ void PolygonPathFinder::setup(const Vector<Vector2> &p_points, const Vector<int>
         points[i].pos = p_points[i];
         points[i].penalty = 0;
 
-        outside_point.x = i == 0 ? p_points[0].x : (MAX(p_points[i].x, outside_point.x));
-        outside_point.y = i == 0 ? p_points[0].y : (MAX(p_points[i].y, outside_point.y));
+        outside_point.x = i == 0 ? p_points[0].x : (M_MAX(p_points[i].x, outside_point.x));
+        outside_point.y = i == 0 ? p_points[0].y : (M_MAX(p_points[i].y, outside_point.y));
 
         if (i == 0) {
             bounds.position = points[i].pos;
@@ -461,7 +461,7 @@ Dictionary PolygonPathFinder::_get_data() const {
     PoolVector<Vector2> p;
     PoolVector<int> ind;
     Array connections;
-    int new_size(MAX(0, int(points.size()) - 2));
+    int new_size(M_MAX(0, int(points.size()) - 2));
     p.resize(new_size);
     connections.resize(new_size);
     ind.resize(edges.size() * 2);

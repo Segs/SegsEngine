@@ -43,7 +43,7 @@
 #include "scene/resources/material.h"
 #include "scene/resources/mesh.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "servers/audio/audio_stream.h"
 
 IMPL_GDCLASS(EditorTexturePreviewPlugin)
@@ -123,7 +123,7 @@ Ref<Texture> EditorTexturePreviewPlugin::generate(const RES &p_from, const Size2
         }
     }
 
-    if (not img || img->empty())
+    if (not img || img->is_empty())
         return Ref<Texture>();
 
     img->clear_mipmaps();
@@ -166,7 +166,7 @@ Ref<Texture> EditorImagePreviewPlugin::generate(const RES &p_from, const Size2 &
 
     Ref<Image> img = dynamic_ref_cast<Image>(p_from);
 
-    if (not img || img->empty())
+    if (not img || img->is_empty())
         return Ref<Texture>();
 
     img = dynamic_ref_cast<Image>(img->duplicate());
@@ -337,26 +337,26 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
     Ref<Material> material = dynamic_ref_cast<Material>(p_from);
     ERR_FAIL_COND_V(not material, Ref<Texture>());
 
-    if (material->get_shader_mode() == ShaderMode::SPATIAL) {
+    if (material->get_shader_mode() == RenderingServerEnums::ShaderMode::SPATIAL) {
 
-        VisualServer::get_singleton()->mesh_surface_set_material(sphere, 0, material->get_rid());
+        RenderingServer::get_singleton()->mesh_surface_set_material(sphere, 0, material->get_rid());
 
-        VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_ONCE); //once used for capture
+        RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
         preview_done = false;
-        VisualServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMaterialPreviewPlugin *>(this), "_preview_done", Variant());
+        RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMaterialPreviewPlugin *>(this), "_preview_done", Variant());
 
         while (!preview_done) {
             OS::get_singleton()->delay_usec(10);
         }
 
-        Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
-        VisualServer::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
+        Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
+        RenderingServer::get_singleton()->mesh_surface_set_material(sphere, 0, RID());
 
         ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
         img->convert(Image::FORMAT_RGBA8);
-        int thumbnail_size = MAX(p_size.x, p_size.y);
+        int thumbnail_size = M_MAX(p_size.x, p_size.y);
         img->resize(thumbnail_size, thumbnail_size, Image::INTERPOLATE_CUBIC);
         post_process_preview(img);
         Ref<ImageTexture> ptex(make_ref_counted<ImageTexture>());
@@ -369,36 +369,36 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
 
 EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
 
-    scenario = VisualServer::get_singleton()->scenario_create();
+    scenario = RenderingServer::get_singleton()->scenario_create();
 
-    viewport = VisualServer::get_singleton()->viewport_create();
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_DISABLED);
-    VisualServer::get_singleton()->viewport_set_scenario(viewport, scenario);
-    VisualServer::get_singleton()->viewport_set_size(viewport, 128, 128);
-    VisualServer::get_singleton()->viewport_set_transparent_background(viewport, true);
-    VisualServer::get_singleton()->viewport_set_active(viewport, true);
-    VisualServer::get_singleton()->viewport_set_vflip(viewport, true);
-    viewport_texture = VisualServer::get_singleton()->viewport_get_texture(viewport);
+    viewport = RenderingServer::get_singleton()->viewport_create();
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
+    RenderingServer::get_singleton()->viewport_set_scenario(viewport, scenario);
+    RenderingServer::get_singleton()->viewport_set_size(viewport, 128, 128);
+    RenderingServer::get_singleton()->viewport_set_transparent_background(viewport, true);
+    RenderingServer::get_singleton()->viewport_set_active(viewport, true);
+    RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
+    viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
 
-    camera = VisualServer::get_singleton()->camera_create();
-    VisualServer::get_singleton()->viewport_attach_camera(viewport, camera);
-    VisualServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
-    VisualServer::get_singleton()->camera_set_perspective(camera, 45, 0.1f, 10);
+    camera = RenderingServer::get_singleton()->camera_create();
+    RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera);
+    RenderingServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
+    RenderingServer::get_singleton()->camera_set_perspective(camera, 45, 0.1f, 10);
 
-    light = VisualServer::get_singleton()->directional_light_create();
-    light_instance = VisualServer::get_singleton()->instance_create2(light, scenario);
-    VisualServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
+    light = RenderingServer::get_singleton()->directional_light_create();
+    light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
+    RenderingServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
 
-    light2 = VisualServer::get_singleton()->directional_light_create();
-    VisualServer::get_singleton()->light_set_color(light2, Color(0.7f, 0.7f, 0.7f));
-    //VisualServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
+    light2 = RenderingServer::get_singleton()->directional_light_create();
+    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7f, 0.7f, 0.7f));
+    //RenderingServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
 
-    light_instance2 = VisualServer::get_singleton()->instance_create2(light2, scenario);
+    light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
 
-    VisualServer::get_singleton()->instance_set_transform(light_instance2, Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
+    RenderingServer::get_singleton()->instance_set_transform(light_instance2, Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
 
-    sphere = VisualServer::get_singleton()->mesh_create();
-    sphere_instance = VisualServer::get_singleton()->instance_create2(sphere, scenario);
+    sphere = RenderingServer::get_singleton()->mesh_create();
+    sphere_instance = RenderingServer::get_singleton()->instance_create2(sphere, scenario);
 
     int lats = 32;
     int lons = 32;
@@ -468,20 +468,20 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
     arr.m_normals = eastl::move(normals);
     arr.m_tangents = eastl::move(tangents);
     arr.m_uv_1 = eastl::move(uvs);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(sphere, VS::PRIMITIVE_TRIANGLES, arr);
+    RenderingServer::get_singleton()->mesh_add_surface_from_arrays(sphere, RS::PRIMITIVE_TRIANGLES, arr);
 }
 
 EditorMaterialPreviewPlugin::~EditorMaterialPreviewPlugin() {
 
-    VisualServer::get_singleton()->free_rid(sphere);
-    VisualServer::get_singleton()->free_rid(sphere_instance);
-    VisualServer::get_singleton()->free_rid(viewport);
-    VisualServer::get_singleton()->free_rid(light);
-    VisualServer::get_singleton()->free_rid(light_instance);
-    VisualServer::get_singleton()->free_rid(light2);
-    VisualServer::get_singleton()->free_rid(light_instance2);
-    VisualServer::get_singleton()->free_rid(camera);
-    VisualServer::get_singleton()->free_rid(scenario);
+    RenderingServer::get_singleton()->free_rid(sphere);
+    RenderingServer::get_singleton()->free_rid(sphere_instance);
+    RenderingServer::get_singleton()->free_rid(viewport);
+    RenderingServer::get_singleton()->free_rid(light);
+    RenderingServer::get_singleton()->free_rid(light_instance);
+    RenderingServer::get_singleton()->free_rid(light2);
+    RenderingServer::get_singleton()->free_rid(light_instance2);
+    RenderingServer::get_singleton()->free_rid(camera);
+    RenderingServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -518,7 +518,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     int line = 0;
     int col = 0;
     Ref<Image> img(make_ref_counted<Image>());
-    int thumbnail_size = MAX(p_size.x, p_size.y);
+    int thumbnail_size = M_MAX(p_size.x, p_size.y);
     img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
 
     Color bg_color = EditorSettings::get_singleton()->get("text_editor/highlighting/background_color");
@@ -530,7 +530,7 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
 
     if (bg_color.a == 0.0f)
         bg_color = Color(0, 0, 0, 0);
-    bg_color.a = MAX(bg_color.a, 0.2f); // some background
+    bg_color.a = M_MAX(bg_color.a, 0.2f); // some background
 
     for (int i = 0; i < thumbnail_size; i++) {
         for (int j = 0; j < thumbnail_size; j++) {
@@ -660,8 +660,8 @@ Ref<Texture> EditorAudioStreamPreviewPlugin::generate(const RES &p_from, const S
 
         for (int j = from; j < to; j++) {
 
-            max = MAX(max, frames[j].l);
-            max = MAX(max, frames[j].r);
+            max = M_MAX(max, frames[j].l);
+            max = M_MAX(max, frames[j].r);
 
             min = MIN(min, frames[j].l);
             min = MIN(min, frames[j].r);
@@ -718,7 +718,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     Ref<Mesh> mesh = dynamic_ref_cast<Mesh>(p_from);
     ERR_FAIL_COND_V(not mesh, Ref<Texture>());
 
-    VisualServer::get_singleton()->instance_set_base(mesh_instance, mesh->get_rid());
+    RenderingServer::get_singleton()->instance_set_base(mesh_instance, mesh->get_rid());
 
     AABB aabb = mesh->get_aabb();
     Vector3 ofs = aabb.position + aabb.size * 0.5;
@@ -727,7 +727,7 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     xform.basis = Basis().rotated(Vector3(0, 1, 0), -Math_PI * 0.125);
     xform.basis = Basis().rotated(Vector3(1, 0, 0), Math_PI * 0.125) * xform.basis;
     AABB rot_aabb = xform.xform(aabb);
-    float m = MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
+    float m = M_MAX(rot_aabb.size.x, rot_aabb.size.y) * 0.5;
     if (m == 0)
         return Ref<Texture>();
     m = 1.0 / m;
@@ -735,21 +735,21 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
     xform.basis.scale(Vector3(m, m, m));
     xform.origin = -xform.basis.xform(ofs); //-ofs*m;
     xform.origin.z -= rot_aabb.size.z * 2;
-    VisualServer::get_singleton()->instance_set_transform(mesh_instance, xform);
+    RenderingServer::get_singleton()->instance_set_transform(mesh_instance, xform);
 
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_ONCE); //once used for capture
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
 
     preview_done = false;
-    VisualServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMeshPreviewPlugin *>(this), "_preview_done", Variant());
+    RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorMeshPreviewPlugin *>(this), "_preview_done", Variant());
 
     while (!preview_done) {
         OS::get_singleton()->delay_usec(10);
     }
 
-    Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
+    Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
     ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
-    VisualServer::get_singleton()->instance_set_base(mesh_instance, RID());
+    RenderingServer::get_singleton()->instance_set_base(mesh_instance, RID());
 
     img->convert(Image::FORMAT_RGBA8);
 
@@ -771,50 +771,50 @@ Ref<Texture> EditorMeshPreviewPlugin::generate(const RES &p_from, const Size2 &p
 
 EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 
-    scenario = VisualServer::get_singleton()->scenario_create();
+    scenario = RenderingServer::get_singleton()->scenario_create();
 
-    viewport = VisualServer::get_singleton()->viewport_create();
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_DISABLED);
-    VisualServer::get_singleton()->viewport_set_vflip(viewport, true);
-    VisualServer::get_singleton()->viewport_set_scenario(viewport, scenario);
-    VisualServer::get_singleton()->viewport_set_size(viewport, 128, 128);
-    VisualServer::get_singleton()->viewport_set_transparent_background(viewport, true);
-    VisualServer::get_singleton()->viewport_set_active(viewport, true);
-    viewport_texture = VisualServer::get_singleton()->viewport_get_texture(viewport);
+    viewport = RenderingServer::get_singleton()->viewport_create();
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
+    RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
+    RenderingServer::get_singleton()->viewport_set_scenario(viewport, scenario);
+    RenderingServer::get_singleton()->viewport_set_size(viewport, 128, 128);
+    RenderingServer::get_singleton()->viewport_set_transparent_background(viewport, true);
+    RenderingServer::get_singleton()->viewport_set_active(viewport, true);
+    viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
 
-    camera = VisualServer::get_singleton()->camera_create();
-    VisualServer::get_singleton()->viewport_attach_camera(viewport, camera);
-    VisualServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
-    //VisualServer::get_singleton()->camera_set_perspective(camera,45,0.1,10);
-    VisualServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01, 1000.0);
+    camera = RenderingServer::get_singleton()->camera_create();
+    RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera);
+    RenderingServer::get_singleton()->camera_set_transform(camera, Transform(Basis(), Vector3(0, 0, 3)));
+    //RenderingServer::get_singleton()->camera_set_perspective(camera,45,0.1,10);
+    RenderingServer::get_singleton()->camera_set_orthogonal(camera, 1.0, 0.01, 1000.0);
 
-    light = VisualServer::get_singleton()->directional_light_create();
-    light_instance = VisualServer::get_singleton()->instance_create2(light, scenario);
-    VisualServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
+    light = RenderingServer::get_singleton()->directional_light_create();
+    light_instance = RenderingServer::get_singleton()->instance_create2(light, scenario);
+    RenderingServer::get_singleton()->instance_set_transform(light_instance, Transform().looking_at(Vector3(-1, -1, -1), Vector3(0, 1, 0)));
 
-    light2 = VisualServer::get_singleton()->directional_light_create();
-    VisualServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
-    //VisualServer::get_singleton()->light_set_color(light2, VS::LIGHT_COLOR_SPECULAR, Color(0.0, 0.0, 0.0));
-    light_instance2 = VisualServer::get_singleton()->instance_create2(light2, scenario);
+    light2 = RenderingServer::get_singleton()->directional_light_create();
+    RenderingServer::get_singleton()->light_set_color(light2, Color(0.7, 0.7, 0.7));
+    //RenderingServer::get_singleton()->light_set_color(light2, RS::LIGHT_COLOR_SPECULAR, Color(0.0, 0.0, 0.0));
+    light_instance2 = RenderingServer::get_singleton()->instance_create2(light2, scenario);
 
-    VisualServer::get_singleton()->instance_set_transform(light_instance2, Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
+    RenderingServer::get_singleton()->instance_set_transform(light_instance2, Transform().looking_at(Vector3(0, 1, 0), Vector3(0, 0, 1)));
 
-    //sphere = VisualServer::get_singleton()->mesh_create();
-    mesh_instance = VisualServer::get_singleton()->instance_create();
-    VisualServer::get_singleton()->instance_set_scenario(mesh_instance, scenario);
+    //sphere = RenderingServer::get_singleton()->mesh_create();
+    mesh_instance = RenderingServer::get_singleton()->instance_create();
+    RenderingServer::get_singleton()->instance_set_scenario(mesh_instance, scenario);
 }
 
 EditorMeshPreviewPlugin::~EditorMeshPreviewPlugin() {
 
-    //VisualServer::get_singleton()->free(sphere);
-    VisualServer::get_singleton()->free_rid(mesh_instance);
-    VisualServer::get_singleton()->free_rid(viewport);
-    VisualServer::get_singleton()->free_rid(light);
-    VisualServer::get_singleton()->free_rid(light_instance);
-    VisualServer::get_singleton()->free_rid(light2);
-    VisualServer::get_singleton()->free_rid(light_instance2);
-    VisualServer::get_singleton()->free_rid(camera);
-    VisualServer::get_singleton()->free_rid(scenario);
+    //RenderingServer::get_singleton()->free(sphere);
+    RenderingServer::get_singleton()->free_rid(mesh_instance);
+    RenderingServer::get_singleton()->free_rid(viewport);
+    RenderingServer::get_singleton()->free_rid(light);
+    RenderingServer::get_singleton()->free_rid(light_instance);
+    RenderingServer::get_singleton()->free_rid(light2);
+    RenderingServer::get_singleton()->free_rid(light_instance2);
+    RenderingServer::get_singleton()->free_rid(camera);
+    RenderingServer::get_singleton()->free_rid(scenario);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -864,16 +864,16 @@ Ref<Texture> EditorFontPreviewPlugin::generate_from_path(StringView p_path, cons
     font->draw_ui_string(canvas_item, pos, sampled_text);
 
     preview_done = false;
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_ONCE); //once used for capture
-    VisualServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorFontPreviewPlugin *>(this), "_preview_done", Variant());
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_ONCE); //once used for capture
+    RenderingServer::get_singleton()->request_frame_drawn_callback(const_cast<EditorFontPreviewPlugin *>(this), "_preview_done", Variant());
 
     while (!preview_done) {
         OS::get_singleton()->delay_usec(10);
     }
 
-    VisualServer::get_singleton()->canvas_item_clear(canvas_item);
+    RenderingServer::get_singleton()->canvas_item_clear(canvas_item);
 
-    Ref<Image> img = VisualServer::get_singleton()->texture_get_data(viewport_texture);
+    Ref<Image> img = RenderingServer::get_singleton()->texture_get_data(viewport_texture);
     ERR_FAIL_COND_V(not img, Ref<ImageTexture>());
 
     img->convert(Image::FORMAT_RGBA8);
@@ -906,23 +906,23 @@ Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p
 
 EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
 
-    viewport = VisualServer::get_singleton()->viewport_create();
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::VIEWPORT_UPDATE_DISABLED);
-    VisualServer::get_singleton()->viewport_set_vflip(viewport, true);
-    VisualServer::get_singleton()->viewport_set_size(viewport, 128, 128);
-    VisualServer::get_singleton()->viewport_set_active(viewport, true);
-    viewport_texture = VisualServer::get_singleton()->viewport_get_texture(viewport);
+    viewport = RenderingServer::get_singleton()->viewport_create();
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
+    RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
+    RenderingServer::get_singleton()->viewport_set_size(viewport, 128, 128);
+    RenderingServer::get_singleton()->viewport_set_active(viewport, true);
+    viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
 
-    canvas = VisualServer::get_singleton()->canvas_create();
-    canvas_item = VisualServer::get_singleton()->canvas_item_create();
+    canvas = RenderingServer::get_singleton()->canvas_create();
+    canvas_item = RenderingServer::get_singleton()->canvas_item_create();
 
-    VisualServer::get_singleton()->viewport_attach_canvas(viewport, canvas);
-    VisualServer::get_singleton()->canvas_item_set_parent(canvas_item, canvas);
+    RenderingServer::get_singleton()->viewport_attach_canvas(viewport, canvas);
+    RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, canvas);
 }
 
 EditorFontPreviewPlugin::~EditorFontPreviewPlugin() {
 
-    VisualServer::get_singleton()->free_rid(canvas_item);
-    VisualServer::get_singleton()->free_rid(canvas);
-    VisualServer::get_singleton()->free_rid(viewport);
+    RenderingServer::get_singleton()->free_rid(canvas_item);
+    RenderingServer::get_singleton()->free_rid(canvas);
+    RenderingServer::get_singleton()->free_rid(viewport);
 }

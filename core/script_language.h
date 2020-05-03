@@ -176,7 +176,7 @@ public:
     virtual void get_method_list(Vector<MethodInfo> *p_list) const = 0;
     [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
     virtual Variant call(const StringName &p_method, VARIANT_ARG_LIST);
-    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) = 0;
+    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) = 0;
     virtual void call_multilevel(const StringName &p_method, VARIANT_ARG_LIST);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
@@ -404,12 +404,12 @@ public:
     Variant call(const StringName & /*p_method*/, VARIANT_ARG_LIST) override {
         (void)p_arg1, (void)p_arg2, (void)p_arg3, (void)p_arg4, (void)p_arg5;
         return Variant(); }
-    Variant call(const StringName & /*p_method*/, const Variant ** /*p_args*/, int /*p_argcount*/, Variant::CallError &r_error) override {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+    Variant call(const StringName & /*p_method*/, const Variant ** /*p_args*/, int /*p_argcount*/, Callable::CallError &r_error) override {
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
         return Variant();
     }
     //virtual void call_multilevel(const StringName& p_method,VARIANT_ARG_LIST) { return Variant(); }
-    //virtual void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount,Variant::CallError &r_error) { return Variant(); }
+    //virtual void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount,Callable::CallError &r_error) { return Variant(); }
     void notification(int /*p_notification*/) override {}
 
     Ref<Script> get_script() const override { return script; }
@@ -434,56 +434,4 @@ public:
         script(std::move(p_script)) {
     }
     ~PlaceHolderScriptInstance() override;
-};
-
-class GODOT_EXPORT ScriptDebugger {
-
-    int lines_left;
-    int depth;
-
-    static ScriptDebugger *singleton;
-    Map<int, HashSet<StringName> > breakpoints;
-
-    ScriptLanguage *break_lang;
-
-public:
-
-    _FORCE_INLINE_ static ScriptDebugger *get_singleton() { return singleton; }
-    void set_lines_left(int p_left);
-    int get_lines_left() const;
-
-    void set_depth(int p_depth);
-    int get_depth() const;
-
-    String breakpoint_find_source(StringView p_source) const;
-    void insert_breakpoint(int p_line, const StringName &p_source);
-    void remove_breakpoint(int p_line, const StringName &p_source);
-    bool is_breakpoint(int p_line, const StringName &p_source) const;
-    bool is_breakpoint_line(int p_line) const;
-    void clear_breakpoints();
-    const Map<int, HashSet<StringName> > &get_breakpoints() const { return breakpoints; }
-
-    virtual void debug(ScriptLanguage *p_script, bool p_can_continue = true, bool p_is_error_breakpoint = false) = 0;
-    virtual void idle_poll();
-    virtual void line_poll();
-
-    void set_break_language(ScriptLanguage *p_lang);
-    ScriptLanguage *get_break_language() const;
-
-    virtual void send_message(const String &p_message, const Array &p_args) = 0;
-    virtual void send_error(StringView p_func, StringView p_file, int p_line, StringView p_err, StringView p_descr, ErrorHandlerType p_type, const Vector<ScriptLanguage::StackInfo> &p_stack_info) = 0;
-
-    virtual bool is_remote() const { return false; }
-    virtual void request_quit() {}
-
-    virtual void set_multiplayer(const Ref<MultiplayerAPI> & /*p_multiplayer*/) {}
-
-    virtual bool is_profiling() const = 0;
-    virtual void add_profiling_frame_data(const StringName &p_name, const Array &p_data) = 0;
-    virtual void profiling_start() = 0;
-    virtual void profiling_end() = 0;
-    virtual void profiling_set_frame_times(float p_frame_time, float p_idle_time, float p_physics_time, float p_physics_frame_time) = 0;
-
-    ScriptDebugger();
-    virtual ~ScriptDebugger() { singleton = nullptr; }
 };

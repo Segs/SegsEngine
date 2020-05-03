@@ -57,13 +57,14 @@ protected:
     IP_Address peer_host;
     uint16_t peer_port=0;
 
-    Error _connect(StringView p_address, int p_port);
     Error _poll_connection();
     Error write(const uint8_t *p_data, int p_bytes, int &r_sent, bool p_block);
     Error read(uint8_t *p_buffer, int p_bytes, int &r_received, bool p_block);
 
     static void _bind_methods();
-
+public:
+// made public by exposure to scripting layer
+    Error _connect(StringView p_address, int p_port);
 public:
     void accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint16_t p_port);
 

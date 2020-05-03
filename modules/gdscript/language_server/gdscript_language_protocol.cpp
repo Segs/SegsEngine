@@ -31,8 +31,10 @@
 #include "gdscript_language_protocol.h"
 #include "core/io/json.h"
 #include "core/project_settings.h"
+#include "editor/editor_help.h"
 #include "editor/editor_node.h"
 #include "core/method_bind.h"
+
 
 IMPL_GDCLASS(GDScriptLanguageProtocol)
 

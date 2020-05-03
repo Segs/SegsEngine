@@ -38,7 +38,7 @@ VARIANT_ENUM_CAST(ReflectionProbe::UpdateMode);
 void ReflectionProbe::set_intensity(float p_intensity) {
 
     intensity = p_intensity;
-    VisualServer::get_singleton()->reflection_probe_set_intensity(probe, p_intensity);
+    RenderingServer::get_singleton()->reflection_probe_set_intensity(probe, p_intensity);
 }
 
 float ReflectionProbe::get_intensity() const {
@@ -49,12 +49,12 @@ float ReflectionProbe::get_intensity() const {
 void ReflectionProbe::set_interior_ambient(Color p_ambient) {
 
     interior_ambient = p_ambient;
-    VisualServer::get_singleton()->reflection_probe_set_interior_ambient(probe, p_ambient);
+    RenderingServer::get_singleton()->reflection_probe_set_interior_ambient(probe, p_ambient);
 }
 
 void ReflectionProbe::set_interior_ambient_energy(float p_energy) {
     interior_ambient_energy = p_energy;
-    VisualServer::get_singleton()->reflection_probe_set_interior_ambient_energy(probe, p_energy);
+    RenderingServer::get_singleton()->reflection_probe_set_interior_ambient_energy(probe, p_energy);
 }
 
 float ReflectionProbe::get_interior_ambient_energy() const {
@@ -69,7 +69,7 @@ Color ReflectionProbe::get_interior_ambient() const {
 void ReflectionProbe::set_interior_ambient_probe_contribution(float p_contribution) {
 
     interior_ambient_probe_contribution = p_contribution;
-    VisualServer::get_singleton()->reflection_probe_set_interior_ambient_probe_contribution(probe, p_contribution);
+    RenderingServer::get_singleton()->reflection_probe_set_interior_ambient_probe_contribution(probe, p_contribution);
 }
 
 float ReflectionProbe::get_interior_ambient_probe_contribution() const {
@@ -80,7 +80,7 @@ float ReflectionProbe::get_interior_ambient_probe_contribution() const {
 void ReflectionProbe::set_max_distance(float p_distance) {
 
     max_distance = p_distance;
-    VisualServer::get_singleton()->reflection_probe_set_max_distance(probe, p_distance);
+    RenderingServer::get_singleton()->reflection_probe_set_max_distance(probe, p_distance);
 }
 float ReflectionProbe::get_max_distance() const {
 
@@ -102,8 +102,8 @@ void ReflectionProbe::set_extents(const Vector3 &p_extents) {
         }
     }
 
-    VisualServer::get_singleton()->reflection_probe_set_extents(probe, extents);
-    VisualServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
+    RenderingServer::get_singleton()->reflection_probe_set_extents(probe, extents);
+    RenderingServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
     Object_change_notify(this,"extents");
     update_gizmo();
 }
@@ -122,8 +122,8 @@ void ReflectionProbe::set_origin_offset(const Vector3 &p_extents) {
             origin_offset[i] = SGN(origin_offset[i]) * (extents[i] - 0.01);
         }
     }
-    VisualServer::get_singleton()->reflection_probe_set_extents(probe, extents);
-    VisualServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
+    RenderingServer::get_singleton()->reflection_probe_set_extents(probe, extents);
+    RenderingServer::get_singleton()->reflection_probe_set_origin_offset(probe, origin_offset);
 
     Object_change_notify(this,"origin_offset");
     update_gizmo();
@@ -136,7 +136,7 @@ Vector3 ReflectionProbe::get_origin_offset() const {
 void ReflectionProbe::set_enable_box_projection(bool p_enable) {
 
     box_projection = p_enable;
-    VisualServer::get_singleton()->reflection_probe_set_enable_box_projection(probe, p_enable);
+    RenderingServer::get_singleton()->reflection_probe_set_enable_box_projection(probe, p_enable);
 }
 bool ReflectionProbe::is_box_projection_enabled() const {
 
@@ -146,7 +146,7 @@ bool ReflectionProbe::is_box_projection_enabled() const {
 void ReflectionProbe::set_as_interior(bool p_enable) {
 
     interior = p_enable;
-    VisualServer::get_singleton()->reflection_probe_set_as_interior(probe, interior);
+    RenderingServer::get_singleton()->reflection_probe_set_as_interior(probe, interior);
     Object_change_notify(this);
 }
 
@@ -158,7 +158,7 @@ bool ReflectionProbe::is_set_as_interior() const {
 void ReflectionProbe::set_enable_shadows(bool p_enable) {
 
     enable_shadows = p_enable;
-    VisualServer::get_singleton()->reflection_probe_set_enable_shadows(probe, p_enable);
+    RenderingServer::get_singleton()->reflection_probe_set_enable_shadows(probe, p_enable);
 }
 bool ReflectionProbe::are_shadows_enabled() const {
 
@@ -168,7 +168,7 @@ bool ReflectionProbe::are_shadows_enabled() const {
 void ReflectionProbe::set_cull_mask(uint32_t p_layers) {
 
     cull_mask = p_layers;
-    VisualServer::get_singleton()->reflection_probe_set_cull_mask(probe, p_layers);
+    RenderingServer::get_singleton()->reflection_probe_set_cull_mask(probe, p_layers);
 }
 uint32_t ReflectionProbe::get_cull_mask() const {
 
@@ -177,7 +177,7 @@ uint32_t ReflectionProbe::get_cull_mask() const {
 
 void ReflectionProbe::set_update_mode(UpdateMode p_mode) {
     update_mode = p_mode;
-    VisualServer::get_singleton()->reflection_probe_set_update_mode(probe, VS::ReflectionProbeUpdateMode(p_mode));
+    RenderingServer::get_singleton()->reflection_probe_set_update_mode(probe, RS::ReflectionProbeUpdateMode(p_mode));
 }
 
 ReflectionProbe::UpdateMode ReflectionProbe::get_update_mode() const {
@@ -244,8 +244,8 @@ void ReflectionProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &ReflectionProbe::get_update_mode);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "update_mode", PropertyHint::Enum, "Once,Always"), "set_update_mode", "get_update_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PropertyHint::ExpRange, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "intensity", PropertyHint::Range, "0,1,0.01"), "set_intensity", "get_intensity");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_distance", PropertyHint::ExpRange, "0,16384,0.1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "origin_offset"), "set_origin_offset", "get_origin_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
@@ -255,8 +255,8 @@ void ReflectionProbe::_bind_methods() {
     ADD_GROUP("Interior", "interior_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "interior_enable"), "set_as_interior", "is_set_as_interior");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "interior_ambient_color", PropertyHint::ColorNoAlpha), "set_interior_ambient", "get_interior_ambient");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_energy", PropertyHint::Range, "0,16,0.01"), "set_interior_ambient_energy", "get_interior_ambient_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "interior_ambient_contrib", PropertyHint::Range, "0,1,0.01"), "set_interior_ambient_probe_contribution", "get_interior_ambient_probe_contribution");
 
     BIND_ENUM_CONSTANT(UPDATE_ONCE)
     BIND_ENUM_CONSTANT(UPDATE_ALWAYS)
@@ -277,12 +277,12 @@ ReflectionProbe::ReflectionProbe() {
     cull_mask = (1 << 20) - 1;
     update_mode = UPDATE_ONCE;
 
-    probe = VisualServer::get_singleton()->reflection_probe_create();
-    VisualServer::get_singleton()->instance_set_base(get_instance(), probe);
+    probe = RenderingServer::get_singleton()->reflection_probe_create();
+    RenderingServer::get_singleton()->instance_set_base(get_instance(), probe);
     set_disable_scale(true);
 }
 
 ReflectionProbe::~ReflectionProbe() {
 
-    VisualServer::get_singleton()->free_rid(probe);
+    RenderingServer::get_singleton()->free_rid(probe);
 }

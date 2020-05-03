@@ -36,7 +36,7 @@
 #include "scene/animation/animation_cache.h"
 #include "scene/gui/control.h"
 #include "scene/gui/file_dialog.h"
-//#include "scene/resources/animation.h"
+#include "scene/resources/animation.h"
 #include "scene_tree_editor.h"
 
 #include "EASTL/deque.h"
@@ -506,7 +506,7 @@ public:
     void set_anim_pos(float p_pos);
     void insert_node_value_key(Node *p_node, StringView p_property, const Variant &p_value, bool p_only_if_exists = false);
     void insert_value_key(StringView p_property, const Variant &p_value, bool p_advance);
-    void insert_transform_key(Spatial *p_node, StringView p_sub, const Transform &p_xform);
+    void insert_transform_key(Node3D *p_node, StringView p_sub, const Transform &p_xform);
 
     void show_select_node_warning(bool p_show);
 

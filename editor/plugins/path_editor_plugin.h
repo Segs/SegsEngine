@@ -30,16 +30,17 @@
 
 #pragma once
 
-#include "editor/spatial_editor_gizmos.h"
-#include "scene/3d/path.h"
+#include "editor/node_3d_editor_gizmos.h"
+
 
 class Separator;
+class Path3D;
 
 class PathSpatialGizmo : public EditorSpatialGizmo {
 
     GDCLASS(PathSpatialGizmo,EditorSpatialGizmo)
 
-    Path *path;
+    Path3D *path;
     mutable Vector3 original;
     mutable float orig_in_length;
     mutable float orig_out_length;
@@ -47,11 +48,11 @@ class PathSpatialGizmo : public EditorSpatialGizmo {
 public:
     StringName get_handle_name(int p_idx) const override;
     Variant get_handle_value(int p_idx) override;
-    void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point) override;
+    void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
     void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false) override;
 
     void redraw() override;
-    PathSpatialGizmo(Path *p_path = nullptr);
+    PathSpatialGizmo(Path3D *p_path = nullptr);
 };
 
 class PathSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
@@ -59,7 +60,7 @@ class PathSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(PathSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 protected:
-    Ref<EditorSpatialGizmo> create_gizmo(Spatial *p_spatial) override;
+    Ref<EditorSpatialGizmo> create_gizmo(Node3D *p_spatial) override;
 
 public:
     StringView get_name() const override;
@@ -80,7 +81,7 @@ class PathEditorPlugin : public EditorPlugin {
 
     EditorNode *editor;
 
-    Path *path;
+    Path3D *path;
 
     void _mode_changed(int p_idx);
     void _close_curve();
@@ -99,13 +100,13 @@ protected:
     static void _bind_methods();
 
 public:
-    Path *get_edited_path() { return path; }
+    Path3D *get_edited_path() { return path; }
 
     static PathEditorPlugin *singleton;
-    bool forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) override;
+    bool forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) override;
 
     //virtual bool forward_gui_input(const InputEvent& p_event) { return collision_polygon_editor->forward_gui_input(p_event); }
-    //virtual Ref<SpatialEditorGizmo> create_spatial_gizmo(Spatial *p_spatial);
+    //virtual Ref<SpatialEditorGizmo> create_spatial_gizmo(Node3D *p_spatial);
     StringView get_name() const override { return "Path"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;

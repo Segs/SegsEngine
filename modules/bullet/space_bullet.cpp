@@ -44,7 +44,7 @@
 #include "core/object_db.h"
 #include "core/project_settings.h"
 #include "core/ustring.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 #include <BulletCollision/BroadphaseCollision/btBroadphaseProxy.h>
 #include <BulletCollision/CollisionDispatch/btCollisionObject.h>
@@ -65,7 +65,7 @@
 IMPL_GDCLASS(BulletPhysicsDirectSpaceState)
 
 BulletPhysicsDirectSpaceState::BulletPhysicsDirectSpaceState(SpaceBullet *p_space) :
-        PhysicsDirectSpaceState(),
+        PhysicsDirectSpaceState3D(),
         space(p_space) {}
 
 int BulletPhysicsDirectSpaceState::intersect_point(const Vector3 &p_point, ShapeResult *r_results, int p_result_max, const HashSet<RID> &p_exclude, uint32_t p_collision_mask, bool p_collide_with_bodies, bool p_collide_with_areas) {
@@ -114,7 +114,7 @@ bool BulletPhysicsDirectSpaceState::intersect_ray(const Vector3 &p_from, const V
             r_result.shape = btResult.m_shapeId;
             r_result.rid = gObj->get_self();
             r_result.collider_id = gObj->get_instance_id();
-            r_result.collider = 0 == r_result.collider_id ? nullptr : ObjectDB::get_instance(r_result.collider_id);
+            r_result.collider = 0 == r_result.collider_id ? nullptr : gObjectDB().get_instance(r_result.collider_id);
         } else {
             WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.");
         }
@@ -190,7 +190,7 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
     if (btResult.hasHit()) {
         const btScalar l = bt_motion.length();
         r_closest_unsafe = btResult.m_closestHitFraction;
-        r_closest_safe = MAX(r_closest_unsafe - (1 - ((l - 0.01) / l)), 0);
+        r_closest_safe = M_MAX(r_closest_unsafe - (1 - ((l - 0.01) / l)), 0);
         if (r_info) {
             if (btCollisionObject::CO_RIGID_BODY == btResult.m_hitCollisionObject->getInternalType()) {
                 B_TO_G(static_cast<const btRigidBody *>(btResult.m_hitCollisionObject)->getVelocityInLocalPoint(btResult.m_hitPointWorld), r_info->linear_velocity);
@@ -372,27 +372,27 @@ void SpaceBullet::step(real_t p_delta_time) {
     dynamicsWorld->stepSimulation(p_delta_time, 0, 0);
 }
 
-void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant &p_value) {
+void SpaceBullet::set_param(PhysicsServer3D::AreaParameter p_param, const Variant &p_value) {
     assert(dynamicsWorld);
 
     switch (p_param) {
-        case PhysicsServer::AREA_PARAM_GRAVITY:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY:
             gravityMagnitude = p_value;
             update_gravity();
             break;
-        case PhysicsServer::AREA_PARAM_GRAVITY_VECTOR:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR:
             gravityDirection = p_value;
             update_gravity();
             break;
-        case PhysicsServer::AREA_PARAM_LINEAR_DAMP:
-        case PhysicsServer::AREA_PARAM_ANGULAR_DAMP:
+        case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
+        case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
             break; // No damp
-        case PhysicsServer::AREA_PARAM_PRIORITY:
+        case PhysicsServer3D::AREA_PARAM_PRIORITY:
             // Priority is always 0, the lower
             break;
-        case PhysicsServer::AREA_PARAM_GRAVITY_IS_POINT:
-        case PhysicsServer::AREA_PARAM_GRAVITY_DISTANCE_SCALE:
-        case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_IS_POINT:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_DISTANCE_SCALE:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             break;
         default:
             WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
@@ -400,22 +400,22 @@ void SpaceBullet::set_param(PhysicsServer::AreaParameter p_param, const Variant 
     }
 }
 
-Variant SpaceBullet::get_param(PhysicsServer::AreaParameter p_param) {
+Variant SpaceBullet::get_param(PhysicsServer3D::AreaParameter p_param) {
     switch (p_param) {
-        case PhysicsServer::AREA_PARAM_GRAVITY:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY:
             return gravityMagnitude;
-        case PhysicsServer::AREA_PARAM_GRAVITY_VECTOR:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR:
             return gravityDirection;
-        case PhysicsServer::AREA_PARAM_LINEAR_DAMP:
-        case PhysicsServer::AREA_PARAM_ANGULAR_DAMP:
+        case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
+        case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
             return 0; // No damp
-        case PhysicsServer::AREA_PARAM_PRIORITY:
+        case PhysicsServer3D::AREA_PARAM_PRIORITY:
             return 0; // Priority is always 0, the lower
-        case PhysicsServer::AREA_PARAM_GRAVITY_IS_POINT:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_IS_POINT:
             return false;
-        case PhysicsServer::AREA_PARAM_GRAVITY_DISTANCE_SCALE:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_DISTANCE_SCALE:
             return 0;
-        case PhysicsServer::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
+        case PhysicsServer3D::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
             return 0;
         default:
             WARN_PRINT("This get parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
@@ -423,32 +423,32 @@ Variant SpaceBullet::get_param(PhysicsServer::AreaParameter p_param) {
     }
 }
 
-void SpaceBullet::set_param(PhysicsServer::SpaceParameter p_param, real_t p_value) {
+void SpaceBullet::set_param(PhysicsServer3D::SpaceParameter p_param, real_t p_value) {
     switch (p_param) {
-        case PhysicsServer::SPACE_PARAM_CONTACT_RECYCLE_RADIUS:
-        case PhysicsServer::SPACE_PARAM_CONTACT_MAX_SEPARATION:
-        case PhysicsServer::SPACE_PARAM_BODY_MAX_ALLOWED_PENETRATION:
-        case PhysicsServer::SPACE_PARAM_BODY_LINEAR_VELOCITY_SLEEP_THRESHOLD:
-        case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD:
-        case PhysicsServer::SPACE_PARAM_BODY_TIME_TO_SLEEP:
-        case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
-        case PhysicsServer::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
+        case PhysicsServer3D::SPACE_PARAM_CONTACT_RECYCLE_RADIUS:
+        case PhysicsServer3D::SPACE_PARAM_CONTACT_MAX_SEPARATION:
+        case PhysicsServer3D::SPACE_PARAM_BODY_MAX_ALLOWED_PENETRATION:
+        case PhysicsServer3D::SPACE_PARAM_BODY_LINEAR_VELOCITY_SLEEP_THRESHOLD:
+        case PhysicsServer3D::SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD:
+        case PhysicsServer3D::SPACE_PARAM_BODY_TIME_TO_SLEEP:
+        case PhysicsServer3D::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
+        case PhysicsServer3D::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
         default:
             WARN_PRINT("This set parameter (" + itos(p_param) + ") is ignored, the SpaceBullet doesn't support it.");
             break;
     }
 }
 
-real_t SpaceBullet::get_param(PhysicsServer::SpaceParameter p_param) {
+real_t SpaceBullet::get_param(PhysicsServer3D::SpaceParameter p_param) {
     switch (p_param) {
-        case PhysicsServer::SPACE_PARAM_CONTACT_RECYCLE_RADIUS:
-        case PhysicsServer::SPACE_PARAM_CONTACT_MAX_SEPARATION:
-        case PhysicsServer::SPACE_PARAM_BODY_MAX_ALLOWED_PENETRATION:
-        case PhysicsServer::SPACE_PARAM_BODY_LINEAR_VELOCITY_SLEEP_THRESHOLD:
-        case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD:
-        case PhysicsServer::SPACE_PARAM_BODY_TIME_TO_SLEEP:
-        case PhysicsServer::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
-        case PhysicsServer::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
+        case PhysicsServer3D::SPACE_PARAM_CONTACT_RECYCLE_RADIUS:
+        case PhysicsServer3D::SPACE_PARAM_CONTACT_MAX_SEPARATION:
+        case PhysicsServer3D::SPACE_PARAM_BODY_MAX_ALLOWED_PENETRATION:
+        case PhysicsServer3D::SPACE_PARAM_BODY_LINEAR_VELOCITY_SLEEP_THRESHOLD:
+        case PhysicsServer3D::SPACE_PARAM_BODY_ANGULAR_VELOCITY_SLEEP_THRESHOLD:
+        case PhysicsServer3D::SPACE_PARAM_BODY_TIME_TO_SLEEP:
+        case PhysicsServer3D::SPACE_PARAM_BODY_ANGULAR_VELOCITY_DAMP_RATIO:
+        case PhysicsServer3D::SPACE_PARAM_CONSTRAINT_DEFAULT_BIAS:
         default:
             WARN_PRINT("The SpaceBullet  doesn't support this get parameter (" + itos(p_param) + "), 0 is returned.");
             return 0.f;
@@ -892,22 +892,22 @@ void SpaceBullet::update_gravity() {
 
 #if debug_test_motion
 
-#include "scene/3d/immediate_geometry.h"
+#include "scene/3d/immediate_geometry_3d.h"
 
-static ImmediateGeometry *motionVec(nullptr);
-static ImmediateGeometry *normalLine(nullptr);
+static ImmediateGeometry3D *motionVec(nullptr);
+static ImmediateGeometry3D *normalLine(nullptr);
 static Ref<SpatialMaterial> red_mat;
 static Ref<SpatialMaterial> blue_mat;
 #endif
 
-bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, PhysicsServer::MotionResult *r_result, bool p_exclude_raycast_shapes) {
+bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, PhysicsServer3D::MotionResult *r_result, bool p_exclude_raycast_shapes) {
 
 #if debug_test_motion
     /// Yes I know this is not good, but I've used it as fast debugging hack.
     /// I'm leaving it here just for speedup the other eventual debugs
     if (!normalLine) {
-        motionVec = memnew(ImmediateGeometry);
-        normalLine = memnew(ImmediateGeometry);
+        motionVec = memnew(ImmediateGeometry3D);
+        normalLine = memnew(ImmediateGeometry3D);
         SceneTree::get_singleton()->get_current_scene()->add_child(motionVec);
         SceneTree::get_singleton()->get_current_scene()->add_child(normalLine);
 
@@ -1052,7 +1052,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
     return has_penetration;
 }
 
-int SpaceBullet::test_ray_separation(RigidBodyBullet *p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, PhysicsServer::SeparationResult *r_results, int p_result_max, float p_margin) {
+int SpaceBullet::test_ray_separation(RigidBodyBullet *p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, PhysicsServer3D::SeparationResult *r_results, int p_result_max, float p_margin) {
 
     btTransform body_transform;
     G_TO_B(p_transform, body_transform);
@@ -1064,7 +1064,7 @@ int SpaceBullet::test_ray_separation(RigidBodyBullet *p_body, const Transform &p
     int rays_found_this_round = 0;
 
     for (int t(RECOVERING_MOVEMENT_CYCLES); 0 < t; --t) {
-        PhysicsServer::SeparationResult *next_results = &r_results[rays_found];
+        PhysicsServer3D::SeparationResult *next_results = &r_results[rays_found];
         rays_found_this_round = recover_from_penetration_ray(p_body, body_transform, RECOVERING_MOVEMENT_SCALE, p_infinite_inertia, p_result_max - rays_found, recover_motion, next_results);
 
         rays_found += rays_found_this_round;
@@ -1345,7 +1345,7 @@ bool SpaceBullet::RFP_convex_world_test(const btConvexShape *p_shapeA, const btC
     return false;
 }
 
-int SpaceBullet::add_separation_result(PhysicsServer::SeparationResult *r_result, const SpaceBullet::RecoverResult &p_recover_result, int p_shape_id, const btCollisionObject *p_other_object) const {
+int SpaceBullet::add_separation_result(PhysicsServer3D::SeparationResult *r_result, const SpaceBullet::RecoverResult &p_recover_result, int p_shape_id, const btCollisionObject *p_other_object) const {
 
     // optimize results (ignore non-colliding)
     if (p_recover_result.penetration_distance < 0.0) {
@@ -1367,7 +1367,7 @@ int SpaceBullet::add_separation_result(PhysicsServer::SeparationResult *r_result
     }
 }
 
-int SpaceBullet::recover_from_penetration_ray(RigidBodyBullet *p_body, const btTransform &p_body_position, btScalar p_recover_movement_scale, bool p_infinite_inertia, int p_result_max, btVector3 &r_delta_recover_movement, PhysicsServer::SeparationResult *r_results) {
+int SpaceBullet::recover_from_penetration_ray(RigidBodyBullet *p_body, const btTransform &p_body_position, btScalar p_recover_movement_scale, bool p_infinite_inertia, int p_result_max, btVector3 &r_delta_recover_movement, PhysicsServer3D::SeparationResult *r_results) {
 
     // Calculate the cumulative AABB of all shapes of the kinematic body
     btVector3 aabb_min, aabb_max;

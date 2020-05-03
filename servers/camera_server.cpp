@@ -32,7 +32,7 @@
 
 #include "camera_server_enum_casters.h"
 #include "servers/camera/camera_feed.h"
-#include "visual_server.h"
+#include "rendering_server.h"
 
 #include "core/method_arg_casters.h"
 #include "core/method_bind.h"

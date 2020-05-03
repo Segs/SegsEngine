@@ -40,7 +40,7 @@
 */
 
 #ifndef _3D_DISABLED
-PhysicsServer *_createBulletPhysicsCallback() {
+PhysicsServer3D *_createBulletPhysicsCallback() {
     return memnew(BulletPhysicsServer);
 }
 #endif

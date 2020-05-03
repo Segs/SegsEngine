@@ -39,7 +39,7 @@
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/plugins/spatial_editor_plugin.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/slider.h"
@@ -295,15 +295,15 @@ void GridMapEditor::_update_cursor_transform() {
     cursor_transform = node->get_global_transform() * cursor_transform;
 
     if (cursor_instance.is_valid()) {
-        VisualServer::get_singleton()->instance_set_transform(cursor_instance, cursor_transform);
-        VisualServer::get_singleton()->instance_set_visible(cursor_instance, cursor_visible);
+        RenderingServer::get_singleton()->instance_set_transform(cursor_instance, cursor_transform);
+        RenderingServer::get_singleton()->instance_set_visible(cursor_instance, cursor_visible);
     }
 }
 
 void GridMapEditor::_update_selection_transform() {
     Transform xf_zero;
     xf_zero.basis.set_zero();
-    VisualServer * vs = VisualServer::get_singleton();
+    RenderingServer * vs = RenderingServer::get_singleton();
     if (!selection.active) {
 
         vs->instance_set_transform(selection_instance, xf_zero);
@@ -377,7 +377,7 @@ void GridMapEditor::_set_selection(bool p_active, const Vector3 &p_begin, const 
 
 }
 
-bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, bool p_click) {
+bool GridMapEditor::do_input_action(Camera3D *p_camera, const Point2 &p_point, bool p_click) {
 
     if (!spatial_editor)
         return false;
@@ -390,7 +390,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
     if (input_action != INPUT_PICK && input_action != INPUT_SELECT && input_action != INPUT_PASTE && !mesh_library->has_item(selected_palette))
         return false;
 
-    Camera *camera = p_camera;
+    Camera3D *camera = p_camera;
     Vector3 from = camera->project_ray_origin(p_point);
     Vector3 normal = camera->project_ray_normal(p_point);
     Transform local_xform = node->get_global_transform().affine_inverse();
@@ -433,7 +433,7 @@ bool GridMapEditor::do_input_action(Camera *p_camera, const Point2 &p_point, boo
 
     }
 
-    VisualServer::get_singleton()->instance_set_transform(grid_instance[edit_axis], node->get_global_transform() * edit_grid_xform);
+    RenderingServer::get_singleton()->instance_set_transform(grid_instance[edit_axis], node->get_global_transform() * edit_grid_xform);
 
     if (cursor_instance.is_valid()) {
 
@@ -545,7 +545,7 @@ void GridMapEditor::_clear_clipboard_data() {
 
     for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
-        VisualServer::get_singleton()->free_rid(E->deref().instance);
+        RenderingServer::get_singleton()->free_rid(E->deref().instance);
     }
 
     clipboard_items.clear();
@@ -573,7 +573,7 @@ void GridMapEditor::_set_clipboard_data() {
                 item.cell_item = itm;
                 item.grid_offset = Vector3(i, j, k) - selection.begin;
                 item.orientation = node->get_cell_item_orientation(i, j, k);
-                item.instance = VisualServer::get_singleton()->instance_create2(mesh->get_rid(), get_tree()->get_root()->get_world()->get_scenario());
+                item.instance = RenderingServer::get_singleton()->instance_create2(mesh->get_rid(), get_tree()->get_root()->get_world()->get_scenario());
 
                 clipboard_items.push_back(item);
             }
@@ -587,7 +587,7 @@ void GridMapEditor::_update_paste_indicator() {
 
         Transform xf;
         xf.basis.set_zero();
-        VisualServer::get_singleton()->instance_set_transform(paste_instance, xf);
+        RenderingServer::get_singleton()->instance_set_transform(paste_instance, xf);
         return;
     }
 
@@ -601,7 +601,7 @@ void GridMapEditor::_update_paste_indicator() {
     xf.basis = rot * xf.basis;
     xf.translate((-center * node->get_cell_size()) / scale);
 
-    VisualServer::get_singleton()->instance_set_transform(paste_instance, node->get_global_transform() * xf);
+    RenderingServer::get_singleton()->instance_set_transform(paste_instance, node->get_global_transform() * xf);
 
     for (ListOld<ClipboardItem>::Element *E = clipboard_items.front(); E; E = E->next()) {
 
@@ -616,7 +616,7 @@ void GridMapEditor::_update_paste_indicator() {
         item_rot.set_orthogonal_index(item.orientation);
         xf.basis = item_rot * xf.basis * node->get_cell_scale();
 
-        VisualServer::get_singleton()->instance_set_transform(item.instance, node->get_global_transform() * xf);
+        RenderingServer::get_singleton()->instance_set_transform(item.instance, node->get_global_transform() * xf);
     }
 }
 
@@ -656,7 +656,7 @@ void GridMapEditor::_do_paste() {
     _clear_clipboard_data();
 }
 
-bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<InputEvent> &p_event) {
+bool GridMapEditor::forward_spatial_input_event(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
     if (!node) {
         return false;
     }
@@ -769,7 +769,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
     if (k) {
         if (k->is_pressed()) {
-            if (k->get_scancode() == KEY_ESCAPE) {
+            if (k->get_keycode() == KEY_ESCAPE) {
 
                 if (input_action == INPUT_PASTE) {
                     _clear_clipboard_data();
@@ -790,12 +790,12 @@ bool GridMapEditor::forward_spatial_input_event(Camera *p_camera, const Ref<Inpu
 
             if (k->get_shift() && selection.active && input_action != INPUT_PASTE) {
 
-                if (k->get_scancode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_PREV_LEVEL))) {
+                if (k->get_keycode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_PREV_LEVEL))) {
                     selection.click[edit_axis]--;
                     _validate_selection();
                     return true;
                 }
-                if (k->get_scancode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_NEXT_LEVEL))) {
+                if (k->get_keycode() == options->get_popup()->get_item_accelerator(options->get_popup()->get_item_index(MENU_OPTION_NEXT_LEVEL))) {
                     selection.click[edit_axis]++;
                     _validate_selection();
                     return true;
@@ -859,7 +859,7 @@ void GridMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     const Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
 
-    if (k && (k->get_scancode() == KEY_UP || k->get_scancode() == KEY_DOWN || k->get_scancode() == KEY_PAGEUP || k->get_scancode() == KEY_PAGEDOWN)) {
+    if (k && (k->get_keycode() == KEY_UP || k->get_keycode() == KEY_DOWN || k->get_keycode() == KEY_PAGEUP || k->get_keycode() == KEY_PAGEDOWN)) {
         // Forward the key input to the ItemList so it can be scrolled
         mesh_library_palette->call_va("_gui_input", k);
         mesh_library_palette->_gui_input(k);
@@ -898,7 +898,7 @@ void GridMapEditor::update_palette() {
     if (display_mode == DISPLAY_THUMBNAIL) {
         mesh_library_palette->set_max_columns(0);
         mesh_library_palette->set_icon_mode(ItemList::ICON_MODE_TOP);
-        mesh_library_palette->set_fixed_column_width(min_size * MAX(size_slider->get_value(), 1.5));
+        mesh_library_palette->set_fixed_column_width(min_size * M_MAX(size_slider->get_value(), 1.5));
     } else if (display_mode == DISPLAY_LIST) {
         mesh_library_palette->set_max_columns(1);
         mesh_library_palette->set_icon_mode(ItemList::ICON_MODE_LEFT);
@@ -983,11 +983,11 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
     if (!node) {
         set_process(false);
         for (int i = 0; i < 3; i++) {
-            VisualServer::get_singleton()->instance_set_visible(grid_instance[i], false);
+            RenderingServer::get_singleton()->instance_set_visible(grid_instance[i], false);
         }
 
         if (cursor_instance.is_valid()) {
-            VisualServer::get_singleton()->instance_set_visible(cursor_instance, false);
+            RenderingServer::get_singleton()->instance_set_visible(cursor_instance, false);
         }
 
         return;
@@ -1025,7 +1025,7 @@ void GridMapEditor::update_grid() {
     edit_grid_xform.basis = Basis();
 
     for (int i = 0; i < 3; i++) {
-        VisualServer::get_singleton()->instance_set_visible(grid_instance[i], i == edit_axis);
+        RenderingServer::get_singleton()->instance_set_visible(grid_instance[i], i == edit_axis);
     }
 
     updating = true;
@@ -1035,10 +1035,10 @@ void GridMapEditor::update_grid() {
 
 void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
     Vector3 edited_floor = node->has_meta("_editor_floor_") ? node->get_meta("_editor_floor_") : Variant();
-    auto VS = VisualServer::get_singleton();
+    auto RS = RenderingServer::get_singleton();
     for (int i = 0; i < 3; i++) {
-        if (VS->mesh_get_surface_count(grid[i]) > 0)
-            VS->mesh_remove_surface(grid[i], 0);
+        if (RS->mesh_get_surface_count(grid[i]) > 0)
+            RS->mesh_remove_surface(grid[i], 0);
         edit_floor[i] = edited_floor[i];
     }
 
@@ -1060,13 +1060,13 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
             for (int k = -GRID_CURSOR_SIZE; k <= GRID_CURSOR_SIZE; k++) {
 
                 Vector3 p = axis_n1 * j + axis_n2 * k;
-                float trans = Math::pow(MAX(0, 1.0f - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
+                float trans = Math::pow(M_MAX(0, 1.0f - (Vector2(j, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pj = axis_n1 * (j + 1) + axis_n2 * k;
-                float transj = Math::pow(MAX(0, 1.0f - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
+                float transj = Math::pow(M_MAX(0, 1.0f - (Vector2(j + 1, k).length() / GRID_CURSOR_SIZE)), 2);
 
                 Vector3 pk = axis_n1 * j + axis_n2 * (k + 1);
-                float transk = Math::pow(MAX(0, 1.0f - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
+                float transk = Math::pow(M_MAX(0, 1.0f - (Vector2(j, k + 1).length() / GRID_CURSOR_SIZE)), 2);
 
                 grid_points[i].push_back(p);
                 grid_points[i].push_back(pk);
@@ -1083,8 +1083,8 @@ void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
         SurfaceArrays d;
         d.set_positions(eastl::move(grid_points[i]));
         d.m_colors = eastl::move(grid_colors[i]);
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], VisualServerEnums::PRIMITIVE_LINES, d);
-        VisualServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(grid[i], RenderingServerEnums::PRIMITIVE_LINES, d);
+        RenderingServer::get_singleton()->mesh_surface_set_material(grid[i], 0, indicator_mat->get_rid());
     }
 }
 
@@ -1097,13 +1097,13 @@ void GridMapEditor::_notification(int p_what) {
             mesh_library_palette->connect("item_selected", this, "_item_selected_cbk");
             for (int i = 0; i < 3; i++) {
 
-                grid[i] = VisualServer::get_singleton()->mesh_create();
-                grid_instance[i] = VisualServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
-                selection_level_instance[i] = VisualServer::get_singleton()->instance_create2(selection_level_mesh[i], get_tree()->get_root()->get_world()->get_scenario());
+                grid[i] = RenderingServer::get_singleton()->mesh_create();
+                grid_instance[i] = RenderingServer::get_singleton()->instance_create2(grid[i], get_tree()->get_root()->get_world()->get_scenario());
+                selection_level_instance[i] = RenderingServer::get_singleton()->instance_create2(selection_level_mesh[i], get_tree()->get_root()->get_world()->get_scenario());
             }
 
-            selection_instance = VisualServer::get_singleton()->instance_create2(selection_mesh, get_tree()->get_root()->get_world()->get_scenario());
-            paste_instance = VisualServer::get_singleton()->instance_create2(paste_mesh, get_tree()->get_root()->get_world()->get_scenario());
+            selection_instance = RenderingServer::get_singleton()->instance_create2(selection_mesh, get_tree()->get_root()->get_world()->get_scenario());
+            paste_instance = RenderingServer::get_singleton()->instance_create2(paste_mesh, get_tree()->get_root()->get_world()->get_scenario());
 
             _update_selection_transform();
             _update_paste_indicator();
@@ -1115,15 +1115,15 @@ void GridMapEditor::_notification(int p_what) {
 
             for (int i = 0; i < 3; i++) {
 
-                VisualServer::get_singleton()->free_rid(grid_instance[i]);
-                VisualServer::get_singleton()->free_rid(grid[i]);
+                RenderingServer::get_singleton()->free_rid(grid_instance[i]);
+                RenderingServer::get_singleton()->free_rid(grid[i]);
                 grid_instance[i] = RID();
                 grid[i] = RID();
-                VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
+                RenderingServer::get_singleton()->free_rid(selection_level_instance[i]);
             }
 
-            VisualServer::get_singleton()->free_rid(selection_instance);
-            VisualServer::get_singleton()->free_rid(paste_instance);
+            RenderingServer::get_singleton()->free_rid(selection_instance);
+            RenderingServer::get_singleton()->free_rid(paste_instance);
             selection_instance = RID();
             paste_instance = RID();
         } break;
@@ -1138,7 +1138,7 @@ void GridMapEditor::_notification(int p_what) {
             if (xf != grid_xform) {
                 for (int i = 0; i < 3; i++) {
 
-                    VisualServer::get_singleton()->instance_set_transform(grid_instance[i], xf * edit_grid_xform);
+                    RenderingServer::get_singleton()->instance_set_transform(grid_instance[i], xf * edit_grid_xform);
                 }
                 grid_xform = xf;
             }
@@ -1174,7 +1174,7 @@ void GridMapEditor::_update_cursor_instance() {
     }
 
     if (cursor_instance.is_valid())
-        VisualServer::get_singleton()->free_rid(cursor_instance);
+        RenderingServer::get_singleton()->free_rid(cursor_instance);
     cursor_instance = RID();
 
     if (selected_palette >= 0) {
@@ -1183,8 +1183,8 @@ void GridMapEditor::_update_cursor_instance() {
             Ref<Mesh> mesh = node->get_mesh_library()->get_item_mesh(selected_palette);
             if (mesh && mesh->get_rid().is_valid()) {
 
-                cursor_instance = VisualServer::get_singleton()->instance_create2(mesh->get_rid(), get_tree()->get_root()->get_world()->get_scenario());
-                VisualServer::get_singleton()->instance_set_transform(cursor_instance, cursor_transform);
+                cursor_instance = RenderingServer::get_singleton()->instance_create2(mesh->get_rid(), get_tree()->get_root()->get_world()->get_scenario());
+                RenderingServer::get_singleton()->instance_set_transform(cursor_instance, cursor_transform);
             }
         }
     }
@@ -1379,8 +1379,8 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     lock_view = false;
     cursor_rot = 0;
 
-    selection_mesh = VisualServer::get_singleton()->mesh_create();
-    paste_mesh = VisualServer::get_singleton()->mesh_create();
+    selection_mesh = RenderingServer::get_singleton()->mesh_create();
+    paste_mesh = RenderingServer::get_singleton()->mesh_create();
 
     {
         // Selection mesh create.
@@ -1467,8 +1467,8 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         inner_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         inner_mat->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
-        VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 0, inner_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, RS::PRIMITIVE_TRIANGLES, triangles_arr);
+        RenderingServer::get_singleton()->mesh_surface_set_material(selection_mesh, 0, inner_mat->get_rid());
 
         outer_mat = make_ref_counted<SpatialMaterial>();
         outer_mat->set_albedo(Color(0.7f, 0.7f, 1.0f, 0.8f));
@@ -1483,20 +1483,20 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
         selection_floor_mat->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
         selection_floor_mat->set_line_width(3.0);
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, VS::PRIMITIVE_LINES, lines_arr);
-        VisualServer::get_singleton()->mesh_surface_set_material(selection_mesh, 1, outer_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(selection_mesh, RS::PRIMITIVE_LINES, lines_arr);
+        RenderingServer::get_singleton()->mesh_surface_set_material(selection_mesh, 1, outer_mat->get_rid());
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_TRIANGLES, triangles_arr);
-        VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 0, inner_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, RS::PRIMITIVE_TRIANGLES, triangles_arr);
+        RenderingServer::get_singleton()->mesh_surface_set_material(paste_mesh, 0, inner_mat->get_rid());
 
-        VisualServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, VS::PRIMITIVE_LINES, lines_arr);
-        VisualServer::get_singleton()->mesh_surface_set_material(paste_mesh, 1, outer_mat->get_rid());
+        RenderingServer::get_singleton()->mesh_add_surface_from_arrays(paste_mesh, RS::PRIMITIVE_LINES, lines_arr);
+        RenderingServer::get_singleton()->mesh_surface_set_material(paste_mesh, 1, outer_mat->get_rid());
 
         for (int i = 0; i < 3; i++) {
             SurfaceArrays sq_arr(eastl::move(square[i]));
-            selection_level_mesh[i] = VisualServer::get_singleton()->mesh_create();
-            VisualServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], VS::PRIMITIVE_LINES, sq_arr);
-            VisualServer::get_singleton()->mesh_surface_set_material(selection_level_mesh[i], 0, selection_floor_mat->get_rid());
+            selection_level_mesh[i] = RenderingServer::get_singleton()->mesh_create();
+            RenderingServer::get_singleton()->mesh_add_surface_from_arrays(selection_level_mesh[i], RS::PRIMITIVE_LINES, sq_arr);
+            RenderingServer::get_singleton()->mesh_surface_set_material(selection_level_mesh[i], 0, selection_floor_mat->get_rid());
         }
     }
 
@@ -1519,24 +1519,24 @@ GridMapEditor::~GridMapEditor() {
     for (int i = 0; i < 3; i++) {
 
         if (grid[i].is_valid())
-            VisualServer::get_singleton()->free_rid(grid[i]);
+            RenderingServer::get_singleton()->free_rid(grid[i]);
         if (grid_instance[i].is_valid())
-            VisualServer::get_singleton()->free_rid(grid_instance[i]);
+            RenderingServer::get_singleton()->free_rid(grid_instance[i]);
         if (cursor_instance.is_valid())
-            VisualServer::get_singleton()->free_rid(cursor_instance);
+            RenderingServer::get_singleton()->free_rid(cursor_instance);
         if (selection_level_instance[i].is_valid())
-            VisualServer::get_singleton()->free_rid(selection_level_instance[i]);
+            RenderingServer::get_singleton()->free_rid(selection_level_instance[i]);
         if (selection_level_mesh[i].is_valid())
-            VisualServer::get_singleton()->free_rid(selection_level_mesh[i]);
+            RenderingServer::get_singleton()->free_rid(selection_level_mesh[i]);
     }
 
-    VisualServer::get_singleton()->free_rid(selection_mesh);
+    RenderingServer::get_singleton()->free_rid(selection_mesh);
     if (selection_instance.is_valid())
-        VisualServer::get_singleton()->free_rid(selection_instance);
+        RenderingServer::get_singleton()->free_rid(selection_instance);
 
-    VisualServer::get_singleton()->free_rid(paste_mesh);
+    RenderingServer::get_singleton()->free_rid(paste_mesh);
     if (paste_instance.is_valid())
-        VisualServer::get_singleton()->free_rid(paste_instance);
+        RenderingServer::get_singleton()->free_rid(paste_instance);
 }
 
 void GridMapEditorPlugin::_notification(int p_what) {

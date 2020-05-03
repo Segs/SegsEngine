@@ -31,16 +31,16 @@
 #pragma once
 
 #include "editor/editor_plugin.h"
-#include "scene/3d/immediate_geometry.h"
-#include "scene/3d/light.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/immediate_geometry_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/gui/panel_container.h"
 #include "scene/gui/spin_box.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 #include "core/string.h"
 
 
-class Camera;
+class Camera3D;
 class SpatialEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
@@ -54,9 +54,9 @@ class VSplitContainer;
 class HSplitContainer;
 class TextureRect;
 
-class EditorSpatialGizmo : public SpatialGizmo {
+class EditorSpatialGizmo : public Node3DGizmo {
 
-    GDCLASS(EditorSpatialGizmo,SpatialGizmo)
+    GDCLASS(EditorSpatialGizmo,Node3DGizmo)
 
     bool selected;
     bool instanced;
@@ -84,7 +84,7 @@ public:
             extra_margin = false;
         }
 
-        void create_instance(Spatial *p_base, bool p_hidden = false);
+        void create_instance(Node3D *p_base, bool p_hidden = false);
     };
     struct Handle {
         Vector3 pos;
@@ -96,8 +96,8 @@ public:
     Vector<Vector3> handles;
     Vector<Vector3> secondary_handles;
     Vector<Instance> instances;
-    Spatial *base;
-    Spatial *spatial_node;
+    Node3D *base;
+    Node3D *spatial_node;
     EditorSpatialGizmoPlugin *gizmo_plugin;
     float selectable_icon_size;
     bool billboard_handle;
@@ -119,16 +119,16 @@ public:
     virtual bool is_handle_highlighted(int p_idx) const;
     virtual StringName get_handle_name(int p_idx) const;
     virtual Variant get_handle_value(int p_idx);
-    virtual void set_handle(int p_idx, Camera *p_camera, const Point2 &p_point);
+    virtual void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
 
-    void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Spatial>(p_node)); }
-    void set_spatial_node(Spatial *p_node);
-    Spatial *get_spatial_node() const { return spatial_node; }
+    void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Node3D>(p_node)); }
+    void set_spatial_node(Node3D *p_node);
+    Node3D *get_spatial_node() const { return spatial_node; }
     Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }
     Vector3 get_handle_pos(int p_idx) const;
-    bool intersect_frustum(const Camera *p_camera, Span<const Plane> p_frustum);
-    bool intersect_ray(Camera *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
+    bool intersect_frustum(const Camera3D *p_camera, Span<const Plane> p_frustum);
+    bool intersect_ray(Camera3D *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle = nullptr, bool p_sec_first = false);
 
     void clear() override;
     void create() override;
@@ -207,7 +207,7 @@ private:
     int index;
     StringName name;
     void _menu_option(int p_option);
-    Spatial *preview_node;
+    Node3D *preview_node;
     AABB *preview_bounds;
     Vector<String> selected_files;
     AcceptDialog *accept;
@@ -228,7 +228,7 @@ private:
 
     Control *surface;
     Viewport *viewport;
-    Camera *camera;
+    Camera3D *camera;
     bool transforming;
     bool orthogonal;
     bool lock_rotation;
@@ -245,7 +245,7 @@ private:
 
     struct _RayResult {
 
-        Spatial *item;
+        Node3D *item;
         float depth;
         int handle;
         _FORCE_INLINE_ bool operator<(const _RayResult &p_rr) const { return depth < p_rr.depth; }
@@ -381,8 +381,8 @@ private:
     void _update_freelook(real_t delta);
     SpatialEditor *spatial_editor;
 
-    Camera *previewing;
-    Camera *preview;
+    Camera3D *previewing;
+    Camera3D *preview;
 
     bool previewing_cinema;
     bool _is_node_locked(const Node *p_node);
@@ -397,7 +397,7 @@ private:
     Point2i _get_warped_mouse_motion(const Ref<InputEventMouseMotion> &p_ev_mouse_motion) const;
 
     Vector3 _get_instance_position(const Point2 &p_pos) const;
-    static AABB _calculate_spatial_bounds(const Spatial *p_parent, bool p_exclude_toplevel_transform = true);
+    static AABB _calculate_spatial_bounds(const Node3D *p_parent, bool p_exclude_toplevel_transform = true);
     void _create_preview(const Vector<String> &files) const;
     void _remove_preview();
     bool _cyclical_dependency_exists(StringView p_target_scene_path, Node *p_desired_node);
@@ -415,7 +415,7 @@ public:
     void update_surface() { surface->update(); }
     void update_transform_gizmo_view();
 
-    void set_can_preview(Camera *p_preview);
+    void set_can_preview(Camera3D *p_preview);
     void set_state(const Dictionary &p_state);
     Dictionary get_state() const;
     void reset();
@@ -424,12 +424,12 @@ public:
     void focus_selection();
 
     void assign_pending_data_pointers(
-            Spatial *p_preview_node,
+            Node3D *p_preview_node,
             AABB *p_preview_bounds,
             AcceptDialog *p_accept);
 
     Viewport *get_viewport_node() { return viewport; }
-    Camera *get_camera() { return camera; } // return the default camera object.
+    Camera3D *get_camera() { return camera; } // return the default camera object.
 
     SpatialEditorViewport(SpatialEditor *p_spatial_editor, EditorNode *p_editor, int p_index);
 };
@@ -443,7 +443,7 @@ public:
     Transform original; // original location when moving
     Transform original_local;
     Transform last_xform; // last transform
-    Spatial *sp;
+    Node3D *sp;
     RID sbox_instance;
 
     SpatialEditorSelectedItem() { sp = nullptr; }
@@ -535,7 +535,7 @@ private:
     ToolMode tool_mode;
     bool orthogonal;
 
-    VS::ScenarioDebugMode scenario_debug;
+    RS::ScenarioDebugMode scenario_debug;
 
     RID origin;
     RID origin_instance;
@@ -563,7 +563,7 @@ private:
     Ref<SpatialMaterial> cursor_material;
 
     // Scene drag and drop support
-    Spatial *preview_node;
+    Node3D *preview_node;
     AABB preview_bounds;
 
     struct Gizmo {
@@ -662,7 +662,7 @@ private:
 
     Ref<Environment> viewport_environment;
 
-    Spatial *selected;
+    Node3D *selected;
 
     void _request_gizmo(Object *p_obj);
 
@@ -733,12 +733,12 @@ public:
     VSplitContainer *get_shader_split();
     HSplitContainer *get_palette_split();
 
-    Spatial *get_selected() { return selected; }
+    Node3D *get_selected() { return selected; }
 
     int get_over_gizmo_handle() const { return over_gizmo_handle; }
     void set_over_gizmo_handle(int idx) { over_gizmo_handle = idx; }
 
-    void set_can_preview(Camera *p_preview);
+    void set_can_preview(Camera3D *p_preview);
 
     SpatialEditorViewport *get_editor_viewport(int p_idx) {
         ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr);
@@ -748,7 +748,7 @@ public:
     void add_gizmo_plugin(Ref<EditorSpatialGizmoPlugin> p_plugin);
     void remove_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin>& p_plugin);
 
-    void edit(Spatial *p_spatial);
+    void edit(Node3D *p_spatial);
     void clear();
 
     SpatialEditor(EditorNode *p_editor);
@@ -801,8 +801,8 @@ private:
 
 protected:
     static void _bind_methods();
-    virtual bool has_gizmo(Spatial *p_spatial);
-    virtual Ref<EditorSpatialGizmo> create_gizmo(Spatial *p_spatial);
+    virtual bool has_gizmo(Node3D *p_spatial);
+    virtual Ref<EditorSpatialGizmo> create_gizmo(Node3D *p_spatial);
 
 public:
     void create_material(StringView p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
@@ -820,11 +820,11 @@ public:
     virtual void redraw(EditorSpatialGizmo *p_gizmo);
     virtual StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
     virtual Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const;
-    virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera *p_camera, const Point2 &p_point);
+    virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point);
     virtual void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false);
     virtual bool is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
 
-    Ref<EditorSpatialGizmo> get_gizmo(Spatial *p_spatial);
+    Ref<EditorSpatialGizmo> get_gizmo(Node3D *p_spatial);
     void set_state(int p_state);
     int get_state() const;
     void unregister_gizmo(EditorSpatialGizmo *p_gizmo);

@@ -44,10 +44,11 @@
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
 #include "core/math/vector3.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/pool_vector.h"
 #include "core/property_info.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_utils.inl"
 #include "core/ustring.h"
 #include "core/variant.h"
@@ -1425,7 +1426,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             p_store_string_func(p_store_string_ud, ::to_string(p_variant.operator int64_t()));
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             String s = rtosfix(p_variant.as<float>());
             if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))

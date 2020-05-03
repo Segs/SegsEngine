@@ -744,10 +744,12 @@ bool make_default_controller_mappings(QStringList args)
 {
     QString dst = args.takeFirst();
     QFile g(dst);
+    QDir d;
+    d.mkpath(QFileInfo(dst).path());
     if(!g.open(QFile::WriteOnly))
         return false;
     g.write("/* THIS FILE IS GENERATED DO NOT EDIT */\n");
-    g.write("#include \"main/default_controller_mappings.h\"\n");
+    g.write("#include \"core/input/default_controller_mappings.h\"\n");
 
     // ensure mappings have a consistent order
     QMap<QString,QMap<QString,QString>> platform_mappings;

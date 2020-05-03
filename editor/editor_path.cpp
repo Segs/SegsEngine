@@ -71,7 +71,7 @@ void EditorPath::_add_children_to_popup(Object *p_obj, int p_depth) {
 
 void EditorPath::_about_to_show() {
 
-    Object *obj = ObjectDB::get_instance(history->get_path_object(history->get_path_size() - 1));
+    Object *obj = gObjectDB().get_instance(history->get_path_object(history->get_path_size() - 1));
     if (!obj)
         return;
 
@@ -89,7 +89,7 @@ void EditorPath::update_path() {
 
     for (int i = 0; i < history->get_path_size(); i++) {
 
-        Object *obj = ObjectDB::get_instance(history->get_path_object(i));
+        Object *obj = gObjectDB().get_instance(history->get_path_object(i));
         if (!obj)
             continue;
 
@@ -129,7 +129,7 @@ void EditorPath::_id_pressed(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, objects.size());
 
-    Object *obj = ObjectDB::get_instance(objects[p_idx]);
+    Object *obj = gObjectDB().get_instance(objects[p_idx]);
     if (!obj)
         return;
 

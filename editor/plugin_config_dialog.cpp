@@ -45,7 +45,7 @@ IMPL_GDCLASS(PluginConfigDialog)
 void PluginConfigDialog::_clear_fields() {
     name_edit->set_text("");
     subfolder_edit->set_text("");
-    desc_edit->set_text(UIString());
+    desc_edit->set_text_ui(UIString());
     author_edit->set_text("");
     version_edit->set_text("");
     script_edit->set_text("");
@@ -146,7 +146,7 @@ void PluginConfigDialog::config(StringView p_config_path) {
 
         name_edit->set_text_uistring(cf->get_value("plugin", "name", ""));
         subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
-        desc_edit->set_text(cf->get_value("plugin", "description", ""));
+        desc_edit->set_text_ui(cf->get_value("plugin", "description", ""));
         author_edit->set_text_uistring(cf->get_value("plugin", "author", ""));
         version_edit->set_text_uistring(cf->get_value("plugin", "version", ""));
         script_edit->set_text_uistring(cf->get_value("plugin", "script", ""));

@@ -47,6 +47,10 @@ protected:
 
     Ref<NetSocket> _sock;
     static void _bind_methods();
+public:
+    Error _listen(uint16_t p_port, const String &p_bind_address = "*") {
+        return listen(p_port,IP_Address(p_bind_address));
+    }
 
 public:
     Error listen(uint16_t p_port, const IP_Address &p_bind_address = IP_Address("*"));

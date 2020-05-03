@@ -39,7 +39,7 @@
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
 #include "scene/2d/node_2d.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 #include "scene/gui/control.h"
 #include "scene/main/instance_placeholder.h"
 #include "core/method_bind.h"
@@ -303,8 +303,8 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
                 }
                 WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.");
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
-                    if (object_cast<Spatial>(ret_nodes[n.parent])) {
-                        obj = memnew(Spatial);
+                    if (object_cast<Node3D>(ret_nodes[n.parent])) {
+                        obj = memnew(Node3D);
                     } else if (object_cast<Control>(ret_nodes[n.parent])) {
                         obj = memnew(Control);
                     } else if (object_cast<Node2D>(ret_nodes[n.parent])) {
@@ -557,7 +557,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
             if (exists) {
 
                 //check if already exists and did not change
-                if (value.get_type() == VariantType::REAL && original.get_type() == VariantType::REAL) {
+                if (value.get_type() == VariantType::FLOAT && original.get_type() == VariantType::FLOAT) {
                     //this must be done because, as some scenes save as text, there might be a tiny difference in floats due to numerical error
                     float a = value;
                     float b = original;
@@ -1657,9 +1657,6 @@ void SceneState::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_connection_flags", {"idx"}), &SceneState::get_connection_flags);
     MethodBinder::bind_method(D_METHOD("get_connection_binds", {"idx"}), &SceneState::get_connection_binds);
 
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_DISABLED)
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_INSTANCE)
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_MAIN)
 }
 
 SceneState::SceneState() {
@@ -1752,9 +1749,9 @@ void PackedScene::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::DICTIONARY, "_bundled"), "_set_bundled_scene", "_get_bundled_scene");
 
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_DISABLED)
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_INSTANCE)
-    BIND_ENUM_CONSTANT(GEN_EDIT_STATE_MAIN)
+    BIND_GLOBAL_ENUM_CONSTANT(GEN_EDIT_STATE_DISABLED);
+    BIND_GLOBAL_ENUM_CONSTANT(GEN_EDIT_STATE_INSTANCE);
+    BIND_GLOBAL_ENUM_CONSTANT(GEN_EDIT_STATE_MAIN);
 }
 
 PackedScene::PackedScene() {

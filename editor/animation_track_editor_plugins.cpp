@@ -37,13 +37,13 @@
 #include "editor/audio_stream_preview.h"
 #include "editor_resource_preview.h"
 #include "editor_scale.h"
-#include "scene/2d/animated_sprite.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/animated_sprite_2d.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/font.h"
 #include "servers/audio/audio_stream.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(AnimationTrackEditBool)
 IMPL_GDCLASS(AnimationTrackEditColor)
@@ -183,7 +183,7 @@ void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x,
 
 void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object)
         return;
@@ -197,7 +197,7 @@ void AnimationTrackEditAudio::_preview_changed(ObjectID p_which) {
 
 int AnimationTrackEditAudio::get_key_height() const {
 
-    if (!ObjectDB::get_instance(id)) {
+    if (!gObjectDB().get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -206,7 +206,7 @@ int AnimationTrackEditAudio::get_key_height() const {
 }
 Rect2 AnimationTrackEditAudio::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -246,7 +246,7 @@ bool AnimationTrackEditAudio::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -283,7 +283,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (get_animation()->track_get_key_count(get_track()) > p_index + 1) {
@@ -318,7 +318,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         Vector<Color> color;
         color.push_back(Color(0.75, 0.75, 0.75));
 
-        VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
+        RenderingServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
 
         if (p_selected) {
             Color accent = get_color("accent_color", "Editor");
@@ -356,7 +356,7 @@ AnimationTrackEditAudio::AnimationTrackEditAudio() {
 
 int AnimationTrackEditSpriteFrame::get_key_height() const {
 
-    if (!ObjectDB::get_instance(id)) {
+    if (!gObjectDB().get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -365,7 +365,7 @@ int AnimationTrackEditSpriteFrame::get_key_height() const {
 }
 Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -373,7 +373,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
     Size2 size;
 
-    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
+    if (object_cast<Sprite2D>(object) || object_cast<Sprite3D>(object)) {
 
         Ref<Texture> texture(object->call_va("get_texture"));
         if (not texture) {
@@ -395,7 +395,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         if (vframes > 1) {
             size.y /= vframes;
         }
-    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite2D>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {
@@ -442,7 +442,7 @@ bool AnimationTrackEditSpriteFrame::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -452,7 +452,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
     Ref<Texture> texture;
     Rect2 region;
 
-    if (object_cast<Sprite>(object) || object_cast<Sprite3D>(object)) {
+    if (object_cast<Sprite2D>(object) || object_cast<Sprite3D>(object)) {
 
         texture = refFromVariant<Texture>(object->call_va("get_texture"));
         if (not texture) {
@@ -489,7 +489,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         region.position.x += region.size.x * coords.x;
         region.position.y += region.size.y * coords.y;
 
-    } else if (object_cast<AnimatedSprite>(object) || object_cast<AnimatedSprite3D>(object)) {
+    } else if (object_cast<AnimatedSprite2D>(object) || object_cast<AnimatedSprite3D>(object)) {
 
         Ref<SpriteFrames> sf(object->call_va("get_sprite_frames"));
         if (not sf) {
@@ -561,7 +561,7 @@ void AnimationTrackEditSpriteFrame::set_as_coords() {
 
 int AnimationTrackEditSubAnim::get_key_height() const {
 
-    if (!ObjectDB::get_instance(id)) {
+    if (!gObjectDB().get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -570,7 +570,7 @@ int AnimationTrackEditSubAnim::get_key_height() const {
 }
 Rect2 AnimationTrackEditSubAnim::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -606,7 +606,7 @@ bool AnimationTrackEditSubAnim::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -641,7 +641,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (to_x <= from_x)
@@ -687,7 +687,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         }
 
         if (lines.size() > 2) {
-            VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, colorv);
+            RenderingServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, colorv);
         }
 
         int limit = to_x - from_x - 4;
@@ -901,7 +901,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     if (pixel_begin > p_clip_right)
         return;
 
-    int from_x = MAX(pixel_begin, p_clip_left);
+    int from_x = M_MAX(pixel_begin, p_clip_left);
     int to_x = MIN(pixel_end, p_clip_right);
 
     if (get_animation()->track_get_key_count(get_track()) > p_index + 1) {
@@ -940,7 +940,7 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
     Vector<Color> color;
     color.push_back(Color(0.75, 0.75, 0.75));
 
-    VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
+    RenderingServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, color);
 
     Color cut_color = get_color("accent_color", "Editor");
     cut_color.a = 0.7;
@@ -1144,7 +1144,7 @@ void AnimationTrackEditTypeAudio::_gui_input(const Ref<InputEvent> &p_event) {
 
 int AnimationTrackEditTypeAnimation::get_key_height() const {
 
-    if (!ObjectDB::get_instance(id)) {
+    if (!gObjectDB().get_instance(id)) {
         return AnimationTrackEdit::get_key_height();
     }
 
@@ -1153,7 +1153,7 @@ int AnimationTrackEditTypeAnimation::get_key_height() const {
 }
 Rect2 AnimationTrackEditTypeAnimation::get_key_rect(int p_index, float p_pixels_sec) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
@@ -1189,7 +1189,7 @@ bool AnimationTrackEditTypeAnimation::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Object *object = ObjectDB::get_instance(id);
+    Object *object = gObjectDB().get_instance(id);
 
     if (!object) {
         AnimationTrackEdit::draw_key(p_index, p_pixels_sec, p_x, p_selected, p_clip_left, p_clip_right);
@@ -1224,7 +1224,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         if (pixel_begin > p_clip_right)
             return;
 
-        int from_x = MAX(pixel_begin, p_clip_left);
+        int from_x = M_MAX(pixel_begin, p_clip_left);
         int to_x = MIN(pixel_end, p_clip_right);
 
         if (to_x <= from_x)
@@ -1270,7 +1270,7 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
         }
 
         if (lines.size() > 2) {
-            VisualServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, colorv);
+            RenderingServer::get_singleton()->canvas_item_add_multiline(get_canvas_item(), lines, colorv);
         }
 
         int limit = to_x - from_x - 4;
@@ -1315,14 +1315,14 @@ AnimationTrackEdit *AnimationTrackEditDefaultPlugin::create_value_track_edit(Obj
         return audio;
     }
 
-    if (p_property == "frame" && (p_object->is_class("Sprite") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite") || p_object->is_class("AnimatedSprite3D"))) {
+    if (p_property == "frame" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D") || p_object->is_class("AnimatedSprite2D") || p_object->is_class("AnimatedSprite3D"))) {
 
         AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
         sprite->set_node(p_object);
         return sprite;
     }
 
-    if (p_property == "frame_coords" && (p_object->is_class("Sprite") || p_object->is_class("Sprite3D"))) {
+    if (p_property == "frame_coords" && (p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D"))) {
 
         AnimationTrackEditSpriteFrame *sprite = memnew(AnimationTrackEditSpriteFrame);
         sprite->set_as_coords();

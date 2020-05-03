@@ -33,6 +33,7 @@
 #include "core/map.h"
 #include "core/os/os.h"
 #include "core/string_formatter.h"
+#include "core/string_utils.h"
 
 #include "../utils/string_utils.h"
 
@@ -154,7 +155,7 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
             case '"': {
                 bool verbatim = idx != 0 && code[idx - 1] == '@';
 
-                CharType begin_str = code[idx];
+                char begin_str = code[idx];
                 idx++;
                 String tk_string;
                 while (true) {
@@ -555,7 +556,7 @@ Error ScriptClassParser::parse(const String &p_code) {
                         Error err = _skip_generic_type_params();
                         if (err)
                             return err;
-                    } else if (tk == TK_IDENTIFIER && UIString(value) == "where") {
+                    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
                         Error err = _parse_type_constraints();
                         if (err) {
                             return err;
@@ -675,13 +676,13 @@ static void run_dummy_preprocessor(String &r_source, StringView p_filepath) {
                     if_level++;
                     is_branch_being_compiled.push_back(if_level == 0 || is_branch_being_compiled[if_level - 1]);
                 } else if (directive == "elif"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'."); 
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#elif' directive. File: '") + p_filepath + "'.");
                     is_branch_being_compiled[if_level] = false;
                 } else if (directive == "else"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'."); 
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#else' directive. File: '") + p_filepath + "'.");
                     is_branch_being_compiled[if_level] = false;
                 } else if (directive == "endif"_sv) {
-                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'."); 
+                    ERR_CONTINUE_MSG(if_level == -1, String("Found unexpected '#endif' directive. File: '") + p_filepath + "'.");
                     is_branch_being_compiled.erase_at(if_level);
                     if_level--;
                 }

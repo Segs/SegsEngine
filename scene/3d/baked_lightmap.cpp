@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "baked_lightmap.h"
-#include "voxel_light_baker.h"
+#include "voxelizer.h"
 
 #include "scene/main/scene_tree.h"
 #include "core/io/config_file.h"
@@ -52,7 +52,7 @@ VARIANT_ENUM_CAST(BakedLightmap::BakeError);
 void BakedLightmapData::set_bounds(const AABB &p_bounds) {
 
     bounds = p_bounds;
-    VisualServer::get_singleton()->lightmap_capture_set_bounds(baked_light, p_bounds);
+    RenderingServer::get_singleton()->lightmap_capture_set_bounds(baked_light, p_bounds);
 }
 
 AABB BakedLightmapData::get_bounds() const {
@@ -62,18 +62,18 @@ AABB BakedLightmapData::get_bounds() const {
 
 void BakedLightmapData::set_octree(const PoolVector<uint8_t> &p_octree) {
 
-    VisualServer::get_singleton()->lightmap_capture_set_octree(baked_light, p_octree);
+    RenderingServer::get_singleton()->lightmap_capture_set_octree(baked_light, p_octree);
 }
 
 PoolVector<uint8_t> BakedLightmapData::get_octree() const {
 
-    return VisualServer::get_singleton()->lightmap_capture_get_octree(baked_light);
+    return RenderingServer::get_singleton()->lightmap_capture_get_octree(baked_light);
 }
 
 void BakedLightmapData::set_cell_space_transform(const Transform &p_xform) {
 
     cell_space_xform = p_xform;
-    VisualServer::get_singleton()->lightmap_capture_set_octree_cell_transform(baked_light, p_xform);
+    RenderingServer::get_singleton()->lightmap_capture_set_octree_cell_transform(baked_light, p_xform);
 }
 
 Transform BakedLightmapData::get_cell_space_transform() const {
@@ -82,7 +82,7 @@ Transform BakedLightmapData::get_cell_space_transform() const {
 
 void BakedLightmapData::set_cell_subdiv(int p_cell_subdiv) {
     cell_subdiv = p_cell_subdiv;
-    VisualServer::get_singleton()->lightmap_capture_set_octree_cell_subdiv(baked_light, p_cell_subdiv);
+    RenderingServer::get_singleton()->lightmap_capture_set_octree_cell_subdiv(baked_light, p_cell_subdiv);
 }
 
 int BakedLightmapData::get_cell_subdiv() const {
@@ -92,7 +92,7 @@ int BakedLightmapData::get_cell_subdiv() const {
 void BakedLightmapData::set_energy(float p_energy) {
 
     energy = p_energy;
-    VisualServer::get_singleton()->lightmap_capture_set_energy(baked_light, energy);
+    RenderingServer::get_singleton()->lightmap_capture_set_energy(baked_light, energy);
 }
 
 float BakedLightmapData::get_energy() const {
@@ -187,21 +187,21 @@ void BakedLightmapData::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::AABB, "bounds", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_bounds", "get_bounds");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "cell_space_transform", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_space_transform", "get_cell_space_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "cell_subdiv", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_cell_subdiv", "get_cell_subdiv");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_energy", "get_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "octree", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_octree", "get_octree");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "user_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_user_data", "_get_user_data");
 }
 
 BakedLightmapData::BakedLightmapData() {
 
-    baked_light = VisualServer::get_singleton()->lightmap_capture_create();
+    baked_light = RenderingServer::get_singleton()->lightmap_capture_create();
     energy = 1;
     cell_subdiv = 1;
 }
 
 BakedLightmapData::~BakedLightmapData() {
 
-    VisualServer::get_singleton()->free_rid(baked_light);
+    RenderingServer::get_singleton()->free_rid(baked_light);
 }
 
 ///////////////////////////
@@ -247,7 +247,7 @@ float BakedLightmap::get_bake_default_texels_per_unit() const {
 
 void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightmap::PlotMesh> &plot_meshes, Vector<BakedLightmap::PlotLight> &plot_lights) {
 
-    MeshInstance *mi = object_cast<MeshInstance>(p_at_node);
+    MeshInstance3D *mi = object_cast<MeshInstance3D>(p_at_node);
     if (mi && mi->get_flag(GeometryInstance::FLAG_USE_BAKED_LIGHT) && mi->is_visible_in_tree()) {
         Ref<Mesh> mesh = mi->get_mesh();
         if (mesh) {
@@ -283,7 +283,7 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
         }
     }
 
-    Spatial *s = object_cast<Spatial>(p_at_node);
+    Node3D *s = object_cast<Node3D>(p_at_node);
 
     if (!mi && s) {
         Array meshes = p_at_node->call_va("get_bake_meshes");
@@ -303,9 +303,9 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
         }
     }
 
-    Light *light = object_cast<Light>(p_at_node);
+    Light3D *light = object_cast<Light3D>(p_at_node);
 
-    if (light && light->get_bake_mode() != Light::BAKE_DISABLED) {
+    if (light && light->get_bake_mode() != Light3D::BAKE_DISABLED) {
         PlotLight pl;
         Transform xf = get_global_transform().affine_inverse() * light->get_global_transform();
 
@@ -441,24 +441,24 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
 
         pmc++;
         switch (pl.light->get_light_type()) {
-            case VS::LIGHT_DIRECTIONAL: {
+            case RS::LIGHT_DIRECTIONAL: {
                 baker.plot_light_directional(-pl.local_xform.basis.get_axis(2), pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
             } break;
-            case VS::LIGHT_OMNI: {
+            case RS::LIGHT_OMNI: {
                 baker.plot_light_omni(pl.local_xform.origin, pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_param(Light::PARAM_RANGE), pl.light->get_param(Light::PARAM_ATTENUATION),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_param(Light3D::PARAM_RANGE), pl.light->get_param(Light3D::PARAM_ATTENUATION),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
             } break;
-            case VS::LIGHT_SPOT: {
+            case RS::LIGHT_SPOT: {
                 baker.plot_light_spot(pl.local_xform.origin, pl.local_xform.basis.get_axis(2), pl.light->get_color(),
-                        pl.light->get_param(Light::PARAM_ENERGY), pl.light->get_param(Light::PARAM_INDIRECT_ENERGY),
-                        pl.light->get_param(Light::PARAM_RANGE), pl.light->get_param(Light::PARAM_ATTENUATION),
-                        pl.light->get_param(Light::PARAM_SPOT_ANGLE),
-                        pl.light->get_param(Light::PARAM_SPOT_ATTENUATION),
-                        pl.light->get_bake_mode() == Light::BAKE_ALL);
+                        pl.light->get_param(Light3D::PARAM_ENERGY), pl.light->get_param(Light3D::PARAM_INDIRECT_ENERGY),
+                        pl.light->get_param(Light3D::PARAM_RANGE), pl.light->get_param(Light3D::PARAM_ATTENUATION),
+                        pl.light->get_param(Light3D::PARAM_SPOT_ANGLE),
+                        pl.light->get_param(Light3D::PARAM_SPOT_ATTENUATION),
+                        pl.light->get_bake_mode() == Light3D::BAKE_ALL);
 
             } break;
         }
@@ -651,7 +651,7 @@ BakedLightmap::BakeError BakedLightmap::bake(Node *p_from_node, bool p_create_vi
     // create the data for visual server
 
     if (p_create_visual_debug) {
-        MultiMeshInstance *mmi = memnew(MultiMeshInstance);
+        MultiMeshInstance3D *mmi = memnew(MultiMeshInstance3D);
         mmi->set_multimesh(baker.create_debug_multimesh(VoxelLightBaker::DEBUG_LIGHT));
         add_child(mmi);
 #ifdef TOOLS_ENABLED
@@ -700,12 +700,12 @@ void BakedLightmap::_assign_lightmaps() {
         if (instance_idx >= 0) {
             RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
-                VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
+                RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
         } else {
-            VisualInstance *vi = object_cast<VisualInstance>(node);
+            VisualInstance3D *vi = object_cast<VisualInstance3D>(node);
             ERR_CONTINUE(!vi);
-            VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
+            RenderingServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), lightmap->get_rid());
         }
     }
 }
@@ -718,12 +718,12 @@ void BakedLightmap::_clear_lightmaps() {
         if (instance_idx >= 0) {
             RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
             if (instance.is_valid()) {
-                VisualServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
+                RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }
         } else {
-            VisualInstance *vi = object_cast<VisualInstance>(node);
+            VisualInstance3D *vi = object_cast<VisualInstance3D>(node);
             ERR_CONTINUE(!vi);
-            VisualServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
+            RenderingServer::get_singleton()->instance_set_use_lightmap(vi->get_instance(), get_instance(), RID());
         }
     }
 }
@@ -844,16 +844,16 @@ void BakedLightmap::_bind_methods() {
     ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_GROUP("Bake", "bake_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_quality", PropertyHint::Enum, "Low,Medium,High"), "set_bake_quality", "get_bake_quality");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_mode", PropertyHint::Enum, "ConeTrace,RayTrace"), "set_bake_mode", "get_bake_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_energy", PropertyHint::Range, "0,32,0.01"), "set_energy", "get_energy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_propagation", PropertyHint::Range, "0,1,0.01"), "set_propagation", "get_propagation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_energy", PropertyHint::Range, "0,32,0.01"), "set_energy", "get_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "bake_hdr"), "set_hdr", "is_hdr");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "bake_extents"), "set_extents", "get_extents");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_default_texels_per_unit"), "set_bake_default_texels_per_unit", "get_bake_default_texels_per_unit");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_default_texels_per_unit"), "set_bake_default_texels_per_unit", "get_bake_default_texels_per_unit");
     ADD_GROUP("Capture", "capture_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "capture_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_capture_cell_size", "get_capture_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "capture_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_capture_cell_size", "get_capture_cell_size");
     ADD_GROUP("Data", "");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "image_path", PropertyHint::Dir), "set_image_path", "get_image_path");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "light_data", PropertyHint::ResourceType, "BakedLightmapData"), "set_light_data", "get_light_data");

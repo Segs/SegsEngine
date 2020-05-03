@@ -479,19 +479,19 @@ void NavigationMesh::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "geometry/source_geometry_mode", PropertyHint::Enum, "Navmesh Children, Group With Children, Group Explicit"), "set_source_geometry_mode", "get_source_geometry_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "geometry/source_group_name"), "set_source_group_name", "get_source_group_name");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/size", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell/height", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_height", "get_cell_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/height", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_height", "get_agent_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/radius", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_radius", "get_agent_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_climb", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_max_climb", "get_agent_max_climb");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "agent/max_slope", PropertyHint::Range, "0.0,90.0,0.1"), "set_agent_max_slope", "get_agent_max_slope");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/min_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_min_size", "get_region_min_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "region/merge_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_merge_size", "get_region_merge_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_length", PropertyHint::Range, "0.0,50.0,0.01,or_greater"), "set_edge_max_length", "get_edge_max_length");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "edge/max_error", PropertyHint::Range, "0.1,3.0,0.01,or_greater"), "set_edge_max_error", "get_edge_max_error");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "polygon/verts_per_poly", PropertyHint::Range, "3.0,12.0,1.0,or_greater"), "set_verts_per_poly", "get_verts_per_poly");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_distance", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_distance", "get_detail_sample_distance");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "detail/sample_max_error", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_max_error", "get_detail_sample_max_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell/size", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell/height", PropertyHint::Range, "0.1,1.0,0.01,or_greater"), "set_cell_height", "get_cell_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent/height", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_height", "get_agent_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent/radius", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_radius", "get_agent_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent/max_climb", PropertyHint::Range, "0.1,5.0,0.01,or_greater"), "set_agent_max_climb", "get_agent_max_climb");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "agent/max_slope", PropertyHint::Range, "0.0,90.0,0.1"), "set_agent_max_slope", "get_agent_max_slope");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "region/min_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_min_size", "get_region_min_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "region/merge_size", PropertyHint::Range, "0.0,150.0,0.01,or_greater"), "set_region_merge_size", "get_region_merge_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "edge/max_length", PropertyHint::Range, "0.0,50.0,0.01,or_greater"), "set_edge_max_length", "get_edge_max_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "edge/max_error", PropertyHint::Range, "0.1,3.0,0.01,or_greater"), "set_edge_max_error", "get_edge_max_error");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "polygon/verts_per_poly", PropertyHint::Range, "3.0,12.0,1.0,or_greater"), "set_verts_per_poly", "get_verts_per_poly");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "detail/sample_distance", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_distance", "get_detail_sample_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "detail/sample_max_error", PropertyHint::Range, "0.0,16.0,0.01,or_greater"), "set_detail_sample_max_error", "get_detail_sample_max_error");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/low_hanging_obstacles"), "set_filter_low_hanging_obstacles", "get_filter_low_hanging_obstacles");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "filter/ledge_spans"), "set_filter_ledge_spans", "get_filter_ledge_spans");

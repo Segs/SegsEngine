@@ -33,7 +33,10 @@
 #include "core/hash_map.h"
 #include "core/resource.h"
 #include "scene/resources/texture.h"
-#include "scene/resources/shader_enums.h"
+
+namespace RenderingServerEnums {
+enum class ShaderMode : int8_t;
+}
 
 class Shader : public Resource {
 
@@ -43,10 +46,10 @@ class Shader : public Resource {
 
 private:
     RID shader;
-    ShaderMode mode;
+    RenderingServerEnums::ShaderMode mode;
 
     // hack the name of performance
-    // shaders keep a list of ShaderMaterial -> VisualServer name translations, to make
+    // shaders keep a list of ShaderMaterial -> RenderingServer name translations, to make
     // conversion fast and save memory.
     mutable bool params_cache_dirty;
     mutable HashMap<StringName, StringName> params_cache; //map a shader param to a material param..
@@ -59,7 +62,7 @@ protected:
 
 public:
     //void set_mode(Mode p_mode);
-    virtual ShaderMode get_mode() const;
+    virtual RenderingServerEnums::ShaderMode get_mode() const;
 
     void set_code(const String &p_code);
     String get_code() const;

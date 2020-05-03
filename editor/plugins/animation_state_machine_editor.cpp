@@ -38,6 +38,7 @@
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "scene/animation/animation_blend_tree.h"
 #include "scene/animation/animation_player.h"
@@ -76,7 +77,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
     if (not playback) return;
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-    if (tool_select->is_pressed() && k && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
+    if (tool_select->is_pressed() && k && k->is_pressed() && k->get_keycode() == KEY_DELETE && !k->is_echo()) {
         if (selected_node != StringName() || selected_transition_to != StringName() || selected_transition_from != StringName()) {
             _erase_selected();
             accept_event();
@@ -642,7 +643,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
         Size2 s = sb->get_minimum_size();
         int strsize = font->get_string_size(E).width;
         s.width += strsize;
-        s.height += MAX(font->get_height(), play->get_height());
+        s.height += M_MAX(font->get_height(), play->get_height());
         s.width += sep + play->get_width();
         if (needs_editor) {
             s.width += sep + edit->get_width();
@@ -885,7 +886,7 @@ void AnimationNodeStateMachineEditor::_state_machine_pos_draw() {
     }
     to.y = from.y;
 
-    float len = MAX(0.0001f, current_length);
+    float len = M_MAX(0.0001f, current_length);
 
     float pos = CLAMP(play_pos, 0, len);
     float c = pos / len;

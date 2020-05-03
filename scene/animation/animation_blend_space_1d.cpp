@@ -34,7 +34,7 @@
 IMPL_GDCLASS(AnimationNodeBlendSpace1D)
 
 void AnimationNodeBlendSpace1D::get_parameter_list(Vector<PropertyInfo> *r_list) const {
-    r_list->emplace_back(VariantType::REAL, blend_position);
+    r_list->emplace_back(VariantType::FLOAT, blend_position);
 }
 Variant AnimationNodeBlendSpace1D::get_parameter_default_value(const StringName &p_parameter) const {
     return 0;
@@ -86,12 +86,12 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
         ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::REAL, StringName("blend_point_" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("blend_point_" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_max_space", "get_max_space");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "snap", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_snap", "get_snap");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
 }
 
@@ -306,7 +306,7 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
     for (int i = 0; i < blend_points_used; i++) {
         float remaining = blend_node(blend_points[i].name, blend_points[i].node, p_time, p_seek, weights[i], FILTER_IGNORE, false);
 
-        max_time_remaining = MAX(max_time_remaining, remaining);
+        max_time_remaining = M_MAX(max_time_remaining, remaining);
     }
 
     return max_time_remaining;

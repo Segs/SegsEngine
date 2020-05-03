@@ -34,8 +34,8 @@
 #include "core/os/file_access.h"
 #include "core/print_string.h"
 #include "core/resource/resource_manager.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/resources/animation.h"
 #include "scene/resources/mesh.h"
 #include "scene/resources/texture.h"
@@ -91,7 +91,7 @@ static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialM
             float r = StringUtils::to_float(v[1]);
             float g = StringUtils::to_float(v[2]);
             float b = StringUtils::to_float(v[3]);
-            float metalness = MAX(r, MAX(g, b));
+            float metalness = M_MAX(r, M_MAX(g, b));
             current->set_metallic(metalness);
         } else if (StringUtils::begins_with(l,"Ns ")) {
             //normal
@@ -441,11 +441,11 @@ Node *ResourceImporterOBJ::import_scene(StringView p_path, uint32_t p_flags, int
         return nullptr;
     }
 
-    Spatial *scene = memnew(Spatial);
+    Node3D *scene = memnew(Node3D);
 
     for (const Ref<Mesh> &E : meshes) {
 
-        MeshInstance *mi = memnew(MeshInstance);
+        MeshInstance3D *mi = memnew(MeshInstance3D);
         mi->set_mesh(E);
         mi->set_name(E->get_name());
         scene->add_child(mi);

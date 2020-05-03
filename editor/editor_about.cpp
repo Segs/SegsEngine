@@ -66,7 +66,7 @@ void EditorAbout::_license_tree_selected() {
 
     TreeItem *selected = _tpl_tree->get_selected();
     _tpl_text->scroll_to_line(0);
-    _tpl_text->set_text(selected->get_metadata(0));
+    _tpl_text->set_text_ui(selected->get_metadata(0));
 }
 
 void EditorAbout::_bind_methods() {
@@ -183,7 +183,7 @@ EditorAbout::EditorAbout() {
     _license_text->set_name(TTR("License"));
     _license_text->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     _license_text->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-    _license_text->set_text_utf8(GODOT_LICENSE_TEXT);
+    _license_text->set_text(GODOT_LICENSE_TEXT);
     tc->add_child(_license_text);
 
     // Thirdparty License
@@ -264,7 +264,7 @@ EditorAbout::EditorAbout() {
 
     _tpl_tree->connect("item_selected", this, "_license_tree_selected");
     tpl_ti_all->select(0);
-    _tpl_text->set_text(tpl_ti_all->get_metadata(0));
+    _tpl_text->set_text_ui(tpl_ti_all->get_metadata(0));
 }
 
 EditorAbout::~EditorAbout() = default;

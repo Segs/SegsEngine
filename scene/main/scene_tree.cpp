@@ -45,7 +45,7 @@
 #include "core/method_bind.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 #include "node.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/resources/dynamic_font.h"
@@ -53,8 +53,8 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/scene_string_names.h"
-#include "servers/physics_2d_server.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/physics_server_3d.h"
 #include "viewport.h"
 
 #include <cstdio>
@@ -422,7 +422,7 @@ void SceneTreeTimer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_time_left", {"time"}), &SceneTreeTimer::set_time_left);
     MethodBinder::bind_method(D_METHOD("get_time_left"), &SceneTreeTimer::get_time_left);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_left"), "set_time_left", "get_time_left");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left"), "set_time_left", "get_time_left");
 
     ADD_SIGNAL(MethodInfo("timeout"));
 }
@@ -804,7 +804,7 @@ void SceneTree::input_event(const Ref<InputEvent> &p_event) {
     if (ScriptDebugger::get_singleton() && ScriptDebugger::get_singleton()->is_remote()) {
         //quit from game window using F8
         Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
-        if (k && k->is_pressed() && !k->is_echo() && k->get_scancode() == KEY_F8) {
+        if (k && k->is_pressed() && !k->is_echo() && k->get_keycode() == KEY_F8) {
             ScriptDebugger::get_singleton()->request_quit();
         }
     }
@@ -875,7 +875,7 @@ bool SceneTree::idle(float p_time) {
     SCOPE_AUTONAMED
     //print_line("ram: "+itos(OS::get_singleton()->get_static_memory_usage())+" sram: "+itos(OS::get_singleton()->get_dynamic_memory_usage()));
     //print_line("node count: "+itos(get_node_count()));
-    //print_line("TEXTURE RAM: "+itos(VisualServer::get_singleton()->get_render_info(VS::INFO_TEXTURE_MEM_USED)));
+    //print_line("TEXTURE RAM: "+itos(RenderingServer::get_singleton()->get_render_info(RS::INFO_TEXTURE_MEM_USED)));
 
     root_lock++;
 
@@ -1255,8 +1255,8 @@ void SceneTree::set_pause(bool p_enabled) {
     if (p_enabled == pause)
         return;
     pause = p_enabled;
-    PhysicsServer::get_singleton()->set_active(!p_enabled);
-    Physics2DServer::get_singleton()->set_active(!p_enabled);
+    PhysicsServer3D::get_singleton()->set_active(!p_enabled);
+    PhysicsServer2D::get_singleton()->set_active(!p_enabled);
     if (get_root())
         get_root()->propagate_notification(p_enabled ? Node::NOTIFICATION_PAUSED : Node::NOTIFICATION_UNPAUSED);
 }
@@ -1361,9 +1361,9 @@ void SceneMainLoop::_update_listener_2d() {
 }
 */
 
-Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 3, Variant());
     ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
@@ -1384,9 +1384,9 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Var
     return Variant();
 }
 
-Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 2, Variant());
     ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
@@ -1463,7 +1463,7 @@ void SceneTree::_flush_delete_queue() {
     _THREAD_SAFE_METHOD_
 
     for(ObjectID id : delete_queue) {
-        Object *obj = ObjectDB::get_instance(id);
+        Object *obj = gObjectDB().get_instance(id);
         if (obj) {
             memdelete(obj);
         }
@@ -1556,14 +1556,14 @@ void SceneTree::_update_root_rect() {
     //black bars and margin
     if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.x < video_mode.x) {
         margin.x = Math::round((video_mode.x - screen_size.x) / 2.0f);
-        VisualServer::get_singleton()->black_bars_set_margins(margin.x, 0, margin.x, 0);
+        RenderingServer::get_singleton()->black_bars_set_margins(margin.x, 0, margin.x, 0);
         offset.x = Math::round(margin.x * viewport_size.y / screen_size.y);
     } else if (stretch_aspect != STRETCH_ASPECT_EXPAND && screen_size.y < video_mode.y) {
         margin.y = Math::round((video_mode.y - screen_size.y) / 2.0f);
-        VisualServer::get_singleton()->black_bars_set_margins(0, margin.y, 0, margin.y);
+        RenderingServer::get_singleton()->black_bars_set_margins(0, margin.y, 0, margin.y);
         offset.y = Math::round(margin.y * viewport_size.x / screen_size.x);
     } else {
-        VisualServer::get_singleton()->black_bars_set_margins(0, 0, 0, 0);
+        RenderingServer::get_singleton()->black_bars_set_margins(0, 0, 0, 0);
     }
 
     switch (stretch_mode) {
@@ -2044,7 +2044,7 @@ SceneTree::SceneTree() {
     root->set_name("root");
     root->set_handle_input_locally(false);
     if (not root->get_world())
-        root->set_world(make_ref_counted<World>());
+        root->set_world(make_ref_counted<World3D>());
 
     // Initialize network state
     multiplayer_poll = true;
@@ -2069,7 +2069,7 @@ SceneTree::SceneTree() {
     bool hdr = GLOBAL_GET("rendering/quality/depth/hdr");
     root->set_hdr(hdr);
 
-    VisualServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
+    RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
 
     { //load default fallback environment
         //get possible extensions

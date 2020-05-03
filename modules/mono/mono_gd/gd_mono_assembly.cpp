@@ -151,7 +151,7 @@ MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, void *user_d
     return res ? res->get_assembly() : nullptr;
 }
 
-static _THREAD_LOCAL_(MonoImage *) image_corlib_loading = nullptr;
+static thread_local MonoImage * image_corlib_loading = nullptr;
 
 MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, void *user_data, bool refonly) {
 

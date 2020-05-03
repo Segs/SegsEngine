@@ -155,7 +155,7 @@ static const _bit _type_list[] = {
     //types
     { VariantType::BOOL, "bool" },
     { VariantType::INT, "int" },
-    { VariantType::REAL, "float" },
+    { VariantType::FLOAT, "float" },
     { VariantType::STRING, "String" },
     { VariantType::VECTOR2, "Vector2" },
     { VariantType::RECT2, "Rect2" },

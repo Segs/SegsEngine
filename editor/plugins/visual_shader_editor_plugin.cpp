@@ -49,7 +49,7 @@
 #include "scene/gui/panel.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/visual_shader_nodes.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
 
@@ -303,7 +303,7 @@ StringName VisualShaderEditor::_get_description(int p_idx) {
 
 void VisualShaderEditor::_update_options_menu() {
 
-    node_desc->set_text_utf8(StringView());
+    node_desc->set_text(StringView());
     members_dialog->get_ok()->set_disabled(true);
 
     StringName prev_category;
@@ -406,7 +406,7 @@ void VisualShaderEditor::_update_options_menu() {
                 item->set_text(0, add_options[i].name);
                 if (is_first_item && use_filter) {
                     item->select(0);
-                    node_desc->set_text_utf8(_get_description(i));
+                    node_desc->set_text(_get_description(i));
                     is_first_item = false;
                 }
                 switch (add_options[i].return_type) {
@@ -632,7 +632,7 @@ void VisualShaderEditor::_update_graph() {
             }
         }
 
-        for (int i = 0; i < MAX(vsnode->get_input_port_count(), vsnode->get_output_port_count()); i++) {
+        for (int i = 0; i < M_MAX(vsnode->get_input_port_count(), vsnode->get_output_port_count()); i++) {
 
             if (vsnode->is_port_separator(i)) {
                 node->add_child(memnew(HSeparator));
@@ -685,7 +685,7 @@ void VisualShaderEditor::_update_graph() {
                         button->set_text((bool)default_value ? StringName("true") : StringName("false"));
                     } break;
                     case VariantType::INT:
-                    case VariantType::REAL: {
+                    case VariantType::FLOAT: {
                         button->set_text_utf8(StringUtils::num(default_value, 4));
                     } break;
                     case VariantType::VECTOR3: {
@@ -866,7 +866,7 @@ void VisualShaderEditor::_update_graph() {
             expression_box->add_color_region("/*", "*/", comment_color, false);
             expression_box->add_color_region("//", "", comment_color, false);
 
-            expression_box->set_text_utf8(expression);
+            expression_box->set_text(expression);
             expression_box->set_context_menu_enabled(false);
             expression_box->set_show_line_numbers(true);
 
@@ -1648,10 +1648,10 @@ void VisualShaderEditor::_show_members_dialog(bool at_mouse_pos) {
 
 void VisualShaderEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
     Ref<InputEventKey> ie = dynamic_ref_cast<InputEventKey>(p_ie);
-    if (ie && (ie->get_scancode() == KEY_UP ||
-                                 ie->get_scancode() == KEY_DOWN ||
-                                 ie->get_scancode() == KEY_ENTER ||
-                                 ie->get_scancode() == KEY_KP_ENTER)) {
+    if (ie && (ie->get_keycode() == KEY_UP ||
+                                 ie->get_keycode() == KEY_DOWN ||
+                                 ie->get_keycode() == KEY_ENTER ||
+                                 ie->get_keycode() == KEY_KP_ENTER)) {
 
         members->call_va("_gui_input", ie);
         node_filter->accept_event();
@@ -2045,10 +2045,10 @@ void VisualShaderEditor::_member_selected() {
 
     if (item != nullptr && item->has_meta("id")) {
         members_dialog->get_ok()->set_disabled(false);
-        node_desc->set_text_utf8(_get_description(item->get_meta("id")));
+        node_desc->set_text(_get_description(item->get_meta("id")));
     } else {
         members_dialog->get_ok()->set_disabled(true);
-        node_desc->set_text_utf8(StringView());
+        node_desc->set_text(StringView());
     }
 }
 
@@ -2211,12 +2211,12 @@ void VisualShaderEditor::_update_preview() {
 
     String code(visual_shader->get_code());
 
-    preview_text->set_text_utf8(code);
+    preview_text->set_text(code);
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(visual_shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(visual_shader->get_mode())),
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(visual_shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(visual_shader->get_mode())),
             ShaderTypes::get_singleton()->get_types());
 
     for (int i = 0; i < preview_text->get_line_count(); i++) {
@@ -2513,10 +2513,10 @@ VisualShaderEditor::VisualShaderEditor() {
     add_options.push_back(AddOption("BooleanUniform", "Conditional", "Variables", "VisualShaderNodeBooleanUniform", TTR("Boolean uniform."), -1, VisualShaderNode::PORT_TYPE_BOOLEAN));
 
     // INPUT
-
+    using namespace RenderingServerEnums;
     // SPATIAL-FOR-ALL
     const StringName input_param_shader_modes = TTR("'%s' input parameter for all shader modes.");
-    add_options.push_back(AddOption("Camera", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "camera"), "camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
+    add_options.push_back(AddOption("Camera3D", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "camera"), "camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("InvCamera", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "inv_camera"), "inv_camera", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("InvProjection", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "inv_projection"), "inv_projection", VisualShaderNode::PORT_TYPE_TRANSFORM, -1, (int)ShaderMode::SPATIAL));
     add_options.push_back(AddOption("Normal", "Input", "All", "VisualShaderNodeInput", FormatSN(input_param_shader_modes.asCString(), "normal"), "normal", VisualShaderNode::PORT_TYPE_VECTOR, -1, (int)ShaderMode::SPATIAL));
@@ -3122,7 +3122,7 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
 
     Ref<VisualShader> visual_shader(object_cast<VisualShader>(get_edited_object()));
 
-    if (visual_shader->get_mode() == (ShaderMode)p_which)
+    if (visual_shader->get_mode() == (RenderingServerEnums::ShaderMode)p_which)
         return;
 
     UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();
@@ -3257,7 +3257,7 @@ void VisualShaderNodePortPreview::_shader_changed() {
     //find if a material is also being edited and copy parameters to this one
 
     for (int i = EditorNode::get_singleton()->get_editor_history()->get_path_size() - 1; i >= 0; i--) {
-        Object *object = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(i));
+        Object *object = gObjectDB().get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(i));
         if (!object)
             continue;
         ShaderMaterial *src_mat = object_cast<ShaderMaterial>(object);

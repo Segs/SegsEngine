@@ -62,9 +62,9 @@ MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_obj
 MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
     Variant what = GDMonoMarshal::mono_object_to_variant(p_what);
     const Variant *args[1] = { &what };
-    Variant::CallError ce;
+    Callable::CallError ce;
     Variant ret = Variant::construct(VariantType(p_type), args, 1, ce);
-    ERR_FAIL_COND_V(ce.error != Variant::CallError::CALL_OK, NULL);
+    ERR_FAIL_COND_V(ce.error != Callable::CallError::CALL_OK, NULL);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
@@ -73,7 +73,7 @@ int godot_icall_GD_hash(MonoObject *p_var) {
 }
 
 MonoObject *godot_icall_GD_instance_from_id(uint64_t p_instance_id) {
-    return GDMonoUtils::unmanaged_get_managed(ObjectDB::get_instance(p_instance_id));
+    return GDMonoUtils::unmanaged_get_managed(gObjectDB().get_instance(p_instance_id));
 }
 
 void godot_icall_GD_print(MonoArray *p_what) {

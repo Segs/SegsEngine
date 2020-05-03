@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "canvas.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/class_db.h"
 #include "core/property_info.h"
 #include "core/list.h"
@@ -43,9 +43,9 @@ RID Canvas::get_rid() const {
 
 Canvas::Canvas() {
 
-    canvas = VisualServer::get_singleton()->canvas_create();
+    canvas = RenderingServer::get_singleton()->canvas_create();
 }
 
 Canvas::~Canvas() {
-    VisualServer::get_singleton()->free_rid(canvas);
+    RenderingServer::get_singleton()->free_rid(canvas);
 }

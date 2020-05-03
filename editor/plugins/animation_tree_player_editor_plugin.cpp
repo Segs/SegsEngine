@@ -35,8 +35,9 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
-#include "editor/editor_scale.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_scale.h"
 #include "scene/gui/menu_button.h"
 #include "scene/main/viewport.h"
 #include "scene/main/scene_tree.h"
@@ -108,7 +109,7 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
 
     float name_w = font->get_string_size(p_node).width;
     float type_w = font->get_string_size(_node_type_names[type]).width;
-    float max_w = MAX(name_w, type_w);
+    float max_w = M_MAX(name_w, type_w);
 
     switch (type) {
         case AnimationTreePlayer::NODE_TIMESEEK:
@@ -650,7 +651,7 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
         y -= 2 * h;
 
         int inputs = anim_tree->node_get_input_count(node);
-        int count = MAX(inputs, 1);
+        int count = M_MAX(inputs, 1);
 
         if (inputs == 0 || (pos.x > size.width / 2 && type != AnimationTreePlayer::NODE_OUTPUT)) {
 
@@ -897,7 +898,7 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
         case NOTIFICATION_DRAW: {
 
             _update_scrollbars();
-            //VisualServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
+            //RenderingServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
             get_stylebox("bg", "Tree")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
 
             for (const StringName &E : order) {

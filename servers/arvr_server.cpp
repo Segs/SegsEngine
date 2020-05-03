@@ -53,7 +53,7 @@ void ARVRServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("center_on_hmd", {"rotation_mode", "keep_height"}), &ARVRServer::center_on_hmd);
     MethodBinder::bind_method(D_METHOD("get_hmd_transform"), &ARVRServer::get_hmd_transform);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "world_scale"), "set_world_scale", "get_world_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 
     MethodBinder::bind_method(D_METHOD("get_interface_count"), &ARVRServer::get_interface_count);
     MethodBinder::bind_method(D_METHOD("get_interface", {"idx"}), &ARVRServer::get_interface);
@@ -345,7 +345,7 @@ uint64_t ARVRServer::get_last_frame_usec() {
 };
 
 void ARVRServer::_process() {
-    /* called from visual_server_viewport.draw_viewports right before we start drawing our viewports */
+    /* called from rendering_server_viewport.draw_viewports right before we start drawing our viewports */
 
     /* mark for our frame timing */
     last_process_usec = OS::get_singleton()->get_ticks_usec();

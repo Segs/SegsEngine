@@ -32,7 +32,7 @@
 
 #include "core/object_tooling.h"
 #include "scene/resources/curve_texture.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 #include "core/os/mutex.h"
 
@@ -140,7 +140,7 @@ void ParticlesMaterial::_update_shader() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VisualServer::get_singleton()->free_rid(shader_map[current_key].shader);
+            RenderingServer::get_singleton()->free_rid(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
     }
@@ -149,7 +149,7 @@ void ParticlesMaterial::_update_shader() {
 
     if (shader_map.contains(mk)) {
 
-        VisualServer::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
+        RenderingServer::get_singleton()->material_set_shader(_get_material(), shader_map[mk].shader);
         shader_map[mk].users++;
         return;
     }
@@ -610,14 +610,14 @@ void ParticlesMaterial::_update_shader() {
     code += "\n";
 
     ShaderData shader_data;
-    shader_data.shader = VisualServer::get_singleton()->shader_create();
+    shader_data.shader = RenderingServer::get_singleton()->shader_create();
     shader_data.users = 1;
 
-    VisualServer::get_singleton()->shader_set_code(shader_data.shader, code);
+    RenderingServer::get_singleton()->shader_set_code(shader_data.shader, code);
 
     shader_map[mk] = shader_data;
 
-    VisualServer::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
+    RenderingServer::get_singleton()->material_set_shader(_get_material(), shader_data.shader);
 }
 
 void ParticlesMaterial::flush_changes() {
@@ -665,7 +665,7 @@ bool ParticlesMaterial::_is_shader_dirty() const {
 void ParticlesMaterial::set_direction(Vector3 p_direction) {
 
     direction = p_direction;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->direction, direction);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->direction, direction);
 }
 
 Vector3 ParticlesMaterial::get_direction() const {
@@ -676,7 +676,7 @@ Vector3 ParticlesMaterial::get_direction() const {
 void ParticlesMaterial::set_spread(float p_spread) {
 
     spread = p_spread;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->spread, p_spread);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->spread, p_spread);
 }
 
 float ParticlesMaterial::get_spread() const {
@@ -687,7 +687,7 @@ float ParticlesMaterial::get_spread() const {
 void ParticlesMaterial::set_flatness(float p_flatness) {
 
     flatness = p_flatness;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->flatness, p_flatness);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->flatness, p_flatness);
 }
 float ParticlesMaterial::get_flatness() const {
 
@@ -702,40 +702,40 @@ void ParticlesMaterial::set_param(Parameter p_param, float p_value) {
 
     switch (p_param) {
         case PARAM_INITIAL_LINEAR_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity, p_value);
         } break;
         case PARAM_ANGULAR_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity, p_value);
         } break;
         case PARAM_ORBIT_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity, p_value);
         } break;
         case PARAM_LINEAR_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel, p_value);
         } break;
         case PARAM_RADIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel, p_value);
         } break;
         case PARAM_TANGENTIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel, p_value);
         } break;
         case PARAM_DAMPING: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->damping, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->damping, p_value);
         } break;
         case PARAM_ANGLE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle, p_value);
         } break;
         case PARAM_SCALE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->scale, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->scale, p_value);
         } break;
         case PARAM_HUE_VARIATION: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation, p_value);
         } break;
         case PARAM_ANIM_SPEED: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed, p_value);
         } break;
         case PARAM_ANIM_OFFSET: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset, p_value);
         } break;
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
@@ -755,40 +755,40 @@ void ParticlesMaterial::set_param_randomness(Parameter p_param, float p_value) {
 
     switch (p_param) {
         case PARAM_INITIAL_LINEAR_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_linear_velocity_random, p_value);
         } break;
         case PARAM_ANGULAR_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->angular_velocity_random, p_value);
         } break;
         case PARAM_ORBIT_VELOCITY: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->orbit_velocity_random, p_value);
         } break;
         case PARAM_LINEAR_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->linear_accel_random, p_value);
         } break;
         case PARAM_RADIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->radial_accel_random, p_value);
         } break;
         case PARAM_TANGENTIAL_ACCEL: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->tangent_accel_random, p_value);
         } break;
         case PARAM_DAMPING: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->damping_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->damping_random, p_value);
         } break;
         case PARAM_ANGLE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->initial_angle_random, p_value);
         } break;
         case PARAM_SCALE: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->scale_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->scale_random, p_value);
         } break;
         case PARAM_HUE_VARIATION: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->hue_variation_random, p_value);
         } break;
         case PARAM_ANIM_SPEED: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_speed_random, p_value);
         } break;
         case PARAM_ANIM_OFFSET: {
-            VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset_random, p_value);
+            RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->anim_offset_random, p_value);
         } break;
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
@@ -847,7 +847,7 @@ void ParticlesMaterial::set_param_texture(Parameter p_param, const Ref<Texture> 
         case PARAM_MAX: break; // Can't happen, but silences warning
     }
     if(texture_slot_name) {
-        VisualServer::get_singleton()->material_set_param(_get_material(), texture_slot_name, p_texture);
+        RenderingServer::get_singleton()->material_set_param(_get_material(), texture_slot_name, p_texture);
     }
     if(range_to_set.valid()) {
         Ref<CurveTexture> curve_tex = dynamic_ref_cast<CurveTexture>(p_texture);
@@ -865,7 +865,7 @@ Ref<Texture> ParticlesMaterial::get_param_texture(Parameter p_param) const {
 
 void ParticlesMaterial::set_color(const Color &p_color) {
 
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->color, p_color);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->color, p_color);
     color = p_color;
 }
 
@@ -877,7 +877,7 @@ Color ParticlesMaterial::get_color() const {
 void ParticlesMaterial::set_color_ramp(const Ref<Texture> &p_texture) {
 
     color_ramp = p_texture;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->color_ramp, p_texture);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->color_ramp, p_texture);
     _queue_shader_change();
     Object_change_notify(this);
 }
@@ -912,38 +912,38 @@ void ParticlesMaterial::set_emission_shape(EmissionShape p_shape) {
 void ParticlesMaterial::set_emission_sphere_radius(float p_radius) {
 
     emission_sphere_radius = p_radius;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_sphere_radius, p_radius);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_sphere_radius, p_radius);
 }
 
 void ParticlesMaterial::set_emission_box_extents(Vector3 p_extents) {
 
     emission_box_extents = p_extents;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_box_extents, p_extents);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_box_extents, p_extents);
 }
 
 void ParticlesMaterial::set_emission_point_texture(const Ref<Texture> &p_points) {
 
     emission_point_texture = p_points;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_points, p_points);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_points, p_points);
 }
 
 void ParticlesMaterial::set_emission_normal_texture(const Ref<Texture> &p_normals) {
 
     emission_normal_texture = p_normals;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_normal, p_normals);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_normal, p_normals);
 }
 
 void ParticlesMaterial::set_emission_color_texture(const Ref<Texture> &p_colors) {
 
     emission_color_texture = p_colors;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_color, p_colors);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_color, p_colors);
     _queue_shader_change();
 }
 
 void ParticlesMaterial::set_emission_point_count(int p_count) {
 
     emission_point_count = p_count;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_point_count, p_count);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->emission_texture_point_count, p_count);
 }
 
 ParticlesMaterial::EmissionShape ParticlesMaterial::get_emission_shape() const {
@@ -981,7 +981,7 @@ int ParticlesMaterial::get_emission_point_count() const {
 void ParticlesMaterial::set_trail_divisor(int p_divisor) {
 
     trail_divisor = p_divisor;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_divisor, p_divisor);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_divisor, p_divisor);
 }
 
 int ParticlesMaterial::get_trail_divisor() const {
@@ -998,7 +998,7 @@ void ParticlesMaterial::set_trail_size_modifier(const Ref<CurveTexture> &p_trail
         curve->ensure_default_setup();
     }
 
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_size_modifier, curve);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_size_modifier, curve);
     _queue_shader_change();
 }
 
@@ -1010,7 +1010,7 @@ Ref<CurveTexture> ParticlesMaterial::get_trail_size_modifier() const {
 void ParticlesMaterial::set_trail_color_modifier(const Ref<GradientTexture> &p_trail_color_modifier) {
 
     trail_color_modifier = p_trail_color_modifier;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_color_modifier, p_trail_color_modifier);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->trail_color_modifier, p_trail_color_modifier);
     _queue_shader_change();
 }
 
@@ -1026,7 +1026,7 @@ void ParticlesMaterial::set_gravity(const Vector3 &p_gravity) {
     if (gset == Vector3()) {
         gset = Vector3(0, -0.000001f, 0); //as gravity is used as upvector in some calculations
     }
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->gravity, gset);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->gravity, gset);
 }
 
 Vector3 ParticlesMaterial::get_gravity() const {
@@ -1037,7 +1037,7 @@ Vector3 ParticlesMaterial::get_gravity() const {
 void ParticlesMaterial::set_lifetime_randomness(float p_lifetime) {
 
     lifetime_randomness = p_lifetime;
-    VisualServer::get_singleton()->material_set_param(_get_material(), shader_names->lifetime_randomness, lifetime_randomness);
+    RenderingServer::get_singleton()->material_set_param(_get_material(), shader_names->lifetime_randomness, lifetime_randomness);
 }
 
 float ParticlesMaterial::get_lifetime_randomness() const {
@@ -1082,9 +1082,9 @@ void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
     }
 }
 
-ShaderMode ParticlesMaterial::get_shader_mode() const {
+RenderingServerEnums::ShaderMode ParticlesMaterial::get_shader_mode() const {
 
-    return ShaderMode::PARTICLES;
+    return RenderingServerEnums::ShaderMode::PARTICLES;
 }
 
 void ParticlesMaterial::_bind_methods() {
@@ -1153,14 +1153,14 @@ void ParticlesMaterial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &ParticlesMaterial::get_lifetime_randomness);
 
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
     ADD_GROUP("Trail", "trail_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "trail_divisor", PropertyHint::Range, "1,1000000,1"), "set_trail_divisor", "get_trail_divisor");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "trail_size_modifier", PropertyHint::ResourceType, "CurveTexture"), "set_trail_size_modifier", "get_trail_size_modifier");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "trail_color_modifier", PropertyHint::ResourceType, "GradientTexture"), "set_trail_color_modifier", "get_trail_color_modifier");
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01,or_greater"), "set_emission_sphere_radius", "get_emission_sphere_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01,or_greater"), "set_emission_sphere_radius", "get_emission_sphere_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "emission_box_extents"), "set_emission_box_extents", "get_emission_box_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "emission_point_texture", PropertyHint::ResourceType, "Texture"), "set_emission_point_texture", "get_emission_point_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "emission_normal_texture", PropertyHint::ResourceType, "Texture"), "set_emission_normal_texture", "get_emission_normal_texture");
@@ -1172,59 +1172,59 @@ void ParticlesMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_disable_z"), "set_flag", "get_flag", FLAG_DISABLE_Z);
     ADD_GROUP("Direction", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "direction"), "set_direction", "get_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "flatness", PropertyHint::Range, "0,1,0.01"), "set_flatness", "get_flatness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "flatness", PropertyHint::Range, "0,1,0.01"), "set_flatness", "get_flatness");
     ADD_GROUP("Gravity", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "initial_velocity", PropertyHint::Range, "0,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "initial_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity", PropertyHint::Range, "0,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
     ADD_GROUP("Angular Velocity", "angular_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angular_velocity", PropertyHint::Range, "-720,720,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angular_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity", PropertyHint::Range, "-720,720,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGULAR_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angular_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGULAR_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angular_velocity_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGULAR_VELOCITY);
     ADD_GROUP("Orbit Velocity", "orbit_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "orbit_velocity", PropertyHint::Range, "-1000,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ORBIT_VELOCITY);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "orbit_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity", PropertyHint::Range, "-1000,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_ORBIT_VELOCITY);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "orbit_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ORBIT_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "orbit_velocity_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ORBIT_VELOCITY);
     ADD_GROUP("Linear Accel", "linear_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "linear_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_LINEAR_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "linear_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_LINEAR_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_LINEAR_ACCEL);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "linear_accel_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_LINEAR_ACCEL);
     ADD_GROUP("Radial Accel", "radial_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "radial_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_RADIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "radial_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "radial_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_RADIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "radial_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_RADIAL_ACCEL);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "radial_accel_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_RADIAL_ACCEL);
     ADD_GROUP("Tangential Accel", "tangential_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "tangential_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "tangential_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "tangential_accel_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_TANGENTIAL_ACCEL);
     ADD_GROUP("Damping", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "damping", PropertyHint::Range, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "damping_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping", PropertyHint::Range, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "damping_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_DAMPING);
     ADD_GROUP("Angle", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "angle_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angle_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGLE);
     ADD_GROUP("Scale", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "scale", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "scale_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scale_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_SCALE);
     ADD_GROUP("Color", "");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_ramp", PropertyHint::ResourceType, "GradientTexture"), "set_color_ramp", "get_color_ramp");
 
     ADD_GROUP("Hue Variation", "hue_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "hue_variation", PropertyHint::Range, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "hue_variation_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation", PropertyHint::Range, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_HUE_VARIATION);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "hue_variation_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_HUE_VARIATION);
     ADD_GROUP("Animation", "anim_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_speed", PropertyHint::Range, "0,128,0.01,or_greater"), "set_param", "get_param", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_speed_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed", PropertyHint::Range, "0,128,0.01,or_greater"), "set_param", "get_param", PARAM_ANIM_SPEED);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_speed_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_SPEED);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_speed_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_SPEED);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_offset", PropertyHint::Range, "0,1,0.01"), "set_param", "get_param", PARAM_ANIM_OFFSET);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anim_offset_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset", PropertyHint::Range, "0,1,0.01"), "set_param", "get_param", PARAM_ANIM_OFFSET);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_OFFSET);
 
     BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY)
@@ -1305,11 +1305,11 @@ ParticlesMaterial::~ParticlesMaterial() {
         shader_map[current_key].users--;
         if (shader_map[current_key].users == 0) {
             //deallocate shader, as it's no longer in use
-            VisualServer::get_singleton()->free_rid(shader_map[current_key].shader);
+            RenderingServer::get_singleton()->free_rid(shader_map[current_key].shader);
             shader_map.erase(current_key);
         }
 
-        VisualServer::get_singleton()->material_set_shader(_get_material(), RID());
+        RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
 
     if (material_mutex)

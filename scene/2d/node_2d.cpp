@@ -34,7 +34,7 @@
 #include "core/message_queue.h"
 #include "scene/gui/control.h"
 #include "scene/main/viewport.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Node2D)
 
@@ -138,7 +138,7 @@ void Node2D::_update_transform() {
     _mat.set_rotation_and_scale(angle, _scale);
     _mat.elements[2] = pos;
 
-    VisualServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), _mat);
+    RenderingServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), _mat);
 
     if (!is_inside_tree())
         return;
@@ -317,7 +317,7 @@ void Node2D::set_transform(const Transform2D &p_transform) {
     _mat = p_transform;
     _xform_dirty = true;
 
-    VisualServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), _mat);
+    RenderingServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), _mat);
 
     if (!is_inside_tree())
         return;
@@ -336,10 +336,10 @@ void Node2D::set_global_transform(const Transform2D &p_transform) {
 
 void Node2D::set_z_index(int p_z) {
 
-    ERR_FAIL_COND(p_z < VS::CANVAS_ITEM_Z_MIN);
-    ERR_FAIL_COND(p_z > VS::CANVAS_ITEM_Z_MAX);
+    ERR_FAIL_COND(p_z < RS::CANVAS_ITEM_Z_MIN);
+    ERR_FAIL_COND(p_z > RS::CANVAS_ITEM_Z_MAX);
     z_index = p_z;
-    VisualServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
+    RenderingServer::get_singleton()->canvas_item_set_z_index(get_canvas_item(), z_index);
     Object_change_notify(this,"z_index");
 }
 
@@ -348,7 +348,7 @@ void Node2D::set_z_as_relative(bool p_enabled) {
     if (z_relative == p_enabled)
         return;
     z_relative = p_enabled;
-    VisualServer::get_singleton()->canvas_item_set_z_as_relative_to_parent(get_canvas_item(), p_enabled);
+    RenderingServer::get_singleton()->canvas_item_set_z_as_relative_to_parent(get_canvas_item(), p_enabled);
 }
 
 bool Node2D::is_z_relative() const {
@@ -442,19 +442,19 @@ void Node2D::_bind_methods() {
 
     ADD_GROUP("Transform", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "position"), "set_position", "get_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rotation", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_rotation", "get_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "transform", PropertyHint::None, "", 0), "set_transform", "get_transform");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_position", PropertyHint::None, "", 0), "set_global_position", "get_global_position");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation", PropertyHint::None, "", 0), "set_global_rotation", "get_global_rotation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "global_rotation_degrees", PropertyHint::None, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rotation", PropertyHint::None, "", 0), "set_global_rotation", "get_global_rotation");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "global_rotation_degrees", PropertyHint::None, "", 0), "set_global_rotation_degrees", "get_global_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "global_scale", PropertyHint::None, "", 0), "set_global_scale", "get_global_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_transform", PropertyHint::None, "", 0), "set_global_transform", "get_global_transform");
 
     ADD_GROUP("Z Index", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "z_index", PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "z_index", PropertyHint::Range, itos(RS::CANVAS_ITEM_Z_MIN) + "," + itos(RS::CANVAS_ITEM_Z_MAX) + ",1"), "set_z_index", "get_z_index");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "z_as_relative"), "set_z_as_relative", "is_z_relative");
 }
 

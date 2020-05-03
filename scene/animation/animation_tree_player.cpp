@@ -708,7 +708,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
                     an->time = p_time;
                     an->step = 0;
                 } else {
-                    an->time = MAX(0, an->time + p_time);
+                    an->time = M_MAX(0, an->time + p_time);
                     an->step = p_time;
                 }
 
@@ -815,7 +815,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
                     osn->active = false;
             }
 
-            return MAX(main_rem, osn->remaining);
+            return M_MAX(main_rem, osn->remaining);
         } break;
         case NODE_MIX: {
             MixNode *mn = static_cast<MixNode *>(nb);
@@ -890,7 +890,7 @@ float AnimationTreePlayer::_process_node(const StringName &p_node, AnimationTree
             float rem2 = _process_node(bn->inputs[2].node, r_prev_anim, p_time, p_seek, fallback_weight2, &weights2);
             _process_node(bn->inputs[3].node, r_prev_anim, p_time, p_seek, fallback_weight3, &weights3);
 
-            return MAX(rem, rem2);
+            return M_MAX(rem, rem2);
 
         } break;
         case NODE_TIMESCALE: {
@@ -1719,7 +1719,7 @@ AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_p
         tr.id = id;
         tr.object = resource ? (Object *)resource.get() : (Object *)child;
         tr.skeleton = object_cast<Skeleton>(child);
-        tr.spatial = object_cast<Spatial>(child);
+        tr.spatial = object_cast<Node3D>(child);
         tr.bone_idx = bone_idx;
         if (bone_idx == -1) tr.subpath = leftover_path;
 

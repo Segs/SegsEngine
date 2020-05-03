@@ -132,8 +132,8 @@ float Color::get_h() const {
 
     float min = MIN(r, g);
     min = MIN(min, b);
-    float max = MAX(r, g);
-    max = MAX(max, b);
+    float max = M_MAX(r, g);
+    max = M_MAX(max, b);
 
     float delta = max - min;
 
@@ -159,8 +159,8 @@ float Color::get_s() const {
 
     float min = MIN(r, g);
     min = MIN(min, b);
-    float max = MAX(r, g);
-    max = MAX(max, b);
+    float max = M_MAX(r, g);
+    max = M_MAX(max, b);
 
     float delta = max - min;
 
@@ -169,8 +169,8 @@ float Color::get_s() const {
 
 float Color::get_v() const {
 
-    float max = MAX(r, g);
-    max = MAX(max, b);
+    float max = M_MAX(r, g);
+    max = M_MAX(max, b);
     return max;
 }
 
@@ -324,15 +324,15 @@ Color Color::contrasted() const {
 
     float sharedexp = 65408.0f; //(( pow2to9  - 1.0f)/ pow2to9)*powf( 2.0f, 31.0f - 15.0f);
 
-    float cRed = MAX(0.0f, MIN(sharedexp, r));
-    float cGreen = MAX(0.0f, MIN(sharedexp, g));
-    float cBlue = MAX(0.0f, MIN(sharedexp, b));
+    float cRed = M_MAX(0.0f, MIN(sharedexp, r));
+    float cGreen = M_MAX(0.0f, MIN(sharedexp, g));
+    float cBlue = M_MAX(0.0f, MIN(sharedexp, b));
 
-    float cMax = MAX(cRed, MAX(cGreen, cBlue));
+    float cMax = M_MAX(cRed, M_MAX(cGreen, cBlue));
 
-    // expp = MAX(-B - 1, log2(maxc)) + 1 + B
+    // expp = M_MAX(-B - 1, log2(maxc)) + 1 + B
 
-    const float expp = MAX(-B - 1.0f, std::floor(Math::log(cMax) / float(Math_LN2))) + 1.0f + B;
+    const float expp = M_MAX(-B - 1.0f, std::floor(Math::log(cMax) / float(Math_LN2))) + 1.0f + B;
 
     float sMax = (float)std::floor((cMax / Math::pow(2.0f, expp - B - N)) + 0.5f);
 

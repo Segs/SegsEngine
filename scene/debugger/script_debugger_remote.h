@@ -30,14 +30,15 @@
 
 #pragma once
 
+#include "core/debugger/script_debugger.h"
+#include "core/io/multiplayer_api.h"
 #include "core/io/packet_peer.h"
 #include "core/io/stream_peer_tcp.h"
 #include "core/list.h"
 #include "core/os/os.h"
-#include "core/script_language.h"
 #include "core/print_string.h"
 #include "core/rid.h"
-#include "core/io/multiplayer_api.h"
+#include "core/script_language.h"
 
 class SceneTree;
 

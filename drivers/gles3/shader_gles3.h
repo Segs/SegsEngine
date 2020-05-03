@@ -212,7 +212,7 @@ private:
                 int val = p_value;
                 glUniform1i(p_uniform, val);
             } break;
-            case VariantType::REAL: {
+            case VariantType::FLOAT: {
 
                 real_t val = p_value;
                 glUniform1f(p_uniform, val);

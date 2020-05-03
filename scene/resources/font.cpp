@@ -39,7 +39,7 @@
 #include "core/string.h"
 #include "core/ustring.h"
 #include "scene/resources/texture.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Font)
 IMPL_GDCLASS(BitmapFont)
@@ -595,7 +595,7 @@ float BitmapFont::draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_c
         cpos.x += c->second.h_align;
         cpos.y -= ascent;
         cpos.y += c->second.v_align;
-        VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->second.rect.size), textures[c->second.texture_idx]->get_rid(), c->second.rect, p_modulate, false, RID(), false);
+        RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, c->second.rect.size), textures[c->second.texture_idx]->get_rid(), c->second.rect, p_modulate, false, RID(), false);
     }
 
     return get_char_size(p_char, p_next).width;
@@ -667,8 +667,8 @@ void BitmapFont::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "chars", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_chars", "_get_chars");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "kernings", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_kernings", "_get_kernings");
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "1,1024,1"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "ascent", PropertyHint::Range, "0,1024,1"), "set_ascent", "get_ascent");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "1,1024,1"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "ascent", PropertyHint::Range, "0,1024,1"), "set_ascent", "get_ascent");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "distance_field"), "set_distance_field_hint", "is_distance_field_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "fallback", PropertyHint::ResourceType, "BitmapFont"), "set_fallback", "get_fallback");
 }

@@ -32,6 +32,7 @@
 
 #ifdef UNIX_ENABLED
 
+#include "core/debugger/script_debugger.h"
 #include "core/os/thread_dummy.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
@@ -40,11 +41,12 @@
 #include "drivers/unix/file_access_unix.h"
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/unix/rw_lock_posix.h"
-#include "drivers/unix/semaphore_posix.h"
+
 #include "drivers/unix/thread_posix.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/string_formatter.h"
 
+#include <mutex>
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #include <mach/mach_time.h>
@@ -128,7 +130,6 @@ void OS_Unix::initialize_core() {
     RWLockDummy::make_default();
 #else
     ThreadPosix::make_default();
-    SemaphorePosix::make_default();
     RWLockPosix::make_default();
 #endif
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);

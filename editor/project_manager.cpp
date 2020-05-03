@@ -41,6 +41,7 @@
 #include "core/print_string.h"
 #include "core/string_formatter.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation.h"
 #include "core/version.h"
 #include "core/version_hash.gen.h"
@@ -1873,7 +1874,7 @@ void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
         // This is handled by the platform implementation on macOS,
         // so only define the shortcut on other platforms
 #ifndef OSX_ENABLED
-        if (k->get_scancode_with_modifiers() == (KEY_MASK_CMD | KEY_Q)) {
+        if (k->get_keycode_with_modifiers() == (KEY_MASK_CMD | KEY_Q)) {
             _dim_window();
             get_tree()->quit();
         }
@@ -1884,7 +1885,7 @@ void ProjectManager::_unhandled_input(const Ref<InputEvent> &p_ev) {
 
         bool scancode_handled = true;
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
 
             case KEY_ENTER: {
 
@@ -2433,7 +2434,7 @@ ProjectManager::ProjectManager() {
 #ifndef OSX_ENABLED
         // The macOS platform implementation uses its own hiDPI window resizing code
         // TODO: Resize windows on hiDPI displays on Windows and Linux and remove the line below
-        OS::get_singleton()->set_window_size(OS::get_singleton()->get_window_size() * MAX(1, EDSCALE));
+        OS::get_singleton()->set_window_size(OS::get_singleton()->get_window_size() * M_MAX(1, EDSCALE));
 #endif
     }
 

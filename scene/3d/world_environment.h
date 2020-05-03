@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "scene/3d/spatial.h"
+#include "scene/3d/node_3d.h"
 
 class Environment;
 

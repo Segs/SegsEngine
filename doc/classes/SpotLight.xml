@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="SpotLight" inherits="Light" version="4.0">
+<class name="SpotLight3D" inherits="Light3D" version="4.0">
 	<brief_description>
 		A spotlight, such as a reflector spotlight or a lantern.
 	</brief_description>
 	<description>
-		A Spotlight is a type of [Light] node that emits lights in a specific direction, in the shape of a cone. The light is attenuated through the distance. This attenuation can be configured by changing the energy, radius and attenuation parameters of [Light].
+		A Spotlight is a type of [Light3D] node that emits lights in a specific direction, in the shape of a cone. The light is attenuated through the distance. This attenuation can be configured by changing the energy, radius and attenuation parameters of [Light3D].
 	</description>
 	<tutorials>
 		<link>https://docs.godotengine.org/en/latest/tutorials/3d/lights_and_shadows.html</link>

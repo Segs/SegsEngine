@@ -74,9 +74,9 @@ void TextureRegionEditor::_region_draw() {
     mtx.elements[2] = -draw_ofs * draw_zoom;
     mtx.scale_basis(Vector2(draw_zoom, draw_zoom));
 
-    VisualServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), mtx);
+    RenderingServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), mtx);
     edit_draw->draw_texture(base_tex, Point2());
-    VisualServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), Transform2D());
+    RenderingServer::get_singleton()->canvas_item_add_set_transform(edit_draw->get_canvas_item(), Transform2D());
 
     if (snap_mode == SNAP_GRID) {
         Color grid_color = Color(1.0, 1.0, 1.0, 0.15f);
@@ -818,7 +818,7 @@ Sprite3D *TextureRegionEditor::get_sprite_3d() {
     return node_sprite_3d;
 }
 
-Sprite *TextureRegionEditor::get_sprite() {
+Sprite2D *TextureRegionEditor::get_sprite() {
     return node_sprite;
 }
 
@@ -834,7 +834,7 @@ void TextureRegionEditor::edit(Object *p_obj) {
     if (atlas_tex)
         Object_remove_change_receptor(atlas_tex.get(), this);
     if (p_obj) {
-        node_sprite = object_cast<Sprite>(p_obj);
+        node_sprite = object_cast<Sprite2D>(p_obj);
         node_sprite_3d = object_cast<Sprite3D>(p_obj);
         node_ninepatch = object_cast<NinePatchRect>(p_obj);
         if (object_cast<StyleBoxTexture>(p_obj))
@@ -1056,7 +1056,7 @@ void TextureRegionEditorPlugin::edit(Object *p_object) {
 }
 
 bool TextureRegionEditorPlugin::handles(Object *p_object) const {
-    return p_object->is_class("Sprite") || p_object->is_class("Sprite3D") || p_object->is_class("NinePatchRect") || p_object->is_class("StyleBoxTexture") || p_object->is_class("AtlasTexture");
+    return p_object->is_class("Sprite2D") || p_object->is_class("Sprite3D") || p_object->is_class("NinePatchRect") || p_object->is_class("StyleBoxTexture") || p_object->is_class("AtlasTexture");
 }
 
 void TextureRegionEditorPlugin::_editor_visiblity_changed() {

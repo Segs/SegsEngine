@@ -40,7 +40,7 @@ VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
 void AnimationNodeBlendSpace2D::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     r_list->emplace_back(VariantType::VECTOR2, blend_position);
     r_list->emplace_back(VariantType::INT, closest, PropertyHint::None, "", 0);
-    r_list->emplace_back(VariantType::REAL, length_internal, PropertyHint::None, "", 0);
+    r_list->emplace_back(VariantType::FLOAT, length_internal, PropertyHint::None, "", 0);
 }
 Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName &p_parameter) const {
     if (p_parameter == closest) {

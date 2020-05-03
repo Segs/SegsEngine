@@ -34,7 +34,7 @@
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/scene_tree_editor.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/box_container.h"
 #include "spatial_editor_plugin.h"
 
@@ -85,11 +85,11 @@ void MultiMeshEditor::_populate() {
             return;
         }
 
-        MeshInstance *ms_instance = object_cast<MeshInstance>(ms_node);
+        MeshInstance3D *ms_instance = object_cast<MeshInstance3D>(ms_node);
 
         if (!ms_instance) {
 
-            err_dialog->set_text(TTR("Mesh source is invalid (not a MeshInstance)."));
+            err_dialog->set_text(TTR("Mesh source is invalid (not a MeshInstance3D)."));
             err_dialog->popup_centered_minsize();
             return;
         }
@@ -120,7 +120,7 @@ void MultiMeshEditor::_populate() {
         return;
     }
 
-    GeometryInstance *ss_instance = object_cast<MeshInstance>(ss_node);
+    GeometryInstance *ss_instance = object_cast<MeshInstance3D>(ss_node);
 
     if (!ss_instance) {
 
@@ -131,7 +131,7 @@ void MultiMeshEditor::_populate() {
 
     Transform geom_xform = node->get_global_transform().affine_inverse() * ss_instance->get_global_transform();
 
-    Vector<Face3> geometry = ss_instance->get_faces(VisualInstance::FACES_SOLID);
+    Vector<Face3> geometry = ss_instance->get_faces(VisualInstance3D::FACES_SOLID);
 
     if (geometry.size() == 0) {
 
@@ -265,7 +265,7 @@ void MultiMeshEditor::_menu_option(int p_option) {
     }
 }
 
-void MultiMeshEditor::edit(MultiMeshInstance *p_multimesh) {
+void MultiMeshEditor::edit(MultiMeshInstance3D *p_multimesh) {
 
     node = p_multimesh;
 }
@@ -296,7 +296,7 @@ MultiMeshEditor::MultiMeshEditor() {
     SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text("MultiMesh");
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MultiMeshInstance", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MultiMeshInstance3D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Populate Surface"));
     options->get_popup()->connect("id_pressed", this, "_menu_option");
@@ -388,12 +388,12 @@ MultiMeshEditor::MultiMeshEditor() {
 
 void MultiMeshEditorPlugin::edit(Object *p_object) {
 
-    multimesh_editor->edit(object_cast<MultiMeshInstance>(p_object));
+    multimesh_editor->edit(object_cast<MultiMeshInstance3D>(p_object));
 }
 
 bool MultiMeshEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("MultiMeshInstance");
+    return p_object->is_class("MultiMeshInstance3D");
 }
 
 void MultiMeshEditorPlugin::make_visible(bool p_visible) {

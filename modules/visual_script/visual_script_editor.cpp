@@ -373,7 +373,7 @@ static Color _color_from_type(VariantType p_type, bool dark_theme = true) {
 
             case VariantType::BOOL: color = Color(0.55f, 0.65f, 0.94f); break;
             case VariantType::INT: color = Color(0.49f, 0.78f, 0.94f); break;
-            case VariantType::REAL: color = Color(0.38f, 0.85f, 0.96f); break;
+            case VariantType::FLOAT: color = Color(0.38f, 0.85f, 0.96f); break;
             case VariantType::STRING: color = Color(0.42f, 0.65f, 0.93f); break;
 
             case VariantType::VECTOR2: color = Color(0.74f, 0.57f, 0.95f); break;
@@ -410,7 +410,7 @@ static Color _color_from_type(VariantType p_type, bool dark_theme = true) {
 
             case VariantType::BOOL: color = Color(0.43f, 0.56f, 0.92f); break;
             case VariantType::INT: color = Color(0.31f, 0.7f, 0.91f); break;
-            case VariantType::REAL: color = Color(0.15f, 0.8f, 0.94f); break;
+            case VariantType::FLOAT: color = Color(0.15f, 0.8f, 0.94f); break;
             case VariantType::STRING: color = Color(0.27f, 0.56f, 0.91f); break;
 
             case VariantType::VECTOR2: color = Color(0.68f, 0.46f, 0.93f); break;
@@ -700,7 +700,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                 }
             }
 
-            for (int i = 0; i < MAX(node->get_output_value_port_count(), MAX(mixed_seq_ports, node->get_input_value_port_count())); i++) {
+            for (int i = 0; i < M_MAX(node->get_output_value_port_count(), M_MAX(mixed_seq_ports, node->get_input_value_port_count())); i++) {
 
                 bool left_ok = false;
                 VariantType left_type = VariantType::NIL;
@@ -781,7 +781,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
                         if (value.get_type() != left_type) {
                             //different type? for now convert
                             //not the same, reconvert
-                            Variant::CallError ce;
+                            Callable::CallError ce;
                             const Variant *existingp = &value;
                             value = Variant::construct(left_type, &existingp, 1, ce, false);
                         }
@@ -1846,7 +1846,7 @@ void VisualScriptEditor::_fn_name_box_input(const Ref<InputEvent> &p_event) {
         return;
 
     Ref<InputEventKey> key = dynamic_ref_cast<InputEventKey>(p_event);
-    if (key && key->is_pressed() && key->get_scancode() == KEY_ENTER) {
+    if (key && key->is_pressed() && key->get_keycode() == KEY_ENTER) {
         function_name_edit->hide();
         _rename_function(selected, StringName(function_name_box->get_text()));
         function_name_box->clear();
@@ -2379,7 +2379,7 @@ void VisualScriptEditor::_button_resource_previewed(StringView p_path, const Ref
     ERR_FAIL_COND(ud.size() != 2);
 
     ObjectID id = ud[0];
-    Object *obj = ObjectDB::get_instance(id);
+    Object *obj = gObjectDB().get_instance(id);
 
     if (!obj)
         return;
@@ -2913,8 +2913,8 @@ void VisualScriptEditor::_graph_connected(StringView p_from, int p_from_slot, St
         if (to_type != VariantType::NIL && from_type != VariantType::NIL && to_type != from_type) {
             // add a constructor node between the ports
             bool exceptions = false; // true if there are any exceptions
-            exceptions = exceptions || (to_type == VariantType::INT && from_type == VariantType::REAL);
-            exceptions = exceptions || (to_type == VariantType::REAL && from_type == VariantType::INT);
+            exceptions = exceptions || (to_type == VariantType::INT && from_type == VariantType::FLOAT);
+            exceptions = exceptions || (to_type == VariantType::FLOAT && from_type == VariantType::INT);
             if (Variant::can_convert(from_type, to_type) && !exceptions) {
                 MethodInfo mi;
                 mi.name = Variant::interned_type_name(to_type);
@@ -3834,7 +3834,7 @@ void VisualScriptEditor::_default_value_edited(Node *p_button, int p_id, int p_i
     Variant existing = vsn->get_default_input_value(p_input_port);
     if (pinfo.type != VariantType::NIL && existing.get_type() != pinfo.type) {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         const Variant *existingp = &existing;
         existing = Variant::construct(pinfo.type, &existingp, 1, ce, false);
     }

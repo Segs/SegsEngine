@@ -244,8 +244,8 @@ void NavigationPolygon::make_polygons_from_outlines() {
             continue;
         PoolVector<Vector2>::Read r = ol.read();
         for (int j = 0; j < olsize; j++) {
-            outside_point.x = MAX(r[j].x, outside_point.x);
-            outside_point.y = MAX(r[j].y, outside_point.y);
+            outside_point.x = M_MAX(r[j].x, outside_point.x);
+            outside_point.y = M_MAX(r[j].y, outside_point.y);
         }
     }
 
@@ -469,7 +469,7 @@ void NavigationPolygonInstance::_notification(int p_what) {
                         }
                     }
                 }
-                VisualServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, PoolVector<Color>(colors));
+                RenderingServer::get_singleton()->canvas_item_add_triangle_array(get_canvas_item(), indices, vertices, PoolVector<Color>(colors));
             }
         } break;
     }

@@ -40,7 +40,7 @@ class Constraint2DSW;
 
 class Body2DSW : public CollisionObject2DSW {
 
-    Physics2DServer::BodyMode mode;
+    PhysicsServer2D::BodyMode mode;
 
     Vector2 biased_linear_velocity;
     real_t biased_angular_velocity;
@@ -75,7 +75,7 @@ class Body2DSW : public CollisionObject2DSW {
     SelfList<Body2DSW> direct_state_query_list;
 
     VSet<RID> exceptions;
-    Physics2DServer::CCDMode continuous_cd_mode;
+    PhysicsServer2D::CCDMode continuous_cd_mode;
     bool omit_force_integration;
     bool active;
     bool can_sleep;
@@ -159,7 +159,7 @@ public:
     _FORCE_INLINE_ void set_max_contacts_reported(int p_size) {
         contacts.resize(p_size);
         contact_count = 0;
-        if (mode == Physics2DServer::BODY_MODE_KINEMATIC && p_size)
+        if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC && p_size)
             set_active(true);
     }
 
@@ -226,19 +226,19 @@ public:
     _FORCE_INLINE_ bool is_active() const { return active; }
 
     _FORCE_INLINE_ void wakeup() {
-        if ((!get_space()) || mode == Physics2DServer::BODY_MODE_STATIC || mode == Physics2DServer::BODY_MODE_KINEMATIC)
+        if ((!get_space()) || mode == PhysicsServer2D::BODY_MODE_STATIC || mode == PhysicsServer2D::BODY_MODE_KINEMATIC)
             return;
         set_active(true);
     }
 
-    void set_param(Physics2DServer::BodyParameter p_param, real_t);
-    real_t get_param(Physics2DServer::BodyParameter p_param) const;
+    void set_param(PhysicsServer2D::BodyParameter p_param, real_t);
+    real_t get_param(PhysicsServer2D::BodyParameter p_param) const;
 
-    void set_mode(Physics2DServer::BodyMode p_mode);
-    Physics2DServer::BodyMode get_mode() const;
+    void set_mode(PhysicsServer2D::BodyMode p_mode);
+    PhysicsServer2D::BodyMode get_mode() const;
 
-    void set_state(Physics2DServer::BodyState p_state, const Variant &p_variant);
-    Variant get_state(Physics2DServer::BodyState p_state) const;
+    void set_state(PhysicsServer2D::BodyState p_state, const Variant &p_variant);
+    Variant get_state(PhysicsServer2D::BodyState p_state) const;
 
     void set_applied_force(const Vector2 &p_force) { applied_force = p_force; }
     Vector2 get_applied_force() const { return applied_force; }
@@ -260,8 +260,8 @@ public:
         applied_torque += p_torque;
     }
 
-    _FORCE_INLINE_ void set_continuous_collision_detection_mode(Physics2DServer::CCDMode p_mode) { continuous_cd_mode = p_mode; }
-    _FORCE_INLINE_ Physics2DServer::CCDMode get_continuous_collision_detection_mode() const { return continuous_cd_mode; }
+    _FORCE_INLINE_ void set_continuous_collision_detection_mode(PhysicsServer2D::CCDMode p_mode) { continuous_cd_mode = p_mode; }
+    _FORCE_INLINE_ PhysicsServer2D::CCDMode get_continuous_collision_detection_mode() const { return continuous_cd_mode; }
 
     void set_space(Space2DSW *p_space) override;
 
@@ -280,9 +280,9 @@ public:
 
     _FORCE_INLINE_ Vector2 get_motion() const {
 
-        if (mode > Physics2DServer::BODY_MODE_KINEMATIC) {
+        if (mode > PhysicsServer2D::BODY_MODE_KINEMATIC) {
             return new_transform.get_origin() - get_transform().get_origin();
-        } else if (mode == Physics2DServer::BODY_MODE_KINEMATIC) {
+        } else if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
             return get_transform().get_origin() - new_transform.get_origin(); //kinematic simulates forward
         }
         return Vector2();
@@ -343,9 +343,9 @@ void Body2DSW::add_contact(const Vector2 &p_local_pos, const Vector2 &p_local_no
     c[idx].collider_velocity_at_pos = p_collider_velocity_at_pos;
 }
 
-class Physics2DDirectBodyStateSW : public Physics2DDirectBodyState {
+class Physics2DDirectBodyStateSW : public PhysicsDirectBodyState2D {
 
-    GDCLASS(Physics2DDirectBodyStateSW,Physics2DDirectBodyState)
+    GDCLASS(Physics2DDirectBodyStateSW,PhysicsDirectBodyState2D)
 
 public:
     static Physics2DDirectBodyStateSW *singleton;
@@ -365,7 +365,7 @@ public:
     void set_angular_velocity(real_t p_velocity) override { body->set_angular_velocity(p_velocity); }
     real_t get_angular_velocity() const override { return body->get_angular_velocity(); }
 
-    void set_transform(const Transform2D &p_transform) override { body->set_state(Physics2DServer::BODY_STATE_TRANSFORM, p_transform); }
+    void set_transform(const Transform2D &p_transform) override { body->set_state(PhysicsServer2D::BODY_STATE_TRANSFORM, p_transform); }
     Transform2D get_transform() const override { return body->get_transform(); }
 
     void add_central_force(const Vector2 &p_force) override { body->add_central_force(p_force); }
@@ -416,7 +416,7 @@ public:
         return body->contacts[p_contact_idx].collider_velocity_at_pos;
     }
 
-    Physics2DDirectSpaceState *get_space_state() override;
+    PhysicsDirectSpaceState2D *get_space_state() override;
 
     real_t get_step() const override { return step; }
     Physics2DDirectBodyStateSW() {

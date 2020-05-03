@@ -124,7 +124,7 @@ T *_nullptr() {
 #undef DELETE // override (another really stupid) winnt.h standard definition
 #undef MessageBox // override winuser.h standard definition
 #undef MIN // override standard definition
-#undef MAX // override standard definition
+#undef M_MAX // override standard definition
 #undef CLAMP // override standard definition
 #undef Error
 #undef OK
@@ -145,7 +145,7 @@ T *_nullptr() {
 
 //TODO: SGN is incorrect, for 0 it should return 0?
 template<class T>
-T SGN(T m_v) {
+constexpr T SGN(T m_v) {
     return (((m_v) < 0) ? T(-1) : T(1));
 }
 
@@ -153,8 +153,8 @@ T SGN(T m_v) {
 #define MIN(m_a, m_b) (((m_a) < (m_b)) ? (m_a) : (m_b))
 #endif
 
-#ifndef MAX
-#define MAX(m_a, m_b) (((m_a) > (m_b)) ? (m_a) : (m_b))
+#ifndef M_MAX
+#define M_MAX(m_a, m_b) (((m_a) > (m_b)) ? (m_a) : (m_b))
 #endif
 
 template <class T,class M=T,class X=T>

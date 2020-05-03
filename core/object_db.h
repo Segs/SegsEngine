@@ -22,28 +22,33 @@ struct Hasher<Object *> {
 
 class ObjectDB {
 
-    static HashMap<ObjectID, Object *> instances;
-    static HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
+    RWLock *rw_lock=nullptr;
+    HashMap<Object *, ObjectID, Hasher<Object *>> instance_checks;
 
-    static ObjectID instance_counter;
+    void cleanup();
+    void setup();
+
+    ObjectID add_instance(Object *p_object);
+    void remove_instance(Object *p_object);
+
     friend class Object;
     friend void unregister_core_types();
-
-    static RWLock *rw_lock;
-    static void cleanup();
-    static ObjectID add_instance(Object *p_object);
-    static void remove_instance(Object *p_object);
     friend void register_core_types();
-    static void setup();
+    friend GODOT_EXPORT ObjectDB &gObjectDB();
+
+protected:
+    ObjectDB()=default;
+    ~ObjectDB()=default;
+    ObjectDB(const ObjectDB&)=delete;
 
 public:
     using DebugFunc = void (*)(Object *);
 
-    GODOT_EXPORT static Object *get_instance(ObjectID p_instance_id);
-    GODOT_EXPORT static void debug_objects(DebugFunc p_func);
-    GODOT_EXPORT static int get_object_count();
+    GODOT_EXPORT Object *get_instance(ObjectID p_instance_id);
+    GODOT_EXPORT void debug_objects(DebugFunc p_func);
+    GODOT_EXPORT int get_object_count();
 
-    _FORCE_INLINE_ static bool instance_validate(Object *p_ptr) {
+    _FORCE_INLINE_ bool instance_validate(Object *p_ptr) {
         rw_lock->read_lock();
 
         bool exists = instance_checks.contains(p_ptr);
@@ -52,4 +57,6 @@ public:
 
         return exists;
     }
+
 };
+GODOT_EXPORT ObjectDB &gObjectDB();

@@ -33,6 +33,7 @@
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
@@ -494,7 +495,7 @@ static void _find_anim_sprites(Node *p_node, Vector<Node *> *r_nodes, const Ref<
         return;
 
     {
-        AnimatedSprite *as = object_cast<AnimatedSprite>(p_node);
+        AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
         if (as && as->get_sprite_frames() == p_sfames) {
             r_nodes->push_back(p_node);
         }
@@ -943,7 +944,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     hbc->add_child(load);
 
     load_sheet = memnew(ToolButton);
-    load_sheet->set_tooltip(TTR("Add Frames from a Sprite Sheet"));
+    load_sheet->set_tooltip(TTR("Add Frames from a Sprite2D Sheet"));
     hbc->add_child(load_sheet);
 
     hbc->add_child(memnew(VSeparator));
@@ -1076,7 +1077,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_vb->add_child(splite_sheet_scroll);
 
     file_split_sheet = memnew(EditorFileDialog);
-    file_split_sheet->set_title(TTR("Create Frames from Sprite Sheet"));
+    file_split_sheet->set_title(TTR("Create Frames from Sprite2D Sheet"));
     file_split_sheet->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_split_sheet);
     file_split_sheet->connect("file_selected", this, "_prepare_sprite_sheet");
@@ -1087,7 +1088,7 @@ void SpriteFramesEditorPlugin::edit(Object *p_object) {
     frames_editor->set_undo_redo(get_undo_redo());
 
     SpriteFrames *s;
-    AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);
+    AnimatedSprite2D *animated_sprite = object_cast<AnimatedSprite2D>(p_object);
     if (animated_sprite) {
         s = animated_sprite->get_sprite_frames().get();
     } else {
@@ -1099,7 +1100,7 @@ void SpriteFramesEditorPlugin::edit(Object *p_object) {
 
 bool SpriteFramesEditorPlugin::handles(Object *p_object) const {
 
-    AnimatedSprite *animated_sprite = object_cast<AnimatedSprite>(p_object);
+    AnimatedSprite2D *animated_sprite = object_cast<AnimatedSprite2D>(p_object);
     if (animated_sprite && animated_sprite->get_sprite_frames().get()) {
         return true;
     } else {

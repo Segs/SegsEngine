@@ -30,18 +30,18 @@
 
 #include "ustring.h"
 
-#include "string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/color.h"
 #include "core/crypto/crypto_core.h"
 #include "core/math/math_funcs.h"
 #include "core/os/memory.h"
-#include "core/translation.h"
 #include "core/translation_helpers.h"
 #include "core/list.h"
 #include "core/vector.h"
 #include "core/variant.h"
+#include "core/dictionary.h"
 
 #include <QString>
 #include <QVector>
@@ -3444,7 +3444,7 @@ StringView PathUtils::get_file(StringView path) {
 UIString PathUtils::get_extension(const UIString &path) {
 
     int pos = path.lastIndexOf(".");
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+    if (pos < 0 || pos < M_MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
         return UIString();
 
     return StringUtils::substr(path,pos + 1);
@@ -3573,7 +3573,7 @@ String StringUtils::percent_decode(StringView str) {
 UIString PathUtils::get_basename(const UIString &path) {
 
     int pos = path.lastIndexOf('.');
-    if (pos < 0 || pos < MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
+    if (pos < 0 || pos < M_MAX(path.lastIndexOf("/"), path.lastIndexOf("\\")))
         return path;
 
     return StringUtils::substr(path,0, pos);
@@ -3931,34 +3931,6 @@ StringView StringUtils::unquote(StringView str) {
 
     return str.substr(1, str.length() - 2);
 }
-#ifdef TOOLS_ENABLED
-StringName TTR(StringView p_text) {
-
-    if (TranslationServer::get_singleton()) {
-        return TranslationServer::get_singleton()->tool_translate(StringName(p_text));
-    }
-
-    return StringName(p_text);
-}
-
-#endif
-
-StringName RTR(const char *p_text) {
-
-    if (TranslationServer::get_singleton()) {
-        StringName rtr(TranslationServer::get_singleton()->tool_translate(StringName(p_text)));
-        if (rtr.empty() || rtr == p_text) {
-            return TranslationServer::get_singleton()->translate(StringName(p_text));
-        } else {
-            return rtr;
-        }
-    }
-
-    return StringName(p_text);
-}
-String RTR_utf8(StringView sv) {
-    return String(RTR(String(sv).c_str())).data();
-}
 
 int StringUtils::compare(const UIString &lhs, const UIString &rhs, Compare case_sensitive)
 {
@@ -3979,8 +3951,8 @@ int StringUtils::compare(StringView lhs, StringView rhs, Compare case_sensitive)
 }
 bool StringUtils::contains(const char *heystack, const char *needle)
 {
-    std::string_view sv1(heystack);
-    std::string_view nd1(needle);
+    eastl::string_view sv1(heystack);
+    eastl::string_view nd1(needle);
     return sv1.find(nd1)!=std::string_view::npos;
 }
 bool StringUtils::contains(const UIString &heystack, const UIString &needle,Compare mode)
@@ -4059,6 +4031,7 @@ String StringUtils::property_name_encode(StringView str) {
     // Keep as is
     return String(str);
 }
+
 namespace PathUtils {
 UIString from_native_path(const UIString &p) {
     return UIString(p).replace('\\', '/');

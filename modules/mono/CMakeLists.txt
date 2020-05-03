@@ -14,7 +14,6 @@ set(source_files
     editor/csharp_project.cpp
     utils/osx_utils.cpp
     utils/mono_reg_utils.cpp
-    utils/thread_local.cpp
     utils/path_utils.cpp
     utils/string_utils.cpp
     glue/collections_glue.cpp
@@ -51,10 +50,8 @@ set(header_files
     editor/csharp_project.h
     editor/bindings_generator.h
     utils/osx_utils.h
-    utils/thread_local.h
     utils/macros.h
     utils/mono_reg_utils.h
-    utils/mutex_utils.h
     utils/path_utils.h
     utils/string_utils.h
     glue/nodepath_glue.h

@@ -37,7 +37,7 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 
 
 IMPL_GDCLASS(Tabs)
@@ -51,13 +51,13 @@ Size2 Tabs::get_minimum_size() const {
     Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
     Ref<Font> font = get_font("font");
 
-    Size2 ms(0, MAX(MAX(tab_bg->get_minimum_size().height, tab_fg->get_minimum_size().height), tab_disabled->get_minimum_size().height) + font->get_height());
+    Size2 ms(0, M_MAX(M_MAX(tab_bg->get_minimum_size().height, tab_fg->get_minimum_size().height), tab_disabled->get_minimum_size().height) + font->get_height());
 
     for (int i = 0; i < tabs.size(); i++) {
 
         Ref<Texture> tex = tabs[i].icon;
         if (tex) {
-            ms.height = MAX(ms.height, tex->get_size().height);
+            ms.height = M_MAX(ms.height, tex->get_size().height);
             if (!tabs[i].text.empty())
                 ms.width += get_constant("hseparation");
         }
@@ -76,7 +76,7 @@ Size2 Tabs::get_minimum_size() const {
             Size2 bms = rb->get_size();
             bms.width += get_constant("hseparation");
             ms.width += bms.width;
-            ms.height = MAX(bms.height + tab_bg->get_minimum_size().height, ms.height);
+            ms.height = M_MAX(bms.height + tab_bg->get_minimum_size().height, ms.height);
         }
 
         if (cb_displaypolicy == CLOSE_BUTTON_SHOW_ALWAYS || (cb_displaypolicy == CLOSE_BUTTON_SHOW_ACTIVE_ONLY && i == current)) {
@@ -84,7 +84,7 @@ Size2 Tabs::get_minimum_size() const {
             Size2 bms = cb->get_size();
             bms.width += get_constant("hseparation");
             ms.width += bms.width;
-            ms.height = MAX(bms.height + tab_bg->get_minimum_size().height, ms.height);
+            ms.height = M_MAX(bms.height + tab_bg->get_minimum_size().height, ms.height);
         }
     }
 
@@ -569,7 +569,7 @@ void Tabs::_update_cache() {
     }
     int m_width = min_width;
     if (count_resize > 0) {
-        m_width = MAX((limit - size_fixed) / count_resize, min_width);
+        m_width = M_MAX((limit - size_fixed) / count_resize, min_width);
     }
     for (int i = 0; i < tabs.size(); i++) {
         if (i < offset)
@@ -596,7 +596,7 @@ void Tabs::_update_cache() {
                     slen -= cb->get_width();
                     slen -= get_constant("hseparation");
                 }
-                slen = MAX(slen, 1);
+                slen = M_MAX(slen, 1);
                 lsize = m_width;
             }
         }

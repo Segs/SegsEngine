@@ -35,6 +35,7 @@
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
 #include "editor_node.h"
+#include "editor/editor_help.h"
 #include "editor/editor_scale.h"
 #include "editor/scene_tree_dock.h"
 #include "editor_settings.h"
@@ -180,7 +181,7 @@ void ConnectDialog::_add_bind() {
     switch (vt) {
         case VariantType::BOOL: value = false; break;
         case VariantType::INT: value = 0; break;
-        case VariantType::REAL: value = 0.0; break;
+        case VariantType::FLOAT: value = 0.0; break;
         case VariantType::STRING: value = ""; break;
         case VariantType::VECTOR2: value = Vector2(); break;
         case VariantType::RECT2: value = Rect2(); break;
@@ -427,7 +428,7 @@ ConnectDialog::ConnectDialog() {
     add_bind_hb->add_child(type_list);
     type_list->add_item("bool", (int)VariantType::BOOL);
     type_list->add_item("int", (int)VariantType::INT);
-    type_list->add_item("real", (int)VariantType::REAL);
+    type_list->add_item("real", (int)VariantType::FLOAT);
     type_list->add_item("String", (int)VariantType::STRING);
     type_list->add_item("Vector2", (int)VariantType::VECTOR2);
     type_list->add_item("Rect2", (int)VariantType::RECT2);
@@ -518,7 +519,7 @@ Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
     String text(String(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
     text += String(StringUtils::strip_edges(parts[1])) + "\n";
     text += StringUtils::strip_edges(parts[2]);
-    help_bit->set_text(text);
+
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
     return help_bit;
 }

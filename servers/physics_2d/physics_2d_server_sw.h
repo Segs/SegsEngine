@@ -31,15 +31,15 @@
 #pragma once
 
 #include "joints_2d_sw.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 #include "shape_2d_sw.h"
 #include "space_2d_sw.h"
 #include "step_2d_sw.h"
 #include "core/rid.h"
 
-class Physics2DServerSW : public Physics2DServer {
+class Physics2DServerSW : public PhysicsServer2D {
 
-    GDCLASS(Physics2DServerSW,Physics2DServer)
+    GDCLASS(Physics2DServerSW,PhysicsServer2D)
 
     friend class Physics2DDirectSpaceStateSW;
     friend class Physics2DDirectBodyStateSW;
@@ -122,7 +122,7 @@ public:
     int space_get_contact_count(RID p_space) const override;
 
     // this function only works on physics process, errors and returns null otherwise
-    Physics2DDirectSpaceState *space_get_direct_state(RID p_space) override;
+    PhysicsDirectSpaceState2D *space_get_direct_state(RID p_space) override;
 
     /* AREA API */
 
@@ -252,7 +252,7 @@ public:
     int body_test_ray_separation(RID p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
 
     // this function only works on physics process, errors and returns null otherwise
-    Physics2DDirectBodyState *body_get_direct_state(RID p_body) override;
+    PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override;
 
     /* JOINT API */
 

@@ -37,8 +37,8 @@
 #include "core/string.h"
 //#include "scene/resources/material.h"
 #include "scene/resources/shape.h"
-#include "servers/visual_server_enums.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server_enums.h"
+#include "servers/rendering_server.h"
 
 class Material;
 
@@ -58,22 +58,22 @@ public: // scripting glue helpers
 public:
     enum {
 
-        NO_INDEX_ARRAY = VS::NO_INDEX_ARRAY,
-        ARRAY_WEIGHTS_SIZE = VS::ARRAY_WEIGHTS_SIZE
+        NO_INDEX_ARRAY = RS::NO_INDEX_ARRAY,
+        ARRAY_WEIGHTS_SIZE = RS::ARRAY_WEIGHTS_SIZE
     };
 
     enum ArrayType {
 
-        ARRAY_VERTEX = VS::ARRAY_VERTEX,
-        ARRAY_NORMAL = VS::ARRAY_NORMAL,
-        ARRAY_TANGENT = VS::ARRAY_TANGENT,
-        ARRAY_COLOR = VS::ARRAY_COLOR,
-        ARRAY_TEX_UV = VS::ARRAY_TEX_UV,
-        ARRAY_TEX_UV2 = VS::ARRAY_TEX_UV2,
-        ARRAY_BONES = VS::ARRAY_BONES,
-        ARRAY_WEIGHTS = VS::ARRAY_WEIGHTS,
-        ARRAY_INDEX = VS::ARRAY_INDEX,
-        ARRAY_MAX = VS::ARRAY_MAX
+        ARRAY_VERTEX = RS::ARRAY_VERTEX,
+        ARRAY_NORMAL = RS::ARRAY_NORMAL,
+        ARRAY_TANGENT = RS::ARRAY_TANGENT,
+        ARRAY_COLOR = RS::ARRAY_COLOR,
+        ARRAY_TEX_UV = RS::ARRAY_TEX_UV,
+        ARRAY_TEX_UV2 = RS::ARRAY_TEX_UV2,
+        ARRAY_BONES = RS::ARRAY_BONES,
+        ARRAY_WEIGHTS = RS::ARRAY_WEIGHTS,
+        ARRAY_INDEX = RS::ARRAY_INDEX,
+        ARRAY_MAX = RS::ARRAY_MAX
 
     };
 
@@ -109,19 +109,19 @@ public:
     };
 
     enum PrimitiveType {
-        PRIMITIVE_POINTS = VS::PRIMITIVE_POINTS,
-        PRIMITIVE_LINES = VS::PRIMITIVE_LINES,
-        PRIMITIVE_LINE_STRIP = VS::PRIMITIVE_LINE_STRIP,
-        PRIMITIVE_LINE_LOOP = VS::PRIMITIVE_LINE_LOOP,
-        PRIMITIVE_TRIANGLES = VS::PRIMITIVE_TRIANGLES,
-        PRIMITIVE_TRIANGLE_STRIP = VS::PRIMITIVE_TRIANGLE_STRIP,
-        PRIMITIVE_TRIANGLE_FAN = VS::PRIMITIVE_TRIANGLE_FAN,
+        PRIMITIVE_POINTS = RS::PRIMITIVE_POINTS,
+        PRIMITIVE_LINES = RS::PRIMITIVE_LINES,
+        PRIMITIVE_LINE_STRIP = RS::PRIMITIVE_LINE_STRIP,
+        PRIMITIVE_LINE_LOOP = RS::PRIMITIVE_LINE_LOOP,
+        PRIMITIVE_TRIANGLES = RS::PRIMITIVE_TRIANGLES,
+        PRIMITIVE_TRIANGLE_STRIP = RS::PRIMITIVE_TRIANGLE_STRIP,
+        PRIMITIVE_TRIANGLE_FAN = RS::PRIMITIVE_TRIANGLE_FAN,
     };
 
     enum BlendShapeMode {
 
-        BLEND_SHAPE_MODE_NORMALIZED = VS::BLEND_SHAPE_MODE_NORMALIZED,
-        BLEND_SHAPE_MODE_RELATIVE = VS::BLEND_SHAPE_MODE_RELATIVE,
+        BLEND_SHAPE_MODE_NORMALIZED = RS::BLEND_SHAPE_MODE_NORMALIZED,
+        BLEND_SHAPE_MODE_RELATIVE = RS::BLEND_SHAPE_MODE_RELATIVE,
     };
 
     virtual int get_surface_count() const = 0;

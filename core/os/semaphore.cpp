@@ -30,15 +30,3 @@
 
 #include "semaphore.h"
 
-#include "core/error_macros.h"
-
-SemaphoreOld *(*SemaphoreOld::create_func)() = nullptr;
-
-SemaphoreOld *SemaphoreOld::create() {
-
-	ERR_FAIL_COND_V(!create_func, nullptr);
-
-	return create_func();
-}
-
-

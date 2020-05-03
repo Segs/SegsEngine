@@ -34,6 +34,8 @@
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "editor/editor_node.h"
+#include "editor/editor_help.h"
+
 #include "editor_scale.h"
 
 IMPL_GDCLASS(PropertySelector)
@@ -49,7 +51,7 @@ void PropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     if (k) {
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
             case KEY_UP:
             case KEY_DOWN:
             case KEY_PAGEUP:
@@ -99,13 +101,13 @@ void PropertySelector::_update_search() {
             instance->get_property_list(&props, true);
         } else if (type != VariantType::NIL) {
             Variant v;
-            Variant::CallError ce;
+            Callable::CallError ce;
             v = Variant::construct(type, nullptr, 0, ce);
 
             v.get_property_list(&props);
         } else {
 
-            Object *obj = ObjectDB::get_instance(script);
+            Object *obj = gObjectDB().get_instance(script);
             if (object_cast<Script>(obj)) {
 
                 props.push_back(PropertyInfo(VariantType::NIL, "Script Variables", PropertyHint::None, "", PROPERTY_USAGE_CATEGORY));
@@ -204,12 +206,12 @@ void PropertySelector::_update_search() {
 
         if (type != VariantType::NIL) {
             Variant v;
-            Variant::CallError ce;
+            Callable::CallError ce;
             v = Variant::construct(type, nullptr, 0, ce);
             v.get_method_list(&methods);
         } else {
 
-            Object *obj = ObjectDB::get_instance(script);
+            Object *obj = gObjectDB().get_instance(script);
             if (object_cast<Script>(obj)) {
 
                 methods.push_back(MethodInfo("*Script Methods"));

@@ -33,7 +33,7 @@
 #include "core/engine.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 
 
 IMPL_GDCLASS(ViewportContainer)
@@ -50,8 +50,8 @@ Size2 ViewportContainer::get_minimum_size() const {
             continue;
 
         Size2 minsize = c->get_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     return ms;

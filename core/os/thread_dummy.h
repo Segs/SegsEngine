@@ -30,9 +30,7 @@
 
 #pragma once
 
-#include "core/os/mutex.h"
 #include "core/os/rw_lock.h"
-#include "core/os/semaphore.h"
 #include "core/os/thread.h"
 
 class ThreadDummy : public Thread {
@@ -43,18 +41,6 @@ public:
     ID get_id() const override { return 0; }
 
     static void make_default();
-};
-
-class SemaphoreDummy : public SemaphoreOld {
-
-	static SemaphoreOld *create();
-
-public:
-	Error wait() override { return OK; }
-	Error post() override { return OK; }
-	int get() const override { return 0; } ///< get semaphore value
-
-	static void make_default();
 };
 
 class RWLockDummy : public RWLock {

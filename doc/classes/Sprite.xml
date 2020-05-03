@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Sprite" inherits="Node2D" version="4.0">
+<class name="Sprite2D" inherits="Node2D" version="4.0">
 	<brief_description>
 		General-purpose sprite node.
 	</brief_description>
@@ -13,7 +13,7 @@
 			<return type="Rect2">
 			</return>
 			<description>
-				Returns a [Rect2] representing the Sprite's boundary in local coordinates. Can be used to detect if the Sprite was clicked. Example:
+				Returns a [Rect2] representing the Sprite2D's boundary in local coordinates. Can be used to detect if the Sprite2D was clicked. Example:
 				[codeblock]
 				func _input(event):
 				    if event is InputEventMouseButton and event.pressed and event.button_index == BUTTON_LEFT:
@@ -53,7 +53,7 @@
 			The number of columns in the sprite sheet.
 		</member>
 		<member name="normal_map" type="Texture" setter="set_normal_map" getter="get_normal_map">
-			The normal map gives depth to the Sprite.
+			The normal map gives depth to the Sprite2D.
 		</member>
 		<member name="offset" type="Vector2" setter="set_offset" getter="get_offset" default="Vector2( 0, 0 )">
 			The texture's drawing offset.

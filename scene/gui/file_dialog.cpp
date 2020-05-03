@@ -92,7 +92,7 @@ void FileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
     bool handled = true;
 
-    switch (k->get_scancode()) {
+    switch (k->get_keycode()) {
 
         case KEY_H: {
 
@@ -334,7 +334,7 @@ bool FileDialog::_is_open_should_be_disabled() {
 
 void FileDialog::_go_up() {
 
-    dir_access->change_dir_utf8("..");
+    dir_access->change_dir("..");
     update_file_list();
     update_dir();
 }

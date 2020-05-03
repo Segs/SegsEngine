@@ -30,8 +30,8 @@
 
 #include "circle_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
-#include "servers/visual_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CircleShape2D)
@@ -43,7 +43,7 @@ bool CircleShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_to
 
 void CircleShape2D::_update_shape() {
 
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), radius);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), radius);
     emit_changed();
 }
 
@@ -63,7 +63,7 @@ void CircleShape2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_radius", {"radius"}), &CircleShape2D::set_radius);
     MethodBinder::bind_method(D_METHOD("get_radius"), &CircleShape2D::get_radius);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.01,16384,0.5"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.01,16384,0.5"), "set_radius", "get_radius");
 }
 
 Rect2 CircleShape2D::get_rect() const {
@@ -82,11 +82,11 @@ void CircleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     PoolVector<Color> col;
     col.push_back(p_color);
-    VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 
 CircleShape2D::CircleShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->circle_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->circle_shape_create()) {
 
     radius = 10;
     _update_shape();

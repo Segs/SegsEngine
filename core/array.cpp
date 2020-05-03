@@ -46,9 +46,9 @@ struct _ArrayVariantSortCustom {
     bool operator()(const Variant &p_l, const Variant &p_r) const {
 
         const Variant *args[2] = { &p_l, &p_r };
-        Variant::CallError err;
+        Callable::CallError err;
         bool res = obj->call(func, args, 2, err).as<bool>();
-        if (err.error != Variant::CallError::CALL_OK)
+        if (err.error != Callable::CallError::CALL_OK)
             res = false;
         return res;
     }
@@ -159,9 +159,9 @@ uint32_t Array::hash() const {
 
     uint32_t h = hash_djb2_one_32(0);
 
-    for (int i = 0; i < _p->array.size(); i++) {
+    for (const Variant & v : _p->array) {
 
-        h = hash_djb2_one_32(_p->array[i].hash(), h);
+        h = hash_djb2_one_32(v.hash(), h);
     }
     return h;
 }
@@ -201,14 +201,14 @@ void Array::erase(const Variant &p_value) {
         _p->array.erase(iter);
 }
 
-Variant Array::front() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
-    return operator[](0);
+const Variant &Array::front() const {
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant::null_variant, "Can't take value from empty array.");
+    return _p->array.front();
 }
 
-Variant Array::back() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
-    return operator[](_p->array.size() - 1);
+const Variant &Array::back() const {
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant::null_variant, "Can't take value from empty array.");
+    return _p->array.back();
 }
 
 int Array::find(const Variant &p_value, int p_from) const {
@@ -249,19 +249,7 @@ int Array::find_last(const Variant &p_value) const {
 }
 
 int Array::count(const Variant &p_value) const {
-
-    if (_p->array.empty())
-        return 0;
-
-    int amount = 0;
-    for (int i = 0; i < _p->array.size(); i++) {
-
-        if (_p->array[i] == p_value) {
-            amount++;
-        }
-    }
-
-    return amount;
+    return eastl::count(_p->array.begin(),_p->array.end(),p_value);
 }
 
 bool Array::contains(const Variant &p_value) const {
@@ -332,7 +320,7 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
         new_arr[0] = ARRAY_GET_DEEP(Array::_clamp_index(p_begin), p_deep);
         return new_arr;
     } else {
-        int element_count = ceil((int)MAX(0, (p_end - p_begin) / p_step)) + 1;
+        int element_count = ceil((int)M_MAX(0, (p_end - p_begin) / p_step)) + 1;
         if (element_count == 1) { // delta going in wrong direction to reach end
             new_arr.resize(0);
             return new_arr;

@@ -34,6 +34,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor/scene_tree_dock.h"
 #include "editor/create_dialog.h"
@@ -144,7 +145,7 @@ EditorPropertyText::EditorPropertyText() {
 ///////////////////// MULTILINE TEXT /////////////////////////
 
 void EditorPropertyMultilineText::_big_text_changed() {
-    text->set_text_utf8(big_text->get_text());
+    text->set_text(big_text->get_text());
     emit_changed(get_edited_property(), big_text->get_text_utf8(), "", true);
 }
 
@@ -165,15 +166,15 @@ void EditorPropertyMultilineText::_open_big_text() {
     }
 
     big_text_dialog->popup_centered_clamped(Size2(1000, 900) * EDSCALE, 0.8f);
-    big_text->set_text_utf8(text->get_text());
+    big_text->set_text(text->get_text());
     big_text->grab_focus();
 }
 
 void EditorPropertyMultilineText::update_property() {
     UIString t = get_edited_object()->get(get_edited_property());
-    text->set_text(t);
+    text->set_text_ui(t);
     if (big_text && big_text->is_visible_in_tree()) {
-        big_text->set_text(t);
+        big_text->set_text_ui(t);
     }
 }
 
@@ -273,21 +274,21 @@ void EditorPropertyPath::_path_pressed() {
 
     dialog->clear_filters();
 
+    EditorFileDialog::Access acc_mode = EditorFileDialog::ACCESS_RESOURCES;
     if (global) {
-        dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-    } else {
-        dialog->set_access(EditorFileDialog::ACCESS_RESOURCES);
+        acc_mode = EditorFileDialog::ACCESS_FILESYSTEM;
     }
+    dialog->set_access(acc_mode);
 
     if (folder) {
         dialog->set_mode(EditorFileDialog::MODE_OPEN_DIR);
         dialog->set_current_dir(full_path);
     } else {
         dialog->set_mode(save_mode ? EditorFileDialog::MODE_SAVE_FILE : EditorFileDialog::MODE_OPEN_FILE);
-        for (size_t i = 0; i < extensions.size(); i++) {
-            StringView e =StringUtils::strip_edges( extensions[i]);
+        for (auto & extension : extensions) {
+            StringView e =StringUtils::strip_edges( extension);
             if (!e.empty()) {
-                dialog->add_filter(StringUtils::strip_edges(extensions[i]));
+                dialog->add_filter(StringUtils::strip_edges(extension));
             }
         }
         dialog->set_current_path(full_path);
@@ -419,65 +420,74 @@ void EditorPropertyMember::_property_select() {
     }
 
     UIString current = get_edited_object()->get(get_edited_property());
-
-    if (hint == MEMBER_METHOD_OF_VARIANT_TYPE) {
-
-        VariantType type = VariantType::NIL;
-        for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-            if (hint_text == Variant::get_type_name(VariantType(i))) {
-                type = VariantType(i);
+    switch (hint) {
+        case EditorPropertyMember::MEMBER_METHOD_OF_VARIANT_TYPE: {
+            VariantType type = VariantType::NIL;
+            for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
+                if (hint_text == Variant::get_type_name(VariantType(i))) {
+                    type = VariantType(i);
+                }
             }
+            if (type != VariantType::NIL)
+                selector->select_method_from_basic_type(type, current);
+            break;
         }
-        if (type != VariantType::NIL)
-            selector->select_method_from_basic_type(type, current);
-
-    } else if (hint == MEMBER_METHOD_OF_BASE_TYPE) {
-
-        selector->select_method_from_base_type(StringName(hint_text), current);
-
-    } else if (hint == MEMBER_METHOD_OF_INSTANCE) {
-
-        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (instance)
-            selector->select_method_from_instance(instance, current);
-
-    } else if (hint == MEMBER_METHOD_OF_SCRIPT) {
-
-        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (object_cast<Script>(obj)) {
-            selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
+        case EditorPropertyMember::MEMBER_METHOD_OF_BASE_TYPE: {
+            selector->select_method_from_base_type(StringName(hint_text), current);
+            break;
         }
+        case EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE: {
 
-    } else if (hint == MEMBER_PROPERTY_OF_VARIANT_TYPE) {
+            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            if (instance)
+                selector->select_method_from_instance(instance, current);
 
-        VariantType type = VariantType::NIL;
-        String tname = hint_text;
-        if (StringUtils::contains(tname,"."))
-            tname = StringUtils::get_slice(tname,".", 0);
-        for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
-            if (tname == Variant::get_type_name(VariantType(i))) {
-                type = VariantType(VariantType(i));
+            break;
+        }
+        case EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT: {
+
+            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            if (object_cast<Script>(obj)) {
+                selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
+
+            break;
         }
+        case EditorPropertyMember::MEMBER_PROPERTY_OF_VARIANT_TYPE: {
 
-        if (type != VariantType::NIL)
-            selector->select_property_from_basic_type(type, current);
+            VariantType type = VariantType::NIL;
+            String tname = hint_text;
+            if (StringUtils::contains(tname, ".")) tname = StringUtils::get_slice(tname, ".", 0);
+            for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
+                if (tname == Variant::get_type_name(VariantType(i))) {
+                    type = VariantType(VariantType(i));
+                }
+            }
 
-    } else if (hint == MEMBER_PROPERTY_OF_BASE_TYPE) {
+            if (type != VariantType::NIL)
+                selector->select_property_from_basic_type(type, current);
 
-        selector->select_property_from_base_type(StringName(hint_text), current);
+            break;
+        }
+        case EditorPropertyMember::MEMBER_PROPERTY_OF_BASE_TYPE: {
+            selector->select_property_from_base_type(StringName(hint_text), current);
+            break;
+        }
+        case EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE: {
 
-    } else if (hint == MEMBER_PROPERTY_OF_INSTANCE) {
+            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            if (instance)
+                selector->select_property_from_instance(instance, current);
 
-        Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (instance)
-            selector->select_property_from_instance(instance, current);
+            break;
+        }
+        case EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT: {
 
-    } else if (hint == MEMBER_PROPERTY_OF_SCRIPT) {
-
-        Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
-        if (object_cast<Script>(obj)) {
-            selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
+            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            if (object_cast<Script>(obj)) {
+                selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
+            }
+            break;
         }
     }
 }
@@ -1990,7 +2000,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
         if (!base_node) {
             //try a base node within history
             if (EditorNode::get_singleton()->get_editor_history()->get_path_size() > 0) {
-                Object *base = ObjectDB::get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
+                Object *base = gObjectDB().get_instance(EditorNode::get_singleton()->get_editor_history()->get_path_object(0));
                 if (base) {
                     base_node = object_cast<Node>(base);
                 }
@@ -2460,11 +2470,11 @@ void EditorPropertyResource::_update_menu_items() {
                 bool is_custom_resource = false;
                 Ref<Texture> icon;
                 if (!custom_resources.empty()) {
-                    for (int j = 0; j < custom_resources.size(); j++) {
-                        if (custom_resources[j].name == t) {
+                    for (auto & custom_resource : custom_resources) {
+                        if (custom_resource.name == t) {
                             is_custom_resource = true;
-                            if (custom_resources[j].icon)
-                                icon = custom_resources[j].icon;
+                            if (custom_resource.icon)
+                                icon = custom_resource.icon;
                             break;
                         }
                     }
@@ -3070,15 +3080,15 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
                 add_property_editor(p_path, editor);
             }
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (p_hint == PropertyHint::ExpEasing) {
                 EditorPropertyEasing *editor = memnew(EditorPropertyEasing);
                 bool full = true;
                 bool flip = false;
                 Vector<StringView> hints = StringUtils::split(p_hint_text,',');
-                for (int i = 0; i < hints.size(); i++) {
-                    StringView h =StringUtils::strip_edges( hints[i]);
+                for (auto & hint : hints) {
+                    StringView h =StringUtils::strip_edges( hint);
                     if (h == StringView("attenuation")) {
                         flip = true;
                     }

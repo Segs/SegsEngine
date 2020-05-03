@@ -31,6 +31,7 @@
 #include "os_windows.h"
 
 #include "core/io/marshalls.h"
+#include "core/debugger/script_debugger.h"
 #include "core/version_generated.gen.h"
 #include "core/string_utils.inl"
 #include "drivers/gles3/rasterizer_gles3.h"
@@ -38,14 +39,13 @@
 #include "drivers/windows/dir_access_windows.h"
 #include "drivers/windows/file_access_windows.h"
 #include "drivers/windows/rw_lock_windows.h"
-#include "drivers/windows/semaphore_windows.h"
 #include "drivers/windows/thread_windows.h"
 #include "joypad_windows.h"
 #include "lang_table.h"
 #include "main/main.h"
 #include "servers/audio_server.h"
-#include "servers/visual/visual_server_raster.h"
-#include "servers/visual/visual_server_wrap_mt.h"
+#include "servers/rendering/rendering_server_raster.h"
+#include "servers/rendering/rendering_server_wrap_mt.h"
 #include "windows_terminal_logger.h"
 
 #include <QString>
@@ -55,6 +55,8 @@
 #include <process.h>
 #include <regstr.h>
 #include <shlobj.h>
+
+#include "core/print_string.h"
 
 static const WORD MAX_CONSOLE_LINES = 1500;
 
@@ -216,7 +218,6 @@ void OS_Windows::initialize_core() {
     borderless = false;
 
     ThreadWindows::make_default();
-    SemaphoreWindows::make_default();
     RWLockWindows::make_default();
 
     FileAccess::make_default<FileAccessWindows>(FileAccess::ACCESS_RESOURCES);
@@ -1110,7 +1111,7 @@ void OS_Windows::process_key_events() {
                     k->set_control(ke.control);
                     k->set_metakey(ke.meta);
                     k->set_pressed(true);
-                    k->set_scancode(KeyMappingWindows::get_keysym(ke.wParam));
+                    k->set_keycode(KeyMappingWindows::get_keysym(ke.wParam));
                     k->set_unicode(ke.wParam);
                     if (k->get_unicode() && gr_mem) {
                         k->set_alt(false);
@@ -1139,9 +1140,9 @@ void OS_Windows::process_key_events() {
 
                 if ((ke.lParam & (1 << 24)) && (ke.wParam == VK_RETURN)) {
                     // Special case for Numpad Enter key
-                    k->set_scancode(KEY_KP_ENTER);
+                    k->set_keycode(KEY_KP_ENTER);
                 } else {
-                    k->set_scancode(KeyMappingWindows::get_keysym(ke.wParam));
+                    k->set_keycode(KeyMappingWindows::get_keysym(ke.wParam));
                 }
 
                 if (i + 1 < key_event_pos && key_event_buffer[i + 1].uMsg == WM_CHAR) {
@@ -1440,12 +1441,12 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
     set_vsync_via_compositor(video_mode.vsync_via_compositor);
 #endif
 
-    visual_server = memnew(VisualServerRaster);
+    rendering_server = memnew(VisualServerRaster);
     if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        visual_server = memnew(VisualServerWrapMT(visual_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+        rendering_server = memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
     }
 
-    visual_server->init();
+    rendering_server->init();
 
     input = memnew(InputDefault);
     joypad = memnew(JoypadWindows(input, &hWnd));
@@ -1605,8 +1606,8 @@ void OS_Windows::finalize() {
     touch_state.clear();
 
     cursors_cache.clear();
-    visual_server->finish();
-    memdelete(visual_server);
+    rendering_server->finish();
+    memdelete(rendering_server);
 #ifdef OPENGL_ENABLED
     if (gl_context)
         memdelete(gl_context);

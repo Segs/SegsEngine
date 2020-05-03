@@ -33,10 +33,10 @@
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "scene/3d/path.h"
+#include "scene/3d/path_3d.h"
 #include "scene/resources/mesh.h"
-#include "scene/resources/world.h"
-#include "servers/physics_server.h"
+#include "scene/resources/world_3d.h"
+#include "servers/physics_server_3d.h"
 
 IMPL_GDCLASS(CSGShape)
 IMPL_GDCLASS(CSGCombiner)
@@ -73,17 +73,17 @@ void CSGShape::set_use_collision(bool p_enable) {
         return;
 
     if (use_collision) {
-        root_collision_shape = make_ref_counted<ConcavePolygonShape>();
-        root_collision_instance = PhysicsServer::get_singleton()->body_create(PhysicsServer::BODY_MODE_STATIC);
-        PhysicsServer::get_singleton()->body_set_state(root_collision_instance, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
-        PhysicsServer::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
-        PhysicsServer::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
-        PhysicsServer::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
+        root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
+        root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
+        PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+        PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
+        PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
+        PhysicsServer3D::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
         set_collision_layer(collision_layer);
         set_collision_mask(collision_mask);
         _make_dirty(); //force update
     } else {
-        PhysicsServer::get_singleton()->free_rid(root_collision_instance);
+        PhysicsServer3D::get_singleton()->free_rid(root_collision_instance);
         root_collision_instance = RID();
         root_collision_shape.unref();
     }
@@ -97,7 +97,7 @@ bool CSGShape::is_using_collision() const {
 void CSGShape::set_collision_layer(uint32_t p_layer) {
     collision_layer = p_layer;
     if (root_collision_instance.is_valid()) {
-        PhysicsServer::get_singleton()->body_set_collision_layer(root_collision_instance, p_layer);
+        PhysicsServer3D::get_singleton()->body_set_collision_layer(root_collision_instance, p_layer);
     }
 }
 
@@ -110,7 +110,7 @@ void CSGShape::set_collision_mask(uint32_t p_mask) {
 
     collision_mask = p_mask;
     if (root_collision_instance.is_valid()) {
-        PhysicsServer::get_singleton()->body_set_collision_mask(root_collision_instance, p_mask);
+        PhysicsServer3D::get_singleton()->body_set_collision_mask(root_collision_instance, p_mask);
     }
 }
 
@@ -524,12 +524,12 @@ void CSGShape::_notification(int p_what) {
         }
 
         if (use_collision && is_root_shape()) {
-            root_collision_shape = make_ref_counted<ConcavePolygonShape>();
-            root_collision_instance = PhysicsServer::get_singleton()->body_create(PhysicsServer::BODY_MODE_STATIC);
-            PhysicsServer::get_singleton()->body_set_state(root_collision_instance, PhysicsServer::BODY_STATE_TRANSFORM, get_global_transform());
-            PhysicsServer::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
-            PhysicsServer::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
-            PhysicsServer::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
+            root_collision_shape = make_ref_counted<ConcavePolygonShape3D>();
+            root_collision_instance = PhysicsServer3D::get_singleton()->body_create(PhysicsServer3D::BODY_MODE_STATIC);
+            PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+            PhysicsServer3D::get_singleton()->body_add_shape(root_collision_instance, root_collision_shape->get_rid());
+            PhysicsServer3D::get_singleton()->body_set_space(root_collision_instance, get_world()->get_space());
+            PhysicsServer3D::get_singleton()->body_attach_object_instance_id(root_collision_instance, get_instance_id());
             set_collision_layer(collision_layer);
             set_collision_mask(collision_mask);
         }
@@ -558,7 +558,7 @@ void CSGShape::_notification(int p_what) {
         parent = nullptr;
 
         if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
-            PhysicsServer::get_singleton()->free_rid(root_collision_instance);
+            PhysicsServer3D::get_singleton()->free_rid(root_collision_instance);
             root_collision_instance = RID();
             root_collision_shape.unref();
         }
@@ -640,7 +640,7 @@ void CSGShape::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_meshes"), &CSGShape::get_meshes);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "operation", PropertyHint::Enum, "Union,Intersection,Subtraction"), "set_operation", "get_operation");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "snap", PropertyHint::Range, "0.0001,1,0.001"), "set_snap", "get_snap");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "snap", PropertyHint::Range, "0.0001,1,0.001"), "set_snap", "get_snap");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "calculate_tangents"), "set_calculate_tangents", "is_calculating_tangents");
 
     ADD_GROUP("Collision", "collision_");
@@ -1053,7 +1053,7 @@ void CSGSphere::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGSphere::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGSphere::get_material);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.001,100.0,0.001"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1"), "set_radial_segments", "get_radial_segments");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1"), "set_rings", "get_rings");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
@@ -1240,9 +1240,9 @@ void CSGBox::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGBox::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGBox::get_material);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "width", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 }
 
@@ -1455,8 +1455,8 @@ void CSGCylinder::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGCylinder::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGCylinder::get_smooth_faces);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "sides", PropertyHint::Range, "3,64,1"), "set_sides", "get_sides");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cone"), "set_cone", "is_cone");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
@@ -1682,8 +1682,8 @@ void CSGTorus::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_smooth_faces", {"smooth_faces"}), &CSGTorus::set_smooth_faces);
     MethodBinder::bind_method(D_METHOD("get_smooth_faces"), &CSGTorus::get_smooth_faces);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "inner_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "outer_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "inner_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_inner_radius", "get_inner_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "outer_radius", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_outer_radius", "get_outer_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "sides", PropertyHint::Range, "3,64,1"), "set_sides", "get_sides");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "ring_sides", PropertyHint::Range, "3,64,1"), "set_ring_sides", "get_ring_sides");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
@@ -1783,7 +1783,7 @@ CSGBrush *CSGPolygon::_build_brush() {
     if (triangles.size() < 3)
         return nullptr;
 
-    Path *path = nullptr;
+    Path3D *path = nullptr;
     Ref<Curve3D> curve;
 
     // get bounds for our polygon
@@ -1810,7 +1810,7 @@ CSGBrush *CSGPolygon::_build_brush() {
         Node *n = get_node(path_node);
         if (!n)
             return nullptr;
-        path = object_cast<Path>(n);
+        path = object_cast<Path3D>(n);
         if (!path)
             return nullptr;
 
@@ -1842,7 +1842,7 @@ CSGBrush *CSGPolygon::_build_brush() {
         case MODE_SPIN: face_count = (spin_degrees < 360 ? triangles.size() * 2 / 3 : 0) + (final_polygon.size()) * 2 * spin_sides; break;
         case MODE_PATH: {
             float bl = curve->get_baked_length();
-            int splits = MAX(2, Math::ceil(bl / path_interval));
+            int splits = M_MAX(2, Math::ceil(bl / path_interval));
             if (path_joined) {
                 face_count = splits * final_polygon.size() * 2;
             } else {
@@ -2061,7 +2061,7 @@ CSGBrush *CSGPolygon::_build_brush() {
             case MODE_PATH: {
 
                 float bl = curve->get_baked_length();
-                int splits = MAX(2, Math::ceil(bl / path_interval));
+                int splits = M_MAX(2, Math::ceil(bl / path_interval));
                 float u1 = 0.0;
                 float u2 = path_continuous_u ? 0.0 : 1.0;
 
@@ -2318,11 +2318,11 @@ void CSGPolygon::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Depth,Spin,Path"), "set_mode", "get_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "spin_degrees", PropertyHint::Range, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "depth", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_depth", "get_depth");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spin_degrees", PropertyHint::Range, "1,360,0.1"), "set_spin_degrees", "get_spin_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "spin_sides", PropertyHint::Range, "3,64,1"), "set_spin_sides", "get_spin_sides");
-    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PropertyHint::NodePathValidTypes, "Path"), "set_path_node", "get_path_node");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "path_interval", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "path_node", PropertyHint::NodePathValidTypes, "Path3D"), "set_path_node", "get_path_node");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "path_interval", PropertyHint::ExpRange, "0.001,1000.0,0.001,or_greater"), "set_path_interval", "get_path_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "path_rotation", PropertyHint::Enum, "Polygon,Path,PathFollow"), "set_path_rotation", "get_path_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_local"), "set_path_local", "is_path_local");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "path_continuous_u"), "set_path_continuous_u", "is_path_continuous_u");

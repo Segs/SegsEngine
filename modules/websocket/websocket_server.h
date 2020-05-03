@@ -71,6 +71,9 @@ public:
 
     IP_Address get_bind_ip() const;
     void set_bind_ip(const IP_Address &p_bind_ip);
+    void set_bind_ip(StringView p_bind_ip) {
+        set_bind_ip(IP_Address(p_bind_ip));
+    }
 
     Ref<CryptoKey> get_private_key() const;
     void set_private_key(Ref<CryptoKey> p_key);

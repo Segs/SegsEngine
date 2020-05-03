@@ -35,9 +35,9 @@
 #include "editor/import/resource_importer_scene.h"
 #include "editor/editor_settings.h"
 #include "import_utils.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/light.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/light_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/main/node.h"
 #include "scene/resources/material.h"
@@ -80,7 +80,7 @@ aiBone *get_bone_by_name(const aiScene *scene, aiString bone_name) {
 class AssimpStream : public Assimp::LogStream {
 public:
     // Constructor
-    AssimpStream() {}
+    AssimpStream() = default;
 
     // Destructor
     ~AssimpStream() override {}
@@ -347,7 +347,7 @@ aiBone *EditorSceneImporterAssimp::get_bone_from_stack(ImportState &state, aiStr
     return nullptr;
 }
 
-Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags,
+Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *scene, const uint32_t p_flags,
                                                     int p_bake_fps, const int32_t p_max_bone_weights) {
     ERR_FAIL_COND_V(scene == nullptr, nullptr);
 
@@ -390,7 +390,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             String node_name = AssimpUtils::get_assimp_string(element_assimp_node->mName);
             //print_verbose("node: " + node_name);
 
-            Spatial *spatial = nullptr;
+            Node3D *spatial = nullptr;
             Transform transform = AssimpUtils::assimp_matrix_transform(element_assimp_node->mTransformation);
 
             // retrieve this node bone
@@ -411,7 +411,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             } else if (bone != nullptr) {
                 continue;
             } else {
-                spatial = memnew(Spatial);
+                spatial = memnew(Node3D);
             }
 
             ERR_CONTINUE_MSG(spatial == nullptr, "Assimp Import - are we out of ram?");
@@ -428,11 +428,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             // flat node map parent lookup tool
             state.flat_node_map.emplace(element_assimp_node, spatial);
 
-            HashMap<const aiNode *, Spatial *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
+            HashMap<const aiNode *, Node3D *>::iterator parent_lookup = state.flat_node_map.find(parent_assimp_node);
 
             // note: this always fails on the root node :) keep that in mind this is by design
             if (parent_lookup!=state.flat_node_map.end()) {
-                Spatial *parent_node = parent_lookup->second;
+                Node3D *parent_node = parent_lookup->second;
 
                 ERR_FAIL_COND_V_MSG(parent_node == NULL, state.root, "Parent node invalid even though lookup successful, out of ram?");
 
@@ -509,11 +509,11 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
 
         print_verbose("generating mesh phase from skeletal mesh");
 
-        Vector<Spatial *> cleanup_template_nodes;
+        Vector<Node3D *> cleanup_template_nodes;
 
-        for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
+        for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
-            Spatial *mesh_template = key_value_pair.second;
+            Node3D *mesh_template = key_value_pair.second;
 
             ERR_CONTINUE(assimp_node == nullptr);
             ERR_CONTINUE(mesh_template == nullptr);
@@ -533,7 +533,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             Transform node_transform = AssimpUtils::assimp_matrix_transform(assimp_node->mTransformation);
 
             if (assimp_node->mNumMeshes > 0) {
-                MeshInstance *mesh = create_mesh(state, assimp_node, node_name, parent_node, node_transform);
+                MeshInstance3D *mesh = create_mesh(state, assimp_node, node_name, parent_node, node_transform);
                 if (mesh) {
 
                     parent_node->remove_child(mesh_template);
@@ -567,7 +567,7 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
             }
         }
 
-        for (Spatial * element : cleanup_template_nodes) {
+        for (Node3D * element : cleanup_template_nodes) {
             if (element) {
                 memdelete(element);
             }
@@ -602,9 +602,9 @@ Spatial *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *
 }
 // I really do not like this but need to figure out a better way of removing it later.
 Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, StringView name) {
-    for (const eastl::pair<const aiNode *, Spatial *> &key_value_pair : state.flat_node_map) {
+    for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
         const aiNode *assimp_node = key_value_pair.first;
-        Spatial *node = key_value_pair.second;
+        Node3D *node = key_value_pair.second;
 
         String node_name = AssimpUtils::get_assimp_string(assimp_node->mName);
         if (node_name == name && node) {
@@ -845,7 +845,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
 
         Node *item = get_node_by_name(state, mesh_name);
         ERR_CONTINUE_MSG(!item, "failed to look up node by name");
-        const MeshInstance *mesh_instance = object_cast<MeshInstance>(item);
+        const MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(item);
 
         ERR_CONTINUE(mesh_instance == nullptr);
 
@@ -1307,7 +1307,7 @@ EditorSceneImporterAssimp::_generate_mesh_from_surface_indices(ImportState &stat
 /**
  * Create a new mesh for the node supplied
  */
-MeshInstance *
+MeshInstance3D *
 EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_node, const String &node_name, Node *active_node, Transform node_transform) {
     /* MESH NODE */
     Ref<Mesh> mesh;
@@ -1341,7 +1341,7 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
         state.mesh_cache[mesh_key] = mesh;
     }
 
-    MeshInstance *mesh_node = memnew(MeshInstance);
+    MeshInstance3D *mesh_node = memnew(MeshInstance3D);
     mesh = state.mesh_cache[mesh_key];
     mesh_node->set_mesh(mesh);
 
@@ -1415,20 +1415,20 @@ EditorSceneImporterAssimp::create_mesh(ImportState &state, const aiNode *assimp_
  * Create a light for the scene
  * Automatically caches lights for lookup later
  */
-Spatial *EditorSceneImporterAssimp::create_light(
+Node3D *EditorSceneImporterAssimp::create_light(
         ImportState &state,
         const String &node_name,
         Transform &look_at_transform) {
-    Light *light = nullptr;
+    Light3D *light = nullptr;
     aiLight *assimp_light = state.assimp_scene->mLights[state.light_cache[node_name]];
     ERR_FAIL_COND_V(!assimp_light, nullptr);
 
     if (assimp_light->mType == aiLightSource_DIRECTIONAL) {
-        light = memnew(DirectionalLight);
+        light = memnew(DirectionalLight3D);
     } else if (assimp_light->mType == aiLightSource_POINT) {
-        light = memnew(OmniLight);
+        light = memnew(OmniLight3D);
     } else if (assimp_light->mType == aiLightSource_SPOT) {
-        light = memnew(SpotLight);
+        light = memnew(SpotLight3D);
     }
     ERR_FAIL_COND_V(light == nullptr, nullptr);
 
@@ -1461,14 +1461,14 @@ Spatial *EditorSceneImporterAssimp::create_light(
 /**
  * Create camera for the scene
  */
-Spatial *EditorSceneImporterAssimp::create_camera(
+Node3D *EditorSceneImporterAssimp::create_camera(
         ImportState &state,
         const String &node_name,
         Transform &look_at_transform) {
     aiCamera *camera = state.assimp_scene->mCameras[state.camera_cache[node_name]];
     ERR_FAIL_COND_V(!camera, nullptr);
 
-    Camera *camera_node = memnew(Camera);
+    Camera3D *camera_node = memnew(Camera3D);
     ERR_FAIL_COND_V(!camera_node, nullptr);
     float near = camera->mClipPlaneNear;
     if (Math::is_equal_approx(near, 0.0f)) {

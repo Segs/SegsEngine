@@ -30,6 +30,8 @@
 
 #include "base_object_glue.h"
 
+#include "core/debugger/script_debugger.h"
+
 #ifdef MONO_GLUE_ENABLED
 
 #include "core/reference.h"
@@ -194,12 +196,12 @@ MonoBoolean godot_icall_DynamicGodotObject_InvokeMember(Object *p_ptr, MonoStrin
     for (int i = 0; i < argc; i++) {
         args.push_back(&arg_store[i]);
     }
-    Variant::CallError error;
+    Callable::CallError error;
     Variant result = p_ptr->call(StringName(name), args.data(), argc, error);
 
     *r_result = GDMonoMarshal::variant_to_mono_object(result);
 
-    return error.error == Variant::CallError::CALL_OK;
+    return error.error == Callable::CallError::CALL_OK;
 }
 
 MonoBoolean godot_icall_DynamicGodotObject_GetMember(Object *p_ptr, MonoString *p_name, MonoObject **r_result) {
@@ -232,7 +234,7 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 
     if (ScriptDebugger::get_singleton() && !object_cast<RefCounted>(p_ptr)) { // Only if debugging!
         // Cannot happen either in C#; the handle is nullified when the object is destroyed
-        CRASH_COND(!ObjectDB::instance_validate(p_ptr));
+        CRASH_COND(!gObjectDB().instance_validate(p_ptr));
     }
 #endif
 

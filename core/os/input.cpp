@@ -30,7 +30,7 @@
 
 #include "input.h"
 
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/list.h"
 #include "core/method_arg_casters.h"
 #include "core/method_bind.h"
@@ -69,7 +69,7 @@ Input::MouseMode Input::get_mouse_mode() const {
 
 void Input::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("is_key_pressed", {"scancode"}), &Input::is_key_pressed);
+    MethodBinder::bind_method(D_METHOD("is_key_pressed", {"keycode"}), &Input::is_key_pressed);
     MethodBinder::bind_method(D_METHOD("is_mouse_button_pressed", {"button"}), &Input::is_mouse_button_pressed);
     MethodBinder::bind_method(D_METHOD("is_joy_button_pressed", {"device", "button"}), &Input::is_joy_button_pressed);
     MethodBinder::bind_method(D_METHOD("is_action_pressed", {"action"}), &Input::is_action_pressed);

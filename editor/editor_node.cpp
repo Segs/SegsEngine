@@ -74,6 +74,7 @@
 #include "editor/editor_audio_buses.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_help.h"
+#include "editor/editor_help_search.h"
 #include "editor/editor_network_profiler.h"
 #include "editor/editor_path.h"
 #include "editor/editor_profiler.h"
@@ -98,10 +99,10 @@
 #include "editor/plugins/asset_library_editor_plugin.h"
 #include "editor/plugins/audio_stream_editor_plugin.h"
 #include "editor/plugins/baked_lightmap_editor_plugin.h"
-#include "editor/plugins/camera_editor_plugin.h"
+#include "editor/plugins/camera_3d_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/collision_polygon_2d_editor_plugin.h"
-#include "editor/plugins/collision_polygon_editor_plugin.h"
+#include "editor/plugins/collision_polygon_3d_editor_plugin.h"
 #include "editor/plugins/collision_shape_2d_editor_plugin.h"
 #include "editor/plugins/cpu_particles_2d_editor_plugin.h"
 #include "editor/plugins/cpu_particles_editor_plugin.h"
@@ -153,13 +154,13 @@
 #include "editor/scene_tree_dock.h"
 #include "editor/script_editor_debugger.h"
 #include "fileserver/editor_file_server.h"
-#include "main/input_default.h"
+#include "core/input/input_default.h"
 #include "main/main.h"
 #include "scene/gui/tabs.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 #include "EASTL/sort.h"
 #include <cstdio>
@@ -385,9 +386,9 @@ void EditorNode::_notification(int p_what) {
             }
             _initializing_addons = false;
         }
-            VisualServer::get_singleton()->viewport_set_hide_scenario(get_scene_root()->get_viewport_rid(), true);
-            VisualServer::get_singleton()->viewport_set_hide_canvas(get_scene_root()->get_viewport_rid(), true);
-            VisualServer::get_singleton()->viewport_set_disable_environment(get_viewport()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_hide_scenario(get_scene_root()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_hide_canvas(get_scene_root()->get_viewport_rid(), true);
+            RenderingServer::get_singleton()->viewport_set_disable_environment(get_viewport()->get_viewport_rid(), true);
 
             feature_profile_manager->notify_changed();
 
@@ -1092,7 +1093,7 @@ void EditorNode::_find_node_types(Node *p_node, int &count_2d, int &count_3d) {
 
     if (p_node->is_class("CanvasItem"))
         count_2d++;
-    else if (p_node->is_class("Spatial"))
+    else if (p_node->is_class("Node3D"))
         count_3d++;
 
     for (int i = 0; i < p_node->get_child_count(); i++)
@@ -1149,7 +1150,7 @@ void EditorNode::_save_scene_with_preview(StringView p_file, int p_idx) {
                 img->crop_from_point(x, y, vp_size, vp_size);
             } else {
                 int ratio = vp_size / preview_size;
-                int size = preview_size * MAX(1, ratio / 2);
+                int size = preview_size * M_MAX(1, ratio / 2);
 
                 x = (img->get_width() - size) / 2;
                 y = (img->get_height() - size) / 2;
@@ -1544,7 +1545,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
-            Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+            Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
@@ -1747,7 +1748,7 @@ static bool overrides_external_editor(Object *p_object) {
 void EditorNode::_edit_current() {
 
     uint32_t current = editor_history.get_current();
-    Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
     bool inspector_only = editor_history.is_current_inspector_only();
 
     this->current = current_obj;
@@ -2760,13 +2761,13 @@ void EditorNode::_tool_menu_option(int p_idx) {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
                 Array params = tool_menu->get_item_metadata(p_idx);
 
-                Object *handler = ObjectDB::get_instance(params[0]);
+                Object *handler = gObjectDB().get_instance(params[0]);
                 StringName callback = params[1];
                 Variant *ud = &params[2];
-                Variant::CallError ce;
+                Callable::CallError ce;
 
                 handler->call(callback, (const Variant **)&ud, 1, ce);
-                if (ce.error != Variant::CallError::CALL_OK) {
+                if (ce.error != Callable::CallError::CALL_OK) {
                     String err = Variant::get_call_error_text(handler, callback, (const Variant **)&ud, 1, ce);
                     ERR_PRINT("Error calling function from tool menu: " + err);
                 }
@@ -3282,7 +3283,7 @@ void EditorNode::_clear_undo_history() {
 void EditorNode::set_current_scene(int p_idx) {
 
     // Save the folding in case the scene gets reloaded.
-    if (editor_data.get_scene_path(p_idx) != "")
+    if (editor_data.get_scene_path(p_idx) != "" && editor_data.get_edited_scene_root(p_idx))
         editor_folding.save_scene_folding(editor_data.get_edited_scene_root(p_idx), editor_data.get_scene_path(p_idx));
 
     if (editor_data.check_and_update_scene(p_idx)) {
@@ -3801,8 +3802,8 @@ void EditorNode::register_editor_types() {
     EditorInspectorPluginCurve::initialize_class();
     CurveEditorPlugin::initialize_class();
     CurvePreviewGenerator::initialize_class();
-    CPUParticlesEditor::initialize_class();
-    CPUParticlesEditorPlugin::initialize_class();
+    CPUParticles3DEditor::initialize_class();
+    CPUParticles3DEditorPlugin::initialize_class();
     AudioStreamEditor::initialize_class();
     AudioStreamEditorPlugin::initialize_class();
 
@@ -3840,8 +3841,8 @@ void EditorNode::register_editor_types() {
     ParticlesMaterialConversionPlugin::initialize_class();
     CanvasItemMaterialConversionPlugin::initialize_class();
     register_visual_shader_editor_classes();
-    CameraEditor::initialize_class();
-    CameraEditorPlugin::initialize_class();
+    Camera3DEditor::initialize_class();
+    Camera3DEditorPlugin::initialize_class();
     PhysicalBoneEditor::initialize_class();
     PhysicalBonePlugin::initialize_class();
     TileMapEditor::initialize_class();
@@ -3858,8 +3859,8 @@ void EditorNode::register_editor_types() {
     AssetLibraryEditorPlugin::initialize_class();
     TextureRegionEditor::initialize_class();
     TextureRegionEditorPlugin::initialize_class();
-    Polygon3DEditor::initialize_class();
-    Polygon3DEditorPlugin::initialize_class();
+    CollisionPolygon3DEditor::initialize_class();
+    CollisionPolygon3DEditorPlugin::initialize_class();
     CollisionShape2DEditor::initialize_class();
     CollisionShape2DEditorPlugin::initialize_class();
     CPUParticles2DEditorPlugin::initialize_class();
@@ -5953,11 +5954,11 @@ EditorNode::EditorNode() {
     Input::get_singleton()->set_use_accumulated_input(true);
     Resource::_get_local_scene_func = _resource_get_edited_scene;
 
-    VisualServer::get_singleton()->textures_keep_original(true);
-    VisualServer::get_singleton()->set_debug_generate_wireframes(true);
+    RenderingServer::get_singleton()->textures_keep_original(true);
+    RenderingServer::get_singleton()->set_debug_generate_wireframes(true);
 
-    PhysicsServer::get_singleton()->set_active(false); // no physics by default if editor
-    Physics2DServer::get_singleton()->set_active(false); // no physics by default if editor
+    PhysicsServer3D::get_singleton()->set_active(false); // no physics by default if editor
+    PhysicsServer2D::get_singleton()->set_active(false); // no physics by default if editor
     ScriptServer::set_scripting_enabled(false); // no scripting by default if editor
 
     EditorHelp::generate_doc(); // before any editor classes are created
@@ -6125,7 +6126,7 @@ EditorNode::EditorNode() {
     EDITOR_DEF_RST("interface/inspector/capitalize_properties", true);
     EDITOR_DEF_RST("interface/inspector/default_float_step", 0.001f);
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(
-            VariantType::REAL, "interface/inspector/default_float_step", PropertyHint::Range, "0,1,0"));
+            VariantType::FLOAT, "interface/inspector/default_float_step", PropertyHint::Range, "0,1,0"));
     EDITOR_DEF_RST("interface/inspector/disable_folding", false);
     EDITOR_DEF_RST("interface/inspector/auto_unfold_foreign_scenes", true);
     EDITOR_DEF("interface/inspector/horizontal_vector2_editing", false);
@@ -6372,7 +6373,7 @@ EditorNode::EditorNode() {
     // scene_root->set_usage(Viewport::USAGE_2D); canvas BG mode prevents usage of this as 2D
     scene_root->set_disable_3d(true);
 
-    VisualServer::get_singleton()->viewport_set_hide_scenario(scene_root->get_viewport_rid(), true);
+    RenderingServer::get_singleton()->viewport_set_hide_scenario(scene_root->get_viewport_rid(), true);
     scene_root->set_disable_input(true);
     scene_root->set_as_audio_listener_2d(true);
 
@@ -7032,7 +7033,7 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(ShaderEditorPlugin(this)));
     add_editor_plugin(memnew(VisualShaderEditorPlugin(this)));
 
-    add_editor_plugin(memnew(CameraEditorPlugin(this)));
+    add_editor_plugin(memnew(Camera3DEditorPlugin(this)));
     add_editor_plugin(memnew(ThemeEditorPlugin(this)));
     add_editor_plugin(memnew(MultiMeshEditorPlugin(this)));
     add_editor_plugin(memnew(MeshInstanceEditorPlugin(this)));
@@ -7045,10 +7046,10 @@ EditorNode::EditorNode() {
     add_editor_plugin(memnew(Skeleton2DEditorPlugin(this)));
     add_editor_plugin(memnew(ParticlesEditorPlugin(this)));
     add_editor_plugin(memnew(CPUParticles2DEditorPlugin(this)));
-    add_editor_plugin(memnew(CPUParticlesEditorPlugin(this)));
+    add_editor_plugin(memnew(CPUParticles3DEditorPlugin(this)));
     add_editor_plugin(memnew(ResourcePreloaderEditorPlugin(this)));
     add_editor_plugin(memnew(ItemListEditorPlugin(this)));
-    add_editor_plugin(memnew(Polygon3DEditorPlugin(this)));
+    add_editor_plugin(memnew(CollisionPolygon3DEditorPlugin(this)));
     add_editor_plugin(memnew(CollisionPolygon2DEditorPlugin(this)));
     add_editor_plugin(memnew(TileSetEditorPlugin(this)));
     add_editor_plugin(memnew(TileMapEditorPlugin(this)));
@@ -7275,7 +7276,7 @@ bool EditorPluginList::forward_gui_input(const Ref<InputEvent> &p_event) {
 }
 
 bool EditorPluginList::forward_spatial_gui_input(
-        Camera *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
+        Camera3D *p_camera, const Ref<InputEvent> &p_event, bool serve_when_force_input_enabled) {
     bool discard = false;
 
     for (int i = 0; i < plugins_list.size(); i++) {

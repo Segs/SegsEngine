@@ -41,7 +41,7 @@
 #include "core/ustring.h"
 #include "core/pair.h"
 #include "core/string_utils.inl"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -364,7 +364,7 @@ struct DynamicFontAtSize::ImplData
             ret.x = 0;
             ret.y = 0;
 
-            int texsize = MAX(id.size * oversampling * 8, 256);
+            int texsize = M_MAX(id.size * oversampling * 8, 256);
             if (mw > texsize)
                 texsize = mw; //special case, adapt to it?
             if (mh > texsize)
@@ -698,7 +698,7 @@ float DynamicFontAtSize::draw_char(RID p_canvas_item, const Point2 &p_pos, CharT
                 modulate.r = modulate.g = modulate.b = 1.0f;
             }
             RID texture = font->textures[ch->texture_idx].texture->get_rid();
-            VisualServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, ch->rect.size), texture, ch->rect_uv, modulate, false, RID(), false);
+            RenderingServer::get_singleton()->canvas_item_add_texture_rect_region(p_canvas_item, Rect2(cpos, ch->rect.size), texture, ch->rect_uv, modulate, false, RID(), false);
         }
 
         advance = ch->advance;

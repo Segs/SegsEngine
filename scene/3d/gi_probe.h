@@ -31,8 +31,8 @@
 #ifndef GIPROBE_H
 #define GIPROBE_H
 
-#include "multimesh_instance.h"
-#include "scene/3d/visual_instance.h"
+#include "multimesh_instance_3d.h"
+#include "scene/3d/visual_instance_3d.h"
 
 class GIProbeData : public Resource {
 
@@ -83,8 +83,8 @@ public:
     ~GIProbeData() override;
 };
 
-class GIProbe : public VisualInstance {
-    GDCLASS(GIProbe,VisualInstance)
+class GIProbe : public VisualInstance3D {
+    GDCLASS(GIProbe,VisualInstance3D)
 
 public:
     enum Subdiv {
@@ -123,7 +123,7 @@ private:
     };
 public:
     void _find_meshes(Node *p_at_node, Vector<PlotMesh> &plot_meshes) const;
-    void _debug_bake();
+    void debug_bake();
 
 protected:
     static void _bind_methods();

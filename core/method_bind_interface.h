@@ -25,7 +25,7 @@ protected:
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;
-    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const  verifiers[])(const Variant &), int max_args, Variant::CallError& r_error) const
+    bool checkArgs(const Variant** p_args,int p_arg_count,bool (*const  verifiers[])(const Variant &), int max_args, Callable::CallError& r_error) const
     {
         int max_arg_to_check= p_arg_count<max_args ? p_arg_count : max_args;
         for(int i=0; i<max_arg_to_check; ++i)
@@ -34,7 +34,7 @@ protected:
             if (!Variant::can_convert_strict(p_args[i]->get_type(), argtype) ||
                     !verifiers[i](*p_args[i])) //!VariantObjectClassChecker<P##m_arg>::check(*p_args[i]))
                      {
-                r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+                r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
                 r_error.argument = i;
                 r_error.expected = argtype;
                 return false;
@@ -54,7 +54,7 @@ protected:
 
 #endif
     void set_argument_count(int p_count) noexcept { argument_count = p_count; }
-    virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error)=0;
+    virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error)=0;
 public:
     const Vector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
@@ -106,7 +106,7 @@ public:
 
     _FORCE_INLINE_ int get_argument_count() const { return argument_count; }
 
-    Variant call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error);
+    Variant call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error);
 
     StringName get_name() const;
     void set_name(const StringName &p_name);
@@ -124,7 +124,7 @@ public:
 template <class T>
 class MethodBindVarArg final : public MethodBind {
 public:
-    using NativeCall = Variant (T::*)(const Variant **, int, Variant::CallError &);
+    using NativeCall = Variant (T::*)(const Variant **, int, Callable::CallError &);
 
 protected:
     NativeCall call_method;
@@ -154,7 +154,7 @@ public:
         return {};
     }
 #endif
-    Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Variant::CallError &r_error) override {
+    Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error) override {
 
         T *instance = static_cast<T *>(p_object);
         return (instance->*call_method)(p_args, p_arg_count, r_error);

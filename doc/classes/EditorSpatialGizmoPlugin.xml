@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="EditorSpatialGizmoPlugin" inherits="Resource" version="4.0">
 	<brief_description>
-		Used by the editor to define Spatial gizmo types.
+		Used by the editor to define Node3D gizmo types.
 	</brief_description>
 	<description>
 		EditorSpatialGizmoPlugin allows you to define a new type of Gizmo. There are two main ways to do so: extending [EditorSpatialGizmoPlugin] for the simpler gizmos, or creating a new [EditorSpatialGizmo] type. See the tutorial in the documentation for more info.
@@ -46,7 +46,7 @@
 		<method name="create_gizmo" qualifiers="virtual">
 			<return type="EditorSpatialGizmo">
 			</return>
-			<argument index="0" name="spatial" type="Spatial">
+			<argument index="0" name="spatial" type="Node3D">
 			</argument>
 			<description>
 				Override this method to return a custom [EditorSpatialGizmo] for the spatial nodes of your choice, return [code]null[/code] for the rest of nodes. See also [method has_gizmo].
@@ -144,10 +144,10 @@
 		<method name="has_gizmo" qualifiers="virtual">
 			<return type="bool">
 			</return>
-			<argument index="0" name="spatial" type="Spatial">
+			<argument index="0" name="spatial" type="Node3D">
 			</argument>
 			<description>
-				Override this method to define which Spatial nodes have a gizmo from this plugin. Whenever a [Spatial] node is added to a scene this method is called, if it returns [code]true[/code] the node gets a generic [EditorSpatialGizmo] assigned and is added to this plugin's list of active gizmos.
+				Override this method to define which Node3D nodes have a gizmo from this plugin. Whenever a [Node3D] node is added to a scene this method is called, if it returns [code]true[/code] the node gets a generic [EditorSpatialGizmo] assigned and is added to this plugin's list of active gizmos.
 			</description>
 		</method>
 		<method name="is_handle_highlighted" qualifiers="virtual">
@@ -165,7 +165,7 @@
 			<return type="bool">
 			</return>
 			<description>
-				Override this method to define whether Spatial with this gizmo should be selecteble even when the gizmo is hidden.
+				Override this method to define whether Node3D with this gizmo should be selecteble even when the gizmo is hidden.
 			</description>
 		</method>
 		<method name="redraw" qualifiers="virtual">
@@ -184,7 +184,7 @@
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>
-			<argument index="2" name="camera" type="Camera">
+			<argument index="2" name="camera" type="Camera3D">
 			</argument>
 			<argument index="3" name="point" type="Vector2">
 			</argument>

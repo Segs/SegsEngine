@@ -150,7 +150,7 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
             heights_size = bmw;
         }
 
-        max_w = MAX(max_w, heights_size);
+        max_w = M_MAX(max_w, heights_size);
 
         Vector<int> top_heights;
         Vector<int> bottom_heights;
@@ -249,7 +249,7 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
                         continue; //no pixel here, anything is fine
                     }
 
-                    int h = MAX(0, atlas_ptr[j + k] - pixmap_h);
+                    int h = M_MAX(0, atlas_ptr[j + k] - pixmap_h);
                     if (h > height) {
                         height = h;
                     }
@@ -267,7 +267,7 @@ void EditorAtlasPacker::chart_pack(Vector<Chart> &charts, int &r_width, int &r_h
                 }
                 int height = best_height + top_heights[j] + 1;
                 atlas_ptr[j + best_height_offset] = height;
-                atlas_h = MAX(atlas_h, height);
+                atlas_h = M_MAX(atlas_h, height);
             }
 
             // set

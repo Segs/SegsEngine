@@ -37,9 +37,10 @@
 #include "core/print_string.h"
 #include "core/string_formatter.h"
 #include "core/string.h"
+#include "core/string_utils.h"
 #include "scene/gui/control.h"
 #include "scene/gui/text_edit.h"
-#include "servers/visual/shader_language.h"
+#include "servers/rendering/shader_language.h"
 
 using SL = ShaderLanguage;
 

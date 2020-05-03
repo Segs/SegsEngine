@@ -141,8 +141,8 @@ public:                                                                         
     static const char *get_parent_class_static() {                                                      \
         return BaseClassName::get_class_static();                                                                        \
     }                                                                                                                  \
-    virtual bool is_class(const char *p_class) const override {                                                        \
-            return (0==strcmp(p_class,#m_class)) ? true : BaseClassName::is_class(p_class); }                            \
+    virtual bool is_class(StringView p_class) const override {                                                        \
+            return (p_class==#m_class) ? true : BaseClassName::is_class(p_class); }                            \
     virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
             return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
                                                                                                                        \
@@ -298,7 +298,7 @@ private:
 public:
     void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
-    Variant _emit_signal(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _emit_signal(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Array _get_signal_list() const;
     Array _get_signal_connection_list(StringName p_signal) const;
     Array _get_incoming_connections() const;
@@ -322,6 +322,7 @@ protected:
     bool _get(const StringName & /*p_name*/, Variant & /*r_property*/) const { return false; }
     void _get_property_list(Vector<PropertyInfo> * /*p_list*/) const {}
     void _notification(int /*p_notification*/){}
+    bool wrap_is_class(StringView p_class) const;
 
     static void (*_get_bind_methods())() {
         return &Object::_bind_methods;
@@ -343,8 +344,8 @@ public:
     void cancel_delete();
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
-    Variant _call_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
     virtual const StringName *_get_class_namev() const {
         if (!_class_name)
@@ -396,8 +397,7 @@ public:
 
     virtual const char *get_save_class() const { return get_class(); } //class stored when saving
 
-    virtual bool is_class(const char *p_class) const { return 0==strcmp(p_class,"Object"); }
-    bool wrap_is_class(StringView p_class) const;
+    virtual bool is_class(StringView p_class) const { return p_class == "Object"; }
     virtual bool is_class_ptr(void *p_ptr) const { return get_type_info_static() == p_ptr; }
 
     _FORCE_INLINE_ const StringName &get_class_name() const {
@@ -425,7 +425,7 @@ public:
     bool has_method(const StringName &p_method) const;
     void get_method_list(Vector<MethodInfo> *p_list) const;
     Variant callv(const StringName &p_method, const Array &p_args);
-    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
 
@@ -484,6 +484,10 @@ public:
 
     virtual void get_translatable_strings(List<StringName> *p_strings) const;
     virtual void get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const;
+#ifdef DEBUG_ENABLED
+    /// Used in gObjectDB().cleanup() warning print
+    virtual const char *get_dbg_name() const { return nullptr; }
+#endif
 
     StringName tr(const StringName &p_message) const; // translate message (internationalization)
 

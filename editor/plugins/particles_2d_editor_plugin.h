@@ -32,7 +32,7 @@
 
 #include "editor/editor_plugin.h"
 #include "scene/2d/collision_polygon_2d.h"
-#include "scene/2d/particles_2d.h"
+#include "scene/2d/gpu_particles_2d.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/file_dialog.h"
 
@@ -60,7 +60,7 @@ class Particles2DEditorPlugin : public EditorPlugin {
         EMISSION_MODE_BORDER_DIRECTED
     };
 
-    Particles2D *particles;
+    GPUParticles2D *particles;
 
     EditorFileDialog *file;
     EditorNode *editor;
@@ -90,7 +90,7 @@ protected:
     static void _bind_methods();
 
 public:
-    StringView get_name() const override { return "Particles2D"; }
+    StringView get_name() const override { return "GPUParticles2D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

@@ -59,7 +59,7 @@ public:
 	void get_method_list(Vector<MethodInfo> *p_list) const override;
 	bool has_method(const StringName &p_method) const override;
 
-	Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
+	Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) override;
 #if 0
     // Rely on default implementations provided by ScriptInstance for the moment.
     // Note that multilevel call could be removed in 3.0 release, so stay tuned

@@ -30,11 +30,11 @@
 
 #pragma once
 
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "core/node_path.h"
 
-class RootMotionView : public VisualInstance {
-    GDCLASS(RootMotionView,VisualInstance)
+class RootMotionView : public VisualInstance3D {
+    GDCLASS(RootMotionView,VisualInstance3D)
 
 public:
     RID immediate;

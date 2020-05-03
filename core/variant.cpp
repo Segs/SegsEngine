@@ -31,6 +31,7 @@
 #include "variant.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/string_utils.inl"
 #include "core/hashfuncs.h"
 #include "core/node_path.h"
@@ -72,7 +73,7 @@ const char *Variant::get_type_name(VariantType p_type) {
         // atomic types
         case VariantType::BOOL: return "bool";
         case VariantType::INT: return "int";
-        case VariantType::REAL: return "float";
+        case VariantType::FLOAT: return "float";
         case VariantType::STRING: return "String";
         // math types
         case VariantType::VECTOR2: return "Vector2";
@@ -110,7 +111,7 @@ StringName Variant::interned_type_name(VariantType p_type) {
         // atomic types
         case VariantType::BOOL: return "bool";
         case VariantType::INT: return "int";
-        case VariantType::REAL: return "float";
+        case VariantType::FLOAT: return "float";
         case VariantType::STRING: return "String";
         // math types
         case VariantType::VECTOR2: return "Vector2";
@@ -161,7 +162,7 @@ bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
 
             static const VariantType valid[] = {
                 VariantType::INT,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 VariantType::STRING,
                 VariantType::NIL,
             };
@@ -172,7 +173,7 @@ bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
 
             static const VariantType valid[] = {
                 VariantType::BOOL,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 VariantType::STRING,
                 VariantType::NIL,
             };
@@ -180,7 +181,7 @@ bool Variant::can_convert(VariantType p_type_from, VariantType p_type_to) {
             valid_types = valid;
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             static const VariantType valid[] = {
                 VariantType::BOOL,
@@ -408,7 +409,7 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
 
             static const VariantType valid[] = {
                 VariantType::INT,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 //STRING,
                 VariantType::NIL,
             };
@@ -419,7 +420,7 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
 
             static const VariantType valid[] = {
                 VariantType::BOOL,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 //STRING,
                 VariantType::NIL,
             };
@@ -427,7 +428,7 @@ bool Variant::can_convert_strict(VariantType p_type_from, VariantType p_type_to)
             valid_types = valid;
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             static const VariantType valid[] = {
                 VariantType::BOOL,
@@ -670,7 +671,7 @@ bool Variant::is_zero() const {
         case VariantType::INT: {
             return _data._int == 0;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             return _data._real == 0.0;
 
@@ -806,7 +807,7 @@ bool Variant::is_one() const {
             return _data._int == 1;
 
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             return _data._real == 1.0;
 
@@ -851,7 +852,7 @@ void Variant::reference(const Variant &p_variant) {
         case VariantType::NIL:
         case VariantType::BOOL:
         case VariantType::INT:
-        case VariantType::REAL:
+        case VariantType::FLOAT:
             break;
         default:
             clear();
@@ -874,7 +875,7 @@ void Variant::reference(const Variant &p_variant) {
 
             _data._int = p_variant._data._int;
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             _data._real = p_variant._data._real;
         } break;
@@ -1000,7 +1001,7 @@ void Variant::zero() {
         case VariantType::NIL: break;
         case VariantType::BOOL: this->_data._bool = false; break;
         case VariantType::INT: this->_data._int = 0; break;
-        case VariantType::REAL: this->_data._real = 0; break;
+        case VariantType::FLOAT: this->_data._real = 0; break;
         case VariantType::VECTOR2: *reinterpret_cast<Vector2 *>(this->_data._mem) = Vector2(); break;
         case VariantType::RECT2: *reinterpret_cast<Rect2 *>(this->_data._mem) = Rect2(); break;
         case VariantType::VECTOR3: *reinterpret_cast<Vector3 *>(this->_data._mem) = Vector3(); break;
@@ -1109,7 +1110,7 @@ Variant::operator signed int() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1124,7 +1125,7 @@ Variant::operator unsigned int() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1140,7 +1141,7 @@ Variant::operator int64_t() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int64(as<String>());
         default: {
 
@@ -1157,7 +1158,7 @@ Variant::operator long unsigned int() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return as<String>().to_int();
         default: {
 
@@ -1176,7 +1177,7 @@ Variant::operator uint64_t() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int64(as<String>());
         default: {
 
@@ -1192,7 +1193,7 @@ Variant::operator signed short() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1207,7 +1208,7 @@ Variant::operator unsigned short() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1222,7 +1223,7 @@ Variant::operator signed char() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1237,7 +1238,7 @@ Variant::operator unsigned char() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_int(as<String>());
         default: {
 
@@ -1259,7 +1260,7 @@ float Variant::as<float>() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (float)_data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_double(as<String>());
         default: {
 
@@ -1274,7 +1275,7 @@ template <> double Variant::as<double>() const {
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (double)_data._int;
-        case VariantType::REAL: return _data._real;
+        case VariantType::FLOAT: return _data._real;
         case VariantType::STRING: return StringUtils::to_double( as<String>() );
         default: {
 
@@ -1313,9 +1314,6 @@ NodePath Variant::as<NodePath>() const {
 template<>
 StringName Variant::as<StringName>() const {
 
-    if (type == VariantType::NODE_PATH) {
-        return reinterpret_cast<const NodePath *>(_data._mem)->get_sname();
-    }
     return StringName(as<String>());
 }
 template<>
@@ -1394,7 +1392,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
         case VariantType::NIL: return ("Null");
         case VariantType::BOOL: return (_data._bool ? "True" : "False");
         case VariantType::INT: return itos(_data._int);
-        case VariantType::REAL: return rtos(_data._real);
+        case VariantType::FLOAT: return rtos(_data._real);
         case VariantType::STRING: return (*reinterpret_cast<const String *>(_data._mem));
         case VariantType::VECTOR2: return "(" + (String)as<Vector2>() + ")";
         case VariantType::RECT2: return "(" + (String)as<Rect2>() + ")";
@@ -1565,7 +1563,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
-                    if (!ObjectDB::instance_validate(_get_obj().obj)) {
+                    if (!gObjectDB().instance_validate(_get_obj().obj)) {
                         return ("[Deleted Object]");
                     }
                 }
@@ -1683,12 +1681,12 @@ Variant::operator RID() const {
     if (type == VariantType::OBJECT && _get_obj().obj) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!ObjectDB::instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
+            ERR_FAIL_COND_V_MSG(!gObjectDB().instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
         }
 #endif
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->get_rid, nullptr, 0, ce);
-        if (ce.error == Variant::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
+        if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
             return ret;
         }
         return RID();
@@ -2087,7 +2085,7 @@ Variant::Variant(const RefPtr &p_resource) {
 
     type = VariantType::OBJECT;
     memnew_placement(_data._mem, ObjData);
-    REF *ref = reinterpret_cast<REF *>(p_resource.get_data());
+    REF *ref = reinterpret_cast<REF *>(p_resource.get());
     _get_obj().obj = ref->get();
     _get_obj().ref = p_resource;
 }
@@ -2449,7 +2447,7 @@ Variant &Variant::operator=(const Variant &p_variant) {
 
             _data._int = p_variant._data._int;
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             _data._real = p_variant._data._real;
         } break;
@@ -2591,7 +2589,7 @@ uint32_t Variant::hash() const {
 
             return _data._int;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             return hash_djb2_one_float(_data._real);
         }
@@ -2887,7 +2885,7 @@ bool Variant::hash_compare(const Variant &p_variant) const {
         return false;
 
     switch (type) {
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             return hash_compare_helper<float>(_data._real, p_variant._data._real);
         }
 
@@ -3053,24 +3051,24 @@ Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    CallError error;
+    Callable::CallError error;
 
     Variant ret = call(p_method, argptr, argc, error);
 
     switch (error.error) {
 
-        case CallError::CALL_ERROR_INVALID_ARGUMENT: {
+        case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
             String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
             ERR_PRINT(err);
 
         } break;
-        case CallError::CALL_ERROR_INVALID_METHOD: {
+        case Callable::CallError::CALL_ERROR_INVALID_METHOD: {
 
             String err = "Invalid method '" + String(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
             ERR_PRINT(err);
         } break;
-        case CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
+        case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
             String err = "Too many arguments for method '" + String(p_method) + "'";
             ERR_PRINT(err);
@@ -3095,26 +3093,26 @@ String Variant::get_construct_string() const {
     return vars;
 }
 
-String Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce) {
+String Variant::get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce) {
 
     String err_text;
 
-    if (ce.error == Variant::CallError::CALL_ERROR_INVALID_ARGUMENT) {
+    if (ce.error == Callable::CallError::CALL_ERROR_INVALID_ARGUMENT) {
         int errorarg = ce.argument;
         if (p_argptrs) {
             err_text = "Cannot convert argument " + itos(errorarg + 1) + " from " + Variant::get_type_name(p_argptrs[errorarg]->get_type()) + " to " + Variant::get_type_name(ce.expected) + ".";
         } else {
             err_text = "Cannot convert argument " + itos(errorarg + 1) + " from [missing argptr, type unknown] to " + Variant::get_type_name(ce.expected) + ".";
         }
-    } else if (ce.error == Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS) {
         err_text = "Method expected " + itos(ce.argument) + " arguments, but called with " + itos(p_argcount) + ".";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS) {
         err_text = "Method expected " + itos(ce.argument) + " arguments, but called with " + itos(p_argcount) + ".";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_INVALID_METHOD) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_INVALID_METHOD) {
         err_text = "Method not found.";
-    } else if (ce.error == Variant::CallError::CALL_ERROR_INSTANCE_IS_NULL) {
+    } else if (ce.error == Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL) {
         err_text = "Instance is null";
-    } else if (ce.error == Variant::CallError::CALL_OK) {
+    } else if (ce.error == Callable::CallError::CALL_OK) {
         return "Call OK";
     }
 

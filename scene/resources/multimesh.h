@@ -32,7 +32,7 @@
 
 #include "core/resource.h"
 #include "core/rid.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 class Mesh;
 
@@ -44,14 +44,14 @@ class MultiMesh : public Resource {
 
 public:
     enum TransformFormat {
-        TRANSFORM_2D = VS::MULTIMESH_TRANSFORM_2D,
-        TRANSFORM_3D = VS::MULTIMESH_TRANSFORM_3D
+        TRANSFORM_2D = RS::MULTIMESH_TRANSFORM_2D,
+        TRANSFORM_3D = RS::MULTIMESH_TRANSFORM_3D
     };
 
     enum ColorFormat {
-        COLOR_NONE = VS::MULTIMESH_COLOR_NONE,
-        COLOR_8BIT = VS::MULTIMESH_COLOR_8BIT,
-        COLOR_FLOAT = VS::MULTIMESH_COLOR_FLOAT,
+        COLOR_NONE = RS::MULTIMESH_COLOR_NONE,
+        COLOR_8BIT = RS::MULTIMESH_COLOR_8BIT,
+        COLOR_FLOAT = RS::MULTIMESH_COLOR_FLOAT,
     };
 
     enum CustomDataFormat {

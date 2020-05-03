@@ -87,8 +87,8 @@ void WindowDialog::_fix_size() {
         right = panel_flat->get_expand_margin_size(Margin::Right);
     }
 
-    pos.x = MAX(left, MIN(pos.x, viewport_size.x - size.x - right));
-    pos.y = MAX(top, MIN(pos.y, viewport_size.y - size.y - bottom));
+    pos.x = M_MAX(left, MIN(pos.x, viewport_size.x - size.x - right));
+    pos.y = M_MAX(top, MIN(pos.y, viewport_size.y - size.y - bottom));
     set_global_position(pos);
 
     if (resizable) {
@@ -170,7 +170,7 @@ void WindowDialog::_gui_input(const Ref<InputEvent> &p_event) {
         } else {
             // Update while in a dragging operation.
             Point2 global_pos = get_global_mouse_position();
-            global_pos.y = MAX(global_pos.y, 0); // Ensure title bar stays visible.
+            global_pos.y = M_MAX(global_pos.y, 0); // Ensure title bar stays visible.
 
             Rect2 rect = get_rect();
             Size2 min_size = get_combined_minimum_size();
@@ -514,18 +514,18 @@ Size2 AcceptDialog::get_minimum_size() const {
             continue;
 
         Size2 cminsize = c->get_combined_minimum_size();
-        minsize.x = MAX(cminsize.x, minsize.x);
-        minsize.y = MAX(cminsize.y, minsize.y);
+        minsize.x = M_MAX(cminsize.x, minsize.x);
+        minsize.y = M_MAX(cminsize.y, minsize.y);
     }
 
     Size2 hminsize = hbc->get_combined_minimum_size();
-    minsize.x = MAX(hminsize.x, minsize.x);
+    minsize.x = M_MAX(hminsize.x, minsize.x);
     minsize.y += hminsize.y;
     minsize.x += margin * 2;
     minsize.y += margin * 3; //one as separation between hbc and child
 
     Size2 wmsize = WindowDialog::get_minimum_size();
-    minsize.x = MAX(wmsize.x, minsize.x);
+    minsize.x = M_MAX(wmsize.x, minsize.x);
     return minsize;
 }
 

@@ -4,7 +4,7 @@
 		Texture for 2D and 3D.
 	</brief_description>
 	<description>
-		A texture works by registering an image in the video hardware, which then can be used in 3D models or 2D [Sprite] or GUI [Control].
+		A texture works by registering an image in the video hardware, which then can be used in 3D models or 2D [Sprite2D] or GUI [Control].
 		Textures are often created by loading them from a file. See [method @GDScript.load].
 		[Texture] is a base for other resources. It cannot be used directly.
 	</description>
@@ -25,7 +25,7 @@
 			<argument index="4" name="normal_map" type="Texture" default="null">
 			</argument>
 			<description>
-				Draws the texture using a [CanvasItem] with the [VisualServer] API at the specified [code]position[/code]. Equivalent to [method VisualServer.canvas_item_add_texture_rect] with a rect at [code]position[/code] and the size of this [Texture].
+				Draws the texture using a [CanvasItem] with the [RenderingServer] API at the specified [code]position[/code]. Equivalent to [method RenderingServer.canvas_item_add_texture_rect] with a rect at [code]position[/code] and the size of this [Texture].
 			</description>
 		</method>
 		<method name="draw_rect" qualifiers="const">
@@ -44,7 +44,7 @@
 			<argument index="5" name="normal_map" type="Texture" default="null">
 			</argument>
 			<description>
-				Draws the texture using a [CanvasItem] with the [VisualServer] API. Equivalent to [method VisualServer.canvas_item_add_texture_rect].
+				Draws the texture using a [CanvasItem] with the [RenderingServer] API. Equivalent to [method RenderingServer.canvas_item_add_texture_rect].
 			</description>
 		</method>
 		<method name="draw_rect_region" qualifiers="const">
@@ -65,7 +65,7 @@
 			<argument index="6" name="clip_uv" type="bool" default="true">
 			</argument>
 			<description>
-				Draws a part of the texture using a [CanvasItem] with the [VisualServer] API. Equivalent to [method VisualServer.canvas_item_add_texture_rect_region].
+				Draws a part of the texture using a [CanvasItem] with the [RenderingServer] API. Equivalent to [method RenderingServer.canvas_item_add_texture_rect_region].
 			</description>
 		</method>
 		<method name="get_data" qualifiers="const">

@@ -30,8 +30,8 @@
 
 #include "capsule_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
-#include "servers/visual_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(CapsuleShape2D)
@@ -57,7 +57,7 @@ bool CapsuleShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_t
 
 void CapsuleShape2D::_update_shape() {
 
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), Vector2(radius, height));
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), Vector2(radius, height));
     emit_changed();
 }
 
@@ -84,7 +84,7 @@ void CapsuleShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     Vector<Vector2> points = _get_points();
     PoolVector<Color> col;
     col.push_back(p_color);
-    VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 
 Rect2 CapsuleShape2D::get_rect() const {
@@ -104,12 +104,12 @@ void CapsuleShape2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_height", {"height"}), &CapsuleShape2D::set_height);
     MethodBinder::bind_method(D_METHOD("get_height"), &CapsuleShape2D::get_height);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height"), "set_height", "get_height");
 }
 
 CapsuleShape2D::CapsuleShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->capsule_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->capsule_shape_create()) {
 
     radius = 10;
     height = 20;

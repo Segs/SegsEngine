@@ -60,18 +60,18 @@
 
 #include "physics_2d/physics_2d_server_sw.h"
 #include "physics_2d/physics_2d_server_wrap_mt.h"
-#include "physics_2d_server.h"
-#include "physics_server.h"
+#include "physics_server_2d.h"
+#include "physics_server_3d.h"
 #include "scene/debugger/script_debugger_remote.h"
-#include "visual/shader_types.h"
-#include "visual_server.h"
+#include "rendering/shader_types.h"
+#include "rendering_server.h"
 
 static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsage> *r_usage) {
 
-    Vector<VisualServer::TextureInfo> tinfo;
-    VisualServer::get_singleton()->texture_debug_usage(&tinfo);
+    Vector<RenderingServer::TextureInfo> tinfo;
+    RenderingServer::get_singleton()->texture_debug_usage(&tinfo);
 
-    for (const VisualServer::TextureInfo &E : tinfo) {
+    for (const RenderingServer::TextureInfo &E : tinfo) {
 
         ScriptDebuggerRemote::ResourceUsage usage;
         usage.path = E.path;
@@ -89,14 +89,14 @@ static void _debugger_get_resource_usage(List<ScriptDebuggerRemote::ResourceUsag
 
 ShaderTypes *shader_types = nullptr;
 
-Physics2DServer *_createGodotPhysics2DCallback() {
+PhysicsServer2D *_createGodotPhysics2DCallback() {
     return Physics2DServerWrapMT::init_server<Physics2DServerSW>();
 }
 
 static bool has_server_feature_callback(StringView p_feature) {
 
-    if (VisualServer::get_singleton()) {
-        if (VisualServer::get_singleton()->has_os_feature(StringName(p_feature))) {
+    if (RenderingServer::get_singleton()) {
+        if (RenderingServer::get_singleton()->has_os_feature(StringName(p_feature))) {
             return true;
         }
     }
@@ -160,17 +160,17 @@ void register_server_types() {
     Physics2DServerSW::initialize_class();
     Physics2DDirectSpaceStateSW::initialize_class();
     Physics2DServerWrapMT::initialize_class();
-    PhysicsShapeQueryParameters::initialize_class();
-    Physics2DShapeQueryParameters::initialize_class();
+    PhysicsShapeQueryParameters3D::initialize_class();
+    PhysicsShapeQueryParameters2D::initialize_class();
     Physics2DTestMotionResult::initialize_class();
     AudioServer::initialize_class();
     AudioBusLayout::initialize_class();
 
 
-    ClassDB::register_virtual_class<VisualServer>();
+    ClassDB::register_virtual_class<RenderingServer>();
     ClassDB::register_class<AudioServer>();
-    ClassDB::register_virtual_class<PhysicsServer>();
-    ClassDB::register_virtual_class<Physics2DServer>();
+    ClassDB::register_virtual_class<PhysicsServer3D>();
+    ClassDB::register_virtual_class<PhysicsServer2D>();
     ClassDB::register_class<ARVRServer>();
     ClassDB::register_class<CameraServer>();
 
@@ -230,16 +230,16 @@ void register_server_types() {
 
     ClassDB::register_class<CameraFeed>();
 
-    ClassDB::register_virtual_class<Physics2DDirectBodyState>();
-    ClassDB::register_virtual_class<Physics2DDirectSpaceState>();
-    ClassDB::register_virtual_class<Physics2DShapeQueryResult>();
+    ClassDB::register_virtual_class<PhysicsDirectBodyState2D>();
+    ClassDB::register_virtual_class<PhysicsDirectSpaceState2D>();
+    ClassDB::register_virtual_class<PhysicsShapeQueryResult2D>();
     ClassDB::register_class<Physics2DTestMotionResult>();
-    ClassDB::register_class<Physics2DShapeQueryParameters>();
+    ClassDB::register_class<PhysicsShapeQueryParameters2D>();
 
-    ClassDB::register_class<PhysicsShapeQueryParameters>();
-    ClassDB::register_virtual_class<PhysicsDirectBodyState>();
-    ClassDB::register_virtual_class<PhysicsDirectSpaceState>();
-    ClassDB::register_virtual_class<PhysicsShapeQueryResult>();
+    ClassDB::register_class<PhysicsShapeQueryParameters3D>();
+    ClassDB::register_virtual_class<PhysicsDirectBodyState3D>();
+    ClassDB::register_virtual_class<PhysicsDirectSpaceState3D>();
+    ClassDB::register_virtual_class<PhysicsShapeQueryResult3D>();
 
     ScriptDebuggerRemote::resource_usage_func = _debugger_get_resource_usage;
 
@@ -267,10 +267,10 @@ void unregister_server_types() {
 }
 
 void register_server_singletons() {
-    Engine::get_singleton()->add_singleton(Engine::Singleton("VisualServer", VisualServer::get_singleton()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("RenderingServer", RenderingServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("AudioServer", AudioServer::get_singleton()));
-    Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer", PhysicsServer::get_singleton()));
-    Engine::get_singleton()->add_singleton(Engine::Singleton("Physics2DServer", Physics2DServer::get_singleton()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer3D", PhysicsServer3D::get_singleton()));
+    Engine::get_singleton()->add_singleton(Engine::Singleton("PhysicsServer2D", PhysicsServer2D::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("ARVRServer", ARVRServer::get_singleton()));
     Engine::get_singleton()->add_singleton(Engine::Singleton("CameraServer", CameraServer::get_singleton()));
 }

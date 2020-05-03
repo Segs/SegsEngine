@@ -79,7 +79,7 @@ bool PluginScriptInstance::has_method(const StringName &p_method) const {
     return _script->has_method(p_method);
 }
 
-Variant PluginScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant PluginScriptInstance::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
     // TODO: optimize when calling a Godot method from Godot to avoid param conversion ?
     godot_variant ret = _desc->call_method(
             _data, (godot_string_name *)&p_method, (const godot_variant **)p_args,
@@ -94,7 +94,7 @@ void PluginScriptInstance::call_multilevel(const StringName& p_method,const Vari
 
 #if 0
     PluginScript *sptr=script.ptr();
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     while(sptr) {
         Map<StringName,GDFunction*>::Element *E = sptr->member_functions.find(p_method);
@@ -113,7 +113,7 @@ void PluginScriptInstance::_ml_call_reversed(PluginScript *sptr,const StringName
     if (sptr->_base)
         _ml_call_reversed(sptr->_base,p_method,p_args,p_argcount);
 
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     Map<StringName,GDFunction*>::Element *E = sptr->member_functions.find(p_method);
     if (E) {

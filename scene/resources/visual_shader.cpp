@@ -35,8 +35,8 @@
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/object_tooling.h"
-#include "scene/resources/shader_enum_casters.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
+#include "servers/rendering_server_enum_casters.h"
 #include "core/string_utils.inl"
 
 #include "EASTL/vector_map.h"
@@ -142,7 +142,7 @@ namespace {
             } else {
 
                 Variant defval = vsnode->get_input_port_default_value(i);
-                if (defval.get_type() == VariantType::REAL || defval.get_type() == VariantType::INT) {
+                if (defval.get_type() == VariantType::FLOAT || defval.get_type() == VariantType::INT) {
                     float val = defval;
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";
@@ -269,15 +269,15 @@ bool VisualShaderNode::is_port_separator(int /*p_index*/) const {
 Vector<VisualShader::DefaultTextureParam> VisualShaderNode::get_default_texture_parameters(VisualShader::Type p_type, int p_id) const {
     return Vector<VisualShader::DefaultTextureParam>();
 }
-String VisualShaderNode::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNode::generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return String();
 }
 
-String VisualShaderNode::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNode::generate_global_per_node(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return String();
 }
 
-String VisualShaderNode::generate_global_per_func(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNode::generate_global_per_func(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return String();
 }
 
@@ -285,7 +285,7 @@ Vector<StringName> VisualShaderNode::get_editable_properties() const {
     return Vector<StringName>();
 }
 
-Array VisualShaderNode::get_default_input_values() const {
+Array VisualShaderNode::_get_default_input_values() const {
 
     Array ret;
     for (const eastl::pair<const int,Variant> &E : default_input_values) {
@@ -294,7 +294,7 @@ Array VisualShaderNode::get_default_input_values() const {
     }
     return ret;
 }
-void VisualShaderNode::set_default_input_values(const Array &p_values) {
+void VisualShaderNode::_set_default_input_values(const Array &p_values) {
 
     if (p_values.size() % 2 == 0) {
         for (int i = 0; i < p_values.size(); i += 2) {
@@ -305,7 +305,7 @@ void VisualShaderNode::set_default_input_values(const Array &p_values) {
     emit_changed();
 }
 
-StringName VisualShaderNode::get_warning(ShaderMode p_mode, VisualShader::Type p_type) const {
+StringName VisualShaderNode::get_warning(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type) const {
     return StringName();
 }
 
@@ -321,8 +321,8 @@ void VisualShaderNode::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_input_port_default_value", {"port", "value"}), &VisualShaderNode::set_input_port_default_value);
     MethodBinder::bind_method(D_METHOD("get_input_port_default_value", {"port"}), &VisualShaderNode::get_input_port_default_value);
 
-    MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualShaderNode::set_default_input_values);
-    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::get_default_input_values);
+    MethodBinder::bind_method(D_METHOD("_set_default_input_values", {"values"}), &VisualShaderNode::_set_default_input_values);
+    MethodBinder::bind_method(D_METHOD("_get_default_input_values"), &VisualShaderNode::_get_default_input_values);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "output_port_for_preview"), "set_output_port_for_preview", "get_output_port_for_preview");
     ADD_PROPERTY(PropertyInfo(VariantType::ARRAY, "default_input_values", PropertyHint::None, "",
@@ -426,7 +426,7 @@ StringName VisualShaderNodeCustom::get_output_port_name(int p_port) const {
     return output_ports[p_port].name;
 }
 
-String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeCustom::generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     ERR_FAIL_COND_V(!get_script_instance(), String());
     ERR_FAIL_COND_V(!get_script_instance()->has_method("_get_code"), String());
@@ -454,7 +454,7 @@ String VisualShaderNodeCustom::generate_code(ShaderMode p_mode, VisualShader::Ty
     return code;
 }
 
-String VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNodeCustom::generate_global_per_node(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     ERR_FAIL_COND_V(!get_script_instance(), String());
     if (get_script_instance()->has_method("_get_global_code")) {
         String code = String("// ") + get_caption() + "\n";
@@ -467,19 +467,19 @@ String VisualShaderNodeCustom::generate_global_per_node(ShaderMode p_mode, Visua
 
 void VisualShaderNodeCustom::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_name"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_description"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_subcategory"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_return_icon_type"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_type", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"))
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")))
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")))
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_name"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_description"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_category"));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_subcategory"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_return_icon_type"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_type", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"));
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")));
 }
 
 VisualShaderNodeCustom::VisualShaderNodeCustom() {
@@ -559,7 +559,7 @@ Vector<int> VisualShader::get_node_list(Type p_type) const {
 int VisualShader::get_valid_node_id(Type p_type) const {
     ERR_FAIL_INDEX_V(p_type, TYPE_MAX, NODE_ID_INVALID);
     const Graph *g = &graph[p_type];
-    return !g->nodes.empty() ? MAX(2, g->nodes.rbegin()->first + 1) : 2;
+    return !g->nodes.empty() ? M_MAX(2, g->nodes.rbegin()->first + 1) : 2;
 }
 
 int VisualShader::find_node_id(Type p_type, const Ref<VisualShaderNode> &p_node) const {
@@ -672,7 +672,7 @@ bool VisualShader::can_connect_nodes(Type p_type, int p_from_node, int p_from_po
 }
 
 bool VisualShader::is_port_types_compatible(int p_a, int p_b) const {
-    return MAX(0, p_a - 2) == (MAX(0, p_b - 2));
+    return M_MAX(0, p_a - 2) == (M_MAX(0, p_b - 2));
 }
 
 void VisualShader::connect_nodes_forced(Type p_type, int p_from_node, int p_from_port, int p_to_node, int p_to_port) {
@@ -763,7 +763,7 @@ void VisualShader::get_node_connections(Type p_type, ListOld<Connection> *r_conn
     }
 }
 
-void VisualShader::set_mode(ShaderMode p_mode) {
+void VisualShader::set_mode(RenderingServerEnums::ShaderMode p_mode) {
     if (shader_mode == p_mode) {
         return;
     }
@@ -833,7 +833,7 @@ Vector2 VisualShader::get_graph_offset() const {
     return graph_offset;
 }
 
-ShaderMode VisualShader::get_mode() const {
+RenderingServerEnums::ShaderMode VisualShader::get_mode() const {
     return shader_mode;
 }
 
@@ -1031,13 +1031,13 @@ String VisualShader::validate_uniform_name(StringView p_name, const Ref<VisualSh
 }
 
 VisualShader::RenderModeEnums VisualShader::render_mode_enums[] = {
-    { ShaderMode::SPATIAL, "blend" },
-    { ShaderMode::SPATIAL, "depth_draw" },
-    { ShaderMode::SPATIAL, "cull" },
-    { ShaderMode::SPATIAL, "diffuse" },
-    { ShaderMode::SPATIAL, "specular" },
-    { ShaderMode::CANVAS_ITEM, "blend" },
-    { ShaderMode::CANVAS_ITEM, nullptr }
+    { RenderingServerEnums::ShaderMode::SPATIAL, "blend" },
+    { RenderingServerEnums::ShaderMode::SPATIAL, "depth_draw" },
+    { RenderingServerEnums::ShaderMode::SPATIAL, "cull" },
+    { RenderingServerEnums::ShaderMode::SPATIAL, "diffuse" },
+    { RenderingServerEnums::ShaderMode::SPATIAL, "specular" },
+    { RenderingServerEnums::ShaderMode::CANVAS_ITEM, "blend" },
+    { RenderingServerEnums::ShaderMode::CANVAS_ITEM, nullptr }
 };
 
 static const char *type_string[VisualShader::TYPE_MAX] = {
@@ -1049,7 +1049,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
 
     StringView name = p_name.asCString();
     if (name == "mode"_sv) {
-        set_mode(ShaderMode(int(p_value)));
+        set_mode(RenderingServerEnums::ShaderMode(int(p_value)));
         return true;
     } else if (StringUtils::begins_with(name,"flags/")) {
         StringName flag(StringUtils::get_slice(name,'/', 1));
@@ -1197,9 +1197,9 @@ void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
     Map<String, String> blend_mode_enums;
     Set<String> toggles;
 
-    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
+    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
 
-        StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+        StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
         int idx = 0;
         bool in_enum = false;
         while (render_mode_enums[idx].string) {
@@ -1285,8 +1285,8 @@ void VisualShader::_update_shader() const {
 
                     int which = iter->second;
                     int count = 0;
-                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
-                        StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
+                        StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
                         if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
                             if (count == which) {
                                 if (!render_mode.empty()) {
@@ -1304,9 +1304,9 @@ void VisualShader::_update_shader() const {
         }
 
         //fill render mode flags
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode)).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
 
-            StringName mode = ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader_mode))[i];
+            StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
             if (flags.contains(mode)) {
                 if (!render_mode.empty()) {
                     render_mode += String(", ");
@@ -1462,7 +1462,7 @@ void VisualShader::_bind_methods() {
 }
 
 VisualShader::VisualShader() {
-    shader_mode = ShaderMode::SPATIAL;
+    shader_mode = RenderingServerEnums::ShaderMode::SPATIAL;
 
     for (int i = 0; i < TYPE_MAX; i++) {
         Ref<VisualShaderNodeOutput> output(make_ref_counted<VisualShaderNodeOutput>());
@@ -1474,7 +1474,7 @@ VisualShader::VisualShader() {
 
     dirty = true;
 }
-
+using namespace RenderingServerEnums;
 ///////////////////////////////////////////////////////////
 
 const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
@@ -1692,7 +1692,7 @@ StringView VisualShaderNodeInput::get_caption() const {
     return "Input";
 }
 
-String VisualShaderNodeInput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeInput::generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     if (get_output_port_type(0) == PORT_TYPE_SAMPLER) {
         return "";
@@ -2030,7 +2030,7 @@ StringView VisualShaderNodeOutput::get_caption() const {
     return "Output";
 }
 
-String VisualShaderNodeOutput::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeOutput::generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     int idx = 0;
     int count = 0;
@@ -2547,7 +2547,7 @@ void VisualShaderNodeGroupBase::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
 }
 
-String VisualShaderNodeGroupBase::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeGroupBase::generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
     return String();
 }
 
@@ -2576,7 +2576,7 @@ static const char *pre_symbols[] = { "\t", ",", ";", "{", "[", "]", "(", " ", "-
 static const char *post_symbols[] = { "\t", "\n", ",", ";", "}", "[", "]", ")", " ", ".", "-", "*", "/", "+", "=", "&",
     "|", "!" };
 
-String VisualShaderNodeExpression::generate_code(ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
+String VisualShaderNodeExpression::generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id, const String *p_input_vars, const String *p_output_vars, bool p_for_preview) const {
 
     String _expression = expression;
 
@@ -2654,7 +2654,7 @@ StringView VisualShaderNodeGlobalExpression::get_caption() const {
     return String("GlobalExpression");
 }
 
-String VisualShaderNodeGlobalExpression::generate_global(ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
+String VisualShaderNodeGlobalExpression::generate_global(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id) const {
     return expression;
 }
 

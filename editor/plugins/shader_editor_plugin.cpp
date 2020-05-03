@@ -35,6 +35,7 @@
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
+#include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
@@ -42,7 +43,7 @@
 #include "editor/editor_settings.h"
 #include "editor/property_editor.h"
 #include "scene/resources/style_box.h"
-#include "servers/visual/shader_types.h"
+#include "servers/rendering/shader_types.h"
 
 /*** SHADER SCRIPT EDITOR ****/
 IMPL_GDCLASS(ShaderTextEditor)
@@ -62,7 +63,7 @@ void ShaderTextEditor::set_edited_shader(const Ref<Shader> &p_shader) {
 
     _load_theme_settings();
 
-    get_text_edit()->set_text_utf8(p_shader->get_code());
+    get_text_edit()->set_text(p_shader->get_code());
     get_text_edit()->clear_undo_history();
 
     _validate_script();
@@ -78,7 +79,7 @@ void ShaderTextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text_utf8(shader->get_code());
+    te->set_text(shader->get_code());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -156,16 +157,16 @@ void ShaderTextEditor::_load_theme_settings() {
 
     if (shader) {
 
-        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode()))) {
+        for (const eastl::pair<const StringName, ShaderLanguage::FunctionInfo> &E : ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode()))) {
 
             for (const eastl::pair<const StringName, ShaderLanguage::BuiltInInfo> &F : E.second.built_ins) {
                 keywords.push_back(F.first.asCString());
             }
         }
 
-        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())).size(); i++) {
+        for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())).size(); i++) {
 
-            keywords.push_back(ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode()))[i].asCString());
+            keywords.push_back(ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode()))[i].asCString());
         }
     }
 
@@ -182,7 +183,7 @@ void ShaderTextEditor::_load_theme_settings() {
 void ShaderTextEditor::_check_shader_mode() {
 
     String type = ShaderLanguage::get_shader_type(get_text_edit()->get_text());
-
+    using namespace RenderingServerEnums;
     ShaderMode mode;
 
     if (type == "canvas_item") {
@@ -207,8 +208,8 @@ void ShaderTextEditor::_code_complete_script(const String &p_code, Vector<Script
     String calltip;
 
     sl.complete(p_code,
-            ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())),
             ShaderTypes::get_singleton()->get_types(), r_options, calltip);
 
     get_text_edit()->set_code_hint(calltip);
@@ -224,8 +225,8 @@ void ShaderTextEditor::_validate_script() {
 
     ShaderLanguage sl;
 
-    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(VS::ShaderMode(shader->get_mode())),
-            ShaderTypes::get_singleton()->get_modes(VS::ShaderMode(shader->get_mode())),
+    Error err = sl.compile(code, ShaderTypes::get_singleton()->get_functions(RS::ShaderMode(shader->get_mode())),
+            ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader->get_mode())),
             ShaderTypes::get_singleton()->get_types());
 
     if (err != OK) {
@@ -542,7 +543,7 @@ void ShaderEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
         }
     }
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
-    if (k && k->is_pressed() && k->get_scancode() == KEY_MENU) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_MENU) {
         TextEdit *tx = shader_editor->get_text_edit();
         _make_context_menu(tx->is_selection_active(), (get_global_transform().inverse() * tx->get_global_transform()).xform(tx->_get_cursor_pixel_pos()));
         context_menu->grab_focus();

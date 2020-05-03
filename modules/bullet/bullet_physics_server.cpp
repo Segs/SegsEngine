@@ -155,9 +155,9 @@ void BulletPhysicsServer::shape_set_custom_solver_bias(RID p_shape, real_t p_bia
     //WARN_PRINT("Bias not supported by Bullet physics engine");
 }
 
-PhysicsServer::ShapeType BulletPhysicsServer::shape_get_type(RID p_shape) const {
+PhysicsServer3D::ShapeType BulletPhysicsServer::shape_get_type(RID p_shape) const {
     ShapeBullet *shape = shape_owner.getornull(p_shape);
-    ERR_FAIL_COND_V(!shape, PhysicsServer::SHAPE_CUSTOM);
+    ERR_FAIL_COND_V(!shape, PhysicsServer3D::SHAPE_CUSTOM);
     return shape->get_type();
 }
 
@@ -226,7 +226,7 @@ real_t BulletPhysicsServer::space_get_param(RID p_space, SpaceParameter p_param)
     return space->get_param(p_param);
 }
 
-PhysicsDirectSpaceState *BulletPhysicsServer::space_get_direct_state(RID p_space) {
+PhysicsDirectSpaceState3D *BulletPhysicsServer::space_get_direct_state(RID p_space) {
     SpaceBullet *space = space_owner.getornull(p_space);
     ERR_FAIL_COND_V(!space, nullptr);
 
@@ -284,9 +284,9 @@ void BulletPhysicsServer::area_set_space_override_mode(RID p_area, AreaSpaceOver
     area->set_spOv_mode(p_mode);
 }
 
-PhysicsServer::AreaSpaceOverrideMode BulletPhysicsServer::area_get_space_override_mode(RID p_area) const {
+PhysicsServer3D::AreaSpaceOverrideMode BulletPhysicsServer::area_get_space_override_mode(RID p_area) const {
     AreaBullet *area = area_owner.getornull(p_area);
-    ERR_FAIL_COND_V(!area, PhysicsServer::AREA_SPACE_OVERRIDE_DISABLED);
+    ERR_FAIL_COND_V(!area, PhysicsServer3D::AREA_SPACE_OVERRIDE_DISABLED);
 
     return area->get_spOv_mode();
 }
@@ -498,13 +498,13 @@ RID BulletPhysicsServer::body_get_space(RID p_body) const {
     return space->get_self();
 }
 
-void BulletPhysicsServer::body_set_mode(RID p_body, PhysicsServer::BodyMode p_mode) {
+void BulletPhysicsServer::body_set_mode(RID p_body, PhysicsServer3D::BodyMode p_mode) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND(!body);
     body->set_mode(p_mode);
 }
 
-PhysicsServer::BodyMode BulletPhysicsServer::body_get_mode(RID p_body) const {
+PhysicsServer3D::BodyMode BulletPhysicsServer::body_get_mode(RID p_body) const {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, BODY_MODE_STATIC);
     return body->get_mode();
@@ -871,7 +871,7 @@ bool BulletPhysicsServer::body_is_ray_pickable(RID p_body) const {
     return body->is_ray_pickable();
 }
 
-PhysicsDirectBodyState *BulletPhysicsServer::body_get_direct_state(RID p_body) {
+PhysicsDirectBodyState3D *BulletPhysicsServer::body_get_direct_state(RID p_body) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND_V(!body, nullptr);
     return BulletPhysicsDirectBodyState::get_singleton(body);
@@ -902,11 +902,11 @@ RID BulletPhysicsServer::soft_body_create(bool p_init_sleeping) {
     CreateThenReturnRID(soft_body_owner, body);
 }
 
-void BulletPhysicsServer::soft_body_update_visual_server(RID p_body, class SoftBodyVisualServerHandler *p_visual_server_handler) {
+void BulletPhysicsServer::soft_body_update_rendering_server(RID p_body, class SoftBodyVisualServerHandler *p_rendering_server_handler) {
     SoftBodyBullet *body = soft_body_owner.get(p_body);
     ERR_FAIL_COND(!body);
 
-    body->update_visual_server(p_visual_server_handler);
+    body->update_rendering_server(p_rendering_server_handler);
 }
 
 void BulletPhysicsServer::soft_body_set_space(RID p_body, RID p_space) {
@@ -1191,7 +1191,7 @@ bool BulletPhysicsServer::soft_body_is_point_pinned(RID p_body, int p_point_inde
     return body->get_node_mass(p_point_index);
 }
 
-PhysicsServer::JointType BulletPhysicsServer::joint_get_type(RID p_joint) const {
+PhysicsServer3D::JointType BulletPhysicsServer::joint_get_type(RID p_joint) const {
     JointBullet *joint = joint_owner.get(p_joint);
     ERR_FAIL_COND_V(!joint, JOINT_PIN);
     return joint->get_type();

@@ -34,7 +34,7 @@
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(Camera2D)
@@ -56,7 +56,7 @@ void Camera2D::_update_scroll() {
 
     if (current) {
 
-        ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
+        ERR_FAIL_COND(custom_viewport && !gObjectDB().get_instance(custom_viewport_id));
 
         Transform2D xform = get_camera_transform();
 
@@ -101,7 +101,7 @@ Transform2D Camera2D::get_camera_transform() {
     if (!get_tree())
         return Transform2D();
 
-    ERR_FAIL_COND_V(custom_viewport && !ObjectDB::get_instance(custom_viewport_id), Transform2D());
+    ERR_FAIL_COND_V(custom_viewport && !gObjectDB().get_instance(custom_viewport_id), Transform2D());
 
     Size2 screen_size = viewport->get_visible_rect().size;
 
@@ -113,14 +113,14 @@ Transform2D Camera2D::get_camera_transform() {
         if (anchor_mode == ANCHOR_MODE_DRAG_CENTER) {
 
             if (h_drag_enabled && !Engine::get_singleton()->is_editor_hint() && !h_offset_changed) {
-                camera_pos.x = MIN(camera_pos.x, (new_camera_pos.x + screen_size.x * 0.5 * zoom.x * drag_margin[(int8_t)Margin::Left]));
-                camera_pos.x = MAX(camera_pos.x, (new_camera_pos.x - screen_size.x * 0.5 * zoom.x * drag_margin[(int8_t)Margin::Right]));
+                camera_pos.x = MIN(camera_pos.x, (new_camera_pos.x + screen_size.x * 0.5f * zoom.x * drag_margin[(int8_t)Margin::Left]));
+                camera_pos.x = M_MAX(camera_pos.x, (new_camera_pos.x - screen_size.x * 0.5f * zoom.x * drag_margin[(int8_t)Margin::Right]));
             } else {
 
                 if (h_ofs < 0) {
-                    camera_pos.x = new_camera_pos.x + screen_size.x * 0.5 * drag_margin[(int8_t)Margin::Right] * h_ofs;
+                    camera_pos.x = new_camera_pos.x + screen_size.x * 0.5f * drag_margin[(int8_t)Margin::Right] * h_ofs;
                 } else {
-                    camera_pos.x = new_camera_pos.x + screen_size.x * 0.5 * drag_margin[(int8_t)Margin::Left] * h_ofs;
+                    camera_pos.x = new_camera_pos.x + screen_size.x * 0.5f * drag_margin[(int8_t)Margin::Left] * h_ofs;
                 }
 
                 h_offset_changed = false;
@@ -128,15 +128,15 @@ Transform2D Camera2D::get_camera_transform() {
 
             if (v_drag_enabled && !Engine::get_singleton()->is_editor_hint() && !v_offset_changed) {
 
-                camera_pos.y = MIN(camera_pos.y, (new_camera_pos.y + screen_size.y * 0.5 * zoom.y * drag_margin[(int8_t)Margin::Top]));
-                camera_pos.y = MAX(camera_pos.y, (new_camera_pos.y - screen_size.y * 0.5 * zoom.y * drag_margin[(int8_t)Margin::Bottom]));
+                camera_pos.y = MIN(camera_pos.y, (new_camera_pos.y + screen_size.y * 0.5f * zoom.y * drag_margin[(int8_t)Margin::Top]));
+                camera_pos.y = M_MAX(camera_pos.y, (new_camera_pos.y - screen_size.y * 0.5f * zoom.y * drag_margin[(int8_t)Margin::Bottom]));
 
             } else {
 
                 if (v_ofs < 0) {
-                    camera_pos.y = new_camera_pos.y + screen_size.y * 0.5 * drag_margin[(int8_t)Margin::Top] * v_ofs;
+                    camera_pos.y = new_camera_pos.y + screen_size.y * 0.5f * drag_margin[(int8_t)Margin::Bottom] * v_ofs;
                 } else {
-                    camera_pos.y = new_camera_pos.y + screen_size.y * 0.5 * drag_margin[(int8_t)Margin::Bottom] * v_ofs;
+                    camera_pos.y = new_camera_pos.y + screen_size.y * 0.5f * drag_margin[(int8_t)Margin::Top] * v_ofs;
                 }
 
                 v_offset_changed = false;
@@ -241,7 +241,7 @@ void Camera2D::_notification(int p_what) {
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            if (custom_viewport && ObjectDB::get_instance(custom_viewport_id)) {
+            if (custom_viewport && gObjectDB().get_instance(custom_viewport_id)) {
                 viewport = custom_viewport;
             } else {
                 viewport = get_viewport();
@@ -264,7 +264,7 @@ void Camera2D::_notification(int p_what) {
         case NOTIFICATION_EXIT_TREE: {
 
             if (is_current()) {
-                if (viewport && !(custom_viewport && !ObjectDB::get_instance(custom_viewport_id))) {
+                if (viewport && !(custom_viewport && !gObjectDB().get_instance(custom_viewport_id))) {
                     viewport->set_canvas_transform(Transform2D());
                 }
             }
@@ -498,7 +498,7 @@ void Camera2D::reset_smoothing() {
 
 void Camera2D::align() {
 
-    ERR_FAIL_COND(custom_viewport && !ObjectDB::get_instance(custom_viewport_id));
+    ERR_FAIL_COND(custom_viewport && !gObjectDB().get_instance(custom_viewport_id));
 
     Size2 screen_size = viewport->get_visible_rect().size;
 
@@ -759,17 +759,17 @@ void Camera2D::_bind_methods() {
 
     ADD_GROUP("Smoothing", "smoothing_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smoothing_enabled"), "set_enable_follow_smoothing", "is_follow_smoothing_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
 
     ADD_GROUP("Offset", "offset_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_h", PropertyHint::Range, "-1,1,0.01"), "set_h_offset", "get_h_offset");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "offset_v", PropertyHint::Range, "-1,1,0.01"), "set_v_offset", "get_v_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_h", PropertyHint::Range, "-1,1,0.01"), "set_h_offset", "get_h_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_v", PropertyHint::Range, "-1,1,0.01"), "set_v_offset", "get_v_offset");
 
     ADD_GROUP("Drag Margin", "drag_margin_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_left", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_top", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_right", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "drag_margin_bottom", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_left", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_top", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_right", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "drag_margin_bottom", PropertyHint::Range, "0,1,0.01"), "set_drag_margin", "get_drag_margin", (int)Margin::Bottom);
 
     ADD_GROUP("Editor", "editor_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_screen"), "set_screen_drawing_enabled", "is_screen_drawing_enabled");

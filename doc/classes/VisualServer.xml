@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VisualServer" inherits="Object" version="4.0">
+<class name="RenderingServer" inherits="Object" version="4.0">
     <brief_description>
         Server for anything visible.
     </brief_description>
@@ -9,7 +9,7 @@
         The visual server can be used to bypass the scene system entirely.
         Resources are created using the [code]*_create[/code] functions.
         All objects are drawn to a viewport. You can use the [Viewport] attached to the [SceneTree] or you can create one yourself with [method viewport_create]. When using a custom scenario or canvas, the scenario or canvas needs to be attached to the viewport using [method viewport_set_scenario] or [method viewport_attach_canvas].
-        In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the visual server from a running game, the scenario can be accessed from the scene tree from any [Spatial] node with [method Spatial.get_world]. Otherwise, a scenario can be created with [method scenario_create].
+        In 3D, all visual objects must be associated with a scenario. The scenario is a visual representation of the world. If accessing the visual server from a running game, the scenario can be accessed from the scene tree from any [Node3D] node with [method Node3D.get_world]. Otherwise, a scenario can be created with [method scenario_create].
         Similarly in 2D, a canvas is needed to draw all canvas items.
         In 3D, all visible objects are comprised of a resource and an instance. A resource can be a mesh, a particle system, a light, or any other 3D object. In order to be visible resources must be attached to an instance using [method instance_set_base]. The instance must also be attached to the scenario using [method instance_set_scenario] in order to be visible.
         In 2D, all visible objects are some form of canvas item. In order to be visible, a canvas item needs to be the child of a canvas attached to a viewport, or it needs to be the child of another canvas item that is eventually attached to the canvas.
@@ -52,8 +52,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a camera and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]camera_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a camera and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]camera_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="camera_set_cull_mask">
@@ -64,7 +64,7 @@
             <argument index="1" name="layers" type="int">
             </argument>
             <description>
-                Sets the cull mask associated with this camera. The cull mask describes which 3D layers are rendered by this camera. Equivalent to [member Camera.cull_mask].
+                Sets the cull mask associated with this camera. The cull mask describes which 3D layers are rendered by this camera. Equivalent to [member Camera3D.cull_mask].
             </description>
         </method>
         <method name="camera_set_environment">
@@ -75,7 +75,7 @@
             <argument index="1" name="env" type="RID">
             </argument>
             <description>
-                Sets the environment used by this camera. Equivalent to [member Camera.environment].
+                Sets the environment used by this camera. Equivalent to [member Camera3D.environment].
             </description>
         </method>
         <method name="camera_set_frustum">
@@ -144,15 +144,15 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], preserves the horizontal aspect ratio which is equivalent to [constant Camera.KEEP_WIDTH]. If [code]false[/code], preserves the vertical aspect ratio which is equivalent to [constant Camera.KEEP_HEIGHT].
+                If [code]true[/code], preserves the horizontal aspect ratio which is equivalent to [constant Camera3D.KEEP_WIDTH]. If [code]false[/code], preserves the vertical aspect ratio which is equivalent to [constant Camera3D.KEEP_HEIGHT].
             </description>
         </method>
         <method name="canvas_create">
             <return type="RID">
             </return>
             <description>
-                Creates a canvas and returns the assigned [RID]. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a canvas and returns the assigned [RID]. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="canvas_item_add_circle">
@@ -178,7 +178,7 @@
             <argument index="1" name="ignore" type="bool">
             </argument>
             <description>
-                If ignore is [code]true[/code], the VisualServer does not perform clipping.
+                If ignore is [code]true[/code], the RenderingServer does not perform clipping.
             </description>
         </method>
         <method name="canvas_item_add_line">
@@ -249,9 +249,9 @@
             </argument>
             <argument index="5" name="bottomright" type="Vector2">
             </argument>
-            <argument index="6" name="x_axis_mode" type="int" enum="VisualServer.NinePatchAxisMode" default="0">
+            <argument index="6" name="x_axis_mode" type="int" enum="RenderingServerEnums.NinePatchAxisMode" default="0">
             </argument>
-            <argument index="7" name="y_axis_mode" type="int" enum="VisualServer.NinePatchAxisMode" default="0">
+            <argument index="7" name="y_axis_mode" type="int" enum="RenderingServerEnums.NinePatchAxisMode" default="0">
             </argument>
             <argument index="8" name="draw_center" type="bool" default="true">
             </argument>
@@ -451,8 +451,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a new [CanvasItem] and returns its [RID]. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_item_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a new [CanvasItem] and returns its [RID]. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_item_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="canvas_item_set_clip">
@@ -661,8 +661,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a canvas light and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_light_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a canvas light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_light_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="canvas_light_occluder_attach_to_canvas">
@@ -680,8 +680,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a light occluder and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_light_ocluder_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a light occluder and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_light_ocluder_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="canvas_light_occluder_set_enabled">
@@ -812,10 +812,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.CanvasLightMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.CanvasLightMode">
             </argument>
             <description>
-                The mode of the light, see [enum CanvasLightMode] constants.
+                The mode of the light, see [enum RenderingServerEnums.CanvasLightMode] constants.
             </description>
         </method>
         <method name="canvas_light_set_scale">
@@ -867,10 +867,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="filter" type="int" enum="VisualServer.CanvasLightShadowFilter">
+            <argument index="1" name="filter" type="int" enum="RenderingServerEnums.CanvasLightShadowFilter">
             </argument>
             <description>
-                Sets the canvas light's shadow's filter, see [enum CanvasLightShadowFilter] constants.
+                Sets the canvas light's shadow's filter, see [enum RenderingServerEnums.CanvasLightShadowFilter] constants.
             </description>
         </method>
         <method name="canvas_light_set_shadow_gradient_length">
@@ -945,8 +945,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a new light occluder polygon and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_occluder_polygon_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a new light occluder polygon and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]canvas_occluder_polygon_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="canvas_occluder_polygon_set_cull_mode">
@@ -954,10 +954,10 @@
             </return>
             <argument index="0" name="occluder_polygon" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.CanvasOccluderPolygonCullMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             </argument>
             <description>
-                Sets an occluder polygons cull mode. See [enum CanvasOccluderPolygonCullMode] constants.
+                Sets an occluder polygons cull mode. See [enum RenderingServerEnums.CanvasOccluderPolygonCullMode] constants.
             </description>
         </method>
         <method name="canvas_occluder_polygon_set_shape">
@@ -1012,8 +1012,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a directional light and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a directional light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this directional light to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -1032,8 +1032,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an environment and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]environment_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an environment and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]environment_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="environment_set_adjustment">
@@ -1075,7 +1075,7 @@
             </return>
             <argument index="0" name="env" type="RID">
             </argument>
-            <argument index="1" name="bg" type="int" enum="VisualServer.EnvironmentBG">
+            <argument index="1" name="bg" type="int" enum="RenderingServerEnums.EnvironmentBG">
             </argument>
             <description>
                 Sets the [i]BGMode[/i] of the environment. Equivalent to [member Environment.background_mode].
@@ -1127,7 +1127,7 @@
             </argument>
             <argument index="4" name="far_amount" type="float">
             </argument>
-            <argument index="5" name="quality" type="int" enum="VisualServer.EnvironmentDOFBlurQuality">
+            <argument index="5" name="quality" type="int" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             </argument>
             <description>
                 Sets the values to be used with the "DoF Far Blur" post-process effect. See [Environment] for more details.
@@ -1146,7 +1146,7 @@
             </argument>
             <argument index="4" name="far_amount" type="float">
             </argument>
-            <argument index="5" name="quality" type="int" enum="VisualServer.EnvironmentDOFBlurQuality">
+            <argument index="5" name="quality" type="int" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             </argument>
             <description>
                 Sets the values to be used with the "DoF Near Blur" post-process effect. See [Environment] for more details.
@@ -1222,7 +1222,7 @@
             </argument>
             <argument index="5" name="bloom_threshold" type="float">
             </argument>
-            <argument index="6" name="blend_mode" type="int" enum="VisualServer.EnvironmentGlowBlendMode">
+            <argument index="6" name="blend_mode" type="int" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             </argument>
             <argument index="7" name="hdr_bleed_threshold" type="float">
             </argument>
@@ -1292,9 +1292,9 @@
             </argument>
             <argument index="9" name="color" type="Color">
             </argument>
-            <argument index="10" name="quality" type="int" enum="VisualServer.EnvironmentSSAOQuality">
+            <argument index="10" name="quality" type="int" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             </argument>
-            <argument index="11" name="blur" type="int" enum="VisualServer.EnvironmentSSAOBlur">
+            <argument index="11" name="blur" type="int" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             </argument>
             <argument index="12" name="bilateral_sharpness" type="float">
             </argument>
@@ -1328,7 +1328,7 @@
             </return>
             <argument index="0" name="env" type="RID">
             </argument>
-            <argument index="1" name="tone_mapper" type="int" enum="VisualServer.EnvironmentToneMapper">
+            <argument index="1" name="tone_mapper" type="int" enum="RenderingServerEnums.EnvironmentToneMapper">
             </argument>
             <argument index="2" name="exposure" type="float">
             </argument>
@@ -1379,16 +1379,16 @@
             <argument index="0" name="rid" type="RID">
             </argument>
             <description>
-                Tries to free an object in the VisualServer.
+                Tries to free an object in the RenderingServer.
             </description>
         </method>
         <method name="get_render_info">
             <return type="int">
             </return>
-            <argument index="0" name="info" type="int" enum="VisualServer.RenderInfo">
+            <argument index="0" name="info" type="int" enum="RenderingServerEnums.RenderInfo">
             </argument>
             <description>
-                Returns a certain information, see [enum RenderInfo] for options.
+                Returns a certain information, see [enum RenderingServerEnums.RenderInfo] for options.
             </description>
         </method>
         <method name="get_test_cube">
@@ -1432,8 +1432,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a GI probe and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]gi_probe_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a GI probe and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]gi_probe_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this GI probe to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -1661,13 +1661,13 @@
             <return type="bool">
             </return>
             <description>
-                Returns [code]true[/code] if changes have been made to the VisualServer's data. [method draw] is usually called if this happens.
+                Returns [code]true[/code] if changes have been made to the RenderingServer's data. [method draw] is usually called if this happens.
             </description>
         </method>
         <method name="has_feature" qualifiers="const">
             <return type="bool">
             </return>
-            <argument index="0" name="feature" type="int" enum="VisualServer.Features">
+            <argument index="0" name="feature" type="int" enum="RenderingServerEnums.Features">
             </argument>
             <description>
                 Not yet implemented. Always returns [code]false[/code].
@@ -1687,12 +1687,12 @@
             </return>
             <argument index="0" name="immediate" type="RID">
             </argument>
-            <argument index="1" name="primitive" type="int" enum="VisualServer.PrimitiveType">
+            <argument index="1" name="primitive" type="int" enum="RenderingServerEnums.PrimitiveType">
             </argument>
             <argument index="2" name="texture" type="RID">
             </argument>
             <description>
-                Sets up [ImmediateGeometry] internals to prepare for drawing. Equivalent to [method ImmediateGeometry.begin].
+                Sets up [ImmediateGeometry3D] internals to prepare for drawing. Equivalent to [method ImmediateGeometry3D.begin].
             </description>
         </method>
         <method name="immediate_clear">
@@ -1701,7 +1701,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Clears everything that was set up between [method immediate_begin] and [method immediate_end]. Equivalent to [method ImmediateGeometry.clear].
+                Clears everything that was set up between [method immediate_begin] and [method immediate_end]. Equivalent to [method ImmediateGeometry3D.clear].
             </description>
         </method>
         <method name="immediate_color">
@@ -1712,15 +1712,15 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color to be used with next vertex. Equivalent to [method ImmediateGeometry.set_color].
+                Sets the color to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_color].
             </description>
         </method>
         <method name="immediate_create">
             <return type="RID">
             </return>
             <description>
-                Creates an immediate geometry and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]immediate_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an immediate geometry and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]immediate_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this immediate geometry to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -1730,7 +1730,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Ends drawing the [ImmediateGeometry] and displays it. Equivalent to [method ImmediateGeometry.end].
+                Ends drawing the [ImmediateGeometry3D] and displays it. Equivalent to [method ImmediateGeometry3D.end].
             </description>
         </method>
         <method name="immediate_get_material" qualifiers="const">
@@ -1739,7 +1739,7 @@
             <argument index="0" name="immediate" type="RID">
             </argument>
             <description>
-                Returns the material assigned to the [ImmediateGeometry].
+                Returns the material assigned to the [ImmediateGeometry3D].
             </description>
         </method>
         <method name="immediate_normal">
@@ -1750,7 +1750,7 @@
             <argument index="1" name="normal" type="Vector3">
             </argument>
             <description>
-                Sets the normal to be used with next vertex. Equivalent to [method ImmediateGeometry.set_normal].
+                Sets the normal to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_normal].
             </description>
         </method>
         <method name="immediate_set_material">
@@ -1761,7 +1761,7 @@
             <argument index="1" name="material" type="RID">
             </argument>
             <description>
-                Sets the material to be used to draw the [ImmediateGeometry].
+                Sets the material to be used to draw the [ImmediateGeometry3D].
             </description>
         </method>
         <method name="immediate_tangent">
@@ -1772,7 +1772,7 @@
             <argument index="1" name="tangent" type="Plane">
             </argument>
             <description>
-                Sets the tangent to be used with next vertex. Equivalent to [method ImmediateGeometry.set_tangent].
+                Sets the tangent to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_tangent].
             </description>
         </method>
         <method name="immediate_uv">
@@ -1783,7 +1783,7 @@
             <argument index="1" name="tex_uv" type="Vector2">
             </argument>
             <description>
-                Sets the UV to be used with next vertex. Equivalent to [method ImmediateGeometry.set_uv].
+                Sets the UV to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_uv].
             </description>
         </method>
         <method name="immediate_uv2">
@@ -1794,7 +1794,7 @@
             <argument index="1" name="tex_uv" type="Vector2">
             </argument>
             <description>
-                Sets the UV2 to be used with next vertex. Equivalent to [method ImmediateGeometry.set_uv2].
+                Sets the UV2 to be used with next vertex. Equivalent to [method ImmediateGeometry3D.set_uv2].
             </description>
         </method>
         <method name="immediate_vertex">
@@ -1805,7 +1805,7 @@
             <argument index="1" name="vertex" type="Vector3">
             </argument>
             <description>
-                Adds the next vertex using the information provided in advance. Equivalent to [method ImmediateGeometry.add_vertex].
+                Adds the next vertex using the information provided in advance. Equivalent to [method ImmediateGeometry3D.add_vertex].
             </description>
         </method>
         <method name="immediate_vertex_2d">
@@ -1816,7 +1816,7 @@
             <argument index="1" name="vertex" type="Vector2">
             </argument>
             <description>
-                Adds the next vertex using the information provided in advance. This is a helper class that calls [method immediate_vertex] under the hood. Equivalent to [method ImmediateGeometry.add_vertex].
+                Adds the next vertex using the information provided in advance. This is a helper class that calls [method immediate_vertex] under the hood. Equivalent to [method ImmediateGeometry3D.add_vertex].
             </description>
         </method>
         <method name="init">
@@ -1852,8 +1852,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a visual instance and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a visual instance and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 An instance is a way of placing a 3D object in the scenario. Objects like particles, meshes, and reflection probes need to be associated with an instance to be visible in the scenario using [method instance_set_base].
             </description>
         </method>
@@ -1865,8 +1865,8 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Creates a visual instance, adds it to the VisualServer, and sets both base and scenario. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a visual instance, adds it to the RenderingServer, and sets both base and scenario. It can be accessed with the RID that is returned. This RID will be used in all [code]instance_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="instance_geometry_set_as_instance_lod">
@@ -1885,10 +1885,10 @@
             </return>
             <argument index="0" name="instance" type="RID">
             </argument>
-            <argument index="1" name="shadow_casting_setting" type="int" enum="VisualServer.ShadowCastingSetting">
+            <argument index="1" name="shadow_casting_setting" type="int" enum="RenderingServerEnums.ShadowCastingSetting">
             </argument>
             <description>
-                Sets the shadow casting setting to one of [enum ShadowCastingSetting]. Equivalent to [member GeometryInstance.cast_shadow].
+                Sets the shadow casting setting to one of [enum RenderingServerEnums.ShadowCastingSetting]. Equivalent to [member GeometryInstance.cast_shadow].
             </description>
         </method>
         <method name="instance_geometry_set_draw_range">
@@ -1913,12 +1913,12 @@
             </return>
             <argument index="0" name="instance" type="RID">
             </argument>
-            <argument index="1" name="flag" type="int" enum="VisualServerEnums.InstanceFlags">
+            <argument index="1" name="flag" type="int" enum="RenderingServerEnums.InstanceFlags">
             </argument>
             <argument index="2" name="enabled" type="bool">
             </argument>
             <description>
-                Sets the flag for a given [enum VisualServerEnums.InstanceFlags]. See [enum VisualServerEnums.InstanceFlags] for more details.
+                Sets the flag for a given [enum RenderingServerEnums.InstanceFlags]. See [enum RenderingServerEnums.InstanceFlags] for more details.
             </description>
         </method>
         <method name="instance_geometry_set_material_override">
@@ -1940,7 +1940,7 @@
             <argument index="1" name="base" type="RID">
             </argument>
             <description>
-                Sets the base of the instance. A base can be any of the 3D objects that are created in the VisualServer that can be displayed. For example, any of the light types, mesh, multimesh, immediate geometry, particle system, reflection probe, lightmap capture, and the GI probe are all types that can be set as the base of an instance in order to be displayed in the scenario.
+                Sets the base of the instance. A base can be any of the 3D objects that are created in the RenderingServer that can be displayed. For example, any of the light types, mesh, multimesh, immediate geometry, particle system, reflection probe, lightmap capture, and the GI probe are all types that can be set as the base of an instance in order to be displayed in the scenario.
             </description>
         </method>
         <method name="instance_set_blend_shape_weight">
@@ -1986,7 +1986,7 @@
             <argument index="1" name="mask" type="int">
             </argument>
             <description>
-                Sets the render layers that this instance will be drawn to. Equivalent to [member VisualInstance.layers].
+                Sets the render layers that this instance will be drawn to. Equivalent to [member VisualInstance3D.layers].
             </description>
         </method>
         <method name="instance_set_scenario">
@@ -2010,7 +2010,7 @@
             <argument index="2" name="material" type="RID">
             </argument>
             <description>
-                Sets the material of a specific surface. Equivalent to [method MeshInstance.set_surface_material].
+                Sets the material of a specific surface. Equivalent to [method MeshInstance3D.set_surface_material].
             </description>
         </method>
         <method name="instance_set_transform">
@@ -2021,7 +2021,7 @@
             <argument index="1" name="transform" type="Transform">
             </argument>
             <description>
-                Sets the world space transform of the instance. Equivalent to [member Spatial.transform].
+                Sets the world space transform of the instance. Equivalent to [member Node3D.transform].
             </description>
         </method>
         <method name="instance_set_use_lightmap">
@@ -2045,7 +2045,7 @@
             <argument index="1" name="visible" type="bool">
             </argument>
             <description>
-                Sets whether an instance is drawn or not. Equivalent to [member Spatial.visible].
+                Sets whether an instance is drawn or not. Equivalent to [member Node3D.visible].
             </description>
         </method>
         <method name="instances_cull_aabb" qualifiers="const">
@@ -2056,7 +2056,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided AABB. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2068,7 +2068,7 @@
             <argument index="1" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided convex shape. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2082,7 +2082,7 @@
             <argument index="2" name="scenario" type="RID">
             </argument>
             <description>
-                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance] or [DirectionalLight]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World] you want to query. This forces an update for all resources queued to update.
+                Returns an array of object IDs intersecting with the provided 3D ray. Only visual 3D nodes are considered, such as [MeshInstance3D] or [DirectionalLight3D]. Use [method @GDScript.instance_from_id] to obtain the actual nodes. A scenario RID must be provided, which is available in the [World3D] you want to query. This forces an update for all resources queued to update.
                 [b]Warning:[/b] This function is primarily intended for editor usage. For in-game use cases, prefer physics collision.
             </description>
         </method>
@@ -2094,7 +2094,7 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], this directional light will blend between shadow map splits resulting in a smoother transition between them. Equivalent to [member DirectionalLight.directional_shadow_blend_splits].
+                If [code]true[/code], this directional light will blend between shadow map splits resulting in a smoother transition between them. Equivalent to [member DirectionalLight3D.directional_shadow_blend_splits].
             </description>
         </method>
         <method name="light_directional_set_shadow_depth_range_mode">
@@ -2102,10 +2102,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="range_mode" type="int" enum="VisualServer.LightDirectionalShadowDepthRangeMode">
+            <argument index="1" name="range_mode" type="int" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             </argument>
             <description>
-                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight.directional_shadow_depth_range]. See [enum LightDirectionalShadowDepthRangeMode] for options.
+                Sets the shadow depth range mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_depth_range]. See [enum RenderingServerEnums.LightDirectionalShadowDepthRangeMode] for options.
             </description>
         </method>
         <method name="light_directional_set_shadow_mode">
@@ -2113,10 +2113,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.LightDirectionalShadowMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.LightDirectionalShadowMode">
             </argument>
             <description>
-                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight.directional_shadow_mode]. See [enum LightDirectionalShadowMode] for options.
+                Sets the shadow mode for this directional light. Equivalent to [member DirectionalLight3D.directional_shadow_mode]. See [enum RenderingServerEnums.LightDirectionalShadowMode] for options.
             </description>
         </method>
         <method name="light_omni_set_shadow_detail">
@@ -2124,10 +2124,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="detail" type="int" enum="VisualServer.LightOmniShadowDetail">
+            <argument index="1" name="detail" type="int" enum="RenderingServerEnums.LightOmniShadowDetail">
             </argument>
             <description>
-                Sets whether to use vertical or horizontal detail for this omni light. This can be used to alleviate artifacts in the shadow map. Equivalent to [member OmniLight.omni_shadow_detail].
+                Sets whether to use vertical or horizontal detail for this omni light. This can be used to alleviate artifacts in the shadow map. Equivalent to [member OmniLight3D.omni_shadow_detail].
             </description>
         </method>
         <method name="light_omni_set_shadow_mode">
@@ -2135,10 +2135,10 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.LightOmniShadowMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.LightOmniShadowMode">
             </argument>
             <description>
-                Sets whether to use a dual paraboloid or a cubemap for the shadow map. Dual paraboloid is faster but may suffer from artifacts. Equivalent to [member OmniLight.omni_shadow_mode].
+                Sets whether to use a dual paraboloid or a cubemap for the shadow map. Dual paraboloid is faster but may suffer from artifacts. Equivalent to [member OmniLight3D.omni_shadow_mode].
             </description>
         </method>
         <method name="light_set_color">
@@ -2149,7 +2149,7 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color of the light. Equivalent to [member Light.light_color].
+                Sets the color of the light. Equivalent to [member Light3D.light_color].
             </description>
         </method>
         <method name="light_set_cull_mask">
@@ -2160,7 +2160,7 @@
             <argument index="1" name="mask" type="int">
             </argument>
             <description>
-                Sets the cull mask for this Light. Lights only affect objects in the selected layers. Equivalent to [member Light.light_cull_mask].
+                Sets the cull mask for this Light3D. Lights only affect objects in the selected layers. Equivalent to [member Light3D.light_cull_mask].
             </description>
         </method>
         <method name="light_set_negative">
@@ -2171,7 +2171,7 @@
             <argument index="1" name="enable" type="bool">
             </argument>
             <description>
-                If [code]true[/code], light will subtract light instead of adding light. Equivalent to [member Light.light_negative].
+                If [code]true[/code], light will subtract light instead of adding light. Equivalent to [member Light3D.light_negative].
             </description>
         </method>
         <method name="light_set_param">
@@ -2179,12 +2179,12 @@
             </return>
             <argument index="0" name="light" type="RID">
             </argument>
-            <argument index="1" name="param" type="int" enum="VisualServer.LightParam">
+            <argument index="1" name="param" type="int" enum="RenderingServer.LightParam">
             </argument>
             <argument index="2" name="value" type="float">
             </argument>
             <description>
-                Sets the specified light parameter. See [enum LightParam] for options. Equivalent to [method Light.set_param].
+                Sets the specified light parameter. See [enum RenderingServerEnums.LightParam] for options. Equivalent to [method Light3D.set_param].
             </description>
         </method>
         <method name="light_set_projector">
@@ -2206,7 +2206,7 @@
             <argument index="1" name="enabled" type="bool">
             </argument>
             <description>
-                If [code]true[/code], reverses the backface culling of the mesh. This can be useful when you have a flat mesh that has a light behind it. If you need to cast a shadow on both sides of the mesh, set the mesh to use double sided shadows with [method instance_geometry_set_cast_shadows_setting]. Equivalent to [member Light.shadow_reverse_cull_face].
+                If [code]true[/code], reverses the backface culling of the mesh. This can be useful when you have a flat mesh that has a light behind it. If you need to cast a shadow on both sides of the mesh, set the mesh to use double sided shadows with [method instance_geometry_set_cast_shadows_setting]. Equivalent to [member Light3D.shadow_reverse_cull_face].
             </description>
         </method>
         <method name="light_set_shadow">
@@ -2217,7 +2217,7 @@
             <argument index="1" name="enabled" type="bool">
             </argument>
             <description>
-                If [code]true[/code], light will cast shadows. Equivalent to [member Light.shadow_enabled].
+                If [code]true[/code], light will cast shadows. Equivalent to [member Light3D.shadow_enabled].
             </description>
         </method>
         <method name="light_set_shadow_color">
@@ -2228,7 +2228,7 @@
             <argument index="1" name="color" type="Color">
             </argument>
             <description>
-                Sets the color of the shadow cast by the light. Equivalent to [member Light.shadow_color].
+                Sets the color of the shadow cast by the light. Equivalent to [member Light3D.shadow_color].
             </description>
         </method>
         <method name="light_set_use_gi">
@@ -2246,8 +2246,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a lightmap capture and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]lightmap_capture_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a lightmap capture and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]lightmap_capture_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this lightmap capture to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -2368,8 +2368,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an empty material and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]material_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an empty material and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]material_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="material_get_param" qualifiers="const">
@@ -2465,7 +2465,7 @@
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
-            <argument index="1" name="primitive" type="int" enum="VisualServer.PrimitiveType">
+            <argument index="1" name="primitive" type="int" enum="RenderingServerEnums.PrimitiveType">
             </argument>
             <argument index="2" name="arrays" type="Array">
             </argument>
@@ -2474,7 +2474,7 @@
             <argument index="4" name="compress_format" type="int" default="97280">
             </argument>
             <description>
-                Adds a surface generated from the Arrays to a mesh. See [enum PrimitiveType] constants for types.
+                Adds a surface generated from the Arrays to a mesh. See [enum RenderingServerEnums.PrimitiveType] constants for types.
             </description>
         </method>
         <method name="mesh_clear">
@@ -2490,8 +2490,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a new mesh and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]mesh_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a new mesh and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]mesh_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this mesh to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -2505,7 +2505,7 @@
             </description>
         </method>
         <method name="mesh_get_blend_shape_mode" qualifiers="const">
-            <return type="int" enum="VisualServer.BlendShapeMode">
+            <return type="int" enum="RenderingServerEnums.BlendShapeMode">
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
@@ -2558,7 +2558,7 @@
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.BlendShapeMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.BlendShapeMode">
             </argument>
             <description>
                 Sets a mesh's blend shape mode.
@@ -2703,7 +2703,7 @@
             </description>
         </method>
         <method name="mesh_surface_get_primitive_type" qualifiers="const">
-            <return type="int" enum="VisualServer.PrimitiveType">
+            <return type="int" enum="RenderingServer.PrimitiveType">
             </return>
             <argument index="0" name="mesh" type="RID">
             </argument>
@@ -2759,22 +2759,22 @@
             </argument>
             <argument index="1" name="instances" type="int">
             </argument>
-            <argument index="2" name="transform_format" type="int" enum="VisualServer.MultimeshTransformFormat">
+            <argument index="2" name="transform_format" type="int" enum="RenderingServerEnums.MultimeshTransformFormat">
             </argument>
-            <argument index="3" name="color_format" type="int" enum="VisualServer.MultimeshColorFormat">
+            <argument index="3" name="color_format" type="int" enum="RenderingServerEnums.MultimeshColorFormat">
             </argument>
-            <argument index="4" name="custom_data_format" type="int" enum="VisualServer.MultimeshCustomDataFormat" default="0">
+            <argument index="4" name="custom_data_format" type="int" enum="RenderingServerEnums.MultimeshCustomDataFormat" default="0">
             </argument>
             <description>
-                Allocates space for the multimesh data. Format parameters determine how the data will be stored by OpenGL. See [enum MultimeshTransformFormat], [enum MultimeshColorFormat], and [enum MultimeshCustomDataFormat] for usage. Equivalent to [member MultiMesh.instance_count].
+                Allocates space for the multimesh data. Format parameters determine how the data will be stored by OpenGL. See [enum RenderingServerEnums.MultimeshTransformFormat], [enum RenderingServerEnums.MultimeshColorFormat], and [enum RenderingServerEnums.MultimeshCustomDataFormat] for usage. Equivalent to [member MultiMesh.instance_count].
             </description>
         </method>
         <method name="multimesh_create">
             <return type="RID">
             </return>
             <description>
-                Creates a new multimesh on the VisualServer and returns an [RID] handle. This RID will be used in all [code]multimesh_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a new multimesh on the RenderingServer and returns an [RID] handle. This RID will be used in all [code]multimesh_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this multimesh to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -2951,8 +2951,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a new omni light and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a new omni light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this omni light to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -2960,8 +2960,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a particle system and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]particles_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a particle system and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]particles_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach these particles to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -3037,10 +3037,10 @@
             </return>
             <argument index="0" name="particles" type="RID">
             </argument>
-            <argument index="1" name="order" type="int" enum="VisualServer.ParticlesDrawOrder">
+            <argument index="1" name="order" type="int" enum="RenderingServerEnums.ParticlesDrawOrder">
             </argument>
             <description>
-                Sets the draw order of the particles to one of the named enums from [enum ParticlesDrawOrder]. See [enum ParticlesDrawOrder] for options. Equivalent to [member Particles.draw_order].
+                Sets the draw order of the particles to one of the named enums from [enum RenderingServerEnums.ParticlesDrawOrder]. See [enum RenderingServerEnums.ParticlesDrawOrder] for options. Equivalent to [member Particles.draw_order].
             </description>
         </method>
         <method name="particles_set_draw_pass_mesh">
@@ -3203,8 +3203,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a reflection probe and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]reflection_probe_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a reflection probe and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]reflection_probe_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this reflection probe to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -3334,10 +3334,10 @@
             </return>
             <argument index="0" name="probe" type="RID">
             </argument>
-            <argument index="1" name="mode" type="int" enum="VisualServer.ReflectionProbeUpdateMode">
+            <argument index="1" name="mode" type="int" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             </argument>
             <description>
-                Sets how often the reflection probe updates. Can either be once or every frame. See [enum ReflectionProbeUpdateMode] for options.
+                Sets how often the reflection probe updates. Can either be once or every frame. See [enum RenderingServerEnums.ReflectionProbeUpdateMode] for options.
             </description>
         </method>
         <method name="request_frame_drawn_callback">
@@ -3358,8 +3358,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a scenario and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]scenario_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a scenario and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]scenario_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 The scenario is the 3D world that all the visual instances exist in.
             </description>
         </method>
@@ -3368,10 +3368,10 @@
             </return>
             <argument index="0" name="scenario" type="RID">
             </argument>
-            <argument index="1" name="debug_mode" type="int" enum="VisualServer.ScenarioDebugMode">
+            <argument index="1" name="debug_mode" type="int" enum="RenderingServerEnums.ScenarioDebugMode">
             </argument>
             <description>
-                Sets the [enum ScenarioDebugMode] for this scenario. See [enum ScenarioDebugMode] for options.
+                Sets the [enum RenderingServerEnums.ScenarioDebugMode] for this scenario. See [enum RenderingServerEnums.ScenarioDebugMode] for options.
             </description>
         </method>
         <method name="scenario_set_environment">
@@ -3446,8 +3446,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an empty shader and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]shader_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an empty shader and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]shader_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="shader_get_code" qualifiers="const">
@@ -3568,8 +3568,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a skeleton and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]skeleton_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a skeleton and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]skeleton_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="skeleton_get_bone_count" qualifiers="const">
@@ -3585,8 +3585,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an empty sky and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]sky_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an empty sky and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]sky_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="sky_set_texture">
@@ -3606,8 +3606,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates a spot light and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates a spot light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this spot light to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
@@ -3631,7 +3631,7 @@
             </argument>
             <argument index="4" name="format" type="int" enum="Image.Format">
             </argument>
-            <argument index="5" name="type" type="int" enum="VisualServer.TextureType">
+            <argument index="5" name="type" type="int" enum="RenderingServerEnums.TextureType">
             </argument>
             <argument index="6" name="flags" type="int" default="7">
             </argument>
@@ -3654,8 +3654,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an empty texture and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]texture_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an empty texture and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]texture_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="texture_create_from_image">
@@ -3742,12 +3742,12 @@
             </description>
         </method>
         <method name="texture_get_type" qualifiers="const">
-            <return type="int" enum="VisualServer.TextureType">
+            <return type="int" enum="RenderingServerEnums.TextureType">
             </return>
             <argument index="0" name="texture" type="RID">
             </argument>
             <description>
-                Returns the type of the texture, can be any of the [enum TextureType].
+                Returns the type of the texture, can be any of the [enum RenderingServerEnums.TextureType].
             </description>
         </method>
         <method name="texture_get_width" qualifiers="const">
@@ -3807,7 +3807,7 @@
             <argument index="1" name="flags" type="int">
             </argument>
             <description>
-                Sets the texture's flags. See [enum TextureFlags] for options.
+                Sets the texture's flags. See [enum RenderingServerEnums.TextureFlags] for options.
             </description>
         </method>
         <method name="texture_set_path">
@@ -3900,8 +3900,8 @@
             <return type="RID">
             </return>
             <description>
-                Creates an empty viewport and adds it to the VisualServer. It can be accessed with the RID that is returned. This RID will be used in all [code]viewport_*[/code] VisualServer functions.
-                Once finished with your RID, you will want to free the RID using the VisualServer's [method free_rid] static method.
+                Creates an empty viewport and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID will be used in all [code]viewport_*[/code] RenderingServer functions.
+                Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
             </description>
         </method>
         <method name="viewport_detach">
@@ -3918,10 +3918,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="info" type="int" enum="VisualServer.ViewportRenderInfo">
+            <argument index="1" name="info" type="int" enum="RenderingServerEnums.ViewportRenderInfo">
             </argument>
             <description>
-                Returns a viewport's render information. For options, see the [enum ViewportRenderInfo] constants.
+                Returns a viewport's render information. For options, see the [enum RenderingServerEnums.ViewportRenderInfo] constants.
             </description>
         </method>
         <method name="viewport_get_texture" qualifiers="const">
@@ -3989,10 +3989,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="clear_mode" type="int" enum="VisualServer.ViewportClearMode">
+            <argument index="1" name="clear_mode" type="int" enum="RenderingServerEnums.ViewportClearMode">
             </argument>
             <description>
-                Sets the clear mode of a viewport. See [enum ViewportClearMode] for options.
+                Sets the clear mode of a viewport. See [enum RenderingServerEnums.ViewportClearMode] for options.
             </description>
         </method>
         <method name="viewport_set_debug_draw">
@@ -4000,10 +4000,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="draw" type="int" enum="VisualServer.ViewportDebugDraw">
+            <argument index="1" name="draw" type="int" enum="RenderingServerEnums.ViewportDebugDraw">
             </argument>
             <description>
-                Sets the debug draw mode of a viewport. See [enum ViewportDebugDraw] for options.
+                Sets the debug draw mode of a viewport. See [enum RenderingServerEnums.ViewportDebugDraw] for options.
             </description>
         </method>
         <method name="viewport_set_disable_3d">
@@ -4077,10 +4077,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="msaa" type="int" enum="VisualServer.ViewportMSAA">
+            <argument index="1" name="msaa" type="int" enum="RenderingServerEnums.ViewportMSAA">
             </argument>
             <description>
-                Sets the anti-aliasing mode. See [enum ViewportMSAA] for options.
+                Sets the anti-aliasing mode. See [enum RenderingServerEnums.ViewportMSAA] for options.
             </description>
         </method>
         <method name="viewport_set_parent_viewport">
@@ -4114,7 +4114,7 @@
             </argument>
             <description>
                 Sets a viewport's scenario.
-                The scenario contains information about the [enum ScenarioDebugMode], environment information, reflection atlas etc.
+                The scenario contains information about the [enum RenderingServerEnums.ScenarioDebugMode], environment information, reflection atlas etc.
             </description>
         </method>
         <method name="viewport_set_shadow_atlas_quadrant_subdivision">
@@ -4170,10 +4170,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="update_mode" type="int" enum="VisualServer.ViewportUpdateMode">
+            <argument index="1" name="update_mode" type="int" enum="RenderingServerEnums.ViewportUpdateMode">
             </argument>
             <description>
-                Sets when the viewport should be updated. See [enum ViewportUpdateMode] constants for options.
+                Sets when the viewport should be updated. See [enum RenderingServerEnums.ViewportUpdateMode] constants for options.
             </description>
         </method>
         <method name="viewport_set_usage">
@@ -4181,10 +4181,10 @@
             </return>
             <argument index="0" name="viewport" type="RID">
             </argument>
-            <argument index="1" name="usage" type="int" enum="VisualServer.ViewportUsage">
+            <argument index="1" name="usage" type="int" enum="RenderingServerEnums.ViewportUsage">
             </argument>
             <description>
-                Sets the viewport's 2D/3D mode. See [enum ViewportUsage] constants for options.
+                Sets the viewport's 2D/3D mode. See [enum RenderingServerEnums.ViewportUsage] constants for options.
             </description>
         </method>
         <method name="viewport_set_use_arvr">
@@ -4213,12 +4213,12 @@
     <signals>
         <signal name="frame_post_draw">
             <description>
-                Emitted at the end of the frame, after the VisualServer has finished updating all the Viewports.
+                Emitted at the end of the frame, after the RenderingServer has finished updating all the Viewports.
             </description>
         </signal>
         <signal name="frame_pre_draw">
             <description>
-                Emitted at the beginning of the frame, before the VisualServer updates all the Viewports.
+                Emitted at the beginning of the frame, before the RenderingServer updates all the Viewports.
             </description>
         </signal>
     </signals>
@@ -4247,626 +4247,626 @@
         <constant name="MATERIAL_RENDER_PRIORITY_MAX" value="127">
             The maximum renderpriority of all materials.
         </constant>
-        <constant name="CUBEMAP_LEFT" value="0" enum="CubeMapSide">
+        <constant name="CUBEMAP_LEFT" value="0" enum="RenderingServerEnums.CubeMapSide">
             Marks the left side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_RIGHT" value="1" enum="CubeMapSide">
+        <constant name="CUBEMAP_RIGHT" value="1" enum="RenderingServerEnums.CubeMapSide">
             Marks the right side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_BOTTOM" value="2" enum="CubeMapSide">
+        <constant name="CUBEMAP_BOTTOM" value="2" enum="RenderingServerEnums.CubeMapSide">
             Marks the bottom side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_TOP" value="3" enum="CubeMapSide">
+        <constant name="CUBEMAP_TOP" value="3" enum="RenderingServerEnums.CubeMapSide">
             Marks the top side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_FRONT" value="4" enum="CubeMapSide">
+        <constant name="CUBEMAP_FRONT" value="4" enum="RenderingServerEnums.CubeMapSide">
             Marks the front side of a cubemap.
         </constant>
-        <constant name="CUBEMAP_BACK" value="5" enum="CubeMapSide">
+        <constant name="CUBEMAP_BACK" value="5" enum="RenderingServerEnums.CubeMapSide">
             Marks the back side of a cubemap.
         </constant>
-        <constant name="TEXTURE_TYPE_2D" value="0" enum="TextureType">
+        <constant name="TEXTURE_TYPE_2D" value="0" enum="RenderingServerEnums.TextureType">
             Normal texture with 2 dimensions, width and height.
         </constant>
-        <constant name="TEXTURE_TYPE_CUBEMAP" value="1" enum="TextureType">
+        <constant name="TEXTURE_TYPE_CUBEMAP" value="1" enum="RenderingServerEnums.TextureType">
             Texture made up of six faces, can be looked up with a [code]vec3[/code] in shader.
         </constant>
-        <constant name="TEXTURE_TYPE_2D_ARRAY" value="2" enum="TextureType">
+        <constant name="TEXTURE_TYPE_2D_ARRAY" value="2" enum="RenderingServerEnums.TextureType">
             An array of 2-dimensional textures.
         </constant>
-        <constant name="TEXTURE_TYPE_3D" value="3" enum="TextureType">
+        <constant name="TEXTURE_TYPE_3D" value="3" enum="RenderingServerEnums.TextureType">
             A 3-dimensional texture with width, height, and depth.
         </constant>
-        <constant name="TEXTURE_FLAG_MIPMAPS" value="1" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_MIPMAPS" value="1" enum="RenderingServerEnums.TextureFlags">
             Generates mipmaps, which are smaller versions of the same texture to use when zoomed out, keeping the aspect ratio.
         </constant>
-        <constant name="TEXTURE_FLAG_REPEAT" value="2" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_REPEAT" value="2" enum="RenderingServerEnums.TextureFlags">
             Repeats the texture (instead of clamp to edge).
         </constant>
-        <constant name="TEXTURE_FLAG_FILTER" value="4" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_FILTER" value="4" enum="RenderingServerEnums.TextureFlags">
             Uses a magnifying filter, to enable smooth zooming in of the texture.
         </constant>
-        <constant name="TEXTURE_FLAG_ANISOTROPIC_FILTER" value="8" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_ANISOTROPIC_FILTER" value="8" enum="RenderingServerEnums.TextureFlags">
             Uses anisotropic mipmap filtering. Generates smaller versions of the same texture with different aspect ratios.
             This results in better-looking textures when viewed from oblique angles.
         </constant>
-        <constant name="TEXTURE_FLAG_CONVERT_TO_LINEAR" value="16" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_CONVERT_TO_LINEAR" value="16" enum="RenderingServerEnums.TextureFlags">
             Converts the texture to the sRGB color space.
         </constant>
-        <constant name="TEXTURE_FLAG_MIRRORED_REPEAT" value="32" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_MIRRORED_REPEAT" value="32" enum="RenderingServerEnums.TextureFlags">
             Repeats the texture with alternate sections mirrored.
         </constant>
-        <constant name="TEXTURE_FLAG_USED_FOR_STREAMING" value="2048" enum="TextureFlags">
+        <constant name="TEXTURE_FLAG_USED_FOR_STREAMING" value="2048" enum="RenderingServerEnums.TextureFlags">
             Texture is a video surface.
         </constant>
-        <constant name="TEXTURE_FLAGS_DEFAULT" value="7" enum="TextureFlags">
-            Default flags. [constant TEXTURE_FLAG_MIPMAPS], [constant TEXTURE_FLAG_REPEAT] and [constant TEXTURE_FLAG_FILTER] are enabled.
+        <constant name="TEXTURE_FLAGS_DEFAULT" value="7" enum="RenderingServerEnums.TextureFlags">
+            Default flags. [constant RenderingServerEnums.TEXTURE_FLAG_MIPMAPS], [constant RenderingServerEnums.TEXTURE_FLAG_REPEAT] and [constant RenderingServerEnums.TEXTURE_FLAG_FILTER] are enabled.
         </constant>
-        <constant name="SHADER_SPATIAL" value="0" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_SPATIAL" value="0" enum="RenderingServerEnums.ShaderMode">
             Shader is a 3D shader.
         </constant>
-        <constant name="SHADER_CANVAS_ITEM" value="1" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_CANVAS_ITEM" value="1" enum="RenderingServerEnums.ShaderMode">
             Shader is a 2D shader.
         </constant>
-        <constant name="SHADER_PARTICLES" value="2" enum="VisualServerEnums.ShaderMode">
+        <constant name="SHADER_PARTICLES" value="2" enum="RenderingServerEnums.ShaderMode">
             Shader is a particle shader.
         </constant>
-        <constant name="SHADER_MAX" value="3" enum="VisualServerEnums.ShaderMode">
-            Represents the size of the [enum VisualServerEnums.ShaderMode] enum.
+        <constant name="SHADER_MAX" value="3" enum="RenderingServerEnums.ShaderMode">
+            Represents the size of the [enum RenderingServerEnums.ShaderMode] enum.
         </constant>
-        <constant name="ARRAY_VERTEX" value="0" enum="ArrayType">
+        <constant name="ARRAY_VERTEX" value="0" enum="RenderingServerEnums.ArrayType">
             Array is a vertex array.
         </constant>
-        <constant name="ARRAY_NORMAL" value="1" enum="ArrayType">
+        <constant name="ARRAY_NORMAL" value="1" enum="RenderingServerEnums.ArrayType">
             Array is a normal array.
         </constant>
-        <constant name="ARRAY_TANGENT" value="2" enum="ArrayType">
+        <constant name="ARRAY_TANGENT" value="2" enum="RenderingServerEnums.ArrayType">
             Array is a tangent array.
         </constant>
-        <constant name="ARRAY_COLOR" value="3" enum="ArrayType">
+        <constant name="ARRAY_COLOR" value="3" enum="RenderingServerEnums.ArrayType">
             Array is a color array.
         </constant>
-        <constant name="ARRAY_TEX_UV" value="4" enum="ArrayType">
+        <constant name="ARRAY_TEX_UV" value="4" enum="RenderingServerEnums.ArrayType">
             Array is an UV coordinates array.
         </constant>
-        <constant name="ARRAY_TEX_UV2" value="5" enum="ArrayType">
+        <constant name="ARRAY_TEX_UV2" value="5" enum="RenderingServerEnums.ArrayType">
             Array is an UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_BONES" value="6" enum="ArrayType">
+        <constant name="ARRAY_BONES" value="6" enum="RenderingServerEnums.ArrayType">
             Array contains bone information.
         </constant>
-        <constant name="ARRAY_WEIGHTS" value="7" enum="ArrayType">
+        <constant name="ARRAY_WEIGHTS" value="7" enum="RenderingServerEnums.ArrayType">
             Array is weight information.
         </constant>
-        <constant name="ARRAY_INDEX" value="8" enum="ArrayType">
+        <constant name="ARRAY_INDEX" value="8" enum="RenderingServerEnums.ArrayType">
             Array is index array.
         </constant>
-        <constant name="ARRAY_MAX" value="9" enum="ArrayType">
-            Represents the size of the [enum ArrayType] enum.
+        <constant name="ARRAY_MAX" value="9" enum="RenderingServerEnums.ArrayType">
+            Represents the size of the [enum RenderingServerEnums.ArrayType] enum.
         </constant>
-        <constant name="ARRAY_FORMAT_VERTEX" value="1" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_VERTEX" value="1" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a vertex array.
         </constant>
-        <constant name="ARRAY_FORMAT_NORMAL" value="2" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_NORMAL" value="2" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a normal array.
         </constant>
-        <constant name="ARRAY_FORMAT_TANGENT" value="4" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TANGENT" value="4" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a tangent array.
         </constant>
-        <constant name="ARRAY_FORMAT_COLOR" value="8" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_COLOR" value="8" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a color array.
         </constant>
-        <constant name="ARRAY_FORMAT_TEX_UV" value="16" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TEX_UV" value="16" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an UV coordinates array.
         </constant>
-        <constant name="ARRAY_FORMAT_TEX_UV2" value="32" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_TEX_UV2" value="32" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_FORMAT_BONES" value="64" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_BONES" value="64" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a bone information array.
         </constant>
-        <constant name="ARRAY_FORMAT_WEIGHTS" value="128" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_WEIGHTS" value="128" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a weights array.
         </constant>
-        <constant name="ARRAY_FORMAT_INDEX" value="256" enum="ArrayFormat">
+        <constant name="ARRAY_FORMAT_INDEX" value="256" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark an index array.
         </constant>
-        <constant name="ARRAY_COMPRESS_VERTEX" value="512" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_VERTEX" value="512" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) vertex array.
         </constant>
-        <constant name="ARRAY_COMPRESS_NORMAL" value="1024" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_NORMAL" value="1024" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) normal array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TANGENT" value="2048" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TANGENT" value="2048" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) tangent array.
         </constant>
-        <constant name="ARRAY_COMPRESS_COLOR" value="4096" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_COLOR" value="4096" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) color array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TEX_UV" value="8192" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TEX_UV" value="8192" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) UV coordinates array.
         </constant>
-        <constant name="ARRAY_COMPRESS_TEX_UV2" value="16384" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_TEX_UV2" value="16384" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) UV coordinates array for the second UV coordinates.
         </constant>
-        <constant name="ARRAY_COMPRESS_BONES" value="32768" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_BONES" value="32768" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed bone array.
         </constant>
-        <constant name="ARRAY_COMPRESS_WEIGHTS" value="65536" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_WEIGHTS" value="65536" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed (half float) weight array.
         </constant>
-        <constant name="ARRAY_COMPRESS_INDEX" value="131072" enum="ArrayFormat">
+        <constant name="ARRAY_COMPRESS_INDEX" value="131072" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark a compressed index array.
         </constant>
-        <constant name="ARRAY_FLAG_USE_2D_VERTICES" value="262144" enum="ArrayFormat">
+        <constant name="ARRAY_FLAG_USE_2D_VERTICES" value="262144" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark that the array contains 2D vertices.
         </constant>
-        <constant name="ARRAY_FLAG_USE_16_BIT_BONES" value="524288" enum="ArrayFormat">
+        <constant name="ARRAY_FLAG_USE_16_BIT_BONES" value="524288" enum="RenderingServerEnums.ArrayFormat">
             Flag used to mark that the array uses 16-bit bones instead of 8-bit.
         </constant>
-        <constant name="ARRAY_COMPRESS_DEFAULT" value="97280" enum="ArrayFormat">
-            Used to set flags [constant ARRAY_COMPRESS_VERTEX], [constant ARRAY_COMPRESS_NORMAL], [constant ARRAY_COMPRESS_TANGENT], [constant ARRAY_COMPRESS_COLOR], [constant ARRAY_COMPRESS_TEX_UV], [constant ARRAY_COMPRESS_TEX_UV2] and [constant ARRAY_COMPRESS_WEIGHTS] quickly.
+        <constant name="ARRAY_COMPRESS_DEFAULT" value="97280" enum="RenderingServerEnums.ArrayFormat">
+            Used to set flags [constant RenderingServerEnums.ARRAY_COMPRESS_VERTEX], [constant RenderingServerEnums.ARRAY_COMPRESS_NORMAL], [constant RenderingServerEnums.ARRAY_COMPRESS_TANGENT], [constant RenderingServerEnums.ARRAY_COMPRESS_COLOR], [constant RenderingServerEnums.ARRAY_COMPRESS_TEX_UV], [constant RenderingServerEnums.ARRAY_COMPRESS_TEX_UV2] and [constant RenderingServerEnums.ARRAY_COMPRESS_WEIGHTS] quickly.
         </constant>
-        <constant name="PRIMITIVE_POINTS" value="0" enum="PrimitiveType">
+        <constant name="PRIMITIVE_POINTS" value="0" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of points.
         </constant>
-        <constant name="PRIMITIVE_LINES" value="1" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINES" value="1" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of lines.
         </constant>
-        <constant name="PRIMITIVE_LINE_STRIP" value="2" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINE_STRIP" value="2" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a line strip from start to end.
         </constant>
-        <constant name="PRIMITIVE_LINE_LOOP" value="3" enum="PrimitiveType">
+        <constant name="PRIMITIVE_LINE_LOOP" value="3" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a line loop (a line strip with a line between the last and the first vertex).
         </constant>
-        <constant name="PRIMITIVE_TRIANGLES" value="4" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLES" value="4" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of triangles.
         </constant>
-        <constant name="PRIMITIVE_TRIANGLE_STRIP" value="5" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLE_STRIP" value="5" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a triangle strip (the last 3 vertices are always combined to make a triangle).
         </constant>
-        <constant name="PRIMITIVE_TRIANGLE_FAN" value="6" enum="PrimitiveType">
+        <constant name="PRIMITIVE_TRIANGLE_FAN" value="6" enum="RenderingServerEnums.PrimitiveType">
             Primitive to draw consists of a triangle strip (the last 2 vertices are always combined with the first to make a triangle).
         </constant>
-        <constant name="PRIMITIVE_MAX" value="7" enum="PrimitiveType">
-            Represents the size of the [enum PrimitiveType] enum.
+        <constant name="PRIMITIVE_MAX" value="7" enum="RenderingServerEnums.PrimitiveType">
+            Represents the size of the [enum RenderingServerEnums.PrimitiveType] enum.
         </constant>
-        <constant name="BLEND_SHAPE_MODE_NORMALIZED" value="0" enum="BlendShapeMode">
+        <constant name="BLEND_SHAPE_MODE_NORMALIZED" value="0" enum="RenderingServerEnums.BlendShapeMode">
             Blend shapes are normalized.
         </constant>
-        <constant name="BLEND_SHAPE_MODE_RELATIVE" value="1" enum="BlendShapeMode">
+        <constant name="BLEND_SHAPE_MODE_RELATIVE" value="1" enum="RenderingServerEnums.BlendShapeMode">
             Blend shapes are relative to base weight.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL" value="0" enum="LightType">
+        <constant name="LIGHT_DIRECTIONAL" value="0" enum="RenderingServerEnums.LightType">
             Is a directional (sun) light.
         </constant>
-        <constant name="LIGHT_OMNI" value="1" enum="LightType">
+        <constant name="LIGHT_OMNI" value="1" enum="RenderingServerEnums.LightType">
             Is an omni light.
         </constant>
-        <constant name="LIGHT_SPOT" value="2" enum="LightType">
+        <constant name="LIGHT_SPOT" value="2" enum="RenderingServerEnums.LightType">
             Is a spot light.
         </constant>
-        <constant name="LIGHT_PARAM_ENERGY" value="0" enum="LightParam">
+        <constant name="LIGHT_PARAM_ENERGY" value="0" enum="RenderingServerEnums.LightParam">
             The light's energy.
         </constant>
-        <constant name="LIGHT_PARAM_SPECULAR" value="2" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPECULAR" value="2" enum="RenderingServerEnums.LightParam">
             The light's influence on specularity.
         </constant>
-        <constant name="LIGHT_PARAM_RANGE" value="3" enum="LightParam">
+        <constant name="LIGHT_PARAM_RANGE" value="3" enum="RenderingServerEnums.LightParam">
             The light's range.
         </constant>
-        <constant name="LIGHT_PARAM_ATTENUATION" value="4" enum="LightParam">
+        <constant name="LIGHT_PARAM_ATTENUATION" value="4" enum="RenderingServerEnums.LightParam">
             The light's attenuation.
         </constant>
-        <constant name="LIGHT_PARAM_SPOT_ANGLE" value="5" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPOT_ANGLE" value="5" enum="RenderingServerEnums.LightParam">
             The spotlight's angle.
         </constant>
-        <constant name="LIGHT_PARAM_SPOT_ATTENUATION" value="6" enum="LightParam">
+        <constant name="LIGHT_PARAM_SPOT_ATTENUATION" value="6" enum="RenderingServerEnums.LightParam">
             The spotlight's attenuation.
         </constant>
-        <constant name="LIGHT_PARAM_CONTACT_SHADOW_SIZE" value="7" enum="LightParam">
+        <constant name="LIGHT_PARAM_CONTACT_SHADOW_SIZE" value="7" enum="RenderingServerEnums.LightParam">
             Scales the shadow color.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_MAX_DISTANCE" value="8" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_MAX_DISTANCE" value="8" enum="RenderingServerEnums.LightParam">
             Max distance that shadows will be rendered.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET" value="9" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_1_OFFSET" value="9" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the first split.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET" value="10" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_2_OFFSET" value="10" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the second split.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET" value="11" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_SPLIT_3_OFFSET" value="11" enum="RenderingServerEnums.LightParam">
             Proportion of shadow atlas occupied by the third split. The fourth split occupies the rest.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_NORMAL_BIAS" value="12" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_NORMAL_BIAS" value="12" enum="RenderingServerEnums.LightParam">
             Normal bias used to offset shadow lookup by object normal. Can be used to fix self-shadowing artifacts.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_BIAS" value="13" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_BIAS" value="13" enum="RenderingServerEnums.LightParam">
             Bias the shadow lookup to fix self-shadowing artifacts.
         </constant>
-        <constant name="LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE" value="14" enum="LightParam">
+        <constant name="LIGHT_PARAM_SHADOW_BIAS_SPLIT_SCALE" value="14" enum="RenderingServerEnums.LightParam">
             Increases bias on further splits to fix self-shadowing that only occurs far away from the camera.
         </constant>
-        <constant name="LIGHT_PARAM_MAX" value="15" enum="LightParam">
-            Represents the size of the [enum LightParam] enum.
+        <constant name="LIGHT_PARAM_MAX" value="15" enum="RenderingServerEnums.LightParam">
+            Represents the size of the [enum RenderingServerEnums.LightParam] enum.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DUAL_PARABOLOID" value="0" enum="LightOmniShadowMode">
+        <constant name="LIGHT_OMNI_SHADOW_DUAL_PARABOLOID" value="0" enum="RenderingServerEnums.LightOmniShadowMode">
             Use a dual paraboloid shadow map for omni lights.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_CUBE" value="1" enum="LightOmniShadowMode">
+        <constant name="LIGHT_OMNI_SHADOW_CUBE" value="1" enum="RenderingServerEnums.LightOmniShadowMode">
             Use a cubemap shadow map for omni lights. Slower but better quality than dual paraboloid.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DETAIL_VERTICAL" value="0" enum="LightOmniShadowDetail">
+        <constant name="LIGHT_OMNI_SHADOW_DETAIL_VERTICAL" value="0" enum="RenderingServerEnums.LightOmniShadowDetail">
             Use more detail vertically when computing shadow map.
         </constant>
-        <constant name="LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL" value="1" enum="LightOmniShadowDetail">
+        <constant name="LIGHT_OMNI_SHADOW_DETAIL_HORIZONTAL" value="1" enum="RenderingServerEnums.LightOmniShadowDetail">
             Use more detail horizontally when computing shadow map.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL" value="0" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_ORTHOGONAL" value="0" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use orthogonal shadow projection for directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS" value="1" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_2_SPLITS" value="1" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use 2 splits for shadow projection when using directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS" value="2" enum="LightDirectionalShadowMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_PARALLEL_4_SPLITS" value="2" enum="RenderingServerEnums.LightDirectionalShadowMode">
             Use 4 splits for shadow projection when using directional light.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE" value="0" enum="LightDirectionalShadowDepthRangeMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_STABLE" value="0" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             Keeps shadows stable as camera moves but has lower effective resolution.
         </constant>
-        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED" value="1" enum="LightDirectionalShadowDepthRangeMode">
+        <constant name="LIGHT_DIRECTIONAL_SHADOW_DEPTH_RANGE_OPTIMIZED" value="1" enum="RenderingServerEnums.LightDirectionalShadowDepthRangeMode">
             Optimize use of shadow maps, increasing the effective resolution. But may result in shadows moving or flickering slightly.
         </constant>
-        <constant name="VIEWPORT_UPDATE_DISABLED" value="0" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_DISABLED" value="0" enum="RenderingServerEnums.ViewportUpdateMode">
             Do not update the viewport.
         </constant>
-        <constant name="VIEWPORT_UPDATE_ONCE" value="1" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_ONCE" value="1" enum="RenderingServerEnums.ViewportUpdateMode">
             Update the viewport once then set to disabled.
         </constant>
-        <constant name="VIEWPORT_UPDATE_WHEN_VISIBLE" value="2" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_WHEN_VISIBLE" value="2" enum="RenderingServerEnums.ViewportUpdateMode">
             Update the viewport whenever it is visible.
         </constant>
-        <constant name="VIEWPORT_UPDATE_ALWAYS" value="3" enum="ViewportUpdateMode">
+        <constant name="VIEWPORT_UPDATE_ALWAYS" value="3" enum="RenderingServerEnums.ViewportUpdateMode">
             Always update the viewport.
         </constant>
-        <constant name="VIEWPORT_CLEAR_ALWAYS" value="0" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_ALWAYS" value="0" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is always cleared before drawing.
         </constant>
-        <constant name="VIEWPORT_CLEAR_NEVER" value="1" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_NEVER" value="1" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is never cleared before drawing.
         </constant>
-        <constant name="VIEWPORT_CLEAR_ONLY_NEXT_FRAME" value="2" enum="ViewportClearMode">
+        <constant name="VIEWPORT_CLEAR_ONLY_NEXT_FRAME" value="2" enum="RenderingServerEnums.ViewportClearMode">
             The viewport is cleared once, then the clear mode is set to [constant VIEWPORT_CLEAR_NEVER].
         </constant>
-        <constant name="VIEWPORT_MSAA_DISABLED" value="0" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_DISABLED" value="0" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is disabled.
         </constant>
-        <constant name="VIEWPORT_MSAA_2X" value="1" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_2X" value="1" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 2×.
         </constant>
-        <constant name="VIEWPORT_MSAA_4X" value="2" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_4X" value="2" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 4×.
         </constant>
-        <constant name="VIEWPORT_MSAA_8X" value="3" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_8X" value="3" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 8×.
         </constant>
-        <constant name="VIEWPORT_MSAA_16X" value="4" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_16X" value="4" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 16×.
         </constant>
-        <constant name="VIEWPORT_MSAA_EXT_2X" value="5" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_EXT_2X" value="5" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 2× on external texture. Special mode for GLES2 Android VR (Oculus Quest and Go).
         </constant>
-        <constant name="VIEWPORT_MSAA_EXT_4X" value="6" enum="ViewportMSAA">
+        <constant name="VIEWPORT_MSAA_EXT_4X" value="6" enum="RenderingServerEnums.ViewportMSAA">
             Multisample antialiasing is set to 4× on external texture. Special mode for GLES2 Android VR (Oculus Quest and Go).
         </constant>
-        <constant name="VIEWPORT_USAGE_2D" value="0" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_2D" value="0" enum="RenderingServerEnums.ViewportUsage">
             The Viewport does not render 3D but samples.
         </constant>
-        <constant name="VIEWPORT_USAGE_2D_NO_SAMPLING" value="1" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_2D_NO_SAMPLING" value="1" enum="RenderingServerEnums.ViewportUsage">
             The Viewport does not render 3D and does not sample.
         </constant>
-        <constant name="VIEWPORT_USAGE_3D" value="2" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_3D" value="2" enum="RenderingServerEnums.ViewportUsage">
             The Viewport renders 3D with effects.
         </constant>
-        <constant name="VIEWPORT_USAGE_3D_NO_EFFECTS" value="3" enum="ViewportUsage">
+        <constant name="VIEWPORT_USAGE_3D_NO_EFFECTS" value="3" enum="RenderingServerEnums.ViewportUsage">
             The Viewport renders 3D but without effects.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME" value="0" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_OBJECTS_IN_FRAME" value="0" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of objects drawn in a single frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME" value="1" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_VERTICES_IN_FRAME" value="1" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of vertices drawn in a single frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of material changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of shader changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of surface changes during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME" value="5" enum="ViewportRenderInfo">
+        <constant name="VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderingServerEnums.ViewportRenderInfo">
             Number of draw calls during this frame.
         </constant>
-        <constant name="VIEWPORT_RENDER_INFO_MAX" value="6" enum="ViewportRenderInfo">
-            Represents the size of the [enum ViewportRenderInfo] enum.
+        <constant name="VIEWPORT_RENDER_INFO_MAX" value="6" enum="RenderingServerEnums.ViewportRenderInfo">
+            Represents the size of the [enum RenderingServerEnums.ViewportRenderInfo] enum.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_DISABLED" value="0" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_DISABLED" value="0" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw is disabled. Default setting.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_UNSHADED" value="1" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_UNSHADED" value="1" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw sets objects to unshaded.
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_OVERDRAW" value="2" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_OVERDRAW" value="2" enum="RenderingServerEnums.ViewportDebugDraw">
             Overwrites clear color to [code](0,0,0,0)[/code].
         </constant>
-        <constant name="VIEWPORT_DEBUG_DRAW_WIREFRAME" value="3" enum="ViewportDebugDraw">
+        <constant name="VIEWPORT_DEBUG_DRAW_WIREFRAME" value="3" enum="RenderingServerEnums.ViewportDebugDraw">
             Debug draw draws objects in wireframe.
         </constant>
-        <constant name="SCENARIO_DEBUG_DISABLED" value="0" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_DISABLED" value="0" enum="RenderingServerEnums.ScenarioDebugMode">
             Do not use a debug mode.
         </constant>
-        <constant name="SCENARIO_DEBUG_WIREFRAME" value="1" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_WIREFRAME" value="1" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects as wireframe models.
         </constant>
-        <constant name="SCENARIO_DEBUG_OVERDRAW" value="2" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_OVERDRAW" value="2" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects in a way that displays how much overdraw is occurring. Overdraw occurs when a section of pixels is drawn and shaded and then another object covers it up. To optimize a scene, you should reduce overdraw.
         </constant>
-        <constant name="SCENARIO_DEBUG_SHADELESS" value="3" enum="ScenarioDebugMode">
+        <constant name="SCENARIO_DEBUG_SHADELESS" value="3" enum="RenderingServerEnums.ScenarioDebugMode">
             Draw all objects without shading. Equivalent to setting all objects shaders to [code]unshaded[/code].
         </constant>
-        <constant name="INSTANCE_NONE" value="0" enum="InstanceType">
+        <constant name="INSTANCE_NONE" value="0" enum="RenderingServerEnums.InstanceType">
             The instance does not have a type.
         </constant>
-        <constant name="INSTANCE_MESH" value="1" enum="InstanceType">
+        <constant name="INSTANCE_MESH" value="1" enum="RenderingServerEnums.InstanceType">
             The instance is a mesh.
         </constant>
-        <constant name="INSTANCE_MULTIMESH" value="2" enum="InstanceType">
+        <constant name="INSTANCE_MULTIMESH" value="2" enum="RenderingServerEnums.InstanceType">
             The instance is a multimesh.
         </constant>
-        <constant name="INSTANCE_IMMEDIATE" value="3" enum="InstanceType">
+        <constant name="INSTANCE_IMMEDIATE" value="3" enum="RenderingServerEnums.InstanceType">
             The instance is an immediate geometry.
         </constant>
-        <constant name="INSTANCE_PARTICLES" value="4" enum="InstanceType">
+        <constant name="INSTANCE_PARTICLES" value="4" enum="RenderingServerEnums.InstanceType">
             The instance is a particle emitter.
         </constant>
-        <constant name="INSTANCE_LIGHT" value="5" enum="InstanceType">
+        <constant name="INSTANCE_LIGHT" value="5" enum="RenderingServerEnums.InstanceType">
             The instance is a light.
         </constant>
-        <constant name="INSTANCE_REFLECTION_PROBE" value="6" enum="InstanceType">
+        <constant name="INSTANCE_REFLECTION_PROBE" value="6" enum="RenderingServerEnums.InstanceType">
             The instance is a reflection probe.
         </constant>
-        <constant name="INSTANCE_GI_PROBE" value="7" enum="InstanceType">
+        <constant name="INSTANCE_GI_PROBE" value="7" enum="RenderingServerEnums.InstanceType">
             The instance is a GI probe.
         </constant>
-        <constant name="INSTANCE_LIGHTMAP_CAPTURE" value="8" enum="InstanceType">
+        <constant name="INSTANCE_LIGHTMAP_CAPTURE" value="8" enum="RenderingServerEnums.InstanceType">
             The instance is a lightmap capture.
         </constant>
-        <constant name="INSTANCE_MAX" value="9" enum="InstanceType">
+        <constant name="INSTANCE_MAX" value="9" enum="RenderingServerEnums.InstanceType">
             Represents the size of the [enum InstanceType] enum.
         </constant>
-        <constant name="INSTANCE_GEOMETRY_MASK" value="30" enum="InstanceType">
+        <constant name="INSTANCE_GEOMETRY_MASK" value="30" enum="RenderingServerEnums.InstanceType">
             A combination of the flags of geometry instances (mesh, multimesh, immediate and particles).
         </constant>
-        <constant name="INSTANCE_FLAG_USE_BAKED_LIGHT" value="0" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_USE_BAKED_LIGHT" value="0" enum="RenderingServerEnums.InstanceFlags">
             Allows the instance to be used in baked lighting.
         </constant>
-        <constant name="INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE" value="1" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE" value="1" enum="RenderingServerEnums.InstanceFlags">
             When set, manually requests to draw geometry on next frame.
         </constant>
-        <constant name="INSTANCE_FLAG_MAX" value="2" enum="InstanceFlags">
+        <constant name="INSTANCE_FLAG_MAX" value="2" enum="RenderingServerEnums.InstanceFlags">
             Represents the size of the [enum InstanceFlags] enum.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_OFF" value="0" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_OFF" value="0" enum="RenderingServerEnums.ShadowCastingSetting">
             Disable shadows from this instance.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_ON" value="1" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_ON" value="1" enum="RenderingServerEnums.ShadowCastingSetting">
             Cast shadows from this instance.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_DOUBLE_SIDED" value="2" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_DOUBLE_SIDED" value="2" enum="RenderingServerEnums.ShadowCastingSetting">
             Disable backface culling when rendering the shadow of the object. This is slightly slower but may result in more correct shadows.
         </constant>
-        <constant name="SHADOW_CASTING_SETTING_SHADOWS_ONLY" value="3" enum="ShadowCastingSetting">
+        <constant name="SHADOW_CASTING_SETTING_SHADOWS_ONLY" value="3" enum="RenderingServerEnums.ShadowCastingSetting">
             Only render the shadows from the object. The object itself will not be drawn.
         </constant>
-        <constant name="NINE_PATCH_STRETCH" value="0" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_STRETCH" value="0" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets stretched where needed.
         </constant>
-        <constant name="NINE_PATCH_TILE" value="1" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_TILE" value="1" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets filled with tiles where needed.
         </constant>
-        <constant name="NINE_PATCH_TILE_FIT" value="2" enum="NinePatchAxisMode">
+        <constant name="NINE_PATCH_TILE_FIT" value="2" enum="RenderingServerEnums.NinePatchAxisMode">
             The nine patch gets filled with tiles where needed and stretches them a bit if needed.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_ADD" value="0" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_ADD" value="0" enum="RenderingServerEnums.CanvasLightMode">
             Adds light color additive to the canvas.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_SUB" value="1" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_SUB" value="1" enum="RenderingServerEnums.CanvasLightMode">
             Adds light color subtractive to the canvas.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_MIX" value="2" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_MIX" value="2" enum="RenderingServerEnums.CanvasLightMode">
             The light adds color depending on transparency.
         </constant>
-        <constant name="CANVAS_LIGHT_MODE_MASK" value="3" enum="CanvasLightMode">
+        <constant name="CANVAS_LIGHT_MODE_MASK" value="3" enum="RenderingServerEnums.CanvasLightMode">
             The light adds color depending on mask.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_NONE" value="0" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_NONE" value="0" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Do not apply a filter to canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF3" value="1" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF3" value="1" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF3 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF5" value="2" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF5" value="2" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF5 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF7" value="3" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF7" value="3" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF7 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF9" value="4" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF9" value="4" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF9 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_LIGHT_FILTER_PCF13" value="5" enum="CanvasLightShadowFilter">
+        <constant name="CANVAS_LIGHT_FILTER_PCF13" value="5" enum="RenderingServerEnums.CanvasLightShadowFilter">
             Use PCF13 filtering to filter canvas light shadows.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_DISABLED" value="0" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_DISABLED" value="0" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is disabled.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE" value="1" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_CLOCKWISE" value="1" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is clockwise.
         </constant>
-        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE" value="2" enum="CanvasOccluderPolygonCullMode">
+        <constant name="CANVAS_OCCLUDER_POLYGON_CULL_COUNTER_CLOCKWISE" value="2" enum="RenderingServerEnums.CanvasOccluderPolygonCullMode">
             Culling of the canvas occluder is counterclockwise.
         </constant>
-        <constant name="INFO_OBJECTS_IN_FRAME" value="0" enum="RenderInfo">
+        <constant name="INFO_OBJECTS_IN_FRAME" value="0" enum="RenderingServerEnums.RenderInfo">
             The amount of objects in the frame.
         </constant>
-        <constant name="INFO_VERTICES_IN_FRAME" value="1" enum="RenderInfo">
+        <constant name="INFO_VERTICES_IN_FRAME" value="1" enum="RenderingServerEnums.RenderInfo">
             The amount of vertices in the frame.
         </constant>
-        <constant name="INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderInfo">
+        <constant name="INFO_MATERIAL_CHANGES_IN_FRAME" value="2" enum="RenderingServerEnums.RenderInfo">
             The amount of modified materials in the frame.
         </constant>
-        <constant name="INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderInfo">
+        <constant name="INFO_SHADER_CHANGES_IN_FRAME" value="3" enum="RenderingServerEnums.RenderInfo">
             The amount of shader rebinds in the frame.
         </constant>
-        <constant name="INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderInfo">
+        <constant name="INFO_SURFACE_CHANGES_IN_FRAME" value="4" enum="RenderingServerEnums.RenderInfo">
             The amount of surface changes in the frame.
         </constant>
-        <constant name="INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderInfo">
+        <constant name="INFO_DRAW_CALLS_IN_FRAME" value="5" enum="RenderingServerEnums.RenderInfo">
             The amount of draw calls in frame.
         </constant>
-        <constant name="INFO_USAGE_VIDEO_MEM_TOTAL" value="6" enum="RenderInfo">
+        <constant name="INFO_USAGE_VIDEO_MEM_TOTAL" value="6" enum="RenderingServerEnums.RenderInfo">
             Unimplemented in the GLES2 and GLES3 rendering backends, always returns 0.
         </constant>
-        <constant name="INFO_VIDEO_MEM_USED" value="7" enum="RenderInfo">
+        <constant name="INFO_VIDEO_MEM_USED" value="7" enum="RenderingServerEnums.RenderInfo">
             The amount of video memory used, i.e. texture and vertex memory combined.
         </constant>
-        <constant name="INFO_TEXTURE_MEM_USED" value="8" enum="RenderInfo">
+        <constant name="INFO_TEXTURE_MEM_USED" value="8" enum="RenderingServerEnums.RenderInfo">
             The amount of texture memory used.
         </constant>
-        <constant name="INFO_VERTEX_MEM_USED" value="9" enum="RenderInfo">
+        <constant name="INFO_VERTEX_MEM_USED" value="9" enum="RenderingServerEnums.RenderInfo">
             The amount of vertex memory used.
         </constant>
-        <constant name="FEATURE_SHADERS" value="0" enum="Features">
+        <constant name="FEATURE_SHADERS" value="0" enum="RenderingServerEnums.Features">
             Hardware supports shaders. This enum is currently unused in Godot 3.x.
         </constant>
-        <constant name="FEATURE_MULTITHREADED" value="1" enum="Features">
+        <constant name="FEATURE_MULTITHREADED" value="1" enum="RenderingServerEnums.Features">
             Hardware supports multithreading. This enum is currently unused in Godot 3.x.
         </constant>
-        <constant name="MULTIMESH_TRANSFORM_2D" value="0" enum="MultimeshTransformFormat">
+        <constant name="MULTIMESH_TRANSFORM_2D" value="0" enum="RenderingServerEnums.MultimeshTransformFormat">
             Use [Transform2D] to store MultiMesh transform.
         </constant>
-        <constant name="MULTIMESH_TRANSFORM_3D" value="1" enum="MultimeshTransformFormat">
+        <constant name="MULTIMESH_TRANSFORM_3D" value="1" enum="RenderingServerEnums.MultimeshTransformFormat">
             Use [Transform] to store MultiMesh transform.
         </constant>
-        <constant name="MULTIMESH_COLOR_NONE" value="0" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_NONE" value="0" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh does not use per-instance color.
         </constant>
-        <constant name="MULTIMESH_COLOR_8BIT" value="1" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_8BIT" value="1" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh color uses 8 bits per component. This packs the color into a single float.
         </constant>
-        <constant name="MULTIMESH_COLOR_FLOAT" value="2" enum="MultimeshColorFormat">
+        <constant name="MULTIMESH_COLOR_FLOAT" value="2" enum="RenderingServerEnums.MultimeshColorFormat">
             MultiMesh color uses a float per channel.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_NONE" value="0" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_NONE" value="0" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh does not use custom data.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_8BIT" value="1" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_8BIT" value="1" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh custom data uses 8 bits per component. This packs the 4-component custom data into a single float.
         </constant>
-        <constant name="MULTIMESH_CUSTOM_DATA_FLOAT" value="2" enum="MultimeshCustomDataFormat">
+        <constant name="MULTIMESH_CUSTOM_DATA_FLOAT" value="2" enum="RenderingServerEnums.MultimeshCustomDataFormat">
             MultiMesh custom data uses a float per component.
         </constant>
-        <constant name="REFLECTION_PROBE_UPDATE_ONCE" value="0" enum="ReflectionProbeUpdateMode">
+        <constant name="REFLECTION_PROBE_UPDATE_ONCE" value="0" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             Reflection probe will update reflections once and then stop.
         </constant>
-        <constant name="REFLECTION_PROBE_UPDATE_ALWAYS" value="1" enum="ReflectionProbeUpdateMode">
+        <constant name="REFLECTION_PROBE_UPDATE_ALWAYS" value="1" enum="RenderingServerEnums.ReflectionProbeUpdateMode">
             Reflection probe will update each frame. This mode is necessary to capture moving objects.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_INDEX" value="0" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_INDEX" value="0" enum="RenderingServerEnums.ParticlesDrawOrder">
             Draw particles in the order that they appear in the particles array.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_LIFETIME" value="1" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_LIFETIME" value="1" enum="RenderingServerEnums.ParticlesDrawOrder">
             Sort particles based on their lifetime.
         </constant>
-        <constant name="PARTICLES_DRAW_ORDER_VIEW_DEPTH" value="2" enum="ParticlesDrawOrder">
+        <constant name="PARTICLES_DRAW_ORDER_VIEW_DEPTH" value="2" enum="RenderingServerEnums.ParticlesDrawOrder">
             Sort particles based on their distance to the camera.
         </constant>
-        <constant name="ENV_BG_CLEAR_COLOR" value="0" enum="EnvironmentBG">
+        <constant name="ENV_BG_CLEAR_COLOR" value="0" enum="RenderingServerEnums.EnvironmentBG">
             Use the clear color as background.
         </constant>
-        <constant name="ENV_BG_COLOR" value="1" enum="EnvironmentBG">
+        <constant name="ENV_BG_COLOR" value="1" enum="RenderingServerEnums.EnvironmentBG">
             Use a specified color as the background.
         </constant>
-        <constant name="ENV_BG_SKY" value="2" enum="EnvironmentBG">
+        <constant name="ENV_BG_SKY" value="2" enum="RenderingServerEnums.EnvironmentBG">
             Use a sky resource for the background.
         </constant>
-        <constant name="ENV_BG_COLOR_SKY" value="3" enum="EnvironmentBG">
+        <constant name="ENV_BG_COLOR_SKY" value="3" enum="RenderingServerEnums.EnvironmentBG">
             Use a custom color for background, but use a sky for shading and reflections.
         </constant>
-        <constant name="ENV_BG_CANVAS" value="4" enum="EnvironmentBG">
+        <constant name="ENV_BG_CANVAS" value="4" enum="RenderingServerEnums.EnvironmentBG">
             Use a specified canvas layer as the background. This can be useful for instantiating a 2D scene in a 3D world.
         </constant>
-        <constant name="ENV_BG_KEEP" value="5" enum="EnvironmentBG">
+        <constant name="ENV_BG_KEEP" value="5" enum="RenderingServerEnums.EnvironmentBG">
             Do not clear the background, use whatever was rendered last frame as the background.
         </constant>
-        <constant name="ENV_BG_MAX" value="7" enum="EnvironmentBG">
+        <constant name="ENV_BG_MAX" value="7" enum="RenderingServerEnums.EnvironmentBG">
             Represents the size of the [enum EnvironmentBG] enum.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_LOW" value="0" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_LOW" value="0" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Use lowest blur quality. Fastest, but may look bad.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_MEDIUM" value="1" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_MEDIUM" value="1" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Use medium blur quality.
         </constant>
-        <constant name="ENV_DOF_BLUR_QUALITY_HIGH" value="2" enum="EnvironmentDOFBlurQuality">
+        <constant name="ENV_DOF_BLUR_QUALITY_HIGH" value="2" enum="RenderingServerEnums.EnvironmentDOFBlurQuality">
             Used highest blur quality. Looks the best, but is the slowest.
         </constant>
-        <constant name="GLOW_BLEND_MODE_ADDITIVE" value="0" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_ADDITIVE" value="0" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Add the effect of the glow on top of the scene.
         </constant>
-        <constant name="GLOW_BLEND_MODE_SCREEN" value="1" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_SCREEN" value="1" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Blends the glow effect with the screen. Does not get as bright as additive.
         </constant>
-        <constant name="GLOW_BLEND_MODE_SOFTLIGHT" value="2" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_SOFTLIGHT" value="2" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Produces a subtle color disturbance around objects.
         </constant>
-        <constant name="GLOW_BLEND_MODE_REPLACE" value="3" enum="EnvironmentGlowBlendMode">
+        <constant name="GLOW_BLEND_MODE_REPLACE" value="3" enum="RenderingServerEnums.EnvironmentGlowBlendMode">
             Shows the glow effect by itself without the underlying scene.
         </constant>
-        <constant name="ENV_TONE_MAPPER_LINEAR" value="0" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_LINEAR" value="0" enum="RenderingServerEnums.EnvironmentToneMapper">
             Output color as they came in.
         </constant>
-        <constant name="ENV_TONE_MAPPER_REINHARD" value="1" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_REINHARD" value="1" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the Reinhard tonemapper.
         </constant>
-        <constant name="ENV_TONE_MAPPER_FILMIC" value="2" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_FILMIC" value="2" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the filmic tonemapper.
         </constant>
-        <constant name="ENV_TONE_MAPPER_ACES" value="3" enum="EnvironmentToneMapper">
+        <constant name="ENV_TONE_MAPPER_ACES" value="3" enum="RenderingServerEnums.EnvironmentToneMapper">
             Use the ACES tonemapper.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_LOW" value="0" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_LOW" value="0" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Lowest quality of screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_MEDIUM" value="1" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_MEDIUM" value="1" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Medium quality screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_QUALITY_HIGH" value="2" enum="EnvironmentSSAOQuality">
+        <constant name="ENV_SSAO_QUALITY_HIGH" value="2" enum="RenderingServerEnums.EnvironmentSSAOQuality">
             Highest quality screen space ambient occlusion.
         </constant>
-        <constant name="ENV_SSAO_BLUR_DISABLED" value="0" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_DISABLED" value="0" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Disables the blur set for SSAO. Will make SSAO look noisier.
         </constant>
-        <constant name="ENV_SSAO_BLUR_1x1" value="1" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_1x1" value="1" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Perform a 1x1 blur on the SSAO output.
         </constant>
-        <constant name="ENV_SSAO_BLUR_2x2" value="2" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_2x2" value="2" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Performs a 2x2 blur on the SSAO output.
         </constant>
-        <constant name="ENV_SSAO_BLUR_3x3" value="3" enum="EnvironmentSSAOBlur">
+        <constant name="ENV_SSAO_BLUR_3x3" value="3" enum="RenderingServerEnums.EnvironmentSSAOBlur">
             Performs a 3x3 blur on the SSAO output. Use this for smoothest SSAO.
         </constant>
     </constants>

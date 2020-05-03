@@ -36,7 +36,7 @@
 #include "scene/resources/style_box.h"
 #include "core/method_bind.h"
 
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 
 IMPL_GDCLASS(ScrollBar)
 IMPL_GDCLASS(HScrollBar)
@@ -515,7 +515,7 @@ Size2 ScrollBar::get_minimum_size() const {
 
     if (orientation == VERTICAL) {
 
-        minsize.width = MAX(incr->get_size().width, (bg->get_minimum_size() + bg->get_center_size()).width);
+        minsize.width = M_MAX(incr->get_size().width, (bg->get_minimum_size() + bg->get_center_size()).width);
         minsize.height += incr->get_size().height;
         minsize.height += decr->get_size().height;
         minsize.height += bg->get_minimum_size().height;
@@ -524,7 +524,7 @@ Size2 ScrollBar::get_minimum_size() const {
 
     if (orientation == HORIZONTAL) {
 
-        minsize.height = MAX(incr->get_size().height, (bg->get_center_size() + bg->get_minimum_size()).height);
+        minsize.height = M_MAX(incr->get_size().height, (bg->get_center_size() + bg->get_minimum_size()).height);
         minsize.width += incr->get_size().width;
         minsize.width += decr->get_size().width;
         minsize.width += bg->get_minimum_size().width;
@@ -664,7 +664,7 @@ void ScrollBar::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("scrolling"));
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "custom_step", PropertyHint::Range, "-1,4096"), "set_custom_step", "get_custom_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "custom_step", PropertyHint::Range, "-1,4096"), "set_custom_step", "get_custom_step");
 }
 
 ScrollBar::ScrollBar(Orientation p_orientation) {

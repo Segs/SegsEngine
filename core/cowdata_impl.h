@@ -1,7 +1,7 @@
 #pragma once
 #include "core/cowdata.h"
 #include "core/error_macros.h"
-#include <type_traits>
+//#include <type_traits>
 
 class Object;
 
@@ -51,7 +51,7 @@ template <class T> void CowData<T>::_unref(void *p_data) {
 
     if (atomic_decrement(refc) > 0) return; // still in use
     // clean up
-    if constexpr(!std::is_trivially_destructible<T>::value) {
+    if constexpr(!eastl::is_trivially_destructible<T>::value) {
             uint32_t *count = _get_size();
             T *data = (T *)(count + 1);
 
@@ -83,10 +83,10 @@ template <class T> void CowData<T>::_copy_on_write() {
         T *_data = (T *)(mem_new);
 
         // initialize new elements
-        if constexpr(std::is_trivially_copyable<T>::value) { memcpy(mem_new, _ptr, current_size * sizeof(T)); }
+        if constexpr(eastl::is_trivially_copyable<T>::value) { memcpy(mem_new, _ptr, current_size * sizeof(T)); }
         else {
             for (uint32_t i = 0; i < current_size; i++) {
-                if constexpr(std::is_base_of<Object, T>::value)
+                if constexpr(eastl::is_base_of<Object, T>::value)
                     memnew_placement(&_data[i], T(_get_data()[i]));
                 else
                     memnew_placement_basic(&_data[i], T(_get_data()[i]));
@@ -136,11 +136,11 @@ template <class T> Error CowData<T>::resize(int p_size) {
 
         // construct the newly created elements
 
-        if constexpr(!std::is_trivially_constructible<T>::value) {
+        if constexpr(!eastl::is_trivially_constructible<T>::value) {
                 T *elems = _get_data();
 
                 for (int i = *_get_size(); i < p_size; i++) {
-                    if constexpr(std::is_base_of<Object, T>::value)
+                    if constexpr(eastl::is_base_of<Object, T>::value)
                         memnew_placement(&elems[i], T);
                     else
                         memnew_placement_basic(&elems[i], T);
@@ -152,7 +152,7 @@ template <class T> Error CowData<T>::resize(int p_size) {
     } else if (p_size < size()) {
 
         if
-            constexpr(!std::is_trivially_destructible<T>::value) {
+            constexpr(!eastl::is_trivially_destructible<T>::value) {
                 // deinitialize no longer needed elements
                 for (uint32_t i = p_size; i < *_get_size(); i++) {
                     T *t = &_get_data()[i];

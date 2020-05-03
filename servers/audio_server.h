@@ -30,11 +30,11 @@
 
 #pragma once
 
+#include "core/hash_map.h"
 #include "core/math/audio_frame.h"
 #include "core/object.h"
 #include "core/os/os.h"
 #include "core/pool_vector.h"
-#include "core/hash_map.h"
 #include "core/set.h"
 #include "core/variant.h"
 #include "servers/audio/audio_effect.h"
@@ -127,11 +127,10 @@ public:
 };
 
 class AudioDriverManager {
-
-    enum {
-
-        MAX_DRIVERS = 10
-    };
+    static constexpr int MAX_DRIVERS = 10;
+//    enum {
+//        MAX_DRIVERS = 10
+//    };
 
     static AudioDriver *drivers[MAX_DRIVERS];
     static int driver_count;

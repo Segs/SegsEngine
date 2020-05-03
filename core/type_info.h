@@ -140,8 +140,8 @@ MAKE_TYPE_INFO_WITH_META(uint64_t, VariantType::INT, GodotTypeInfo::METADATA_INT
 MAKE_TYPE_INFO_WITH_META(int64_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_INT64)
 MAKE_TYPE_INFO(char16_t, VariantType::INT)
 MAKE_TYPE_INFO_WITH_META(QChar, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_UINT16)
-MAKE_TYPE_INFO_WITH_META(float, VariantType::REAL, GodotTypeInfo::METADATA_REAL_IS_FLOAT)
-MAKE_TYPE_INFO_WITH_META(double, VariantType::REAL, GodotTypeInfo::METADATA_REAL_IS_DOUBLE)
+MAKE_TYPE_INFO_WITH_META(float, VariantType::FLOAT, GodotTypeInfo::METADATA_REAL_IS_FLOAT)
+MAKE_TYPE_INFO_WITH_META(double, VariantType::FLOAT, GodotTypeInfo::METADATA_REAL_IS_DOUBLE)
 
 MAKE_TYPE_INFO(UIString, VariantType::STRING)
 MAKE_TYPE_INFO(String, VariantType::STRING)
@@ -187,47 +187,33 @@ MAKE_TYPE_INFO(PoolColorArray, VariantType::POOL_COLOR_ARRAY)
             return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
         }\
     };
-template <>
-struct GetTypeInfo<Span<uint8_t>> {
-    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
-    constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
-    }
-};
-template <>
-struct GetTypeInfo<Span<const uint8_t>> {
-    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_BYTE_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
-    constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
-    }
-};
-template <>
-struct GetTypeInfo<Span<const int>> {
-    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_INT_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
-    constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE) };
-    }
-
-};
-template <>
-struct GetTypeInfo<Span<const float>> {
-    constexpr static const VariantType VARIANT_TYPE = VariantType::POOL_REAL_ARRAY;
-    constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
-    constexpr static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo{ nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE)};
-    }
-};
+#define MAKE_SPAN_INFO(type,internal) \
+    template <>\
+    struct GetTypeInfo<Span<type>> {\
+        constexpr static const VariantType VARIANT_TYPE = internal;\
+        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;\
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
+        constexpr static inline RawPropertyInfo get_class_info() {  \
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
+        }\
+    };\
+    template <>\
+    struct GetTypeInfo<Span<const type>> {\
+        constexpr static const VariantType VARIANT_TYPE = internal;\
+        constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NON_COW_CONTAINER;\
+        constexpr static const TypePassBy PASS_BY = TypePassBy::Value; \
+        constexpr static inline RawPropertyInfo get_class_info() {  \
+            return RawPropertyInfo { nullptr,nullptr,nullptr,int8_t(VARIANT_TYPE)};\
+        }\
+    };
 
 MAKE_GENERIC_SPAN_INFO(Plane)
-MAKE_GENERIC_SPAN_INFO(Vector2)
-MAKE_GENERIC_SPAN_INFO(Vector3)
+MAKE_SPAN_INFO(Vector2,VariantType::POOL_VECTOR2_ARRAY)
+MAKE_SPAN_INFO(Vector3,VariantType::POOL_VECTOR3_ARRAY)
+MAKE_SPAN_INFO(float,VariantType::POOL_REAL_ARRAY)
+MAKE_SPAN_INFO(int,VariantType::POOL_INT_ARRAY)
+MAKE_SPAN_INFO(uint8_t,VariantType::POOL_BYTE_ARRAY)
+
 
 MAKE_TYPE_INFO_WITH_META(StringName, VariantType::STRING,GodotTypeInfo::METADATA_STRING_NAME)
 MAKE_TYPE_INFO(IP_Address, VariantType::STRING)
@@ -392,7 +378,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;                        \
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;                                                     \
         constexpr static inline RawPropertyInfo get_class_info() {                                                     \
-            return RawPropertyInfo{ nullptr, nullptr, #m_enum, int8_t(VARIANT_TYPE),                                   \
+            return RawPropertyInfo{ nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                   \
                 PropertyHint::None, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
     };

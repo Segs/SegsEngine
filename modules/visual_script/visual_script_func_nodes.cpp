@@ -343,7 +343,7 @@ void VisualScriptFunctionCall::set_singleton(const StringName &p_type) {
         return;
 
     singleton = p_type;
-    Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+    Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
     if (obj) {
         base_type = obj->get_class_name();
     }
@@ -379,7 +379,7 @@ void VisualScriptFunctionCall::_update_method_cache() {
 
     } else if (call_mode == CALL_MODE_SINGLETON) {
 
-        Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+        Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
         if (obj) {
             type = obj->get_class_name();
             script = refFromRefPtr<Script>(obj->get_script());
@@ -599,7 +599,7 @@ void VisualScriptFunctionCall::_validate_property(PropertyInfo &property) const 
             property.hint_string = itos(get_visual_script()->get_instance_id());
         } else if (call_mode == CALL_MODE_SINGLETON) {
 
-            Object *obj = Engine::get_singleton()->get_singleton_object(singleton);
+            Object *obj = Engine::get_singleton()->get_named_singleton(singleton);
             if (obj) {
                 property.hint = PropertyHint::MethodOfInstance;
                 property.hint_string = itos(obj->get_instance_id());
@@ -799,7 +799,7 @@ public:
         return true;
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -819,14 +819,14 @@ public:
 
                 Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Base object is not a Node!";
                     return 0;
                 }
 
                 Node *another = node->get_node(node_path);
                 if (!another) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Path does not lead Node!";
                     return 0;
                 }
@@ -857,7 +857,7 @@ public:
                         } else if (returns == 1) {
                             v.call(function, p_inputs + 1, input_args, r_error);
                         } else {
-                            r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                            r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                             r_error_str = "Invalid returns count for call_mode == CALL_MODE_INSTANCE";
                             return 0;
                         }
@@ -875,9 +875,9 @@ public:
             } break;
             case VisualScriptFunctionCall::CALL_MODE_SINGLETON: {
 
-                Object *object = Engine::get_singleton()->get_singleton_object(singleton);
+                Object *object = Engine::get_singleton()->get_named_singleton(singleton);
                 if (!object) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Invalid singleton name: '" + String(singleton) + "'";
                     return 0;
                 }
@@ -895,7 +895,7 @@ public:
         if (!validate) {
 
             //ignore call errors if validation is disabled
-            r_error.error = Variant::CallError::CALL_OK;
+            r_error.error = Callable::CallError::CALL_OK;
             r_error_str.clear();
         }
 
@@ -1030,7 +1030,7 @@ void VisualScriptPropertySet::_adjust_input_index(PropertyInfo &pinfo) const {
     if (index != StringName()) {
 
         Variant v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         v = Variant::construct(pinfo.type, nullptr, 0, ce);
         Variant i = v.get(index);
         pinfo.type = i.get_type();
@@ -1179,7 +1179,7 @@ void VisualScriptPropertySet::_update_cache() {
         //not super efficient..
 
         Variant v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
         Vector<PropertyInfo> pinfo;
@@ -1421,7 +1421,7 @@ void VisualScriptPropertySet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "index") {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant v = Variant::construct(type_cache.type, nullptr, 0, ce);
         Vector<PropertyInfo> plist;
         v.get_property_list(&plist);
@@ -1590,7 +1590,7 @@ public:
         }
     }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -1609,7 +1609,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Invalid set value '" + p_inputs[0]->as<String>() + "' on property '" + property + "' of type " + object->get_class();
                 }
             } break;
@@ -1617,14 +1617,14 @@ public:
 
                 Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Base object is not a Node!";
                     return 0;
                 }
 
                 Node *another = node->get_node(node_path);
                 if (!another) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Path does not lead Node!";
                     return 0;
                 }
@@ -1641,7 +1641,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Invalid set value '" + p_inputs[0]->as<String>() + "' on property '" + property + "' of type " + another->get_class();
                 }
 
@@ -1663,7 +1663,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = "Invalid set value '" + p_inputs[1]->as<String>() + "' (" + Variant::get_type_name(p_inputs[1]->get_type()) + ") on property '" + property + "' of type " + Variant::get_type_name(v.get_type());
                 }
 
@@ -1886,7 +1886,7 @@ void VisualScriptPropertyGet::_update_cache() {
         //not super efficient..
 
         Variant v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         v = Variant::construct(basic_type, nullptr, 0, ce);
 
         Vector<PropertyInfo> pinfo;
@@ -2135,7 +2135,7 @@ void VisualScriptPropertyGet::_validate_property(PropertyInfo &property) const {
 
     if (property.name == "index") {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant v = Variant::construct(type_cache, nullptr, 0, ce);
         Vector<PropertyInfo> plist;
         v.get_property_list(&plist);
@@ -2222,7 +2222,7 @@ public:
     VisualScriptPropertyGet *node;
     VisualScriptInstance *instance;
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
         switch (call_mode) {
 
@@ -2239,7 +2239,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = RTR_utf8("Invalid index property name.");
                     return 0;
                 }
@@ -2248,14 +2248,14 @@ public:
 
                 Node *node = object_cast<Node>(instance->get_owner_ptr());
                 if (!node) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = RTR_utf8("Base object is not a Node!");
                     return 0;
                 }
 
                 Node *another = node->get_node(node_path);
                 if (!another) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = RTR_utf8("Path does not lead Node!");
                     return 0;
                 }
@@ -2269,7 +2269,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = FormatVE(RTR_utf8("Invalid index property name '%s' in node %s.").c_str(), property.asCString(), another->get_name().asCString());
                     return 0;
                 }
@@ -2286,7 +2286,7 @@ public:
                 }
 
                 if (!valid) {
-                    r_error.error = Variant::CallError::CALL_ERROR_INVALID_METHOD;
+                    r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                     r_error_str = RTR_utf8("Invalid index property name.");
                 }
             }
@@ -2446,7 +2446,7 @@ public:
     //virtual bool is_output_port_unsequenced(int p_idx) const { return false; }
     //virtual bool get_output_port_unsequenced(int p_idx,Variant* r_value,Variant* p_working_mem,String &r_error) const { return true; }
 
-    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Variant::CallError &r_error, String &r_error_str) override {
+    int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
         Object *obj = instance->get_owner_ptr();
 
@@ -2511,7 +2511,7 @@ void register_visual_script_func_nodes() {
 
         VariantType t = VariantType(i);
         String type_name(Variant::get_type_name(t));
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant vt = Variant::construct(t, nullptr, 0, ce);
         Vector<MethodInfo> ml;
         vt.get_method_list(&ml);

@@ -141,6 +141,7 @@ public:
         StringName name;
         bool disabled=false;
         bool exposed=false;
+        bool is_namespace=false;
         HashMap<StringName, MethodInfo> &class_signal_map() {return signal_map;}
         Object *(*creation_func)() = nullptr;
 
@@ -184,7 +185,21 @@ public:
         else
             _add_class2(T::get_class_static_name(), PARENT::get_class_static_name());
     }
-
+    static void add_namespace(StringName ns,StringView header_file) {
+        GLOBAL_LOCK_FUNCTION
+        ERR_FAIL_COND(classes.find(ns)!=classes.end());
+        classes[ns] = ClassInfo();
+        ClassInfo &ti = classes[ns];
+        ti.name = ns;
+        ti.inherits = StringName();
+        ti.api = current_api;
+        ti.inherits_ptr=nullptr;
+        ti.exposed = true;
+        ti.is_namespace=true;
+#ifdef DEBUG_METHODS_ENABLED
+        ti.usage_header=header_file;
+#endif
+    }
     template <class T>
     static void register_class() {
 
@@ -307,11 +322,18 @@ public:
 
 #define BIND_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
+#define BIND_NS_CONSTANT(ns,m_constant) \
+    ClassDB::bind_integer_constant(#ns, StringName(), #m_constant, int(ns::m_constant));
 
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
-    ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant));
+    ClassDB::bind_integer_constant(#m_namespace, __constant_get_enum_name(m_namespace::m_constant, #m_constant), #m_constant, int(m_namespace::m_constant))
+#define BIND_NS_ENUM_CLASS_CONSTANT(m_namespace,m_eclass,m_constant) \
+    ClassDB::bind_integer_constant(#m_namespace, __constant_get_enum_name(m_namespace::m_eclass::m_constant, #m_eclass "::" #m_constant), #m_constant, int(m_namespace::m_eclass::m_constant))
+
+#define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
+    ClassDB::bind_integer_constant("@", __constant_get_enum_name(m_constant, #m_constant), #m_constant, int(m_constant))
 
 #else
 
@@ -329,7 +351,7 @@ public:
 #ifdef TOOLS_ENABLED
 
 #define BIND_VMETHOD(m_method) \
-    ClassDB::add_virtual_method(get_class_static_name(), m_method);
+    ClassDB::add_virtual_method(get_class_static_name(), m_method)
 
 #else
 

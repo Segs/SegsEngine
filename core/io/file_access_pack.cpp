@@ -231,18 +231,18 @@ Error DirAccessPack::change_dir(StringView p_dir) {
     else
         pd = current;
 
-    for (int i = 0; i < paths.size(); i++) {
+    for (auto & path : paths) {
 
-        String p(paths[i]);
+        StringView p(path);
         if (p == ".")
             continue;
         if (p == "..") {
             if (pd->parent) {
                 pd = pd->parent;
             }
-        } else if (pd->subdirs.contains(p)) {
+        } else if (pd->subdirs.contains_as(p)) {
 
-            pd = pd->subdirs[p];
+            pd = pd->subdirs.find_as(p)->second;
 
         } else {
 

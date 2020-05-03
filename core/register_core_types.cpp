@@ -39,7 +39,7 @@
 #include "core/engine.h"
 #include "core/func_ref.h"
 #include "core/image.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/io/config_file.h"
 #include "core/io/http_client.h"
 #include "core/io/image_loader.h"
@@ -61,6 +61,7 @@
 #include "core/math/geometry.h"
 #include "core/math/random_number_generator.h"
 #include "core/math/triangle_mesh.h"
+#include "core/resource/manifest.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
 #include "core/os/main_loop.h"
@@ -102,7 +103,7 @@ extern void unregister_variant_methods();
 
 void register_core_types() {
 
-    ObjectDB::setup();
+    gObjectDB().setup();
     ResourceCache::setup();
     MemoryPool::setup();
 
@@ -147,6 +148,7 @@ void register_core_types() {
     ClassDB::register_class<WeakRef>();
     ClassDB::register_class<Resource>();
     ClassDB::register_class<Image>();
+    ClassDB::register_class<ResourceManifest>();
 
     ClassDB::register_virtual_class<InputEvent>();
     ClassDB::register_virtual_class<InputEventWithModifiers>();
@@ -322,7 +324,7 @@ void unregister_core_types() {
 
     gResourceManager().finalize();
     ClassDB::cleanup_defaults();
-    ObjectDB::cleanup();
+    gObjectDB().cleanup();
 
     unregister_variant_methods();
     unregister_global_constants();

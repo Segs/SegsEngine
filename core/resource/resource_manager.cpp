@@ -20,16 +20,97 @@
 #include "core/pool_vector.h"
 
 #include "EASTL/deque.h"
-
+/// Note: resource manager private data is using default 'new'/'delete'
 namespace {
-ResourceRemapper s_resource_remapper;
-ResourceManager s_resource_manager;
-eastl::deque<Ref<ResourceFormatSaver>> s_savers;
-eastl::deque<Ref<ResourceFormatLoader>> s_loaders;
-ResourceSavedCallback save_callback;
+struct ResourceManagerPriv {
+    Mutex loading_map_mutex;
+    HashMap<LoadingMapKey, int, Hasher<LoadingMapKey> > loading_map;
+    eastl::deque<Ref<ResourceFormatSaver>> s_savers;
+    eastl::deque<Ref<ResourceFormatLoader>> s_loaders;
+    ResourceSavedCallback save_callback;
 
-Mutex* loading_map_mutex;
-HashMap<LoadingMapKey, int, Hasher<LoadingMapKey> > loading_map;
+    Ref<ResourceFormatLoader> _find_custom_resource_format_loader(StringView path) {
+        for (const auto & ldr : s_loaders) {
+            if (ldr->get_script_instance() && ldr->get_script_instance()->get_script()->get_path() == path) {
+                return ldr;
+            }
+        }
+        return Ref<ResourceFormatLoader>();
+    }
+    bool _add_to_loading_map(StringView p_path) {
+
+        bool success;
+        MutexLock guard(loading_map_mutex);
+
+        LoadingMapKey key;
+        key.path = p_path;
+        key.thread = Thread::get_caller_id();
+
+        if (loading_map.contains(key)) {
+            success = false;
+        }
+        else {
+            loading_map[key] = true;
+            success = true;
+        }
+
+        return success;
+    }
+
+    void _remove_from_loading_map(StringView p_path) {
+        MutexLock guard(loading_map_mutex);
+
+        LoadingMapKey key;
+        key.path = p_path;
+        key.thread = Thread::get_caller_id();
+
+        loading_map.erase(key);
+
+    }
+
+    void _remove_from_loading_map_and_thread(StringView p_path, Thread::ID p_thread) {
+        MutexLock guard(loading_map_mutex);
+
+        LoadingMapKey key;
+        key.path = p_path;
+        key.thread = p_thread;
+
+        loading_map.erase(key);
+
+    }
+    RES _load(StringView p_path, StringView p_original_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
+
+        bool found = false;
+
+        // Try all loaders and pick the first match for the type hint
+        for (size_t i = 0; i < s_loaders.size(); i++) {
+
+            if (!s_loaders[i]->recognize_path(p_path, p_type_hint)) {
+                continue;
+            }
+            found = true;
+            RES res(s_loaders[i]->load(p_path, !p_original_path.empty() ? p_original_path : p_path, r_error));
+            if (not res) {
+                continue;
+            }
+
+            return res;
+        }
+
+        ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".");
+    #ifdef TOOLS_ENABLED
+        FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
+        ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
+    #endif
+        ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".");
+    }
+
+};
+#define D() ((ResourceManagerPriv *)m_priv)
+
+ResourceManager s_resource_manager;
+ResourceRemapper s_resource_remapper;
+
 HashSet<const Resource*> remapped_list;
 HashMap<String, Vector<String> > translation_remaps;
 HashMap<String, String> path_remaps;
@@ -67,97 +148,6 @@ Ref<ResourceFormatLoader> createLoaderWrap(ResourceLoaderInterface* iface)
     return make_ref_counted<ResourceFormatLoaderWrap>(iface);
 }
 
-Ref<ResourceFormatLoader> _find_custom_resource_format_loader(StringView path) {
-    for (const auto & ldr : s_loaders) {
-        if (ldr->get_script_instance() && ldr->get_script_instance()->get_script()->get_path() == path) {
-            return ldr;
-        }
-    }
-    return Ref<ResourceFormatLoader>();
-}
-bool _add_to_loading_map(StringView p_path) {
-
-    bool success;
-    if (loading_map_mutex) {
-        loading_map_mutex->lock();
-    }
-
-    LoadingMapKey key;
-    key.path = p_path;
-    key.thread = Thread::get_caller_id();
-
-    if (loading_map.contains(key)) {
-        success = false;
-    }
-    else {
-        loading_map[key] = true;
-        success = true;
-    }
-
-    if (loading_map_mutex) {
-        loading_map_mutex->unlock();
-    }
-
-    return success;
-}
-
-void _remove_from_loading_map(StringView p_path) {
-    if (loading_map_mutex) {
-        loading_map_mutex->lock();
-    }
-
-    LoadingMapKey key;
-    key.path = p_path;
-    key.thread = Thread::get_caller_id();
-
-    loading_map.erase(key);
-
-    if (loading_map_mutex) {
-        loading_map_mutex->unlock();
-    }
-}
-
-void _remove_from_loading_map_and_thread(StringView p_path, Thread::ID p_thread) {
-    if (loading_map_mutex) {
-        loading_map_mutex->lock();
-    }
-
-    LoadingMapKey key;
-    key.path = p_path;
-    key.thread = p_thread;
-
-    loading_map.erase(key);
-
-    if (loading_map_mutex) {
-        loading_map_mutex->unlock();
-    }
-}
-RES _load(StringView p_path, StringView p_original_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
-
-    bool found = false;
-
-    // Try all loaders and pick the first match for the type hint
-    for (size_t i = 0; i < s_loaders.size(); i++) {
-
-        if (!s_loaders[i]->recognize_path(p_path, p_type_hint)) {
-            continue;
-        }
-        found = true;
-        RES res(s_loaders[i]->load(p_path, !p_original_path.empty() ? p_original_path : p_path, r_error));
-        if (not res) {
-            continue;
-        }
-
-        return res;
-    }
-
-    ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".");
-#ifdef TOOLS_ENABLED
-    FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
-    ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
-#endif
-    ERR_FAIL_V_MSG(RES(), "No loader found for resource: " + String(p_path) + ".");
-}
 
 String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
     using namespace StringUtils;
@@ -165,7 +155,7 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
     if (translation_remaps.contains(new_path)) {
         // translation_remaps has the following format:
-        //   { "res://path.png": PoolStringArray( "res://path-ru.png:ru", "res://path-de.png:de" ) }
+        //   { "res://path.png": { "res://path-ru.png:ru", "res://path-de.png:de" } }
 
         // To find the path of the remapped resource, we extract the locale name after
         // the last ':' to match the project locale.
@@ -217,55 +207,66 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
     if (new_path == p_path) { // Did not remap.
         // Try file remap.
         Error err;
-        FileAccess* f = FileAccess::open(String(p_path) + ".remap", FileAccess::READ, &err);
+        FileAccessRef f = FileAccess::open(String(p_path) + ".remap", FileAccess::READ, &err);
 
-        if (f) {
+        if (!f)
+            return new_path;
 
-            VariantParserStream* stream = VariantParser::get_file_stream(f);
+        VariantParserStream* stream = VariantParser::get_file_stream(f);
 
-            String assign;
-            Variant value;
-            VariantParser::Tag next_tag;
+        String assign;
+        Variant value;
+        VariantParser::Tag next_tag;
 
-            int lines = 0;
-            String error_text;
-            while (true) {
+        int lines = 0;
+        String error_text;
+        while (true) {
 
-                assign = Variant().as<String>();
-                next_tag.fields.clear();
-                next_tag.name.clear();
+            assign = Variant().as<String>();
+            next_tag.fields.clear();
+            next_tag.name.clear();
 
-                err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
-                if (err == ERR_FILE_EOF) {
-                    break;
-                }
-                else if (err != OK) {
-                    ERR_PRINT("Parse error: " + String(p_path) + ".remap:" + ::to_string(lines) + " error: " + error_text + ".");
-                    break;
-                }
-
-                if (assign == "path") {
-                    new_path = value.as<String>();
-                    break;
-                }
-                else if (next_tag.name != "remap") {
-                    break;
-                }
+            err = VariantParser::parse_tag_assign_eof(stream, lines, error_text, next_tag, assign, value, nullptr, true);
+            if (err == ERR_FILE_EOF) {
+                break;
             }
-            VariantParser::release_stream(stream);
-            memdelete(f);
+            else if (err != OK) {
+                ERR_PRINT("Parse error: " + String(p_path) + ".remap:" + ::to_string(lines) + " error: " + error_text + ".");
+                break;
+            }
+
+            if (assign == "path") {
+                new_path = value.as<String>();
+                break;
+            }
+            else if (next_tag.name != "remap") {
+                break;
+            }
         }
+        VariantParser::release_stream(stream);
     }
 
     return new_path;
 }
 
+String normalized_resource_path(StringView path) {
+    if (PathUtils::is_rel_path(path))
+        return String("res://") + path;
+    return ProjectSettings::get_singleton()->localize_path(path);
 
+}
 } // end of anonymous namespace
 
 
 ResourceManager::ResourceManager()
 {
+    m_priv = new ResourceManagerPriv;
+}
+
+ResourceManager::~ResourceManager()
+{
+    if(D())
+        finalize();
 }
 
 void ResourceManager::add_resource_format_saver(const Ref<ResourceFormatSaver>& p_format_saver, bool p_at_front) {
@@ -273,10 +274,10 @@ void ResourceManager::add_resource_format_saver(const Ref<ResourceFormatSaver>& 
     ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
 
     if (p_at_front) {
-        s_savers.push_front(p_format_saver);
+        D()->s_savers.push_front(p_format_saver);
     }
     else {
-        s_savers.push_back(p_format_saver);
+        D()->s_savers.push_back(p_format_saver);
     }
 }
 Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p_flags) {
@@ -284,7 +285,7 @@ Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p
     StringView extension = PathUtils::get_extension(p_path);
     Error err = ERR_FILE_UNRECOGNIZED;
 
-    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+    for (const Ref<ResourceFormatSaver>& s : D()->s_savers) {
 
         if (!s->recognize(p_resource))
             continue;
@@ -325,8 +326,8 @@ Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p
             if (p_flags & FLAG_CHANGE_PATH)
                 rwcopy->set_path(old_path);
 
-            if (save_callback && StringUtils::begins_with(p_path, "res://"))
-                save_callback(p_resource, p_path);
+            if (D()->save_callback && StringUtils::begins_with(p_path, "res://"))
+                D()->save_callback(p_resource, p_path);
 
             return OK;
         }
@@ -337,12 +338,12 @@ Error ResourceManager::save(StringView p_path, const RES& p_resource, uint32_t p
 
 void ResourceManager::set_save_callback(ResourceSavedCallback p_callback) {
 
-    save_callback = p_callback;
+    D()->save_callback = p_callback;
 }
 
 void ResourceManager::get_recognized_extensions(const RES& p_resource, Vector<String>& p_extensions) {
 
-    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+    for (const Ref<ResourceFormatSaver>& s : D()->s_savers) {
 
         s->get_recognized_extensions(p_resource, p_extensions);
     }
@@ -352,14 +353,14 @@ void ResourceManager::remove_resource_format_saver(const Ref<ResourceFormatSaver
 
     ERR_FAIL_COND_MSG(not p_format_saver, "It's not a reference to a valid ResourceFormatSaver object.");
     // Find saver
-    auto iter = eastl::find(s_savers.begin(), s_savers.end(), p_format_saver);
-    ERR_FAIL_COND(iter == s_savers.end()); // Not found
+    auto iter = eastl::find(D()->s_savers.begin(), D()->s_savers.end(), p_format_saver);
+    ERR_FAIL_COND(iter == D()->s_savers.end()); // Not found
 
-    s_savers.erase(iter);
+    D()->s_savers.erase(iter);
 }
 
 Ref<ResourceFormatSaver> ResourceManager::_find_custom_resource_format_saver(StringView path) {
-    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+    for (const Ref<ResourceFormatSaver>& s : D()->s_savers) {
         if (s->get_script_instance() && s->get_script_instance()->get_script()->get_path() == path) {
             return s;
         }
@@ -370,7 +371,7 @@ Ref<ResourceFormatSaver> ResourceManager::_find_custom_resource_format_saver(Str
 void ResourceManager::remove_custom_savers() {
 
     Vector<Ref<ResourceFormatSaver> > custom_savers;
-    for (const Ref<ResourceFormatSaver>& s : s_savers) {
+    for (const Ref<ResourceFormatSaver>& s : D()->s_savers) {
         if (s->get_script_instance()) {
             custom_savers.push_back(s);
         }
@@ -435,7 +436,7 @@ void ResourceManager::add_custom_savers() {
 
 bool ResourceManager::add_custom_resource_format_loader(StringView script_path) {
 
-    if (_find_custom_resource_format_loader(script_path))
+    if (D()->_find_custom_resource_format_loader(script_path))
         return false;
 
     Ref<Resource> res = ResourceManager::load(script_path);
@@ -460,7 +461,7 @@ bool ResourceManager::add_custom_resource_format_loader(StringView script_path) 
 
 void ResourceManager::remove_custom_resource_format_loader(StringView script_path) {
 
-    Ref<ResourceFormatLoader> custom_loader = _find_custom_resource_format_loader(script_path);
+    Ref<ResourceFormatLoader> custom_loader = D()->_find_custom_resource_format_loader(script_path);
     if (custom_loader)
         remove_resource_format_loader(custom_loader);
 }
@@ -488,20 +489,20 @@ void ResourceManager::add_custom_loaders() {
 void ResourceManager::remove_custom_loaders() {
 
     Vector<Ref<ResourceFormatLoader> > custom_loaders;
-    for (auto &ldr : s_loaders) {
+    for (auto &ldr : D()->s_loaders) {
         if (ldr->get_script_instance()) {
             custom_loaders.push_back(ldr);
         }
     }
 
-    for (int i = 0; i < custom_loaders.size(); ++i) {
-        remove_resource_format_loader(custom_loaders[i]);
+    for (const Ref<ResourceFormatLoader> & ldr : custom_loaders) {
+        remove_resource_format_loader(ldr);
     }
 }
 void ResourceManager::get_recognized_extensions_for_type(StringView p_type, Vector<String>& p_extensions) {
 
-    for (int i = 0; i < s_loaders.size(); i++) {
-        s_loaders[i]->get_recognized_extensions_for_type(p_type, p_extensions);
+    for (const auto & v : D()->s_loaders) {
+        v->get_recognized_extensions_for_type(p_type, p_extensions);
     }
 }
 RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_cache, Error* r_error) {
@@ -509,17 +510,13 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
     if (r_error)
         *r_error = ERR_CANT_OPEN;
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
     if (!p_no_cache) {
 
         {
-            bool success = _add_to_loading_map(local_path);
-            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
+            bool success = D()->_add_to_loading_map(local_path);
+            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' ");
         }
 
         //lock first if possible
@@ -532,7 +529,8 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 
         if (rptr) {
             RES res(rptr);
-            //it is possible this resource was just freed in a thread. If so, this referencing will not work and resource is considered not cached
+            // it is possible this resource was just freed in a thread. If so, this referencing will not work and
+            // resource is considered not cached
             if (res) {
                 //referencing is fine
                 if (r_error)
@@ -540,7 +538,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
                 if (ResourceCache::lock) {
                     ResourceCache::lock->read_unlock();
                 }
-                _remove_from_loading_map(local_path);
+                D()->_remove_from_loading_map(local_path);
                 return res;
             }
         }
@@ -554,17 +552,17 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 
     if (path.empty()) {
         if (!p_no_cache) {
-            _remove_from_loading_map(local_path);
+            D()->_remove_from_loading_map(local_path);
         }
         ERR_FAIL_V_MSG(RES(), "Remapping '" + local_path + "' failed.");
     }
 
     print_verbose("Loading resource: " + path);
-    RES res(_load(path, local_path, p_type_hint, p_no_cache, r_error));
+    RES res(D()->_load(path, local_path, p_type_hint, p_no_cache, r_error));
 
     if (not res) {
         if (!p_no_cache) {
-            _remove_from_loading_map(local_path);
+            D()->_remove_from_loading_map(local_path);
         }
         print_verbose("Failed loading resource: " + path);
         return RES();
@@ -586,7 +584,7 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 #endif
 
     if (!p_no_cache) {
-        _remove_from_loading_map(local_path);
+        D()->_remove_from_loading_map(local_path);
     }
 
     if (_loaded_callback) {
@@ -598,16 +596,12 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 
 RES ResourceManager::load_internal(StringView p_path, StringView p_original_path, StringView p_type_hint, bool p_no_cache, Error* r_error)
 {
-    return _load(p_path, p_original_path, p_type_hint, p_no_cache, r_error);
+    return D()->_load(p_path, p_original_path, p_type_hint, p_no_cache, r_error);
 }
 
 bool ResourceManager::exists(StringView p_path, StringView p_type_hint) {
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
     if (ResourceCache::has(local_path)) {
 
@@ -618,13 +612,13 @@ bool ResourceManager::exists(StringView p_path, StringView p_type_hint) {
     String path = _path_remap(local_path, &xl_remapped);
 
     // Try all loaders and pick the first match for the type hint
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (const auto & v : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(path, p_type_hint)) {
+        if (!v->recognize_path(path, p_type_hint)) {
             continue;
         }
 
-        if (s_loaders[i]->exists(path))
+        if (v->exists(path))
             return true;
     }
 
@@ -636,15 +630,11 @@ Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_pa
     if (r_error)
         *r_error = ERR_CANT_OPEN;
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path = normalized_resource_path(p_path);
 
     if (!p_no_cache) {
 
-        bool success = _add_to_loading_map(local_path);
+        bool success = D()->_add_to_loading_map(local_path);
         ERR_FAIL_COND_V_MSG(!success, Ref<ResourceInteractiveLoader>(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
 
         if (ResourceCache::has(local_path)) {
@@ -664,7 +654,7 @@ Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_pa
     String path = _path_remap(local_path, &xl_remapped);
     if (path.empty()) {
         if (!p_no_cache) {
-            _remove_from_loading_map(local_path);
+            D()->_remove_from_loading_map(local_path);
         }
         ERR_FAIL_V_MSG(Ref<ResourceInteractiveLoader>(), "Remapping '" + local_path + "' failed.");
     }
@@ -672,12 +662,12 @@ Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_pa
     print_verbose("Loading resource: " + path);
 
     bool found = false;
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (const auto & v : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(path, p_type_hint))
+        if (!v->recognize_path(path, p_type_hint))
             continue;
         found = true;
-        Ref<ResourceInteractiveLoader> ril = s_loaders[i]->load_interactive(path, local_path, r_error);
+        Ref<ResourceInteractiveLoader> ril = v->load_interactive(path, local_path, r_error);
         if (not ril)
             continue;
         if (!p_no_cache) {
@@ -693,7 +683,7 @@ Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_pa
     }
 
     if (!p_no_cache) {
-        _remove_from_loading_map(local_path);
+        D()->_remove_from_loading_map(local_path);
     }
 
     ERR_FAIL_COND_V_MSG(found, Ref<ResourceInteractiveLoader>(), "Failed loading resource: " + path + ".");
@@ -706,10 +696,10 @@ void ResourceManager::add_resource_format_loader(const Ref<ResourceFormatLoader>
     ERR_FAIL_COND(not p_format_loader);
 
     if (p_at_front) {
-        s_loaders.push_front(p_format_loader);
+        D()->s_loaders.push_front(p_format_loader);
     }
     else {
-        s_loaders.push_back(p_format_loader);
+        D()->s_loaders.push_back(p_format_loader);
     }
 }
 
@@ -717,7 +707,7 @@ void ResourceManager::add_resource_format_loader(ResourceLoaderInterface* p_form
 {
     ERR_FAIL_COND(not p_format_loader);
 #ifdef DEBUG_ENABLED
-    for (auto & s_loader : s_loaders)
+    for (auto & s_loader : D()->s_loaders)
     {
         Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(s_loader);
         if (fmt) {
@@ -733,7 +723,7 @@ void ResourceManager::remove_resource_format_loader(const ResourceLoaderInterfac
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
-    eastl::erase_if(s_loaders,[p_format_loader](const Ref<ResourceFormatLoader> &v)->bool
+    eastl::erase_if(D()->s_loaders,[p_format_loader](const Ref<ResourceFormatLoader> &v)->bool
     {
             Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(v);
             return (fmt && fmt->wrapped_same(p_format_loader));
@@ -747,7 +737,7 @@ void ResourceManager::remove_resource_format_loader(const Ref<ResourceFormatLoad
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
-    eastl::erase_if(s_loaders, [p_format_loader](const Ref<ResourceFormatLoader>& v)->bool {
+    eastl::erase_if(D()->s_loaders, [p_format_loader](const Ref<ResourceFormatLoader>& v)->bool {
             return (v == p_format_loader);
     });
 }
@@ -756,50 +746,42 @@ int ResourceManager::get_import_order(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path=normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        return s_loaders[i]->get_import_order(p_path);
+        return s_loader->get_import_order(p_path);
     }
 
     return 0;
 }
 
 void ResourceManager::remove_from_loading_map_and_thread(StringView p_path, Thread::ID p_thread) {
-    _remove_from_loading_map_and_thread(p_path,p_thread);
+    D()->_remove_from_loading_map_and_thread(p_path,p_thread);
 }
 
 String ResourceManager::get_import_group_file(StringView p_path) {
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path=normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        return s_loaders[i]->get_import_group_file(p_path);
+        return s_loader->get_import_group_file(p_path);
     }
 
     return String(); //not found
@@ -809,22 +791,18 @@ bool ResourceManager::is_import_valid(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        return s_loaders[i]->is_import_valid(p_path);
+        return s_loader->is_import_valid(p_path);
     }
 
     return false; //not found
@@ -834,22 +812,18 @@ bool ResourceManager::is_imported(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        return s_loaders[i]->is_imported(p_path);
+        return s_loader->is_imported(p_path);
     }
 
     return false; //not found
@@ -859,22 +833,18 @@ void ResourceManager::get_dependencies(StringView p_path, Vector<String>& p_depe
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        s_loaders[i]->get_dependencies(local_path, p_dependencies, p_add_types);
+        s_loader->get_dependencies(local_path, p_dependencies, p_add_types);
     }
 }
 
@@ -882,22 +852,18 @@ Error ResourceManager::rename_dependencies(StringView p_path, const HashMap<Stri
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        if (!s_loaders[i]->recognize_path(local_path))
+        if (!s_loader->recognize_path(local_path))
             continue;
         /*
         if (p_type_hint!="" && !loader[i]->handles_type(p_type_hint))
             continue;
         */
 
-        return s_loaders[i]->rename_dependencies(local_path, p_map);
+        return s_loader->rename_dependencies(local_path, p_map);
     }
 
     return OK; // ??
@@ -905,15 +871,11 @@ Error ResourceManager::rename_dependencies(StringView p_path, const HashMap<Stri
 
 String ResourceManager::get_resource_type(StringView p_path) {
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
-    for (int i = 0; i < s_loaders.size(); i++) {
+    for (auto & s_loader : D()->s_loaders) {
 
-        String result = s_loaders[i]->get_resource_type(local_path);
+        String result = s_loader->get_resource_type(local_path);
         if (not result.empty())
             return result;
     }
@@ -1007,24 +969,15 @@ void ResourceManager::set_load_callback(ResourceLoadedCallback p_callback) {
 
 void ResourceManager::initialize() {
 
-#ifndef NO_THREADS
-    loading_map_mutex = memnew(Mutex);
-#endif
 }
 
 void ResourceManager::finalize()
 {
-    s_savers.clear();
-#ifndef NO_THREADS
-    for (const auto& e : loading_map) {
+    for (const auto& e : D()->loading_map) {
         ERR_PRINT("Exited while resource is being loaded: " + e.first.path);
     }
-    loading_map.clear();
-    memdelete(loading_map_mutex);
-    loading_map_mutex = nullptr;
-    for (auto& ldr : s_loaders)
-        ldr.reset();
-#endif
+    delete D();
+    m_priv=nullptr;
 }
 ResourceManager& gResourceManager() {
     return s_resource_manager;
@@ -1036,9 +989,7 @@ void ResourceRemapper::set_as_translation_remapped(const Resource* r, bool p_rem
     if (remapped_list.contains(r) == p_remapped)
         return;
 
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_lock();
-    }
+    RWLockWrite write_locker(ResourceCache::lock);
 
     if (p_remapped) {
         remapped_list.insert(r);
@@ -1047,9 +998,6 @@ void ResourceRemapper::set_as_translation_remapped(const Resource* r, bool p_rem
         remapped_list.erase(r);
     }
 
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_unlock();
-    }
 }
 
 bool ResourceRemapper::is_translation_remapped(const Resource *resource) {
@@ -1058,3 +1006,5 @@ bool ResourceRemapper::is_translation_remapped(const Resource *resource) {
 ResourceRemapper& gResourceRemapper() {
     return s_resource_remapper;
 }
+
+#undef D

@@ -4,7 +4,7 @@
         Global scope constants and variables.
     </brief_description>
     <description>
-        Global scope constants and variables. This is all that resides in the globals, constants regarding error codes, scancodes, property hints, etc.
+        Global scope constants and variables. This is all that resides in the globals, constants regarding error codes, keycodes, property hints, etc.
         Singletons are also documented here, since they can be accessed from anywhere.
     </description>
     <tutorials>
@@ -42,7 +42,7 @@
         <member name="JSON" type="JSON" setter="" getter="">
             The [JSON] singleton.
         </member>
-        <member name="Marshalls" type="Reference" setter="" getter="">
+        <member name="Marshalls" type="Marshalls" setter="" getter="">
             The [Marshalls] singleton.
         </member>
         <member name="NavigationMeshGenerator" type="EditorNavigationMeshGenerator" setter="" getter="">
@@ -54,20 +54,17 @@
         <member name="Performance" type="Performance" setter="" getter="">
             The [Performance] singleton.
         </member>
-        <member name="Physics2DServer" type="Physics2DServer" setter="" getter="">
-            The [Physics2DServer] singleton.
+        <member name="PhysicsServer2D" type="PhysicsServer2D" setter="" getter="">
+            The [PhysicsServer2D] singleton.
         </member>
-        <member name="PhysicsServer" type="PhysicsServer" setter="" getter="">
-            The [PhysicsServer] singleton.
+        <member name="PhysicsServer3D" type="PhysicsServer3D" setter="" getter="">
+            The [PhysicsServer3D] singleton.
         </member>
         <member name="ProjectSettings" type="ProjectSettings" setter="" getter="">
             The [ProjectSettings] singleton.
         </member>
-        <member name="ResourceLoader" type="ResourceLoader" setter="" getter="">
-            The [ResourceLoader] singleton.
-        </member>
-        <member name="ResourceSaver" type="ResourceSaver" setter="" getter="">
-            The [ResourceSaver] singleton.
+        <member name="ResourceManager" type="ResourceManager" setter="" getter="">
+            The [ResourceManager] singleton.
         </member>
         <member name="TranslationServer" type="TranslationServer" setter="" getter="">
             The [TranslationServer] singleton.
@@ -75,8 +72,8 @@
         <member name="VisualScriptEditor" type="VisualScriptEditor" setter="" getter="">
             The [VisualScriptEditor] singleton.
         </member>
-        <member name="VisualServer" type="VisualServer" setter="" getter="">
-            The [VisualServer] singleton.
+        <member name="RenderingServer" type="RenderingServer" setter="" getter="">
+            The [RenderingServer] singleton.
         </member>
     </members>
     <constants>
@@ -129,7 +126,7 @@
             Vertical bottom alignment, usually for text-derived classes.
         </constant>
         <constant name="SPKEY" value="16777216">
-            Scancodes with this bit applied are non-printable.
+            Keycodes with this bit applied are non-printable.
         </constant>
         <constant name="KEY_ESCAPE" value="16777217" enum="KeyList">
             Escape key.
@@ -1454,7 +1451,7 @@
         <constant name="INT" value="2" enum="VariantType">
             Variable is of type [int].
         </constant>
-        <constant name="REAL" value="3" enum="VariantType">
+        <constant name="FLOAT" value="3" enum="VariantType">
             Variable is of type [float] (real).
         </constant>
         <constant name="STRING" value="4" enum="VariantType">
@@ -1607,17 +1604,61 @@
         <constant name="OP_MAX" value="25" enum="Variant.Operator">
             Represents the size of the [enum Variant.Operator] enum.
         </constant>
-				<constant name="GEN_EDIT_STATE_DISABLED" value="0" enum="PackedGenEditState">
-			If passed to [method PackedScene.instance], blocks edits to the scene state.
-		</constant>
-		<constant name="GEN_EDIT_STATE_INSTANCE" value="1" enum="PackedGenEditState">
-			If passed to [method PackedScene.instance], provides inherited scene resources to the local scene.
-			[b]Note:[/b] Only available in editor builds.
-		</constant>
-		<constant name="GEN_EDIT_STATE_MAIN" value="2" enum="PackedGenEditState">
-			If passed to [method PackedScene.instance], provides local scene resources to the local scene. Only the main scene should receive the main edit state.
-			[b]Note:[/b] Only available in editor builds.
-		</constant>
-		
-    </constants>
+                <constant name="GEN_EDIT_STATE_DISABLED" value="0" enum="PackedGenEditState">
+            If passed to [method PackedScene.instance], blocks edits to the scene state.
+        </constant>
+        <constant name="GEN_EDIT_STATE_INSTANCE" value="1" enum="PackedGenEditState">
+            If passed to [method PackedScene.instance], provides inherited scene resources to the local scene.
+            [b]Note:[/b] Only available in editor builds.
+        </constant>
+        <constant name="GEN_EDIT_STATE_MAIN" value="2" enum="PackedGenEditState">
+            If passed to [method PackedScene.instance], provides local scene resources to the local scene. Only the main scene should receive the main edit state.
+            [b]Note:[/b] Only available in editor builds.
+        </constant>
+
+        <constant name="RPC_MODE_DISABLED" value="0" enum="MultiplayerAPI_RPCMode">
+            Used with [method Node.rpc_config] or [method Node.rset_config] to disable a method or property for all RPC calls, making it unavailable. Default for all methods.
+        </constant>
+        <constant name="RPC_MODE_REMOTE" value="1" enum="MultiplayerAPI_RPCMode">
+            Used with [method Node.rpc_config] or [method Node.rset_config] to set a method to be called or a property to be changed only on the remote end, not locally. Analogous to the [code]remote[/code] keyword. Calls and property changes are accepted from all remote peers, no matter if they are node's master or puppets.
+        </constant>
+        <constant name="RPC_MODE_MASTER" value="2" enum="MultiplayerAPI_RPCMode">
+            Used with [method Node.rpc_config] or [method Node.rset_config] to set a method to be called or a property to be changed only on the network master for this node. Analogous to the [code]master[/code] keyword. Only accepts calls or property changes from the node's network puppets, see [method Node.set_network_master].
+        </constant>
+        <constant name="RPC_MODE_PUPPET" value="3" enum="MultiplayerAPI_RPCMode">
+            Used with [method Node.rpc_config] or [method Node.rset_config] to set a method to be called or a property to be changed only on puppets for this node. Analogous to the [code]puppet[/code] keyword. Only accepts calls or property changes from the node's network master, see [method Node.set_network_master].
+        </constant>
+        <constant name="RPC_MODE_SLAVE" value="3" enum="MultiplayerAPI_RPCMode">
+            [i]Deprecated.[/i] Use [constant RPC_MODE_PUPPET] instead. Analogous to the [code]slave[/code] keyword.
+        </constant>
+        <constant name="RPC_MODE_REMOTESYNC" value="4" enum="MultiplayerAPI_RPCMode">
+            Behave like [constant RPC_MODE_REMOTE] but also make the call or property change locally. Analogous to the [code]remotesync[/code] keyword.
+        </constant>
+        <constant name="RPC_MODE_SYNC" value="4" enum="MultiplayerAPI_RPCMode">
+            [i]Deprecated.[/i] Use [constant RPC_MODE_REMOTESYNC] instead. Analogous to the [code]sync[/code] keyword.
+        </constant>
+        <constant name="RPC_MODE_MASTERSYNC" value="5" enum="MultiplayerAPI_RPCMode">
+            Behave like [constant RPC_MODE_MASTER] but also make the call or property change locally. Analogous to the [code]mastersync[/code] keyword.
+        </constant>
+        <constant name="RPC_MODE_PUPPETSYNC" value="6" enum="MultiplayerAPI_RPCMode">
+            Behave like [constant RPC_MODE_PUPPET] but also make the call or property change locally. Analogous to the [code]puppetsync[/code] keyword.
+        </constant>
+
+        <constant name="COMPRESS_S3TC" value="0" enum="ImageCompressMode">
+            Use S3TC compression.
+        </constant>
+        <constant name="COMPRESS_PVRTC2" value="1" enum="ImageCompressMode">
+            Use PVRTC2 compression.
+        </constant>
+        <constant name="COMPRESS_PVRTC4" value="2" enum="ImageCompressMode">
+            Use PVRTC4 compression.
+        </constant>
+        <constant name="COMPRESS_ETC" value="3" enum="ImageCompressMode">
+            Use ETC compression.
+        </constant>
+        <constant name="COMPRESS_ETC2" value="4" enum="ImageCompressMode">
+            Use ETC2 compression.
+        </constant>
+
+  </constants>
 </class>

@@ -31,8 +31,8 @@
 #include "camera_feed.h"
 
 #include <utility>
-#include "servers/visual_server.h"
-#include "servers/visual_server_enum_casters.h"
+#include "servers/rendering_server.h"
+#include "servers/rendering_server_enum_casters.h"
 #include "core/print_string.h"
 #include "core/image_enum_casters.h"
 #include "core/method_bind.h"
@@ -153,7 +153,7 @@ CameraFeed::CameraFeed() {
     transform = Transform2D(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
 
     // create a texture object
-    VisualServer *vs = VisualServer::get_singleton();
+    RenderingServer *vs = RenderingServer::get_singleton();
     texture[CameraServer::FEED_Y_IMAGE] = vs->texture_create(); // also used for RGBA
     texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
 }
@@ -170,21 +170,21 @@ CameraFeed::CameraFeed(StringView p_name, FeedPosition p_position) {
     transform = Transform2D(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
 
     // create a texture object
-    VisualServer *vs = VisualServer::get_singleton();
+    RenderingServer *vs = RenderingServer::get_singleton();
     texture[CameraServer::FEED_Y_IMAGE] = vs->texture_create(); // also used for RGBA
     texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
 }
 
 CameraFeed::~CameraFeed() {
     // Free our textures
-    VisualServer *vs = VisualServer::get_singleton();
+    RenderingServer *vs = RenderingServer::get_singleton();
     vs->free_rid(texture[CameraServer::FEED_Y_IMAGE]);
     vs->free_rid(texture[CameraServer::FEED_CBCR_IMAGE]);
 }
 
 void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
     if (active) {
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         int new_width = p_rgb_img->get_width();
         int new_height = p_rgb_img->get_height();
@@ -194,7 +194,7 @@ void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
             base_width = new_width;
             base_height = new_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAGS_DEFAULT);
+            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_RGBA_IMAGE], p_rgb_img);
@@ -204,7 +204,7 @@ void CameraFeed::set_RGB_img(Ref<Image> p_rgb_img) {
 
 void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
     if (active) {
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         int new_width = p_ycbcr_img->get_width();
         int new_height = p_ycbcr_img->get_height();
@@ -214,7 +214,7 @@ void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
             base_width = new_width;
             base_height = new_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAGS_DEFAULT);
+            vs->texture_allocate(texture[CameraServer::FEED_RGBA_IMAGE], new_width, new_height, 0, Image::FORMAT_RGB8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAGS_DEFAULT);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_RGBA_IMAGE], p_ycbcr_img);
@@ -224,7 +224,7 @@ void CameraFeed::set_YCbCr_img(Ref<Image> p_ycbcr_img) {
 
 void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
     if (active) {
-        VisualServer *vs = VisualServer::get_singleton();
+        RenderingServer *vs = RenderingServer::get_singleton();
 
         ///@TODO investigate whether we can use thirdparty/misc/yuv2rgb.h here to convert our YUV data to RGB, our shader approach is potentially faster though..
         // Wondering about including that into multiple projects, may cause issues.
@@ -240,10 +240,10 @@ void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
             base_width = new_y_width;
             base_height = new_y_height;
 
-            vs->texture_allocate(texture[CameraServer::FEED_Y_IMAGE], new_y_width, new_y_height, 0, Image::FORMAT_R8, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_USED_FOR_STREAMING);
+            vs->texture_allocate(texture[CameraServer::FEED_Y_IMAGE], new_y_width, new_y_height, 0, Image::FORMAT_R8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
 
             ///@TODO GLES2 doesn't support FORMAT_RG8, need to do some form of conversion
-            vs->texture_allocate(texture[CameraServer::FEED_CBCR_IMAGE], new_cbcr_width, new_cbcr_height, 0, Image::FORMAT_RG8, VS::TEXTURE_TYPE_2D, VS::TEXTURE_FLAG_USED_FOR_STREAMING);
+            vs->texture_allocate(texture[CameraServer::FEED_CBCR_IMAGE], new_cbcr_width, new_cbcr_height, 0, Image::FORMAT_RG8, RS::TEXTURE_TYPE_2D, RS::TEXTURE_FLAG_USED_FOR_STREAMING);
         }
 
         vs->texture_set_data(texture[CameraServer::FEED_Y_IMAGE], p_y_img);
@@ -252,15 +252,15 @@ void CameraFeed::set_YCbCr_imgs(Ref<Image> p_y_img, Ref<Image> p_cbcr_img) {
     }
 }
 
-void CameraFeed::allocate_texture(int p_width, int p_height, Image::Format p_format, VS::TextureType p_texture_type, FeedDataType p_data_type) {
-    VisualServer *vs = VisualServer::get_singleton();
+void CameraFeed::allocate_texture(int p_width, int p_height, Image::Format p_format, RS::TextureType p_texture_type, FeedDataType p_data_type) {
+    RenderingServer *vs = RenderingServer::get_singleton();
 
     if ((base_width != p_width) || (base_height != p_height)) {
         // We're assuming here that our camera image doesn't change around formats etc, allocate the whole lot...
         base_width = p_width;
         base_height = p_height;
 
-        vs->texture_allocate(texture[0], p_width, p_height, 0, p_format, p_texture_type, VS::TEXTURE_FLAGS_DEFAULT);
+        vs->texture_allocate(texture[0], p_width, p_height, 0, p_format, p_texture_type, RS::TEXTURE_FLAGS_DEFAULT);
     }
 
     datatype = p_data_type;

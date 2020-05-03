@@ -30,27 +30,27 @@
 
 #include "gd_mono_utils.h"
 
-#include <mono/metadata/exception.h>
-
+#include "core/debugger/script_debugger.h"
 #include "core/os/dir_access.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/reference.h"
 #include "core/class_db.h"
 #include "core/print_string.h"
-
 #ifdef TOOLS_ENABLED
 #include "editor/script_editor_debugger.h"
 #endif
-
 #include "../csharp_script.h"
 #include "../utils/macros.h"
-#include "../utils/mutex_utils.h"
+
 #include "gd_mono.h"
 #include "gd_mono_cache.h"
 #include "gd_mono_class.h"
 #include "gd_mono_marshal.h"
 #include "gd_mono_method_thunk.h"
+
+#include <mono/metadata/exception.h>
 
 namespace GDMonoUtils {
 
@@ -77,7 +77,7 @@ MonoObject *unmanaged_get_managed(Object *unmanaged) {
     CSharpScriptBinding &script_binding = iter->second;
 
     if (!script_binding.inited) {
-        SCOPED_MUTEX_LOCK(CSharpLanguage::get_singleton()->get_language_bind_mutex());
+        MutexLock lock(*CSharpLanguage::get_singleton()->get_language_bind_mutex());
 
         if (!script_binding.inited) { // Other thread may have set it up
             // Already had a binding that needs to be setup
@@ -361,7 +361,11 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
         return;
     }
 
-    _TLS_RECURSION_GUARD_;
+    static thread_local bool _recursion_flag_ = false;
+    if (_recursion_flag_)
+        return;
+    _recursion_flag_ = true;
+    SCOPE_EXIT { _recursion_flag_ = false; };
 
     ScriptLanguage::StackInfo separator;
     separator.file.clear();
@@ -438,8 +442,7 @@ void set_pending_exception(MonoException *p_exc) {
 #endif
 }
 
-_THREAD_LOCAL_(int)
-current_invoke_count = 0;
+thread_local int current_invoke_count = 0;
 
 MonoObject *runtime_invoke(MonoMethod *p_method, void *p_obj, void **p_params, MonoException **r_exc) {
     GD_MONO_BEGIN_RUNTIME_INVOKE

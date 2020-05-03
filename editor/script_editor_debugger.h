@@ -36,6 +36,8 @@
 #include "editor/property_editor.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
+#include "scene/gui/margin_container.h"
+
 
 class Tree;
 class EditorNode;

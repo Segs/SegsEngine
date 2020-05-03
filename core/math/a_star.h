@@ -36,16 +36,16 @@
 #include "core/set.h"
 
 /**
-	A* pathfinding algorithm
+    A* pathfinding algorithm
 
-	@author Juan Linietsky <reduzio@gmail.com>
+    @author Juan Linietsky <reduzio@gmail.com>
 */
 struct AStarPoint;
 
 class GODOT_EXPORT AStar : public RefCounted {
 
     GDCLASS(AStar,RefCounted)
-
+    friend class AStar2D;
 
     struct Segment {
         union {
@@ -82,93 +82,97 @@ class GODOT_EXPORT AStar : public RefCounted {
         }
     };
 
-	int last_free_id;
-	uint64_t pass;
+    int last_free_id;
+    uint64_t pass;
 
     OAHashMap<int, AStarPoint *> points;
-	Set<Segment> segments;
+    Set<Segment> segments;
 
     bool _solve(AStarPoint *begin_point, AStarPoint *end_point);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
-	virtual float _estimate_cost(int p_from_id, int p_to_id);
-	virtual float _compute_cost(int p_from_id, int p_to_id);
+    virtual float _estimate_cost(int p_from_id, int p_to_id);
+    virtual float _compute_cost(int p_from_id, int p_to_id);
 
 public:
-	int get_available_point_id() const;
+    int get_available_point_id() const;
 
-	void add_point(int p_id, const Vector3 &p_pos, real_t p_weight_scale = 1);
-	Vector3 get_point_position(int p_id) const;
-	void set_point_position(int p_id, const Vector3 &p_pos);
-	real_t get_point_weight_scale(int p_id) const;
-	void set_point_weight_scale(int p_id, real_t p_weight_scale);
-	void remove_point(int p_id);
-	bool has_point(int p_id) const;
-	Vector<int> get_point_connections(int p_id);
-	Array get_points();
+    void add_point(int p_id, const Vector3 &p_pos, real_t p_weight_scale = 1);
+    Vector3 get_point_position(int p_id) const;
+    void set_point_position(int p_id, const Vector3 &p_pos);
+    real_t get_point_weight_scale(int p_id) const;
+    void set_point_weight_scale(int p_id, real_t p_weight_scale);
+    void remove_point(int p_id);
+    bool has_point(int p_id) const;
+    Vector<int> get_point_connections(int p_id);
+    Array get_points();
 
-	void set_point_disabled(int p_id, bool p_disabled = true);
-	bool is_point_disabled(int p_id) const;
+    void set_point_disabled(int p_id, bool p_disabled = true);
+    bool is_point_disabled(int p_id) const;
 
-	void connect_points(int p_id, int p_with_id, bool bidirectional = true);
+    void connect_points(int p_id, int p_with_id, bool bidirectional = true);
     void disconnect_points(int p_id, int p_with_id, bool bidirectional = true);
     bool are_points_connected(int p_id, int p_with_id, bool bidirectional = true) const;
 
-	int get_point_count() const;
-	int get_point_capacity() const;
-	void reserve_space(int p_num_nodes);
-	void clear();
+    int get_point_count() const;
+    int get_point_capacity() const;
+    void reserve_space(int p_num_nodes);
+    void clear();
 
-	int get_closest_point(const Vector3 &p_point, bool p_include_disabled = false) const;
-	Vector3 get_closest_position_in_segment(const Vector3 &p_point) const;
+    int get_closest_point(const Vector3 &p_point, bool p_include_disabled = false) const;
+    Vector3 get_closest_position_in_segment(const Vector3 &p_point) const;
 
-	PoolVector<Vector3> get_point_path(int p_from_id, int p_to_id);
-	PoolVector<int> get_id_path(int p_from_id, int p_to_id);
+    PoolVector<Vector3> get_point_path(int p_from_id, int p_to_id);
+    PoolVector<int> get_id_path(int p_from_id, int p_to_id);
 
-	AStar();
-	~AStar() override;
+    AStar();
+    ~AStar() override;
 };
 
 class GODOT_EXPORT AStar2D : public RefCounted {
     GDCLASS(AStar2D,RefCounted)
-	AStar astar;
+    AStar astar;
+
+    bool _solve(AStarPoint *begin_point, AStarPoint *end_point);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods();
 
+    virtual real_t _estimate_cost(int p_from_id, int p_to_id);
+    virtual real_t _compute_cost(int p_from_id, int p_to_id);
 public:
-	int get_available_point_id() const;
+    int get_available_point_id() const;
 
-	void add_point(int p_id, const Vector2 &p_pos, real_t p_weight_scale = 1);
-	Vector2 get_point_position(int p_id) const;
-	void set_point_position(int p_id, const Vector2 &p_pos);
-	real_t get_point_weight_scale(int p_id) const;
-	void set_point_weight_scale(int p_id, real_t p_weight_scale);
-	void remove_point(int p_id);
-	bool has_point(int p_id) const;
-	Vector<int> get_point_connections(int p_id);
-	Array get_points();
+    void add_point(int p_id, const Vector2 &p_pos, real_t p_weight_scale = 1);
+    Vector2 get_point_position(int p_id) const;
+    void set_point_position(int p_id, const Vector2 &p_pos);
+    real_t get_point_weight_scale(int p_id) const;
+    void set_point_weight_scale(int p_id, real_t p_weight_scale);
+    void remove_point(int p_id);
+    bool has_point(int p_id) const;
+    Vector<int> get_point_connections(int p_id);
+    Array get_points();
 
-	void set_point_disabled(int p_id, bool p_disabled = true);
-	bool is_point_disabled(int p_id) const;
+    void set_point_disabled(int p_id, bool p_disabled = true);
+    bool is_point_disabled(int p_id) const;
 
-	void connect_points(int p_id, int p_with_id, bool p_bidirectional = true);
-	void disconnect_points(int p_id, int p_with_id);
-	bool are_points_connected(int p_id, int p_with_id) const;
+    void connect_points(int p_id, int p_with_id, bool p_bidirectional = true);
+    void disconnect_points(int p_id, int p_with_id);
+    bool are_points_connected(int p_id, int p_with_id) const;
 
-	int get_point_count() const;
-	int get_point_capacity() const;
-	void reserve_space(int p_num_nodes);
-	void clear();
+    int get_point_count() const;
+    int get_point_capacity() const;
+    void reserve_space(int p_num_nodes);
+    void clear();
 
-	int get_closest_point(const Vector2 &p_point, bool p_include_disabled = false) const;
-	Vector2 get_closest_position_in_segment(const Vector2 &p_point) const;
+    int get_closest_point(const Vector2 &p_point, bool p_include_disabled = false) const;
+    Vector2 get_closest_position_in_segment(const Vector2 &p_point) const;
 
-	PoolVector<Vector2> get_point_path(int p_from_id, int p_to_id);
-	PoolVector<int> get_id_path(int p_from_id, int p_to_id);
+    PoolVector<Vector2> get_point_path(int p_from_id, int p_to_id);
+    PoolVector<int> get_id_path(int p_from_id, int p_to_id);
 
-	AStar2D();
-	~AStar2D() override;
+    AStar2D();
+    ~AStar2D() override;
 };

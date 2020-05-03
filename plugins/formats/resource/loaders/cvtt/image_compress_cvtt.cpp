@@ -248,9 +248,9 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
             out_bytes += 16 * (bw / 4);
         }
 
-        dst_ofs += (MAX(4, bw) * MAX(4, bh)) >> shift;
-        w = MAX(w / 2, 1);
-        h = MAX(h / 2, 1);
+        dst_ofs += (M_MAX(4, bw) * M_MAX(4, bh)) >> shift;
+        w = M_MAX(w / 2, 1);
+        h = M_MAX(h / 2, 1);
     }
 
     if (num_job_threads > 0) {

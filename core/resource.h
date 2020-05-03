@@ -162,6 +162,10 @@ public:
     void set_id_for_path(StringView p_path, int p_id);
     int get_id_for_path(StringView p_path) const;
 #endif
+#ifdef DEBUG_ENABLED
+    /// Used in gObjectDB().cleanup() warning print
+    const char *get_dbg_name() const override;
+#endif
 
     Resource();
     ~Resource() override;

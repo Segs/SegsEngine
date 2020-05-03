@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
+#include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
@@ -542,6 +543,12 @@ FindInFilesPanel::FindInFilesPanel() {
         _status_label = memnew(Label);
         hbc->add_child(_status_label);
 
+        _refresh_button = memnew(Button);
+        _refresh_button->set_text(TTR("Refresh"));
+        _refresh_button->connect("pressed", this, "_on_refresh_button_clicked");
+        _refresh_button->hide();
+        hbc->add_child(_refresh_button);
+
         _cancel_button = memnew(Button);
         _cancel_button->set_text(TTR("Cancel"));
         _cancel_button->connect("pressed", this, "_on_cancel_button_clicked");
@@ -625,6 +632,7 @@ void FindInFilesPanel::start_search() {
     _finder->start();
 
     update_replace_buttons();
+    _refresh_button->hide();
     _cancel_button->show();
 }
 
@@ -634,6 +642,7 @@ void FindInFilesPanel::stop_search() {
 
     _status_label->set_text("");
     update_replace_buttons();
+    _refresh_button->show();
     set_progress_visible(false);
     _cancel_button->hide();
 }
@@ -737,7 +746,12 @@ void FindInFilesPanel::_on_finished() {
     _status_label->set_text(TTR("Search complete"));
     update_replace_buttons();
     set_progress_visible(false);
+    _refresh_button->show();
     _cancel_button->hide();
+}
+
+void FindInFilesPanel::_on_refresh_button_clicked() {
+    start_search();
 }
 
 void FindInFilesPanel::_on_cancel_button_clicked() {
@@ -914,6 +928,7 @@ void FindInFilesPanel::_bind_methods() {
     MethodBinder::bind_method("_on_result_found", &FindInFilesPanel::_on_result_found);
     MethodBinder::bind_method("_on_item_edited", &FindInFilesPanel::_on_item_edited);
     MethodBinder::bind_method("_on_finished", &FindInFilesPanel::_on_finished);
+    MethodBinder::bind_method("_on_refresh_button_clicked", &FindInFilesPanel::_on_refresh_button_clicked);
     MethodBinder::bind_method("_on_cancel_button_clicked", &FindInFilesPanel::_on_cancel_button_clicked);
     MethodBinder::bind_method("_on_result_selected", &FindInFilesPanel::_on_result_selected);
     MethodBinder::bind_method("_on_replace_text_changed", &FindInFilesPanel::_on_replace_text_changed);

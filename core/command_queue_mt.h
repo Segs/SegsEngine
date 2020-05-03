@@ -42,7 +42,7 @@ class GODOT_EXPORT CommandQueueMT {
 
     struct SyncSemaphore {
 
-        SemaphoreOld *sem;
+        Semaphore *sem;
         bool in_use;
     };
 
@@ -70,7 +70,7 @@ class GODOT_EXPORT CommandQueueMT {
     uint32_t dealloc_ptr;
     SyncSemaphore sync_sems[SYNC_SEMAPHORES];
     Mutex *mutex;
-    SemaphoreOld *sync;
+    Semaphore *sync;
 
     CommandBase *allocate() {
 

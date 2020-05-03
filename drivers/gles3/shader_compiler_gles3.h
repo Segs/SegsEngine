@@ -29,13 +29,12 @@
 /*************************************************************************/
 
 #pragma once
-
 #include "core/pair.h"
 #include "core/string.h"
 #include "core/hash_map.h"
-#include "servers/visual/shader_language.h"
-#include "servers/visual/shader_types.h"
-#include "servers/visual_server_enums.h"
+#include "servers/rendering/shader_language.h"
+#include "servers/rendering/shader_types.h"
+#include "servers/rendering_server_enums.h"
 
 class ShaderCompilerGLES3 {
 public:
@@ -93,10 +92,10 @@ private:
     HashSet<StringName> used_rmode_defines;
     HashSet<StringName> internal_functions;
 
-    DefaultIdentifierActions actions[VS::SHADER_MAX];
+    DefaultIdentifierActions actions[int(RenderingServerEnums::ShaderMode::MAX)];
 
 public:
-    Error compile(VS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code);
+    Error compile(RS::ShaderMode p_mode, const String &p_code, IdentifierActions *p_actions, const String &p_path, GeneratedCode &r_gen_code);
 
     ShaderCompilerGLES3();
 };

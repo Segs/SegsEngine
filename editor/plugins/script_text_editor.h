@@ -56,7 +56,7 @@ class ScriptTextEditor : public ScriptEditorBase {
     GDCLASS(ScriptTextEditor,ScriptEditorBase)
 
     CodeTextEditor *code_editor;
-    RichTextLabel *warnings_panel;
+    class RichTextLabel *warnings_panel;
 
     Ref<Script> script;
     bool script_is_valid;

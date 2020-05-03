@@ -91,7 +91,7 @@ void Label::_notification(int p_what) {
     if (p_what == NOTIFICATION_DRAW) {
 
         if (clip) {
-            VisualServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), true);
+            RenderingServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), true);
         }
 
         if (word_cache_dirty)
@@ -111,7 +111,7 @@ void Label::_notification(int p_what) {
 
         style->draw(ci, Rect2(Point2(0, 0), get_size()));
 
-        VisualServer::get_singleton()->canvas_item_set_distance_field_mode(get_canvas_item(), font && font->is_distance_field_hint());
+        RenderingServer::get_singleton()->canvas_item_set_distance_field_mode(get_canvas_item(), font && font->is_distance_field_hint());
 
         int font_h = font->get_height() + line_spacing;
 
@@ -395,7 +395,7 @@ void Label::regenerate_word_cache() {
     int width;
     if (autowrap) {
         Ref<StyleBox> style = get_stylebox("normal");
-        width = MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
+        width = M_MAX(get_size().width, get_custom_minimum_size().width) - style->get_minimum_size().width;
     } else {
         width = get_longest_line_width();
     }
@@ -700,7 +700,7 @@ void Label::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_text"), "set_clip_text", "is_clipping_text");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "uppercase"), "set_uppercase", "is_uppercase");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1", PROPERTY_USAGE_EDITOR), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "lines_skipped", PropertyHint::Range, "0,999,1"), "set_lines_skipped", "get_lines_skipped");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_lines_visible", PropertyHint::Range, "-1,999,1"), "set_max_lines_visible", "get_max_lines_visible");
 }

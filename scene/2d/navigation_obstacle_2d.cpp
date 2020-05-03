@@ -135,15 +135,15 @@ void NavigationObstacle2D::update_agent_shape() {
                 r += cs->get_shape()->get_enclosing_radius();
             }
             Size2 s = cs->get_global_transform().get_scale();
-            r *= MAX(s.x, s.y);
+            r *= M_MAX(s.x, s.y);
             // Takes the biggest radius
-            radius = MAX(radius, r);
+            radius = M_MAX(radius, r);
         }
     }
     Node2D *node_2d = object_cast<Node2D>(node);
     if (node_2d) {
         Vector2 s = node_2d->get_global_transform().get_scale();
-        radius *= MAX(s.x, s.y);
+        radius *= M_MAX(s.x, s.y);
     }
 
     if (radius == 0.0f)

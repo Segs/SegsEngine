@@ -1640,7 +1640,7 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
     vformat |= 1 << (int8_t)type_pa;
     vformat |= 1 << (int8_t)type_pb;
 
-    if (vformat == ((1 << (int8_t)VariantType::INT) | (1 << (int8_t)VariantType::REAL)) || vformat == (1 << (int8_t)VariantType::REAL)) {
+    if (vformat == ((1 << (int8_t)VariantType::INT) | (1 << (int8_t)VariantType::FLOAT)) || vformat == (1 << (int8_t)VariantType::FLOAT)) {
         //mix of real and int
 
         real_t p0 = p_pre_a;
@@ -2856,9 +2856,9 @@ void Animation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("clear"), &Animation::clear);
     MethodBinder::bind_method(D_METHOD("copy_track", {"track_idx", "to_animation"}), &Animation::copy_track);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "length", PropertyHint::Range, "0.001,99999,0.001"), "set_length", "get_length");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "length", PropertyHint::Range, "0.001,99999,0.001"), "set_length", "get_length");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step", PropertyHint::Range, "0,4096,0.001"), "set_step", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step", PropertyHint::Range, "0,4096,0.001"), "set_step", "get_step");
 
     ADD_SIGNAL(MethodInfo("tracks_changed"));
 

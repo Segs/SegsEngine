@@ -77,11 +77,9 @@ public:
     virtual String get_drive(int p_drive) = 0;
     virtual int get_current_drive();
 
-    virtual Error change_dir_utf8(StringView p_dir);
     virtual Error change_dir(StringView p_dir) = 0; ///< can be relative or absolute, return false on success
     virtual String get_current_dir() = 0; ///< return current dir location
     virtual Error make_dir(StringView p_dir) = 0;
-    virtual Error make_dir_utf8(StringView p_dir);
     virtual Error make_dir_recursive(StringView p_dir);
     virtual Error erase_contents_recursive(); //super dangerous, use with care!
 

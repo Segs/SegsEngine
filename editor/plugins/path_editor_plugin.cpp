@@ -35,6 +35,7 @@
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "scene/resources/curve.h"
+#include "scene/3d/path_3d.h"
 #include "spatial_editor_plugin.h"
 
 IMPL_GDCLASS(PathSpatialGizmo)
@@ -86,7 +87,7 @@ Variant PathSpatialGizmo::get_handle_value(int p_idx) {
 
     return ofs;
 }
-void PathSpatialGizmo::set_handle(int p_idx, Camera *p_camera, const Point2 &p_point) {
+void PathSpatialGizmo::set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
     Ref<Curve3D> c = path->get_curve();
     if (not c)
@@ -292,13 +293,13 @@ void PathSpatialGizmo::redraw() {
     }
 }
 
-PathSpatialGizmo::PathSpatialGizmo(Path *p_path) {
+PathSpatialGizmo::PathSpatialGizmo(Path3D *p_path) {
 
     path = p_path;
     set_spatial_node(p_path);
 }
 
-bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<InputEvent> &p_event) {
+bool PathEditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 
     if (!path)
         return false;
@@ -458,7 +459,7 @@ bool PathEditorPlugin::forward_spatial_gui_input(Camera *p_camera, const Ref<Inp
 void PathEditorPlugin::edit(Object *p_object) {
 
     if (p_object) {
-        path = object_cast<Path>(p_object);
+        path = object_cast<Path3D>(p_object);
         if (path) {
 
             if (path->get_curve()) {
@@ -466,7 +467,7 @@ void PathEditorPlugin::edit(Object *p_object) {
             }
         }
     } else {
-        Path *pre = path;
+        Path3D *pre = path;
         path = nullptr;
         if (pre) {
             pre->get_curve()->emit_signal("changed");
@@ -477,7 +478,7 @@ void PathEditorPlugin::edit(Object *p_object) {
 
 bool PathEditorPlugin::handles(Object *p_object) const {
 
-    return p_object->is_class("Path");
+    return p_object->is_class("Path3D");
 }
 
 void PathEditorPlugin::make_visible(bool p_visible) {
@@ -500,7 +501,7 @@ void PathEditorPlugin::make_visible(bool p_visible) {
         sep->hide();
 
         {
-            Path *pre = path;
+            Path3D *pre = path;
             path = nullptr;
             if (pre && pre->get_curve()) {
                 pre->get_curve()->emit_signal("changed");
@@ -638,10 +639,10 @@ PathEditorPlugin::PathEditorPlugin(EditorNode *p_node) {
 
 PathEditorPlugin::~PathEditorPlugin() = default;
 
-Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Spatial *p_spatial) {
+Ref<EditorSpatialGizmo> PathSpatialGizmoPlugin::create_gizmo(Node3D *p_spatial) {
     Ref<PathSpatialGizmo> ref;
 
-    Path *path = object_cast<Path>(p_spatial);
+    Path3D *path = object_cast<Path3D>(p_spatial);
     if (path)
         ref = make_ref_counted<PathSpatialGizmo>(path);
 

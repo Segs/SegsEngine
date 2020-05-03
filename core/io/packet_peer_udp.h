@@ -56,6 +56,9 @@ protected:
 
     static void _bind_methods();
 public:
+    Error _listen(int p_port, const String& p_bind_address = "*", int p_recv_buffer_size = 65536) {
+        return listen(p_port,IP_Address(p_bind_address),p_recv_buffer_size);
+    }
     String _get_packet_ip() const;
 
     Error _set_dest_address(const String &p_address, int p_port);
@@ -65,6 +68,7 @@ public:
     void set_blocking_mode(bool p_enable);
 
     Error listen(int p_port, const IP_Address &p_bind_address = IP_Address("*"), int p_recv_buffer_size = 65536);
+
     void close();
     Error wait();
     bool is_listening() const;
@@ -78,7 +82,13 @@ public:
     int get_max_packet_size() const override;
     void set_broadcast_enabled(bool p_enabled);
     Error join_multicast_group(IP_Address p_multi_address, StringView p_if_name);
+    Error join_multicast_group(StringView p_multi_address, StringView p_if_name) {
+        return join_multicast_group(IP_Address(p_multi_address), p_if_name);
+    }
     Error leave_multicast_group(IP_Address p_multi_address, StringView p_if_name);
+    Error leave_multicast_group(StringView p_multi_address, StringView p_if_name) {
+        return leave_multicast_group(IP_Address(p_multi_address), p_if_name);
+    }
 
     PacketPeerUDP();
     ~PacketPeerUDP() override;

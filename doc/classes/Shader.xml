@@ -22,10 +22,10 @@
             </description>
         </method>
         <method name="get_mode" qualifiers="const">
-            <return type="int" enum="VisualServerEnums.ShaderMode">
+            <return type="int" enum="RenderingServerEnums.ShaderMode">
             </return>
             <description>
-                Returns the shader mode for the shader, either [constant MODE_CANVAS_ITEM], [constant MODE_SPATIAL] or [constant MODE_PARTICLES].
+                Returns the shader mode for the shader, either [constant RenderingServerEnums.CANVAS_ITEM], [constant RenderingServerEnums.SPATIAL] or [constant RenderingServerEnums.PARTICLES].
             </description>
         </method>
         <method name="has_param" qualifiers="const">
@@ -57,13 +57,13 @@
         </member>
     </members>
     <constants>
-        <constant name="MODE_SPATIAL" value="0" enum="Mode">
+        <constant name="SPATIAL" value="0" enum="ShaderMode">
             Mode used to draw all 3D objects.
         </constant>
-        <constant name="MODE_CANVAS_ITEM" value="1" enum="Mode">
+        <constant name="CANVAS_ITEM" value="1" enum="ShaderMode">
             Mode used to draw all 2D objects.
         </constant>
-        <constant name="MODE_PARTICLES" value="2" enum="Mode">
+        <constant name="PARTICLES" value="2" enum="ShaderMode">
             Mode used to calculate particle information on a per-particle basis. Not used for drawing.
         </constant>
     </constants>

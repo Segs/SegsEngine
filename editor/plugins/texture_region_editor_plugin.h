@@ -28,13 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEXTURE_REGION_EDITOR_PLUGIN_H
-#define TEXTURE_REGION_EDITOR_PLUGIN_H
+#pragma once
 
 #include "canvas_item_editor_plugin.h"
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/3d/sprite_3d.h"
 #include "scene/gui/nine_patch_rect.h"
 #include "scene/resources/style_box.h"
@@ -84,7 +83,7 @@ class TextureRegionEditor : public VBoxContainer {
 	Vector2 snap_step;
 	Vector2 snap_separation;
 
-	Sprite *node_sprite;
+	Sprite2D *node_sprite;
 	Sprite3D *node_sprite_3d;
 	NinePatchRect *node_ninepatch;
 	Ref<StyleBoxTexture> obj_styleBox;
@@ -136,7 +135,7 @@ public:
 	bool is_atlas_texture();
 	bool is_ninepatch();
 	Sprite3D *get_sprite_3d();
-	Sprite *get_sprite();
+	Sprite2D *get_sprite();
 
 	void edit(Object *p_obj);
 	TextureRegionEditor(EditorNode *p_editor);
@@ -166,5 +165,3 @@ public:
 
 	TextureRegionEditorPlugin(EditorNode *p_node);
 };
-
-#endif // TEXTURE_REGION_EDITOR_PLUGIN_H

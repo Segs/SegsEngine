@@ -32,12 +32,10 @@
 
 #include "core/engine.h"
 #include "core/io/logger.h"
-#include "core/list.h"
+#include "core/math/rect2.h"
 #include "core/math/vector2.h"
 #include "core/string.h"
 #include "core/vector.h"
-
-#include "core/math/rect2.h"
 
 #include <cstdarg>
 

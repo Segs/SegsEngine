@@ -265,8 +265,8 @@ public:
     void set_bbcode(StringView p_bbcode);
     const String &get_bbcode() const;
 
-    void set_text_utf8(StringView p_string);
-    void set_text(const UIString &p_string);
+    void set_text(StringView p_string);
+    void set_text_ui(const UIString &p_string);
 
     void set_visible_characters(int p_visible);
     int get_visible_characters() const;

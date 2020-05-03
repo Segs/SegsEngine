@@ -31,13 +31,13 @@
 #include "audio_stream_player_3d.h"
 #include "core/engine.h"
 #include "core/object_tooling.h"
-#include "scene/3d/area.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/listener.h"
+#include "scene/3d/area_3d.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/listener_3d.h"
 #include "scene/main/viewport.h"
 #include "core/method_bind.h"
-#include "servers/physics_server.h"
-#include "scene/resources/world.h"
+#include "servers/physics_server_3d.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(AudioStreamPlayer3D)
 VARIANT_ENUM_CAST(AudioStreamPlayer3D::AttenuationModel)
@@ -385,7 +385,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 linear_velocity = velocity_tracker->get_tracked_linear_velocity();
             }
 
-            Ref<World> world = get_world();
+            Ref<World3D> world = get_world();
             ERR_FAIL_COND(not world);
 
             int new_output_count = 0;
@@ -396,18 +396,18 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
             //check if any area is diverting sound into a bus
 
-            PhysicsDirectSpaceState *space_state = PhysicsServer::get_singleton()->space_get_direct_state(world->get_space());
+            PhysicsDirectSpaceState3D *space_state = PhysicsServer3D::get_singleton()->space_get_direct_state(world->get_space());
 
-            PhysicsDirectSpaceState::ShapeResult sr[MAX_INTERSECT_AREAS];
+            PhysicsDirectSpaceState3D::ShapeResult sr[MAX_INTERSECT_AREAS];
 
             int areas = space_state->intersect_point(global_pos, sr, MAX_INTERSECT_AREAS, HashSet<RID>(), area_mask, false, true);
-            Area *area = nullptr;
+            Area3D *area = nullptr;
 
             for (int i = 0; i < areas; i++) {
                 if (!sr[i].collider)
                     continue;
 
-                Area *tarea = object_cast<Area>(sr[i].collider);
+                Area3D *tarea = object_cast<Area3D>(sr[i].collider);
                 if (!tarea)
                     continue;
 
@@ -418,19 +418,19 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                 break;
             }
 
-            Vector<Camera *> cameras;
+            Vector<Camera3D *> cameras;
             world->get_camera_list(&cameras);
 
-            for (Camera *camera : cameras) {
+            for (Camera3D *camera : cameras) {
 
                 Viewport *vp = camera->get_viewport();
                 if (!vp->is_audio_listener())
                     continue;
 
                 bool listener_is_camera = true;
-                Spatial *listener_node = camera;
+                Node3D *listener_node = camera;
 
-                Listener *listener = vp->get_listener();
+                Listener3D *listener = vp->get_listener();
                 if (listener) {
                     listener_node = listener;
                     listener_is_camera = false;
@@ -453,7 +453,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
                     float total_max = max_distance;
 
                     if (area && area->is_using_reverb_bus() && area->get_reverb_uniformity() > 0) {
-                        total_max = MAX(total_max, listener_area_pos.length());
+                        total_max = M_MAX(total_max, listener_area_pos.length());
                     }
                     if (total_max > max_distance) {
                         continue; //can't hear this sound in this listener
@@ -462,7 +462,7 @@ void AudioStreamPlayer3D::_notification(int p_what) {
 
                 float multiplier = Math::db2linear(_get_attenuation_db(dist));
                 if (max_distance > 0) {
-                    multiplier *= MAX(0, 1.0f - (dist / max_distance));
+                    multiplier *= M_MAX(0, 1.0f - (dist / max_distance));
                 }
 
                 Output output;
@@ -1012,24 +1012,24 @@ void AudioStreamPlayer3D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"), "set_stream", "get_stream");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "attenuation_model", PropertyHint::Enum, "Inverse,InverseSquare,Log,Disabled"), "set_attenuation_model", "get_attenuation_model");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_db", PropertyHint::Range, "-80,80"), "set_unit_db", "get_unit_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "unit_size", PropertyHint::Range, "0.1,100,0.1"), "set_unit_size", "get_unit_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_db", PropertyHint::Range, "-24,6"), "set_max_db", "get_max_db");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "pitch_scale", PropertyHint::Range, "0.01,4,0.01,or_greater"), "set_pitch_scale", "get_pitch_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_db", PropertyHint::Range, "-80,80"), "set_unit_db", "get_unit_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "unit_size", PropertyHint::Range, "0.1,100,0.1"), "set_unit_size", "get_unit_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_db", PropertyHint::Range, "-24,6"), "set_max_db", "get_max_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pitch_scale", PropertyHint::Range, "0.01,4,0.01,or_greater"), "set_pitch_scale", "get_pitch_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_playing", "is_playing");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_distance", PropertyHint::ExpRange, "0,4096,1,or_greater"), "set_max_distance", "get_max_distance");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_distance", PropertyHint::ExpRange, "0,4096,1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "out_of_range_mode", PropertyHint::Enum, "Mix,Pause"), "set_out_of_range_mode", "get_out_of_range_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "area_mask", PropertyHint::Layers2DPhysics), "set_area_mask", "get_area_mask");
     ADD_GROUP("Emission Angle", "emission_angle");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emission_angle_enabled"), "set_emission_angle_enabled", "is_emission_angle_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_angle_degrees", PropertyHint::Range, "0.1,90,0.1"), "set_emission_angle", "get_emission_angle");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "emission_angle_filter_attenuation_db", PropertyHint::Range, "-80,0,0.1"), "set_emission_angle_filter_attenuation_db", "get_emission_angle_filter_attenuation_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_angle_degrees", PropertyHint::Range, "0.1,90,0.1"), "set_emission_angle", "get_emission_angle");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_angle_filter_attenuation_db", PropertyHint::Range, "-80,0,0.1"), "set_emission_angle_filter_attenuation_db", "get_emission_angle_filter_attenuation_db");
     ADD_GROUP("Attenuation Filter", "attenuation_filter_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attenuation_filter_cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_attenuation_filter_cutoff_hz", "get_attenuation_filter_cutoff_hz");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "attenuation_filter_db", PropertyHint::Range, "-80,0,0.1"), "set_attenuation_filter_db", "get_attenuation_filter_db");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "attenuation_filter_cutoff_hz", PropertyHint::Range, "1,20500,1"), "set_attenuation_filter_cutoff_hz", "get_attenuation_filter_cutoff_hz");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "attenuation_filter_db", PropertyHint::Range, "-80,0,0.1"), "set_attenuation_filter_db", "get_attenuation_filter_db");
     ADD_GROUP("Doppler", "doppler_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "doppler_tracking", PropertyHint::Enum, "Disabled,Idle,Physics"), "set_doppler_tracking", "get_doppler_tracking");
 
@@ -1075,7 +1075,7 @@ AudioStreamPlayer3D::AudioStreamPlayer3D() {
     stream_paused_fade_in = false;
     stream_paused_fade_out = false;
 
-    velocity_tracker = make_ref_counted<SpatialVelocityTracker>();
+    velocity_tracker = make_ref_counted<VelocityTracker3D>();
     AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
     set_disable_scale(true);
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="VehicleWheel" inherits="Spatial" version="4.0">
+<class name="VehicleWheel3D" inherits="Node3D" version="4.0">
 	<brief_description>
 		Physics object that simulates the behavior of a wheel.
 	</brief_description>
 	<description>
-		This node needs to be used as a child node of [VehicleBody] and simulates the behavior of one of its wheels. This node also acts as a collider to detect if the wheel is touching a surface.
+        This node needs to be used as a child node of [VehicleBody3D] and simulates the behavior of one of its wheels. This node also acts as a collider to detect if the wheel is touching a surface.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -50,7 +50,7 @@
 			The steering angle for the wheel. Setting this to a non-zero value will result in the vehicle turning when it's moving.
 		</member>
 		<member name="suspension_max_force" type="float" setter="set_suspension_max_force" getter="get_suspension_max_force" default="6000.0">
-			The maximum force the spring can resist. This value should be higher than a quarter of the [member RigidBody.mass] of the [VehicleBody] or the spring will not carry the weight of the vehicle. Good results are often obtained by a value that is about 3× to 4× this number.
+            The maximum force the spring can resist. This value should be higher than a quarter of the [member RigidBody.mass] of the [VehicleBody3D] or the spring will not carry the weight of the vehicle. Good results are often obtained by a value that is about 3× to 4× this number.
 		</member>
 		<member name="suspension_stiffness" type="float" setter="set_suspension_stiffness" getter="get_suspension_stiffness" default="5.88">
 			This value defines the stiffness of the suspension. Use a value lower than 50 for an off-road car, a value between 50 and 100 for a race car and try something around 200 for something like a Formula 1 car.
@@ -59,10 +59,10 @@
 			This is the distance the suspension can travel. As Godot units are equivalent to meters, keep this setting relatively low. Try a value between 0.1 and 0.3 depending on the type of car.
 		</member>
 		<member name="use_as_steering" type="bool" setter="set_use_as_steering" getter="is_used_as_steering" default="false">
-			If [code]true[/code], this wheel will be turned when the car steers. This value is used in conjunction with [member VehicleBody.steering] and ignored if you are using the per-wheel [member steering] value instead.
+            If [code]true[/code], this wheel will be turned when the car steers. This value is used in conjunction with [member VehicleBody3D.steering] and ignored if you are using the per-wheel [member steering] value instead.
 		</member>
 		<member name="use_as_traction" type="bool" setter="set_use_as_traction" getter="is_used_as_traction" default="false">
-			If [code]true[/code], this wheel transfers engine force to the ground to propel the vehicle forward. This value is used in conjunction with [member VehicleBody.engine_force] and ignored if you are using the per-wheel [member engine_force] value instead.
+            If [code]true[/code], this wheel transfers engine force to the ground to propel the vehicle forward. This value is used in conjunction with [member VehicleBody3D.engine_force] and ignored if you are using the per-wheel [member engine_force] value instead.
 		</member>
 		<member name="wheel_friction_slip" type="float" setter="set_friction_slip" getter="get_friction_slip" default="10.5">
 			This determines how much grip this wheel has. It is combined with the friction setting of the surface the wheel is in contact with. 0.0 means no grip, 1.0 is normal grip. For a drift car setup, try setting the grip of the rear wheels slightly lower than the front wheels, or use a lower value to simulate tire wear.

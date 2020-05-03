@@ -46,7 +46,7 @@ class ParticlesEditorBase : public Control {
     GDCLASS(ParticlesEditorBase,Control)
 
 protected:
-    Spatial *base_node;
+    Node3D *base_node;
     Panel *panel;
     MenuButton *options;
     HBoxContainer *particles_editor_hb;

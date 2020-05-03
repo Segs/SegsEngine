@@ -125,7 +125,7 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
         if (to_x < limit) //not visible
             continue;
 
-        from_x = MAX(from_x, limit);
+        from_x = M_MAX(from_x, limit);
         to_x = MIN(to_x, right_limit);
 
         Vector<Vector2> lines;
@@ -300,7 +300,7 @@ void AnimationBezierTrackEdit::_notification(int p_what) {
 
                 Ref<Texture> icon = EditorNode::get_singleton()->get_object_icon(node, "Node");
 
-                h = MAX(h, icon->get_height());
+                h = M_MAX(h, icon->get_height());
 
                 draw_texture(icon, Point2(ofs, vofs + int(h - icon->get_height()) / 2));
 
@@ -1155,16 +1155,16 @@ void AnimationBezierTrackEdit::_bind_methods() {
     MethodBinder::bind_method("_clear_selection_for_anim", &AnimationBezierTrackEdit::_clear_selection_for_anim);
     MethodBinder::bind_method("_select_at_anim", &AnimationBezierTrackEdit::_select_at_anim);
 
-    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::REAL, "position"), PropertyInfo(VariantType::BOOL, "drag")));
+    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::FLOAT, "position"), PropertyInfo(VariantType::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("remove_request", PropertyInfo(VariantType::INT, "track")));
-    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("select_key", PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::BOOL, "single")));
     ADD_SIGNAL(MethodInfo("deselect_key", PropertyInfo(VariantType::INT, "index")));
     ADD_SIGNAL(MethodInfo("clear_selection"));
     ADD_SIGNAL(MethodInfo("close_request"));
 
     ADD_SIGNAL(MethodInfo("move_selection_begin"));
-    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("move_selection_commit"));
     ADD_SIGNAL(MethodInfo("move_selection_cancel"));
 }

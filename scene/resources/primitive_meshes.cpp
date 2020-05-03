@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "primitive_meshes.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/resources/material.h"
@@ -90,9 +90,9 @@ void PrimitiveMesh::_update() const {
     }
 
     // in with the new
-    VisualServer::get_singleton()->mesh_clear(mesh);
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)primitive_type, eastl::move(arr));
-    VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
+    RenderingServer::get_singleton()->mesh_clear(mesh);
+    RenderingServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (RS::PrimitiveType)primitive_type, eastl::move(arr));
+    RenderingServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
 
     pending_request = false;
 
@@ -121,7 +121,7 @@ int PrimitiveMesh::surface_get_array_len(int p_idx) const {
         _update();
     }
 
-    return VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, 0);
+    return RenderingServer::get_singleton()->mesh_surface_get_array_len(mesh, 0);
 }
 
 int PrimitiveMesh::surface_get_array_index_len(int p_idx) const {
@@ -130,7 +130,7 @@ int PrimitiveMesh::surface_get_array_index_len(int p_idx) const {
         _update();
     }
 
-    return VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, 0);
+    return RenderingServer::get_singleton()->mesh_surface_get_array_index_len(mesh, 0);
 }
 
 SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
@@ -139,7 +139,7 @@ SurfaceArrays PrimitiveMesh::surface_get_arrays(int p_surface) const {
         _update();
     }
 
-    return VisualServer::get_singleton()->mesh_surface_get_arrays(mesh, 0);
+    return RenderingServer::get_singleton()->mesh_surface_get_arrays(mesh, 0);
 }
 
 Vector<SurfaceArrays> PrimitiveMesh::surface_get_blend_shape_arrays(int p_surface) const {
@@ -157,7 +157,7 @@ uint32_t PrimitiveMesh::surface_get_format(int p_idx) const {
         _update();
     }
 
-    return VisualServer::get_singleton()->mesh_surface_get_format(mesh, 0);
+    return RenderingServer::get_singleton()->mesh_surface_get_format(mesh, 0);
 }
 
 Mesh::PrimitiveType PrimitiveMesh::surface_get_primitive_type(int p_idx) const {
@@ -222,7 +222,7 @@ void PrimitiveMesh::set_material(const Ref<Material> &p_material) {
     material = p_material;
     if (!pending_request) {
         // just apply it, else it'll happen when _update is called.
-        VisualServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
+        RenderingServer::get_singleton()->mesh_surface_set_material(mesh, 0, not material ? RID() : material->get_rid());
         Object_change_notify(this);
         emit_changed();
     }
@@ -242,7 +242,7 @@ SurfaceArrays PrimitiveMesh::get_mesh_arrays() const {
 void PrimitiveMesh::set_custom_aabb(const AABB &p_custom) {
 
     custom_aabb = p_custom;
-    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
+    RenderingServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
     emit_changed();
 }
 
@@ -264,7 +264,7 @@ PrimitiveMesh::PrimitiveMesh() {
 
     flip_faces = false;
     // defaults
-    mesh = VisualServer::get_singleton()->mesh_create();
+    mesh = RenderingServer::get_singleton()->mesh_create();
 
     // assume primitive triangles as the type, correct for all but one and it will change this :)
     primitive_type = Mesh::PRIMITIVE_TRIANGLES;
@@ -274,7 +274,7 @@ PrimitiveMesh::PrimitiveMesh() {
 }
 
 PrimitiveMesh::~PrimitiveMesh() {
-    VisualServer::get_singleton()->free_rid(mesh);
+    RenderingServer::get_singleton()->free_rid(mesh);
 }
 
 /**
@@ -438,8 +438,8 @@ void CapsuleMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CapsuleMesh::set_rings);
     MethodBinder::bind_method(D_METHOD("get_rings"), &CapsuleMesh::get_rings);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "mid_height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_mid_height", "get_mid_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mid_height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_mid_height", "get_mid_height");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
 }
@@ -898,9 +898,9 @@ void CylinderMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_rings", {"rings"}), &CylinderMesh::set_rings);
     MethodBinder::bind_method(D_METHOD("get_rings"), &CylinderMesh::get_rings);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "top_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_top_radius", "get_top_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bottom_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_bottom_radius", "get_bottom_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "top_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_top_radius", "get_top_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bottom_radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_bottom_radius", "get_bottom_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
 }
@@ -1298,7 +1298,7 @@ void PrismMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_subdivide_depth", {"segments"}), &PrismMesh::set_subdivide_depth);
     MethodBinder::bind_method(D_METHOD("get_subdivide_depth"), &PrismMesh::get_subdivide_depth);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "left_to_right", PropertyHint::Range, "-2.0,2.0,0.1"), "set_left_to_right", "get_left_to_right");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "left_to_right", PropertyHint::Range, "-2.0,2.0,0.1"), "set_left_to_right", "get_left_to_right");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_width", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdivide_height", PropertyHint::Range, "0,100,1,or_greater"), "set_subdivide_height", "get_subdivide_height");
@@ -1522,8 +1522,8 @@ void SphereMesh::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_is_hemisphere", {"is_hemisphere"}), &SphereMesh::set_is_hemisphere);
     MethodBinder::bind_method(D_METHOD("get_is_hemisphere"), &SphereMesh::get_is_hemisphere);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "height", PropertyHint::Range, "0.001,100.0,0.001,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "radial_segments", PropertyHint::Range, "1,100,1,or_greater"), "set_radial_segments", "get_radial_segments");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "rings", PropertyHint::Range, "1,100,1,or_greater"), "set_rings", "get_rings");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "is_hemisphere"), "set_is_hemisphere", "get_is_hemisphere");

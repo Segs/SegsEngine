@@ -195,7 +195,7 @@ void TreeItem::set_text(int p_column, const StringName& p_text) {
                 value = StringUtils::to_int(StringUtils::get_slice(strings[i],':', 1));
             }
             cells[p_column].min = MIN(cells[p_column].min, value);
-            cells[p_column].max = MAX(cells[p_column].max, value);
+            cells[p_column].max = M_MAX(cells[p_column].max, value);
         }
         cells[p_column].step = 0;
     }
@@ -760,16 +760,16 @@ bool TreeItem::is_folding_disabled() const {
     return disable_folding;
 }
 
-Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 1) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 0;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::STRING;
         return Variant();
@@ -781,7 +781,7 @@ Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, V
     return Variant();
 }
 
-void recursive_call_aux(TreeItem *p_item, const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+void recursive_call_aux(TreeItem *p_item, const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
     if (!p_item) {
         return;
     }
@@ -793,7 +793,7 @@ void recursive_call_aux(TreeItem *p_item, const StringName &p_method, const Vari
     }
 }
 
-void TreeItem::call_recursive(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+void TreeItem::call_recursive(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
     recursive_call_aux(this, p_method, p_args, p_argcount, r_error);
 }
 void TreeItem::_bind_methods() {
@@ -843,7 +843,7 @@ void TreeItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_next_visible", {"wrap"}), &TreeItem::get_next_visible, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_prev_visible", {"wrap"}), &TreeItem::get_prev_visible, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), &TreeItem::_remove_child);
+    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), (void (TreeItem::*)(Object *))&TreeItem::remove_child);
 
     MethodBinder::bind_method(D_METHOD("set_selectable", {"column", "selectable"}), &TreeItem::set_selectable);
     MethodBinder::bind_method(D_METHOD("is_selectable", {"column"}), &TreeItem::is_selectable);
@@ -1127,10 +1127,10 @@ void Tree::draw_item_rect(const TreeItem::Cell &p_cell, const Rect2i &p_rect, co
         case TreeItem::ALIGN_LEFT:
             break; //do none
         case TreeItem::ALIGN_CENTER:
-            rect.position.x += MAX(0, (rect.size.width - w) / 2);
+            rect.position.x += M_MAX(0, (rect.size.width - w) / 2);
             break; //do none
         case TreeItem::ALIGN_RIGHT:
-            rect.position.x += MAX(0, (rect.size.width - w));
+            rect.position.x += M_MAX(0, (rect.size.width - w));
             break; //do none
     }
 
@@ -1246,7 +1246,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
             }
 
             if (cache.draw_guides) {
-                VisualServer::get_singleton()->canvas_item_add_line(ci, Point2i(cell_rect.position.x, cell_rect.position.y + cell_rect.size.height), cell_rect.position + cell_rect.size, cache.guide_color, 1);
+                RenderingServer::get_singleton()->canvas_item_add_line(ci, Point2i(cell_rect.position.x, cell_rect.position.y + cell_rect.size.height), cell_rect.position + cell_rect.size, cache.guide_color, 1);
             }
 
             if (i == 0) {
@@ -1291,12 +1291,12 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                     r.size.x += cache.hseparation;
                 }
                 if (p_item->cells[i].custom_bg_outline) {
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, r.size.x, 1), p_item->cells[i].bg_color);
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y + r.size.y - 1, r.size.x, 1), p_item->cells[i].bg_color);
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, 1, r.size.y), p_item->cells[i].bg_color);
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x + r.size.x - 1, r.position.y, 1, r.size.y), p_item->cells[i].bg_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, r.size.x, 1), p_item->cells[i].bg_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y + r.size.y - 1, r.size.x, 1), p_item->cells[i].bg_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, 1, r.size.y), p_item->cells[i].bg_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x + r.size.x - 1, r.position.y, 1, r.size.y), p_item->cells[i].bg_color);
                 } else {
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, r, p_item->cells[i].bg_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, r, p_item->cells[i].bg_color);
                 }
             }
 
@@ -1305,16 +1305,16 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 Rect2 r = cell_rect;
 
                 if (drop_mode_section == -1 || drop_mode_section == 0) {
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, r.size.x, 1), cache.drop_position_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, r.size.x, 1), cache.drop_position_color);
                 }
 
                 if (drop_mode_section == 0) {
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, 1, r.size.y), cache.drop_position_color);
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x + r.size.x - 1, r.position.y, 1, r.size.y), cache.drop_position_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y, 1, r.size.y), cache.drop_position_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x + r.size.x - 1, r.position.y, 1, r.size.y), cache.drop_position_color);
                 }
 
                 if (drop_mode_section == 1 || drop_mode_section == 0) {
-                    VisualServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y + r.size.y, r.size.x, 1), cache.drop_position_color);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(ci, Rect2(r.position.x, r.position.y + r.size.y, r.size.x, 1), cache.drop_position_color);
                 }
             }
 
@@ -1432,7 +1432,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
                     if (p_item->cells[i].custom_draw_obj) {
 
-                        Object *cdo = ObjectDB::get_instance(p_item->cells[i].custom_draw_obj);
+                        Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw_obj);
                         if (cdo)
                             cdo->call_va(p_item->cells[i].custom_draw_callback, Variant(p_item), Rect2(item_rect));
                     }
@@ -1538,8 +1538,8 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 Point2i parent_pos = Point2i(parent_ofs - cache.arrow->get_width() / 2, p_pos.y + label_h / 2 + cache.arrow->get_height() / 2) - cache.offset + p_draw_ofs;
 
                 if (root_pos.y + line_width >= 0) {
-                    VisualServer::get_singleton()->canvas_item_add_line(ci, root_pos, Point2i(parent_pos.x - Math::floor(line_width / 2), root_pos.y), cache.relationship_line_color, line_width);
-                    VisualServer::get_singleton()->canvas_item_add_line(ci, Point2i(parent_pos.x, root_pos.y), Point2i(parent_pos.x, prev_ofs), cache.relationship_line_color, line_width);
+                    RenderingServer::get_singleton()->canvas_item_add_line(ci, root_pos, Point2i(parent_pos.x - Math::floor(line_width / 2), root_pos.y), cache.relationship_line_color, line_width);
+                    RenderingServer::get_singleton()->canvas_item_add_line(ci, Point2i(parent_pos.x, root_pos.y), Point2i(parent_pos.x, prev_ofs), cache.relationship_line_color, line_width);
                 }
 
                 if (htotal < 0) {
@@ -2468,7 +2468,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 
             return;
         } else {
-            if (k->get_scancode() != KEY_SHIFT)
+            if (k->get_keycode() != KEY_SHIFT)
                 last_keypress = 0;
         }
     }
@@ -3046,9 +3046,9 @@ void Tree::_notification(int p_what) {
 
         bg->draw(ci, Rect2(Point2(), get_size()));
         if (has_focus()) {
-            VisualServer::get_singleton()->canvas_item_add_clip_ignore(ci, true);
+            RenderingServer::get_singleton()->canvas_item_add_clip_ignore(ci, true);
             bg_focus->draw(ci, Rect2(Point2(), get_size()));
-            VisualServer::get_singleton()->canvas_item_add_clip_ignore(ci, false);
+            RenderingServer::get_singleton()->canvas_item_add_clip_ignore(ci, false);
         }
 
         int tbh = _get_title_button_height();

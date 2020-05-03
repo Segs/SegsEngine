@@ -244,7 +244,7 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
             int x = slice_w * j;
             int y = slice_h * i;
             Ref<Image> slice = image->get_rect(Rect2(x, y, slice_w, slice_h));
-            ERR_CONTINUE(not slice || slice->empty());
+            ERR_CONTINUE(not slice || slice->is_empty());
             if (slice->get_width() != slice_w || slice->get_height() != slice_h) {
                 slice->resize(slice_w, slice_h);
             }

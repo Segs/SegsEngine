@@ -67,17 +67,6 @@ int DirAccess::get_current_drive() {
     return 0;
 }
 
-Error DirAccess::change_dir_utf8(StringView p_dir)
-{
-    return change_dir(p_dir);
-}
-
-Error DirAccess::make_dir_utf8(StringView p_dir)
-{
-    return make_dir(p_dir);
-
-}
-
 static Error _erase_recursive(DirAccess *da) {
 
     Vector<String> dirs;

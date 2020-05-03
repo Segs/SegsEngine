@@ -91,6 +91,10 @@ static const unsigned int MONTH_DAYS_TABLE[2][12] = {
     { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }
 };
 
+_ResourceManager* _ResourceManager::singleton = nullptr;
+
+IMPL_GDCLASS(_ResourceManager);
+
 Ref<ResourceInteractiveLoader> _ResourceManager::load_interactive(StringView p_path, StringView p_type_hint) {
     return gResourceManager().load_interactive(p_path, p_type_hint);
 }
@@ -155,10 +159,6 @@ PoolVector<String> _ResourceManager::get_recognized_extensions(const RES &p_reso
     }
     return ret;
 }
-
-_ResourceManager* _ResourceManager::singleton = nullptr;
-
-IMPL_GDCLASS(_ResourceManager);
 
 void _ResourceManager::_bind_methods() {
 
@@ -1112,15 +1112,15 @@ String _OS::get_system_dir(SystemDir p_dir) const {
     return OS::get_system_dir(OS::SystemDir(p_dir));
 }
 
-String _OS::get_scancode_string(uint32_t p_code) const {
+String _OS::get_keycode_string(uint32_t p_code) const {
 
     return keycode_get_string(p_code);
 }
-bool _OS::is_scancode_unicode(uint32_t p_unicode) const {
+bool _OS::is_keycode_unicode(uint32_t p_unicode) const {
 
     return keycode_has_unicode(p_unicode);
 }
-int _OS::find_scancode_from_string(StringView p_code) const {
+int _OS::find_keycode_from_string(StringView p_code) const {
 
     return find_keycode(p_code);
 }
@@ -1312,9 +1312,9 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("native_video_pause"), &_OS::native_video_pause);
     MethodBinder::bind_method(D_METHOD("native_video_unpause"), &_OS::native_video_unpause);
 
-    MethodBinder::bind_method(D_METHOD("get_scancode_string", {"code"}), &_OS::get_scancode_string);
-    MethodBinder::bind_method(D_METHOD("is_scancode_unicode", {"code"}), &_OS::is_scancode_unicode);
-    MethodBinder::bind_method(D_METHOD("find_scancode_from_string", {"string"}), &_OS::find_scancode_from_string);
+    MethodBinder::bind_method(D_METHOD("get_keycode_string", {"code"}), &_OS::get_keycode_string);
+    MethodBinder::bind_method(D_METHOD("is_keycode_unicode", {"code"}), &_OS::is_keycode_unicode);
+    MethodBinder::bind_method(D_METHOD("find_keycode_from_string", {"string"}), &_OS::find_keycode_from_string);
 
     MethodBinder::bind_method(D_METHOD("set_use_file_access_save_and_swap", {"enabled"}), &_OS::set_use_file_access_save_and_swap);
 
@@ -2566,14 +2566,14 @@ void _Marshalls::_bind_methods() {
 
 ////////////////
 
-Error _Semaphore::wait() {
+void _Semaphore::wait() {
 
-    return semaphore->wait();
+    semaphore->wait();
 }
 
-Error _Semaphore::post() {
+void _Semaphore::post() {
 
-    return semaphore->post();
+    semaphore->post();
 }
 
 IMPL_GDCLASS(_Semaphore)
@@ -2586,7 +2586,7 @@ void _Semaphore::_bind_methods() {
 
 _Semaphore::_Semaphore() {
 
-    semaphore = SemaphoreOld::create();
+    semaphore = memnew(Semaphore);
 }
 
 _Semaphore::~_Semaphore() {
@@ -2637,29 +2637,29 @@ void _Thread::_start_func(void *ud) {
     Ref<_Thread> *tud = (Ref<_Thread> *)ud;
     Ref<_Thread> t = *tud;
     memdelete(tud);
-    Variant::CallError ce;
+    Callable::CallError ce;
     const Variant *arg[1] = { &t->userdata };
 
     Thread::set_name(t->target_method);
 
     t->ret = t->target_instance->call(t->target_method, arg, 1, ce);
-    if (ce.error != Variant::CallError::CALL_OK) {
+    if (ce.error != Callable::CallError::CALL_OK) {
 
         String reason;
         switch (ce.error) {
-            case Variant::CallError::CALL_ERROR_INVALID_ARGUMENT: {
+            case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
 
                 reason = "Invalid Argument #" + itos(ce.argument);
             } break;
-            case Variant::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
+            case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
 
                 reason = "Too Many Arguments";
             } break;
-            case Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
+            case Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
 
                 reason = "Too Few Arguments";
             } break;
-            case Variant::CallError::CALL_ERROR_INVALID_METHOD: {
+            case Callable::CallError::CALL_ERROR_INVALID_METHOD: {
 
                 reason = "Method Not Found";
             } break;
@@ -3066,9 +3066,9 @@ bool _Engine::has_singleton(StringView p_name) const {
     return Engine::get_singleton()->has_singleton(StringName(p_name));
 }
 
-Object *_Engine::get_singleton_object(const StringName &p_name) const {
+Object *_Engine::get_named_singleton(const StringName &p_name) const {
 
-    return Engine::get_singleton()->get_singleton_object(p_name);
+    return Engine::get_singleton()->get_named_singleton(p_name);
 }
 
 void _Engine::set_editor_hint(bool p_enabled) {
@@ -3114,7 +3114,7 @@ void _Engine::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_in_physics_frame"), &_Engine::is_in_physics_frame);
 
     MethodBinder::bind_method(D_METHOD("has_singleton", {"name"}), &_Engine::has_singleton);
-    MethodBinder::bind_method(D_METHOD("get_singleton", {"name"}), &_Engine::get_singleton_object);
+    MethodBinder::bind_method(D_METHOD("get_named_singleton", {"name"}), &_Engine::get_named_singleton);
 
     MethodBinder::bind_method(D_METHOD("set_editor_hint", {"enabled"}), &_Engine::set_editor_hint);
     MethodBinder::bind_method(D_METHOD("is_editor_hint"), &_Engine::is_editor_hint);
@@ -3122,8 +3122,8 @@ void _Engine::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_hint"), "set_editor_hint", "is_editor_hint");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "iterations_per_second"), "set_iterations_per_second", "get_iterations_per_second");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "target_fps"), "set_target_fps", "get_target_fps");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_scale"), "set_time_scale", "get_time_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "physics_jitter_fix"), "set_physics_jitter_fix", "get_physics_jitter_fix");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_scale"), "set_time_scale", "get_time_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "physics_jitter_fix"), "set_physics_jitter_fix", "get_physics_jitter_fix");
 }
 
 _Engine *_Engine::singleton = nullptr;

@@ -50,7 +50,7 @@ void InterpolatedCamera::_notification(int p_what) {
                 break;
             if (has_node(target)) {
 
-                Spatial *node = object_cast<Spatial>(get_node(target));
+                Node3D *node = object_cast<Node3D>(get_node(target));
                 if (!node)
                     break;
 
@@ -59,7 +59,7 @@ void InterpolatedCamera::_notification(int p_what) {
                 Transform local_transform = get_global_transform();
                 local_transform = local_transform.interpolate_with(target_xform, delta);
                 set_global_transform(local_transform);
-                Camera *cam = object_cast<Camera>(node);
+                Camera3D *cam = object_cast<Camera3D>(node);
                 if (cam) {
 
                     if (cam->get_projection() == get_projection()) {
@@ -87,10 +87,10 @@ void InterpolatedCamera::_notification(int p_what) {
 void InterpolatedCamera::_set_target(const Object *p_target) {
 
     ERR_FAIL_NULL(p_target);
-    set_target(object_cast<Spatial>(p_target));
+    set_target(object_cast<Node3D>(p_target));
 }
 
-void InterpolatedCamera::set_target(const Spatial *p_target) {
+void InterpolatedCamera::set_target(const Node3D *p_target) {
 
     ERR_FAIL_NULL(p_target);
     target = get_path_to(p_target);
@@ -147,7 +147,7 @@ void InterpolatedCamera::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_interpolation_enabled"), &InterpolatedCamera::is_interpolation_enabled);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "target"), "set_target_path", "get_target_path");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed"), "set_speed", "get_speed");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed"), "set_speed", "get_speed");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "enabled"), "set_interpolation_enabled", "is_interpolation_enabled");
 }
 

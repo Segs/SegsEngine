@@ -30,8 +30,8 @@
 
 #include "line_shape_2d.h"
 
-#include "servers/physics_2d_server.h"
-#include "servers/visual_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(LineShape2D)
@@ -55,7 +55,7 @@ void LineShape2D::_update_shape() {
     Array arr;
     arr.push_back(normal);
     arr.push_back(d);
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), arr);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), arr);
     emit_changed();
 }
 
@@ -85,9 +85,9 @@ void LineShape2D::draw(const RID &p_to_rid, const Color &p_color) {
     Vector2 point = get_d() * get_normal();
 
     Vector2 l1[2] = { point - get_normal().tangent() * 100, point + get_normal().tangent() * 100 };
-    VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, l1[0], l1[1], p_color, 3);
+    RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, l1[0], l1[1], p_color, 3);
     Vector2 l2[2] = { point, point + get_normal() * 30 };
-    VisualServer::get_singleton()->canvas_item_add_line(p_to_rid, l2[0], l2[1], p_color, 3);
+    RenderingServer::get_singleton()->canvas_item_add_line(p_to_rid, l2[0], l2[1], p_color, 3);
 }
 Rect2 LineShape2D::get_rect() const {
 
@@ -113,11 +113,11 @@ void LineShape2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_d"), &LineShape2D::get_d);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "normal"), "set_normal", "get_normal");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "d"), "set_d", "get_d");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "d"), "set_d", "get_d");
 }
 
 LineShape2D::LineShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->line_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->line_shape_create()) {
 
     normal = Vector2(0, -1);
     d = 0;

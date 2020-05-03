@@ -28,11 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PATH_UTILS_H
-#define PATH_UTILS_H
+#pragma once
 
 #include "core/string_builder.h"
-#include "core/ustring.h"
+//#include "core/ustring.h"
 
 namespace path {
 
@@ -40,7 +39,7 @@ String join(StringView p_a, StringView p_b);
 String join(StringView p_a, StringView p_b, StringView p_c);
 String join(StringView p_a, StringView p_b, StringView p_c, StringView p_d);
 
-String find_executable(const UIString &p_name);
+//String find_executable(const UIString &p_name);
 
 /// Returns a normalized absolute path to the current working directory
 String cwd();
@@ -60,5 +59,3 @@ String realpath(StringView p_path);
 String relative_to(StringView p_path, StringView p_relative_to);
 
 } // namespace path
-
-#endif // PATH_UTILS_H

@@ -321,7 +321,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
         if (!f) {
             ret = unzGoToNextFile(pkg);
             fc++;
-            ERR_CONTINUE_MSG(true, "Can't open file from path '" + (to_write) + "'."); 
+            ERR_CONTINUE_MSG(true, "Can't open file from path '" + (to_write) + "'.");
         }
 
         f->store_buffer(data.data(), data.size());
@@ -554,10 +554,9 @@ void ExportTemplateManager::_notification(int p_what) {
 }
 
 bool ExportTemplateManager::can_install_android_template() {
+
     const String templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(), VERSION_FULL_CONFIG);
-    return FileAccess::exists(PathUtils::plus_file(templates_dir, "android_source.zip")) &&
-           FileAccess::exists(PathUtils::plus_file(templates_dir, "android_release.apk")) &&
-           FileAccess::exists(PathUtils::plus_file(templates_dir, "android_debug.apk"));
+    return FileAccess::exists(PathUtils::plus_file(templates_dir,"android_source.zip"));
 }
 
 Error ExportTemplateManager::install_android_template() {

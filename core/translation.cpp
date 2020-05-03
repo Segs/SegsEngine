@@ -1217,6 +1217,20 @@ StringName TranslationServer::tool_translate(const StringName &p_message) const 
     return p_message;
 }
 
+void TranslationServer::set_doc_translation(const Ref<Translation> &p_translation) {
+    doc_translation = p_translation;
+}
+
+StringName TranslationServer::doc_translate(const StringName &p_message) const {
+    if (doc_translation) {
+        StringName r = doc_translation->get_message(p_message);
+        if (r) {
+            return r;
+        }
+    }
+    return p_message;
+}
+
 void TranslationServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_locale", {"locale"}), &TranslationServer::set_locale);

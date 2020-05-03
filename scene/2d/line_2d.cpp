@@ -34,7 +34,7 @@
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "scene/resources/curve.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Line2D)
 
@@ -317,7 +317,7 @@ void Line2D::_draw() {
 
     lb.build();
 
-    VisualServer::get_singleton()->canvas_item_add_triangle_array(
+    RenderingServer::get_singleton()->canvas_item_add_triangle_array(
                 get_canvas_item(),
                 lb.indices,
                 lb.vertices,
@@ -408,7 +408,7 @@ void Line2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_antialiased"), &Line2D::get_antialiased);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "points"), "set_points", "get_points");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "width"), "set_width", "get_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "width"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "width_curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "default_color"), "set_default_color", "get_default_color");
     ADD_GROUP("Fill", "");
@@ -420,7 +420,7 @@ void Line2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "begin_cap_mode", PropertyHint::Enum, "None,Box,Round"), "set_begin_cap_mode", "get_begin_cap_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "end_cap_mode", PropertyHint::Enum, "None,Box,Round"), "set_end_cap_mode", "get_end_cap_mode");
     ADD_GROUP("Border", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "sharp_limit"), "set_sharp_limit", "get_sharp_limit");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "round_precision"), "set_round_precision", "get_round_precision");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
 

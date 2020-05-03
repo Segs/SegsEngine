@@ -257,7 +257,7 @@ public:
                         VariantType t = VariantType(int(p_value));
 
                         if (t != args[idx].get_type()) {
-                            Variant::CallError err;
+                            Callable::CallError err;
                             if (Variant::can_convert(args[idx].get_type(), t)) {
                                 Variant old = args[idx];
                                 Variant *ptrs[1] = { &old };
@@ -571,9 +571,9 @@ public:
 
         if (use_fps && animation->get_step() > 0) {
             float max_frame = animation->get_length() / animation->get_step();
-            p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
         } else {
-            p_list->push_back(PropertyInfo(VariantType::REAL, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
         }
 
         switch (animation->track_get_type(track)) {
@@ -640,7 +640,7 @@ public:
             } break;
             case Animation::TYPE_BEZIER: {
 
-                p_list->push_back(PropertyInfo(VariantType::REAL, "value"));
+                p_list->push_back(PropertyInfo(VariantType::FLOAT, "value"));
                 p_list->push_back(PropertyInfo(VariantType::VECTOR2, "in_handle"));
                 p_list->push_back(PropertyInfo(VariantType::VECTOR2, "out_handle"));
 
@@ -648,8 +648,8 @@ public:
             case Animation::TYPE_AUDIO: {
 
                 p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"));
-                p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
-                p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                p_list->push_back(PropertyInfo(VariantType::FLOAT, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                p_list->push_back(PropertyInfo(VariantType::FLOAT, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
 
             } break;
             case Animation::TYPE_ANIMATION: {
@@ -676,7 +676,7 @@ public:
         }
 
         if (animation->track_get_type(track) == Animation::TYPE_VALUE) {
-            p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PropertyHint::ExpEasing));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "easing", PropertyHint::ExpEasing));
         }
     }
 
@@ -915,7 +915,7 @@ public:
                                 VariantType t = VariantType(int(p_value));
 
                                 if (t != args[idx].get_type()) {
-                                    Variant::CallError err;
+                                    Callable::CallError err;
                                     if (Variant::can_convert(args[idx].get_type(), t)) {
                                         Variant old = args[idx];
                                         Variant *ptrs[1] = { &old };
@@ -1260,9 +1260,9 @@ public:
 
             if (use_fps && animation->get_step() > 0) {
                 float max_frame = animation->get_length() / animation->get_step();
-                p_list->push_back(PropertyInfo(VariantType::REAL, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
+                p_list->push_back(PropertyInfo(VariantType::FLOAT, "frame", PropertyHint::Range, "0," + rtos(max_frame) + ",1"));
             } else {
-                p_list->push_back(PropertyInfo(VariantType::REAL, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
+                p_list->push_back(PropertyInfo(VariantType::FLOAT, "time", PropertyHint::Range, "0," + rtos(animation->get_length()) + ",0.01"));
             }
         }
 
@@ -1306,7 +1306,7 @@ public:
                             p_list->push_back(PropertyInfo(v.get_type(), "value", hint, hint_string));
                     }
 
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "easing", PropertyHint::ExpEasing));
+                    p_list->push_back(PropertyInfo(VariantType::FLOAT, "easing", PropertyHint::ExpEasing));
                 } break;
                 case Animation::TYPE_METHOD: {
 
@@ -1333,15 +1333,15 @@ public:
                 } break;
                 case Animation::TYPE_BEZIER: {
 
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "value"));
+                    p_list->push_back(PropertyInfo(VariantType::FLOAT, "value"));
                     p_list->push_back(PropertyInfo(VariantType::VECTOR2, "in_handle"));
                     p_list->push_back(PropertyInfo(VariantType::VECTOR2, "out_handle"));
                 } break;
                 case Animation::TYPE_AUDIO: {
 
                     p_list->push_back(PropertyInfo(VariantType::OBJECT, "stream", PropertyHint::ResourceType, "AudioStream"));
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
-                    p_list->push_back(PropertyInfo(VariantType::REAL, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                    p_list->push_back(PropertyInfo(VariantType::FLOAT, "start_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
+                    p_list->push_back(PropertyInfo(VariantType::FLOAT, "end_offset", PropertyHint::Range, "0,3600,0.01,or_greater"));
                 } break;
                 case Animation::TYPE_ANIMATION: {
 
@@ -1425,7 +1425,7 @@ void AnimationTimelineEdit::_anim_length_changed(double p_new_len) {
     if (editing)
         return;
 
-    p_new_len = MAX(0.001, p_new_len);
+    p_new_len = M_MAX(0.001, p_new_len);
     if (use_fps && animation->get_step() > 0) {
         p_new_len *= animation->get_step();
     }
@@ -1467,7 +1467,7 @@ int AnimationTimelineEdit::get_name_limit() const {
 
     Ref<Texture> hsize_icon = get_icon("Hsize", "EditorIcons");
 
-    int limit = MAX(name_limit, add_track->get_minimum_size().width + hsize_icon->get_width());
+    int limit = M_MAX(name_limit, add_track->get_minimum_size().width + hsize_icon->get_width());
 
     limit = MIN(limit, get_size().width - get_buttons_width() - 1);
 
@@ -1598,7 +1598,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
         int max_digit_width = font->get_char_size('0').width;
         for (int i = 1; i <= 9; i++) {
             const int digit_width = font->get_char_size('0' + i).width;
-            max_digit_width = MAX(digit_width, max_digit_width);
+            max_digit_width = M_MAX(digit_width, max_digit_width);
         }
         const int max_sc = int(Math::ceil(zoomw / scale));
         const int max_sc_width = StringUtils::num(max_sc).length() * max_digit_width;
@@ -1697,7 +1697,7 @@ Size2 AnimationTimelineEdit::get_minimum_size() const {
 
     Size2 ms = add_track->get_minimum_size();
     Ref<Font> font = get_font("font", "Label");
-    ms.height = MAX(ms.height, font->get_height());
+    ms.height = M_MAX(ms.height, font->get_height());
     ms.width = get_buttons_width() + add_track->get_minimum_size().width + get_icon("Hsize", "EditorIcons")->get_width() + 2;
     return ms;
 }
@@ -1865,9 +1865,9 @@ void AnimationTimelineEdit::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("zoom_changed"));
     ADD_SIGNAL(MethodInfo("name_limit_changed"));
-    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::REAL, "position"), PropertyInfo(VariantType::BOOL, "drag")));
+    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::FLOAT, "position"), PropertyInfo(VariantType::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("track_added", PropertyInfo(VariantType::INT, "track")));
-    ADD_SIGNAL(MethodInfo("length_changed", PropertyInfo(VariantType::REAL, "size")));
+    ADD_SIGNAL(MethodInfo("length_changed", PropertyInfo(VariantType::FLOAT, "size")));
 }
 
 AnimationTimelineEdit::AnimationTimelineEdit() {
@@ -2268,7 +2268,7 @@ void AnimationTrackEdit::draw_key_link(int p_index, float p_pixels_sec, int p_x,
     Color color = get_color("font_color", "Label");
     color.a = 0.5;
 
-    int from_x = MAX(p_x, p_clip_left);
+    int from_x = M_MAX(p_x, p_clip_left);
     int to_x = MIN(p_next_x, p_clip_right);
 
     draw_line(Point2(from_x + 1, get_size().height / 2), Point2(to_x, get_size().height / 2), color, Math::round(2 * EDSCALE));
@@ -2317,7 +2317,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         }
         text += ")";
 
-        int limit = MAX(0, p_clip_right - p_x - icon_to_draw->get_width());
+        int limit = M_MAX(0, p_clip_right - p_x - icon_to_draw->get_width());
         if (limit > 0) {
             draw_string(font, Vector2(p_x + icon_to_draw->get_width(), int(get_size().height - font->get_height()) / 2 + font->get_ascent()), text, color, limit);
         }
@@ -2428,8 +2428,8 @@ Size2 AnimationTrackEdit::get_minimum_size() const {
     Ref<Font> font = get_font("font", "Label");
     int separation = get_constant("vseparation", "ItemList");
 
-    int max_h = MAX(texture->get_height(), font->get_height());
-    max_h = MAX(max_h, get_key_height());
+    int max_h = M_MAX(texture->get_height(), font->get_height());
+    max_h = M_MAX(max_h, get_key_height());
 
     return Vector2(1, max_h + separation);
 }
@@ -2489,6 +2489,9 @@ void AnimationTrackEdit::_path_entered(StringView p_text) {
 }
 
 bool AnimationTrackEdit::_is_value_key_valid(const Variant &p_key_value, VariantType &r_valid_type) const {
+
+    if (root == nullptr)
+        return false;
 
     RES res;
     Vector<StringName> leftover_path;
@@ -3083,16 +3086,16 @@ void AnimationTrackEdit::_bind_methods() {
     MethodBinder::bind_method("_path_entered", &AnimationTrackEdit::_path_entered);
     MethodBinder::bind_method("_play_position_draw", &AnimationTrackEdit::_play_position_draw);
 
-    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::REAL, "position"), PropertyInfo(VariantType::BOOL, "drag")));
+    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::FLOAT, "position"), PropertyInfo(VariantType::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("remove_request", PropertyInfo(VariantType::INT, "track")));
     ADD_SIGNAL(MethodInfo("dropped", PropertyInfo(VariantType::INT, "from_track"), PropertyInfo(VariantType::INT, "to_track")));
-    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("insert_key", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("select_key", PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::BOOL, "single")));
     ADD_SIGNAL(MethodInfo("deselect_key", PropertyInfo(VariantType::INT, "index")));
     ADD_SIGNAL(MethodInfo("bezier_edit"));
 
     ADD_SIGNAL(MethodInfo("move_selection_begin"));
-    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::REAL, "ofs")));
+    ADD_SIGNAL(MethodInfo("move_selection", PropertyInfo(VariantType::FLOAT, "ofs")));
     ADD_SIGNAL(MethodInfo("move_selection_commit"));
     ADD_SIGNAL(MethodInfo("move_selection_cancel"));
 
@@ -3148,7 +3151,7 @@ AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_
             &args[5]
         };
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_value_track_edit", (const Variant **)&argptrs, 6, ce).as<Object *>());
     }
     return nullptr;
@@ -3222,7 +3225,7 @@ Size2 AnimationTrackEditGroup::get_minimum_size() const {
     Ref<Font> font = get_font("font", "Label");
     int separation = get_constant("vseparation", "ItemList");
 
-    return Vector2(0, MAX(font->get_height(), icon->get_height()) + separation);
+    return Vector2(0, M_MAX(font->get_height(), icon->get_height()) + separation);
 }
 
 void AnimationTrackEditGroup::set_timeline(AnimationTimelineEdit *p_timeline) {
@@ -3395,8 +3398,8 @@ void AnimationTrackEditor::cleanup() {
 
 void AnimationTrackEditor::_name_limit_changed() {
 
-    for (int i = 0; i < track_edits.size(); i++) {
-        track_edits[i]->update();
+    for (auto & track_edit : track_edits) {
+        track_edit->update();
     }
 }
 
@@ -3445,11 +3448,11 @@ void AnimationTrackEditor::_track_grab_focus(int p_track) {
 void AnimationTrackEditor::set_anim_pos(float p_pos) {
 
     timeline->set_play_position(p_pos);
-    for (int i = 0; i < track_edits.size(); i++) {
-        track_edits[i]->set_play_position(p_pos);
+    for (auto & track_edit : track_edits) {
+        track_edit->set_play_position(p_pos);
     }
-    for (int i = 0; i < groups.size(); i++) {
-        groups[i]->update();
+    for (auto & group : groups) {
+        group->update();
     }
     bezier_edit->set_play_position(p_pos);
 }
@@ -3490,7 +3493,7 @@ void AnimationTrackEditor::_query_insert(const InsertData &p_id) {
                     continue;
                 switch (dat.value.get_type()) {
                     case VariantType::INT:
-                    case VariantType::REAL:
+                    case VariantType::FLOAT:
                     case VariantType::VECTOR2:
                     case VariantType::VECTOR3:
                     case VariantType::QUAT:
@@ -3563,7 +3566,7 @@ void AnimationTrackEditor::_insert_delay() {
     insert_queue = false;
 }
 
-void AnimationTrackEditor::insert_transform_key(Spatial *p_node, StringView p_sub, const Transform &p_xform) {
+void AnimationTrackEditor::insert_transform_key(Node3D *p_node, StringView p_sub, const Transform &p_xform) {
 
     if (!keying)
         return;
@@ -3743,7 +3746,7 @@ void AnimationTrackEditor::insert_value_key(StringView p_property, const Variant
     ERR_FAIL_COND(!root);
     //let's build a node path
     ERR_FAIL_COND(history->get_path_size() == 0);
-    Object *obj = ObjectDB::get_instance(history->get_path_object(0));
+    Object *obj = gObjectDB().get_instance(history->get_path_object(0));
     ERR_FAIL_COND(!object_cast<Node>(obj));
 
     Node *node = object_cast<Node>(obj);
@@ -3920,7 +3923,7 @@ static Vector<StringView> _get_bezier_subindices_for_type(VariantType p_type, bo
         case VariantType::INT: {
             subindices.push_back("");
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             subindices.push_back("");
         } break;
         case VariantType::VECTOR2: {
@@ -3977,7 +3980,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
                 InsertData id = p_id;
                 id.type = Animation::TYPE_BEZIER;
                     id.value = p_id.value.get(StringUtils::substr(subindices[i],1, subindices[i].length()));
-                    id.path = NodePath(String(p_id.path.get_sname().asCString()) + subindices[i]);
+                    id.path = NodePath(p_id.path.asString() + subindices[i]);
                 _confirm_insert(id, p_last_track + i);
             }
 
@@ -3999,7 +4002,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
                 PropertyInfo h = _find_hint_for_track(animation->get_track_count() - 1, np);
                 animation->remove_track(animation->get_track_count() - 1); //hack
 
-                if (h.type == VariantType::REAL ||
+                if (h.type == VariantType::FLOAT ||
                         h.type == VariantType::VECTOR2 ||
                         h.type == VariantType::RECT2 ||
                         h.type == VariantType::VECTOR3 ||
@@ -4455,8 +4458,8 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
     ERR_FAIL_COND(!node);
     NodePath path_to = root->get_path_to(node);
 
-    if (adding_track_type == Animation::TYPE_TRANSFORM && !node->is_class("Spatial")) {
-        EditorNode::get_singleton()->show_warning(TTR("Transform tracks only apply to Spatial-based nodes."));
+    if (adding_track_type == Animation::TYPE_TRANSFORM && !node->is_class("Node3D")) {
+        EditorNode::get_singleton()->show_warning(TTR("Transform tracks only apply to Node3D-based nodes."));
         return;
     }
 
@@ -4480,7 +4483,7 @@ void AnimationTrackEditor::_new_track_node_selected(const NodePath& p_path) {
 
             const Vector<VariantType> filter = {
                 VariantType::INT,
-                VariantType::REAL,
+                VariantType::FLOAT,
                 VariantType::VECTOR2,
                 VariantType::VECTOR3,
                 VariantType::QUAT,
@@ -4551,7 +4554,7 @@ void AnimationTrackEditor::_new_track_property_selected(StringView p_name) {
             animation->track_set_path(animation->get_track_count() - 1, (NodePath)full_path);
             PropertyInfo h = _find_hint_for_track(animation->get_track_count() - 1, np);
             animation->remove_track(animation->get_track_count() - 1); //hack
-            if (h.type == VariantType::REAL ||
+            if (h.type == VariantType::FLOAT ||
                     h.type == VariantType::VECTOR2 ||
                     h.type == VariantType::RECT2 ||
                     h.type == VariantType::VECTOR3 ||
@@ -4648,10 +4651,10 @@ void AnimationTrackEditor::_insert_key_from_track(float p_ofs, int p_track) {
                 EditorNode::get_singleton()->show_warning(TTR("Track path is invalid, so can't add a key."));
                 return;
             }
-            Spatial *base = object_cast<Spatial>(root->get_node(animation->track_get_path(p_track)));
+            Node3D *base = object_cast<Node3D>(root->get_node(animation->track_get_path(p_track)));
 
             if (!base) {
-                EditorNode::get_singleton()->show_warning(TTR("Track is not of type Spatial, can't insert key"));
+                EditorNode::get_singleton()->show_warning(TTR("Track is not of type Node3D, can't insert key"));
                 return;
             }
 
@@ -4761,7 +4764,7 @@ void AnimationTrackEditor::_add_method_key(const StringName &p_method) {
                     Variant arg = E.default_arguments[i - first_defarg];
                     params.push_back(arg);
                 } else {
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     Variant arg = Variant::construct(E.arguments[i].type, nullptr, 0, ce);
                     params.push_back(arg);
                 }
@@ -5289,7 +5292,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
                         icon = get_icon(node->get_class_name(), "EditorIcons");
                     }
 
-                    text = node->get_name().asCString();
+                    text = node->get_name();
                     for (const StringName & s : path.get_subnames()) {
                         text += '.';
                         text += s.asCString();
@@ -5297,7 +5300,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
                     path = NodePath(node->get_path().get_names(), path.get_subnames(), true); //store full path instead for copying
                 } else {
-                    text = path.get_sname().asCString();
+                    text = path.asString();
                     auto sep = StringUtils::find(text,":");
                     if (sep != String::npos) {
                         text = StringUtils::substr(text,sep + 1, text.length());
@@ -5790,10 +5793,10 @@ void AnimationTrackEditor::_bind_methods() {
     MethodBinder::bind_method("_show_imported_anim_warning", &AnimationTrackEditor::_show_imported_anim_warning);
     MethodBinder::bind_method("_select_all_tracks_for_copy", &AnimationTrackEditor::_select_all_tracks_for_copy);
 
-    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::REAL, "position"), PropertyInfo(VariantType::BOOL, "drag")));
+    ADD_SIGNAL(MethodInfo("timeline_changed", PropertyInfo(VariantType::FLOAT, "position"), PropertyInfo(VariantType::BOOL, "drag")));
     ADD_SIGNAL(MethodInfo("keying_changed"));
-    ADD_SIGNAL(MethodInfo("animation_len_changed", PropertyInfo(VariantType::REAL, "len")));
-    ADD_SIGNAL(MethodInfo("animation_step_changed", PropertyInfo(VariantType::REAL, "step")));
+    ADD_SIGNAL(MethodInfo("animation_len_changed", PropertyInfo(VariantType::FLOAT, "len")));
+    ADD_SIGNAL(MethodInfo("animation_step_changed", PropertyInfo(VariantType::FLOAT, "step")));
 }
 
 AnimationTrackEditor::AnimationTrackEditor() {

@@ -33,7 +33,7 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 
 
 IMPL_GDCLASS(GraphNode)
@@ -139,7 +139,7 @@ void GraphNode::_resort() {
         Size2i size = c->get_combined_minimum_size();
 
         minsize.y += size.y;
-        minsize.x = MAX(minsize.x, size.x);
+        minsize.x = M_MAX(minsize.x, size.x);
 
         if (first)
             first = false;
@@ -403,7 +403,7 @@ Size2 GraphNode::get_minimum_size() const {
         Size2i size = c->get_combined_minimum_size();
 
         minsize.y += size.y;
-        minsize.x = MAX(minsize.x, size.x);
+        minsize.x = M_MAX(minsize.x, size.x);
 
         if (first)
             first = false;

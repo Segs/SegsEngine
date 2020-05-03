@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="PhysicsDirectBodyState" inherits="Object" version="4.0">
+<class name="PhysicsDirectBodyState3D" inherits="Object" version="4.0">
 	<brief_description>
-		Direct access object to a physics body in the [PhysicsServer].
+		Direct access object to a physics body in the [PhysicsServer3D].
 	</brief_description>
 	<description>
-		Provides direct access to a physics body in the [PhysicsServer], allowing safe changes to physics properties. This object is passed via the direct state callback of rigid/character bodies, and is intended for changing the direct state of that body. See [method RigidBody._integrate_forces].
+		Provides direct access to a physics body in the [PhysicsServer3D], allowing safe changes to physics properties. This object is passed via the direct state callback of rigid/character bodies, and is intended for changing the direct state of that body. See [method RigidBody._integrate_forces].
 	</description>
 	<tutorials>
 	</tutorials>
@@ -168,7 +168,7 @@
 			</description>
 		</method>
 		<method name="get_space_state">
-			<return type="PhysicsDirectSpaceState">
+			<return type="PhysicsDirectSpaceState3D">
 			</return>
 			<description>
 				Returns the current state of the space, useful for queries.

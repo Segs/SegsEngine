@@ -616,7 +616,7 @@ void EditorExportPlugin::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_export_file", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "type"), PropertyInfo(VariantType::POOL_STRING_ARRAY, "features")));
     BIND_VMETHOD(MethodInfo("_export_begin", PropertyInfo(VariantType::POOL_STRING_ARRAY, "features"), PropertyInfo(VariantType::BOOL, "is_debug"), PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::INT, "flags")));
-    BIND_VMETHOD(MethodInfo("_export_end"))
+    BIND_VMETHOD(MethodInfo("_export_end"));
 }
 
 EditorExportPlugin::EditorExportPlugin() {

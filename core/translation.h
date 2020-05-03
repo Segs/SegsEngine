@@ -73,9 +73,9 @@ class GODOT_EXPORT TranslationServer : public Object {
     String fallback;
 
     HashSet<Ref<Translation> > translations;
-    Ref<Translation> tool_translation;
-
     HashMap<String, String> locale_name_map;
+    Ref<Translation> tool_translation;
+    Ref<Translation> doc_translation;
 
     bool enabled = true;
 
@@ -110,6 +110,9 @@ public:
     void set_tool_translation(const Ref<Translation> &p_translation);
     StringName tool_translate(const StringName &p_message) const;
 
+    void set_doc_translation(const Ref<Translation> &p_translation);
+
+    StringName doc_translate(const StringName &p_message) const;
     void setup();
 
     void clear();

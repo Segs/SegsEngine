@@ -43,12 +43,12 @@ IMPL_GDCLASS(ArrayPropertyEdit)
 
 Variant ArrayPropertyEdit::get_array() const {
 
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = gObjectDB().get_instance(obj);
     if (!o)
         return Array();
     Variant arr = o->get(property);
     if (!arr.is_array()) {
-        Variant::CallError ce;
+        Callable::CallError ce;
         arr = Variant::construct(default_type, nullptr, 0, ce);
     }
     return arr;
@@ -66,7 +66,7 @@ void ArrayPropertyEdit::_set_size(int p_size) {
 
     Variant arr = get_array();
     arr.call("resize", p_size);
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = gObjectDB().get_instance(obj);
     if (!o)
         return;
 
@@ -77,7 +77,7 @@ void ArrayPropertyEdit::_set_value(int p_idx, const Variant &p_value) {
 
     Variant arr = get_array();
     arr.set(p_idx, p_value);
-    Object *o = ObjectDB::get_instance(obj);
+    Object *o = gObjectDB().get_instance(obj);
     if (!o)
         return;
 
@@ -110,7 +110,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             } else if (newsize > size) {
 
                 Variant init;
-                Variant::CallError ce;
+                Callable::CallError ce;
                 VariantType new_type = subtype;
                 if (new_type == VariantType::NIL && size) {
                     new_type = arr.get(size - 1).get_type();
@@ -145,7 +145,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
             Variant value = arr.get(idx);
             if ((int)value.get_type() != type && type >= 0 && type < (int)VariantType::VARIANT_MAX) {
-                Variant::CallError ce;
+                Callable::CallError ce;
                 Variant new_value = Variant::construct(VariantType(type), nullptr, 0, ce);
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
@@ -291,7 +291,7 @@ void ArrayPropertyEdit::edit(Object *p_obj, const StringName &p_prop, StringView
 
 Node *ArrayPropertyEdit::get_node() {
 
-    return object_cast<Node>(ObjectDB::get_instance(obj));
+    return object_cast<Node>(gObjectDB().get_instance(obj));
 }
 
 bool ArrayPropertyEdit::_dont_undo_redo() {

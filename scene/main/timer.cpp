@@ -210,11 +210,11 @@ void Timer::_bind_methods() {
     ADD_SIGNAL(MethodInfo("timeout"));
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "process_mode", PropertyHint::Enum, "Physics,Idle"), "set_timer_process_mode", "get_timer_process_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "wait_time", PropertyHint::ExpRange, "0.001,4096,0.001,or_greater"), "set_wait_time", "get_wait_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "wait_time", PropertyHint::ExpRange, "0.001,4096,0.001,or_greater"), "set_wait_time", "get_wait_time");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "is_one_shot");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autostart"), "set_autostart", "has_autostart");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "paused", PropertyHint::None, "", 0), "set_paused", "is_paused");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "time_left", PropertyHint::None, "", 0), "", "get_time_left");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "time_left", PropertyHint::None, "", 0), "", "get_time_left");
 
     BIND_ENUM_CONSTANT(TIMER_PROCESS_PHYSICS)
     BIND_ENUM_CONSTANT(TIMER_PROCESS_IDLE)

@@ -36,6 +36,7 @@
 #include "core/object_db.h"
 #include "core/print_string.h"
 #include "core/string_formatter.h"
+#include "editor/editor_data.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/editor_file_system.h"
@@ -100,7 +101,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     } else if (p_id == BUTTON_LOCK) {
         undo_redo->create_action_ui(TTR("Unlock Node"));
 
-        if (n->is_class("CanvasItem") || n->is_class("Spatial")) {
+        if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
             undo_redo->add_do_method(n, "remove_meta", "_edit_lock_");
             undo_redo->add_undo_method(n, "set_meta", "_edit_lock_", true);
@@ -120,7 +121,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     } else if (p_id == BUTTON_GROUP) {
         undo_redo->create_action_ui(TTR("Button Group"));
 
-        if (n->is_class("CanvasItem") || n->is_class("Spatial")) {
+        if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
             undo_redo->add_do_method(n, "remove_meta", "_edit_group_");
             undo_redo->add_undo_method(n, "set_meta", "_edit_group_", true);
@@ -361,7 +362,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
                 p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(Variant(p_node)));
 
             _update_visibility_color(p_node, item);
-        } else if (p_node->is_class("Spatial")) {
+        } else if (p_node->is_class("Node3D")) {
 
             bool is_locked = p_node->has_meta("_edit_lock_");
             if (is_locked)
@@ -464,7 +465,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     if (p_node->is_class("CanvasItem")) {
         visible = p_node->call_va("is_visible");
         CanvasItemEditor::get_singleton()->get_viewport_control()->update();
-    } else if (p_node->is_class("Spatial")) {
+    } else if (p_node->is_class("Node3D")) {
         visible = p_node->call_va("is_visible");
     }
 
@@ -477,7 +478,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
 }
 
 void SceneTreeEditor::_update_visibility_color(Node *p_node, TreeItem *p_item) {
-    if (p_node->is_class("CanvasItem") || p_node->is_class("Spatial")) {
+    if (p_node->is_class("CanvasItem") || p_node->is_class("Node3D")) {
         Color color(1, 1, 1, 1);
         bool visible_on_screen = p_node->call_va("is_visible_in_tree");
         if (!visible_on_screen) {
@@ -520,7 +521,7 @@ void SceneTreeEditor::_node_removed(Node *p_node) {
     if (p_node->is_connected("script_changed", this, "_node_script_changed"))
         p_node->disconnect("script_changed", this, "_node_script_changed");
 
-    if (p_node->is_class("Spatial") || p_node->is_class("CanvasItem")) {
+    if (p_node->is_class("Node3D") || p_node->is_class("CanvasItem")) {
         if (p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
             p_node->disconnect("visibility_changed", this, "_node_visibility_changed");
     }
@@ -747,7 +748,7 @@ void SceneTreeEditor::set_selected(Node *p_node, bool p_emit_selected) {
 
 void SceneTreeEditor::_rename_node(ObjectID p_node, StringView p_name) {
 
-    Object *o = ObjectDB::get_instance(p_node);
+    Object *o = gObjectDB().get_instance(p_node);
     ERR_FAIL_COND(!o);
     Node *n = object_cast<Node>(o);
     ERR_FAIL_COND(!n);

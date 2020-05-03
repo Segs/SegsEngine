@@ -35,6 +35,8 @@
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 
+using namespace RenderingServerEnums;
+
 IMPL_GDCLASS(VisualShaderNodeScalarConstant)
 IMPL_GDCLASS(VisualShaderNodeBooleanConstant)
 IMPL_GDCLASS(VisualShaderNodeColorConstant)
@@ -163,7 +165,7 @@ void VisualShaderNodeScalarConstant::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_constant", {"value"}), &VisualShaderNodeScalarConstant::set_constant);
     MethodBinder::bind_method(D_METHOD("get_constant"), &VisualShaderNodeScalarConstant::get_constant);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "constant"), "set_constant", "get_constant");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "constant"), "set_constant", "get_constant");
 }
 
 VisualShaderNodeScalarConstant::VisualShaderNodeScalarConstant() {
@@ -3102,9 +3104,9 @@ void VisualShaderNodeScalarUniform::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_step"), &VisualShaderNodeScalarUniform::get_step);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hint", PropertyHint::Enum, "None,Range,Range+Step"), "set_hint", "get_hint");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min"), "set_min", "get_min");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max"), "set_max", "get_max");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "step"), "set_step", "get_step");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min"), "set_min", "get_min");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max"), "set_max", "get_max");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "step"), "set_step", "get_step");
 
     BIND_ENUM_CONSTANT(HINT_NONE);
     BIND_ENUM_CONSTANT(HINT_RANGE);
@@ -3898,7 +3900,7 @@ Vector<StringName> VisualShaderNodeIs::get_editable_properties() const {
     Vector<StringName> props {
         StringName("function")
     };
-    
+
     return props;
 }
 

@@ -33,7 +33,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/core_string_names.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(NoiseTexture)
 
@@ -51,13 +51,13 @@ NoiseTexture::NoiseTexture() {
 
     noise = Ref<OpenSimplexNoise>();
 
-    texture = VisualServer::get_singleton()->texture_create();
+    texture = RenderingServer::get_singleton()->texture_create();
 
     _queue_update();
 }
 
 NoiseTexture::~NoiseTexture() {
-    VisualServer::get_singleton()->free_rid(texture);
+    RenderingServer::get_singleton()->free_rid(texture);
     if (noise_thread) {
         Thread::wait_to_finish(noise_thread);
         memdelete(noise_thread);
@@ -91,7 +91,7 @@ void NoiseTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PropertyHint::Range, "1,2048,1,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "seamless"), "set_seamless", "get_seamless");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "as_normalmap"), "set_as_normalmap", "is_normalmap");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bump_strength", PropertyHint::Range, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bump_strength", PropertyHint::Range, "0,32,0.1,or_greater"), "set_bump_strength", "get_bump_strength");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "noise", PropertyHint::ResourceType, "OpenSimplexNoise"), "set_noise", "get_noise");
 }
 
@@ -107,8 +107,8 @@ void NoiseTexture::_validate_property(PropertyInfo &property) const {
 void NoiseTexture::_set_texture_data(const Ref<Image> &p_image) {
     data = p_image;
     if (data) {
-        VisualServer::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, VS::TEXTURE_TYPE_2D, flags);
-        VisualServer::get_singleton()->texture_set_data(texture, p_image);
+        RenderingServer::get_singleton()->texture_allocate(texture, size.x, size.y, 0, Image::FORMAT_RGBA8, RS::TEXTURE_TYPE_2D, flags);
+        RenderingServer::get_singleton()->texture_set_data(texture, p_image);
     }
     emit_changed();
 }
@@ -259,7 +259,7 @@ int NoiseTexture::get_height() const {
 
 void NoiseTexture::set_flags(uint32_t p_flags) {
     flags = p_flags;
-    VisualServer::get_singleton()->texture_set_flags(texture, flags);
+    RenderingServer::get_singleton()->texture_set_flags(texture, flags);
 }
 
 uint32_t NoiseTexture::get_flags() const {

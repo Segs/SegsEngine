@@ -38,7 +38,7 @@
 #include "core/math/vector3.h"
 #include "core/hash_map.h"
 
-#include "servers/visual_server_enums.h"
+#include "servers/rendering_server_enums.h"
 
 class Shader;
 class Texture;
@@ -67,8 +67,8 @@ protected:
 
 public:
     enum {
-        RENDER_PRIORITY_MAX = VS::MATERIAL_RENDER_PRIORITY_MAX,
-        RENDER_PRIORITY_MIN = VS::MATERIAL_RENDER_PRIORITY_MIN,
+        RENDER_PRIORITY_MAX = RS::MATERIAL_RENDER_PRIORITY_MAX,
+        RENDER_PRIORITY_MIN = RS::MATERIAL_RENDER_PRIORITY_MIN,
     };
     void set_next_pass(const Ref<Material> &p_pass);
     Ref<Material> get_next_pass() const;
@@ -78,7 +78,7 @@ public:
 
     RID get_rid() const override;
 
-    virtual ShaderMode get_shader_mode() const = 0;
+    virtual RenderingServerEnums::ShaderMode get_shader_mode() const = 0;
     Material();
     ~Material() override;
 };
@@ -113,7 +113,7 @@ public:
     void set_shader_param(const StringName &p_param, const Variant &p_value);
     Variant get_shader_param(const StringName &p_param) const;
 
-    ShaderMode get_shader_mode() const override;
+    RenderingServerEnums::ShaderMode get_shader_mode() const override;
 
     ShaderMaterial();
     ~ShaderMaterial() override;
@@ -649,7 +649,7 @@ public:
 
     RID get_shader_rid() const;
 
-    ShaderMode get_shader_mode() const override;
+    RenderingServerEnums::ShaderMode get_shader_mode() const override;
 
     SpatialMaterial();
     ~SpatialMaterial() override;

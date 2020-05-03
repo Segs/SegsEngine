@@ -43,6 +43,7 @@
 #include "core/pair.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "editor/array_property_edit.h"
 #include "editor/create_dialog.h"
@@ -78,7 +79,7 @@ void EditorResourceConversionPlugin::_bind_methods() {
     mi.arguments.push_back(mi.return_val);
     mi.arguments[0].name = "resource";
 
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
 
     mi.name = "_handles";
     mi.return_val = PropertyInfo(VariantType::BOOL, "");
@@ -402,12 +403,12 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
         } break;
         case VariantType::INT:
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (hint == PropertyHint::Range) {
 
                 int c = StringUtils::get_slice_count(hint_text,',');
-                float min = 0, max = 100, step = type == VariantType::REAL ? .01f : 1;
+                float min = 0, max = 100, step = type == VariantType::FLOAT ? .01f : 1;
                 if (c >= 1) {
 
                     if (!StringUtils::get_slice(hint_text,',', 0).empty())
@@ -581,7 +582,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::MultilineText) {
 
                 text_edit->show();
-                text_edit->set_text(v);
+                text_edit->set_text_ui(v);
                 text_edit->deselect();
 
                 int button_margin = get_constant("button_margin", "Dialogs");
@@ -649,7 +650,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 MAKE_PROPSELECT
 
-                Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+                Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
                 if (instance)
                     property_select->select_method_from_instance(instance, v);
                 updating = false;
@@ -658,7 +659,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::MethodOfScript) {
                 MAKE_PROPSELECT
 
-                Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+                Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
                 if (object_cast<Script>(obj)) {
                     property_select->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), v);
                 }
@@ -698,7 +699,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 MAKE_PROPSELECT
 
-                Object *instance = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+                Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
                 if (instance)
                     property_select->select_property_from_instance(instance, v);
 
@@ -708,7 +709,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
             } else if (hint == PropertyHint::PropertyOfScript) {
                 MAKE_PROPSELECT
 
-                Object *obj = ObjectDB::get_instance(StringUtils::to_int64(hint_text));
+                Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
                 if (object_cast<Script>(obj)) {
                     property_select->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), v);
                 }
@@ -1120,7 +1121,7 @@ void CustomPropertyEditor::_file_selected(StringView p_file) {
 
 void CustomPropertyEditor::_type_create_selected(int p_idx) {
 
-    if (type == VariantType::INT || type == VariantType::REAL) {
+    if (type == VariantType::INT || type == VariantType::FLOAT) {
 
         float newval = 0;
         switch (p_idx) {
@@ -1521,7 +1522,7 @@ void CustomPropertyEditor::_draw_easing() {
             iflp = 1.0f - iflp;
         }
 
-        VisualServer::get_singleton()->canvas_item_add_line(ci, Point2(iflp * s.width, prev * s.height), Point2(ifl * s.width, h * s.height), color);
+        RenderingServer::get_singleton()->canvas_item_add_line(ci, Point2(iflp * s.width, prev * s.height), Point2(ifl * s.width, h * s.height), color);
         prev = h;
     }
 
@@ -1566,7 +1567,7 @@ void CustomPropertyEditor::_modified(StringView p_string) {
             emit_signal("variant_changed");
 
         } break;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             if (hint != PropertyHint::ExpEasing) {
                 String text = value_editor[0]->get_text();
@@ -1753,7 +1754,7 @@ void CustomPropertyEditor::_range_modified(double p_value) {
 
 void CustomPropertyEditor::_focus_enter() {
     switch (type) {
-        case VariantType::REAL:
+        case VariantType::FLOAT:
         case VariantType::STRING:
         case VariantType::VECTOR2:
         case VariantType::RECT2:
@@ -1779,7 +1780,7 @@ void CustomPropertyEditor::_focus_enter() {
 
 void CustomPropertyEditor::_focus_exit() {
     switch (type) {
-        case VariantType::REAL:
+        case VariantType::FLOAT:
         case VariantType::STRING:
         case VariantType::VECTOR2:
         case VariantType::RECT2:

@@ -137,4 +137,5 @@ public:
     ~NetworkedMultiplayerENet() override;
 
     void set_bind_ip(const IP_Address &p_ip);
+    void set_bind_ip(StringView p_ip) { set_bind_ip(IP_Address(p_ip));}
 };

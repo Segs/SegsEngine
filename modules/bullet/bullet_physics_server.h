@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/rid.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 /**
     @author AndreaCatania
@@ -45,8 +45,8 @@ class JointBullet;
 class CollisionObjectBullet;
 class RigidCollisionObjectBullet;
 
-class BulletPhysicsServer : public PhysicsServer {
-    GDCLASS(BulletPhysicsServer,PhysicsServer)
+class BulletPhysicsServer : public PhysicsServer3D {
+    GDCLASS(BulletPhysicsServer,PhysicsServer3D)
 
     friend class BulletPhysicsDirectSpaceState;
 
@@ -112,7 +112,7 @@ public:
     /// Not supported
     real_t space_get_param(RID p_space, SpaceParameter p_param) const override;
 
-    PhysicsDirectSpaceState *space_get_direct_state(RID p_space) override;
+    PhysicsDirectSpaceState3D *space_get_direct_state(RID p_space) override;
 
     void space_set_debug_contacts(RID p_space, int p_max_contacts) override;
     const Vector<Vector3> &space_get_contacts(RID p_space) const override;
@@ -253,7 +253,7 @@ public:
     bool body_is_ray_pickable(RID p_body) const override;
 
     // this function only works on physics process, errors and returns null otherwise
-    PhysicsDirectBodyState *body_get_direct_state(RID p_body) override;
+    PhysicsDirectBodyState3D *body_get_direct_state(RID p_body) override;
 
     bool body_test_motion(RID p_body, const Transform &p_from, const Vector3 &p_motion, bool p_infinite_inertia, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override;
     int body_test_ray_separation(RID p_body, const Transform &p_transform, bool p_infinite_inertia, Vector3 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override;
@@ -262,7 +262,7 @@ public:
 
     RID soft_body_create(bool p_init_sleeping = false) override;
 
-    void soft_body_update_visual_server(RID p_body, class SoftBodyVisualServerHandler *p_visual_server_handler) override;
+    void soft_body_update_rendering_server(RID p_body, class SoftBodyVisualServerHandler *p_rendering_server_handler) override;
 
     void soft_body_set_space(RID p_body, RID p_space) override;
     RID soft_body_get_space(RID p_body) const override;

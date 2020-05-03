@@ -58,6 +58,7 @@ public:
     const Variant &get(int p_idx) const;
 
     const Vector<Variant> &vals() const;
+    operator const Vector<Variant>&() const { return vals(); }
 
     int size() const;
     bool empty() const;
@@ -77,8 +78,8 @@ public:
     void insert(int p_pos, const Variant &p_value);
     void remove(int p_pos);
 
-    Variant front() const;
-    Variant back() const;
+    const Variant &front() const;
+    const Variant &back() const;
 
     Array &sort();
     Array &sort_custom(Object *p_obj, const StringName &p_function);
@@ -113,6 +114,7 @@ public:
         _p = from._p;
         from._p = nullptr;
     }
+
     Array();
     ~Array();
 };

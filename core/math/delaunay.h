@@ -105,7 +105,7 @@ public:
             }
         }
 
-        float delta_max = MAX(rect.size.width, rect.size.height);
+        float delta_max = M_MAX(rect.size.width, rect.size.height);
         Vector2 center = rect.position + rect.size * 0.5;
 
         points.emplace_back(center.x - 20 * delta_max, center.y - delta_max);

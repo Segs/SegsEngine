@@ -32,7 +32,7 @@
 
 #include "core/message_queue.h"
 #include "core/method_bind.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/texture_rect.h"
@@ -40,7 +40,7 @@
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(TabContainer)
-VARIANT_ENUM_CAST(TabContainer::TabAlign);
+VARIANT_ENUM_CAST(TabContainer::TabAlign)
 
 int TabContainer::_get_top_margin() const {
 
@@ -52,7 +52,7 @@ int TabContainer::_get_top_margin() const {
     Ref<StyleBox> tab_fg = get_stylebox("tab_fg");
     Ref<StyleBox> tab_disabled = get_stylebox("tab_disabled");
 
-    int tab_height = MAX(MAX(tab_bg->get_minimum_size().height, tab_fg->get_minimum_size().height), tab_disabled->get_minimum_size().height);
+    int tab_height = M_MAX(M_MAX(tab_bg->get_minimum_size().height, tab_fg->get_minimum_size().height), tab_disabled->get_minimum_size().height);
 
     // Font height or higher icon wins.
     Ref<Font> font = get_font("font");
@@ -67,7 +67,7 @@ int TabContainer::_get_top_margin() const {
         Ref<Texture> tex = refFromRefPtr<Texture>(c->get_meta("_tab_icon"));
         if (not tex)
             continue;
-        content_height = MAX(content_height, tex->get_size().height);
+        content_height = M_MAX(content_height, tex->get_size().height);
     }
 
     return tab_height + content_height;
@@ -894,8 +894,8 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
     ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_hidden"))
         return child->get_meta("_tab_hidden");
-    else
-        return false;
+
+    return false;
 }
 
 void TabContainer::get_translatable_strings(List<StringName> *p_strings) const {
@@ -924,8 +924,8 @@ Size2 TabContainer::get_minimum_size() const {
             continue;
 
         Size2 cms = c->get_combined_minimum_size();
-        ms.x = MAX(ms.x, cms.x);
-        ms.y = MAX(ms.y, cms.y);
+        ms.x = M_MAX(ms.x, cms.x);
+        ms.y = M_MAX(ms.y, cms.y);
     }
 
     Ref<StyleBox> tab_bg = get_stylebox("tab_bg");
@@ -934,7 +934,7 @@ Size2 TabContainer::get_minimum_size() const {
     Ref<Font> font = get_font("font");
 
     if (tabs_visible) {
-        ms.y += MAX(MAX(tab_bg->get_minimum_size().y, tab_fg->get_minimum_size().y), tab_disabled->get_minimum_size().y);
+        ms.y += M_MAX(M_MAX(tab_bg->get_minimum_size().y, tab_fg->get_minimum_size().y), tab_disabled->get_minimum_size().y);
         ms.y += font->get_height();
     }
 

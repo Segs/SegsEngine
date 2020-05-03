@@ -37,20 +37,20 @@
 #include "editor/editor_node.h"
 #include "scene/resources/packed_scene.h"
 
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/navigation.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/navigation_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/3d/portal.h"
 #include "scene/3d/room_instance.h"
-#include "scene/3d/vehicle_body.h"
+#include "scene/3d/vehicle_body_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/animation.h"
-#include "scene/resources/box_shape.h"
+#include "scene/resources/box_shape_3d.h"
 #include "scene/resources/plane_shape.h"
-#include "scene/resources/ray_shape.h"
+#include "scene/resources/ray_shape_3d.h"
 #include "scene/resources/resource_format_text.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/sphere_shape_3d.h"
 
 IMPL_GDCLASS(EditorSceneImporter)
 IMPL_GDCLASS(EditorScenePostImport)
@@ -117,17 +117,17 @@ void EditorSceneImporter::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("import_animation_from_other_importer", { "path", "flags", "bake_fps" }),
             &EditorSceneImporter::import_animation_from_other_importer);
 
-    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_import_flags"))
-    BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "_get_extensions"))
+    BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_import_flags"));
+    BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "_get_extensions"));
 
     MethodInfo mi = MethodInfo(VariantType::OBJECT, "_import_scene", PropertyInfo(VariantType::STRING, "path"),
             PropertyInfo(VariantType::INT, "flags"), PropertyInfo(VariantType::INT, "bake_fps"));
     mi.return_val.class_name = "Node";
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
     mi = MethodInfo(VariantType::OBJECT, "_import_animation", PropertyInfo(VariantType::STRING, "path"),
             PropertyInfo(VariantType::INT, "flags"), PropertyInfo(VariantType::INT, "bake_fps"));
     mi.return_val.class_name = "Animation";
-    BIND_VMETHOD(mi)
+    BIND_VMETHOD(mi);
 
     BIND_CONSTANT(IMPORT_SCENE)
     BIND_CONSTANT(IMPORT_ANIMATION)
@@ -171,7 +171,7 @@ void EditorScenePostImport::init(StringView p_source_folder, StringView p_source
     source_file = p_source_file;
 }
 
-EditorScenePostImport::EditorScenePostImport() {}
+EditorScenePostImport::EditorScenePostImport() = default;
 
 StringName ResourceImporterScene::get_importer_name() const {
 
@@ -340,9 +340,9 @@ Node *ResourceImporterScene::_fix_node(
         return nullptr;
     }
 
-    if (object_cast<MeshInstance>(p_node)) {
+    if (object_cast<MeshInstance3D>(p_node)) {
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> m = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
 
@@ -400,7 +400,7 @@ Node *ResourceImporterScene::_fix_node(
     if (_teststr(name, "colonly") || _teststr(name, "convcolonly")) {
 
         if (isroot) return p_node;
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
         if (mi) {
             Ref<Mesh> mesh = mi->get_mesh();
 
@@ -427,7 +427,7 @@ Node *ResourceImporterScene::_fix_node(
 
                 if (!shapes.empty()) {
 
-                    StaticBody *col = memnew(StaticBody);
+                    StaticBody3D *col = memnew(StaticBody3D);
                     col->set_transform(mi->get_transform());
                     col->set_name(fixed_name);
                     p_node->replace_by(col);
@@ -437,7 +437,7 @@ Node *ResourceImporterScene::_fix_node(
                     int idx = 0;
                     for (const Ref<Shape> &E : shapes) {
 
-                        CollisionShape *cshape = memnew(CollisionShape);
+                        CollisionShape3D *cshape = memnew(CollisionShape3D);
                         cshape->set_shape(E);
                         col->add_child(cshape);
 
@@ -450,43 +450,43 @@ Node *ResourceImporterScene::_fix_node(
 
         } else if (p_node->has_meta("empty_draw_type")) {
             String empty_draw_type = String(p_node->get_meta("empty_draw_type"));
-            StaticBody *sb = memnew(StaticBody);
+            StaticBody3D *sb = memnew(StaticBody3D);
             sb->set_name(_fixstr(name, "colonly"));
-            object_cast<Spatial>(sb)->set_transform(object_cast<Spatial>(p_node)->get_transform());
+            object_cast<Node3D>(sb)->set_transform(object_cast<Node3D>(p_node)->get_transform());
             p_node->replace_by(sb);
             memdelete(p_node);
             p_node = nullptr;
-            CollisionShape *colshape = memnew(CollisionShape);
+            CollisionShape3D *colshape = memnew(CollisionShape3D);
             if (empty_draw_type == "CUBE") {
-                BoxShape *boxShape = memnew(BoxShape);
+                BoxShape3D *boxShape = memnew(BoxShape3D);
                 boxShape->set_extents(Vector3(1, 1, 1));
                 colshape->set_shape(Ref<Shape>(boxShape));
-                colshape->set_name("BoxShape");
+                colshape->set_name("BoxShape3D");
             } else if (empty_draw_type == "SINGLE_ARROW") {
-                RayShape *rayShape = memnew(RayShape);
+                RayShape3D *rayShape = memnew(RayShape3D);
                 rayShape->set_length(1);
                 colshape->set_shape(Ref<Shape>(rayShape));
-                colshape->set_name("RayShape");
-                object_cast<Spatial>(sb)->rotate_x(Math_PI / 2);
+                colshape->set_name("RayShape3D");
+                object_cast<Node3D>(sb)->rotate_x(Math_PI / 2);
             } else if (empty_draw_type == "IMAGE") {
                 PlaneShape *planeShape = memnew(PlaneShape);
                 colshape->set_shape(Ref<Shape>(planeShape));
                 colshape->set_name("PlaneShape");
             } else {
-                SphereShape *sphereShape = memnew(SphereShape);
+                SphereShape3D *sphereShape = memnew(SphereShape3D);
                 sphereShape->set_radius(1);
                 colshape->set_shape(Ref<Shape>(sphereShape));
-                colshape->set_name("SphereShape");
+                colshape->set_name("SphereShape3D");
             }
             sb->add_child(colshape);
             colshape->set_owner(sb->get_owner());
         }
 
-    } else if (_teststr(name, "rigid") && object_cast<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "rigid") && object_cast<MeshInstance3D>(p_node)) {
 
         if (isroot) return p_node;
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
         Ref<Mesh> mesh = mi->get_mesh();
 
         if (mesh) {
@@ -510,7 +510,7 @@ Node *ResourceImporterScene::_fix_node(
             int idx = 0;
             for (const Ref<Shape> &E : shapes) {
 
-                CollisionShape *cshape = memnew(CollisionShape);
+                CollisionShape3D *cshape = memnew(CollisionShape3D);
                 cshape->set_shape(E);
                 rigid_body->add_child(cshape);
 
@@ -520,9 +520,9 @@ Node *ResourceImporterScene::_fix_node(
             }
         }
 
-    } else if ((_teststr(name, "col") || _teststr(name, "convcol")) && object_cast<MeshInstance>(p_node)) {
+    } else if ((_teststr(name, "col") || _teststr(name, "convcol")) && object_cast<MeshInstance3D>(p_node)) {
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<Mesh> mesh = mi->get_mesh();
 
@@ -552,7 +552,7 @@ Node *ResourceImporterScene::_fix_node(
             }
 
             if (!shapes.empty()) {
-                StaticBody *col = memnew(StaticBody);
+                StaticBody3D *col = memnew(StaticBody3D);
                 col->set_name("static_collision");
                 mi->add_child(col);
                 col->set_owner(mi->get_owner());
@@ -560,7 +560,7 @@ Node *ResourceImporterScene::_fix_node(
                 int idx = 0;
                 for (const Ref<Shape> &E : shapes) {
 
-                    CollisionShape *cshape = memnew(CollisionShape);
+                    CollisionShape3D *cshape = memnew(CollisionShape3D);
                     cshape->set_shape(E);
                     col->add_child(cshape);
 
@@ -572,11 +572,11 @@ Node *ResourceImporterScene::_fix_node(
             }
         }
 
-    } else if (_teststr(name, "navmesh") && object_cast<MeshInstance>(p_node)) {
+    } else if (_teststr(name, "navmesh") && object_cast<MeshInstance3D>(p_node)) {
 
         if (isroot) return p_node;
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         ERR_FAIL_COND_V(not mesh, nullptr);
@@ -586,7 +586,7 @@ Node *ResourceImporterScene::_fix_node(
         Ref<NavigationMesh> nmesh(make_ref_counted<NavigationMesh>());
         nmesh->create_from_mesh(mesh);
         nmi->set_navigation_mesh(nmesh);
-        object_cast<Spatial>(nmi)->set_transform(mi->get_transform());
+        object_cast<Node3D>(nmi)->set_transform(mi->get_transform());
         p_node->replace_by(nmi);
         memdelete(p_node);
         p_node = nmi;
@@ -595,8 +595,8 @@ Node *ResourceImporterScene::_fix_node(
         if (isroot) return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = object_cast<Spatial>(p_node);
-        VehicleBody *bv = memnew(VehicleBody);
+        Node3D *s = object_cast<Node3D>(p_node);
+        VehicleBody3D *bv = memnew(VehicleBody3D);
         String n(_fixstr(p_node->get_name(), "vehicle"));
         bv->set_name(n);
         p_node->replace_by(bv);
@@ -614,8 +614,8 @@ Node *ResourceImporterScene::_fix_node(
         if (isroot) return p_node;
 
         Node *owner = p_node->get_owner();
-        Spatial *s = object_cast<Spatial>(p_node);
-        VehicleWheel *bv = memnew(VehicleWheel);
+        Node3D *s = object_cast<Node3D>(p_node);
+        VehicleWheel3D *bv = memnew(VehicleWheel3D);
         String n(_fixstr(p_node->get_name(), "wheel"));
         bv->set_name(n);
         p_node->replace_by(bv);
@@ -628,11 +628,11 @@ Node *ResourceImporterScene::_fix_node(
 
         p_node = bv;
 
-    } else if (object_cast<MeshInstance>(p_node)) {
+    } else if (object_cast<MeshInstance3D>(p_node)) {
 
         // last attempt, maybe collision inside the mesh data
 
-        MeshInstance *mi = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
         if (mesh) {
@@ -651,7 +651,7 @@ Node *ResourceImporterScene::_fix_node(
             }
 
             if (!shapes.empty()) {
-                StaticBody *col = memnew(StaticBody);
+                StaticBody3D *col = memnew(StaticBody3D);
                 col->set_name("static_collision");
                 p_node->add_child(col);
                 col->set_owner(p_node->get_owner());
@@ -659,7 +659,7 @@ Node *ResourceImporterScene::_fix_node(
                 int idx = 0;
                 for (const Ref<Shape> &E : shapes) {
 
-                    CollisionShape *cshape = memnew(CollisionShape);
+                    CollisionShape3D *cshape = memnew(CollisionShape3D);
                     cshape->set_shape(E);
                     col->add_child(cshape);
 
@@ -829,9 +829,9 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
         Set<String> keep;
         Set<String> keep_local;
 
-        for (int i = 0; i < strings.size(); i++) {
+        for (auto & string : strings) {
 
-            if (StringUtils::begins_with(strings[i], "@")) {
+            if (StringUtils::begins_with(string, "@")) {
 
                 valid_for_this = false;
                 for (const String &F : keep_local) {
@@ -840,7 +840,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
                 keep_local.clear();
 
                 Vector<StringView> filters =
-                        StringUtils::split(StringUtils::substr(strings[i], 1, strings[i].length()), ',');
+                        StringUtils::split(StringUtils::substr(string, 1, string.length()), ',');
                 for (StringView val : filters) {
 
                     StringView fname = StringUtils::strip_edges(val);
@@ -871,7 +871,7 @@ void ResourceImporterScene::_filter_tracks(Node *scene, StringView p_text) {
 
                     String path(a->track_get_path(j));
 
-                    StringView tname = strings[i];
+                    StringView tname = string;
                     if (tname.empty()) continue;
                     int fc = tname[0];
                     bool plus;
@@ -943,14 +943,14 @@ void ResourceImporterScene::_find_meshes(Node *p_node, Map<Ref<ArrayMesh>, Trans
     Vector<PropertyInfo> pi;
     p_node->get_property_list(&pi);
 
-    MeshInstance *mi = object_cast<MeshInstance>(p_node);
+    MeshInstance3D *mi = object_cast<MeshInstance3D>(p_node);
 
     if (mi) {
 
         Ref<ArrayMesh> mesh = dynamic_ref_cast<ArrayMesh>(mi->get_mesh());
 
         if (mesh && !meshes.contains(mesh)) {
-            Spatial *s = mi;
+            Node3D *s = mi;
             Transform transform;
             while (s) {
                 transform = transform * s->get_transform();
@@ -1154,7 +1154,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
 void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Spatial"));
+            PropertyInfo(VariantType::STRING, "nodes/root_type", PropertyHint::TypeString, "Node"), "Node3D"));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::STRING, "nodes/root_name"), "Scene Root"));
 
     Vector<String> script_extentions;
@@ -1180,7 +1180,7 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                           p_preset == PRESET_SEPARATE_MESHES_MATERIALS_AND_ANIMATIONS;
 
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "nodes/root_scale", PropertyHint::Range, "0.001,1000,0.001"), 1.0));
+            PropertyInfo(VariantType::FLOAT, "nodes/root_scale", PropertyHint::Range, "0.001,1000,0.001"), 1.0));
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "nodes/custom_script", PropertyHint::File, StringName(script_ext_hint)),
             ""));
@@ -1194,6 +1194,7 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                                               "Built-In,Files (.material),Files (.tres)",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             materials_out ? 1 : 0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "skins/use_named_skins"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "materials/keep_on_reimport"), materials_out));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/compress"), true));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "meshes/ensure_tangents"), true));
@@ -1205,14 +1206,14 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                     PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             0));
     r_options->push_back(ImportOption(
-            PropertyInfo(VariantType::REAL, "meshes/lightmap_texel_size", PropertyHint::Range, "0.001,100,0.001"),
+            PropertyInfo(VariantType::FLOAT, "meshes/lightmap_texel_size", PropertyHint::Range, "0.001,100,0.001"),
             0.1));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "external_files/store_in_subdir"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/import", PropertyHint::None, "",
                                               PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
     r_options->push_back(
-            ImportOption(PropertyInfo(VariantType::REAL, "animation/fps", PropertyHint::Range, "1,120,1"), 15));
+            ImportOption(PropertyInfo(VariantType::FLOAT, "animation/fps", PropertyHint::Range, "1,120,1"), 15));
     r_options->push_back(ImportOption(
             PropertyInfo(VariantType::STRING, "animation/filter_script", PropertyHint::MultilineText), ""));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "animation/storage", PropertyHint::Enum,
@@ -1223,9 +1224,9 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/enabled", PropertyHint::None,
                                               "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
             true));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_linear_error"), 0.05));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_angular_error"), 0.01));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "animation/optimizer/max_angle"), 22));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_linear_error"), 0.05));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_angular_error"), 0.01));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "animation/optimizer/max_angle"), 22));
     r_options->push_back(
             ImportOption(PropertyInfo(VariantType::BOOL, "animation/optimizer/remove_unused_tracks"), true));
     r_options->push_back(
@@ -1300,9 +1301,9 @@ Ref<Animation> ResourceImporterScene::import_animation_from_other_importer(
         Vector<String> extensions;
         E->get_extensions(extensions);
 
-        for (size_t i = 0, fin = extensions.size(); i < fin; ++i) {
+        for (auto & extension : extensions) {
 
-            if (StringUtils::to_lower(extensions[i]) == ext) {
+            if (StringUtils::to_lower(extension) == ext) {
 
                 importer = E;
                 break;
@@ -1366,6 +1367,9 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     if (int(p_options.at("materials/location")) == 0)
         import_flags |= EditorSceneImporter::IMPORT_MATERIALS_IN_INSTANCES;
 
+    if (bool(p_options.at("skins/use_named_skins")))
+        import_flags |= EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
+
     Error err = OK;
     Node *scene = importer->import_scene(src_path, import_flags, fps, &r_missing_deps, &err);
     if (!scene || err != OK) {
@@ -1382,7 +1386,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         root_type = ScriptServer::get_global_class_base(root_type);
     }
 
-    if (root_type != StringView("Spatial")) {
+    if (root_type != StringView("Node3D")) {
         Node *base_node = object_cast<Node>(ClassDB::instance(root_type));
 
         if (base_node) {
@@ -1397,9 +1401,9 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         scene->set_script(Variant(root_script));
     }
 
-    if (object_cast<Spatial>(scene)) {
+    if (object_cast<Node3D>(scene)) {
         float root_scale = p_options.at("nodes/root_scale");
-        object_cast<Spatial>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
+        object_cast<Node3D>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
     }
 
     if (p_options.at("nodes/root_name") != "Scene Root")
@@ -1483,7 +1487,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         if (light_bake_mode == 2) {
 
             float texel_size = p_options.at("meshes/lightmap_texel_size");
-            texel_size = MAX(0.001f, texel_size);
+            texel_size = M_MAX(0.001f, texel_size);
 
             EditorProgress progress2(("gen_lightmaps"), TTR("Generating Lightmaps"), meshes.size());
             int step = 0;

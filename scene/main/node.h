@@ -139,10 +139,10 @@ public:
     Node *_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap = nullptr) const;
     Array _get_children() const;
     Array _get_groups() const;
-    Variant _rpc_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _rpc_unreliable_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _rpc_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
-    Variant _rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _rpc_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _rpc_unreliable_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _rpc_id_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    Variant _rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 private:
     friend class SceneTree;
 
@@ -410,6 +410,10 @@ public:
     void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
     const MultiplayerAPI_RPCMode *get_node_rpc_mode(const StringName &p_method);
     const MultiplayerAPI_RPCMode *get_node_rset_mode(const StringName &p_property);
+#ifdef DEBUG_ENABLED
+    /// Used in gObjectDB().cleanup() warning print
+    const char *get_dbg_name() const override { return get_name().asCString(); }
+#endif
 
     Node();
     ~Node() override;

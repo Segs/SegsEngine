@@ -56,7 +56,7 @@ public:
     bool operator!=(const RefPtr &p_other) const;
     RID get_rid() const;
 	void unref();
-    void *get_data() const { return &data; }
+    void *get() const { return &data; }
 	RefPtr(const RefPtr &p_other);
     RefPtr(RefPtr &&p_other) noexcept : data(p_other.data) { p_other.data = 0; }
     RefPtr();

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "core/rid.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/material.h"
 
 class Mesh;

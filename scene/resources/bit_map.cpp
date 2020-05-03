@@ -50,7 +50,7 @@ void BitMap::create(const Size2 &p_size) {
 
 void BitMap::create_from_image_alpha(const Ref<Image> &p_image, float p_threshold) {
 
-    ERR_FAIL_COND(not p_image || p_image->empty());
+    ERR_FAIL_COND(not p_image || p_image->is_empty());
     Ref<Image> img(dynamic_ref_cast<Image>(p_image->duplicate()));
     img->convert(Image::FORMAT_LA8);
     ERR_FAIL_COND(img->get_format() != Image::FORMAT_LA8);
@@ -470,7 +470,7 @@ static void fill_bits(const BitMap *p_src, Ref<BitMap> &p_map, const Point2i &p_
                     p_map->set_bit(Vector2(i, j), true);
 
                     FillBitsStackEntry se = { pos, i, j };
-                    stack.resize(MAX(stack_size + 1, stack.size()));
+                    stack.resize(M_MAX(stack_size + 1, stack.size()));
                     stack.set(stack_size, se);
                     stack_size++;
 

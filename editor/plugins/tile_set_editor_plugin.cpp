@@ -34,13 +34,14 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
 #include "editor/editor_scale.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "scene/2d/physics_body_2d.h"
-#include "scene/2d/sprite.h"
+#include "scene/2d/sprite_2d.h"
 #include "scene/gui/item_list.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
@@ -66,7 +67,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
 
         Node *child = p_node->get_child(i);
 
-        if (!object_cast<Sprite>(child)) {
+        if (!object_cast<Sprite2D>(child)) {
             if (child->get_child_count() > 0) {
                 _import_node(child, p_library);
             }
@@ -74,7 +75,7 @@ void TileSetEditor::_import_node(Node *p_node, const Ref<TileSet> &p_library) {
             continue;
         }
 
-        Sprite *mi = object_cast<Sprite>(child);
+        Sprite2D *mi = object_cast<Sprite2D>(child);
         Ref<Texture> texture = mi->get_texture();
         Ref<Texture> normal_map = mi->get_normal_map();
         Ref<ShaderMaterial> material = dynamic_ref_cast<ShaderMaterial>(mi->get_material());
@@ -542,8 +543,8 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     toolbar->add_child(spin_priority);
 
     spin_z_index = memnew(SpinBox);
-    spin_z_index->set_min(VS::CANVAS_ITEM_Z_MIN);
-    spin_z_index->set_max(VS::CANVAS_ITEM_Z_MAX);
+    spin_z_index->set_min(RS::CANVAS_ITEM_Z_MIN);
+    spin_z_index->set_max(RS::CANVAS_ITEM_Z_MAX);
     spin_z_index->set_step(1);
     spin_z_index->set_custom_minimum_size(Size2(100, 0));
     spin_z_index->connect("value_changed", this, "_on_z_index_changed");
@@ -615,7 +616,7 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
     workspace->set_draw_behind_parent(true);
     workspace_overlay->add_child(workspace);
 
-    preview = memnew(Sprite);
+    preview = memnew(Sprite2D);
     workspace->add_child(preview);
     preview->set_centered(false);
     preview->set_draw_behind_parent(true);
@@ -1294,7 +1295,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         Size2 workspace_minsize = workspace->get_custom_minimum_size();
                         // If the new region is bigger, just directly change the workspace size to avoid checking all other tiles.
                         if (tile_workspace_size.x > workspace_minsize.x || tile_workspace_size.y > workspace_minsize.y) {
-                            Size2 max_workspace_size = Size2(MAX(tile_workspace_size.x, workspace_minsize.x), MAX(tile_workspace_size.y, workspace_minsize.y));
+                            Size2 max_workspace_size = Size2(M_MAX(tile_workspace_size.x, workspace_minsize.x), M_MAX(tile_workspace_size.y, workspace_minsize.y));
                             undo_redo->add_do_method(workspace, "set_custom_minimum_size", max_workspace_size);
                             undo_redo->add_undo_method(workspace, "set_custom_minimum_size", workspace_minsize);
                             undo_redo->add_do_method(workspace_container, "set_custom_minimum_size", max_workspace_size);
@@ -1335,7 +1336,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         Size2 tile_workspace_size = edited_region.position + edited_region.size + WORKSPACE_MARGIN * 2;
                         Size2 workspace_minsize = workspace->get_custom_minimum_size();
                         if (tile_workspace_size.x > workspace_minsize.x || tile_workspace_size.y > workspace_minsize.y) {
-                            Size2 new_workspace_minsize = Size2(MAX(tile_workspace_size.x, workspace_minsize.x), MAX(tile_workspace_size.y, workspace_minsize.y));
+                            Size2 new_workspace_minsize = Size2(M_MAX(tile_workspace_size.x, workspace_minsize.x), M_MAX(tile_workspace_size.y, workspace_minsize.y));
                             undo_redo->add_do_method(workspace, "set_custom_minimum_size", new_workspace_minsize);
                             undo_redo->add_undo_method(workspace, "set_custom_minimum_size", workspace_minsize);
                             undo_redo->add_do_method(workspace_container, "set_custom_minimum_size", new_workspace_minsize);
@@ -2425,9 +2426,9 @@ void TileSetEditor::draw_highlight_current_tile() {
         if (region.position.y >= 0)
             workspace->draw_rect(Rect2(0, 0, workspace->get_rect().size.x, region.position.y), shadow_color);
         if (region.position.x >= 0)
-            workspace->draw_rect(Rect2(0, MAX(0, region.position.y), region.position.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
+            workspace->draw_rect(Rect2(0, M_MAX(0, region.position.y), region.position.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
         if (region.position.x + region.size.x <= workspace->get_rect().size.x)
-            workspace->draw_rect(Rect2(region.position.x + region.size.x, MAX(0, region.position.y), workspace->get_rect().size.x - region.position.x - region.size.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
+            workspace->draw_rect(Rect2(region.position.x + region.size.x, M_MAX(0, region.position.y), workspace->get_rect().size.x - region.position.x - region.size.x, MIN(workspace->get_rect().size.y - region.position.y, MIN(region.size.y, region.position.y + region.size.y))), shadow_color);
         if (region.position.y + region.size.y <= workspace->get_rect().size.y)
             workspace->draw_rect(Rect2(0, region.position.y + region.size.y, workspace->get_rect().size.x, workspace->get_rect().size.y - region.size.y - region.position.y), shadow_color);
     } else {
@@ -2449,9 +2450,9 @@ void TileSetEditor::draw_highlight_subtile(Vector2 coord, const Vector<Vector2> 
     if (coord.y >= 0)
         workspace->draw_rect(Rect2(0, 0, workspace->get_rect().size.x, coord.y), shadow_color);
     if (coord.x >= 0)
-        workspace->draw_rect(Rect2(0, MAX(0, coord.y), coord.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
+        workspace->draw_rect(Rect2(0, M_MAX(0, coord.y), coord.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
     if (coord.x + size.x <= workspace->get_rect().size.x)
-        workspace->draw_rect(Rect2(coord.x + size.x, MAX(0, coord.y), workspace->get_rect().size.x - coord.x - size.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
+        workspace->draw_rect(Rect2(coord.x + size.x, M_MAX(0, coord.y), workspace->get_rect().size.x - coord.x - size.x, MIN(workspace->get_rect().size.y - coord.y, MIN(size.y, coord.y + size.y))), shadow_color);
     if (coord.y + size.y <= workspace->get_rect().size.y)
         workspace->draw_rect(Rect2(0, coord.y + size.y, workspace->get_rect().size.x, workspace->get_rect().size.y - size.y - coord.y), shadow_color);
 
@@ -3491,13 +3492,13 @@ void TilesetEditorContext::_get_property_list(Vector<PropertyInfo> *p_list) cons
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_navigation_offset"));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_shape_offset", PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
         p_list->push_back(PropertyInfo(VariantType::VECTOR2, "tile_shape_transform", PropertyHint::None, "", PROPERTY_USAGE_EDITOR));
-        p_list->push_back(PropertyInfo(VariantType::INT, "tile_z_index", PropertyHint::Range, itos(VS::CANVAS_ITEM_Z_MIN) + "," + itos(VS::CANVAS_ITEM_Z_MAX) + ",1"));
+        p_list->push_back(PropertyInfo(VariantType::INT, "tile_z_index", PropertyHint::Range, itos(RS::CANVAS_ITEM_Z_MIN) + "," + itos(RS::CANVAS_ITEM_Z_MAX) + ",1"));
     }
     if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_COLLISION && tileset_editor->edited_collision_shape) {
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "selected_collision", PropertyHint::ResourceType, tileset_editor->edited_collision_shape->get_class()));
         if (tileset_editor->edited_collision_shape) {
             p_list->push_back(PropertyInfo(VariantType::BOOL, "selected_collision_one_way", PropertyHint::None));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "selected_collision_one_way_margin", PropertyHint::None));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "selected_collision_one_way_margin", PropertyHint::None));
         }
     }
     if (tileset_editor->edit_mode == TileSetEditor::EDITMODE_NAVIGATION && tileset_editor->edited_navigation_shape) {

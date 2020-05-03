@@ -181,7 +181,7 @@ void TextEditor::set_edited_resource(const RES &p_res) {
 
     text_file = dynamic_ref_cast<TextFile>(p_res);
 
-    code_editor->get_text_edit()->set_text_utf8(text_file->get_text());
+    code_editor->get_text_edit()->set_text(text_file->get_text());
     code_editor->get_text_edit()->clear_undo_history();
     code_editor->get_text_edit()->tag_saved_version();
 
@@ -208,7 +208,7 @@ void TextEditor::reload_text() {
     int h = te->get_h_scroll();
     int v = te->get_v_scroll();
 
-    te->set_text_utf8(text_file->get_text());
+    te->set_text(text_file->get_text());
     te->cursor_set_line(row);
     te->cursor_set_column(column);
     te->set_h_scroll(h);
@@ -586,7 +586,7 @@ void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
         }
     }
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(ev);
-    if (k && k->is_pressed() && k->get_scancode() == KEY_MENU) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_MENU) {
         TextEdit *tx = code_editor->get_text_edit();
         int line = tx->cursor_get_line();
         _make_context_menu(tx->is_selection_active(), tx->can_fold(line), tx->is_folded(line), (get_global_transform().inverse() * tx->get_global_transform()).xform(tx->_get_cursor_pixel_pos()));

@@ -177,8 +177,8 @@ void PHashTranslation::generate(const Ref<Translation> &p_from) {
     strings.resize(total_compression_size);
     Vector<uint8_t> &cw = strings;
 
-    for (int i = 0; i < compressed.size(); i++) {
-        memcpy(&cw[compressed[i].offset], compressed[i].compressed.data(), compressed[i].compressed.size());
+    for (auto & i : compressed) {
+        memcpy(&cw[i.offset], i.compressed.data(), i.compressed.size());
     }
 
     ERR_FAIL_COND(btindex != bucket_table_size);

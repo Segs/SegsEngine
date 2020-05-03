@@ -309,7 +309,7 @@ void Resource::notify_change_to_owners() {
 
     for (const ObjectID E : impl_data->owners) {
 
-        Object *obj = ObjectDB::get_instance(E);
+        Object *obj = gObjectDB().get_instance(E);
         ERR_CONTINUE_MSG(!obj, "Object was deleted, while still owning a resource."); //wtf
         //TODO store string
         obj->call_va("resource_changed", RES(this));
@@ -406,6 +406,17 @@ int Resource::get_id_for_path(StringView p_path) const {
     }
     return -1;
 }
+
+
+#endif
+#ifdef DEBUG_ENABLED
+const char *Resource::get_dbg_name() const {
+    static TmpString<2048,false> s_data;
+    s_data.assign(get_name().c_str());
+    s_data.append(" Path: ");
+    s_data.append(get_path().c_str());
+    return s_data.c_str();
+}
 #endif
 VariantType fromQVariantType(QVariant::Type t) {
     switch(t) {
@@ -419,7 +430,7 @@ VariantType fromQVariantType(QVariant::Type t) {
     case QVariant::ULongLong:
         return VariantType::INT;
     case QVariant::Double:
-        return VariantType::REAL;
+        return VariantType::FLOAT;
     case QVariant::Char:
         return VariantType::INT;
     default:
@@ -468,7 +479,7 @@ void Resource::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_name"), "set_name", "get_name");
 
-    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"))
+    BIND_VMETHOD(MethodInfo("_setup_local_to_scene"));
 }
 
 Resource::Resource() :
@@ -488,7 +499,7 @@ Resource::~Resource() {
         cached_resources.erase(impl_data->path_cache);
     }
     gResourceRemapper().remove_remap(this);
-    
+
     if (!impl_data->owners.empty()) {
         WARN_PRINT("Resource is still owned.");
     }

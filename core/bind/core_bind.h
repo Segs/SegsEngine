@@ -44,7 +44,7 @@ class Image;
 class FileAccess;
 class DirAccess;
 class Thread;
-class SemaphoreOld;
+class Semaphore;
 
 using RES = Ref<Resource>;
 namespace std {
@@ -248,9 +248,9 @@ public:
 
     const String &get_unique_id() const;
 
-    String get_scancode_string(uint32_t p_code) const;
-    bool is_scancode_unicode(uint32_t p_unicode) const;
-    int find_scancode_from_string(StringView p_code) const;
+    String get_keycode_string(uint32_t p_code) const;
+    bool is_keycode_unicode(uint32_t p_unicode) const;
+    int find_keycode_from_string(StringView p_code) const;
 
     void set_use_file_access_save_and_swap(bool p_enable);
 
@@ -609,13 +609,13 @@ public:
 class _Semaphore : public RefCounted {
 
     GDCLASS(_Semaphore, RefCounted);
-    SemaphoreOld *semaphore;
+    Semaphore *semaphore;
 
     static void _bind_methods();
 
 public:
-    Error wait();
-    Error post();
+    void wait();
+    void post();
 
     _Semaphore();
     ~_Semaphore() override;
@@ -734,7 +734,7 @@ public:
     bool is_in_physics_frame() const;
 
     bool has_singleton(StringView p_name) const;
-    Object *get_singleton_object(const StringName &p_name) const;
+    Object *get_named_singleton(const StringName &p_name) const;
 
     void set_editor_hint(bool p_enabled);
     bool is_editor_hint() const;

@@ -43,7 +43,7 @@
 #include "core/os/keyboard.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/variant_parser.h"
 #include "core/method_bind.h"
 
@@ -891,15 +891,16 @@ Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
 
 Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed) {
 
+    auto ps = ProjectSettings::get_singleton();
     Variant ret;
-    if (!ProjectSettings::get_singleton()->has_setting(p_var)) {
-        ProjectSettings::get_singleton()->set(p_var, p_default);
+    if (!ps->has_setting(p_var)) {
+        ps->set(p_var, p_default);
     }
-    ret = ProjectSettings::get_singleton()->get(p_var);
+    ret = ps->get(p_var);
 
-    ProjectSettings::get_singleton()->set_initial_value(p_var, p_default);
-    ProjectSettings::get_singleton()->set_builtin_order(p_var);
-    ProjectSettings::get_singleton()->set_restart_if_changed(p_var, p_restart_if_changed);
+    ps->set_initial_value(p_var, p_default);
+    ps->set_builtin_order(p_var);
+    ps->set_restart_if_changed(p_var, p_restart_if_changed);
     return ret;
 }
 Vector<String> ProjectSettings::get_optimizer_presets() const {
@@ -1014,7 +1015,12 @@ void ProjectSettings::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("save_custom", {"file"}), &ProjectSettings::_save_custom_bnd);
 }
+static void add_key_event(Array &tgt,KeyList entry) {
+    auto key = make_ref_counted<InputEventKey>();
+    key->set_keycode(entry);
+    tgt.emplace_back(key);
 
+}
 ProjectSettings::ProjectSettings() {
     __thread__safe__.reset(new Mutex);
 
@@ -1057,15 +1063,9 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_ENTER);
-    events.push_back(key);
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_KP_ENTER);
-    events.push_back(key);
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_SPACE);
-    events.push_back(key);
+    add_key_event(events,KEY_ENTER);
+    add_key_event(events,KEY_KP_ENTER);
+    add_key_event(events,KEY_SPACE);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_0);
     events.push_back(joyb);
@@ -1076,9 +1076,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_SPACE);
-    events.push_back(key);
+    add_key_event(events,KEY_SPACE);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_3);
     events.push_back(joyb);
@@ -1089,9 +1087,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_ESCAPE);
-    events.push_back(key);
+    add_key_event(events,KEY_ESCAPE);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_BUTTON_1);
     events.push_back(joyb);
@@ -1102,9 +1098,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_TAB);
-    events.push_back(key);
+    add_key_event(events,KEY_TAB);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_next", action);
     input_presets.push_back(("input/ui_focus_next"));
@@ -1113,7 +1107,7 @@ ProjectSettings::ProjectSettings() {
     action["deadzone"] = Variant(0.5f);
     events = Array();
     key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_TAB);
+    key->set_keycode(KEY_TAB);
     key->set_shift(true);
     events.push_back(key);
     action["events"] = events;
@@ -1123,10 +1117,8 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_LEFT);
-    events.push_back(key);
-        joyb = make_ref_counted<InputEventJoypadButton>();
+    add_key_event(events,KEY_LEFT);
+    joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_LEFT);
     events.push_back(joyb);
     action["events"] = events;
@@ -1136,9 +1128,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_RIGHT);
-    events.push_back(key);
+    add_key_event(events,KEY_RIGHT);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_RIGHT);
     events.push_back(joyb);
@@ -1149,9 +1139,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_UP);
-    events.push_back(key);
+    add_key_event(events,KEY_UP);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_UP);
     events.push_back(joyb);
@@ -1162,9 +1150,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_DOWN);
-    events.push_back(key);
+    add_key_event(events,KEY_DOWN);
     joyb = make_ref_counted<InputEventJoypadButton>();
     joyb->set_button_index(JOY_DPAD_DOWN);
     events.push_back(joyb);
@@ -1175,9 +1161,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_PAGEUP);
-    events.push_back(key);
+    add_key_event(events,KEY_PAGEUP);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_up", action);
     input_presets.push_back(("input/ui_page_up"));
@@ -1185,9 +1169,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_PAGEDOWN);
-    events.push_back(key);
+    add_key_event(events,KEY_PAGEDOWN);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_down", action);
     input_presets.push_back(("input/ui_page_down"));
@@ -1195,9 +1177,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_HOME);
-    events.push_back(key);
+    add_key_event(events,KEY_HOME);
     action["events"] = events;
     GLOBAL_DEF("input/ui_home", action);
     input_presets.push_back(("input/ui_home"));
@@ -1205,9 +1185,7 @@ ProjectSettings::ProjectSettings() {
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
     events = Array();
-    key = make_ref_counted<InputEventKey>();
-    key->set_scancode(KEY_END);
-    events.push_back(key);
+    add_key_event(events,KEY_END);
     action["events"] = events;
     GLOBAL_DEF("input/ui_end", action);
     input_presets.push_back(("input/ui_end"));
@@ -1233,9 +1211,6 @@ ProjectSettings::ProjectSettings() {
 
     Compression::gzip_level = GLOBAL_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
     custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PropertyHint::Range, "-1,9,1");
-
-    // Would ideally be defined in an Android-specific file, but then it doesn't appear in the docs
-    GLOBAL_DEF("android/modules", "");
 
     using_datapack = false;
 }

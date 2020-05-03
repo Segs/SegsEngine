@@ -136,8 +136,8 @@ void EditorAudioBus::_notification(int p_what) {
 
                 if (AudioServer::get_singleton()->is_bus_channel_active(get_index(), i)) {
                     activity_found = true;
-                    real_peak[0] = MAX(real_peak[0], AudioServer::get_singleton()->get_bus_peak_volume_left_db(get_index(), i));
-                    real_peak[1] = MAX(real_peak[1], AudioServer::get_singleton()->get_bus_peak_volume_right_db(get_index(), i));
+                    real_peak[0] = M_MAX(real_peak[0], AudioServer::get_singleton()->get_bus_peak_volume_left_db(get_index(), i));
+                    real_peak[1] = M_MAX(real_peak[1], AudioServer::get_singleton()->get_bus_peak_volume_right_db(get_index(), i));
                 }
 
                 if (real_peak[0] > channel[i].peak_l) {
@@ -562,7 +562,7 @@ void EditorAudioBus::_effect_add(int p_which) {
 void EditorAudioBus::_gui_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-    if (k && k->is_pressed() && k->get_scancode() == KEY_DELETE && !k->is_echo()) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_DELETE && !k->is_echo()) {
         accept_event();
         emit_signal("delete_request");
     }
@@ -1472,7 +1472,7 @@ Size2 EditorAudioMeterNotches::get_minimum_size() const {
 
     for (const auto &notch : notches) {
         if (notch.render_db_value) {
-            width = MAX(width, font->get_ui_string_size(UIString::number(Math::abs(notch.db_value)) + "dB").x);
+            width = M_MAX(width, font->get_ui_string_size(UIString::number(Math::abs(notch.db_value)) + "dB").x);
             height += font_height;
         }
     }

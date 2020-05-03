@@ -369,10 +369,10 @@ void TileMapEditor::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
 
-    if (k && (k->get_scancode() == KEY_UP ||
-                                k->get_scancode() == KEY_DOWN ||
-                                k->get_scancode() == KEY_PAGEUP ||
-                                k->get_scancode() == KEY_PAGEDOWN)) {
+    if (k && (k->get_keycode() == KEY_UP ||
+                                k->get_keycode() == KEY_DOWN ||
+                                k->get_keycode() == KEY_PAGEUP ||
+                                k->get_keycode() == KEY_PAGEDOWN)) {
 
         palette->call_va("_gui_input", k);
         search_box->accept_event();
@@ -434,7 +434,7 @@ void TileMapEditor::_update_palette() {
     palette->add_constant_override("hseparation", hseparation * EDSCALE);
 
     palette->set_fixed_icon_size(Size2(min_size, min_size));
-    palette->set_fixed_column_width(min_size * MAX(size_slider->get_value(), 1));
+    palette->set_fixed_column_width(min_size * M_MAX(size_slider->get_value(), 1));
     palette->set_same_column_width(true);
     manual_palette->set_fixed_icon_size(Size2(min_size, min_size));
     manual_palette->set_same_column_width(true);
@@ -1387,7 +1387,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
     if (k && k->is_pressed()) {
 
-        if (last_tool == TOOL_NONE && tool == TOOL_PICKING && k->get_scancode() == KEY_SHIFT && k->get_command()) {
+        if (last_tool == TOOL_NONE && tool == TOOL_PICKING && k->get_keycode() == KEY_SHIFT && k->get_command()) {
             // trying to draw a rectangle with the painting tool, so change to the correct tool
             tool = last_tool;
 
@@ -1395,7 +1395,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             _update_button_tool();
         }
 
-        if (k->get_scancode() == KEY_ESCAPE) {
+        if (k->get_keycode() == KEY_ESCAPE) {
 
             if (tool == TOOL_PASTING)
                 copydata.clear();
@@ -1516,7 +1516,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
         if (tool == TOOL_NONE) {
 
-            if (k->get_scancode() == KEY_SHIFT && k->get_command()) {
+            if (k->get_keycode() == KEY_SHIFT && k->get_command()) {
 
                 tool = TOOL_PICKING;
                 _update_button_tool();
@@ -1526,7 +1526,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 #ifdef APPLE_STYLE_KEYS
             if (k->get_scancode() == KEY_META) {
 #else
-            if (k->get_scancode() == KEY_CONTROL) {
+            if (k->get_keycode() == KEY_CONTROL) {
 #endif
                 // Go back to that last tool if KEY_CONTROL was released.
                 tool = last_tool;

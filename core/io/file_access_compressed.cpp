@@ -78,7 +78,7 @@ Error FileAccessCompressed::open_after_magic(FileAccess *p_base) {
         rb.offset = acc_ofs;
         rb.csize = f->get_32();
         acc_ofs += rb.csize;
-        max_bs = MAX(max_bs, rb.csize);
+        max_bs = M_MAX(max_bs, rb.csize);
         read_blocks.push_back(rb);
     }
 

@@ -192,7 +192,7 @@ StringName ResourceImporterTexture::get_preset_name(int p_idx) const {
 void ResourceImporterTexture::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
 
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/mode", PropertyHint::Enum, "Lossless,Lossy,Video RAM,Uncompressed", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), p_preset == PRESET_3D ? 2 : 0));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "compress/lossy_quality", PropertyHint::Range, "0,1,0.01"), 0.7));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "compress/lossy_quality", PropertyHint::Range, "0,1,0.01"), 0.7));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/hdr_mode", PropertyHint::Enum, "Enabled,Force RGBE"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/bptc_ldr", PropertyHint::Enum, "Enabled,RGBA Only"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "compress/normal_map", PropertyHint::Enum, "Detect,Enable,Disabled"), 0));
@@ -208,7 +208,7 @@ void ResourceImporterTexture::get_import_options(Vector<ResourceImporterInterfac
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "stream"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "size_limit", PropertyHint::Range, "0,4096,1"), 0));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "detect_3d"), p_preset == PRESET_DETECT));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "svg/scale", PropertyHint::Range, "0.001,100,0.001"), 1.0));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "svg/scale", PropertyHint::Range, "0.001,100,0.001"), 1.0));
 }
 
 void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p_to_path, int p_compress_mode,
@@ -328,7 +328,7 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
                 ImageCompressSource csource = ImageCompressSource::COMPRESS_SOURCE_GENERIC;
                 if (p_force_normal) {
                     csource = ImageCompressSource::COMPRESS_SOURCE_NORMAL;
-                } else if (p_texture_flags & VS::TEXTURE_FLAG_CONVERT_TO_LINEAR) {
+                } else if (p_texture_flags & RS::TEXTURE_FLAG_CONVERT_TO_LINEAR) {
                     csource = ImageCompressSource::COMPRESS_SOURCE_SRGB;
                 }
 

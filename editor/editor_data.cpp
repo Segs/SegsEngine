@@ -36,6 +36,7 @@
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "editor_node.h"
 #include "editor_settings.h"
 #include "scene/resources/packed_scene.h"
@@ -52,7 +53,7 @@ void EditorHistory::cleanup_history() {
             if (history[i].path[j].ref)
                 continue;
 
-            Object *obj = ObjectDB::get_instance(history[i].path[j].object);
+            Object *obj = gObjectDB().get_instance(history[i].path[j].object);
             if (obj) {
                 Node *n = object_cast<Node>(obj);
                 if (n && n->is_inside_tree())
@@ -84,7 +85,7 @@ void EditorHistory::cleanup_history() {
 
 void EditorHistory::_add_object(ObjectID p_object, StringView p_property, int p_level_change, bool p_inspector_only) {
 
-    Object *obj = ObjectDB::get_instance(p_object);
+    Object *obj = gObjectDB().get_instance(p_object);
     ERR_FAIL_COND(!obj);
     RefCounted *r = object_cast<RefCounted>(obj);
     Obj o;
@@ -211,7 +212,7 @@ ObjectID EditorHistory::get_current() {
         return 0;
 
     History &h = history[current];
-    Object *obj = ObjectDB::get_instance(h.path[h.level].object);
+    Object *obj = gObjectDB().get_instance(h.path[h.level].object);
     if (!obj)
         return 0;
 
@@ -236,7 +237,7 @@ ObjectID EditorHistory::get_path_object(int p_index) const {
 
     ERR_FAIL_INDEX_V(p_index, h.path.size(), 0);
 
-    Object *obj = ObjectDB::get_instance(h.path[p_index].object);
+    Object *obj = gObjectDB().get_instance(h.path[p_index].object);
     if (!obj)
         return 0;
 
@@ -436,18 +437,21 @@ void EditorData::restore_editor_global_states() {
 }
 
 void EditorData::paste_object_params(Object *p_object) {
-
-    for (const PropertyData &E : clipboard) {
-
-        p_object->set(E.name, E.value);
+    ERR_FAIL_NULL(p_object);
+    undo_redo.create_action(TTR("Paste Params"));
+    for (const auto &E : clipboard) {
+        const StringName &name = E.name;
+        undo_redo.add_do_property(p_object, name, E.value);
+        undo_redo.add_undo_property(p_object, name, p_object->get(name));
     }
+    undo_redo.commit_action();
 }
 
 bool EditorData::call_build() {
 
     bool result = true;
 
-    for (int i = 0; i < editor_plugins.size() && result; i++) {
+    for (size_t i = 0; i < editor_plugins.size() && result; i++) {
 
         result &= editor_plugins[i]->build();
     }

@@ -34,7 +34,7 @@
 #include "core/os/thread.h"
 #include "core/rid.h"
 #include "core/project_settings.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 #ifdef DEBUG_SYNC
 #define SYNC_DEBUG print_line("sync on: " + String(__FUNCTION__));
@@ -42,9 +42,9 @@
 #define SYNC_DEBUG
 #endif
 
-class Physics2DServerWrapMT : public Physics2DServer {
+class Physics2DServerWrapMT : public PhysicsServer2D {
 
-    mutable Physics2DServer *physics_2d_server;
+    mutable PhysicsServer2D *physics_server_2d;
 
     mutable CommandQueueMT command_queue;
 
@@ -58,7 +58,7 @@ class Physics2DServerWrapMT : public Physics2DServer {
     volatile bool step_thread_up;
     bool create_thread;
 
-    SemaphoreOld *step_sem;
+    Semaphore *step_sem;
     int step_pending;
     void thread_step(real_t p_delta);
     void thread_flush();
@@ -71,9 +71,9 @@ class Physics2DServerWrapMT : public Physics2DServer {
     int pool_max_size;
 
 public:
-#define ServerName Physics2DServer
+#define ServerName PhysicsServer2D
 #define ServerNameWrapMT Physics2DServerWrapMT
-#define server_name physics_2d_server
+#define server_name physics_server_2d
 #include "servers/server_wrap_mt_common.h"
 
     //FUNC1RID(shape,ShapeType); todo fix
@@ -97,7 +97,7 @@ public:
     bool shape_collide(RID p_shape_A, const Transform2D &p_xform_A, const Vector2 &p_motion_A, RID p_shape_B, const Transform2D &p_xform_B, const Vector2 &p_motion_B, Vector2 *r_results, int p_result_max, int &r_result_count) override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), false);
-        return physics_2d_server->shape_collide(p_shape_A, p_xform_A, p_motion_A, p_shape_B, p_xform_B, p_motion_B, r_results, p_result_max, r_result_count);
+        return physics_server_2d->shape_collide(p_shape_A, p_xform_A, p_motion_A, p_shape_B, p_xform_B, p_motion_B, r_results, p_result_max, r_result_count);
     }
 
     /* SPACE API */
@@ -110,23 +110,23 @@ public:
     FUNC2RC(real_t, space_get_param, RID, SpaceParameter);
 
     // this function only works on physics process, errors and returns null otherwise
-    Physics2DDirectSpaceState *space_get_direct_state(RID p_space) override {
+    PhysicsDirectSpaceState2D *space_get_direct_state(RID p_space) override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), nullptr);
-        return physics_2d_server->space_get_direct_state(p_space);
+        return physics_server_2d->space_get_direct_state(p_space);
     }
 
     FUNC2(space_set_debug_contacts, RID, int);
     const Vector<Vector2> &space_get_contacts(RID p_space) const override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), null_vec2_pvec);
-        return physics_2d_server->space_get_contacts(p_space);
+        return physics_server_2d->space_get_contacts(p_space);
     }
 
     int space_get_contact_count(RID p_space) const override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), 0);
-        return physics_2d_server->space_get_contact_count(p_space);
+        return physics_server_2d->space_get_contact_count(p_space);
     }
 
     /* AREA API */
@@ -250,7 +250,7 @@ public:
     FUNC4(body_set_force_integration_callback, RID, Object *, const StringName &, const Variant &);
 
     bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, Vector2 *r_results, int p_result_max, int &r_result_count) override {
-        return physics_2d_server->body_collide_shape(p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, r_result_count);
+        return physics_server_2d->body_collide_shape(p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, r_result_count);
     }
 
     FUNC2(body_set_pickable, RID, bool);
@@ -258,20 +258,20 @@ public:
     bool body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, real_t p_margin = 0.001, MotionResult *r_result = nullptr, bool p_exclude_raycast_shapes = true) override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), false);
-        return physics_2d_server->body_test_motion(p_body, p_from, p_motion, p_infinite_inertia, p_margin, r_result, p_exclude_raycast_shapes);
+        return physics_server_2d->body_test_motion(p_body, p_from, p_motion, p_infinite_inertia, p_margin, r_result, p_exclude_raycast_shapes);
     }
 
     int body_test_ray_separation(RID p_body, const Transform2D &p_transform, bool p_infinite_inertia, Vector2 &r_recover_motion, SeparationResult *r_results, int p_result_max, float p_margin = 0.001) override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), false);
-        return physics_2d_server->body_test_ray_separation(p_body, p_transform, p_infinite_inertia, r_recover_motion, r_results, p_result_max, p_margin);
+        return physics_server_2d->body_test_ray_separation(p_body, p_transform, p_infinite_inertia, r_recover_motion, r_results, p_result_max, p_margin);
     }
 
     // this function only works on physics process, errors and returns null otherwise
-    Physics2DDirectBodyState *body_get_direct_state(RID p_body) override {
+    PhysicsDirectBodyState2D *body_get_direct_state(RID p_body) override {
 
         ERR_FAIL_COND_V(main_thread != Thread::get_caller_id(), nullptr);
-        return physics_2d_server->body_get_direct_state(p_body);
+        return physics_server_2d->body_get_direct_state(p_body);
     }
 
     /* JOINT API */
@@ -313,18 +313,18 @@ public:
     void finish() override;
 
     bool is_flushing_queries() const override {
-        return physics_2d_server->is_flushing_queries();
+        return physics_server_2d->is_flushing_queries();
     }
 
     int get_process_info(ProcessInfo p_info) override {
-        return physics_2d_server->get_process_info(p_info);
+        return physics_server_2d->get_process_info(p_info);
     }
 
-    Physics2DServerWrapMT(Physics2DServer *p_contained, bool p_create_thread);
+    Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool p_create_thread);
     ~Physics2DServerWrapMT() override;
 
     template <class T>
-    static Physics2DServer *init_server() {
+    static PhysicsServer2D *init_server() {
 
         int tm = GLOBAL_DEF("physics/2d/thread_model", 1);
         if (tm == 0) // single unsafe

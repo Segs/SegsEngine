@@ -160,9 +160,9 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
     ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".");
 
     Vector<StringView> configs = StringUtils::split(config,'\n');
-    for (size_t i = 0; i < configs.size(); i++) {
+    for (StringView cf : configs) {
 
-        StringView c =StringUtils::strip_edges( configs[i]);
+        StringView c =StringUtils::strip_edges( cf );
         auto p = StringUtils::find(c,":");
         if (p == String::npos)
             continue;

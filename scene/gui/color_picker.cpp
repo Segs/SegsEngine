@@ -239,7 +239,7 @@ void ColorPicker::_update_color(bool p_update_sliders) {
                 } else {
                     scroll[i]->set_step(1);
                     const float byte_value = color.components[i] * 255.0f;
-                    scroll[i]->set_max(next_power_of_2(MAX(255, byte_value)) - 1);
+                    scroll[i]->set_max(next_power_of_2(M_MAX(255, byte_value)) - 1);
                     scroll[i]->set_value(byte_value);
                 }
             }
@@ -599,7 +599,7 @@ void ColorPicker::_screen_input(const Ref<InputEvent> &p_event) {
             return;
 
         Ref<Image> img = r->get_texture()->get_data();
-        if (img && !img->empty()) {
+        if (img && !img->is_empty()) {
             img->lock();
             Vector2 ofs = mev->get_global_position() - r->get_visible_rect().get_position();
             Color c = img->get_pixel(ofs.x, r->get_visible_rect().size.height - ofs.y);

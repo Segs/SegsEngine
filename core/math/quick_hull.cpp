@@ -72,17 +72,10 @@ struct QHFace {
 };
 struct QHFaceConnect {
     List<QHFace>::iterator left, right;
-    QHFaceConnect(List<QHFace>::iterator end) {
-        left = end;
-        right = end;
-    }
+    QHFaceConnect(List<QHFace>::iterator end) : left(end),right(end) {}
 };
 struct QHRetFaceConnect {
-    ListOld<Geometry::MeshData::Face>::Element *left, *right;
-    QHRetFaceConnect() {
-        left = nullptr;
-        right = nullptr;
-    }
+    ListOld<Geometry::MeshData::Face>::Element *left=nullptr, *right=nullptr;
 };
 } // end of anonymous namespace
 
@@ -232,7 +225,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
     /* COMPUTE AVAILABLE VERTICES */
 
-    for (int i = 0; i < p_points.size(); i++) {
+    for (int i = 0,fin=(int)p_points.size(); i < fin; i++) {
 
         if (i == simplex[0])
             continue;

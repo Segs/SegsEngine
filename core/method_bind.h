@@ -106,7 +106,7 @@ struct VariantCaster<char16_t> {
 
 
 template <class T>
-MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Variant::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
+MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Callable::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
     MethodBindVarArg<T> *a = memnew((MethodBindVarArg<T>));
     a->set_method(p_method);
@@ -241,10 +241,10 @@ public:
 #endif
 
 public:
-    Variant do_call(Object* p_object,const Variant** p_args,int p_arg_count, Variant::CallError& r_error) override {
+    Variant do_call(Object* p_object,const Variant** p_args,int p_arg_count, Callable::CallError& r_error) override {
 
         T *instance=ObjectNS::cast_to<T>(p_object);
-        r_error.error=Variant::CallError::CALL_OK;
+        r_error.error=Callable::CallError::CALL_OK;
 #ifdef DEBUG_METHODS_ENABLED
 
         ERR_FAIL_COND_V(!instance,Variant());

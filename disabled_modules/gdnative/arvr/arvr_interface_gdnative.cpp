@@ -31,7 +31,7 @@
 #include "arvr_interface_gdnative.h"
 #include "main/input_default.h"
 #include "servers/arvr/arvr_positional_tracker.h"
-#include "servers/visual/visual_server_globals.h"
+#include "servers/rendering/rendering_server_globals.h"
 #include "core/class_db.h"
 #include "core/print_string.h"
 
@@ -300,7 +300,7 @@ godot_int GDAPI godot_arvr_get_texid(godot_rid *p_render_target) {
     RID *render_target = (RID *)p_render_target;
 
     RID eye_texture = VSG::storage->render_target_get_texture(*render_target);
-    uint32_t texid = VisualServer::get_singleton()->texture_get_texid(eye_texture);
+    uint32_t texid = RenderingServer::get_singleton()->texture_get_texid(eye_texture);
 
     return texid;
 }

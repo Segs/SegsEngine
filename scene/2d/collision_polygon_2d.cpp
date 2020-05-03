@@ -113,7 +113,7 @@ void CollisionPolygon2D::_notification(int p_what) {
             /*if (Engine::get_singleton()->is_editor_hint()) {
                 //display above all else
                 set_z_as_relative(false);
-                set_z_index(VS::CANVAS_ITEM_Z_MAX - 1);
+                set_z_index(RS::CANVAS_ITEM_Z_MAX - 1);
             }*/
 
         } break;
@@ -312,7 +312,7 @@ void CollisionPolygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "one_way_collision_margin", PropertyHint::Range, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "one_way_collision_margin", PropertyHint::Range, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
 
     BIND_ENUM_CONSTANT(BUILD_SOLIDS)
     BIND_ENUM_CONSTANT(BUILD_SEGMENTS)

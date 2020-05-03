@@ -678,7 +678,7 @@ void GraphEdit::_draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const
     if (diff > 0) {
         cp_offset = MIN(cp_len, diff * 0.5);
     } else {
-        cp_offset = MAX(MIN(cp_len - diff, cp_neg_len), -diff * 0.5);
+        cp_offset = M_MAX(MIN(cp_len - diff, cp_neg_len), -diff * 0.5);
     }
 
     Vector2 c1 = Vector2(cp_offset * zoom, 0);
@@ -1049,22 +1049,22 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
     if (k) {
 
-        if (k->get_scancode() == KEY_D && k->is_pressed() && k->get_command()) {
+        if (k->get_keycode() == KEY_D && k->is_pressed() && k->get_command()) {
             emit_signal("duplicate_nodes_request");
             accept_event();
         }
 
-        if (k->get_scancode() == KEY_C && k->is_pressed() && k->get_command()) {
+        if (k->get_keycode() == KEY_C && k->is_pressed() && k->get_command()) {
             emit_signal("copy_nodes_request");
             accept_event();
         }
 
-        if (k->get_scancode() == KEY_V && k->is_pressed() && k->get_command()) {
+        if (k->get_keycode() == KEY_V && k->is_pressed() && k->get_command()) {
             emit_signal("paste_nodes_request");
             accept_event();
         }
 
-        if (k->get_scancode() == KEY_DELETE && k->is_pressed()) {
+        if (k->get_keycode() == KEY_DELETE && k->is_pressed()) {
             emit_signal("delete_nodes_request");
             accept_event();
         }
@@ -1321,7 +1321,7 @@ void GraphEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "scroll_offset"), "set_scroll_ofs", "get_scroll_ofs");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "snap_distance"), "set_snap", "get_snap");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_snap"), "set_use_snap", "is_using_snap");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "zoom"), "set_zoom", "get_zoom");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "zoom"), "set_zoom", "get_zoom");
 
     ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
     ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));

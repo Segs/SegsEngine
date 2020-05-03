@@ -99,7 +99,7 @@ enum class VariantType : int8_t {
     // atomic types
     BOOL,
     INT,
-    REAL,
+    FLOAT,
     STRING,
 
     // math types
@@ -132,6 +132,23 @@ enum class VariantType : int8_t {
     POOL_COLOR_ARRAY,
 
     VARIANT_MAX
+
+};
+class GODOT_EXPORT Callable {
+public:
+    struct CallError {
+        enum Error : int8_t {
+            CALL_OK,
+            CALL_ERROR_INVALID_METHOD,
+            CALL_ERROR_INVALID_ARGUMENT,
+            CALL_ERROR_TOO_MANY_ARGUMENTS,
+            CALL_ERROR_TOO_FEW_ARGUMENTS,
+            CALL_ERROR_INSTANCE_IS_NULL,
+            };
+        int argument;
+        Error error;
+        VariantType expected;
+    };
 
 };
 class GODOT_EXPORT Variant {
@@ -180,7 +197,7 @@ public:
     static bool can_convert_strict(VariantType p_type_from, VariantType p_type_to);
 
     [[nodiscard]] bool is_ref() const;
-    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::REAL; }
+    _FORCE_INLINE_ bool is_num() const { return type == VariantType::INT || type == VariantType::FLOAT; }
     _FORCE_INLINE_ bool is_array() const { return type >= VariantType::ARRAY; }
     [[nodiscard]] bool is_shared() const;
     [[nodiscard]] bool is_zero() const;
@@ -271,8 +288,8 @@ public:
     constexpr Variant(uint32_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(int64_t p_int)   : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(uint64_t p_int)  : type(VariantType::INT),_data(p_int) { }
-    constexpr Variant(float p_float) : type(VariantType::REAL),_data(p_float) { }
-    constexpr Variant(double p_float) : type(VariantType::REAL),_data(p_float) { }
+    constexpr Variant(float p_float) : type(VariantType::FLOAT),_data(p_float) { }
+    constexpr Variant(double p_float) : type(VariantType::FLOAT),_data(p_float) { }
     Variant(QChar p_char);
     //explicit Variant(const String &p_string);
     Variant(const char *p_string);
@@ -396,27 +413,13 @@ public:
     static void blend(const Variant &a, const Variant &b, float c, Variant &r_dst);
     static void interpolate(const Variant &a, const Variant &b, float c, Variant &r_dst);
 
-    struct CallError {
-        enum Error : int8_t {
-            CALL_OK,
-            CALL_ERROR_INVALID_METHOD,
-            CALL_ERROR_INVALID_ARGUMENT,
-            CALL_ERROR_TOO_MANY_ARGUMENTS,
-            CALL_ERROR_TOO_FEW_ARGUMENTS,
-            CALL_ERROR_INSTANCE_IS_NULL,
-        };
-        int argument;
-        Error error;
-        VariantType expected;
-    };
-
-    void call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, CallError &r_error);
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, CallError &r_error);
+    void call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, Callable::CallError &r_error);
+    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Variant call(const StringName &p_method, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant());
 
-    static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Variant::CallError &ce);
+    static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce);
 
-    static Variant construct(const VariantType, const Variant **p_args, int p_argcount, CallError &r_error, bool p_strict = true);
+    static Variant construct(const VariantType, const Variant **p_args, int p_argcount, Callable::CallError &r_error, bool p_strict = true);
 
     void get_method_list(Vector<MethodInfo> *p_list) const;
     bool has_method(const StringName &p_method) const;

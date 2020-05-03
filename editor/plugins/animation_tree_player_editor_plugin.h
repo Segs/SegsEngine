@@ -125,7 +125,7 @@ class AnimationTreePlayerEditor : public Control {
     /*
     void _node_param_changed();
     void _node_add_callback();
-    void _node_add(VisualServer::AnimationTreeNodeType p_type);
+    void _node_add(RenderingServer::AnimationTreeNodeType p_type);
     void _node_edit_property(const StringName& p_node);
 */
 

@@ -54,7 +54,7 @@ void GDAPI godot_object_destroy(godot_object *p_o) {
 // Singleton API
 
 godot_object GDAPI *godot_global_get_singleton(char *p_name) {
-    return (godot_object *)Engine::get_singleton()->get_singleton_object(String(p_name));
+    return (godot_object *)Engine::get_singleton()->get_named_singleton(String(p_name));
 } // result shouldn't be freed
 
 // MethodBind API
@@ -83,7 +83,7 @@ godot_variant GDAPI godot_method_bind_call(godot_method_bind *p_method_bind, god
 
     Variant *ret_val = (Variant *)&ret;
 
-    Variant::CallError r_error;
+    Callable::CallError r_error;
     *ret_val = mb->call(o, args, p_arg_count, r_error);
 
     if (p_call_error) {
@@ -165,7 +165,7 @@ void _gdnative_report_loading_error(const godot_object *p_library, const char *p
 }
 
 bool GDAPI godot_is_instance_valid(const godot_object *p_object) {
-    return ObjectDB::instance_validate((Object *)p_object);
+    return gObjectDB().instance_validate((Object *)p_object);
 }
 
 #ifdef __cplusplus

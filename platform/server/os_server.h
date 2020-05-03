@@ -38,17 +38,17 @@
 #include "platform/osx/crash_handler_osx.h"
 #include "platform/osx/semaphore_osx.h"
 #else
-#include "platform/x11/crash_handler_x11.h"
+#include "platform/linuxbsd/crash_handler_x11.h"
 #endif
 #include "servers/audio_server.h"
-#include "servers/visual/rasterizer.h"
-#include "servers/visual_server.h"
+#include "servers/rendering/rasterizer.h"
+#include "servers/rendering_server.h"
 
 #undef CursorShape
 
 class OS_Server : public OS_Unix {
 
-    VisualServer *visual_server;
+    RenderingServer *rendering_server;
     VideoMode current_videomode;
     List<String> args;
     MainLoop *main_loop;
@@ -104,7 +104,6 @@ public:
 
     void run();
 
-    virtual OS::PowerState get_power_state();
     virtual int get_power_seconds_left();
     virtual int get_power_percent_left();
     virtual bool _check_internal_feature_support(const String &p_feature);

@@ -32,7 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/object.h"
-#include "core/os/input_event.h"
+#include "core/input/input_event.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "modules/regex/regex.h"
@@ -518,8 +518,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 
 #define ENSURE_WIDTH(m_width)                                                                                                                                   \
     if (p_mode == PROCESS_CACHE) {                                                                                                                              \
-        l.maximum_width = MAX(l.maximum_width, MIN(p_width, wofs + m_width));                                                                                   \
-        l.minimum_width = MAX(l.minimum_width, m_width);                                                                                                        \
+        l.maximum_width = M_MAX(l.maximum_width, MIN(p_width, wofs + m_width));                                                                                   \
+        l.minimum_width = M_MAX(l.minimum_width, m_width);                                                                                                        \
     }                                                                                                                                                           \
     if (wofs - backtrack + m_width > p_width) {                                                                                             \
         line_wrapped = true;                                                                                                                                    \
@@ -674,8 +674,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                     CHECK_HEIGHT(fh);
                     ENSURE_WIDTH(w);
 
-                    line_ascent = MAX(line_ascent, ascent);
-                    line_descent = MAX(line_descent, descent);
+                    line_ascent = M_MAX(line_ascent, ascent);
+                    line_descent = M_MAX(line_descent, descent);
                     fh = line_ascent + line_descent;
 
                     if (end && c[end - 1] == ' ') {
@@ -850,7 +850,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 #ifdef TOOLS_ENABLED
                             underline_width *= EDSCALE;
 #endif
-                            VisualServer::get_singleton()->canvas_item_add_line(ci, p_ofs + Point2(align_ofs + wofs, uy), p_ofs + Point2(align_ofs + wofs + w, uy), uc, underline_width);
+                            RenderingServer::get_singleton()->canvas_item_add_line(ci, p_ofs + Point2(align_ofs + wofs, uy), p_ofs + Point2(align_ofs + wofs + w, uy), uc, underline_width);
                         } else if (strikethrough) {
                             Color uc = color;
                             uc.a *= 0.5;
@@ -859,7 +859,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
 #ifdef TOOLS_ENABLED
                             strikethrough_width *= EDSCALE;
 #endif
-                            VisualServer::get_singleton()->canvas_item_add_line(ci, p_ofs + Point2(align_ofs + wofs, uy), p_ofs + Point2(align_ofs + wofs + w, uy), uc, strikethrough_width);
+                            RenderingServer::get_singleton()->canvas_item_add_line(ci, p_ofs + Point2(align_ofs + wofs, uy), p_ofs + Point2(align_ofs + wofs + w, uy), uc, strikethrough_width);
                         }
                     }
 
@@ -945,8 +945,8 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         for (int i = 0; i < frame->lines.size(); i++) {
 
                             _process_line(frame, Point2(), ly, available_width, i, PROCESS_CACHE, cfont, Color(), font_color_shadow, use_outline, shadow_ofs2);
-                            table->columns[column].min_width = MAX(table->columns[column].min_width, frame->lines[i].minimum_width);
-                            table->columns[column].max_width = MAX(table->columns[column].max_width, frame->lines[i].maximum_width);
+                            table->columns[column].min_width = M_MAX(table->columns[column].min_width, frame->lines[i].minimum_width);
+                            table->columns[column].max_width = M_MAX(table->columns[column].max_width, frame->lines[i].maximum_width);
                         }
                         idx++;
                     }
@@ -1065,7 +1065,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         }
                     }
 
-                    row_height = MAX(yofs, row_height);
+                    row_height = M_MAX(yofs, row_height);
                     offset.x += table->columns[column].width + hseparation;
 
                     if (column == table->columns.size() - 1) {
@@ -1235,9 +1235,9 @@ void RichTextLabel::_notification(int p_what) {
             draw_style_box(get_stylebox("normal"), Rect2(Point2(), size));
 
             if (has_focus()) {
-                VisualServer::get_singleton()->canvas_item_add_clip_ignore(ci, true);
+                RenderingServer::get_singleton()->canvas_item_add_clip_ignore(ci, true);
                 draw_style_box(get_stylebox("focus"), Rect2(Point2(), size));
-                VisualServer::get_singleton()->canvas_item_add_clip_ignore(ci, false);
+                RenderingServer::get_singleton()->canvas_item_add_clip_ignore(ci, false);
             }
 
             int ofs = vscroll->get_value();
@@ -1459,7 +1459,7 @@ void RichTextLabel::_gui_input(const Ref<InputEvent>& p_event) {
     if (k) {
         if (k->is_pressed() && !k->get_alt() && !k->get_shift()) {
             bool handled = false;
-            switch (k->get_scancode()) {
+            switch (k->get_keycode()) {
                 case KEY_PAGEUP: {
 
                     if (vscroll->is_visible_in_tree()) {
@@ -2900,11 +2900,11 @@ String RichTextLabel::get_text() {
     return StringUtils::to_utf8(text);
 }
 
-void RichTextLabel::set_text(const UIString &p_string) {
+void RichTextLabel::set_text_ui(const UIString &p_string) {
     clear();
     add_text_uistring(p_string);
 }
-void RichTextLabel::set_text_utf8(StringView p_string) {
+void RichTextLabel::set_text(StringView p_string) {
     clear();
     add_text(p_string);
 }
@@ -2967,7 +2967,7 @@ void RichTextLabel::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_scroll_changed"), &RichTextLabel::_scroll_changed);
     MethodBinder::bind_method(D_METHOD("get_text"), &RichTextLabel::get_text);
     MethodBinder::bind_method(D_METHOD("add_text", {"text"}), &RichTextLabel::add_text);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text_utf8);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &RichTextLabel::set_text);
     MethodBinder::bind_method(D_METHOD("add_image", {"image", "width", "height"}), &RichTextLabel::add_image, {DEFVAL(0), DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("newline"), &RichTextLabel::add_newline);
     MethodBinder::bind_method(D_METHOD("remove_line", {"line"}), &RichTextLabel::remove_line);
@@ -3046,7 +3046,7 @@ void RichTextLabel::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bbcode_text", PropertyHint::MultilineText), "set_bbcode", "get_bbcode");
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "visible_characters", PropertyHint::Range, "-1,128000,1"), "set_visible_characters", "get_visible_characters");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "percent_visible", PropertyHint::Range, "0,1,0.001"), "set_percent_visible", "get_percent_visible");
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "meta_underlined"), "set_meta_underline", "is_meta_underlined");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "tab_size", PropertyHint::Range, "0,24,1"), "set_tab_size", "get_tab_size");

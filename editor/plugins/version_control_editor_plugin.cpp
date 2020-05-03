@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "version_control_editor_plugin.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_file_system.h"
@@ -112,18 +113,18 @@ void VersionControlEditorPlugin::_initialize_vcs() {
 
     register_editor();
 
-    ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton(),EditorVCSInterface::get_singleton()->get_vcs_name() + " is already active"); 
+    ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton(),EditorVCSInterface::get_singleton()->get_vcs_name() + " is already active");
 
     const int id = set_up_choice->get_selected_id();
     StringName selected_addon(set_up_choice->get_item_text_utf8(id));
 
     StringView path = ScriptServer::get_global_class_path(selected_addon);
     Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(path));
-    ERR_FAIL_COND_MSG(not script,"VCS Addon path is invalid"); 
+    ERR_FAIL_COND_MSG(not script,"VCS Addon path is invalid");
 
     EditorVCSInterface *vcs_interface = memnew(EditorVCSInterface);
     ScriptInstance *addon_script_instance = script->instance_create(vcs_interface);
-    ERR_FAIL_COND_MSG(!addon_script_instance, "Failed to create addon script instance."); 
+    ERR_FAIL_COND_MSG(!addon_script_instance, "Failed to create addon script instance.");
 
     // The addon is attached as a script to the VCS interface as a proxy end-point
     vcs_interface->set_script_and_instance(script.get_ref_ptr(), addon_script_instance);
@@ -132,7 +133,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     EditorFileSystem::get_singleton()->connect("filesystem_changed", this, "_refresh_stage_area");
 
     String res_dir = OS::get_singleton()->get_resource_dir();
-    ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton()->initialize(res_dir), "VCS was not initialized"); 
+    ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton()->initialize(res_dir), "VCS was not initialized");
 
     _refresh_stage_area();
 }
@@ -156,7 +157,7 @@ void VersionControlEditorPlugin::_send_commit_msg() {
 
         EditorVCSInterface::get_singleton()->commit(msg);
 
-        commit_message->set_text(UIString());
+        commit_message->set_text_ui(UIString());
         version_control_dock_button->set_pressed(false);
     } else {
 
@@ -434,7 +435,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     set_up_vbc->add_child(set_up_hbc);
 
     set_up_vcs_status = memnew(RichTextLabel);
-    set_up_vcs_status->set_text_utf8(TTR("VCS Addon is not initialized"));
+    set_up_vcs_status->set_text(TTR("VCS Addon is not initialized"));
     set_up_vbc->add_child(set_up_vcs_status);
 
     set_up_vcs_label = memnew(Label);
@@ -531,7 +532,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     commit_message->set_v_grow_direction(Control::GrowDirection::GROW_DIRECTION_END);
     commit_message->set_custom_minimum_size(Size2(200, 100));
     commit_message->set_wrap_enabled(true);
-    commit_message->set_text(TTR("Add a commit message").asString());
+    commit_message->set_text_ui(TTR("Add a commit message").asString());
     commit_box_vbc->add_child(commit_message);
 
     commit_button = memnew(Button);

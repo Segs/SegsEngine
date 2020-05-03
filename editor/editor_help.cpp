@@ -32,6 +32,7 @@
 
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
+#include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
 #include "doc_data_compressed.gen.h"
 #include "editor/plugins/script_editor_plugin.h"
@@ -81,7 +82,7 @@ void EditorHelp::_unhandled_key_input(const Ref<InputEvent> &p_ev) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ev);
 
-    if (k && k->get_control() && k->get_scancode() == KEY_F) {
+    if (k && k->get_control() && k->get_keycode() == KEY_F) {
 
         search->grab_focus();
         search->select_all();
@@ -190,7 +191,7 @@ void EditorHelp::_class_desc_resized() {
     // The margins increase as the width of the editor help container increases.
     Ref<Font> doc_code_font = get_font("doc_source", "EditorFonts");
     real_t char_width = doc_code_font->get_char_size('x').width;
-    const int display_margin = MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - char_width * 120 * EDSCALE) * 0.5f;
+    const int display_margin = M_MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - char_width * 120 * EDSCALE) * 0.5f;
 
     Ref<StyleBox> class_desc_stylebox = dynamic_ref_cast<StyleBox>(EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "RichTextLabel")->duplicate());
     class_desc_stylebox->set_default_margin(Margin::Left, display_margin);
@@ -531,7 +532,7 @@ void EditorHelp::_update_doc() {
         class_desc->push_table(2);
         class_desc->set_table_column_expand(1, true);
 
-        for (int i = 0; i < cd.properties.size(); i++) {
+        for (size_t i = 0; i < cd.properties.size(); i++) {
             property_line[cd.properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
 
             class_desc->push_cell();
@@ -607,7 +608,7 @@ void EditorHelp::_update_doc() {
 
     Vector<DocData::MethodDoc> methods;
 
-    for (int i = 0; i < cd.methods.size(); i++) {
+    for (size_t i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
             if (cd.methods[i].arguments.empty() /* getter */ ||
                     (cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */)) {
@@ -1823,7 +1824,7 @@ void FindBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 
             bool accepted = true;
 
-            switch (k->get_scancode()) {
+            switch (k->get_keycode()) {
 
                 case KEY_ESCAPE: {
 

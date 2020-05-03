@@ -31,8 +31,8 @@
 #include "convex_polygon_shape_2d.h"
 
 #include "core/math/geometry.h"
-#include "servers/physics_2d_server.h"
-#include "servers/visual_server.h"
+#include "servers/physics_server_2d.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(ConvexPolygonShape2D)
@@ -48,7 +48,7 @@ void ConvexPolygonShape2D::_update_shape() {
     if (Geometry::is_polygon_clockwise(final_points)) { //needs to be counter clockwise
         eastl::reverse(final_points.begin(),final_points.end());
     }
-    Physics2DServer::get_singleton()->shape_set_data(get_rid(), final_points);
+    PhysicsServer2D::get_singleton()->shape_set_data(get_rid(), final_points);
     emit_changed();
 }
 
@@ -83,7 +83,7 @@ void ConvexPolygonShape2D::_bind_methods() {
 real_t ConvexPolygonShape2D::get_enclosing_radius() const {
     real_t r = 0;
     for (int i(0); i < get_points().size(); i++) {
-        r = MAX(get_points()[i].length_squared(), r);
+        r = M_MAX(get_points()[i].length_squared(), r);
     }
     return Math::sqrt(r);
 }
@@ -92,7 +92,7 @@ void ConvexPolygonShape2D::draw(const RID &p_to_rid, const Color &p_color) {
 
     PoolVector<Color> col;
     col.push_back(p_color);
-    VisualServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
+    RenderingServer::get_singleton()->canvas_item_add_polygon(p_to_rid, points, col);
 }
 
 Rect2 ConvexPolygonShape2D::get_rect() const {
@@ -109,5 +109,5 @@ Rect2 ConvexPolygonShape2D::get_rect() const {
 }
 
 ConvexPolygonShape2D::ConvexPolygonShape2D() :
-        Shape2D(Physics2DServer::get_singleton()->convex_polygon_shape_create()) {
+        Shape2D(PhysicsServer2D::get_singleton()->convex_polygon_shape_create()) {
 }

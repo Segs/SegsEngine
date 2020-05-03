@@ -83,10 +83,10 @@ Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
     if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
-        return Camera::project_local_ray_normal(p_pos);
+        return Camera3D::project_local_ray_normal(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera3D is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_camera_rect_size();
     Vector2 cpos = get_viewport()->get_camera_coords(p_pos);
@@ -108,10 +108,10 @@ Point2 ARVRCamera::unproject_position(const Vector3 &p_pos) const {
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
     if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
-        return Camera::unproject_position(p_pos);
+        return Camera3D::unproject_position(p_pos);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector2(), "Camera3D is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -137,10 +137,10 @@ Vector3 ARVRCamera::project_position(const Point2 &p_point, float p_z_depth) con
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
     if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
-        return Camera::project_position(p_point, p_z_depth);
+        return Camera3D::project_position(p_point, p_z_depth);
     }
 
-    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera is not inside scene.");
+    ERR_FAIL_COND_V_MSG(!is_inside_tree(), Vector3(), "Camera3D is not inside scene.");
 
     Size2 viewport_size = get_viewport()->get_visible_rect().size;
 
@@ -166,7 +166,7 @@ Frustum ARVRCamera::get_frustum() const {
     Ref<ARVRInterface> arvr_interface = arvr_server->get_primary_interface();
     if (not arvr_interface) {
         // we might be in the editor or have VR turned off, just call superclass
-        return Camera::get_frustum();
+        return Camera3D::get_frustum();
     }
 
     ERR_FAIL_COND_V(!is_inside_world(), Frustum());
@@ -261,7 +261,7 @@ void ARVRController::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_rumble"), &ARVRController::get_rumble);
     MethodBinder::bind_method(D_METHOD("set_rumble", {"rumble"}), &ARVRController::set_rumble);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rumble", PropertyHint::Range, "0.0,1.0,0.01"), "set_rumble", "get_rumble");
     ADD_PROPERTY_DEFAULT("rumble", 0.0);
 
     MethodBinder::bind_method(D_METHOD("get_mesh"), &ARVRController::get_mesh);
@@ -553,7 +553,7 @@ StringName ARVROrigin::get_configuration_warning() const {
 void ARVROrigin::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_world_scale", {"world_scale"}), &ARVROrigin::set_world_scale);
     MethodBinder::bind_method(D_METHOD("get_world_scale"), &ARVROrigin::get_world_scale);
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "world_scale"), "set_world_scale", "get_world_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "world_scale"), "set_world_scale", "get_world_scale");
 };
 
 void ARVROrigin::set_tracked_camera(ARVRCamera *p_tracked_camera) {

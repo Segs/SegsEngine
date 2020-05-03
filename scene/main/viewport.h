@@ -34,20 +34,20 @@
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 #include "scene/resources/world_2d.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
-class Camera;
+class Camera3D;
 class Camera2D;
-class Listener;
+class Listener3D;
 class Control;
 class CanvasItem;
 class CanvasLayer;
 class Panel;
-class World;
+class World3D;
 class Label;
 class Timer;
 class Viewport;
-class CollisionObject;
+class CollisionObject3D;
 
 class ViewportTexture : public Texture {
 
@@ -156,8 +156,8 @@ private:
 
     Viewport *parent;
 
-    Listener *listener;
-    HashSet<Listener *> listeners;
+    Listener3D *listener;
+    HashSet<Listener3D *> listeners;
 
     bool arvr;
     struct CameraOverrideData {
@@ -178,8 +178,8 @@ private:
         }
     } camera_override;
 
-    Camera *camera;
-    HashSet<Camera *> cameras;
+    Camera3D *camera;
+    HashSet<Camera3D *> cameras;
     HashSet<CanvasLayer *> canvas_layers;
 
     RID viewport;
@@ -240,7 +240,7 @@ private:
 
     } physics_last_mouse_state;
 
-    void _collision_object_input_event(CollisionObject *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape);
+    void _collision_object_input_event(CollisionObject3D *p_object, Camera3D *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape);
 
     bool handle_input_locally;
     bool local_input_handled;
@@ -248,8 +248,8 @@ private:
     HashMap<ObjectID, uint64_t> physics_2d_mouseover;
 
     Ref<World2D> world_2d;
-    Ref<World> world;
-    Ref<World> own_world;
+    Ref<World3D> world;
+    Ref<World3D> own_world;
 
     StringName input_group;
     StringName gui_input_group;
@@ -382,19 +382,19 @@ protected:
 
     bool _gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_check);
 
-    friend class Listener;
+    friend class Listener3D;
     void _listener_transform_changed_notify();
-    void _listener_set(Listener *p_listener);
-    bool _listener_add(Listener *p_listener); //true if first
-    void _listener_remove(Listener *p_listener);
-    void _listener_make_next_current(Listener *p_exclude);
+    void _listener_set(Listener3D *p_listener);
+    bool _listener_add(Listener3D *p_listener); //true if first
+    void _listener_remove(Listener3D *p_listener);
+    void _listener_make_next_current(Listener3D *p_exclude);
 
-    friend class Camera;
+    friend class Camera3D;
     void _camera_transform_changed_notify();
-    void _camera_set(Camera *p_camera);
-    bool _camera_add(Camera *p_camera); //true if first
-    void _camera_remove(Camera *p_camera);
-    void _camera_make_next_current(Camera *p_exclude);
+    void _camera_set(Camera3D *p_camera);
+    bool _camera_add(Camera3D *p_camera); //true if first
+    void _camera_remove(Camera3D *p_camera);
+    void _camera_make_next_current(Camera3D *p_exclude);
 
     friend class CanvasLayer;
     void _canvas_layer_add(CanvasLayer *p_canvas_layer);
@@ -412,8 +412,8 @@ protected:
     void _validate_property(PropertyInfo &property) const override;
 
 public:
-    Listener *get_listener() const;
-    Camera *get_camera() const;
+    Listener3D *get_listener() const;
+    Camera3D *get_camera() const;
 
     void enable_camera_override(bool p_enable);
     bool is_camera_override_enabled() const;
@@ -440,10 +440,10 @@ public:
     Rect2 get_visible_rect() const;
     RID get_viewport_rid() const;
 
-    void set_world(const Ref<World> &p_world);
+    void set_world(const Ref<World3D> &p_world);
     void set_world_2d(const Ref<World2D> &p_world_2d);
-    Ref<World> get_world() const;
-    Ref<World> find_world() const;
+    Ref<World3D> get_world() const;
+    Ref<World3D> find_world() const;
 
     Ref<World2D> get_world_2d() const;
     Ref<World2D> find_world_2d() const;

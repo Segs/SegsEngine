@@ -85,7 +85,7 @@ void ResourceImporterWAV::get_import_options(Vector<ResourceImporterInterface::I
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/8_bit"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/mono"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "force/max_rate", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), false));
-    r_options->push_back(ImportOption(PropertyInfo(VariantType::REAL, "force/max_rate_hz", PropertyHint::ExpRange, "11025,192000,1"), 44100));
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::FLOAT, "force/max_rate_hz", PropertyHint::ExpRange, "11025,192000,1"), 44100));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/trim"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/normalize"), false));
     r_options->push_back(ImportOption(PropertyInfo(VariantType::BOOL, "edit/loop"), false));
@@ -336,7 +336,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
                 float mu = frac;
 
-                float y0 = data[MAX(0, ipos - 1) * format_channels + c];
+                float y0 = data[M_MAX(0, ipos - 1) * format_channels + c];
                 float y1 = data[ipos * format_channels + c];
                 float y2 = data[MIN(frames - 1, ipos + 1) * format_channels + c];
                 float y3 = data[MIN(frames - 1, ipos + 2) * format_channels + c];
@@ -540,5 +540,4 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     return OK;
 }
 
-ResourceImporterWAV::ResourceImporterWAV() {
-}
+ResourceImporterWAV::ResourceImporterWAV() = default;

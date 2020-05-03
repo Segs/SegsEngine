@@ -34,6 +34,7 @@
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
+#include "editor/editor_help.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "modules/visual_script/visual_script.h"
@@ -58,7 +59,7 @@ void VisualScriptPropertySelector::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     if (k) {
 
-        switch (k->get_scancode()) {
+        switch (k->get_keycode()) {
             case KEY_UP:
             case KEY_DOWN:
             case KEY_PAGEUP:
@@ -149,7 +150,7 @@ void VisualScriptPropertySelector::_update_search() {
             if (instance) {
                 instance->get_property_list(&props, true);
             } else {
-                Object *obj = ObjectDB::get_instance(script);
+                Object *obj = gObjectDB().get_instance(script);
                 if (object_cast<Script>(obj)) {
                     object_cast<Script>(obj)->get_script_property_list(&props);
                 } else {
@@ -201,12 +202,12 @@ void VisualScriptPropertySelector::_update_search() {
         {
             if (type != VariantType::NIL) {
                 Variant v;
-                Variant::CallError ce;
+                Callable::CallError ce;
                 v = Variant::construct(type, nullptr, 0, ce);
                 v.get_method_list(&methods);
             } else {
 
-                Object *obj = ObjectDB::get_instance(script);
+                Object *obj = gObjectDB().get_instance(script);
                 if (object_cast<Script>(obj)) {
                     object_cast<Script>(obj)->get_script_method_list(&methods);
                 }
@@ -288,7 +289,7 @@ void VisualScriptPropertySelector::_update_search() {
             if (type == VariantType::BOOL) {
                 get_visual_node_names("operators/logic/", Set<String>(), found, root, search_box);
             }
-            if (type == VariantType::BOOL || type == VariantType::INT || type == VariantType::REAL || type == VariantType::VECTOR2 || type == VariantType::VECTOR3) {
+            if (type == VariantType::BOOL || type == VariantType::INT || type == VariantType::FLOAT || type == VariantType::VECTOR2 || type == VariantType::VECTOR3) {
                 get_visual_node_names("operators/math/", Set<String>(), found, root, search_box);
             }
         }
@@ -359,7 +360,7 @@ void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter,
             continue;
         }
 
-        bool in_modifier = false | p_modifiers.empty();
+        bool in_modifier = p_modifiers.empty();
         for (Set<String>::iterator F = p_modifiers.begin(); F!=p_modifiers.end() && in_modifier; ++F) {
             if (StringUtils::contains(StringUtils::from_utf8(E->deref()),StringUtils::from_utf8(*F),StringUtils::CaseInsensitive))
                 in_modifier = true;

@@ -33,7 +33,7 @@
 #include "core/method_bind.h"
 #include "scene/animation/animation_tree.h"
 #include "scene/resources/material.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(RootMotionView)
 
@@ -85,7 +85,7 @@ void RootMotionView::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        VisualServer::get_singleton()->immediate_set_material(immediate, SpatialMaterial::get_material_rid_for_2d(false, true, false, false, false));
+        RenderingServer::get_singleton()->immediate_set_material(immediate, SpatialMaterial::get_material_rid_for_2d(false, true, false, false, false));
         first = true;
     }
 
@@ -128,11 +128,11 @@ void RootMotionView::_notification(int p_what) {
         }
         accumulated.origin.z = Math::fposmod(accumulated.origin.z, cell_size);
 
-        VisualServer::get_singleton()->immediate_clear(immediate);
+        RenderingServer::get_singleton()->immediate_clear(immediate);
 
         int cells_in_radius = int((radius / cell_size) + 1.0);
 
-        VisualServer::get_singleton()->immediate_begin(immediate, VS::PRIMITIVE_LINES);
+        RenderingServer::get_singleton()->immediate_begin(immediate, RS::PRIMITIVE_LINES);
         for (int i = -cells_in_radius; i < cells_in_radius; i++) {
             for (int j = -cells_in_radius; j < cells_in_radius; j++) {
 
@@ -144,25 +144,25 @@ void RootMotionView::_notification(int p_what) {
                 from_j = accumulated.xform(from_j);
 
                 Color c = color, c_i = color, c_j = color;
-                c.a *= MAX(0, 1.0 - from.length() / radius);
-                c_i.a *= MAX(0, 1.0 - from_i.length() / radius);
-                c_j.a *= MAX(0, 1.0 - from_j.length() / radius);
+                c.a *= M_MAX(0, 1.0 - from.length() / radius);
+                c_i.a *= M_MAX(0, 1.0 - from_i.length() / radius);
+                c_j.a *= M_MAX(0, 1.0 - from_j.length() / radius);
 
-                VisualServer::get_singleton()->immediate_color(immediate, c);
-                VisualServer::get_singleton()->immediate_vertex(immediate, from);
+                RenderingServer::get_singleton()->immediate_color(immediate, c);
+                RenderingServer::get_singleton()->immediate_vertex(immediate, from);
 
-                VisualServer::get_singleton()->immediate_color(immediate, c_i);
-                VisualServer::get_singleton()->immediate_vertex(immediate, from_i);
+                RenderingServer::get_singleton()->immediate_color(immediate, c_i);
+                RenderingServer::get_singleton()->immediate_vertex(immediate, from_i);
 
-                VisualServer::get_singleton()->immediate_color(immediate, c);
-                VisualServer::get_singleton()->immediate_vertex(immediate, from);
+                RenderingServer::get_singleton()->immediate_color(immediate, c);
+                RenderingServer::get_singleton()->immediate_vertex(immediate, from);
 
-                VisualServer::get_singleton()->immediate_color(immediate, c_j);
-                VisualServer::get_singleton()->immediate_vertex(immediate, from_j);
+                RenderingServer::get_singleton()->immediate_color(immediate, c_j);
+                RenderingServer::get_singleton()->immediate_vertex(immediate, from_j);
             }
         }
 
-        VisualServer::get_singleton()->immediate_end(immediate);
+        RenderingServer::get_singleton()->immediate_end(immediate);
     }
 }
 
@@ -193,8 +193,8 @@ void RootMotionView::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "animation_path", PropertyHint::NodePathValidTypes, "AnimationTree"), "set_animation_path", "get_animation_path");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "cell_size", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radius", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "cell_size", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_cell_size", "get_cell_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radius", PropertyHint::Range, "0.1,16,0.01,or_greater"), "set_radius", "get_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "zero_y"), "set_zero_y", "get_zero_y");
 }
 
@@ -203,12 +203,12 @@ RootMotionView::RootMotionView() {
     radius = 10;
     cell_size = 1;
     set_process_internal(true);
-    immediate = VisualServer::get_singleton()->immediate_create();
+    immediate = RenderingServer::get_singleton()->immediate_create();
     set_base(immediate);
     color = Color(0.5f, 0.5f, 1.0f);
 }
 
 RootMotionView::~RootMotionView() {
     set_base(RID());
-    VisualServer::get_singleton()->free_rid(immediate);
+    RenderingServer::get_singleton()->free_rid(immediate);
 }

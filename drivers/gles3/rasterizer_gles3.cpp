@@ -37,6 +37,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/print_string.h"
+#include "core/string_utils.h"
 
 RasterizerStorage *RasterizerGLES3::get_storage() {
 
@@ -185,7 +186,7 @@ void RasterizerGLES3::initialize() {
     }
     */
 
-    print_line(String("OpenGL ES 3.0 Renderer: ") + VisualServer::get_singleton()->get_video_adapter_name());
+    print_line(String("OpenGL ES 3.0 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
     storage->initialize();
     canvas->initialize();
     scene->initialize();
@@ -274,7 +275,7 @@ void RasterizerGLES3::clear_render_target(const Color &p_color) {
 
 void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter) {
 
-    if (not p_image || p_image->empty())
+    if (not p_image || p_image->is_empty())
         return;
 
     begin_frame(0.0);
@@ -296,7 +297,7 @@ void RasterizerGLES3::set_boot_image(const Ref<Image> &p_image, const Color &p_c
 
     RID texture = storage->texture_create();
     storage->texture_allocate(texture, p_image->get_width(), p_image->get_height(), 0, p_image->get_format(),
-            VS::TEXTURE_TYPE_2D, p_use_filter ? VS::TEXTURE_FLAG_FILTER : 0);
+            RS::TEXTURE_TYPE_2D, p_use_filter ? RS::TEXTURE_FLAG_FILTER : 0);
     storage->texture_set_data(texture, p_image);
 
     Rect2 imgrect(0, 0, p_image->get_width(), p_image->get_height());
@@ -427,7 +428,7 @@ void RasterizerGLES3::register_config() {
     GLOBAL_DEF("rendering/quality/filters/anisotropic_filter_level", 4);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PropertyHint::Range, "1,16,1"));
     GLOBAL_DEF("rendering/limits/time/time_rollover_secs", 3600);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::REAL, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::FLOAT, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
 }
 
 RasterizerGLES3::RasterizerGLES3() {

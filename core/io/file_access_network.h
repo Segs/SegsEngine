@@ -31,27 +31,25 @@
 #pragma once
 
 #include "core/os/file_access.h"
-#include "core/reference.h"
+#include "core/os/semaphore.h"
 #include "core/string.h"
 
 class Thread;
 class FileAccessNetwork;
 class SemaphoreOld;
 class StreamPeerTCP;
-namespace std {
-class recursive_mutex;
-}
+
 using Mutex = std::recursive_mutex;
+class Semaphore;
 
 class FileAccessNetworkClient {
 
     void *m_priv;
     Vector<uint8_t> block;
-    Ref<StreamPeerTCP> client;
-    SemaphoreOld *sem;
+    Semaphore sem;
     Thread *thread;
-    Mutex *mutex;
-    Mutex *blockrequest_mutex;
+    Mutex mutex;
+    Mutex blockrequest_mutex;
     int last_id;
 
     bool quit;
@@ -84,9 +82,9 @@ public:
 
 class FileAccessNetwork : public FileAccess {
 
-    SemaphoreOld *sem;
-    SemaphoreOld *page_sem;
-    Mutex *buffer_mutex;
+    Semaphore sem;
+    mutable Semaphore page_sem;
+    mutable Mutex buffer_mutex;
     bool opened;
     size_t total_size;
     mutable size_t pos;

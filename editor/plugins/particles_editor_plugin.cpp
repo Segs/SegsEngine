@@ -34,10 +34,12 @@
 #include "core/io/resource_loader.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
+#include "core/resource/resource_manager.h"
+
 #include "editor/editor_node.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/scene_tree_dock.h"
-#include "scene/3d/cpu_particles.h"
+#include "scene/3d/cpu_particles_3d.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/particles_material.h"
 
@@ -177,20 +179,20 @@ void ParticlesEditorBase::_node_selected(const NodePath &p_path) {
     if (!sel)
         return;
 
-    if (!sel->is_class("Spatial")) {
+    if (!sel->is_class("Node3D")) {
 
-        EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't inherit from Spatial.").asCString(), sel->get_name().asCString()));
+        EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't inherit from Node3D.").asCString(), sel->get_name().asCString()));
         return;
     }
 
-    VisualInstance *vi = object_cast<VisualInstance>(sel);
+    VisualInstance3D *vi = object_cast<VisualInstance3D>(sel);
     if (!vi) {
 
         EditorNode::get_singleton()->show_warning(FormatSN(TTR("\"%s\" doesn't contain geometry.").asCString(), sel->get_name().asCString()));
         return;
     }
 
-    geometry = vi->get_faces(VisualInstance::FACES_SOLID);
+    geometry = vi->get_faces(VisualInstance3D::FACES_SOLID);
 
     if (geometry.empty()) {
 
@@ -310,7 +312,7 @@ void ParticlesEditor::_menu_option(int p_option) {
         } break;
         case MENU_OPTION_CONVERT_TO_CPU_PARTICLES: {
 
-            CPUParticles *cpu_particles = memnew(CPUParticles);
+            CPUParticles3D *cpu_particles = memnew(CPUParticles3D);
             cpu_particles->convert_from_particles(node);
             cpu_particles->set_name(node->get_name());
             cpu_particles->set_transform(node->get_transform());
@@ -318,7 +320,7 @@ void ParticlesEditor::_menu_option(int p_option) {
             cpu_particles->set_pause_mode(node->get_pause_mode());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Convert to CPUParticles"));
+            ur->create_action_ui(TTR("Convert to CPUParticles3D"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(node), false, false);
@@ -478,7 +480,7 @@ ParticlesEditor::ParticlesEditor() {
     options->get_popup()->add_item(TTR("Create Emission Points From Mesh"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH);
     options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
     options->get_popup()->add_separator();
-    options->get_popup()->add_item(TTR("Convert to CPUParticles"), MENU_OPTION_CONVERT_TO_CPU_PARTICLES);
+    options->get_popup()->add_item(TTR("Convert to CPUParticles3D"), MENU_OPTION_CONVERT_TO_CPU_PARTICLES);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
 

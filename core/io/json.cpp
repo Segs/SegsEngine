@@ -76,7 +76,7 @@ String JSON::_print_var(const Variant &p_var, StringView p_indent, int p_cur_ind
         case VariantType::NIL: return "null";
         case VariantType::BOOL: return p_var.operator bool() ? "true" : "false";
         case VariantType::INT: return itos(p_var);
-        case VariantType::REAL: return rtos(p_var.as<float>());
+        case VariantType::FLOAT: return rtos(p_var.as<float>());
         case VariantType::POOL_INT_ARRAY:
         case VariantType::POOL_REAL_ARRAY:
         case VariantType::POOL_STRING_ARRAY:
@@ -469,7 +469,6 @@ Error JSON::parse(const String &p_json, Variant &r_ret, String &r_err_str, int &
     int len = p_json.length();
     Token token;
     r_err_line = 0;
-    UIString aux_key;
 
     Error err = _get_token(str, idx, len, token, r_err_line, r_err_str);
     if (err)

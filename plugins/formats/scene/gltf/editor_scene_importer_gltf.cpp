@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -40,17 +40,17 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/resource/resource_manager.h"
-#include "scene/3d/bone_attachment.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/bone_attachment_3d.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/animation/animation_player.h"
 #include "scene/resources/surface_tool.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "scene/resources/material.h"
 #include "scene/resources/texture.h"
-#include "scene/3d/skeleton.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/skeleton_3d.h"
+#include "scene/3d/node_3d.h"
 
 #include "EASTL/sort.h"
 #include "EASTL/deque.h"
@@ -226,6 +226,7 @@ namespace {
         // A mapping from the joint indices (in the order of joints_original) to the
         // Godot Skeleton's bone_indices
         HashMap<int, int> joint_i_to_bone_i;
+        Map<int, StringName> joint_i_to_name;
 
         // The Actual Skin that will be created as a mapping between the IBM's of this skin
         // to the generated skeleton for the mesh instances.
@@ -316,6 +317,7 @@ namespace {
 
         HashMap<GLTFNodeIndex, Node*> scene_nodes;
 
+        bool use_named_skin_binds;
         ~GLTFState() {
             for (int i = 0; i < nodes.size(); i++) {
                 memdelete(nodes[i]);
@@ -439,27 +441,6 @@ namespace {
         ERR_FAIL_V(p_values[0]);
     }
 
-    GLTFType _get_type_from_str(const UIString& p_string) {
-
-        if (p_string == "SCALAR")
-            return TYPE_SCALAR;
-
-        if (p_string == "VEC2")
-            return TYPE_VEC2;
-        if (p_string == "VEC3")
-            return TYPE_VEC3;
-        if (p_string == "VEC4")
-            return TYPE_VEC4;
-
-        if (p_string == "MAT2")
-            return TYPE_MAT2;
-        if (p_string == "MAT3")
-            return TYPE_MAT3;
-        if (p_string == "MAT4")
-            return TYPE_MAT4;
-
-        ERR_FAIL_V(TYPE_SCALAR);
-    }
     const char* _get_component_type_name(const uint32_t p_component) {
 
         switch (p_component) {
@@ -965,7 +946,27 @@ namespace {
 
         return OK;
     }
+    GLTFType _get_type_from_str(const String &p_string) {
 
+    if (p_string == "SCALAR")
+        return TYPE_SCALAR;
+
+    if (p_string == "VEC2")
+        return TYPE_VEC2;
+    if (p_string == "VEC3")
+        return TYPE_VEC3;
+    if (p_string == "VEC4")
+        return TYPE_VEC4;
+
+    if (p_string == "MAT2")
+        return TYPE_MAT2;
+    if (p_string == "MAT3")
+        return TYPE_MAT3;
+    if (p_string == "MAT4")
+        return TYPE_MAT4;
+
+    ERR_FAIL_V(TYPE_SCALAR);
+}
     Error _parse_accessors(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("accessors"), ERR_FILE_CORRUPT);
@@ -2519,9 +2520,11 @@ namespace {
 
             const GLTFSkeleton& skeleton = state.skeletons[skin.skeleton];
 
-            for (int joint_index = 0; joint_index < skin.joints_original.size(); ++joint_index) {
+            for (size_t joint_index = 0; joint_index < skin.joints_original.size(); ++joint_index) {
                 const GLTFNodeIndex node_i = skin.joints_original[joint_index];
                 const GLTFNode* node = state.nodes[node_i];
+
+                skin.joint_i_to_name.emplace(joint_index, StringName(node->name));
 
                 const int bone_index = skeleton.godot_skeleton->find_bone(node->name);
                 ERR_FAIL_COND_V(bone_index < 0, FAILED);
@@ -2543,13 +2546,18 @@ namespace {
             const bool has_ibms = !gltf_skin.inverse_binds.empty();
 
             for (int joint_i = 0; joint_i < gltf_skin.joints_original.size(); ++joint_i) {
-                int bone_i = gltf_skin.joint_i_to_bone_i[joint_i];
 
+                Transform xform;
                 if (has_ibms) {
-                    skin->add_bind(bone_i, gltf_skin.inverse_binds[joint_i]);
+                    xform = gltf_skin.inverse_binds[joint_i];
                 }
-                else {
-                    skin->add_bind(bone_i, Transform());
+
+                if (state.use_named_skin_binds) {
+                    StringName name = gltf_skin.joint_i_to_name[joint_i];
+                    skin->add_named_bind(name, xform);
+                } else {
+                    int bone_i = gltf_skin.joint_i_to_bone_i[joint_i];
+                    skin->add_bind(bone_i, xform);
                 }
             }
 
@@ -2649,7 +2657,7 @@ namespace {
                 }
             }
             else {
-                ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera should be in 'orthographic' or 'perspective'");
+                ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Camera3D should be in 'orthographic' or 'perspective'");
             }
 
             state.cameras.push_back(camera);
@@ -2820,7 +2828,7 @@ namespace {
                     n->name = "Mesh";
                 }
                 else if (n->camera >= 0) {
-                    n->name = "Camera";
+                    n->name = "Camera3D";
                 }
                 else {
                     n->name = "Node";
@@ -2831,12 +2839,12 @@ namespace {
         }
     }
 
-    BoneAttachment* _generate_bone_attachment(GLTFState& state, Skeleton* skeleton, const GLTFNodeIndex node_index) {
+    BoneAttachment3D* _generate_bone_attachment(GLTFState& state, Skeleton* skeleton, const GLTFNodeIndex node_index) {
 
         const GLTFNode* gltf_node = state.nodes[node_index];
         const GLTFNode* bone_node = state.nodes[gltf_node->parent];
 
-        BoneAttachment* bone_attachment = memnew(BoneAttachment);
+        BoneAttachment3D* bone_attachment = memnew(BoneAttachment3D);
         print_verbose("glTF: Creating bone attachment for: " + gltf_node->name);
 
         ERR_FAIL_COND_V(!bone_node->joint, nullptr);
@@ -2846,12 +2854,12 @@ namespace {
         return bone_attachment;
     }
 
-    MeshInstance* _generate_mesh_instance(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    MeshInstance3D* _generate_mesh_instance(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
         ERR_FAIL_INDEX_V(gltf_node->mesh, state.meshes.size(), nullptr);
 
-        MeshInstance* mi = memnew(MeshInstance);
+        MeshInstance3D* mi = memnew(MeshInstance3D);
         print_verbose("glTF: Creating mesh for: " + gltf_node->name);
 
         GLTFMesh& mesh = state.meshes[gltf_node->mesh];
@@ -2866,12 +2874,12 @@ namespace {
         return mi;
     }
 
-    Camera* _generate_camera(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    Camera3D* _generate_camera(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
         ERR_FAIL_INDEX_V(gltf_node->camera, state.cameras.size(), nullptr);
 
-        Camera* camera = memnew(Camera);
+        Camera3D* camera = memnew(Camera3D);
         print_verbose("glTF: Creating camera for: " + gltf_node->name);
 
         const GLTFCamera& c = state.cameras[gltf_node->camera];
@@ -2885,20 +2893,20 @@ namespace {
         return camera;
     }
 
-    Spatial* _generate_spatial(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+    Node3D* _generate_spatial(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
 
-        Spatial* spatial = memnew(Spatial);
+        Node3D* spatial = memnew(Node3D);
         print_verbose("glTF: Creating spatial for: " + gltf_node->name);
 
         return spatial;
     }
 
-    void _generate_scene_node(GLTFState& state, Node* scene_parent, Spatial* scene_root, const GLTFNodeIndex node_index) {
+    void _generate_scene_node(GLTFState& state, Node* scene_parent, Node3D* scene_root, const GLTFNodeIndex node_index) {
 
         const GLTFNode* gltf_node = state.nodes[node_index];
 
-        Spatial* current_node = nullptr;
+        Node3D* current_node = nullptr;
 
         // Is our parent a skeleton
         Skeleton* active_skeleton = object_cast<Skeleton>(scene_parent);
@@ -2922,13 +2930,13 @@ namespace {
 
         // If we have an active skeleton, and the node is node skinned, we need to create a bone attachment
         if (current_node == nullptr && active_skeleton != nullptr && gltf_node->skin < 0) {
-            BoneAttachment* bone_attachment = _generate_bone_attachment(state, active_skeleton, node_index);
+            BoneAttachment3D* bone_attachment = _generate_bone_attachment(state, active_skeleton, node_index);
 
             scene_parent->add_child(bone_attachment);
             bone_attachment->set_owner(scene_root);
 
             // There is no gltf_node that represent this, so just directly create a unique name
-            bone_attachment->set_name(_gen_unique_name(state, "BoneAttachment"));
+            bone_attachment->set_name(_gen_unique_name(state, "BoneAttachment3D"));
 
             // We change the scene_parent to our bone attachment now. We do not set current_node because we want to make the node
             // and attach it to the bone_attachment
@@ -3033,18 +3041,18 @@ namespace {
             }
 
             for (size_t i = 0; i < track.rotation_track.times.size(); i++) {
-                length = MAX(length, track.rotation_track.times[i]);
+                length = M_MAX(length, track.rotation_track.times[i]);
             }
             for (size_t i = 0; i < track.translation_track.times.size(); i++) {
-                length = MAX(length, track.translation_track.times[i]);
+                length = M_MAX(length, track.translation_track.times[i]);
             }
             for (size_t i = 0; i < track.scale_track.times.size(); i++) {
-                length = MAX(length, track.scale_track.times[i]);
+                length = M_MAX(length, track.scale_track.times[i]);
             }
 
             for (size_t i = 0; i < track.weight_tracks.size(); i++) {
                 for (size_t j = 0; j < track.weight_tracks[i].times.size(); j++) {
-                    length = MAX(length, track.weight_tracks[i].times[j]);
+                    length = M_MAX(length, track.weight_tracks[i].times[j]);
                 }
             }
 
@@ -3171,7 +3179,7 @@ namespace {
         ap->add_animation(StringName(name), animation);
     }
 
-    void _process_mesh_instances(GLTFState& state, Spatial* scene_root) {
+    void _process_mesh_instances(GLTFState& state, Node3D* scene_root) {
         for (GLTFNodeIndex node_i = 0; node_i < state.nodes.size(); ++node_i) {
             const GLTFNode* node = state.nodes[node_i];
 
@@ -3181,7 +3189,7 @@ namespace {
             const GLTFSkinIndex skin_i = node->skin;
 
             auto mi_element = state.scene_nodes.find(node_i);
-            MeshInstance* mi = object_cast<MeshInstance>(mi_element->second);
+            MeshInstance3D* mi = object_cast<MeshInstance3D>(mi_element->second);
             ERR_FAIL_COND(mi == nullptr);
 
             const GLTFSkeletonIndex skel_i = state.skins[node->skin].skeleton;
@@ -3199,9 +3207,9 @@ namespace {
         }
     }
 
-    Spatial* _generate_scene(GLTFState& state, const int p_bake_fps) {
+    Node3D* _generate_scene(GLTFState& state, const int p_bake_fps) {
 
-        Spatial* root = memnew(Spatial);
+        Node3D* root = memnew(Node3D);
 
         // scene_name is already unique
         root->set_name(state.scene_name);
@@ -3228,8 +3236,6 @@ namespace {
 
 
 }
-
-
 
 
 Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
@@ -3259,6 +3265,7 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
 
     state.major_version = StringUtils::to_int(StringUtils::get_slice(version,".", 0));
     state.minor_version = StringUtils::to_int(StringUtils::get_slice(version,".", 1));
+    state.use_named_skin_binds = p_flags & IMPORT_USE_NAMED_SKIN_BINDS;
 
     /* STEP 0 PARSE SCENE */
     Error err = _parse_scenes(state);
@@ -3339,7 +3346,7 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
     _assign_scene_names(state);
 
     /* STEP 17 MAKE SCENE! */
-    Spatial *scene = _generate_scene(state, p_bake_fps);
+    Node3D *scene = _generate_scene(state, p_bake_fps);
 
     return scene;
 }

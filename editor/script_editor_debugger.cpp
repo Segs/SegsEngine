@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/os/file_access.h"
 #include "core/resource/resource_manager.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
@@ -49,7 +50,7 @@
 #include "editor_settings.h"
 #include "main/performance.h"
 #include "property_editor.h"
-#include "scene/3d/camera.h"
+#include "scene/3d/camera_3d.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/label.h"
 #include "scene/gui/line_edit.h"
@@ -505,7 +506,7 @@ void ScriptEditorDebugger::_video_mem_request() {
 Size2 ScriptEditorDebugger::get_minimum_size() const {
 
     Size2 ms = MarginContainer::get_minimum_size();
-    ms.y = MAX(ms.y, 250 * EDSCALE);
+    ms.y = M_MAX(ms.y, 250 * EDSCALE);
     return ms;
 }
 
@@ -844,11 +845,11 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "error") {
 
         // Should have at least two elements, error array and stack items count.
-        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger."); 
+        ERR_FAIL_COND_MSG(p_data.size() < 2, "Malformed error message from script debugger.");
 
         // Error or warning data.
         Array err = p_data[0];
-        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger."); 
+        ERR_FAIL_COND_MSG(err.size() < 10, "Malformed error message from script debugger.");
 
         // Format time.
         Array time_vals;
@@ -1237,7 +1238,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 if (inspect_edited_object_timeout < 0) {
                     inspect_edited_object_timeout = EditorSettings::get_singleton()->get("debugger/remote_inspect_refresh_interval");
                     if (inspected_object_id) {
-                        if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(ObjectDB::get_instance(editor->get_editor_history()->get_current()))) {
+                        if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(gObjectDB().get_instance(editor->get_editor_history()->get_current()))) {
                             if (obj->remote_object_id == inspected_object_id) {
                                 //take the chance and re-inspect selected object
                                 Array msg;
@@ -1267,12 +1268,12 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 } else if (camera_override >= OVERRIDE_3D_1) {
                     int viewport_idx = camera_override - OVERRIDE_3D_1;
                     SpatialEditorViewport *viewport = SpatialEditor::get_singleton()->get_editor_viewport(viewport_idx);
-                    Camera *const cam = viewport->get_camera();
+                    Camera3D *const cam = viewport->get_camera();
 
                     Array msg;
                     msg.push_back("override_camera_3D:transform");
                     msg.push_back(cam->get_camera_transform());
-                    if (cam->get_projection() == Camera::PROJECTION_ORTHOGONAL) {
+                    if (cam->get_projection() == Camera3D::PROJECTION_ORTHOGONAL) {
                         msg.push_back(false);
                         msg.push_back(cam->get_size());
                     } else {

@@ -46,6 +46,7 @@
 #include "core/os/thread.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
+#include "core/debugger/script_debugger.h"
 
 #include "../csharp_script.h"
 #include "../godotsharp_dirs.h"

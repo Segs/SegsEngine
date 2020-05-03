@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Generic6DOFJoint" inherits="Joint" version="4.0">
+<class name="Generic6DOFJoint3D" inherits="Joint3D" version="4.0">
 	<brief_description>
 		The generic 6-degrees-of-freedom joint can implement a variety of joint types by locking certain axes' rotation or translation.
 	</brief_description>
@@ -12,7 +12,7 @@
 		<method name="get_flag_x" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<description>
 			</description>
@@ -20,7 +20,7 @@
 		<method name="get_flag_y" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<description>
 			</description>
@@ -28,7 +28,7 @@
 		<method name="get_flag_z" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<description>
 			</description>
@@ -36,7 +36,7 @@
 		<method name="get_param_x" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<description>
 			</description>
@@ -44,7 +44,7 @@
 		<method name="get_param_y" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<description>
 			</description>
@@ -52,7 +52,7 @@
 		<method name="get_param_z" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<description>
 			</description>
@@ -60,7 +60,7 @@
 		<method name="set_flag_x">
 			<return type="void">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<argument index="1" name="value" type="bool">
 			</argument>
@@ -70,7 +70,7 @@
 		<method name="set_flag_y">
 			<return type="void">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<argument index="1" name="value" type="bool">
 			</argument>
@@ -80,7 +80,7 @@
 		<method name="set_flag_z">
 			<return type="void">
 			</return>
-			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint.Flag">
+			<argument index="0" name="flag" type="int" enum="Generic6DOFJoint3D.Flag">
 			</argument>
 			<argument index="1" name="value" type="bool">
 			</argument>
@@ -90,7 +90,7 @@
 		<method name="set_param_x">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<argument index="1" name="value" type="float">
 			</argument>
@@ -100,7 +100,7 @@
 		<method name="set_param_y">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<argument index="1" name="value" type="float">
 			</argument>
@@ -110,7 +110,7 @@
 		<method name="set_param_z">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="Generic6DOFJoint.Param">
+			<argument index="0" name="param" type="int" enum="Generic6DOFJoint3D.Param">
 			</argument>
 			<argument index="1" name="value" type="float">
 			</argument>

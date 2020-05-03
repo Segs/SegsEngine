@@ -143,8 +143,8 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
 
             for (int j = from; j < to; j++) {
 
-                max = MAX(max, mix_chunk[j].l);
-                max = MAX(max, mix_chunk[j].r);
+                max = M_MAX(max, mix_chunk[j].l);
+                max = M_MAX(max, mix_chunk[j].r);
 
                 min = MIN(min, mix_chunk[j].l);
                 min = MIN(min, mix_chunk[j].r);
@@ -224,7 +224,7 @@ void AudioStreamPreviewGenerator::_notification(int p_what) {
                 Thread::wait_to_finish(E.second.thread);
                 E.second.thread = nullptr;
             }
-            if (!ObjectDB::get_instance(E.first)) { //no longer in use, get rid of preview
+            if (!gObjectDB().get_instance(E.first)) { //no longer in use, get rid of preview
                 to_erase.push_back(E.first);
             }
         }

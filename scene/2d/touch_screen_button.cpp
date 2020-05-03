@@ -32,7 +32,7 @@
 
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
-#include "core/input_map.h"
+#include "core/input/input_map.h"
 #include "core/os/input.h"
 #include "core/os/os.h"
 

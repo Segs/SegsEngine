@@ -33,6 +33,7 @@
 #include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 #include "core/script_language.h"
+#include "core/debugger/script_debugger.h"
 #include "gdscript_function.h"
 #include "core/hash_set.h"
 #include "core/hash_map.h"
@@ -59,7 +60,7 @@ public:
     GDScriptNativeClass(const StringName &p_name);
 };
 
-class GDScript : public Script {
+class GODOT_EXPORT GDScript : public Script {
 
     GDCLASS(GDScript,Script)
 
@@ -121,7 +122,7 @@ class GDScript : public Script {
     String fully_qualified_name;
     SelfList<GDScript> script_list;
 
-    GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Variant::CallError &r_error);
+    GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Callable::CallError &r_error);
 
     void _set_subclass_path(Ref<GDScript> &p_sc, StringView p_path);
 
@@ -146,7 +147,7 @@ protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     void _get_property_list(Vector<PropertyInfo> *p_properties) const;
 
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
+    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) override;
     //void call_multilevel(const StringName& p_method,const Variant** p_args,int p_argcount);
 
     static void _bind_methods();
@@ -175,7 +176,7 @@ public:
     const Map<StringName, GDScriptFunction *> &debug_get_member_functions() const; //this is debug only
     StringName debug_get_member_by_index(int p_idx) const;
 
-    Variant _new(const Variant **p_args, int p_argcount, Variant::CallError &r_error);
+    Variant _new(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     bool can_instance() const override;
 
     Ref<Script> get_base_script() const override;
@@ -254,7 +255,7 @@ public:
 
     void get_method_list(Vector<MethodInfo> *p_list) const override;
     bool has_method(const StringName &p_method) const override;
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Variant::CallError &r_error) override;
+    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) override;
     void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
     void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount) override;
 

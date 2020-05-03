@@ -45,7 +45,7 @@
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 void ScriptDebuggerRemote::_send_video_memory() {
 
@@ -109,7 +109,7 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
     packet_peer_stream->put_var(p_name);
 
     Variant var = p_variable;
-    if (p_variable.get_type() == VariantType::OBJECT && !ObjectDB::instance_validate(p_variable)) {
+    if (p_variable.get_type() == VariantType::OBJECT && !gObjectDB().instance_validate(p_variable)) {
         var = Variant();
     }
 
@@ -128,7 +128,7 @@ void ScriptDebuggerRemote::_put_variable(StringView p_name, const Variant &p_var
 
 void ScriptDebuggerRemote::_save_node(ObjectID id, StringView p_path) {
 
-    Node *node = object_cast<Node>(ObjectDB::get_instance(id));
+    Node *node = object_cast<Node>(gObjectDB().get_instance(id));
     ERR_FAIL_COND(!node);
 
     Ref<PackedScene> ps(make_ref_counted<PackedScene>());
@@ -342,9 +342,9 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
         }
         // This is for the camera override to stay live even when the game is paused from the editor
         loop_time_sec = (OS::get_singleton()->get_ticks_usec() - loop_begin_usec) / 1000000.0f;
-        VisualServer::get_singleton()->sync();
-        if (VisualServer::get_singleton()->has_changed()) {
-            VisualServer::get_singleton()->draw(true, loop_time_sec * Engine::get_singleton()->get_time_scale());
+        RenderingServer::get_singleton()->sync();
+        if (RenderingServer::get_singleton()->has_changed()) {
+            RenderingServer::get_singleton()->draw(true, loop_time_sec * Engine::get_singleton()->get_time_scale());
         }
 
     }
@@ -565,7 +565,7 @@ void ScriptDebuggerRemote::_send_object_id(ObjectID p_id) {
     using ScriptMemberMap = Map<const Script *, HashSet<StringName> >;
     using ScriptConstantsMap = Map<const Script *, HashMap<StringName, Variant> >;
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     if (!obj)
         return;
 
@@ -711,7 +711,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
 void ScriptDebuggerRemote::_set_object_property(ObjectID p_id, const String &p_property, const Variant &p_value) {
 
-    Object *obj = ObjectDB::get_instance(p_id);
+    Object *obj = gObjectDB().get_instance(p_id);
     if (!obj)
         return;
     //TODO: SEGS: fix this madness..
@@ -1097,7 +1097,7 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
     }
 
     String s = p_string;
-    int allowed_chars = MIN(MAX(sdr->max_cps - sdr->char_count, 0), s.length());
+    int allowed_chars = MIN(M_MAX(sdr->max_cps - sdr->char_count, 0), s.length());
 
     if (allowed_chars == 0)
         return;
@@ -1190,7 +1190,7 @@ ScriptDebuggerRemote::ScriptDebuggerRemote() :
         last_perf_time(0),
         last_net_prof_time(0),
         last_net_bandwidth_time(0),
-        performance(Engine::get_singleton()->get_singleton_object(StringName("Performance"))),
+        performance(Engine::get_singleton()->get_named_singleton(StringName("Performance"))),
         requested_quit(false),
         mutex(memnew(Mutex)),
         max_messages_per_frame(GLOBAL_GET("network/limits/debugger_stdout/max_messages_per_frame")),

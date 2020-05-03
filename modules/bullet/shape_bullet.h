@@ -35,7 +35,7 @@
 #include "core/pool_vector.h"
 #include "core/hash_map.h"
 #include "core/variant.h"
-#include "servers/physics_server.h"
+#include "servers/physics_server_3d.h"
 
 #include <LinearMath/btAlignedObjectArray.h>
 #include <LinearMath/btScalar.h>
@@ -81,7 +81,7 @@ public:
     virtual void set_data(const Variant &p_data) = 0;
     virtual Variant get_data() const = 0;
 
-    virtual PhysicsServer::ShapeType get_type() const = 0;
+    virtual PhysicsServer3D::ShapeType get_type() const = 0;
 
 public:
     static class btEmptyShape *create_shape_empty();
@@ -106,7 +106,7 @@ public:
 
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -123,7 +123,7 @@ public:
     _FORCE_INLINE_ real_t get_radius() { return radius; }
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -140,7 +140,7 @@ public:
     const btVector3 &get_half_extents() { return half_extents; }
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -159,7 +159,7 @@ public:
     _FORCE_INLINE_ real_t get_radius() { return radius; }
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -178,7 +178,7 @@ public:
     _FORCE_INLINE_ real_t get_radius() { return radius; }
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_margin = 0) override;
 
 private:
@@ -195,7 +195,7 @@ public:
     void set_data(const Variant &p_data) override;
     void get_vertices(Vector<Vector3> &out_vertices);
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -213,7 +213,7 @@ public:
 
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -233,7 +233,7 @@ public:
 
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:
@@ -250,7 +250,7 @@ public:
 
     void set_data(const Variant &p_data) override;
     Variant get_data() const override;
-    PhysicsServer::ShapeType get_type() const override;
+    PhysicsServer3D::ShapeType get_type() const override;
     btCollisionShape *create_bt_shape(const btVector3 &p_implicit_scale, real_t p_extra_edge = 0) override;
 
 private:

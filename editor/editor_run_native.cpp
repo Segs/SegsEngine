@@ -51,7 +51,7 @@ void EditorRunNative::_notification(int p_what) {
                 Ref<Image> im = icon->get_data();
                 im = dynamic_ref_cast<Image>(im->duplicate());
                 im->clear_mipmaps();
-                if (!im->empty()) {
+                if (!im->is_empty()) {
 
                     im->resize(16 * EDSCALE, 16 * EDSCALE);
                     Ref<ImageTexture> small_icon(make_ref_counted<ImageTexture>());

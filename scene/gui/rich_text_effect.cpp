@@ -98,7 +98,7 @@ void CharFXTransform::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "relative_index"), "set_relative_index", "get_relative_index");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "absolute_index"), "set_absolute_index", "get_absolute_index");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "elapsed_time"), "set_elapsed_time", "get_elapsed_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "elapsed_time"), "set_elapsed_time", "get_elapsed_time");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visibility", "is_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");

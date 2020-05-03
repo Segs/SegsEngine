@@ -32,7 +32,7 @@
 
 #include "core/engine.h"
 #include "core/method_bind.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(TextureProgress)
 VARIANT_ENUM_CAST(TextureProgress::FillMode);
@@ -252,10 +252,10 @@ void TextureProgress::draw_nine_patch_stretched(const Ref<Texture> &p_texture, F
         }
 
         double width_filled = width_total * p_ratio;
-        double middle_section_size = MAX(0.0, width_texture - first_section_size - last_section_size);
+        double middle_section_size = M_MAX(0.0, width_texture - first_section_size - last_section_size);
 
-        middle_section_size *= MIN(1.0, (MAX(0.0, width_filled - first_section_size) / MAX(1.0, width_total - first_section_size - last_section_size)));
-        last_section_size = MAX(0.0, last_section_size - (width_total - width_filled));
+        middle_section_size *= MIN(1.0, (M_MAX(0.0, width_filled - first_section_size) / M_MAX(1.0, width_total - first_section_size - last_section_size)));
+        last_section_size = M_MAX(0.0, last_section_size - (width_total - width_filled));
         first_section_size = MIN(first_section_size, width_filled);
         width_texture = MIN(width_texture, first_section_size + middle_section_size + last_section_size);
 
@@ -305,7 +305,7 @@ void TextureProgress::draw_nine_patch_stretched(const Ref<Texture> &p_texture, F
     p_texture->get_rect_region(dst_rect, src_rect, dst_rect, src_rect);
 
     RID ci = get_canvas_item();
-    VisualServer::get_singleton()->canvas_item_add_nine_patch(ci, dst_rect, src_rect, p_texture->get_rid(), topleft, bottomright, VS::NINE_PATCH_STRETCH, VS::NINE_PATCH_STRETCH, true, p_modulate);
+    RenderingServer::get_singleton()->canvas_item_add_nine_patch(ci, dst_rect, src_rect, p_texture->get_rid(), topleft, bottomright, RS::NINE_PATCH_STRETCH, RS::NINE_PATCH_STRETCH, true, p_modulate);
 }
 
 void TextureProgress::_notification(int p_what) {
@@ -370,7 +370,7 @@ void TextureProgress::_notification(int p_what) {
                                 pts.append(start);
                                 pts.append(end);
                                 float from = MIN(start, end);
-                                float to = MAX(start, end);
+                                float to = M_MAX(start, end);
                                 for (int i = 0; i < 12; i++)
                                     if (corners[i] > from && corners[i] < to)
                                         pts.append(corners[i]);
@@ -515,8 +515,8 @@ void TextureProgress::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "tint_over"), "set_tint_over", "get_tint_over");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "tint_progress"), "set_tint_progress", "get_tint_progress");
     ADD_GROUP("Radial Fill", "radial_");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radial_initial_angle", PropertyHint::Range, "0.0,360.0,0.1,slider"), "set_radial_initial_angle", "get_radial_initial_angle");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "radial_fill_degrees", PropertyHint::Range, "0.0,360.0,0.1,slider"), "set_fill_degrees", "get_fill_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radial_initial_angle", PropertyHint::Range, "0.0,360.0,0.1,slider"), "set_radial_initial_angle", "get_radial_initial_angle");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "radial_fill_degrees", PropertyHint::Range, "0.0,360.0,0.1,slider"), "set_fill_degrees", "get_fill_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "radial_center_offset"), "set_radial_center_offset", "get_radial_center_offset");
     ADD_GROUP("Stretch", "stretch_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "nine_patch_stretch"), "set_nine_patch_stretch", "get_nine_patch_stretch");

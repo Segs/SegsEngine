@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="CPUParticles" inherits="GeometryInstance" version="4.0">
+<class name="CPUParticles3D" inherits="GeometryInstance" version="4.0">
 	<brief_description>
 		CPU-based 3D particle emitter.
 	</brief_description>
@@ -22,7 +22,7 @@
 		<method name="get_param" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<description>
 				Returns the base value of the parameter specified by [enum Parameter].
@@ -31,7 +31,7 @@
 		<method name="get_param_curve" qualifiers="const">
 			<return type="Curve">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<description>
 				Returns the [Curve] of the parameter specified by [enum Parameter].
@@ -40,7 +40,7 @@
 		<method name="get_param_randomness" qualifiers="const">
 			<return type="float">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<description>
 				Returns the randomness factor of the parameter specified by [enum Parameter].
@@ -49,7 +49,7 @@
 		<method name="get_particle_flag" qualifiers="const">
 			<return type="bool">
 			</return>
-			<argument index="0" name="flag" type="int" enum="CPUParticles.Flags">
+            <argument index="0" name="flag" type="int" enum="CPUParticles3D.Flags">
 			</argument>
 			<description>
 				Returns the enabled state of the given flag (see [enum Flags] for options).
@@ -65,7 +65,7 @@
 		<method name="set_param">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<argument index="1" name="value" type="float">
 			</argument>
@@ -76,7 +76,7 @@
 		<method name="set_param_curve">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<argument index="1" name="curve" type="Curve">
 			</argument>
@@ -87,7 +87,7 @@
 		<method name="set_param_randomness">
 			<return type="void">
 			</return>
-			<argument index="0" name="param" type="int" enum="CPUParticles.Parameter">
+            <argument index="0" name="param" type="int" enum="CPUParticles3D.Parameter">
 			</argument>
 			<argument index="1" name="randomness" type="float">
 			</argument>
@@ -98,7 +98,7 @@
 		<method name="set_particle_flag">
 			<return type="void">
 			</return>
-			<argument index="0" name="flag" type="int" enum="CPUParticles.Flags">
+            <argument index="0" name="flag" type="int" enum="CPUParticles3D.Flags">
 			</argument>
 			<argument index="1" name="enable" type="bool">
 			</argument>
@@ -165,7 +165,7 @@
 		<member name="direction" type="Vector3" setter="set_direction" getter="get_direction" default="Vector3( 1, 0, 0 )">
 			Unit vector specifying the particles' emission direction.
 		</member>
-		<member name="draw_order" type="int" setter="set_draw_order" getter="get_draw_order" enum="CPUParticles.DrawOrder" default="0">
+        <member name="draw_order" type="int" setter="set_draw_order" getter="get_draw_order" enum="CPUParticles3D.DrawOrder" default="0">
 			Particle draw order. Uses [enum DrawOrder] values.
 		</member>
 		<member name="emission_box_extents" type="Vector3" setter="set_emission_box_extents" getter="get_emission_box_extents">
@@ -180,7 +180,7 @@
 		<member name="emission_points" type="PoolVector3Array" setter="set_emission_points" getter="get_emission_points" default="PoolVector3Array(  )">
 			Sets the initial positions to spawn particles when using [constant EMISSION_SHAPE_POINTS] or [constant EMISSION_SHAPE_DIRECTED_POINTS].
 		</member>
-		<member name="emission_shape" type="int" setter="set_emission_shape" getter="get_emission_shape" enum="CPUParticles.EmissionShape" default="0">
+        <member name="emission_shape" type="int" setter="set_emission_shape" getter="get_emission_shape" enum="CPUParticles3D.EmissionShape" default="0">
 			Particles will be emitted inside this region. See [enum EmissionShape] for possible values.
 		</member>
 		<member name="emission_sphere_radius" type="float" setter="set_emission_sphere_radius" getter="get_emission_sphere_radius">

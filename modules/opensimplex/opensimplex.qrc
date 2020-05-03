@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="NoiseTexture.svg">icons/icon_noise_texture.svg</file>
+        <file alias="NoiseTexture.svg">icons/NoiseTexture.svg</file>
     </qresource>
 </RCC>

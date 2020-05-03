@@ -69,15 +69,6 @@ void NodePath::_update_hash_cache() const {
     hash_cache = h;
 }
 
-StringName NodePath::get_sname() const {
-
-    if (data && data->path.size() == 1 && data->subpath.empty()) {
-        return data->path[0];
-    } else {
-        return StringName(asString());
-    }
-}
-
 void NodePath::prepend_period() {
 
     if (!data->path.empty() && StringView(data->path[0]) != "."_sv) {
@@ -201,18 +192,8 @@ String NodePath::asString() const {
     String ret;
     if (data->absolute)
         ret = "/";
-
-    for (size_t i = 0; i < data->path.size(); i++) {
-
-        if (i > 0)
-            ret += '/';
-        ret += data->path[i].asCString();
-    }
-
-    for (size_t i = 0; i < data->subpath.size(); i++) {
-
-        ret += String(":") + data->subpath[i].asCString();
-    }
+    ret += String::joined(data->path,"/");
+    ret += String::joined(data->subpath,":");
 
     return ret;
 }

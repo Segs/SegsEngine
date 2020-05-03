@@ -77,8 +77,8 @@ struct _IP_ResolverPrivate {
         return IP::RESOLVER_INVALID_ID;
     }
 
-    Mutex *mutex;
-    SemaphoreOld *sem;
+    Mutex mutex;
+    Semaphore sem;
 
     Thread *thread;
     //Semaphore* semaphore;
@@ -105,11 +105,9 @@ struct _IP_ResolverPrivate {
 
         while (!ipr->thread_abort) {
 
-            ipr->sem->wait();
-
-            ipr->mutex->lock();
+            ipr->sem.wait();
+            MutexLock guard(ipr->mutex);
             ipr->resolve_queues();
-            ipr->mutex->unlock();
         }
     }
 
@@ -122,30 +120,27 @@ struct _IP_ResolverPrivate {
 
 IP_Address IP::resolve_hostname(StringView p_hostname, IP::Type p_type) {
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
 
     String key = _IP_ResolverPrivate::get_cache_key(p_hostname, p_type);
     if (resolver->cache.contains(key) && resolver->cache[key].is_valid()) {
         IP_Address res = resolver->cache[key];
-        resolver->mutex->unlock();
         return res;
     }
 
     IP_Address res = _resolve_hostname(p_hostname, p_type);
     resolver->cache[key] = res;
-    resolver->mutex->unlock();
     return res;
 }
 
 IP::ResolverID IP::resolve_hostname_queue_item(const String &p_hostname, IP::Type p_type) {
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
 
     ResolverID id = resolver->find_empty_id();
 
     if (id == RESOLVER_INVALID_ID) {
         WARN_PRINT("Out of resolver queries");
-        resolver->mutex->unlock();
         return id;
     }
 
@@ -159,12 +154,11 @@ IP::ResolverID IP::resolve_hostname_queue_item(const String &p_hostname, IP::Typ
         resolver->queue[id].response = IP_Address();
         resolver->queue[id].status = IP::RESOLVER_STATUS_WAITING;
         if (resolver->thread)
-            resolver->sem->post();
+            resolver->sem.post();
         else
             resolver->resolve_queues();
     }
 
-    resolver->mutex->unlock();
     return id;
 }
 
@@ -172,50 +166,41 @@ IP::ResolverStatus IP::get_resolve_item_status(ResolverID p_id) const {
 
     ERR_FAIL_INDEX_V(p_id, IP::RESOLVER_MAX_QUERIES, IP::RESOLVER_STATUS_NONE);
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
+
     if (resolver->queue[p_id].status == IP::RESOLVER_STATUS_NONE) {
         ERR_PRINT("Condition status == IP::RESOLVER_STATUS_NONE");
-        resolver->mutex->unlock();
         return IP::RESOLVER_STATUS_NONE;
     }
-    IP::ResolverStatus res = resolver->queue[p_id].status;
-
-    resolver->mutex->unlock();
-    return res;
+    return resolver->queue[p_id].status;
 }
 
 IP_Address IP::get_resolve_item_address(ResolverID p_id) const {
 
     ERR_FAIL_INDEX_V(p_id, IP::RESOLVER_MAX_QUERIES, IP_Address());
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
 
     if (resolver->queue[p_id].status != IP::RESOLVER_STATUS_DONE) {
         ERR_PRINT("Resolve of '" + resolver->queue[p_id].hostname + "'' didn't complete yet.");
-        resolver->mutex->unlock();
         return IP_Address();
     }
 
-    IP_Address res = resolver->queue[p_id].response;
-
-    resolver->mutex->unlock();
-    return res;
+    return resolver->queue[p_id].response;
 }
 
 void IP::erase_resolve_item(ResolverID p_id) {
 
     ERR_FAIL_INDEX(p_id, IP::RESOLVER_MAX_QUERIES);
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
 
     resolver->queue[p_id].status = IP::RESOLVER_STATUS_NONE;
-
-    resolver->mutex->unlock();
 }
 
 void IP::clear_cache(const String &p_hostname) {
 
-    resolver->mutex->lock();
+    MutexLock guard(resolver->mutex);
 
     if (p_hostname.empty()) {
         resolver->cache.clear();
@@ -225,8 +210,6 @@ void IP::clear_cache(const String &p_hostname) {
         resolver->cache.erase(_IP_ResolverPrivate::get_cache_key(p_hostname, IP::TYPE_IPV6));
         resolver->cache.erase(_IP_ResolverPrivate::get_cache_key(p_hostname, IP::TYPE_ANY));
     }
-
-    resolver->mutex->unlock();
 }
 
 Array IP::_get_local_addresses() const {
@@ -321,26 +304,9 @@ IP::IP() {
 
     singleton = this;
     resolver = memnew(_IP_ResolverPrivate);
-    resolver->sem = nullptr;
-    resolver->mutex = memnew(Mutex);
 
-#ifndef NO_THREADS
-
-    resolver->sem = SemaphoreOld::create();
-    if (resolver->sem) {
-        resolver->thread_abort = false;
-
-        resolver->thread = Thread::create(_IP_ResolverPrivate::_thread_function, resolver);
-
-        if (!resolver->thread)
-            memdelete(resolver->sem); //wtf
-    } else {
-        resolver->thread = nullptr;
-    }
-#else
-    resolver->sem = nullptr;
-    resolver->thread = nullptr;
-#endif
+    resolver->thread_abort = false;
+    resolver->thread = Thread::create(_IP_ResolverPrivate::_thread_function, resolver);
 }
 
 IP::~IP() {
@@ -348,14 +314,10 @@ IP::~IP() {
 #ifndef NO_THREADS
     if (resolver->thread) {
         resolver->thread_abort = true;
-        resolver->sem->post();
+        resolver->sem.post();
         Thread::wait_to_finish(resolver->thread);
         memdelete(resolver->thread);
-        memdelete(resolver->sem);
     }
-
-#endif
-
-    memdelete(resolver->mutex);
     memdelete(resolver);
+#endif
 }

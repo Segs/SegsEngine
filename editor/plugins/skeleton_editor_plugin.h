@@ -33,10 +33,10 @@
 
 #include "editor/editor_node.h"
 #include "editor/editor_plugin.h"
-#include "scene/3d/skeleton.h"
+#include "scene/3d/skeleton_3d.h"
 
-class PhysicalBone;
-class Joint;
+class PhysicalBone3D;
+class Joint3D;
 
 class SkeletonEditor : public Node {
 	GDCLASS(SkeletonEditor,Node)
@@ -46,7 +46,7 @@ class SkeletonEditor : public Node {
 	};
 
 	struct BoneInfo {
-		PhysicalBone *physical_bone;
+		PhysicalBone3D *physical_bone;
 		Transform relative_rest; // Relative to skeleton node
 		BoneInfo() :
 				physical_bone(nullptr) {}
@@ -66,7 +66,7 @@ protected:
 	static void _bind_methods();
 
 	void create_physical_skeleton();
-	PhysicalBone *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
+	PhysicalBone3D *create_physical_bone(int bone_id, int bone_child_id, const Vector<BoneInfo> &bones_infos);
 
 public:
 	void edit(Skeleton *p_node);

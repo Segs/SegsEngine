@@ -31,6 +31,7 @@
 #include "viewport.h"
 
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
@@ -38,10 +39,10 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "scene/2d/collision_object_2d.h"
-#include "scene/3d/camera.h"
-#include "scene/3d/collision_object.h"
-#include "scene/3d/listener.h"
-#include "scene/3d/spatial.h"
+#include "scene/3d/camera_3d.h"
+#include "scene/3d/collision_object_3d.h"
+#include "scene/3d/listener_3d.h"
+#include "scene/3d/node_3d.h"
 #include "scene/3d/world_environment.h"
 #include "scene/gui/control.h"
 #include "scene/gui/label.h"
@@ -55,7 +56,7 @@
 #include "scene/main/timer.h"
 #include "scene/resources/mesh.h"
 #include "scene/scene_string_names.h"
-#include "servers/physics_2d_server.h"
+#include "servers/physics_server_2d.h"
 
 IMPL_GDCLASS(ViewportTexture)
 IMPL_GDCLASS(Viewport)
@@ -90,10 +91,10 @@ void ViewportTexture::setup_local_to_scene() {
 
     vp->viewport_textures.insert(this);
 
-    VisualServer::get_singleton()->texture_set_proxy(proxy, vp->texture_rid);
+    RenderingServer::get_singleton()->texture_set_proxy(proxy, vp->texture_rid);
 
     vp->texture_flags = flags;
-    VisualServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
+    RenderingServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
 }
 
 void ViewportTexture::set_viewport_path_in_scene(const NodePath &p_path) {
@@ -141,7 +142,7 @@ bool ViewportTexture::has_alpha() const {
 Ref<Image> ViewportTexture::get_data() const {
 
     ERR_FAIL_COND_V(!vp, Ref<Image>());
-    return VisualServer::get_singleton()->texture_get_data(vp->texture_rid);
+    return RenderingServer::get_singleton()->texture_get_data(vp->texture_rid);
 }
 void ViewportTexture::set_flags(uint32_t p_flags) {
     flags = p_flags;
@@ -150,7 +151,7 @@ void ViewportTexture::set_flags(uint32_t p_flags) {
         return;
 
     vp->texture_flags = flags;
-    VisualServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
+    RenderingServer::get_singleton()->texture_set_flags(vp->texture_rid, flags);
 }
 
 uint32_t ViewportTexture::get_flags() const {
@@ -171,7 +172,7 @@ ViewportTexture::ViewportTexture() {
     vp = nullptr;
     flags = 0;
     set_local_to_scene(true);
-    proxy = VisualServer::get_singleton()->texture_create();
+    proxy = RenderingServer::get_singleton()->texture_create();
 }
 
 ViewportTexture::~ViewportTexture() {
@@ -180,7 +181,7 @@ ViewportTexture::~ViewportTexture() {
         vp->viewport_textures.erase(this);
     }
 
-    VisualServer::get_singleton()->free_rid(proxy);
+    RenderingServer::get_singleton()->free_rid(proxy);
 }
 
 /////////////////////////////////////
@@ -255,7 +256,7 @@ void Viewport::update_worlds() {
     find_world()->_update(get_tree()->get_frame());
 }
 
-void Viewport::_collision_object_input_event(CollisionObject *p_object, Camera *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
+void Viewport::_collision_object_input_event(CollisionObject3D *p_object, Camera3D *p_camera, const Ref<InputEvent> &p_input_event, const Vector3 &p_pos, const Vector3 &p_normal, int p_shape) {
 
     Transform object_transform = p_object->get_global_transform();
     Transform camera_transform = p_camera->get_global_transform();
@@ -281,14 +282,14 @@ void Viewport::_own_world_changed() {
         _propagate_exit_world(this);
     }
 
-    own_world = dynamic_ref_cast<World>(world->duplicate());
+    own_world = dynamic_ref_cast<World3D>(world->duplicate());
 
     if (is_inside_tree()) {
         _propagate_enter_world(this);
     }
 
     if (is_inside_tree()) {
-        VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+        RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
     }
 
     _update_listener();
@@ -301,14 +302,14 @@ void Viewport::_notification(int p_what) {
 
             if (get_parent()) {
                 parent = get_parent()->get_viewport();
-                VisualServer::get_singleton()->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
+                RenderingServer::get_singleton()->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
             } else {
                 parent = nullptr;
             }
 
             current_canvas = find_world_2d()->get_canvas();
-            VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-            VisualServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
+            RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+            RenderingServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
 
             _update_listener();
             _update_listener_2d();
@@ -318,28 +319,28 @@ void Viewport::_notification(int p_what) {
             add_to_group("_viewports");
             if (get_tree()->is_debugging_collisions_hint()) {
                 //2D
-                Physics2DServer::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_2d_debug = VisualServer::get_singleton()->canvas_item_create();
-                VisualServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
+                PhysicsServer2D::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
+                contact_2d_debug = RenderingServer::get_singleton()->canvas_item_create();
+                RenderingServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
                 //3D
-                PhysicsServer::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_3d_debug_multimesh = VisualServer::get_singleton()->multimesh_create();
-                VisualServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), VS::MULTIMESH_TRANSFORM_3D, VS::MULTIMESH_COLOR_8BIT);
-                VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
-                VisualServer::get_singleton()->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
-                contact_3d_debug_instance = VisualServer::get_singleton()->instance_create();
-                VisualServer::get_singleton()->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
-                VisualServer::get_singleton()->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
-                //VisualServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, VS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
+                PhysicsServer3D::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
+                contact_3d_debug_multimesh = RenderingServer::get_singleton()->multimesh_create();
+                RenderingServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT);
+                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
+                RenderingServer::get_singleton()->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
+                contact_3d_debug_instance = RenderingServer::get_singleton()->instance_create();
+                RenderingServer::get_singleton()->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
+                RenderingServer::get_singleton()->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
+                //RenderingServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, RS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
             }
 
-            VisualServer::get_singleton()->viewport_set_active(viewport, true);
+            RenderingServer::get_singleton()->viewport_set_active(viewport, true);
         } break;
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
             if (!listeners.empty() && !listener) {
-                Listener *first = nullptr;
-                for (Listener * E : listeners) {
+                Listener3D *first = nullptr;
+                for (Listener3D * E : listeners) {
 
                     if (first == nullptr || first->is_greater_than(E)) {
                         first = E;
@@ -352,8 +353,8 @@ void Viewport::_notification(int p_what) {
 
             if (!cameras.empty() && !camera) {
                 //there are cameras but no current camera, pick first in tree and make it current
-                Camera *first = nullptr;
-                for (Camera * E : cameras) {
+                Camera3D *first = nullptr;
+                for (Camera3D * E : cameras) {
 
                     if (first == nullptr || first->is_greater_than(E)) {
                         first = E;
@@ -376,24 +377,24 @@ void Viewport::_notification(int p_what) {
             if (world_2d)
                 world_2d->_remove_viewport(this);
 
-            VisualServer::get_singleton()->viewport_set_scenario(viewport, RID());
+            RenderingServer::get_singleton()->viewport_set_scenario(viewport, RID());
             //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
-            VisualServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
+            RenderingServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug.is_valid()) {
-                VisualServer::get_singleton()->free_rid(contact_2d_debug);
+                RenderingServer::get_singleton()->free_rid(contact_2d_debug);
                 contact_2d_debug = RID();
             }
 
             if (contact_3d_debug_multimesh.is_valid()) {
-                VisualServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
-                VisualServer::get_singleton()->free_rid(contact_3d_debug_instance);
+                RenderingServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
+                RenderingServer::get_singleton()->free_rid(contact_3d_debug_instance);
                 contact_3d_debug_instance = RID();
                 contact_3d_debug_multimesh = RID();
             }
 
             remove_from_group("_viewports");
 
-            VisualServer::get_singleton()->viewport_set_active(viewport, false);
+            RenderingServer::get_singleton()->viewport_set_active(viewport, false);
 
         } break;
         case NOTIFICATION_INTERNAL_PROCESS: {
@@ -410,36 +411,36 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_2d_debug.is_valid()) {
 
-                VisualServer::get_singleton()->canvas_item_clear(contact_2d_debug);
-                VisualServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
+                RenderingServer::get_singleton()->canvas_item_clear(contact_2d_debug);
+                RenderingServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
-                const Vector<Vector2> &points = Physics2DServer::get_singleton()->space_get_contacts(find_world_2d()->get_space());
-                int point_count = Physics2DServer::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
+                const Vector<Vector2> &points = PhysicsServer2D::get_singleton()->space_get_contacts(find_world_2d()->get_space());
+                int point_count = PhysicsServer2D::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
                 Color ccol = get_tree()->get_debug_collision_contact_color();
 
                 for (int i = 0; i < point_count; i++) {
 
-                    VisualServer::get_singleton()->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
+                    RenderingServer::get_singleton()->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
                 }
             }
 
             if (get_tree()->is_debugging_collisions_hint() && contact_3d_debug_multimesh.is_valid()) {
 
-                const Vector<Vector3> & points = PhysicsServer::get_singleton()->space_get_contacts(find_world()->get_space());
-                int point_count = PhysicsServer::get_singleton()->space_get_contact_count(find_world()->get_space());
+                const Vector<Vector3> & points = PhysicsServer3D::get_singleton()->space_get_contacts(find_world()->get_space());
+                int point_count = PhysicsServer3D::get_singleton()->space_get_contact_count(find_world()->get_space());
 
-                VisualServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
+                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
             }
 
             if (physics_object_picking && (to_screen_rect == Rect2() || Input::get_singleton()->get_mouse_mode() != Input::MOUSE_MODE_CAPTURED)) {
 
 #ifndef _3D_DISABLED
                 Vector2 last_pos(1e20f, 1e20f);
-                CollisionObject *last_object = nullptr;
+                CollisionObject3D *last_object = nullptr;
                 ObjectID last_id = 0;
 #endif
-                PhysicsDirectSpaceState::RayResult result;
-                Physics2DDirectSpaceState *ss2d = Physics2DServer::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
+                PhysicsDirectSpaceState3D::RayResult result;
+                PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
 
                 if (physics_has_last_mousepos) {
                     // if no mouse event exists, create a motion one. This is necessary because objects or camera may have moved.
@@ -544,7 +545,7 @@ void Viewport::_notification(int p_what) {
 
                         uint64_t frame = get_tree()->get_frame();
 
-                        Physics2DDirectSpaceState::ShapeResult res[64];
+                        PhysicsDirectSpaceState2D::ShapeResult res[64];
                         for (CanvasLayer * E : canvas_layers) {
                             Transform2D canvas_transform;
                             ObjectID canvas_layer_id;
@@ -595,7 +596,7 @@ void Viewport::_notification(int p_what) {
 
                             for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
                                 if (iter->second != frame) {
-                                    Object *o = ObjectDB::get_instance(iter->first);
+                                    Object *o = gObjectDB().get_instance(iter->first);
                                     if (o) {
 
                                         CollisionObject2D *co = object_cast<CollisionObject2D>(o);
@@ -619,7 +620,7 @@ void Viewport::_notification(int p_what) {
 
                     if (physics_object_capture != 0) {
 
-                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_capture));
+                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_capture));
                         if (co && camera) {
                             _collision_object_input_event(co, camera, ev, Vector3(), Vector3(), 0);
                             captured = true;
@@ -637,7 +638,7 @@ void Viewport::_notification(int p_what) {
                     } else if (pos == last_pos) {
 
                         if (last_id) {
-                            if (ObjectDB::get_instance(last_id) && last_object) {
+                            if (gObjectDB().get_instance(last_id) && last_object) {
                                 //good, exists
                                 _collision_object_input_event(last_object, camera, ev, result.position, result.normal, result.shape);
                                 if (last_object->get_capture_input_on_drag() && mb && mb->get_button_index() == 1 && mb->is_pressed()) {
@@ -652,14 +653,14 @@ void Viewport::_notification(int p_what) {
                             Vector3 from = camera->project_ray_origin(pos);
                             Vector3 dir = camera->project_ray_normal(pos);
 
-                            PhysicsDirectSpaceState *space = PhysicsServer::get_singleton()->space_get_direct_state(find_world()->get_space());
+                            PhysicsDirectSpaceState3D *space = PhysicsServer3D::get_singleton()->space_get_direct_state(find_world()->get_space());
                             if (space) {
 
                                 bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                                 ObjectID new_collider = 0;
                                 if (col) {
 
-                                    CollisionObject *co = object_cast<CollisionObject>(result.collider);
+                                    CollisionObject3D *co = object_cast<CollisionObject3D>(result.collider);
                                     if (co) {
 
                                         _collision_object_input_event(co, camera, ev, result.position, result.normal, result.shape);
@@ -676,7 +677,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (physics_object_over) {
 
-                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
                                         if (co) {
                                             co->_mouse_exit();
                                         }
@@ -684,7 +685,7 @@ void Viewport::_notification(int p_what) {
 
                                     if (new_collider) {
 
-                                        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(new_collider));
+                                        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(new_collider));
                                         if (co) {
                                             co->_mouse_enter();
                                         }
@@ -723,7 +724,7 @@ RID Viewport::get_viewport_rid() const {
 void Viewport::set_use_arvr(bool p_use_arvr) {
     arvr = p_use_arvr;
 
-    VisualServer::get_singleton()->viewport_set_use_arvr(viewport, arvr);
+    RenderingServer::get_singleton()->viewport_set_use_arvr(viewport, arvr);
 }
 
 bool Viewport::use_arvr() {
@@ -742,7 +743,7 @@ void Viewport::set_size(const Size2 &p_size) {
     if (size == p_size.floor())
         return;
     size = p_size.floor();
-    VisualServer::get_singleton()->viewport_set_size(viewport, size.width, size.height);
+    RenderingServer::get_singleton()->viewport_set_size(viewport, size.width, size.height);
 
     _update_stretch_transform();
 
@@ -827,9 +828,9 @@ void Viewport::enable_canvas_transform_override(bool p_enable) {
 
     override_canvas_transform = p_enable;
     if (p_enable) {
-        VisualServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform_override);
+        RenderingServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform_override);
     } else {
-        VisualServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform);
+        RenderingServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform);
     }
 }
 
@@ -844,7 +845,7 @@ void Viewport::set_canvas_transform_override(const Transform2D &p_transform) {
 
     canvas_transform_override = p_transform;
     if (override_canvas_transform) {
-        VisualServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform_override);
+        RenderingServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform_override);
     }
 }
 
@@ -856,7 +857,7 @@ void Viewport::set_canvas_transform(const Transform2D &p_transform) {
 
     canvas_transform = p_transform;
     if (!override_canvas_transform) {
-        VisualServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform);
+        RenderingServer::get_singleton()->viewport_set_canvas_transform(viewport, find_world_2d()->get_canvas(), canvas_transform);
     }
 }
 
@@ -869,7 +870,7 @@ void Viewport::_update_global_transform() {
 
     Transform2D sxform = stretch_transform * global_canvas_transform;
 
-    VisualServer::get_singleton()->viewport_set_global_canvas_transform(viewport, sxform);
+    RenderingServer::get_singleton()->viewport_set_global_canvas_transform(viewport, sxform);
 }
 
 void Viewport::set_global_canvas_transform(const Transform2D &p_transform) {
@@ -892,7 +893,7 @@ void Viewport::_listener_transform_changed_notify() {
 #endif
 }
 
-void Viewport::_listener_set(Listener *p_listener) {
+void Viewport::_listener_set(Listener3D *p_listener) {
 
 #ifndef _3D_DISABLED
 
@@ -906,13 +907,13 @@ void Viewport::_listener_set(Listener *p_listener) {
 #endif
 }
 
-bool Viewport::_listener_add(Listener *p_listener) {
+bool Viewport::_listener_add(Listener3D *p_listener) {
 
     listeners.insert(p_listener);
     return listeners.size() == 1;
 }
 
-void Viewport::_listener_remove(Listener *p_listener) {
+void Viewport::_listener_remove(Listener3D *p_listener) {
 
     listeners.erase(p_listener);
     if (listener == p_listener) {
@@ -921,10 +922,10 @@ void Viewport::_listener_remove(Listener *p_listener) {
 }
 
 #ifndef _3D_DISABLED
-void Viewport::_listener_make_next_current(Listener *p_exclude) {
+void Viewport::_listener_make_next_current(Listener3D *p_exclude) {
 
     if (!listeners.empty()) {
-        for (Listener * E : listeners) {
+        for (Listener3D * E : listeners) {
 
             if (p_exclude == E)
                 continue;
@@ -954,7 +955,7 @@ void Viewport::_camera_transform_changed_notify() {
 #endif
 }
 
-void Viewport::_camera_set(Camera *p_camera) {
+void Viewport::_camera_set(Camera3D *p_camera) {
 
 #ifndef _3D_DISABLED
 
@@ -962,17 +963,17 @@ void Viewport::_camera_set(Camera *p_camera) {
         return;
 
     if (camera) {
-        camera->notification(Camera::NOTIFICATION_LOST_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_LOST_CURRENT);
     }
     camera = p_camera;
     if (!camera_override) {
         if (camera)
-            VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
+            RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
         else
-            VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
+            RenderingServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
     if (camera) {
-        camera->notification(Camera::NOTIFICATION_BECAME_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_BECAME_CURRENT);
     }
 
     _update_listener();
@@ -980,25 +981,25 @@ void Viewport::_camera_set(Camera *p_camera) {
 #endif
 }
 
-bool Viewport::_camera_add(Camera *p_camera) {
+bool Viewport::_camera_add(Camera3D *p_camera) {
 
     cameras.insert(p_camera);
     return cameras.size() == 1;
 }
 
-void Viewport::_camera_remove(Camera *p_camera) {
+void Viewport::_camera_remove(Camera3D *p_camera) {
 
     cameras.erase(p_camera);
     if (camera == p_camera) {
-        camera->notification(Camera::NOTIFICATION_LOST_CURRENT);
+        camera->notification(Camera3D::NOTIFICATION_LOST_CURRENT);
         camera = nullptr;
     }
 }
 
 #ifndef _3D_DISABLED
-void Viewport::_camera_make_next_current(Camera *p_exclude) {
+void Viewport::_camera_make_next_current(Camera3D *p_exclude) {
 
-    for (Camera * E : cameras) {
+    for (Camera3D * E : cameras) {
 
         if (p_exclude == E)
             continue;
@@ -1025,7 +1026,7 @@ void Viewport::_canvas_layer_remove(CanvasLayer *p_canvas_layer) {
 void Viewport::set_transparent_background(bool p_enable) {
 
     transparent_bg = p_enable;
-    VisualServer::get_singleton()->viewport_set_transparent_background(viewport, p_enable);
+    RenderingServer::get_singleton()->viewport_set_transparent_background(viewport, p_enable);
 }
 
 bool Viewport::has_transparent_background() const {
@@ -1044,7 +1045,7 @@ void Viewport::set_world_2d(const Ref<World2D> &p_world_2d) {
 
     if (is_inside_tree()) {
         find_world_2d()->_remove_viewport(this);
-        VisualServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
+        RenderingServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
     }
 
     if (p_world_2d)
@@ -1058,7 +1059,7 @@ void Viewport::set_world_2d(const Ref<World2D> &p_world_2d) {
 
     if (is_inside_tree()) {
         current_canvas = find_world_2d()->get_canvas();
-        VisualServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
+        RenderingServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
         find_world_2d()->_register_viewport(this, Rect2());
     }
 }
@@ -1080,9 +1081,9 @@ void Viewport::_propagate_enter_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may not have entered scene yet
             return;
 
-        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
+        if (object_cast<Node3D>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
-            p_node->notification(Spatial::NOTIFICATION_ENTER_WORLD);
+            p_node->notification(Node3D::NOTIFICATION_ENTER_WORLD);
         } else {
             Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
@@ -1117,9 +1118,9 @@ void Viewport::_propagate_exit_world(Node *p_node) {
         if (!p_node->is_inside_tree()) //may have exited scene already
             return;
 
-        if (object_cast<Spatial>(p_node) || object_cast<WorldEnvironment>(p_node)) {
+        if (object_cast<Node3D>(p_node) || object_cast<WorldEnvironment>(p_node)) {
 
-            p_node->notification(Spatial::NOTIFICATION_EXIT_WORLD);
+            p_node->notification(Node3D::NOTIFICATION_EXIT_WORLD);
         } else {
             Viewport *v = object_cast<Viewport>(p_node);
             if (v) {
@@ -1136,7 +1137,7 @@ void Viewport::_propagate_exit_world(Node *p_node) {
     }
 }
 
-void Viewport::set_world(const Ref<World> &p_world) {
+void Viewport::set_world(const Ref<World3D> &p_world) {
 
     if (world == p_world)
         return;
@@ -1150,10 +1151,10 @@ void Viewport::set_world(const Ref<World> &p_world) {
     world = p_world;
     if (own_world) {
         if (world) {
-            own_world = dynamic_ref_cast<World>(world->duplicate());
+            own_world = dynamic_ref_cast<World3D>(world->duplicate());
             world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         } else {
-            own_world = Ref<World>(memnew(World));
+            own_world = Ref<World3D>(memnew(World3D));
         }
     }
 
@@ -1161,13 +1162,13 @@ void Viewport::set_world(const Ref<World> &p_world) {
         _propagate_enter_world(this);
 
     if (is_inside_tree()) {
-        VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+        RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
     }
 
     _update_listener();
 }
 
-Ref<World> Viewport::get_world() const {
+Ref<World3D> Viewport::get_world() const {
 
     return world;
 }
@@ -1177,7 +1178,7 @@ Ref<World2D> Viewport::get_world_2d() const {
     return world_2d;
 }
 
-Ref<World> Viewport::find_world() const {
+Ref<World3D> Viewport::find_world() const {
 
     if (own_world)
         return own_world;
@@ -1186,15 +1187,15 @@ Ref<World> Viewport::find_world() const {
     else if (parent)
         return parent->find_world();
     else
-        return Ref<World>();
+        return Ref<World3D>();
 }
 
-Listener *Viewport::get_listener() const {
+Listener3D *Viewport::get_listener() const {
 
     return listener;
 }
 
-Camera *Viewport::get_camera() const {
+Camera3D *Viewport::get_camera() const {
 
     return camera;
 }
@@ -1207,18 +1208,18 @@ void Viewport::enable_camera_override(bool p_enable) {
     }
 
     if (p_enable) {
-        camera_override.rid = VisualServer::get_singleton()->camera_create();
+        camera_override.rid = RenderingServer::get_singleton()->camera_create();
     } else {
-        VisualServer::get_singleton()->free_rid(camera_override.rid);
+        RenderingServer::get_singleton()->free_rid(camera_override.rid);
         camera_override.rid = RID();
     }
 
     if (p_enable) {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera_override.rid);
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera_override.rid);
     } else if (camera) {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport, camera->get_camera_rid());
     } else {
-        VisualServer::get_singleton()->viewport_attach_camera(viewport, RID());
+        RenderingServer::get_singleton()->viewport_attach_camera(viewport, RID());
     }
 #endif
 }
@@ -1230,7 +1231,7 @@ bool Viewport::is_camera_override_enabled() const {
 void Viewport::set_camera_override_transform(const Transform &p_transform) {
     if (camera_override) {
         camera_override.transform = p_transform;
-        VisualServer::get_singleton()->camera_set_transform(camera_override.rid, p_transform);
+        RenderingServer::get_singleton()->camera_set_transform(camera_override.rid, p_transform);
     }
 }
 
@@ -1253,7 +1254,7 @@ void Viewport::set_camera_override_perspective(float p_fovy_degrees, float p_z_n
         camera_override.z_far = p_z_far;
         camera_override.projection = CameraOverrideData::PROJECTION_PERSPECTIVE;
 
-        VisualServer::get_singleton()->camera_set_perspective(camera_override.rid, camera_override.fov, camera_override.z_near, camera_override.z_far);
+        RenderingServer::get_singleton()->camera_set_perspective(camera_override.rid, camera_override.fov, camera_override.z_near, camera_override.z_far);
     }
 }
 
@@ -1268,7 +1269,7 @@ void Viewport::set_camera_override_orthogonal(float p_size, float p_z_near, floa
         camera_override.z_far = p_z_far;
         camera_override.projection = CameraOverrideData::PROJECTION_ORTHOGONAL;
 
-        VisualServer::get_singleton()->camera_set_orthogonal(camera_override.rid, camera_override.size, camera_override.z_near, camera_override.z_far);
+        RenderingServer::get_singleton()->camera_set_orthogonal(camera_override.rid, camera_override.size, camera_override.z_near, camera_override.z_far);
     }
 }
 
@@ -1338,7 +1339,7 @@ bool Viewport::is_size_override_stretch_enabled() const {
 void Viewport::set_update_mode(UpdateMode p_mode) {
 
     update_mode = p_mode;
-    VisualServer::get_singleton()->viewport_set_update_mode(viewport, VS::ViewportUpdateMode(p_mode));
+    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::ViewportUpdateMode(p_mode));
 }
 Viewport::UpdateMode Viewport::get_update_mode() const {
 
@@ -1353,7 +1354,7 @@ Ref<ViewportTexture> Viewport::get_texture() const {
 void Viewport::set_vflip(bool p_enable) {
 
     vflip = p_enable;
-    VisualServer::get_singleton()->viewport_set_vflip(viewport, p_enable);
+    RenderingServer::get_singleton()->viewport_set_vflip(viewport, p_enable);
 }
 
 bool Viewport::get_vflip() const {
@@ -1364,7 +1365,7 @@ bool Viewport::get_vflip() const {
 void Viewport::set_clear_mode(ClearMode p_mode) {
 
     clear_mode = p_mode;
-    VisualServer::get_singleton()->viewport_set_clear_mode(viewport, VS::ViewportClearMode(p_mode));
+    RenderingServer::get_singleton()->viewport_set_clear_mode(viewport, RS::ViewportClearMode(p_mode));
 }
 
 Viewport::ClearMode Viewport::get_clear_mode() const {
@@ -1378,7 +1379,7 @@ void Viewport::set_shadow_atlas_size(int p_size) {
         return;
 
     shadow_atlas_size = p_size;
-    VisualServer::get_singleton()->viewport_set_shadow_atlas_size(viewport, p_size);
+    RenderingServer::get_singleton()->viewport_set_shadow_atlas_size(viewport, p_size);
 }
 
 int Viewport::get_shadow_atlas_size() const {
@@ -1397,7 +1398,7 @@ void Viewport::set_shadow_atlas_quadrant_subdiv(int p_quadrant, ShadowAtlasQuadr
     shadow_atlas_quadrant_subdiv[p_quadrant] = p_subdiv;
     static const int subdiv[SHADOW_ATLAS_QUADRANT_SUBDIV_MAX] = { 0, 1, 4, 16, 64, 256, 1024 };
 
-    VisualServer::get_singleton()->viewport_set_shadow_atlas_quadrant_subdivision(viewport, p_quadrant, subdiv[p_subdiv]);
+    RenderingServer::get_singleton()->viewport_set_shadow_atlas_quadrant_subdivision(viewport, p_quadrant, subdiv[p_subdiv]);
 }
 Viewport::ShadowAtlasQuadrantSubdiv Viewport::get_shadow_atlas_quadrant_subdiv(int p_quadrant) const {
 
@@ -2537,7 +2538,7 @@ void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, Obj
 
         if (!next) { //top of stack
 
-            Object *pfo = ObjectDB::get_instance(p_prev_focus_owner);
+            Object *pfo = gObjectDB().get_instance(p_prev_focus_owner);
             Control *pfoc = object_cast<Control>(pfo);
             if (!pfoc)
                 return;
@@ -2717,7 +2718,7 @@ void Viewport::_drop_physics_mouseover() {
     physics_has_last_mousepos = false;
 
     while (!physics_2d_mouseover.empty()) {
-        Object *o = ObjectDB::get_instance(physics_2d_mouseover.begin()->first);
+        Object *o = gObjectDB().get_instance(physics_2d_mouseover.begin()->first);
         if (o) {
             CollisionObject2D *co = object_cast<CollisionObject2D>(o);
             co->_mouse_exit();
@@ -2727,7 +2728,7 @@ void Viewport::_drop_physics_mouseover() {
 
 #ifndef _3D_DISABLED
     if (physics_object_over) {
-        CollisionObject *co = object_cast<CollisionObject>(ObjectDB::get_instance(physics_object_over));
+        CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
         }
@@ -2870,16 +2871,16 @@ void Viewport::set_use_own_world(bool p_world) {
         _propagate_exit_world(this);
 
     if (!p_world) {
-        own_world = Ref<World>();
+        own_world = Ref<World3D>();
         if (world) {
             world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         }
     } else {
         if (world) {
-            own_world = dynamic_ref_cast<World>(world->duplicate());
+            own_world = dynamic_ref_cast<World3D>(world->duplicate());
             world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
         } else {
-            own_world = make_ref_counted<World>();
+            own_world = make_ref_counted<World3D>();
         }
     }
 
@@ -2887,7 +2888,7 @@ void Viewport::set_use_own_world(bool p_world) {
         _propagate_enter_world(this);
 
     if (is_inside_tree()) {
-        VisualServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
+        RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
     }
 
     _update_listener();
@@ -2900,7 +2901,7 @@ bool Viewport::is_using_own_world() const {
 
 void Viewport::set_attach_to_screen_rect(const Rect2 &p_rect) {
 
-    VisualServer::get_singleton()->viewport_attach_to_screen(viewport, p_rect);
+    RenderingServer::get_singleton()->viewport_attach_to_screen(viewport, p_rect);
     to_screen_rect = p_rect;
 }
 
@@ -2915,7 +2916,7 @@ void Viewport::set_use_render_direct_to_screen(bool p_render_direct_to_screen) {
         return;
 
     render_direct_to_screen = p_render_direct_to_screen;
-    VisualServer::get_singleton()->viewport_set_render_direct_to_screen(viewport, p_render_direct_to_screen);
+    RenderingServer::get_singleton()->viewport_set_render_direct_to_screen(viewport, p_render_direct_to_screen);
 }
 
 bool Viewport::is_using_render_direct_to_screen() const {
@@ -2962,7 +2963,7 @@ bool Viewport::is_input_disabled() const {
 
 void Viewport::set_disable_3d(bool p_disable) {
     disable_3d = p_disable;
-    VisualServer::get_singleton()->viewport_set_disable_3d(viewport, p_disable);
+    RenderingServer::get_singleton()->viewport_set_disable_3d(viewport, p_disable);
 }
 
 bool Viewport::is_3d_disabled() const {
@@ -2972,7 +2973,7 @@ bool Viewport::is_3d_disabled() const {
 
 void Viewport::set_keep_3d_linear(bool p_keep_3d_linear) {
     keep_3d_linear = p_keep_3d_linear;
-    VisualServer::get_singleton()->viewport_set_keep_3d_linear(viewport, keep_3d_linear);
+    RenderingServer::get_singleton()->viewport_set_keep_3d_linear(viewport, keep_3d_linear);
 }
 
 bool Viewport::get_keep_3d_linear() const {
@@ -3012,7 +3013,7 @@ void Viewport::set_msaa(MSAA p_msaa) {
     if (msaa == p_msaa)
         return;
     msaa = p_msaa;
-    VisualServer::get_singleton()->viewport_set_msaa(viewport, VS::ViewportMSAA(p_msaa));
+    RenderingServer::get_singleton()->viewport_set_msaa(viewport, RS::ViewportMSAA(p_msaa));
 }
 
 Viewport::MSAA Viewport::get_msaa() const {
@@ -3026,7 +3027,7 @@ void Viewport::set_hdr(bool p_hdr) {
         return;
 
     hdr = p_hdr;
-    VisualServer::get_singleton()->viewport_set_hdr(viewport, p_hdr);
+    RenderingServer::get_singleton()->viewport_set_hdr(viewport, p_hdr);
 }
 
 bool Viewport::get_hdr() const {
@@ -3037,7 +3038,7 @@ bool Viewport::get_hdr() const {
 void Viewport::set_usage(Usage p_usage) {
 
     usage = p_usage;
-    VisualServer::get_singleton()->viewport_set_usage(viewport, VS::ViewportUsage(p_usage));
+    RenderingServer::get_singleton()->viewport_set_usage(viewport, RS::ViewportUsage(p_usage));
 }
 
 Viewport::Usage Viewport::get_usage() const {
@@ -3047,7 +3048,7 @@ Viewport::Usage Viewport::get_usage() const {
 void Viewport::set_debug_draw(DebugDraw p_debug_draw) {
 
     debug_draw = p_debug_draw;
-    VisualServer::get_singleton()->viewport_set_debug_draw(viewport, VS::ViewportDebugDraw(p_debug_draw));
+    RenderingServer::get_singleton()->viewport_set_debug_draw(viewport, RS::ViewportDebugDraw(p_debug_draw));
 }
 
 Viewport::DebugDraw Viewport::get_debug_draw() const {
@@ -3057,7 +3058,7 @@ Viewport::DebugDraw Viewport::get_debug_draw() const {
 
 int Viewport::get_render_info(RenderInfo p_info) {
 
-    return VisualServer::get_singleton()->viewport_get_render_info(viewport, VS::ViewportRenderInfo(p_info));
+    return RenderingServer::get_singleton()->viewport_get_render_info(viewport, RS::ViewportRenderInfo(p_info));
 }
 
 void Viewport::set_snap_controls_to_pixels(bool p_enable) {
@@ -3103,7 +3104,7 @@ bool Viewport::is_handling_input_locally() const {
 
 void Viewport::_validate_property(PropertyInfo &property) const {
 
-    if (VisualServer::get_singleton()->is_low_end() && property.name == "hdr") {
+    if (RenderingServer::get_singleton()->is_low_end() && property.name == "hdr") {
         property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
     }
 }
@@ -3237,7 +3238,7 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "size_override_stretch"), "set_size_override_stretch", "is_size_override_stretch_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "own_world"), "set_use_own_world", "is_using_own_world");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World"), "set_world", "get_world");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world", PropertyHint::ResourceType, "World3D"), "set_world", "get_world");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PropertyHint::ResourceType, "World2D", 0), "set_world_2d", "get_world_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");
@@ -3253,7 +3254,7 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_target_v_flip"), "set_vflip", "get_vflip");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PropertyHint::Enum, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_update_mode", PropertyHint::Enum, "Disabled,Once,When Visible,Always"), "set_update_mode", "get_update_mode");
-    ADD_GROUP("Audio Listener", "audio_listener_");
+    ADD_GROUP("Audio Listener3D", "audio_listener_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_2d"), "set_as_audio_listener_2d", "is_audio_listener_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_listener_enable_3d"), "set_as_audio_listener", "is_audio_listener");
     ADD_GROUP("Physics", "physics_");
@@ -3327,8 +3328,8 @@ Viewport::Viewport() {
 
     world_2d = make_ref_counted<World2D>();
 
-    viewport = VisualServer::get_singleton()->viewport_create();
-    texture_rid = VisualServer::get_singleton()->viewport_get_texture(viewport);
+    viewport = RenderingServer::get_singleton()->viewport_create();
+    texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport);
     texture_flags = 0;
 
     render_direct_to_screen = false;
@@ -3336,7 +3337,7 @@ Viewport::Viewport() {
     default_texture = make_ref_counted<ViewportTexture>();
     default_texture->vp = const_cast<Viewport *>(this);
     viewport_textures.insert(default_texture.get());
-    VisualServer::get_singleton()->texture_set_proxy(default_texture->proxy, texture_rid);
+    RenderingServer::get_singleton()->texture_set_proxy(default_texture->proxy, texture_rid);
 
     //internal_listener = SpatialSoundServer::get_singleton()->listener_create();
     audio_listener = false;
@@ -3389,7 +3390,7 @@ Viewport::Viewport() {
 
     //gui.tooltip_timer->force_parent_owned();
     gui.tooltip_delay = GLOBAL_DEF("gui/timers/tooltip_delay_sec", 0.5);
-    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::REAL, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
 
     gui.tooltip = nullptr;
     gui.tooltip_label = nullptr;
@@ -3424,7 +3425,7 @@ Viewport::~Viewport() {
     for (ViewportTexture * E : viewport_textures) {
         E->vp = nullptr;
     }
-    VisualServer::get_singleton()->free_rid(viewport);
+    RenderingServer::get_singleton()->free_rid(viewport);
     //SpatialSoundServer::get_singleton()->free(internal_listener);
     //SpatialSound2DServer::get_singleton()->free(internal_listener_2d);
 }

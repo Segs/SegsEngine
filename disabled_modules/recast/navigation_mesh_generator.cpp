@@ -37,19 +37,19 @@
 #include "core/os/thread.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_settings.h"
-#include "scene/3d/collision_shape.h"
-#include "scene/3d/mesh_instance.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/collision_shape_3d.h"
+#include "scene/3d/mesh_instance_3d.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/box_shape.h"
-#include "scene/resources/capsule_shape.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
-#include "scene/resources/cylinder_shape.h"
+#include "scene/resources/box_shape_3d.h"
+#include "scene/resources/capsule_shape_3d.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
+#include "scene/resources/cylinder_shape_3d.h"
 #include "scene/resources/plane_shape.h"
 #include "scene/resources/primitive_meshes.h"
 #include "scene/resources/shape.h"
-#include "scene/resources/sphere_shape.h"
+#include "scene/resources/sphere_shape_3d.h"
 #ifdef MODULE_CSG_ENABLED
 #include "modules/csg/csg_shape.h"
 #endif
@@ -145,9 +145,9 @@ void EditorNavigationMeshGenerator::_add_faces(const PoolVector3Array &p_faces, 
 
 void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_transform, Node *p_node, Vector<float> &p_verticies, Vector<int> &p_indices, int p_generate_from, uint32_t p_collision_mask, bool p_recurse_children) {
 
-    if (object_cast<MeshInstance>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_STATIC_COLLIDERS) {
+    if (object_cast<MeshInstance3D>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_STATIC_COLLIDERS) {
 
-        MeshInstance *mesh_instance = object_cast<MeshInstance>(p_node);
+        MeshInstance3D *mesh_instance = object_cast<MeshInstance3D>(p_node);
         Ref<Mesh> mesh = mesh_instance->get_mesh();
         if (mesh) {
             _add_mesh(mesh, p_accumulated_transform * mesh_instance->get_transform(), p_verticies, p_indices);
@@ -168,29 +168,29 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
     }
 #endif
 
-    if (object_cast<StaticBody>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_MESH_INSTANCES) {
-        StaticBody *static_body = object_cast<StaticBody>(p_node);
+    if (object_cast<StaticBody3D>(p_node) && p_generate_from != NavigationMesh::PARSED_GEOMETRY_MESH_INSTANCES) {
+        StaticBody3D *static_body = object_cast<StaticBody3D>(p_node);
 
         if (static_body->get_collision_layer() & p_collision_mask) {
 
             for (int i = 0; i < p_node->get_child_count(); ++i) {
                 Node *child = p_node->get_child(i);
-                if (object_cast<CollisionShape>(child)) {
-                    CollisionShape *col_shape = object_cast<CollisionShape>(child);
+                if (object_cast<CollisionShape3D>(child)) {
+                    CollisionShape3D *col_shape = object_cast<CollisionShape3D>(child);
 
                     Transform transform = p_accumulated_transform * static_body->get_transform() * col_shape->get_transform();
 
                     Ref<Mesh> mesh;
                     Ref<Shape> s = col_shape->get_shape();
 
-                    BoxShape *box = object_cast<BoxShape>(s.get());
+                    BoxShape3D *box = object_cast<BoxShape3D>(s.get());
                     if (box) {
                         Ref<CubeMesh> cube_mesh(make_ref_counted<CubeMesh>());
                         cube_mesh->set_size(box->get_extents() * 2.0);
                         mesh = cube_mesh;
                     }
 
-                    CapsuleShape *capsule = object_cast<CapsuleShape>(s.get());
+                    CapsuleShape3D *capsule = object_cast<CapsuleShape3D>(s.get());
                     if (capsule) {
                         Ref<CapsuleMesh> capsule_mesh(make_ref_counted<CapsuleMesh>());
                         capsule_mesh->set_radius(capsule->get_radius());
@@ -198,7 +198,7 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
                         mesh = capsule_mesh;
                     }
 
-                    CylinderShape *cylinder = object_cast<CylinderShape>(s.get());
+                    CylinderShape3D *cylinder = object_cast<CylinderShape3D>(s.get());
                     if (cylinder) {
                         Ref<CylinderMesh> cylinder_mesh(make_ref_counted<CylinderMesh>());
                         cylinder_mesh->set_height(cylinder->get_height());
@@ -207,7 +207,7 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
                         mesh = cylinder_mesh;
                     }
 
-                    SphereShape *sphere = object_cast<SphereShape>(s.get());
+                    SphereShape3D *sphere = object_cast<SphereShape3D>(s.get());
                     if (sphere) {
                         Ref<SphereMesh> sphere_mesh(make_ref_counted<SphereMesh>());
                         sphere_mesh->set_radius(sphere->get_radius());
@@ -215,12 +215,12 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
                         mesh = sphere_mesh;
                     }
 
-                    ConcavePolygonShape *concave_polygon = object_cast<ConcavePolygonShape>(s.get());
+                    ConcavePolygonShape3D *concave_polygon = object_cast<ConcavePolygonShape3D>(s.get());
                     if (concave_polygon) {
                         _add_faces(concave_polygon->get_faces(), transform, p_verticies, p_indices);
                     }
 
-                    ConvexPolygonShape *convex_polygon = object_cast<ConvexPolygonShape>(s.get());
+                    ConvexPolygonShape3D *convex_polygon = object_cast<ConvexPolygonShape3D>(s.get());
                     if (convex_polygon) {
                         const Vector<Vector3> &varr(convex_polygon->get_points());
                         Geometry::MeshData md;
@@ -265,9 +265,9 @@ void EditorNavigationMeshGenerator::_parse_geometry(Transform p_accumulated_tran
         }
     }
 #endif
-    if (object_cast<Spatial>(p_node)) {
+    if (object_cast<Node3D>(p_node)) {
 
-        Spatial *spatial = object_cast<Spatial>(p_node);
+        Node3D *spatial = object_cast<Node3D>(p_node);
         p_accumulated_transform = p_accumulated_transform * spatial->get_transform();
     }
 
@@ -465,7 +465,7 @@ void EditorNavigationMeshGenerator::bake(Ref<NavigationMesh> p_nav_mesh, Node *p
         p_node->get_tree()->get_nodes_in_group(p_nav_mesh->get_source_group_name(), &parse_nodes);
     }
 
-    Transform navmesh_xform = object_cast<Spatial>(p_node)->get_transform().affine_inverse();
+    Transform navmesh_xform = object_cast<Node3D>(p_node)->get_transform().affine_inverse();
     for (Node * E : parse_nodes) {
         int geometry_type = p_nav_mesh->get_parsed_geometry_type();
         uint32_t collision_mask = p_nav_mesh->get_collision_mask();

@@ -1172,7 +1172,7 @@ void FileSystemDock::_update_resource_paths_after_move(const HashMap<String, Str
 void FileSystemDock::_update_dependencies_after_move(const HashMap<String, String> &p_renames) const {
     //The following code assumes that the following holds:
     // 1) EditorFileSystem contains the old paths/folder structure from before the rename/move.
-    // 2) ResourceLoader can use the new paths without needing to call rescan.
+    // 2) ResourceManager can use the new paths without needing to call rescan.
     Vector<String> remaps;
     _find_remaps(EditorFileSystem::get_singleton()->get_filesystem(), p_renames, remaps);
     for (int i = 0; i < remaps.size(); ++i) {
@@ -2069,7 +2069,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         drop_position -= offset;
         eastl::sort(to_remove.begin(), to_remove.end());
 
-        for (int i = 0; i < to_remove.size(); i++) {
+        for (size_t i = 0; i < to_remove.size(); i++) {
             dirs.erase_at(to_remove[i] - i);
         }
 
@@ -2146,43 +2146,44 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
         return;
     }
 
+    if (p_from != tree)
+        return;
     // In the tree.
-    if (p_from == tree) {
-        TreeItem *ti = tree->get_item_at_position(p_point);
-        int section = tree->get_drop_section_at_position(p_point);
-        if (ti) {
-            // Check the favorites first.
-            if (ti == tree->get_root()->get_children() && section >= 0) {
-                target_favorites = true;
+    TreeItem *ti = tree->get_item_at_position(p_point);
+    int section = tree->get_drop_section_at_position(p_point);
+    if (!ti)
+        return;
+
+    // Check the favorites first.
+    if (ti == tree->get_root()->get_children() && section >= 0) {
+        target_favorites = true;
+        return;
+    } else if (ti->get_parent() == tree->get_root()->get_children()) {
+        target_favorites = true;
+        return;
+    } else {
+        String fpath = ti->get_metadata(0);
+        if (section == 0) {
+            if (StringUtils::ends_with(fpath,"/")) {
+                // We drop on a folder.
+                target = fpath;
                 return;
-            } else if (ti->get_parent() == tree->get_root()->get_children()) {
-                target_favorites = true;
+            }
+            else {
+                // We drop on the folder that the target file is in.
+                target = PathUtils::get_base_dir(fpath);
                 return;
-            } else {
-                String fpath = ti->get_metadata(0);
-                if (section == 0) {
+            }
+        } else {
+            if (ti->get_parent() != tree->get_root()->get_children()) {
+                // Not in the favorite section.
+                if (fpath != "res://") {
+                    // We drop between two files
                     if (StringUtils::ends_with(fpath,"/")) {
-                        // We drop on a folder.
-                        target = fpath;
-                        return;
+                        fpath = StringUtils::substr(fpath,0, fpath.length() - 1);
                     }
-                    else {
-                        // We drop on the folder that the target file is in.
-                        target = PathUtils::get_base_dir(fpath);
-                        return;
-                    }
-                } else {
-                    if (ti->get_parent() != tree->get_root()->get_children()) {
-                        // Not in the favorite section.
-                        if (fpath != "res://") {
-                            // We drop between two files
-                            if (StringUtils::ends_with(fpath,"/")) {
-                                fpath = StringUtils::substr(fpath,0, fpath.length() - 1);
-                            }
-                            target = PathUtils::get_base_dir(fpath);
-                            return;
-                        }
-                    }
+                    target = PathUtils::get_base_dir(fpath);
+                    return;
                 }
             }
         }
@@ -2217,7 +2218,7 @@ void FileSystemDock::_file_and_folders_fill_popup(
 
         // Check if in favorites.
         bool found = false;
-        for (int j = 0; j < favorites.size(); j++) {
+        for (size_t j = 0; j < favorites.size(); j++) {
             if (favorites[j] == fpath) {
                 found = true;
                 break;
@@ -2800,3 +2801,7 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
 }
 
 FileSystemDock::~FileSystemDock() = default;
+
+bool FileSystemDock::FileInfo::operator<(const FileSystemDock::FileInfo &fi) const {
+    return NaturalNoCaseComparator()(name, fi.name);
+}

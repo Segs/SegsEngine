@@ -18,7 +18,8 @@ public:
         IMPORT_GENERATE_TANGENT_ARRAYS = 256,
         IMPORT_FAIL_ON_MISSING_DEPENDENCIES = 512,
         IMPORT_MATERIALS_IN_INSTANCES = 1024,
-        IMPORT_USE_COMPRESSION = 2048
+        IMPORT_USE_COMPRESSION = 2048,
+        IMPORT_USE_NAMED_SKIN_BINDS = 4096,
 
     };
     virtual uint32_t get_import_flags() const=0;

@@ -101,7 +101,7 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (k && k->is_pressed() && k->get_scancode() == KEY_DELETE && grabbed != -1) {
+    if (k && k->is_pressed() && k->get_keycode() == KEY_DELETE && grabbed != -1) {
 
         points.erase_at(grabbed);
         grabbed = -1;

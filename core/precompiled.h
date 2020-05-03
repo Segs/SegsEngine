@@ -2,6 +2,7 @@
 
 #include "core/forward_decls.h"
 #include "core/os/memory.h"
+
 #include <EASTL/vector.h>
 #include <EASTL/string.h>
 #include <EASTL/deque.h>

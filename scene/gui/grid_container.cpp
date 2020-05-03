@@ -64,11 +64,11 @@ void GridContainer::_notification(int p_what) {
 
                 Size2i ms = c->get_combined_minimum_size();
                 if (col_minw.contains(col))
-                    col_minw[col] = MAX(col_minw[col], ms.width);
+                    col_minw[col] = M_MAX(col_minw[col], ms.width);
                 else
                     col_minw[col] = ms.width;
                 if (row_minh.contains(row))
-                    row_minh[row] = MAX(row_minh[row], ms.height);
+                    row_minh[row] = M_MAX(row_minh[row], ms.height);
                 else
                     row_minh[row] = ms.height;
 
@@ -95,8 +95,8 @@ void GridContainer::_notification(int p_what) {
                 if (!row_expanded.contains(E.first))
                     remaining_space.height -= E.second;
             }
-            remaining_space.height -= vsep * MAX(max_row - 1, 0);
-            remaining_space.width -= hsep * MAX(max_col - 1, 0);
+            remaining_space.height -= vsep * M_MAX(max_row - 1, 0);
+            remaining_space.width -= hsep * M_MAX(max_col - 1, 0);
 
             bool can_fit = false;
             while (!can_fit && !col_expanded.empty()) {
@@ -222,16 +222,16 @@ Size2 GridContainer::get_minimum_size() const {
 
         Size2i ms = c->get_combined_minimum_size();
         if (col_minw.contains(col))
-            col_minw[col] = MAX(col_minw[col], ms.width);
+            col_minw[col] = M_MAX(col_minw[col], ms.width);
         else
             col_minw[col] = ms.width;
 
         if (row_minh.contains(row))
-            row_minh[row] = MAX(row_minh[row], ms.height);
+            row_minh[row] = M_MAX(row_minh[row], ms.height);
         else
             row_minh[row] = ms.height;
-        max_col = MAX(col, max_col);
-        max_row = MAX(row, max_row);
+        max_col = M_MAX(col, max_col);
+        max_row = M_MAX(row, max_row);
     }
 
     Size2 ms;

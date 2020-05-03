@@ -31,18 +31,19 @@
 #include "scene_library_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "core/string_formatter.h"
 #include "main/main.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
 #include "core/translation_helpers.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 IMPL_GDCLASS(SceneLibraryEditor)
 IMPL_GDCLASS(SceneLibraryEditorPlugin)
 
@@ -78,7 +79,7 @@ void SceneLibraryEditor::_import_scene(Node *p_scene,const Ref<SceneLibrary> &p_
     if (!p_merge)
         p_library->clear();
 
-    Map<int, MeshInstance *> mesh_instances;
+    Map<int, MeshInstance3D *> mesh_instances;
     int id = p_library->find_item_by_name(p_scene->get_name());
     if (id < 0) {
 

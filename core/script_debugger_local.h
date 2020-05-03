@@ -32,6 +32,7 @@
 
 #include "core/list.h"
 #include "core/script_language.h"
+#include "core/debugger/script_debugger.h"
 
 class GODOT_EXPORT ScriptDebuggerLocal : public ScriptDebugger {
 

@@ -595,7 +595,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
                 } else {
                     Ref<Image> icon(make_ref_counted<Image>());
                     icon->load(iconpath);
-                    if (!icon->empty()) {
+                    if (!icon->is_empty()) {
                         _make_icon(icon, data);
                     }
                 }

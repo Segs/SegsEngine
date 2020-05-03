@@ -29,18 +29,21 @@
 /*************************************************************************/
 
 #include "editor_inspector.h"
+
 #include "array_property_edit.h"
 #include "dictionary_property_edit.h"
 #include "editor_node.h"
 #include "editor_scale.h"
 #include "multi_node_edit.h"
 #include "editor_feature_profile.h"
-#include "scene/resources/packed_scene.h"
-#include "scene/gui/rich_text_label.h"
+#include "editor_help.h"
+
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "scene/gui/rich_text_label.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
+#include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
 
 IMPL_GDCLASS(EditorProperty)
@@ -68,8 +71,8 @@ Size2 EditorProperty::get_minimum_size() const {
             continue;
 
         Size2 minsize = c->get_combined_minimum_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     if (keying) {
@@ -87,7 +90,7 @@ Size2 EditorProperty::get_minimum_size() const {
         Size2 bems = bottom_editor->get_combined_minimum_size();
         //bems.width += get_constant("item_margin", "Tree");
         ms.height += bems.height;
-        ms.width = MAX(ms.width, bems.width);
+        ms.width = M_MAX(ms.width, bems.width);
     }
 
     return ms;
@@ -130,8 +133,8 @@ void EditorProperty::_notification(int p_what) {
                     continue;
 
                 Size2 minsize = c->get_combined_minimum_size();
-                child_room = MAX(child_room, minsize.width);
-                height = MAX(height, minsize.height);
+                child_room = M_MAX(child_room, minsize.width);
+                height = M_MAX(height, minsize.height);
                 no_children = false;
             }
 
@@ -139,7 +142,7 @@ void EditorProperty::_notification(int p_what) {
                 text_size = size.width;
                 rect = Rect2(size.width - 1, 0, 1, height);
             } else {
-                text_size = MAX(0, size.width - (child_room + 4 * EDSCALE));
+                text_size = M_MAX(0, size.width - (child_room + 4 * EDSCALE));
                 rect = Rect2(size.width - child_room, 0, child_room, height);
             }
 
@@ -442,7 +445,7 @@ bool EditorPropertyRevert::is_node_property_different(Node *p_node, const Varian
             return false; //pointless to check if we are not comparing against anything.
     }
 
-    if (p_current.get_type() == VariantType::REAL && p_orig.get_type() == VariantType::REAL) {
+    if (p_current.get_type() == VariantType::FLOAT && p_orig.get_type() == VariantType::FLOAT) {
         float a = p_current;
         float b = p_orig;
 
@@ -655,7 +658,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
             emit_signal("property_keyed", property, use_keying_next());
 
             if (use_keying_next()) {
-                if (property == "frame_coords" && (object->is_class("Sprite") || object->is_class("Sprite3D"))) {
+                if (property == "frame_coords" && (object->is_class("Sprite2D") || object->is_class("Sprite3D"))) {
                     Vector2 new_coords = object->get(property);
                     new_coords.x++;
                     if (new_coords.x >= object->get("hframes").as<int64_t>()) {
@@ -792,6 +795,21 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
     text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
     help_bit->set_text(text);
     help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+
+    auto slices = StringUtils::split(p_text,"::", false);
+    if (!slices.empty()) {
+        StringView property_name = StringUtils::strip_edges(slices[0]);
+        String text = String(TTR("Property:").asCString()) + " [u][b]" + property_name + "[/b][/u]";
+
+        if (slices.size() > 1) {
+            StringView property_doc = StringUtils::strip_edges(slices[1]);
+            if (property_name != property_doc) {
+                text += "\n" + property_doc;
+            }
+        }
+        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    }
+
     return help_bit;
 }
 
@@ -935,7 +953,7 @@ bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type,
             &arg[0], &arg[1], &arg[2], &arg[3], &arg[4], &arg[5]
         };
 
-        Variant::CallError err;
+        Callable::CallError err;
         return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err);
     }
     return false;
@@ -1012,11 +1030,19 @@ Control *EditorInspectorCategory::make_custom_tooltip(StringView p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = String("[u][b]") + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
-    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
-    help_bit->set_text(text);
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
-    return help_bit;
+    auto slices = StringUtils::split(p_text,"::", false);
+    if (!slices.empty()) {
+        auto property_name = StringUtils::strip_edges(slices[0]);
+        String text = "[u][b]" + String(property_name) + "[/b][/u]";
+
+        if (slices.size() > 1) {
+            auto property_doc = StringUtils::strip_edges(slices[1]);
+            if (property_name != property_doc) {
+                text += "\n" + property_doc;
+            }
+        }
+        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    }    return help_bit;
 }
 
 Size2 EditorInspectorCategory::get_minimum_size() const {
@@ -1027,7 +1053,7 @@ Size2 EditorInspectorCategory::get_minimum_size() const {
     ms.width = 1;
     ms.height = font->get_height();
     if (icon) {
-        ms.height = MAX(icon->get_height(), ms.height);
+        ms.height = M_MAX(icon->get_height(), ms.height);
     }
     ms.height += get_constant("vseparation", "Tree");
 
@@ -1073,7 +1099,7 @@ void EditorInspectorSection::_notification(int p_what) {
         Point2 offset;
         offset.y = font->get_height();
         if (arrow) {
-            offset.y = MAX(offset.y, arrow->get_height());
+            offset.y = M_MAX(offset.y, arrow->get_height());
         }
 
         offset.y += get_constant("vseparation", "Tree");
@@ -1111,7 +1137,7 @@ void EditorInspectorSection::_notification(int p_what) {
 
         int h = font->get_height();
         if (arrow) {
-            h = MAX(h, arrow->get_height());
+            h = M_MAX(h, arrow->get_height());
         }
         h += get_constant("vseparation", "Tree");
 
@@ -1141,8 +1167,8 @@ Size2 EditorInspectorSection::get_minimum_size() const {
         if (!c->is_visible())
             continue;
         Size2 minsize = c->get_combined_minimum_size();
-        ms.width = MAX(ms.width, minsize.width);
-        ms.height = MAX(ms.height, minsize.height);
+        ms.width = M_MAX(ms.width, minsize.width);
+        ms.height = M_MAX(ms.height, minsize.height);
     }
 
     Ref<Font> font = get_font("font", "Tree");
@@ -1546,7 +1572,7 @@ void EditorInspector::update_tree() {
         } else if (!(p.usage & PROPERTY_USAGE_EDITOR) || _is_property_disabled_by_feature_profile(p.name))
             continue;
 
-        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && VisualServer::get_singleton()->is_low_end())
+        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && RenderingServer::get_singleton()->is_low_end())
             continue; //do not show this property in low end gfx
 
         if (p.name == "script" && (hide_script || bool(object->call_va("_hide_script_from_inspector")))) {
@@ -2103,7 +2129,7 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
             object->get_property_list(&pinfo);
             for (const PropertyInfo &E : pinfo) {
                 if (E.name == p_path) {
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     to_create = Variant::construct(E.type, nullptr, 0, ce);
                     break;
                 }

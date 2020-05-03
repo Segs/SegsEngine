@@ -201,7 +201,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
     }
 
     Variant value;
-    Variant::CallError ce;
+    Callable::CallError ce;
     value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
     Variant array = object->get_array();
     array.set(changing_type_idx, value);
@@ -324,7 +324,7 @@ void EditorPropertyArray::update_property() {
 
         length->set_value(len);
 
-        int pages = MAX(0, len - 1) / page_len + 1;
+        int pages = M_MAX(0, len - 1) / page_len + 1;
 
         page->set_max(pages);
         page_idx = MIN(page_idx, pages - 1);
@@ -422,7 +422,7 @@ void EditorPropertyArray::_edit_pressed() {
 
     Variant array = get_edited_object()->get(get_edited_property());
     if (!array.is_array()) {
-        Variant::CallError ce;
+        Callable::CallError ce;
         array = Variant::construct(array_type, nullptr, 0, ce);
 
         get_edited_object()->set(get_edited_property(), array);
@@ -453,7 +453,7 @@ void EditorPropertyArray::_length_changed(double p_page) {
             int size = array.call("size");
             for (int i = previous_size; i < size; i++) {
                 if (array.get(i).get_type() == VariantType::NIL) {
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     array.set(i, Variant::construct(subtype, nullptr, 0, ce));
                 }
             }
@@ -463,7 +463,7 @@ void EditorPropertyArray::_length_changed(double p_page) {
         int size = array.call("size");
         // Pool*Array don't initialize their elements, have to do it manually
         for (int i = previous_size; i < size; i++) {
-            Variant::CallError ce;
+            Callable::CallError ce;
             array.set(i, Variant::construct(array.get(i).get_type(), nullptr, 0, ce));
         }
     }
@@ -596,7 +596,7 @@ void EditorPropertyDictionary::_change_type_menu(int p_index) {
 
     if (changing_type_idx < 0) {
         Variant value;
-        Variant::CallError ce;
+        Callable::CallError ce;
         value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
         if (changing_type_idx == -1) {
             object->set_new_item_key(value);
@@ -612,7 +612,7 @@ void EditorPropertyDictionary::_change_type_menu(int p_index) {
     if (p_index < (int)VariantType::VARIANT_MAX) {
 
         Variant value;
-        Variant::CallError ce;
+        Callable::CallError ce;
         value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
         Variant key = dict.get_key_at_index(changing_type_idx);
         dict[key] = value;
@@ -681,7 +681,7 @@ void EditorPropertyDictionary::update_property() {
 
         int len = dict.size();
 
-        int pages = MAX(0, len - 1) / page_len + 1;
+        int pages = M_MAX(0, len - 1) / page_len + 1;
 
         page->set_max(pages);
         page_idx = MIN(page_idx, pages - 1);
@@ -734,7 +734,7 @@ void EditorPropertyDictionary::update_property() {
                     prop = editor;
 
                 } break;
-                case VariantType::REAL: {
+                case VariantType::FLOAT: {
 
                     EditorPropertyFloat *editor = memnew(EditorPropertyFloat);
                     editor->setup(-100000, 100000, 0.001, true, false, true, true);
@@ -973,7 +973,7 @@ void EditorPropertyDictionary::_edit_pressed() {
 
     Variant prop_val = get_edited_object()->get(get_edited_property());
     if (prop_val.get_type() == VariantType::NIL) {
-        Variant::CallError ce;
+        Callable::CallError ce;
         prop_val = Variant::construct(VariantType::DICTIONARY, nullptr, 0, ce);
         get_edited_object()->set(get_edited_property(), prop_val);
     }

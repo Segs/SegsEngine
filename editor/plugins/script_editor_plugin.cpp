@@ -44,6 +44,8 @@
 #include "core/resource/resource_manager.h"
 #include "editor/inspector_dock.h"
 #include "editor/scene_tree_dock.h"
+#include "editor/editor_help.h"
+#include "editor/editor_help_search.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
@@ -179,10 +181,10 @@ void ScriptEditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_ie);
 
-    if (k && (k->get_scancode() == KEY_UP ||
-                                k->get_scancode() == KEY_DOWN ||
-                                k->get_scancode() == KEY_PAGEUP ||
-                                k->get_scancode() == KEY_PAGEDOWN)) {
+    if (k && (k->get_keycode() == KEY_UP ||
+                                k->get_keycode() == KEY_DOWN ||
+                                k->get_keycode() == KEY_PAGEUP ||
+                                k->get_keycode() == KEY_PAGEDOWN)) {
 
         search_options->call_va("_gui_input", k);
         search_box->accept_event();

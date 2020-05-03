@@ -38,7 +38,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 
 IMPL_GDCLASS(Particles)
 VARIANT_ENUM_CAST(Particles::DrawOrder)
@@ -54,7 +54,7 @@ Vector<Face3> Particles::get_faces(uint32_t p_usage_flags) const {
 
 void Particles::set_emitting(bool p_emitting) {
 
-    VisualServer::get_singleton()->particles_set_emitting(particles, p_emitting);
+    RenderingServer::get_singleton()->particles_set_emitting(particles, p_emitting);
 
     if (p_emitting && one_shot) {
         set_process_internal(true);
@@ -67,25 +67,25 @@ void Particles::set_amount(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
     amount = p_amount;
-    VisualServer::get_singleton()->particles_set_amount(particles, amount);
+    RenderingServer::get_singleton()->particles_set_amount(particles, amount);
 }
 void Particles::set_lifetime(float p_lifetime) {
 
     ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
-    VisualServer::get_singleton()->particles_set_lifetime(particles, lifetime);
+    RenderingServer::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
 
 void Particles::set_one_shot(bool p_one_shot) {
 
     one_shot = p_one_shot;
-    VisualServer::get_singleton()->particles_set_one_shot(particles, one_shot);
+    RenderingServer::get_singleton()->particles_set_one_shot(particles, one_shot);
 
     if (is_emitting()) {
 
         set_process_internal(true);
         if (!one_shot)
-            VisualServer::get_singleton()->particles_restart(particles);
+            RenderingServer::get_singleton()->particles_restart(particles);
     }
 
     if (!one_shot)
@@ -95,29 +95,29 @@ void Particles::set_one_shot(bool p_one_shot) {
 void Particles::set_pre_process_time(float p_time) {
 
     pre_process_time = p_time;
-    VisualServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
+    RenderingServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
 }
 void Particles::set_explosiveness_ratio(float p_ratio) {
 
     explosiveness_ratio = p_ratio;
-    VisualServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
+    RenderingServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
 }
 void Particles::set_randomness_ratio(float p_ratio) {
 
     randomness_ratio = p_ratio;
-    VisualServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
+    RenderingServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
 }
 void Particles::set_visibility_aabb(const AABB &p_aabb) {
 
     visibility_aabb = p_aabb;
-    VisualServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
+    RenderingServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
     update_gizmo();
     Object_change_notify(this,"visibility_aabb");
 }
 void Particles::set_use_local_coordinates(bool p_enable) {
 
     local_coords = p_enable;
-    VisualServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
+    RenderingServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
 }
 void Particles::set_process_material(const Ref<Material> &p_material) {
 
@@ -125,7 +125,7 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
     RID material_rid;
     if (process_material)
         material_rid = process_material->get_rid();
-    VisualServer::get_singleton()->particles_set_process_material(particles, material_rid);
+    RenderingServer::get_singleton()->particles_set_process_material(particles, material_rid);
 
     update_configuration_warning();
 }
@@ -133,12 +133,12 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
 void Particles::set_speed_scale(float p_scale) {
 
     speed_scale = p_scale;
-    VisualServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
+    RenderingServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
 }
 
 bool Particles::is_emitting() const {
 
-    return VisualServer::get_singleton()->particles_get_emitting(particles);
+    return RenderingServer::get_singleton()->particles_get_emitting(particles);
 }
 int Particles::get_amount() const {
 
@@ -186,7 +186,7 @@ float Particles::get_speed_scale() const {
 void Particles::set_draw_order(DrawOrder p_order) {
 
     draw_order = p_order;
-    VisualServer::get_singleton()->particles_set_draw_order(particles, VS::ParticlesDrawOrder(p_order));
+    RenderingServer::get_singleton()->particles_set_draw_order(particles, RS::ParticlesDrawOrder(p_order));
 }
 
 Particles::DrawOrder Particles::get_draw_order() const {
@@ -198,7 +198,7 @@ void Particles::set_draw_passes(int p_count) {
 
     ERR_FAIL_COND(p_count < 1);
     draw_passes.resize(p_count);
-    VisualServer::get_singleton()->particles_set_draw_passes(particles, p_count);
+    RenderingServer::get_singleton()->particles_set_draw_passes(particles, p_count);
     Object_change_notify(this);
 }
 int Particles::get_draw_passes() const {
@@ -216,7 +216,7 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
     if (p_mesh)
         mesh_rid = p_mesh->get_rid();
 
-    VisualServer::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
+    RenderingServer::get_singleton()->particles_set_draw_pass_mesh(particles, p_pass, mesh_rid);
 
     update_configuration_warning();
 }
@@ -230,7 +230,7 @@ Ref<Mesh> Particles::get_draw_pass_mesh(int p_pass) const {
 
 void Particles::set_fixed_fps(int p_count) {
     fixed_fps = p_count;
-    VisualServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
+    RenderingServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
 }
 
 int Particles::get_fixed_fps() const {
@@ -239,7 +239,7 @@ int Particles::get_fixed_fps() const {
 
 void Particles::set_fractional_delta(bool p_enable) {
     fractional_delta = p_enable;
-    VisualServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
+    RenderingServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
 }
 
 bool Particles::get_fractional_delta() const {
@@ -296,13 +296,13 @@ StringName Particles::get_configuration_warning() const {
 
 void Particles::restart() {
 
-    VisualServer::get_singleton()->particles_restart(particles);
-    VisualServer::get_singleton()->particles_set_emitting(particles, true);
+    RenderingServer::get_singleton()->particles_restart(particles);
+    RenderingServer::get_singleton()->particles_set_emitting(particles, true);
 }
 
 AABB Particles::capture_aabb() const {
 
-    return VisualServer::get_singleton()->particles_get_current_aabb(particles);
+    return RenderingServer::get_singleton()->particles_get_current_aabb(particles);
 }
 
 void Particles::_validate_property(PropertyInfo &property) const {
@@ -317,13 +317,13 @@ void Particles::_validate_property(PropertyInfo &property) const {
 }
 
 void Particles::_notification(int p_what) {
-    auto VS = VisualServer::get_singleton();
+    auto RS = RenderingServer::get_singleton();
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
-            VS->particles_set_speed_scale(particles, speed_scale);
+            RS->particles_set_speed_scale(particles, speed_scale);
         } else {
 
-            VS->particles_set_speed_scale(particles, 0);
+            RS->particles_set_speed_scale(particles, 0);
         }
     }
 
@@ -338,8 +338,8 @@ void Particles::_notification(int p_what) {
     }
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
         // make sure particles are updated before rendering occurs if they were active before
-        if (is_visible_in_tree() && !VS->particles_is_inactive(particles)) {
-            VS->particles_request_process(particles);
+        if (is_visible_in_tree() && !RS->particles_is_inactive(particles)) {
+            RS->particles_request_process(particles);
         }
     }
 }
@@ -390,12 +390,12 @@ void Particles::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
     ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "lifetime", PropertyHint::ExpRange, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime", PropertyHint::ExpRange, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "preprocess", PropertyHint::ExpRange, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "preprocess", PropertyHint::ExpRange, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
     ADD_GROUP("Drawing", "");
@@ -420,7 +420,7 @@ void Particles::_bind_methods() {
 
 Particles::Particles() {
 
-    particles = VisualServer::get_singleton()->particles_create();
+    particles = RenderingServer::get_singleton()->particles_create();
     set_base(particles);
     one_shot = false; // Needed so that set_emitting doesn't access uninitialized values
     set_emitting(true);
@@ -441,5 +441,5 @@ Particles::Particles() {
 
 Particles::~Particles() {
 
-    VisualServer::get_singleton()->free_rid(particles);
+    RenderingServer::get_singleton()->free_rid(particles);
 }

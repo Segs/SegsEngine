@@ -95,7 +95,7 @@ struct UndoRedo::PrivateData
 
         for (Operation &op : actions[0].undo_ops) {
             if (op.type == Operation::TYPE_REFERENCE) {
-                Object *obj = ObjectDB::get_instance(op.object);
+                Object *obj = gObjectDB().get_instance(op.object);
                 if (obj)
                     memdelete(obj);
             }
@@ -117,7 +117,7 @@ struct UndoRedo::PrivateData
 
                 if (E.type == Operation::TYPE_REFERENCE) {
 
-                    Object *obj = ObjectDB::get_instance(E.object);
+                    Object *obj = gObjectDB().get_instance(E.object);
                     if (obj)
                         memdelete(obj);
                 }
@@ -131,7 +131,7 @@ struct UndoRedo::PrivateData
 
         for (auto & op : E) {
 
-            Object *obj = ObjectDB::get_instance(op.object);
+            Object *obj = gObjectDB().get_instance(op.object);
             if (!obj) //may have been deleted and this is fine
                 continue;
 
@@ -152,9 +152,9 @@ struct UndoRedo::PrivateData
                     }
                     argptrs.resize(argc);
 
-                    Variant::CallError ce;
+                    Callable::CallError ce;
                     obj->call(op.name, (const Variant **)argptrs.data(), argc, ce);
-                    if (ce.error != Variant::CallError::CALL_OK) {
+                    if (ce.error != Callable::CallError::CALL_OK) {
                         ERR_PRINT(
                                 "Error calling method from signal '" + String(op.name) + "': " +
                                 Variant::get_call_error_text(obj, op.name, (const Variant **)argptrs.data(), argc, ce));
@@ -200,7 +200,7 @@ struct UndoRedo::PrivateData
                         const Operation &op(actions[current_action + 1].do_ops.front());
                         if(op.type==Operation::TYPE_REFERENCE)
                         {
-                            Object *obj = ObjectDB::get_instance(op.object);
+                            Object *obj = gObjectDB().get_instance(op.object);
                             if (obj)
                                 memdelete(obj);
 
@@ -510,29 +510,29 @@ UndoRedo::~UndoRedo() {
     memdelete(pimpl);
 }
 
-Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 2) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 0;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::OBJECT) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::OBJECT;
         return Variant();
     }
 
     if (p_args[1]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
         r_error.expected = VariantType::STRING;
         return Variant();
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     Object *object = *p_args[0];
     String method = *p_args[1];
@@ -548,29 +548,29 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Variant
     return Variant();
 }
 
-Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
+Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     if (p_argcount < 2) {
-        r_error.error = Variant::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+        r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
         r_error.argument = 0;
         return Variant();
     }
 
     if (p_args[0]->get_type() != VariantType::OBJECT) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
         r_error.expected = VariantType::OBJECT;
         return Variant();
     }
 
     if (p_args[1]->get_type() != VariantType::STRING) {
-        r_error.error = Variant::CallError::CALL_ERROR_INVALID_ARGUMENT;
+        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
         r_error.expected = VariantType::STRING;
         return Variant();
     }
 
-    r_error.error = Variant::CallError::CALL_OK;
+    r_error.error = Callable::CallError::CALL_OK;
 
     Object *object = *p_args[0];
     String method = *p_args[1];
@@ -590,8 +590,7 @@ void UndoRedo::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create_action", {"name", "merge_mode"}), &UndoRedo::create_action, {DEFVAL(int(MERGE_DISABLE))});
     MethodBinder::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
-    // FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
-    MethodBinder::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
+    MethodBinder::bind_method(D_METHOD("is_committing_action"), &UndoRedo::is_committing_action);
 
     {
         MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));

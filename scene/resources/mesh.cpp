@@ -36,11 +36,11 @@
 #include "core/pair.h"
 #include "core/print_string.h"
 #include "core/set.h"
-#include "scene/resources/concave_polygon_shape.h"
-#include "scene/resources/convex_polygon_shape.h"
+#include "scene/resources/concave_polygon_shape_3d.h"
+#include "scene/resources/convex_polygon_shape_3d.h"
 #include "scene/resources/material.h"
 #include "scene/resources/mesh_enum_casters.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "surface_tool.h"
 
 #include <cstdlib>
@@ -171,20 +171,20 @@ Vector<Face3> Mesh::get_faces() const {
     /*
     for (int i=0;i<surfaces.size();i++) {
 
-        if (VisualServer::get_singleton()->mesh_surface_get_primitive_type( mesh, i ) != VisualServer::PRIMITIVE_TRIANGLES )
+        if (RenderingServer::get_singleton()->mesh_surface_get_primitive_type( mesh, i ) != RenderingServer::PRIMITIVE_TRIANGLES )
             continue;
 
         PoolVector<int> indices;
         PoolVector<Vector3> vertices;
 
-        vertices=VisualServer::get_singleton()->mesh_surface_get_array(mesh, i,VisualServer::ARRAY_VERTEX);
+        vertices=RenderingServer::get_singleton()->mesh_surface_get_array(mesh, i,RenderingServer::ARRAY_VERTEX);
 
-        int len=VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, i);
+        int len=RenderingServer::get_singleton()->mesh_surface_get_array_index_len(mesh, i);
         bool has_indices;
 
         if (len>0) {
 
-            indices=VisualServer::get_singleton()->mesh_surface_get_array(mesh, i,VisualServer::ARRAY_INDEX);
+            indices=RenderingServer::get_singleton()->mesh_surface_get_array(mesh, i,RenderingServer::ARRAY_INDEX);
             has_indices=true;
 
         } else {
@@ -235,12 +235,12 @@ Ref<Shape> Mesh::create_convex_shape() const {
     for (int i = 0; i < get_surface_count(); i++) {
 
         SurfaceArrays a = surface_get_arrays(i);
-        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape>());
+        ERR_FAIL_COND_V(a.empty(), Ref<ConvexPolygonShape3D>());
         auto vals=a.positions3();
         vertices.insert(vertices.end(),vals.begin(),vals.end());
     }
 
-    Ref<ConvexPolygonShape> shape(make_ref_counted<ConvexPolygonShape>());
+    Ref<ConvexPolygonShape3D> shape(make_ref_counted<ConvexPolygonShape3D>());
     shape->set_points(eastl::move(vertices));
     return shape;
 }
@@ -260,7 +260,7 @@ Ref<Shape> Mesh::create_trimesh_shape() const {
         face_points.set(i, f.vertex[i % 3]);
     }
 
-    Ref<ConcavePolygonShape> shape(make_ref_counted<ConcavePolygonShape>());
+    Ref<ConcavePolygonShape3D> shape(make_ref_counted<ConcavePolygonShape3D>());
     shape->set_faces(face_points);
     return shape;
 }
@@ -542,7 +542,7 @@ Vector<Ref<Shape>> Mesh::convex_decompose() const {
             convex_points.emplace_back(E);
         }
 
-        Ref<ConvexPolygonShape> shape(make_ref_counted<ConvexPolygonShape>());
+        Ref<ConvexPolygonShape3D> shape(make_ref_counted<ConvexPolygonShape3D>());
         shape->set_points(eastl::move(convex_points));
         ret.emplace_back(eastl::move(shape));
     }
@@ -705,15 +705,15 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
 
     Dictionary d;
 
-    d["array_data"] = VisualServer::get_singleton()->mesh_surface_get_array(mesh, idx);
-    d["vertex_count"] = VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, idx);
-    d["array_index_data"] = VisualServer::get_singleton()->mesh_surface_get_index_array(mesh, idx);
-    d["index_count"] = VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, idx);
-    d["primitive"] = VisualServer::get_singleton()->mesh_surface_get_primitive_type(mesh, idx);
-    d["format"] = VisualServer::get_singleton()->mesh_surface_get_format(mesh, idx);
-    d["aabb"] = VisualServer::get_singleton()->mesh_surface_get_aabb(mesh, idx);
+    d["array_data"] = RenderingServer::get_singleton()->mesh_surface_get_array(mesh, idx);
+    d["vertex_count"] = RenderingServer::get_singleton()->mesh_surface_get_array_len(mesh, idx);
+    d["array_index_data"] = RenderingServer::get_singleton()->mesh_surface_get_index_array(mesh, idx);
+    d["index_count"] = RenderingServer::get_singleton()->mesh_surface_get_array_index_len(mesh, idx);
+    d["primitive"] = RenderingServer::get_singleton()->mesh_surface_get_primitive_type(mesh, idx);
+    d["format"] = RenderingServer::get_singleton()->mesh_surface_get_format(mesh, idx);
+    d["aabb"] = RenderingServer::get_singleton()->mesh_surface_get_aabb(mesh, idx);
 
-    const Vector<AABB> &skel_aabb = VisualServer::get_singleton()->mesh_surface_get_skeleton_aabb(mesh, idx);
+    const Vector<AABB> &skel_aabb = RenderingServer::get_singleton()->mesh_surface_get_skeleton_aabb(mesh, idx);
     Array arr;
     arr.resize(skel_aabb.size());
     for (int i = 0; i < skel_aabb.size(); i++) {
@@ -721,7 +721,7 @@ bool ArrayMesh::_get(const StringName &p_name, Variant &r_ret) const {
     }
     d["skeleton_aabb"] = arr;
 
-    const Vector<Vector<uint8_t> > &blend_shape_data = VisualServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
+    const Vector<Vector<uint8_t> > &blend_shape_data = RenderingServer::get_singleton()->mesh_surface_get_blend_shapes(mesh, idx);
 
     Array md;
     for (int i = 0; i < blend_shape_data.size(); i++) {
@@ -786,7 +786,7 @@ void ArrayMesh::add_surface(uint32_t p_format, PrimitiveType p_primitive, const 
     surfaces.emplace_back(eastl::move(s));
     _recompute_aabb();
 
-    VisualServer::get_singleton()->mesh_add_surface(mesh, p_format, (VS::PrimitiveType)p_primitive, p_array, p_vertex_count, p_index_array, p_index_count, p_aabb, p_blend_shapes, p_bone_aabbs);
+    RenderingServer::get_singleton()->mesh_add_surface(mesh, p_format, (RS::PrimitiveType)p_primitive, p_array, p_vertex_count, p_index_array, p_index_count, p_aabb, p_blend_shapes, p_bone_aabbs);
 }
 void ArrayMesh::_add_surface_from_arrays(PrimitiveType p_primitive, const Array &p_arrays,
     const Array &p_blend_shapes, uint32_t p_flags) {
@@ -838,7 +838,7 @@ void ArrayMesh::add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays
 
         _recompute_aabb();
     }
-    VisualServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (VS::PrimitiveType)p_primitive, eastl::move(p_arrays), eastl::move(p_blend_shapes), p_flags);
+    RenderingServer::get_singleton()->mesh_add_surface_from_arrays(mesh, (RS::PrimitiveType)p_primitive, eastl::move(p_arrays), eastl::move(p_blend_shapes), p_flags);
 
 
 
@@ -849,12 +849,12 @@ void ArrayMesh::add_surface_from_arrays(PrimitiveType p_primitive, SurfaceArrays
 SurfaceArrays ArrayMesh::surface_get_arrays(int p_surface) const {
 
     ERR_FAIL_INDEX_V(p_surface, surfaces.size(), SurfaceArrays());
-    return VisualServer::get_singleton()->mesh_surface_get_arrays(mesh, p_surface);
+    return RenderingServer::get_singleton()->mesh_surface_get_arrays(mesh, p_surface);
 }
 Vector<SurfaceArrays> ArrayMesh::surface_get_blend_shape_arrays(int p_surface) const {
 
     ERR_FAIL_INDEX_V(p_surface, surfaces.size(), Vector<SurfaceArrays>());
-    return VisualServer::get_singleton()->mesh_surface_get_blend_shape_arrays(mesh, p_surface);
+    return RenderingServer::get_singleton()->mesh_surface_get_blend_shape_arrays(mesh, p_surface);
 }
 
 int ArrayMesh::get_surface_count() const {
@@ -879,7 +879,7 @@ void ArrayMesh::add_blend_shape(const StringName &p_name) {
     }
 
     blend_shapes.push_back(name);
-    VisualServer::get_singleton()->mesh_set_blend_shape_count(mesh, blend_shapes.size());
+    RenderingServer::get_singleton()->mesh_set_blend_shape_count(mesh, blend_shapes.size());
 }
 
 int ArrayMesh::get_blend_shape_count() const {
@@ -900,7 +900,7 @@ void ArrayMesh::clear_blend_shapes() {
 void ArrayMesh::set_blend_shape_mode(BlendShapeMode p_mode) {
 
     blend_shape_mode = p_mode;
-    VisualServer::get_singleton()->mesh_set_blend_shape_mode(mesh, (VS::BlendShapeMode)p_mode);
+    RenderingServer::get_singleton()->mesh_set_blend_shape_mode(mesh, (RS::BlendShapeMode)p_mode);
 }
 
 ArrayMesh::BlendShapeMode ArrayMesh::get_blend_shape_mode() const {
@@ -911,7 +911,7 @@ ArrayMesh::BlendShapeMode ArrayMesh::get_blend_shape_mode() const {
 void ArrayMesh::surface_remove(int p_idx) {
 
     ERR_FAIL_INDEX(p_idx, surfaces.size());
-    VisualServer::get_singleton()->mesh_remove_surface(mesh, p_idx);
+    RenderingServer::get_singleton()->mesh_remove_surface(mesh, p_idx);
     surfaces.erase_at(p_idx);
 
     clear_cache();
@@ -923,25 +923,25 @@ void ArrayMesh::surface_remove(int p_idx) {
 int ArrayMesh::surface_get_array_len(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, surfaces.size(), -1);
-    return VisualServer::get_singleton()->mesh_surface_get_array_len(mesh, p_idx);
+    return RenderingServer::get_singleton()->mesh_surface_get_array_len(mesh, p_idx);
 }
 
 int ArrayMesh::surface_get_array_index_len(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, surfaces.size(), -1);
-    return VisualServer::get_singleton()->mesh_surface_get_array_index_len(mesh, p_idx);
+    return RenderingServer::get_singleton()->mesh_surface_get_array_index_len(mesh, p_idx);
 }
 
 uint32_t ArrayMesh::surface_get_format(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, surfaces.size(), 0);
-    return VisualServer::get_singleton()->mesh_surface_get_format(mesh, p_idx);
+    return RenderingServer::get_singleton()->mesh_surface_get_format(mesh, p_idx);
 }
 
 ArrayMesh::PrimitiveType ArrayMesh::surface_get_primitive_type(int p_idx) const {
 
     ERR_FAIL_INDEX_V(p_idx, surfaces.size(), PRIMITIVE_LINES);
-    return (PrimitiveType)VisualServer::get_singleton()->mesh_surface_get_primitive_type(mesh, p_idx);
+    return (PrimitiveType)RenderingServer::get_singleton()->mesh_surface_get_primitive_type(mesh, p_idx);
 }
 
 void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material) {
@@ -950,7 +950,7 @@ void ArrayMesh::surface_set_material(int p_idx, const Ref<Material> &p_material)
     if (surfaces[p_idx].material == p_material)
         return;
     surfaces[p_idx].material = p_material;
-    VisualServer::get_singleton()->mesh_surface_set_material(mesh, p_idx, not p_material ? RID() : p_material->get_rid());
+    RenderingServer::get_singleton()->mesh_surface_set_material(mesh, p_idx, not p_material ? RID() : p_material->get_rid());
 
     Object_change_notify(this,"material");
     emit_changed();
@@ -983,7 +983,7 @@ String ArrayMesh::surface_get_name(int p_idx) const {
 void ArrayMesh::surface_update_region(int p_surface, int p_offset, const PoolVector<uint8_t> &p_data) {
 
     ERR_FAIL_INDEX(p_surface, surfaces.size());
-    VisualServer::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);
+    RenderingServer::get_singleton()->mesh_surface_update_region(mesh, p_surface, p_offset, p_data);
     emit_changed();
 }
 
@@ -1011,7 +1011,7 @@ void ArrayMesh::add_surface_from_mesh_data(Geometry::MeshData &&p_mesh_data) {
         else
             aabb.expand_to(p_mesh_data.vertices[i]);
     }
-    VisualServer::get_singleton()->mesh_add_surface_from_mesh_data(mesh, eastl::move(p_mesh_data));
+    RenderingServer::get_singleton()->mesh_add_surface_from_mesh_data(mesh, eastl::move(p_mesh_data));
 
     Surface s;
     s.aabb = aabb;
@@ -1040,7 +1040,7 @@ AABB ArrayMesh::get_aabb() const {
 void ArrayMesh::set_custom_aabb(const AABB &p_custom) {
 
     custom_aabb = p_custom;
-    VisualServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
+    RenderingServer::get_singleton()->mesh_set_custom_aabb(mesh, custom_aabb);
     emit_changed();
 }
 
@@ -1293,7 +1293,7 @@ void ArrayMesh::_bind_methods() {
 }
 
 void ArrayMesh::reload_from_file() {
-    VisualServer::get_singleton()->mesh_clear(mesh);
+    RenderingServer::get_singleton()->mesh_clear(mesh);
     surfaces.clear();
     clear_blend_shapes();
     clear_cache();
@@ -1305,11 +1305,11 @@ void ArrayMesh::reload_from_file() {
 
 ArrayMesh::ArrayMesh() {
 
-    mesh = VisualServer::get_singleton()->mesh_create();
+    mesh = RenderingServer::get_singleton()->mesh_create();
     blend_shape_mode = BLEND_SHAPE_MODE_RELATIVE;
 }
 
 ArrayMesh::~ArrayMesh() {
 
-    VisualServer::get_singleton()->free_rid(mesh);
+    RenderingServer::get_singleton()->free_rid(mesh);
 }

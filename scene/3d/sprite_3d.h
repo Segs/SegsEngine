@@ -31,8 +31,8 @@
 #ifndef SPRITE_3D_H
 #define SPRITE_3D_H
 
-#include "scene/2d/animated_sprite.h"
-#include "scene/3d/visual_instance.h"
+#include "scene/2d/animated_sprite_2d.h"
+#include "scene/3d/visual_instance_3d.h"
 
 class TriangleMesh;
 

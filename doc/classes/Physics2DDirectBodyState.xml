@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Physics2DDirectBodyState" inherits="Object" version="4.0">
+<class name="PhysicsDirectBodyState2D" inherits="Object" version="4.0">
 	<brief_description>
-		Direct access object to a physics body in the [Physics2DServer].
+		Direct access object to a physics body in the [PhysicsServer2D].
 	</brief_description>
 	<description>
-		Provides direct access to a physics body in the [Physics2DServer], allowing safe changes to physics properties. This object is passed via the direct state callback of rigid/character bodies, and is intended for changing the direct state of that body. See [method RigidBody2D._integrate_forces].
+		Provides direct access to a physics body in the [PhysicsServer2D], allowing safe changes to physics properties. This object is passed via the direct state callback of rigid/character bodies, and is intended for changing the direct state of that body. See [method RigidBody2D._integrate_forces].
 	</description>
 	<tutorials>
 		<link>https://docs.godotengine.org/en/latest/tutorials/physics/ray-casting.html</link>
@@ -119,7 +119,7 @@
 			<argument index="0" name="contact_idx" type="int">
 			</argument>
 			<description>
-				Returns the collided shape's metadata. This metadata is different from [method Object.get_meta], and is set with [method Physics2DServer.shape_set_data].
+				Returns the collided shape's metadata. This metadata is different from [method Object.get_meta], and is set with [method PhysicsServer2D.shape_set_data].
 			</description>
 		</method>
 		<method name="get_contact_collider_velocity_at_position" qualifiers="const">
@@ -167,7 +167,7 @@
 			</description>
 		</method>
 		<method name="get_space_state">
-			<return type="Physics2DDirectSpaceState">
+			<return type="PhysicsDirectSpaceState2D">
 			</return>
 			<description>
 				Returns the current state of the space, useful for queries.

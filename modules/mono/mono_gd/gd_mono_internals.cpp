@@ -33,7 +33,8 @@
 #include "../csharp_script.h"
 #include "../mono_gc_handle.h"
 #include "../utils/macros.h"
-#include "../utils/thread_local.h"
+
+#include "core/debugger/script_debugger.h"
 #include "gd_mono_class.h"
 #include "gd_mono_marshal.h"
 #include "gd_mono_utils.h"

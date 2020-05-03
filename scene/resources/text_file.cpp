@@ -31,6 +31,8 @@
 #include "text_file.h"
 
 #include "core/class_db.h"
+#include "core/io/resource_loader.h"
+#include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 #include "core/pool_vector.h"
 #include "core/property_info.h"

@@ -34,13 +34,13 @@
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/environment.h"
-#include "scene/resources/world.h"
+#include "scene/resources/world_3d.h"
 
 IMPL_GDCLASS(WorldEnvironment)
 
 void WorldEnvironment::_notification(int p_what) {
 
-    if (p_what == Spatial::NOTIFICATION_ENTER_WORLD || p_what == Spatial::NOTIFICATION_ENTER_TREE) {
+    if (p_what == Node3D::NOTIFICATION_ENTER_WORLD || p_what == Node3D::NOTIFICATION_ENTER_TREE) {
 
         if (environment) {
             if (get_viewport()->find_world()->get_environment()) {
@@ -50,7 +50,7 @@ void WorldEnvironment::_notification(int p_what) {
             add_to_group(StringName("_world_environment_" + itos(get_viewport()->find_world()->get_scenario().get_id())));
         }
 
-    } else if (p_what == Spatial::NOTIFICATION_EXIT_WORLD || p_what == Spatial::NOTIFICATION_EXIT_TREE) {
+    } else if (p_what == Node3D::NOTIFICATION_EXIT_WORLD || p_what == Node3D::NOTIFICATION_EXIT_TREE) {
 
         if (environment && get_viewport()->find_world()->get_environment() == environment) {
             get_viewport()->find_world()->set_environment(Ref<Environment>());
@@ -102,7 +102,7 @@ StringName WorldEnvironment::get_configuration_warning() const {
 
     // Commenting this warning for now, I think it makes no sense. If anyone can figure out what its supposed to do, feedback welcome. Else it should be deprecated.
     //if (environment && get_viewport() && !get_viewport()->get_camera_rid() && environment->get_background() != Environment::BG_CANVAS) {
-    //	return TTR("This WorldEnvironment is ignored. Either add a Camera (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
+    //	return TTR("This WorldEnvironment is ignored. Either add a Camera3D (for 3D scenes) or set this environment's Background Mode to Canvas (for 2D scenes).");
     //}
 
     return StringName();

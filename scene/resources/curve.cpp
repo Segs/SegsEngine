@@ -404,7 +404,7 @@ void Curve::set_data(Array input) {
     for (int i = 0; i < input.size(); i += ELEMS) {
         ERR_FAIL_COND(input[i].get_type() != VariantType::VECTOR2);
         ERR_FAIL_COND(!input[i + 1].is_num());
-        ERR_FAIL_COND(input[i + 2].get_type() != VariantType::REAL);
+        ERR_FAIL_COND(input[i + 2].get_type() != VariantType::FLOAT);
 
         ERR_FAIL_COND(input[i + 3].get_type() != VariantType::INT);
         int left_mode = input[i + 3];
@@ -537,8 +537,8 @@ void Curve::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_data"), &Curve::get_data);
     MethodBinder::bind_method(D_METHOD("set_data", {"data"}), &Curve::set_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "min_value", PropertyHint::Range, "-1024,1024,0.01"), "set_min_value", "get_min_value");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "max_value", PropertyHint::Range, "-1024,1024,0.01"), "set_max_value", "get_max_value");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min_value", PropertyHint::Range, "-1024,1024,0.01"), "set_min_value", "get_min_value");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_value", PropertyHint::Range, "-1024,1024,0.01"), "set_max_value", "get_max_value");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "bake_resolution", PropertyHint::Range, "1,1000,1"), "set_bake_resolution", "get_bake_resolution");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_data", "get_data");
 
@@ -1013,7 +1013,7 @@ void Curve2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_data"), &Curve2D::_get_data);
     MethodBinder::bind_method(D_METHOD("_set_data"), &Curve2D::_set_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 }
 
@@ -1699,7 +1699,7 @@ void Curve3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_get_data"), &Curve3D::_get_data);
     MethodBinder::bind_method(D_METHOD("_set_data"), &Curve3D::_set_data);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_interval", PropertyHint::Range, "0.01,512,0.01"), "set_bake_interval", "get_bake_interval");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "_data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_data", "_get_data");
 
     ADD_GROUP("Up Vector", "up_vector_");

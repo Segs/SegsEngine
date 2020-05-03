@@ -46,7 +46,7 @@
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
 #include "scene/scene_string_names.h"
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "scene/gui/control_enum_casters.h"
 #include "scene/resources/font.h"
 
@@ -189,8 +189,8 @@ Size2 Control::get_custom_minimum_size() const {
 void Control::_update_minimum_size_cache() {
 
     Size2 minsize = get_minimum_size();
-    minsize.x = MAX(minsize.x, data.custom_minimum_size.x);
-    minsize.y = MAX(minsize.y, data.custom_minimum_size.y);
+    minsize.x = M_MAX(minsize.x, data.custom_minimum_size.x);
+    minsize.y = M_MAX(minsize.y, data.custom_minimum_size.y);
 
     bool size_changed = false;
     if (data.minimum_size_cache != minsize)
@@ -458,7 +458,13 @@ void Control::_update_canvas_item_transform() {
     Transform2D xform = _get_internal_transform();
     xform[2] += get_position();
 
-    VisualServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), xform);
+    // We use a little workaround to avoid flickering when moving the pivot with _edit_set_pivot()
+    if (is_inside_tree() && Math::abs(Math::sin(data.rotation * 4.0f)) < 0.00001f &&
+            get_viewport()->is_snap_controls_to_pixels_enabled()) {
+        xform[2] = xform[2].round();
+    }
+
+    RenderingServer::get_singleton()->canvas_item_set_transform(get_canvas_item(), xform);
 }
 
 void Control::_notification(int p_notification) {
@@ -611,8 +617,8 @@ void Control::_notification(int p_notification) {
         case NOTIFICATION_DRAW: {
 
             _update_canvas_item_transform();
-            VisualServer::get_singleton()->canvas_item_set_custom_rect(get_canvas_item(), !data.disable_visibility_clip, Rect2(Point2(), get_size()));
-            VisualServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), data.clip_contents);
+            RenderingServer::get_singleton()->canvas_item_set_custom_rect(get_canvas_item(), !data.disable_visibility_clip, Rect2(Point2(), get_size()));
+            RenderingServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), data.clip_contents);
             //emit_signal(SceneStringNames::get_singleton()->draw);
 
         } break;
@@ -682,9 +688,9 @@ bool Control::has_point(const Point2 &p_point) const {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p = &v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
-        if (ce.error == Variant::CallError::CALL_OK) {
+        if (ce.error == Callable::CallError::CALL_OK) {
             return ret;
         }
     }
@@ -706,7 +712,7 @@ void Control::set_drag_forwarding(Control *p_target) {
 Variant Control::get_drag_data(const Point2 &p_point) {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             return c->call_va("get_drag_data_fw", p_point, Variant(this));
@@ -716,9 +722,9 @@ Variant Control::get_drag_data(const Point2 &p_point) {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p = &v;
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->get_drag_data, &p, 1, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
 
@@ -728,7 +734,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
 bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
@@ -738,9 +744,9 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
 
@@ -749,7 +755,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
 void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
     if (data.drag_owner) {
-        Object *obj = ObjectDB::get_instance(data.drag_owner);
+        Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
             c->call_va("drop_data_fw", p_point, p_data, Variant(this));
@@ -760,9 +766,9 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
     if (get_script_instance()) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->drop_data, p, 2, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return;
     }
 }
@@ -800,9 +806,9 @@ Size2 Control::get_minimum_size() const {
     ScriptInstance *si = const_cast<Control *>(this)->get_script_instance();
     if (si) {
 
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
-        if (ce.error == Variant::CallError::CALL_OK)
+        if (ce.error == Callable::CallError::CALL_OK)
             return s;
     }
     return Size2();
@@ -2606,9 +2612,9 @@ bool Control::is_text_field() const {
     if (get_script_instance()) {
         Variant v=p_point;
         const Variant *p[2]={&v,&p_data};
-        Variant::CallError ce;
+        Callable::CallError ce;
         Variant ret = get_script_instance()->call("is_text_field",p,2,ce);
-        if (ce.error==Variant::CallError::CALL_OK)
+        if (ce.error==Callable::CallError::CALL_OK)
             return ret;
     }
   */
@@ -2932,13 +2938,13 @@ void Control::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::BOOL, "can_drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo("drop_data", PropertyInfo(VariantType::VECTOR2, "position"), PropertyInfo(VariantType::NIL, "data")));
     BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "_make_custom_tooltip", PropertyInfo(VariantType::STRING, "for_text")));
-    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"))
+    BIND_VMETHOD(MethodInfo(VariantType::BOOL, "_clips_input"));
 
     ADD_GROUP("Anchor", "anchor_");
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Top);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Right);
-    ADD_PROPERTYI(PropertyInfo(VariantType::REAL, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Bottom);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_left", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Left);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_top", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Top);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_right", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Right);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anchor_bottom", PropertyHint::Range, "0,1,0.001,or_lesser,or_greater"), "_set_anchor", "get_anchor", (int)Margin::Bottom);
 
     ADD_GROUP("Margin", "margin_");
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "margin_left", PropertyHint::Range, "-4096,4096"), "set_margin", "get_margin", (int)Margin::Left);
@@ -2955,7 +2961,7 @@ void Control::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_global_position", PropertyHint::None, "", 0), "_set_global_position", "get_global_position");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
@@ -2980,7 +2986,7 @@ void Control::_bind_methods() {
     ADD_GROUP("Size Flags", "size_flags_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");

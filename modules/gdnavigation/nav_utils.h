@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef NAV_UTILS_H
-#define NAV_UTILS_H
+#pragma once
 
 #include "core/math/vector3.h"
+#include "core/hashfuncs.h"
 #include <vector>
+
 
 /**
 	@author AndreaCatania
@@ -168,5 +169,3 @@ struct FreeEdge {
 	float edge_len_squared;
 };
 } // namespace gd
-
-#endif // NAV_UTILS_H

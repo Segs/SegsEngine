@@ -30,14 +30,15 @@
 
 #include "inspector_dock.h"
 
-#include "create_dialog.h"
 #include "core/method_bind.h"
+#include "core/object_db.h"
+#include "core/resource/resource_manager.h"
+#include "create_dialog.h"
+#include "editor/animation_track_editor.h"
 #include "editor/editor_node.h"
 #include "editor/editor_path.h"
 #include "editor/editor_settings.h"
-#include "editor/animation_track_editor.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
-#include "core/object_db.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/theme.h"
 
@@ -85,7 +86,6 @@ void InspectorDock::_menu_option(int p_option) {
             editor_data->apply_changes_in_editors();
             if (current)
                 editor_data->paste_object_params(current);
-            editor_data->get_undo_redo().clear_history();
         } break;
 
         case OBJECT_UNIQUE_RESOURCES: {
@@ -176,7 +176,7 @@ void InspectorDock::_resource_file_selected(StringView p_file) {
 
 void InspectorDock::_save_resource(bool save_as) const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -190,7 +190,7 @@ void InspectorDock::_save_resource(bool save_as) const {
 
 void InspectorDock::_unref_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -201,7 +201,7 @@ void InspectorDock::_unref_resource() const {
 
 void InspectorDock::_copy_resource() const {
     uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? ObjectDB::get_instance(current) : nullptr;
+    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -220,7 +220,7 @@ void InspectorDock::_paste_resource() const {
 void InspectorDock::_prepare_history() {
     EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
 
-    int history_to = MAX(0, editor_history->get_history_len() - 25);
+    int history_to = M_MAX(0, editor_history->get_history_len() - 25);
 
     history_menu->get_popup()->clear();
 
@@ -229,7 +229,7 @@ void InspectorDock::_prepare_history() {
     for (int i = editor_history->get_history_len() - 1; i >= history_to; i--) {
 
         ObjectID id = editor_history->get_history_obj(i);
-        Object *obj = ObjectDB::get_instance(id);
+        Object *obj = gObjectDB().get_instance(id);
         if (!obj || already.contains(id)) {
             if (history_to > 0) {
                 history_to--;
@@ -272,7 +272,7 @@ void InspectorDock::_prepare_history() {
 void InspectorDock::_select_history(int p_idx) const {
     //push it to the top, it is not correct, but it's more useful
     ObjectID id = EditorNode::get_singleton()->get_editor_history()->get_history_obj(p_idx);
-    Object *obj = ObjectDB::get_instance(id);
+    Object *obj = gObjectDB().get_instance(id);
     if (!obj)
         return;
     editor->push_item(obj);
@@ -319,7 +319,7 @@ void InspectorDock::_property_keyed(StringView p_keyed, const Variant &p_value, 
 }
 
 void InspectorDock::_transform_keyed(Object *sp, StringView p_sub, const Transform &p_key) {
-    Spatial *s = object_cast<Spatial>(sp);
+    Node3D *s = object_cast<Node3D>(sp);
     if (!s)
         return;
     AnimationPlayerEditor::singleton->get_track_editor()->insert_transform_key(s, p_sub, p_key);
@@ -491,7 +491,7 @@ void InspectorDock::update_keying() {
         EditorHistory *editor_history = EditorNode::get_singleton()->get_editor_history();
         if (editor_history->get_path_size() >= 1) {
 
-            Object *obj = ObjectDB::get_instance(editor_history->get_path_object(0));
+            Object *obj = gObjectDB().get_instance(editor_history->get_path_object(0));
             if (object_cast<Node>(obj)) {
 
                 valid = true;

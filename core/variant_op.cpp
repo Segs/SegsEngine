@@ -33,6 +33,7 @@
 #include "core/pool_vector.h"
 #include "core/color.h"
 #include "core/core_string_names.h"
+#include "core/debugger/script_debugger.h"
 #include "core/list.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
@@ -56,7 +57,7 @@
 #define CASE_TYPE_ALL_BUT_INT(PREFIX, OP)     \
     CASE_TYPE(PREFIX, OP, NIL)                \
     CASE_TYPE(PREFIX, OP, BOOL)               \
-    CASE_TYPE(PREFIX, OP, REAL)               \
+    CASE_TYPE(PREFIX, OP, FLOAT)              \
     CASE_TYPE(PREFIX, OP, STRING)             \
     CASE_TYPE(PREFIX, OP, VECTOR2)            \
     CASE_TYPE(PREFIX, OP, RECT2)              \
@@ -89,7 +90,7 @@
         TYPE(PREFIX, OP, NIL),                \
         TYPE(PREFIX, OP, BOOL),               \
         TYPE(PREFIX, OP, INT),                \
-        TYPE(PREFIX, OP, REAL),               \
+        TYPE(PREFIX, OP, FLOAT),              \
         TYPE(PREFIX, OP, STRING),             \
         TYPE(PREFIX, OP, VECTOR2),            \
         TYPE(PREFIX, OP, RECT2),              \
@@ -187,7 +188,7 @@ bool Variant::booleanize() const {
 #define DEFAULT_OP_NUM(m_prefix, m_op_name, m_name, m_op, m_type)             \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                  \
         if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type m_op p_b._data._int);   \
-        if (p_b.type == VariantType::REAL) _RETURN(p_a._data.m_type m_op p_b._data._real); \
+        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type m_op p_b._data._real); \
                                                                               \
         _RETURN_FAIL                                                          \
     };
@@ -195,7 +196,7 @@ bool Variant::booleanize() const {
 #define DEFAULT_OP_NUM_NULL(m_prefix, m_op_name, m_name, m_op, m_type)        \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                  \
         if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type m_op p_b._data._int);   \
-        if (p_b.type == VariantType::REAL) _RETURN(p_a._data.m_type m_op p_b._data._real); \
+        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type m_op p_b._data._real); \
         if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type m_op VariantType::NIL));                   \
                                                                               \
         _RETURN_FAIL                                                          \
@@ -211,7 +212,7 @@ bool Variant::booleanize() const {
             }                                                   \
             _RETURN(p_a._data.m_type / p_b._data._int);         \
         }                                                       \
-        if (p_b.type == VariantType::REAL) {                                 \
+        if (p_b.type == VariantType::FLOAT) {                                 \
             if (p_b._data._real == 0) {                         \
                 r_valid = false;                                \
                 _RETURN("Division By Zero");                    \
@@ -225,7 +226,7 @@ bool Variant::booleanize() const {
 #define DEFAULT_OP_NUM_DIV(m_prefix, m_op_name, m_name, m_type)            \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                               \
         if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type / p_b._data._int);   \
-        if (p_b.type == VariantType::REAL) _RETURN(p_a._data.m_type / p_b._data._real); \
+        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type / p_b._data._real); \
                                                                            \
         _RETURN_FAIL                                                       \
     };
@@ -244,7 +245,7 @@ bool Variant::booleanize() const {
 #define DEFAULT_OP_NUM_VEC(m_prefix, m_op_name, m_name, m_op, m_type)                                               \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                        \
         if (p_b.type == VariantType::INT) _RETURN(p_a._data.m_type m_op p_b._data._int);                                         \
-        if (p_b.type == VariantType::REAL) _RETURN(p_a._data.m_type m_op p_b._data._real);                                       \
+        if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type m_op p_b._data._real);                                       \
         if (p_b.type == VariantType::VECTOR2) _RETURN(p_a._data.m_type m_op *reinterpret_cast<const Vector2 *>(p_b._data._mem)); \
         if (p_b.type == VariantType::VECTOR3) _RETURN(p_a._data.m_type m_op *reinterpret_cast<const Vector3 *>(p_b._data._mem)); \
                                                                                                                     \
@@ -316,7 +317,7 @@ bool Variant::booleanize() const {
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                                       \
         if (p_b.type == VariantType::m_name) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const m_type *>(p_b._data._mem)); \
         if (p_b.type == VariantType::INT) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op p_b._data._int);                                       \
-        if (p_b.type == VariantType::REAL) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op p_b._data._real);                                     \
+        if (p_b.type == VariantType::FLOAT) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op p_b._data._real);                                     \
                                                                                                                                                    \
         _RETURN_FAIL                                                                                                                               \
     }
@@ -476,7 +477,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM_NULL(math, OP_EQUAL, INT, ==, _int)
-            DEFAULT_OP_NUM_NULL(math, OP_EQUAL, REAL, ==, _real)
+            DEFAULT_OP_NUM_NULL(math, OP_EQUAL, FLOAT, ==, _real)
             CASE_TYPE(math, OP_EQUAL, STRING) {                                                                                                            \
                 if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem)) == *reinterpret_cast<const String *>(p_b._data._mem))      \
                 if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem)) \
@@ -572,7 +573,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, INT, !=, _int)
-            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, REAL, !=, _real)
+            DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, FLOAT, !=, _real)
             CASE_TYPE(math, OP_NOT_EQUAL, STRING) {
                 if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != *reinterpret_cast<const String *>(p_b._data._mem));
                 if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
@@ -637,7 +638,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM(math, OP_LESS, INT, <, _int)
-            DEFAULT_OP_NUM(math, OP_LESS, REAL, <, _real)
+            DEFAULT_OP_NUM(math, OP_LESS, FLOAT, <, _real)
             CASE_TYPE(math, OP_LESS, STRING) {
                 if (p_b.type == VariantType::STRING)
                     _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) < *reinterpret_cast<const String *>(p_b._data._mem))
@@ -678,7 +679,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int)
-            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, REAL, <=, _real)
+            DEFAULT_OP_NUM(math, OP_LESS_EQUAL, FLOAT, <=, _real)
             CASE_TYPE(math, OP_LESS_EQUAL, STRING) {
                 if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) <= *reinterpret_cast<const String *>(p_b._data._mem));
                 if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) <= (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
@@ -752,7 +753,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM(math, OP_GREATER, INT, >, _int)
-            DEFAULT_OP_NUM(math, OP_GREATER, REAL, >, _real)
+            DEFAULT_OP_NUM(math, OP_GREATER, FLOAT, >, _real)
             CASE_TYPE(math, OP_GREATER, STRING) {
                 if (p_b.type == VariantType::STRING)
                     _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <
@@ -796,7 +797,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, INT, >=, _int);
-            DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, REAL, >=, _real);
+            DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, FLOAT, >=, _real);
             CASE_TYPE(math, OP_GREATER_EQUAL, STRING) {
                 if (p_b.type == VariantType::STRING)
                     _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <=
@@ -853,7 +854,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM(math, OP_ADD, INT, +, _int);
-            DEFAULT_OP_NUM(math, OP_ADD, REAL, +, _real);
+            DEFAULT_OP_NUM(math, OP_ADD, FLOAT, +, _real);
             CASE_TYPE(math, OP_ADD, STRING) {
                 if (p_b.type == VariantType::STRING)
                     _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) +
@@ -894,7 +895,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
         SWITCH_OP(math, OP_SUBTRACT, p_a.type) {
             DEFAULT_OP_NUM(math, OP_SUBTRACT, INT, -, _int)
-            DEFAULT_OP_NUM(math, OP_SUBTRACT, REAL, -, _real)
+            DEFAULT_OP_NUM(math, OP_SUBTRACT, FLOAT, -, _real)
             DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, VECTOR2, -, Vector2)
             DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, VECTOR3, -, Vector3)
             DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, QUAT, -, Quat)
@@ -945,7 +946,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
                     case VariantType::QUAT: {
                         _RETURN(*reinterpret_cast<const Quat *>(p_a._data._mem) * *reinterpret_cast<const Quat *>(p_b._data._mem));
                     }
-                    case VariantType::REAL: {
+                    case VariantType::FLOAT: {
                         _RETURN(*reinterpret_cast<const Quat *>(p_a._data._mem) * p_b._data._real);
                     }
                     default: _RETURN_FAIL;
@@ -977,7 +978,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM_VEC(math, OP_MULTIPLY, INT, *, _int)
-            DEFAULT_OP_NUM_VEC(math, OP_MULTIPLY, REAL, *, _real)
+            DEFAULT_OP_NUM_VEC(math, OP_MULTIPLY, FLOAT, *, _real)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, VECTOR2, *, Vector2)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, VECTOR3, *, Vector3)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, COLOR, *, Color)
@@ -1005,7 +1006,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
         SWITCH_OP(math, OP_DIVIDE, p_a.type) {
             CASE_TYPE(math, OP_DIVIDE, QUAT) {
-                if (p_b.type != VariantType::REAL)
+                if (p_b.type != VariantType::FLOAT)
                     _RETURN_FAIL
 #ifdef DEBUG_ENABLED
                 if (p_b._data._real == 0.0) {
@@ -1017,7 +1018,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             }
 
             DEFAULT_OP_NUM_DIV(math, OP_DIVIDE, INT, _int)
-            DEFAULT_OP_NUM_DIV(math, OP_DIVIDE, REAL, _real)
+            DEFAULT_OP_NUM_DIV(math, OP_DIVIDE, FLOAT, _real)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, VECTOR2, /, Vector2)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, VECTOR3, /, Vector3)
             DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, COLOR, /, Color)
@@ -1048,7 +1049,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
         SWITCH_OP(math, OP_POSITIVE, p_a.type) {
             DEFAULT_OP_NUM_POS(math, OP_POSITIVE, INT, _int)
-            DEFAULT_OP_NUM_POS(math, OP_POSITIVE, REAL, _real)
+            DEFAULT_OP_NUM_POS(math, OP_POSITIVE, FLOAT, _real)
             DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, VECTOR3, Vector3)
             DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, PLANE, Plane)
             DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, QUAT, Quat)
@@ -1080,7 +1081,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
         SWITCH_OP(math, OP_NEGATE, p_a.type) {
             DEFAULT_OP_NUM_NEG(math, OP_NEGATE, INT, _int)
-            DEFAULT_OP_NUM_NEG(math, OP_NEGATE, REAL, _real)
+            DEFAULT_OP_NUM_NEG(math, OP_NEGATE, FLOAT, _real)
 
             DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, VECTOR2, Vector2)
             DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, VECTOR3, Vector3)
@@ -1145,7 +1146,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
             CASE_TYPE(math, OP_MODULE, NIL)
             CASE_TYPE(math, OP_MODULE, BOOL)
-            CASE_TYPE(math, OP_MODULE, REAL)
+            CASE_TYPE(math, OP_MODULE, FLOAT)
             CASE_TYPE(math, OP_MODULE, VECTOR2)
             CASE_TYPE(math, OP_MODULE, RECT2)
             CASE_TYPE(math, OP_MODULE, VECTOR3)
@@ -1304,7 +1305,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->y = p_value._data._int;
                     valid = true;
                 }
-            } else if (p_value.type == VariantType::REAL) {
+            } else if (p_value.type == VariantType::FLOAT) {
                 Vector2 *v = reinterpret_cast<Vector2 *>(_data._mem);
                 if (p_index == CoreStringNames::singleton->x) {
                     v->x = p_value._data._real;
@@ -1364,7 +1365,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->z = p_value._data._int;
                     valid = true;
                 }
-            } else if (p_value.type == VariantType::REAL) {
+            } else if (p_value.type == VariantType::FLOAT) {
                 Vector3 *v = reinterpret_cast<Vector3 *>(_data._mem);
                 if (p_index == CoreStringNames::singleton->x) {
                     v->x = p_value._data._real;
@@ -1396,7 +1397,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->d = p_value._data._int;
                     valid = true;
                 }
-            } else if (p_value.type == VariantType::REAL) {
+            } else if (p_value.type == VariantType::FLOAT) {
                 Plane *v = reinterpret_cast<Plane *>(_data._mem);
                 if (p_index == CoreStringNames::singleton->x) {
                     v->normal.x = p_value._data._real;
@@ -1438,7 +1439,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->w = p_value._data._int;
                     valid = true;
                 }
-            } else if (p_value.type == VariantType::REAL) {
+            } else if (p_value.type == VariantType::FLOAT) {
                 Quat *v = reinterpret_cast<Quat *>(_data._mem);
                 if (p_index == CoreStringNames::singleton->x) {
                     v->x = p_value._data._real;
@@ -1539,7 +1540,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
                     v->set_hsv(v->get_h(), v->get_v(), p_value._data._int, v->a);
                     valid = true;
                 }
-            } else if (p_value.type == VariantType::REAL) {
+            } else if (p_value.type == VariantType::FLOAT) {
                 Color *v = reinterpret_cast<Color *>(_data._mem);
                 if (p_index == CoreStringNames::singleton->r) {
                     v->r = p_value._data._real;
@@ -1582,7 +1583,7 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
 #ifdef DEBUG_ENABLED
             if (!_get_obj().obj) {
                 break;
-            } else if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !ObjectDB::instance_validate(_get_obj().obj)) {
+            } else if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
                 break;
             }
 
@@ -1751,7 +1752,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
                 return "Instance base is null.";
             } else {
 
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !ObjectDB::instance_validate(_get_obj().obj)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
                     if (r_valid)
                         *r_valid = false;
                     return "Attempted use of stray pointer object.";
@@ -1778,7 +1779,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
     case VariantType::m_name: {                                                                       \
         skip_test;                                                                       \
                                                                                          \
-        if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) { \
+        if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) { \
             int index = p_index;                                                         \
             m_type *arr = reinterpret_cast<m_type *>(_data._mem);                        \
                                                                                          \
@@ -1814,12 +1815,12 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         case VariantType::INT: {
             return;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             return;
         }
         case VariantType::STRING: {
 
-            if (p_index.type != VariantType::INT && p_index.type != VariantType::REAL)
+            if (p_index.type != VariantType::INT && p_index.type != VariantType::FLOAT)
                 return;
 
             int idx = p_index;
@@ -1831,7 +1832,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 return;
 
             String chr;
-            if (p_value.type == VariantType::INT || p_value.type == VariantType::REAL) {
+            if (p_value.type == VariantType::INT || p_value.type == VariantType::FLOAT) {
 
                 chr.push_back(p_value.as<int>());
             } else if (p_value.type == VariantType::STRING) {
@@ -1848,10 +1849,10 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         }
         case VariantType::VECTOR2: {
 
-            if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+            if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 // scalar index
                 int idx = p_index;
 
@@ -1911,7 +1912,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_value.type != VariantType::VECTOR2)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
 
@@ -1947,10 +1948,10 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         } break;
         case VariantType::VECTOR3: {
 
-            if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+            if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //scalar index
                 int idx = p_index;
                 if (idx < 0)
@@ -1990,21 +1991,21 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 const String *str = reinterpret_cast<const String *>(p_index._data._mem);
                 Plane *v = reinterpret_cast<Plane *>(_data._mem);
                 if (*str == "x") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                         return;
 
                     valid = true;
                     v->normal.x = p_value;
                     return;
                 } else if (*str == "y") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                         return;
 
                     valid = true;
                     v->normal.y = p_value;
                     return;
                 } else if (*str == "z") {
-                    if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+                    if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                         return;
 
                     valid = true;
@@ -2027,7 +2028,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         } break;
         case VariantType::QUAT: {
 
-            if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+            if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
             if (p_index.get_type() == VariantType::STRING) {
@@ -2084,7 +2085,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_value.type != VariantType::VECTOR3)
                 return;
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
 
@@ -2120,7 +2121,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         } break;
         case VariantType::TRANSFORM: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 if (p_value.type != VariantType::VECTOR3)
                     return;
@@ -2163,7 +2164,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         } break;
         case VariantType::COLOR: {
 
-            if (p_value.type != VariantType::INT && p_value.type != VariantType::REAL)
+            if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                 return;
 
             if (p_index.get_type() == VariantType::STRING) {
@@ -2241,7 +2242,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
 
-                    if (!ObjectDB::instance_validate(obj)) {
+                    if (!gObjectDB().instance_validate(obj)) {
                         WARN_PRINT("Attempted use of stray pointer object.");
                         valid = false;
                         return;
@@ -2266,9 +2267,9 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             return;
         }
             DEFAULT_OP_ARRAY_CMD(ARRAY, Array, ;, (*arr)[index] = p_value; return ) // 20
-            DEFAULT_OP_DVECTOR_SET(POOL_BYTE_ARRAY, uint8_t, p_value.type != VariantType::REAL && p_value.type != VariantType::INT)
-            DEFAULT_OP_DVECTOR_SET(POOL_INT_ARRAY, int, p_value.type != VariantType::REAL && p_value.type != VariantType::INT)
-            DEFAULT_OP_DVECTOR_SET(POOL_REAL_ARRAY, real_t, p_value.type != VariantType::REAL && p_value.type != VariantType::INT)
+            DEFAULT_OP_DVECTOR_SET(POOL_BYTE_ARRAY, uint8_t, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
+            DEFAULT_OP_DVECTOR_SET(POOL_INT_ARRAY, int, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
+            DEFAULT_OP_DVECTOR_SET(POOL_REAL_ARRAY, real_t, p_value.type != VariantType::FLOAT && p_value.type != VariantType::INT)
             DEFAULT_OP_DVECTOR_SET(POOL_STRING_ARRAY, String, p_value.type != VariantType::STRING)
             DEFAULT_OP_DVECTOR_SET(POOL_VECTOR2_ARRAY, Vector2, p_value.type != VariantType::VECTOR2) // 25
             DEFAULT_OP_DVECTOR_SET(POOL_VECTOR3_ARRAY, Vector3, p_value.type != VariantType::VECTOR3)
@@ -2296,12 +2297,12 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         case VariantType::INT: {
             return Variant();
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             return Variant();
         }
         case VariantType::STRING: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //string index
 
                 int idx = p_index;
@@ -2318,7 +2319,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::VECTOR2: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 // scalar index
                 int idx = p_index;
                 if (idx < 0)
@@ -2365,7 +2366,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::VECTOR3: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //scalar index
                 int idx = p_index;
                 if (idx < 0)
@@ -2396,7 +2397,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::TRANSFORM2D: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
 
@@ -2494,7 +2495,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::BASIS: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
                 if (index < 0)
@@ -2525,7 +2526,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::TRANSFORM: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
                 if (index < 0)
@@ -2615,7 +2616,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
-                    if (!ObjectDB::instance_validate(obj)) {
+                    if (!gObjectDB().instance_validate(obj)) {
                         valid = false;
                         return "Attempted get on stray pointer.";
                     }
@@ -2680,7 +2681,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
-                    if (!ObjectDB::instance_validate(obj)) {
+                    if (!gObjectDB().instance_validate(obj)) {
                         if (r_valid) {
                             *r_valid = false;
                         }
@@ -2724,7 +2725,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
         }
         case VariantType::POOL_BYTE_ARRAY: {
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
                 const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
@@ -2742,7 +2743,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
         } break;
         case VariantType::POOL_INT_ARRAY: {
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 int index = p_index;
                 const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
@@ -2760,7 +2761,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         } break;
         case VariantType::POOL_REAL_ARRAY: {
 
-            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::REAL) {
+            if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
                 real_t index = p_index;
                 const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
@@ -2867,8 +2868,8 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
     switch (type) {
         case VariantType::VECTOR2: {
 
-            p_list->push_back(PropertyInfo(VariantType::REAL, "x"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "y"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
 
         } break; // 5
         case VariantType::RECT2: {
@@ -2880,9 +2881,9 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
         } break;
         case VariantType::VECTOR3: {
 
-            p_list->push_back(PropertyInfo(VariantType::REAL, "x"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "y"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "z"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
 
         } break;
         case VariantType::TRANSFORM2D: {
@@ -2895,18 +2896,18 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
         case VariantType::PLANE: {
 
             p_list->push_back(PropertyInfo(VariantType::VECTOR3, "normal"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "x"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "y"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "z"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "d"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "d"));
 
         } break;
         case VariantType::QUAT: {
 
-            p_list->push_back(PropertyInfo(VariantType::REAL, "x"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "y"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "z"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "w"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "x"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "y"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "z"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "w"));
 
         } break; // 10
         case VariantType::AABB: {
@@ -2928,13 +2929,13 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
 
         } break;
         case VariantType::COLOR: {
-            p_list->push_back(PropertyInfo(VariantType::REAL, "r"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "g"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "b"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "a"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "h"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "s"));
-            p_list->push_back(PropertyInfo(VariantType::REAL, "v"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "r"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "g"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "b"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "a"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "h"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "s"));
+            p_list->push_back(PropertyInfo(VariantType::FLOAT, "v"));
             p_list->push_back(PropertyInfo(VariantType::INT, "r8"));
             p_list->push_back(PropertyInfo(VariantType::INT, "g8"));
             p_list->push_back(PropertyInfo(VariantType::INT, "b8"));
@@ -2952,7 +2953,7 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
 #ifdef DEBUG_ENABLED
                 if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
                     //only if debugging!
-                    if (!ObjectDB::instance_validate(obj)) {
+                    if (!gObjectDB().instance_validate(obj)) {
                         WARN_PRINT("Attempted get_property list on stray pointer.");
                         return;
                     }
@@ -2997,7 +2998,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
             r_iter = 0;
             return _data._int > 0;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             r_iter = 0;
             return _data._real > 0.0;
         }
@@ -3033,20 +3034,20 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
                 return false;
             }
 
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !ObjectDB::instance_validate(_get_obj().obj)) {
+            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
                 valid = false;
                 return false;
             }
 #endif
-            Variant::CallError ce;
-            ce.error = Variant::CallError::CALL_OK;
+            Callable::CallError ce;
+            ce.error = Callable::CallError::CALL_OK;
             Array ref;
             ref.push_back(r_iter);
             Variant vref = ref;
             const Variant *refp[] = { &vref };
             Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_init, refp, 1, ce);
 
-            if (ref.size() != 1 || ce.error != Variant::CallError::CALL_OK) {
+            if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
                 valid = false;
                 return false;
             }
@@ -3157,7 +3158,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
             r_iter = idx;
             return true;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             int64_t idx = r_iter;
             idx++;
             if (idx >= _data._real)
@@ -3201,20 +3202,20 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
                 return false;
             }
 
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !ObjectDB::instance_validate(_get_obj().obj)) {
+            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
                 valid = false;
                 return false;
             }
 #endif
-            Variant::CallError ce;
-            ce.error = Variant::CallError::CALL_OK;
+            Callable::CallError ce;
+            ce.error = Callable::CallError::CALL_OK;
             Array ref;
             ref.push_back(r_iter);
             Variant vref = ref;
             const Variant *refp[] = { &vref };
             Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_next, refp, 1, ce);
 
-            if (ref.size() != 1 || ce.error != Variant::CallError::CALL_OK) {
+            if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
                 valid = false;
                 return false;
             }
@@ -3340,7 +3341,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
 
             return r_iter;
         }
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
 
             return r_iter;
         }
@@ -3360,17 +3361,17 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
                 return Variant();
             }
 
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !ObjectDB::instance_validate(_get_obj().obj)) {
+            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
                 r_valid = false;
                 return Variant();
             }
 #endif
-            Variant::CallError ce;
-            ce.error = Variant::CallError::CALL_OK;
+            Callable::CallError ce;
+            ce.error = Callable::CallError::CALL_OK;
             const Variant *refp[] = { &r_iter };
             Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_get, refp, 1, ce);
 
-            if (ce.error != Variant::CallError::CALL_OK) {
+            if (ce.error != Callable::CallError::CALL_OK) {
                 r_valid = false;
                 return Variant();
             }
@@ -3535,7 +3536,7 @@ void Variant::blend(const Variant &a, const Variant &b, float c, Variant &r_dst)
             r_dst = int(va + vb * c + 0.5f);
         }
             return;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             double ra = a._data._real;
             double rb = b._data._real;
             r_dst = ra + rb * c;
@@ -3620,7 +3621,7 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
             r_dst = int(va + (vb - va) * c);
         }
             return;
-        case VariantType::REAL: {
+        case VariantType::FLOAT: {
             real_t va = a._data._real;
             real_t vb = b._data._real;
             r_dst = va + (vb - va) * c;

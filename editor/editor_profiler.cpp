@@ -59,7 +59,7 @@ void EditorProfiler::add_frame_metric(const Metric &p_metric, bool p_final) {
 
     updating_frame = true;
     cursor_metric_edit->set_max(frame_metrics[last_metric].frame_number);
-    cursor_metric_edit->set_min(MAX(frame_metrics[last_metric].frame_number - frame_metrics.size(), 0));
+    cursor_metric_edit->set_min(M_MAX(frame_metrics[last_metric].frame_number - frame_metrics.size(), 0));
 
     if (!seeking) {
         cursor_metric_edit->set_value(frame_metrics[last_metric].frame_number);
@@ -210,15 +210,15 @@ void EditorProfiler::_update_plot() {
 
             auto F = m.category_ptrs.find(E);
             if (F!=m.category_ptrs.end()) {
-                highest = MAX(F->second->total_time, highest);
+                highest = M_MAX(F->second->total_time, highest);
             }
 
             auto G = m.item_ptrs.find(E);
             if (G!=m.item_ptrs.end()) {
                 if (use_self) {
-                    highest = MAX(G->second->self, highest);
+                    highest = M_MAX(G->second->self, highest);
                 } else {
-                    highest = MAX(G->second->total, highest);
+                    highest = M_MAX(G->second->total, highest);
                 }
             }
         }
@@ -284,7 +284,7 @@ void EditorProfiler::_update_plot() {
                         }
                     }
 
-                    plot_pos = MAX(CLAMP(int(value * h / highest), 0, h - 1), plot_pos);
+                    plot_pos = M_MAX(CLAMP(int(value * h / highest), 0, h - 1), plot_pos);
                 }
 
                 int prev_plot = plot_pos;

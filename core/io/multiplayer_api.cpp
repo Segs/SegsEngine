@@ -96,7 +96,7 @@ public:
             return;
         profiler_frame_data.emplace(p_node, ProfilingInfo());
         profiler_frame_data[p_node].node = p_node;
-        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(ObjectDB::get_instance(p_node))->get_path();
+        profiler_frame_data[p_node].node_path = (String)object_cast<Node>(gObjectDB().get_instance(p_node))->get_path();
         profiler_frame_data[p_node].incoming_rpc = 0;
         profiler_frame_data[p_node].incoming_rset = 0;
         profiler_frame_data[p_node].outgoing_rpc = 0;
@@ -476,10 +476,10 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
         p_offset += vlen;
     }
 
-    Variant::CallError ce;
+    Callable::CallError ce;
 
     p_node->call(p_name, (const Variant **)argp.data(), argc, ce);
-    if (ce.error != Variant::CallError::CALL_OK) {
+    if (ce.error != Callable::CallError::CALL_OK) {
         String error = Variant::get_call_error_text(p_node, p_name, (const Variant **)argp.data(), argc, ce);
         error = "RPC - " + error;
         ERR_PRINT(error);
@@ -811,10 +811,10 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (call_local_native) {
         int temp_id = rpc_sender_id;
         rpc_sender_id = get_network_unique_id();
-        Variant::CallError ce;
+        Callable::CallError ce;
         p_node->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
-        if (ce.error != Variant::CallError::CALL_OK) {
+        if (ce.error != Callable::CallError::CALL_OK) {
             String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in local call:  - " + error + ".";
             ERR_PRINT(error);
@@ -825,11 +825,11 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (call_local_script) {
         int temp_id = rpc_sender_id;
         rpc_sender_id = get_network_unique_id();
-        Variant::CallError ce;
-        ce.error = Variant::CallError::CALL_OK;
+        Callable::CallError ce;
+        ce.error = Callable::CallError::CALL_OK;
         p_node->get_script_instance()->call(p_method, p_arg, p_argcount, ce);
         rpc_sender_id = temp_id;
-        if (ce.error != Variant::CallError::CALL_OK) {
+        if (ce.error != Callable::CallError::CALL_OK) {
             String error = Variant::get_call_error_text(p_node, p_method, p_arg, p_argcount, ce);
             error = "rpc() aborted in script local call:  - " + error + ".";
             ERR_PRINT(error);
@@ -1038,15 +1038,15 @@ void MultiplayerAPI::_bind_methods() {
     ADD_SIGNAL(MethodInfo("connection_failed"));
     ADD_SIGNAL(MethodInfo("server_disconnected"));
 
-    BIND_ENUM_CONSTANT(RPC_MODE_DISABLED)
-    BIND_ENUM_CONSTANT(RPC_MODE_REMOTE)
-    BIND_ENUM_CONSTANT(RPC_MODE_MASTER)
-    BIND_ENUM_CONSTANT(RPC_MODE_PUPPET)
-    BIND_ENUM_CONSTANT(RPC_MODE_SLAVE) // Deprecated.
-    BIND_ENUM_CONSTANT(RPC_MODE_REMOTESYNC)
-    BIND_ENUM_CONSTANT(RPC_MODE_SYNC) // Deprecated.
-    BIND_ENUM_CONSTANT(RPC_MODE_MASTERSYNC)
-    BIND_ENUM_CONSTANT(RPC_MODE_PUPPETSYNC)
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_DISABLED);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_REMOTE);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_MASTER);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_PUPPET);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_SLAVE); // Deprecated.
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_REMOTESYNC);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_SYNC); // Deprecated.
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_MASTERSYNC);
+    BIND_GLOBAL_ENUM_CONSTANT(MultiplayerAPI_RPCMode::RPC_MODE_PUPPETSYNC);
 }
 
 MultiplayerAPI::MultiplayerAPI() {

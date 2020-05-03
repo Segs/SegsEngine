@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(SegsEngine)
 
 #set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/../SegsEngine_installdir/)
-# NOTE: when running on linux the following commands allow for ccache based build acceleration and build timing
-# respectively
+# NOTE: when running on linux the following commands allow for ccache based build acceleration
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 #set(CMAKE_C_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
@@ -30,6 +29,7 @@ include(CMakeParseArguments)
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake;${CMAKE_MODULE_PATH})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(AUTOGEN_TARGETS_FOLDER ON)
 
 # Tell cmake to honor CXX_VISIBILITY_PRESET and ignore it
 cmake_policy(SET CMP0063 NEW)
@@ -149,7 +149,7 @@ set(platform_exporters)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     # include platform specific options now
-    include(platform/x11/options.cmake)
+    include(platform/linuxbsd/options.cmake)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     # include platform specific options now
     include(platform/windows/options.cmake)
@@ -277,7 +277,7 @@ add_subdirectory(plugins)
 add_subdirectory(main)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    add_subdirectory(platform/x11)
+    add_subdirectory(platform/linuxbsd)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_subdirectory(platform/windows)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -366,3 +366,4 @@ install(
 )
 
 export(PACKAGE SegsEngine)
+

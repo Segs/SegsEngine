@@ -62,7 +62,8 @@ void AudioStreamPlaybackOGGVorbis::_mix_internal(AudioFrame *p_buffer, int p_fra
 
         if (todo) {
             //end of file!
-            if (vorbis_stream->loop && mixed > 0) {
+            bool is_not_empty = mixed > 0 || stb_vorbis_stream_length_in_samples(ogg_stream) > 0;
+            if (vorbis_stream->loop && is_not_empty) {
                 //loop
                 seek(vorbis_stream->loop_offset);
                 loops++;
@@ -272,7 +273,7 @@ void AudioStreamOGGVorbis::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_BYTE_ARRAY, "data", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_data", "get_data");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
-    ADD_PROPERTY(PropertyInfo(VariantType::REAL, "loop_offset"), "set_loop_offset", "get_loop_offset");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "loop_offset"), "set_loop_offset", "get_loop_offset");
 }
 
 AudioStreamOGGVorbis::AudioStreamOGGVorbis() {

@@ -867,7 +867,7 @@ void NetworkedMultiplayerENet::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("disconnect_peer", {"id", "now"}), &NetworkedMultiplayerENet::disconnect_peer, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("set_compression_mode", {"mode"}), &NetworkedMultiplayerENet::set_compression_mode);
     MethodBinder::bind_method(D_METHOD("get_compression_mode"), &NetworkedMultiplayerENet::get_compression_mode);
-    MethodBinder::bind_method(D_METHOD("set_bind_ip", {"ip"}), &NetworkedMultiplayerENet::set_bind_ip);
+    MethodBinder::bind_method(D_METHOD("set_bind_ip", {"ip"}), (void (NetworkedMultiplayerENet::*)(StringView))&NetworkedMultiplayerENet::set_bind_ip);
     MethodBinder::bind_method(D_METHOD("get_peer_address", {"id"}), &NetworkedMultiplayerENet::get_peer_address);
     MethodBinder::bind_method(D_METHOD("get_peer_port", {"id"}), &NetworkedMultiplayerENet::get_peer_port);
 

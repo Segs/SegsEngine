@@ -72,7 +72,7 @@ Error PacketPeerUDP::leave_multicast_group(IP_Address p_multi_address, StringVie
 
 String PacketPeerUDP::_get_packet_ip() const {
 
-    return get_packet_address();
+    return String(get_packet_address());
 }
 
 Error PacketPeerUDP::_set_dest_address(const String &p_address, int p_port) {
@@ -265,7 +265,7 @@ void PacketPeerUDP::set_dest_address(const IP_Address &p_address, int p_port) {
 
 void PacketPeerUDP::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address", "recv_buf_size"}), &PacketPeerUDP::listen, {DEFVAL("*"), DEFVAL(65536)});
+    MethodBinder::bind_method(D_METHOD("listen", {"port", "bind_address", "recv_buf_size"}), &PacketPeerUDP::_listen, {DEFVAL("*"), DEFVAL(65536)});
     MethodBinder::bind_method(D_METHOD("close"), &PacketPeerUDP::close);
     MethodBinder::bind_method(D_METHOD("wait"), &PacketPeerUDP::wait);
     MethodBinder::bind_method(D_METHOD("is_listening"), &PacketPeerUDP::is_listening);
@@ -273,8 +273,10 @@ void PacketPeerUDP::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_packet_port"), &PacketPeerUDP::get_packet_port);
     MethodBinder::bind_method(D_METHOD("set_dest_address", {"host", "port"}), &PacketPeerUDP::_set_dest_address);
     MethodBinder::bind_method(D_METHOD("set_broadcast_enabled", {"enabled"}), &PacketPeerUDP::set_broadcast_enabled);
-    MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::join_multicast_group);
-    MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}), &PacketPeerUDP::leave_multicast_group);
+    MethodBinder::bind_method(D_METHOD("join_multicast_group", {"multicast_address", "interface_name"}),
+            (Error (PacketPeerUDP::*)(StringView,StringView))&PacketPeerUDP::join_multicast_group);
+    MethodBinder::bind_method(D_METHOD("leave_multicast_group", {"multicast_address", "interface_name"}),
+            (Error (PacketPeerUDP::*)(StringView,StringView))&PacketPeerUDP::leave_multicast_group);
 }
 
 PacketPeerUDP::PacketPeerUDP() : _sock(Ref<NetSocket>(NetSocket::create())) {

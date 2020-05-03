@@ -30,7 +30,7 @@
 
 #include "room.h"
 
-#include "servers/visual_server.h"
+#include "servers/rendering_server.h"
 #include "core/method_bind.h"
 
 // FIXME: Left for reference for reimplementation using Area
@@ -63,11 +63,11 @@ void RoomBounds::_bind_methods() {
 
 RoomBounds::RoomBounds() {
 
-    area = VisualServer::get_singleton()->room_create();
+    area = RenderingServer::get_singleton()->room_create();
 }
 
 RoomBounds::~RoomBounds() {
 
-    VisualServer::get_singleton()->free(area);
+    RenderingServer::get_singleton()->free(area);
 }
 #endif

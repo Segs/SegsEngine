@@ -31,17 +31,18 @@
 #include "mesh_library_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
+#include "core/string_formatter.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
-#include "core/string_formatter.h"
 #include "main/main.h"
-#include "scene/3d/mesh_instance.h"
+#include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
-#include "scene/3d/physics_body.h"
+#include "scene/3d/physics_body_3d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
 #include "spatial_editor_plugin.h"
-#include "core/translation_helpers.h"
 
 IMPL_GDCLASS(MeshLibraryEditor)
 IMPL_GDCLASS(MeshLibraryEditorPlugin)
@@ -77,16 +78,16 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
     if (!p_merge)
         p_library->clear();
 
-    Map<int, MeshInstance *> mesh_instances;
+    Map<int, MeshInstance3D *> mesh_instances;
 
     for (int i = 0; i < p_scene->get_child_count(); i++) {
 
         Node *child = p_scene->get_child(i);
 
-        if (!object_cast<MeshInstance>(child)) {
+        if (!object_cast<MeshInstance3D>(child)) {
             if (child->get_child_count() > 0) {
                 child = child->get_child(0);
-                if (!object_cast<MeshInstance>(child)) {
+                if (!object_cast<MeshInstance3D>(child)) {
                     continue;
                 }
 
@@ -94,7 +95,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
                 continue;
         }
 
-        MeshInstance *mi = object_cast<MeshInstance>(child);
+        MeshInstance3D *mi = object_cast<MeshInstance3D>(child);
         Ref<Mesh> mesh = mi->get_mesh();
         if (not mesh)
             continue;
@@ -124,10 +125,10 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
         for (int j = 0; j < mi->get_child_count(); j++) {
 
             Node *child2 = mi->get_child(j);
-            if (!object_cast<StaticBody>(child2))
+            if (!object_cast<StaticBody3D>(child2))
                 continue;
 
-            StaticBody *sb = object_cast<StaticBody>(child2);
+            StaticBody3D *sb = object_cast<StaticBody3D>(child2);
             Vector<uint32_t> shapes;
             sb->get_shape_owners(&shapes);
 

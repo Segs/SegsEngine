@@ -63,12 +63,12 @@ namespace Godot
 
         public static Resource Load(string path)
         {
-            return ResourceLoader.Load(path);
+            return ResourceManager.Load(path);
         }
 
         public static T Load<T>(string path) where T : class
         {
-            return ResourceLoader.Load<T>(path);
+            return ResourceManager.Load<T>(path);
         }
 
         public static void PushError(string message)

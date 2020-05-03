@@ -38,6 +38,7 @@
 #include "scene/gui/tree.h"
 #include "scene/resources/visual_shader.h"
 
+
 class VisualShaderNodePlugin : public RefCounted {
 
     GDCLASS(VisualShaderNodePlugin,RefCounted)

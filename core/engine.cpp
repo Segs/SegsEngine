@@ -194,7 +194,7 @@ void Engine::add_singleton(const Singleton &p_singleton) {
     singleton_ptrs[p_singleton.name] = p_singleton.ptr;
 }
 
-Object *Engine::get_singleton_object(const StringName &p_name) const {
+Object *Engine::get_named_singleton(const StringName &p_name) const {
     auto E = singleton_ptrs.find(p_name);
     ERR_FAIL_COND_V_MSG(E==singleton_ptrs.end(), nullptr, "Failed to retrieve non-existent singleton '" + String(p_name) + "'.");
     return E->second;

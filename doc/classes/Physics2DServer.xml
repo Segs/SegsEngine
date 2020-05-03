@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<class name="Physics2DServer" inherits="Object" version="4.0">
+<class name="PhysicsServer2D" inherits="Object" version="4.0">
 	<brief_description>
 		Server interface for low-level 2D physics access.
 	</brief_description>
 	<description>
-		Physics2DServer is the server responsible for all 2D physics. It can create many kinds of physics objects, but does not insert them on the node tree.
+		PhysicsServer2D is the server responsible for all 2D physics. It can create many kinds of physics objects, but does not insert them on the node tree.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -83,7 +83,7 @@
 			</return>
 			<argument index="0" name="area" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.AreaParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.AreaParameter">
 			</argument>
 			<description>
 				Returns an area parameter value. See [enum AreaParameter] for a list of available parameters.
@@ -130,7 +130,7 @@
 			</description>
 		</method>
 		<method name="area_get_space_override_mode" qualifiers="const">
-			<return type="int" enum="Physics2DServer.AreaSpaceOverrideMode">
+			<return type="int" enum="PhysicsServer2D.AreaSpaceOverrideMode">
 			</return>
 			<argument index="0" name="area" type="RID">
 			</argument>
@@ -225,7 +225,7 @@
 			</return>
 			<argument index="0" name="area" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.AreaParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.AreaParameter">
 			</argument>
 			<argument index="2" name="value" type="Variant">
 			</argument>
@@ -288,7 +288,7 @@
 			</return>
 			<argument index="0" name="area" type="RID">
 			</argument>
-			<argument index="1" name="mode" type="int" enum="Physics2DServer.AreaSpaceOverrideMode">
+			<argument index="1" name="mode" type="int" enum="PhysicsServer2D.AreaSpaceOverrideMode">
 			</argument>
 			<description>
 				Sets the space override mode for the area. See [enum AreaSpaceOverrideMode] for a list of available modes.
@@ -461,7 +461,7 @@
 			</description>
 		</method>
 		<method name="body_get_continuous_collision_detection_mode" qualifiers="const">
-			<return type="int" enum="Physics2DServer.CCDMode">
+			<return type="int" enum="PhysicsServer2D.CCDMode">
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
@@ -470,12 +470,12 @@
 			</description>
 		</method>
 		<method name="body_get_direct_state">
-			<return type="Physics2DDirectBodyState">
+			<return type="PhysicsDirectBodyState2D">
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
 			<description>
-				Returns the [Physics2DDirectBodyState] of the body.
+				Returns the [PhysicsDirectBodyState2D] of the body.
 			</description>
 		</method>
 		<method name="body_get_max_contacts_reported" qualifiers="const">
@@ -488,7 +488,7 @@
 			</description>
 		</method>
 		<method name="body_get_mode" qualifiers="const">
-			<return type="int" enum="Physics2DServer.BodyMode">
+			<return type="int" enum="PhysicsServer2D.BodyMode">
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
@@ -510,7 +510,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.BodyParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.BodyParameter">
 			</argument>
 			<description>
 				Returns the value of a body parameter. See [enum BodyParameter] for a list of available parameters.
@@ -572,7 +572,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="state" type="int" enum="Physics2DServer.BodyState">
+			<argument index="1" name="state" type="int" enum="PhysicsServer2D.BodyState">
 			</argument>
 			<description>
 				Returns a body state.
@@ -647,7 +647,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="mode" type="int" enum="Physics2DServer.CCDMode">
+			<argument index="1" name="mode" type="int" enum="PhysicsServer2D.CCDMode">
 			</argument>
 			<description>
 				Sets the continuous collision detection mode using one of the [enum CCDMode] constants.
@@ -685,7 +685,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="mode" type="int" enum="Physics2DServer.BodyMode">
+			<argument index="1" name="mode" type="int" enum="PhysicsServer2D.BodyMode">
 			</argument>
 			<description>
 				Sets the body mode using one of the [enum BodyMode] constants.
@@ -707,7 +707,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.BodyParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.BodyParameter">
 			</argument>
 			<argument index="2" name="value" type="float">
 			</argument>
@@ -798,7 +798,7 @@
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>
-			<argument index="1" name="state" type="int" enum="Physics2DServer.BodyState">
+			<argument index="1" name="state" type="int" enum="PhysicsServer2D.BodyState">
 			</argument>
 			<argument index="2" name="value" type="Variant">
 			</argument>
@@ -869,7 +869,7 @@
 			</return>
 			<argument index="0" name="joint" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.DampedStringParam">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.DampedStringParam">
 			</argument>
 			<description>
 				Returns the value of a damped spring joint parameter.
@@ -880,7 +880,7 @@
 			</return>
 			<argument index="0" name="joint" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.DampedStringParam">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.DampedStringParam">
 			</argument>
 			<argument index="2" name="value" type="float">
 			</argument>
@@ -894,13 +894,13 @@
 			<argument index="0" name="rid" type="RID">
 			</argument>
 			<description>
-				Destroys any of the objects created by Physics2DServer. If the [RID] passed is not one of the objects that can be created by Physics2DServer, an error will be sent to the console.
+				Destroys any of the objects created by PhysicsServer2D. If the [RID] passed is not one of the objects that can be created by PhysicsServer2D, an error will be sent to the console.
 			</description>
 		</method>
 		<method name="get_process_info">
 			<return type="int">
 			</return>
-			<argument index="0" name="process_info" type="int" enum="Physics2DServer.ProcessInfo">
+			<argument index="0" name="process_info" type="int" enum="PhysicsServer2D.ProcessInfo">
 			</argument>
 			<description>
 				Returns information about the current state of the 2D physics engine. See [enum ProcessInfo] for a list of available states.
@@ -928,14 +928,14 @@
 			</return>
 			<argument index="0" name="joint" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.JointParam">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.JointParam">
 			</argument>
 			<description>
 				Returns the value of a joint parameter.
 			</description>
 		</method>
 		<method name="joint_get_type" qualifiers="const">
-			<return type="int" enum="Physics2DServer.JointType">
+			<return type="int" enum="PhysicsServer2D.JointType">
 			</return>
 			<argument index="0" name="joint" type="RID">
 			</argument>
@@ -948,7 +948,7 @@
 			</return>
 			<argument index="0" name="joint" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.JointParam">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.JointParam">
 			</argument>
 			<argument index="2" name="value" type="float">
 			</argument>
@@ -1012,7 +1012,7 @@
 			</description>
 		</method>
 		<method name="shape_get_type" qualifiers="const">
-			<return type="int" enum="Physics2DServer.ShapeType">
+			<return type="int" enum="PhysicsServer2D.ShapeType">
 			</return>
 			<argument index="0" name="shape" type="RID">
 			</argument>
@@ -1039,12 +1039,12 @@
 			</description>
 		</method>
 		<method name="space_get_direct_state">
-			<return type="Physics2DDirectSpaceState">
+			<return type="PhysicsDirectSpaceState2D">
 			</return>
 			<argument index="0" name="space" type="RID">
 			</argument>
 			<description>
-				Returns the state of a space, a [Physics2DDirectSpaceState]. This object can be used to make collision/intersection queries.
+				Returns the state of a space, a [PhysicsDirectSpaceState2D]. This object can be used to make collision/intersection queries.
 			</description>
 		</method>
 		<method name="space_get_param" qualifiers="const">
@@ -1052,7 +1052,7 @@
 			</return>
 			<argument index="0" name="space" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.SpaceParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.SpaceParameter">
 			</argument>
 			<description>
 				Returns the value of a space parameter.
@@ -1083,7 +1083,7 @@
 			</return>
 			<argument index="0" name="space" type="RID">
 			</argument>
-			<argument index="1" name="param" type="int" enum="Physics2DServer.SpaceParameter">
+			<argument index="1" name="param" type="int" enum="PhysicsServer2D.SpaceParameter">
 			</argument>
 			<argument index="2" name="value" type="float">
 			</argument>

@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/print_string.h"
+#include "core/translation_helpers.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 

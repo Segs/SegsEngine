@@ -47,6 +47,7 @@
 
 class PopupMenu;
 class ConnectDialogBinds;
+class EditorNode;
 
 class ConnectDialog : public ConfirmationDialog {
 
