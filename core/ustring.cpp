@@ -30,7 +30,7 @@
 
 #include "ustring.h"
 
-#include "string.h"
+#include "core/string.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
 #include "core/color.h"
@@ -3951,8 +3951,8 @@ int StringUtils::compare(StringView lhs, StringView rhs, Compare case_sensitive)
 }
 bool StringUtils::contains(const char *heystack, const char *needle)
 {
-    std::string_view sv1(heystack);
-    std::string_view nd1(needle);
+    eastl::string_view sv1(heystack);
+    eastl::string_view nd1(needle);
     return sv1.find(nd1)!=std::string_view::npos;
 }
 bool StringUtils::contains(const UIString &heystack, const UIString &needle,Compare mode)

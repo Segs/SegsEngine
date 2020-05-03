@@ -192,18 +192,8 @@ String NodePath::asString() const {
     String ret;
     if (data->absolute)
         ret = "/";
-
-    for (size_t i = 0; i < data->path.size(); i++) {
-
-        if (i > 0)
-            ret += '/';
-        ret += data->path[i].asCString();
-    }
-
-    for (size_t i = 0; i < data->subpath.size(); i++) {
-
-        ret += String(":") + data->subpath[i].asCString();
-    }
+    ret += String::joined(data->path,"/");
+    ret += String::joined(data->subpath,":");
 
     return ret;
 }

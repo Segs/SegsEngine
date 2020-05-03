@@ -1679,7 +1679,7 @@ void OS_X11::request_attention() {
     XFlush(x11_display);
 }
 
-void OS_X11::get_key_modifier_state(unsigned int p_x11_state, Ref<InputEventWithModifiers> state) {
+void OS_X11::get_key_modifier_state(unsigned int p_x11_state, const Ref<InputEventWithModifiers> &state) {
 
     state->set_shift((p_x11_state & ShiftMask));
     state->set_control((p_x11_state & ControlMask));

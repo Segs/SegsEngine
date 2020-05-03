@@ -146,7 +146,7 @@ class OS_X11 : public OS_Unix {
     bool refresh_device_info();
 
     unsigned int get_mouse_button_state(unsigned int p_x11_button, int p_x11_type);
-    void get_key_modifier_state(unsigned int p_x11_state, Ref<InputEventWithModifiers> state);
+    void get_key_modifier_state(unsigned int p_x11_state, const Ref<InputEventWithModifiers> &state);
     void flush_mouse_motion();
 
     MouseMode mouse_mode;

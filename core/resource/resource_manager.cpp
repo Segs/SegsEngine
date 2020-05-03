@@ -155,7 +155,7 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
 
     if (translation_remaps.contains(new_path)) {
         // translation_remaps has the following format:
-        //   { "res://path.png": PoolStringArray( "res://path-ru.png:ru", "res://path-de.png:de" ) }
+        //   { "res://path.png": { "res://path-ru.png:ru", "res://path-de.png:de" } }
 
         // To find the path of the remapped resource, we extract the locale name after
         // the last ':' to match the project locale.
@@ -249,7 +249,12 @@ String _path_remap(StringView p_path, bool* r_translation_remapped=nullptr) {
     return new_path;
 }
 
+String normalized_resource_path(StringView path) {
+    if (PathUtils::is_rel_path(path))
+        return String("res://") + path;
+    return ProjectSettings::get_singleton()->localize_path(path);
 
+}
 } // end of anonymous namespace
 
 
@@ -505,17 +510,13 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
     if (r_error)
         *r_error = ERR_CANT_OPEN;
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
     if (!p_no_cache) {
 
         {
             bool success = D()->_add_to_loading_map(local_path);
-            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' is already being loaded. Cyclic reference?");
+            ERR_FAIL_COND_V_MSG(!success, RES(), "Resource: '" + local_path + "' ");
         }
 
         //lock first if possible
@@ -528,7 +529,8 @@ RES ResourceManager::load(StringView p_path, StringView p_type_hint, bool p_no_c
 
         if (rptr) {
             RES res(rptr);
-            //it is possible this resource was just freed in a thread. If so, this referencing will not work and resource is considered not cached
+            // it is possible this resource was just freed in a thread. If so, this referencing will not work and
+            // resource is considered not cached
             if (res) {
                 //referencing is fine
                 if (r_error)
@@ -599,11 +601,7 @@ RES ResourceManager::load_internal(StringView p_path, StringView p_original_path
 
 bool ResourceManager::exists(StringView p_path, StringView p_type_hint) {
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
     if (ResourceCache::has(local_path)) {
 
@@ -632,11 +630,7 @@ Ref<ResourceInteractiveLoader> ResourceManager::load_interactive(StringView p_pa
     if (r_error)
         *r_error = ERR_CANT_OPEN;
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path = normalized_resource_path(p_path);
 
     if (!p_no_cache) {
 
@@ -752,11 +746,7 @@ int ResourceManager::get_import_order(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path=normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -780,11 +770,7 @@ void ResourceManager::remove_from_loading_map_and_thread(StringView p_path, Thre
 String ResourceManager::get_import_group_file(StringView p_path) {
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path=normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -805,11 +791,7 @@ bool ResourceManager::is_import_valid(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -830,11 +812,7 @@ bool ResourceManager::is_imported(StringView p_path) {
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -855,11 +833,7 @@ void ResourceManager::get_dependencies(StringView p_path, Vector<String>& p_depe
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -878,11 +852,7 @@ Error ResourceManager::rename_dependencies(StringView p_path, const HashMap<Stri
 
     String path = _path_remap(p_path);
 
-    String local_path;
-    if (PathUtils::is_rel_path(path))
-        local_path = "res://" + path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(path);
+    String local_path = normalized_resource_path(path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -901,11 +871,7 @@ Error ResourceManager::rename_dependencies(StringView p_path, const HashMap<Stri
 
 String ResourceManager::get_resource_type(StringView p_path) {
 
-    String local_path;
-    if (PathUtils::is_rel_path(p_path))
-        local_path = String("res://") + p_path;
-    else
-        local_path = ProjectSettings::get_singleton()->localize_path(p_path);
+    String local_path=normalized_resource_path(p_path);
 
     for (auto & s_loader : D()->s_loaders) {
 
@@ -1023,9 +989,7 @@ void ResourceRemapper::set_as_translation_remapped(const Resource* r, bool p_rem
     if (remapped_list.contains(r) == p_remapped)
         return;
 
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_lock();
-    }
+    RWLockWrite write_locker(ResourceCache::lock);
 
     if (p_remapped) {
         remapped_list.insert(r);
@@ -1034,9 +998,6 @@ void ResourceRemapper::set_as_translation_remapped(const Resource* r, bool p_rem
         remapped_list.erase(r);
     }
 
-    if (ResourceCache::lock) {
-        ResourceCache::lock->write_unlock();
-    }
 }
 
 bool ResourceRemapper::is_translation_remapped(const Resource *resource) {

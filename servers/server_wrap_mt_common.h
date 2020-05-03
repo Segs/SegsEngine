@@ -176,20 +176,20 @@
         }                                                             \
     }
 
-#define FUNC1C(m_type, m_arg1)                                        \
-    void m_type(m_arg1 p1) const override {                            \
-        if (Thread::get_caller_id() != server_thread) {               \
-            command_queue.push( [=]() { server_name->m_type(p1); }); \
-        } else {                                                      \
-            server_name->m_type(p1);                                  \
-        }                                                             \
-    }
+//#define FUNC1C(m_type, m_arg1)                                        \
+//    void m_type(m_arg1 p1) const override {                            \
+//        if (Thread::get_caller_id() != server_thread) {               \
+//            command_queue.push( [=]() { server_name->m_type(p1); }); \
+//        } else {                                                      \
+//            server_name->m_type(p1);                                  \
+//        }                                                             \
+//    }
 
 #define FUNC2R(m_r, m_type, m_arg1, m_arg2)                                             \
     m_r m_type(m_arg1 p1, m_arg2 p2) override {                                          \
         if (Thread::get_caller_id() != server_thread) {                                 \
             m_r ret;                                                                    \
-            command_queue.push_and_sync( [=,&ret]() { ret=server_name->m_type(p1, p2); }); \
+            command_queue.push_and_sync( [this,p1,p2,&ret]() { ret=server_name->m_type(p1, p2); }); \
             SYNC_DEBUG                                                                  \
             return ret;                                                                 \
         } else {                                                                        \

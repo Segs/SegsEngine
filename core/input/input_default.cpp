@@ -37,6 +37,7 @@
 #include "core/input/default_controller_mappings.h"
 #include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
+#include "core/string_utils.h"
 #include "core/property_info.h"
 
 IMPL_GDCLASS(InputDefault)
@@ -1001,7 +1002,7 @@ void InputDefault::parse_mapping(StringView p_mapping) {
         return;
     }
 
-    CharString uid;
+    String uid;
     uid.resize(17);
 
     mapping.uid = StringName(entry[0]);

@@ -35,8 +35,8 @@
 #include "core/error_macros.h"
 #include "core/safe_refcount.h"
 
+#include "EASTL/type_traits.h"
 #include <cstring>
-#include <type_traits>
 
 template <class T, class V>
 class VMap;

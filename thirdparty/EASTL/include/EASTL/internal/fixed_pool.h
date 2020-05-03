@@ -133,12 +133,12 @@ namespace eastl
     /// In particular, the fixed_pool and fixed_pool_with_overflow classes
     /// are based on fixed_pool_base.
     ///
-	struct fixed_pool_base
+    struct fixed_pool_base
     {
     public:
         /// fixed_pool_base
         ///
-		fixed_pool_base(void* pMemory = nullptr)
+        fixed_pool_base(void* pMemory = nullptr)
             : mpHead((Link*)pMemory)
             , mpNext((Link*)pMemory)
             , mpCapacity((Link*)pMemory)
@@ -162,12 +162,8 @@ namespace eastl
 
 
         /// operator=
-        ///
-        fixed_pool_base& operator=(const fixed_pool_base&)
-        {
-            // By design we do nothing. We don't attempt to deep-copy member data.
-            return *this;
-        }
+        /// \note By design we do nothing. We don't attempt to deep-copy member data.
+        fixed_pool_base& operator=(const fixed_pool_base&) = default;
 
 
         /// init
@@ -177,7 +173,7 @@ namespace eastl
         /// behaviour will be undefined. You can only call this function
         /// after constructing the fixed_pool with the default constructor.
         ///
-		EASTL_API void init(void* pMemory, size_t memorySize, size_t nodeSize,
+        EASTL_API void init(void* pMemory, size_t memorySize, size_t nodeSize,
                             size_t alignment, size_t alignmentOffset = 0);
 
 
@@ -315,7 +311,7 @@ namespace eastl
                 {
                     pLink = mpNext;
 
-					mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext) + mnNodeSize);
+                    mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext) + mnNodeSize);
 
                     #if EASTL_FIXED_SIZE_TRACKING_ENABLED
                         if(++mnCurrentSize > mnPeakSize)
@@ -470,7 +466,7 @@ namespace eastl
                 if(mpNext != mpCapacity)
                 {
                     p      = pLink = mpNext;
-					mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext) + mnNodeSize);
+                    mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext) + mnNodeSize);
                 }
                 else
                     p = mOverflowAllocator.allocate(mnNodeSize);
@@ -504,7 +500,7 @@ namespace eastl
                 if (mpNext != mpCapacity)
                 {
                     p = pLink = mpNext;
-					mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext)+mnNodeSize);
+                    mpNext = reinterpret_cast<Link*>(reinterpret_cast<char*>(mpNext)+mnNodeSize);
                 }
                 else
                 {

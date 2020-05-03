@@ -201,14 +201,14 @@ void Array::erase(const Variant &p_value) {
         _p->array.erase(iter);
 }
 
-Variant Array::front() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
-    return operator[](0);
+const Variant &Array::front() const {
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant::null_variant, "Can't take value from empty array.");
+    return _p->array.front();
 }
 
-Variant Array::back() const {
-    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant(), "Can't take value from empty array.");
-    return operator[](_p->array.size() - 1);
+const Variant &Array::back() const {
+    ERR_FAIL_COND_V_MSG(_p->array.empty(), Variant::null_variant, "Can't take value from empty array.");
+    return _p->array.back();
 }
 
 int Array::find(const Variant &p_value, int p_from) const {
@@ -249,19 +249,7 @@ int Array::find_last(const Variant &p_value) const {
 }
 
 int Array::count(const Variant &p_value) const {
-
-    if (_p->array.empty())
-        return 0;
-
-    int amount = 0;
-    for (int i = 0; i < _p->array.size(); i++) {
-
-        if (_p->array[i] == p_value) {
-            amount++;
-        }
-    }
-
-    return amount;
+    return eastl::count(_p->array.begin(),_p->array.end(),p_value);
 }
 
 bool Array::contains(const Variant &p_value) const {

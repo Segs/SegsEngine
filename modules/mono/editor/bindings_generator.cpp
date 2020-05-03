@@ -1886,7 +1886,7 @@ Array* ToArray(SurfaceArrays&& v) {
         String ctor_method(ICALL_PREFIX + itype.proxy_name + "_Ctor"); // Used only for derived types
 
         for (const MethodInterface &imethod : itype.methods) {
-            imethod.is_virtual;
+
             Error method_err = _generate_glue_method(itype, imethod, output);
             ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
                     "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
@@ -2357,7 +2357,7 @@ Error BindingsGenerator::_generate_glue_method(const BindingsGenerator::TypeInte
             p_output.append(c_in_statements);
         }
     }
-        
+
     StringView method_to_call(replace_method_name(p_imethod.cname));
     if(p_itype.cname=="Node") {
         if(method_to_call== "get_children")

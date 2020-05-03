@@ -25,7 +25,7 @@ class GODOT_EXPORT ResourceManifest : public Resource {
 public:
 
     // Resource interface
-    void reload_from_file();
+    void reload_from_file() override;
 protected:
     Error load_manifest(StringView p_path);
 };

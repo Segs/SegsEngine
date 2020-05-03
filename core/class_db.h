@@ -196,7 +196,9 @@ public:
         ti.inherits_ptr=nullptr;
         ti.exposed = true;
         ti.is_namespace=true;
+#ifdef DEBUG_METHODS_ENABLED
         ti.usage_header=header_file;
+#endif
     }
     template <class T>
     static void register_class() {
