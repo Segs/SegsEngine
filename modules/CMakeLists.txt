@@ -123,8 +123,11 @@ foreach(tgt ${global_targets})
     foreach(src ${module_sources_gen})
         set_source_files_properties(${src} PROPERTIES GENERATED TRUE)
     endforeach()
+
     target_link_libraries(${tgt}_modules PRIVATE ${tgt}_core ${module_deps} ${tgt}_module_resources)
+
     set_common_target_properties(${tgt}_modules)
+
     if(USE_UNITY_BUILDS)
         set_target_properties(${tgt}_modules PROPERTIES UNITY_BUILD ON)
         set_target_properties(${tgt}_modules PROPERTIES UNITY_BUILD_BATCH_SIZE ${DEFAULT_UNITY_BATCH_SIZE})
@@ -136,6 +139,8 @@ foreach(tgt ${global_targets})
     endif()
 
 endforeach()
+
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${module_sources})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${module_3rdparty})
 source_group(Generated FILES ${module_sources_gen})

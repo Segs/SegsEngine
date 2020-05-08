@@ -379,6 +379,26 @@ struct ResourcePluginResolver : public ResolverInterface
         }
     }
 };
+struct ModulePluginResolver : public ResolverInterface {
+
+    bool new_plugin_detected(QObject *ob) override {
+        bool res = false;
+        auto interface = qobject_cast<ModuleInterface*>(ob);
+        if (interface) {
+            print_line(String("Adding module plugin:") + ob->metaObject()->className());
+            interface->register_module();
+            res = true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject *ob) {
+        auto interface = qobject_cast<ModuleInterface*>(ob);
+        if (interface) {
+            print_line(String("Removing resource loader plugin:") + ob->metaObject()->className());
+            interface->unregister_module();
+        }
+    }
+};
 /* Engine initialization
  *
  * Consists of several methods that are called by each platform's specific main(argc, argv).
@@ -1445,6 +1465,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     add_plugin_resolver(new ResourcePluginResolver);
 
+    add_plugin_resolver(new ModulePluginResolver);
     register_module_types();
 
     camera_server = CameraServer::create();

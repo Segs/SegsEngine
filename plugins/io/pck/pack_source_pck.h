@@ -3,7 +3,7 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class PackedSourcePCK : public QObject, public PackSourceInterface {
-    Q_PLUGIN_METADATA(IID "org.godot.PackSourcePCK")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.PackSourcePCK")
     Q_INTERFACES(PackSourceInterface)
     Q_OBJECT
 public:

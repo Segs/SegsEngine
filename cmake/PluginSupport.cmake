@@ -1,5 +1,15 @@
 set(pluginBuildTypes Disabled Static Shared)
 
+# parameters
+#  NAME
+#  CLASSPROP
+#  TYPE
+#  SHARED
+#  DISABLED
+#  INCLUDES
+#  DEFINES 
+#  SOURCES
+#  LIBS
 macro(set_plugin_options )
 
     set(oneValueArgs NAME CLASSPROP TYPE SHARED DISABLED)
@@ -50,6 +60,7 @@ macro(set_plugin_options )
         target_link_libraries(${tgt_name} PRIVATE core_service_interfaces)
         target_link_libraries(${tgt_name} PRIVATE Qt5::Core EASTL_Import)
         set_target_properties(${tgt_name} PROPERTIES AUTOMOC TRUE)
+		set_target_properties(${tgt_name} PROPERTIES AUTORCC ON)
         if(${${tgt_name}_mode} STREQUAL "Shared")
             if(when_shared_libs)
                 target_link_libraries(${tgt_name} PRIVATE ${when_shared_libs})

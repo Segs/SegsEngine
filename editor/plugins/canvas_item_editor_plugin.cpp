@@ -3872,12 +3872,12 @@ void CanvasItemEditor::_notification(int p_what) {
         select_sb->set_texture(get_icon("EditorRect2D", "EditorIcons"));
     }
 
-    else if (p_what == NOTIFICATION_EXIT_TREE) {
+    if (p_what == NOTIFICATION_EXIT_TREE) {
         get_tree()->disconnect("node_added", this, "_tree_changed");
         get_tree()->disconnect("node_removed", this, "_tree_changed");
     }
 
-    else if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
+    if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
         select_button->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
         list_select_button->set_button_icon(get_icon("ListSelect", "EditorIcons"));
         move_button->set_button_icon(get_icon("ToolMove", "EditorIcons"));

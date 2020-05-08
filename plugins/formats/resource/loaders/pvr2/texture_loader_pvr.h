@@ -35,7 +35,7 @@
 
 class ResourceFormatPVR : public QObject, public ResourceLoaderInterface , public ImageCodecInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.PVRLoader")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.PVRLoader")
     Q_INTERFACES(ResourceLoaderInterface ImageCodecInterface)
     Q_OBJECT
 public:

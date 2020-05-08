@@ -39,7 +39,7 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ZipArchive : public QObject, public PackSourceInterface {
-    Q_PLUGIN_METADATA(IID "org.godot.ZipArchive")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ZipArchive")
     Q_INTERFACES(PackSourceInterface)
     Q_OBJECT
 public:

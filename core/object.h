@@ -470,6 +470,7 @@ public:
 
     Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds =
         null_variant_pvec, uint32_t p_flags = 0);
+    Error connectF(const StringName& p_signal, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);
     void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
     bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
 

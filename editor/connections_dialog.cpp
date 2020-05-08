@@ -428,7 +428,7 @@ ConnectDialog::ConnectDialog() {
     add_bind_hb->add_child(type_list);
     type_list->add_item("bool", (int)VariantType::BOOL);
     type_list->add_item("int", (int)VariantType::INT);
-    type_list->add_item("real", (int)VariantType::FLOAT);
+    type_list->add_item("float", (int)VariantType::FLOAT);
     type_list->add_item("String", (int)VariantType::STRING);
     type_list->add_item("Vector2", (int)VariantType::VECTOR2);
     type_list->add_item("Rect2", (int)VariantType::RECT2);

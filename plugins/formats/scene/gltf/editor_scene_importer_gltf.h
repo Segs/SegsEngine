@@ -36,7 +36,7 @@
 
 
 class EditorSceneImporterGLTF : public QObject, public EditorSceneImporterInterface {
-    Q_PLUGIN_METADATA(IID "org.godot.GLTFImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.GLTFImporter")
     Q_INTERFACES(EditorSceneImporterInterface)
     Q_OBJECT
 

@@ -35,24 +35,24 @@
 #include "core/io/json.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
-#include "core/project_settings.h"
+#include "core/dictionary.h"
 #include "core/version.h"
+#include "core/method_bind_interface.h"
+
 #include "EASTL/sort.h"
 
-#include "core/method_bind_interface.h"
 
 void class_db_api_to_json(StringView p_output_file, ClassDB::APIType p_api) {
     Dictionary classes_dict;
 
-    List<StringName> names;
+    auto names=ClassDB::classes.keys();
 
     for(const eastl::pair<const StringName, ClassDB::ClassInfo> &k : ClassDB::classes) {
 
         names.emplace_back(k.first);
     }
     //must be alphabetically sorted for hash to compute
-
-    names.sort(WrapAlphaCompare());
+    eastl::sort(names.begin(),names.end(),WrapAlphaCompare());
 
     for (const StringName &E : names) {
 
@@ -172,10 +172,10 @@ void class_db_api_to_json(StringView p_output_file, ClassDB::APIType p_api) {
 
                 Array arguments;
                 signal_dict["arguments"] = arguments;
-                for (int i = 0; i < mi.arguments.size(); i++) {
+                for (const auto & arg : mi.arguments) {
                     Dictionary argument_dict;
-                    arguments.push_back(argument_dict);
-                    argument_dict["type"] = mi.arguments[i].type;
+                    argument_dict["type"] = arg.type;
+                    arguments.emplace_back(eastl::move(argument_dict));
                 }
             }
 
@@ -228,11 +228,11 @@ void class_db_api_to_json(StringView p_output_file, ClassDB::APIType p_api) {
     }
 
     FileAccessRef f = FileAccess::open(p_output_file, FileAccess::WRITE);
-    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'."); 
+    ERR_FAIL_COND_MSG(!f, "Cannot open file '" + p_output_file + "'.");
     f->store_string(JSON::print(classes_dict, /*indent: */ "\t"));
     f->close();
 
-    print_line(String() + "ClassDB API JSON written to: " + ProjectSettings::get_singleton()->globalize_path(p_output_file));
+    print_line("ClassDB API JSON written to: " + p_output_file);
 }
 
 #endif // DEBUG_METHODS_ENABLED

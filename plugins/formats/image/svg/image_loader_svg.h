@@ -54,7 +54,7 @@ public:
 };
 
 class ImageLoaderSVG : public QObject, public ImageFormatLoader {
-    Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderSVG")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageLoaderSVG")
     Q_INTERFACES(ImageFormatLoader)
     Q_OBJECT
 

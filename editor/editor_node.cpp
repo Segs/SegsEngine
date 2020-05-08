@@ -7250,8 +7250,8 @@ EditorNode::~EditorNode() {
 
 void EditorPluginList::make_visible(bool p_visible) {
 
-    for (int i = 0; i < plugins_list.size(); i++) {
-        plugins_list[i]->make_visible(p_visible);
+    for (auto & plugin : plugins_list) {
+        plugin->make_visible(p_visible);
     }
 }
 

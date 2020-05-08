@@ -33,7 +33,7 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderBMP : public QObject, public ImageFormatLoader {
-    Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderBMP")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageLoaderBMP")
     Q_INTERFACES(ImageFormatLoader)
     Q_OBJECT
 

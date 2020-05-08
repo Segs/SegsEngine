@@ -33,7 +33,7 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderWEBP : public QObject, public ImageFormatLoader,public ImageFormatSaver {
-    Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderWEBP")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageLoaderWEBP")
     Q_INTERFACES(ImageFormatLoader ImageFormatSaver)
     Q_OBJECT
 public:

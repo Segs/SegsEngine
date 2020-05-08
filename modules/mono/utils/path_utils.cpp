@@ -35,6 +35,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/string_utils.h"
+#include "core/ustring.h"
 
 #ifdef WINDOWS_ENABLED
 #include <windows.h>

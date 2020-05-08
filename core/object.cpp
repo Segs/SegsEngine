@@ -267,20 +267,15 @@ bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
 
     if (source != p_conn.source) {
         return source < p_conn.source;
-    } else {
-
-        if (signal == p_conn.signal) {
-
-            if (target == p_conn.target) {
-
-                return method < p_conn.method;
-            } else {
-
-                return target < p_conn.target;
-            }
-        } else
-            return signal < p_conn.signal;
     }
+    if (signal == p_conn.signal) {
+
+        if (target == p_conn.target) {
+            return method < p_conn.method;
+        }
+        return target < p_conn.target;
+    }
+    return signal < p_conn.signal;
 }
 Object::Connection::Connection(const Variant &p_variant) {
 

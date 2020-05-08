@@ -33,7 +33,7 @@
 #include "layered_texture_impl.h"
 
 class ResourceImporterTextureArray : public QObject,public LayeredTextureImpl {
-    Q_PLUGIN_METADATA(IID "org.godot.TextureArrayImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.TextureArrayImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
 public:

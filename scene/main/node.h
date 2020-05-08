@@ -175,7 +175,7 @@ protected:
     void _set_name_nocheck(const StringName &p_name);
 
 public:
-    enum {
+    enum NodeNotification {
 
         // you can make your own, but don't use the same numbers as other notifications in other nodes
         NOTIFICATION_ENTER_TREE = 10,

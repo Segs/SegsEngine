@@ -964,7 +964,7 @@ void GridMapEditor::update_palette() {
         mesh_library_palette->select(selected);
     }
 
-    last_mesh_library = mesh_library.operator->();
+    last_mesh_library = mesh_library.get();
 }
 
 void GridMapEditor::edit(GridMap *p_gridmap) {

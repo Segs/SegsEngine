@@ -37,7 +37,7 @@ class StringName;
 
 class ResourceImporterTexture : public QObject, public ResourceImporterInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.TextureImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.TextureImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
 

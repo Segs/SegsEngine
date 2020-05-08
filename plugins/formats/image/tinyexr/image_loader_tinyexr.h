@@ -34,7 +34,7 @@
 #include "core/plugin_interfaces/PluginDeclarations.h"
 
 class ImageLoaderTinyEXR : public QObject, public ImageFormatLoader, public ImageFormatSaver {
-    Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderTinyEXR")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageLoaderTinyEXR")
     Q_INTERFACES(ImageFormatLoader ImageFormatSaver)
     Q_OBJECT
 public:

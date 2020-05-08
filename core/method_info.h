@@ -85,68 +85,57 @@ public:
         return_val.type = ret;
     }
     MethodInfo(VariantType ret, const char *p_name, PropertyInfo &&p_param1) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
+        name(p_name) {
         return_val.type = ret;
         set_args(eastl::move(p_param1));
     }
     MethodInfo(VariantType ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
+        name(p_name) {
         return_val.type = ret;
         set_args(eastl::move(p_param1),eastl::move(p_param2));
     }
     MethodInfo(VariantType ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
+        name(p_name) {
         return_val.type = ret;
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3));
     }
     MethodInfo(VariantType ret, const char *p_name,PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
+        name(p_name) {
         return_val.type = ret;
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4));
     }
     MethodInfo(VariantType ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4, PropertyInfo &&p_param5) :
-        name(p_name),
-        flags(METHOD_FLAG_NORMAL) {
+        name(p_name) {
         return_val.type = ret;
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4),eastl::move(p_param5));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
         set_args(eastl::move(p_param1));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
         set_args(eastl::move(p_param1),eastl::move(p_param2));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4));
     }
     MethodInfo(const PropertyInfo &p_ret, const char *p_name, PropertyInfo &&p_param1, PropertyInfo &&p_param2, PropertyInfo &&p_param3, PropertyInfo &&p_param4, PropertyInfo &&p_param5) :
         name(p_name),
-        return_val(p_ret),
-        flags(METHOD_FLAG_NORMAL) {
+        return_val(p_ret) {
         set_args(eastl::move(p_param1),eastl::move(p_param2),eastl::move(p_param3),eastl::move(p_param4),eastl::move(p_param5));
     }
 };

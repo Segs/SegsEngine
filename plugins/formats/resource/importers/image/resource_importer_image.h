@@ -35,7 +35,7 @@
 
 class ResourceImporterImage : public QObject, public ResourceImporterInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.ImageImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
 
