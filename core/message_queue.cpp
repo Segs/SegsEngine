@@ -44,6 +44,31 @@ MessageQueue *MessageQueue::get_singleton() {
     return singleton;
 }
 
+Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
+
+    _THREAD_SAFE_METHOD_
+
+    int room_needed = sizeof(Message) + sizeof(eastl::function<void()>);
+
+    if ((buffer_end + room_needed) >= buffer_size) {
+        String type;
+        if (gObjectDB().get_instance(p_id))
+            type = gObjectDB().get_instance(p_id)->get_class();
+        print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(p_id));
+        statistics();
+        ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
+    }
+
+    Message *msg = memnew_placement(&buffer[buffer_end], Message);
+    msg->args = -1;
+    msg->instance_id = p_id;
+    msg->type = TYPE_FUNC;
+
+    buffer_end += sizeof(Message);
+    new(&buffer[buffer_end]) eastl::function<void()>(eastl::move(p_method));
+    buffer_end += sizeof(eastl::function<void()>);
+    return OK;
+}
 Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {
 
     _THREAD_SAFE_METHOD_
@@ -169,6 +194,7 @@ void MessageQueue::statistics() {
     HashMap<StringName, int> set_count;
     HashMap<int, int> notify_count;
     HashMap<StringName, int> call_count;
+    int func_count = 0;
     int null_count = 0;
 
     uint32_t read_pos = 0;
@@ -204,6 +230,9 @@ void MessageQueue::statistics() {
 
                     set_count[message->target]++;
 
+                } break;
+                case TYPE_FUNC: {
+                    ++func_count;
                 } break;
             }
 
@@ -279,8 +308,10 @@ void MessageQueue::flush() {
         Message *message = (Message *)&buffer[read_pos];
 
         uint32_t advance = sizeof(Message);
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION)
+        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION && (message->type & FLAG_MASK) != TYPE_FUNC)
             advance += sizeof(Variant) * message->args;
+        if ((message->type & FLAG_MASK) == TYPE_FUNC)
+            advance += sizeof(eastl::function<void()>);
 
         //pre-advance so this function is reentrant
         read_pos += advance;
@@ -312,6 +343,15 @@ void MessageQueue::flush() {
                     Variant *arg = (Variant *)(message + 1);
                     // messages don't expect a return value
                     target->set(message->target, *arg);
+                } break;
+            case TYPE_FUNC: {
+
+                eastl::function<void()> *arg = (eastl::function<void()> *)(message + 1);
+                // messages don't expect a return value
+                if(arg) {
+                    (*arg)();
+                    arg->~function();
+                }
 
                 } break;
             }

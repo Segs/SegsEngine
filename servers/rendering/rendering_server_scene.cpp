@@ -148,6 +148,7 @@ RID VisualServerScene::camera_create() {
     VSG::ecs->registry.assign<Camera3D>(eid, Camera3D());
     RID newid;
     newid.eid = eid;
+
     return newid;
 }
 
@@ -398,6 +399,7 @@ RID VisualServerScene::scenario_create() {
     Scenario *scenario = memnew(Scenario);
     ERR_FAIL_COND_V(!scenario, RID());
     RID scenario_rid = scenario_owner.make_rid(scenario);
+
     scenario->self = scenario_rid;
 
     scenario->octree.set_pair_callback(_instance_pair, this);

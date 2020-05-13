@@ -43,6 +43,27 @@ enum ARVREyes : int8_t;
 class ARVRInterface;
 
 class VisualServerScene {
+    /* CAMERA API */
+
+    struct Camera3D : public RID_Data {
+
+        enum Type {
+            PERSPECTIVE,
+            ORTHOGONAL,
+            FRUSTUM
+        };
+        Type type = PERSPECTIVE;
+        float fov = 70.0f;
+        float znear = 0.05f;
+        float zfar = 100.0f;
+        float size = 1.0f;
+        Vector2 offset{};
+        uint32_t visible_layers = 0xFFFFFFFF;
+        bool vaspect = false;
+        RID env;
+
+        Transform transform;
+    };
 public:
     enum {
 
@@ -59,27 +80,6 @@ public:
 
 // FIXME: Kept as reference for future implementation
 
-    /* CAMERA API */
-
-    struct Camera3D : public RID_Data {
-
-        enum Type {
-            PERSPECTIVE,
-            ORTHOGONAL,
-            FRUSTUM
-        };
-        Type type = PERSPECTIVE;
-        float fov=70.0f;
-        float znear=0.05f;
-        float zfar=100.0f;
-        float size=1.0f;
-        Vector2 offset {};
-        uint32_t visible_layers = 0xFFFFFFFF;
-        bool vaspect = false;
-        RID env;
-
-        Transform transform;
-    };
 
     RID camera_create();
     void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);

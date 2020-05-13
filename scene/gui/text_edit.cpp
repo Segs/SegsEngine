@@ -7979,7 +7979,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::PrivateData::_get_line_syntax_high
                 k++;
             }
 
-            if (str[k] == '(') {
+            if (k<str.length() && str[k] == '(') {
                 in_function_name = true;
             }
         }

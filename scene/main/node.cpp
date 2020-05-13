@@ -252,7 +252,8 @@ void Node::_notification(int p_notification) {
             // kill children as cleanly as possible
             while (!data->children.empty()) {
 
-                Node *child = data->children[data->children.size() - 1]; //begin from the end because its faster and more consistent with creation
+                //begin from the end because its faster and more consistent with creation
+                Node *child = data->children.back();
                 remove_child(child);
                 memdelete(child);
             }
@@ -265,7 +266,7 @@ void Node::_propagate_ready() {
 
     data->ready_notified = true;
     blocked++;
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         data->children[i]->_propagate_ready();
     }
@@ -315,7 +316,7 @@ void Node::_propagate_enter_tree() {
     blocked++;
     //block while adding children
 
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         if (!data->children[i]->is_inside_tree()) // could have been added in enter_tree
             data->children[i]->_propagate_enter_tree();
@@ -1312,7 +1313,7 @@ void Node::_propagate_validate_owner() {
         }
     }
 
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         data->children[i]->_propagate_validate_owner();
     }
@@ -2776,7 +2777,8 @@ void Node::update_configuration_warning() {
 #ifdef TOOLS_ENABLED
     if (!is_inside_tree())
         return;
-    if (get_tree()->get_edited_scene_root() && (get_tree()->get_edited_scene_root() == this || get_tree()->get_edited_scene_root()->is_a_parent_of(this))) {
+    auto edited_root=get_tree()->get_edited_scene_root();
+    if (edited_root && (edited_root == this || edited_root->is_a_parent_of(this))) {
         get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, Variant(this));
     }
 #endif

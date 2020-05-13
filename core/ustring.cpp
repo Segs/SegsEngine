@@ -111,7 +111,7 @@ bool select_word(const UIString &p_s, int p_col, int &r_beg, int &r_end) {
         while (beg > 0 && s[beg - 1] > 32 && (symbol == is_symbol(s[beg - 1]))) {
             beg--;
         }
-        while (end < s.length() && s[end + 1] > 32 && (symbol == is_symbol(s[end + 1]))) {
+        while ((end+1) < s.length() && s[end + 1] > 32 && (symbol == is_symbol(s[end + 1]))) {
             end++;
         }
 

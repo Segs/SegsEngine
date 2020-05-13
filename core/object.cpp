@@ -1340,9 +1340,6 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     }
 
     Signal::Slot slot;
-    if(p_signal==StringView("play_pressed")) {
-        printf("");
-    }
     Connection conn;
     conn.source = this;
     conn.target = p_to_object;
@@ -1619,6 +1616,10 @@ void Object::_bind_methods() {
 void Object::call_deferred(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     MessageQueue::get_singleton()->push_call(this, p_method, VARIANT_ARG_PASS);
+}
+void Object::call_deferred(eastl::function<void()> func) {
+
+    MessageQueue::get_singleton()->push_call(this->get_instance_id(), func);
 }
 
 void Object::set_deferred(const StringName &p_property, const Variant &p_value) {

@@ -124,6 +124,7 @@ inline void *operator new(size_t /*p_size*/, void *p_pointer, size_t /*check*/, 
 #define memnew_args_basic(m_class,...) (new (#m_class) m_class(__VA_ARGS__))
 #define memnew_allocator_basic(m_class, m_allocator) (new (m_allocator::alloc) m_class)
 #define memnew_placement_basic(m_placement, m_class) (new (m_placement, sizeof(m_class), "") m_class)
+#define memnew_placement_args_basic(m_placement, m_class,...) (new (m_placement, sizeof(m_class), "") m_class(__VA_ARGS__))
 
 #define memnew(m_class) _post_initialize(new (#m_class) m_class)
 #define memnew_args(m_class,...) _post_initialize(new (#m_class) m_class(__VA_ARGS__))
