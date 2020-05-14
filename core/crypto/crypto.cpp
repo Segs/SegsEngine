@@ -41,8 +41,6 @@ using namespace eastl;
 IMPL_GDCLASS(CryptoKey)
 IMPL_GDCLASS(X509Certificate)
 IMPL_GDCLASS(Crypto)
-IMPL_GDCLASS(ResourceFormatLoaderCrypto)
-IMPL_GDCLASS(ResourceFormatSaverCrypto)
 
 /// Resources
 

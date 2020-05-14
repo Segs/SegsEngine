@@ -28,7 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#include "test_ordered_hash_map.h"
+
 #include "core/ordered_hash_map.h"
+#include "core/os/main_loop.h"
 #include "core/os/os.h"
 #include "core/pair.h"
 #include "core/string_formatter.h"

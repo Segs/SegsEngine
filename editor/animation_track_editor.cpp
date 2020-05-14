@@ -771,14 +771,16 @@ public:
             return;
 
         for (eastl::pair<const int,Vector<float> > &E : key_ofs_map) {
-
+            int key = 0;
             for (float key_ofs : E.second) {
 
-                if (from != key_ofs)
+                if (from != key_ofs) {
+                    ++key;
                     continue;
+                }
 
                 int track = E.first;
-                key_ofs_map[track][key_ofs] = to;
+                key_ofs_map[track][key] = to;
 
                 if (setting)
                     return;
@@ -1411,7 +1413,8 @@ void AnimationTimelineEdit::_zoom_changed(double) {
 
 float AnimationTimelineEdit::get_zoom_scale() const {
 
-    float zv = zoom->get_value();
+    float zv = zoom->get_max() - zoom->get_value();
+
     if (zv < 1) {
         zv = 1.0 - zv;
         return Math::pow(1.0f + zv, 8.0f) * 100;

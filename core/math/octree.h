@@ -33,7 +33,7 @@
 #include "core/list.h"
 #include "core/math/aabb.h"
 #include "core/math/vector3.h"
-
+#include "core/math/geometry.h"
 #include "core/vector.h"
 #include "core/hash_map.h"
 
@@ -331,8 +331,8 @@ private:
 
     struct _CullConvexData {
 
-        const Plane *planes;
-        int plane_count;
+        Span<const Plane> planes;
+        Vector<Vector3> points;
         T **result_array;
         int *result_idx;
         int result_max;
@@ -956,7 +956,7 @@ void Octree<T, use_pairs>::_cull_convex(Octant *p_octant, _CullConvexData *p_cul
                 continue;
             e->last_pass = pass;
 
-            if (e->aabb.intersects_convex_shape(p_cull->planes, p_cull->plane_count)) {
+            if (e->aabb.intersects_convex_shape(p_cull->planes, p_cull->points)) {
 
                 if (*p_cull->result_idx < p_cull->result_max) {
                     p_cull->result_array[*p_cull->result_idx] = e->userdata;
@@ -977,7 +977,7 @@ void Octree<T, use_pairs>::_cull_convex(Octant *p_octant, _CullConvexData *p_cul
                 continue;
             e->last_pass = pass;
 
-            if (e->aabb.intersects_convex_shape(p_cull->planes, p_cull->plane_count)) {
+            if (e->aabb.intersects_convex_shape(p_cull->planes, p_cull->points)) {
 
                 if (*p_cull->result_idx < p_cull->result_max) {
 
@@ -993,7 +993,7 @@ void Octree<T, use_pairs>::_cull_convex(Octant *p_octant, _CullConvexData *p_cul
 
     for (int i = 0; i < 8; i++) {
 
-        if (p_octant->children[i] && p_octant->children[i]->aabb.intersects_convex_shape(p_cull->planes, p_cull->plane_count)) {
+        if (p_octant->children[i] && p_octant->children[i]->aabb.intersects_convex_shape(p_cull->planes, p_cull->points)) {
             _cull_convex(p_octant->children[i], p_cull);
         }
     }
@@ -1131,14 +1131,18 @@ void Octree<T, use_pairs>::_cull_segment(Octant *p_octant, const Vector3 &p_from
 template <class T, bool use_pairs>
 int Octree<T, use_pairs>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
-    if (!root)
+    if (!root || p_convex.empty() )
+        return 0;
+
+    Vector<Vector3> convex_points = Geometry::compute_convex_mesh_points(p_convex);
+    if (convex_points.size() == 0)
         return 0;
 
     int result_count = 0;
     pass++;
     _CullConvexData cdata;
-    cdata.planes = p_convex.data();
-    cdata.plane_count = p_convex.size();
+    cdata.planes = p_convex;
+    cdata.points = eastl::move(convex_points);
     cdata.result_array = p_result_array;
     cdata.result_max = p_result_max;
     cdata.result_idx = &result_count;

@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -32,6 +32,7 @@
 
 #include "core/os/memory.h"
 #include "core/vector.h"
+#include "core/object_id.h"
 #include "core/variant.h"
 #include "core/string_name.h"
 #include "core/forward_decls.h"
@@ -41,6 +42,9 @@
 
 class IObjectTooling;
 
+#ifdef DEBUG_ENABLED
+#include <atomic> // For ObjectRC*
+#endif
 class GODOT_EXPORT TypeInfo
 {
 public:
@@ -235,7 +239,7 @@ private:
 
 
 class ScriptInstance;
-using ObjectID = uint64_t;
+class ObjectRC;
 
 class GODOT_EXPORT Object {
     //Q_GADGET
@@ -293,6 +297,9 @@ private:
     bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
 
+#ifdef DEBUG_ENABLED
+	std::atomic<ObjectRC *> _rc;
+#endif
     bool _predelete();
     void _postinitialize();
 public:
@@ -372,7 +379,9 @@ public:
     static const void *get_class_ptr_static() {
         return get_type_info_static();
     }
-
+#ifdef DEBUG_ENABLED
+	ObjectRC *_use_rc();
+#endif
     bool _is_gpl_reversed() const { return false; }
 
     ObjectID get_instance_id() const { return _instance_id; }

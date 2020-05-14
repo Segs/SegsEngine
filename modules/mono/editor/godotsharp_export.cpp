@@ -102,8 +102,8 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, const Vector<String>
     return OK;
 }
 
-Error get_exported_assembly_dependencies(const Dictionary &p_initial_dependencies,
-        StringView p_build_config, StringView p_custom_bcl_dir, Dictionary &r_dependencies) {
+Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
+        StringView p_build_config, StringView p_custom_bcl_dir, Dictionary &r_assembly_dependencies) {
     MonoDomain *export_domain = GDMonoUtils::create_domain("GodotEngine.Domain.ProjectExport");
     ERR_FAIL_NULL_V(export_domain, FAILED);
     _GDMONO_SCOPE_EXIT_DOMAIN_UNLOAD_(export_domain);
@@ -113,16 +113,16 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_dependencie
     Vector<String> search_dirs;
     GDMonoAssembly::fill_search_dirs(search_dirs, p_build_config, p_custom_bcl_dir);
 
-    for (const Variant *key = p_initial_dependencies.next(); key; key = p_initial_dependencies.next(key)) {
+    for (const Variant *key = p_initial_assemblies.next(); key; key = p_initial_assemblies.next(key)) {
         String assembly_name = *key;
-        String assembly_path = p_initial_dependencies[*key];
+        String assembly_path = p_initial_assemblies[*key];
 
         GDMonoAssembly *assembly = nullptr;
         bool load_success = GDMono::get_singleton()->load_assembly_from(assembly_name, assembly_path, &assembly, /* refonly: */ true);
 
         ERR_FAIL_COND_V_MSG(!load_success, ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + assembly_name + "'.");
 
-        Error err = get_assembly_dependencies(assembly, search_dirs, r_dependencies);
+        Error err = get_assembly_dependencies(assembly, search_dirs, r_assembly_dependencies);
         if (err != OK)
             return err;
     }

@@ -152,6 +152,7 @@
 		</member>
 		<member name="detail_normal" type="Texture" setter="set_texture" getter="get_texture">
 			Texture that specifies the per-pixel normal of the detail overlay.
+			[b]Note:[/b] Godot expects the normal map to use X+, Y-, and Z+ coordinates. See [url=http://wiki.polycount.com/wiki/Normal_Map_Technical_Details#Common_Swizzle_Coordinates]this page[/url] for a comparison of normal map coordinates expected by popular engines.
 		</member>
 		<member name="detail_uv_layer" type="int" setter="set_detail_uv" getter="get_detail_uv" enum="SpatialMaterial.DetailUV">
 			Specifies whether to use [code]UV[/code] or [code]UV2[/code] for the detail layer. See [enum DetailUV] for options.
@@ -221,7 +222,7 @@
 			If [code]true[/code], triplanar mapping is calculated in world space rather than object local space. See also [member uv1_triplanar].
 		</member>
 		<member name="metallic" type="float" setter="set_metallic" getter="get_metallic" default="0.0">
-			The reflectivity of the object's surface. The higher the value, the more light is reflected.
+			A high value makes the material appear more like a metal. Non-metals use their albedo as the diffuse color and add diffuse to the specular reflection. With non-metals, the reflection appears on top of the albedo color. Metals use their albedo as a multiplier to the specular reflection and set the diffuse color to black resulting in a tinted reflection. Materials work better when fully metal or fully non-metal, values between [code]0[/code] and [code]1[/code] should only be used for blending between metal and non-metal sections. To alter the amount of reflection use [member roughness].
 		</member>
 		<member name="metallic_specular" type="float" setter="set_specular" getter="get_specular" default="0.5">
 			Sets the size of the specular lobe. The specular lobe is the bright spot that is reflected from light sources.
@@ -241,6 +242,7 @@
 		</member>
 		<member name="normal_texture" type="Texture" setter="set_texture" getter="get_texture">
 			Texture used to specify the normal at a given pixel. The [code]normal_texture[/code] only uses the red and green channels. The normal read from [code]normal_texture[/code] is oriented around the surface normal provided by the [Mesh].
+			[b]Note:[/b] Godot expects the normal map to use X+, Y-, and Z+ coordinates. See [url=http://wiki.polycount.com/wiki/Normal_Map_Technical_Details#Common_Swizzle_Coordinates]this page[/url] for a comparison of normal map coordinates expected by popular engines.
 		</member>
 		<member name="params_alpha_scissor_threshold" type="float" setter="set_alpha_scissor_threshold" getter="get_alpha_scissor_threshold">
 			Threshold at which the alpha scissor will discard values.

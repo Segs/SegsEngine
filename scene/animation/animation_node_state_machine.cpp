@@ -571,6 +571,27 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
     p_node->connect("tree_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
+void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<AnimationNode> p_node) {
+
+    ERR_FAIL_COND(states.contains(p_name) == false);
+    ERR_FAIL_COND(not p_node);
+    ERR_FAIL_COND(String(p_name).find("/") != -1);
+
+    {
+        Ref<AnimationNode> node = states[p_name].node;
+        if (node) {
+            node->disconnect("tree_changed", this, "_tree_changed");
+        }
+    }
+
+    states[p_name].node = dynamic_ref_cast<AnimationRootNode>(p_node);
+
+    emit_changed();
+    emit_signal("tree_changed");
+
+    p_node->connect("tree_changed", this, "_tree_changed", {}, ObjectNS::CONNECT_REFERENCE_COUNTED);
+}
+
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
 
     ERR_FAIL_COND_V(!states.contains(p_name), Ref<AnimationNode>());
@@ -949,6 +970,7 @@ void AnimationNodeStateMachine::_tree_changed() {
 void AnimationNodeStateMachine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("replace_node", {"name", "node"}), &AnimationNodeStateMachine::replace_node);
     MethodBinder::bind_method(D_METHOD("get_node", {"name"}), &AnimationNodeStateMachine::get_node);
     MethodBinder::bind_method(D_METHOD("remove_node", {"name"}), &AnimationNodeStateMachine::remove_node);
     MethodBinder::bind_method(D_METHOD("rename_node", {"name", "new_name"}), &AnimationNodeStateMachine::rename_node);

@@ -480,6 +480,7 @@ public:
     struct ShaderNode : public Node {
 
         struct Constant {
+            StringName name;
             DataType type;
             DataPrecision precision;
             ConstantNode *initializer;
@@ -534,6 +535,7 @@ public:
         Vector<StringName> render_modes;
 
         Vector<Function> functions;
+        Vector<Constant> vconstants;
 
         ShaderNode() :
                 Node(TYPE_SHADER) {}

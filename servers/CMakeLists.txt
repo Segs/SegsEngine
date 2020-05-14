@@ -54,9 +54,6 @@ audio/effects/eq.cpp
 audio/effects/eq.h
 audio/effects/reverb.cpp
 audio/effects/reverb.h
-audio/reverb_sw.cpp
-audio/reverb_sw.h
-audio/voice_rb_sw.h
 audio_server.cpp
 audio_server.h
 camera/camera_feed.cpp
@@ -116,8 +113,6 @@ rendering/rendering_server_canvas.cpp
 rendering/rendering_server_canvas.h
 rendering/rendering_server_globals.cpp
 rendering/rendering_server_globals.h
-rendering/rendering_server_light_baker.cpp
-rendering/rendering_server_light_baker.h
 rendering/rendering_server_raster.cpp
 rendering/rendering_server_raster.h
 rendering/rendering_server_scene.cpp

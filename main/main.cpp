@@ -520,7 +520,14 @@ Error Main::setup(bool p_second_phase) {
 
     I = args.begin();
     while (I!= args.end()) {
-
+#ifdef OSX_ENABLED
+        // Ignore the process serial number argument passed by macOS Gatekeeper.
+        // Otherwise, Godot would try to open a non-existent project on the first start and abort.
+        if (I->starts_with("-psn_")) {
+            ++I;
+            continue;
+        }
+#endif
         Vector<String>::iterator N = eastl::next(I);
 
         if (*I == "-h" || *I == "--help" || *I == "/?") { // display help
@@ -1229,9 +1236,9 @@ Error Main::setup(bool p_second_phase) {
 
     GLOBAL_DEF("debug/settings/stdout/print_fps", false);
 
-    if (!os->_verbose_stdout) //overridden
-        os->_verbose_stdout = GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
-
+    if (!OS::get_singleton()->_verbose_stdout) { // Not manually overridden.
+        OS::get_singleton()->_verbose_stdout = GLOBAL_GET("debug/settings/stdout/verbose_stdout");
+    }
     if (frame_delay == 0) {
         frame_delay = GLOBAL_DEF("application/run/frame_delay_msec", 0);
         project_settings->set_custom_property_info("application/run/frame_delay_msec", PropertyInfo(VariantType::INT, "application/run/frame_delay_msec", PropertyHint::Range, "0,100,1,or_greater")); // No negative numbers
@@ -1693,7 +1700,7 @@ bool Main::start() {
             return false;
         }
 
-        if (script_res->can_instance() /*&& script_res->inherits_from("SceneTreeScripted")*/) {
+        if (script_res->can_instance() ) {
 
             StringName instance_type = script_res->get_instance_base_type();
             Object *obj = ClassDB::instance(instance_type);
@@ -1701,7 +1708,7 @@ bool Main::start() {
             if (!script_loop) {
                 if (obj)
                     memdelete(obj);
-                ERR_FAIL_V_MSG(false, "Can't load script '" + script + "', it does not inherit from a MainLoop type.");
+                ERR_FAIL_V_MSG(false, "Can't load the script '" + script + "' as it doesn't inherit from SceneTree or MainLoop.");
             }
 
             script_loop->set_init_script(script_res);

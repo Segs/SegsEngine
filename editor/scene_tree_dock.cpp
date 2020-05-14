@@ -582,12 +582,10 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             ListOld<Node *> editable_children;
 
             eastl::sort(selection.begin(),selection.end(),Node::Comparator());
+            Node *add_below_node = selection.back();
+            for (Node *node : selection) {
 
-            for (auto riter=selection.rbegin(),rfin=selection.rend(); riter!=rfin; ++riter) {
-
-                Node *node = *riter;
                 Node *parent = node->get_parent();
-                Node *selection_tail = _get_selection_group_tail(node, selection);
 
                 Vector<Node *> owned;
                 node->get_owned_by(node->get_owner(), &owned);
@@ -605,7 +603,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 dup->set_name(parent->validate_child_name(dup));
 
-                editor_data->get_undo_redo().add_do_method(parent, "add_child_below_node", Variant(selection_tail), Variant(dup));
+                editor_data->get_undo_redo().add_do_method(parent, "add_child_below_node", Variant(add_below_node), Variant(dup));
                 for (Node * F : owned) {
 
                     if (!duplimap.contains(F)) {
@@ -613,7 +611,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                         continue;
                     }
                     Node *d = duplimap[F];
-                    editor_data->get_undo_redo().add_do_method(d, "set_owner", Variant(selection_tail->get_owner()));
+                    editor_data->get_undo_redo().add_do_method(d, "set_owner", Variant(node->get_owner()));
                 }
                 editor_data->get_undo_redo().add_do_method(editor_selection, "add_node", Variant(dup));
                 editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(dup));
@@ -623,6 +621,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
                 editor_data->get_undo_redo().add_do_method(sed, "live_debug_duplicate_node", edited_scene->get_path_to(node), dup->get_name());
                 editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(parent)),dup->get_name())));
+
+                add_below_node = dup;
             }
 
             editor_data->get_undo_redo().commit_action();
@@ -630,7 +630,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (dupsingle)
                 editor->push_item(dupsingle);
 
-            for (ListOld<Node *>::Element *E = editable_children.front(); E; E = E->next())
+            for (ListOld<Node *>::Element *E = editable_children.back(); E; E = E->prev())
                 _toggle_editable_children(E->deref());
 
         } break;

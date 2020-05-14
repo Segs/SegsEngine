@@ -115,13 +115,17 @@ void EditorQuickOpen::_sbox_input(const Ref<InputEvent> &p_ie) {
 }
 
 float EditorQuickOpen::_path_cmp(StringView search, StringView path) const {
+    // Exact match.
 
     if (search == path) {
         return 1.2f;
     }
-    if (StringUtils::findn(path,search) != String::npos) {
-        return 1.1f;
+    // Substring match, with positive bias for matches close to the end of the path.
+    auto pos = StringUtils::rfindn(path,search);
+    if (pos != String::npos) {
+        return 1.1f + 0.09 / (path.length() - pos + 1);
     }
+
     return StringUtils::similarity(StringUtils::to_lower(path),StringUtils::to_lower(search));
 }
 

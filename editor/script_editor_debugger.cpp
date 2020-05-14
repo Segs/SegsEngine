@@ -347,7 +347,7 @@ void ScriptEditorDebugger::_file_selected(StringView p_file) {
             msg.push_back(p_file);
             ppeer->put_var(msg);
         } break;
-        case SAVE_CSV: {
+        case SAVE_MONITORS_CSV: {
             Error err;
             FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
 
@@ -380,6 +380,36 @@ void ScriptEditorDebugger::_file_selected(StringView p_file) {
                 file->store_csv_line(profiler_data[i]);
             }
 
+        } break;
+        case SAVE_VRAM_CSV: {
+            Error err;
+            FileAccessRef file = FileAccess::open(p_file, FileAccess::WRITE, &err);
+
+            if (err != OK) {
+                ERR_PRINT("Failed to open " + p_file);
+                return;
+            }
+
+            Vector<String> headers;
+            headers.resize(vmem_tree->get_columns());
+            for (int i = 0; i < vmem_tree->get_columns(); ++i) {
+                headers[i] = vmem_tree->get_column_title(i);
+            }
+            file->store_csv_line(headers);
+
+            if (vmem_tree->get_root()) {
+                TreeItem *ti = vmem_tree->get_root()->get_children();
+                while (ti) {
+                    Vector<String> values;
+                    values.resize(vmem_tree->get_columns());
+                    for (int i = 0; i < vmem_tree->get_columns(); ++i) {
+                        values[i] = ti->get_text(i);
+                    }
+                    file->store_csv_line(values);
+
+                    ti = ti->get_next();
+                }
+            }
         } break;
     }
 }
@@ -501,6 +531,15 @@ void ScriptEditorDebugger::_video_mem_request() {
     Array msg;
     msg.push_back("request_video_mem");
     ppeer->put_var(msg);
+}
+
+void ScriptEditorDebugger::_video_mem_export() {
+
+    file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
+    file_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
+    file_dialog->clear_filters();
+    file_dialog_mode = SAVE_VRAM_CSV;
+    file_dialog->popup_centered_ratio();
 }
 
 Size2 ScriptEditorDebugger::get_minimum_size() const {
@@ -1218,6 +1257,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
             error_tree->connect("item_selected", this, "_error_selected");
             error_tree->connect("item_activated", this, "_error_activated");
             vmem_refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
+            vmem_export->set_button_icon(get_icon("Save", "EditorIcons"));
 
             reason->add_color_override("font_color", get_color("error_color", "Editor"));
 
@@ -1440,12 +1480,12 @@ void ScriptEditorDebugger::_notification(int p_what) {
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
-        add_constant_override("margin_left", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(Margin::Left));
-        add_constant_override("margin_right", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(Margin::Right));
+            add_constant_override("margin_left", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(Margin::Left));
+            add_constant_override("margin_right", -EditorNode::get_singleton()->get_gui_base()->get_stylebox("BottomPanelDebuggerOverride", "EditorStyles")->get_margin(Margin::Right));
 
-        tabs->add_style_override("panel", editor->get_gui_base()->get_stylebox("DebuggerPanel", "EditorStyles"));
-        tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
-        tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
+            tabs->add_style_override("panel", editor->get_gui_base()->get_stylebox("DebuggerPanel", "EditorStyles"));
+            tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
+            tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
 
             copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
             step->set_button_icon(get_icon("DebugStep", "EditorIcons"));
@@ -1455,6 +1495,7 @@ void ScriptEditorDebugger::_notification(int p_what) {
             dobreak->set_button_icon(get_icon("Pause", "EditorIcons"));
             docontinue->set_button_icon(get_icon("DebugContinue", "EditorIcons"));
             vmem_refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
+            vmem_export->set_button_icon(get_icon("Save", "EditorIcons"));
         } break;
     }
 }
@@ -1635,7 +1676,8 @@ void ScriptEditorDebugger::_export_csv() {
 
     file_dialog->set_mode(EditorFileDialog::MODE_SAVE_FILE);
     file_dialog->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
-    file_dialog_mode = SAVE_CSV;
+    file_dialog->clear_filters();
+    file_dialog_mode = SAVE_MONITORS_CSV;
     file_dialog->popup_centered_ratio();
 }
 
@@ -2221,6 +2263,7 @@ void ScriptEditorDebugger::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_performance_select"), &ScriptEditorDebugger::_performance_select);
     MethodBinder::bind_method(D_METHOD("_scene_tree_request"), &ScriptEditorDebugger::_scene_tree_request);
     MethodBinder::bind_method(D_METHOD("_video_mem_request"), &ScriptEditorDebugger::_video_mem_request);
+    MethodBinder::bind_method(D_METHOD("_video_mem_export"), &ScriptEditorDebugger::_video_mem_export);
     MethodBinder::bind_method(D_METHOD("_live_edit_set"), &ScriptEditorDebugger::_live_edit_set);
     MethodBinder::bind_method(D_METHOD("_live_edit_clear"), &ScriptEditorDebugger::_live_edit_clear);
 
@@ -2542,8 +2585,12 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         vmem_refresh = memnew(ToolButton);
         vmem_refresh->set_disabled(true);
         vmem_hb->add_child(vmem_refresh);
+        vmem_export = memnew(ToolButton);
+        vmem_export->set_tooltip(TTR("Export list to a CSV file"));
+        vmem_hb->add_child(vmem_export);
         vmem_vb->add_child(vmem_hb);
         vmem_refresh->connect("pressed", this, "_video_mem_request");
+        vmem_export->connect("pressed", this, "_video_mem_export");
 
         VBoxContainer *vmmc = memnew(VBoxContainer);
         vmem_tree = memnew(Tree);

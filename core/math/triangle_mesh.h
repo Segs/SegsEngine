@@ -69,8 +69,8 @@ public:
     bool is_valid() const;
     bool intersect_segment(const Vector3 &p_begin, const Vector3 &p_end, Vector3 &r_point, Vector3 &r_normal) const;
     bool intersect_ray(const Vector3 &p_begin, const Vector3 &p_dir, Vector3 &r_point, Vector3 &r_normal) const;
-    bool intersect_convex_shape(const Plane *p_planes, int p_plane_count) const;
-    bool inside_convex_shape(const Plane *p_planes, int p_plane_count, Vector3 p_scale = Vector3(1, 1, 1)) const;
+    bool intersect_convex_shape(Span<const Plane> p_planes,Span<const Vector3> p_points) const;
+    bool inside_convex_shape(Span<const Plane> p_plane, Span<const Vector3> p_points, Vector3 p_scale = Vector3(1, 1, 1)) const;
     Vector3 get_area_normal(const AABB &p_aabb) const;
     Vector<Face3> get_faces() const;
 

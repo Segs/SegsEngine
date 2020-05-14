@@ -36,29 +36,55 @@
 #include "core/forward_decls.h"
 #include "core/reference.h"
 
+#include <mbedtls/ssl_cookie.h>
+
+class SSLContextMbedTLS;
+
+class CookieContextMbedTLS : public RefCounted {
+
+    friend class SSLContextMbedTLS;
+
+protected:
+    bool inited;
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_ssl_cookie_ctx cookie_ctx;
+
+public:
+    Error setup();
+    void clear();
+
+    CookieContextMbedTLS();
+    ~CookieContextMbedTLS();
+};
+
+
 class SSLContextMbedTLS : public RefCounted {
 
 protected:
-	bool inited;
+    bool inited;
 
-	static PoolByteArray _read_file(UIString p_path);
+    static PoolByteArray _read_file(UIString p_path);
 
 public:
-	Ref<X509CertificateMbedTLS> certs;
-	mbedtls_entropy_context entropy;
-	mbedtls_ctr_drbg_context ctr_drbg;
-	mbedtls_ssl_context ssl;
-	mbedtls_ssl_config conf;
+    static void print_mbedtls_error(int p_ret);
 
-	Ref<CryptoKeyMbedTLS> pkey;
+    Ref<X509CertificateMbedTLS> certs;
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_ssl_context ssl;
+    mbedtls_ssl_config conf;
 
-	Error _setup(int p_endpoint, int p_transport, int p_authmode);
-	Error init_server(int p_transport, int p_authmode, Ref<CryptoKeyMbedTLS> p_pkey, Ref<X509CertificateMbedTLS> p_cert);
-	Error init_client(int p_transport, int p_authmode, Ref<X509CertificateMbedTLS> p_valid_cas);
-	void clear();
+    Ref<CookieContextMbedTLS> cookies;
+    Ref<CryptoKeyMbedTLS> pkey;
 
-	mbedtls_ssl_context *get_context();
+    Error _setup(int p_endpoint, int p_transport, int p_authmode);
+    Error init_server(int p_transport, int p_authmode, Ref<CryptoKeyMbedTLS> p_pkey, Ref<X509CertificateMbedTLS> p_cert, Ref<CookieContextMbedTLS> p_cookies = Ref<CookieContextMbedTLS>());
+    Error init_client(int p_transport, int p_authmode, Ref<X509CertificateMbedTLS> p_valid_cas);
+    void clear();
 
-	SSLContextMbedTLS();
-	~SSLContextMbedTLS() override;
+    mbedtls_ssl_context *get_context();
+
+    SSLContextMbedTLS();
+    ~SSLContextMbedTLS() override;
 };

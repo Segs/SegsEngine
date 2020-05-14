@@ -496,26 +496,26 @@ bool EditorSpatialGizmo::intersect_frustum(const Camera3D *p_camera, Span<const 
         if (!any_out) return true;
     }
 
-    if (collision_mesh) {
-        Transform t = spatial_node->get_global_transform();
+    if (!collision_mesh)
+        return false;
 
-        Vector3 mesh_scale = t.get_basis().get_scale();
-        t.orthonormalize();
+    Transform t = spatial_node->get_global_transform();
 
-        Transform it = t.affine_inverse();
+    Vector3 mesh_scale = t.get_basis().get_scale();
+    t.orthonormalize();
 
-        Vector<Plane> transformed_frustum;
+    Transform it = t.affine_inverse();
 
-        for (int i = 0; i < 4; i++) {
-            transformed_frustum.emplace_back(it.xform(p_frustum[i]));
-        }
+    Vector<Plane> transformed_frustum;
+    transformed_frustum.reserve(p_frustum.size());
 
-        if (collision_mesh->inside_convex_shape(transformed_frustum.data(), transformed_frustum.size(), mesh_scale)) {
-            return true;
-        }
+    for (const Plane & p : p_frustum) {
+        transformed_frustum.emplace_back(it.xform(p));
     }
 
-    return false;
+    Vector<Vector3> convex_points = Geometry::compute_convex_mesh_points(p_frustum);
+
+    return collision_mesh->inside_convex_shape(transformed_frustum, convex_points, mesh_scale);
 }
 
 bool EditorSpatialGizmo::intersect_ray(Camera3D *p_camera, const Point2 &p_point, Vector3 &r_pos, Vector3 &r_normal, int *r_gizmo_handle, bool p_sec_first) {
@@ -4230,6 +4230,28 @@ JointSpatialGizmoPlugin::JointSpatialGizmoPlugin() {
     create_material("joint_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint", Color(0.5, 0.8f, 1)));
     create_material("joint_body_a_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_a", Color(0.6f, 0.8f, 1)));
     create_material("joint_body_b_material", EDITOR_DEF("editors/3d_gizmos/gizmo_colors/joint_body_b", Color(0.6f, 0.9f, 1)));
+
+    update_timer = memnew(Timer);
+    update_timer->set_name("JointGizmoUpdateTimer");
+    update_timer->set_wait_time(1.0 / 120.0);
+    update_timer->connect("timeout", this, "incremental_update_gizmos");
+    update_timer->set_autostart(true);
+
+    EditorNode::get_singleton()->call_deferred([this]() {
+        EditorNode::get_singleton()->add_child(update_timer);
+    });
+
+}
+void JointSpatialGizmoPlugin::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("incremental_update_gizmos"), &JointSpatialGizmoPlugin::incremental_update_gizmos);
+}
+
+void JointSpatialGizmoPlugin::incremental_update_gizmos() {
+    if (!current_gizmos.empty()) {
+        update_idx++;
+        update_idx = update_idx % current_gizmos.size();
+        redraw(current_gizmos[update_idx]);
+    }
 }
 
 bool JointSpatialGizmoPlugin::has_gizmo(Node3D *p_spatial) {

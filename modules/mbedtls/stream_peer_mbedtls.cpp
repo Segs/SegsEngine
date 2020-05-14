@@ -34,11 +34,6 @@
 #include "core/os/file_access.h"
 #include "core/string_utils.h"
 
-void _print_error(int ret) {
-    printf("mbedtls error: returned -0x%x\n\n", -ret);
-    fflush(stdout);
-}
-
 int StreamPeerMbedTLS::bio_send(void *ctx, const unsigned char *buf, size_t len) {
 
     if (buf == nullptr || len <= 0) return 0;
@@ -90,7 +85,7 @@ Error StreamPeerMbedTLS::_do_handshake() {
         if (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE) {
             // An error occurred.
             ERR_PRINT("TLS handshake error: " + itos(ret));
-            _print_error(ret);
+            SSLContextMbedTLS::print_mbedtls_error(ret);
             disconnect_from_stream();
             status = STATUS_ERROR;
             return FAILED;
@@ -190,7 +185,7 @@ Error StreamPeerMbedTLS::put_partial_data(const uint8_t *p_data, int p_bytes, in
         disconnect_from_stream();
         return ERR_FILE_EOF;
     } else if (ret <= 0) {
-        _print_error(ret);
+        SSLContextMbedTLS::print_mbedtls_error(ret);
         disconnect_from_stream();
         return ERR_CONNECTION_ERROR;
     }
@@ -235,7 +230,7 @@ Error StreamPeerMbedTLS::get_partial_data(uint8_t *p_buffer, int p_bytes, int &r
         disconnect_from_stream();
         return ERR_FILE_EOF;
     } else if (ret <= 0) {
-        _print_error(ret);
+        SSLContextMbedTLS::print_mbedtls_error(ret);
         disconnect_from_stream();
         return ERR_CONNECTION_ERROR;
     }
@@ -266,7 +261,7 @@ void StreamPeerMbedTLS::poll() {
         disconnect_from_stream();
         return;
     } else if (ret < 0) {
-        _print_error(ret);
+        SSLContextMbedTLS::print_mbedtls_error(ret);
         disconnect_from_stream();
         return;
     }

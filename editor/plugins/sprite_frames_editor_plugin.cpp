@@ -165,14 +165,21 @@ void SpriteFramesEditor::_sheet_add_frames() {
 
     int fc = frames->get_frame_count(edited_anim);
 
+    AtlasTexture *atlas_source = object_cast<AtlasTexture>(split_sheet_preview->get_texture().get());
+
+    Rect2 region_rect = Rect2();
+
+    if (atlas_source && atlas_source->get_atlas())
+        region_rect = atlas_source->get_region();
+
     for (int E : frames_selected) {
         int idx = E;
         int width = size.width / h;
         int height = size.height / v;
         int xp = idx % h;
         int yp = (idx - xp) / h;
-        int x = xp * width;
-        int y = yp * height;
+        int x = (xp * width) + region_rect.position.x;
+        int y = (yp * height) + region_rect.position.y;
 
         Ref<AtlasTexture> at(make_ref_counted<AtlasTexture>());
         at->set_atlas(split_sheet_preview->get_texture());

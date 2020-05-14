@@ -76,9 +76,11 @@ private:
     //Button *action;
     VBoxContainer *vbox;
     Mode mode;
-    LineEdit *dir;
-    OptionButton *drives;
-    Tree *tree;
+    LineEdit* dir;
+    HBoxContainer* drives_container;
+    HBoxContainer* shortcuts_container;
+    OptionButton* drives;
+    Tree* tree;
     HBoxContainer *file_box;
     LineEdit *file;
     OptionButton *filter;

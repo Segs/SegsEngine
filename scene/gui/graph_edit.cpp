@@ -955,8 +955,16 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 if (!gn->is_selected() && !Input::get_singleton()->is_key_pressed(KEY_CONTROL)) {
                     for (int i = 0; i < get_child_count(); i++) {
                         GraphNode *o_gn = object_cast<GraphNode>(get_child(i));
-                        if (o_gn)
-                            o_gn->set_selected(o_gn == gn);
+                        if (o_gn) {
+                            if (o_gn == gn) {
+                                o_gn->set_selected(true);
+                            } else {
+                                if (o_gn->is_selected()) {
+                                    emit_signal("node_unselected", Variant(o_gn));
+                                }
+                                o_gn->set_selected(false);
+                            }
+                        }
                     }
                 }
 
@@ -1009,7 +1017,9 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                         GraphNode *gn2 = object_cast<GraphNode>(get_child(i));
                         if (!gn2)
                             continue;
-
+                        if (gn2->is_selected()) {
+                            emit_signal("node_unselected", Variant(gn2));
+                        }
                         gn2->set_selected(false);
                     }
                 }
@@ -1330,6 +1340,7 @@ void GraphEdit::_bind_methods() {
     ADD_SIGNAL(MethodInfo("copy_nodes_request"));
     ADD_SIGNAL(MethodInfo("paste_nodes_request"));
     ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
+    ADD_SIGNAL(MethodInfo("node_unselected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("delete_nodes_request"));

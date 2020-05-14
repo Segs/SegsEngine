@@ -603,7 +603,7 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
             texture->images.resize(1);
         } break;
         case RS::TEXTURE_TYPE_EXTERNAL: {
-            texture->target = _GL_TEXTURE_EXTERNAL_OES;
+            texture->target = GL_TEXTURE_2D; //_GL_TEXTURE_EXTERNAL_OES;
             texture->images.resize(0);
         } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {

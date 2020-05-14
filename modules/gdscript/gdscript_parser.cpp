@@ -2041,6 +2041,38 @@ GDScriptParser::Node *GDScriptParser::_parse_and_reduce_expression(Node *p_paren
     return expr;
 }
 
+bool GDScriptParser::_reduce_export_var_type(Variant &p_value, int p_line) {
+
+    if (p_value.get_type() == VariantType::ARRAY) {
+        Array arr = p_value;
+        for (int i = 0; i < arr.size(); i++) {
+            if (!_reduce_export_var_type(arr[i], p_line)) return false;
+        }
+        return true;
+    }
+
+    if (p_value.get_type() == VariantType::DICTIONARY) {
+        Dictionary dict = p_value;
+        for (int i = 0; i < dict.size(); i++) {
+            Variant value = dict.get_value_at_index(i);
+            if (!_reduce_export_var_type(value, p_line)) return false;
+        }
+        return true;
+    }
+
+    // validate type
+    DataType type = _type_from_variant(p_value);
+    if (type.kind == DataType::BUILTIN) {
+        return true;
+    } else if (type.kind == DataType::NATIVE) {
+        if (ClassDB::is_parent_class(type.native_type, "Resource")) {
+            return true;
+        }
+    }
+    _set_error("Invalid export type. Only built-in and native resource types can be exported.", p_line);
+    return false;
+}
+
 bool GDScriptParser::_recover_from_completion() {
 
     if (!completion_found) {
@@ -2702,6 +2734,7 @@ void GDScriptParser::_transform_match_statment(MatchNode *p_match_statement) {
             LocalVarNode *local_var = branch->body->variables[e.first];
             local_var->assign = e.second;
             local_var->set_datatype(local_var->assign->get_datatype());
+            local_var->assignments++;
 
             IdentifierNode *id2 = alloc_node<IdentifierNode>();
             id2->name = local_var->name;
@@ -2805,6 +2838,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     return;
                 }
 
+                _mark_line_as_safe(line);
                 NewLineNode *nl2 = alloc_node<NewLineNode>();
                 nl2->line = line;
                 p_block->statements.push_back(nl2);
@@ -3316,7 +3350,9 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                 if (tokenizer->get_token() != GDScriptTokenizer::TK_PARENTHESIS_OPEN) {
                     _set_error("Expected '(' after assert");
                     return;
-                    }
+                }
+                int assert_line = tokenizer->get_token_line();
+
                 tokenizer->advance();
 
                 Vector<Node *> args;
@@ -3325,11 +3361,12 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     return;
                 }
                 if (args.empty() || args.size() > 2) {
-                    _set_error("Wrong number of arguments, expected 1 or 2");
+                    _set_error("Wrong number of arguments, expected 1 or 2", assert_line);
                     return;
                 }
                 AssertNode *an = alloc_node<AssertNode>();
                 an->condition = _reduce_expression(args[0], p_static);
+                an->line = assert_line;
 
                 if (args.size() == 2) {
                     an->message = _reduce_expression(args[1], p_static);
@@ -3341,7 +3378,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                 p_block->statements.push_back(an);
 
                 if (!_end_statement()) {
-                    _set_error("Expected end of statement after \"assert\".");
+                    _set_error("Expected end of statement after \"assert\".",assert_line);
                     return;
                 }
             } break;
@@ -3689,7 +3726,12 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         _set_error("A constant named \"" + String(name) + "\" already exists in the outer class scope (at line" + ::to_string(outer_class->constant_expressions[name].expression->line) + ").");
                         return;
                     }
-
+                    for (size_t i = 0; i < outer_class->variables.size(); i++) {
+                        if (outer_class->variables[i].identifier == name) {
+                            _set_error("A variable named \"" + String(name) + "\" already exists in the outer class scope (at line " + itos(outer_class->variables[i].line) + ").");
+                            return;
+                        }
+                    }
                     outer_class = outer_class->owner;
                 }
 
@@ -3990,7 +4032,8 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
 
                 if (!_enter_indent_block(block)) {
 
-                    _set_error("Indented block expected.");
+                    _set_error(FormatVE("Indented block expected after declaration of \"%s\" function.", function->name.asCString()));
+
                     return;
                 }
 
@@ -4884,6 +4927,9 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                             _set_error("Can't accept a null constant expression for inferring export type.");
                             return;
                         }
+                        if (!_reduce_export_var_type(cn->value, member.line))
+                            return;
+
                         member._export.type = cn->value.get_type();
                         member._export.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
                         if (cn->value.get_type() == VariantType::OBJECT) {
@@ -6580,6 +6626,7 @@ GDScriptParser::DataType GDScriptParser::_reduce_node_type(Node *p_node) {
                             node_type = _reduce_identifier_type(&base_type, member_id->name, op->line, true);
 #ifdef DEBUG_ENABLED
                             if (!node_type.has_type) {
+                                _mark_line_as_unsafe(op->line);
                                 _add_warning(GDScriptWarning::UNSAFE_PROPERTY_ACCESS, op->line, {member_id->name.asCString(), base_type.to_string()});
                             }
 #endif // DEBUG_ENABLED
@@ -8066,9 +8113,14 @@ void GDScriptParser::_check_block_types(BlockNode *p_block) {
 
         switch (statement->type) {
             case Node::TYPE_NEWLINE:
-            case Node::TYPE_BREAKPOINT:
-            case Node::TYPE_ASSERT: {
+            case Node::TYPE_BREAKPOINT: {
                 // Nothing to do
+            } break;
+            case Node::TYPE_ASSERT: {
+                AssertNode *an = static_cast<AssertNode *>(statement);
+                _mark_line_as_safe(an->line);
+                _reduce_node_type(an->condition);
+                _reduce_node_type(an->message);
             } break;
             case Node::TYPE_LOCAL_VAR: {
                 LocalVarNode *lv = static_cast<LocalVarNode *>(statement);

@@ -563,6 +563,8 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     hints["editors/3d/navigation_feel/manipulation_translation_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/navigation_feel/manipulation_translation_inertia", PropertyHint::Range, "0.0, 1, 0.01");
 
     // 3D: Freelook
+    _initial_set("editors/3d/freelook/freelook_navigation_scheme", false);
+    hints["editors/3d/freelook/freelook_navigation_scheme"] = PropertyInfo(VariantType::INT, "editors/3d/freelook/freelook_navigation_scheme", PropertyHint::Enum, "Default,Partially Axis-Locked (id Tech),Fully Axis-Locked (Minecraft)");
     _initial_set("editors/3d/freelook/freelook_inertia", 0.1f);
     hints["editors/3d/freelook/freelook_inertia"] = PropertyInfo(VariantType::FLOAT, "editors/3d/freelook/freelook_inertia", PropertyHint::Range, "0.0, 1, 0.01");
     _initial_set("editors/3d/freelook/freelook_base_speed", 5.0f);

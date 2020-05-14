@@ -364,6 +364,7 @@ struct TextEdit::PrivateData {
 
     ListOld<TextOperation> undo_stack;
     ListOld<TextOperation>::Element *undo_stack_pos = nullptr;
+    int undo_stack_max_size;
 
     int wrap_at=0;
     int wrap_right_offset=10;
@@ -389,7 +390,7 @@ struct TextEdit::PrivateData {
         text.set_color_regions(&color_regions);
         current_op.type = TextOperation::TYPE_NONE;
         current_op.version = 0;
-
+        undo_stack_max_size = GLOBAL_GET("gui/common/text_edit_undo_stack_max_size");
     }
     void _clear() {
         clear_undo_history();
@@ -575,6 +576,10 @@ struct TextEdit::PrivateData {
         current_op.type = TextOperation::TYPE_NONE;
         current_op.text = "";
         current_op.chain_forward = false;
+
+        if (undo_stack.size() > undo_stack_max_size) {
+            undo_stack.pop_front();
+        }
     }
     void _do_text_op(const TextOperation &p_op, bool p_reverse) {
 
@@ -2996,7 +3001,7 @@ void TextEdit::_notification(int p_what) {
                 Color scrollc = get_color("completion_scroll_color");
 
                 const int completion_options_size = m_priv->completion_options.size();
-                int lines = MIN(completion_options_size, maxlines);
+                int lines = eastl::min(completion_options_size, maxlines);
                 int w = 0;
                 int h = lines * get_row_height();
                 int nofs = m_priv->cache.font->get_string_size(m_priv->completion_base).width;
@@ -7718,6 +7723,9 @@ void TextEdit::_bind_methods() {
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.
+    GLOBAL_DEF("gui/common/text_edit_undo_stack_max_size", 1024);
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/common/text_edit_undo_stack_max_size", PropertyInfo(VariantType::INT, "gui/common/text_edit_undo_stack_max_size", PropertyHint::Range, "0,10000,1,or_greater")); // No negative numbers.
+
 }
 
 TextEdit::TextEdit() {

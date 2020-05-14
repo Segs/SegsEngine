@@ -35,6 +35,7 @@
 #include "core/core_string_names.h"
 #include "core/message_queue.h"
 #include "core/os/os.h"
+#include "core/object_rc.h"
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
@@ -845,6 +846,38 @@ void Object::cancel_delete() {
 
     _predelete_ok = true;
 }
+
+#ifdef DEBUG_ENABLED
+ObjectRC *Object::_use_rc() {
+
+    // The RC object is lazily created the first time it's requested;
+    // that way, there's no need to allocate and release it at all if this Object
+    // is not being referred by any Variant at all.
+
+    // Although when dealing with Objects from multiple threads some locking
+    // mechanism should be used, this at least makes safe the case of first
+    // assignment.
+
+    ObjectRC *rc = nullptr;
+    ObjectRC *const creating = reinterpret_cast<ObjectRC *>(1);
+    if (unlikely(_rc.compare_exchange_strong(rc, creating, std::memory_order_acq_rel))) {
+        // Not created yet
+        rc = memnew(ObjectRC(this,this->get_instance_id()));
+        _rc.store(rc, std::memory_order_release);
+        return rc;
+    }
+
+    // Spin-wait until we know it's created (or just return if it's already created)
+    for (;;) {
+        if (likely(rc != creating)) {
+            rc->increment();
+            return rc;
+        }
+        rc = _rc.load(std::memory_order_acquire);
+    }
+}
+#endif
+
 //! @note some script languages can't control instance creation, so this function eases the process
 void Object::set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance) {
 
@@ -1789,9 +1822,21 @@ Object::Object() {
     instance_binding_count = 0;
     memset(_script_instance_bindings, 0, sizeof(void *) * MAX_SCRIPT_INSTANCE_BINDINGS);
     script_instance = nullptr;
+#ifdef DEBUG_ENABLED
+    _rc.store(nullptr, std::memory_order_release);
+#endif
 }
 
 Object::~Object() {
+
+#ifdef DEBUG_ENABLED
+    ObjectRC *rc = _rc.load(std::memory_order_acquire);
+    if (rc) {
+        if (rc->invalidate()) {
+            memfree(rc);
+        }
+    }
+#endif
 
     if (script_instance)
         memdelete(script_instance);

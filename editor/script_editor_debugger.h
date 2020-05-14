@@ -109,9 +109,10 @@ private:
 
     EditorFileDialog *file_dialog;
     enum FileDialogMode {
-        SAVE_CSV,
+        SAVE_MONITORS_CSV,
+        SAVE_VRAM_CSV,
         SAVE_NODE,
-    };
+        };
     FileDialogMode file_dialog_mode;
 
     int error_count;
@@ -149,6 +150,7 @@ private:
 
     Tree *vmem_tree;
     Button *vmem_refresh;
+    Button *vmem_export;
     LineEdit *vmem_total;
 
     Tree *stack_dump;
@@ -194,6 +196,7 @@ private:
     int _update_scene_tree(TreeItem *parent, const Array &nodes, int current_index);
 
     void _video_mem_request();
+    void _video_mem_export();
 
     int _get_node_path_cache(const NodePath &p_path);
 

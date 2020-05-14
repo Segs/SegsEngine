@@ -434,7 +434,7 @@ void InputEventMouseButton::set_factor(float p_factor) {
     factor = p_factor;
 }
 
-float InputEventMouseButton::get_factor() {
+float InputEventMouseButton::get_factor() const {
 
     return factor;
 }
@@ -658,7 +658,8 @@ String InputEventMouseMotion::as_text() const {
             break;
     }
     return "InputEventMouseMotion : button_mask=" + button_mask_string + ", position=(" + String(get_position()) +
-           "), relative=(" + String(get_relative()) + "), speed=(" + String(get_speed()) + ")";
+           "), relative=(" + String(get_relative()) + "), speed=(" + String(get_speed()) +
+           "), pressure=(" + rtos(get_pressure()) + "), tilt=(" + String(get_tilt()) + ")";
 }
 
 bool InputEventMouseMotion::accumulate(const Ref<InputEvent> &p_event) {

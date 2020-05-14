@@ -50,6 +50,7 @@
 #include "core/math/vector3.h"
 #include "core/math/math_funcs.h"
 #include "core/object_db.h"
+#include "core/object_rc.h"
 #include "core/string.h"
 #include "core/pool_vector.h"
 #include "core/print_string.h"
@@ -729,7 +730,7 @@ bool Variant::is_zero() const {
             return *reinterpret_cast<const RID *>(_data._mem) == RID();
         }
         case VariantType::OBJECT: {
-            return _get_obj().obj == nullptr;
+            return _OBJ_PTR(*this) == nullptr;
         }
         case VariantType::NODE_PATH: {
             return reinterpret_cast<const NodePath *>(_data._mem)->is_empty();
@@ -846,12 +847,19 @@ bool Variant::is_one() const {
     return false;
 }
 
+Variant::operator Object *() const {
+
+    if (type == VariantType::OBJECT)
+        return _OBJ_PTR(*this);
+    return nullptr;
+}
+
 void Variant::reference(const Variant &p_variant) {
 
     switch (type) {
-        case VariantType::NIL:
-        case VariantType::BOOL:
-        case VariantType::INT:
+    case VariantType::NIL:
+    case VariantType::BOOL:
+    case VariantType::INT:
         case VariantType::FLOAT:
             break;
         default:
@@ -938,6 +946,11 @@ void Variant::reference(const Variant &p_variant) {
         case VariantType::OBJECT: {
 
             memnew_placement(_data._mem, ObjData(p_variant._get_obj()));
+#ifdef DEBUG_ENABLED
+            if (_get_obj().rc) {
+                _get_obj().rc->increment();
+            }
+#endif
         } break;
         case VariantType::NODE_PATH: {
 
@@ -1052,8 +1065,18 @@ void Variant::clear() {
         } break;
         case VariantType::OBJECT: {
 
-            _get_obj().obj = nullptr;
+#ifdef DEBUG_ENABLED
+            if (_get_obj().rc) {
+                if (_get_obj().rc->decrement()) {
+                    memfree(_get_obj().rc);
+                }
+            } else {
+                _get_obj().ref.unref();
+            }
+#else
+            _get_obj().obj = NULL;
             _get_obj().ref.unref();
+#endif
         } break;
         case VariantType::_RID: {
             // not much need probably
@@ -1559,19 +1582,16 @@ String Variant::stringify(Vector<const void *> &stack) const {
         }
         case VariantType::OBJECT: {
 
-            if (_get_obj().obj) {
-#ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
-                    //only if debugging!
-                    if (!gObjectDB().instance_validate(_get_obj().obj)) {
-                        return ("[Deleted Object]");
-                    }
-                }
-#endif
-                return _get_obj().obj->to_string();
+            Object *obj = _OBJ_PTR(*this);
+            if (obj) {
+                return obj->to_string();
             }
-            return ("[Object:null]");
-
+#ifdef DEBUG_ENABLED
+            if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                return "[Deleted Object]";
+            }
+#endif
+            return "[Object:null]";
         }
         default: {
             return "[" + String(get_type_name(type)) + "]";
@@ -1673,37 +1693,60 @@ Variant::operator RefPtr() const {
 
 Variant::operator RID() const {
 
-    if (type == VariantType::_RID)
+    if (type == VariantType::_RID) {
         return *reinterpret_cast<const RID *>(_data._mem);
-    if (type == VariantType::OBJECT && !_get_obj().ref.is_null()) {
-        return _get_obj().ref.get_rid();
-    }
-    if (type == VariantType::OBJECT && _get_obj().obj) {
+    } else if (type == VariantType::OBJECT) {
+        if (!_get_obj().ref.is_null()) {
+            return _get_obj().ref.get_rid();
+        } else {
 #ifdef DEBUG_ENABLED
-        if (ScriptDebugger::get_singleton()) {
-            ERR_FAIL_COND_V_MSG(!gObjectDB().instance_validate(_get_obj().obj), RID(), "Invalid pointer (object was deleted).");
-        }
+            Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : NULL;
+            if (unlikely(!obj)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted get RID on a deleted object.");
+                }
+                return RID();
+            }
+#else
+            Object *obj = _get_obj().obj;
+            if (unlikely(!obj)) {
+                return RID();
+            }
 #endif
-        Callable::CallError ce;
-        Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->get_rid, nullptr, 0, ce);
-        if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
-            return ret;
+            Callable::CallError ce;
+            Variant ret = obj->call(CoreStringNames::get_singleton()->get_rid, NULL, 0, ce);
+            if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
+                return ret;
+            } else {
+                return RID();
+            }
         }
+    } else {
         return RID();
     }
-    return RID();
 }
 
 Variant::operator Node *() const {
 
-    if (type == VariantType::OBJECT)
-        return object_cast<Node>(_get_obj().obj);
+    if (type == VariantType::OBJECT) {
+#ifdef DEBUG_ENABLED
+        Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : NULL;
+#else
+        Object *obj = _get_obj().obj;
+#endif
+        return object_cast<Node>(obj);
+    }
     return nullptr;
 }
 Variant::operator Control *() const {
-
-    if (type == VariantType::OBJECT)
-        return object_cast<Control>(_get_obj().obj);
+    if (type == VariantType::OBJECT) {
+#ifdef DEBUG_ENABLED
+        Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : NULL;
+#else
+        Object *obj = _get_obj().obj;
+#endif
+        return object_cast<Control>(obj);
+    }
     return nullptr;
 }
 
@@ -2085,8 +2128,12 @@ Variant::Variant(const RefPtr &p_resource) {
 
     type = VariantType::OBJECT;
     memnew_placement(_data._mem, ObjData);
-    REF *ref = reinterpret_cast<REF *>(p_resource.get());
-    _get_obj().obj = ref->get();
+#ifdef DEBUG_ENABLED
+    _get_obj().rc = NULL;
+#else
+    REF *ref = reinterpret_cast<REF *>(p_resource.get_data());
+    _get_obj().obj = ref->ptr();
+#endif
     _get_obj().ref = p_resource;
 }
 
@@ -2103,7 +2150,11 @@ Variant::Variant(const Object *p_object) {
     assert(!p_object || !ObjectNS::cast_to<RefCounted>(p_object));
 #endif
     memnew_placement(_data._mem, ObjData);
+#ifdef DEBUG_ENABLED
+    _get_obj().rc = p_object ? const_cast<Object *>(p_object)->_use_rc() : nullptr;
+#else
     _get_obj().obj = const_cast<Object *>(p_object);
+#endif
 }
 
 Variant::Variant(const Dictionary &p_dictionary) {
@@ -2507,6 +2558,11 @@ Variant &Variant::operator=(const Variant &p_variant) {
         case VariantType::OBJECT: {
 
             *reinterpret_cast<ObjData *>(_data._mem) = p_variant._get_obj();
+#ifdef DEBUG_ENABLED
+            if (_get_obj().rc) {
+                _get_obj().rc->increment();
+            }
+#endif
         } break;
         case VariantType::NODE_PATH: {
 
@@ -2705,7 +2761,7 @@ uint32_t Variant::hash() const {
         }
         case VariantType::OBJECT: {
 
-            return hash_djb2_one_64(make_uint64_t(_get_obj().obj));
+            return hash_djb2_one_64(make_uint64_t(_OBJ_PTR(*this)));
         }
         case VariantType::NODE_PATH: {
 

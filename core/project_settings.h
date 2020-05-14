@@ -103,7 +103,7 @@ public:
 
     void _convert_to_last_version(int p_from_version);
 
-    bool _load_resource_pack(StringView p_pack, bool p_replace_files = true, StringView p_destination = "");
+    bool _load_resource_pack(StringView p_pack, bool p_replace_files = true);
 
     void _add_property_info_bind(const Dictionary &p_info);
 

@@ -440,11 +440,11 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 r_gen_code.fragment_global += interp_mode + "in " + vcode;
             }
 
-            for (eastl::pair<const StringName, SL::ShaderNode::Constant> &E : pnode->constants) {
+            for (int i = 0; i < pnode->vconstants.size(); i++) {
                 String gcode;
-                gcode += "const " + String(_prestr(E.second.precision)) + _typestr(E.second.type) + " " +
-                         _mkid(E.first.asCString()) + "=";
-                gcode += _dump_node_code(E.second.initializer, p_level, r_gen_code, p_actions, p_default_actions, p_assigning);
+                gcode += "const " + String(_prestr(pnode->vconstants[i].precision)) + _typestr(pnode->vconstants[i].type) + " " +
+                         _mkid(pnode->vconstants[i].name.asCString()) + "=";
+                gcode += _dump_node_code(pnode->vconstants[i].initializer, p_level, r_gen_code, p_actions, p_default_actions, p_assigning);
                 gcode += ";\n";
                 r_gen_code.vertex_global += gcode;
                 r_gen_code.fragment_global += gcode;
@@ -881,6 +881,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     canvas_renames["INSTANCE_CUSTOM"] = "instance_custom";
 
     canvas_renames["COLOR"] = "color";
+    canvas_renames["MODULATE"] = "final_modulate";
     canvas_renames["NORMAL"] = "normal";
     canvas_renames["NORMALMAP"] = "normal_map";
     canvas_renames["NORMALMAP_DEPTH"] = "normal_depth";
@@ -903,6 +904,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
 
     auto &canvas_usages(actions[(int)RS::ShaderMode::CANVAS_ITEM].usage_defines);
     canvas_usages["COLOR"] = "#define COLOR_USED\n";
+    canvas_usages["MODULATE"] = "#define MODULATE_USED\n";
     canvas_usages["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
     canvas_usages["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
     canvas_usages["SCREEN_PIXEL_SIZE"] = "@SCREEN_UV";

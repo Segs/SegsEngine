@@ -2986,7 +2986,7 @@ void Control::_bind_methods() {
     ADD_GROUP("Size Flags", "size_flags_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,20,0.01,or_greater"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");

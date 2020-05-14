@@ -255,7 +255,7 @@ bool SoftBody3D::_get_property_pinned_points(int p_item, StringView p_what, Vari
 }
 
 void SoftBody3D::_changed_callback(Object *p_changed, StringName p_prop) {
-    update_physics_server();
+    prepare_physics_server();
     _reset_points_offsets();
 #ifdef TOOLS_ENABLED
     if (p_changed == this) {
@@ -275,7 +275,7 @@ void SoftBody3D::_notification(int p_what) {
 
             RID space = get_world()->get_space();
             PhysicsServer3D::get_singleton()->soft_body_set_space(physics_rid, space);
-            update_physics_server();
+            prepare_physics_server();
         } break;
         case NOTIFICATION_READY: {
             if (!parent_collision_ignore.is_empty())
@@ -297,21 +297,6 @@ void SoftBody3D::_notification(int p_what) {
             set_transform(Transform());
             set_notify_transform(true);
 
-        } break;
-        case NOTIFICATION_INTERNAL_PHYSICS_PROCESS: {
-
-            if (!simulation_started)
-                return;
-
-            _update_cache_pin_points_datas();
-            // Submit bone attachment
-            const int pinned_points_indices_size = pinned_points.size();
-            PoolVector<PinnedPoint>::Read r = pinned_points.read();
-            for (int i = 0; i < pinned_points_indices_size; ++i) {
-                if (r[i].spatial_attachment) {
-                    PhysicsServer3D::get_singleton()->soft_body_move_point(physics_rid, r[i].point_index, r[i].spatial_attachment->get_global_transform().xform(r[i].offset));
-                }
-            }
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -440,9 +425,13 @@ void SoftBody3D::_draw_soft_mesh() {
 
         /// Necessary in order to render the mesh correctly (Soft body nodes are in global space)
         simulation_started = true;
-        call_deferred("set_as_toplevel", true);
-        call_deferred("set_transform", Transform());
+        call_deferred([this]() {
+            set_as_toplevel(true);
+            set_transform(Transform());
+        });
     }
+
+    _update_physics_server();
 
     rendering_server_handler.open();
     PhysicsServer3D::get_singleton()->soft_body_update_rendering_server(physics_rid, &rendering_server_handler);
@@ -451,7 +440,22 @@ void SoftBody3D::_draw_soft_mesh() {
     rendering_server_handler.commit_changes();
 }
 
-void SoftBody3D::update_physics_server() {
+void SoftBody3D::_update_physics_server() {
+    if (!simulation_started)
+        return;
+
+    _update_cache_pin_points_datas();
+    // Submit bone attachment
+    const int pinned_points_indices_size = pinned_points.size();
+    PoolVector<PinnedPoint>::Read r = pinned_points.read();
+    for (int i = 0; i < pinned_points_indices_size; ++i) {
+        if (r[i].spatial_attachment) {
+            PhysicsServer3D::get_singleton()->soft_body_move_point(physics_rid, r[i].point_index, r[i].spatial_attachment->get_global_transform().xform(r[i].offset));
+        }
+    }
+}
+
+void SoftBody3D::prepare_physics_server() {
 
     if (Engine::get_singleton()->is_editor_hint()) {
 
@@ -714,8 +718,6 @@ SoftBody3D::SoftBody3D() :
         ray_pickable(true) {
 
     PhysicsServer3D::get_singleton()->body_attach_object_instance_id(physics_rid, get_instance_id());
-    //set_notify_transform(true);
-    set_physics_process_internal(true);
 }
 
 SoftBody3D::~SoftBody3D() {

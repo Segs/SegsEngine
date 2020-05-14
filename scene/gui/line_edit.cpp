@@ -386,8 +386,6 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                     emit_signal("text_entered", StringUtils::to_utf8(m_priv->text));
                     if (OS::get_singleton()->has_virtual_keyboard())
                         OS::get_singleton()->hide_virtual_keyboard();
-
-                    return;
                 } break;
 
                 case KEY_BACKSPACE: {
@@ -691,7 +689,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = selection.begin; i < selection.end; i++)
-                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
         }
 
         StringUtils::erase(m_priv->text,selection.begin, selected);
@@ -1134,7 +1132,7 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
         int char_w = 0;
         if (font != nullptr) {
-            char_w = font->get_char_size(m_priv->text[ofs]).width;
+            char_w = font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[ofs]).width;
         }
         pixel_ofs += char_w;
 
@@ -1186,7 +1184,7 @@ int LineEdit::get_cursor_pixel_pos() {
 
     while (ofs < cursor_pos) {
         if (font != nullptr) {
-            pixel_ofs += font->get_char_size(m_priv->text[ofs]).width;
+            pixel_ofs += font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[ofs]).width;
         }
         ofs++;
     }
@@ -1243,7 +1241,7 @@ void LineEdit::delete_char() {
 
     Ref<Font> font = get_font("font");
     if (font != nullptr) {
-        m_priv->cached_width -= font->get_char_size(m_priv->text[cursor_pos - 1]).width;
+        m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[cursor_pos - 1]).width;
     }
 
     StringUtils::erase(m_priv->text,cursor_pos - 1, 1);
@@ -1261,7 +1259,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = p_from_column; i < p_to_column; i++)
-                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
         }
     } else {
         m_priv->cached_width = 0;
@@ -1399,7 +1397,11 @@ void LineEdit::set_cursor_position(int p_pos) {
                     // Do not do this, because if the cursor is at the end, its just fine that it takes no space.
                     // accum_width = font->get_char_size(' ').width;
                 } else {
-                    accum_width += font->get_char_size(m_priv->text[i], i + 1 < m_priv->text.length() ? m_priv->text[i + 1] : QChar(0)).width; // Anything should do.
+                    if (pass) {
+                        accum_width += font->get_char_size(UIString(secret_character.c_str())[0], i + 1 < m_priv->text.length() ? secret_character[0] : 0).width;
+                    } else {
+                        accum_width += font->get_char_size(m_priv->text[i], i + 1 < m_priv->text.length() ? m_priv->text[i + 1] : QChar(0)).width; // Anything should do.
+                    }
                 }
                 if (accum_width > window_width)
                     break;
@@ -1763,14 +1765,12 @@ void LineEdit::update_cached_width() {
     }
 }
 void LineEdit::update_placeholder_width() {
-    if ((max_length <= 0) || (StringView(placeholder_translated).length() <= max_length)) {
-        Ref<Font> font = get_font("font");
-        cached_placeholder_width = 0;
-        if (font != nullptr) {
-            UIString ph_ui_string(placeholder_translated.asString());
-            for (int i = 0; i < ph_ui_string.length(); i++) {
-                cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
-            }
+    Ref<Font> font = get_font("font");
+    cached_placeholder_width = 0;
+    if (font != nullptr) {
+        UIString ph_ui_string(placeholder_translated.asString());
+        for (int i = 0; i < ph_ui_string.length(); i++) {
+            cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
         }
     }
 }

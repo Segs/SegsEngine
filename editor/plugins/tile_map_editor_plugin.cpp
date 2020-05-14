@@ -41,12 +41,21 @@
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/item_list.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)
+
+
+void TileMapEditor::_node_removed(Node *p_node) {
+
+    if (p_node == node) {
+        node = nullptr;
+    }
+}
 
 void TileMapEditor::_notification(int p_what) {
 
@@ -59,17 +68,18 @@ void TileMapEditor::_notification(int p_what) {
             }
 
         } break;
+        case NOTIFICATION_ENTER_TREE: {
+
+            get_tree()->connect("node_removed", this, "_node_removed");
+             [[fallthrough]];
+        }
 
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
             if (is_visible_in_tree()) {
                 _update_palette();
             }
-            [[fallthrough]];
-        }
-
-        case NOTIFICATION_ENTER_TREE: {
-
+            get_tree()->connect("node_removed", this, "_node_removed");
             paint_button->set_button_icon(get_icon("Edit", "EditorIcons"));
             bucket_fill_button->set_button_icon(get_icon("Bucket", "EditorIcons"));
             picker_button->set_button_icon(get_icon("ColorPick", "EditorIcons"));
@@ -89,6 +99,9 @@ void TileMapEditor::_notification(int p_what) {
             p->set_item_icon(p->get_item_index(OPTION_COPY), get_icon("Duplicate", "EditorIcons"));
             p->set_item_icon(p->get_item_index(OPTION_ERASE_SELECTION), get_icon("Remove", "EditorIcons"));
 
+        } break;
+        case NOTIFICATION_EXIT_TREE: {
+            get_tree()->disconnect("node_removed", this, "_node_removed");
         } break;
     }
 }
@@ -1837,6 +1850,7 @@ void TileMapEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_erase_points"), &TileMapEditor::_erase_points);
 
     MethodBinder::bind_method(D_METHOD("_icon_size_changed"), &TileMapEditor::_icon_size_changed);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &TileMapEditor::_node_removed);
 }
 
 TileMapEditor::CellOp TileMapEditor::_get_op_from_cell(const Point2i &p_pos) {

@@ -57,7 +57,7 @@
 #include "scene/2d/parallax_layer.h"
 #include "scene/2d/gpu_particles_2d.h"
 #include "scene/2d/path_2d.h"
-#include "scene/2d/path_texture.h"
+
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/2d/position_2d.h"
@@ -135,7 +135,6 @@
 #include "scene/resources/audio_stream_sample.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/box_shape_3d.h"
-#include "scene/resources/canvas.h"
 #include "scene/resources/camera_texture.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/capsule_shape_2d.h"
@@ -163,7 +162,6 @@
 #include "scene/resources/ray_shape_3d.h"
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/resource_format_text.h"
-#include "scene/resources/space_2d.h"
 #include "scene/resources/segment_shape_2d.h"
 #include "scene/resources/sky.h"
 #include "scene/resources/sphere_shape_3d.h"
@@ -269,7 +267,6 @@ void register_scene_types() {
     DynamicFontAtSize::initialize_class();
     DynamicFont::initialize_class();
     ResourceFormatLoaderDynamicFont::initialize_class();
-    Canvas::initialize_class();
     ConvexPolygonShape2D::initialize_class();
     World2D::initialize_class();
     VisualShader::initialize_class();
@@ -367,7 +364,6 @@ void register_scene_types() {
     World3D::initialize_class();
     MeshLibrary::initialize_class();
     SceneLibrary::initialize_class();
-    Space2D::initialize_class();
     CapsuleMesh::initialize_class();
     CubeMesh::initialize_class();
     CylinderMesh::initialize_class();
@@ -414,7 +410,6 @@ void register_scene_types() {
     NavigationPolygonInstance::initialize_class();
     VisibilityNotifier2D::initialize_class();
     VisibilityEnabler2D::initialize_class();
-    PathTexture::initialize_class();
     CollisionPolygon2D::initialize_class();
     Node2D::initialize_class();
     YSort::initialize_class();

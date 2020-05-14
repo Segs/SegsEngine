@@ -53,6 +53,8 @@ using Vector = eastl::vector<T,wrap_allocator>;
 template<class T>
 using Dequeue = eastl::deque<T,wrap_allocator,((sizeof(T) <= 4) ? 64 : ((sizeof(T) <= 8) ? 32 : ((sizeof(T) <= 16) ? 16 : ((sizeof(T) <= 32) ? 8 : 4))))>;
 
+template <typename T>
+using Span = eastl::span<T,size_t(-1)>;
 
 using BitVector = eastl::bitvector<wrap_allocator,size_t,Vector<size_t>>;
 

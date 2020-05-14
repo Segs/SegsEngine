@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "texture_rect.h"
+
 #include "core/core_string_names.h"
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
@@ -99,7 +100,7 @@ void TextureRect::_notification(int p_what) {
                 region.size = size / scale;
             } break;
         }
-        Ref<AtlasTexture> p_atlas = texture;
+        Ref<AtlasTexture> p_atlas = dynamic_ref_cast<AtlasTexture>(texture);
 
         if (p_atlas && region.has_no_area()) {
             Size2 scale_size(size.width / texture->get_width(), size.height / texture->get_height());

@@ -1724,12 +1724,13 @@ bool VisualServerScene::_light_instance_update_shadow(Instance *p_instance, cons
                     float radius = VSG::storage->light_get_param(p_instance->base, RS::LIGHT_PARAM_RANGE);
 
                     float z = i == 0 ? -1 : 1;
-                    Plane planes[5] = {
+                    Plane planes[6] = {
                         light_transform.xform(Plane(Vector3(0, 0, z), radius)),
                         light_transform.xform(Plane(Vector3(1, 0, z).normalized(), radius)),
                         light_transform.xform(Plane(Vector3(-1, 0, z).normalized(), radius)),
                         light_transform.xform(Plane(Vector3(0, 1, z).normalized(), radius)),
-                        light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius))
+                        light_transform.xform(Plane(Vector3(0, -1, z).normalized(), radius)),
+                        light_transform.xform(Plane(Vector3(0, 0, -z).normalized(), radius)),
                     };
 
                     int cull_count = p_scenario->octree.cull_convex(planes, instance_shadow_cull_result, MAX_INSTANCE_CULL, RS::INSTANCE_GEOMETRY_MASK);

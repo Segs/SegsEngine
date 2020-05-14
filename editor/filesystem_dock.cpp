@@ -1333,12 +1333,12 @@ void FileSystemDock::_make_scene_confirm() {
     editor->get_editor_data().set_scene_path(idx, scene_name);
 }
 
-void FileSystemDock::_file_deleted(const String& p_file) {
-    emit_signal("file_deleted", p_file);
+void FileSystemDock::_file_removed(const String& p_file) {
+    emit_signal("file_removed", p_file);
 }
 
-void FileSystemDock::_folder_deleted(const String& p_folder) {
-    emit_signal("folder_deleted", p_folder);
+void FileSystemDock::_folder_removed(const String& p_folder) {
+    emit_signal("folder_removed", p_folder);
 }
 
 void FileSystemDock::_rename_operation_confirm() {
@@ -2531,8 +2531,8 @@ void FileSystemDock::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_file_list_rmb_pressed"), &FileSystemDock::_file_list_rmb_pressed);
     MethodBinder::bind_method(D_METHOD("_tree_rmb_empty"), &FileSystemDock::_tree_rmb_empty);
 
-    MethodBinder::bind_method(D_METHOD("_file_deleted"), &FileSystemDock::_file_deleted);
-    MethodBinder::bind_method(D_METHOD("_folder_deleted"), &FileSystemDock::_folder_deleted);
+    MethodBinder::bind_method(D_METHOD("_file_removed"), &FileSystemDock::_file_removed);
+    MethodBinder::bind_method(D_METHOD("_folder_removed"), &FileSystemDock::_folder_removed);
 
     MethodBinder::bind_method(D_METHOD("_file_list_thumbnail_done"), &FileSystemDock::_file_list_thumbnail_done);
     MethodBinder::bind_method(D_METHOD("_tree_thumbnail_done"), &FileSystemDock::_tree_thumbnail_done);
@@ -2713,8 +2713,8 @@ FileSystemDock::FileSystemDock(EditorNode *p_editor) {
     add_child(owners_editor);
 
     remove_dialog = memnew(DependencyRemoveDialog);
-    remove_dialog->connect("file_removed", this, "_file_deleted");
-    remove_dialog->connect("folder_removed", this, "_folder_deleted");
+    remove_dialog->connect("file_removed", this, "_file_removed");
+    remove_dialog->connect("folder_removed", this, "_folder_removed");
     add_child(remove_dialog);
 
     move_dialog = memnew(EditorDirDialog);

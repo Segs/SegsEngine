@@ -45,8 +45,15 @@ class GODOT_EXPORT Array {
     void _ref(const Array &p_from) const;
     void _unref() const;
 
-    int _clamp_index(int p_index) const;
-    static int _fix_slice_index(int p_index, int p_arr_len, int p_top_mod);
+    inline int _clamp_slice_index(int p_index) const {
+
+        int arr_size = size();
+        int fixed_index = CLAMP(p_index, -arr_size, arr_size - 1);
+        if (fixed_index < 0) {
+            fixed_index = arr_size + fixed_index;
+        }
+        return fixed_index;
+    }
 
 public:
     using ValueType = Variant;

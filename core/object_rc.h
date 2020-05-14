@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  doc_dump.h                                                           */
+/*  object_rc.h                                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -30,9 +30,51 @@
 
 #pragma once
 
-#include "core/class_db.h"
+#ifdef DEBUG_ENABLED
 
-class DocDump {
+#include "core/os/memory.h"
+#include "core/typedefs.h"
+#include "core/object_id.h"
+
+#include <atomic>
+
+class Object;
+
+
+// Used to track Variants pointing to a non-Reference Object
+class ObjectRC {
+    std::atomic<Object *> _ptr;
+    std::atomic<uint32_t> _users;
+
 public:
-    static void dump(StringView p_file);
+    // This is for allowing debug builds to check for instance ID validity,
+    // so warnings are shown in debug builds when a stray Variant (one pointing
+    // to a released Object) would have happened.
+    const ObjectID instance_id;
+
+    _FORCE_INLINE_ void increment() {
+        _users.fetch_add(1, std::memory_order_relaxed);
+    }
+
+    _FORCE_INLINE_ bool decrement() {
+        return _users.fetch_sub(1, std::memory_order_relaxed) == 1;
+    }
+
+    _FORCE_INLINE_ bool invalidate() {
+        _ptr.store(nullptr, std::memory_order_release);
+        return decrement();
+    }
+
+    _FORCE_INLINE_ Object *get_ptr() {
+        return _ptr.load(std::memory_order_acquire);
+    }
+
+    _FORCE_INLINE_ ObjectRC(Object *p_object,ObjectID self_id) :
+            instance_id(self_id) {
+        // 1 (the Object) + 1 (the first user)
+        _users.store(2, std::memory_order_relaxed);
+        _ptr.store(p_object, std::memory_order_release);
+    }
 };
+
+#endif

@@ -209,8 +209,8 @@ private:
     void _update_favorites_list_after_move(const HashMap<String, String> &p_files_renames, const HashMap<String, String> &p_folders_renames) const;
     void _update_project_settings_after_move(const HashMap<String, String> &p_renames) const;
 
-    void _file_deleted(const String& p_file);
-    void _folder_deleted(const String& p_folder);
+    void _file_removed(const String& p_file);
+    void _folder_removed(const String& p_folder);
     void _files_moved(UIString p_old_file, UIString p_new_file);
     void _folder_moved(UIString p_old_folder, UIString p_new_folder);
 

@@ -271,12 +271,24 @@ MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p
 no_pdb:
 
 #endif
+    bool need_manual_load_hook = mono_image_get_assembly(image) != nullptr; // Re-using an existing image with an assembly loaded
 
     status = MONO_IMAGE_OK;
 
     MonoAssembly *assembly = mono_assembly_load_from_full(image, image_filename.c_str(), &status, p_refonly);
 
     ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !assembly, NULL, "Failed to load assembly for image");
+
+    if (need_manual_load_hook) {
+        // For some reason if an assembly survived domain reloading (maybe because it's referenced somewhere else),
+        // the mono internal search hook don't detect it, yet mono_image_open_from_data_with_name re-uses the image
+        // and assembly, and mono_assembly_load_from_full doesn't call the load hook. We need to call it manually.
+        String name(mono_assembly_name_get_name(mono_assembly_get_name(assembly)));
+        bool has_extension = name.ends_with(".dll") || name.ends_with(".exe");
+        GDMonoAssembly *loaded_asm = GDMono::get_singleton()->get_loaded_assembly(has_extension ? PathUtils::get_basename(name) : name);
+        if (!loaded_asm)
+            assembly_load_hook(assembly, nullptr);
+    }
 
     // Decrement refcount which was previously incremented by mono_image_open_from_data_with_name
     mono_image_close(image);

@@ -204,7 +204,7 @@ void RasterizerGLES3::begin_frame(double frame_step) {
 
     double time_roll_over = GLOBAL_GET("rendering/limits/time/time_rollover_secs");
     if (time_total > time_roll_over)
-        time_total = 0; //roll over every day (should be customz
+        time_total = Math::fmod(time_total, time_roll_over); //roll over every day (should be customz
 
     storage->frame.time[0] = time_total;
     storage->frame.time[1] = Math::fmod(time_total, 3600);
@@ -427,8 +427,6 @@ void RasterizerGLES3::register_config() {
 
     GLOBAL_DEF("rendering/quality/filters/anisotropic_filter_level", 4);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PropertyHint::Range, "1,16,1"));
-    GLOBAL_DEF("rendering/limits/time/time_rollover_secs", 3600);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::FLOAT, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
 }
 
 RasterizerGLES3::RasterizerGLES3() {

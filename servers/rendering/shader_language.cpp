@@ -5075,6 +5075,7 @@ Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_f
 
                     while (true) {
                         ShaderNode::Constant constant;
+                        constant.name = name;
                         constant.type = type;
                         constant.precision = precision;
                         constant.initializer = nullptr;
@@ -5109,6 +5110,8 @@ Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_f
                         }
 
                         shader->constants[name] = constant;
+                        shader->vconstants.emplace_back(constant);
+
                         if (tk.type == TK_COMMA) {
                             tk = _get_token();
                             if (tk.type != TK_IDENTIFIER) {

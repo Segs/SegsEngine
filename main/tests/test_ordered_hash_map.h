@@ -31,6 +31,8 @@
 #ifndef TEST_ORDERED_HASH_MAP_H
 #define TEST_ORDERED_HASH_MAP_H
 
+class MainLoop;
+
 namespace TestOrderedHashMap {
 
 MainLoop *test();

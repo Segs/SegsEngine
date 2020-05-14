@@ -631,12 +631,12 @@ private:
     Frame frames[MAX_FRAMES];
     int frame_count;
     int current_frame;
-
     float fps;
-
     float time;
-
     uint64_t prev_ticks;
+    bool pause;
+    bool oneshot;
+
 
     void _update_proxy();
 
@@ -647,6 +647,15 @@ protected:
 public:
     void set_frames(int p_frames);
     int get_frames() const;
+
+    void set_current_frame(int p_frame);
+    int get_current_frame() const;
+
+    void set_pause(bool p_pause);
+    bool get_pause() const;
+
+    void set_oneshot(bool p_oneshot);
+    bool get_oneshot() const;
 
     void set_frame_texture(int p_frame, const Ref<Texture> &p_texture);
     Ref<Texture> get_frame_texture(int p_frame) const;
