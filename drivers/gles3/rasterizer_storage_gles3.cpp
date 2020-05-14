@@ -105,6 +105,8 @@
 #define _EXT_COMPRESSED_RGB_BPTC_SIGNED_FLOAT 0x8E8E
 #define _EXT_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT 0x8E8F
 
+#define _GL_TEXTURE_EXTERNAL_OES 0x8D65
+
 void glTexStorage2DCustom(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type) {
     for (int i = 0; i < levels; i++) {
         glTexImage2D(target, i, internalformat, width, height, 0, format, type, nullptr);
@@ -600,6 +602,10 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
             texture->target = GL_TEXTURE_2D;
             texture->images.resize(1);
         } break;
+        case RS::TEXTURE_TYPE_EXTERNAL: {
+            texture->target = _GL_TEXTURE_EXTERNAL_OES;
+            texture->images.resize(0);
+        } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
             texture->target = GL_TEXTURE_CUBE_MAP;
             texture->images.resize(6);
@@ -613,26 +619,33 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
             texture->images.resize(p_depth_3d);
         } break;
     }
+    if (p_type != RS::TEXTURE_TYPE_EXTERNAL) {
+        Image::Format real_format;
+        _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type,
+                compressed, srgb, false);
 
-    Image::Format real_format;
-    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type, compressed, srgb, false);
+        texture->alloc_width = texture->width;
+        texture->alloc_height = texture->height;
+        texture->alloc_depth = texture->depth;
 
-    texture->alloc_width = texture->width;
-    texture->alloc_height = texture->height;
-    texture->alloc_depth = texture->depth;
-
-    texture->gl_format_cache = format;
-    texture->gl_type_cache = type;
-    texture->gl_internal_format_cache = internal_format;
-    texture->compressed = compressed;
-    texture->srgb = srgb;
-    texture->data_size = 0;
-    texture->mipmaps = 1;
+        texture->gl_format_cache = format;
+        texture->gl_type_cache = type;
+        texture->gl_internal_format_cache = internal_format;
+        texture->compressed = compressed;
+        texture->srgb = srgb;
+        texture->data_size = 0;
+        texture->mipmaps = 1;
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture->target, texture->tex_id);
 
-    if (p_type == RS::TEXTURE_TYPE_3D || p_type == RS::TEXTURE_TYPE_2D_ARRAY) {
+    if (p_type == RS::TEXTURE_TYPE_EXTERNAL) {
+        glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    } else if (p_type == RS::TEXTURE_TYPE_3D || p_type == RS::TEXTURE_TYPE_2D_ARRAY) {
 
         int width = p_width;
         int height = p_height;
@@ -680,6 +693,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     ERR_FAIL_COND(texture->render_target);
     ERR_FAIL_COND(texture->format != p_image->get_format());
     ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND(texture->type == RS::TEXTURE_TYPE_EXTERNAL);
 
     GLenum type;
     GLenum format;
@@ -711,7 +725,8 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     GLenum blit_target = GL_TEXTURE_2D;
 
     switch (texture->type) {
-        case RS::TEXTURE_TYPE_2D: {
+        case RS::TEXTURE_TYPE_2D:
+        case RS::TEXTURE_TYPE_EXTERNAL: {
             blit_target = GL_TEXTURE_2D;
         } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
@@ -911,6 +926,7 @@ void RasterizerStorageGLES3::texture_set_data_partial(RID p_texture, const Ref<I
     ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height());
     ERR_FAIL_COND(dst_x < 0 || dst_y < 0 || dst_x + src_w > texture->alloc_width || dst_y + src_h > texture->alloc_height);
     ERR_FAIL_COND(p_dst_mip < 0 || p_dst_mip >= texture->mipmaps);
+    ERR_FAIL_COND(texture->type == RS::TEXTURE_TYPE_EXTERNAL);
 
     GLenum type;
     GLenum format;
@@ -930,7 +946,8 @@ void RasterizerStorageGLES3::texture_set_data_partial(RID p_texture, const Ref<I
     GLenum blit_target = GL_TEXTURE_2D;
 
     switch (texture->type) {
-        case RS::TEXTURE_TYPE_2D: {
+        case RS::TEXTURE_TYPE_2D:
+        case RS::TEXTURE_TYPE_EXTERNAL: {
             blit_target = GL_TEXTURE_2D;
         } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
@@ -2010,6 +2027,9 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        //reset flags on Sky Texture that may have changed
+        texture_set_flags(sky->panorama, texture->flags);
+
         glBindFramebuffer(GL_FRAMEBUFFER, RasterizerStorageGLES3::system_fbo);
         glDeleteFramebuffers(1, &tmp_fb);
         glDeleteFramebuffers(1, &tmp_fb2);
@@ -2319,6 +2339,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, Vector<Property
             case ShaderLanguage::TYPE_MAT3: pi.type = VariantType::BASIS; break;
             case ShaderLanguage::TYPE_MAT4: pi.type = VariantType::TRANSFORM; break;
             case ShaderLanguage::TYPE_SAMPLER2D:
+            case ShaderLanguage::TYPE_SAMPLEREXT:
             case ShaderLanguage::TYPE_ISAMPLER2D:
             case ShaderLanguage::TYPE_USAMPLER2D: {
 
@@ -2377,6 +2398,33 @@ RID RasterizerStorageGLES3::shader_get_default_texture_param(RID p_shader, const
     return E->second;
 }
 
+void RasterizerStorageGLES3::shader_add_custom_define(RID p_shader, StringView p_define) {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->add_custom_define(p_define);
+
+    _shader_make_dirty(shader);
+}
+
+void RasterizerStorageGLES3::shader_get_custom_defines(RID p_shader, Vector<StringView> *p_defines) const {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->get_custom_defines(p_defines);
+}
+
+void RasterizerStorageGLES3::shader_clear_custom_defines(RID p_shader) {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->clear_custom_defines();
+
+    _shader_make_dirty(shader);
+}
 /* COMMON MATERIAL API */
 
 void RasterizerStorageGLES3::_material_make_dirty(Material *p_material) const {

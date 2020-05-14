@@ -196,7 +196,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
     bool add = false;
     Variant meta;
 
-    if (enabler[ENABLER_FREEZE_BODIES]) {
+    {
 
         RigidBody2D *rb2d = object_cast<RigidBody2D>(p_node);
         if (rb2d && ((rb2d->get_mode() == RigidBody2D::MODE_CHARACTER || rb2d->get_mode() == RigidBody2D::MODE_RIGID))) {
@@ -206,7 +206,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
         }
     }
 
-    if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
+    {
 
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
         if (ap) {
@@ -214,7 +214,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
         }
     }
 
-    if (enabler[ENABLER_PAUSE_ANIMATED_SPRITES]) {
+    {
 
         AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
         if (as) {
@@ -222,7 +222,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
         }
     }
 
-    if (enabler[ENABLER_PAUSE_PARTICLES]) {
+    {
 
         GPUParticles2D *ps = object_cast<GPUParticles2D>(p_node);
         if (ps) {
@@ -286,7 +286,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
 
     ERR_FAIL_COND(!nodes.contains(p_node));
 
-    {
+    if (enabler[ENABLER_FREEZE_BODIES]) {
         RigidBody2D *rb = object_cast<RigidBody2D>(p_node);
         if (rb) {
 
@@ -294,7 +294,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
         }
     }
 
-    {
+    if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
         if (ap) {
@@ -302,7 +302,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
             ap->set_active(p_enabled);
         }
     }
-    {
+    if (enabler[ENABLER_PAUSE_ANIMATED_SPRITES]) {
         AnimatedSprite2D *as = object_cast<AnimatedSprite2D>(p_node);
 
         if (as) {
@@ -314,7 +314,7 @@ void VisibilityEnabler2D::_change_node_state(Node *p_node, bool p_enabled) {
         }
     }
 
-    {
+    if (enabler[ENABLER_PAUSE_PARTICLES]) {
         GPUParticles2D *ps = object_cast<GPUParticles2D>(p_node);
 
         if (ps) {

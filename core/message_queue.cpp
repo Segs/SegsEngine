@@ -381,7 +381,7 @@ bool MessageQueue::is_flushing() const {
 
 MessageQueue::MessageQueue() {
     __thread__safe__.reset(new Mutex);
-    ERR_FAIL_COND_MSG(singleton != nullptr, "MessageQueue singleton already exist.");
+    ERR_FAIL_COND_MSG(singleton != nullptr, "A MessageQueue singleton already exists.");
     singleton = this;
     flushing = false;
     StringName prop_name("memory/limits/message_queue/max_size_kb");
@@ -390,7 +390,7 @@ MessageQueue::MessageQueue() {
     buffer_size = GLOBAL_DEF_RST(prop_name, DEFAULT_QUEUE_SIZE_KB);
     ProjectSettings::get_singleton()->set_custom_property_info(
             prop_name, PropertyInfo(VariantType::INT, "memory/limits/message_queue/max_size_kb", PropertyHint::Range,
-                               "0,2048,1,or_greater"));
+                               "1024,4096,1,or_greater"));
     buffer_size *= 1024;
     buffer = memnew_arr(uint8_t, buffer_size);
 }

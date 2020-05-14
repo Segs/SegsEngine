@@ -150,7 +150,7 @@ static void godot_free(voidpf opaque, voidpf address) {
 
 void ZipArchive::close_handle(unzFile p_file) const {
 
-    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open."); 
+    ERR_FAIL_COND_MSG(!p_file, "Cannot close a file if none is open.");
     FileAccess *f = (FileAccess *)unzGetOpaque(p_file);
     unzCloseCurrentFile(p_file);
     unzClose(p_file);
@@ -194,7 +194,7 @@ unzFile ZipArchive::get_file_handle(StringView p_file) const {
     return pkg;
 }
 
-bool ZipArchive::try_open_pack(StringView p_path, bool p_replace_files) {
+bool ZipArchive::try_open_pack(StringView p_path, bool p_replace_files,StringView p_destination) {
 
     String ext = StringUtils::to_lower(PathUtils::get_extension(p_path)); // for case insensitive compare
     //printf("opening zip pack %ls, %i, %i\n", p_name.c_str(), StringUtils::compare(p_name.extension(),"zip",false), p_name.extension().nocasecmp_to("pcz"));
@@ -240,8 +240,26 @@ bool ZipArchive::try_open_pack(StringView p_path, bool p_replace_files) {
         File f;
         f.package = pkg_num;
         unzGetFilePos(zfile, &f.file_pos);
+        String fname;
+        if ( !p_destination.empty() ) {
+            String destination = String("res://") + p_destination;
+            if (!destination.ends_with("/")) {
+                destination += "/";
+            }
 
-        String fname = String("res://") + filename_inzip;
+            DirAccess *dir = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+            if (!dir->dir_exists(destination)) {
+                memdelete(dir);
+
+                return false;
+            }
+            memdelete(dir);
+
+            fname = destination + filename_inzip;
+        } else {
+            fname = String("res://") + filename_inzip;
+        }
+
         files[fname] = f;
 
         uint8_t md5[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };

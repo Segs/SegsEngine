@@ -3180,11 +3180,13 @@ void CanvasItemEditor::_draw_selection() {
 
     RID ci = viewport->get_canvas_item();
 
-    Vector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
+    Vector<CanvasItem *> selection = _get_edited_canvas_items(true, false);
 
     bool single = selection.size() == 1;
     for (CanvasItem *canvas_item : selection) {
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
+
+        bool item_locked = canvas_item->has_meta("_edit_lock_");
 
         // Draw the previous position if we are dragging the node
         if (show_helpers &&
@@ -3224,6 +3226,9 @@ void CanvasItemEditor::_draw_selection() {
             };
 
             Color c = Color(1, 0.6f, 0.4f, 0.7f);
+            if (item_locked) {
+                c = Color(0.7, 0.7, 0.7, 0.7);
+            }
 
             for (int i = 0; i < 4; i++) {
                 viewport->draw_line(endpoints[i], endpoints[(i + 1) % 4], c, Math::round(2 * EDSCALE), true);
@@ -3237,7 +3242,7 @@ void CanvasItemEditor::_draw_selection() {
             viewport->draw_set_transform_matrix(viewport->get_transform());
         }
 
-        if (single && (tool == TOOL_SELECT || tool == TOOL_MOVE || tool == TOOL_SCALE || tool == TOOL_ROTATE || tool == TOOL_EDIT_PIVOT)) { //kind of sucks
+        if (single && !item_locked && (tool == TOOL_SELECT || tool == TOOL_MOVE || tool == TOOL_SCALE || tool == TOOL_ROTATE || tool == TOOL_EDIT_PIVOT)) { //kind of sucks
             // Draw the pivot
             if (canvas_item->_edit_use_pivot()) {
 
@@ -4269,10 +4274,19 @@ void CanvasItemEditor::_zoom_on_position(float p_zoom, Point2 p_position) {
 
     float prev_zoom = zoom;
     zoom = p_zoom;
-    Point2 ofs = p_position;
-    ofs = ofs / prev_zoom - ofs / zoom;
-    view_offset.x = Math::round(view_offset.x + ofs.x);
-    view_offset.y = Math::round(view_offset.y + ofs.y);
+    view_offset += p_position / prev_zoom - p_position / zoom;
+
+    // We want to align in-scene pixels to screen pixels, this prevents blurry rendering
+    // in small details (texts, lines).
+    // This correction adds a jitter movement when zooming, so we correct only when the
+    // zoom factor is an integer. (in the other cases, all pixels won't be aligned anyway)
+    float closest_zoom_factor = Math::round(zoom);
+    if (Math::is_zero_approx(zoom - closest_zoom_factor)) {
+        // make sure scene pixel at view_offset is aligned on a screen pixel
+        Vector2 view_offset_int = view_offset.floor();
+        Vector2 view_offset_frac = view_offset - view_offset_int;
+        view_offset = view_offset_int + (view_offset_frac * closest_zoom_factor).round() / closest_zoom_factor;
+    }
 
     _update_zoom_label();
     update_viewport();
@@ -5376,8 +5390,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
 
     editor->call_deferred([this]()
     {
-        connect("play_pressed",this, "_update_override_camera_button",{Variant(true)});
-        connect("stop_pressed", this, "_update_override_camera_button", { Variant(false) });
+        editor->connect("play_pressed", this, "_update_override_camera_button",{Variant(true)});
+        editor->connect("stop_pressed", this, "_update_override_camera_button", { Variant(false) });
     });
 
     hb = memnew(HBoxContainer);

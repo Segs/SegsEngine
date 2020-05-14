@@ -502,7 +502,9 @@ void EditorNode::_notification(int p_what) {
             p->set_item_icon(p->get_item_index(HELP_SEARCH), gui_base->get_icon("HelpSearch", "EditorIcons"));
             p->set_item_icon(p->get_item_index(HELP_DOCS), gui_base->get_icon("Instance", "EditorIcons"));
             p->set_item_icon(p->get_item_index(HELP_QA), gui_base->get_icon("Instance", "EditorIcons"));
-            p->set_item_icon(p->get_item_index(HELP_ISSUES), gui_base->get_icon("Instance", "EditorIcons"));
+            p->set_item_icon(p->get_item_index(HELP_ABOUT), gui_base->get_icon("Godot", "EditorIcons"));
+            p->set_item_icon(p->get_item_index(HELP_REPORT_A_BUG), gui_base->get_icon("Instance", "EditorIcons"));
+            p->set_item_icon(p->get_item_index(HELP_SEND_DOCS_FEEDBACK), gui_base->get_icon("Instance", "EditorIcons"));
             p->set_item_icon(p->get_item_index(HELP_COMMUNITY), gui_base->get_icon("Instance", "EditorIcons"));
             p->set_item_icon(p->get_item_index(HELP_ABOUT), gui_base->get_icon("Godot", "EditorIcons"));
 
@@ -1409,7 +1411,6 @@ void EditorNode::_mark_unsaved_scenes() {
         StringView path = node->get_filename();
         if (!(path.empty() || FileAccess::exists(path))) {
 
-            node->set_filename({});
             if (i == editor_data.get_edited_scene())
                 set_current_version(-1);
             else
@@ -2705,8 +2706,11 @@ void EditorNode::_menu_option_confirm(int p_option, bool p_confirmed) {
         case HELP_QA: {
             OS::get_singleton()->shell_open("https://godotengine.org/qa/");
         } break;
-        case HELP_ISSUES: {
-            OS::get_singleton()->shell_open("https://github.com/godotengine/godot/issues");
+        case HELP_REPORT_A_BUG: {
+            OS::get_singleton()->shell_open("https://github.com/Segs/SegsEngine/issues");
+        } break;
+        case HELP_SEND_DOCS_FEEDBACK: {
+            OS::get_singleton()->shell_open("https://github.com/Segs/SegsEngine/issues");
         } break;
         case HELP_COMMUNITY: {
             OS::get_singleton()->shell_open("https://godotengine.org/community");
@@ -3960,6 +3964,7 @@ void EditorNode::register_editor_types() {
     ClassDB::register_class<ScriptCreateDialog>();
     ClassDB::register_class<EditorFeatureProfile>();
     ClassDB::register_class<EditorSpinSlider>();
+    ClassDB::register_virtual_class<FileSystemDock>();
 
     // FIXME: Is this stuff obsolete, or should it be ported to new APIs?
     ClassDB::register_class<EditorScenePostImport>();
@@ -6667,8 +6672,8 @@ EditorNode::EditorNode() {
     p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"),
             ED_SHORTCUT("editor/online_docs", TTR("Online Docs")), HELP_DOCS);
     p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"), ED_SHORTCUT("editor/q&a", TTR("Q&A")), HELP_QA);
-    p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"),
-            ED_SHORTCUT("editor/issue_tracker", TTR("Issue Tracker")), HELP_ISSUES);
+    p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"), ED_SHORTCUT("editor/report_a_bug", TTR("Report a Bug")), HELP_REPORT_A_BUG);
+    p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"), ED_SHORTCUT("editor/send_docs_feedback", TTR("Send Docs Feedback")), HELP_SEND_DOCS_FEEDBACK);
     p->add_icon_shortcut(gui_base->get_icon("Instance", "EditorIcons"),
             ED_SHORTCUT("editor/community", TTR("Community")), HELP_COMMUNITY);
     p->add_separator();
@@ -7226,6 +7231,11 @@ EditorNode::EditorNode() {
     screenshot_timer->connect("timeout", this, "_request_screenshot");
     add_child(screenshot_timer);
     screenshot_timer->set_owner(get_owner());
+
+    // Save editor executable path for third-party tools
+    String exec = OS::get_singleton()->get_executable_path();
+    EditorSettings::get_singleton()->set_project_metadata("editor_metadata", "executable_path", exec);
+
 }
 
 EditorNode::~EditorNode() {

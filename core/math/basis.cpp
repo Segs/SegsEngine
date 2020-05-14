@@ -80,10 +80,6 @@ void Basis::invert() {
 
 void Basis::orthonormalize() {
 
-#ifdef MATH_CHECKS
-    ERR_FAIL_COND(determinant() == 0.0f);
-#endif
-
     // Gram-Schmidt Process
 
     Vector3 x = get_axis(0);

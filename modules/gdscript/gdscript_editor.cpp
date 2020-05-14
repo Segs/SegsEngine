@@ -438,6 +438,9 @@ void GDScriptLanguage::get_public_functions(Vector<MethodInfo> *p_functions) con
         mi.name = "assert";
         mi.return_val.type = VariantType::NIL;
         mi.arguments.push_back(PropertyInfo(VariantType::BOOL, "condition"));
+        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "message"));
+        mi.default_arguments.push_back(String());
+
         p_functions->push_back(mi);
     }
 }
@@ -2238,6 +2241,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
     GDScriptParser::DataType base_type = p_base.type;
 
     const String quote_style(EDITOR_DEF(("text_editor/completion/use_single_quotes"), false) ? "'" : "\"");
+#define IS_METHOD_SIGNAL(m_method) (m_method == "connect" || m_method == "disconnect" || m_method == "is_connected" || m_method == "emit_signal")
 
     while (base_type.has_type) {
         switch (base_type.kind) {
@@ -2255,7 +2259,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                     }
                 }
 
-                if ((p_method == "connect" || p_method == "emit_signal") && p_argidx == 0) {
+                if (IS_METHOD_SIGNAL(p_method) && p_argidx == 0) {
                     for (int i = 0; i < base_type.class_type->_signals.size(); i++) {
                         ScriptCodeCompletionOption option(base_type.class_type->_signals[i].name.asCString(), ScriptCodeCompletionOption::KIND_SIGNAL);
                         option.insert_text = quote_style + option.display + quote_style;
@@ -2268,7 +2272,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
             case GDScriptParser::DataType::GDSCRIPT: {
                 Ref<GDScript> gds = dynamic_ref_cast<GDScript>(base_type.script_type);
                 if (gds) {
-                    if ((p_method == "connect" || p_method == "emit_signal") && p_argidx == 0) {
+                    if (IS_METHOD_SIGNAL(p_method) && p_argidx == 0) {
                         Vector<MethodInfo> script_signals;
                         gds->get_script_signal_list(&script_signals);
                         for(const MethodInfo & E : script_signals) {
@@ -2330,7 +2334,7 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
                     }
                 }
 
-                if ((p_method == "connect" || p_method == "emit_signal") && p_argidx == 0) {
+                if (IS_METHOD_SIGNAL(p_method) && p_argidx == 0) {
                     Vector<MethodInfo> class_signals;
                     ClassDB::get_signal_list(class_name, &class_signals);
                     for(const MethodInfo & E : class_signals) {
@@ -2401,6 +2405,8 @@ static void _find_call_arguments(const GDScriptCompletionContext &p_context, con
             } break;
         }
     }
+#undef IS_METHOD_SIGNAL
+
 }
 
 static void _find_call_arguments(GDScriptCompletionContext &p_context, const GDScriptParser::Node *p_node, int p_argidx, Map<String, ScriptCodeCompletionOption> &r_result, bool &r_forced, String &r_arghint) {

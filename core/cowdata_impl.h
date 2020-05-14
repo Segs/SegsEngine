@@ -102,7 +102,10 @@ template <class T> Error CowData<T>::resize(int p_size) {
 
     ERR_FAIL_COND_V(p_size < 0, ERR_INVALID_PARAMETER);
 
-    if (p_size == size()) return OK;
+    int current_size = size();
+
+    if (p_size == current_size)
+        return OK;
 
     if (p_size == 0) {
         // wants to clean up
@@ -114,24 +117,26 @@ template <class T> Error CowData<T>::resize(int p_size) {
     // possibly changing size, copy on write
     _copy_on_write();
 
+    size_t current_alloc_size = _get_alloc_size(current_size);
     size_t alloc_size;
     ERR_FAIL_COND_V(!_get_alloc_size_checked(p_size, &alloc_size), ERR_OUT_OF_MEMORY);
 
-    if (p_size > size()) {
+    if (p_size > current_size) {
+        if (alloc_size != current_alloc_size) {
+            if (current_size == 0) {
+                // alloc from scratch
+                uint32_t *ptr = (uint32_t *)Memory::alloc_static(alloc_size, true);
+                ERR_FAIL_COND_V(!ptr, ERR_OUT_OF_MEMORY);
+                *(ptr - 1) = 0; // size, currently none
+                *(ptr - 2) = 1; // refcount
 
-        if (size() == 0) {
-            // alloc from scratch
-            uint32_t *ptr = (uint32_t *)Memory::alloc_static(alloc_size, true);
-            ERR_FAIL_COND_V(!ptr, ERR_OUT_OF_MEMORY);
-            *(ptr - 1) = 0; // size, currently none
-            *(ptr - 2) = 1; // refcount
+                _ptr = (T *)ptr;
 
-            _ptr = (T *)ptr;
-
-        } else {
-            void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
-            ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
-            _ptr = (T *)(_ptrnew);
+            } else {
+                void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
+                ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
+                _ptr = (T *)(_ptrnew);
+            }
         }
 
         // construct the newly created elements
@@ -149,10 +154,9 @@ template <class T> Error CowData<T>::resize(int p_size) {
 
         *_get_size() = p_size;
 
-    } else if (p_size < size()) {
+    } else if (p_size < current_size) {
 
-        if
-            constexpr(!eastl::is_trivially_destructible<T>::value) {
+        if constexpr(!eastl::is_trivially_destructible<T>::value) {
                 // deinitialize no longer needed elements
                 for (uint32_t i = p_size; i < *_get_size(); i++) {
                     T *t = &_get_data()[i];
@@ -160,12 +164,14 @@ template <class T> Error CowData<T>::resize(int p_size) {
                 }
             }
 
-        void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
-        ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
+        if (alloc_size != current_alloc_size) {
+            void *_ptrnew = (T *)Memory::realloc_static(_ptr, alloc_size, true);
+            ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
 
-        _ptr = (T *)(_ptrnew);
+            _ptr = (T *)(_ptrnew);
 
-        *_get_size() = p_size;
+            *_get_size() = p_size;
+        }
     }
 
     return OK;

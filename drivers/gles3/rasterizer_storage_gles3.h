@@ -483,6 +483,11 @@ public:
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) override;
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const override;
 
+    void shader_add_custom_define(RID p_shader, StringView p_define) override;
+    void shader_get_custom_defines(RID p_shader, Vector<StringView> *p_defines) const override;
+    void shader_clear_custom_defines(RID p_shader) override;
+
+
     void _update_shader(Shader *p_shader) const;
 
     void update_dirty_shaders();

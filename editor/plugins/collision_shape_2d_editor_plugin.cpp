@@ -33,6 +33,7 @@
 #include "canvas_item_editor_plugin.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/capsule_shape_2d.h"
 #include "scene/resources/circle_shape_2d.h"
 #include "scene/resources/concave_polygon_shape_2d.h"
@@ -44,6 +45,15 @@
 
 IMPL_GDCLASS(CollisionShape2DEditor)
 IMPL_GDCLASS(CollisionShape2DEditorPlugin)
+
+
+
+void CollisionShape2DEditor::_node_removed(Node *p_node) {
+
+    if (p_node == node) {
+        node = nullptr;
+    }
+}
 
 Variant CollisionShape2DEditor::get_handle_value(int idx) const {
 
@@ -531,6 +541,20 @@ void CollisionShape2DEditor::forward_canvas_draw_over_viewport(Control *p_overla
     }
 }
 
+void CollisionShape2DEditor::_notification(int p_what) {
+
+    switch (p_what) {
+
+        case NOTIFICATION_ENTER_TREE: {
+            get_tree()->connect("node_removed", this, "_node_removed");
+        } break;
+
+        case NOTIFICATION_EXIT_TREE: {
+            get_tree()->disconnect("node_removed", this, "_node_removed");
+        } break;
+    }
+}
+
 void CollisionShape2DEditor::edit(Node *p_node) {
 
     if (!canvas_item_editor) {
@@ -555,6 +579,7 @@ void CollisionShape2DEditor::edit(Node *p_node) {
 void CollisionShape2DEditor::_bind_methods() {
 
     MethodBinder::bind_method("_get_current_shape_type", &CollisionShape2DEditor::_get_current_shape_type);
+    MethodBinder::bind_method("_node_removed", &CollisionShape2DEditor::_node_removed);
 }
 
 CollisionShape2DEditor::CollisionShape2DEditor(EditorNode *p_editor) {

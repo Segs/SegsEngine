@@ -3123,15 +3123,14 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                         Vector<Node *> args;
                         Vector<double> constants;
 
-                        bool constant = false;
+                        bool constant = true;
 
                         for (int i = 1; i < op->arguments.size(); i++) {
                             args.push_back(op->arguments[i]);
-                            if (constant && op->arguments[i]->type == Node::TYPE_CONSTANT) {
+                            if (op->arguments[i]->type == Node::TYPE_CONSTANT) {
                                 ConstantNode *c = static_cast<ConstantNode *>(op->arguments[i]);
                                 if (c->value.get_type() == VariantType::FLOAT || c->value.get_type() == VariantType::INT) {
                                     constants.push_back(c->value);
-                                    constant = true;
                                 }
                             } else {
                                 constant = false;
@@ -3825,6 +3824,12 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
                         }
 
                         StringName argname = tokenizer->get_token_identifier();
+                        for (size_t i = 0; i < arguments.size(); i++) {
+                            if (arguments[i] == argname) {
+                                _set_error("The argument name \"" + String(argname) + "\" is defined multiple times.");
+                                return;
+                            }
+                        }
                         arguments.push_back(argname);
 #ifdef DEBUG_ENABLED
                         arguments_usage.push_back(0);
@@ -7362,6 +7367,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             break;
         }
     }
+#define IS_USAGE_MEMBER(m_usage) (!(m_usage & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY)))
 
     // Check other script types
     while (scr) {
@@ -7375,7 +7381,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
         Vector<PropertyInfo> properties;
         scr->get_script_property_list(&properties);
         for(const PropertyInfo & E : properties) {
-            if (E.name == p_member) {
+            if (E.name == p_member && IS_USAGE_MEMBER(E.usage)) {
                 r_member_type = _type_from_property(E);
                 return true;
             }
@@ -7417,7 +7423,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
         Vector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
-            if (E.name == p_member) {
+            if (E.name == p_member && IS_USAGE_MEMBER(E.usage)) {
                 // Check if a getter exists
                 StringName getter_name = ClassDB::get_property_getter(native, p_member);
                 if (getter_name != StringName()) {
@@ -7457,7 +7463,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
         Vector<PropertyInfo> properties;
         ClassDB::get_property_list(native, &properties);
         for(const PropertyInfo & E : properties) {
-            if (E.name == p_member) {
+            if (E.name == p_member && IS_USAGE_MEMBER(E.usage)) {
                 // Check if a getter exists
                 StringName getter_name = ClassDB::get_property_getter(native, p_member);
                 if (getter_name != StringName()) {
@@ -7479,6 +7485,7 @@ bool GDScriptParser::_get_member_type(const DataType &p_base_type, const StringN
             }
         }
     }
+#undef IS_USAGE_MEMBER
 
     return false;
 }

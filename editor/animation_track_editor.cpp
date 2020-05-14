@@ -4359,10 +4359,10 @@ void AnimationTrackEditor::_animation_update() {
     }
 
     if (same) {
-        for (int i = 0; i < track_edits.size(); i++) {
+        for (size_t i = 0; i < track_edits.size(); i++) {
             track_edits[i]->update();
         }
-        for (int i = 0; i < groups.size(); i++) {
+        for (size_t i = 0; i < groups.size(); i++) {
             groups[i]->update();
         }
     } else {
@@ -4405,10 +4405,10 @@ void AnimationTrackEditor::_notification(int p_what) {
 }
 
 void AnimationTrackEditor::_update_scroll(double) {
-    for (int i = 0; i < track_edits.size(); i++) {
+    for (size_t i = 0; i < track_edits.size(); i++) {
         track_edits[i]->update();
     }
-    for (int i = 0; i < groups.size(); i++) {
+    for (size_t i = 0; i < groups.size(); i++) {
         groups[i]->update();
     }
 }

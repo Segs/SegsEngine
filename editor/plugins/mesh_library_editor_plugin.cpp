@@ -51,7 +51,8 @@ void MeshLibraryEditor::edit(const Ref<MeshLibrary> &p_mesh_library) {
 
     mesh_library = p_mesh_library;
     if (mesh_library)
-        menu->get_popup()->set_item_disabled(menu->get_popup()->get_item_index(MENU_OPTION_UPDATE_FROM_SCENE), !mesh_library->has_meta("_editor_source_scene"));
+        menu->get_popup()->set_item_disabled(menu->get_popup()->get_item_index(MENU_OPTION_UPDATE_FROM_SCENE),
+                !mesh_library->has_meta("_editor_source_scene"));
 }
 
 void MeshLibraryEditor::_menu_confirm() {

@@ -4,7 +4,8 @@
 		Enables certain nodes only when visible.
 	</brief_description>
 	<description>
-		The VisibilityEnabler3D will disable [RigidBody] and [AnimationPlayer] nodes when they are not visible. It will only affect other nodes within the same scene as the VisibilityEnabler3D itself.
+		The VisibilityEnabler3D will disable [RigidBody3D] and [AnimationPlayer] nodes when they are not visible. It will only affect other nodes within the same scene as the VisibilityEnabler3D itself.
+		Note that VisibilityEnabler will not affect nodes added after scene initialization.
 	</description>
 	<tutorials>
 	</tutorials>

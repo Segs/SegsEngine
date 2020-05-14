@@ -856,7 +856,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             bool in_box = r.intersects(box_selecting_rect);
 
             if (in_box)
-                gn->set_selected(box_selection_mode_aditive);
+                gn->set_selected(box_selection_mode_additive);
             else
                 gn->set_selected(previus_selected.contains(gn));
         }
@@ -978,7 +978,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                 box_selecting = true;
                 box_selecting_from = get_local_mouse_position();
                 if (b->get_control()) {
-                    box_selection_mode_aditive = true;
+                    box_selection_mode_additive = true;
                     previus_selected.clear();
                     previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
@@ -990,7 +990,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                         previus_selected.emplace_back(gn2);
                     }
                 } else if (b->get_shift()) {
-                    box_selection_mode_aditive = false;
+                    box_selection_mode_additive = false;
                     previus_selected.clear();
                     previus_selected.reserve(get_child_count());
                     for (int i = get_child_count() - 1; i >= 0; i--) {
@@ -1002,7 +1002,7 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                         previus_selected.emplace_back(gn2);
                     }
                 } else {
-                    box_selection_mode_aditive = true;
+                    box_selection_mode_additive = true;
                     previus_selected.clear();
                     for (int i = get_child_count() - 1; i >= 0; i--) {
 

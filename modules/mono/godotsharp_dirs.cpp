@@ -51,13 +51,13 @@ namespace GodotSharpDirs {
 
 String _get_expected_build_config() {
 #ifdef TOOLS_ENABLED
-    return "Tools";
+    return "Debug";
 #else
 
 #ifdef DEBUG_ENABLED
-    return "Debug";
+    return "ExportDebug";
 #else
-    return "Release";
+    return "ExportRelease";
 #endif
 
 #endif
@@ -135,7 +135,7 @@ private:
 
         // TODO use paths from csproj
         res_temp_dir = plus_file(res_data_dir,"temp");
-        res_temp_assemblies_base_dir = plus_file(res_data_dir,"bin");
+        res_temp_assemblies_base_dir = plus_file(res_temp_dir,"bin");
         res_temp_assemblies_dir = plus_file(res_temp_assemblies_base_dir,_get_expected_build_config());
 
 #ifdef JAVASCRIPT_ENABLED
@@ -160,7 +160,7 @@ private:
         sln_filepath = plus_file(base_path,appname_safe + ".sln");
         csproj_filepath = plus_file(base_path,appname_safe + ".csproj");
 #endif
-        
+
         String exe_dir(PathUtils::path(OS::get_singleton()->get_executable_path()));
 
 #ifdef TOOLS_ENABLED

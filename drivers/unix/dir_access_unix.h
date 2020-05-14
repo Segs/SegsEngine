@@ -63,6 +63,7 @@ public:
 
     int get_drive_count() override;
     String get_drive(int p_drive) override;
+    bool drives_are_shortcuts() override;
 
     Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
     String get_current_dir() override; ///< return current dir location

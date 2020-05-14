@@ -199,6 +199,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     for (auto & custom_define : custom_defines) {
 
         strings.push_back(custom_define.data());
+        strings.push_back("\n");
     }
 
     for (int j = 0; j < conditional_count; j++) {

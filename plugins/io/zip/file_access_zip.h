@@ -43,38 +43,38 @@ class ZipArchive : public QObject, public PackSourceInterface {
     Q_INTERFACES(PackSourceInterface)
     Q_OBJECT
 public:
-	struct File {
+    struct File {
 
-		int package = -1;
-		unz_file_pos file_pos;
-	};
+        int package = -1;
+        unz_file_pos file_pos;
+    };
 
 private:
-	struct Package {
+    struct Package {
         String filename;
-		unzFile zfile;
-	};
-	Vector<Package> packages;
+        unzFile zfile;
+    };
+    Vector<Package> packages;
 
     Map<String, File> files;
 
-	static ZipArchive *instance;
+    static ZipArchive *instance;
 
-	FileAccess::CreateFunc fa_create_func;
+    FileAccess::CreateFunc fa_create_func;
 
 public:
-	void close_handle(unzFile p_file) const;
+    void close_handle(unzFile p_file) const;
     unzFile get_file_handle(StringView p_file) const;
 
-	Error add_package(UIString p_name);
+    Error add_package(UIString p_name);
 
     bool file_exists(StringView p_name) const;
 
-	bool try_open_pack(StringView p_path, bool p_replace_files) override;
+    bool try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination="") override;
     FileAccess *get_file(StringView p_path, PackedDataFile *p_file) override;
 
-	static ZipArchive *get_singleton();
+    static ZipArchive *get_singleton();
 
     ZipArchive(QObject *ob=nullptr);
-	~ZipArchive() override;
+    ~ZipArchive() override;
 };

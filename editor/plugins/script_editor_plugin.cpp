@@ -1119,10 +1119,6 @@ void ScriptEditor::_menu_option(int p_option) {
 
             OS::get_singleton()->shell_open("https://docs.godotengine.org/");
         } break;
-        case REQUEST_DOCS: {
-
-            OS::get_singleton()->shell_open("https://github.com/godotengine/godot-docs/issues/new");
-        } break;
 
         case WINDOW_NEXT: {
 
@@ -1470,7 +1466,6 @@ void ScriptEditor::_notification(int p_what) {
 
             help_search->set_button_icon(get_icon("HelpSearch", "EditorIcons"));
             site_search->set_button_icon(get_icon("Instance", "EditorIcons"));
-            request_docs->set_button_icon(get_icon("Issue", "EditorIcons"));
 
             script_forward->set_button_icon(get_icon("Forward", "EditorIcons"));
             script_back->set_button_icon(get_icon("Back", "EditorIcons"));
@@ -1859,9 +1854,12 @@ void ScriptEditor::_update_script_names() {
             if (built_in) {
 
                 name = PathUtils::get_file(path);
-                String resource_name = se->get_edited_resource()->get_name();
+                const String &resource_name = se->get_edited_resource()->get_name();
                 if (!resource_name.empty()) {
-                    name = String(StringUtils::substr(name,0, StringUtils::find(name,"::", 0) + 2)) + resource_name;
+                    // If the built-in script has a custom resource name defined,
+                    // display the built-in script name as follows: `ResourceName (scene_file.tscn)`
+                    StringView bin_scrp=StringUtils::substr(name,0, StringUtils::find(name,"::", 0) + 2);
+                    name.sprintf("%s (%.*s)",resource_name.c_str(),bin_scrp.size(),bin_scrp.data());
                 }
             } else {
 
@@ -3401,12 +3399,6 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
     site_search->connect("pressed", this, "_menu_option", varray(SEARCH_WEBSITE));
     menu_hb->add_child(site_search);
     site_search->set_tooltip(TTR("Open Godot online documentation."));
-
-    request_docs = memnew(ToolButton);
-    request_docs->set_text(TTR("Request Docs"));
-    request_docs->connect("pressed", this, "_menu_option", varray(REQUEST_DOCS));
-    menu_hb->add_child(request_docs);
-    request_docs->set_tooltip(TTR("Help improve the Godot documentation by giving feedback."));
 
     help_search = memnew(ToolButton);
     help_search->set_text(TTR("Search Help"));

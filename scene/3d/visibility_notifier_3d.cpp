@@ -157,7 +157,7 @@ void VisibilityEnabler3D::_find_nodes(Node *p_node) {
     bool add = false;
     Variant meta;
 
-    if (enabler[ENABLER_FREEZE_BODIES]) {
+    {
 
         RigidBody *rb = object_cast<RigidBody>(p_node);
         if (rb && ((rb->get_mode() == RigidBody::MODE_CHARACTER || rb->get_mode() == RigidBody::MODE_RIGID))) {
@@ -167,7 +167,7 @@ void VisibilityEnabler3D::_find_nodes(Node *p_node) {
         }
     }
 
-    if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
+    {
 
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
         if (ap) {
@@ -226,14 +226,14 @@ void VisibilityEnabler3D::_change_node_state(Node *p_node, bool p_enabled) {
 
     ERR_FAIL_COND(!nodes.contains(p_node));
 
-    {
+    if (enabler[ENABLER_FREEZE_BODIES]) {
         RigidBody *rb = object_cast<RigidBody>(p_node);
         if (rb)
 
             rb->set_sleeping(!p_enabled);
     }
 
-    {
+    if (enabler[ENABLER_PAUSE_ANIMATIONS]) {
         AnimationPlayer *ap = object_cast<AnimationPlayer>(p_node);
 
         if (ap) {

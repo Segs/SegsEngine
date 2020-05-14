@@ -340,7 +340,7 @@ Vector3 Camera3D::project_ray_origin(const Point2 &p_pos) const {
     ray.y = (1.0 - pos.y) * (vsize)-vsize / 2;
     ray.z = -near;
     ray = get_camera_transform().xform(ray);
-    return ray;;
+    return ray;
 };
 
 bool Camera3D::is_position_behind(const Vector3 &p_pos) const {

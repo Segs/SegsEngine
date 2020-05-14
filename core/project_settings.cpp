@@ -280,12 +280,12 @@ void ProjectSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
     }
 }
 
-bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_files) {
+bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_files,StringView p_destination) {
 
     if (PackedData::get_singleton()->is_disabled())
         return false;
 
-    bool ok = PackedData::get_singleton()->add_pack(p_pack, p_replace_files) == OK;
+    bool ok = PackedData::get_singleton()->add_pack(p_pack, p_replace_files,p_destination) == OK;
 
     if (!ok)
         return false;
@@ -1009,7 +1009,7 @@ void ProjectSettings::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("localize_path", {"path"}), &ProjectSettings::localize_path);
     MethodBinder::bind_method(D_METHOD("globalize_path", {"path"}), &ProjectSettings::globalize_path);
     MethodBinder::bind_method(D_METHOD("save"), &ProjectSettings::save);
-    MethodBinder::bind_method(D_METHOD("load_resource_pack", {"pack", "replace_files"}), &ProjectSettings::_load_resource_pack,{Variant(true)});
+    MethodBinder::bind_method(D_METHOD("load_resource_pack", {"pack", "replace_files","destination"}), &ProjectSettings::_load_resource_pack,{Variant(true),Variant("")});
     MethodBinder::bind_method(D_METHOD("property_can_revert", {"name"}), &ProjectSettings::property_can_revert);
     MethodBinder::bind_method(D_METHOD("property_get_revert", {"name"}), &ProjectSettings::property_get_revert);
 

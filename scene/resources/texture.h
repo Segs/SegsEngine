@@ -673,3 +673,33 @@ public:
     AnimatedTexture();
     ~AnimatedTexture() override;
 };
+
+// External textures as defined by https://www.khronos.org/registry/OpenGL/extensions/OES/OES_EGL_image_external.txt
+class ExternalTexture : public Texture {
+    GDCLASS(ExternalTexture, Texture);
+
+private:
+    RID texture;
+    Size2 size;
+
+protected:
+    static void _bind_methods();
+
+public:
+    uint32_t get_external_texture_id();
+
+    Size2 get_size() const override;
+    void set_size(const Size2 &p_size);
+
+    int get_width() const override;
+    int get_height() const override;
+
+    RID get_rid() const override;
+    bool has_alpha() const override;
+
+    void set_flags(uint32_t p_flags) override;
+    uint32_t get_flags() const override;
+
+    ExternalTexture();
+    ~ExternalTexture();
+};

@@ -25,7 +25,6 @@ set(source_files
     mono_gd/gd_mono_internals.cpp
     mono_gd/gd_mono.cpp
     mono_gd/gd_mono_assembly.cpp
-    mono_gd/gd_mono_android.cpp
     mono_gd/gd_mono_field.cpp
     mono_gd/gd_mono_log.cpp
     mono_gd/gd_mono_utils.cpp
@@ -72,7 +71,6 @@ set(header_files
     mono_gd/gd_mono_field.h
     mono_gd/gd_mono_property.h
     mono_gd/gd_mono_log.h
-    mono_gd/gd_mono_android.h
     mono_gd/gd_mono_header.h
     mono_gd/gd_mono_internals.h
     mono_gd/gd_mono_method.h

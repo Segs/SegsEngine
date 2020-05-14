@@ -5,6 +5,8 @@
 #include "core/io/file_access_pack.h"
 #include "core/version.h"
 
+#include <core/project_settings.h>
+
 class FileAccessPack : public FileAccess {
 
     PackedDataFile pf;
@@ -160,7 +162,7 @@ FileAccessPack::FileAccessPack(StringView p_path, const PackedDataFile &p_file) 
         pf(p_file),
         f(FileAccess::open(pf.pack, FileAccess::READ)) {
 
-    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + pf.pack + "'."); 
+    ERR_FAIL_COND_MSG(!f, "Can't open pack-referenced file '" + pf.pack + "'.");
 
     f->seek(pf.offset);
     pos = 0;
@@ -177,7 +179,7 @@ FileAccessPack::~FileAccessPack() {
 
 //////////////////////////////////////////////////////////////////
 
-bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files) {
+bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, StringView p_destination) {
 
     FileAccess *f = FileAccess::open(p_path, FileAccess::READ);
     if (!f)
@@ -243,7 +245,24 @@ bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files) {
         cs[sl] = 0;
 
         String path(cs.data());
+        if ( !p_destination.empty()) {
+            String destination = ProjectSettings::get_singleton()->localize_path(p_destination);
+            ERR_FAIL_COND_V_MSG(!destination.starts_with("res://"), false, "The destination path must be within the resource filesystem (res://).");
 
+            if (!destination.ends_with("/")) {
+                destination += "/";
+            }
+
+            DirAccess *dir = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+            if (!dir->dir_exists(destination)) {
+                memdelete(dir);
+
+                ERR_FAIL_V_MSG(false, vformat("The destination path \"%s\" does not exist.", destination));
+            }
+            memdelete(dir);
+
+            path = StringUtils::replace_first(path,"res://", destination);
+        }
         uint64_t ofs = f->get_64();
         uint64_t size = f->get_64();
         uint8_t md5[16];

@@ -527,6 +527,10 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             value = false;
         else if (id == "null"_sv || id == "nil"_sv)
             value = Variant();
+        else if (id == "inf"_sv)
+            value = Math_INF;
+        else if (id == "nan"_sv)
+            value = Math_NAN;
         else if (id == "Vector2"_sv) {
 
             Vector<float> args;
@@ -1429,9 +1433,11 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case VariantType::FLOAT: {
 
             String s = rtosfix(p_variant.as<float>());
-            if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))
-                s += ".0";
-            p_store_string_func(p_store_string_ud, s);
+            if (s != "inf" && s != "nan") {
+                if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))
+                    s += ".0";
+                p_store_string_func(p_store_string_ud, s);
+            }
         } break;
         case VariantType::STRING: {
 

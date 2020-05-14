@@ -109,7 +109,7 @@ private:
     bool dragging;
     bool just_selected;
     bool box_selecting;
-    bool box_selection_mode_aditive;
+    bool box_selection_mode_additive;
     bool setting_scroll_ofs;
     bool right_disconnects;
     bool updating;

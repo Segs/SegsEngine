@@ -47,7 +47,7 @@
 			</argument>
 			<description>
 				Returns [code]true[/code] if the file exists in the given path.
-                [b]Note:[/b] Many resources types are imported (e.g. textures or sound files), and that their source asset will not be included in the exported game, as only the imported version is used (in the [code]res://.import[/code] folder). To check for the existence of such resources while taking into account the remapping to their imported location, use [method ResourceManager.exists]. Typically, using [code]File.file_exists[/code] on an imported resource would work while you are developing in the editor (the source asset is present in [code]res://[/code], but fail when exported).
+				[b]Note:[/b] Many resources types are imported (e.g. textures or sound files), and that their source asset will not be included in the exported game, as only the imported version is used (in the [code]res://.import[/code] folder). To check for the existence of such resources while taking into account the remapping to their imported location, use [method ResourceLoader.exists]. Typically, using [code]File.file_exists[/code] on an imported resource would work while you are developing in the editor (the source asset is present in [code]res://[/code], but fail when exported).
 			</description>
 		</method>
 		<method name="get_16" qualifiers="const">
@@ -297,6 +297,7 @@
 			</argument>
 			<description>
 				Stores an integer as 16 bits in the file.
+				[b]Note:[/b] The [code]value[/code] should lie in the interval [code][0, 2^16 - 1][/code].
 			</description>
 		</method>
 		<method name="store_32">
@@ -306,6 +307,7 @@
 			</argument>
 			<description>
 				Stores an integer as 32 bits in the file.
+				[b]Note:[/b] The [code]value[/code] should lie in the interval [code][0, 2^32 - 1][/code].
 			</description>
 		</method>
 		<method name="store_64">
@@ -315,6 +317,7 @@
 			</argument>
 			<description>
 				Stores an integer as 64 bits in the file.
+				[b]Note:[/b] The [code]value[/code] must lie in the interval [code][-2^63, 2^63 - 1][/code] (i.e. be a valid [int] value).
 			</description>
 		</method>
 		<method name="store_8">
@@ -324,6 +327,7 @@
 			</argument>
 			<description>
 				Stores an integer as 8 bits in the file.
+				[b]Note:[/b] The [code]value[/code] should lie in the interval [code][0, 255][/code].
 			</description>
 		</method>
 		<method name="store_buffer">

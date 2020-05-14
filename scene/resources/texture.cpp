@@ -63,6 +63,7 @@ IMPL_GDCLASS(TextureArray)
 IMPL_GDCLASS(GradientTexture)
 IMPL_GDCLASS(ProxyTexture)
 IMPL_GDCLASS(AnimatedTexture)
+IMPL_GDCLASS(ExternalTexture)
 
 RES_BASE_EXTENSION_IMPL(ImageTexture,"tex")
 RES_BASE_EXTENSION_IMPL(AtlasTexture,"atlastex")
@@ -2485,3 +2486,64 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(StringView p_path) 
 }
 
 
+
+void ExternalTexture::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("set_size", {"size"}), &ExternalTexture::set_size);
+    MethodBinder::bind_method(D_METHOD("get_external_texture_id"), &ExternalTexture::get_external_texture_id);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
+}
+
+uint32_t ExternalTexture::get_external_texture_id() {
+    return RenderingServer::get_singleton()->texture_get_texid(texture);
+}
+
+void ExternalTexture::set_size(const Size2 &p_size) {
+
+    if (p_size.width > 0 && p_size.height > 0) {
+        size = p_size;
+        RenderingServer::get_singleton()->texture_set_size_override(texture, size.width, size.height, 0);
+    }
+}
+
+int ExternalTexture::get_width() const {
+    return size.width;
+}
+
+int ExternalTexture::get_height() const {
+    return size.height;
+}
+
+Size2 ExternalTexture::get_size() const {
+    return size;
+}
+
+RID ExternalTexture::get_rid() const {
+    return texture;
+}
+
+bool ExternalTexture::has_alpha() const {
+    return true;
+}
+
+void ExternalTexture::set_flags(uint32_t p_flags) {
+    // not supported
+}
+
+uint32_t ExternalTexture::get_flags() const {
+    // not supported
+    return 0;
+}
+
+ExternalTexture::ExternalTexture() {
+    size = Size2(1.0, 1.0);
+    texture = RenderingServer::get_singleton()->texture_create();
+
+    RenderingServer::get_singleton()->texture_allocate(texture, size.width, size.height, 0, Image::FORMAT_RGBA8, RS::TEXTURE_TYPE_EXTERNAL, 0);
+    Object_change_notify(this);
+    emit_changed();
+}
+
+ExternalTexture::~ExternalTexture() {
+    RenderingServer::get_singleton()->free_rid(texture);
+}

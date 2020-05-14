@@ -189,6 +189,7 @@ void SpatialEditorViewport::_update_camera(float p_interp_delta) {
             camera->set_perspective(get_fov(), get_znear(), get_zfar());
 
         update_transform_gizmo_view();
+        //rotation_control->update();
     }
 }
 
@@ -199,7 +200,7 @@ Transform SpatialEditorViewport::to_camera_transform(const Cursor &p_cursor) con
     camera_transform.basis.rotate(Vector3(0, 1, 0), -p_cursor.y_rot);
 
     if (orthogonal)
-        camera_transform.translate(0, 0, 4096);
+        camera_transform.translate(0, 0, (get_zfar() - get_znear()) / 2.0);
     else
         camera_transform.translate(0, 0, p_cursor.distance);
 
@@ -5117,11 +5118,12 @@ void SpatialEditor::_init_grid() {
 
     Vector<Color> grid_colors[3];
     Vector<Vector3> grid_points[3];
+    EditorSettings *es = EditorSettings::get_singleton();
 
-    Color primary_grid_color = EditorSettings::get_singleton()->get("editors/3d/primary_grid_color");
-    Color secondary_grid_color = EditorSettings::get_singleton()->get("editors/3d/secondary_grid_color");
-    int grid_size = EditorSettings::get_singleton()->get("editors/3d/grid_size");
-    int primary_grid_steps = EditorSettings::get_singleton()->get("editors/3d/primary_grid_steps");
+    Color primary_grid_color = es->get("editors/3d/primary_grid_color");
+    Color secondary_grid_color = es->get("editors/3d/secondary_grid_color");
+    int grid_size = es->get("editors/3d/grid_size");
+    int primary_grid_steps = es->get("editors/3d/primary_grid_steps");
 
     for (int i = 0; i < 3; i++) {
         Vector3 axis;

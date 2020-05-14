@@ -78,6 +78,7 @@ public:
         TK_TYPE_ISAMPLER3D,
         TK_TYPE_USAMPLER3D,
         TK_TYPE_SAMPLERCUBE,
+        TK_TYPE_SAMPLEREXT,
         TK_INTERPOLATION_FLAT,
         TK_INTERPOLATION_SMOOTH,
         TK_CONST,
@@ -199,6 +200,7 @@ public:
         TYPE_ISAMPLER3D,
         TYPE_USAMPLER3D,
         TYPE_SAMPLERCUBE,
+        TYPE_SAMPLEREXT,
     };
 
     enum DataPrecision {

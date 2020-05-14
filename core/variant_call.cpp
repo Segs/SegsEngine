@@ -1938,7 +1938,7 @@ void register_variant_methods() {
     ADDFUNC0NC(DICTIONARY, NIL, Dictionary, clear)
     ADDFUNC1R(DICTIONARY, BOOL, Dictionary, has, NIL, "key")
     ADDFUNC1R(DICTIONARY, BOOL, Dictionary, has_all, ARRAY, "keys")
-    ADDFUNC1R(DICTIONARY, BOOL, Dictionary, erase, NIL, "key")
+    ADDFUNC1RNC(DICTIONARY, BOOL, Dictionary, erase, NIL, "key")
     ADDFUNC0R(DICTIONARY, INT, Dictionary, hash)
     ADDFUNC0R(DICTIONARY, ARRAY, Dictionary, keys)
     ADDFUNC0R(DICTIONARY, ARRAY, Dictionary, values)
