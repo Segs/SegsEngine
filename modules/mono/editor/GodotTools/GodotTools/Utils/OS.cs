@@ -26,9 +26,6 @@ namespace GodotTools.Utils
             public const string Server = "Server";
             public const string UWP = "UWP";
             public const string Haiku = "Haiku";
-            public const string Android = "Android";
-            public const string iOS = "iOS";
-            public const string HTML5 = "HTML5";
         }
 
         public static class Platforms
@@ -39,9 +36,6 @@ namespace GodotTools.Utils
             public const string Server = "server";
             public const string UWP = "uwp";
             public const string Haiku = "haiku";
-            public const string Android = "android";
-            public const string iOS = "iphone";
-            public const string HTML5 = "javascript";
         }
 
         public static readonly Dictionary<string, string> PlatformNameMap = new Dictionary<string, string>
@@ -52,9 +46,6 @@ namespace GodotTools.Utils
             [Names.Server] = Platforms.Server,
             [Names.UWP] = Platforms.UWP,
             [Names.Haiku] = Platforms.Haiku,
-            [Names.Android] = Platforms.Android,
-            [Names.iOS] = Platforms.iOS,
-            [Names.HTML5] = Platforms.HTML5
         };
 
         private static bool IsOS(string name)
@@ -68,9 +59,6 @@ namespace GodotTools.Utils
         private static readonly Lazy<bool> _isServer = new Lazy<bool>(() => IsOS(Names.Server));
         private static readonly Lazy<bool> _isUWP = new Lazy<bool>(() => IsOS(Names.UWP));
         private static readonly Lazy<bool> _isHaiku = new Lazy<bool>(() => IsOS(Names.Haiku));
-        private static readonly Lazy<bool> _isAndroid = new Lazy<bool>(() => IsOS(Names.Android));
-        private static readonly Lazy<bool> _isiOS = new Lazy<bool>(() => IsOS(Names.iOS));
-        private static readonly Lazy<bool> _isHTML5 = new Lazy<bool>(() => IsOS(Names.HTML5));
 
         public static bool IsWindows => _isWindows.Value || IsUWP;
         public static bool IsOSX => _isOSX.Value;
@@ -78,12 +66,9 @@ namespace GodotTools.Utils
         public static bool IsServer => _isServer.Value;
         public static bool IsUWP => _isUWP.Value;
         public static bool IsHaiku => _isHaiku.Value;
-        public static bool IsAndroid => _isAndroid.Value;
-        public static bool IsiOS => _isiOS.Value;
-        public static bool IsHTML5 => _isHTML5.Value;
 
         private static bool? _isUnixCache;
-        private static readonly string[] UnixLikePlatforms = { Names.OSX, Names.X11, Names.Server, Names.Haiku, Names.Android, Names.iOS };
+        private static readonly string[] UnixLikePlatforms = { Names.OSX, Names.X11, Names.Server, Names.Haiku };
 
         public static bool IsUnixLike()
         {

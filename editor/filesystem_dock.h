@@ -259,10 +259,11 @@ private:
     void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
 
     void _set_current_path_text(StringView p_path);
-
+public: // made public for scripting API
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
+private:
     void _get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
 
     void _preview_invalidated(StringView p_path);

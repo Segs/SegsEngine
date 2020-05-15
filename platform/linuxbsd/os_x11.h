@@ -129,6 +129,7 @@ class OS_X11 : public OS_Unix {
     struct {
         int opcode;
         Vector<int> touch_devices;
+        //TODO: consider using eastl::vector_map here
         Map<int, Vector2> absolute_devices;
         Map<int, Vector2> pen_pressure_range;
         Map<int, Vector2> pen_tilt_x_range;

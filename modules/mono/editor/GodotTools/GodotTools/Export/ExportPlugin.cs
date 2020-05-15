@@ -175,17 +175,6 @@ namespace GodotTools.Export
 
             assemblies[projectDllName] = projectDllSrcPath;
 
-            if (platform == OS.Platforms.Android)
-            {
-                string godotAndroidExtProfileDir = GetBclProfileDir("godot_android_ext");
-                string monoAndroidAssemblyPath = Path.Combine(godotAndroidExtProfileDir, "Mono.Android.dll");
-
-                if (!File.Exists(monoAndroidAssemblyPath))
-                    throw new FileNotFoundException("Assembly not found: 'Mono.Android'", monoAndroidAssemblyPath);
-
-                assemblies["Mono.Android"] = monoAndroidAssemblyPath;
-            }
-
             string bclDir = DeterminePlatformBclDir(platform);
 
             var initialAssemblies = assemblies.Duplicate();
@@ -239,14 +228,11 @@ namespace GodotTools.Export
             }
 
             // AOT compilation
-            bool aotEnabled = platform == OS.Platforms.iOS || (bool)ProjectSettings.GetSetting("mono/export/aot/enabled");
+            bool aotEnabled = (bool)ProjectSettings.GetSetting("mono/export/aot/enabled");
 
             if (aotEnabled)
             {
                 string aotToolchainPath = null;
-
-                if (platform == OS.Platforms.Android)
-                    aotToolchainPath = (string)ProjectSettings.GetSetting("mono/export/aot/android_toolchain_path");
 
                 if (aotToolchainPath == string.Empty)
                     aotToolchainPath = null; // Don't risk it being used as current working dir
@@ -258,7 +244,7 @@ namespace GodotTools.Export
                     LLVMOnly = false,
                     LLVMPath = "",
                     LLVMOutputPath = "",
-                    FullAot = platform == OS.Platforms.iOS || (bool)(ProjectSettings.GetSetting("mono/export/aot/full_aot") ?? false),
+                    FullAot = (bool)(ProjectSettings.GetSetting("mono/export/aot/full_aot") ?? false),
                     UseInterpreter = (bool)ProjectSettings.GetSetting("mono/export/aot/use_interpreter"),
                     ExtraAotOptions = (string[])ProjectSettings.GetSetting("mono/export/aot/extra_aot_options") ?? new string[] { },
                     ExtraOptimizerOptions = (string[])ProjectSettings.GetSetting("mono/export/aot/extra_optimizer_options") ?? new string[] { },
@@ -342,7 +328,7 @@ namespace GodotTools.Export
         private static bool PlatformHasTemplateDir(string platform)
         {
             // OSX export templates are contained in a zip, so we place our custom template inside it and let Godot do the rest.
-            return !new[] { OS.Platforms.OSX, OS.Platforms.Android, OS.Platforms.iOS, OS.Platforms.HTML5 }.Contains(platform);
+            return !new[] { OS.Platforms.OSX }.Contains(platform);
         }
 
         private static string DeterminePlatformFromFeatures(IEnumerable<string> features)
@@ -390,9 +376,6 @@ namespace GodotTools.Export
         /// </summary>
         private static bool PlatformRequiresCustomBcl(string platform)
         {
-            if (new[] { OS.Platforms.Android, OS.Platforms.iOS, OS.Platforms.HTML5 }.Contains(platform))
-                return true;
-
             // The 'net_4_x' BCL is not compatible between Windows and the other platforms.
             // We use the names 'net_4_x_win' and 'net_4_x' to differentiate between the two.
 
@@ -417,12 +400,6 @@ namespace GodotTools.Export
                 case OS.Platforms.Server:
                 case OS.Platforms.Haiku:
                     return "net_4_x";
-                case OS.Platforms.Android:
-                    return "monodroid";
-                case OS.Platforms.iOS:
-                    return "monotouch";
-                case OS.Platforms.HTML5:
-                    return "wasm";
                 default:
                     throw new NotSupportedException($"Platform not supported: {platform}");
             }

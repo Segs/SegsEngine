@@ -256,7 +256,6 @@ void DocData::generate(bool p_basic_types) {
         StringName name = classes[i];
         if (!ClassDB::is_class_exposed(name)) {
             print_verbose(FormatVE("Class '%s' is not exposed, skipping.", name.asCString()));
-            classes.pop_front();
             continue;
         }
 

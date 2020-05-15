@@ -8,7 +8,6 @@ class StreamTexture;
 class LayeredTextureImpl : public ResourceImporterInterface{
 
     bool is_3d;
-    static const char *compression_formats[];
 
 protected:
     static void _texture_reimport_srgb(const Ref<StreamTexture> &p_tex);
