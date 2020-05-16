@@ -79,7 +79,7 @@ void TileMapEditor::_notification(int p_what) {
             if (is_visible_in_tree()) {
                 _update_palette();
             }
-            get_tree()->connect("node_removed", this, "_node_removed");
+
             paint_button->set_button_icon(get_icon("Edit", "EditorIcons"));
             bucket_fill_button->set_button_icon(get_icon("Bucket", "EditorIcons"));
             picker_button->set_button_icon(get_icon("ColorPick", "EditorIcons"));

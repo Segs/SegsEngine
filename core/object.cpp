@@ -48,6 +48,8 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 
+#include <EASTL/vector_map.h>
+
 struct Object::Signal  {
 
     struct Target {
@@ -1841,6 +1843,7 @@ Object::~Object() {
     if (script_instance)
         memdelete(script_instance);
     script_instance = nullptr;
+
     if (_emitting) {
         //@todo this may need to actually reach the debugger prioritarily somehow because it may crash before
         ERR_PRINT("Object " + to_string() +

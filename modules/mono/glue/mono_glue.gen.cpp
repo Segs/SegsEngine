@@ -1468,6 +1468,7 @@ MonoBoolean godot_icall_AnimatedTexture_get_oneshot_68fe5f59(Object * ptr) {
 	auto ret = static_cast<AnimatedTexture *>(ptr)->get_oneshot();
 	return static_cast<MonoBoolean>(ret);
 }
+
 void godot_icall_AnimatedTexture_set_fps_904508bb(Object * ptr, float* arg1) {
 	ERR_FAIL_NULL(ptr);
 	float arg1_in = static_cast<float>(*arg1);
@@ -15947,6 +15948,7 @@ Object* godot_icall_ExternalTexture_Ctor(MonoObject* obj) {
 	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
 	return instance;
 }
+
 void godot_icall_FileDialog_clear_filters_c8e54a7b(Object * ptr) {
 	ERR_FAIL_NULL(ptr);
 	static_cast<FileDialog *>(ptr)->clear_filters();
@@ -24977,6 +24979,7 @@ void godot_icall_Node2D_set_skew_degrees_904508bb(Object * ptr, float* arg1) {
 	float arg1_in = static_cast<float>(*arg1);
 	static_cast<Node2D *>(ptr)->set_skew_degrees(arg1_in);
 }
+
 void godot_icall_Node2D_set_scale_6df7471e(Object * ptr, GDMonoMarshal::M_Vector2* arg1) {
 	ERR_FAIL_NULL(ptr);
 	Vector2 arg1_in = MARSHALLED_IN(Vector2, arg1);
@@ -25746,6 +25749,7 @@ MonoBoolean godot_icall_Object_has_signal_bee64043(Object * ptr, MonoString* arg
 	auto ret = static_cast<Object *>(ptr)->has_signal(arg1_in);
 	return static_cast<MonoBoolean>(ret);
 }
+
 Array* godot_icall_Object_get_signal_list_d80382d4(Object * ptr) {
 	ERR_FAIL_NULL_V(ptr, NULL);
 	auto ret = static_cast<Object *>(ptr)->_get_signal_list();
@@ -36994,6 +36998,7 @@ void godot_icall_Skeleton_clear_bones_global_pose_override_c8e54a7b(Object * ptr
 	ERR_FAIL_NULL(ptr);
 	static_cast<Skeleton *>(ptr)->clear_bones_global_pose_override();
 }
+
 void godot_icall_Skeleton_set_bone_global_pose_override_769cf2f7(Object * ptr, int32_t arg1, GDMonoMarshal::M_Transform* arg2, float* arg3, MonoBoolean arg4) {
 	ERR_FAIL_NULL(ptr);
 	int32_t arg1_in = static_cast<int32_t>(arg1);

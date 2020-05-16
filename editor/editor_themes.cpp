@@ -241,7 +241,6 @@ static void editor_register_and_generate_icons(
             QDirIterator embedded_icons(":/icons", { "*.svg" });
             while (embedded_icons.hasNext()) {
                 const QString resourcepath = embedded_icons.next();
-                printf(qPrintable(resourcepath));
                 const QString base_name = embedded_icons.fileInfo().baseName();
                 auto is_exception = exceptions.contains(qPrintable(base_name));
                 Ref<ImageTexture> icon = editor_generate_icon(resourcepath, !is_exception);

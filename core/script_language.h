@@ -230,10 +230,7 @@ struct ScriptCodeCompletionOption {
         kind = KIND_PLAIN_TEXT;
     }
 
-    ScriptCodeCompletionOption(StringView p_text, Kind p_kind) {
-        display = p_text;
-        insert_text = p_text;
-        kind = p_kind;
+    ScriptCodeCompletionOption(StringView p_text, Kind p_kind) : kind(p_kind), display(p_text),insert_text(p_text) {
     }
 };
 

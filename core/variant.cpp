@@ -847,13 +847,6 @@ bool Variant::is_one() const {
     return false;
 }
 
-Variant::operator Object *() const {
-
-    if (type == VariantType::OBJECT)
-        return _OBJ_PTR(*this);
-    return nullptr;
-}
-
 void Variant::reference(const Variant &p_variant) {
 
     switch (type) {
@@ -1693,60 +1686,60 @@ Variant::operator RefPtr() const {
 
 Variant::operator RID() const {
 
-    if (type == VariantType::_RID) {
+    if (type == VariantType::_RID)
         return *reinterpret_cast<const RID *>(_data._mem);
-    } else if (type == VariantType::OBJECT) {
-        if (!_get_obj().ref.is_null()) {
-            return _get_obj().ref.get_rid();
-        } else {
+    if (type != VariantType::OBJECT)
+        return RID();
+    if (!_get_obj().ref.is_null()) 
+        return _get_obj().ref.get_rid();
 #ifdef DEBUG_ENABLED
-            Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : NULL;
-            if (unlikely(!obj)) {
-                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
-                    WARN_PRINT("Attempted get RID on a deleted object.");
-                }
-                return RID();
-            }
+    Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : NULL;
 #else
-            Object *obj = _get_obj().obj;
-            if (unlikely(!obj)) {
-                return RID();
-            }
-#endif
-            Callable::CallError ce;
-            Variant ret = obj->call(CoreStringNames::get_singleton()->get_rid, NULL, 0, ce);
-            if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) {
-                return ret;
-            } else {
-                return RID();
-            }
+    Object *obj = _get_obj().obj;
+#endif    
+    if (unlikely(!obj)) {
+#ifdef DEBUG_ENABLED
+        if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+            WARN_PRINT("Attempted get RID on a deleted object.");
         }
-    } else {
+#endif
         return RID();
     }
+
+    Callable::CallError ce;
+    Variant ret = obj->call(CoreStringNames::get_singleton()->get_rid, nullptr, 0, ce);
+    if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) 
+        return ret;
+    return RID();
 }
 
 Variant::operator Node *() const {
 
-    if (type == VariantType::OBJECT) {
+    if (type != VariantType::OBJECT)
+        return nullptr;
 #ifdef DEBUG_ENABLED
-        Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : NULL;
+    Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : nullptr;
 #else
-        Object *obj = _get_obj().obj;
+    Object *obj = _get_obj().obj;
 #endif
-        return object_cast<Node>(obj);
-    }
-    return nullptr;
+    return object_cast<Node>(obj);
 }
+
 Variant::operator Control *() const {
-    if (type == VariantType::OBJECT) {
+    if (type != VariantType::OBJECT)
+        return nullptr;
 #ifdef DEBUG_ENABLED
-        Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : NULL;
+    Object *obj = _get_obj().rc ? _get_obj().rc->get_ptr() : nullptr;
 #else
-        Object *obj = _get_obj().obj;
+    Object *obj = _get_obj().obj;
 #endif
-        return object_cast<Control>(obj);
-    }
+    return object_cast<Control>(obj);
+}
+
+Variant::operator Object *() const {
+
+    if (type == VariantType::OBJECT)
+        return _OBJ_PTR(*this);
     return nullptr;
 }
 
@@ -1780,25 +1773,25 @@ DA _convert_array_from_variant(const Variant &p_variant) {
             return _convert_array<DA, Array>(p_variant.operator Array());
         }
         case VariantType::POOL_BYTE_ARRAY: {
-            return _convert_array<DA, PoolVector<uint8_t> >(p_variant.operator PoolVector<uint8_t>());
+            return _convert_array<DA, PoolVector<uint8_t> >(p_variant.as<PoolVector<uint8_t>>());
         }
         case VariantType::POOL_INT_ARRAY: {
-            return _convert_array<DA, PoolVector<int> >(p_variant.operator PoolVector<int>());
+            return _convert_array<DA, PoolVector<int> >(p_variant.as<PoolVector<int>>());
         }
         case VariantType::POOL_REAL_ARRAY: {
-            return _convert_array<DA, PoolVector<real_t> >(p_variant.operator PoolVector<real_t>());
+            return _convert_array<DA, PoolVector<real_t> >(p_variant.as<PoolVector<real_t>>());
         }
         case VariantType::POOL_STRING_ARRAY: {
-            return _convert_array<DA, PoolVector<String> >(p_variant.operator PoolVector<String>());
+            return _convert_array<DA, PoolVector<String> >(p_variant.as<PoolVector<String>>());
         }
         case VariantType::POOL_VECTOR2_ARRAY: {
-            return _convert_array<DA, PoolVector<Vector2> >(p_variant.operator PoolVector<Vector2>());
+            return _convert_array<DA, PoolVector<Vector2> >(p_variant.as<PoolVector<Vector2>>());
         }
         case VariantType::POOL_VECTOR3_ARRAY: {
-            return _convert_array<DA, PoolVector<Vector3> >(p_variant.operator PoolVector<Vector3>());
+            return _convert_array<DA, PoolVector<Vector3> >(p_variant.as<PoolVector<Vector3>>());
         }
         case VariantType::POOL_COLOR_ARRAY: {
-            return _convert_array<DA, PoolVector<Color> >(p_variant.operator PoolVector<Color>());
+            return _convert_array<DA, PoolVector<Color> >(p_variant.as<PoolVector<Color>>());
         }
         default: {
             return DA();
@@ -1876,7 +1869,8 @@ Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
     }
     else
         tmp = _convert_array_from_variant<PoolVector<uint8_t> >(*this);
-    return Vector<uint8_t>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+    auto rddata(tmp.read());
+    return Vector<uint8_t>(rddata.ptr(), rddata.ptr()+tmp.size());
 }
 template<>
 Vector<int> Variant::asVector<int>() const {

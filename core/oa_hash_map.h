@@ -278,13 +278,12 @@ public:
     }
 
     struct Iterator {
-        bool valid;
-
         const TKey *key;
         const TValue *value;
-
     private:
         uint32_t pos;
+    public:
+        bool valid;
         friend class OAHashMap;
     };
 

@@ -3878,6 +3878,7 @@ void EditorNode::register_editor_types() {
     ItemListEditorPlugin::initialize_class();
     EditorSpatialGizmo::initialize_class();
     SpatialEditorViewport::initialize_class();
+    ViewportRotationControl::initialize_class();
     SpatialEditorSelectedItem::initialize_class();
     SpatialEditorViewportContainer::initialize_class();
     SpatialEditor::initialize_class();

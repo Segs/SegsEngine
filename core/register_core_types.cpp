@@ -180,9 +180,6 @@ void register_core_types() {
     ClassDB::register_custom_instance_class<Crypto>();
     ClassDB::register_custom_instance_class<StreamPeerSSL>();
 
-    ResourceFormatSaverCrypto::initialize_class();
-    ResourceFormatLoaderCrypto::initialize_class();
-
     resource_format_saver_crypto = make_ref_counted<ResourceFormatSaverCrypto>();
     gResourceManager().add_resource_format_saver(resource_format_saver_crypto);
     resource_format_loader_crypto = make_ref_counted<ResourceFormatLoaderCrypto>();

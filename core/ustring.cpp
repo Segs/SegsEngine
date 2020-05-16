@@ -1073,7 +1073,7 @@ int StringUtils::hex_to_int(StringView s,bool p_with_prefix) {
         to_convert = s;
     int res=0;
 #ifndef __MINGW32__
-    auto conv_res = std::from_chars(to_convert.begin(),to_convert.end(),res,16);
+    std::from_chars(to_convert.begin(),to_convert.end(),res,16);
 #else
     String zeroterm(to_convert);
     res = strtol(zeroterm.c_str(),nullptr,16);

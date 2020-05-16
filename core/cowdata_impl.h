@@ -169,9 +169,9 @@ template <class T> Error CowData<T>::resize(int p_size) {
             ERR_FAIL_COND_V(!_ptrnew, ERR_OUT_OF_MEMORY);
 
             _ptr = (T *)(_ptrnew);
-
-            *_get_size() = p_size;
         }
+
+        *_get_size() = p_size;
     }
 
     return OK;

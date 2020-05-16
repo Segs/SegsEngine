@@ -1280,7 +1280,7 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
 
         ret = obj->call(p_method, p_args, p_argcount, r_error);
 
-        //else if (type==Variant::METHOD) {
+        //else if (type==VariantType::METHOD) {
 
     } else {
 

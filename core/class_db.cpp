@@ -40,7 +40,7 @@
 #include "core/version.h"
 #include "core/string_utils.h"
 #include "EASTL/sort.h"
-
+#include <cassert>
 
 #define OBJTYPE_RLOCK RWLockRead _rw_lockr_(lock);
 #define OBJTYPE_WLOCK RWLockWrite _rw_lockw_(lock);

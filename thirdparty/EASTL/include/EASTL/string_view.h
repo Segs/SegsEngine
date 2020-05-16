@@ -479,7 +479,20 @@ namespace eastl
     {
         return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
     }
+#ifdef _MSC_VER
+    //workaround for msvc bug - generated symbols cause comdat duplication errors.
+    template <class CharT, int = 1>
+    inline EA_CONSTEXPR bool operator==(decay_t<basic_string_view<CharT>> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
+    {
+        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
+    }
 
+    template <class CharT, int = 2>
+    inline EA_CONSTEXPR bool operator==(basic_string_view<CharT> lhs, decay_t<basic_string_view<CharT>> rhs) EA_NOEXCEPT
+    {
+        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
+    }
+#else
     template <class CharT>
     inline EA_CONSTEXPR bool operator==(decay_t<basic_string_view<CharT>> lhs, basic_string_view<CharT> rhs) EA_NOEXCEPT
     {
@@ -491,12 +504,8 @@ namespace eastl
     {
         return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
     }
+#endif
 
-    template <class CharT>
-    inline EA_CONSTEXPR bool operator==(decay_t<basic_string_view<CharT>> lhs, decay_t<basic_string_view<CharT>> rhs) EA_NOEXCEPT
-    {
-        return (lhs.size() == rhs.size()) && (lhs.compare(rhs) == 0);
-    }
 
 
 

@@ -1085,7 +1085,8 @@ void RenderingServer::mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType
         ERR_FAIL_COND_MSG(err2 != OK, "Invalid blend shape array format for surface.");
         blend_shape_data.emplace_back(eastl::move(PoolVector<uint8_t>(vertex_array_shape)));
     }
-    WARN_PRINT("Inefficient surface arrays operation");
+    //TODO: remove this message after inefficiency is removed.
+    printf("Inefficient surface arrays operation\n");
 
 
     mesh_add_surface(p_mesh, format, p_primitive, PoolVector(vertex_array), array_len,

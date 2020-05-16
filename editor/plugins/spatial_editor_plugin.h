@@ -168,6 +168,7 @@ class ViewportRotationControl : public Control {
     bool orbiting = false;
     int focused_axis = -2;
 
+    //TODO: this fails if the editor scale can change at runtime.
     const float AXIS_CIRCLE_RADIUS = 8.0f * EDSCALE;
 
 protected:

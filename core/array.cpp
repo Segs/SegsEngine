@@ -38,6 +38,13 @@
 
 #include "EASTL/sort.h"
 namespace {
+int _clamp_slice_index(int arr_size,int p_index)  {
+    int fixed_index = CLAMP(p_index, -arr_size, arr_size - 1);
+    if (fixed_index < 0) {
+        fixed_index = arr_size + fixed_index;
+    }
+    return fixed_index;
+}
 struct _ArrayVariantSortCustom {
 
     Object *obj;
@@ -304,8 +311,9 @@ Array Array::slice(int p_begin, int p_end, int p_step, bool p_deep) const { // l
             return new_arr;
     }
 
-    int begin = _clamp_slice_index(p_begin);
-    int end = _clamp_slice_index(p_end);
+    int cur_size=size();
+    int begin = _clamp_slice_index(cur_size,p_begin);
+    int end = _clamp_slice_index(cur_size, p_end);
 
     int new_arr_size = eastl::max(((end - begin + p_step) / p_step), 0);
     new_arr.resize(new_arr_size);
