@@ -2312,7 +2312,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
 
                     // Remove not movable nodes
                     //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                    for (auto E = selection2.begin(), fin = selection2.end(); E != fin; ) {
+                    for (auto E = selection2.begin(); E != selection2.end(); ) {
                         if (!_is_node_movable(*E, true))
                             E = selection2.erase_unsorted(E);
                         else

@@ -24822,6 +24822,18 @@ void godot_icall_Node_rset_config_5de5b82a(Object * ptr, MonoString* arg1, int32
 	static_cast<Node *>(ptr)->rset_config(arg1_in, (MultiplayerAPI_RPCMode)arg2_in);
 }
 
+void godot_icall_Node__set_editor_description_3ca14953(Object * ptr, MonoString* arg1) {
+	ERR_FAIL_NULL(ptr);
+	TmpString<512> arg1_in(GDMonoMarshal::mono_string_to_godot(arg1));
+	static_cast<Node *>(ptr)->set_editor_description(arg1_in);
+}
+
+MonoString* godot_icall_Node__get_editor_description_97be4a2e(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<Node *>(ptr)->get_editor_description();
+	return GDMonoMarshal::mono_string_from_godot(ret);
+}
+
 void godot_icall_Node__set_import_path_1e08804(Object * ptr, NodePath* arg1) {
 	ERR_FAIL_NULL(ptr);
 	static_cast<Node *>(ptr)->set_import_path(*arg1);
@@ -50933,7 +50945,7 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 15822275590319666857U; }
+uint64_t get_core_api_hash() { return 2660786715289462258U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 3853991014797639371U; }
 #endif // TOOLS_ENABLED
@@ -55094,6 +55106,8 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_Node3D_translate_6df7471d", (void*)godot_icall_Node3D_translate_6df7471d},
 	{"Godot.NativeCalls::godot_icall_Node3D_translate_object_local_6df7471d", (void*)godot_icall_Node3D_translate_object_local_6df7471d},
 	{"Godot.NativeCalls::godot_icall_Node3D_update_gizmo_c8e54a7b", (void*)godot_icall_Node3D_update_gizmo_c8e54a7b},
+	{"Godot.NativeCalls::godot_icall_Node__get_editor_description_97be4a2e", (void*)godot_icall_Node__get_editor_description_97be4a2e},
+	{"Godot.NativeCalls::godot_icall_Node__set_editor_description_3ca14953", (void*)godot_icall_Node__set_editor_description_3ca14953},
 	{"Godot.NativeCalls::godot_icall_Node__set_import_path_1e08804", (void*)godot_icall_Node__set_import_path_1e08804},
 	{"Godot.NativeCalls::godot_icall_Node_add_child_26387a5c", (void*)godot_icall_Node_add_child_26387a5c},
 	{"Godot.NativeCalls::godot_icall_Node_add_child_below_node_ea228bc2", (void*)godot_icall_Node_add_child_below_node_ea228bc2},

@@ -989,20 +989,27 @@ namespace eastl
         {
             const char* strEnd = str.data() + str.size();
             const char *start = str.data();
-            for (const char* splitEnd = start; splitEnd != strEnd; ++splitEnd)
+        	size_t sep_len = separator.size();
+            for (const char* splitEnd = start; splitEnd < strEnd-sep_len; )
             {
-                if (view_type(splitEnd) == separator)
+            	if(splitEnd+sep_len > strEnd)
+                    break;
+
+                if (view_type(splitEnd,sep_len) == separator)
                 {
                     const ptrdiff_t splitLen = splitEnd - start;
                     if (splitLen > 0 || keepEmptyStrings)
-                    tgt.emplace_back(start,splitLen);
-                    start = splitEnd + 1;
+						tgt.emplace_back(start,splitLen);
+                    splitEnd += sep_len;
+                    start = splitEnd;
                 }
+                else
+                    ++splitEnd;
             }
 
             const ptrdiff_t splitLen = strEnd - start;
             if (splitLen > 0 || keepEmptyStrings)
-            tgt.emplace_back(start, splitLen);
+				tgt.emplace_back(start, splitLen);
         }
 
         eastl::vector<this_type,allocator_type> split(value_type separator, bool keepEmptyStrings = false) const

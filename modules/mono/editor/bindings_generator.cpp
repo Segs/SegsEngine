@@ -2173,7 +2173,8 @@ static StringView replace_method_name(StringView from) {
         {"get_expand_margin","get_expand_margin_size"},
         {"get_nodes_in_group","_get_nodes_in_group"},
         {"tile_get_shapes","_tile_get_shapes"},
-
+        {"_set_editor_description","set_editor_description"},
+        { "_get_editor_description","get_editor_description" },
     };
     auto iter = s_entries.find(from);
     if (iter != s_entries.end()) return iter->second;

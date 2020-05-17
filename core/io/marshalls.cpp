@@ -89,11 +89,12 @@ static Error _decode_string(const uint8_t *&buf, int &len, int *r_len, String &r
     len -= 4;
 
     // Ensure buffer is big enough
-    ERR_FAIL_ADD_OF(strlen, pad, ERR_FILE_EOF)
+    ERR_FAIL_ADD_OF(strlen, pad, ERR_FILE_EOF);
+    ERR_FAIL_COND_V(strlen > (1<<24), ERR_INVALID_DATA);
     ERR_FAIL_COND_V(strlen < 0 || strlen + pad > len, ERR_FILE_EOF);
 
     String str((const char *)buf, strlen);
-    ERR_FAIL_COND_V(str.empty(), ERR_INVALID_DATA);
+
     r_string = str;
 
     // Add padding
@@ -785,13 +786,13 @@ static void _encode_string(const UIString &p_string, uint8_t *&buf, int &r_len) 
         }
     }
 }
-static void _encode_string(const char *p_string, uint8_t *&buf, int &r_len) {
+static void _encode_string(StringView p_string, uint8_t *&buf, int &r_len) {
 
-    size_t len=strlen(p_string);
+    size_t len=p_string.size();
     if (buf) {
         encode_uint32(len, buf);
         buf += 4;
-        memcpy(buf, p_string, len);
+        memcpy(buf, p_string.data(), len);
         buf += len;
     }
 
@@ -951,7 +952,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::STRING: {
 
-            _encode_string(p_variant.as<UIString>(), buf, r_len);
+            _encode_string(p_variant.as<String>(), buf, r_len);
 
         } break;
 
@@ -1111,7 +1112,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                     r_len += 4;
 
                 } else {
-                    _encode_string(obj->get_class(), buf, r_len);
+                    _encode_string(StringView(obj->get_class()), buf, r_len);
 
                     Vector<PropertyInfo> props;
                     obj->get_property_list(&props);
@@ -1136,7 +1137,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                         if (!(E.usage & PROPERTY_USAGE_STORAGE))
                             continue;
 
-                        _encode_string(E.name.asCString(), buf, r_len);
+                        _encode_string(E.name, buf, r_len);
 
                         int len;
                         Error err = encode_variant(obj->get(E.name), buf, len, p_full_objects);
@@ -1303,10 +1304,10 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 String utf8(data.get(i));
 
                 if (buf) {
-                    encode_uint32(utf8.length() + 1, buf);
+                    encode_uint32(utf8.length(), buf);
                     buf += 4;
-                    memcpy(buf, utf8.data(), utf8.length() + 1);
-                    buf += utf8.length() + 1;
+                    memcpy(buf, utf8.data(), utf8.length());
+                    buf += utf8.length();
                 }
 
                 r_len += 4 + utf8.length() + 1;
