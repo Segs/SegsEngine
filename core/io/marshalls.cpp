@@ -341,15 +341,15 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
         case VariantType::NODE_PATH: {
 
             ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA);
-            uint32_t strlen = decode_uint32(buf);
+            uint32_t inc_strlen = decode_uint32(buf);
 
-            if (strlen & 0x80000000) {
+            if (inc_strlen & 0x80000000) {
                 //new format
                 ERR_FAIL_COND_V(len < 12, ERR_INVALID_DATA);
                 Vector<StringName> names;
                 Vector<StringName> subnames;
 
-                uint32_t namecount = strlen &= 0x7FFFFFFF;
+                uint32_t namecount = inc_strlen & 0x7FFFFFFF;
                 uint32_t subnamecount = decode_uint32(buf + 4);
                 uint32_t flags = decode_uint32(buf + 8);
 

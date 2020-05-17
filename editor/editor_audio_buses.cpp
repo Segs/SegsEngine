@@ -918,8 +918,8 @@ EditorAudioBus::EditorAudioBus(EditorAudioBuses *p_buses, bool p_is_master) {
 
     EditorAudioMeterNotches *scale = memnew(EditorAudioMeterNotches);
 
-    for (float db = 6.0f; db >= -80.0f; db -= 6.0f) {
-        bool renderNotch = db >= -6.0f || db == -24.0f || db == -72.0f;
+    for (int db = 6; db >= -80; db -= 6) {
+        bool renderNotch = db >= -6 || db == -24 || db == -72;
         scale->add_notch(_scaled_db_to_normalized_volume(db), db, renderNotch);
     }
     scale->set_mouse_filter(MOUSE_FILTER_PASS);

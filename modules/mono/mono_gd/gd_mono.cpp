@@ -143,11 +143,11 @@ void gd_mono_debug_init() {
     if (Engine::get_singleton()->is_editor_hint() ||
             ProjectSettings::get_singleton()->get_resource_path().empty() ||
             Main::is_project_manager()) {
-        if (da_args.size() == 0)
+        if (da_args.empty())
             return;
     }
 
-    if (da_args.length() == 0) {
+    if ( da_args.empty() ) {
         da_args = String("--debugger-agent=transport=dt_socket,address=127.0.0.1:" + itos(da_port) +
                          ",embedding=1,server=y,suspend=" + (da_suspend ? "y,timeout=" + itos(da_timeout) : "n"))
                           ;

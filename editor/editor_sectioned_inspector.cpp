@@ -42,7 +42,7 @@ class SectionedInspectorFilter : public Object {
 
     Object *edited;
     String section;
-    bool allow_sub;
+    bool allow_sub=false;
 
     bool _set(const StringName &p_name, const Variant &p_value) {
 
@@ -252,7 +252,8 @@ void SectionedInspector::update_category_list() {
                 StringUtils::begins_with(pi.name, "_global_script"))
             continue;
 
-        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) && !is_subsequence_of(filter,capitalize(String(pi.name).replaced("/", " "))))
+        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) &&
+                !is_subsequence_of(filter, capitalize(String(pi.name).replaced("/", " ")), CaseInsensitive))
             continue;
 
         auto sp = StringUtils::find(pi.name,"/");

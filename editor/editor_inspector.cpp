@@ -793,15 +793,11 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = String(TTR("Property:")) + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
-    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
-    help_bit->set_text(text);
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
-
     auto slices = StringUtils::split(p_text,"::", false);
+
     if (!slices.empty()) {
         StringView property_name = StringUtils::strip_edges(slices[0]);
-        String text = String(TTR("Property:").asCString()) + " [u][b]" + property_name + "[/b][/u]";
+        String text = String(TTR("Property:")) + " [u][b]" + property_name + "[/b][/u]\n";
 
         if (slices.size() > 1) {
             StringView property_doc = StringUtils::strip_edges(slices[1]);
@@ -1187,7 +1183,6 @@ void EditorInspectorSection::setup(StringView p_section, StringView p_label, Obj
     object = p_object;
     bg_color = p_bg_color;
     foldable = p_foldable;
-
     if (!foldable && !vbox_added) {
         add_child(vbox);
         vbox_added = true;
@@ -1582,15 +1577,13 @@ void EditorInspector::update_tree() {
         }
 
         String basename(p.name);
-        if (!group.empty()) {
-            if (!group_base.empty()) {
-                if (begins_with(basename,group_base)) {
-                    basename = replace_first(basename,group_base, "");
-                } else if (begins_with(group_base,basename)) {
-                    //keep it, this is used pretty often
-                } else {
-                    group = ""; //no longer using group base, clear
-                }
+        if (!group.empty() && !group_base.empty()) {
+            if (begins_with(basename,group_base)) {
+                basename = replace_first(basename,group_base, "");
+            } else if (begins_with(group_base,basename)) {
+                //keep it, this is used pretty often
+            } else {
+                group = ""; //no longer using group base, clear
             }
         }
 
@@ -1638,6 +1631,7 @@ void EditorInspector::update_tree() {
 
             String acc_path;
             int level = 1;
+
             for (int i = 0; i < StringUtils::get_slice_count(path,'/'); i++) {
                 StringView path_name = StringUtils::get_slice(path,'/', i);
                 if (i > 0)
@@ -1647,6 +1641,7 @@ void EditorInspector::update_tree() {
                     EditorInspectorSection *section = memnew(EditorInspectorSection);
                     current_vbox->add_child(section);
                     sections.push_back(section);
+
                     String capitalized_path;
                     if (capitalize_paths) {
                         capitalized_path = StringUtils::capitalize(path_name);

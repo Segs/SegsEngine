@@ -933,8 +933,8 @@ void AnimationTrackEditTypeAudio::draw_key(int p_index, float p_pixels_sec, int 
         float min = preview->get_min(ofs, ofs_n) * 0.5f + 0.5f;
 
         int idx = i - from_x;
-        lines.emplace_back(i, rect.position.y + min * rect.size.y);
-        lines.emplace_back(i, rect.position.y + max * rect.size.y);
+        lines.emplace_back(idx, rect.position.y + min * rect.size.y);
+        lines.emplace_back(idx, rect.position.y + max * rect.size.y);
     }
 
     Vector<Color> color;

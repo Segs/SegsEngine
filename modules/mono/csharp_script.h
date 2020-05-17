@@ -300,7 +300,7 @@ class CSharpLanguage : public ScriptLanguage {
     bool finalizing;
 
     GDMono *gdmono;
-    SelfList<CSharpScript>::List script_list;
+    Vector<CSharpScript *> script_list;
 
     Mutex *script_instances_mutex;
     Mutex *script_gchandle_release_mutex;

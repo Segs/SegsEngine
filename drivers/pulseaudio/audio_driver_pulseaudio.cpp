@@ -113,9 +113,9 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
 
     char dev[1024];
     if (device == StringView("Default")) {
-        strcpy(dev, capture ? capture_default_device.c_str() : default_device.c_str());
+        strncpy(dev, capture ? capture_default_device.c_str() : default_device.c_str(),1023);
     } else {
-        strcpy(dev, device.data());
+        strncpy(dev, device.data(),1023);
     }
 
     // Now using the device name get the amount of channels

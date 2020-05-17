@@ -44,7 +44,7 @@ public:
     PropertyInfo(const PropertyInfo &oth) = default;
 
     PropertyInfo(VariantType p_type, StringName p_name, PropertyHint p_hint = PropertyHint::None,
-            StringView p_hint_string=StringView(), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
+            StringView p_hint_string=StringView(""), uint32_t p_usage = PROPERTY_USAGE_DEFAULT,
             const StringName &p_class_name = StringName()) :
             name(eastl::move(p_name)),
             hint_string(p_hint_string),

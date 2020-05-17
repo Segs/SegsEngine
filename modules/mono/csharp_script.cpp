@@ -782,9 +782,9 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     {
         MutexLock lock(*script_instances_mutex);
 
-        for (SelfList<CSharpScript> *elem = script_list.first(); elem; elem = elem->next()) {
+        for (CSharpScript *elem : script_list) {
             // Cast to CSharpScript to avoid being erased by accident
-            scripts.push_back(Ref<CSharpScript>(elem->self()));
+            scripts.push_back(Ref<CSharpScript>(elem));
         }
     }
 
@@ -863,7 +863,7 @@ void CSharpLanguage::reload_assemblies(bool p_soft_reload) {
     // After the state of all instances is saved, clear scripts and script instances
     for (Ref<CSharpScript>& script : scripts) {
 
-        while (*script->instances.begin()) {
+        while (!script->instances.empty()) {
             Object *obj = *script->instances.begin();
             obj->set_script(RefPtr()); // Remove script and existing script instances (placeholder are not removed before domain reload)
         }
@@ -3066,7 +3066,7 @@ PlaceHolderScriptInstance *CSharpScript::placeholder_instance_create(Object *p_t
     _update_exports();
     return si;
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 
@@ -3347,7 +3347,7 @@ CSharpScript::CSharpScript() :
 #ifdef DEBUG_ENABLED
     {
         MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
-        CSharpLanguage::get_singleton()->script_list.add(&this->script_list);
+        CSharpLanguage::get_singleton()->script_list.push_back(this);
     }
 #endif
 }
@@ -3356,7 +3356,7 @@ CSharpScript::~CSharpScript() {
 
 #ifdef DEBUG_ENABLED
     MutexLock lock(*CSharpLanguage::get_singleton()->script_instances_mutex);
-    CSharpLanguage::get_singleton()->script_list.remove(&this->script_list);
+    CSharpLanguage::get_singleton()->script_list.erase_first(this);
 #endif
 }
 

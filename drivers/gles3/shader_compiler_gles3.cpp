@@ -394,7 +394,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                         r_gen_code.defines.push_back("#define USE_MATERIAL\n");
                         uses_uniforms = true;
                     }
-                    uniform_defines[E.second.order] = StringName(ucode.c_str());
+                    uniform_defines[E.second.order] = StringName(ucode);
                     uniform_sizes[E.second.order] = _get_datatype_size(E.second.type);
                     uniform_alignments[E.second.order] = _get_datatype_alignment(E.second.type);
                 }

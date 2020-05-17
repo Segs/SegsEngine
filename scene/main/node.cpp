@@ -2901,6 +2901,11 @@ void Node::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("rpc_config", {"method", "mode"}), &Node::rpc_config);
     MethodBinder::bind_method(D_METHOD("rset_config", {"property", "mode"}), &Node::rset_config);
 
+    MethodBinder::bind_method(D_METHOD("_set_editor_description", {"editor_description"}), &Node::set_editor_description);
+    MethodBinder::bind_method(D_METHOD("_get_editor_description"), &Node::get_editor_description);
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "editor_description", PropertyHint::MultilineText, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_editor_description", "_get_editor_description");
+
+
     MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
     MethodBinder::bind_method(D_METHOD("get_import_path"), &Node::get_import_path);
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "get_import_path");

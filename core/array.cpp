@@ -173,7 +173,8 @@ uint32_t Array::hash() const {
     return h;
 }
 Array &Array::operator=(const Array &p_array) {
-
+    if(this==&p_array)
+        return *this;
     _ref(p_array);
     return *this;
 }

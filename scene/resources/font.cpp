@@ -86,7 +86,6 @@ void Font::draw_halign_utf8(RID p_canvas_item, const Point2 &p_pos, HAlign p_ali
 }
 void Font::draw_ui_string(RID p_canvas_item, const Point2 &p_pos, const UIString &p_text, const Color &p_modulate, int p_clip_w, const Color &p_outline_modulate) const {
     Vector2 ofs;
-
     int chars_drawn = 0;
     bool with_outline = has_outline();
     for (int i = 0; i < p_text.length(); i++) {
@@ -568,7 +567,7 @@ Size2 Font::get_wordwrap_string_size(StringView p_string, float p_width) const {
 void BitmapFont::set_fallback(const Ref<BitmapFont> &p_fallback) {
 
     for (Ref<BitmapFont> fallback_child = p_fallback; fallback_child != nullptr; fallback_child = fallback_child->get_fallback()) {
-        ERR_FAIL_COND_MSG(fallback_child == this, "Can't set as fallback one of its parents to prevent crashes due to recursive loop."); 
+        ERR_FAIL_COND_MSG(fallback_child == this, "Can't set as fallback one of its parents to prevent crashes due to recursive loop.");
     }
 
     fallback = p_fallback;

@@ -238,6 +238,7 @@ void EditorAssetInstaller::ok_pressed() {
         //get filename
         unz_file_info info;
         char fname[16384];
+        //TODO: handle failure below.
         ret = unzGetCurrentFileInfo(pkg, &info, fname, 16384, nullptr, 0, nullptr, 0);
 
         String name(fname);

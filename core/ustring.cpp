@@ -1996,18 +1996,22 @@ String StringUtils::repeat(StringView str,int p_count) {
     return new_string;
 }
 UIString StringUtils::left(const UIString &s,int p_pos) {
+    if(p_pos<0)
+        return UIString();
     return s.mid(0, p_pos);
 }
 StringView StringUtils::left(StringView s,int p_pos) {
+    if(p_pos<0)
+        return StringView();
     return StringView(s).substr(0, p_pos);
 }
 
 UIString StringUtils::right(const UIString &s,int p_pos){
-
     return s.mid(p_pos);
 }
 StringView StringUtils::right(StringView s,int p_pos){
-
+    if(p_pos>=s.size())
+        return StringView();
     return s.substr(p_pos);
 }
 CharType StringUtils::ord_at(const UIString &str,int p_idx) {
