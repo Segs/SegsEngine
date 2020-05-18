@@ -565,17 +565,16 @@ bool AnimationTreePlayer::_get(const StringName &p_name, Variant &r_ret) const {
     data["nodes"] = nodes;
     //connectiosn
 
-    ListOld<Connection> connections;
-    get_connection_list(&connections);
+    Vector<Connection> connections(get_connection_list());
     Array connections_arr;
     connections_arr.resize(connections.size() * 3);
 
     int idx = 0;
-    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const Connection &E : connections) {
 
-        connections_arr.set(idx + 0, E->deref().src_node);
-        connections_arr.set(idx + 1, E->deref().dst_node);
-        connections_arr.set(idx + 2, E->deref().dst_input);
+        connections_arr.set(idx + 0, E.src_node);
+        connections_arr.set(idx + 1, E.dst_node);
+        connections_arr.set(idx + 2, E.dst_input);
 
         idx += 3;
     }
@@ -1667,22 +1666,26 @@ void AnimationTreePlayer::disconnect_nodes(const StringName &p_node, int p_input
     dirty_caches = true;
 }
 
-void AnimationTreePlayer::get_connection_list(ListOld<Connection> *p_connections) const {
+Vector<AnimationTreePlayer::Connection> AnimationTreePlayer::get_connection_list() const {
+    Vector<Connection> res;
+    res.reserve(node_map.size());
 
     for (const eastl::pair<const StringName,AnimationTreeNodeBase *> &E : node_map) {
 
         AnimationTreeNodeBase *nb = E.second;
         for (int i = 0; i < nb->inputs.size(); i++) {
 
-            if (nb->inputs[i].node != StringName()) {
-                Connection c;
-                c.src_node = nb->inputs[i].node;
-                c.dst_node = E.first;
-                c.dst_input = i;
-                p_connections->push_back(c);
-            }
+            if (nb->inputs[i].node.empty())
+                continue;
+
+            Connection c;
+            c.src_node = nb->inputs[i].node;
+            c.dst_node = E.first;
+            c.dst_input = i;
+            res.emplace_back(c);
         }
     }
+    return res;
 }
 
 AnimationTreePlayer::Track *AnimationTreePlayer::_find_track(const NodePath &p_path) {

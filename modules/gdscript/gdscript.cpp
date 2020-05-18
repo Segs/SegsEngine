@@ -2293,10 +2293,7 @@ void ResourceFormatLoaderGDScript::get_dependencies(StringView p_path, Vector<St
     if (OK != parser.parse(source, PathUtils::get_base_dir(p_path), true, p_path, false, nullptr, true)) {
         return;
     }
-
-    for (const ListOld<String>::Element *E = parser.get_dependencies().front(); E; E = E->next()) {
-        p_dependencies.push_back(E->deref());
-    }
+    p_dependencies.push_back(parser.get_dependencies());
 }
 
 Error ResourceFormatSaverGDScript::save(StringView p_path, const RES &p_resource, uint32_t p_flags) {

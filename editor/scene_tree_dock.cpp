@@ -579,7 +579,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             editor_data->get_undo_redo().add_do_method(editor_selection, "clear");
 
             Node *dupsingle = nullptr;
-            ListOld<Node *> editable_children;
+            FixedVector<Node *,64> editable_children;
 
             eastl::sort(selection.begin(),selection.end(),Node::Comparator());
             Node *add_below_node = selection.back();
@@ -594,7 +594,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 Node *dup = node->duplicate_from_editor(duplimap);
 
                 if (EditorNode::get_singleton()->get_edited_scene()->is_editable_instance(node))
-                    editable_children.push_back(dup);
+                    editable_children.emplace_back(dup);
 
                 ERR_CONTINUE(!dup);
 
@@ -630,8 +630,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (dupsingle)
                 editor->push_item(dupsingle);
 
-            for (ListOld<Node *>::Element *E = editable_children.back(); E; E = E->prev())
-                _toggle_editable_children(E->deref());
+            for (auto riter =editable_children.rbegin(); riter!=editable_children.rend(); ++riter)
+                _toggle_editable_children(*riter);
 
         } break;
         case TOOL_REPARENT: {
@@ -1683,12 +1683,12 @@ bool SceneTreeDock::_is_collapsed_recursive(TreeItem *p_item) const {
 
     bool is_branch_collapsed = false;
 
-    ListOld<TreeItem *> needs_check;
+    FixedVector<TreeItem *,32> needs_check;
     needs_check.push_back(p_item);
 
     while (!needs_check.empty()) {
 
-        TreeItem *item = needs_check.back()->deref();
+        TreeItem *item = needs_check.back();
         needs_check.pop_back();
 
         TreeItem *child = item->get_children();
@@ -1698,7 +1698,7 @@ bool SceneTreeDock::_is_collapsed_recursive(TreeItem *p_item) const {
             break;
         }
         while (child) {
-            needs_check.push_back(child);
+            needs_check.emplace_back(child);
             child = child->get_next();
         }
     }
@@ -1707,12 +1707,12 @@ bool SceneTreeDock::_is_collapsed_recursive(TreeItem *p_item) const {
 
 void SceneTreeDock::_set_collapsed_recursive(TreeItem *p_item, bool p_collapsed) {
 
-    ListOld<TreeItem *> to_collapse;
+    FixedVector<TreeItem *,32> to_collapse;
     to_collapse.push_back(p_item);
 
     while (!to_collapse.empty()) {
 
-        TreeItem *item = to_collapse.back()->deref();
+        TreeItem *item = to_collapse.back();
         to_collapse.pop_back();
 
         item->set_collapsed(p_collapsed);
@@ -2121,10 +2121,10 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
 
     const StringName &newname = n->get_name();
 
-    ListOld<Node *> to_erase;
+    FixedVector<Node *,64> to_erase;
     for (int i = 0; i < n->get_child_count(); i++) {
         if (n->get_child(i)->get_owner() == nullptr && n->is_owned_by_parent()) {
-            to_erase.push_back(n->get_child(i));
+            to_erase.emplace_back(n->get_child(i));
         }
     }
     n->replace_by(newnode, true);
@@ -2150,9 +2150,8 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     if (p_remove_old) {
         memdelete(n);
 
-        while (to_erase.front()) {
-            memdelete(to_erase.front()->deref());
-            to_erase.pop_front();
+        for(Node * erase : to_erase) {
+            memdelete(erase);
         }
     }
 }

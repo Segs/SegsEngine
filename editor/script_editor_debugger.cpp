@@ -71,7 +71,7 @@ class ScriptEditorDebuggerVariables : public Object {
 
     GDCLASS(ScriptEditorDebuggerVariables,Object)
 
-    ListOld<PropertyInfo> props;
+    FixedVector<PropertyInfo,32> props;
     HashMap<StringName, Variant> values;
 
 protected:
@@ -89,8 +89,8 @@ protected:
     }
     void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
-        for (const ListOld<PropertyInfo>::Element *E = props.front(); E; E = E->next())
-            p_list->push_back(E->deref());
+        for (const PropertyInfo &E : props)
+            p_list->push_back(E);
     }
 
 public:
@@ -1139,8 +1139,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
     } else if (p_msg == "network_bandwidth") {
         network_profiler->set_bandwidth(p_data[0], p_data[1]);
     } else if (p_msg == "kill_me") {
-
-        editor->call_deferred("stop_child_process");
+        EditorNode*our_editor=editor;
+        editor->call_deferred([our_editor](){ our_editor->stop_child_process(); });
     }
 }
 

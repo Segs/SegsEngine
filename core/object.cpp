@@ -1084,7 +1084,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         return ERR_UNAVAILABLE;
     }
 
-    ListOld<_ObjectSignalDisconnectData> disconnect_data;
+    FixedVector<_ObjectSignalDisconnectData,32> disconnect_data;
 
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
@@ -1158,17 +1158,12 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             dd.signal = p_name;
             dd.target = target;
             dd.method = c.method;
-            disconnect_data.push_back(dd);
+            disconnect_data.emplace_back(eastl::move(dd));
         }
     }
-
-    while (!disconnect_data.empty()) {
-
-        const _ObjectSignalDisconnectData &dd = disconnect_data.front()->deref();
+    for(const _ObjectSignalDisconnectData & dd : disconnect_data) {
         disconnect(dd.signal, dd.target, dd.method);
-        disconnect_data.pop_front();
     }
-
     return err;
 }
 

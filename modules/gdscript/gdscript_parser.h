@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_PARSER_H
-#define GDSCRIPT_PARSER_H
+#pragma once
+
 
 #include "core/list.h"
 #include "core/map.h"
@@ -542,7 +542,7 @@ private:
     int error_column;
     bool check_types;
     bool dependencies_only;
-    ListOld<String> dependencies;
+    Vector<String> dependencies;
 #ifdef DEBUG_ENABLED
     Set<int> *safe_lines;
 #endif // DEBUG_ENABLED
@@ -686,11 +686,9 @@ public:
     int get_completion_argument_index();
     int get_completion_identifier_is_function();
 
-    const ListOld<String> &get_dependencies() const { return dependencies; }
+    const Vector<String> &get_dependencies() const { return dependencies; }
 
     void clear();
     GDScriptParser();
     ~GDScriptParser();
 };
-
-#endif // GDSCRIPT_PARSER_H

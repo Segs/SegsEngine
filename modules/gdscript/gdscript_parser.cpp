@@ -507,7 +507,7 @@ GDScriptParser::Node *GDScriptParser::_parse_expression(Node *p_parent, bool p_s
             }
 
             Ref<Resource> res;
-            dependencies.push_back(path);
+            dependencies.emplace_back(path);
             if (!dependencies_only) {
                 if (!validating) {
 
@@ -3514,7 +3514,7 @@ void GDScriptParser::_parse_extends(ClassNode *p_class) {
         if (PathUtils::is_rel_path(parent)) {
             parent = PathUtils::simplify_path(PathUtils::plus_file(base_path,parent));
         }
-        dependencies.push_back(parent);
+        dependencies.emplace_back(parent);
 
         if (tokenizer->get_token() != GDScriptTokenizer::TK_PERIOD) {
             return;
