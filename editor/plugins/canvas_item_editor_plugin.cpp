@@ -1495,7 +1495,7 @@ bool CanvasItemEditor::_gui_input_rotate(const Ref<InputEvent> &p_event) {
 
                 // Remove not movable nodes
                 //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                for (auto E = selection.begin(),fin =selection.end(); E!=fin; ) {
+                for (auto E = selection.begin(); E!=selection.end(); ) {
                     if (!_is_node_movable(*E, true))
                         E = selection.erase_unsorted(E);
                     else
@@ -4149,7 +4149,9 @@ void CanvasItemEditor::_popup_warning_depop(Control *p_control) {
     p_control->hide();
     remove_child(timer);
     popup_temporarily_timers.erase(p_control);
-    memdelete(timer);
+    //NOTE:timer was deleted here using memdelete(timer);
+    //TODO:verify that queue_delete will not break things.
+    timer->queue_delete();
     info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 

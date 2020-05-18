@@ -357,7 +357,7 @@ void MessageQueue::flush() {
             }
         }
 
-        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION) {
+        if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION && (message->type & FLAG_MASK) != TYPE_FUNC) {
             Variant *args = (Variant *)(message + 1);
             for (int i = 0; i < message->args; i++) {
                 args[i].~Variant();

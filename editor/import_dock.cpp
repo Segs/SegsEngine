@@ -180,7 +180,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
     clear();
 
     // Use the value that is repeated the most.
-    HashMap<StringView, Dictionary> value_frequency;
+    HashMap<String, Dictionary> value_frequency;
 
     for (size_t i = 0; i < p_paths.size(); i++) {
 

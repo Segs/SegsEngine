@@ -44,8 +44,8 @@ void _to_hex(float p_val,char *tgt) {
 
     int v = int(p_val * 255);
     v = CLAMP(v, 0, 255);
-    tgt[0] = vals[(v & 0xF)];
-    tgt[1] = vals[((v>>4) & 0xF)];
+    tgt[1] = vals[(v & 0xF)];
+    tgt[0] = vals[((v>>4) & 0xF)];
 }
 } // end of anonymous namespace
 
@@ -374,21 +374,18 @@ Color Color::html(StringView p_color) {
         ERR_FAIL_V_MSG(Color(), errcode + p_color + ".");
     }
 
+
+    int r = _parse_col(p_color, 0);
+    ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".");
+    int g = _parse_col(p_color, 2);
+    ERR_FAIL_COND_V_MSG(g < 0, Color(), errcode + p_color + ".");
+    int b = _parse_col(p_color, 4);
+    ERR_FAIL_COND_V_MSG(b < 0, Color(), errcode + p_color + ".");
     int a = 255;
     if (alpha) {
-        a = _parse_col(p_color, 0);
+        a = _parse_col(p_color, 6);
         ERR_FAIL_COND_V_MSG(a < 0, Color(), errcode + p_color + ".");
     }
-
-    int from = alpha ? 2 : 0;
-
-    int r = _parse_col(p_color, from + 0);
-    ERR_FAIL_COND_V_MSG(r < 0, Color(), errcode + p_color + ".");
-    int g = _parse_col(p_color, from + 2);
-    ERR_FAIL_COND_V_MSG(g < 0, Color(), errcode + p_color + ".");
-    int b = _parse_col(p_color, from + 4);
-    ERR_FAIL_COND_V_MSG(b < 0, Color(), errcode + p_color + ".");
-
     return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 }
 bool Color::html_is_valid(StringView p_color) {
@@ -410,25 +407,25 @@ bool Color::html_is_valid(StringView p_color) {
         return false;
     }
 
+
+    int r = _parse_col(color, 0);
+    if (r < 0) {
+        return false;
+    }
+    int g = _parse_col(color, 2);
+    if (g < 0) {
+        return false;
+    }
+    int b = _parse_col(color, 4);
+    if(b<0)
+    return false;
     if (alpha) {
-        int a = _parse_col(color, 0);
+        int a = _parse_col(color, 6);
         if (a < 0) {
             return false;
         }
     }
-
-    int from = alpha ? 2 : 0;
-
-    int r = _parse_col(color, from + 0);
-    if (r < 0) {
-        return false;
-    }
-    int g = _parse_col(color, from + 2);
-    if (g < 0) {
-        return false;
-    }
-    int b = _parse_col(color, from + 4);
-    return b >= 0;
+    return true;
 }
 
 Color Color::named(StringView p_name) {
@@ -452,7 +449,7 @@ String Color::to_html(bool p_alpha) const {
     txt.resize(p_alpha ? 8 : 6);
     _to_hex(r,txt.data());
     _to_hex(g,txt.data()+2);
-    _to_hex(r,txt.data()+4);
+    _to_hex(b,txt.data()+4);
     if(p_alpha)
         _to_hex(a,txt.data()+6);
     return txt;

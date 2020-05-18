@@ -1325,14 +1325,10 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
     //performance is not lost because only if something is added/removed the vector is copied.
     Vector<Node *> nodes_copy = g.nodes;
 
-    int node_count = nodes_copy.size();
-    Node **nodes = nodes_copy.data();
-
     call_lock++;
 
-    for (int i = 0; i < node_count; i++) {
+    for (Node *n : nodes_copy) {
 
-        Node *n = nodes[i];
         if (call_lock && call_skip.contains(n))
             continue;
 
