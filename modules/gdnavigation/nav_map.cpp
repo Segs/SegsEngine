@@ -82,8 +82,8 @@ gd::PointKey NavMap::get_point_key(const Vector3 &p_pos) const {
 
 Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p_optimize) const {
 
-    const gd::Polygon *begin_poly = NULL;
-    const gd::Polygon *end_poly = NULL;
+    const gd::Polygon *begin_poly = nullptr;
+    const gd::Polygon *end_poly = nullptr;
     Vector3 begin_point;
     Vector3 end_point;
     float begin_d = 1e20;
@@ -146,7 +146,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
 
     open_list.push_back(0);
 
-    const gd::Polygon *reachable_end = NULL;
+    const gd::Polygon *reachable_end = nullptr;
     float reachable_d = 1e30;
     bool is_reachable = true;
 
@@ -215,7 +215,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
             // so use the further reachable polygon
             ERR_BREAK_MSG(is_reachable == false, "It's not expect to not find the most reachable polygons");
             is_reachable = false;
-            if (reachable_end == NULL) {
+            if (reachable_end == nullptr) {
                 // The path is not found and there is not a way out.
                 break;
             }
@@ -240,7 +240,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
             open_list.clear();
             open_list.push_back(0);
 
-            reachable_end = NULL;
+            reachable_end = nullptr;
 
             continue;
         }
@@ -366,7 +366,7 @@ Vector<Vector3> NavMap::get_path(Vector3 p_origin, Vector3 p_destination, bool p
                     p = &navigation_polys[p->prev_navigation_poly_id];
                 else
                     // The end
-                    p = NULL;
+                    p = nullptr;
             }
 
             if (path[path.size() - 1] != begin_point)

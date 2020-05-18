@@ -943,9 +943,6 @@ void GDScriptTokenizerText::_advance() {
                             }
                             exponent_found = true;
                         } else if (_is_number(GETCHAR(i))) {
-                            //all ok
-                        } else if (hexa_found && _is_hex(GETCHAR(i))) {
-
                         } else if (bin_found && _is_bin(GETCHAR(i))) {
 
                         } else if ((GETCHAR(i) == '-' || GETCHAR(i) == '+') && exponent_found) {

@@ -452,11 +452,9 @@ void RasterizerSceneGLES3::reflection_atlas_set_size(RID p_ref_atlas, int p_size
 
     if (reflection_atlas->size) {
 
-        bool use_float = true;
-
-        GLenum internal_format = use_float ? GL_RGBA16F : GL_RGB10_A2;
+        GLenum internal_format = GL_RGBA16F;
         GLenum format = GL_RGBA;
-        GLenum type = use_float ? GL_HALF_FLOAT : GL_UNSIGNED_INT_2_10_10_10_REV;
+        GLenum type = GL_HALF_FLOAT;
 
         // Create a texture for storing the color
         glActiveTexture(GL_TEXTURE0);
@@ -5112,11 +5110,9 @@ void RasterizerSceneGLES3::initialize() {
 
         glActiveTexture(GL_TEXTURE0);
 
-        bool use_float = true;
-
-        GLenum internal_format = use_float ? GL_RGBA16F : GL_RGB10_A2;
+        GLenum internal_format = GL_RGBA16F;
         GLenum format = GL_RGBA;
-        GLenum type = use_float ? GL_HALF_FLOAT : GL_UNSIGNED_INT_2_10_10_10_REV;
+        GLenum type = GL_HALF_FLOAT;
 
         while (rcube_size >= 32) {
 

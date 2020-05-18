@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TIMER_H
-#define TIMER_H
+#pragma once
 
 #include "scene/main/node.h"
 
@@ -82,5 +81,3 @@ private:
     TimerProcessMode timer_process_mode;
     void _set_process(bool p_process, bool p_force = false);
 };
-
-#endif // TIMER_H
