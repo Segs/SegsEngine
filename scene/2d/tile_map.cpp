@@ -369,9 +369,9 @@ void TileMap::update_dirty_quadrants() {
 
         Quadrant &q = *dirty_quadrant_list.first()->self();
 
-        for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+        for (RID E : q.canvas_items) {
 
-            vs->free_rid(E->deref());
+            vs->free_rid(E);
         }
 
         q.canvas_items.clear();
@@ -709,9 +709,9 @@ void TileMap::update_dirty_quadrants() {
         for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
             Quadrant &q = E.second;
-            for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+            for (RID F : q.canvas_items) {
 
-                RenderingServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
+                RenderingServer::get_singleton()->canvas_item_set_draw_index(F, index++);
             }
         }
 
@@ -802,9 +802,9 @@ void TileMap::_erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q) {
         collision_parent->remove_shape_owner(q.shape_owner_id);
     }
 
-    for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+    for (RID E : q.canvas_items) {
 
-        RenderingServer::get_singleton()->free_rid(E->deref());
+        RenderingServer::get_singleton()->free_rid(E);
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
@@ -1188,9 +1188,9 @@ void TileMap::_update_all_items_material_state() {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         Quadrant &q = E.second;
-        for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+        for (RID F : q.canvas_items) {
 
-            _update_item_material_state(F->deref());
+            _update_item_material_state(F);
         }
     }
 }
@@ -1763,8 +1763,8 @@ void TileMap::set_light_mask(int p_light_mask) {
     CanvasItem::set_light_mask(p_light_mask);
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (ListOld<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
-            RenderingServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
+        for (RID F : E.second.canvas_items) {
+            RenderingServer::get_singleton()->canvas_item_set_light_mask(F, get_light_mask());
         }
     }
 }

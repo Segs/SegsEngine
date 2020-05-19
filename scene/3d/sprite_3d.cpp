@@ -71,9 +71,9 @@ void SpriteBase3D::_propagate_color_changed() {
     color_dirty = true;
     _queue_update();
 
-    for (ListOld<SpriteBase3D *>::Element *E = children.front(); E; E = E->next()) {
+    for (SpriteBase3D * child : children) {
 
-        E->deref()->_propagate_color_changed();
+        child->_propagate_color_changed();
     }
 }
 
@@ -86,7 +86,7 @@ void SpriteBase3D::_notification(int p_what) {
 
         parent_sprite = object_cast<SpriteBase3D>(get_parent());
         if (parent_sprite) {
-            pI = parent_sprite->children.push_back(this);
+            parent_sprite->children.emplace_back(this);
         }
     }
 
@@ -94,8 +94,7 @@ void SpriteBase3D::_notification(int p_what) {
 
         if (parent_sprite) {
 
-            parent_sprite->children.erase(pI);
-            pI = nullptr;
+            parent_sprite->children.erase_first(this);
             parent_sprite = nullptr;
         }
     }
@@ -379,7 +378,6 @@ SpriteBase3D::SpriteBase3D() {
     hflip = false;
     vflip = false;
     parent_sprite = nullptr;
-    pI = nullptr;
 
     for (int i = 0; i < FLAG_MAX; i++)
         flags[i] = i == FLAG_TRANSPARENT || i == FLAG_DOUBLE_SIDED;

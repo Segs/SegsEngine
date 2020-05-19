@@ -131,7 +131,7 @@ private:
     struct Quadrant {
 
         Vector2 pos;
-        ListOld<RID> canvas_items;
+        Vector<RID> canvas_items;
         RID body;
         uint32_t shape_owner_id;
 
