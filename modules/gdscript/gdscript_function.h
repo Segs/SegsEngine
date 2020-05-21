@@ -200,7 +200,7 @@ private:
     Vector<StringName> arg_names;
 #endif
 
-    List<StackDebug> stack_debug;
+    Vector<StackDebug> stack_debug;
 
     Variant *_get_variant(int p_address, GDScriptInstance *p_instance, GDScript *p_script, Variant &self, Variant *p_stack, String &r_error) const;
     String _get_call_error(const Callable::CallError &p_err, StringView p_where, const Variant **argptrs) const;

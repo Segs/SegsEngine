@@ -574,7 +574,7 @@ private:
                 tabs(p_tabs) {}
     };
 
-    ListOld<IndentLevel> indent_level;
+    Vector<IndentLevel> indent_level;
 
     String base_path;
     String self_path;

@@ -1927,7 +1927,7 @@ void Node::remove_and_skip() {
 
     Node *new_owner = get_owner();
 
-    ListOld<Node *> children;
+    Deque<Node *> children;
 
     while (true) {
 
@@ -1948,12 +1948,10 @@ void Node::remove_and_skip() {
             break;
     }
 
-    while (!children.empty()) {
+    for(Node * c_node : children) {
 
-        Node *c_node = children.front()->deref();
         data->parent->add_child(c_node);
         c_node->_propagate_replace_owner(nullptr, new_owner);
-        children.pop_front();
     }
 
     data->parent->remove_child(this);
@@ -2097,7 +2095,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
     StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
-    ListOld<const Node *> hidden_roots;
+    Dequeue<const Node *> hidden_roots;
     Dequeue<const Node *> node_tree;
     node_tree.push_front(this);
 
@@ -2205,16 +2203,16 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         }
     }
 
-    for (ListOld<const Node *>::Element *E = hidden_roots.front(); E; E = E->next()) {
+    for (const Node *E : hidden_roots) {
 
-        Node *parent = node->get_node(get_path_to(E->deref()->data->parent));
+        Node *parent = node->get_node(get_path_to(E->data->parent));
         if (!parent) {
 
             memdelete(node);
             return nullptr;
         }
 
-        Node *dup = E->deref()->_duplicate(p_flags, r_duplimap);
+        Node *dup = E->_duplicate(p_flags, r_duplimap);
         if (!dup) {
 
             memdelete(node);
@@ -2222,7 +2220,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         }
 
         parent->add_child(dup);
-        int pos = E->deref()->get_position_in_parent();
+        int pos = E->get_position_in_parent();
 
         if (pos < parent->get_child_count() - 1) {
 

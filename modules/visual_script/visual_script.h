@@ -308,12 +308,12 @@ public:
     void sequence_connect(const StringName &p_func, int p_from_node, int p_from_output, int p_to_node);
     void sequence_disconnect(const StringName &p_func, int p_from_node, int p_from_output, int p_to_node);
     bool has_sequence_connection(const StringName &p_func, int p_from_node, int p_from_output, int p_to_node) const;
-    void get_sequence_connection_list(const StringName &p_func, ListOld<SequenceConnection> *r_connection) const;
+    void get_sequence_connection_list(const StringName &p_func, Vector<SequenceConnection> *r_connection) const;
 
     void data_connect(const StringName &p_func, int p_from_node, int p_from_port, int p_to_node, int p_to_port);
     void data_disconnect(const StringName &p_func, int p_from_node, int p_from_port, int p_to_node, int p_to_port);
     bool has_data_connection(const StringName &p_func, int p_from_node, int p_from_port, int p_to_node, int p_to_port) const;
-    void get_data_connection_list(const StringName &p_func, ListOld<DataConnection> *r_connection) const;
+    void get_data_connection_list(const StringName &p_func, Vector<DataConnection> *r_connection) const;
     bool is_input_value_port_connected(const StringName &p_func, int p_node, int p_port) const;
     bool get_input_value_port_connection_source(const StringName &p_func, int p_node, int p_port, int *r_node, int *r_port) const;
 
@@ -630,7 +630,7 @@ public:
     void add_register_func(StringView p_name, VisualScriptNodeRegisterFunc p_func);
     void remove_register_func(StringView p_name);
     Ref<VisualScriptNode> create_node_from_name(const String &p_name);
-    void get_registered_node_names(ListOld<String> *r_names);
+    void get_registered_node_names(Vector<String> *r_names);
 
     VisualScriptLanguage();
     ~VisualScriptLanguage() override;

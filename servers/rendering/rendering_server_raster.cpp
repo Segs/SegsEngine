@@ -115,15 +115,15 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
     VSG::rasterizer->end_frame(p_swap_buffers);
     PROFILER_ENDFRAME("viewport");
 
-    while (frame_drawn_callbacks.front()) {
+    while (!frame_drawn_callbacks.empty()) {
 
-        Object *obj = gObjectDB().get_instance(frame_drawn_callbacks.front()->deref().object);
+        Object *obj = gObjectDB().get_instance(frame_drawn_callbacks.front().object);
         if (obj) {
             Callable::CallError ce;
-            const Variant *v = &frame_drawn_callbacks.front()->deref().param;
-            obj->call(frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
+            const Variant *v = &frame_drawn_callbacks.front().param;
+            obj->call(frame_drawn_callbacks.front().method, &v, 1, ce);
             if (ce.error != Callable::CallError::CALL_OK) {
-                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front()->deref().method, &v, 1, ce);
+                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front().method, &v, 1, ce);
                 ERR_PRINT("Error calling frame drawn function: " + err);
             }
         }

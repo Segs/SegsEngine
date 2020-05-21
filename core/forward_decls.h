@@ -61,8 +61,6 @@ using BitVector = eastl::bitvector<wrap_allocator,size_t,Vector<size_t>>;
 template <class T>
 class ListOld;
 
-template <class T>
-using DefList = ListOld<T>;
 template<class T>
 using List = eastl::list<T,wrap_allocator>;
 template <class T>

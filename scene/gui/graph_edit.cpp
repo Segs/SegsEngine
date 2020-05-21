@@ -69,7 +69,7 @@ Error GraphEdit::connect_node(const StringName &p_from, int p_from_port, const S
     c.to = p_to;
     c.to_port = p_to_port;
     c.activity = 0;
-    connections.push_back(c);
+    connections.emplace_back(eastl::move(c));
     top_layer->update();
     update();
     connections_layer->update();
@@ -79,9 +79,9 @@ Error GraphEdit::connect_node(const StringName &p_from, int p_from_port, const S
 
 bool GraphEdit::is_node_connected(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port) {
 
-    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const Connection &E : connections) {
 
-        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port)
+        if (E.from == p_from && E.from_port == p_from_port && E.to == p_to && E.to_port == p_to_port)
             return true;
     }
 
@@ -90,9 +90,9 @@ bool GraphEdit::is_node_connected(const StringName &p_from, int p_from_port, con
 
 void GraphEdit::disconnect_node(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port) {
 
-    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (auto E = connections.begin(); E!= connections.end(); ++E) {
 
-        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
+        if (E->from == p_from && E->from_port == p_from_port && E->to == p_to && E->to_port == p_to_port) {
 
             connections.erase(E);
             top_layer->update();
@@ -108,7 +108,7 @@ bool GraphEdit::clips_input() const {
     return true;
 }
 
-void GraphEdit::get_connection_list(ListOld<Connection> *r_connections) const {
+void GraphEdit::get_connection_list(List<GraphEdit::Connection> *r_connections) const {
 
     *r_connections = connections;
 }
@@ -410,23 +410,23 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     if (valid_left_disconnect_types.contains(gn->get_connection_output_type(j))) {
                         //check disconnect
-                        for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+                        for (Connection &E : connections) {
 
-                            if (E->deref().from == gn->get_name() && E->deref().from_port == j) {
+                            if (E.from == gn->get_name() && E.from_port == j) {
 
-                                Node *to = get_node((NodePath)(E->deref().to));
+                                Node *to = get_node((NodePath)(E.to));
                                 if (object_cast<GraphNode>(to)) {
 
-                                    connecting_from = E->deref().to;
-                                    connecting_index = E->deref().to_port;
+                                    connecting_from = E.to;
+                                    connecting_index = E.to_port;
                                     connecting_out = false;
-                                    connecting_type = object_cast<GraphNode>(to)->get_connection_input_type(E->deref().to_port);
-                                    connecting_color = object_cast<GraphNode>(to)->get_connection_input_color(E->deref().to_port);
+                                    connecting_type = object_cast<GraphNode>(to)->get_connection_input_type(E.to_port);
+                                    connecting_color = object_cast<GraphNode>(to)->get_connection_input_color(E.to_port);
                                     connecting_target = false;
                                     connecting_to = pos;
                                     just_disconnected = true;
 
-                                    emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
+                                    emit_signal("disconnection_request", E.from, E.from_port, E.to, E.to_port);
                                     to = get_node((NodePath)connecting_from); // maybe it was erased
                                     if (object_cast<GraphNode>(to)) {
                                         connecting = true;
@@ -457,29 +457,29 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
                     if (right_disconnects || valid_right_disconnect_types.contains(gn->get_connection_input_type(j))) {
                         //check disconnect
-                        for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+                        for (const Connection &E : connections) {
 
-                            if (E->deref().to == gn->get_name() && E->deref().to_port == j) {
+                            if (E.to != gn->get_name() || E.to_port != j)
+                                continue;
 
-                                Node *fr = get_node((NodePath)(E->deref().from));
+                            Node *fr = get_node((NodePath)(E.from));
+                            if (object_cast<GraphNode>(fr)) {
+
+                                connecting_from = E.from;
+                                connecting_index = E.from_port;
+                                connecting_out = true;
+                                connecting_type = object_cast<GraphNode>(fr)->get_connection_output_type(E.from_port);
+                                connecting_color = object_cast<GraphNode>(fr)->get_connection_output_color(E.from_port);
+                                connecting_target = false;
+                                connecting_to = pos;
+                                just_disconnected = true;
+
+                                emit_signal("disconnection_request", E.from, E.from_port, E.to, E.to_port);
+                                fr = get_node((NodePath)(connecting_from)); // maybe it was erased
                                 if (object_cast<GraphNode>(fr)) {
-
-                                    connecting_from = E->deref().from;
-                                    connecting_index = E->deref().from_port;
-                                    connecting_out = true;
-                                    connecting_type = object_cast<GraphNode>(fr)->get_connection_output_type(E->deref().from_port);
-                                    connecting_color = object_cast<GraphNode>(fr)->get_connection_output_color(E->deref().from_port);
-                                    connecting_target = false;
-                                    connecting_to = pos;
-                                    just_disconnected = true;
-
-                                    emit_signal("disconnection_request", E->deref().from, E->deref().from_port, E->deref().to, E->deref().to_port);
-                                    fr = get_node((NodePath)(connecting_from)); // maybe it was erased
-                                    if (object_cast<GraphNode>(fr)) {
-                                        connecting = true;
-                                    }
-                                    return;
+                                    connecting = true;
                                 }
+                                return;
                             }
                         }
                     }
@@ -705,53 +705,50 @@ void GraphEdit::_connections_layer_draw() {
 
     Color activity_color = get_color("activity");
     //draw connections
-    ListOld<ListOld<Connection>::Element *> to_erase;
-    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
 
-        NodePath fromnp(E->deref().from);
+    for (auto E = connections.begin(); E!= connections.end(); ) {
+
+        NodePath fromnp(E->from);
 
         Node *from = get_node(fromnp);
         if (!from) {
-            to_erase.push_back(E);
+            E = connections.erase(E);
             continue;
         }
 
         GraphNode *gfrom = object_cast<GraphNode>(from);
 
         if (!gfrom) {
-            to_erase.push_back(E);
+            E = connections.erase(E);
             continue;
         }
 
-        NodePath tonp(E->deref().to);
+        NodePath tonp(E->to);
         Node *to = get_node(tonp);
         if (!to) {
-            to_erase.push_back(E);
+            E = connections.erase(E);
             continue;
         }
 
         GraphNode *gto = object_cast<GraphNode>(to);
 
         if (!gto) {
-            to_erase.push_back(E);
+            E = connections.erase(E);
             continue;
         }
 
-        Vector2 frompos = gfrom->get_connection_output_position(E->deref().from_port) + gfrom->get_offset() * zoom;
-        Color color = gfrom->get_connection_output_color(E->deref().from_port);
-        Vector2 topos = gto->get_connection_input_position(E->deref().to_port) + gto->get_offset() * zoom;
-        Color tocolor = gto->get_connection_input_color(E->deref().to_port);
+        Vector2 frompos = gfrom->get_connection_output_position(E->from_port) + gfrom->get_offset() * zoom;
+        Color color = gfrom->get_connection_output_color(E->from_port);
+        Vector2 topos = gto->get_connection_input_position(E->to_port) + gto->get_offset() * zoom;
+        Color tocolor = gto->get_connection_input_color(E->to_port);
 
-        if (E->deref().activity > 0) {
-            color = color.linear_interpolate(activity_color, E->deref().activity);
-            tocolor = tocolor.linear_interpolate(activity_color, E->deref().activity);
+        if (E->activity > 0) {
+            color = color.linear_interpolate(activity_color, E->activity);
+            tocolor = tocolor.linear_interpolate(activity_color, E->activity);
         }
         _draw_cos_line(connections_layer, frompos, topos, color, tocolor);
-    }
 
-    while (!to_erase.empty()) {
-        connections.erase(to_erase.front()->deref());
-        to_erase.pop_front();
+        ++E;
     }
 }
 
@@ -1096,16 +1093,16 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
 
 void GraphEdit::set_connection_activity(const StringName &p_from, int p_from_port, const StringName &p_to, int p_to_port, float p_activity) {
 
-    for (ListOld<Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (Connection &E : connections) {
 
-        if (E->deref().from == p_from && E->deref().from_port == p_from_port && E->deref().to == p_to && E->deref().to_port == p_to_port) {
+        if (E.from == p_from && E.from_port == p_from_port && E.to == p_to && E.to_port == p_to_port) {
 
-            if (Math::is_equal_approx(E->deref().activity, p_activity)) {
+            if (Math::is_equal_approx(E.activity, p_activity)) {
                 //update only if changed
                 top_layer->update();
                 connections_layer->update();
             }
-            E->deref().activity = p_activity;
+            E.activity = p_activity;
             return;
         }
     }
@@ -1186,15 +1183,15 @@ void GraphEdit::remove_valid_left_disconnect_type(int p_type) {
 
 Array GraphEdit::_get_connection_list() const {
 
-    ListOld<Connection> conns;
+    List<Connection> conns;
     get_connection_list(&conns);
     Array arr;
-    for (ListOld<Connection>::Element *E = conns.front(); E; E = E->next()) {
+    for (const Connection &E : conns) {
         Dictionary d;
-        d["from"] = E->deref().from;
-        d["from_port"] = E->deref().from_port;
-        d["to"] = E->deref().to;
-        d["to_port"] = E->deref().to_port;
+        d["from"] = E.from;
+        d["from_port"] = E.from_port;
+        d["to"] = E.to;
+        d["to_port"] = E.to_port;
         arr.push_back(d);
     }
     return arr;

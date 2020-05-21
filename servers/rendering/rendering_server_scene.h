@@ -37,6 +37,7 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/self_list.h"
+#include "core/deque.h"
 
 struct NewOctree {};
 enum ARVREyes : int8_t;
@@ -198,10 +199,10 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //reflection iterator in geometry
+            List<Instance *>::iterator L; //reflection iterator in geometry
             Instance *geometry;
         };
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         RID instance;
         bool reflection_dirty;
@@ -222,7 +223,7 @@ public:
     struct InstanceLightData : public InstanceBaseData {
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //light iterator in geometry
+            List<Instance *>::iterator L; //light iterator in geometry
             Instance *geometry;
         };
 
@@ -231,7 +232,7 @@ public:
         bool D; // directional light in scenario
         bool shadow_dirty;
 
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         Instance *baked_light;
 
@@ -249,11 +250,11 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //gi probe iterator in geometry
+            List<Instance *>::iterator L; //gi probe iterator in geometry
             Instance *geometry;
         };
 
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         HashSet<Instance *> lights;
 
@@ -346,10 +347,10 @@ public:
     struct InstanceLightmapCaptureData : public InstanceBaseData {
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //iterator in geometry
+            List<Instance *>::iterator L; //iterator in geometry
             Instance *geometry;
         };
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         HashSet<Instance *> users;
 
@@ -454,7 +455,7 @@ public:
     Thread *probe_bake_thread;
     Semaphore *probe_bake_sem;
     Mutex *probe_bake_mutex;
-    ListOld<Instance *> probe_bake_list;
+    Deque<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
     void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell,

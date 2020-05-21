@@ -374,7 +374,7 @@ public:
     void set_node_position(const StringName &p_node, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_node) const;
 
-    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(Vector<ChildNode> *r_child_nodes) override;
 
     void connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node);
     void disconnect_node(const StringName &p_node, int p_input_index);

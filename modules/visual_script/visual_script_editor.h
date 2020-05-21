@@ -202,7 +202,7 @@ class VisualScriptEditor : public ScriptEditorBase {
     void _end_node_move();
     void _move_node(const StringName &p_func, int p_id, const Vector2 &p_to);
 
-    void _get_ends(int p_node, const ListOld<VisualScript::SequenceConnection> &p_seqs, const Set<int> &p_selected, Set<int> &r_end_nodes);
+    void _get_ends(int p_node, const Vector<VisualScript::SequenceConnection> &p_seqs, const Set<int> &p_selected, Set<int> &r_end_nodes);
 
     void _node_moved(Vector2 p_from, Vector2 p_to, int p_id);
     void _remove_node(int p_id);

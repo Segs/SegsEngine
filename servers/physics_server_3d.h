@@ -464,7 +464,7 @@ public:
     //fix
     virtual void body_add_collision_exception(RID p_body, RID p_body_b) = 0;
     virtual void body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
-    virtual void body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) = 0;
+    virtual void body_get_collision_exceptions(RID p_body, Vector<RID> *p_exceptions) = 0;
 
     virtual void body_set_max_contacts_reported(RID p_body, int p_contacts) = 0;
     virtual int body_get_max_contacts_reported(RID p_body) const = 0;
@@ -540,7 +540,7 @@ public:
 
     virtual void soft_body_add_collision_exception(RID p_body, RID p_body_b) = 0;
     virtual void soft_body_remove_collision_exception(RID p_body, RID p_body_b) = 0;
-    virtual void soft_body_get_collision_exceptions(RID p_body, DefList<RID> *p_exceptions) = 0;
+    virtual void soft_body_get_collision_exceptions(RID p_body, Vector<RID> *p_exceptions) = 0;
 
     virtual void soft_body_set_state(RID p_body, BodyState p_state, const Variant &p_variant) = 0;
     virtual Variant soft_body_get_state(RID p_body, BodyState p_state) const = 0;

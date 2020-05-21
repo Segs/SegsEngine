@@ -577,11 +577,10 @@ PoolVector<SoftBody3D::PinnedPoint> SoftBody3D::get_pinned_points_indices() {
 }
 
 Array SoftBody3D::get_collision_exceptions() {
-    ListOld<RID> exceptions;
+    Vector<RID> exceptions;
     PhysicsServer3D::get_singleton()->soft_body_get_collision_exceptions(physics_rid, &exceptions);
     Array ret;
-    for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
-        RID body = E->deref();
+    for (RID body : exceptions) {
         ObjectID instance_id = PhysicsServer3D::get_singleton()->body_get_object_instance_id(body);
         Object *obj = gObjectDB().get_instance(instance_id);
         PhysicsBody3D *physics_body = object_cast<PhysicsBody3D>(obj);

@@ -62,6 +62,14 @@ IMPL_GDCLASS(EditorPropertyShaderMode)
 IMPL_GDCLASS(EditorInspectorShaderModePlugin)
 IMPL_GDCLASS(VisualShaderConversionPlugin)
 
+namespace eastl {
+    template<>
+    struct hash<VisualShader::Connection> {
+        size_t operator()(const VisualShader::Connection &c) const {
+            return hash_djb2_buffer64((const uint8_t *)&c,sizeof(VisualShader::Connection));
+        }
+    };
+}
 
 Control *VisualShaderNodePlugin::create_editor(const Ref<Resource> &p_parent_resource, const Ref<VisualShaderNode> &p_node) {
 
@@ -508,7 +516,7 @@ void VisualShaderEditor::_update_graph() {
         Color(1.0f, 1.0f, 0.0f) // sampler
     };
 
-    ListOld<VisualShader::Connection> connections;
+    List<VisualShader::Connection> connections;
     visual_shader->get_node_connections(type, &connections);
 
     Ref<StyleBoxEmpty> label_style = make_empty_stylebox(2, 1, 2, 1);
@@ -646,8 +654,8 @@ void VisualShaderEditor::_update_graph() {
             if (valid_left) {
                 name_left = vsnode->get_input_port_name(i);
                 port_left = vsnode->get_input_port_type(i);
-                for (ListOld<VisualShader::Connection>::Element *E = connections.front(); E; E = E->next()) {
-                    if (E->deref().to_node == n_idx && E->deref().to_port == i) {
+                for (const VisualShader::Connection &E : connections) {
+                    if (E.to_node == n_idx && E.to_port == i) {
                         port_left_used = true;
                     }
                 }
@@ -881,12 +889,12 @@ void VisualShaderEditor::_update_graph() {
         }
     }
 
-    for (ListOld<VisualShader::Connection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const VisualShader::Connection &E : connections) {
 
-        int from = E->deref().from_node;
-        int from_idx = E->deref().from_port;
-        int to = E->deref().to_node;
-        int to_idx = E->deref().to_port;
+        int from = E.from_node;
+        int from_idx = E.from_port;
+        int to = E.to_node;
+        int to_idx = E.to_port;
 
         graph->connect_node(StringName(itos(from)), from_idx, StringName(itos(to)), to_idx);
     }
@@ -1004,14 +1012,14 @@ void VisualShaderEditor::_remove_input_port(int p_node, int p_port) {
 
     undo_redo->create_action_ui(TTR("Remove input port"));
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(type, &conns);
-    for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
+    for (const VisualShader::Connection &E : conns) {
 
-        int from_node = E->deref().from_node;
-        int from_port = E->deref().from_port;
-        int to_node = E->deref().to_node;
-        int to_port = E->deref().to_port;
+        int from_node = E.from_node;
+        int from_port = E.from_port;
+        int to_node = E.to_node;
+        int to_port = E.to_port;
 
         if (to_node == p_node) {
             if (to_port == p_port) {
@@ -1049,14 +1057,14 @@ void VisualShaderEditor::_remove_output_port(int p_node, int p_port) {
 
     undo_redo->create_action_ui(TTR("Remove output port"));
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(type, &conns);
-    for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
+    for (const VisualShader::Connection &E : conns) {
 
-        int from_node = E->deref().from_node;
-        int from_port = E->deref().from_port;
-        int to_node = E->deref().to_node;
-        int to_port = E->deref().to_port;
+        int from_node = E.from_node;
+        int from_port = E.from_port;
+        int to_node = E.to_node;
+        int to_port = E.to_port;
 
         if (from_node == p_node) {
             if (from_port == p_port) {
@@ -1503,13 +1511,13 @@ void VisualShaderEditor::_connection_request(const StringName &p_from, int p_fro
 
     undo_redo->create_action_ui(TTR("Nodes Connected"));
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(type, &conns);
 
-    for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->deref().to_node == to && E->deref().to_port == p_to_index) {
-            undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
-            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+    for (const VisualShader::Connection& E : conns) {
+        if (E.to_node == to && E.to_port == p_to_index) {
+            undo_redo->add_do_method(visual_shader.get(), "disconnect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
+            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
         }
     }
 
@@ -1577,12 +1585,12 @@ void VisualShaderEditor::_delete_request(int which) {
         undo_redo->add_undo_method(expression, "set_expression", expression->get_expression());
     }
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(type, &conns);
 
-    for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->deref().from_node == which || E->deref().to_node == which) {
-            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+    for (const VisualShader::Connection& E : conns) {
+        if (E.from_node == which || E.to_node == which) {
+            undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
         }
     }
 
@@ -1843,15 +1851,15 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<
         id_from++;
     }
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(pasted_type, &conns);
 
-    for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-        if (unsupported_set.contains(E->deref().from_node) || unsupported_set.contains(E->deref().to_node)) {
+    for (const VisualShader::Connection& E : conns) {
+        if (unsupported_set.contains(E.from_node) || unsupported_set.contains(E.to_node)) {
             continue;
         }
-        if (connection_remap.contains(E->deref().from_node) && connection_remap.contains(E->deref().to_node)) {
-            undo_redo->add_do_method(visual_shader.get(), "connect_nodes_forced", type, connection_remap[E->deref().from_node], E->deref().from_port, connection_remap[E->deref().to_node], E->deref().to_port);
+        if (connection_remap.contains(E.from_node) && connection_remap.contains(E.to_node)) {
+            undo_redo->add_do_method(visual_shader.get(), "connect_nodes_forced", type, connection_remap[E.from_node], E.from_port, connection_remap[E.to_node], E.to_port);
         }
     }
 
@@ -1927,7 +1935,7 @@ void VisualShaderEditor::_paste_nodes() {
 void VisualShaderEditor::_on_nodes_delete() {
 
     VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
-    ListOld<int> to_erase;
+    Vector<int> to_erase;
 
     for (int i = 0; i < graph->get_child_count(); i++) {
         GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
@@ -1943,12 +1951,12 @@ void VisualShaderEditor::_on_nodes_delete() {
 
     undo_redo->create_action_ui(TTR("Delete Nodes"));
 
-    for (ListOld<int>::Element *F = to_erase.front(); F; F = F->next()) {
+    for (int F : to_erase) {
 
-        Ref<VisualShaderNode> node = visual_shader->get_node(type, F->deref());
+        Ref<VisualShaderNode> node = visual_shader->get_node(type, F);
 
-        undo_redo->add_do_method(visual_shader.get(), "remove_node", type, F->deref());
-        undo_redo->add_undo_method(visual_shader.get(), "add_node", type, node, visual_shader->get_node_position(type, F->deref()), F->deref());
+        undo_redo->add_do_method(visual_shader.get(), "remove_node", type, F);
+        undo_redo->add_undo_method(visual_shader.get(), "add_node", type, node, visual_shader->get_node_position(type, F), F);
 
         undo_redo->add_do_method(this, "_clear_buffer");
         undo_redo->add_undo_method(this, "_clear_buffer");
@@ -1968,24 +1976,18 @@ void VisualShaderEditor::_on_nodes_delete() {
         }
     }
 
-    ListOld<VisualShader::Connection> conns;
+    List<VisualShader::Connection> conns;
     visual_shader->get_node_connections(type, &conns);
 
-    ListOld<VisualShader::Connection> used_conns;
-    for (ListOld<int>::Element *F = to_erase.front(); F; F = F->next()) {
-        for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->deref().from_node == F->deref() || E->deref().to_node == F->deref()) {
+    HashSet<VisualShader::Connection> used_conns;
+    for (int F : to_erase) {
+        for (const VisualShader::Connection& E : conns) {
+            if (E.from_node == F || E.to_node == F) {
 
-                bool cancel = false;
-                for (ListOld<VisualShader::Connection>::Element *R = used_conns.front(); R; R = R->next()) {
-                    if (R->deref().from_node == E->deref().from_node && R->deref().from_port == E->deref().from_port && R->deref().to_node == E->deref().to_node && R->deref().to_port == E->deref().to_port) {
-                        cancel = true; // to avoid ERR_ALREADY_EXISTS warning
-                        break;
-                    }
-                }
+                bool cancel = used_conns.contains(E); // to avoid ERR_ALREADY_EXISTS warning
                 if (!cancel) {
-                    undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
-                    used_conns.push_back(E->deref());
+                    undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
+                    used_conns.emplace(E);
                 }
             }
         }
@@ -2021,11 +2023,11 @@ void VisualShaderEditor::_input_select_item(Ref<VisualShaderNodeInput> input, co
         //restore connections if type changed
         VisualShader::Type type = VisualShader::Type(edit_type->get_selected());
         int id = visual_shader->find_node_id(type, input);
-        ListOld<VisualShader::Connection> conns;
+        List<VisualShader::Connection> conns;
         visual_shader->get_node_connections(type, &conns);
-        for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->deref().from_node == id) {
-                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+        for (VisualShader::Connection &E : conns) {
+            if (E.from_node == id) {
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
             }
         }
     }
@@ -3141,11 +3143,11 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
     for (int i = 0; i < VisualShader::TYPE_MAX; i++) {
 
         VisualShader::Type type = VisualShader::Type(i);
-        ListOld<VisualShader::Connection> conns;
+        List<VisualShader::Connection> conns;
         visual_shader->get_node_connections(type, &conns);
-        for (ListOld<VisualShader::Connection>::Element *E = conns.front(); E; E = E->next()) {
-            if (E->deref().to_node == VisualShader::NODE_ID_OUTPUT) {
-                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E->deref().from_node, E->deref().from_port, E->deref().to_node, E->deref().to_port);
+        for (const VisualShader::Connection &E : conns) {
+            if (E.to_node == VisualShader::NODE_ID_OUTPUT) {
+                undo_redo->add_undo_method(visual_shader.get(), "connect_nodes", type, E.from_node, E.from_port, E.to_node, E.to_port);
             }
         }
     }

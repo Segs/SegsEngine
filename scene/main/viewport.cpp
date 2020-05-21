@@ -39,6 +39,7 @@
 #include "core/os/os.h"
 #include "core/project_settings.h"
 #include "core/translation_helpers.h"
+#include "EASTL/sort.h"
 #include "scene/2d/collision_object_2d.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/collision_object_3d.h"
@@ -447,8 +448,8 @@ void Viewport::_notification(int p_what) {
                     // if no mouse event exists, create a motion one. This is necessary because objects or camera may have moved.
                     // while this extra event is sent, it is checked if both camera and last object and last ID did not move. If nothing changed, the event is discarded to avoid flooding with unnecessary motion events every frame
                     bool has_mouse_event = false;
-                    for (ListOld<Ref<InputEvent> >::Element *E = physics_picking_events.front(); E; E = E->next()) {
-                        Ref<InputEventMouse> m = dynamic_ref_cast<InputEventMouse>(E->deref());
+                    for (const Ref<InputEvent> &E : physics_picking_events) {
+                        Ref<InputEventMouse> m = dynamic_ref_cast<InputEventMouse>(E);
                         if (m) {
                             has_mouse_event = true;
                             break;
@@ -471,7 +472,7 @@ void Viewport::_notification(int p_what) {
 
                 while (!physics_picking_events.empty()) {
 
-                    Ref<InputEvent> ev = physics_picking_events.front()->deref();
+                    Ref<InputEvent> ev(eastl::move(physics_picking_events.front()));
                     physics_picking_events.pop_front();
 
                     Vector2 pos;
@@ -593,25 +594,20 @@ void Viewport::_notification(int p_what) {
                         }
 
                         if (is_mouse) {
-                            ListOld<HashMap<ObjectID, uint64_t>::iterator > to_erase;
-
-                            for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ++iter) {
-                                if (iter->second != frame) {
-                                    Object *o = gObjectDB().get_instance(iter->first);
-                                    if (o) {
-
-                                        CollisionObject2D *co = object_cast<CollisionObject2D>(o);
-                                        if (co) {
-                                            co->_mouse_exit();
-                                        }
-                                    }
-                                    to_erase.push_back(iter);
+                            for (HashMap<const ObjectID,uint64_t>::iterator iter =physics_2d_mouseover.begin(); iter!=physics_2d_mouseover.end(); ) {
+                                if (iter->second == frame) {
+                                    ++iter;
+                                    continue;
                                 }
-                            }
+                                Object *o = gObjectDB().get_instance(iter->first);
+                                iter = physics_2d_mouseover.erase(iter);
+                                if (o) {
 
-                            while (!to_erase.empty()) {
-                                physics_2d_mouseover.erase(to_erase.front()->deref());
-                                to_erase.pop_front();
+                                    CollisionObject2D *co = object_cast<CollisionObject2D>(o);
+                                    if (co) {
+                                        co->_mouse_exit();
+                                    }
+                                }
                             }
                         }
                     }
@@ -1505,9 +1501,9 @@ void Viewport::_gui_prepare_subwindows() {
     if (gui.subwindow_visibility_dirty) {
 
         gui.subwindows.clear();
-        for (ListOld<Control *>::Element *E = gui.all_known_subwindows.front(); E; E = E->next()) {
-            if (E->deref()->is_visible_in_tree()) {
-                gui.subwindows.push_back(E->deref());
+        for (Control * E : gui.all_known_subwindows) {
+            if (E->is_visible_in_tree()) {
+                gui.subwindows.push_back(E);
             }
         }
 
@@ -1523,15 +1519,15 @@ void Viewport::_gui_sort_subwindows() {
     if (!gui.subwindow_order_dirty)
         return;
 
-    gui.modal_stack.sort_custom<Control::CComparator>();
-    gui.subwindows.sort_custom<Control::CComparator>();
+    eastl::sort(gui.modal_stack.begin(), gui.modal_stack.end(),Control::CComparator());
+    eastl::sort(gui.subwindows.begin(), gui.subwindows.end(), Control::CComparator());
 
     gui.subwindow_order_dirty = false;
 }
 
 void Viewport::_gui_sort_modal_stack() {
 
-    gui.modal_stack.sort_custom<Control::CComparator>();
+    eastl::sort(gui.modal_stack.begin(), gui.modal_stack.end(),Control::CComparator());
 }
 
 void Viewport::_gui_sort_roots() {
@@ -1539,7 +1535,7 @@ void Viewport::_gui_sort_roots() {
     if (!gui.roots_order_dirty)
         return;
 
-    gui.roots.sort_custom<Control::CComparator>();
+    eastl::sort(gui.roots.begin(), gui.roots.end(), Control::CComparator());
 
     gui.roots_order_dirty = false;
 }
@@ -1734,9 +1730,9 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_prepare_subwindows();
 
-    for (ListOld<Control *>::Element *E = gui.subwindows.back(); E; E = E->prev()) {
+    for (auto riter = gui.subwindows.rbegin(); riter!= gui.subwindows.rend(); ++riter) {
 
-        Control *sw = E->deref();
+        Control *sw = *riter;
         if (!sw->is_visible_in_tree())
             continue;
 
@@ -1754,9 +1750,9 @@ Control *Viewport::_gui_find_control(const Point2 &p_global) {
 
     _gui_sort_roots();
 
-    for (ListOld<Control *>::Element *E = gui.roots.back(); E; E = E->prev()) {
+    for (auto riter = gui.roots.rbegin(); riter != gui.roots.rend(); ++riter) {
 
-        Control *sw = E->deref();
+        Control *sw = *riter;
         if (!sw->is_visible_in_tree())
             continue;
 
@@ -1889,7 +1885,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                 _gui_sort_modal_stack();
                 while (!gui.modal_stack.empty()) {
 
-                    Control *top = gui.modal_stack.back()->deref();
+                    Control *top = gui.modal_stack.back();
                     Vector2 pos2 = top->get_global_transform_with_canvas().affine_inverse().xform(mpos);
                     if (!top->has_point(pos2)) {
 
@@ -2142,7 +2138,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
         if (gui.drag_data.get_type() == VariantType::NIL && over && !gui.modal_stack.empty()) {
 
-            Control *top = gui.modal_stack.back()->deref();
+            Control *top = gui.modal_stack.back();
 
             if (over != top && !top->is_a_parent_of(over)) {
 
@@ -2220,7 +2216,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
             bool can_tooltip = true;
 
             if (!gui.modal_stack.empty()) {
-                if (gui.modal_stack.back()->deref() != over && !gui.modal_stack.back()->deref()->is_a_parent_of(over))
+                if (gui.modal_stack.back() != over && !gui.modal_stack.back()->is_a_parent_of(over))
                     can_tooltip = false;
             }
 
@@ -2304,7 +2300,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
                 if (!gui.modal_stack.empty()) {
 
-                    Control *top = gui.modal_stack.back()->deref();
+                    Control *top = gui.modal_stack.back();
                     if (over != top && !top->is_a_parent_of(over)) {
 
                         return;
@@ -2377,7 +2373,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (!gui.modal_stack.empty()) {
 
-                Control *top = gui.modal_stack.back()->deref();
+                Control *top = gui.modal_stack.back();
                 if (over != top && !top->is_a_parent_of(over)) {
 
                     return;
@@ -2429,7 +2425,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
         if (p_event->is_pressed() && p_event->is_action("ui_cancel") && !gui.modal_stack.empty()) {
 
             _gui_sort_modal_stack();
-            Control *top = gui.modal_stack.back()->deref();
+            Control *top = gui.modal_stack.back();
             if (!top->data.modal_exclusive) {
 
                 top->notification(Control::NOTIFICATION_MODAL_CLOSE);
@@ -2493,13 +2489,13 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
     }
 }
 
-ListOld<Control *>::Element *Viewport::_gui_add_root_control(Control *p_control) {
+void Viewport::_gui_add_root_control(Control *p_control) {
 
     gui.roots_order_dirty = true;
-    return gui.roots.push_back(p_control);
+    gui.roots.emplace_back(p_control);
 }
 
-ListOld<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_control) {
+void Viewport::_gui_add_subwindow_control(Control *p_control) {
 
     p_control->connect("visibility_changed", this, "_subwindow_visibility_changed");
 
@@ -2508,7 +2504,7 @@ ListOld<Control *>::Element *Viewport::_gui_add_subwindow_control(Control *p_con
         gui.subwindows.push_back(p_control);
     }
 
-    return gui.all_known_subwindows.push_back(p_control);
+    gui.all_known_subwindows.emplace_back(p_control);
 }
 
 void Viewport::_gui_set_subwindow_order_dirty() {
@@ -2519,25 +2515,23 @@ void Viewport::_gui_set_root_order_dirty() {
     gui.roots_order_dirty = true;
 }
 
-void Viewport::_gui_remove_modal_control(ListOld<Control *>::Element *MI) {
+void Viewport::_gui_remove_modal_control(Control* MI) {
 
-    gui.modal_stack.erase(MI);
+    gui.modal_stack.erase_first(MI);
 }
 
-void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, ObjectID p_prev_focus_owner) {
+void Viewport::_gui_remove_from_modal_stack(Control* MI, ObjectID p_prev_focus_owner) {
 
     //transfer the focus stack to the next
 
-    ListOld<Control *>::Element *next = MI->next();
-
-    gui.modal_stack.erase(MI);
+    auto next = gui.modal_stack.erase_first(MI);
 
     if (p_prev_focus_owner) {
 
         // for previous window in stack, pass the focus so it feels more
         // natural
 
-        if (!next) { //top of stack
+        if (next == gui.modal_stack.end()) { //top of stack
 
             Object *pfo = gObjectDB().get_instance(p_prev_focus_owner);
             Control *pfoc = object_cast<Control>(pfo);
@@ -2549,7 +2543,7 @@ void Viewport::_gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, Obj
             pfoc->grab_focus();
         } else {
 
-            next->deref()->_modal_set_prev_focus_owner(p_prev_focus_owner);
+            (*next)->_modal_set_prev_focus_owner(p_prev_focus_owner);
         }
     }
 }
@@ -2585,24 +2579,22 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     gui.drag_preview = p_control;
 }
 
-void Viewport::_gui_remove_root_control(ListOld<Control *>::Element *RI) {
+void Viewport::_gui_remove_root_control(Control * RI) {
 
-    gui.roots.erase(RI);
+    gui.roots.erase_first(RI);
 }
 
-void Viewport::_gui_remove_subwindow_control(ListOld<Control *>::Element *SI) {
+void Viewport::_gui_remove_subwindow_control(Control* SI) {
 
-    ERR_FAIL_COND(!SI);
+    ERR_FAIL_COND(SI==nullptr);
 
-    Control *control = SI->deref();
+    SI->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
 
-    control->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
-
-    ListOld<Control *>::Element *E = gui.subwindows.find(control);
-    if (E)
+    auto E = eastl::find(gui.subwindows.begin(), gui.subwindows.end(),SI);
+    if (E!= gui.subwindows.end())
         gui.subwindows.erase(E);
 
-    gui.all_known_subwindows.erase(SI);
+    gui.all_known_subwindows.erase_first(SI);
 }
 
 void Viewport::_gui_unfocus_control(Control *p_control) {
@@ -2667,7 +2659,7 @@ void Viewport::_gui_remove_focus() {
 
 bool Viewport::_gui_is_modal_on_top(const Control *p_control) {
 
-    return (!gui.modal_stack.empty() && gui.modal_stack.back()->deref() == p_control);
+    return (!gui.modal_stack.empty() && gui.modal_stack.back() == p_control);
 }
 
 bool Viewport::_gui_control_has_focus(const Control *p_control) {
@@ -2739,9 +2731,9 @@ void Viewport::_drop_physics_mouseover() {
 #endif
 }
 
-ListOld<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
+void Viewport::_gui_show_modal(Control *p_control) {
 
-    ListOld<Control *>::Element *node = gui.modal_stack.push_back(p_control);
+    gui.modal_stack.emplace_back(p_control);
     if (gui.key_focus)
         p_control->_modal_set_prev_focus_owner(gui.key_focus->get_instance_id());
     else
@@ -2751,8 +2743,6 @@ ListOld<Control *>::Element *Viewport::_gui_show_modal(Control *p_control) {
 
         _drop_mouse_focus();
     }
-
-    return node;
 }
 
 Control *Viewport::_gui_get_focus_owner() {
@@ -2987,7 +2977,7 @@ Variant Viewport::gui_get_drag_data() const {
 }
 
 Control *Viewport::get_modal_stack_top() const {
-    return !gui.modal_stack.empty() ? gui.modal_stack.back()->deref() : NULL;
+    return !gui.modal_stack.empty() ? gui.modal_stack.back() : nullptr;
 }
 
 StringName Viewport::get_configuration_warning() const {

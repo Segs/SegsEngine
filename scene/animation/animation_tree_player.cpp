@@ -1070,12 +1070,12 @@ void AnimationTreePlayer::_process_animation(float p_delta) {
                     } break;
                     case Animation::TYPE_METHOD: { ///< Call any method on a specific node.
 
-                        ListOld<int> indices;
+                        Vector<int> indices;
                         a->method_track_get_key_indices(tr.local_track, anim_list->time, anim_list->step, &indices);
-                        for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
+                        for (int F : indices) {
 
-                            StringName method = a->method_track_get_name(tr.local_track, F->deref());
-                            Vector<Variant> args = a->method_track_get_params(tr.local_track, F->deref());
+                            StringName method = a->method_track_get_name(tr.local_track, F);
+                            Vector<Variant> args = a->method_track_get_params(tr.local_track, F);
                             args.resize(VARIANT_ARG_MAX);
                             tr.track->object->call_va(method, args[0], args[1], args[2], args[3], args[4]);
                         }

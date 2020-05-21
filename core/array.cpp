@@ -191,10 +191,14 @@ void Array::push_back(const Variant *entries,int count)
     _p->array.insert(_p->array.end(),entries,entries+count);
 }
 
-Error Array::resize(int p_new_size) {
+void Array::resize(int p_new_size) {
 
     _p->array.resize(p_new_size);
-    return OK;
+}
+
+void Array::reserve(int p_new_size) {
+
+    _p->array.reserve(p_new_size);
 }
 
 void Array::insert(int p_pos, const Variant &p_value) {

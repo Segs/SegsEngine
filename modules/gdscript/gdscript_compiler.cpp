@@ -1829,7 +1829,7 @@ Error GDScriptCompiler::_parse_function(GDScript *p_script, const GDScriptParser
     }
 
     if (codegen.debug_stack)
-        gdfunc->stack_debug = codegen.stack_debug;
+        gdfunc->stack_debug = eastl::move(codegen.stack_debug);
 
     if (is_initializer)
         p_script->initializer = gdfunc;

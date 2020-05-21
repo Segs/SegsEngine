@@ -232,7 +232,7 @@ public:
 
     void body_add_collision_exception(RID p_body, RID p_body_b) override;
     void body_remove_collision_exception(RID p_body, RID p_body_b) override;
-    void body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) override;
+    void body_get_collision_exceptions(RID p_body, Vector<RID> *p_exceptions) override;
 
     void body_set_contacts_reported_depth_threshold(RID p_body, real_t p_threshold) override;
     real_t body_get_contacts_reported_depth_threshold(RID p_body) const override;

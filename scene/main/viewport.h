@@ -35,6 +35,7 @@
 #include "scene/resources/texture.h"
 #include "scene/resources/world_2d.h"
 #include "servers/rendering_server.h"
+#include "core/deque.h"
 
 class Camera3D;
 class Camera2D;
@@ -224,7 +225,7 @@ private:
     bool snap_controls_to_pixels;
 
     bool physics_object_picking;
-    ListOld<Ref<InputEvent> > physics_picking_events;
+    Deque<Ref<InputEvent> > physics_picking_events;
     ObjectID physics_object_capture;
     ObjectID physics_object_over;
     Transform physics_last_object_transform;
@@ -289,10 +290,10 @@ private:
 
     struct GUI {
         // info used when this is a window
-        ListOld<Control *> roots;
-        ListOld<Control *> modal_stack;
-        ListOld<Control *> subwindows; // visible subwindows
-        ListOld<Control *> all_known_subwindows;
+        Deque<Control *> roots;
+        Deque<Control *> modal_stack;
+        Deque<Control *> subwindows; // visible subwindows
+        Deque<Control *> all_known_subwindows;
         Point2 tooltip_pos;
         Point2 last_mouse_pos;
         Point2 drag_accum;
@@ -346,16 +347,16 @@ protected:
 
     friend class Control;
 
-    ListOld<Control *>::Element *_gui_add_root_control(Control *p_control);
-    ListOld<Control *>::Element *_gui_add_subwindow_control(Control *p_control);
+    void _gui_add_root_control(Control *p_control);
+    void _gui_add_subwindow_control(Control *p_control);
 
     void _gui_set_subwindow_order_dirty();
     void _gui_set_root_order_dirty();
 
-    void _gui_remove_modal_control(ListOld<Control *>::Element *MI);
-    void _gui_remove_from_modal_stack(ListOld<Control *>::Element *MI, ObjectID p_prev_focus_owner);
-    void _gui_remove_root_control(ListOld<Control *>::Element *RI);
-    void _gui_remove_subwindow_control(ListOld<Control *>::Element *SI);
+    void _gui_remove_modal_control(Control* MI);
+    void _gui_remove_from_modal_stack(Control *MI, ObjectID p_prev_focus_owner);
+    void _gui_remove_root_control(Control *RI);
+    void _gui_remove_subwindow_control(Control *SI);
 
     StringName _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
     void _gui_cancel_tooltip();
@@ -368,7 +369,7 @@ protected:
     void _gui_set_drag_preview(Control *p_base, Control *p_control);
 
     bool _gui_is_modal_on_top(const Control *p_control);
-    ListOld<Control *>::Element *_gui_show_modal(Control *p_control);
+    void _gui_show_modal(Control *p_control);
 
     void _gui_remove_focus();
     void _gui_unfocus_control(Control *p_control);

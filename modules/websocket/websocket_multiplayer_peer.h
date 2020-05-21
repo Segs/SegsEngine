@@ -33,7 +33,7 @@
 
 #include "core/error_list.h"
 #include "core/io/networked_multiplayer_peer.h"
-#include "core/list.h"
+#include "core/deque.h"
 #include "core/map.h"
 #include "websocket_peer.h"
 
@@ -64,7 +64,7 @@ protected:
         uint32_t size;
     };
 
-    ListOld<Packet> _incoming_packets;
+    Deque<Packet> _incoming_packets;
     Map<int, Ref<WebSocketPeer> > _peer_map;
     Packet _current_packet;
 

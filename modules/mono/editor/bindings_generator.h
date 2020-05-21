@@ -475,7 +475,8 @@ class BindingsGenerator {
     bool log_print_enabled;
     bool initialized;
 
-    OrderedHashMap<StringName, TypeInterface> obj_types;
+    HashMap<StringName, TypeInterface> obj_types;
+    Vector<StringName> obj_type_insert_order;
 
     Map<StringName, TypeInterface> placeholder_types;
     Map<StringName, TypeInterface> builtin_types;

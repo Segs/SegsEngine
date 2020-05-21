@@ -92,7 +92,7 @@ public:
     void get_parameter_list(Vector<PropertyInfo> *r_list) const override;
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
-    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(Vector<ChildNode> *r_child_nodes) override;
 
     void add_blend_point(const Ref<AnimationRootNode> &p_node, const Vector2 &p_position, int p_at_index = -1);
     void set_blend_point_position(int p_point, const Vector2 &p_position);

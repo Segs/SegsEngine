@@ -939,7 +939,7 @@ Vector2 AnimationNodeBlendTree::get_node_position(const StringName &p_node) cons
     return nodes.at(p_node).position;
 }
 
-void AnimationNodeBlendTree::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendTree::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     Vector<StringName> ns;
 
     for (eastl::pair<const StringName,Node> &E : nodes) {

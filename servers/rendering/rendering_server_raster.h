@@ -66,7 +66,7 @@ class  VisualServerRaster : public RenderingServer {
         Variant param;
     };
 
-    ListOld<FrameDrawnCallbacks> frame_drawn_callbacks;
+    Vector<FrameDrawnCallbacks> frame_drawn_callbacks;
 
     void _draw_margins();
     static void _changes_changed() {}

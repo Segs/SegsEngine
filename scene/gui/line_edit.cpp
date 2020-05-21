@@ -56,8 +56,8 @@ struct LineEdit::PrivateData {
     UIString undo_text;
     UIString text;
     UIString ime_text;
-    int cached_width;
-    int window_pos;
+    int cached_width=0;
+    int window_pos=0;
 
 
     struct TextOperation {
@@ -66,8 +66,8 @@ struct LineEdit::PrivateData {
         int cached_width;
         UIString text;
     };
-    ListOld<TextOperation> undo_stack;
-    ListOld<TextOperation>::Element *undo_stack_pos;
+    Vector<TextOperation> undo_stack;
+    int undo_stack_pos = -1;
     void _create_undo_state(int cursor_pos) {
         TextOperation op;
         op.text = text;
@@ -78,48 +78,45 @@ struct LineEdit::PrivateData {
     }
     void _clear_redo(int cursor_pos) {
         _create_undo_state(cursor_pos);
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             return;
         }
 
-        undo_stack_pos = undo_stack_pos->next();
-        while (undo_stack_pos) {
-            ListOld<TextOperation>::Element *elem = undo_stack_pos;
-            undo_stack_pos = undo_stack_pos->next();
-            undo_stack.erase(elem);
-        }
+        ++undo_stack_pos;
+        undo_stack.erase(undo_stack.begin()+ undo_stack_pos, undo_stack.end());
+        undo_stack_pos = -1;
         _create_undo_state(cursor_pos);
     }
     void _clear_undo_stack(int cursor_pos) {
         undo_stack.clear();
-        undo_stack_pos = nullptr;
+        undo_stack_pos = -1;
         _create_undo_state(cursor_pos);
     }
     int do_undo() {
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             if (undo_stack.size() <= 1) {
                 return -1;
             }
-            undo_stack_pos = undo_stack.back();
-        } else if (undo_stack_pos == undo_stack.front()) {
+            undo_stack_pos = undo_stack.size()-1;
+        } else if (undo_stack_pos == 0) {
             return -1;
         }
-        undo_stack_pos = undo_stack_pos->prev();
-        TextOperation op = undo_stack_pos->deref();
+        --undo_stack_pos;
+        TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
         window_pos = op.window_pos;
         return op.cursor_pos;
     }
     int do_redo() {
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             return -1;
         }
-        if (undo_stack_pos == undo_stack.back()) {
+        if (undo_stack_pos >= undo_stack.size()-1) {
             return -1;
         }
-        undo_stack_pos = undo_stack_pos->next();
-        TextOperation op = undo_stack_pos->deref();
+        ++undo_stack_pos;
+        TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
         window_pos = op.window_pos;
@@ -1885,7 +1882,7 @@ void LineEdit::_bind_methods() {
 
 LineEdit::LineEdit() {
     m_priv = memnew(PrivateData);
-    m_priv->undo_stack_pos = nullptr;
+    m_priv->undo_stack_pos = -1;
     m_priv->_create_undo_state(0);
     align = ALIGN_LEFT;
     m_priv->cached_width = 0;

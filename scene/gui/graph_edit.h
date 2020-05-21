@@ -114,7 +114,7 @@ private:
     bool right_disconnects;
     bool updating;
     bool awaiting_scroll_offset_update;
-    ListOld<Connection> connections;
+    List<Connection> connections;
     Control *connections_layer;
     GraphEditFilter *top_layer;
     bool lines_on_bg;
@@ -203,7 +203,7 @@ public:
     float get_zoom() const;
 
     GraphEditFilter *get_top_layer() const { return top_layer; }
-    void get_connection_list(ListOld<Connection> *r_connections) const;
+    void get_connection_list(List<Connection> *r_connections) const;
 
     void set_right_disconnects(bool p_enable);
     bool is_right_disconnects_enabled() const;

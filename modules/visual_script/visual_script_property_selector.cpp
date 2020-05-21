@@ -338,20 +338,20 @@ void VisualScriptPropertySelector::create_visualscript_item(StringName name, Tre
 void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter, const Set<String> &p_modifiers, bool &found, TreeItem *const root, LineEdit *const search_box) {
     Map<String, TreeItem *> path_cache;
 
-    ListOld<String> fnodes;
+    Vector<String> fnodes;
     VisualScriptLanguage::singleton->get_registered_node_names(&fnodes);
 
-    for (ListOld<String>::Element *E = fnodes.front(); E; E = E->next()) {
-        if (!StringUtils::begins_with(E->deref(),root_filter)) {
+    for (const String &E : fnodes) {
+        if (!StringUtils::begins_with(E,root_filter)) {
             continue;
         }
-        Vector<StringView> path = StringUtils::split(E->deref(),'/');
+        Vector<StringView> path = StringUtils::split(E,'/');
         // check if the name has the filter
         bool in_filter = false;
         Vector<StringView> tx_filters = StringUtils::split(search_box->get_text(),' ');
         for (size_t i = 0; i < tx_filters.size(); i++) {
             in_filter = tx_filters[i].empty();
-            if (StringUtils::contains(E->deref(),tx_filters[i])) {
+            if (StringUtils::contains(E,tx_filters[i])) {
                 in_filter = true;
                 break;
             }
@@ -362,7 +362,7 @@ void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter,
 
         bool in_modifier = p_modifiers.empty();
         for (Set<String>::iterator F = p_modifiers.begin(); F!=p_modifiers.end() && in_modifier; ++F) {
-            if (StringUtils::contains(StringUtils::from_utf8(E->deref()),StringUtils::from_utf8(*F),StringUtils::CaseInsensitive))
+            if (StringUtils::contains(StringUtils::from_utf8(E),StringUtils::from_utf8(*F),StringUtils::CaseInsensitive))
                 in_modifier = true;
         }
         if (!in_modifier) {
@@ -370,7 +370,7 @@ void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter,
         }
         TreeItem *item = search_options->create_item(root);
 
-        Ref<VisualScriptNode> vnode = VisualScriptLanguage::singleton->create_node_from_name(E->deref());
+        Ref<VisualScriptNode> vnode = VisualScriptLanguage::singleton->create_node_from_name(E);
         Ref<VisualScriptOperator> vnode_operator = dynamic_ref_cast<VisualScriptOperator>(vnode);
         String type_name;
         if (vnode_operator) {
@@ -407,7 +407,7 @@ void VisualScriptPropertySelector::get_visual_node_names(StringView root_filter,
         item->set_text_utf8(0, type_name + String::joined(tmp_vec,""));
         item->set_icon(0, get_icon("VisualScript", "EditorIcons"));
         item->set_selectable(0, true);
-        item->set_metadata(0, E->deref());
+        item->set_metadata(0, E);
         item->set_selectable(0, true);
         item->set_metadata(1, "visualscript");
         item->set_selectable(1, false);
@@ -485,9 +485,9 @@ void VisualScriptPropertySelector::_item_selected() {
         }
     }
 
-    ListOld<String> names;
+    Vector<String> names;
     VisualScriptLanguage::singleton->get_registered_node_names(&names);
-    if (names.find(name) != nullptr) {
+    if (names.contains(name)) {
         Ref<VisualScriptOperator> operator_node(dynamic_ref_cast<VisualScriptOperator>(VisualScriptLanguage::singleton->create_node_from_name(name)));
         if (operator_node) {
             auto F = dd->class_list.find(operator_node->get_class_name());

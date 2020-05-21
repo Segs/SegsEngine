@@ -177,28 +177,25 @@ Error WSLServer::listen(int p_port, const PoolVector<String> &p_protocols, bool 
 
 void WSLServer::poll() {
 
-    ListOld<int> remove_ids;
-    for (eastl::pair<const int,Ref<WebSocketPeer> > &E : _peer_map) {
-        Ref<WSLPeer> peer((WSLPeer *)E.second.get());
+    for (auto iter=_peer_map.begin(); iter!=_peer_map.end(); ) {
+        Ref<WSLPeer> peer((WSLPeer *)iter->second.get());
         peer->poll();
         if (!peer->is_connected_to_host()) {
-            _on_disconnect(E.first, peer->close_code != -1);
-            remove_ids.push_back(E.first);
+            _on_disconnect(iter->first, peer->close_code != -1);
+            iter=_peer_map.erase(iter);
         }
+        else
+            ++iter;
     }
-    for (ListOld<int>::Element *E = remove_ids.front(); E; E = E->next()) {
-        _peer_map.erase(E->deref());
-    }
-    remove_ids.clear();
-
-    ListOld<Ref<PendingPeer> > remove_peers;
-    for (ListOld<Ref<PendingPeer> >::Element *E = _pending.front(); E; E = E->next()) {
-        Ref<PendingPeer> ppeer = E->deref();
+    
+    for (auto iter = _pending.begin(); iter!= _pending.end(); ) {
+        Ref<PendingPeer> ppeer = *iter;
         Error err = ppeer->do_handshake(_protocols);
         if (err == ERR_BUSY) {
             continue;
-        } else if (err != OK) {
-            remove_peers.push_back(ppeer);
+        }
+        if (err != OK) {
+            iter=_pending.erase(iter);
             continue;
         }
         // Creating new peer
@@ -216,13 +213,9 @@ void WSLServer::poll() {
         ws_peer->set_no_delay(true);
 
         _peer_map[id] = ws_peer;
-        remove_peers.push_back(ppeer);
+        iter = _pending.erase(iter);
         _on_connect(id, ppeer->protocol);
     }
-    for (ListOld<Ref<PendingPeer> >::Element *E = remove_peers.front(); E; E = E->next()) {
-        _pending.erase(E->deref());
-    }
-    remove_peers.clear();
 
     if (!_server->is_listening())
         return;

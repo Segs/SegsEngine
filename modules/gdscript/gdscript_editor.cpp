@@ -3023,7 +3023,7 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
     const char *indent = _get_indentation();
 
     const Vector<StringView> lines(StringUtils::split(p_code,'\n'));
-    ListOld<int> indent_stack;
+    Vector<int> indent_stack;
     Vector<String> res;
     res.reserve(p_code.size()+(p_code.size()>>4)); // assume 1.25 overhead for indent
     for (int i = 0; i < lines.size(); i++) {
@@ -3045,17 +3045,17 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
 
         int ilevel = 0;
         if (!indent_stack.empty()) {
-            ilevel = indent_stack.back()->deref();
+            ilevel = indent_stack.back();
         }
 
         if (tc > ilevel) {
             indent_stack.push_back(tc);
         } else if (tc < ilevel) {
-            while (!indent_stack.empty() && indent_stack.back()->deref() > tc) {
+            while (!indent_stack.empty() && indent_stack.back() > tc) {
                 indent_stack.pop_back();
             }
 
-            if (!indent_stack.empty() && indent_stack.back()->deref() != tc)
+            if (!indent_stack.empty() && indent_stack.back() != tc)
                 indent_stack.push_back(tc); //this is not right but gets the job done
         }
         if (i >= p_from_line) {

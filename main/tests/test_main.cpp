@@ -28,7 +28,6 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "core/list.h"
 #include "core/os/main_loop.h"
 #include "core/print_string.h"
 #include "core/string.h"
@@ -40,7 +39,6 @@
 #include "test_gui.h"
 #include "test_math.h"
 #include "test_oa_hash_map.h"
-#include "test_ordered_hash_map.h"
 #include "test_physics.h"
 #include "test_physics_2d.h"
 #include "test_render.h"
@@ -132,11 +130,6 @@ MainLoop *test_main(const String& p_test, const Vector<String> &p_args) {
     if (p_test == "gd_bytecode") {
 
         return TestGDScript::test(TestGDScript::TEST_BYTECODE);
-    }
-
-    if (p_test == "ordered_hash_map") {
-
-        return TestOrderedHashMap::test();
     }
 
     if (p_test == "astar") {

@@ -52,7 +52,7 @@ Variant AnimationNodeBlendSpace2D::get_parameter_default_value(const StringName 
     }
 }
 
-void AnimationNodeBlendSpace2D::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendSpace2D::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
         cn.name = StringName(itos(i));

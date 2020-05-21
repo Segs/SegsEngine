@@ -152,11 +152,10 @@ PhysicsBody2D::PhysicsBody2D(PhysicsServer2D::BodyMode p_mode) :
 }
 
 Array PhysicsBody2D::get_collision_exceptions() {
-    ListOld<RID> exceptions;
+    Vector<RID> exceptions;
     PhysicsServer2D::get_singleton()->body_get_collision_exceptions(get_rid(), &exceptions);
     Array ret;
-    for (ListOld<RID>::Element *E = exceptions.front(); E; E = E->next()) {
-        RID body = E->deref();
+    for (RID body : exceptions) {
         ObjectID instance_id = PhysicsServer2D::get_singleton()->body_get_object_instance_id(body);
         Object *obj = gObjectDB().get_instance(instance_id);
         PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(obj);

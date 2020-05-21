@@ -1686,7 +1686,7 @@ int GDScriptFunction::get_max_stack_size() const {
 struct _GDFKC {
 
     int order;
-    ListOld<int> pos;
+    Vector<int> pos;
 };
 
 struct _GDFKCS {
@@ -1737,7 +1737,7 @@ void GDScriptFunction::debug_get_stack_member_state(int p_line, Vector<Pair<Stri
         _GDFKCS spp;
         spp.id = E.first;
         spp.order = E.second.order;
-        spp.pos = E.second.pos.back()->deref();
+        spp.pos = E.second.pos.back();
         stackpositions.push_back(spp);
     }
     eastl::sort(stackpositions.begin(),stackpositions.end());

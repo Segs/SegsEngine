@@ -38,7 +38,7 @@ public:
     struct Item : public RasterizerCanvas::Item {
 
         RID parent; // canvas it belongs to
-        ListOld<Item *>::Element *E;
+        //ListOld<Item *>::Element *E;
         int z_index;
         bool z_relative;
         bool sort_y;
@@ -56,7 +56,7 @@ public:
 
         Item() {
             children_order_dirty = true;
-            E = nullptr;
+            //E = nullptr;
             z_index = 0;
             modulate = Color(1, 1, 1, 1);
             self_modulate = Color(1, 1, 1, 1);

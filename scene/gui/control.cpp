@@ -489,7 +489,8 @@ void Control::_notification(int p_notification) {
             data.parent = object_cast<Control>(get_parent());
 
             if (is_set_as_toplevel()) {
-                data.SI = get_viewport()->_gui_add_subwindow_control(this);
+                get_viewport()->_gui_add_subwindow_control(this);
+                data.SI = this;
 
                 if (not data.theme && data.parent && data.parent->data.theme_owner) {
                     data.theme_owner = data.parent->data.theme_owner;
@@ -534,10 +535,12 @@ void Control::_notification(int p_notification) {
                     }
                 } else if (subwindow) {
                     //is a subwindow (process input before other controls for that canvas)
-                    data.SI = get_viewport()->_gui_add_subwindow_control(this);
+                    get_viewport()->_gui_add_subwindow_control(this);
+                    data.SI = this;
                 } else {
                     //is a regular root control
-                    data.RI = get_viewport()->_gui_add_root_control(this);
+                    get_viewport()->_gui_add_root_control(this);
+                    data.RI = this;
                 }
 
                 data.parent_canvas_item = get_parent_item();
@@ -570,12 +573,12 @@ void Control::_notification(int p_notification) {
                 get_viewport()->disconnect("size_changed", this, "_size_changed");
             }
 
-            if (data.MI) {
+            if (data.MI != nullptr) {
                 get_viewport()->_gui_remove_modal_control(data.MI);
                 data.MI = nullptr;
             }
 
-            if (data.SI) {
+            if (data.SI != nullptr) {
                 get_viewport()->_gui_remove_subwindow_control(data.SI);
                 data.SI = nullptr;
             }
@@ -2195,7 +2198,8 @@ void Control::show_modal(bool p_exclusive) {
     show();
     raise();
     data.modal_exclusive = p_exclusive;
-    data.MI = get_viewport()->_gui_show_modal(this);
+    data.MI = this;
+    get_viewport()->_gui_show_modal(this);
     data.modal_frame = Engine::get_singleton()->get_frames_drawn();
 }
 
@@ -2210,7 +2214,7 @@ void Control::_modal_stack_remove() {
     if (!data.MI)
         return;
 
-    ListOld<Control *>::Element *element = data.MI;
+    Control * element = data.MI;
     data.MI = nullptr;
 
     get_viewport()->_gui_remove_from_modal_stack(element, data.modal_prev_focus_owner);

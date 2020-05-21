@@ -203,12 +203,13 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
 
     HashMap<StringName, AStarCost> cost_map;
 
-    ListOld<int> open_list;
+    Vector<int> open_list;
+    open_list.reserve(p_state_machine->transitions.size());
 
     //build open list
     for (int i = 0; i < p_state_machine->transitions.size(); i++) {
         if (p_state_machine->transitions[i].from == current) {
-            open_list.push_back(i);
+            open_list.emplace_back(i);
             float cost = p_state_machine->states[p_state_machine->transitions[i].to].position.distance_to(current_pos);
             cost *= p_state_machine->transitions[i].transition->get_priority();
             AStarCost ap;
@@ -232,22 +233,22 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
         }
 
         //find the last cost transition
-        ListOld<int>::Element *least_cost_transition = nullptr;
+        Vector<int>::iterator least_cost_transition = open_list.end();
         float least_cost = 1e20f;
 
-        for (ListOld<int>::Element *E = open_list.front(); E; E = E->next()) {
+        for (auto iter=open_list.begin(),fin=open_list.end(); iter!=fin; ++iter) {
 
-            float cost = cost_map[p_state_machine->transitions[E->deref()].to].distance;
-            cost += p_state_machine->states[p_state_machine->transitions[E->deref()].to].position.distance_to(target_pos);
+            float cost = cost_map[p_state_machine->transitions[*iter].to].distance;
+            cost += p_state_machine->states[p_state_machine->transitions[*iter].to].position.distance_to(target_pos);
 
             if (cost < least_cost) {
-                least_cost_transition = E;
+                least_cost_transition = iter;
                 least_cost = cost;
             }
         }
 
-        StringName transition_prev = p_state_machine->transitions[least_cost_transition->deref()].from;
-        StringName transition = p_state_machine->transitions[least_cost_transition->deref()].to;
+        StringName transition_prev = p_state_machine->transitions[*least_cost_transition].from;
+        StringName transition = p_state_machine->transitions[*least_cost_transition].to;
 
         for (int i = 0; i < p_state_machine->transitions.size(); i++) {
             if (p_state_machine->transitions[i].from != transition || p_state_machine->transitions[i].to == transition_prev) {
@@ -284,7 +285,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
             break;
         }
 
-        open_list.erase(least_cost_transition);
+        open_list.erase(least_cost_transition); // TODO: erase_unsorted here?
     }
 
     //make path
@@ -609,7 +610,7 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
     ERR_FAIL_V(StringName());
 }
 
-void AnimationNodeStateMachine::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeStateMachine::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     Vector<StringName> nodes;
 
     for (eastl::pair<const StringName,State> &E : states) {

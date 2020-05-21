@@ -108,7 +108,7 @@ bool GDScriptParser::_enter_indent_block(BlockNode *p_block) {
 
     if (tokenizer->get_token() != GDScriptTokenizer::TK_NEWLINE) {
         // be more python-like
-        IndentLevel current_level = indent_level.back()->deref();
+        IndentLevel current_level = indent_level.back();
         indent_level.push_back(current_level);
         return true;
         //_set_error("newline expected after ':'.");
@@ -125,7 +125,7 @@ bool GDScriptParser::_enter_indent_block(BlockNode *p_block) {
 
             int indent = tokenizer->get_token_line_indent();
             int tabs = tokenizer->get_token_line_tab_indent();
-            IndentLevel current_level = indent_level.back()->deref();
+            IndentLevel current_level = indent_level.back();
             IndentLevel new_indent(indent, tabs);
             if (new_indent.is_mixed(current_level)) {
                 _set_error("Mixed tabs and spaces in indentation.");
@@ -2287,7 +2287,7 @@ GDScriptParser::PatternNode *GDScriptParser::_parse_pattern(bool p_static) {
 }
 
 void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBranchNode *> &p_branches, bool p_static) {
-    IndentLevel current_level = indent_level.back()->deref();
+    IndentLevel current_level = indent_level.back();
 
     p_block->has_return = true;
 
@@ -2302,7 +2302,7 @@ void GDScriptParser::_parse_pattern_block(BlockNode *p_block, Vector<PatternBran
         if (error_set)
             return;
 
-        if (current_level.indent > indent_level.back()->deref().indent) {
+        if (current_level.indent > indent_level.back().indent) {
             break; // go back a level
         }
 
@@ -2759,7 +2759,7 @@ void GDScriptParser::_transform_match_statment(MatchNode *p_match_statement) {
 
 void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
 
-    IndentLevel current_level = indent_level.back()->deref();
+    IndentLevel current_level = indent_level.back();
 
 #ifdef DEBUG_ENABLED
 
@@ -2772,8 +2772,13 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
     bool is_first_line = true;
 
     while (true) {
-        if (!is_first_line && indent_level.back()->prev() && indent_level.back()->prev()->deref().indent == current_level.indent) {
-            if (indent_level.back()->prev()->deref().is_mixed(current_level)) {
+        IndentLevel *next_to_last = nullptr;
+        auto back_iter = indent_level.rbegin();
+        if(indent_level.size()>1)
+            next_to_last = &indent_level[indent_level.size()-2];
+
+        if (!is_first_line && next_to_last && next_to_last->indent == current_level.indent) {
+            if (next_to_last->is_mixed(current_level)) {
                 _set_error("Mixed tabs and spaces in indentation.");
                 return;
             }
@@ -2788,7 +2793,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
         if (error_set)
             return;
 
-        if (current_level.indent > indent_level.back()->deref().indent) {
+        if (current_level.indent > indent_level.back().indent) {
             p_block->end_line = tokenizer->get_token_line();
             return; //go back a level
         }
@@ -2993,14 +2998,14 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
                     while (tokenizer->get_token() == GDScriptTokenizer::TK_NEWLINE && _parse_newline())
                         ;
 
-                    if (indent_level.back()->deref().indent < current_level.indent) { //not at current indent level
+                    if (indent_level.back().indent < current_level.indent) { //not at current indent level
                         p_block->end_line = tokenizer->get_token_line();
                         return;
                     }
 
                     if (tokenizer->get_token() == GDScriptTokenizer::TK_CF_ELIF) {
 
-                        if (indent_level.back()->deref().indent > current_level.indent) {
+                        if (indent_level.back().indent > current_level.indent) {
 
                             _set_error("Invalid indentation.");
                             return;
@@ -3048,7 +3053,7 @@ void GDScriptParser::_parse_block(BlockNode *p_block, bool p_static) {
 
                     } else if (tokenizer->get_token() == GDScriptTokenizer::TK_CF_ELSE) {
 
-                        if (indent_level.back()->deref().indent > current_level.indent) {
+                        if (indent_level.back().indent > current_level.indent) {
                             _set_error("Invalid indentation.");
                             return;
                         }
@@ -3422,7 +3427,7 @@ bool GDScriptParser::_parse_newline() {
 
     if (tokenizer->get_token(1) != GDScriptTokenizer::TK_EOF && tokenizer->get_token(1) != GDScriptTokenizer::TK_NEWLINE) {
 
-        IndentLevel current_level = indent_level.back()->deref();
+        IndentLevel current_level = indent_level.back();
         int indent = tokenizer->get_token_line_indent();
         int tabs = tokenizer->get_token_line_tab_indent();
         IndentLevel new_level(indent, tabs);
@@ -3449,18 +3454,18 @@ bool GDScriptParser::_parse_newline() {
 
                 indent_level.pop_back();
 
-                if (indent_level.back()->deref().indent < indent) {
+                if (indent_level.back().indent < indent) {
 
                     _set_error("Unindent does not match any outer indentation level.");
                     return false;
                 }
 
-                if (indent_level.back()->deref().is_mixed(current_level)) {
+                if (indent_level.back().is_mixed(current_level)) {
                     _set_error("Mixed tabs and spaces in indentation.");
                     return false;
                 }
 
-                current_level = indent_level.back()->deref();
+                current_level = indent_level.back();
             }
 
             tokenizer->advance();
@@ -3558,7 +3563,7 @@ void GDScriptParser::_parse_extends(ClassNode *p_class) {
 
 void GDScriptParser::_parse_class(ClassNode *p_class) {
 
-    IndentLevel current_level = indent_level.back()->deref();
+    IndentLevel current_level = indent_level.back();
 
     while (true) {
 
@@ -3566,7 +3571,7 @@ void GDScriptParser::_parse_class(ClassNode *p_class) {
         if (error_set)
             return;
 
-        if (current_level.indent > indent_level.back()->deref().indent) {
+        if (current_level.indent > indent_level.back().indent) {
             p_class->end_line = tokenizer->get_token_line();
             return; //go back a level
         }

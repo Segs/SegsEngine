@@ -75,7 +75,7 @@ public:
 
         int track_count;
         HashMap<NodePath, int> track_map;
-        ListOld<AnimationState> animation_states;
+        Vector<AnimationState> animation_states;
         bool valid;
         AnimationPlayer *player;
         AnimationTree *tree;
@@ -126,7 +126,7 @@ public:
         Ref<AnimationNode> node;
     };
 
-    virtual void get_child_nodes(ListOld<ChildNode> *r_child_nodes);
+    virtual void get_child_nodes(Vector<ChildNode> *r_child_nodes);
 
     virtual float process(float p_time, bool p_seek);
     virtual StringView get_caption() const;

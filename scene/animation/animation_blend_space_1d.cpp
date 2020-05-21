@@ -95,7 +95,7 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "value_label", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_value_label", "get_value_label");
 }
 
-void AnimationNodeBlendSpace1D::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendSpace1D::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     for (int i = 0; i < blend_points_used; i++) {
         ChildNode cn;
         cn.name = StringName(itos(i));

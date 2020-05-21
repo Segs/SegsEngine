@@ -42,10 +42,10 @@
 
 namespace {
 struct InstanceGeometryData {
-    ListOld<VisualServerScene::Instance *> lighting;
-    ListOld<VisualServerScene::Instance *> reflection_probes;
-    ListOld<VisualServerScene::Instance *> gi_probes;
-    ListOld<VisualServerScene::Instance *> lightmap_captures;
+    List<VisualServerScene::Instance *> lighting;
+    List<VisualServerScene::Instance *> reflection_probes;
+    List<VisualServerScene::Instance *> gi_probes;
+    List<VisualServerScene::Instance *> lightmap_captures;
 };
 
 struct InstanceComponent {
@@ -262,9 +262,9 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
 
         InstanceLightData::PairInfo pinfo;
         pinfo.geometry = A;
-        pinfo.L = geom->lighting.push_back(B);
+        pinfo.L = geom->lighting.insert(geom->lighting.end(),B);
 
-        ListOld<InstanceLightData::PairInfo>::Element *E = light->geometries.push_back(pinfo);
+        List<InstanceLightData::PairInfo>::iterator E = light->geometries.insert(light->geometries.end(),pinfo);
         GeometryComponent &cm_geom(get_component<GeometryComponent>(A->self));
         if (cm_geom.can_cast_shadows) {
 
@@ -272,7 +272,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
         }
         cm_geom.lighting_dirty = true;
 
-        return E; //this element should make freeing faster
+        return E.mpNode; //this element should make freeing faster
     } else if (B->base_type == RS::INSTANCE_REFLECTION_PROBE && has_component<GeometryComponent>(A->self.eid)) {
 
         InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
@@ -280,13 +280,13 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
 
         InstanceReflectionProbeData::PairInfo pinfo;
         pinfo.geometry = A;
-        pinfo.L = geom->reflection_probes.push_back(B);
+        pinfo.L = geom->reflection_probes.insert(geom->reflection_probes.end(),B);
 
-        ListOld<InstanceReflectionProbeData::PairInfo>::Element *E = reflection_probe->geometries.push_back(pinfo);
+        List<InstanceReflectionProbeData::PairInfo>::iterator E = reflection_probe->geometries.insert(reflection_probe->geometries.end(),pinfo);
 
         get_component<GeometryComponent>(A->self).reflection_dirty = true;
 
-        return E; //this element should make freeing faster
+        return E.mpNode; //this element should make freeing faster
     } else if (B->base_type == RS::INSTANCE_LIGHTMAP_CAPTURE && has_component<GeometryComponent>(A->self.eid)) {
 
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
@@ -294,12 +294,12 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
 
         InstanceLightmapCaptureData::PairInfo pinfo;
         pinfo.geometry = A;
-        pinfo.L = geom->lightmap_captures.push_back(B);
+        pinfo.L = geom->lightmap_captures.insert(geom->lightmap_captures.end(),B);
 
-        ListOld<InstanceLightmapCaptureData::PairInfo>::Element *E = lightmap_capture->geometries.push_back(pinfo);
+        List<InstanceLightmapCaptureData::PairInfo>::iterator E = lightmap_capture->geometries.insert(lightmap_capture->geometries.end(),pinfo);
         ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
 
-        return E; //this element should make freeing faster
+        return E.mpNode; //this element should make freeing faster
     } else if (B->base_type == RS::INSTANCE_GI_PROBE && has_component<GeometryComponent>(A->self.eid)) {
 
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
@@ -307,13 +307,13 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
 
         InstanceGIProbeData::PairInfo pinfo;
         pinfo.geometry = A;
-        pinfo.L = geom->gi_probes.push_back(B);
+        pinfo.L = geom->gi_probes.insert(geom->gi_probes.end(),B);
 
-        ListOld<InstanceGIProbeData::PairInfo>::Element *E = gi_probe->geometries.push_back(pinfo);
+        List<InstanceGIProbeData::PairInfo>::iterator E = gi_probe->geometries.insert(gi_probe->geometries.end(),pinfo);
 
         get_component<GeometryComponent>(A->self).gi_probes_dirty = true;
 
-        return E; //this element should make freeing faster
+        return E.mpNode; //this element should make freeing faster
 
     } else if (B->base_type == RS::INSTANCE_GI_PROBE && A->base_type == RS::INSTANCE_LIGHT) {
 
@@ -325,7 +325,7 @@ void *VisualServerScene::_instance_pair(void *p_self, OctreeElementID, Instance 
     return nullptr;
 }
 void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance *p_A, int, OctreeElementID, Instance *p_B, int, void *udata) {
-
+    static_assert(sizeof(List<InstanceLightData::PairInfo>::iterator)==sizeof(void*));
     //VisualServerScene *self = (VisualServerScene*)p_self;
     Instance *A = p_A;
     Instance *B = p_B;
@@ -340,9 +340,9 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightData *light = static_cast<InstanceLightData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        ListOld<InstanceLightData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceLightData::PairInfo>::Element *>(udata);
+        List<InstanceLightData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceLightData::PairInfo> *>(udata);
 
-        geom->lighting.erase(E->deref().L);
+        geom->lighting.erase(E->L);
         light->geometries.erase(E);
         GeometryComponent &cm_geom(get_component<GeometryComponent>(A->self));
         if (cm_geom.can_cast_shadows) {
@@ -355,9 +355,9 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        ListOld<InstanceReflectionProbeData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceReflectionProbeData::PairInfo>::Element *>(udata);
+        List<InstanceReflectionProbeData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceReflectionProbeData::PairInfo> *>(udata);
 
-        geom->reflection_probes.erase(E->deref().L);
+        geom->reflection_probes.erase(E->L);
         reflection_probe->geometries.erase(E);
 
         get_component<GeometryComponent>(A->self).reflection_dirty = true;
@@ -367,9 +367,9 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        ListOld<InstanceLightmapCaptureData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceLightmapCaptureData::PairInfo>::Element *>(udata);
+        List<InstanceLightmapCaptureData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceLightmapCaptureData::PairInfo> *>(udata);
 
-        geom->lightmap_captures.erase(E->deref().L);
+        geom->lightmap_captures.erase(E->L);
         lightmap_capture->geometries.erase(E);
         ((VisualServerScene *)p_self)->_instance_queue_update(A, false, false); //need to update capture
 
@@ -378,9 +378,9 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        ListOld<InstanceGIProbeData::PairInfo>::Element *E = reinterpret_cast<ListOld<InstanceGIProbeData::PairInfo>::Element *>(udata);
+        List<InstanceGIProbeData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceGIProbeData::PairInfo> *>(udata);
 
-        geom->gi_probes.erase(E->deref().L);
+        geom->gi_probes.erase(E->L);
         gi_probe->geometries.erase(E);
 
         get_component<GeometryComponent>(A->self).gi_probes_dirty = true;
@@ -1071,8 +1071,8 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
         //make sure lights are updated if it casts shadow
         auto &cm_geom(get_component<GeometryComponent>(p_instance->self));
         if (cm_geom.can_cast_shadows) {
-            for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
+            for (Instance * E : geom->lighting) {
+                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
                 light->shadow_dirty = true;
             }
         }
@@ -1418,14 +1418,14 @@ void VisualServerScene::_update_instance_lightmap_captures(Instance *p_instance)
         new (&p_instance->lightmap_capture_data.data()[i]) Color;
 
     //this could use some sort of blending..
-    for (ListOld<Instance *>::Element *E = geom->lightmap_captures.front(); E; E = E->next()) {
-        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->deref()->base);
+    for (Instance * E : geom->lightmap_captures) {
+        const PoolVector<RasterizerStorage::LightmapCaptureOctree> *octree = VSG::storage->lightmap_capture_get_octree_ptr(E->base);
         //print_line("octree size: " + itos(octree->size()));
         if (octree->size() == 0)
             continue;
-        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(E->deref()->base);
-        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(E->deref()->base);
-        to_cell_xform = to_cell_xform * E->deref()->transform.affine_inverse();
+        Transform to_cell_xform = VSG::storage->lightmap_capture_get_octree_cell_transform(E->base);
+        int cell_subdiv = VSG::storage->lightmap_capture_get_octree_cell_subdiv(E->base);
+        to_cell_xform = to_cell_xform * E->transform.affine_inverse();
 
         PoolVector<RasterizerStorage::LightmapCaptureOctree>::Read octree_r = octree->read();
 
@@ -2120,9 +2120,9 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 //only called when lights AABB enter/exit this geometry
                 ins->light_instances.resize(geom->lighting.size());
                 auto l_wr(ins->light_instances.write());
-                for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
+                for (Instance * E : geom->lighting) {
 
-                    InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
+                    InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
 
                     l_wr[l++] = light->instance;
                 }
@@ -2135,9 +2135,9 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->reflection_probe_instances.resize(geom->reflection_probes.size());
                 auto wr(ins->reflection_probe_instances.write());
-                for (ListOld<Instance *>::Element *E = geom->reflection_probes.front(); E; E = E->next()) {
+                for (Instance * E : geom->reflection_probes) {
 
-                    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->deref()->base_data);
+                    InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->base_data);
 
                     wr[l++] = reflection_probe->instance;
                 }
@@ -2151,9 +2151,9 @@ void VisualServerScene::_prepare_scene(const Transform p_cam_transform, const Ca
                 ins->gi_probe_instances.resize(geom->gi_probes.size());
                 auto wr(ins->gi_probe_instances.write());
 
-                for (ListOld<Instance *>::Element *E = geom->gi_probes.front(); E; E = E->next()) {
+                for (Instance * E : geom->gi_probes) {
 
-                    InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->deref()->base_data);
+                    InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(E->base_data);
 
                     wr[l++] = gi_probe->probe_instance;
                 }
@@ -2703,7 +2703,7 @@ void VisualServerScene::_gi_probe_bake_thread() {
         probe_bake_mutex->lock();
 
         if (!probe_bake_list.empty()) {
-            to_bake = probe_bake_list.front()->deref();
+            to_bake = probe_bake_list.front();
             probe_bake_list.pop_front();
         }
         probe_bake_mutex->unlock();
@@ -3587,8 +3587,8 @@ void VisualServerScene::_update_instance_material(Instance *p_instance) {
 
         if (can_cast_shadows != gcomp.can_cast_shadows) {
             //ability to cast shadows change, let lights now
-            for (ListOld<Instance *>::Element *E = geom->lighting.front(); E; E = E->next()) {
-                InstanceLightData *light = static_cast<InstanceLightData *>(E->deref()->base_data);
+            for (Instance * E : geom->lighting) {
+                InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
                 light->shadow_dirty = true;
             }
 

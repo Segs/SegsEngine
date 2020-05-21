@@ -236,7 +236,7 @@ public:
 
     FUNC2(body_add_collision_exception, RID, RID);
     FUNC2(body_remove_collision_exception, RID, RID);
-    FUNC2S(body_get_collision_exceptions, RID, ListOld<RID> *);
+    FUNC2S(body_get_collision_exceptions, RID, Vector<RID> *);
 
     FUNC2(body_set_max_contacts_reported, RID, int);
     FUNC1RC(int, body_get_max_contacts_reported, RID);

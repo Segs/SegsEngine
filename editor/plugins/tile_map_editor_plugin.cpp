@@ -690,7 +690,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
 
     while (!bucket_queue.empty()) {
 
-        Point2i n = bucket_queue.front()->deref();
+        Point2i n = bucket_queue.front();
         bucket_queue.pop_front();
 
         if (!r.has_point(n))
@@ -945,7 +945,7 @@ void TileMapEditor::_update_copydata() {
                 tcd.autotile_coord = node->get_cell_autotile_coord(j, i);
             }
 
-            copydata.push_back(tcd);
+            copydata.emplace_back(tcd);
         }
     }
 }
@@ -1118,10 +1118,10 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         _start_undo(TTR("Paste"));
                         ids.push_back(0);
-                        for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+                        for (const TileData &E : copydata) {
 
-                            ids[0] = E->deref().cell;
-                            _set_cell(E->deref().pos + ofs, ids, E->deref().flip_h, E->deref().flip_v, E->deref().transpose, E->deref().autotile_coord);
+                            ids[0] = E.cell;
+                            _set_cell(E.pos + ofs, ids, E.flip_h, E.flip_v, E.transpose, E.autotile_coord);
                         }
                         _finish_undo();
 
@@ -1738,14 +1738,12 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Point2 ofs = over_tile - rectangle.position;
 
-            for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+            for (const TileData &E : copydata) {
 
-                if (!ts->has_tile(E->deref().cell))
+                if (!ts->has_tile(E.cell))
                     continue;
 
-                TileData tcd = E->deref();
-
-                _draw_cell(p_overlay, tcd.cell, tcd.pos + ofs, tcd.flip_h, tcd.flip_v, tcd.transpose, tcd.autotile_coord, xform);
+                _draw_cell(p_overlay, E.cell, E.pos + ofs, E.flip_h, E.flip_v, E.transpose, E.autotile_coord, xform);
             }
 
             Rect2i duplicate = rectangle;

@@ -362,8 +362,8 @@ struct TextEdit::PrivateData {
 
     TextOperation current_op;
 
-    ListOld<TextOperation> undo_stack;
-    ListOld<TextOperation>::Element *undo_stack_pos = nullptr;
+    Vector<TextOperation> undo_stack;
+    int undo_stack_pos = -1;
     int undo_stack_max_size;
 
     int wrap_at=0;
@@ -550,16 +550,12 @@ struct TextEdit::PrivateData {
 
     void _clear_redo() {
 
-        if (undo_stack_pos == nullptr)
+        if (undo_stack_pos == -1)
             return; // Nothing to clear.
 
         _push_current_op();
-
-        while (undo_stack_pos) {
-            ListOld<TextOperation>::Element *elem = undo_stack_pos;
-            undo_stack_pos = undo_stack_pos->next();
-            undo_stack.erase(elem);
-        }
+        undo_stack.erase(undo_stack.begin()+undo_stack_pos, undo_stack.end());
+        undo_stack_pos = -1;
     }
 
     void _push_current_op() {
@@ -606,34 +602,34 @@ struct TextEdit::PrivateData {
 
         _push_current_op();
 
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
 
             if (undo_stack.empty())
                 return; // Nothing to undo.
 
-            undo_stack_pos = undo_stack.back();
+            undo_stack_pos = undo_stack.size()-1;
 
-        } else if (undo_stack_pos == undo_stack.front())
+        } else if (undo_stack_pos == 0)
             return; // At the bottom of the undo stack.
         else
-            undo_stack_pos = undo_stack_pos->prev();
+            --undo_stack_pos;
 
         deselect();
 
-        TextOperation op = undo_stack_pos->deref();
+        TextOperation op = undo_stack[undo_stack_pos];
         _do_text_op(op, true);
         if (op.type != TextOperation::TYPE_INSERT && (op.from_line != op.to_line || op.to_column != op.from_column + 1))
             select(op.from_line, op.from_column, op.to_line, op.to_column);
 
         current_op.version = op.prev_version;
-        if (undo_stack_pos->deref().chain_backward) {
+        if (undo_stack[undo_stack_pos].chain_backward) {
             while (true) {
-                ERR_BREAK(!undo_stack_pos->prev());
-                undo_stack_pos = undo_stack_pos->prev();
-                op = undo_stack_pos->deref();
+                ERR_BREAK(undo_stack_pos==0);
+                --undo_stack_pos;
+                op = undo_stack[undo_stack_pos];
                 _do_text_op(op, true);
                 current_op.version = op.prev_version;
-                if (undo_stack_pos->deref().chain_forward) {
+                if (undo_stack[undo_stack_pos].chain_forward) {
                     break;
                 }
             }
@@ -641,13 +637,13 @@ struct TextEdit::PrivateData {
 
         m_owner->_update_scrollbars();
 
-        if (undo_stack_pos->deref().type == TextOperation::TYPE_REMOVE) {
-            cursor_set_line(undo_stack_pos->deref().to_line);
-            cursor_set_column(undo_stack_pos->deref().to_column);
+        if (undo_stack[undo_stack_pos].type == TextOperation::TYPE_REMOVE) {
+            cursor_set_line(undo_stack[undo_stack_pos].to_line);
+            cursor_set_column(undo_stack[undo_stack_pos].to_column);
             _cancel_code_hint();
         } else {
-            cursor_set_line(undo_stack_pos->deref().from_line);
-            cursor_set_column(undo_stack_pos->deref().from_column);
+            cursor_set_line(undo_stack[undo_stack_pos].from_line);
+            cursor_set_column(undo_stack[undo_stack_pos].from_column);
         }
         m_owner->update();
     }
@@ -655,31 +651,31 @@ struct TextEdit::PrivateData {
 
         _push_current_op();
 
-        if (undo_stack_pos == nullptr)
+        if (undo_stack_pos == -1 || undo_stack_pos==undo_stack.size())
             return; // Nothing to do.
 
         deselect();
 
-        TextOperation op = undo_stack_pos->deref();
+        TextOperation op = undo_stack[undo_stack_pos];
         _do_text_op(op, false);
         current_op.version = op.version;
-        if (undo_stack_pos->deref().chain_forward) {
+        if (undo_stack[undo_stack_pos].chain_forward) {
 
             while (true) {
-                ERR_BREAK(!undo_stack_pos->next());
-                undo_stack_pos = undo_stack_pos->next();
-                op = undo_stack_pos->deref();
+                ERR_BREAK(undo_stack_pos+1 >= undo_stack.size());
+                ++undo_stack_pos;
+                op = undo_stack[undo_stack_pos];
                 _do_text_op(op, false);
                 current_op.version = op.version;
-                if (undo_stack_pos->deref().chain_backward)
+                if (undo_stack[undo_stack_pos].chain_backward)
                     break;
             }
         }
 
         m_owner->_update_scrollbars();
-        cursor_set_line(undo_stack_pos->deref().to_line);
-        cursor_set_column(undo_stack_pos->deref().to_column);
-        undo_stack_pos = undo_stack_pos->next();
+        cursor_set_line(undo_stack[undo_stack_pos].to_line);
+        cursor_set_column(undo_stack[undo_stack_pos].to_column);
+        ++undo_stack_pos;
         m_owner->update();
     }
 
@@ -687,7 +683,7 @@ struct TextEdit::PrivateData {
 
         saved_version = 0;
         current_op.type = TextOperation::TYPE_NONE;
-        undo_stack_pos = nullptr;
+        undo_stack_pos = -1;
         undo_stack.clear();
     }
 
@@ -701,12 +697,12 @@ struct TextEdit::PrivateData {
         _push_current_op();
         ERR_FAIL_COND(undo_stack.empty());
 
-        if (undo_stack.back()->deref().chain_forward) {
-            undo_stack.back()->deref().chain_forward = false;
+        if (undo_stack.back().chain_forward) {
+            undo_stack.back().chain_forward = false;
             return;
         }
 
-        undo_stack.back()->deref().chain_backward = true;
+        undo_stack.back().chain_backward = true;
     }
 
     void paste() {

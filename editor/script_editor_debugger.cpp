@@ -156,10 +156,7 @@ protected:
 
     void _get_property_list(Vector<PropertyInfo> *p_list) const {
 
-        p_list->clear(); //sorry, no want category
-        for (const ListOld<PropertyInfo>::Element *E = prop_list.front(); E; E = E->next()) {
-            p_list->push_back(E->deref());
-        }
+        p_list->assign(prop_list.begin(), prop_list.end()); //sorry, no want category
     }
 
     static void _bind_methods() {
@@ -175,7 +172,7 @@ protected:
 public:
     UIString type_name;
     ObjectID remote_object_id;
-    ListOld<PropertyInfo> prop_list;
+    Vector<PropertyInfo> prop_list;
     HashMap<StringName, Variant> prop_values;
 
     ObjectID get_remote_object_id() {

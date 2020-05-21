@@ -136,7 +136,8 @@ void godot_icall_Array_RemoveAt(Array *ptr, int index) {
 }
 
 Error godot_icall_Array_Resize(Array *ptr, int new_size) {
-	return ptr->resize(new_size);
+	ptr->resize(new_size);
+    return OK;
 }
 
 void godot_icall_Array_Generic_GetElementTypeInfo(MonoReflectionType *refltype, uint32_t *type_encoding, GDMonoClass **type_class) {

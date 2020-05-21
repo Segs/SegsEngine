@@ -48,11 +48,11 @@ class GDScriptCompiler {
         const GDScriptParser::FunctionNode *function_node;
         bool debug_stack;
 
-        ListOld<Map<StringName, int> > stack_id_stack;
+        Vector<Map<StringName, int> > stack_id_stack;
         Map<StringName, int> stack_identifiers;
 
-        List<GDScriptFunction::StackDebug> stack_debug;
-        ListOld<Map<StringName, int> > block_identifier_stack;
+        Vector<GDScriptFunction::StackDebug> stack_debug;
+        Vector<Map<StringName, int> > block_identifier_stack;
         Map<StringName, int> block_identifiers;
 
         void add_stack_identifier(const StringName &p_id, int p_stackpos) {
@@ -64,21 +64,21 @@ class GDScriptCompiler {
                 sd.line = current_line;
                 sd.identifier = p_id;
                 sd.pos = p_stackpos;
-                stack_debug.push_back(sd);
+                stack_debug.emplace_back(eastl::move(sd));
             }
         }
 
         void push_stack_identifiers() {
-            stack_id_stack.push_back(stack_identifiers);
+            stack_id_stack.emplace_back(stack_identifiers);
             if (debug_stack) {
 
-                block_identifier_stack.push_back(block_identifiers);
+                block_identifier_stack.emplace_back(eastl::move(block_identifiers));
                 block_identifiers.clear();
             }
         }
 
         void pop_stack_identifiers() {
-            stack_identifiers = stack_id_stack.back()->deref();
+            stack_identifiers = eastl::move(stack_id_stack.back());
             stack_id_stack.pop_back();
 
             if (debug_stack) {
@@ -91,7 +91,7 @@ class GDScriptCompiler {
                     sd.pos = E.second;
                     stack_debug.push_back(sd);
                 }
-                block_identifiers = block_identifier_stack.back()->deref();
+                block_identifiers = eastl::move(block_identifier_stack.back());
                 block_identifier_stack.pop_back();
             }
         }
