@@ -1643,7 +1643,7 @@ namespace {
                 ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
-                img->create(std::move(img_data));
+                img->create(eastl::move(img_data));
                 Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
 
                 t->create_from_image(img);
@@ -1659,7 +1659,7 @@ namespace {
                 ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
-                img->create(std::move(img_data));
+                img->create(eastl::move(img_data));
 
                 Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
 

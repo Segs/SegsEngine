@@ -30,7 +30,8 @@ namespace eastl {
     class bitvector;
     template <class TKey, class TData, class HashFunc, class CompareFunc,typename Allocator, bool bCacheHashCode>
     class hash_map;
-
+    template <typename T>
+    struct less;
 }
 
 template <class T>
@@ -39,14 +40,9 @@ class Ref;
 template <class T>
 class PoolVector;
 
-template <class T>
-struct Comparator;
 
 class wrap_allocator;
 class DefaultAllocator;
-
-template <class T>
-struct Comparator;
 
 template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;
@@ -64,9 +60,9 @@ class ListOld;
 template<class T>
 using List = eastl::list<T,wrap_allocator>;
 template <class T>
-using Set = eastl::set<T, Comparator<T>, wrap_allocator>;
+using Set = eastl::set<T, eastl::less<T>, wrap_allocator>;
 template <class K,class V>
-using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
+using DefMap = eastl::map<K,V, eastl::less<K>,wrap_allocator>;
 
 using String = eastl::basic_string<char, wrap_allocator>;
 using StringView = eastl::basic_string_view<char>;

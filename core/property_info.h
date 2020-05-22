@@ -60,7 +60,7 @@ public:
     }
 
 
-    PropertyInfo(StringName p_class_name, VariantType t) : class_name(std::move(p_class_name)), type(t) {}
+    PropertyInfo(StringName p_class_name, VariantType t) : class_name(eastl::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :
         name(rp.name ? StaticCString(rp.name, true) : StringName()),
         hint_string(rp.hint_string ? rp.hint_string : ""),

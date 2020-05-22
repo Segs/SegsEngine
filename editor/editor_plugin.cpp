@@ -754,7 +754,7 @@ void EditorPlugin::remove_inspector_plugin(const Ref<EditorInspectorPlugin> &p_p
 }
 struct ImportWrapper : public EditorSceneImporterInterface {
     Ref<EditorSceneImporter> wrapped;
-    ImportWrapper(Ref<EditorSceneImporter> w) : wrapped(std::move(w)) {}
+    ImportWrapper(Ref<EditorSceneImporter> w) : wrapped(eastl::move(w)) {}
 
     // EditorSceneImporterInterface interface
 public:

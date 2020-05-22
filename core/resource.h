@@ -36,11 +36,9 @@ namespace eastl {
 template <typename Key, typename T, typename Compare, typename Allocator>
 class map;
 }
-template <class T>
-struct Comparator;
 class wrap_allocator;
 template <class K,class V>
-using DefMap = eastl::map<K,V,Comparator<K>,wrap_allocator>;
+using DefMap = eastl::map<K,V,eastl::less<K>,wrap_allocator>;
 class RWLock;
 
 

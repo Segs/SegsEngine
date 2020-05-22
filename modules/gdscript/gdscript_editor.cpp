@@ -3065,7 +3065,7 @@ void GDScriptLanguage::auto_indent_code(String &p_code, int p_from_line, int p_t
                 to_add.append(indent);
             }
             to_add.append(st);
-            res.emplace_back(std::move(to_add));
+            res.emplace_back(eastl::move(to_add));
         } else if (i > p_to_line) {
             break;
         }

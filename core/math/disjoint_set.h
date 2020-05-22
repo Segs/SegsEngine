@@ -38,7 +38,7 @@
 */
 
 /* This DisjointSet class uses Find with path compression and Union by rank */
-template <typename T, class C = Comparator<T>, class AL = DefaultAllocator>
+template <typename T, class C = eastl::less<T>, class AL = DefaultAllocator>
 class DisjointSet {
 
     struct Element {

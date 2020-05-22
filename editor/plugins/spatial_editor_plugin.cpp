@@ -2346,7 +2346,7 @@ void SpatialEditorViewport::_update_freelook(real_t delta) {
 
 void SpatialEditorViewport::set_message(StringName p_message, float p_time) {
 
-    message = std::move(p_message);
+    message = eastl::move(p_message);
     message_time = p_time;
 }
 

@@ -81,6 +81,10 @@ private:
             return key < p_pair.key;
         }
 
+        _FORCE_INLINE_ bool operator==(const PairKey& p_pair) const {
+
+            return key == p_pair.key;
+        }
         _FORCE_INLINE_ PairKey(OctreeElementID p_A, OctreeElementID p_B) {
 
             if (p_A < p_B) {
@@ -112,8 +116,8 @@ private:
         int children_count; // cache for amount of childrens (fast check for removal)
         int parent_index; // cache for parent index (fast check for removal)
 
-        eastl::list<Element *, wrap_allocator> pairable_elements;
-        eastl::list<Element *, wrap_allocator> elements;
+        List<Element *> pairable_elements;
+        List<Element *> elements;
 
         Octant() {
             children_count = 0;
@@ -145,15 +149,15 @@ private:
         AABB aabb;
         AABB container_aabb;
 
-        eastl::list<PairData *, wrap_allocator> pair_list;
+        List<PairData *> pair_list;
 
         struct OctantOwner {
 
             Octant *octant;
-            typename eastl::list<Element *, wrap_allocator>::iterator E;
+            typename List<Element *>::iterator E;
         }; // an element can be in max 8 octants
 
-        eastl::list<OctantOwner, wrap_allocator> octant_owners;
+        List<OctantOwner> octant_owners;
 
         Element() {
             last_pass = 0;
@@ -168,7 +172,7 @@ private:
         }
     };
 
-    using ElementIterator = typename eastl::list<Element *, wrap_allocator>::iterator;
+    using ElementIterator = typename List<Element *>::iterator;
 
     struct PairData {
 
@@ -176,11 +180,11 @@ private:
         bool intersect;
         Element *A, *B;
         void *ud;
-        typename eastl::list<PairData *, wrap_allocator>::iterator eA, eB;
+        typename List<PairData *>::iterator eA, eB;
     };
 
     using ElementMap = eastl::unordered_map<OctreeElementID, Element, eastl::hash<OctreeElementID>,eastl::equal_to<OctreeElementID>, wrap_allocator>;
-    using PairMap = eastl::unordered_map<PairKey, PairData,eastl::hash<PairKey>, Comparator<PairKey>, wrap_allocator>;
+    using PairMap = eastl::unordered_map<PairKey, PairData,eastl::hash<PairKey>, eastl::equal_to<PairKey>, wrap_allocator>;
 
     ElementMap element_map;
     PairMap pair_map;

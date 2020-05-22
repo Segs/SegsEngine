@@ -308,26 +308,20 @@ static inline uint64_t BSWAP64(uint64_t x) {
 }
 #endif
 
-/** When compiling with RTTI, we can add an "extra"
- * layer of safeness in many operations, so dynamic_cast
- * is used besides casting by enum.
- */
-
-template <class T>
-struct Comparator {
-
-    _ALWAYS_INLINE_ bool operator()(const T &p_a, const T &p_b) const { return (p_a < p_b); }
-};
-
 void _global_lock();
 void _global_unlock();
 
 struct _GlobalLock {
 
+
     _GlobalLock() { _global_lock(); }
     ~_GlobalLock() { _global_unlock(); }
 };
 
+/** When compiling with RTTI, we can add an "extra"
+ * layer of safeness in many operations, so dynamic_cast
+ * is used besides casting by enum.
+ */
 #define GLOBAL_LOCK_FUNCTION _GlobalLock _global_lock_;
 
 #ifndef RTTI_ENABLED

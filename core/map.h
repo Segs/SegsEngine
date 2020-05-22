@@ -30,9 +30,8 @@
 
 #pragma once
 
-#include "EASTL/map.h"
 #include "core/os/memory.h"
-#include "core/forward_decls.h"
+#include "EASTL/map.h"
 
-template <class K,class V, class C = Comparator<K>, class A = wrap_allocator >
+template <class K,class V, class C = eastl::less<K>, class A = wrap_allocator >
 using Map = eastl::map<K,V,C,A>;

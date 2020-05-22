@@ -710,7 +710,7 @@ void AnimationNodeStateMachine::get_node_list(List<StringName> *r_nodes) const {
         nodes.push_back(E.first);
     }
     nodes.sort(WrapAlphaCompare());
-    r_nodes->splice(r_nodes->end(),std::move(nodes));
+    r_nodes->splice(r_nodes->end(), eastl::move(nodes));
 }
 
 bool AnimationNodeStateMachine::has_transition(const StringName &p_from, const StringName &p_to) const {

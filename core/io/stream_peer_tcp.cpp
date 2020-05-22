@@ -65,7 +65,7 @@ Error StreamPeerTCP::_poll_connection() {
 
 void StreamPeerTCP::accept_socket(Ref<NetSocket> p_sock, IP_Address p_host, uint16_t p_port) {
 
-    _sock = std::move(p_sock);
+    _sock = eastl::move(p_sock);
     _sock->set_blocking_enabled(false);
 
     timeout = OS::get_singleton()->get_ticks_msec() + (((uint64_t)GLOBAL_GET("network/limits/tcp/connect_timeout_seconds")) * 1000);

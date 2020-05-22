@@ -35,5 +35,5 @@
 #include "core/forward_decls.h"
 
 template <class T>
-using Set = eastl::set<T,Comparator<T>,wrap_allocator>;
+using Set = eastl::set<T,eastl::less<T>,wrap_allocator>;
 

@@ -1614,7 +1614,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
             Dictionary dict = p_variant;
 
             Vector<Variant> keys(dict.get_key_list());
-            eastl::sort(keys.begin(),keys.end(),Comparator<Variant>());
+            eastl::sort(keys.begin(),keys.end(),VariantComparator());
 
             p_store_string_func(p_store_string_ud, "{\n");
             int size = keys.size()-1;

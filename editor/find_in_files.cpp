@@ -102,7 +102,7 @@ FindInFiles::FindInFiles() {
 }
 
 void FindInFiles::set_search_text(String p_pattern) {
-    _pattern = std::move(p_pattern);
+    _pattern = eastl::move(p_pattern);
 }
 
 void FindInFiles::set_whole_words(bool p_whole_word) {

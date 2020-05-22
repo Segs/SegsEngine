@@ -428,7 +428,7 @@ public:
     PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
         owner(p_owner),
         language(p_language),
-        script(std::move(p_script)) {
+        script(eastl::move(p_script)) {
     }
     ~PlaceHolderScriptInstance() override;
 };

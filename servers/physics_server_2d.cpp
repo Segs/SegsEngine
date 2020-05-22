@@ -70,7 +70,7 @@ struct ClassInfo {
     ClassInfo() = default;
 
     ClassInfo(StringName p_name, CreatePhysics2DServerCallback p_create_callback) :
-            name(std::move(p_name)),
+            name(eastl::move(p_name)),
             create_callback(p_create_callback) {}
 
     ClassInfo(const ClassInfo &p_ci) = default;

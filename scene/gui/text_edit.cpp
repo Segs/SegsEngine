@@ -6461,7 +6461,7 @@ void TextEdit::remove_breakpoints() {
 
 void TextEdit::set_line_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info) {
     ERR_FAIL_INDEX(p_line, m_priv->text.size());
-    m_priv->text.set_info_icon(p_line, p_icon, std::move(p_info));
+    m_priv->text.set_info_icon(p_line, p_icon, eastl::move(p_info));
     update();
 }
 

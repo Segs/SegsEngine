@@ -84,7 +84,7 @@ void CurveEditor::set_curve(Ref<Curve> && curve) {
         _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
     }
 
-    _curve_ref = std::move(curve);
+    _curve_ref = eastl::move(curve);
 
     if (_curve_ref) {
         _curve_ref->connect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
@@ -774,7 +774,7 @@ void EditorInspectorPluginCurve::parse_begin(Object *p_object) {
     Ref<Curve> c(curve);
 
     CurveEditor *editor = memnew(CurveEditor);
-    editor->set_curve(std::move(c));
+    editor->set_curve(eastl::move(c));
     add_custom_control(editor);
 }
 

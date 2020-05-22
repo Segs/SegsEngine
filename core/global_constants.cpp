@@ -47,7 +47,7 @@ struct _GlobalConstant {
 
 #ifdef DEBUG_METHODS_ENABLED
     _GlobalConstant(StringName p_enum_name, const char *p_name, int p_value) :
-            enum_name(std::move(p_enum_name)),
+            enum_name(eastl::move(p_enum_name)),
             name(p_name),
             value(p_value) {
     }

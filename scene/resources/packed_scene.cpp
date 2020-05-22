@@ -1716,7 +1716,7 @@ Node *PackedScene::instance(PackedGenEditState p_edit_state) const {
 
 void PackedScene::replace_state(Ref<SceneState> p_by) {
 
-    state = std::move(p_by);
+    state = eastl::move(p_by);
     state->set_path(get_path());
 #ifdef TOOLS_ENABLED
     state->set_last_modified_time(get_last_modified_time());
