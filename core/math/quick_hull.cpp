@@ -485,10 +485,10 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
             // remove all edge connections to this face
             for (eastl::pair<const QHEdge,QHRetFaceConnect> &G : ret_edges) {
                 if (G.second.left == O)
-                    G.second.left = nullptr;
+                    G.second.left = ret_faces.end();
 
                 if (G.second.right == O)
-                    G.second.right = nullptr;
+                    G.second.right = ret_faces.end();
             }
 
             ret_edges.erase(F); //remove the edge
@@ -500,7 +500,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
     r_mesh.faces.assign(eastl::move_iterator(ret_faces.begin()), eastl::move_iterator(ret_faces.end()));
     //TODO: consider r_mesh.faces.shrink_to_fit() here ?
     //NOTE: at this point QHRetFaceConnect in ret_edges is no longer valid, since the underlying container's contents was moved-from
-    
+
     r_mesh.edges.reserve(ret_edges.size());
     int idx = 0;
     for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {

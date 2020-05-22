@@ -1480,7 +1480,7 @@ void VisualScriptEditor::_remove_output_port(int p_id, int p_port) {
     for (VisualScript::DataConnection E : data_connections) {
         if (E.from_node == p_id && E.from_port == p_port) {
             // push into the connections map
-            conn_map[E.to_node].insert(E.to_port);
+            conn_map[E.to_node].insert(int(E.to_port));
         }
     }
 
