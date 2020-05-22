@@ -378,7 +378,7 @@ public:
 
     int get_octant_count() const { return octant_count; }
     int get_pair_count() const { return pair_count; }
-    Octree(real_t p_unit_size = 1.0) : unit_size(p_unit_size) {}
+    Octree() : unit_size(1.0) {}
     ~Octree() { _remove_tree(root); }
 };
 

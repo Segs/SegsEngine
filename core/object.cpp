@@ -68,7 +68,7 @@ struct Object::Signal  {
 
     struct Slot {
         Connection conn;
-        List<Connection>::iterator cE=nullptr;
+        List<Connection>::iterator cE;
         int reference_count=0;
     };
 

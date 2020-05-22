@@ -340,7 +340,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightData *light = static_cast<InstanceLightData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        List<InstanceLightData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceLightData::PairInfo> *>(udata);
+        List<InstanceLightData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceLightData::PairInfo> *>(udata));
 
         geom->lighting.erase(E->L);
         light->geometries.erase(E);
@@ -355,7 +355,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        List<InstanceReflectionProbeData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceReflectionProbeData::PairInfo> *>(udata);
+        List<InstanceReflectionProbeData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceReflectionProbeData::PairInfo> *>(udata));
 
         geom->reflection_probes.erase(E->L);
         reflection_probe->geometries.erase(E);
@@ -367,7 +367,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceLightmapCaptureData *lightmap_capture = static_cast<InstanceLightmapCaptureData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        List<InstanceLightmapCaptureData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceLightmapCaptureData::PairInfo> *>(udata);
+        List<InstanceLightmapCaptureData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceLightmapCaptureData::PairInfo> *>(udata));
 
         geom->lightmap_captures.erase(E->L);
         lightmap_capture->geometries.erase(E);
@@ -378,7 +378,7 @@ void VisualServerScene::_instance_unpair(void *p_self, OctreeElementID, Instance
         InstanceGIProbeData *gi_probe = static_cast<InstanceGIProbeData *>(B->base_data);
         InstanceGeometryData *geom = get_instance_geometry(A->self);
 
-        List<InstanceGIProbeData::PairInfo>::iterator E = reinterpret_cast<eastl::ListNode<InstanceGIProbeData::PairInfo> *>(udata);
+        List<InstanceGIProbeData::PairInfo>::iterator E(reinterpret_cast<eastl::ListNode<InstanceGIProbeData::PairInfo> *>(udata));
 
         geom->gi_probes.erase(E->L);
         gi_probe->geometries.erase(E);
@@ -1112,7 +1112,7 @@ void VisualServerScene::_update_instance(Instance *p_instance) {
 
         if (p_instance->base_type == RS::INSTANCE_GI_PROBE) {
             //lights and geometries
-            pairable_mask = p_instance->visible ? RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT) : 0;
+            pairable_mask = p_instance->visible ? (RS::INSTANCE_GEOMETRY_MASK | (1 << RS::INSTANCE_LIGHT)) : 0;
             pairable = true;
         }
 

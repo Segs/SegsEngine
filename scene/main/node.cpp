@@ -94,8 +94,8 @@ struct Node::PrivData {
 
 
     HashMap<StringName, GroupData> grouped;
-    List<Node *>::iterator OW; // owned element
-    List<Node *> owned;
+    Node *OW; // owned element
+    Vector<Node *> owned;
 
     PauseMode pause_mode;
     Node *pause_owner;
@@ -1308,7 +1308,8 @@ void Node::_propagate_validate_owner() {
 
         if (!found) {
 
-            data->owner->data->owned.erase(data->OW);
+            data->owner->data->owned.erase_first(data->OW);
+            data->OW = nullptr;
             data->owner = nullptr;
         }
     }
@@ -1613,16 +1614,14 @@ void Node::_set_owner_nocheck(Node *p_owner) {
     ERR_FAIL_COND(data->owner);
     data->owner = p_owner;
     data->owner->data->owned.push_back(this);
-    auto tgtiter=data->owner->data->owned.rbegin();
-    ++tgtiter;
-    data->OW = tgtiter.base();
+    data->OW = this;
 }
 
 void Node::set_owner(Node *p_owner) {
 
     if (data->owner) {
 
-        data->owner->data->owned.erase(data->OW);
+        data->owner->data->owned.erase_first(data->OW);
         data->OW = nullptr;
         data->owner = nullptr;
     }
@@ -2435,7 +2434,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(p_node->data->parent);
 
-    List<Node *> owned = data->owned;
+    Vector<Node *> owned(data->owned);
     List<Node *> owned_by_owner;
     Node *owner = (data->owner == this) ? p_node : data->owner;
 

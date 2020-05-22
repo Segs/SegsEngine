@@ -602,8 +602,10 @@ void CanvasItem::_notification(int p_what) {
             first_draw = true;
             if (get_parent()) {
                 CanvasItem *ci = object_cast<CanvasItem>(get_parent());
-                if (ci)
-                    C = ci->children_items.insert(ci->children_items.end(),this);
+                if (ci) {
+                    ci->children_items.push_back(this);
+                    C = this;
+                }
             }
             _enter_canvas();
             if (!block_transform_notify && !xform_change.in_list()) {
@@ -628,8 +630,8 @@ void CanvasItem::_notification(int p_what) {
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
             _exit_canvas();
-            if (C!=List<CanvasItem *>::iterator()) {
-                object_cast<CanvasItem>(get_parent())->children_items.erase(C);
+            if (C!=nullptr) {
+                object_cast<CanvasItem>(get_parent())->children_items.erase_first(C);
                 C = {};
             }
             global_invalid = true;

@@ -192,8 +192,8 @@ private:
     Color modulate;
     Color self_modulate;
 
-    List<CanvasItem *> children_items;
-    List<CanvasItem *>::iterator C;
+    Vector<CanvasItem *> children_items;
+    CanvasItem * C;
 
     int light_mask;
 

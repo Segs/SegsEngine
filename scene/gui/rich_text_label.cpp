@@ -68,7 +68,6 @@ struct RichTextItem {
 
     RichTextItem() {
         parent = nullptr;
-        E = nullptr;
         line = 0;
     }
     virtual ~RichTextItem() { _clear_children(); }
