@@ -6,12 +6,7 @@
 // This file defines random number generation like the std C++ <random> header. 
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_RANDOM_H
-#define EASTL_RANDOM_H
-
-	#pragma once
-
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/numeric_limits.h>
@@ -240,13 +235,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
 

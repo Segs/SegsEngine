@@ -10,6 +10,7 @@ set(source_files
     editor/godotsharp_export.cpp
     editor/editor_internal_calls.cpp
     editor/bindings_generator.cpp
+    editor/code_completion.cpp
     editor/script_class_parser.cpp
     editor/csharp_project.cpp
     utils/osx_utils.cpp
@@ -46,6 +47,7 @@ set(header_files
     editor/godotsharp_export.h
     editor/editor_internal_calls.h
     editor/script_class_parser.h
+	editor/code_completion.h
     editor/csharp_project.h
     editor/bindings_generator.h
     utils/osx_utils.h

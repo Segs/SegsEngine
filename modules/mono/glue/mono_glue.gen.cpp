@@ -124,8 +124,6 @@
 #include "scene/gui/file_dialog.h"
 #include "editor/filesystem_dock.h"
 #include "core/func_ref.h"
-#include "modules/gdscript/gdscript.h"
-#include "modules/gdscript/gdscript_function.h"
 #include "scene/3d/gi_probe.h"
 #include "scene/2d/gpu_particles_2d.h"
 #include "scene/3d/visual_instance_3d.h"
@@ -16236,48 +16234,6 @@ Object* godot_icall_FuncRef_Ctor(MonoObject* obj) {
 	return instance;
 }
 
-MonoObject* godot_icall_GDScript_new_e5975f9d(Object * ptr, MonoArray* arg1) {
-	ERR_FAIL_NULL_V(ptr, NULL);
-	int vararg_length = mono_array_length(arg1);
-	int total_length = 0 + vararg_length;
-	ArgumentsVector<Variant> varargs(vararg_length);
-	ArgumentsVector<const Variant *> call_args(total_length);
-	for (int i = 0; i < vararg_length; i++) {
-		MonoObject* elem = mono_array_get(arg1, MonoObject*, i);
-		varargs[i]= GDMonoMarshal::mono_object_to_variant(elem);
-		call_args[0 + i] = &varargs[i];
-	}
-	Callable::CallError vcall_error;
-	auto ret = static_cast<GDScript *>(ptr)->_new(call_args.data(), total_length, vcall_error);
-	return GDMonoMarshal::variant_to_mono_object(ret);
-}
-
-MonoArray* godot_icall_GDScript_get_as_byte_code_8edaba4(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, NULL);
-	auto ret = static_cast<GDScript *>(ptr)->get_as_byte_code();
-	return GDMonoMarshal::PoolByteArray_to_mono_array(ret);
-}
-
-Object* godot_icall_GDScript_Ctor(MonoObject* obj) {
-	GODOTSHARP_INSTANCE_OBJECT(instance, "GDScript")
-	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-	return instance;
-}
-
-MonoObject* godot_icall_GDScriptFunctionState_resume_2ac9679d(Object * ptr, MonoObject* arg1) {
-	ERR_FAIL_NULL_V(ptr, NULL);
-	Variant arg1_in = GDMonoMarshal::mono_object_to_variant(arg1);
-	auto ret = static_cast<GDScriptFunctionState *>(ptr)->resume(arg1_in);
-	return GDMonoMarshal::variant_to_mono_object(ret);
-}
-
-MonoBoolean godot_icall_GDScriptFunctionState_is_valid_9f31871(Object * ptr, MonoBoolean arg1) {
-	ERR_FAIL_NULL_V(ptr, MonoBoolean());
-	bool arg1_in = static_cast<bool>(arg1);
-	auto ret = static_cast<GDScriptFunctionState *>(ptr)->is_valid(arg1_in);
-	return static_cast<MonoBoolean>(ret);
-}
-
 void godot_icall_GIProbe_set_probe_data_16797b27(Object * ptr, Object * arg1) {
 	ERR_FAIL_NULL(ptr);
 	static_cast<GIProbe *>(ptr)->set_probe_data(AutoRef(arg1));
@@ -30762,6 +30718,12 @@ MonoObject* godot_icall_PopupMenu_get_item_shortcut_7e5ddc5f(Object * ptr, int32
 	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
 }
 
+int32_t godot_icall_PopupMenu_get_current_index_1f886eb0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<PopupMenu *>(ptr)->get_current_index();
+	return static_cast<int32_t>(ret);
+}
+
 int32_t godot_icall_PopupMenu_get_item_count_1f886eb0(Object * ptr) {
 	ERR_FAIL_NULL_V(ptr, int32_t());
 	auto ret = static_cast<PopupMenu *>(ptr)->get_item_count();
@@ -40612,6 +40574,13 @@ MonoString* godot_icall_TextEdit_get_line_44fc4c5a(Object * ptr, int32_t arg1) {
 	int32_t arg1_in = static_cast<int32_t>(arg1);
 	auto ret = static_cast<TextEdit *>(ptr)->get_line(arg1_in);
 	return GDMonoMarshal::mono_string_from_godot(ret);
+}
+
+void godot_icall_TextEdit_set_line_cd663605(Object * ptr, int32_t arg1, MonoString* arg2) {
+	ERR_FAIL_NULL(ptr);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	TmpString<512> arg2_in(GDMonoMarshal::mono_string_to_godot(arg2));
+	static_cast<TextEdit *>(ptr)->set_line(arg1_in, arg2_in);
 }
 
 void godot_icall_TextEdit_center_viewport_to_cursor_c8e54a7b(Object * ptr) {
@@ -50945,7 +50914,7 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 2660786715289462258U; }
+uint64_t get_core_api_hash() { return 13571343005872239418U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 3853991014797639371U; }
 #endif // TOOLS_ENABLED
@@ -51101,7 +51070,6 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_ExternalTexture_Ctor", (void*)godot_icall_ExternalTexture_Ctor},
 	{"Godot.NativeCalls::godot_icall_FileDialog_Ctor", (void*)godot_icall_FileDialog_Ctor},
 	{"Godot.NativeCalls::godot_icall_FuncRef_Ctor", (void*)godot_icall_FuncRef_Ctor},
-	{"Godot.NativeCalls::godot_icall_GDScript_Ctor", (void*)godot_icall_GDScript_Ctor},
 	{"Godot.NativeCalls::godot_icall_GIProbe_Ctor", (void*)godot_icall_GIProbe_Ctor},
 	{"Godot.NativeCalls::godot_icall_GIProbeData_Ctor", (void*)godot_icall_GIProbeData_Ctor},
 	{"Godot.NativeCalls::godot_icall_GPUParticles2D_Ctor", (void*)godot_icall_GPUParticles2D_Ctor},
@@ -53793,10 +53761,6 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_FuncRef_is_valid_68fe5f59", (void*)godot_icall_FuncRef_is_valid_68fe5f59},
 	{"Godot.NativeCalls::godot_icall_FuncRef_set_function_2f29e819", (void*)godot_icall_FuncRef_set_function_2f29e819},
 	{"Godot.NativeCalls::godot_icall_FuncRef_set_instance_ad798950", (void*)godot_icall_FuncRef_set_instance_ad798950},
-	{"Godot.NativeCalls::godot_icall_GDScriptFunctionState_is_valid_9f31871", (void*)godot_icall_GDScriptFunctionState_is_valid_9f31871},
-	{"Godot.NativeCalls::godot_icall_GDScriptFunctionState_resume_2ac9679d", (void*)godot_icall_GDScriptFunctionState_resume_2ac9679d},
-	{"Godot.NativeCalls::godot_icall_GDScript_get_as_byte_code_8edaba4", (void*)godot_icall_GDScript_get_as_byte_code_8edaba4},
-	{"Godot.NativeCalls::godot_icall_GDScript_new_e5975f9d", (void*)godot_icall_GDScript_new_e5975f9d},
 	{"Godot.NativeCalls::godot_icall_GIProbeData_get_bias_4edcd7a9", (void*)godot_icall_GIProbeData_get_bias_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_GIProbeData_get_bounds_2dbf935b", (void*)godot_icall_GIProbeData_get_bounds_2dbf935b},
 	{"Godot.NativeCalls::godot_icall_GIProbeData_get_cell_size_4edcd7a9", (void*)godot_icall_GIProbeData_get_cell_size_4edcd7a9},
@@ -55953,6 +55917,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_PopupMenu_add_submenu_item_35cdaa2e", (void*)godot_icall_PopupMenu_add_submenu_item_35cdaa2e},
 	{"Godot.NativeCalls::godot_icall_PopupMenu_clear_c8e54a7b", (void*)godot_icall_PopupMenu_clear_c8e54a7b},
 	{"Godot.NativeCalls::godot_icall_PopupMenu_get_allow_search_68fe5f59", (void*)godot_icall_PopupMenu_get_allow_search_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_PopupMenu_get_current_index_1f886eb0", (void*)godot_icall_PopupMenu_get_current_index_1f886eb0},
 	{"Godot.NativeCalls::godot_icall_PopupMenu_get_item_accelerator_52dccd8b", (void*)godot_icall_PopupMenu_get_item_accelerator_52dccd8b},
 	{"Godot.NativeCalls::godot_icall_PopupMenu_get_item_count_1f886eb0", (void*)godot_icall_PopupMenu_get_item_count_1f886eb0},
 	{"Godot.NativeCalls::godot_icall_PopupMenu_get_item_icon_561b2831", (void*)godot_icall_PopupMenu_get_item_icon_561b2831},
@@ -57576,6 +57541,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_highlight_all_occurrences_ba24800b", (void*)godot_icall_TextEdit_set_highlight_all_occurrences_ba24800b},
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_highlight_current_line_ba24800b", (void*)godot_icall_TextEdit_set_highlight_current_line_ba24800b},
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_line_as_hidden_4ae8febd", (void*)godot_icall_TextEdit_set_line_as_hidden_4ae8febd},
+	{"Godot.NativeCalls::godot_icall_TextEdit_set_line_cd663605", (void*)godot_icall_TextEdit_set_line_cd663605},
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_minimap_width_e1ae93bc", (void*)godot_icall_TextEdit_set_minimap_width_e1ae93bc},
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_override_selected_font_color_ba24800b", (void*)godot_icall_TextEdit_set_override_selected_font_color_ba24800b},
 	{"Godot.NativeCalls::godot_icall_TextEdit_set_readonly_ba24800b", (void*)godot_icall_TextEdit_set_readonly_ba24800b},

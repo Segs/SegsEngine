@@ -6,14 +6,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_ADAPTORS_H
-#define EASTL_ADAPTORS_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/move_help.h>
-
-#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 EA_DISABLE_VC_WARNING(4512 4626)
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) // VS2015+
@@ -54,19 +50,3 @@ namespace eastl
 	EA_RESTORE_VC_WARNING()
 #endif
 EA_RESTORE_VC_WARNING()
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -20,8 +20,7 @@
 // Consult doc/Bonus/tuple_vector_readme.md for more information.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef EASTL_TUPLEVECTOR_H
-#define EASTL_TUPLEVECTOR_H
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/bonus/compressed_pair.h>
 #include <EASTL/internal/config.h>
@@ -30,7 +29,6 @@
 #include <EASTL/tuple.h>
 #include <EASTL/utility.h>
 
-#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 EA_DISABLE_VC_WARNING(4244) // warning C4244: 'conversion from '___' to '___', possible loss of data
 EA_DISABLE_VC_WARNING(4623) // warning C4623: default constructor was implicitly defined as deleted
@@ -163,6 +161,7 @@ struct TupleRecurser<>
 	static pair<void*, size_type> DoAllocate(TupleVecImpl<Allocator, Indices, VecTypes...> &vec, void** ppNewLeaf, size_type capacity, size_type offset)
 	{
 		EA_UNUSED(ppNewLeaf);
+
 		// If n is zero, then we allocate no memory and just return NULL. 
 		// This is fine, as our default ctor initializes with NULL pointers. 
 		size_type alignment = TupleRecurser<VecTypes...>::GetTotalAlignment();
@@ -1581,5 +1580,3 @@ EA_RESTORE_VC_WARNING()
 EA_RESTORE_VC_WARNING()
 EA_RESTORE_VC_WARNING()
 EA_RESTORE_VC_WARNING()
-
-#endif  // EASTL_TUPLEVECTOR_H

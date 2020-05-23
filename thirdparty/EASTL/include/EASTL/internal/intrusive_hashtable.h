@@ -12,12 +12,10 @@
 
 
 
-#ifndef EASTL_INTERNAL_INTRUSIVE_HASHTABLE_H
-#define EASTL_INTERNAL_INTRUSIVE_HASHTABLE_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-	#pragma once
+
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/hashtable.h>
@@ -988,16 +986,3 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-

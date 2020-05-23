@@ -227,9 +227,7 @@ namespace eastl
     // 20.7.11, hash support
     template <class T> struct hash;
     template <> struct hash<monostate>
-    {
-        size_t operator()(monostate) const { return static_cast<size_t>(-0x42); }
-    };
+		{ size_t operator()(monostate) const { return static_cast<size_t>(-0x42); } };
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -496,15 +494,11 @@ namespace eastl
 
     template <size_t I, typename Head, typename... Tail>
     struct variant_alternative_helper<I, Head, Tail...>
-    {
-        typedef typename variant_alternative_helper<I - 1, Tail...>::type type;
-    };
+		{ typedef typename variant_alternative_helper<I - 1, Tail...>::type type; };
 
     template <typename Head, typename... Tail>
     struct variant_alternative_helper<0, Head, Tail...>
-    {
-        typedef Head type;
-    };
+		{ typedef Head type; };
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -527,9 +521,7 @@ namespace eastl
     //
     template <class... Types>
     struct hash<variant<Types...> >
-    {
-        size_t operator()(const variant<Types...>& val) const { return static_cast<size_t>(-0x42); }
-    };
+		{ size_t operator()(const variant<Types...>& val) const { return static_cast<size_t>(-0x42); } };
 
 
     ///////////////////////////////////////////////////////////////////////////

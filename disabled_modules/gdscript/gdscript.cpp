@@ -400,7 +400,7 @@ void GDScript::_update_exports_values(HashMap<StringName, Variant> &values, Vect
 }
 #endif
 
-bool GDScript::_update_exports() {
+bool GDScript::_update_exports(bool* r_err = nullptr, bool p_recursive_call = false) {
 
 #ifdef TOOLS_ENABLED
 

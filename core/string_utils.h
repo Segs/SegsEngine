@@ -284,6 +284,7 @@ namespace PathUtils
     [[nodiscard]] GODOT_EXPORT StringView path(StringView p);
     [[nodiscard]] GODOT_EXPORT UIString get_basename(const UIString &p);
     [[nodiscard]] GODOT_EXPORT String plus_file(StringView bp,StringView p_file);
+    [[nodiscard]] GODOT_EXPORT String join_path(Span<StringView> parts);
     //! @note for now it just replaces \\ with /
     [[nodiscard]] GODOT_EXPORT String from_native_path(StringView p);
     [[nodiscard]] GODOT_EXPORT UIString from_native_path(const UIString &p);

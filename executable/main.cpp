@@ -104,7 +104,7 @@ int mainT(int argc, char *argv[]) {
     QCoreApplication app(argc,argv);
     QCoreApplication::setApplicationName(VERSION_SHORT_NAME);
     QCoreApplication::setApplicationVersion(VERSION_BRANCH);
-    QCoreApplication::setOrganizationName("Segs");
+    //TODO: Re-enable this one day - QCoreApplication::setOrganizationName("Segs"); 
 
     eastl::unique_ptr<OS> os(instantiateOS(godot_hinstance));
     setlocale(LC_CTYPE, "");

@@ -188,6 +188,7 @@
         <file>icons/Environment.svg</file>
         <file>icons/Error.svg</file>
         <file>icons/ErrorSign.svg</file>
+        <file>icons/ErrorWarning.svg</file>
         <file>icons/ExpandBottomDock.svg</file>
         <file>icons/Favorites.svg</file>
         <file>icons/File.svg</file>

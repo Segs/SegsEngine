@@ -1414,7 +1414,17 @@ static String rtosfix(double p_value) {
     else
         return StringUtils::num_scientific(p_value);
 }
+struct VariantCompareLess {
 
+    bool operator()(const Variant& p_l, const Variant& p_r) const {
+        bool valid = false;
+        Variant res;
+        Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
+        if (!valid)
+            res = false;
+        return res.as<bool>();
+    }
+};
 Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_string_func, void *p_store_string_ud, EncodeResourceFunc p_encode_res_func, void *p_encode_res_ud) {
 
     switch (p_variant.get_type()) {
@@ -1614,7 +1624,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
             Dictionary dict = p_variant;
 
             Vector<Variant> keys(dict.get_key_list());
-            eastl::sort(keys.begin(),keys.end(),VariantComparator());
+            eastl::sort(keys.begin(),keys.end(), VariantCompareLess());
 
             p_store_string_func(p_store_string_ud, "{\n");
             int size = keys.size()-1;

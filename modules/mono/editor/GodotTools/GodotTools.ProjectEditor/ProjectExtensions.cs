@@ -35,7 +35,7 @@ namespace GodotTools.ProjectEditor
             return null;
         }
         public static ProjectItemElement FindItemOrNullAbs(this ProjectRootElement root, string itemType, string include, bool noCondition = false)
-                    {
+        {
             GlobOptions globOptions = new GlobOptions {Evaluation = {CaseInsensitive = false}};
 
             string normalizedInclude = Path.GetFullPath(include).NormalizePath();
@@ -54,10 +54,11 @@ namespace GodotTools.ProjectEditor
 
                     if (glob.IsMatch(normalizedInclude))
                         return item;
-                    }
                 }
-            return null;
             }
+
+            return null;
+        }
 
         public static IEnumerable<ProjectItemElement> FindAllItemsInFolder(this ProjectRootElement root, string itemType, string folder)
         {

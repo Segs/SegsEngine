@@ -254,7 +254,7 @@ namespace GodotTools
 
             panelTabs = new TabContainer
             {
-                TabAlign = (int)TabContainer.TabAlignEnum.Left,
+                TabAlign = TabContainer.TabAlignEnum.Left,
                 RectMinSize = new Vector2(0, 228) * EditorScale,
                 SizeFlagsVertical = (int)SizeFlags.ExpandFill
             };
@@ -278,12 +278,12 @@ namespace GodotTools
                 var buildProjectBtn = new Button
                 {
                     Text = "Build Project".TTR(),
-                    FocusMode = (int)FocusModeEnum.None
+                    FocusMode = FocusModeEnum.None
                 };
                 buildProjectBtn.Connect("pressed", this, nameof(BuildProjectPressed));
                 toolBarHBox.AddChild(buildProjectBtn);
 
-                toolBarHBox.AddSpacer(false);
+                toolBarHBox.AddSpacer( false);
 
                 warningsBtn = new ToolButton
                 {
@@ -291,7 +291,7 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = (int)FocusModeEnum.None
+                    FocusMode = FocusModeEnum.None
                 };
                 warningsBtn.Connect("toggled", this, nameof(_WarningsToggled));
                 toolBarHBox.AddChild(warningsBtn);
@@ -302,7 +302,7 @@ namespace GodotTools
                     ToggleMode = true,
                     Pressed = true,
                     Visible = false,
-                    FocusMode = (int)FocusModeEnum.None
+                    FocusMode = FocusModeEnum.None
                 };
                 errorsBtn.Connect("toggled", this, nameof(_ErrorsToggled));
                 toolBarHBox.AddChild(errorsBtn);
@@ -312,7 +312,7 @@ namespace GodotTools
                 viewLogBtn = new Button
                 {
                     Text = "View log".TTR(),
-                    FocusMode = (int)FocusModeEnum.None,
+                    FocusMode = FocusModeEnum.None,
                     Visible = false
                 };
                 viewLogBtn.Connect("pressed", this, nameof(_ViewLogPressed));
@@ -332,7 +332,7 @@ namespace GodotTools
 
                 buildTabs = new TabContainer
                 {
-                    TabAlign = (int)TabContainer.TabAlignEnum.Left,
+                    TabAlign = TabContainer.TabAlignEnum.Left,
                     SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
                     TabsVisible = false
                 };

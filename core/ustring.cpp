@@ -3494,6 +3494,21 @@ String PathUtils::plus_file(StringView bp,StringView p_file) {
         return String(bp) + p_file;
     return String(bp) + "/" + p_file;
 }
+String PathUtils::join_path(Span<StringView> parts) {
+    if (parts.empty())
+        return String();
+    size_t needed_memory=0;
+    for(StringView v : parts)
+        needed_memory += v.size()+1;
+    String res;
+    res.reserve(needed_memory);
+    for (StringView v : parts) {
+        if(!res.empty() && res.back()!='/')
+            res.push_back('/');
+        res.append(v);
+    }
+    return res;
+}
 
 UIString StringUtils::percent_encode(const UIString &str) {
 

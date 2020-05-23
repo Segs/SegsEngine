@@ -7953,6 +7953,9 @@ void RasterizerStorageGLES3::render_info_end_capture() {
     info.snap.surface_switch_count = info.render.surface_switch_count - info.snap.surface_switch_count;
     info.snap.shader_rebind_count = info.render.shader_rebind_count - info.snap.shader_rebind_count;
     info.snap.vertices_count = info.render.vertices_count - info.snap.vertices_count;
+    info.snap._2d_item_count = info.render._2d_item_count - info.snap._2d_item_count;
+    info.snap._2d_draw_call_count = info.render._2d_draw_call_count - info.snap._2d_draw_call_count;
+
 }
 
 int RasterizerStorageGLES3::get_captured_render_info(RS::RenderInfo p_info) {
@@ -7978,6 +7981,12 @@ int RasterizerStorageGLES3::get_captured_render_info(RS::RenderInfo p_info) {
         case RS::INFO_DRAW_CALLS_IN_FRAME: {
             return info.snap.draw_call_count;
         } break;
+        case RS::INFO_2D_ITEMS_IN_FRAME: {
+            return info.snap._2d_item_count;
+        } break;
+        case RS::INFO_2D_DRAW_CALLS_IN_FRAME: {
+            return info.snap._2d_draw_call_count;
+        } break;
         default: {
             return get_render_info(p_info);
         }
@@ -7999,6 +8008,10 @@ int RasterizerStorageGLES3::get_render_info(RS::RenderInfo p_info) {
             return info.render_final.surface_switch_count;
         case RS::INFO_DRAW_CALLS_IN_FRAME:
             return info.render_final.draw_call_count;
+        case RS::INFO_2D_ITEMS_IN_FRAME:
+            return info.render_final._2d_item_count;
+        case RS::INFO_2D_DRAW_CALLS_IN_FRAME:
+            return info.render_final._2d_draw_call_count;
         case RS::INFO_USAGE_VIDEO_MEM_TOTAL:
             return 0; //no idea
         case RS::INFO_VIDEO_MEM_USED:

@@ -3,9 +3,6 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_MEM_FN_H
-#define EASTL_INTERNAL_MEM_FN_H
-
 #pragma once
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -298,5 +295,3 @@ namespace eastl
 	{ return mem_fn_impl<R (T::*)(A0, A1, A2) const volatile>(pm); }
 
 } // namespace eastl
-
-#endif // EASTL_INTERNAL_MEM_FN_H

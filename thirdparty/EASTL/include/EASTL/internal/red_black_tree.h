@@ -3,12 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_RED_BLACK_TREE_H
-#define EASTL_RED_BLACK_TREE_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-    #pragma once
+
 
 #include <EASTL/internal/config.h>
 #include <EASTL/type_traits.h>
@@ -183,9 +181,6 @@ namespace eastl
         rbtree_iterator  operator--(int);
 
     }; // rbtree_iterator
-
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -1822,7 +1817,7 @@ namespace eastl
         // To consider: Implement this instead via calling lower_bound and
         // inspecting the result. The following is an implementation of this:
         //    const iterator it(lower_bound(key));
-        //    return ((it.mpNode == &mAnchor) || mCompare(key, extractKey(it.mpNode->mValue))) ? iterator(&mAnchor) : it;
+		//    return ((it.mpNode == &mAnchor) || compare(key, extractKey(it.mpNode->mValue))) ? iterator(&mAnchor) : it;
         // We don't currently implement the above because in practice people tend to call
         // find a lot with trees, but very uncommonly call lower_bound.
         extract_key extractKey;
@@ -2368,19 +2363,3 @@ namespace eastl
 #ifdef _MSC_VER
     #pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-

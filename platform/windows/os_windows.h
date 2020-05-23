@@ -173,10 +173,6 @@ class OS_Windows : public OS {
     HWND hWnd;
     Point2 last_pos;
 
-    HBITMAP hBitmap; //DIB section for layered window
-    uint8_t *dib_data;
-    Size2 dib_size;
-    HDC hDC_dib;
     bool layered_window;
 
     uint32_t move_timer_id;
@@ -325,10 +321,6 @@ public:
 
     bool get_window_per_pixel_transparency_enabled() const override;
     void set_window_per_pixel_transparency_enabled(bool p_enabled) override;
-
-    uint8_t *get_layered_buffer_data() override;
-    Size2 get_layered_buffer_size() override;
-    void swap_layered_buffer() override;
 
     Error open_dynamic_library(StringView p_path, void *&p_library_handle, bool p_also_set_library_path = false) override;
     Error close_dynamic_library(void *p_library_handle) override;

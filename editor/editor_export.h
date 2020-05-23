@@ -203,6 +203,7 @@ public:
     virtual Ref<EditorExportPreset> create_preset();
 
     virtual void get_export_options(Vector<ExportOption> *r_options) = 0;
+    virtual bool should_update_export_options() { return false; }
     virtual bool get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const { return true; }
 
     virtual const String & get_os_name() const = 0;
@@ -300,6 +301,8 @@ class EditorExport : public Node {
     Vector<Ref<EditorExportPreset> > export_presets;
     Vector<Ref<EditorExportPlugin> > export_plugins;
 
+    StringName _export_presets_updated;
+
     Timer *save_timer;
     bool block_save;
 
@@ -331,7 +334,7 @@ public:
     const Vector<Ref<EditorExportPlugin> > &get_export_plugins();
 
     void load_config();
-
+    void update_export_presets();
     bool poll_export_platforms();
 
     EditorExport();

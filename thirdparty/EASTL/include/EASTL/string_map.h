@@ -2,10 +2,7 @@
 // Copyright (c) Electronic Arts Inc. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef EASTL_STRING_MAP_H
-#define EASTL_STRING_MAP_H
-
-	#pragma once 
+#pragma once 
 
 #include <EASTL/map.h>
 #include <EASTL/string.h>
@@ -161,5 +158,3 @@ string_map<T, Predicate, Allocator>::strduplicate(const char* str)
 
 
 }
-
-#endif

@@ -3,8 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_CONFIG_H
-#define EASTL_INTERNAL_CONFIG_H
+#pragma once
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +60,7 @@
 #endif
 #include <EASTL/EABase/eahave.h>
 
-    #pragma once
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,8 +85,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_VERSION
-    #define EASTL_VERSION   "3.16.01"
-    #define EASTL_VERSION_N  31601
+	#define EASTL_VERSION   "3.16.05"
+	#define EASTL_VERSION_N  31605
 #endif
 
 
@@ -187,7 +186,7 @@ namespace eastl
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef EASTL_DEBUG
-    #if defined(EA_DEBUG) || !defined(NDEBUG)
+	#if defined(EA_DEBUG) || defined(_DEBUG)
         #define EASTL_DEBUG 1
     #else
         #define EASTL_DEBUG 0
@@ -817,6 +816,23 @@ namespace eastl
     #define EASTL_BITSET_SIZE_T 1
 #endif
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+// EASTL_INT128_SUPPORTED
+//
+// Defined as 0 or 1.
+//
+#ifndef EASTL_INT128_SUPPORTED
+	#if defined(EA_COMPILER_INTMAX_SIZE) && (EA_COMPILER_INTMAX_SIZE >= 16) // If the compiler supports int128_t (recent versions of GCC do)...
+		#define EASTL_INT128_SUPPORTED 1
+	#else
+		#define EASTL_INT128_SUPPORTED 0
+	#endif
+#endif
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // EASTL_DEFAULT_ALLOCATOR_ALIGNED_ALLOCATIONS_SUPPORTED
 //
@@ -838,6 +854,28 @@ namespace eastl
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// EASTL_INT128_DEFINED
+//
+// Defined as 0 or 1.
+// Specifies whether eastl_int128_t/eastl_uint128_t have been typedef'd yet.
+//
+#ifndef EASTL_INT128_DEFINED
+	#if EASTL_INT128_SUPPORTED
+		#define EASTL_INT128_DEFINED 1
+
+		#if defined(__GNUC__)
+			typedef __int128_t   eastl_int128_t;
+			typedef __uint128_t eastl_uint128_t;
+		#else
+			typedef  int128_t  eastl_int128_t;  // The EAStdC package defines an EA::StdC::int128_t and uint128_t type,
+			typedef uint128_t eastl_uint128_t;  // though they are currently within the EA::StdC namespace.
+		#endif
+	#endif
+#endif
+
+
+
+///////////////////////////////////////////////////////////////////////////////
 // EASTL_BITSET_WORD_TYPE_DEFAULT / EASTL_BITSET_WORD_SIZE_DEFAULT
 //
 // Defined as an integral power of two type, usually uint32_t or uint64_t.
@@ -855,7 +893,18 @@ namespace eastl
 // is more efficient but less like the C++ std::bitset.
 //
 #if !defined(EASTL_BITSET_WORD_TYPE_DEFAULT)
-    #if (EA_PLATFORM_WORD_SIZE == 8)
+	#if defined(EASTL_BITSET_WORD_SIZE)         // EASTL_BITSET_WORD_SIZE is deprecated, but we temporarily support the ability for the user to specify it. Use EASTL_BITSET_WORD_TYPE_DEFAULT instead.
+		#if (EASTL_BITSET_WORD_SIZE == 4)
+			#define EASTL_BITSET_WORD_TYPE_DEFAULT uint32_t
+			#define EASTL_BITSET_WORD_SIZE_DEFAULT 4
+		#else
+			#define EASTL_BITSET_WORD_TYPE_DEFAULT uint64_t
+			#define EASTL_BITSET_WORD_SIZE_DEFAULT 8
+		#endif
+	#elif (EA_PLATFORM_WORD_SIZE == 16)                     // EA_PLATFORM_WORD_SIZE is defined in EABase.
+		#define EASTL_BITSET_WORD_TYPE_DEFAULT uint128_t
+		#define EASTL_BITSET_WORD_SIZE_DEFAULT 16
+	#elif (EA_PLATFORM_WORD_SIZE == 8)
         #define EASTL_BITSET_WORD_TYPE_DEFAULT uint64_t
         #define EASTL_BITSET_WORD_SIZE_DEFAULT 8
     #elif (EA_PLATFORM_WORD_SIZE == 4)
@@ -1808,5 +1857,3 @@ typedef EASTL_SSIZE_T eastl_ssize_t; // Signed version of eastl_size_t. Concept 
 #ifndef EASTL_ENABLE_PAIR_FIRST_ELEMENT_CONSTRUCTOR
 	#define EASTL_ENABLE_PAIR_FIRST_ELEMENT_CONSTRUCTOR 0
 #endif
-
-#endif // Header include guard

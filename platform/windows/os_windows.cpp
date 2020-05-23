@@ -32,8 +32,9 @@
 
 #include "core/io/marshalls.h"
 #include "core/debugger/script_debugger.h"
-#include "core/version_generated.gen.h"
+#include "core/print_string.h"
 #include "core/string_utils.inl"
+#include "core/version_generated.gen.h"
 #include "drivers/gles3/rasterizer_gles3.h"
 #include "drivers/unix/net_socket_posix.h"
 #include "drivers/windows/dir_access_windows.h"
@@ -55,8 +56,9 @@
 #include <process.h>
 #include <regstr.h>
 #include <shlobj.h>
+#include <dwmapi.h>
 
-#include "core/print_string.h"
+
 
 static const WORD MAX_CONSOLE_LINES = 1500;
 
@@ -897,27 +899,6 @@ LRESULT OS_Windows::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 maximized = false;
                 minimized = false;
             }
-            if (is_layered_allowed() && layered_window) {
-                DeleteObject(hBitmap);
-
-                RECT r;
-                GetWindowRect(hWnd, &r);
-                dib_size = Size2i(r.right - r.left, r.bottom - r.top);
-
-                BITMAPINFO bmi;
-                ZeroMemory(&bmi, sizeof(BITMAPINFO));
-                bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-                bmi.bmiHeader.biWidth = dib_size.x;
-                bmi.bmiHeader.biHeight = dib_size.y;
-                bmi.bmiHeader.biPlanes = 1;
-                bmi.bmiHeader.biBitCount = 32;
-                bmi.bmiHeader.biCompression = BI_RGB;
-                bmi.bmiHeader.biSizeImage = dib_size.x * dib_size.y * 4;
-                hBitmap = CreateDIBSection(hDC_dib, &bmi, DIB_RGB_COLORS, (void **)&dib_data, nullptr, 0x0);
-                SelectObject(hDC_dib, hBitmap);
-
-                ZeroMemory(dib_data, dib_size.x * dib_size.y * 4);
-            }
             //return 0;								// Jump Back
         } break;
 
@@ -1105,7 +1086,8 @@ void OS_Windows::process_key_events() {
         switch (ke.uMsg) {
 
             case WM_CHAR: {
-                if ((i == 0 && ke.uMsg == WM_CHAR) || (i > 0 && key_event_buffer[i - 1].uMsg == WM_CHAR)) {
+                // extended keys should only be processed as WM_KEYDOWN message.
+                if (!KeyMappingWindows::is_extended_key(ke.wParam) && ((i == 0 && ke.uMsg == WM_CHAR) || (i > 0 && key_event_buffer[i - 1].uMsg == WM_CHAR))) {
                     Ref<InputEventKey> k(make_ref_counted<InputEventKey>());
 
                     k->set_shift(ke.shift);
@@ -2077,85 +2059,34 @@ void OS_Windows::set_window_per_pixel_transparency_enabled(bool p_enabled) {
     if (!is_layered_allowed()) return;
     if (layered_window != p_enabled) {
         if (p_enabled) {
-            set_borderless_window(true);
             //enable per-pixel alpha
-            hDC_dib = CreateCompatibleDC(GetDC(hWnd));
 
-            SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-
-            RECT r;
-            GetWindowRect(hWnd, &r);
-            dib_size = Size2(r.right - r.left, r.bottom - r.top);
-
-            BITMAPINFO bmi;
-            ZeroMemory(&bmi, sizeof(BITMAPINFO));
-            bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            bmi.bmiHeader.biWidth = dib_size.x;
-            bmi.bmiHeader.biHeight = dib_size.y;
-            bmi.bmiHeader.biPlanes = 1;
-            bmi.bmiHeader.biBitCount = 32;
-            bmi.bmiHeader.biCompression = BI_RGB;
-            bmi.bmiHeader.biSizeImage = dib_size.x * dib_size.y * 4;
-            hBitmap = CreateDIBSection(hDC_dib, &bmi, DIB_RGB_COLORS, (void **)&dib_data, nullptr, 0x0);
-            SelectObject(hDC_dib, hBitmap);
-
-            ZeroMemory(dib_data, dib_size.x * dib_size.y * 4);
+            DWM_BLURBEHIND bb = { 0 };
+            HRGN hRgn = CreateRectRgn(0, 0, -1, -1);
+            bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+            bb.hRgnBlur = hRgn;
+            bb.fEnable = TRUE;
+            DwmEnableBlurBehindWindow(hWnd, &bb);
 
             layered_window = true;
-        } else {
+        }
+        else {
             //disable per-pixel alpha
             layered_window = false;
 
-            SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) & ~WS_EX_LAYERED);
-
-            //cleanup
-            DeleteObject(hBitmap);
-            DeleteDC(hDC_dib);
+            DWM_BLURBEHIND bb = { 0 };
+            HRGN hRgn = CreateRectRgn(0, 0, -1, -1);
+            bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
+            bb.hRgnBlur = hRgn;
+            bb.fEnable = FALSE;
+            DwmEnableBlurBehindWindow(hWnd, &bb);
         }
-    }
-}
-
-uint8_t *OS_Windows::get_layered_buffer_data() {
-
-    return (is_layered_allowed() && layered_window) ? dib_data : nullptr;
-}
-
-Size2 OS_Windows::get_layered_buffer_size() {
-
-    return (is_layered_allowed() && layered_window) ? dib_size : Size2();
-}
-
-void OS_Windows::swap_layered_buffer() {
-
-    if (is_layered_allowed() && layered_window) {
-
-        //premultiply alpha
-        for (int y = 0; y < dib_size.y; y++) {
-            for (int x = 0; x < dib_size.x; x++) {
-                float alpha = (float)dib_data[y * (int)dib_size.x * 4 + x * 4 + 3] / (float)0xFF;
-                dib_data[y * (int)dib_size.x * 4 + x * 4 + 0] *= alpha;
-                dib_data[y * (int)dib_size.x * 4 + x * 4 + 1] *= alpha;
-                dib_data[y * (int)dib_size.x * 4 + x * 4 + 2] *= alpha;
-            }
-        }
-        //swap layered window buffer
-        POINT ptSrc = { 0, 0 };
-        SIZE sizeWnd = { (long)dib_size.x, (long)dib_size.y };
-        BLENDFUNCTION bf;
-        bf.BlendOp = AC_SRC_OVER;
-        bf.BlendFlags = 0;
-        bf.AlphaFormat = AC_SRC_ALPHA;
-        bf.SourceConstantAlpha = 0xFF;
-        UpdateLayeredWindow(hWnd, nullptr, nullptr, &sizeWnd, hDC_dib, &ptSrc, 0, &bf, ULW_ALPHA);
     }
 }
 
 void OS_Windows::set_borderless_window(bool p_borderless) {
     if (video_mode.borderless_window == p_borderless)
         return;
-
-    if (!p_borderless && layered_window)
-        set_window_per_pixel_transparency_enabled(false);
 
     video_mode.borderless_window = p_borderless;
 
@@ -2627,23 +2558,31 @@ void OS_Windows::GetMaskBitmaps(HBITMAP hSourceBitmap, COLORREF clrTransparent, 
     DeleteDC(hAndMaskDC);
     DeleteDC(hMainDC);
 }
+static String _quote_command_line_argument(StringView p_text) {
+    for (int i = 0; i < p_text.size(); i++) {
+        CharType c = p_text[i];
+        if (c == ' ' || c == '&' || c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '^' || c == '=' || c == ';' || c == '!' || c == '\'' || c == '+' || c == ',' || c == '`' || c == '~') {
+            return String("\"") + p_text + "\"";
+        }
+    }
+    return String(p_text);
+}
 
 Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex) {
 
     if (p_blocking && r_pipe) {
 
-        String argss = String("\"\"") + p_path + "\"";
+        String argss = _quote_command_line_argument(p_path);
 
         for (const String &E : p_arguments) {
-
-            argss += " \"" + E + "\"";
+            argss += " " + _quote_command_line_argument(E);
         }
-
-        argss += "\"";
 
         if (read_stderr) {
             argss += " 2>&1"; // Read stderr too
         }
+        // Note: _wpopen is calling command as "cmd.exe /c argss", instead of executing it directly, add extra quotes around full command, to prevent it from stripping quotes in the command.
+        argss = _quote_command_line_argument(argss);
 
         FILE *f = _wpopen(qUtf16Printable(StringUtils::from_utf8(argss)), L"r");
 
@@ -2668,10 +2607,10 @@ Error OS_Windows::execute(StringView p_path, const Vector<String> &p_arguments, 
         return OK;
     }
 
-    String cmdline = String("\"") + p_path + "\"";
+    String cmdline = _quote_command_line_argument(p_path);
 
     for(const String &arg : p_arguments) {
-        cmdline += " \"" + arg + "\"";
+        cmdline += " " + _quote_command_line_argument(arg);
     }
 
     ProcessInfo pi;
@@ -3117,9 +3056,14 @@ String OS_Windows::get_user_data_dir() const {
         }
         return PathUtils::from_native_path(PathUtils::plus_file(get_data_path(), custom_dir));
     }
-    return PathUtils::from_native_path(PathUtils::plus_file(
+    // adding get_godot_dir_name() is not needed, since QStandardPaths::AppDataLocation is already decorated with it.
+    String current_dp(get_data_path());
+    StringView path_components[3] = { current_dp , "app_userdata", appname };
+    return PathUtils::from_native_path(PathUtils::join_path( path_components ));
+
+/*    return PathUtils::from_native_path(PathUtils::plus_file(
             PathUtils::plus_file(PathUtils::plus_file(get_data_path(), get_godot_dir_name()), "app_userdata"),
-            appname));
+            appname));*/
 }
 
 void OS_Windows::set_ime_active(const bool p_active) {
@@ -3222,7 +3166,6 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
     drop_events = false;
     key_event_pos = 0;
     layered_window = false;
-    hBitmap = nullptr;
     force_quit = false;
     alt_mem = false;
     gr_mem = false;
@@ -3262,10 +3205,6 @@ OS_Windows::OS_Windows(HINSTANCE _hInstance) {
 }
 
 OS_Windows::~OS_Windows() {
-    if (is_layered_allowed() && layered_window) {
-        DeleteObject(hBitmap);
-        DeleteDC(hDC_dib);
-    }
 #ifdef STDOUT_FILE
     fclose(stdo);
 #endif

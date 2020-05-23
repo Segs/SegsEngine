@@ -1235,6 +1235,7 @@ Error Main::setup(bool p_second_phase) {
     project_settings->set_custom_property_info("debug/settings/fps/force_fps", PropertyInfo(VariantType::INT, "debug/settings/fps/force_fps", PropertyHint::Range, "0,120,1,or_greater"));
 
     GLOBAL_DEF("debug/settings/stdout/print_fps", false);
+    GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
 
     if (!OS::get_singleton()->_verbose_stdout) { // Not manually overridden.
         OS::get_singleton()->_verbose_stdout = GLOBAL_GET("debug/settings/stdout/verbose_stdout");
@@ -1562,7 +1563,9 @@ bool Main::start() {
 
             if (StringUtils::ends_with(positional_arg,".scn") ||
                 StringUtils::ends_with(positional_arg,".tscn") ||
-                StringUtils::ends_with(positional_arg,".escn")) {
+                StringUtils::ends_with(positional_arg,".escn") ||
+                StringUtils::ends_with(positional_arg,".res") ||
+                StringUtils::ends_with(positional_arg,".tres")) {
                 // Only consider the positional argument to be a scene path if it ends with
                 // a file extension associated with Godot scenes. This makes it possible
                 // for projects to parse command-line arguments for custom CLI arguments

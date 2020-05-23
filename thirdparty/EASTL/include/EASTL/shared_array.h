@@ -53,10 +53,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_SHARED_ARRAY_H
-#define EASTL_SHARED_ARRAY_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/smart_ptr.h>   // Defines smart_array_deleter
@@ -71,10 +68,6 @@
 	#include <new>
 	#include <stddef.h>
 #endif
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -419,17 +412,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
 

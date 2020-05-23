@@ -89,7 +89,7 @@ namespace GodotTools.Export
 
                 if (platform == OS.Platforms.OSX)
                 {
-                    exporter.AddSharedObject(tempOutputFilePath, null);
+                    exporter.AddSharedObject(tempOutputFilePath,  null);
                 }
                 else
                 {
@@ -118,7 +118,7 @@ namespace GodotTools.Export
             // TODO: LLVM
 
             bool aotSoftDebug = isDebug && !aotOpts.EnableLLVM;
-            bool aotDwarfDebug = false;
+            bool aotDwarfDebug = false; //platform == OS.Platforms.iOS
 
             var aotOptions = new List<string>();
             var optimizerOptions = new List<string>();
@@ -214,7 +214,6 @@ namespace GodotTools.Export
             switch (platform)
             {
                 case OS.Platforms.Windows:
-                case OS.Platforms.UWP:
                     {
                         string arch = bits == "64" ? "x86_64" : "i686";
                         return $"windows-{arch}";
@@ -230,11 +229,6 @@ namespace GodotTools.Export
                     {
                         string arch = bits == "64" ? "x86_64" : "i686";
                         return $"linux-{arch}";
-                    }
-                case OS.Platforms.Haiku:
-                    {
-                        string arch = bits == "64" ? "x86_64" : "i686";
-                        return $"{platform}-{arch}";
                     }
                 default:
                     throw new NotSupportedException($"Platform not supported: {platform}");

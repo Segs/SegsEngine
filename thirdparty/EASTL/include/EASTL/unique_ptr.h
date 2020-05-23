@@ -3,9 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_UNIQUE_PTR_H
-#define EASTL_UNIQUE_PTR_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 //#include <EABase/nullptr.h>
 #include <EASTL/internal/config.h>
@@ -16,7 +14,6 @@
 #include <EASTL/bonus/compressed_pair.h>
 #include <stddef.h>
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 namespace eastl
@@ -712,17 +709,3 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-

@@ -60,6 +60,7 @@ class EditorExportPlatformOSX final : public EditorExportPlatform {
 
     Error _code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path);
     Error _create_dmg(StringView p_dmg_path, StringView p_pkg_name, StringView p_app_path_name);
+    void _zip_folder_recursive(zipFile &p_zip, const String &p_root_path, const String &p_folder, const String &p_pkg_name);
 
 #ifdef OSX_ENABLED
     bool use_codesign() const { return true; }
@@ -364,6 +365,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
 **/
 
 Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
+#ifdef OSX_ENABLED
     Vector<String> args;
 
     if (p_preset->get("codesign/timestamp")) {
@@ -373,8 +375,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
         args.emplace_back("--options");
         args.emplace_back("runtime");
     }
-
-    if (p_preset->get("codesign/entitlements") != "") {
+    if ((p_preset->get("codesign/entitlements") != "") && (PathUtils::get_extension(p_path) != StringView("dmg"))) {
         /* this should point to our entitlements.plist file that sandboxes our application, I don't know if this should also be placed in our app bundle */
         args.emplace_back("--entitlements");
         args.emplace_back(p_preset->get("codesign/entitlements"));
@@ -404,7 +405,7 @@ Error EditorExportPlatformOSX::_code_sign(const Ref<EditorExportPreset> &p_prese
         EditorNode::add_io_error("codesign: invalid entitlements file");
         return FAILED;
     }
-
+#endif
     return OK;
 }
 
@@ -496,43 +497,33 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
 
     Error err = OK;
     String tmp_app_path_name;
-    zlib_filefunc_def io2 = io;
-    FileAccess *dst_f = nullptr;
-    io2.opaque = &dst_f;
-    zipFile dst_pkg_zip = nullptr;
+
     DirAccess *tmp_app_path = nullptr;
 
     UIString export_format(use_dmg() && StringUtils::ends_with(p_path,"dmg") ? "dmg" : "zip");
-    if (export_format == "dmg") {
-        // We're on OSX so we can export to DMG, but first we create our application bundle
-        tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");
-        print_line("Exporting to " + tmp_app_path_name);
-        tmp_app_path = DirAccess::create_for_path(tmp_app_path_name);
-        if (!tmp_app_path) {
-            err = ERR_CANT_CREATE;
-        }
+    // Create our application bundle.
 
-        // Create our folder structure or rely on unzip?
-        if (err == OK) {
-            print_line("Creating " + tmp_app_path_name + "/Contents/MacOS");
-            err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/MacOS");
-        }
+    tmp_app_path_name = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".app");
+    print_line("Exporting to " + tmp_app_path_name);
+    tmp_app_path = DirAccess::create_for_path(tmp_app_path_name);
+    if (!tmp_app_path) {
+        err = ERR_CANT_CREATE;
+    }
 
-        if (err == OK) {
-            print_line("Creating " + tmp_app_path_name + "/Contents/Frameworks");
-            err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/Frameworks");
-        }
+    // Create our folder structure.
+    if (err == OK) {
+        print_line("Creating " + tmp_app_path_name + "/Contents/MacOS");
+        err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/MacOS");
+    }
 
-        if (err == OK) {
-            print_line("Creating " + tmp_app_path_name + "/Contents/Resources");
-            err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/Resources");
-        }
-    } else {
-        // Open our destination zip file
-        dst_pkg_zip = zipOpen2(String(p_path).c_str(), APPEND_STATUS_CREATE, nullptr, &io2);
-        if (!dst_pkg_zip) {
-            err = ERR_CANT_CREATE;
-        }
+    if (err == OK) {
+        print_line("Creating " + tmp_app_path_name + "/Contents/Frameworks");
+        err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/Frameworks");
+    }
+
+    if (err == OK) {
+        print_line("Creating " + tmp_app_path_name + "/Contents/Resources");
+        err = tmp_app_path->make_dir_recursive(tmp_app_path_name + "/Contents/Resources");
     }
 
     // Now process our template
@@ -621,55 +612,26 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             print_line("ADDING: " + file + " size: " + itos(data.size()));
             total_size += data.size();
 
-            if (export_format == "dmg") {
-                // write it into our application bundle
-                file = PathUtils::plus_file(tmp_app_path_name,file);
-                if (err == OK) {
-                    err = tmp_app_path->make_dir_recursive(PathUtils::get_base_dir(file));
-                }
-                if (err == OK) {
-                    // write the file, need to add chmod
-                    FileAccess *f = FileAccess::open(file, FileAccess::WRITE);
-                    if (f) {
-                        f->store_buffer(data.data(), data.size());
-                        f->close();
-                        if (is_execute) {
-                            // Chmod with 0755 if the file is executable
-                            FileAccess::set_unix_permissions(file, 0755);
-                        }
-                        memdelete(f);
-                    } else {
-                        err = ERR_CANT_CREATE;
+            // Write it into our application bundle.
+            // write it into our application bundle
+            file = PathUtils::plus_file(tmp_app_path_name,file);
+            if (err == OK) {
+                err = tmp_app_path->make_dir_recursive(PathUtils::get_base_dir(file));
+            }
+            if (err == OK) {
+                // write the file, need to add chmod
+                FileAccess *f = FileAccess::open(file, FileAccess::WRITE);
+                if (f) {
+                    f->store_buffer(data.data(), data.size());
+                    f->close();
+                    if (is_execute) {
+                        // Chmod with 0755 if the file is executable
+                        FileAccess::set_unix_permissions(file, 0755);
                     }
+                    memdelete(f);
+                } else {
+                    err = ERR_CANT_CREATE;
                 }
-            } else {
-                // add it to our zip file
-                file = pkg_name + ".app/" + file;
-
-                zip_fileinfo fi;
-                fi.tmz_date.tm_hour = info.tmu_date.tm_hour;
-                fi.tmz_date.tm_min = info.tmu_date.tm_min;
-                fi.tmz_date.tm_sec = info.tmu_date.tm_sec;
-                fi.tmz_date.tm_mon = info.tmu_date.tm_mon;
-                fi.tmz_date.tm_mday = info.tmu_date.tm_mday;
-                fi.tmz_date.tm_year = info.tmu_date.tm_year;
-                fi.dosDate = info.dosDate;
-                fi.internal_fa = info.internal_fa;
-                fi.external_fa = info.external_fa;
-
-                zipOpenNewFileInZip(dst_pkg_zip,
-                        file.c_str(),
-                        &fi,
-                        nullptr,
-                        0,
-                        nullptr,
-                        0,
-                        nullptr,
-                        Z_DEFLATED,
-                        Z_DEFAULT_COMPRESSION);
-
-                zipWriteInFileInZip(dst_pkg_zip, data.data(), data.size());
-                zipCloseFileInZip(dst_pkg_zip);
             }
         }
 
@@ -688,121 +650,126 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         if (ep.step("Making PKG", 1)) {
             return ERR_SKIP;
         }
+        String pack_path = tmp_app_path_name + "/Contents/Resources/" + pkg_name + ".pck";
+        Vector<SharedObject> shared_objects;
+        err = save_pack(p_preset, pack_path, &shared_objects);
+
+        // see if we can code sign our new package
+        bool sign_enabled = p_preset->get("codesign/enable");
+
+        if (err == OK) {
+            DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+            for (int i = 0; i < shared_objects.size(); i++) {
+                err = da->copy(shared_objects[i].path, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
+                if (err == OK && sign_enabled) {
+                    err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
+                }
+            }
+            memdelete(da);
+        }
+
+        if (err == OK && sign_enabled) {
+            if (ep.step("Code signing bundle", 2)) {
+                return ERR_SKIP;
+            }
+
+            err = _code_sign(p_preset, tmp_app_path_name + "/Contents/MacOS/" + pkg_name);
+
+        }
 
         if (export_format == "dmg") {
-            String pack_path = tmp_app_path_name + "/Contents/Resources/" + pkg_name + ".pck";
-            Vector<SharedObject> shared_objects;
-            err = save_pack(p_preset, pack_path, &shared_objects);
-
-            // see if we can code sign our new package
-            bool sign_enabled = p_preset->get("codesign/enable");
-
-            if (err == OK) {
-                DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-                for (int i = 0; i < shared_objects.size(); i++) {
-                    err = da->copy(shared_objects[i].path, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
-                    if (err == OK && sign_enabled) {
-                        err = _code_sign(p_preset, tmp_app_path_name + "/Contents/Frameworks/" + PathUtils::get_file(shared_objects[i].path));
-                    }
-                }
-                memdelete(da);
-            }
-
-            if (err == OK && sign_enabled) {
-                if (ep.step("Code signing bundle", 2)) {
-                    return ERR_SKIP;
-                }
-
-                // the order in which we code sign is important, this is a bit of a shame or we could do this in our loop that extracts the files from our ZIP
-
-                // start with our application
-                err = _code_sign(p_preset, tmp_app_path_name + "/Contents/MacOS/" + pkg_name);
-
-                ///@TODO we should check the contents of /Contents/Frameworks for frameworks to sign
-            }
-
-            // and finally create a DMG
+            // Create a DMG.
             if (err == OK) {
                 if (ep.step("Making DMG", 3)) {
                     return ERR_SKIP;
                 }
                 err = _create_dmg(p_path, pkg_name, tmp_app_path_name);
             }
-
-            // Clean up temporary .app dir
-            OS::get_singleton()->move_to_trash(tmp_app_path_name);
-
-        } else { // pck
-
-            String pack_path = PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),pkg_name + ".pck");
-
-            Vector<SharedObject> shared_objects;
-            err = save_pack(p_preset, pack_path, &shared_objects);
-
-            if (err == OK) {
-                zipOpenNewFileInZip(dst_pkg_zip,
-                        (pkg_name + ".app/Contents/Resources/" + pkg_name + ".pck").c_str(),
-                        nullptr,
-                        nullptr,
-                        0,
-                        nullptr,
-                        0,
-                        nullptr,
-                        Z_DEFLATED,
-                        Z_DEFAULT_COMPRESSION);
-
-                FileAccess *pf = FileAccess::open(pack_path, FileAccess::READ);
-                if (pf) {
-                    const int BSIZE = 16384;
-                    uint8_t buf[BSIZE];
-
-                    while (true) {
-
-                        int r = pf->get_buffer(buf, BSIZE);
-                        if (r <= 0)
-                            break;
-                        zipWriteInFileInZip(dst_pkg_zip, buf, r);
-                    }
-
-                    zipCloseFileInZip(dst_pkg_zip);
-                    memdelete(pf);
-                } else {
-                    err = ERR_CANT_OPEN;
+            // Sign DMG.
+            if (err == OK && sign_enabled) {
+                if (ep.step("Code signing DMG", 3)) {
+                    return ERR_SKIP;
                 }
+                err = _code_sign(p_preset, p_path);
             }
-
+        } else {
+            // Create ZIP.
             if (err == OK) {
-                //add shared objects
-                for (int i = 0; i < shared_objects.size(); i++) {
-                    Vector<uint8_t> file = FileAccess::get_file_as_array(shared_objects[i].path);
-                    ERR_CONTINUE(file.empty());
-
-                    zipOpenNewFileInZip(dst_pkg_zip,
-                            PathUtils::plus_file(pkg_name + ".app/Contents/Frameworks/",PathUtils::get_file(shared_objects[i].path)).c_str(),
-                            nullptr,
-                            nullptr,
-                            0,
-                            nullptr,
-                            0,
-                            nullptr,
-                            Z_DEFLATED,
-                            Z_DEFAULT_COMPRESSION);
-
-                    zipWriteInFileInZip(dst_pkg_zip, file.data(), file.size());
-                    zipCloseFileInZip(dst_pkg_zip);
+                if (ep.step("Making ZIP", 3)) {
+                    return ERR_SKIP;
                 }
-            }
+                if (FileAccess::exists(p_path)) {
+                    OS::get_singleton()->move_to_trash(p_path);
+                }
 
-            // Clean up generated file.
-            DirAccess::remove_file_or_error(pack_path);
+                FileAccess *dst_f = nullptr;
+                zlib_filefunc_def io_dst = zipio_create_io_from_file(&dst_f);
+                zipFile zip = zipOpen2(p_path.data(), APPEND_STATUS_CREATE, nullptr, &io_dst);
+
+                _zip_folder_recursive(zip, EditorSettings::get_singleton()->get_cache_dir(), pkg_name + ".app", pkg_name);
+
+                zipClose(zip, nullptr);
+            }
         }
     }
 
-    if (dst_pkg_zip) {
-        zipClose(dst_pkg_zip, nullptr);
-    }
-
     return err;
+}
+void EditorExportPlatformOSX::_zip_folder_recursive(zipFile &p_zip, const String &p_root_path, const String &p_folder, const String &p_pkg_name) {
+    String dir = PathUtils::plus_file(p_root_path,p_folder);
+
+    DirAccess *da = DirAccess::open(dir);
+    da->list_dir_begin();
+    String f;
+    while ((f = da->get_next()) != "") {
+        if (f == "." || f == "..") {
+            continue;
+        }
+        if (da->current_is_dir()) {
+            _zip_folder_recursive(p_zip, p_root_path, PathUtils::plus_file(p_folder,f), p_pkg_name);
+        } else {
+            bool is_executable = (p_folder.ends_with("MacOS") && (f == p_pkg_name));
+
+            OS::Time time = OS::get_singleton()->get_time();
+            OS::Date date = OS::get_singleton()->get_date();
+
+            zip_fileinfo zipfi;
+            zipfi.tmz_date.tm_hour = time.hour;
+            zipfi.tmz_date.tm_mday = date.day;
+            zipfi.tmz_date.tm_min = time.min;
+            zipfi.tmz_date.tm_mon = date.month;
+            zipfi.tmz_date.tm_sec = time.sec;
+            zipfi.tmz_date.tm_year = date.year;
+            zipfi.dosDate = 0;
+            zipfi.external_fa = (is_executable ? 0755 : 0644) << 16L;
+            zipfi.internal_fa = 0;
+
+            zipOpenNewFileInZip4(p_zip,
+                    PathUtils::plus_file(p_folder,f).data(),
+                    &zipfi,
+                    nullptr,
+                    0,
+                    nullptr,
+                    0,
+                    nullptr,
+                    Z_DEFLATED,
+                    Z_DEFAULT_COMPRESSION,
+                    0,
+                    -MAX_WBITS,
+                    DEF_MEM_LEVEL,
+                    Z_DEFAULT_STRATEGY,
+                    nullptr,
+                    0,
+                    0x0314, // "version made by", 0x03 - Unix, 0x14 - ZIP specification version 2.0, required to store Unix file permissions
+                    0);
+
+            Vector<uint8_t> array = FileAccess::get_file_as_array(PathUtils::plus_file(dir,f));
+            zipWriteInFileInZip(p_zip, array.data(), array.size());
+            zipCloseFileInZip(p_zip);
+        }
+    }
+    da->list_dir_end();
+    memdelete(da);
 }
 
 bool EditorExportPlatformOSX::can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {

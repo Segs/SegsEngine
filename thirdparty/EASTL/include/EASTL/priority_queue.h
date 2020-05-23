@@ -17,10 +17,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_PRIORITY_QUEUE_H
-#define EASTL_PRIORITY_QUEUE_H
-
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/vector.h>
@@ -35,10 +32,6 @@
 	#pragma warning(disable: 4530)  // C++ exception handler used, but unwind semantics are not enabled. Specify /EHsc
 	#pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
 #endif
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -489,19 +482,4 @@ namespace eastl
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
 

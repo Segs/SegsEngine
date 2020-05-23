@@ -78,7 +78,7 @@ String _get_mono_user_dir() {
             // contain yourself
             settings_path = plus_file(exe_dir,"editor_data");
         } else {
-            settings_path = plus_file(OS::get_singleton()->get_data_path(),OS::get_singleton()->get_godot_dir_name());
+            settings_path = OS::get_singleton()->get_data_path(); //plus_file(,OS::get_singleton()->get_godot_dir_name());
         }
 
         return plus_file(settings_path,"mono");

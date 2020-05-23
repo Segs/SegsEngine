@@ -905,7 +905,6 @@ void OS_X11::set_window_per_pixel_transparency_enabled(bool p_enabled) {
     if (!is_layered_allowed()) return;
     if (layered_window != p_enabled) {
         if (p_enabled) {
-            set_borderless_window(true);
             layered_window = true;
         } else {
             layered_window = false;
@@ -1623,9 +1622,6 @@ void OS_X11::set_borderless_window(bool p_borderless) {
 
     if (get_borderless_window() == p_borderless)
         return;
-
-    if (!p_borderless && layered_window)
-        set_window_per_pixel_transparency_enabled(false);
 
     current_videomode.borderless_window = p_borderless;
 

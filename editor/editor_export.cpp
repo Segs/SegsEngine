@@ -1188,6 +1188,8 @@ void EditorExport::save_presets() {
 void EditorExport::_bind_methods() {
 
     MethodBinder::bind_method("_save", &EditorExport::_save);
+
+    ADD_SIGNAL(MethodInfo("export_presets_updated"));
 }
 
 void EditorExport::add_export_platform(const Ref<EditorExportPlatform> &p_platform) {
@@ -1275,8 +1277,13 @@ const Vector<Ref<EditorExportPlugin> > &EditorExport::get_export_plugins() {
 
 void EditorExport::_notification(int p_what) {
 
-    if (p_what == NOTIFICATION_ENTER_TREE) {
-        load_config();
+    switch (p_what) {
+        case NOTIFICATION_ENTER_TREE: {
+            load_config();
+        } break;
+        case NOTIFICATION_PROCESS: {
+            update_export_presets();
+        } break;
     }
 }
 
@@ -1376,7 +1383,48 @@ void EditorExport::load_config() {
 
     block_save = false;
 }
+void EditorExport::update_export_presets() {
+    Map<StringView, Vector<EditorExportPlatform::ExportOption> > platform_options;
 
+    for (int i = 0; i < export_platforms.size(); i++) {
+        Ref<EditorExportPlatform> platform = export_platforms[i];
+
+        if (platform->should_update_export_options()) {
+            Vector<EditorExportPlatform::ExportOption> options;
+            platform->get_export_options(&options);
+
+            platform_options[platform->get_name()] = options;
+        }
+    }
+
+    bool export_presets_updated = false;
+    for (int i = 0; i < export_presets.size(); i++) {
+        Ref<EditorExportPreset> preset = export_presets[i];
+        if (platform_options.contains(preset->get_platform()->get_name())) {
+            export_presets_updated = true;
+
+            Vector<EditorExportPlatform::ExportOption> &options = platform_options[preset->get_platform()->get_name()];
+
+            // Copy the previous preset values
+            const HashMap<StringName, Variant> &previous_values = preset->values;
+
+            // Clear the preset properties and values prior to reloading
+            preset->properties.clear();
+            preset->values.clear();
+
+            for (const EditorExportPlatform::ExportOption &E : options) {
+                preset->properties.push_back(E.option);
+
+                StringName option_name = E.option.name;
+                preset->values[option_name] = previous_values.contains(option_name) ? previous_values.at(option_name) : E.default_value;
+            }
+        }
+    }
+
+    if (export_presets_updated) {
+        emit_signal(_export_presets_updated);
+    }
+}
 bool EditorExport::poll_export_platforms() {
 
     bool changed = false;
@@ -1398,7 +1446,10 @@ EditorExport::EditorExport() {
     save_timer->connect("timeout", this, "_save");
     block_save = false;
 
+    _export_presets_updated = "export_presets_updated";
+
     singleton = this;
+    set_process(true);
 }
 
 EditorExport::~EditorExport() {

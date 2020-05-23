@@ -87,8 +87,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_STRING_H
-#define EASTL_STRING_H
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/allocator.h>
@@ -125,8 +124,6 @@ EA_RESTORE_ALL_VC_WARNINGS()
     #pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
     #pragma warning(disable: 4702)  // unreachable code
 #endif
-
-    #pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/char_traits.h>
 #include <EASTL/string_view.h>
@@ -4225,12 +4222,12 @@ namespace eastl
     typedef basic_string<char>    string;
     typedef basic_string<wchar_t> wstring;
 
-    /// string8 / string16 / string32
-    typedef basic_string<char8_t>  string8;
+	/// custom string8 / string16 / string32
+	typedef basic_string<char>     string8;
     typedef basic_string<char16_t> string16;
     typedef basic_string<char32_t> string32;
 
-    // C++11 string types
+	/// ISO mandated string types
     typedef basic_string<char8_t>  u8string;    // Actually not a C++11 type, but added for consistency.
     typedef basic_string<char16_t> u16string;
     typedef basic_string<char32_t> u32string;
@@ -4376,6 +4373,11 @@ namespace eastl
                 inline u16string operator"" s(const char16_t* str, size_t len) EA_NOEXCEPT { return {str, u16string::size_type(len)}; }
                 inline u32string operator"" s(const char32_t* str, size_t len) EA_NOEXCEPT { return {str, u32string::size_type(len)}; }
                 inline wstring operator"" s(const wchar_t* str, size_t len) EA_NOEXCEPT { return {str, wstring::size_type(len)}; }
+
+				// C++20 char8_t support.
+				#if EA_CHAR8_UNIQUE
+					inline u8string operator"" s(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, u8string::size_type(len)}; }
+				#endif
             }
         }
         EA_RESTORE_VC_WARNING()  // warning: 4455
@@ -4405,4 +4407,3 @@ namespace eastl
     #pragma warning(pop)
 #endif
 
-#endif // Header include guard

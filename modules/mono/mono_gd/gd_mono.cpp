@@ -135,6 +135,10 @@ void gd_mono_debug_init() {
 
     String da_args = OS::get_singleton()->get_environment("GODOT_MONO_DEBUGGER_AGENT");
 
+    if (da_args.length()) {
+        OS::get_singleton()->set_environment("GODOT_MONO_DEBUGGER_AGENT", String());
+    }
+
 #ifdef TOOLS_ENABLED
     int da_port = GLOBAL_DEF("mono/debugger_agent/port", 23685);
     bool da_suspend = GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);

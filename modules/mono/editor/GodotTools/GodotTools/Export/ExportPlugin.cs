@@ -31,7 +31,7 @@ namespace GodotTools.Export
 
         private void AddI18NAssemblies(Godot.Collections.Dictionary<string, string> assemblies, string bclDir)
         {
-            var codesets = (I18NCodesets) ProjectSettings.GetSetting("mono/export/i18n_codesets");
+            var codesets = (I18NCodesets)ProjectSettings.GetSetting("mono/export/i18n_codesets");
 
             if (codesets == I18NCodesets.None)
                 return;
@@ -111,6 +111,7 @@ namespace GodotTools.Export
                 // Sadly, Godot prints errors when adding an empty file (nothing goes wrong, it's just noise).
                 // Because of this, we add a file which contains a line break.
                 AddFile(path, "\n", remap: false);
+
                 // Tell the Godot exporter that we already took care of the file
                 Skip();
             }
@@ -202,14 +203,14 @@ namespace GodotTools.Export
             foreach (var assembly in assemblies)
             {
                 void AddToAssembliesDir(string fileSrcPath)
-            {
-                if (assembliesInsidePck)
                 {
+                    if (assembliesInsidePck)
+                    {
                         string fileDstPath = Path.Combine(resAssembliesDir, fileSrcPath.GetFile());
                         AddFile(fileSrcPath, fileDstPath);
-                }
-                else
-                {
+                    }
+                    else
+                    {
                         Debug.Assert(outputDataDir != null);
                         string fileDstPath = Path.Combine(outputDataDir, "Assemblies", fileSrcPath.GetFile());
                         File.Copy(fileSrcPath, fileDstPath);
@@ -233,9 +234,6 @@ namespace GodotTools.Export
             if (aotEnabled)
             {
                 string aotToolchainPath = null;
-
-                if (aotToolchainPath == string.Empty)
-                    aotToolchainPath = null; // Don't risk it being used as current working dir
 
                 // TODO: LLVM settings are hard-coded and disabled for now
                 var aotOpts = new AotOptions
@@ -382,7 +380,6 @@ namespace GodotTools.Export
             bool isWinOrUwp = new[]
             {
                 OS.Platforms.Windows,
-                OS.Platforms.UWP
             }.Contains(platform);
 
             return OS.IsWindows ? !isWinOrUwp : isWinOrUwp;
@@ -393,12 +390,10 @@ namespace GodotTools.Export
             switch (platform)
             {
                 case OS.Platforms.Windows:
-                case OS.Platforms.UWP:
                     return "net_4_x_win";
                 case OS.Platforms.OSX:
                 case OS.Platforms.X11:
                 case OS.Platforms.Server:
-                case OS.Platforms.Haiku:
                     return "net_4_x";
                 default:
                     throw new NotSupportedException($"Platform not supported: {platform}");

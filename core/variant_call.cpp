@@ -1383,6 +1383,9 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
             }
             case VariantType::RECT2: return (Rect2(*p_args[0]));
             case VariantType::VECTOR3: return (Vector3(*p_args[0]));
+            case VariantType::TRANSFORM2D:
+                return (Transform2D(p_args[0]->operator Transform2D()));
+
             case VariantType::PLANE: return (Plane(*p_args[0]));
             case VariantType::QUAT: return (p_args[0]->operator Quat());
             case VariantType::AABB:

@@ -38,9 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_SHARED_PTR_H
-#define EASTL_SHARED_PTR_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/smart_ptr.h>
@@ -66,7 +64,6 @@ EA_RESTORE_ALL_VC_WARNINGS()
 	#pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
 #endif
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -1695,10 +1692,4 @@ namespace eastl
 
 // We have to either #include enable_shared.h here or we need to move the enable_shared source code to here.
 #include <EASTL/internal/enable_shared.h>
-
-
-#endif // Header include guard
-
-
-
 

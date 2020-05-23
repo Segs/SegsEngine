@@ -3,12 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_IN_PLACE_T_H
-#define EASTL_INTERNAL_IN_PLACE_T_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-	#pragma once
+
 
 namespace eastl
 {
@@ -73,12 +71,3 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-

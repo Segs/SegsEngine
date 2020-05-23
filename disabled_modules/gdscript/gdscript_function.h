@@ -231,12 +231,11 @@ public:
     struct CallState {
 
         GDScript *script;
-        ObjectID script_id;
+        GDScriptInstance *instance;
 #ifdef DEBUG_ENABLED
+        StringName function_name;
         String script_path;
 #endif
-        GDScriptInstance *instance;
-        ObjectID instance_id;
         Vector<uint8_t> stack;
         int stack_size;
         Variant self;
@@ -303,6 +302,9 @@ protected:
 public:
     bool is_valid(bool p_extended_check = false) const;
     Variant resume(const Variant &p_arg = Variant());
+
+    void _clear_stack();
+
     GDScriptFunctionState();
     ~GDScriptFunctionState() override;
 };

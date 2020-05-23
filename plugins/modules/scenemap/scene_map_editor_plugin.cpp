@@ -113,7 +113,7 @@ SceneMapEditorPlugin::SceneMapEditorPlugin(EditorNode* editor) {
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/scene_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     scene_map_editor = memnew(SceneMapEditor(editor));
-    switch ((int)EditorSettings::get_singleton()->get("editors/grid_map/editor_side")) {
+    switch ((int)EditorSettings::get_singleton()->get("editors/scene_map/editor_side")) {
     case 0: { // Left.
         add_control_to_container(CONTAINER_SPATIAL_EDITOR_SIDE_LEFT, scene_map_editor);
     } break;

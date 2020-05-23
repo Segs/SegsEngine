@@ -120,6 +120,7 @@ EndProject";
         const string ProjectPlatformsConfig =
 @"		{{{0}}}.{1}|Any CPU.ActiveCfg = {1}|Any CPU
 		{{{0}}}.{1}|Any CPU.Build.0 = {1}|Any CPU";
+
         public static void MigrateFromOldConfigNames(string slnPath)
         {
             if (!File.Exists(slnPath))
@@ -152,7 +153,12 @@ EndProject";
             var result = regex.Replace(input,m => dict[m.Value]);
 
             if (result != input)
+            {
+                // Save a copy of the solution before replacing it
+                FileUtils.SaveBackupCopy(slnPath);
+
                 File.WriteAllText(slnPath, result);
+            }
         }
     }
 }

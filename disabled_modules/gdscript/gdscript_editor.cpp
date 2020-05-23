@@ -2104,7 +2104,7 @@ static void _find_identifiers_in_base(const GDScriptCompletionContext &p_context
 
                 if (!p_only_functions) {
                     Vector<PropertyInfo> members;
-                    p_base.value.get_property_list(&members);
+                    tmp.get_property_list(&members);
 
                     for(const PropertyInfo & E : members) {
                         if (!StringUtils::contains(E.name,'/')) {
