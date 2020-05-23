@@ -26,7 +26,7 @@ set(shader_sources
 )
 foreach(shader ${shader_sources})
     add_custom_command(
-        COMMAND shader_to_header 3 ${CMAKE_CURRENT_SOURCE_DIR}/${shader}
+        COMMAND shader_to_header ${CMAKE_CURRENT_SOURCE_DIR}/${shader}
         OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${shader}.gen.h
         DEPENDS ${shader} shader_to_header
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

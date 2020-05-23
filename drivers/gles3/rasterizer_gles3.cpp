@@ -186,7 +186,7 @@ void RasterizerGLES3::initialize() {
     }
     */
 
-    print_line(String("OpenGL ES 3.0 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
+    print_line(String("OpenGL 4.3 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
     storage->initialize();
     canvas->initialize();
     scene->initialize();

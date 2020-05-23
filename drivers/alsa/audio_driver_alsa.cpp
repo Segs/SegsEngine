@@ -40,7 +40,7 @@
 #include <cerrno>
 
 Error AudioDriverALSA::init_device() {
-    mix_rate = GLOBAL_DEF("audio/mix_rate", DEFAULT_MIX_RATE);
+    mix_rate = GLOBAL_GET("audio/mix_rate");
     speaker_mode = SPEAKER_MODE_STEREO;
     channels = 2;
 

@@ -887,7 +887,7 @@ public:
         rshb->add_child(rvb);
         Button *rs_button = memnew(CheckBox);
         rs_button->set_button_group(rasterizer_button_group);
-        rs_button->set_text(TTR("OpenGL ES 3.0"));
+        rs_button->set_text(TTR("OpenGL 4.3"));
         rs_button->set_meta("driver_name", "GLES3");
         rs_button->set_pressed(true);
         rvb->add_child(rs_button);
@@ -897,18 +897,18 @@ public:
 
         rshb->add_child(memnew(VSeparator));
 
-        rvb = memnew(VBoxContainer);
-        rvb->set_h_size_flags(SIZE_EXPAND_FILL);
-        rshb->add_child(rvb);
-        rs_button = memnew(CheckBox);
-        rs_button->set_button_group(rasterizer_button_group);
-        rs_button->set_text(TTR("OpenGL ES 2.0"));
-        rs_button->set_meta("driver_name", "GLES2");
-        rs_button->set_disabled(true);
-        rvb->add_child(rs_button);
-        l = memnew(Label);
-        l->set_text(TTR("Lower visual quality\nSome features not available\nWorks on most hardware\nRecommended for web games"));
-        rvb->add_child(l);
+//        rvb = memnew(VBoxContainer);
+//        rvb->set_h_size_flags(SIZE_EXPAND_FILL);
+//        rshb->add_child(rvb);
+//        rs_button = memnew(CheckBox);
+//        rs_button->set_button_group(rasterizer_button_group);
+//        rs_button->set_text(TTR("OpenGL ES 2.0"));
+//        rs_button->set_meta("driver_name", "GLES2");
+//        rs_button->set_disabled(true);
+//        rvb->add_child(rs_button);
+//        l = memnew(Label);
+//        l->set_text(TTR("Lower visual quality\nSome features not available\nWorks on most hardware\nRecommended for web games"));
+//        rvb->add_child(l);
 
         l = memnew(Label);
         l->set_text(TTR("Renderer can be changed later, but scenes may need to be adjusted."));

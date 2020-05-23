@@ -5649,9 +5649,7 @@ void EditorNode::_bottom_panel_raise_toggled(bool p_pressed) {
 void EditorNode::_update_video_driver_color() {
 
     // TODO: Probably should de-hardcode this and add to editor settings.
-    if (video_driver->get_text() == "GLES2") {
-        video_driver->add_color_override("font_color", Color::hex(0x5586a4ff));
-    } else if (video_driver->get_text() == "GLES3") {
+    if (video_driver->get_text() == "GLES3") {
         video_driver->add_color_override("font_color", Color::hex(0xa5557dff));
     }
 }

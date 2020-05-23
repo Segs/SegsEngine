@@ -2354,7 +2354,7 @@ bool CSharpScript::_update_exports() {
 
         GDMonoMethod *ctor = script_class->get_method(CACHED_STRING_NAME(dotctor), 0);
 
-        ERR_FAIL_NULL_V_MSG(ctor, nullptr,
+        ERR_FAIL_NULL_V_MSG(ctor, false,
                 "Cannot construct temporary MonoObject because the class does not define a parameterless constructor: '" + get_path() + "'.");
 
         MonoException *ctor_exc = nullptr;
