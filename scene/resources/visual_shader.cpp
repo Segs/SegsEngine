@@ -1187,7 +1187,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
 void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     //mode
-    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Spatial,CanvasItem,Particles"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Node3D,CanvasItem,Particles"));
     //render modes
 
     Map<String, String> blend_mode_enums;

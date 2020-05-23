@@ -115,7 +115,7 @@ public:
 
         float depth; //used for sorting
 
-        SelfList<InstanceBase> dependency_item;
+        IntrusiveListNode<InstanceBase> dependency_item;
 
         InstanceBase *lightmap_capture;
         RID lightmap;

@@ -103,7 +103,7 @@ class CSharpScript : public Script {
     String source;
     StringName name;
 
-    SelfList<CSharpScript> script_list;
+    IntrusiveListNode<CSharpScript> script_list;
 
     struct Argument {
         StringName name;

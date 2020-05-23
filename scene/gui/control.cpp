@@ -33,13 +33,8 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
-#include "core/os/keyboard.h"
 #include "core/os/os.h"
-#include "core/print_string.h"
-#include "core/project_settings.h"
 #include "core/script_language.h"
-#include "scene/gui/label.h"
-#include "scene/gui/panel.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
@@ -56,6 +51,25 @@
 #endif
 
 #include "EASTL/sort.h"
+
+//Debugging helper for listing cases where we fail to query for specific icon
+//#define WARN_ON_MISSING_ICONS
+
+#ifdef WARN_ON_MISSING_ICONS
+#include "core/string_formatter.h"
+
+void warn_missing_icon(const char* type, const char* icon) {
+    WARN_PRINT(FormatVE("Missing icon for %s:%s", type, icon));
+}
+#define WARN_MISSING_ICON(theme,icon,type,name) \
+    if(theme->is_default_icon(icon))\
+        warn_missing_icon(type.asCString(),name.asCString());\
+    else\
+        ((void)9)
+#else
+#define WARN_MISSING_ICON(theme,icon,type,name)
+#endif
+
 
 IMPL_GDCLASS(Control)
 
@@ -837,7 +851,9 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
 
         while (class_name != StringName()) {
             if (theme_owner->data.theme->has_icon(p_name, class_name)) {
-                return theme_owner->data.theme->get_icon(p_name, class_name);
+                Ref<Texture> res(theme_owner->data.theme->get_icon(p_name, class_name));
+                WARN_MISSING_ICON(theme_owner->data.theme,res,p_name,class_name);
+                return res;
             }
 
             class_name = ClassDB::get_parent_class_nocheck(class_name);
@@ -853,11 +869,15 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
 
     if (Theme::get_project_default()) {
         if (Theme::get_project_default()->has_icon(p_name, type)) {
-            return Theme::get_project_default()->get_icon(p_name, type);
+            Ref<Texture> res(Theme::get_project_default()->get_icon(p_name, type));
+            WARN_MISSING_ICON(Theme::get_project_default(), res, p_name, type);
+            return res;
         }
     }
 
-    return Theme::get_default()->get_icon(p_name, type);
+    Ref<Texture> res(Theme::get_default()->get_icon(p_name, type));
+    WARN_MISSING_ICON(Theme::get_default(), res, p_name, type);
+    return res;
 }
 
 Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_type) const {

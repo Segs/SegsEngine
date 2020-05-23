@@ -207,7 +207,7 @@ private:
 
     friend class GDScriptLanguage;
 
-    SelfList<GDScriptFunction> function_list;
+    IntrusiveListNode<GDScriptFunction> function_list;
 #ifdef DEBUG_ENABLED
     String func_cname;
     const char *_func_cname;

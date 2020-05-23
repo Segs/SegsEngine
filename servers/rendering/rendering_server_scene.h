@@ -108,7 +108,7 @@ public:
         RID reflection_probe_shadow_atlas;
         RID reflection_atlas;
 
-        SelfList<Instance>::List instances;
+        IntrusiveList<Instance> instances;
 
         Scenario() { debug = RS::SCENARIO_DEBUG_DISABLED; }
     };
@@ -137,7 +137,7 @@ public:
         RID self;
         //scenario stuff
         Scenario *scenario = nullptr;
-        SelfList<Instance> scenario_item;
+        IntrusiveListNode<Instance> scenario_item;
         OctreeElementID octree_id = 0;
 
         //aabb stuff
@@ -191,7 +191,6 @@ public:
         }
     };
 
-    //SelfList<Instance>::List _instance_update_list;
     void _instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials = false);
 
     struct InstanceReflectionProbeData : public InstanceBaseData {
@@ -206,7 +205,7 @@ public:
 
         RID instance;
         bool reflection_dirty;
-        SelfList<InstanceReflectionProbeData> update_list;
+        IntrusiveListNode<InstanceReflectionProbeData> update_list;
 
         int render_step;
 
@@ -218,7 +217,7 @@ public:
         }
     };
 
-    SelfList<InstanceReflectionProbeData>::List reflection_probe_render_list;
+    IntrusiveList<InstanceReflectionProbeData> reflection_probe_render_list;
 
     struct InstanceLightData : public InstanceBaseData {
 
@@ -332,7 +331,7 @@ public:
         bool invalid;
         uint32_t base_version;
 
-        SelfList<InstanceGIProbeData> update_element;
+        IntrusiveListNode<InstanceGIProbeData> update_element;
 
         InstanceGIProbeData() :
                 update_element(this) {
@@ -342,7 +341,7 @@ public:
         }
     };
 
-    SelfList<InstanceGIProbeData>::List gi_probe_update_list;
+    IntrusiveList<InstanceGIProbeData> gi_probe_update_list;
 
     struct InstanceLightmapCaptureData : public InstanceBaseData {
 

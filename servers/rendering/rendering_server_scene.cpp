@@ -571,75 +571,75 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
     instance->base_type = RS::INSTANCE_NONE;
     instance->base = RID();
 
-    if (p_base.is_valid()) {
+    if (!p_base.is_valid())
+        return;
 
-        instance->base_type = VSG::storage->get_base_type(p_base);
-        ERR_FAIL_COND(instance->base_type == RS::INSTANCE_NONE);
+    instance->base_type = VSG::storage->get_base_type(p_base);
+    ERR_FAIL_COND(instance->base_type == RS::INSTANCE_NONE);
 
-        switch (instance->base_type) {
-            case RS::INSTANCE_LIGHT: {
+    switch (instance->base_type) {
+        case RS::INSTANCE_LIGHT: {
 
-                InstanceLightData *light = memnew(InstanceLightData);
+            InstanceLightData *light = memnew(InstanceLightData);
 
-                if (scenario && VSG::storage->light_get_type(p_base) == RS::LIGHT_DIRECTIONAL) {
-                    scenario->directional_lights.push_back(instance);
-                    light->D = true;
-                }
-
-                light->instance = VSG::scene_render->light_instance_create(p_base);
-
-                instance->base_data = light;
-            } break;
-            case RS::INSTANCE_MESH:
-            case RS::INSTANCE_MULTIMESH:
-            case RS::INSTANCE_IMMEDIATE:
-            case RS::INSTANCE_PARTICLES: {
-
-                InstanceGeometryData *geom = memnew(InstanceGeometryData);
-                VSG::ecs->registry.assign_or_replace<GeometryComponent>(instance->self.eid,geom);
-
-                if (instance->base_type == RS::INSTANCE_MESH) {
-                    instance->blend_values.resize(VSG::storage->mesh_get_blend_shape_count(p_base));
-                }
-            } break;
-            case RS::INSTANCE_REFLECTION_PROBE: {
-
-                InstanceReflectionProbeData *reflection_probe = memnew(InstanceReflectionProbeData);
-                reflection_probe->owner = instance;
-                instance->base_data = reflection_probe;
-
-                reflection_probe->instance = VSG::scene_render->reflection_probe_instance_create(p_base);
-            } break;
-            case RS::INSTANCE_LIGHTMAP_CAPTURE: {
-
-                InstanceLightmapCaptureData *lightmap_capture = memnew(InstanceLightmapCaptureData);
-                instance->base_data = lightmap_capture;
-                //lightmap_capture->instance = VSG::scene_render->lightmap_capture_instance_create(p_base);
-            } break;
-            case RS::INSTANCE_GI_PROBE: {
-
-                InstanceGIProbeData *gi_probe = memnew(InstanceGIProbeData);
-                instance->base_data = gi_probe;
-                gi_probe->owner = instance;
-
-                if (scenario && !gi_probe->update_element.in_list()) {
-                    gi_probe_update_list.add(&gi_probe->update_element);
-                }
-
-                gi_probe->probe_instance = VSG::scene_render->gi_probe_instance_create();
-
-            } break;
-            default: {
+            if (scenario && VSG::storage->light_get_type(p_base) == RS::LIGHT_DIRECTIONAL) {
+                scenario->directional_lights.push_back(instance);
+                light->D = true;
             }
+
+            light->instance = VSG::scene_render->light_instance_create(p_base);
+
+            instance->base_data = light;
+        } break;
+        case RS::INSTANCE_MESH:
+        case RS::INSTANCE_MULTIMESH:
+        case RS::INSTANCE_IMMEDIATE:
+        case RS::INSTANCE_PARTICLES: {
+
+            InstanceGeometryData *geom = memnew(InstanceGeometryData);
+            VSG::ecs->registry.assign_or_replace<GeometryComponent>(instance->self.eid,geom);
+
+            if (instance->base_type == RS::INSTANCE_MESH) {
+                instance->blend_values.resize(VSG::storage->mesh_get_blend_shape_count(p_base));
+            }
+        } break;
+        case RS::INSTANCE_REFLECTION_PROBE: {
+
+            InstanceReflectionProbeData *reflection_probe = memnew(InstanceReflectionProbeData);
+            reflection_probe->owner = instance;
+            instance->base_data = reflection_probe;
+
+            reflection_probe->instance = VSG::scene_render->reflection_probe_instance_create(p_base);
+        } break;
+        case RS::INSTANCE_LIGHTMAP_CAPTURE: {
+
+            InstanceLightmapCaptureData *lightmap_capture = memnew(InstanceLightmapCaptureData);
+            instance->base_data = lightmap_capture;
+            //lightmap_capture->instance = VSG::scene_render->lightmap_capture_instance_create(p_base);
+        } break;
+        case RS::INSTANCE_GI_PROBE: {
+
+            InstanceGIProbeData *gi_probe = memnew(InstanceGIProbeData);
+            instance->base_data = gi_probe;
+            gi_probe->owner = instance;
+
+            if (scenario && !gi_probe->update_element.in_list()) {
+                gi_probe_update_list.add(&gi_probe->update_element);
+            }
+
+            gi_probe->probe_instance = VSG::scene_render->gi_probe_instance_create();
+
+        } break;
+        default: {
         }
-
-        VSG::storage->instance_add_dependency(p_base, instance);
-
-        instance->base = p_base;
-
-        if (scenario)
-            _instance_queue_update(instance, true, true);
     }
+
+    VSG::storage->instance_add_dependency(p_base, instance);
+
+    instance->base = p_base;
+
+    if (scenario)
+        _instance_queue_update(instance, true, true);
 }
 void VisualServerScene::instance_set_scenario(RID p_instance, RID p_scenario) {
 
@@ -3315,13 +3315,13 @@ void VisualServerScene::render_probes() {
 
     /* REFLECTION PROBES */
 
-    SelfList<InstanceReflectionProbeData> *ref_probe = reflection_probe_render_list.first();
+    IntrusiveListNode<InstanceReflectionProbeData> *ref_probe = reflection_probe_render_list.first();
 
     bool busy = false;
 
     while (ref_probe) {
 
-        SelfList<InstanceReflectionProbeData> *next = ref_probe->next();
+        IntrusiveListNode<InstanceReflectionProbeData> *next = ref_probe->next();
         RID base = ref_probe->self()->owner->base;
 
         switch (VSG::storage->reflection_probe_get_update_mode(base)) {
@@ -3357,11 +3357,11 @@ void VisualServerScene::render_probes() {
 
     /* GI PROBES */
 
-    SelfList<InstanceGIProbeData> *gi_probe = gi_probe_update_list.first();
+    IntrusiveListNode<InstanceGIProbeData> *gi_probe = gi_probe_update_list.first();
 
     while (gi_probe) {
 
-        SelfList<InstanceGIProbeData> *next = gi_probe->next();
+        IntrusiveListNode<InstanceGIProbeData> *next = gi_probe->next();
 
         InstanceGIProbeData *probe = gi_probe->self();
         Instance *instance_probe = probe->owner;

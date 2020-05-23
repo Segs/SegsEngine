@@ -271,7 +271,7 @@ void ParticlesEditor::_node_removed(Node *p_node) {
 void ParticlesEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
-        options->set_button_icon(options->get_popup()->get_icon("Particles", "EditorIcons"));
+        options->set_button_icon(options->get_popup()->get_icon("GPUParticles3D", "EditorIcons"));
         get_tree()->connect("node_removed", this, "_node_removed");
     }
 }
@@ -378,7 +378,7 @@ void ParticlesEditor::_generate_aabb() {
     ur->commit_action();
 }
 
-void ParticlesEditor::edit(Particles *p_particles) {
+void ParticlesEditor::edit(GPUParticles3D *p_particles) {
 
     base_node = p_particles;
     node = p_particles;
@@ -503,7 +503,7 @@ ParticlesEditor::ParticlesEditor() {
 
 void ParticlesEditorPlugin::edit(Object *p_object) {
 
-    particles_editor->edit(object_cast<Particles>(p_object));
+    particles_editor->edit(object_cast<GPUParticles3D>(p_object));
 }
 
 bool ParticlesEditorPlugin::handles(Object *p_object) const {

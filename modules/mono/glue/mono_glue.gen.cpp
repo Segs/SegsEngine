@@ -126,6 +126,7 @@
 #include "core/func_ref.h"
 #include "scene/3d/gi_probe.h"
 #include "scene/2d/gpu_particles_2d.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/gradient.h"
 #include "scene/gui/graph_edit.h"
@@ -204,7 +205,6 @@
 #include "scene/resources/sky.h"
 #include "scene/2d/parallax_background.h"
 #include "scene/2d/parallax_layer.h"
-#include "scene/3d/particles.h"
 #include "scene/resources/particles_material.h"
 #include "scene/2d/path_2d.h"
 #include "scene/3d/path_3d.h"
@@ -16714,6 +16714,215 @@ Object* godot_icall_GPUParticles2D_Ctor(MonoObject* obj) {
 	return instance;
 }
 
+void godot_icall_GPUParticles3D_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_emitting(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL(ptr);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_amount(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_lifetime_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_lifetime(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_one_shot(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_pre_process_time(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_explosiveness_ratio(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_randomness_ratio(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_visibility_aabb_ff67b409(Object * ptr, GDMonoMarshal::M_AABB* arg1) {
+	ERR_FAIL_NULL(ptr);
+	AABB arg1_in = MARSHALLED_IN(AABB, arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_visibility_aabb(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_use_local_coordinates(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL(ptr);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_fixed_fps(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
+	ERR_FAIL_NULL(ptr);
+	bool arg1_in = static_cast<bool>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_fractional_delta(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_process_material_be2d0ec2(Object * ptr, Object * arg1) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<GPUParticles3D *>(ptr)->set_process_material(AutoRef(arg1));
+}
+
+void godot_icall_GPUParticles3D_set_speed_scale_904508bb(Object * ptr, float* arg1) {
+	ERR_FAIL_NULL(ptr);
+	float arg1_in = static_cast<float>(*arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_speed_scale(arg1_in);
+}
+
+MonoBoolean godot_icall_GPUParticles3D_is_emitting_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->is_emitting();
+	return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_GPUParticles3D_get_amount_1f886eb0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_amount();
+	return static_cast<int32_t>(ret);
+}
+
+void godot_icall_GPUParticles3D_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_lifetime();
+	*arg_ret = (float)ret;
+}
+
+MonoBoolean godot_icall_GPUParticles3D_get_one_shot_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_one_shot();
+	return static_cast<MonoBoolean>(ret);
+}
+
+void godot_icall_GPUParticles3D_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_pre_process_time();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles3D_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_explosiveness_ratio();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles3D_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_randomness_ratio();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles3D_get_visibility_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_visibility_aabb();
+	*arg_ret = MARSHALLED_OUT(AABB, ret);
+}
+
+MonoBoolean godot_icall_GPUParticles3D_get_use_local_coordinates_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_use_local_coordinates();
+	return static_cast<MonoBoolean>(ret);
+}
+
+int32_t godot_icall_GPUParticles3D_get_fixed_fps_1f886eb0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_fixed_fps();
+	return static_cast<int32_t>(ret);
+}
+
+MonoBoolean godot_icall_GPUParticles3D_get_fractional_delta_68fe5f59(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, MonoBoolean());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_fractional_delta();
+	return static_cast<MonoBoolean>(ret);
+}
+
+MonoObject* godot_icall_GPUParticles3D_get_process_material_6d04d9a2(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_process_material();
+	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_GPUParticles3D_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_speed_scale();
+	*arg_ret = (float)ret;
+}
+
+void godot_icall_GPUParticles3D_set_draw_order_2ef23605(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL(ptr);
+	int64_t arg1_in = (int64_t)arg1;
+	static_cast<GPUParticles3D *>(ptr)->set_draw_order((GPUParticles3D::DrawOrder)arg1_in);
+}
+
+int32_t godot_icall_GPUParticles3D_get_draw_order_c82ec0c0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_draw_order();
+	return (int32_t)ret;
+}
+
+void godot_icall_GPUParticles3D_set_draw_passes_e1ae93bc(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL(ptr);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_draw_passes(arg1_in);
+}
+
+void godot_icall_GPUParticles3D_set_draw_pass_mesh_b41476b2(Object * ptr, int32_t arg1, Object * arg2) {
+	ERR_FAIL_NULL(ptr);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	static_cast<GPUParticles3D *>(ptr)->set_draw_pass_mesh(arg1_in, AutoRef(arg2));
+}
+
+int32_t godot_icall_GPUParticles3D_get_draw_passes_1f886eb0(Object * ptr) {
+	ERR_FAIL_NULL_V(ptr, int32_t());
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_draw_passes();
+	return static_cast<int32_t>(ret);
+}
+
+MonoObject* godot_icall_GPUParticles3D_get_draw_pass_mesh_8c20a0a4(Object * ptr, int32_t arg1) {
+	ERR_FAIL_NULL_V(ptr, NULL);
+	int32_t arg1_in = static_cast<int32_t>(arg1);
+	auto ret = static_cast<GPUParticles3D *>(ptr)->get_draw_pass_mesh(arg1_in);
+	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
+}
+
+void godot_icall_GPUParticles3D_restart_c8e54a7b(Object * ptr) {
+	ERR_FAIL_NULL(ptr);
+	static_cast<GPUParticles3D *>(ptr)->restart();
+}
+
+void godot_icall_GPUParticles3D_capture_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
+	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
+	auto ret = static_cast<GPUParticles3D *>(ptr)->capture_aabb();
+	*arg_ret = MARSHALLED_OUT(AABB, ret);
+}
+
+Object* godot_icall_GPUParticles3D_Ctor(MonoObject* obj) {
+	GODOTSHARP_INSTANCE_OBJECT(instance, "GPUParticles3D")
+	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
+	return instance;
+}
+
 void godot_icall_Generic6DOFJoint3D__set_angular_hi_limit_x_904508bb(Object * ptr, float* arg1) {
 	ERR_FAIL_NULL(ptr);
 	float arg1_in = static_cast<float>(*arg1);
@@ -26612,215 +26821,6 @@ void godot_icall_ParallaxLayer_get_mirroring_9b4ea24e(Object * ptr, GDMonoMarsha
 
 Object* godot_icall_ParallaxLayer_Ctor(MonoObject* obj) {
 	GODOTSHARP_INSTANCE_OBJECT(instance, "ParallaxLayer")
-	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
-	return instance;
-}
-
-void godot_icall_Particles_set_emitting_ba24800b(Object * ptr, MonoBoolean arg1) {
-	ERR_FAIL_NULL(ptr);
-	bool arg1_in = static_cast<bool>(arg1);
-	static_cast<Particles *>(ptr)->set_emitting(arg1_in);
-}
-
-void godot_icall_Particles_set_amount_e1ae93bc(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL(ptr);
-	int32_t arg1_in = static_cast<int32_t>(arg1);
-	static_cast<Particles *>(ptr)->set_amount(arg1_in);
-}
-
-void godot_icall_Particles_set_lifetime_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<Particles *>(ptr)->set_lifetime(arg1_in);
-}
-
-void godot_icall_Particles_set_one_shot_ba24800b(Object * ptr, MonoBoolean arg1) {
-	ERR_FAIL_NULL(ptr);
-	bool arg1_in = static_cast<bool>(arg1);
-	static_cast<Particles *>(ptr)->set_one_shot(arg1_in);
-}
-
-void godot_icall_Particles_set_pre_process_time_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<Particles *>(ptr)->set_pre_process_time(arg1_in);
-}
-
-void godot_icall_Particles_set_explosiveness_ratio_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<Particles *>(ptr)->set_explosiveness_ratio(arg1_in);
-}
-
-void godot_icall_Particles_set_randomness_ratio_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<Particles *>(ptr)->set_randomness_ratio(arg1_in);
-}
-
-void godot_icall_Particles_set_visibility_aabb_ff67b409(Object * ptr, GDMonoMarshal::M_AABB* arg1) {
-	ERR_FAIL_NULL(ptr);
-	AABB arg1_in = MARSHALLED_IN(AABB, arg1);
-	static_cast<Particles *>(ptr)->set_visibility_aabb(arg1_in);
-}
-
-void godot_icall_Particles_set_use_local_coordinates_ba24800b(Object * ptr, MonoBoolean arg1) {
-	ERR_FAIL_NULL(ptr);
-	bool arg1_in = static_cast<bool>(arg1);
-	static_cast<Particles *>(ptr)->set_use_local_coordinates(arg1_in);
-}
-
-void godot_icall_Particles_set_fixed_fps_e1ae93bc(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL(ptr);
-	int32_t arg1_in = static_cast<int32_t>(arg1);
-	static_cast<Particles *>(ptr)->set_fixed_fps(arg1_in);
-}
-
-void godot_icall_Particles_set_fractional_delta_ba24800b(Object * ptr, MonoBoolean arg1) {
-	ERR_FAIL_NULL(ptr);
-	bool arg1_in = static_cast<bool>(arg1);
-	static_cast<Particles *>(ptr)->set_fractional_delta(arg1_in);
-}
-
-void godot_icall_Particles_set_process_material_be2d0ec2(Object * ptr, Object * arg1) {
-	ERR_FAIL_NULL(ptr);
-	static_cast<Particles *>(ptr)->set_process_material(AutoRef(arg1));
-}
-
-void godot_icall_Particles_set_speed_scale_904508bb(Object * ptr, float* arg1) {
-	ERR_FAIL_NULL(ptr);
-	float arg1_in = static_cast<float>(*arg1);
-	static_cast<Particles *>(ptr)->set_speed_scale(arg1_in);
-}
-
-MonoBoolean godot_icall_Particles_is_emitting_68fe5f59(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, MonoBoolean());
-	auto ret = static_cast<Particles *>(ptr)->is_emitting();
-	return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_Particles_get_amount_1f886eb0(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, int32_t());
-	auto ret = static_cast<Particles *>(ptr)->get_amount();
-	return static_cast<int32_t>(ret);
-}
-
-void godot_icall_Particles_get_lifetime_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_lifetime();
-	*arg_ret = (float)ret;
-}
-
-MonoBoolean godot_icall_Particles_get_one_shot_68fe5f59(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, MonoBoolean());
-	auto ret = static_cast<Particles *>(ptr)->get_one_shot();
-	return static_cast<MonoBoolean>(ret);
-}
-
-void godot_icall_Particles_get_pre_process_time_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_pre_process_time();
-	*arg_ret = (float)ret;
-}
-
-void godot_icall_Particles_get_explosiveness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_explosiveness_ratio();
-	*arg_ret = (float)ret;
-}
-
-void godot_icall_Particles_get_randomness_ratio_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_randomness_ratio();
-	*arg_ret = (float)ret;
-}
-
-void godot_icall_Particles_get_visibility_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_visibility_aabb();
-	*arg_ret = MARSHALLED_OUT(AABB, ret);
-}
-
-MonoBoolean godot_icall_Particles_get_use_local_coordinates_68fe5f59(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, MonoBoolean());
-	auto ret = static_cast<Particles *>(ptr)->get_use_local_coordinates();
-	return static_cast<MonoBoolean>(ret);
-}
-
-int32_t godot_icall_Particles_get_fixed_fps_1f886eb0(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, int32_t());
-	auto ret = static_cast<Particles *>(ptr)->get_fixed_fps();
-	return static_cast<int32_t>(ret);
-}
-
-MonoBoolean godot_icall_Particles_get_fractional_delta_68fe5f59(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, MonoBoolean());
-	auto ret = static_cast<Particles *>(ptr)->get_fractional_delta();
-	return static_cast<MonoBoolean>(ret);
-}
-
-MonoObject* godot_icall_Particles_get_process_material_6d04d9a2(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, NULL);
-	auto ret = static_cast<Particles *>(ptr)->get_process_material();
-	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Particles_get_speed_scale_4edcd7a9(Object * ptr, float* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = float(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->get_speed_scale();
-	*arg_ret = (float)ret;
-}
-
-void godot_icall_Particles_set_draw_order_aaa89856(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL(ptr);
-	int64_t arg1_in = (int64_t)arg1;
-	static_cast<Particles *>(ptr)->set_draw_order((Particles::DrawOrder)arg1_in);
-}
-
-int32_t godot_icall_Particles_get_draw_order_73e44381(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, int32_t());
-	auto ret = static_cast<Particles *>(ptr)->get_draw_order();
-	return (int32_t)ret;
-}
-
-void godot_icall_Particles_set_draw_passes_e1ae93bc(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL(ptr);
-	int32_t arg1_in = static_cast<int32_t>(arg1);
-	static_cast<Particles *>(ptr)->set_draw_passes(arg1_in);
-}
-
-void godot_icall_Particles_set_draw_pass_mesh_b41476b2(Object * ptr, int32_t arg1, Object * arg2) {
-	ERR_FAIL_NULL(ptr);
-	int32_t arg1_in = static_cast<int32_t>(arg1);
-	static_cast<Particles *>(ptr)->set_draw_pass_mesh(arg1_in, AutoRef(arg2));
-}
-
-int32_t godot_icall_Particles_get_draw_passes_1f886eb0(Object * ptr) {
-	ERR_FAIL_NULL_V(ptr, int32_t());
-	auto ret = static_cast<Particles *>(ptr)->get_draw_passes();
-	return static_cast<int32_t>(ret);
-}
-
-MonoObject* godot_icall_Particles_get_draw_pass_mesh_8c20a0a4(Object * ptr, int32_t arg1) {
-	ERR_FAIL_NULL_V(ptr, NULL);
-	int32_t arg1_in = static_cast<int32_t>(arg1);
-	auto ret = static_cast<Particles *>(ptr)->get_draw_pass_mesh(arg1_in);
-	return GDMonoUtils::unmanaged_get_managed((Object *)ret.get());
-}
-
-void godot_icall_Particles_restart_c8e54a7b(Object * ptr) {
-	ERR_FAIL_NULL(ptr);
-	static_cast<Particles *>(ptr)->restart();
-}
-
-void godot_icall_Particles_capture_aabb_2dbf935b(Object * ptr, GDMonoMarshal::M_AABB* arg_ret) {
-	if (ptr == nullptr) { *arg_ret = GDMonoMarshal::M_AABB(); ERR_FAIL_MSG("Parameter ' arg_ret ' is null."); }
-	auto ret = static_cast<Particles *>(ptr)->capture_aabb();
-	*arg_ret = MARSHALLED_OUT(AABB, ret);
-}
-
-Object* godot_icall_Particles_Ctor(MonoObject* obj) {
-	GODOTSHARP_INSTANCE_OBJECT(instance, "Particles")
 	GDMonoInternals::tie_managed_to_unmanaged(obj, instance);
 	return instance;
 }
@@ -50914,7 +50914,7 @@ Object* godot_icall__VisualScriptEditor_get_singleton() {
 namespace GodotSharpBindings
 {
 
-uint64_t get_core_api_hash() { return 13571343005872239418U; }
+uint64_t get_core_api_hash() { return 16938712466526092107U; }
 #ifdef TOOLS_ENABLED
 uint64_t get_editor_api_hash() { return 3853991014797639371U; }
 #endif // TOOLS_ENABLED
@@ -51073,6 +51073,7 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_GIProbe_Ctor", (void*)godot_icall_GIProbe_Ctor},
 	{"Godot.NativeCalls::godot_icall_GIProbeData_Ctor", (void*)godot_icall_GIProbeData_Ctor},
 	{"Godot.NativeCalls::godot_icall_GPUParticles2D_Ctor", (void*)godot_icall_GPUParticles2D_Ctor},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_Ctor", (void*)godot_icall_GPUParticles3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_Generic6DOFJoint3D_Ctor", (void*)godot_icall_Generic6DOFJoint3D_Ctor},
 	{"Godot.NativeCalls::godot_icall_Gradient_Ctor", (void*)godot_icall_Gradient_Ctor},
 	{"Godot.NativeCalls::godot_icall_GradientTexture_Ctor", (void*)godot_icall_GradientTexture_Ctor},
@@ -51169,7 +51170,6 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_PanoramaSky_Ctor", (void*)godot_icall_PanoramaSky_Ctor},
 	{"Godot.NativeCalls::godot_icall_ParallaxBackground_Ctor", (void*)godot_icall_ParallaxBackground_Ctor},
 	{"Godot.NativeCalls::godot_icall_ParallaxLayer_Ctor", (void*)godot_icall_ParallaxLayer_Ctor},
-	{"Godot.NativeCalls::godot_icall_Particles_Ctor", (void*)godot_icall_Particles_Ctor},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_Ctor", (void*)godot_icall_ParticlesMaterial_Ctor},
 	{"Godot.NativeCalls::godot_icall_Path2D_Ctor", (void*)godot_icall_Path2D_Ctor},
 	{"Godot.NativeCalls::godot_icall_Path3D_Ctor", (void*)godot_icall_Path3D_Ctor},
@@ -53839,6 +53839,40 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_GPUParticles2D_set_texture_7eecd31a", (void*)godot_icall_GPUParticles2D_set_texture_7eecd31a},
 	{"Godot.NativeCalls::godot_icall_GPUParticles2D_set_use_local_coordinates_ba24800b", (void*)godot_icall_GPUParticles2D_set_use_local_coordinates_ba24800b},
 	{"Godot.NativeCalls::godot_icall_GPUParticles2D_set_visibility_rect_a5ed61f1", (void*)godot_icall_GPUParticles2D_set_visibility_rect_a5ed61f1},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_capture_aabb_2dbf935b", (void*)godot_icall_GPUParticles3D_capture_aabb_2dbf935b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_amount_1f886eb0", (void*)godot_icall_GPUParticles3D_get_amount_1f886eb0},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_draw_order_c82ec0c0", (void*)godot_icall_GPUParticles3D_get_draw_order_c82ec0c0},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_draw_pass_mesh_8c20a0a4", (void*)godot_icall_GPUParticles3D_get_draw_pass_mesh_8c20a0a4},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_draw_passes_1f886eb0", (void*)godot_icall_GPUParticles3D_get_draw_passes_1f886eb0},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_explosiveness_ratio_4edcd7a9", (void*)godot_icall_GPUParticles3D_get_explosiveness_ratio_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_fixed_fps_1f886eb0", (void*)godot_icall_GPUParticles3D_get_fixed_fps_1f886eb0},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_fractional_delta_68fe5f59", (void*)godot_icall_GPUParticles3D_get_fractional_delta_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_lifetime_4edcd7a9", (void*)godot_icall_GPUParticles3D_get_lifetime_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_one_shot_68fe5f59", (void*)godot_icall_GPUParticles3D_get_one_shot_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_pre_process_time_4edcd7a9", (void*)godot_icall_GPUParticles3D_get_pre_process_time_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_process_material_6d04d9a2", (void*)godot_icall_GPUParticles3D_get_process_material_6d04d9a2},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_randomness_ratio_4edcd7a9", (void*)godot_icall_GPUParticles3D_get_randomness_ratio_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_speed_scale_4edcd7a9", (void*)godot_icall_GPUParticles3D_get_speed_scale_4edcd7a9},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_use_local_coordinates_68fe5f59", (void*)godot_icall_GPUParticles3D_get_use_local_coordinates_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_get_visibility_aabb_2dbf935b", (void*)godot_icall_GPUParticles3D_get_visibility_aabb_2dbf935b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_is_emitting_68fe5f59", (void*)godot_icall_GPUParticles3D_is_emitting_68fe5f59},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_restart_c8e54a7b", (void*)godot_icall_GPUParticles3D_restart_c8e54a7b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_amount_e1ae93bc", (void*)godot_icall_GPUParticles3D_set_amount_e1ae93bc},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_draw_order_2ef23605", (void*)godot_icall_GPUParticles3D_set_draw_order_2ef23605},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_draw_pass_mesh_b41476b2", (void*)godot_icall_GPUParticles3D_set_draw_pass_mesh_b41476b2},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_draw_passes_e1ae93bc", (void*)godot_icall_GPUParticles3D_set_draw_passes_e1ae93bc},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_emitting_ba24800b", (void*)godot_icall_GPUParticles3D_set_emitting_ba24800b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_explosiveness_ratio_904508bb", (void*)godot_icall_GPUParticles3D_set_explosiveness_ratio_904508bb},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_fixed_fps_e1ae93bc", (void*)godot_icall_GPUParticles3D_set_fixed_fps_e1ae93bc},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_fractional_delta_ba24800b", (void*)godot_icall_GPUParticles3D_set_fractional_delta_ba24800b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_lifetime_904508bb", (void*)godot_icall_GPUParticles3D_set_lifetime_904508bb},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_one_shot_ba24800b", (void*)godot_icall_GPUParticles3D_set_one_shot_ba24800b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_pre_process_time_904508bb", (void*)godot_icall_GPUParticles3D_set_pre_process_time_904508bb},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_process_material_be2d0ec2", (void*)godot_icall_GPUParticles3D_set_process_material_be2d0ec2},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_randomness_ratio_904508bb", (void*)godot_icall_GPUParticles3D_set_randomness_ratio_904508bb},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_speed_scale_904508bb", (void*)godot_icall_GPUParticles3D_set_speed_scale_904508bb},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_use_local_coordinates_ba24800b", (void*)godot_icall_GPUParticles3D_set_use_local_coordinates_ba24800b},
+	{"Godot.NativeCalls::godot_icall_GPUParticles3D_set_visibility_aabb_ff67b409", (void*)godot_icall_GPUParticles3D_set_visibility_aabb_ff67b409},
 	{"Godot.NativeCalls::godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_x_4edcd7a9", (void*)godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_x_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_y_4edcd7a9", (void*)godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_y_4edcd7a9},
 	{"Godot.NativeCalls::godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_z_4edcd7a9", (void*)godot_icall_Generic6DOFJoint3D__get_angular_hi_limit_z_4edcd7a9},
@@ -55365,40 +55399,6 @@ static const FuncReg functions[]={
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_set_trail_color_modifier_c8030426", (void*)godot_icall_ParticlesMaterial_set_trail_color_modifier_c8030426},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_set_trail_divisor_e1ae93bc", (void*)godot_icall_ParticlesMaterial_set_trail_divisor_e1ae93bc},
 	{"Godot.NativeCalls::godot_icall_ParticlesMaterial_set_trail_size_modifier_7bbe5a99", (void*)godot_icall_ParticlesMaterial_set_trail_size_modifier_7bbe5a99},
-	{"Godot.NativeCalls::godot_icall_Particles_capture_aabb_2dbf935b", (void*)godot_icall_Particles_capture_aabb_2dbf935b},
-	{"Godot.NativeCalls::godot_icall_Particles_get_amount_1f886eb0", (void*)godot_icall_Particles_get_amount_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_Particles_get_draw_order_73e44381", (void*)godot_icall_Particles_get_draw_order_73e44381},
-	{"Godot.NativeCalls::godot_icall_Particles_get_draw_pass_mesh_8c20a0a4", (void*)godot_icall_Particles_get_draw_pass_mesh_8c20a0a4},
-	{"Godot.NativeCalls::godot_icall_Particles_get_draw_passes_1f886eb0", (void*)godot_icall_Particles_get_draw_passes_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_Particles_get_explosiveness_ratio_4edcd7a9", (void*)godot_icall_Particles_get_explosiveness_ratio_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Particles_get_fixed_fps_1f886eb0", (void*)godot_icall_Particles_get_fixed_fps_1f886eb0},
-	{"Godot.NativeCalls::godot_icall_Particles_get_fractional_delta_68fe5f59", (void*)godot_icall_Particles_get_fractional_delta_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_Particles_get_lifetime_4edcd7a9", (void*)godot_icall_Particles_get_lifetime_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Particles_get_one_shot_68fe5f59", (void*)godot_icall_Particles_get_one_shot_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_Particles_get_pre_process_time_4edcd7a9", (void*)godot_icall_Particles_get_pre_process_time_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Particles_get_process_material_6d04d9a2", (void*)godot_icall_Particles_get_process_material_6d04d9a2},
-	{"Godot.NativeCalls::godot_icall_Particles_get_randomness_ratio_4edcd7a9", (void*)godot_icall_Particles_get_randomness_ratio_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Particles_get_speed_scale_4edcd7a9", (void*)godot_icall_Particles_get_speed_scale_4edcd7a9},
-	{"Godot.NativeCalls::godot_icall_Particles_get_use_local_coordinates_68fe5f59", (void*)godot_icall_Particles_get_use_local_coordinates_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_Particles_get_visibility_aabb_2dbf935b", (void*)godot_icall_Particles_get_visibility_aabb_2dbf935b},
-	{"Godot.NativeCalls::godot_icall_Particles_is_emitting_68fe5f59", (void*)godot_icall_Particles_is_emitting_68fe5f59},
-	{"Godot.NativeCalls::godot_icall_Particles_restart_c8e54a7b", (void*)godot_icall_Particles_restart_c8e54a7b},
-	{"Godot.NativeCalls::godot_icall_Particles_set_amount_e1ae93bc", (void*)godot_icall_Particles_set_amount_e1ae93bc},
-	{"Godot.NativeCalls::godot_icall_Particles_set_draw_order_aaa89856", (void*)godot_icall_Particles_set_draw_order_aaa89856},
-	{"Godot.NativeCalls::godot_icall_Particles_set_draw_pass_mesh_b41476b2", (void*)godot_icall_Particles_set_draw_pass_mesh_b41476b2},
-	{"Godot.NativeCalls::godot_icall_Particles_set_draw_passes_e1ae93bc", (void*)godot_icall_Particles_set_draw_passes_e1ae93bc},
-	{"Godot.NativeCalls::godot_icall_Particles_set_emitting_ba24800b", (void*)godot_icall_Particles_set_emitting_ba24800b},
-	{"Godot.NativeCalls::godot_icall_Particles_set_explosiveness_ratio_904508bb", (void*)godot_icall_Particles_set_explosiveness_ratio_904508bb},
-	{"Godot.NativeCalls::godot_icall_Particles_set_fixed_fps_e1ae93bc", (void*)godot_icall_Particles_set_fixed_fps_e1ae93bc},
-	{"Godot.NativeCalls::godot_icall_Particles_set_fractional_delta_ba24800b", (void*)godot_icall_Particles_set_fractional_delta_ba24800b},
-	{"Godot.NativeCalls::godot_icall_Particles_set_lifetime_904508bb", (void*)godot_icall_Particles_set_lifetime_904508bb},
-	{"Godot.NativeCalls::godot_icall_Particles_set_one_shot_ba24800b", (void*)godot_icall_Particles_set_one_shot_ba24800b},
-	{"Godot.NativeCalls::godot_icall_Particles_set_pre_process_time_904508bb", (void*)godot_icall_Particles_set_pre_process_time_904508bb},
-	{"Godot.NativeCalls::godot_icall_Particles_set_process_material_be2d0ec2", (void*)godot_icall_Particles_set_process_material_be2d0ec2},
-	{"Godot.NativeCalls::godot_icall_Particles_set_randomness_ratio_904508bb", (void*)godot_icall_Particles_set_randomness_ratio_904508bb},
-	{"Godot.NativeCalls::godot_icall_Particles_set_speed_scale_904508bb", (void*)godot_icall_Particles_set_speed_scale_904508bb},
-	{"Godot.NativeCalls::godot_icall_Particles_set_use_local_coordinates_ba24800b", (void*)godot_icall_Particles_set_use_local_coordinates_ba24800b},
-	{"Godot.NativeCalls::godot_icall_Particles_set_visibility_aabb_ff67b409", (void*)godot_icall_Particles_set_visibility_aabb_ff67b409},
 	{"Godot.NativeCalls::godot_icall_Path2D_get_curve_b48a3710", (void*)godot_icall_Path2D_get_curve_b48a3710},
 	{"Godot.NativeCalls::godot_icall_Path2D_set_curve_76a8e85c", (void*)godot_icall_Path2D_set_curve_76a8e85c},
 	{"Godot.NativeCalls::godot_icall_Path3D_get_curve_b58a38a3", (void*)godot_icall_Path3D_get_curve_b58a38a3},

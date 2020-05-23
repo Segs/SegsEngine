@@ -45,7 +45,7 @@
 #include "scene/3d/listener_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
-#include "scene/3d/particles.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/3d/physics_joint_3d.h"
 #include "scene/3d/portal.h"
 #include "scene/3d/position_3d.h"
@@ -2513,7 +2513,7 @@ ParticlesGizmoPlugin::ParticlesGizmoPlugin() {
 }
 
 bool ParticlesGizmoPlugin::has_gizmo(Node3D *p_spatial) {
-    return object_cast<Particles>(p_spatial) != nullptr;
+    return object_cast<GPUParticles3D>(p_spatial) != nullptr;
 }
 
 StringView ParticlesGizmoPlugin::get_name() const {
@@ -2543,12 +2543,12 @@ StringName ParticlesGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_giz
 }
 Variant ParticlesGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
 
-    Particles *particles = object_cast<Particles>(p_gizmo->get_spatial_node());
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_gizmo->get_spatial_node());
     return particles->get_visibility_aabb();
 }
 void ParticlesGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
-    Particles *particles = object_cast<Particles>(p_gizmo->get_spatial_node());
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_gizmo->get_spatial_node());
 
     Transform gt = particles->get_global_transform();
     Transform gi = gt.affine_inverse();
@@ -2600,7 +2600,7 @@ void ParticlesGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Ca
 
 void ParticlesGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
 
-    Particles *particles = object_cast<Particles>(p_gizmo->get_spatial_node());
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_gizmo->get_spatial_node());
 
     if (p_cancel) {
         particles->set_visibility_aabb(p_restore);
@@ -2616,7 +2616,7 @@ void ParticlesGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx,
 
 void ParticlesGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
-    Particles *particles = object_cast<Particles>(p_gizmo->get_spatial_node());
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 

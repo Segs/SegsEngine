@@ -188,6 +188,7 @@
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/cpu_particles_3d.h"
 #include "scene/3d/gi_probe.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/3d/immediate_geometry_3d.h"
 #include "scene/3d/interpolated_camera.h"
 #include "scene/3d/light_3d.h"
@@ -198,7 +199,6 @@
 #include "scene/3d/navigation_agent.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/navigation_obstacle.h"
-#include "scene/3d/particles.h"
 #include "scene/3d/path_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/physics_joint_3d.h"
@@ -521,7 +521,7 @@ void register_scene_types() {
     ARVRController::initialize_class();
     ARVRAnchor::initialize_class();
     ARVROrigin::initialize_class();
-    Particles::initialize_class();
+    GPUParticles3D::initialize_class();
     InterpolatedCamera::initialize_class();
     ProximityGroup3D::initialize_class();
     PinJoint3D::initialize_class();
@@ -785,7 +785,7 @@ void register_scene_types() {
     ClassDB::register_class<GIProbeData>();
     ClassDB::register_class<BakedLightmap>();
     ClassDB::register_class<BakedLightmapData>();
-    ClassDB::register_class<Particles>();
+    ClassDB::register_class<GPUParticles3D>();
     ClassDB::register_class<CPUParticles3D>();
     ClassDB::register_class<Position3D>();
 

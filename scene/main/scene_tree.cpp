@@ -524,11 +524,11 @@ void SceneTree::make_group_changed(const StringName &p_group) {
 
 void SceneTree::flush_transform_notifications() {
 
-    SelfList<Node> *n = xform_change_list.first();
+    IntrusiveListNode<Node> *n = xform_change_list.first();
     while (n) {
 
         Node *node = n->self();
-        SelfList<Node> *nx = n->next();
+        IntrusiveListNode<Node> *nx = n->next();
         xform_change_list.remove(n);
         n = nx;
         node->notification(NOTIFICATION_TRANSFORM_CHANGED);

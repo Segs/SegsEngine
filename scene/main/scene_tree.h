@@ -234,7 +234,7 @@ private:
     friend class Node3D;
     friend class Viewport;
 
-    SelfList<Node>::List xform_change_list;
+    IntrusiveList<Node> xform_change_list;
 
     friend class ScriptDebuggerRemote;
 

@@ -31,7 +31,7 @@
 #pragma once
 
 #include "editor/editor_plugin.h"
-#include "scene/3d/particles.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/gui/spin_box.h"
 
 class SceneTreeDialog;
@@ -76,7 +76,7 @@ class ParticlesEditor : public ParticlesEditorBase {
 
     ConfirmationDialog *generate_aabb;
     SpinBox *generate_seconds;
-    Particles *node;
+    GPUParticles3D *node;
 
     enum Menu {
 
@@ -103,7 +103,7 @@ protected:
     static void _bind_methods();
 
 public:
-    void edit(Particles *p_particles);
+    void edit(GPUParticles3D *p_particles);
     ParticlesEditor();
 };
 
@@ -115,7 +115,7 @@ class ParticlesEditorPlugin : public EditorPlugin {
     EditorNode *editor;
 
 public:
-    StringView get_name() const override { return "Particles"; }
+    StringView get_name() const override { return "GPUParticles3D"; }
     bool has_main_screen() const override { return false; }
     void edit(Object *p_object) override;
     bool handles(Object *p_object) const override;

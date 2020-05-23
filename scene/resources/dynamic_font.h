@@ -37,7 +37,6 @@
 #include "core/pool_vector.h"
 #include "core/reference.h"
 #include "core/string.h"
-#include "core/self_list.h"
 #include "scene/resources/font.h"
 
 class DynamicFontAtSize;
@@ -172,7 +171,6 @@ private:
     DynamicFontData::CacheID cache_id;
     DynamicFontData::CacheID outline_cache_id;
 
-    bool valid;
     int spacing_top;
     int spacing_bottom;
     int spacing_char;
@@ -230,10 +228,7 @@ public:
 
     float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, CharType p_next = 0, const Color &p_modulate = Color(1, 1, 1), bool p_outline = false) const override;
 
-    SelfList<DynamicFont> font_list;
-
     static Mutex *dynamic_font_mutex;
-    static SelfList<DynamicFont>::List *dynamic_fonts;
 
     static void initialize_dynamic_fonts();
     static void finish_dynamic_fonts();

@@ -2238,7 +2238,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
     //all materials using this shader will have to be invalidated, unfortunately
 
-    for (SelfList<Material> *E = p_shader->materials.first(); E; E = E->next()) {
+    for (IntrusiveListNode<Material> *E = p_shader->materials.first(); E; E = E->next()) {
 
         _material_make_dirty(E->self());
     }
@@ -6730,6 +6730,8 @@ void RasterizerStorageGLES3::instance_remove_skeleton(RID p_skeleton, Rasterizer
 void RasterizerStorageGLES3::instance_add_dependency(RID p_base, RasterizerScene::InstanceBase *p_instance) {
 
     Instantiable *inst = nullptr;
+    assert(!p_instance->dependency_item.in_list());
+
     switch (p_instance->base_type) {
         case RS::INSTANCE_MESH: {
             inst = mesh_owner.getornull(p_base);
@@ -6809,7 +6811,7 @@ void RasterizerStorageGLES3::instance_remove_dependency(RID p_base, RasterizerSc
             ERR_FAIL_COND(!inst);
         } break;
         default: {
-            ERR_FAIL();
+            CRASH_NOW_MSG("Unhandled type in instance_remove_dependency");
         }
     }
 

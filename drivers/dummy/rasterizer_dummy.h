@@ -594,11 +594,11 @@ public:
     /* LIGHTMAP CAPTURE */
     struct Instantiable : public RID_Data {
 
-        SelfList<RasterizerScene::InstanceBase>::List instance_list;
+        InList<RasterizerScene::InstanceBase> instance_list;
 
         _FORCE_INLINE_ void instance_change_notify(bool p_aabb = true, bool p_materials = true) {
 
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
                 instances->self()->base_changed(p_aabb, p_materials);
@@ -607,10 +607,10 @@ public:
         }
 
         void instance_remove_deps() {
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
-                SelfList<RasterizerScene::InstanceBase> *next = instances->next();
+                IntrusiveListNode<RasterizerScene::InstanceBase> *next = instances->next();
                 instances->self()->base_removed();
                 instances = next;
             }

@@ -38,6 +38,7 @@
 #include "core/math/vector3.h"
 #include "core/hash_map.h"
 
+#include "EASTL/bitset.h"
 #include "servers/rendering_server_enums.h"
 
 class Shader;
@@ -124,7 +125,7 @@ class GODOT_EXPORT SpatialMaterial : public Material {
     GDCLASS(SpatialMaterial,Material)
 
 public:
-    enum TextureParam {
+    enum TextureParam : uint8_t {
         TEXTURE_ALBEDO,
         TEXTURE_METALLIC,
         TEXTURE_ROUGHNESS,
@@ -145,13 +146,13 @@ public:
 
     };
 
-    enum DetailUV {
+    enum DetailUV : uint8_t {
         DETAIL_UV_1,
         DETAIL_UV_2
     };
 
-    enum Feature {
-        FEATURE_TRANSPARENT,
+    enum Feature : uint8_t {
+        FEATURE_TRANSPARENT=0,
         FEATURE_EMISSION,
         FEATURE_NORMAL_MAPPING,
         FEATURE_RIM,
@@ -166,14 +167,14 @@ public:
         FEATURE_MAX
     };
 
-    enum BlendMode {
+    enum BlendMode : uint8_t {
         BLEND_MODE_MIX,
         BLEND_MODE_ADD,
         BLEND_MODE_SUB,
         BLEND_MODE_MUL,
     };
 
-    enum DepthDrawMode {
+    enum DepthDrawMode : uint8_t  {
         DEPTH_DRAW_OPAQUE_ONLY,
         DEPTH_DRAW_ALWAYS,
         DEPTH_DRAW_DISABLED,
@@ -181,13 +182,13 @@ public:
 
     };
 
-    enum CullMode {
+    enum CullMode : uint8_t  {
         CULL_BACK,
         CULL_FRONT,
         CULL_DISABLED
     };
 
-    enum Flags {
+    enum Flags : uint8_t  {
         FLAG_UNSHADED,
         FLAG_USE_VERTEX_LIGHTING,
         FLAG_DISABLE_DEPTH_TEST,
@@ -210,7 +211,7 @@ public:
         FLAG_MAX
     };
 
-    enum DiffuseMode {
+    enum DiffuseMode : uint8_t  {
         DIFFUSE_BURLEY,
         DIFFUSE_LAMBERT,
         DIFFUSE_LAMBERT_WRAP,
@@ -218,7 +219,7 @@ public:
         DIFFUSE_TOON,
     };
 
-    enum SpecularMode {
+    enum SpecularMode : uint8_t {
         SPECULAR_SCHLICK_GGX,
         SPECULAR_BLINN,
         SPECULAR_PHONG,
@@ -226,14 +227,14 @@ public:
         SPECULAR_DISABLED,
     };
 
-    enum BillboardMode {
+    enum BillboardMode : uint8_t {
         BILLBOARD_DISABLED,
         BILLBOARD_ENABLED,
         BILLBOARD_FIXED_Y,
         BILLBOARD_PARTICLES,
     };
 
-    enum TextureChannel {
+    enum TextureChannel : uint8_t {
         TEXTURE_CHANNEL_RED,
         TEXTURE_CHANNEL_GREEN,
         TEXTURE_CHANNEL_BLUE,
@@ -241,12 +242,12 @@ public:
         TEXTURE_CHANNEL_GRAYSCALE
     };
 
-    enum EmissionOperator {
+    enum EmissionOperator : uint8_t {
         EMISSION_OP_ADD,
         EMISSION_OP_MULTIPLY
     };
 
-    enum DistanceFadeMode {
+    enum DistanceFadeMode : uint8_t {
         DISTANCE_FADE_DISABLED,
         DISTANCE_FADE_PIXEL_ALPHA,
         DISTANCE_FADE_PIXEL_DITHER,
@@ -261,12 +262,12 @@ private:
     union MaterialKey {
 
         struct {
-            uint64_t feature_mask : 12;
+            uint64_t feature_mask : FEATURE_MAX;
             uint64_t detail_uv : 1;
             uint64_t blend_mode : 2;
             uint64_t depth_draw_mode : 2;
             uint64_t cull_mode : 2;
-            uint64_t flags : 19;
+            uint64_t flags : FLAG_MAX;
             uint64_t detail_blend_mode : 2;
             uint64_t diffuse_mode : 3;
             uint64_t specular_mode : 3;
@@ -293,15 +294,96 @@ private:
 
 
     static HashMap<MaterialKey, ShaderData> shader_map;
+    static Mutex *material_mutex;
 
     MaterialKey current_key;
 
+    bool is_dirty_element;
+
+    Color albedo;
+    float specular;
+    float metallic;
+    float roughness;
+    Color emission;
+    float emission_energy;
+    float normal_scale;
+    float rim;
+    float rim_tint;
+    float clearcoat;
+    float clearcoat_gloss;
+    float anisotropy;
+    float depth_scale;
+    float subsurface_scattering_strength;
+    Color transmission;
+    float refraction;
+    float line_width;
+    float point_size;
+    float alpha_scissor_threshold;
+    float ao_light_affect;
+    float grow;
+    int particles_anim_h_frames;
+    int particles_anim_v_frames;
+
+    Vector3 uv1_scale;
+    Vector3 uv1_offset;
+    float uv1_triplanar_sharpness;
+
+    Vector3 uv2_scale;
+    Vector3 uv2_offset;
+    float uv2_triplanar_sharpness;
+
+    DetailUV detail_uv;
+
+    int deep_parallax_min_layers;
+    int deep_parallax_max_layers;
+    float proximity_fade_distance;
+
+    bool grow_enabled;
+    bool particles_anim_loop;
+    bool deep_parallax;
+    bool depth_parallax_flip_tangent;
+    bool depth_parallax_flip_binormal;
+    bool proximity_fade_enabled;
+
+    DistanceFadeMode distance_fade;
+    float distance_fade_max_distance;
+    float distance_fade_min_distance;
+
+    BlendMode blend_mode;
+    BlendMode detail_blend_mode;
+    DepthDrawMode depth_draw_mode;
+    CullMode cull_mode;
+    eastl::bitset<FLAG_MAX,uint32_t>  flags;
+    SpecularMode specular_mode;
+    DiffuseMode diffuse_mode;
+    BillboardMode billboard_mode;
+    EmissionOperator emission_op;
+
+    TextureChannel metallic_texture_channel;
+    TextureChannel roughness_texture_channel;
+    TextureChannel ao_texture_channel;
+    TextureChannel refraction_texture_channel;
+    eastl::bitset<FEATURE_MAX,uint16_t> features;
+
+    Ref<Texture> textures[TEXTURE_MAX];
+
+    _FORCE_INLINE_ void _validate_feature(StringView text, Feature feature, PropertyInfo &property) const;
+    void _update_shader();
+    _FORCE_INLINE_ void _queue_shader_change();
+
+    enum {
+        MAX_MATERIALS_FOR_2D = 128
+    };
+
+    static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
+
+    void _validate_high_end(StringView text, PropertyInfo &property) const;
     _FORCE_INLINE_ MaterialKey _compute_key() const {
 
         MaterialKey mk;
         mk.key = 0;
         for (int i = 0; i < FEATURE_MAX; i++) {
-            if (features[i]) {
+            if (features.test(i)) {
                 mk.feature_mask |= ((uint64_t)1 << i);
             }
         }
@@ -327,143 +409,6 @@ private:
         mk.texture_roughness = textures[TEXTURE_ROUGHNESS] ? 1 : 0;
         return mk;
     }
-
-    struct ShaderNames {
-        StringName albedo;
-        StringName specular;
-        StringName metallic;
-        StringName roughness;
-        StringName emission;
-        StringName emission_energy;
-        StringName normal_scale;
-        StringName rim;
-        StringName rim_tint;
-        StringName clearcoat;
-        StringName clearcoat_gloss;
-        StringName anisotropy;
-        StringName depth_scale;
-        StringName subsurface_scattering_strength;
-        StringName transmission;
-        StringName refraction;
-        StringName point_size;
-        StringName uv1_scale;
-        StringName uv1_offset;
-        StringName uv2_scale;
-        StringName uv2_offset;
-        StringName particles_anim_h_frames;
-        StringName particles_anim_v_frames;
-        StringName particles_anim_loop;
-        StringName depth_min_layers;
-        StringName depth_max_layers;
-        StringName depth_flip;
-        StringName uv1_blend_sharpness;
-        StringName uv2_blend_sharpness;
-        StringName grow;
-        StringName proximity_fade_distance;
-        StringName distance_fade_min;
-        StringName distance_fade_max;
-        StringName ao_light_affect;
-
-        StringName metallic_texture_channel;
-        StringName roughness_texture_channel;
-        StringName ao_texture_channel;
-        StringName clearcoat_texture_channel;
-        StringName rim_texture_channel;
-        StringName depth_texture_channel;
-        StringName refraction_texture_channel;
-        StringName alpha_scissor_threshold;
-
-        StringName texture_names[TEXTURE_MAX];
-    };
-
-    static Mutex *material_mutex;
-    static SelfList<SpatialMaterial>::List *dirty_materials;
-    static ShaderNames *shader_names;
-
-    SelfList<SpatialMaterial> element;
-
-    void _update_shader();
-    _FORCE_INLINE_ void _queue_shader_change();
-    _FORCE_INLINE_ bool _is_shader_dirty() const;
-
-    Color albedo;
-    float specular;
-    float metallic;
-    float roughness;
-    Color emission;
-    float emission_energy;
-    float normal_scale;
-    float rim;
-    float rim_tint;
-    float clearcoat;
-    float clearcoat_gloss;
-    float anisotropy;
-    float depth_scale;
-    float subsurface_scattering_strength;
-    Color transmission;
-    float refraction;
-    float line_width;
-    float point_size;
-    float alpha_scissor_threshold;
-    bool grow_enabled;
-    float ao_light_affect;
-    float grow;
-    int particles_anim_h_frames;
-    int particles_anim_v_frames;
-    bool particles_anim_loop;
-
-    Vector3 uv1_scale;
-    Vector3 uv1_offset;
-    float uv1_triplanar_sharpness;
-
-    Vector3 uv2_scale;
-    Vector3 uv2_offset;
-    float uv2_triplanar_sharpness;
-
-    DetailUV detail_uv;
-
-    bool deep_parallax;
-    int deep_parallax_min_layers;
-    int deep_parallax_max_layers;
-    bool depth_parallax_flip_tangent;
-    bool depth_parallax_flip_binormal;
-
-    bool proximity_fade_enabled;
-    float proximity_fade_distance;
-
-    DistanceFadeMode distance_fade;
-    float distance_fade_max_distance;
-    float distance_fade_min_distance;
-
-    BlendMode blend_mode;
-    BlendMode detail_blend_mode;
-    DepthDrawMode depth_draw_mode;
-    CullMode cull_mode;
-    bool flags[FLAG_MAX];
-    SpecularMode specular_mode;
-    DiffuseMode diffuse_mode;
-    BillboardMode billboard_mode;
-    EmissionOperator emission_op;
-
-    TextureChannel metallic_texture_channel;
-    TextureChannel roughness_texture_channel;
-    TextureChannel ao_texture_channel;
-    TextureChannel refraction_texture_channel;
-
-    bool features[FEATURE_MAX];
-
-    Ref<Texture> textures[TEXTURE_MAX];
-
-    _FORCE_INLINE_ void _validate_feature(StringView text, Feature feature, PropertyInfo &property) const;
-
-    enum {
-        MAX_MATERIALS_FOR_2D = 128
-    };
-
-    static Ref<SpatialMaterial> materials_for_2d[MAX_MATERIALS_FOR_2D]; //used by Sprite3D and other stuff
-
-    void _validate_high_end(StringView text, PropertyInfo &property) const;
-
 protected:
     static void _bind_methods();
     void _validate_property(PropertyInfo &property) const override;

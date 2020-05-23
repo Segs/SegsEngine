@@ -181,11 +181,11 @@ public:
 
     struct Instantiable : public RID_Data {
 
-        SelfList<RasterizerScene::InstanceBase>::List instance_list;
+        IntrusiveList<RasterizerScene::InstanceBase> instance_list;
 
         _FORCE_INLINE_ void instance_change_notify(bool p_aabb, bool p_materials) {
 
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
                 instances->self()->base_changed(p_aabb, p_materials);
@@ -194,10 +194,10 @@ public:
         }
 
         _FORCE_INLINE_ void instance_remove_deps() {
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
-                SelfList<RasterizerScene::InstanceBase> *next = instances->next();
+                IntrusiveListNode<RasterizerScene::InstanceBase> *next = instances->next();
                 instances->self()->base_removed();
                 instances = next;
             }
@@ -371,8 +371,8 @@ public:
         Vector<uint32_t> ubo_offsets;
         Vector<ShaderLanguage::DataType> texture_types;
         Vector<ShaderLanguage::ShaderNode::Uniform::Hint> texture_hints;
-        SelfList<Material>::List materials;
-        SelfList<Shader> dirty_list;
+        IntrusiveList<Material> materials;
+        IntrusiveListNode<Shader> dirty_list;
         String code;
         String path;
         RID self;
@@ -473,7 +473,7 @@ public:
         }
     };
 
-    mutable SelfList<Shader>::List _shader_dirty_list;
+    mutable IntrusiveList<Shader> _shader_dirty_list;
     void _shader_make_dirty(Shader *p_shader);
 
     mutable RID_Owner<Shader> shader_owner;
@@ -505,8 +505,8 @@ public:
         HashMap<StringName, Variant> params;
         HashMap<Geometry *, int> geometry_owners;
         HashMap<RasterizerScene::InstanceBase *, int> instance_owners;
-        SelfList<Material> list;
-        SelfList<Material> dirty_list;
+        IntrusiveListNode<Material> list;
+        IntrusiveListNode<Material> dirty_list;
         Vector<bool> texture_is_3d; //TODO: SEGS: consider using dynamic_bitvector here.
         Vector<RID> textures;
         RID next_pass;
@@ -529,7 +529,7 @@ public:
         }
     };
 
-    mutable SelfList<Material>::List _material_dirty_list;
+    mutable IntrusiveList<Material> _material_dirty_list;
     void _material_make_dirty(Material *p_material) const;
     void _material_add_geometry(RID p_material, Geometry *p_geometry);
     void _material_remove_geometry(RID p_material, Geometry *p_geometry);
@@ -652,10 +652,10 @@ public:
         RS::BlendShapeMode blend_shape_mode;
         AABB custom_aabb;
         mutable uint64_t last_pass;
-        SelfList<MultiMesh>::List multimeshes;
+        IntrusiveList<MultiMesh> multimeshes;
         _FORCE_INLINE_ void update_multimeshes() {
 
-            SelfList<MultiMesh> *mm = multimeshes.first();
+            IntrusiveListNode<MultiMesh> *mm = multimeshes.first();
             while (mm) {
                 mm->self()->instance_change_notify(false, true);
                 mm = mm->next();
@@ -722,8 +722,8 @@ public:
         RS::MultimeshCustomDataFormat custom_data_format;
         PoolVector<float> data;
         AABB aabb;
-        SelfList<MultiMesh> update_list;
-        SelfList<MultiMesh> mesh_list;
+        IntrusiveListNode<MultiMesh> update_list;
+        IntrusiveListNode<MultiMesh> mesh_list;
         GLuint buffer;
         int visible_instances;
 
@@ -753,7 +753,7 @@ public:
 
     mutable RID_Owner<MultiMesh> multimesh_owner;
 
-    SelfList<MultiMesh>::List multimesh_update_list;
+    IntrusiveList<MultiMesh> multimesh_update_list;
 
     void update_dirty_multimeshes();
 
@@ -837,7 +837,7 @@ public:
         int size=0; // put first to align from parent members
         Set<RasterizerScene::InstanceBase *> instances; //instances using skeleton
         PoolVector<float> skel_texture;
-        SelfList<Skeleton> update_list;
+        IntrusiveListNode<Skeleton> update_list;
         Transform2D base_transform_2d;
         GLuint texture=0;
         bool use_2d=false;
@@ -847,7 +847,7 @@ public:
 
     mutable RID_Owner<Skeleton> skeleton_owner;
 
-    SelfList<Skeleton>::List skeleton_update_list;
+    IntrusiveList<Skeleton> skeleton_update_list;
 
     void update_dirty_skeletons();
 
@@ -1078,7 +1078,7 @@ public:
         RID process_material;
         AABB custom_aabb;
         Transform emission_transform;
-        SelfList<Particles> particle_element;
+        IntrusiveListNode<Particles> particle_element;
 
         float inactive_time=0.0f;
         int amount=0;
@@ -1135,7 +1135,7 @@ public:
         }
     };
 
-    SelfList<Particles>::List particle_update_list;
+    IntrusiveList<Particles> particle_update_list;
 
     void update_particles();
 

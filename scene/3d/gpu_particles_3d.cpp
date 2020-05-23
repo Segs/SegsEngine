@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  particles.cpp                                                        */
+/*  gpu_particles_3d.cpp                                                        */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "particles.h"
+#include "gpu_particles_3d.h"
 
 #include "core/object_tooling.h"
 #include "core/os/os.h"
@@ -40,19 +40,19 @@
 
 #include "servers/rendering_server.h"
 
-IMPL_GDCLASS(Particles)
-VARIANT_ENUM_CAST(Particles::DrawOrder)
+IMPL_GDCLASS(GPUParticles3D)
+VARIANT_ENUM_CAST(GPUParticles3D::DrawOrder)
 
-AABB Particles::get_aabb() const {
+AABB GPUParticles3D::get_aabb() const {
 
     return AABB();
 }
-Vector<Face3> Particles::get_faces(uint32_t p_usage_flags) const {
+Vector<Face3> GPUParticles3D::get_faces(uint32_t p_usage_flags) const {
 
     return Vector<Face3>();
 }
 
-void Particles::set_emitting(bool p_emitting) {
+void GPUParticles3D::set_emitting(bool p_emitting) {
 
     RenderingServer::get_singleton()->particles_set_emitting(particles, p_emitting);
 
@@ -63,20 +63,20 @@ void Particles::set_emitting(bool p_emitting) {
     }
 }
 
-void Particles::set_amount(int p_amount) {
+void GPUParticles3D::set_amount(int p_amount) {
 
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles cannot be smaller than 1.");
     amount = p_amount;
     RenderingServer::get_singleton()->particles_set_amount(particles, amount);
 }
-void Particles::set_lifetime(float p_lifetime) {
+void GPUParticles3D::set_lifetime(float p_lifetime) {
 
     ERR_FAIL_COND_MSG(p_lifetime <= 0, "Particles lifetime must be greater than 0.");
     lifetime = p_lifetime;
     RenderingServer::get_singleton()->particles_set_lifetime(particles, lifetime);
 }
 
-void Particles::set_one_shot(bool p_one_shot) {
+void GPUParticles3D::set_one_shot(bool p_one_shot) {
 
     one_shot = p_one_shot;
     RenderingServer::get_singleton()->particles_set_one_shot(particles, one_shot);
@@ -92,34 +92,34 @@ void Particles::set_one_shot(bool p_one_shot) {
         set_process_internal(false);
 }
 
-void Particles::set_pre_process_time(float p_time) {
+void GPUParticles3D::set_pre_process_time(float p_time) {
 
     pre_process_time = p_time;
     RenderingServer::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
 }
-void Particles::set_explosiveness_ratio(float p_ratio) {
+void GPUParticles3D::set_explosiveness_ratio(float p_ratio) {
 
     explosiveness_ratio = p_ratio;
     RenderingServer::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
 }
-void Particles::set_randomness_ratio(float p_ratio) {
+void GPUParticles3D::set_randomness_ratio(float p_ratio) {
 
     randomness_ratio = p_ratio;
     RenderingServer::get_singleton()->particles_set_randomness_ratio(particles, randomness_ratio);
 }
-void Particles::set_visibility_aabb(const AABB &p_aabb) {
+void GPUParticles3D::set_visibility_aabb(const AABB &p_aabb) {
 
     visibility_aabb = p_aabb;
     RenderingServer::get_singleton()->particles_set_custom_aabb(particles, visibility_aabb);
     update_gizmo();
     Object_change_notify(this,"visibility_aabb");
 }
-void Particles::set_use_local_coordinates(bool p_enable) {
+void GPUParticles3D::set_use_local_coordinates(bool p_enable) {
 
     local_coords = p_enable;
     RenderingServer::get_singleton()->particles_set_use_local_coordinates(particles, local_coords);
 }
-void Particles::set_process_material(const Ref<Material> &p_material) {
+void GPUParticles3D::set_process_material(const Ref<Material> &p_material) {
 
     process_material = p_material;
     RID material_rid;
@@ -130,83 +130,83 @@ void Particles::set_process_material(const Ref<Material> &p_material) {
     update_configuration_warning();
 }
 
-void Particles::set_speed_scale(float p_scale) {
+void GPUParticles3D::set_speed_scale(float p_scale) {
 
     speed_scale = p_scale;
     RenderingServer::get_singleton()->particles_set_speed_scale(particles, p_scale);
 }
 
-bool Particles::is_emitting() const {
+bool GPUParticles3D::is_emitting() const {
 
     return RenderingServer::get_singleton()->particles_get_emitting(particles);
 }
-int Particles::get_amount() const {
+int GPUParticles3D::get_amount() const {
 
     return amount;
 }
-float Particles::get_lifetime() const {
+float GPUParticles3D::get_lifetime() const {
 
     return lifetime;
 }
-bool Particles::get_one_shot() const {
+bool GPUParticles3D::get_one_shot() const {
 
     return one_shot;
 }
 
-float Particles::get_pre_process_time() const {
+float GPUParticles3D::get_pre_process_time() const {
 
     return pre_process_time;
 }
-float Particles::get_explosiveness_ratio() const {
+float GPUParticles3D::get_explosiveness_ratio() const {
 
     return explosiveness_ratio;
 }
-float Particles::get_randomness_ratio() const {
+float GPUParticles3D::get_randomness_ratio() const {
 
     return randomness_ratio;
 }
-AABB Particles::get_visibility_aabb() const {
+AABB GPUParticles3D::get_visibility_aabb() const {
 
     return visibility_aabb;
 }
-bool Particles::get_use_local_coordinates() const {
+bool GPUParticles3D::get_use_local_coordinates() const {
 
     return local_coords;
 }
-Ref<Material> Particles::get_process_material() const {
+Ref<Material> GPUParticles3D::get_process_material() const {
 
     return process_material;
 }
 
-float Particles::get_speed_scale() const {
+float GPUParticles3D::get_speed_scale() const {
 
     return speed_scale;
 }
 
-void Particles::set_draw_order(DrawOrder p_order) {
+void GPUParticles3D::set_draw_order(DrawOrder p_order) {
 
     draw_order = p_order;
     RenderingServer::get_singleton()->particles_set_draw_order(particles, RS::ParticlesDrawOrder(p_order));
 }
 
-Particles::DrawOrder Particles::get_draw_order() const {
+GPUParticles3D::DrawOrder GPUParticles3D::get_draw_order() const {
 
     return draw_order;
 }
 
-void Particles::set_draw_passes(int p_count) {
+void GPUParticles3D::set_draw_passes(int p_count) {
 
     ERR_FAIL_COND(p_count < 1);
     draw_passes.resize(p_count);
     RenderingServer::get_singleton()->particles_set_draw_passes(particles, p_count);
     Object_change_notify(this);
 }
-int Particles::get_draw_passes() const {
+int GPUParticles3D::get_draw_passes() const {
 
     return draw_passes.size();
 }
 
-void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
+void GPUParticles3D::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
 
     ERR_FAIL_INDEX(p_pass, draw_passes.size());
 
@@ -221,32 +221,32 @@ void Particles::set_draw_pass_mesh(int p_pass, const Ref<Mesh> &p_mesh) {
     update_configuration_warning();
 }
 
-Ref<Mesh> Particles::get_draw_pass_mesh(int p_pass) const {
+Ref<Mesh> GPUParticles3D::get_draw_pass_mesh(int p_pass) const {
 
     ERR_FAIL_INDEX_V(p_pass, draw_passes.size(), Ref<Mesh>());
 
     return draw_passes[p_pass];
 }
 
-void Particles::set_fixed_fps(int p_count) {
+void GPUParticles3D::set_fixed_fps(int p_count) {
     fixed_fps = p_count;
     RenderingServer::get_singleton()->particles_set_fixed_fps(particles, p_count);
 }
 
-int Particles::get_fixed_fps() const {
+int GPUParticles3D::get_fixed_fps() const {
     return fixed_fps;
 }
 
-void Particles::set_fractional_delta(bool p_enable) {
+void GPUParticles3D::set_fractional_delta(bool p_enable) {
     fractional_delta = p_enable;
     RenderingServer::get_singleton()->particles_set_fractional_delta(particles, p_enable);
 }
 
-bool Particles::get_fractional_delta() const {
+bool GPUParticles3D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName Particles::get_configuration_warning() const {
+StringName GPUParticles3D::get_configuration_warning() const {
 
     String warnings;
 
@@ -294,18 +294,18 @@ StringName Particles::get_configuration_warning() const {
     return StringName(warnings);
 }
 
-void Particles::restart() {
+void GPUParticles3D::restart() {
 
     RenderingServer::get_singleton()->particles_restart(particles);
     RenderingServer::get_singleton()->particles_set_emitting(particles, true);
 }
 
-AABB Particles::capture_aabb() const {
+AABB GPUParticles3D::capture_aabb() const {
 
     return RenderingServer::get_singleton()->particles_get_current_aabb(particles);
 }
 
-void Particles::_validate_property(PropertyInfo &property) const {
+void GPUParticles3D::_validate_property(PropertyInfo &property) const {
 
     if (StringUtils::begins_with(property.name,"draw_pass_")) {
         int index = StringUtils::to_int(StringUtils::get_slice(property.name,'_', 2)) - 1;
@@ -316,7 +316,7 @@ void Particles::_validate_property(PropertyInfo &property) const {
     }
 }
 
-void Particles::_notification(int p_what) {
+void GPUParticles3D::_notification(int p_what) {
     auto RS = RenderingServer::get_singleton();
     if (p_what == NOTIFICATION_PAUSED || p_what == NOTIFICATION_UNPAUSED) {
         if (can_process()) {
@@ -344,48 +344,48 @@ void Particles::_notification(int p_what) {
     }
 }
 
-void Particles::_bind_methods() {
+void GPUParticles3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &Particles::set_emitting);
-    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &Particles::set_amount);
-    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &Particles::set_lifetime);
-    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &Particles::set_one_shot);
-    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &Particles::set_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &Particles::set_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &Particles::set_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("set_visibility_aabb", {"aabb"}), &Particles::set_visibility_aabb);
-    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &Particles::set_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &Particles::set_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &Particles::set_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("set_process_material", {"material"}), &Particles::set_process_material);
-    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &Particles::set_speed_scale);
+    MethodBinder::bind_method(D_METHOD("set_emitting", {"emitting"}), &GPUParticles3D::set_emitting);
+    MethodBinder::bind_method(D_METHOD("set_amount", {"amount"}), &GPUParticles3D::set_amount);
+    MethodBinder::bind_method(D_METHOD("set_lifetime", {"secs"}), &GPUParticles3D::set_lifetime);
+    MethodBinder::bind_method(D_METHOD("set_one_shot", {"enable"}), &GPUParticles3D::set_one_shot);
+    MethodBinder::bind_method(D_METHOD("set_pre_process_time", {"secs"}), &GPUParticles3D::set_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("set_explosiveness_ratio", {"ratio"}), &GPUParticles3D::set_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_randomness_ratio", {"ratio"}), &GPUParticles3D::set_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("set_visibility_aabb", {"aabb"}), &GPUParticles3D::set_visibility_aabb);
+    MethodBinder::bind_method(D_METHOD("set_use_local_coordinates", {"enable"}), &GPUParticles3D::set_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("set_fixed_fps", {"fps"}), &GPUParticles3D::set_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("set_fractional_delta", {"enable"}), &GPUParticles3D::set_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("set_process_material", {"material"}), &GPUParticles3D::set_process_material);
+    MethodBinder::bind_method(D_METHOD("set_speed_scale", {"scale"}), &GPUParticles3D::set_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("is_emitting"), &Particles::is_emitting);
-    MethodBinder::bind_method(D_METHOD("get_amount"), &Particles::get_amount);
-    MethodBinder::bind_method(D_METHOD("get_lifetime"), &Particles::get_lifetime);
-    MethodBinder::bind_method(D_METHOD("get_one_shot"), &Particles::get_one_shot);
-    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &Particles::get_pre_process_time);
-    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &Particles::get_explosiveness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &Particles::get_randomness_ratio);
-    MethodBinder::bind_method(D_METHOD("get_visibility_aabb"), &Particles::get_visibility_aabb);
-    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &Particles::get_use_local_coordinates);
-    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &Particles::get_fixed_fps);
-    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &Particles::get_fractional_delta);
-    MethodBinder::bind_method(D_METHOD("get_process_material"), &Particles::get_process_material);
-    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &Particles::get_speed_scale);
+    MethodBinder::bind_method(D_METHOD("is_emitting"), &GPUParticles3D::is_emitting);
+    MethodBinder::bind_method(D_METHOD("get_amount"), &GPUParticles3D::get_amount);
+    MethodBinder::bind_method(D_METHOD("get_lifetime"), &GPUParticles3D::get_lifetime);
+    MethodBinder::bind_method(D_METHOD("get_one_shot"), &GPUParticles3D::get_one_shot);
+    MethodBinder::bind_method(D_METHOD("get_pre_process_time"), &GPUParticles3D::get_pre_process_time);
+    MethodBinder::bind_method(D_METHOD("get_explosiveness_ratio"), &GPUParticles3D::get_explosiveness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_randomness_ratio"), &GPUParticles3D::get_randomness_ratio);
+    MethodBinder::bind_method(D_METHOD("get_visibility_aabb"), &GPUParticles3D::get_visibility_aabb);
+    MethodBinder::bind_method(D_METHOD("get_use_local_coordinates"), &GPUParticles3D::get_use_local_coordinates);
+    MethodBinder::bind_method(D_METHOD("get_fixed_fps"), &GPUParticles3D::get_fixed_fps);
+    MethodBinder::bind_method(D_METHOD("get_fractional_delta"), &GPUParticles3D::get_fractional_delta);
+    MethodBinder::bind_method(D_METHOD("get_process_material"), &GPUParticles3D::get_process_material);
+    MethodBinder::bind_method(D_METHOD("get_speed_scale"), &GPUParticles3D::get_speed_scale);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &Particles::set_draw_order);
+    MethodBinder::bind_method(D_METHOD("set_draw_order", {"order"}), &GPUParticles3D::set_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_order"), &Particles::get_draw_order);
+    MethodBinder::bind_method(D_METHOD("get_draw_order"), &GPUParticles3D::get_draw_order);
 
-    MethodBinder::bind_method(D_METHOD("set_draw_passes", {"passes"}), &Particles::set_draw_passes);
-    MethodBinder::bind_method(D_METHOD("set_draw_pass_mesh", {"pass", "mesh"}), &Particles::set_draw_pass_mesh);
+    MethodBinder::bind_method(D_METHOD("set_draw_passes", {"passes"}), &GPUParticles3D::set_draw_passes);
+    MethodBinder::bind_method(D_METHOD("set_draw_pass_mesh", {"pass", "mesh"}), &GPUParticles3D::set_draw_pass_mesh);
 
-    MethodBinder::bind_method(D_METHOD("get_draw_passes"), &Particles::get_draw_passes);
-    MethodBinder::bind_method(D_METHOD("get_draw_pass_mesh", {"pass"}), &Particles::get_draw_pass_mesh);
+    MethodBinder::bind_method(D_METHOD("get_draw_passes"), &GPUParticles3D::get_draw_passes);
+    MethodBinder::bind_method(D_METHOD("get_draw_pass_mesh", {"pass"}), &GPUParticles3D::get_draw_pass_mesh);
 
-    MethodBinder::bind_method(D_METHOD("restart"), &Particles::restart);
-    MethodBinder::bind_method(D_METHOD("capture_aabb"), &Particles::capture_aabb);
+    MethodBinder::bind_method(D_METHOD("restart"), &GPUParticles3D::restart);
+    MethodBinder::bind_method(D_METHOD("capture_aabb"), &GPUParticles3D::capture_aabb);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
@@ -418,7 +418,7 @@ void Particles::_bind_methods() {
     BIND_CONSTANT(MAX_DRAW_PASSES);
 }
 
-Particles::Particles() {
+GPUParticles3D::GPUParticles3D() {
 
     particles = RenderingServer::get_singleton()->particles_create();
     set_base(particles);
@@ -439,7 +439,7 @@ Particles::Particles() {
     set_speed_scale(1);
 }
 
-Particles::~Particles() {
+GPUParticles3D::~GPUParticles3D() {
 
     RenderingServer::get_singleton()->free_rid(particles);
 }

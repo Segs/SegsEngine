@@ -78,7 +78,7 @@ private:
     uint32_t collision_layer;
     bool _static;
 
-    SelfList<CollisionObject2DSW> pending_shape_update_list;
+    IntrusiveListNode<CollisionObject2DSW> pending_shape_update_list;
 
     void _update_shapes();
 

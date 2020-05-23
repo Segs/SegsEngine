@@ -1484,7 +1484,7 @@ void GDScriptLanguage::profiling_start() {
         lock->lock();
     }
 
-    SelfList<GDScriptFunction> *elem = function_list.first();
+    IntrusiveListNode<GDScriptFunction> *elem = function_list.first();
     while (elem) {
         elem->self()->profile.call_count = 0;
         elem->self()->profile.self_time = 0;
@@ -1529,7 +1529,7 @@ int GDScriptLanguage::profiling_get_accumulated_data(ProfilingInfo *p_info_arr, 
         lock->lock();
     }
 
-    SelfList<GDScriptFunction> *elem = function_list.first();
+    IntrusiveListNode<GDScriptFunction> *elem = function_list.first();
     while (elem) {
         if (current >= p_info_max)
             break;
@@ -1559,7 +1559,7 @@ int GDScriptLanguage::profiling_get_frame_data(ProfilingInfo *p_info_arr, int p_
         lock->lock();
     }
 
-    SelfList<GDScriptFunction> *elem = function_list.first();
+    IntrusiveListNode<GDScriptFunction> *elem = function_list.first();
     while (elem) {
         if (current >= p_info_max)
             break;
@@ -1613,7 +1613,7 @@ void GDScriptLanguage::reload_all_scripts() {
 
     Vector< Ref<GDScript> > scripts;
 
-    SelfList<GDScript> *elem = script_list.first();
+    IntrusiveListNode<GDScript> *elem = script_list.first();
     while (elem) {
         if (PathUtils::is_resource_file(elem->self()->get_path())) {
             print_verbose("GDScript: Found: " + elem->self()->get_path());
@@ -1648,7 +1648,7 @@ void GDScriptLanguage::reload_tool_script(const Ref<Script> &p_script, bool p_so
 
     Vector<Ref<GDScript> > scripts;
 
-    SelfList<GDScript> *elem = script_list.first();
+    IntrusiveListNode<GDScript> *elem = script_list.first();
     while (elem) {
         if (PathUtils::is_resource_file(elem->self()->get_path())) {
 
@@ -1783,7 +1783,7 @@ void GDScriptLanguage::frame() {
             lock->lock();
         }
 
-        SelfList<GDScriptFunction> *elem = function_list.first();
+        IntrusiveListNode<GDScriptFunction> *elem = function_list.first();
         while (elem) {
             elem->self()->profile.last_frame_call_count = elem->self()->profile.frame_call_count;
             elem->self()->profile.last_frame_self_time = elem->self()->profile.frame_self_time;

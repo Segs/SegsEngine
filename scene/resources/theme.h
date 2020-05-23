@@ -102,6 +102,7 @@ public:
     static void set_default_icon(const Ref<Texture> &p_icon);
     static void set_default_style(const Ref<StyleBox> &p_style);
     static void set_default_font(const Ref<Font> &p_font);
+    static bool is_default_icon(const Ref<Texture>& p_icon) { return default_icon==p_icon;}
 
     void set_default_theme_font(const Ref<Font> &p_default_font);
     Ref<Font> get_default_theme_font() const;

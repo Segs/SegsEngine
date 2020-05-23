@@ -120,7 +120,7 @@ class GODOT_EXPORT GDScript : public Script {
     String path;
     StringName name;
     String fully_qualified_name;
-    SelfList<GDScript> script_list;
+    IntrusiveListNode<GDScript> script_list;
 
     GDScriptInstance *_create_instance(const Variant **p_args, int p_argcount, Object *p_owner, bool p_isref, Callable::CallError &r_error);
 
@@ -361,10 +361,10 @@ class GDScriptLanguage : public ScriptLanguage {
 
     friend class GDScript;
 
-    SelfList<GDScript>::List script_list;
+    InList<GDScript> script_list;
     friend class GDScriptFunction;
 
-    SelfList<GDScriptFunction>::List function_list;
+    InList<GDScriptFunction> function_list;
     bool profiling;
     uint64_t script_frame_time;
 

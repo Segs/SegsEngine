@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  particles.h                                                          */
+/*  gpu_particles_3d.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -36,9 +36,9 @@
 
 class Mesh;
 
-class Particles : public GeometryInstance {
+class GPUParticles3D : public GeometryInstance {
 private:
-    GDCLASS(Particles,GeometryInstance)
+    GDCLASS(GPUParticles3D,GeometryInstance)
 
 public:
     enum DrawOrder {
@@ -125,7 +125,7 @@ public:
     void restart();
 
     AABB capture_aabb() const;
-    Particles();
-    ~Particles() override;
+    GPUParticles3D();
+    ~GPUParticles3D() override;
 };
 

@@ -31,7 +31,7 @@
 #include "cpu_particles_3d.h"
 
 #include "scene/3d/camera_3d.h"
-#include "scene/3d/particles.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/mesh.h"
@@ -1168,7 +1168,7 @@ void CPUParticles3D::_notification(int p_what) {
 
 void CPUParticles3D::convert_from_particles(Node *p_particles) {
 
-    Particles *particles = object_cast<Particles>(p_particles);
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_particles);
     ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
 
     set_emitting(particles->is_emitting());

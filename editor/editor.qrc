@@ -584,7 +584,6 @@
         <file>icons/Camera2D.svg</file>
         <file>icons/CapsuleShape2D.svg</file>
         <file>icons/CircleShape2D.svg</file>
-        <file>icons/CMakeLists.txt</file>
         <file>icons/CollisionPolygon2D.svg</file>
         <file>icons/CollisionShape2D.svg</file>
         <file>icons/ConcavePolygonShape2D.svg</file>

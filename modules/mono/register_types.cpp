@@ -49,6 +49,7 @@ void register_mono_types() {
 #ifdef TOOLS_ENABLED
     Q_INIT_RESOURCE(cs_sources);
 #endif
+
     ClassDB::register_class<CSharpScript>();
     ClassDB::register_class<_GodotSharp>();
     MonoGCHandle::initialize_class();

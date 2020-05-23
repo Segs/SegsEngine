@@ -90,9 +90,8 @@ public:
 
 private:
     struct GroupData {
-
-        bool persistent = false;
         SceneTreeGroup *group;
+        bool persistent = false;
     };
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.

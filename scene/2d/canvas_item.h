@@ -115,12 +115,10 @@ private:
     }
 
     static Mutex *material_mutex;
-    static SelfList<CanvasItemMaterial>::List *dirty_materials;
-    SelfList<CanvasItemMaterial> element;
+    IntrusiveListNode<CanvasItemMaterial> element;
 
     void _update_shader();
     _FORCE_INLINE_ void _queue_shader_change();
-    _FORCE_INLINE_ bool _is_shader_dirty() const;
 
     BlendMode blend_mode;
     LightMode light_mode;
@@ -182,7 +180,7 @@ public:
     };
 
 private:
-    mutable SelfList<Node> xform_change;
+    mutable IntrusiveListNode<Node> xform_change;
 
     RID canvas_item;
     char group[32];
