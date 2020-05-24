@@ -47,7 +47,7 @@ set(header_files
     editor/godotsharp_export.h
     editor/editor_internal_calls.h
     editor/script_class_parser.h
-	editor/code_completion.h
+    editor/code_completion.h
     editor/csharp_project.h
     editor/bindings_generator.h
     utils/osx_utils.h
@@ -115,3 +115,4 @@ foreach(tgt ${global_targets})
         target_compile_options(${tgt}_module_mono PRIVATE -Wa,-mbig-obj)
     endif()
 endforeach()
+

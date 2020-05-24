@@ -3642,44 +3642,44 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
             ++elem;
     }
 
-    if (glue_dir_path.length() || cs_dir_path.length() || cpp_dir_path.length()) {
-        BindingsGenerator bindings_generator;
-        bindings_generator.set_log_print_enabled(true);
+    if (glue_dir_path.empty() && cs_dir_path.empty() && cpp_dir_path.empty())
+        return;
+    BindingsGenerator bindings_generator;
+    bindings_generator.set_log_print_enabled(true);
 
-        if (!bindings_generator.initialized) {
-            ERR_PRINT("Failed to initialize the bindings generator");
-            ::exit(0);
-        }
-
-        if (glue_dir_path.length()) {
-            if (bindings_generator.generate_glue(glue_dir_path) != OK) {
-                ERR_PRINT(generate_all_glue_option + ": Failed to generate the C++ glue.");
-            }
-
-            if (bindings_generator.generate_cs_api(PathUtils::plus_file(glue_dir_path,API_SOLUTION_NAME)) != OK) {
-                ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
-            }
-        }
-
-        if (cs_dir_path.length()) {
-            if (bindings_generator.generate_cs_api(cs_dir_path) != OK) {
-                ERR_PRINT(generate_cs_glue_option + ": Failed to generate the C# API.");
-            }
-        }
-
-        if (cpp_dir_path.length()) {
-            if (bindings_generator.generate_glue(cpp_dir_path) != OK) {
-                ERR_PRINT(generate_cpp_glue_option + ": Failed to generate the C++ glue.");
-            }
-        }
-
-        // Exit once done
-        unload_plugins();
-        unregister_scene_types();
-        unregister_module_types();
-        unregister_core_types();
+    if (!bindings_generator.initialized) {
+        ERR_PRINT("Failed to initialize the bindings generator");
         ::exit(0);
     }
+
+    if (glue_dir_path.length()) {
+        if (bindings_generator.generate_glue(glue_dir_path) != OK) {
+            ERR_PRINT(generate_all_glue_option + ": Failed to generate the C++ glue.");
+        }
+
+        if (bindings_generator.generate_cs_api(PathUtils::plus_file(glue_dir_path,API_SOLUTION_NAME)) != OK) {
+            ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
+        }
+    }
+
+    if (cs_dir_path.length()) {
+        if (bindings_generator.generate_cs_api(cs_dir_path) != OK) {
+            ERR_PRINT(generate_cs_glue_option + ": Failed to generate the C# API.");
+        }
+    }
+
+    if (cpp_dir_path.length()) {
+        if (bindings_generator.generate_glue(cpp_dir_path) != OK) {
+            ERR_PRINT(generate_cpp_glue_option + ": Failed to generate the C++ glue.");
+        }
+    }
+
+    // Exit once done
+    unload_plugins();
+    unregister_scene_types();
+    unregister_module_types();
+    unregister_core_types();
+    ::exit(0);
 }
 
 #endif

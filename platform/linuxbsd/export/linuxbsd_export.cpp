@@ -142,9 +142,8 @@ static Error fixup_embedded_pck(StringView p_path, int64_t p_embedded_start, int
 
     return found ? OK : ERR_FILE_CORRUPT;
 }
-}
-
-}
+} // end of anonymous namespace
+} // end of translation unit unique namespace
 
 void register_linuxbsd_exporter() {
     using namespace X11_Export_CPP;
