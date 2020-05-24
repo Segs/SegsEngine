@@ -181,7 +181,11 @@ Error ContextGL_Windows::initialize() {
             WGL_CONTEXT_MINOR_VERSION_ARB, 3,
             //and it shall be forward compatible so that we can only use up to date functionality
             WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-            WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB /*| _WGL_CONTEXT_DEBUG_BIT_ARB*/,
+            WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
+#ifdef DEBUG_ENABLED
+           | _WGL_CONTEXT_DEBUG_BIT_ARB
+#endif
+            ,
             0
         }; //zero indicates the end of the array
         //pointer to the method

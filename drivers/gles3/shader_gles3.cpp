@@ -231,7 +231,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     /* CREATE PROGRAM */
 
     v.id = glCreateProgram();
-#ifdef DEBUG
+#ifdef DEBUG_ENABLED
     char namebuf[250]={0};
     int len = snprintf(namebuf,249,"%s_%d_%d",this->get_shader_name(),conditional_version.code_version,conditional_version.version);
     if(len>0 && len<250)
@@ -289,11 +289,11 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.vert_id = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(v.vert_id, strings.size(), &strings[0], nullptr);
     glCompileShader(v.vert_id);
-#ifdef DEBUG
+#ifdef DEBUG_ENABLED
     namebuf[0]=0;
     len = snprintf(namebuf,249,"%s_VS_%d_%d",this->get_shader_name(),conditional_version.code_version,conditional_version.version);
     if(len>0 && len<250)
-        glObjectLabel(GL_SHADER,v.frag_id,len,namebuf);
+        glObjectLabel(GL_SHADER,v.vert_id,len,namebuf);
 #endif
     GLint status;
 
@@ -384,7 +384,7 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     v.frag_id = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(v.frag_id, strings.size(), &strings[0], nullptr);
     glCompileShader(v.frag_id);
-#ifdef DEBUG
+#ifdef DEBUG_ENABLED
     namebuf[0]=0;
     len = snprintf(namebuf,249,"%s_FS_%d_%d",this->get_shader_name(),conditional_version.code_version,conditional_version.version);
     if(len>0 && len<250)
