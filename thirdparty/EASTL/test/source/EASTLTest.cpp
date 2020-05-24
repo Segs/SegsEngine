@@ -22,7 +22,7 @@
 	#include <wchar.h>
 #endif
 #if defined(EA_PLATFORM_WINDOWS)
-	#include <Windows.h>
+	#include <windows.h>
 #elif defined(EA_PLATFORM_ANDROID)
 	#include <android/log.h>
 #endif

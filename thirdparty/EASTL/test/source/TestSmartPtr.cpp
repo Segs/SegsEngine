@@ -29,7 +29,7 @@ EA_DISABLE_ALL_VC_WARNINGS()
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-	#include <Windows.h>
+	#include <windows.h>
 #elif defined(EA_PLATFORM_ANDROID)
 	#include <android/log.h>
 #endif
