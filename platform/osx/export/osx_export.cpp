@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "export.h"
+#include "osx_export.h"
 
 #include "core/class_db.h"
 #include "core/io/marshalls.h"

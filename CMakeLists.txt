@@ -203,7 +203,7 @@ OPTION(OPTION_NO_EDITOR_SPLASH "Don't use the custom splash screen for the edito
 OPTION(OPTION_PRECISE_MATH_CHECKS "Math checks use very precise epsilon (useful to debug the engine)" OFF)
 
 
-file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/export.cpp" )
+file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/*_export.cpp" )
 file(GLOB platform_detectors RELATIVE ${PROJECT_SOURCE_DIR}/platform "platform/*/detect.cmake" )
 
 foreach(detector ${platform_detectors})

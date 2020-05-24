@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "export.h"
+#include "linuxbsd_export.h"
 
 #include "core/os/file_access.h"
 #include "editor/editor_export.h"

@@ -34,7 +34,7 @@ foreach(e ${platform_exporters})
     source_group(exporters/${exporter_name} ${PROJECT_SOURCE_DIR}/${e})
 
     string(APPEND reg_exporters "    register_${exporter_name}_exporter();\n")
-    string(APPEND reg_exporters_inc "#include \"platform/${exporter_name}/export/export.h\"\n")
+    string(APPEND reg_exporters_inc "#include \"platform/${exporter_name}/export/${exporter_name}_export.h\"\n")
 endforeach()
 string(APPEND reg_exporters "}\n")
 configure_file(register_exporters.cpp.cmake ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp)
