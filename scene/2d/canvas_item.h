@@ -49,7 +49,7 @@ class CanvasItemMaterial : public Material {
     GDCLASS(CanvasItemMaterial,Material)
 
 public:
-    enum BlendMode {
+    enum BlendMode : uint8_t {
         BLEND_MODE_MIX,
         BLEND_MODE_ADD,
         BLEND_MODE_SUB,
@@ -58,7 +58,7 @@ public:
         BLEND_MODE_DISABLED
     };
 
-    enum LightMode {
+    enum LightMode : uint8_t {
         LIGHT_MODE_NORMAL,
         LIGHT_MODE_UNSHADED,
         LIGHT_MODE_LIGHT_ONLY
@@ -92,17 +92,27 @@ private:
         StringName particles_anim_v_frames;
         StringName particles_anim_loop;
     };
-
-    static ShaderNames *shader_names;
-
     struct ShaderData {
         RID shader;
         int users;
     };
 
+
+    static ShaderNames *shader_names;
+
     static HashMap<MaterialKey, ShaderData> shader_map;
+    static Mutex *material_mutex;
 
     MaterialKey current_key;
+    bool is_dirty_element;
+
+    int particles_anim_h_frames;
+    int particles_anim_v_frames;
+
+    BlendMode blend_mode;
+    LightMode light_mode;
+    bool particles_animation;
+    bool particles_anim_loop;
 
     _FORCE_INLINE_ MaterialKey _compute_key() const {
 
@@ -113,21 +123,8 @@ private:
         mk.particles_animation = particles_animation;
         return mk;
     }
-
-    static Mutex *material_mutex;
-    IntrusiveListNode<CanvasItemMaterial> element;
-
     void _update_shader();
     _FORCE_INLINE_ void _queue_shader_change();
-
-    BlendMode blend_mode;
-    LightMode light_mode;
-    bool particles_animation;
-
-    int particles_anim_h_frames;
-    int particles_anim_v_frames;
-    bool particles_anim_loop;
-
 protected:
     static void _bind_methods();
     void _validate_property(PropertyInfo &property) const override;

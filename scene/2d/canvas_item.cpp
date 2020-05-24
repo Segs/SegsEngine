@@ -57,7 +57,7 @@ VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
 VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
-static IntrusiveList<CanvasItemMaterial> *s_dirty_materials = nullptr;
+static Vector<CanvasItemMaterial *> s_dirty_materials;
 
 
 template <>
@@ -82,8 +82,6 @@ void CanvasItemMaterial::init_shaders() {
     material_mutex = memnew(Mutex);
 #endif
 
-    s_dirty_materials = memnew(IntrusiveList<CanvasItemMaterial>);
-
     shader_names = memnew(ShaderNames);
 
     shader_names->particles_anim_h_frames = "particles_anim_h_frames";
@@ -93,9 +91,8 @@ void CanvasItemMaterial::init_shaders() {
 
 void CanvasItemMaterial::finish_shaders() {
 
-    memdelete(s_dirty_materials);
+    s_dirty_materials.clear();
     memdelete(shader_names);
-    s_dirty_materials = nullptr;
 
 #ifndef NO_THREADS
     memdelete(material_mutex);
@@ -104,7 +101,7 @@ void CanvasItemMaterial::finish_shaders() {
 
 void CanvasItemMaterial::_update_shader() {
 
-    s_dirty_materials->remove(&element);
+    is_dirty_element = false;
 
     MaterialKey mk = _compute_key();
     if (mk.key == current_key.key)
@@ -189,10 +186,10 @@ void CanvasItemMaterial::flush_changes() {
     if (material_mutex)
         material_mutex->lock();
 
-    while (s_dirty_materials->first()) {
+    for(CanvasItemMaterial * mat : s_dirty_materials)
+        mat->_update_shader();
 
-        s_dirty_materials->first()->self()->_update_shader();
-    }
+    s_dirty_materials.clear();
 
     if (material_mutex)
         material_mutex->unlock();
@@ -203,8 +200,9 @@ void CanvasItemMaterial::_queue_shader_change() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (!element.in_list()) {
-        s_dirty_materials->add(&element);
+    if (!is_dirty_element) {
+        s_dirty_materials.push_back(this);
+        is_dirty_element = true;
     }
 
     if (material_mutex)
@@ -344,9 +342,9 @@ void CanvasItemMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY)
 }
 
-CanvasItemMaterial::CanvasItemMaterial() :
-        element(this) {
+CanvasItemMaterial::CanvasItemMaterial() {
 
+    is_dirty_element = false;
     blend_mode = BLEND_MODE_MIX;
     light_mode = LIGHT_MODE_NORMAL;
     particles_animation = false;
@@ -375,7 +373,8 @@ CanvasItemMaterial::~CanvasItemMaterial() {
 
         RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
-    s_dirty_materials->remove(&element);
+    s_dirty_materials.erase_first_unsorted(this);
+
     if (material_mutex)
         material_mutex->unlock();
 }
