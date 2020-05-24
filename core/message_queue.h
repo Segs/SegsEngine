@@ -88,7 +88,7 @@ public:
     Error push_set(ObjectID p_id, const StringName &p_prop, const Variant &p_value);
 	Error push_set(Object *p_object, const StringName &p_prop, const Variant &p_value);
 
-	void statistics();
+	void statistics() const;
 	void flush();
 
 	bool is_flushing() const;

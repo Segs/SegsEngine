@@ -189,7 +189,7 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
     return push_set(p_object->get_instance_id(), p_prop, p_value);
 }
 
-void MessageQueue::statistics() {
+void MessageQueue::statistics() const {
 
     HashMap<StringName, int> set_count;
     HashMap<int, int> notify_count;
@@ -250,6 +250,7 @@ void MessageQueue::statistics() {
 
     print_line("TOTAL BYTES: " + itos(buffer_end));
     print_line("NULL count: " + itos(null_count));
+    print_line("FUNC count: " + itos(func_count));
 
     for (const eastl::pair<const StringName,int> &E : set_count) {
         print_line("SET " + String(E.first) + ": " + ::to_string(E.second));
