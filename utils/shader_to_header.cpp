@@ -20,7 +20,7 @@ struct LegacyGLHeaderStruct
     QStringList fragment_lines;
     QSet<QString> uniforms;
     QMap<QString,QString> attributes;
-    QMap<QString,QString> feedbacks;
+    QVector<QPair<QString,QString>> feedbacks;
     QStringList fbos;
     QStringList conditionals;
     QMap<QString,QStringList> enums = {};
@@ -221,7 +221,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 QString name = name_bind[0];
                 QString bind = name_bind[1];
                 if (bind.indexOf("tfb:") != -1)
-                    header_data.feedbacks[name.trimmed()] = bind.replace("tfb:", "").trimmed();
+                    header_data.feedbacks.push_back(QPair<QString,QString>(name.trimmed(),bind.replace("tfb:", "").trimmed()));
             }
         }
         line.replace("\r", "");
@@ -463,8 +463,8 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
         fd<<"\t\tstatic const Feedback _feedbacks[]={\n";
         for (auto iter =header_data.feedbacks.begin(),fin = header_data.feedbacks.end(); iter!=fin; ++iter)
         {
-            const QString &name(iter.key());
-            const QString &cond(iter.value());
+            const QString &name(iter->first);
+            const QString &cond(iter->second);
             if (conditionals_found.contains(cond))
                 fd<<"\t\t\t{\"" + name + "\"," + QString::number(conditionals_found.indexOf(cond)) + "},\n";
             else
@@ -499,22 +499,33 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
     {
         fd<<"\t\tstatic UBOPair *_ubo_pairs=nullptr;\n";
     }
-
+    int msvc_string_counter=0;
     fd<<"\t\tstatic const char *_vertex_code=R\"raw(\n";
     for(const QString &x : header_data.vertex_lines)
     {
+        if (msvc_string_counter + x.length() > 10000) {
+            fd << ")raw\"\nR\"raw(";
+            msvc_string_counter = 0;
+        }
         fd << x;
         fd << "\n";
+        msvc_string_counter += x.length();
     }
     fd << ")raw\";\n\n";
 
     fd<<"\t\tstatic const int _vertex_code_start=" << header_data.vertex_offset <<";\n";
-
+    
     fd<<"\t\tstatic const char *_fragment_code=R\"raw(\n";
+    msvc_string_counter = 0;
     for (const QString &x : header_data.fragment_lines)
     {
+        if (msvc_string_counter + x.length() > 10000) {
+            fd << ")raw\"\nR\"raw(";
+            msvc_string_counter = 0;
+        }
         fd << x;
         fd << "\n";
+        msvc_string_counter += x.length();
     }
     fd << ")raw\";\n\n";
 

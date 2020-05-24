@@ -32,7 +32,7 @@
 
 #include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
-
+#include "core/print_string.h"
 #include "core/engine.h"
 #include "core/project_settings.h"
 #include "core/string_utils.h"
@@ -3135,7 +3135,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
     //fill up the UBO if it needs to be filled
     if (material->shader && material->ubo_size) {
         uint8_t *local_ubo = (uint8_t *)alloca(material->ubo_size);
-
+        //TODO: in debug mode non-set bytes of the ubo are filled with garbage, maybe it's ok?
         for (eastl::pair<const StringName,ShaderLanguage::ShaderNode::Uniform> &E : material->shader->uniforms) {
 
             if (E.second.order < 0)
@@ -6449,7 +6449,7 @@ RID RasterizerStorageGLES3::particles_get_draw_pass_mesh(RID p_particles, int p_
 
 void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_delta) {
 
-    float new_phase = Math::fmod((float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale, (float)1.0);
+    float new_phase = Math::fmod((float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale, 1.0f);
 
     if (p_particles->clear) {
         p_particles->cycle_number = 0;
@@ -6495,24 +6495,26 @@ void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_
 
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
     glBindVertexArray(0);
-    /* //debug particles :D
+#if 0
+    // /* //debug particles :D
     glBindBuffer(GL_ARRAY_BUFFER, p_particles->particle_buffers[0]);
 
     float *data = (float *)glMapBufferRange(GL_ARRAY_BUFFER, 0, p_particles->amount * 16 * 6, GL_MAP_READ_BIT);
     for (int i = 0; i < p_particles->amount; i++) {
         int ofs = i * 24;
         print_line(itos(i) + ":");
-        print_line("\tColor: " + Color(data[ofs + 0], data[ofs + 1], data[ofs + 2], data[ofs + 3]));
-        print_line("\tVelocity: " + Vector3(data[ofs + 4], data[ofs + 5], data[ofs + 6]));
+        print_line("\tColor: " + (String)Color(data[ofs + 0], data[ofs + 1], data[ofs + 2], data[ofs + 3]));
+        print_line("\tVelocity: " + (String)Vector3(data[ofs + 4], data[ofs + 5], data[ofs + 6]));
         print_line("\tActive: " + itos(data[ofs + 7]));
-        print_line("\tCustom: " + Color(data[ofs + 8], data[ofs + 9], data[ofs + 10], data[ofs + 11]));
-        print_line("\tXF X: " + Color(data[ofs + 12], data[ofs + 13], data[ofs + 14], data[ofs + 15]));
-        print_line("\tXF Y: " + Color(data[ofs + 16], data[ofs + 17], data[ofs + 18], data[ofs + 19]));
-        print_line("\tXF Z: " + Color(data[ofs + 20], data[ofs + 21], data[ofs + 22], data[ofs + 23]));
+        print_line("\tCustom: " + (String)Color(data[ofs + 8], data[ofs + 9], data[ofs + 10], data[ofs + 11]));
+        print_line("\tXF X: " + (String)Color(data[ofs + 12], data[ofs + 13], data[ofs + 14], data[ofs + 15]));
+        print_line("\tXF Y: " + (String)Color(data[ofs + 16], data[ofs + 17], data[ofs + 18], data[ofs + 19]));
+        print_line("\tXF Z: " + (String)Color(data[ofs + 20], data[ofs + 21], data[ofs + 22], data[ofs + 23]));
     }
 
     glUnmapBuffer(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
     //*/
 }
 

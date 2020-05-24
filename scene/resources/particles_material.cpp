@@ -218,35 +218,35 @@ void ParticlesMaterial::_update_shader() {
 
     String code = "shader_type particles;\n";
 
-    code += "uniform vec3 direction;\n";
-    code += "uniform float spread;\n";
-    code += "uniform float flatness;\n";
-    code += "uniform float initial_linear_velocity;\n";
-    code += "uniform float initial_angle;\n";
-    code += "uniform float angular_velocity;\n";
-    code += "uniform float orbit_velocity;\n";
-    code += "uniform float linear_accel;\n";
-    code += "uniform float radial_accel;\n";
-    code += "uniform float tangent_accel;\n";
-    code += "uniform float damping;\n";
-    code += "uniform float scale;\n";
-    code += "uniform float hue_variation;\n";
-    code += "uniform float anim_speed;\n";
-    code += "uniform float anim_offset;\n";
+    code += R"raw(uniform vec3 direction;
+    uniform float spread;
+    uniform float flatness;
+    uniform float initial_linear_velocity;
+    uniform float initial_angle;
+    uniform float angular_velocity;
+    uniform float orbit_velocity;
+    uniform float linear_accel;
+    uniform float radial_accel;
+    uniform float tangent_accel;
+    uniform float damping;
+    uniform float scale;
+    uniform float hue_variation;
+    uniform float anim_speed;
+    uniform float anim_offset;
 
-    code += "uniform float initial_linear_velocity_random;\n";
-    code += "uniform float initial_angle_random;\n";
-    code += "uniform float angular_velocity_random;\n";
-    code += "uniform float orbit_velocity_random;\n";
-    code += "uniform float linear_accel_random;\n";
-    code += "uniform float radial_accel_random;\n";
-    code += "uniform float tangent_accel_random;\n";
-    code += "uniform float damping_random;\n";
-    code += "uniform float scale_random;\n";
-    code += "uniform float hue_variation_random;\n";
-    code += "uniform float anim_speed_random;\n";
-    code += "uniform float anim_offset_random;\n";
-    code += "uniform float lifetime_randomness;\n";
+    uniform float initial_linear_velocity_random;
+    uniform float initial_angle_random;
+    uniform float angular_velocity_random;
+    uniform float orbit_velocity_random;
+    uniform float linear_accel_random;
+    uniform float radial_accel_random;
+    uniform float tangent_accel_random;
+    uniform float damping_random;
+    uniform float scale_random;
+    uniform float hue_variation_random;
+    uniform float anim_speed_random;
+    uniform float anim_offset_random;
+    uniform float lifetime_randomness;)raw";
 
     switch (emission_shape) {
         case EMISSION_SHAPE_POINT: {

@@ -466,7 +466,7 @@ void CPUParticles3D::_validate_property(PropertyInfo &property) const {
 
 void CPUParticles3D::_update_internal() {
 
-    if (particles.empty() == 0 || !is_visible_in_tree()) {
+    if (particles.empty() || !is_visible_in_tree()) {
         _set_redraw(false);
         return;
     }
