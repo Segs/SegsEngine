@@ -3294,7 +3294,7 @@ void EditorNode::set_current_scene(int p_idx) {
         if (editor_data.get_scene_path(p_idx) != "")
             editor_folding.load_scene_folding(
                     editor_data.get_edited_scene_root(p_idx), editor_data.get_scene_path(p_idx));
-        call_deferred("_clear_undo_history");
+        call_deferred([this]() {_clear_undo_history(); });
     }
 
     changing_scene = true;
@@ -3323,9 +3323,10 @@ void EditorNode::set_current_scene(int p_idx) {
     _edit_current();
 
     _update_title();
-
-    call_deferred(
-            "_set_main_scene_state", state, Variant(get_edited_scene())); // do after everything else is done setting up
+    Node * scene=get_edited_scene();
+    call_deferred([this,state{eastl::move(state)},scene]() {
+            _set_main_scene_state(state,scene); // do after everything else is done setting up
+    });
 }
 
 bool EditorNode::is_scene_open(StringView p_path) {
@@ -3587,7 +3588,7 @@ void EditorNode::_open_recent_scene(int p_idx) {
     if (p_idx == recent_scenes->get_item_count() - 1) {
 
         EditorSettings::get_singleton()->set_project_metadata("recent_files", "scenes", Array());
-        call_deferred("_update_recent_scenes");
+        call_deferred([this](){_update_recent_scenes();});
     } else {
 
         Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scenes", Array());

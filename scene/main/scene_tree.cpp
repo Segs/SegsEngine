@@ -1665,7 +1665,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
         ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE);
     }
 
-    call_deferred("_change_scene", Variant(new_scene));
+    call_deferred([this,new_scene](){ _change_scene(new_scene); });
     return OK;
 }
 Error SceneTree::reload_current_scene() {
