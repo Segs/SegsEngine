@@ -456,7 +456,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
      * and set said multimesh bounding box to one containing all cells which have this item
      */
 
-    Map<int, ListOld<Pair<Transform, IndexKey> > > multimesh_items;
+    Map<int, Vector<Pair<Transform, IndexKey> > > multimesh_items;
 
     for (IndexKey E : g.cells) {
 
@@ -476,14 +476,7 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
         xform.basis.scale(Vector3(cell_scale, cell_scale, cell_scale));
         if (baked_meshes.empty()) {
             if (mesh_library->get_item_mesh(c.item)) {
-                if (!multimesh_items.contains(c.item)) {
-                    multimesh_items[c.item] = ListOld<Pair<Transform, IndexKey> >();
-                }
-
-                Pair<Transform, IndexKey> p;
-                p.first = xform;
-                p.second = E;
-                multimesh_items[c.item].push_back(p);
+                multimesh_items[c.item].emplace_back(xform,E);
             }
         }
 
@@ -528,15 +521,15 @@ bool GridMap::_octant_update(const OctantKey &p_key) {
             RenderingServer::get_singleton()->multimesh_set_mesh(mm, mesh_library->get_item_mesh(E.first)->get_rid());
 
             int idx = 0;
-            for (ListOld<Pair<Transform, IndexKey> >::Element *F = E.second.front(); F; F = F->next()) {
-                RenderingServer::get_singleton()->multimesh_instance_set_transform(mm, idx, F->deref().first);
+            for (const Pair<Transform, IndexKey> &F : E.second) {
+                RenderingServer::get_singleton()->multimesh_instance_set_transform(mm, idx, F.first);
 #ifdef TOOLS_ENABLED
 
                 Octant::MultimeshInstance::Item it;
                 it.index = idx;
-                it.transform = F->deref().first;
-                it.key = F->deref().second;
-                mmi.items.push_back(it);
+                it.transform = F.first;
+                it.key = F.second;
+                mmi.items.emplace_back(eastl::move(it));
 #endif
 
                 idx++;
@@ -804,16 +797,17 @@ void GridMap::_update_octants_callback() {
     if (!awaiting_update)
         return;
 
-    ListOld<OctantKey> to_delete;
+    Vector<OctantKey> to_delete;
+    //TODO: consider if we can use iter=octant_map.erase(iter) here?
     for (eastl::pair<const OctantKey,Octant *> &E : octant_map) {
 
         if (_octant_update(E.first)) {
-            to_delete.push_back(E.first);
+            to_delete.emplace_back(E.first);
         }
     }
 
-    while (to_delete.front()) {
-        octant_map.erase(to_delete.front()->deref());
+    while (!to_delete.empty()) {
+        octant_map.erase(to_delete.front());
         to_delete.pop_back();
     }
 

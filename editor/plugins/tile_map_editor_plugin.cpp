@@ -41,12 +41,21 @@
 #include "editor/editor_settings.h"
 #include "scene/gui/split_container.h"
 #include "scene/gui/item_list.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/font.h"
 
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(TileMapEditor)
 IMPL_GDCLASS(TileMapEditorPlugin)
+
+
+void TileMapEditor::_node_removed(Node *p_node) {
+
+    if (p_node == node) {
+        node = nullptr;
+    }
+}
 
 void TileMapEditor::_notification(int p_what) {
 
@@ -59,16 +68,17 @@ void TileMapEditor::_notification(int p_what) {
             }
 
         } break;
+        case NOTIFICATION_ENTER_TREE: {
+
+            get_tree()->connect("node_removed", this, "_node_removed");
+             [[fallthrough]];
+        }
 
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
             if (is_visible_in_tree()) {
                 _update_palette();
             }
-            [[fallthrough]];
-        }
-
-        case NOTIFICATION_ENTER_TREE: {
 
             paint_button->set_button_icon(get_icon("Edit", "EditorIcons"));
             bucket_fill_button->set_button_icon(get_icon("Bucket", "EditorIcons"));
@@ -89,6 +99,9 @@ void TileMapEditor::_notification(int p_what) {
             p->set_item_icon(p->get_item_index(OPTION_COPY), get_icon("Duplicate", "EditorIcons"));
             p->set_item_icon(p->get_item_index(OPTION_ERASE_SELECTION), get_icon("Remove", "EditorIcons"));
 
+        } break;
+        case NOTIFICATION_EXIT_TREE: {
+            get_tree()->disconnect("node_removed", this, "_node_removed");
         } break;
     }
 }
@@ -677,7 +690,7 @@ PoolVector<Vector2> TileMapEditor::_bucket_fill(const Point2i &p_start, bool era
 
     while (!bucket_queue.empty()) {
 
-        Point2i n = bucket_queue.front()->deref();
+        Point2i n = bucket_queue.front();
         bucket_queue.pop_front();
 
         if (!r.has_point(n))
@@ -932,7 +945,7 @@ void TileMapEditor::_update_copydata() {
                 tcd.autotile_coord = node->get_cell_autotile_coord(j, i);
             }
 
-            copydata.push_back(tcd);
+            copydata.emplace_back(tcd);
         }
     }
 }
@@ -1105,10 +1118,10 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                         _start_undo(TTR("Paste"));
                         ids.push_back(0);
-                        for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+                        for (const TileData &E : copydata) {
 
-                            ids[0] = E->deref().cell;
-                            _set_cell(E->deref().pos + ofs, ids, E->deref().flip_h, E->deref().flip_v, E->deref().transpose, E->deref().autotile_coord);
+                            ids[0] = E.cell;
+                            _set_cell(E.pos + ofs, ids, E.flip_h, E.flip_v, E.transpose, E.autotile_coord);
                         }
                         _finish_undo();
 
@@ -1725,14 +1738,12 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
 
             Point2 ofs = over_tile - rectangle.position;
 
-            for (ListOld<TileData>::Element *E = copydata.front(); E; E = E->next()) {
+            for (const TileData &E : copydata) {
 
-                if (!ts->has_tile(E->deref().cell))
+                if (!ts->has_tile(E.cell))
                     continue;
 
-                TileData tcd = E->deref();
-
-                _draw_cell(p_overlay, tcd.cell, tcd.pos + ofs, tcd.flip_h, tcd.flip_v, tcd.transpose, tcd.autotile_coord, xform);
+                _draw_cell(p_overlay, E.cell, E.pos + ofs, E.flip_h, E.flip_v, E.transpose, E.autotile_coord, xform);
             }
 
             Rect2i duplicate = rectangle;
@@ -1837,6 +1848,7 @@ void TileMapEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_erase_points"), &TileMapEditor::_erase_points);
 
     MethodBinder::bind_method(D_METHOD("_icon_size_changed"), &TileMapEditor::_icon_size_changed);
+    MethodBinder::bind_method(D_METHOD("_node_removed"), &TileMapEditor::_node_removed);
 }
 
 TileMapEditor::CellOp TileMapEditor::_get_op_from_cell(const Point2i &p_pos) {

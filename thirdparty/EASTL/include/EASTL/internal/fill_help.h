@@ -3,11 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_FILL_HELP_H
-#define EASTL_INTERNAL_FILL_HELP_H
-
-
-	#pragma once
+#pragma once
 
 #include <EASTL/internal/config.h>
 
@@ -463,20 +459,3 @@ namespace eastl
 	#endif
 
 } // namespace eastl
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

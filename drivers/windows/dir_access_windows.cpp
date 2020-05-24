@@ -178,6 +178,20 @@ String DirAccessWindows::get_current_dir() {
     return _get_root_string() + bd;
 }
 
+String DirAccessWindows::get_current_dir_without_drive() {
+
+    String dir = get_current_dir();
+
+    if (_get_root_string().empty()) {
+        int p = current_dir.find(":");
+        if (p != -1) {
+            dir = dir.right(p + 1);
+        }
+    }
+
+    return dir;
+}
+
 bool DirAccessWindows::file_exists(StringView _file) {
 
     GLOBAL_LOCK_FUNCTION

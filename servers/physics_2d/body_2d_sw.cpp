@@ -116,13 +116,17 @@ void Body2DSW::set_active(bool p_active) {
 
     active = p_active;
     if (!p_active) {
-        if (get_space())
-            get_space()->body_remove_from_active_list(&active_list);
+        if (get_space()) {
+            get_space()->body_remove_from_active_list(this);
+            in_active_list = false;
+        }
     } else {
         if (mode == PhysicsServer2D::BODY_MODE_STATIC)
             return; //static bodies can't become active
-        if (get_space())
-            get_space()->body_add_to_active_list(&active_list);
+        if (get_space()) {
+            get_space()->body_add_to_active_list(this);
+            in_active_list = true;
+        }
 
         //still_time=0;
     }
@@ -380,8 +384,10 @@ void Body2DSW::set_space(Space2DSW *p_space) {
 
         if (inertia_update_list.in_list())
             get_space()->body_remove_from_inertia_update_list(&inertia_update_list);
-        if (active_list.in_list())
-            get_space()->body_remove_from_active_list(&active_list);
+        if (in_active_list) {
+            get_space()->body_remove_from_active_list(this);
+            in_active_list=false;
+        }
         if (direct_state_query_list.in_list())
             get_space()->body_remove_from_state_query_list(&direct_state_query_list);
     }
@@ -391,8 +397,10 @@ void Body2DSW::set_space(Space2DSW *p_space) {
     if (get_space()) {
 
         _update_inertia();
-        if (active)
-            get_space()->body_add_to_active_list(&active_list);
+        if (active) {
+            get_space()->body_add_to_active_list(this);
+            in_active_list=true;
+        }
         /*
         _update_queries();
         if (is_active()) {
@@ -669,12 +677,11 @@ void Body2DSW::set_force_integration_callback(ObjectID p_id, const StringName &p
 
 Body2DSW::Body2DSW() :
         CollisionObject2DSW(TYPE_BODY),
-        active_list(this),
         inertia_update_list(this),
         direct_state_query_list(this) {
-
     mode = PhysicsServer2D::BODY_MODE_RIGID;
     active = true;
+    in_active_list = false;
     angular_velocity = 0;
     biased_angular_velocity = 0;
     mass = 1;
@@ -706,6 +713,9 @@ Body2DSW::Body2DSW() :
 }
 
 Body2DSW::~Body2DSW() {
+
+    if (get_space())
+        get_space()->body_remove_from_active_list(this);
 
     if (fi_callback)
         memdelete(fi_callback);

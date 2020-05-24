@@ -177,6 +177,7 @@ public:
     Variant get_parameter_default_value(const StringName &p_parameter) const override;
 
     void add_node(const StringName &p_name, Ref<AnimationNode> p_node, const Vector2 &p_position = Vector2());
+    void replace_node(const StringName &p_name, Ref<AnimationNode> p_node);
     Ref<AnimationNode> get_node(const StringName &p_name) const;
     void remove_node(const StringName &p_name);
     void rename_node(const StringName &p_name, const StringName &p_new_name);
@@ -187,7 +188,7 @@ public:
     void set_node_position(const StringName &p_name, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_name) const;
 
-    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(Vector<ChildNode> *r_child_nodes) override;
 
     bool has_transition(const StringName &p_from, const StringName &p_to) const;
     int find_transition(const StringName &p_from, const StringName &p_to) const;

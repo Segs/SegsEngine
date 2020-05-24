@@ -57,6 +57,9 @@ VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
 VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
+static Vector<CanvasItemMaterial *> s_dirty_materials;
+
+
 template <>
 struct PtrToArg<CharType> {
     _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
@@ -69,7 +72,7 @@ struct PtrToArg<CharType> {
 
 
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
-SelfList<CanvasItemMaterial>::List *CanvasItemMaterial::dirty_materials = nullptr;
+
 HashMap<CanvasItemMaterial::MaterialKey, CanvasItemMaterial::ShaderData> CanvasItemMaterial::shader_map;
 CanvasItemMaterial::ShaderNames *CanvasItemMaterial::shader_names = nullptr;
 
@@ -78,8 +81,6 @@ void CanvasItemMaterial::init_shaders() {
 #ifndef NO_THREADS
     material_mutex = memnew(Mutex);
 #endif
-
-    dirty_materials = memnew(SelfList<CanvasItemMaterial>::List);
 
     shader_names = memnew(ShaderNames);
 
@@ -90,9 +91,8 @@ void CanvasItemMaterial::init_shaders() {
 
 void CanvasItemMaterial::finish_shaders() {
 
-    memdelete(dirty_materials);
+    s_dirty_materials.clear();
     memdelete(shader_names);
-    dirty_materials = nullptr;
 
 #ifndef NO_THREADS
     memdelete(material_mutex);
@@ -101,7 +101,7 @@ void CanvasItemMaterial::finish_shaders() {
 
 void CanvasItemMaterial::_update_shader() {
 
-    dirty_materials->remove(&element);
+    is_dirty_element = false;
 
     MaterialKey mk = _compute_key();
     if (mk.key == current_key.key)
@@ -186,10 +186,10 @@ void CanvasItemMaterial::flush_changes() {
     if (material_mutex)
         material_mutex->lock();
 
-    while (dirty_materials->first()) {
+    for(CanvasItemMaterial * mat : s_dirty_materials)
+        mat->_update_shader();
 
-        dirty_materials->first()->self()->_update_shader();
-    }
+    s_dirty_materials.clear();
 
     if (material_mutex)
         material_mutex->unlock();
@@ -200,28 +200,29 @@ void CanvasItemMaterial::_queue_shader_change() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (!element.in_list()) {
-        dirty_materials->add(&element);
+    if (!is_dirty_element) {
+        s_dirty_materials.push_back(this);
+        is_dirty_element = true;
     }
 
     if (material_mutex)
         material_mutex->unlock();
 }
 
-bool CanvasItemMaterial::_is_shader_dirty() const {
+//bool CanvasItemMaterial::_is_shader_dirty() const {
 
-    bool dirty = false;
+//    bool dirty = false;
 
-    if (material_mutex)
-        material_mutex->lock();
+//    if (material_mutex)
+//        material_mutex->lock();
 
-    dirty = element.in_list();
+//    dirty = element.in_list();
 
-    if (material_mutex)
-        material_mutex->unlock();
+//    if (material_mutex)
+//        material_mutex->unlock();
 
-    return dirty;
-}
+//    return dirty;
+//}
 void CanvasItemMaterial::set_blend_mode(BlendMode p_blend_mode) {
 
     blend_mode = p_blend_mode;
@@ -341,9 +342,9 @@ void CanvasItemMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY)
 }
 
-CanvasItemMaterial::CanvasItemMaterial() :
-        element(this) {
+CanvasItemMaterial::CanvasItemMaterial() {
 
+    is_dirty_element = false;
     blend_mode = BLEND_MODE_MIX;
     light_mode = LIGHT_MODE_NORMAL;
     particles_animation = false;
@@ -372,6 +373,7 @@ CanvasItemMaterial::~CanvasItemMaterial() {
 
         RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
+    s_dirty_materials.erase_first_unsorted(this);
 
     if (material_mutex)
         material_mutex->unlock();
@@ -602,8 +604,10 @@ void CanvasItem::_notification(int p_what) {
             first_draw = true;
             if (get_parent()) {
                 CanvasItem *ci = object_cast<CanvasItem>(get_parent());
-                if (ci)
-                    C = ci->children_items.insert(ci->children_items.end(),this);
+                if (ci) {
+                    ci->children_items.push_back(this);
+                    C = this;
+                }
             }
             _enter_canvas();
             if (!block_transform_notify && !xform_change.in_list()) {
@@ -628,8 +632,8 @@ void CanvasItem::_notification(int p_what) {
             if (xform_change.in_list())
                 get_tree()->xform_change_list.remove(&xform_change);
             _exit_canvas();
-            if (C!=List<CanvasItem *>::iterator()) {
-                object_cast<CanvasItem>(get_parent())->children_items.erase(C);
+            if (C!=nullptr) {
+                object_cast<CanvasItem>(get_parent())->children_items.erase_first(C);
                 C = {};
             }
             global_invalid = true;
@@ -1373,6 +1377,8 @@ CanvasItem::CanvasItem() :
 }
 
 CanvasItem::~CanvasItem() {
-
+    if(xform_change.in_list()) {
+        get_tree()->xform_change_list.remove(&xform_change);
+    }
     RenderingServer::get_singleton()->free_rid(canvas_item);
 }

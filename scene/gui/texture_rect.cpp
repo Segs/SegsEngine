@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "texture_rect.h"
+
 #include "core/core_string_names.h"
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
@@ -98,6 +99,14 @@ void TextureRect::_notification(int p_what) {
                 region.position = ((scaled_tex_size - size) / scale).abs() / 2.0f;
                 region.size = size / scale;
             } break;
+        }
+        Ref<AtlasTexture> p_atlas = dynamic_ref_cast<AtlasTexture>(texture);
+
+        if (p_atlas && region.has_no_area()) {
+            Size2 scale_size(size.width / texture->get_width(), size.height / texture->get_height());
+
+            offset.width += hflip ? p_atlas->get_margin().get_position().width * scale_size.width * 2 : 0;
+            offset.height += vflip ? p_atlas->get_margin().get_position().height * scale_size.height * 2 : 0;
         }
 
         size.width *= hflip ? -1.0f : 1.0f;

@@ -96,7 +96,7 @@ class GridMapEditor : public VBoxContainer {
         int old_orientation;
     };
 
-    ListOld<SetItem> set_items;
+    Vector<SetItem> set_items;
 
     GridMap *node=nullptr;
     MeshLibrary *last_mesh_library;
@@ -126,7 +126,7 @@ class GridMapEditor : public VBoxContainer {
         RID instance;
     };
 
-    ListOld<ClipboardItem> clipboard_items;
+    Vector<ClipboardItem> clipboard_items;
 
     Ref<SpatialMaterial> indicator_mat;
     Ref<SpatialMaterial> inner_mat;

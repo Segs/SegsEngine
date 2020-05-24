@@ -911,12 +911,10 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
                 _draw_cos_line(click_pos, click_motion, Color(0.5f, 1.0f, 0.5f, 0.8f));
             }
 
-            ListOld<AnimationTreePlayer::Connection> connections;
-            anim_tree->get_connection_list(&connections);
+            Vector<AnimationTreePlayer::Connection> connections(anim_tree->get_connection_list());
 
-            for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
+            for (const AnimationTreePlayer::Connection &c : connections) {
 
-                const AnimationTreePlayer::Connection &c = E->deref();
                 Point2 source = _get_slot_pos(c.src_node, false, 0);
                 Point2 dest = _get_slot_pos(c.dst_node, true, c.dst_input);
                 Color col = Color(1, 1, 0.5, 0.8f);
@@ -1011,12 +1009,9 @@ void AnimationTreePlayerEditor::_node_menu_item(int p_item) {
 
             if (rclick_type == CLICK_OUTPUT_SLOT) {
 
-                ListOld<AnimationTreePlayer::Connection> connections;
-                anim_tree->get_connection_list(&connections);
+                Vector<AnimationTreePlayer::Connection> connections(anim_tree->get_connection_list());
 
-                for (ListOld<AnimationTreePlayer::Connection>::Element *E = connections.front(); E; E = E->next()) {
-
-                    const AnimationTreePlayer::Connection &c = E->deref();
+                for (const AnimationTreePlayer::Connection& c : connections) {
                     if (c.dst_node == rclick_node) {
 
                         anim_tree->disconnect_nodes(c.dst_node, c.dst_input);

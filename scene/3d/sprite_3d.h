@@ -62,8 +62,7 @@ private:
     Color color_accum;
 
     SpriteBase3D *parent_sprite;
-    ListOld<SpriteBase3D *> children;
-    ListOld<SpriteBase3D *>::Element *pI;
+    Vector<SpriteBase3D *> children;
 
     bool centered;
     Point2 offset;

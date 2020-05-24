@@ -101,7 +101,4 @@ void ObjectDB::cleanup() {
     memdelete(rw_lock);
 }
 /// \note this function leaks ObjectDB
-ObjectDB &gObjectDB() {
-    static ObjectDB *obdb=new ObjectDB;
-    return *obdb;
-}
+ObjectDB *ObjectDB::s_instance = new ObjectDB();

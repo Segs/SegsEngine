@@ -188,6 +188,7 @@
         <file>icons/Environment.svg</file>
         <file>icons/Error.svg</file>
         <file>icons/ErrorSign.svg</file>
+        <file>icons/ErrorWarning.svg</file>
         <file>icons/ExpandBottomDock.svg</file>
         <file>icons/Favorites.svg</file>
         <file>icons/File.svg</file>
@@ -583,7 +584,6 @@
         <file>icons/Camera2D.svg</file>
         <file>icons/CapsuleShape2D.svg</file>
         <file>icons/CircleShape2D.svg</file>
-        <file>icons/CMakeLists.txt</file>
         <file>icons/CollisionPolygon2D.svg</file>
         <file>icons/CollisionShape2D.svg</file>
         <file>icons/ConcavePolygonShape2D.svg</file>

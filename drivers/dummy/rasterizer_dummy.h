@@ -181,7 +181,7 @@ public:
         DummyTexture *t = texture_owner.get(p_texture);
 
         ERR_FAIL_COND(!t);
-        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object."); 
+        ERR_FAIL_COND_MSG(not p_image, "It's not a reference to a valid Image object.");
         ERR_FAIL_COND(t->format != p_image->get_format());
         ERR_FAIL_COND(src_w <= 0 || src_h <= 0);
         ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height());
@@ -261,6 +261,10 @@ public:
 
     void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) {}
     RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const { return RID(); }
+
+    void shader_add_custom_define(RID p_shader, StringView p_define) {}
+    void shader_get_custom_defines(RID p_shader, Span<const StringView> p_defines) const {}
+    void shader_clear_custom_defines(RID p_shader) {}
 
     /* COMMON MATERIAL API */
 
@@ -590,11 +594,11 @@ public:
     /* LIGHTMAP CAPTURE */
     struct Instantiable : public RID_Data {
 
-        SelfList<RasterizerScene::InstanceBase>::List instance_list;
+        InList<RasterizerScene::InstanceBase> instance_list;
 
         _FORCE_INLINE_ void instance_change_notify(bool p_aabb = true, bool p_materials = true) {
 
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
                 instances->self()->base_changed(p_aabb, p_materials);
@@ -603,10 +607,10 @@ public:
         }
 
         void instance_remove_deps() {
-            SelfList<RasterizerScene::InstanceBase> *instances = instance_list.first();
+            IntrusiveListNode<RasterizerScene::InstanceBase> *instances = instance_list.first();
             while (instances) {
 
-                SelfList<RasterizerScene::InstanceBase> *next = instances->next();
+                IntrusiveListNode<RasterizerScene::InstanceBase> *next = instances->next();
                 instances->self()->base_removed();
                 instances = next;
             }

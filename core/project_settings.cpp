@@ -162,48 +162,48 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
 
     _THREAD_SAFE_METHOD_
 
-    if (p_value.get_type() == VariantType::NIL)
+    if (p_value.get_type() == VariantType::NIL) {
         props.erase(p_name);
-    else {
+        return true;
+    }
 
-        if (p_name == CoreStringNames::get_singleton()->_custom_features) {
-            String val_str(p_value);
-            Vector<StringView> custom_feature_array = StringUtils::split(val_str,',');
-            for (int i = 0; i < custom_feature_array.size(); i++) {
+    if (p_name == CoreStringNames::get_singleton()->_custom_features) {
+        String val_str(p_value);
+        Vector<StringView> custom_feature_array = StringUtils::split(val_str,',');
+        for (int i = 0; i < custom_feature_array.size(); i++) {
 
-                custom_features.insert(custom_feature_array[i]);
-            }
-            return true;
+            custom_features.insert(custom_feature_array[i]);
         }
+        return true;
+    }
 
-        if (!disable_feature_overrides) {
-            auto dot = StringUtils::find(p_name,".");
-            if (dot != String::npos) {
-                Vector<StringView> s = StringUtils::split(p_name,'.');
+    if (!disable_feature_overrides) {
+        auto dot = StringUtils::find(p_name,".");
+        if (dot != String::npos) {
+            Vector<StringView> s = StringUtils::split(p_name,'.');
 
-                bool override_valid = false;
-                for (size_t i = 1; i < s.size(); i++) {
-                    StringView feature =StringUtils::strip_edges( s[i]);
-                    if (OS::get_singleton()->has_feature(feature) || custom_features.contains_as(feature)) {
-                        override_valid = true;
-                        break;
-                    }
-                }
-
-                if (override_valid) {
-
-                    feature_overrides[StringName(s[0])] = p_name;
+            bool override_valid = false;
+            for (size_t i = 1; i < s.size(); i++) {
+                StringView feature =StringUtils::strip_edges( s[i]);
+                if (OS::get_singleton()->has_feature(feature) || custom_features.contains_as(feature)) {
+                    override_valid = true;
+                    break;
                 }
             }
-        }
 
-        if (props.contains(p_name)) {
-            if (!props[p_name].overridden)
-                props[p_name].variant = p_value;
+            if (override_valid) {
 
-        } else {
-            props[p_name] = VariantContainer(p_value, last_order++);
+                feature_overrides[StringName(s[0])] = p_name;
+            }
         }
+    }
+
+    if (props.contains(p_name)) {
+        if (!props[p_name].overridden)
+            props[p_name].variant = p_value;
+
+    } else {
+        props[p_name] = VariantContainer(p_value, last_order++);
     }
 
     return true;
@@ -299,17 +299,18 @@ bool ProjectSettings::_load_resource_pack(StringView p_pack, bool p_replace_file
 
 void ProjectSettings::_convert_to_last_version(int p_from_version) {
 
-    if (p_from_version <= 3) {
-        // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
-        for (eastl::pair<const StringName,ProjectSettings::VariantContainer> &E : props) {
-            Variant value = E.second.variant;
-            if (StringUtils::begins_with(E.first,"input/") && value.get_type() == VariantType::ARRAY) {
-                Array array = value;
-                Dictionary action;
-                action["deadzone"] = Variant(0.5f);
-                action["events"] = array;
-                E.second.variant = action;
-            }
+    if (p_from_version > 3)
+        return;
+
+    // Converts the actions from array to dictionary (array of events to dictionary with deadzone + events)
+    for (eastl::pair<const StringName,ProjectSettings::VariantContainer> &E : props) {
+        Variant value = E.second.variant;
+        if (StringUtils::begins_with(E.first,"input/") && value.get_type() == VariantType::ARRAY) {
+            Array array = value;
+            Dictionary action;
+            action["deadzone"] = Variant(0.5f);
+            action["events"] = array;
+            E.second.variant = action;
         }
     }
 }
@@ -334,7 +335,7 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
  *    If nothing was found, error out.
  */
 Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
-
+    using namespace PathUtils;
     // If looking for files in a network client, use it directly
 
     if (FileAccessNetworkClient::get_singleton()) {
@@ -374,40 +375,30 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
         // We need to test both possibilities as extensions for Linux binaries are optional
         // (so both 'mygame.bin' and 'mygame' should be able to find 'mygame.pck').
 
-        bool found = false;
-
         String  exec_dir = PathUtils::get_base_dir(exec_path);
         String exec_filename(PathUtils::get_file(exec_path));
         String exec_basename(PathUtils::get_basename(exec_filename));
 
-        // Try to load data pack at the location of the executable
-        // As mentioned above, we have two potential names to attempt
+        // Attempt with PCK bundled into executable
+        bool found = _load_resource_pack(exec_path);
 
-        if (_load_resource_pack(PathUtils::plus_file(exec_dir,exec_basename + ".pck")) ||
-                _load_resource_pack(PathUtils::plus_file(exec_dir,exec_filename + ".pck"))) {
-            found = true;
-        } else {
-            // If we couldn't find them next to the executable, we attempt
-            // the current working directory. Same story, two tests.
-            if (_load_resource_pack(exec_basename + ".pck") ||
-                    _load_resource_pack(exec_filename + ".pck")) {
-                found = true;
-            }
-        }
 
 #ifdef OSX_ENABLED
-        // Attempt to load PCK from macOS .app bundle resources
         if (!found) {
-            if (_load_resource_pack(OS::get_singleton()->get_bundle_resource_dir().plus_file(exec_basename + ".pck"))) {
-                found = true;
-            }
+            // Attempt to load PCK from macOS .app bundle resources
+            found = _load_resource_pack(plus_file(OS::get_singleton()->get_bundle_resource_dir(),exec_basename + ".pck"));
         }
 #endif
 
-        // Attempt with PCK bundled into executable
         if (!found) {
-            if (_load_resource_pack(exec_path)) {
-                found = true;
+            // Try to load data pack at the location of the executable
+            // As mentioned above, we have two potential names to attempt
+            found = _load_resource_pack(plus_file(exec_dir,exec_basename + ".pck")) || _load_resource_pack(plus_file(exec_dir,exec_filename + ".pck"));
+
+            if (!found) {
+                // If we couldn't find them next to the executable, we attempt
+                // the current working directory. Same story, two tests.
+                found = _load_resource_pack(exec_basename + ".pck") || _load_resource_pack(exec_filename + ".pck");
             }
         }
 

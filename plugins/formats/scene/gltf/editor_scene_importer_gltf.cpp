@@ -1426,24 +1426,16 @@ namespace {
                     array.m_indices = eastl::move(indices);
                 }
 
-                bool generated_tangents = false;
                 Vector<int> erased_indices;
 
-                if (primitive == Mesh::PRIMITIVE_TRIANGLES && !a.has("TANGENT") && a.has("TEXCOORD_0") && a.has("NORMAL")) {
+                bool generate_tangents = (primitive == Mesh::PRIMITIVE_TRIANGLES && !a.has("TANGENT") && a.has("TEXCOORD_0") && a.has("NORMAL"));
+
+                if (generate_tangents) {
                     //must generate mikktspace tangents.. ergh..
                     Ref<SurfaceTool> st(make_ref_counted<SurfaceTool>());
-
                     st->create_from_triangle_arrays(array);
-                    if (!p.has("targets")) {
-                        //morph targets should not be reindexed, as array size might differ
-                        //removing indices is the best bet here
-                        st->deindex();
-                        erased_indices = a[Mesh::ARRAY_INDEX].as<Vector<int>>();
-                        a[Mesh::ARRAY_INDEX] = Variant();
-                    }
                     st->generate_tangents();
                     array = st->commit_to_arrays();
-                    generated_tangents = true;
                 }
 
                 Vector<SurfaceArrays> morphs;
@@ -1545,10 +1537,10 @@ namespace {
                             array_copy.m_tangents = eastl::move(tangents_v4);
                         }
 
-                        if (generated_tangents) {
+                        if (generate_tangents) {
                             Ref<SurfaceTool> st(make_ref_counted<SurfaceTool>());
 
-                            array_copy.m_indices = eastl::move(erased_indices); //needed for tangent generation, erased by deindex
+                            //array_copy.m_indices = eastl::move(erased_indices); //needed for tangent generation, erased by deindex
                             st->create_from_triangle_arrays(array_copy);
                             st->deindex();
                             st->generate_tangents();
@@ -1651,7 +1643,7 @@ namespace {
                 ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
-                img->create(std::move(img_data));
+                img->create(eastl::move(img_data));
                 Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
 
                 t->create_from_image(img);
@@ -1667,7 +1659,7 @@ namespace {
                 ERR_FAIL_COND_V(img_data.data.empty(), ERR_FILE_CORRUPT);
                 Ref<Image> img(make_ref_counted<Image>());
 
-                img->create(std::move(img_data));
+                img->create(eastl::move(img_data));
 
                 Ref<ImageTexture> t(make_ref_counted<ImageTexture>());
 

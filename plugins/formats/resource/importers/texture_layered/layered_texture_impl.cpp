@@ -38,6 +38,16 @@
 #include "editor/editor_node.h"
 #include "scene/resources/texture.h"
 
+namespace {
+constexpr const char *compression_formats[] = {
+    "bptc",
+    "s3tc",
+    "etc",
+    "etc2",
+    "pvrtc",
+    nullptr
+};
+}
 
 StringName LayeredTextureImpl::get_importer_name() const {
 
@@ -331,14 +341,6 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
     return OK;
 }
 
-const char *LayeredTextureImpl::compression_formats[] = {
-    "bptc",
-    "s3tc",
-    "etc",
-    "etc2",
-    "pvrtc",
-    nullptr
-};
 String LayeredTextureImpl::get_import_settings_string() const {
 
     String s;

@@ -1726,27 +1726,23 @@ float Animation::_cubic_interpolate(const float &p_pre_a, const float &p_a, cons
 
 PoolVector<int> Animation::value_track_get_key_indices(int p_track, float p_time, float p_delta) const {
 
-    ListOld<int> idxs;
+    Vector<int> idxs;
     value_track_get_key_indices(p_track, p_time, p_delta, &idxs);
     PoolVector<int> idxr;
-
-    for (ListOld<int>::Element *E = idxs.front(); E; E = E->next()) {
-
-        idxr.push_back(E->deref());
-    }
+    idxr.resize(idxs.size());
+    auto wr(idxr.write());
+    eastl::copy(idxs.begin(),idxs.end(),wr.ptr());
     return idxr;
 }
 
 PoolVector<int> Animation::method_track_get_key_indices(int p_track, float p_time, float p_delta) const {
 
-    ListOld<int> idxs;
+    Vector<int> idxs;
     method_track_get_key_indices(p_track, p_time, p_delta, &idxs);
     PoolVector<int> idxr;
-
-    for (ListOld<int>::Element *E = idxs.front(); E; E = E->next()) {
-
-        idxr.push_back(E->deref());
-    }
+    idxr.resize(idxs.size());
+    auto wr(idxr.write());
+    eastl::copy(idxs.begin(), idxs.end(), wr.ptr());
     return idxr;
 }
 
@@ -1940,7 +1936,7 @@ Variant Animation::value_track_interpolate(int p_track, float p_time) const {
     return Variant();
 }
 
-void Animation::_value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, ListOld<int> *p_indices) const {
+void Animation::_value_track_get_key_indices_in_range(const ValueTrack *vt, float from_time, float to_time, Vector<int> *p_indices) const {
 
     if (from_time != length && to_time == length)
         to_time = length * 1.001; //include a little more if at the end
@@ -1975,7 +1971,7 @@ void Animation::_value_track_get_key_indices_in_range(const ValueTrack *vt, floa
     }
 }
 
-void Animation::value_track_get_key_indices(int p_track, float p_time, float p_delta, ListOld<int> *p_indices) const {
+void Animation::value_track_get_key_indices(int p_track, float p_time, float p_delta, Vector<int> *p_indices) const {
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];
@@ -2038,7 +2034,7 @@ Animation::UpdateMode Animation::value_track_get_update_mode(int p_track) const 
 }
 
 template <class T>
-void Animation::_track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, ListOld<int> *p_indices) const {
+void Animation::_track_get_key_indices_in_range(const Vector<T> &p_array, float from_time, float to_time, Vector<int> *p_indices) const {
 
     if (from_time != length && to_time == length)
         to_time = length * 1.01; //include a little more if at the end
@@ -2069,7 +2065,7 @@ void Animation::_track_get_key_indices_in_range(const Vector<T> &p_array, float 
     }
 }
 
-void Animation::track_get_key_indices_in_range(int p_track, float p_time, float p_delta, ListOld<int> *p_indices) const {
+void Animation::track_get_key_indices_in_range(int p_track, float p_time, float p_delta, Vector<int> *p_indices) const {
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     const Track *t = tracks[p_track];
@@ -2192,7 +2188,7 @@ void Animation::track_get_key_indices_in_range(int p_track, float p_time, float 
     }
 }
 
-void Animation::_method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, ListOld<int> *p_indices) const {
+void Animation::_method_track_get_key_indices_in_range(const MethodTrack *mt, float from_time, float to_time, Vector<int> *p_indices) const {
 
     if (from_time != length && to_time == length)
         to_time = length * 1.01; //include a little more if at the end
@@ -2223,7 +2219,7 @@ void Animation::_method_track_get_key_indices_in_range(const MethodTrack *mt, fl
     }
 }
 
-void Animation::method_track_get_key_indices(int p_track, float p_time, float p_delta, ListOld<int> *p_indices) const {
+void Animation::method_track_get_key_indices(int p_track, float p_time, float p_delta, Vector<int> *p_indices) const {
 
     ERR_FAIL_INDEX(p_track, tracks.size());
     Track *t = tracks[p_track];

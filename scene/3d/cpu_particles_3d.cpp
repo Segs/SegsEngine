@@ -31,7 +31,7 @@
 #include "cpu_particles_3d.h"
 
 #include "scene/3d/camera_3d.h"
-#include "scene/3d/particles.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/resources/particles_material.h"
 #include "scene/resources/curve_texture.h"
 #include "scene/resources/mesh.h"
@@ -81,6 +81,7 @@ void CPUParticles3D::set_amount(int p_amount) {
 
         for (int i = 0; i < p_amount; i++) {
             w[i].active = false;
+            w[i].custom[3] = 0.0; // Make sure w component isn't garbage data
         }
     }
 
@@ -465,7 +466,7 @@ void CPUParticles3D::_validate_property(PropertyInfo &property) const {
 
 void CPUParticles3D::_update_internal() {
 
-    if (particles.empty() == 0 || !is_visible_in_tree()) {
+    if (particles.empty() || !is_visible_in_tree()) {
         _set_redraw(false);
         return;
     }
@@ -1167,7 +1168,7 @@ void CPUParticles3D::_notification(int p_what) {
 
 void CPUParticles3D::convert_from_particles(Node *p_particles) {
 
-    Particles *particles = object_cast<Particles>(p_particles);
+    GPUParticles3D *particles = object_cast<GPUParticles3D>(p_particles);
     ERR_FAIL_COND_MSG(!particles, "Only Particles nodes can be converted to CPUParticles.");
 
     set_emitting(particles->is_emitting());

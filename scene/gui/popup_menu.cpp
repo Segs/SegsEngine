@@ -394,7 +394,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
 
-    if (allow_search && k && k->get_unicode()) {
+    if (allow_search && k && k->get_unicode() && k->is_pressed()) {
 
         uint64_t now = OS::get_singleton()->get_ticks_msec();
         uint64_t diff = now - search_time_msec;
@@ -1118,6 +1118,11 @@ bool PopupMenu::is_item_shortcut_disabled(int p_idx) const {
     return items[p_idx].shortcut_is_disabled;
 }
 
+int PopupMenu::get_current_index() const {
+
+    return mouse_over;
+}
+
 int PopupMenu::get_item_count() const {
 
     return items.size();
@@ -1498,6 +1503,7 @@ void PopupMenu::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_item_tooltip", {"idx"}), &PopupMenu::get_item_tooltip);
     MethodBinder::bind_method(D_METHOD("get_item_shortcut", {"idx"}), &PopupMenu::get_item_shortcut);
 
+    MethodBinder::bind_method(D_METHOD("get_current_index"), &PopupMenu::get_current_index);
     MethodBinder::bind_method(D_METHOD("get_item_count"), &PopupMenu::get_item_count);
 
     MethodBinder::bind_method(D_METHOD("remove_item", {"idx"}), &PopupMenu::remove_item);

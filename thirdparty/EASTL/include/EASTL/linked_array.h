@@ -7,19 +7,12 @@
 // of linked_ptr. See linked_ptr for detailed documentation.
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_LINKED_ARRAY_H
-#define EASTL_LINKED_ARRAY_H
-
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/smart_ptr.h>   // Defines smart_array_deleter
 #include <EASTL/linked_ptr.h>           // Defines linked_ptr_base 
 #include <stddef.h>                     // Definition of ptrdiff_t
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -320,15 +313,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
 

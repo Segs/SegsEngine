@@ -167,8 +167,9 @@ void ScriptServer::init_languages() {
 
     { //load global classes
         global_classes_clear();
-        if (ProjectSettings::get_singleton()->has_setting("_global_script_classes")) {
-            Array script_classes = ProjectSettings::get_singleton()->get(StaticCString("_global_script_classes"));
+        StringName gsc("_global_script_classes");
+        if (ProjectSettings::get_singleton()->has_setting(gsc)) {
+            Array script_classes = ProjectSettings::get_singleton()->get(gsc);
 
             for (int i = 0; i < script_classes.size(); i++) {
                 Dictionary c = script_classes[i];
@@ -270,19 +271,23 @@ void ScriptServer::get_global_class_list(Vector<StringName> *r_global_classes) {
     }
 }
 void ScriptServer::save_global_classes() {
-    Vector<StringName> gc;
-    get_global_class_list(&gc);
-    Array gcarr;
-    for (size_t i=0,fin=gc.size(); i<fin; ++i) {
+    Vector<StringName> class_names;
+    get_global_class_list(&class_names);
+
+    Vector<Variant> gcarr;
+    gcarr.reserve(class_names.size());
+
+    for (auto & c_name : class_names) {
         Dictionary d;
-        d["class"] = gc[i];
-        d["language"] = global_classes[gc[i]].language;
-        d["path"] = global_classes[gc[i]].path;
-        d["base"] = global_classes[gc[i]].base;
-        gcarr.push_back(d);
+        d["class"] = c_name;
+        const auto &classinfo(global_classes[c_name]);
+        d["language"] = classinfo.language;
+        d["path"] = classinfo.path;
+        d["base"] = classinfo.base;
+        gcarr.emplace_back(eastl::move(d));
     }
 
-    ProjectSettings::get_singleton()->set(StaticCString("_global_script_classes"), gcarr);
+    ProjectSettings::get_singleton()->set(StaticCString("_global_script_classes"), Array(eastl::move(gcarr)));
     ProjectSettings::get_singleton()->save();
 }
 

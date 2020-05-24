@@ -63,6 +63,7 @@ IMPL_GDCLASS(TextureArray)
 IMPL_GDCLASS(GradientTexture)
 IMPL_GDCLASS(ProxyTexture)
 IMPL_GDCLASS(AnimatedTexture)
+IMPL_GDCLASS(ExternalTexture)
 
 RES_BASE_EXTENSION_IMPL(ImageTexture,"tex")
 RES_BASE_EXTENSION_IMPL(AtlasTexture,"atlastex")
@@ -1958,15 +1959,20 @@ void AnimatedTexture::_update_proxy() {
     }
 
     int iter_max = frame_count;
-    while (iter_max) {
+    while (iter_max && !pause) {
         float frame_limit = limit + frames[current_frame].delay_sec;
 
         if (time > frame_limit) {
             current_frame++;
             if (current_frame >= frame_count) {
-                current_frame = 0;
+                if (oneshot) {
+                    current_frame = frame_count - 1;
+                } else {
+                    current_frame = 0;
+                }
             }
             time -= frame_limit;
+            Object_change_notify(this,"current_frame");
         } else {
             break;
         }
@@ -1987,6 +1993,33 @@ void AnimatedTexture::set_frames(int p_frames) {
 }
 int AnimatedTexture::get_frames() const {
     return frame_count;
+}
+
+void AnimatedTexture::set_current_frame(int p_frame) {
+    ERR_FAIL_COND(p_frame < 0 || p_frame >= frame_count);
+
+    RWLockWrite r(rw_lock);
+
+    current_frame = p_frame;
+}
+int AnimatedTexture::get_current_frame() const {
+    return current_frame;
+}
+
+void AnimatedTexture::set_pause(bool p_pause) {
+    RWLockWrite r(rw_lock);
+    pause = p_pause;
+}
+bool AnimatedTexture::get_pause() const {
+    return pause;
+}
+
+void AnimatedTexture::set_oneshot(bool p_oneshot) {
+    RWLockWrite r(rw_lock);
+    oneshot = p_oneshot;
+}
+bool AnimatedTexture::get_oneshot() const {
+    return oneshot;
 }
 
 void AnimatedTexture::set_frame_texture(int p_frame, const Ref<Texture> &p_texture) {
@@ -2112,6 +2145,15 @@ void AnimatedTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_frames", {"frames"}), &AnimatedTexture::set_frames);
     MethodBinder::bind_method(D_METHOD("get_frames"), &AnimatedTexture::get_frames);
 
+    MethodBinder::bind_method(D_METHOD("set_current_frame", {"frame"}), &AnimatedTexture::set_current_frame);
+    MethodBinder::bind_method(D_METHOD("get_current_frame"), &AnimatedTexture::get_current_frame);
+
+    MethodBinder::bind_method(D_METHOD("set_pause", {"pause"}), &AnimatedTexture::set_pause);
+    MethodBinder::bind_method(D_METHOD("get_pause"), &AnimatedTexture::get_pause);
+
+    MethodBinder::bind_method(D_METHOD("set_oneshot", {"oneshot"}), &AnimatedTexture::set_oneshot);
+    MethodBinder::bind_method(D_METHOD("get_oneshot"), &AnimatedTexture::get_oneshot);
+
     MethodBinder::bind_method(D_METHOD("set_fps", {"fps"}), &AnimatedTexture::set_fps);
     MethodBinder::bind_method(D_METHOD("get_fps"), &AnimatedTexture::get_fps);
 
@@ -2124,6 +2166,10 @@ void AnimatedTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_update_proxy"), &AnimatedTexture::_update_proxy);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frames", PropertyHint::Range, "1," + itos(MAX_FRAMES), PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_frames", "get_frames");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "current_frame", PropertyHint::None, "", 0), "set_current_frame", "get_current_frame");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pause"), "set_pause", "get_pause");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "oneshot"), "set_oneshot", "get_oneshot");
+
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
 
     for (int i = 0; i < MAX_FRAMES; i++) {
@@ -2142,6 +2188,8 @@ AnimatedTexture::AnimatedTexture() {
     fps = 4;
     prev_ticks = 0;
     current_frame = 0;
+    pause = false;
+    oneshot = false;
     RenderingServer::get_singleton()->connect("frame_pre_draw", this, "_update_proxy");
 
 #ifndef NO_THREADS
@@ -2485,3 +2533,64 @@ String ResourceFormatLoaderTextureLayered::get_resource_type(StringView p_path) 
 }
 
 
+
+void ExternalTexture::_bind_methods() {
+    MethodBinder::bind_method(D_METHOD("set_size", {"size"}), &ExternalTexture::set_size);
+    MethodBinder::bind_method(D_METHOD("get_external_texture_id"), &ExternalTexture::get_external_texture_id);
+
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "size"), "set_size", "get_size");
+}
+
+uint32_t ExternalTexture::get_external_texture_id() {
+    return RenderingServer::get_singleton()->texture_get_texid(texture);
+}
+
+void ExternalTexture::set_size(const Size2 &p_size) {
+
+    if (p_size.width > 0 && p_size.height > 0) {
+        size = p_size;
+        RenderingServer::get_singleton()->texture_set_size_override(texture, size.width, size.height, 0);
+    }
+}
+
+int ExternalTexture::get_width() const {
+    return size.width;
+}
+
+int ExternalTexture::get_height() const {
+    return size.height;
+}
+
+Size2 ExternalTexture::get_size() const {
+    return size;
+}
+
+RID ExternalTexture::get_rid() const {
+    return texture;
+}
+
+bool ExternalTexture::has_alpha() const {
+    return true;
+}
+
+void ExternalTexture::set_flags(uint32_t p_flags) {
+    // not supported
+}
+
+uint32_t ExternalTexture::get_flags() const {
+    // not supported
+    return 0;
+}
+
+ExternalTexture::ExternalTexture() {
+    size = Size2(1.0, 1.0);
+    texture = RenderingServer::get_singleton()->texture_create();
+
+    RenderingServer::get_singleton()->texture_allocate(texture, size.width, size.height, 0, Image::FORMAT_RGBA8, RS::TEXTURE_TYPE_EXTERNAL, 0);
+    Object_change_notify(this);
+    emit_changed();
+}
+
+ExternalTexture::~ExternalTexture() {
+    RenderingServer::get_singleton()->free_rid(texture);
+}

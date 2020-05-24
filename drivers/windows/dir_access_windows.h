@@ -37,56 +37,57 @@
 #include "core/string.h"
 
 /**
-	@author Juan Linietsky <reduz@gmail.com>
+    @author Juan Linietsky <reduz@gmail.com>
 */
 
 struct DirAccessWindowsPrivate;
 
 class DirAccessWindows : public DirAccess {
 
-	enum {
-		MAX_DRIVES = 26
-	};
+    enum {
+        MAX_DRIVES = 26
+    };
 
-	DirAccessWindowsPrivate *p;
-	/* Windows stuff */
+    DirAccessWindowsPrivate *p;
+    /* Windows stuff */
 
-	char drives[MAX_DRIVES]; // a-z:
-	int drive_count;
+    char drives[MAX_DRIVES]; // a-z:
+    int drive_count;
 
     String current_dir;
 
-	bool _cisdir;
-	bool _cishidden;
+    bool _cisdir;
+    bool _cishidden;
 
 public:
-	Error list_dir_begin() override; ///< This starts dir listing
-	String get_next() override;
-	bool current_is_dir() const override;
-	bool current_is_hidden() const override;
-	void list_dir_end() override; ///<
+    Error list_dir_begin() override; ///< This starts dir listing
+    String get_next() override;
+    bool current_is_dir() const override;
+    bool current_is_hidden() const override;
+    void list_dir_end() override; ///<
 
-	int get_drive_count() override;
-	String get_drive(int p_drive) override;
+    int get_drive_count() override;
+    String get_drive(int p_drive) override;
 
-	Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
+    Error change_dir(StringView p_dir) override; ///< can be relative or absolute, return false on success
     String get_current_dir() override; ///< return current dir location
+    String get_current_dir_without_drive() override;
 
-	bool file_exists(StringView p_file) override;
-	bool dir_exists(StringView p_dir) override;
+    bool file_exists(StringView p_file) override;
+    bool dir_exists(StringView p_dir) override;
 
-	Error make_dir(StringView p_dir) override;
+    Error make_dir(StringView p_dir) override;
 
-	Error rename(StringView p_path, StringView p_new_path) override;
-	Error remove(StringView p_path) override;
+    Error rename(StringView p_path, StringView p_new_path) override;
+    Error remove(StringView p_path) override;
 
-	//virtual FileType get_file_type() const;
-	size_t get_space_left() override;
+    //virtual FileType get_file_type() const;
+    size_t get_space_left() override;
 
     String get_filesystem_type() const override;
 
-	DirAccessWindows();
-	~DirAccessWindows();
+    DirAccessWindows();
+    ~DirAccessWindows();
 };
 
 #endif //WINDOWS_ENABLED

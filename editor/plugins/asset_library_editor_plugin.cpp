@@ -884,7 +884,7 @@ void EditorAssetLibrary::_update_image_queue() {
 void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, ImageType p_type, int p_image_index) {
 
     ImageQueue iq;
-    iq.image_url = std::move(p_image_url);
+    iq.image_url = eastl::move(p_image_url);
     iq.image_index = p_image_index;
     iq.image_type = p_type;
     iq.request = memnew(HTTPRequest);

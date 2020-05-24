@@ -56,8 +56,8 @@ struct LineEdit::PrivateData {
     UIString undo_text;
     UIString text;
     UIString ime_text;
-    int cached_width;
-    int window_pos;
+    int cached_width=0;
+    int window_pos=0;
 
 
     struct TextOperation {
@@ -66,8 +66,8 @@ struct LineEdit::PrivateData {
         int cached_width;
         UIString text;
     };
-    ListOld<TextOperation> undo_stack;
-    ListOld<TextOperation>::Element *undo_stack_pos;
+    Vector<TextOperation> undo_stack;
+    int undo_stack_pos = -1;
     void _create_undo_state(int cursor_pos) {
         TextOperation op;
         op.text = text;
@@ -78,48 +78,45 @@ struct LineEdit::PrivateData {
     }
     void _clear_redo(int cursor_pos) {
         _create_undo_state(cursor_pos);
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             return;
         }
 
-        undo_stack_pos = undo_stack_pos->next();
-        while (undo_stack_pos) {
-            ListOld<TextOperation>::Element *elem = undo_stack_pos;
-            undo_stack_pos = undo_stack_pos->next();
-            undo_stack.erase(elem);
-        }
+        ++undo_stack_pos;
+        undo_stack.erase(undo_stack.begin()+ undo_stack_pos, undo_stack.end());
+        undo_stack_pos = -1;
         _create_undo_state(cursor_pos);
     }
     void _clear_undo_stack(int cursor_pos) {
         undo_stack.clear();
-        undo_stack_pos = nullptr;
+        undo_stack_pos = -1;
         _create_undo_state(cursor_pos);
     }
     int do_undo() {
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             if (undo_stack.size() <= 1) {
                 return -1;
             }
-            undo_stack_pos = undo_stack.back();
-        } else if (undo_stack_pos == undo_stack.front()) {
+            undo_stack_pos = undo_stack.size()-1;
+        } else if (undo_stack_pos == 0) {
             return -1;
         }
-        undo_stack_pos = undo_stack_pos->prev();
-        TextOperation op = undo_stack_pos->deref();
+        --undo_stack_pos;
+        TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
         window_pos = op.window_pos;
         return op.cursor_pos;
     }
     int do_redo() {
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
             return -1;
         }
-        if (undo_stack_pos == undo_stack.back()) {
+        if (undo_stack_pos >= undo_stack.size()-1) {
             return -1;
         }
-        undo_stack_pos = undo_stack_pos->next();
-        TextOperation op = undo_stack_pos->deref();
+        ++undo_stack_pos;
+        TextOperation op = undo_stack[undo_stack_pos];
         text = op.text;
         cached_width = op.cached_width;
         window_pos = op.window_pos;
@@ -357,10 +354,14 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                 } break;
 #ifdef APPLE_STYLE_KEYS
                 case (KEY_LEFT): { // Go to start of text - like HOME key.
+                    shift_selection_check_pre(k->get_shift());
                     set_cursor_position(0);
+                    shift_selection_check_post(k->get_shift());
                 } break;
                 case (KEY_RIGHT): { // Go to end of text - like END key.
+                    shift_selection_check_pre(k->get_shift());
                     set_cursor_position(text.length());
+                    shift_selection_check_post(k->get_shift());
                 } break;
 #endif
                 default: {
@@ -386,8 +387,6 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                     emit_signal("text_entered", StringUtils::to_utf8(m_priv->text));
                     if (OS::get_singleton()->has_virtual_keyboard())
                         OS::get_singleton()->hide_virtual_keyboard();
-
-                    return;
                 } break;
 
                 case KEY_BACKSPACE: {
@@ -691,7 +690,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = selection.begin; i < selection.end; i++)
-                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
         }
 
         StringUtils::erase(m_priv->text,selection.begin, selected);
@@ -986,9 +985,11 @@ void LineEdit::_notification(int p_what) {
                 draw_caret = true;
             }
 
-            OS::get_singleton()->set_ime_active(true);
-            Point2 cursor_pos = Point2(get_cursor_position(), 1) * get_minimum_size().height;
-            OS::get_singleton()->set_ime_position(get_global_position() + cursor_pos);
+            {
+                OS::get_singleton()->set_ime_active(true);
+                Point2 cursor_pos2 = Point2(get_cursor_position(), 1) * get_minimum_size().height;
+                OS::get_singleton()->set_ime_position(get_global_position() + cursor_pos2);
+            }
 
             if (OS::get_singleton()->has_virtual_keyboard())
                 OS::get_singleton()->show_virtual_keyboard(StringUtils::to_utf8(m_priv->text), get_global_rect(), max_length);
@@ -1134,7 +1135,7 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
         int char_w = 0;
         if (font != nullptr) {
-            char_w = font->get_char_size(m_priv->text[ofs]).width;
+            char_w = font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[ofs]).width;
         }
         pixel_ofs += char_w;
 
@@ -1186,7 +1187,7 @@ int LineEdit::get_cursor_pixel_pos() {
 
     while (ofs < cursor_pos) {
         if (font != nullptr) {
-            pixel_ofs += font->get_char_size(m_priv->text[ofs]).width;
+            pixel_ofs += font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[ofs]).width;
         }
         ofs++;
     }
@@ -1243,7 +1244,7 @@ void LineEdit::delete_char() {
 
     Ref<Font> font = get_font("font");
     if (font != nullptr) {
-        m_priv->cached_width -= font->get_char_size(m_priv->text[cursor_pos - 1]).width;
+        m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[cursor_pos - 1]).width;
     }
 
     StringUtils::erase(m_priv->text,cursor_pos - 1, 1);
@@ -1261,7 +1262,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
         Ref<Font> font = get_font("font");
         if (font != nullptr) {
             for (int i = p_from_column; i < p_to_column; i++)
-                m_priv->cached_width -= font->get_char_size(m_priv->text[i]).width;
+                m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
         }
     } else {
         m_priv->cached_width = 0;
@@ -1399,7 +1400,11 @@ void LineEdit::set_cursor_position(int p_pos) {
                     // Do not do this, because if the cursor is at the end, its just fine that it takes no space.
                     // accum_width = font->get_char_size(' ').width;
                 } else {
-                    accum_width += font->get_char_size(m_priv->text[i], i + 1 < m_priv->text.length() ? m_priv->text[i + 1] : QChar(0)).width; // Anything should do.
+                    if (pass) {
+                        accum_width += font->get_char_size(UIString(secret_character.c_str())[0], i + 1 < m_priv->text.length() ? secret_character[0] : 0).width;
+                    } else {
+                        accum_width += font->get_char_size(m_priv->text[i], i + 1 < m_priv->text.length() ? m_priv->text[i + 1] : QChar(0)).width; // Anything should do.
+                    }
                 }
                 if (accum_width > window_width)
                     break;
@@ -1763,14 +1768,12 @@ void LineEdit::update_cached_width() {
     }
 }
 void LineEdit::update_placeholder_width() {
-    if ((max_length <= 0) || (StringView(placeholder_translated).length() <= max_length)) {
-        Ref<Font> font = get_font("font");
-        cached_placeholder_width = 0;
-        if (font != nullptr) {
-            UIString ph_ui_string(placeholder_translated.asString());
-            for (int i = 0; i < ph_ui_string.length(); i++) {
-                cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
-            }
+    Ref<Font> font = get_font("font");
+    cached_placeholder_width = 0;
+    if (font != nullptr) {
+        UIString ph_ui_string(placeholder_translated.asString());
+        for (int i = 0; i < ph_ui_string.length(); i++) {
+            cached_placeholder_width += font->get_char_size(ph_ui_string[i]).width;
         }
     }
 }
@@ -1885,7 +1888,7 @@ void LineEdit::_bind_methods() {
 
 LineEdit::LineEdit() {
     m_priv = memnew(PrivateData);
-    m_priv->undo_stack_pos = nullptr;
+    m_priv->undo_stack_pos = -1;
     m_priv->_create_undo_state(0);
     align = ALIGN_LEFT;
     m_priv->cached_width = 0;

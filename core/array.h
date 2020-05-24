@@ -45,9 +45,6 @@ class GODOT_EXPORT Array {
     void _ref(const Array &p_from) const;
     void _unref() const;
 
-    int _clamp_index(int p_index) const;
-    static int _fix_slice_index(int p_index, int p_arr_len, int p_top_mod);
-
 public:
     using ValueType = Variant;
 
@@ -73,7 +70,8 @@ public:
     void emplace_back(Variant &&p_value);
     void push_back(const Variant *entries,int count);
     _FORCE_INLINE_ void append(const Variant &p_value) { push_back(p_value); } // for python compatibility
-    Error resize(int p_new_size);
+    void resize(int p_new_size);
+    void reserve(int p_new_size);
 
     void insert(int p_pos, const Variant &p_value);
     void remove(int p_pos);

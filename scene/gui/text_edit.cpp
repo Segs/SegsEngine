@@ -362,8 +362,9 @@ struct TextEdit::PrivateData {
 
     TextOperation current_op;
 
-    ListOld<TextOperation> undo_stack;
-    ListOld<TextOperation>::Element *undo_stack_pos = nullptr;
+    Vector<TextOperation> undo_stack;
+    int undo_stack_pos = -1;
+    int undo_stack_max_size;
 
     int wrap_at=0;
     int wrap_right_offset=10;
@@ -389,7 +390,7 @@ struct TextEdit::PrivateData {
         text.set_color_regions(&color_regions);
         current_op.type = TextOperation::TYPE_NONE;
         current_op.version = 0;
-
+        undo_stack_max_size = GLOBAL_GET("gui/common/text_edit_undo_stack_max_size");
     }
     void _clear() {
         clear_undo_history();
@@ -549,16 +550,12 @@ struct TextEdit::PrivateData {
 
     void _clear_redo() {
 
-        if (undo_stack_pos == nullptr)
+        if (undo_stack_pos == -1)
             return; // Nothing to clear.
 
         _push_current_op();
-
-        while (undo_stack_pos) {
-            ListOld<TextOperation>::Element *elem = undo_stack_pos;
-            undo_stack_pos = undo_stack_pos->next();
-            undo_stack.erase(elem);
-        }
+        undo_stack.erase(undo_stack.begin()+undo_stack_pos, undo_stack.end());
+        undo_stack_pos = -1;
     }
 
     void _push_current_op() {
@@ -575,6 +572,10 @@ struct TextEdit::PrivateData {
         current_op.type = TextOperation::TYPE_NONE;
         current_op.text = "";
         current_op.chain_forward = false;
+
+        if (undo_stack.size() > undo_stack_max_size) {
+            undo_stack.pop_front();
+        }
     }
     void _do_text_op(const TextOperation &p_op, bool p_reverse) {
 
@@ -601,34 +602,34 @@ struct TextEdit::PrivateData {
 
         _push_current_op();
 
-        if (undo_stack_pos == nullptr) {
+        if (undo_stack_pos == -1) {
 
             if (undo_stack.empty())
                 return; // Nothing to undo.
 
-            undo_stack_pos = undo_stack.back();
+            undo_stack_pos = undo_stack.size()-1;
 
-        } else if (undo_stack_pos == undo_stack.front())
+        } else if (undo_stack_pos == 0)
             return; // At the bottom of the undo stack.
         else
-            undo_stack_pos = undo_stack_pos->prev();
+            --undo_stack_pos;
 
         deselect();
 
-        TextOperation op = undo_stack_pos->deref();
+        TextOperation op = undo_stack[undo_stack_pos];
         _do_text_op(op, true);
         if (op.type != TextOperation::TYPE_INSERT && (op.from_line != op.to_line || op.to_column != op.from_column + 1))
             select(op.from_line, op.from_column, op.to_line, op.to_column);
 
         current_op.version = op.prev_version;
-        if (undo_stack_pos->deref().chain_backward) {
+        if (undo_stack[undo_stack_pos].chain_backward) {
             while (true) {
-                ERR_BREAK(!undo_stack_pos->prev());
-                undo_stack_pos = undo_stack_pos->prev();
-                op = undo_stack_pos->deref();
+                ERR_BREAK(undo_stack_pos==0);
+                --undo_stack_pos;
+                op = undo_stack[undo_stack_pos];
                 _do_text_op(op, true);
                 current_op.version = op.prev_version;
-                if (undo_stack_pos->deref().chain_forward) {
+                if (undo_stack[undo_stack_pos].chain_forward) {
                     break;
                 }
             }
@@ -636,13 +637,13 @@ struct TextEdit::PrivateData {
 
         m_owner->_update_scrollbars();
 
-        if (undo_stack_pos->deref().type == TextOperation::TYPE_REMOVE) {
-            cursor_set_line(undo_stack_pos->deref().to_line);
-            cursor_set_column(undo_stack_pos->deref().to_column);
+        if (undo_stack[undo_stack_pos].type == TextOperation::TYPE_REMOVE) {
+            cursor_set_line(undo_stack[undo_stack_pos].to_line);
+            cursor_set_column(undo_stack[undo_stack_pos].to_column);
             _cancel_code_hint();
         } else {
-            cursor_set_line(undo_stack_pos->deref().from_line);
-            cursor_set_column(undo_stack_pos->deref().from_column);
+            cursor_set_line(undo_stack[undo_stack_pos].from_line);
+            cursor_set_column(undo_stack[undo_stack_pos].from_column);
         }
         m_owner->update();
     }
@@ -650,31 +651,31 @@ struct TextEdit::PrivateData {
 
         _push_current_op();
 
-        if (undo_stack_pos == nullptr)
+        if (undo_stack_pos == -1 || undo_stack_pos==undo_stack.size())
             return; // Nothing to do.
 
         deselect();
 
-        TextOperation op = undo_stack_pos->deref();
+        TextOperation op = undo_stack[undo_stack_pos];
         _do_text_op(op, false);
         current_op.version = op.version;
-        if (undo_stack_pos->deref().chain_forward) {
+        if (undo_stack[undo_stack_pos].chain_forward) {
 
             while (true) {
-                ERR_BREAK(!undo_stack_pos->next());
-                undo_stack_pos = undo_stack_pos->next();
-                op = undo_stack_pos->deref();
+                ERR_BREAK(undo_stack_pos+1 >= undo_stack.size());
+                ++undo_stack_pos;
+                op = undo_stack[undo_stack_pos];
                 _do_text_op(op, false);
                 current_op.version = op.version;
-                if (undo_stack_pos->deref().chain_backward)
+                if (undo_stack[undo_stack_pos].chain_backward)
                     break;
             }
         }
 
         m_owner->_update_scrollbars();
-        cursor_set_line(undo_stack_pos->deref().to_line);
-        cursor_set_column(undo_stack_pos->deref().to_column);
-        undo_stack_pos = undo_stack_pos->next();
+        cursor_set_line(undo_stack[undo_stack_pos].to_line);
+        cursor_set_column(undo_stack[undo_stack_pos].to_column);
+        ++undo_stack_pos;
         m_owner->update();
     }
 
@@ -682,7 +683,7 @@ struct TextEdit::PrivateData {
 
         saved_version = 0;
         current_op.type = TextOperation::TYPE_NONE;
-        undo_stack_pos = nullptr;
+        undo_stack_pos = -1;
         undo_stack.clear();
     }
 
@@ -696,12 +697,12 @@ struct TextEdit::PrivateData {
         _push_current_op();
         ERR_FAIL_COND(undo_stack.empty());
 
-        if (undo_stack.back()->deref().chain_forward) {
-            undo_stack.back()->deref().chain_forward = false;
+        if (undo_stack.back().chain_forward) {
+            undo_stack.back().chain_forward = false;
             return;
         }
 
-        undo_stack.back()->deref().chain_backward = true;
+        undo_stack.back().chain_backward = true;
     }
 
     void paste() {
@@ -2346,7 +2347,7 @@ void TextEdit::_notification(int p_what) {
                 // calculate viewport size and y offset
                 int viewport_height = (draw_amount - 1) * minimap_line_height;
                 int control_height = _get_control_height() - viewport_height;
-                int viewport_offset_y = round(get_scroll_pos_for_line(first_visible_line) * control_height) / ((v_scroll->get_max() <= minimap_visible_lines) ? (minimap_visible_lines - draw_amount) : (v_scroll->get_max() - draw_amount));
+                int viewport_offset_y = round(get_scroll_pos_for_line(first_visible_line+1) * control_height) / ((v_scroll->get_max() <= minimap_visible_lines) ? (minimap_visible_lines - draw_amount) : (v_scroll->get_max() - draw_amount));
 
                 // calculate the first line.
                 int num_lines_before = round((viewport_offset_y) / minimap_line_height);
@@ -2546,8 +2547,7 @@ void TextEdit::_notification(int p_what) {
 
                     int ofs_y = (i * get_row_height() + m_priv->cache.line_spacing / 2) + ofs_readonly;
                     ofs_y -= m_priv->cursor.wrap_ofs * get_row_height();
-                    if (smooth_scroll_enabled)
-                        ofs_y += (-get_v_scroll_offset()) * get_row_height();
+                    ofs_y -= get_v_scroll_offset() * get_row_height();
 
                     // Check if line contains highlighted word.
                     int highlighted_text_col = -1;
@@ -2561,7 +2561,7 @@ void TextEdit::_notification(int p_what) {
                         highlighted_text_col = m_priv->_get_column_pos_of_word(highlighted_text, str, SEARCH_MATCH_CASE | SEARCH_WHOLE_WORDS, 0);
 
                     if (select_identifiers_enabled && m_priv->highlighted_word.length() != 0) {
-                        if (_is_char(m_priv->highlighted_word[0])) {
+                        if (_is_char(m_priv->highlighted_word[0]) || m_priv->highlighted_word[0] == '.') {
                             highlighted_word_col = m_priv->_get_column_pos_of_word(m_priv->highlighted_word, fullstr, SEARCH_MATCH_CASE | SEARCH_WHOLE_WORDS, 0);
                         }
                     }
@@ -2996,7 +2996,7 @@ void TextEdit::_notification(int p_what) {
                 Color scrollc = get_color("completion_scroll_color");
 
                 const int completion_options_size = m_priv->completion_options.size();
-                int lines = MIN(completion_options_size, maxlines);
+                int lines = eastl::min(completion_options_size, maxlines);
                 int w = 0;
                 int h = lines * get_row_height();
                 int nofs = m_priv->cache.font->get_string_size(m_priv->completion_base).width;
@@ -6460,7 +6460,7 @@ void TextEdit::remove_breakpoints() {
 
 void TextEdit::set_line_info_icon(int p_line, const Ref<Texture>& p_icon, StringName p_info) {
     ERR_FAIL_INDEX(p_line, m_priv->text.size());
-    m_priv->text.set_info_icon(p_line, p_icon, std::move(p_info));
+    m_priv->text.set_info_icon(p_line, p_icon, eastl::move(p_info));
     update();
 }
 
@@ -7559,6 +7559,7 @@ void TextEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_line_count"), &TextEdit::get_line_count);
     MethodBinder::bind_method(D_METHOD("get_text"), &TextEdit::get_text);
     MethodBinder::bind_method(D_METHOD("get_line", {"line"}), &TextEdit::get_line);
+    MethodBinder::bind_method(D_METHOD("set_line", {"line", "new_text"}), &TextEdit::set_line);
 
     MethodBinder::bind_method(D_METHOD("center_viewport_to_cursor"), &TextEdit::center_viewport_to_cursor);
     MethodBinder::bind_method(D_METHOD("cursor_set_column", {"column", "adjust_viewport"}), &TextEdit::cursor_set_column, {DEFVAL(true)});
@@ -7718,6 +7719,9 @@ void TextEdit::_bind_methods() {
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.
+    GLOBAL_DEF("gui/common/text_edit_undo_stack_max_size", 1024);
+    ProjectSettings::get_singleton()->set_custom_property_info("gui/common/text_edit_undo_stack_max_size", PropertyInfo(VariantType::INT, "gui/common/text_edit_undo_stack_max_size", PropertyHint::Range, "0,10000,1,or_greater")); // No negative numbers.
+
 }
 
 TextEdit::TextEdit() {
@@ -7979,7 +7983,7 @@ Map<int, TextEdit::HighlighterInfo> TextEdit::PrivateData::_get_line_syntax_high
                 k++;
             }
 
-            if (str[k] == '(') {
+            if (k<str.length() && str[k] == '(') {
                 in_function_name = true;
             }
         }

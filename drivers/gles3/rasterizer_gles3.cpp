@@ -186,7 +186,7 @@ void RasterizerGLES3::initialize() {
     }
     */
 
-    print_line(String("OpenGL ES 3.0 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
+    print_line(String("OpenGL 4.3 Renderer: ") + RenderingServer::get_singleton()->get_video_adapter_name());
     storage->initialize();
     canvas->initialize();
     scene->initialize();
@@ -204,7 +204,7 @@ void RasterizerGLES3::begin_frame(double frame_step) {
 
     double time_roll_over = GLOBAL_GET("rendering/limits/time/time_rollover_secs");
     if (time_total > time_roll_over)
-        time_total = 0; //roll over every day (should be customz
+        time_total = Math::fmod(time_total, time_roll_over); //roll over every day (should be customz
 
     storage->frame.time[0] = time_total;
     storage->frame.time[1] = Math::fmod(time_total, 3600);
@@ -380,18 +380,7 @@ void RasterizerGLES3::end_frame(bool p_swap_buffers) {
     SCOPE_AUTONAMED
 
     if (OS::get_singleton()->is_layered_allowed()) {
-        if (OS::get_singleton()->get_window_per_pixel_transparency_enabled()) {
-#if (defined WINDOWS_ENABLED) && !(defined UWP_ENABLED)
-            Size2 wndsize = OS::get_singleton()->get_layered_buffer_size();
-            uint8_t *data = OS::get_singleton()->get_layered_buffer_data();
-            if (data) {
-                glReadPixels(0, 0, wndsize.x, wndsize.y, GL_BGRA, GL_UNSIGNED_BYTE, data);
-                OS::get_singleton()->swap_layered_buffer();
-
-                return;
-            }
-#endif
-        } else {
+        if (!OS::get_singleton()->get_window_per_pixel_transparency_enabled()) {
             //clear alpha
             glColorMask(false, false, false, true);
             glClearColor(0, 0, 0, 1);
@@ -427,8 +416,6 @@ void RasterizerGLES3::register_config() {
 
     GLOBAL_DEF("rendering/quality/filters/anisotropic_filter_level", 4);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/anisotropic_filter_level", PropertyInfo(VariantType::INT, "rendering/quality/filters/anisotropic_filter_level", PropertyHint::Range, "1,16,1"));
-    GLOBAL_DEF("rendering/limits/time/time_rollover_secs", 3600);
-    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::FLOAT, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
 }
 
 RasterizerGLES3::RasterizerGLES3() {

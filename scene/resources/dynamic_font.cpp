@@ -59,8 +59,8 @@ VARIANT_ENUM_CAST(DynamicFont::SpacingType);
 
 static unsigned long _ft_stream_io(FT_Stream stream, unsigned long offset, unsigned char *buffer, unsigned long count);
 static void _ft_stream_close(FT_Stream stream);
-
 static HashMap<String, Vector<uint8_t> > s_df_fontdata;
+static Vector<DynamicFont *> dynamic_fonts;
 
 struct DynamicFontAtSize::ImplData
 {
@@ -213,9 +213,9 @@ struct DynamicFontAtSize::ImplData
         if (!chr->second.found) {
 
             //not found, try in fallbacks
-            for (int i = 0; i < p_fallbacks.size(); i++) {
+            for (const Ref<DynamicFontAtSize>& fallback : p_fallbacks) {
 
-                DynamicFontAtSize *fb = const_cast<DynamicFontAtSize *>(p_fallbacks[i].get());
+                DynamicFontAtSize *fb = const_cast<DynamicFontAtSize *>(fallback.get());
                 if (!fb->m_impl->valid)
                     continue;
 
@@ -1107,13 +1107,11 @@ void DynamicFont::_bind_methods() {
 
 Mutex *DynamicFont::dynamic_font_mutex = nullptr;
 
-SelfList<DynamicFont>::List *DynamicFont::dynamic_fonts = nullptr;
-
-DynamicFont::DynamicFont() :
-        font_list(this) {
+DynamicFont::DynamicFont() {
 
     cache_id.size = 16;
     outline_cache_id.size = 16;
+
     spacing_top = 0;
     spacing_bottom = 0;
     spacing_char = 0;
@@ -1121,7 +1119,7 @@ DynamicFont::DynamicFont() :
     outline_color = Color(1, 1, 1);
     if (dynamic_font_mutex) {
         dynamic_font_mutex->lock();
-        dynamic_fonts->add(&font_list);
+        dynamic_fonts.push_back(this);
         dynamic_font_mutex->unlock();
     }
 }
@@ -1129,21 +1127,21 @@ DynamicFont::DynamicFont() :
 DynamicFont::~DynamicFont() {
     if (dynamic_font_mutex) {
         dynamic_font_mutex->lock();
-        dynamic_fonts->remove(&font_list);
+        dynamic_fonts.erase_first(this);
         dynamic_font_mutex->unlock();
     }
 }
 
 void DynamicFont::initialize_dynamic_fonts() {
-    dynamic_fonts = memnew(SelfList<DynamicFont>::List());
     dynamic_font_mutex = memnew(Mutex);
+    ERR_FAIL_COND(!dynamic_fonts.empty());
 }
 
 void DynamicFont::finish_dynamic_fonts() {
     memdelete(dynamic_font_mutex);
     dynamic_font_mutex = nullptr;
-    memdelete(dynamic_fonts);
-    dynamic_fonts = nullptr;
+    ERR_FAIL_COND_MSG(!dynamic_fonts.empty(),"Not all dynamic fonts were destroyed before the global list reset");
+    dynamic_fonts.clear();
 }
 
 void DynamicFont::update_oversampling() {
@@ -1153,30 +1151,28 @@ void DynamicFont::update_oversampling() {
     if (dynamic_font_mutex)
         dynamic_font_mutex->lock();
 
-    SelfList<DynamicFont> *E = dynamic_fonts->first();
-    while (E) {
+    for(DynamicFont * fnt : dynamic_fonts) {
 
-        if (E->self()->data_at_size) {
-            E->self()->data_at_size->update_oversampling();
+        if (fnt->data_at_size) {
+            fnt->data_at_size->update_oversampling();
 
-            if (E->self()->outline_data_at_size) {
-                E->self()->outline_data_at_size->update_oversampling();
+            if (fnt->outline_data_at_size) {
+                fnt->outline_data_at_size->update_oversampling();
             }
 
-            for (int i = 0; i < E->self()->fallback_data_at_size.size(); i++) {
-                if (E->self()->fallback_data_at_size[i]) {
-                    E->self()->fallback_data_at_size[i]->update_oversampling();
+            for (int i = 0; i < fnt->fallback_data_at_size.size(); i++) {
+                if (fnt->fallback_data_at_size[i]) {
+                    fnt->fallback_data_at_size[i]->update_oversampling();
 
-                    if (E->self()->has_outline() && E->self()->fallback_outline_data_at_size[i]) {
-                        E->self()->fallback_outline_data_at_size[i]->update_oversampling();
+                    if (fnt->has_outline() && fnt->fallback_outline_data_at_size[i]) {
+                        fnt->fallback_outline_data_at_size[i]->update_oversampling();
                     }
                 }
             }
 
-            changed.emplace_back(Ref<DynamicFont>(E->self()));
+            changed.emplace_back(Ref<DynamicFont>(fnt));
         }
 
-        E = E->next();
     }
 
     if (dynamic_font_mutex)

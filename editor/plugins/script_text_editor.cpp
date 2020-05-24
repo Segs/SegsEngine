@@ -620,12 +620,12 @@ void ScriptTextEditor::_validate_script() {
 
     int warning_nb = warnings.size();
     warnings_panel->clear();
-
+#ifdef MODULE_GDSCRIPT_ENABLED
     // Add missing connections.
     if (GLOBAL_GET("debug/gdscript/warnings/enable").booleanize()) {
         _validate_missing_connections(warning_nb);
     }
-
+#endif
     code_editor->set_warning_nb(warning_nb);
 
     // Add script warnings.
@@ -877,7 +877,7 @@ void ScriptTextEditor::_breakpoint_toggled(int p_row) {
     ScriptEditor::get_singleton()->get_debugger()->set_breakpoint(script->get_path(), p_row + 1, code_editor->get_text_edit()->is_line_set_as_breakpoint(p_row));
 }
 
-void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, int p_column) {
+void ScriptTextEditor::_lookup_symbol(const StringName &p_symbol, int p_row, int p_column) {
 
     Node *base = get_tree()->get_edited_scene_root();
     if (base) {
@@ -897,11 +897,12 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
             EditorNode::get_singleton()->load_resource(p_symbol);
         }
 
-    } else if (script->get_language()->lookup_code(code_editor->get_text_edit()->get_text_for_lookup_completion(), p_symbol, script->get_path(), base, result) == OK) {
+    } else if (script->get_language()->lookup_code(code_editor->get_text_edit()->get_text_for_lookup_completion(),
+                       p_symbol, script->get_path(), base, result) == OK) {
 
         _goto_line(p_row);
 
-        result.class_name = StringUtils::trim_prefix(result.class_name,("_"));
+        result.class_name = StringUtils::trim_prefix(result.class_name, ("_"));
 
         switch (result.type) {
             case ScriptLanguage::LookupResult::RESULT_SCRIPT_LOCATION: {
@@ -912,10 +913,12 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
                     emit_signal("request_save_history");
                     _goto_line(result.location - 1);
                 }
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS: {
                 emit_signal("go_to_help", StringName("class_name:" + result.class_name));
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_CONSTANT: {
 
                 StringName cname = StringName(result.class_name);
@@ -930,13 +933,17 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
                     }
                 }
 
-                emit_signal("go_to_help", StringName("class_constant:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help",
+                        StringName("class_constant:" + result.class_name + ":" + result.class_member));
 
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_PROPERTY: {
-                emit_signal("go_to_help", StringName("class_property:" + result.class_name + ":" + result.class_member));
+                emit_signal("go_to_help",
+                        StringName("class_property:" + result.class_name + ":" + result.class_member));
 
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_METHOD: {
 
                 StringName cname = StringName(result.class_name);
@@ -952,7 +959,8 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
 
                 emit_signal("go_to_help", StringName("class_method:" + result.class_name + ":" + result.class_member));
 
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_ENUM: {
 
                 StringName cname = StringName(result.class_name);
@@ -969,13 +977,42 @@ void ScriptTextEditor::_lookup_symbol(const StringName & p_symbol, int p_row, in
 
                 emit_signal("go_to_help", StringName("class_enum:" + result.class_name + ":" + result.class_member));
 
-            } break;
+            }
+            break;
             case ScriptLanguage::LookupResult::RESULT_CLASS_TBD_GLOBALSCOPE: {
                 emit_signal("go_to_help", StringName("class_global:" + result.class_name + ":" + result.class_member));
-            } break;
+            }
+            break;
+        }
+    } else if (ProjectSettings::get_singleton()->has_setting("autoload/" + p_symbol)) {
+        //check for Autoload scenes
+        String path = ProjectSettings::get_singleton()->get("autoload/" + p_symbol);
+        if (StringUtils::begins_with(path, "*")) {
+            path = path.substr(1, path.length());
+            EditorNode::get_singleton()->load_scene(path);
+        }
+    } else if (PathUtils::is_rel_path(p_symbol)) {
+        // Every symbol other than absolute path is relative path so keep this condition at last.
+        String path = _get_absolute_path(p_symbol);
+        if (FileAccess::exists(path)) {
+            Vector<String> scene_extensions;
+            gResourceManager().get_recognized_extensions_for_type("PackedScene", scene_extensions);
+
+            if (scene_extensions.contains(String(PathUtils::get_extension(path)))) {
+                EditorNode::get_singleton()->load_scene(path);
+            } else {
+                EditorNode::get_singleton()->load_resource(path);
+            }
         }
     }
 }
+
+String ScriptTextEditor::_get_absolute_path(StringView rel_path) {
+    String base_path = PathUtils::get_base_dir(script->get_path());
+    String path = PathUtils::plus_file(base_path,rel_path);
+    return PathUtils::simplify_path(path.replaced("///", "//"));
+}
+
 void ScriptTextEditor::update_toggle_scripts_button() {
     if (code_editor != nullptr) {
         code_editor->update_toggle_scripts_button();

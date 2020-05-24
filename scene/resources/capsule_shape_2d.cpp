@@ -64,6 +64,8 @@ void CapsuleShape2D::_update_shape() {
 void CapsuleShape2D::set_radius(real_t p_radius) {
 
     radius = p_radius;
+    if (radius < 0)
+        radius = 0;
     _update_shape();
 }
 
@@ -72,6 +74,8 @@ void CapsuleShape2D::set_radius(real_t p_radius) {
 void CapsuleShape2D::set_height(real_t p_height) {
 
     height = p_height;
+    if (height < 0)
+        height = 0;
     _update_shape();
 }
 

@@ -67,10 +67,19 @@ RES ResourceFormatDummyTexture::load(const String &p_path, const String &p_origi
 }
 
 void ResourceFormatDummyTexture::get_recognized_extensions(List<String> *p_extensions) const {
-    p_extensions->push_back("png");
-    p_extensions->push_back("hdr");
+    p_extensions->push_back("bmp");
+    p_extensions->push_back("dds");
+    p_extensions->push_back("exr");
+    p_extensions->push_back("jpeg");
     p_extensions->push_back("jpg");
+    p_extensions->push_back("hdr");
+    p_extensions->push_back("pkm");
+    p_extensions->push_back("png");
+    p_extensions->push_back("pvr");
+    p_extensions->push_back("svg");
+    p_extensions->push_back("svgz");
     p_extensions->push_back("tga");
+    p_extensions->push_back("webp");
 }
 
 bool ResourceFormatDummyTexture::handles_type(const String &p_type) const {
@@ -78,8 +87,22 @@ bool ResourceFormatDummyTexture::handles_type(const String &p_type) const {
 }
 
 String ResourceFormatDummyTexture::get_resource_type(const String &p_path) const {
-        String extension = PathUtils::get_extension(p_path).to_lower();
-    if (extension == "png" || extension == "hdr" || extension == "jpg" || extension == "tga")
+    String extension = PathUtils::get_extension(p_path).to_lower();
+    if (
+            extension == "bmp" ||
+            extension == "dds" ||
+            extension == "exr" ||
+            extension == "jpeg" ||
+            extension == "jpg" ||
+            extension == "hdr" ||
+            extension == "pkm" ||
+            extension == "png" ||
+            extension == "pvr" ||
+            extension == "svg" ||
+            extension == "svgz" ||
+            extension == "tga" ||
+            extension == "webp") {
         return "ImageTexture";
+    }
     return String();
 }

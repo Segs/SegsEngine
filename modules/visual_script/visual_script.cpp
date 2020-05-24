@@ -279,43 +279,28 @@ void VisualScript::_node_ports_changed(int p_id) {
 
     //must revalidate all the functions
 
-    {
-        ListOld<SequenceConnection> to_remove;
+    for (auto iter= func.sequence_connections.begin(); iter!= func.sequence_connections.end();  ) {
+        if (iter->from_node == p_id && iter->from_output >= vsn->get_output_sequence_port_count()) {
 
-        for (const SequenceConnection &E : func.sequence_connections) {
-            if (E.from_node == p_id && E.from_output >= vsn->get_output_sequence_port_count()) {
-
-                to_remove.push_back(E);
-            }
-            if (E.to_node == p_id && !vsn->has_input_sequence_port()) {
-
-                to_remove.push_back(E);
-            }
+            iter = func.sequence_connections.erase(iter);
         }
+        else if (iter->to_node == p_id && !vsn->has_input_sequence_port()) {
 
-        while (!to_remove.empty()) {
-            func.sequence_connections.erase(to_remove.front()->deref());
-            to_remove.pop_front();
+            iter = func.sequence_connections.erase(iter);
         }
+        else
+            ++iter;
     }
 
-    {
-
-        ListOld<DataConnection> to_remove;
-
-        for (const DataConnection &E : func.data_connections) {
-            if (E.from_node == p_id && E.from_port >= vsn->get_output_value_port_count()) {
-                to_remove.push_back(E);
-            }
-            if (E.to_node == p_id && E.to_port >= vsn->get_input_value_port_count()) {
-                to_remove.push_back(E);
-            }
+    for (auto iter = func.data_connections.begin(); iter != func.data_connections.end(); ) {
+        if (iter->from_node == p_id && iter->from_port >= vsn->get_output_value_port_count()) {
+            iter = func.data_connections.erase(iter);
         }
-
-        while (!to_remove.empty()) {
-            func.data_connections.erase(to_remove.front()->deref());
-            to_remove.pop_front();
+        else if (iter->to_node == p_id && iter->to_port >= vsn->get_input_value_port_count()) {
+            iter = func.data_connections.erase(iter);
         }
+        else
+            ++iter;
     }
 
 #ifdef TOOLS_ENABLED
@@ -361,35 +346,20 @@ void VisualScript::remove_node(const StringName &p_func, int p_id) {
     Function &func = functions[p_func];
 
     ERR_FAIL_COND(!func.nodes.contains(p_id));
-    {
-        ListOld<SequenceConnection> to_remove;
-
-        for (const SequenceConnection &E : func.sequence_connections) {
-            if (E.from_node == p_id || E.to_node == p_id) {
-                to_remove.push_back(E);
-            }
+    for (auto iter = func.sequence_connections.begin(); iter != func.sequence_connections.end(); ) {
+        if (iter->from_node == p_id || iter->to_node == p_id) {
+            iter = func.sequence_connections.erase(iter);
         }
-
-        while (!to_remove.empty()) {
-            func.sequence_connections.erase(to_remove.front()->deref());
-            to_remove.pop_front();
-        }
+        else
+            ++iter;
     }
 
-    {
-
-        ListOld<DataConnection> to_remove;
-
-        for (const DataConnection &E : func.data_connections) {
-            if (E.from_node == p_id || E.to_node == p_id) {
-                to_remove.push_back(E);
-            }
+    for (auto iter = func.data_connections.begin(); iter != func.data_connections.end(); ) {
+        if (iter->from_node == p_id || iter->to_node== p_id) {
+            iter = func.data_connections.erase(iter);
         }
-
-        while (!to_remove.empty()) {
-            func.data_connections.erase(to_remove.front()->deref());
-            to_remove.pop_front();
-        }
+        else
+            ++iter;
     }
 
     if (object_cast<VisualScriptFunction>(func.nodes[p_id].node.get())) {
@@ -491,13 +461,12 @@ bool VisualScript::has_sequence_connection(const StringName &p_func, int p_from_
     return func.sequence_connections.contains(sc);
 }
 
-void VisualScript::get_sequence_connection_list(const StringName &p_func, ListOld<SequenceConnection> *r_connection) const {
+void VisualScript::get_sequence_connection_list(const StringName &p_func, Vector<SequenceConnection> *r_connection) const {
 
     ERR_FAIL_COND(!functions.contains(p_func));
     const Function &func = functions.at(p_func);
-    for (const SequenceConnection &E : func.sequence_connections) {
-        r_connection->push_back(E);
-    }
+    assert(r_connection->empty()); // verify hard precondition, if this fails we'll have to switch to using `append` below
+    r_connection->assign(func.sequence_connections.begin(), func.sequence_connections.end());
 }
 
 void VisualScript::data_connect(const StringName &p_func, int p_from_node, int p_from_port, int p_to_node, int p_to_port) {
@@ -576,14 +545,12 @@ bool VisualScript::get_input_value_port_connection_source(const StringName &p_fu
     return false;
 }
 
-void VisualScript::get_data_connection_list(const StringName &p_func, ListOld<DataConnection> *r_connection) const {
+void VisualScript::get_data_connection_list(const StringName &p_func, Vector<DataConnection> *r_connection) const {
 
     ERR_FAIL_COND(!functions.contains(p_func));
     const Function &func = functions.at(p_func);
-
-    for (const DataConnection &E : func.data_connections) {
-        r_connection->push_back(E);
-    }
+    assert(r_connection->empty()); // verify hard precondition, if this fails we'll have to switch to using `append` below
+    r_connection->assign(func.data_connections.begin(), func.data_connections.end());
 }
 
 void VisualScript::set_tool_enabled(bool p_enabled) {
@@ -1376,15 +1343,14 @@ StringName VisualScript::get_default_func() const {
 }
 
 Set<int> VisualScript::get_output_sequence_ports_connected(StringView edited_func, int from_node) {
-    ListOld<VisualScript::SequenceConnection> *sc = memnew(ListOld<VisualScript::SequenceConnection>);
-    get_sequence_connection_list(StringName(edited_func), sc);
+    Vector<VisualScript::SequenceConnection> sc;
+    get_sequence_connection_list(StringName(edited_func), &sc);
     Set<int> connected;
-    for (ListOld<VisualScript::SequenceConnection>::Element *E = sc->front(); E; E = E->next()) {
-        if (E->deref().from_node == from_node) {
-            connected.insert(int(E->deref().from_output));
+    for (const auto & E : sc) {
+        if (E.from_node == from_node) {
+            connected.insert(int(E.from_output));
         }
     }
-    memdelete(sc);
     return connected;
 }
 
@@ -2739,11 +2705,9 @@ Ref<VisualScriptNode> VisualScriptLanguage::create_node_from_name(const String &
     return register_funcs[p_name](p_name);
 }
 
-void VisualScriptLanguage::get_registered_node_names(ListOld<String> *r_names) {
-
-    for (eastl::pair<const String,VisualScriptNodeRegisterFunc> &E : register_funcs) {
-        r_names->push_back(E.first);
-    }
+void VisualScriptLanguage::get_registered_node_names(Vector<String> *r_names) {
+    assert(r_names && r_names->empty()); // we are overwriting provided container, make sure it's empty.
+    *r_names = eastl::move(register_funcs.keys());
 }
 
 VisualScriptLanguage::VisualScriptLanguage() {

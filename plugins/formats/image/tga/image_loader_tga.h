@@ -36,7 +36,7 @@
     @author SaracenOne
 */
 class ImageLoaderTGA : public QObject, public ImageFormatLoader {
-    Q_PLUGIN_METADATA(IID "org.godot.ImageLoaderTGA")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ImageLoaderTGA")
     Q_INTERFACES(ImageFormatLoader)
     Q_OBJECT
     enum tga_type_e {

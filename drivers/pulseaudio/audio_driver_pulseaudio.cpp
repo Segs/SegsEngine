@@ -113,9 +113,9 @@ void AudioDriverPulseAudio::detect_channels(bool capture) {
 
     char dev[1024];
     if (device == StringView("Default")) {
-        strcpy(dev, capture ? capture_default_device.c_str() : default_device.c_str());
+        strncpy(dev, capture ? capture_default_device.c_str() : default_device.c_str(),1023);
     } else {
-        strcpy(dev, device.data());
+        strncpy(dev, device.data(),1023);
     }
 
     // Now using the device name get the amount of channels
@@ -183,7 +183,7 @@ Error AudioDriverPulseAudio::init_device() {
             break;
     }
 
-    int latency = GLOBAL_DEF_RST("audio/output_latency", DEFAULT_OUTPUT_LATENCY);
+    int latency = GLOBAL_GET("audio/output_latency");
     buffer_frames = closest_power_of_2(latency * mix_rate / 1000);
     pa_buffer_size = buffer_frames * pa_map.channels;
 
@@ -242,7 +242,7 @@ Error AudioDriverPulseAudio::init() {
     thread_exited = false;
     exit_thread = false;
 
-    mix_rate = GLOBAL_DEF_RST("audio/mix_rate", DEFAULT_MIX_RATE);
+    mix_rate = GLOBAL_GET("audio/mix_rate");
 
     pa_ml = pa_mainloop_new();
     ERR_FAIL_COND_V(pa_ml == nullptr, ERR_CANT_OPEN);

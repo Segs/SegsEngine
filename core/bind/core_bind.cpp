@@ -485,7 +485,11 @@ String _OS::get_executable_path() const {
 }
 
 Error _OS::shell_open(String p_uri) {
-
+    if (p_uri.starts_with("res://")) {
+        WARN_PRINT("Attempting to open an URL with the \"res://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
+    } else if (p_uri.starts_with("user://")) {
+        WARN_PRINT("Attempting to open an URL with the \"user://\" protocol. Use `ProjectSettings.globalize_path()` to convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
+    }
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
 };
 
@@ -945,35 +949,26 @@ struct _OSCoreBindImg {
 void _OS::print_all_textures_by_size() {
 
     Vector<_OSCoreBindImg> imgs;
-    int total = 0;
-    {
-        List<Ref<Resource> > rsrc;
-        ResourceCache::get_cached_resources(&rsrc);
-        imgs.reserve(rsrc.size());
 
-        for (const Ref<Resource> &E : rsrc) {
+    List<Ref<Resource> > rsrc;
+    ResourceCache::get_cached_resources(&rsrc);
+    imgs.reserve(rsrc.size());
 
-            if (!E->is_class("ImageTexture"))
-                continue;
+    for (const Ref<Resource> &E : rsrc) {
 
-            Size2 size = E->call_va("get_size");
-            int fmt = E->call_va("get_format");
+        if (!E->is_class("ImageTexture"))
+            continue;
 
-            _OSCoreBindImg img;
-            img.size = size;
-            img.fmt = fmt;
-            img.path = E->get_path();
-            img.vram = Image::get_image_data_size(img.size.width, img.size.height, Image::Format(img.fmt));
-            img.id = E->get_instance_id();
-            total += img.vram;
-            imgs.push_back(img);
-        }
-    }
-    eastl::sort(imgs.begin(), imgs.end());
+        Size2 size = E->call_va("get_size");
+        int fmt = E->call_va("get_format");
 
-    for (const _OSCoreBindImg &E : imgs) {
-
-        total -= E.vram;
+        _OSCoreBindImg img;
+        img.size = size;
+        img.fmt = fmt;
+        img.path = E->get_path();
+        img.vram = Image::get_image_data_size(img.size.width, img.size.height, Image::Format(img.fmt));
+        img.id = E->get_instance_id();
+        imgs.push_back(img);
     }
 }
 

@@ -233,6 +233,11 @@ void FindReplaceBar::_replace_all() {
 
     text_edit->begin_complex_operation();
 
+    if (selection_enabled && is_selection_only()) {
+        text_edit->cursor_set_line(selection_begin.width);
+        text_edit->cursor_set_column(selection_begin.height);
+    }
+
     if (search_current()) {
         do {
             // replace area
@@ -295,6 +300,10 @@ void FindReplaceBar::_get_search_from(int &r_line, int &r_col) {
 
     r_line = text_edit->cursor_get_line();
     r_col = text_edit->cursor_get_column();
+
+    if (text_edit->is_selection_active() && is_selection_only()) {
+        return;
+    }
 
     if (r_line == result_line && r_col >= result_col && r_col <= result_col + get_search_text().length()) {
         r_col = result_col;

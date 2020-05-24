@@ -479,12 +479,12 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
 
                 } else if (p_is_current && p_delta != 0) {
 
-                    ListOld<int> indices;
+                    Vector<int> indices;
                     a->value_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                    for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
+                    for (int F : indices) {
 
-                        Variant value = a->track_get_key_value(i, F->deref());
+                        Variant value = a->track_get_key_value(i, F);
                         switch (pa->special) {
 
                             case SP_NONE: {
@@ -538,14 +538,14 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                 if (!p_is_current)
                     break;
 
-                ListOld<int> indices;
+                Vector<int> indices;
 
                 a->method_track_get_key_indices(i, p_time, p_delta, &indices);
 
-                for (ListOld<int>::Element *E = indices.front(); E; E = E->next()) {
+                for (int E : indices) {
 
-                    StringName method = a->method_track_get_name(i, E->deref());
-                    const Vector<Variant> &params = a->method_track_get_params(i, E->deref());
+                    StringName method = a->method_track_get_name(i, E);
+                    const Vector<Variant> &params = a->method_track_get_params(i, E);
 
                     int s = params.size();
 
@@ -648,10 +648,11 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
 
                 } else {
                     //find stuff to play
-                    ListOld<int> to_play;
+                    //TODO: the code below retrieves indices container, but only uses it's last element.
+                    Vector<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
                     if (!to_play.empty()) {
-                        int idx = to_play.back()->deref();
+                        int idx = to_play.back();
 
                         Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(a->audio_track_get_key_stream(i, idx));
                         if (not stream) {
@@ -741,10 +742,10 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                     }
                 } else {
                     //find stuff to play
-                    ListOld<int> to_play;
+                    Vector<int> to_play;
                     a->track_get_key_indices_in_range(i, p_time, p_delta, &to_play);
                     if (!to_play.empty()) {
-                        int idx = to_play.back()->deref();
+                        int idx = to_play.back();
 
                         StringName anim_name = a->animation_track_get_key_animation(i, idx);
                         if (anim_name == "[stop]" || !player->has_animation(anim_name)) {
@@ -829,20 +830,22 @@ void AnimationPlayer::_animation_process2(float p_delta, bool p_started) {
         c.seeked = false;
     }
 
-    ListOld<Blend>::Element *prev = nullptr;
-    for (ListOld<Blend>::Element *E = c.blend.back(); E; E = prev) {
-
-        Blend &b = E->deref();
+    for(auto iter=c.blend.rbegin(),fin=c.blend.rend(); iter!=fin; ++iter) {
+        Blend& b = *iter;
         float blend = b.blend_left / b.blend_time;
         _animation_process_data(b.data, p_delta, blend, false, false);
 
         b.blend_left -= Math::absf(speed_scale * p_delta);
 
-        prev = E->prev();
-        if (b.blend_left < 0) {
+    }
+    // remove finished ones.
+    for (auto iter = c.blend.begin(); iter!=c.blend.end(); ) {
+        if (iter->blend_left < 0) {
 
-            c.blend.erase(E);
+            iter= c.blend.erase(iter);
         }
+        else
+            ++iter;
     }
 }
 
@@ -1028,11 +1031,10 @@ void AnimationPlayer::rename_animation(const StringName &p_name, const StringNam
     animation_set.erase(p_name);
     animation_set[p_new_name] = ad;
 
-    ListOld<BlendKey> to_erase;
     Map<BlendKey, float> to_insert;
-    for (eastl::pair<const BlendKey,float> &E : blend_times) {
+    for (auto iter=blend_times.begin(); iter!=blend_times.end(); ) {
 
-        BlendKey bk = E.first;
+        BlendKey bk = iter->first;
         BlendKey new_bk = bk;
         bool erase = false;
         if (bk.from == p_name) {
@@ -1045,15 +1047,11 @@ void AnimationPlayer::rename_animation(const StringName &p_name, const StringNam
         }
 
         if (erase) {
-            to_erase.push_back(bk);
-            to_insert[new_bk] = E.second;
+            to_insert[new_bk] = iter->second;
+            iter = blend_times.erase(iter);
         }
-    }
-
-    while (!to_erase.empty()) {
-
-        blend_times.erase(to_erase.front()->deref());
-        to_erase.pop_front();
+        else
+            ++iter;
     }
 
     while (!to_insert.empty()) {

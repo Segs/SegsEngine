@@ -8,18 +8,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_FIXED_HASH_SET_H
-#define EASTL_FIXED_HASH_SET_H
-
+#pragma once
 
 #include <EASTL/hash_set.h>
 #include <EASTL/internal/fixed_pool.h>
 
 EA_DISABLE_VC_WARNING(4127) // Conditional expression is constant
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -764,17 +758,4 @@ namespace eastl
 } // namespace eastl
 
 EA_RESTORE_VC_WARNING()
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
 

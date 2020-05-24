@@ -209,8 +209,8 @@ private:
     void _update_favorites_list_after_move(const HashMap<String, String> &p_files_renames, const HashMap<String, String> &p_folders_renames) const;
     void _update_project_settings_after_move(const HashMap<String, String> &p_renames) const;
 
-    void _file_deleted(const String& p_file);
-    void _folder_deleted(const String& p_folder);
+    void _file_removed(const String& p_file);
+    void _folder_removed(const String& p_folder);
     void _files_moved(UIString p_old_file, UIString p_new_file);
     void _folder_moved(UIString p_old_folder, UIString p_new_folder);
 
@@ -259,10 +259,11 @@ private:
     void _search(EditorFileSystemDirectory *p_path, List<FileInfo> *matches, int p_max_items);
 
     void _set_current_path_text(StringView p_path);
-
+public: // made public for scripting API
     Variant get_drag_data_fw(const Point2 &p_point, Control *p_from);
     bool can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const;
     void drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from);
+private:
     void _get_drag_target_folder(String &target, bool &target_favorites, const Point2 &p_point, Control *p_from) const;
 
     void _preview_invalidated(StringView p_path);

@@ -81,9 +81,9 @@ void WebSocketMultiplayerPeer::_clear() {
     if (_current_packet.data != nullptr)
         memfree(_current_packet.data);
 
-    for (ListOld<Packet>::Element *E = _incoming_packets.front(); E; E = E->next()) {
-        memfree(E->deref().data);
-        E->deref().data = nullptr;
+    for (Packet &E : _incoming_packets) {
+        memfree(E.data);
+        E.data = nullptr;
     }
 
     _incoming_packets.clear();
@@ -118,7 +118,7 @@ Error WebSocketMultiplayerPeer::get_packet(const uint8_t **r_buffer, int &r_buff
         _current_packet.data = nullptr;
     }
 
-    _current_packet = _incoming_packets.front()->deref();
+    _current_packet = _incoming_packets.front();
     _incoming_packets.pop_front();
 
     *r_buffer = _current_packet.data;
@@ -164,7 +164,7 @@ int WebSocketMultiplayerPeer::get_packet_peer() const {
     ERR_FAIL_COND_V_MSG(!_is_multiplayer, 1, "This function is not available when not using the MultiplayerAPI.");
     ERR_FAIL_COND_V(_incoming_packets.empty(), 1);
 
-    return _incoming_packets.front()->deref().source;
+    return _incoming_packets.front().source;
 }
 
 int WebSocketMultiplayerPeer::get_unique_id() const {

@@ -369,9 +369,9 @@ void TileMap::update_dirty_quadrants() {
 
         Quadrant &q = *dirty_quadrant_list.first()->self();
 
-        for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+        for (RID E : q.canvas_items) {
 
-            vs->free_rid(E->deref());
+            vs->free_rid(E);
         }
 
         q.canvas_items.clear();
@@ -709,9 +709,9 @@ void TileMap::update_dirty_quadrants() {
         for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
             Quadrant &q = E.second;
-            for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+            for (RID F : q.canvas_items) {
 
-                RenderingServer::get_singleton()->canvas_item_set_draw_index(F->deref(), index++);
+                RenderingServer::get_singleton()->canvas_item_set_draw_index(F, index++);
             }
         }
 
@@ -802,9 +802,9 @@ void TileMap::_erase_quadrant(HashMap<PosKey, Quadrant>::iterator Q) {
         collision_parent->remove_shape_owner(q.shape_owner_id);
     }
 
-    for (ListOld<RID>::Element *E = q.canvas_items.front(); E; E = E->next()) {
+    for (RID E : q.canvas_items) {
 
-        RenderingServer::get_singleton()->free_rid(E->deref());
+        RenderingServer::get_singleton()->free_rid(E);
     }
     q.canvas_items.clear();
     if (q.dirty_list.in_list())
@@ -942,13 +942,10 @@ void TileMap::update_bitmask_area(const Vector2 &p_pos) {
 void TileMap::update_bitmask_region(const Vector2 &p_start, const Vector2 &p_end) {
 
     if ((p_end.x < p_start.x || p_end.y < p_start.y) || (p_end.x == p_start.x && p_end.y == p_start.y)) {
-        int i;
         Array a = get_used_cells();
-        for (i = 0; i < a.size(); i++) {
-            // update_bitmask_area() in order to update cells adjacent to the
-            // current cell, since ordering in array may not be reliable
-            Vector2 vector = (Vector2)a[i];
-            update_bitmask_area(Vector2(vector.x, vector.y));
+        for (int i = 0; i < a.size(); i++) {
+            Vector2 vector = a[i].as<Vector2>();
+            update_cell_bitmask(vector.x, vector.y);
         }
         return;
     }
@@ -1191,9 +1188,9 @@ void TileMap::_update_all_items_material_state() {
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
         Quadrant &q = E.second;
-        for (ListOld<RID>::Element *F = q.canvas_items.front(); F; F = F->next()) {
+        for (RID F : q.canvas_items) {
 
-            _update_item_material_state(F->deref());
+            _update_item_material_state(F);
         }
     }
 }
@@ -1766,8 +1763,8 @@ void TileMap::set_light_mask(int p_light_mask) {
     CanvasItem::set_light_mask(p_light_mask);
     for (eastl::pair<const PosKey,Quadrant> &E : quadrant_map) {
 
-        for (ListOld<RID>::Element *F = E.second.canvas_items.front(); F; F = F->next()) {
-            RenderingServer::get_singleton()->canvas_item_set_light_mask(F->deref(), get_light_mask());
+        for (RID F : E.second.canvas_items) {
+            RenderingServer::get_singleton()->canvas_item_set_light_mask(F, get_light_mask());
         }
     }
 }

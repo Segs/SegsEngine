@@ -46,6 +46,7 @@ class GODOT_EXPORT MessageQueue {
 		TYPE_CALL,
 		TYPE_NOTIFICATION,
 		TYPE_SET,
+        TYPE_FUNC,
 		FLAG_SHOW_ERROR = 1 << 14,
 		FLAG_MASK = FLAG_SHOW_ERROR - 1
 
@@ -76,13 +77,15 @@ class GODOT_EXPORT MessageQueue {
 public:
 	static MessageQueue *get_singleton();
 
+    Error push_call(ObjectID p_id, eastl::function<void()> func);
 	Error push_call(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error = false);
 	Error push_call(ObjectID p_id, const StringName &p_method, VARIANT_ARG_LIST);
-	Error push_notification(ObjectID p_id, int p_notification);
-	Error push_set(ObjectID p_id, const StringName &p_prop, const Variant &p_value);
-
 	Error push_call(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
+
+    Error push_notification(ObjectID p_id, int p_notification);
 	Error push_notification(Object *p_object, int p_notification);
+
+    Error push_set(ObjectID p_id, const StringName &p_prop, const Variant &p_value);
 	Error push_set(Object *p_object, const StringName &p_prop, const Variant &p_value);
 
 	void statistics();

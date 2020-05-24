@@ -524,11 +524,11 @@ void SceneTree::make_group_changed(const StringName &p_group) {
 
 void SceneTree::flush_transform_notifications() {
 
-    SelfList<Node> *n = xform_change_list.first();
+    IntrusiveListNode<Node> *n = xform_change_list.first();
     while (n) {
 
         Node *node = n->self();
-        SelfList<Node> *nx = n->next();
+        IntrusiveListNode<Node> *nx = n->next();
         xform_change_list.remove(n);
         n = nx;
         node->notification(NOTIFICATION_TRANSFORM_CHANGED);
@@ -1325,14 +1325,10 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
     //performance is not lost because only if something is added/removed the vector is copied.
     Vector<Node *> nodes_copy = g.nodes;
 
-    int node_count = nodes_copy.size();
-    Node **nodes = nodes_copy.data();
-
     call_lock++;
 
-    for (int i = 0; i < node_count; i++) {
+    for (Node *n : nodes_copy) {
 
-        Node *n = nodes[i];
         if (call_lock && call_skip.contains(n))
             continue;
 
@@ -1969,39 +1965,42 @@ bool SceneTree::is_using_font_oversampling() const {
 void SceneTree::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace PathUtils;
 
-    if (p_function == "change_scene") {
-        DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
-        ListOld<String> directories;
-        directories.push_back(dir_access->get_current_dir());
+    if (p_function != "change_scene")
+        return;
 
-        while (!directories.empty()) {
-            dir_access->change_dir(directories.back()->deref());
-            directories.pop_back();
+    DirAccessRef dir_access = DirAccess::create(DirAccess::ACCESS_RESOURCES);
+    Vector<String> directories;
+    directories.push_back(dir_access->get_current_dir());
 
-            dir_access->list_dir_begin();
-            String filename = dir_access->get_next();
+    while (!directories.empty()) {
+        dir_access->change_dir(directories.back());
+        directories.pop_back();
 
-            while (!filename.empty()) {
-                if (filename == "." || filename == "..") {
-                    filename = dir_access->get_next();
-                    continue;
-                }
+        dir_access->list_dir_begin();
+        String filename = dir_access->get_next();
 
-                if (dir_access->dir_exists(filename)) {
-                    directories.push_back(plus_file(dir_access->get_current_dir(),filename));
-                } else if (StringUtils::ends_with(filename,".tscn") || StringUtils::ends_with(filename,".scn")) {
-                    r_options->push_back("\"" + plus_file(dir_access->get_current_dir(),filename) + "\"");
-                }
-
+        while (!filename.empty()) {
+            if (filename == "." || filename == "..") {
                 filename = dir_access->get_next();
+                continue;
             }
+
+            if (dir_access->dir_exists(filename)) {
+                directories.push_back(plus_file(dir_access->get_current_dir(),filename));
+            } else if (StringUtils::ends_with(filename,".tscn") || StringUtils::ends_with(filename,".scn")) {
+                r_options->push_back("\"" + plus_file(dir_access->get_current_dir(),filename) + "\"");
+            }
+
+            filename = dir_access->get_next();
         }
     }
 }
 SceneTree::SceneTree() {
     __thread__safe__.reset(new Mutex);
 
-    if (singleton == nullptr) singleton = this;
+    if (singleton == nullptr)
+        singleton = this;
+
     _quit = false;
     accept_quit = true;
     quit_on_go_back = true;
@@ -2023,6 +2022,7 @@ SceneTree::SceneTree() {
     tree_version = 1;
     physics_process_time = 1;
     idle_process_time = 1;
+    collision_debug_contacts = 0;
 
     root = nullptr;
     input_handled = false;

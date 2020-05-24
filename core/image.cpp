@@ -1072,7 +1072,9 @@ void Image::resize_to_po2(bool p_square) {
 
     int w = next_power_of_2(width);
     int h = next_power_of_2(height);
-
+    if (p_square) {
+        w = h = eastl::max(w, h);
+    }
     if (w == width && h == height) {
 
         if (!p_square || w == h)
@@ -1488,7 +1490,7 @@ void Image::expand_x2_hq2x() {
 
     width *= 2;
     height *= 2;
-    data = std::move(dest);
+    data = eastl::move(dest);
 
     if (current != FORMAT_RGBA8)
         convert(current);
@@ -1947,7 +1949,7 @@ void Image::create(ImageData &&src) {
     int mm = 0;
     int size_without_mips = _get_dst_image_size(src.width, src.height, src.format, mm,  0);
     int size = _get_dst_image_size(src.width, src.height, src.format, mm, src.mipmaps ? -1 : 0);
-    data = std::move(src.data);
+    data = eastl::move(src.data);
     data.resize(size); // make space for optional mipmaps
     if(src.mipmaps) {
         PoolVector<uint8_t>::Write w = data.write();

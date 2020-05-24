@@ -125,8 +125,7 @@ void TextureRegionEditor::_region_draw() {
                 }
         }
     } else if (snap_mode == SNAP_AUTOSLICE) {
-        for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
-            Rect2 r = E->deref();
+        for (Rect2 r : autoslice_cache) {
             Vector2 endpoints[4] = {
                 mtx.basis_xform(r.position),
                 mtx.basis_xform(r.position + Vector2(r.size.x, 0)),
@@ -310,9 +309,9 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                 }
                 if (edited_margin < 0 && snap_mode == SNAP_AUTOSLICE) {
                     Vector2 point = mtx.affine_inverse().xform(Vector2(mb->get_position().x, mb->get_position().y));
-                    for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
-                        if (E->deref().has_point(point)) {
-                            rect = E->deref();
+                    for (const Rect2 &entry : autoslice_cache) {
+                        if (entry.has_point(point)) {
+                            rect = entry;
                             if (Input::get_singleton()->is_key_pressed(KEY_CONTROL) && !Input::get_singleton()->is_key_pressed(KEY_SHIFT | KEY_ALT)) {
                                 Rect2 r;
                                 if (node_sprite)
@@ -695,47 +694,40 @@ void TextureRegionEditor::_update_autoslice() {
 
     for (int y = 0; y < texture->get_height(); y++) {
         for (int x = 0; x < texture->get_width(); x++) {
-            if (texture->is_pixel_opaque(x, y)) {
-                bool found = false;
-                for (ListOld<Rect2>::Element *E = autoslice_cache.front(); E; E = E->next()) {
-                    Rect2 grown = E->deref().grow(1.5);
-                    if (grown.has_point(Point2(x, y))) {
-                        E->deref().expand_to(Point2(x, y));
-                        E->deref().expand_to(Point2(x + 1, y + 1));
-                        x = E->deref().position.x + E->deref().size.x - 1;
-                        bool merged = true;
-                        while (merged) {
-                            merged = false;
-                            bool queue_erase = false;
-                            for (ListOld<Rect2>::Element *F = autoslice_cache.front(); F; F = F->next()) {
-                                if (queue_erase) {
-                                    autoslice_cache.erase(F->prev());
-                                    queue_erase = false;
-                                }
-                                if (F == E)
-                                    continue;
-                                if (E->deref().grow(1).intersects(F->deref())) {
-                                    E->deref().expand_to(F->deref().position);
-                                    E->deref().expand_to(F->deref().position + F->deref().size);
-                                    if (F->prev()) {
-                                        F = F->prev();
-                                        autoslice_cache.erase(F->next());
-                                    } else {
-                                        queue_erase = true;
-                                        // Can't delete the first rect in the list.
-                                    }
-                                    merged = true;
-                                }
-                            }
+            if (!texture->is_pixel_opaque(x, y))
+                continue;
+
+            bool found = false;
+            for (List<Rect2>::iterator E = autoslice_cache.begin(); E!= autoslice_cache.end(); ++E) {
+                Rect2 grown = E->grow(1.5);
+                if (!grown.has_point(Point2(x, y)))
+                    continue;
+
+                E->expand_to(Point2(x, y));
+                E->expand_to(Point2(x + 1, y + 1));
+                x = E->position.x + E->size.x - 1;
+                bool merged = true;
+                while (merged) {
+                    merged = false;
+                    for (List<Rect2>::iterator F = autoslice_cache.begin(); F != autoslice_cache.end(); /*updated inside the loop*/) {
+                        if (F == E)
+                            continue;
+                        if (E->grow(1).intersects(*F)) {
+                            E->expand_to(F->position);
+                            E->expand_to(F->position + F->size);
+                            F = autoslice_cache.erase(F);
+                            merged = true;
                         }
-                        found = true;
-                        break;
+                        else
+                            ++F;
                     }
                 }
-                if (!found) {
-                    Rect2 new_rect(x, y, 1, 1);
-                    autoslice_cache.push_back(new_rect);
-                }
+                found = true;
+                break;
+            }
+            if (!found) {
+                Rect2 new_rect(x, y, 1, 1);
+                autoslice_cache.push_back(new_rect);
             }
         }
     }
@@ -1049,6 +1041,7 @@ TextureRegionEditor::TextureRegionEditor(EditorNode *p_editor) {
     hscroll->connect("value_changed", this, "_scroll_changed");
 
     updating_scroll = false;
+    autoslice_is_dirty = true;
 }
 
 void TextureRegionEditorPlugin::edit(Object *p_object) {

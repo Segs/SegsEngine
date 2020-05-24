@@ -86,10 +86,8 @@ public:
 
     Array keys() const;
     Array values() const;
-
+    void *id() const;
     Dictionary duplicate(bool p_deep = false) const;
-
-    const void *id() const;
 
     Dictionary(const Dictionary &p_from);
     Dictionary(Dictionary && p_from) noexcept {

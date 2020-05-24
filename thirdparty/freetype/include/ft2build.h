@@ -4,7 +4,7 @@
  *
  *   FreeType 2 build and setup macros.
  *
- * Copyright (C) 1996-2019 by
+ * Copyright (C) 1996-2020 by
  * David Turner, Robert Wilhelm, and Werner Lemberg.
  *
  * This file is part of the FreeType project, and may only be used,
@@ -35,12 +35,6 @@
 
 #ifndef FT2BUILD_H_
 #define FT2BUILD_H_
-//SEGS: we don't want freetype symbols to be exported out of our shared library.
-#if defined( __cplusplus )
-#define FT_EXPORT( x )  extern "C"  x
-#else
-#define FT_EXPORT( x )  extern  x
-#endif
 
 #include <freetype/config/ftheader.h>
 

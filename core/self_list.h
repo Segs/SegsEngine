@@ -33,103 +33,104 @@
 #include "core/typedefs.h"
 #include "core/error_macros.h"
 
-template <class T>
-class SelfList {
-public:
-    class List {
 
-        SelfList<T> *_first;
-        SelfList<T> *_last;
+class InListNodeBase {
+public:    
+    class IntrusiveListBase* _root;
+    InListNodeBase* _next;
+    InListNodeBase* _prev;
 
-    public:
-        void add(SelfList<T> *p_elem) {
+    _FORCE_INLINE_ bool in_list() const { return _root; }
 
-            ERR_FAIL_COND(p_elem->_root);
+};
 
-            p_elem->_root = this;
-            p_elem->_next = _first;
-            p_elem->_prev = nullptr;
+class IntrusiveListBase {
+    template<class T>
+    friend class IntrusiveListNode;
+protected:
+    InListNodeBase* _first = nullptr;
+    InListNodeBase* _last = nullptr;
 
-            if (_first) {
-                _first->_prev = p_elem;
+    void add(InListNodeBase* p_elem) {
 
-            } else {
-                _last = p_elem;
-            }
+        ERR_FAIL_COND(p_elem->_root);
 
-            _first = p_elem;
+        p_elem->_root = this;
+        p_elem->_next = _first;
+        p_elem->_prev = nullptr;
+
+        if (_first) {
+            _first->_prev = p_elem;
+
         }
-
-        void add_last(SelfList<T> *p_elem) {
-
-            ERR_FAIL_COND(p_elem->_root);
-
-            p_elem->_root = this;
-            p_elem->_next = nullptr;
-            p_elem->_prev = _last;
-
-            if (_last) {
-                _last->_next = p_elem;
-
-            } else {
-                _first = p_elem;
-            }
-
+        else {
             _last = p_elem;
         }
 
-        void remove(SelfList<T> *p_elem) {
+        _first = p_elem;
+    }
+    void add_last(InListNodeBase* p_elem) {
 
-            ERR_FAIL_COND(p_elem->_root != this);
-            if (p_elem->_next) {
-                p_elem->_next->_prev = p_elem->_prev;
-            }
+        ERR_FAIL_COND(p_elem->_root);
 
-            if (p_elem->_prev) {
-                p_elem->_prev->_next = p_elem->_next;
-            }
+        p_elem->_root = this;
+        p_elem->_next = nullptr;
+        p_elem->_prev = _last;
 
-            if (_first == p_elem) {
-                _first = p_elem->_next;
-            }
+        if (_last) {
+            _last->_next = p_elem;
 
-            if (_last == p_elem) {
-                _last = p_elem->_prev;
-            }
-
-            p_elem->_next = nullptr;
-            p_elem->_prev = nullptr;
-            p_elem->_root = nullptr;
+        }
+        else {
+            _first = p_elem;
         }
 
-        _FORCE_INLINE_ SelfList<T> *first() { return _first; }
-        _FORCE_INLINE_ const SelfList<T> *first() const { return _first; }
-        _FORCE_INLINE_ List() {
-            _first = nullptr;
-            _last = nullptr;
+        _last = p_elem;
+    }
+
+    void remove(InListNodeBase* p_elem) {
+
+        ERR_FAIL_COND(p_elem->_root != this);
+        if (p_elem->_next) {
+            p_elem->_next->_prev = p_elem->_prev;
         }
-        _FORCE_INLINE_ ~List() {
-            if (unlikely(_first != nullptr)) {
-                _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "List was not cleared before destruction");
-            }
+
+        if (p_elem->_prev) {
+            p_elem->_prev->_next = p_elem->_next;
         }
-    };
+
+        if (_first == p_elem) {
+            _first = p_elem->_next;
+        }
+
+        if (_last == p_elem) {
+            _last = p_elem->_prev;
+        }
+
+        p_elem->_next = nullptr;
+        p_elem->_prev = nullptr;
+        p_elem->_root = nullptr;
+    }
+    constexpr IntrusiveListBase() noexcept = default;
+};
+
+template <class T>
+class IntrusiveListNode : public InListNodeBase  {
 
 private:
-    List *_root;
-    T *_self;
-    SelfList *_next;
-    SelfList *_prev;
+    T* _self;
 
 public:
-    _FORCE_INLINE_ bool in_list() const { return _root; }
-    _FORCE_INLINE_ SelfList<T> *next() { return _next; }
-    _FORCE_INLINE_ SelfList<T> *prev() { return _prev; }
-    _FORCE_INLINE_ const SelfList *next() const { return _next; }
-    _FORCE_INLINE_ const SelfList *prev() const { return _prev; }
-    T *self() const { return _self; }
+    _FORCE_INLINE_ void remove_from_list() {
+        if (_root) _root->remove(this);
+    }
+    _FORCE_INLINE_ IntrusiveListNode<T>* next() { return (IntrusiveListNode<T>*)_next; }
+    _FORCE_INLINE_ IntrusiveListNode<T>* prev() { return (IntrusiveListNode<T>*)_prev; }
+    _FORCE_INLINE_ const IntrusiveListNode* next() const { return (IntrusiveListNode<T>*)_next; }
+    _FORCE_INLINE_ const IntrusiveListNode* prev() const { return (IntrusiveListNode<T> *)_prev; }
+    T* self() const { return _self; }
 
-    _FORCE_INLINE_ SelfList(T *p_self) {
+    _FORCE_INLINE_ IntrusiveListNode(T* p_self) {
 
         _self = p_self;
         _next = nullptr;
@@ -137,9 +138,37 @@ public:
         _root = nullptr;
     }
 
-    _FORCE_INLINE_ ~SelfList() {
+    _FORCE_INLINE_ ~IntrusiveListNode() {
 
         if (_root)
             _root->remove(this);
+    }
+};
+
+
+template <class T>
+class IntrusiveList : public IntrusiveListBase {
+
+    using NodeType = IntrusiveListNode<T>;
+public:
+    void add(NodeType* p_elem) {
+        IntrusiveListBase::add(p_elem);
+    }
+
+    void add_last(NodeType* p_elem) {
+        IntrusiveListBase::add_last(p_elem);
+    }
+
+    void remove(NodeType* p_elem) {
+        IntrusiveListBase::remove(p_elem);
+    }
+
+    _FORCE_INLINE_ NodeType * first() { return (NodeType*)_first; }
+    _FORCE_INLINE_ const NodeType * first() const { return (const NodeType*)_first; }
+    IntrusiveList() noexcept = default;
+    _FORCE_INLINE_ ~IntrusiveList() {
+        if (unlikely(_first != nullptr)) {
+            _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "List was not cleared before destruction");
+        }
     }
 };

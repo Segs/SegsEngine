@@ -11,11 +11,7 @@
 // durations to be used in code.
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_CHRONO_H
-#define EASTL_CHRONO_H
-
-	#pragma once 
+#pragma once 
 
 #include <EASTL/internal/config.h>
 #include <EASTL/type_traits.h>
@@ -722,5 +718,3 @@ namespace chrono
 } // namespace chrono
 #endif
 
-
-#endif 

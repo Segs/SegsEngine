@@ -286,7 +286,7 @@ public:
         int dst_input;
     };
 
-    void get_connection_list(ListOld<Connection> *p_connections) const;
+    Vector<Connection> get_connection_list() const;
 
     /* playback */
 

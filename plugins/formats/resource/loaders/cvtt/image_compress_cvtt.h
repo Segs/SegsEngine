@@ -35,7 +35,7 @@
 
 class ResourceFormatBPTC : public QObject, public ImageCodecInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.ResourceFormatBPTC")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ResourceFormatBPTC")
     Q_INTERFACES(ImageCodecInterface)
     Q_OBJECT
 

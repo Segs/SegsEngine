@@ -37,9 +37,133 @@
 #include "core/os/mutex.h"
 
 Mutex *ParticlesMaterial::material_mutex = nullptr;
-SelfList<ParticlesMaterial>::List *ParticlesMaterial::dirty_materials = nullptr;
+
+namespace  {
+
+struct ShaderNames {
+    ShaderNames() :
+        direction("direction"),
+        spread("spread"),
+        flatness("flatness"),
+        initial_linear_velocity("initial_linear_velocity"),
+        initial_angle("initial_angle"),
+        angular_velocity("angular_velocity"),
+        orbit_velocity("orbit_velocity"),
+        linear_accel("linear_accel"),
+        radial_accel("radial_accel"),
+        tangent_accel("tangent_accel"),
+        damping("damping"),
+        scale("scale"),
+        hue_variation("hue_variation"),
+        anim_speed("anim_speed"),
+        anim_offset("anim_offset"),
+        initial_linear_velocity_random("initial_linear_velocity_random"),
+        initial_angle_random("initial_angle_random"),
+        angular_velocity_random("angular_velocity_random"),
+        orbit_velocity_random("orbit_velocity_random"),
+        linear_accel_random("linear_accel_random"),
+        radial_accel_random("radial_accel_random"),
+        tangent_accel_random("tangent_accel_random"),
+        damping_random("damping_random"),
+        scale_random("scale_random"),
+        hue_variation_random("hue_variation_random"),
+        anim_speed_random("anim_speed_random"),
+        anim_offset_random("anim_offset_random"),
+
+        angle_texture("angle_texture"),
+        angular_velocity_texture("angular_velocity_texture"),
+        orbit_velocity_texture("orbit_velocity_texture"),
+        linear_accel_texture("linear_accel_texture"),
+        radial_accel_texture("radial_accel_texture"),
+        tangent_accel_texture("tangent_accel_texture"),
+        damping_texture("damping_texture"),
+        scale_texture("scale_texture"),
+        hue_variation_texture("hue_variation_texture"),
+        anim_speed_texture("anim_speed_texture"),
+        anim_offset_texture("anim_offset_texture"),
+        color("color_value"),
+        color_ramp("color_ramp"),
+        emission_sphere_radius("emission_sphere_radius"),
+        emission_box_extents("emission_box_extents"),
+        emission_texture_point_count("emission_texture_point_count"),
+        emission_texture_points("emission_texture_points"),
+        emission_texture_normal("emission_texture_normal"),
+        emission_texture_color("emission_texture_color"),
+        trail_divisor("trail_divisor"),
+        trail_size_modifier("trail_size_modifier"),
+        trail_color_modifier("trail_color_modifier"),
+        gravity("gravity"),
+        lifetime_randomness("lifetime_randomness")
+    {
+
+    }
+    const StringName direction;
+    const StringName spread;
+    const StringName flatness;
+    const StringName initial_linear_velocity;
+    const StringName initial_angle;
+    const StringName angular_velocity;
+    const StringName orbit_velocity;
+    const StringName linear_accel;
+    const StringName radial_accel;
+    const StringName tangent_accel;
+    const StringName damping;
+    const StringName scale;
+    const StringName hue_variation;
+    const StringName anim_speed;
+    const StringName anim_offset;
+
+    const StringName initial_linear_velocity_random;
+    const StringName initial_angle_random;
+    const StringName angular_velocity_random;
+    const StringName orbit_velocity_random;
+    const StringName linear_accel_random;
+    const StringName radial_accel_random;
+    const StringName tangent_accel_random;
+    const StringName damping_random;
+    const StringName scale_random;
+    const StringName hue_variation_random;
+    const StringName anim_speed_random;
+    const StringName anim_offset_random;
+
+    const StringName angle_texture;
+    const StringName angular_velocity_texture;
+    const StringName orbit_velocity_texture;
+    const StringName linear_accel_texture;
+    const StringName radial_accel_texture;
+    const StringName tangent_accel_texture;
+    const StringName damping_texture;
+    const StringName scale_texture;
+    const StringName hue_variation_texture;
+    const StringName anim_speed_texture;
+    const StringName anim_offset_texture;
+
+    const StringName color;
+    const StringName color_ramp;
+
+    const StringName emission_sphere_radius;
+    const StringName emission_box_extents;
+    const StringName emission_texture_point_count;
+    const StringName emission_texture_points;
+    const StringName emission_texture_normal;
+    const StringName emission_texture_color;
+
+    const StringName trail_divisor;
+    const StringName trail_size_modifier;
+    const StringName trail_color_modifier;
+
+    const StringName gravity;
+
+    const StringName lifetime_randomness;
+};
+// Not using deque here to make use of vector's fast erase idiom.
+static Vector<ParticlesMaterial *> s_dirty_materials;
+static ShaderNames *shader_names=nullptr;
+
+} // end of anonmous namespace
+
 HashMap<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> ParticlesMaterial::shader_map;
-ParticlesMaterial::ShaderNames *ParticlesMaterial::shader_names = nullptr;
+
 
 IMPL_GDCLASS(ParticlesMaterial)
 VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
@@ -47,73 +171,11 @@ VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
 VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
 
 void ParticlesMaterial::init_shaders() {
-
+    ERR_FAIL_COND_MSG(material_mutex!=nullptr,"Cannot reinitialize shaders without calling finish_shaders beforehand");
 #ifndef NO_THREADS
     material_mutex = memnew(Mutex);
 #endif
-
-    dirty_materials = memnew(SelfList<ParticlesMaterial>::List);
-
     shader_names = memnew(ShaderNames);
-
-    shader_names->direction = "direction";
-    shader_names->spread = "spread";
-    shader_names->flatness = "flatness";
-    shader_names->initial_linear_velocity = "initial_linear_velocity";
-    shader_names->initial_angle = "initial_angle";
-    shader_names->angular_velocity = "angular_velocity";
-    shader_names->orbit_velocity = "orbit_velocity";
-    shader_names->linear_accel = "linear_accel";
-    shader_names->radial_accel = "radial_accel";
-    shader_names->tangent_accel = "tangent_accel";
-    shader_names->damping = "damping";
-    shader_names->scale = "scale";
-    shader_names->hue_variation = "hue_variation";
-    shader_names->anim_speed = "anim_speed";
-    shader_names->anim_offset = "anim_offset";
-
-    shader_names->initial_linear_velocity_random = "initial_linear_velocity_random";
-    shader_names->initial_angle_random = "initial_angle_random";
-    shader_names->angular_velocity_random = "angular_velocity_random";
-    shader_names->orbit_velocity_random = "orbit_velocity_random";
-    shader_names->linear_accel_random = "linear_accel_random";
-    shader_names->radial_accel_random = "radial_accel_random";
-    shader_names->tangent_accel_random = "tangent_accel_random";
-    shader_names->damping_random = "damping_random";
-    shader_names->scale_random = "scale_random";
-    shader_names->hue_variation_random = "hue_variation_random";
-    shader_names->anim_speed_random = "anim_speed_random";
-    shader_names->anim_offset_random = "anim_offset_random";
-
-    shader_names->angle_texture = "angle_texture";
-    shader_names->angular_velocity_texture = "angular_velocity_texture";
-    shader_names->orbit_velocity_texture = "orbit_velocity_texture";
-    shader_names->linear_accel_texture = "linear_accel_texture";
-    shader_names->radial_accel_texture = "radial_accel_texture";
-    shader_names->tangent_accel_texture = "tangent_accel_texture";
-    shader_names->damping_texture = "damping_texture";
-    shader_names->scale_texture = "scale_texture";
-    shader_names->hue_variation_texture = "hue_variation_texture";
-    shader_names->anim_speed_texture = "anim_speed_texture";
-    shader_names->anim_offset_texture = "anim_offset_texture";
-
-    shader_names->color = "color_value";
-    shader_names->color_ramp = "color_ramp";
-
-    shader_names->emission_sphere_radius = "emission_sphere_radius";
-    shader_names->emission_box_extents = "emission_box_extents";
-    shader_names->emission_texture_point_count = "emission_texture_point_count";
-    shader_names->emission_texture_points = "emission_texture_points";
-    shader_names->emission_texture_normal = "emission_texture_normal";
-    shader_names->emission_texture_color = "emission_texture_color";
-
-    shader_names->trail_divisor = "trail_divisor";
-    shader_names->trail_size_modifier = "trail_size_modifier";
-    shader_names->trail_color_modifier = "trail_color_modifier";
-
-    shader_names->gravity = "gravity";
-
-    shader_names->lifetime_randomness = "lifetime_randomness";
 }
 
 void ParticlesMaterial::finish_shaders() {
@@ -122,16 +184,14 @@ void ParticlesMaterial::finish_shaders() {
     memdelete(material_mutex);
 #endif
 
-    memdelete(dirty_materials);
-    dirty_materials = nullptr;
+    s_dirty_materials.clear();
 
     memdelete(shader_names);
 }
 
 void ParticlesMaterial::_update_shader() {
 
-    dirty_materials->remove(&element);
-
+    is_dirty_element = false;
     MaterialKey mk = _compute_key();
     if (mk.key == current_key.key)
         return; //no update required in the end
@@ -158,35 +218,35 @@ void ParticlesMaterial::_update_shader() {
 
     String code = "shader_type particles;\n";
 
-    code += "uniform vec3 direction;\n";
-    code += "uniform float spread;\n";
-    code += "uniform float flatness;\n";
-    code += "uniform float initial_linear_velocity;\n";
-    code += "uniform float initial_angle;\n";
-    code += "uniform float angular_velocity;\n";
-    code += "uniform float orbit_velocity;\n";
-    code += "uniform float linear_accel;\n";
-    code += "uniform float radial_accel;\n";
-    code += "uniform float tangent_accel;\n";
-    code += "uniform float damping;\n";
-    code += "uniform float scale;\n";
-    code += "uniform float hue_variation;\n";
-    code += "uniform float anim_speed;\n";
-    code += "uniform float anim_offset;\n";
+    code += R"raw(uniform vec3 direction;
+    uniform float spread;
+    uniform float flatness;
+    uniform float initial_linear_velocity;
+    uniform float initial_angle;
+    uniform float angular_velocity;
+    uniform float orbit_velocity;
+    uniform float linear_accel;
+    uniform float radial_accel;
+    uniform float tangent_accel;
+    uniform float damping;
+    uniform float scale;
+    uniform float hue_variation;
+    uniform float anim_speed;
+    uniform float anim_offset;
 
-    code += "uniform float initial_linear_velocity_random;\n";
-    code += "uniform float initial_angle_random;\n";
-    code += "uniform float angular_velocity_random;\n";
-    code += "uniform float orbit_velocity_random;\n";
-    code += "uniform float linear_accel_random;\n";
-    code += "uniform float radial_accel_random;\n";
-    code += "uniform float tangent_accel_random;\n";
-    code += "uniform float damping_random;\n";
-    code += "uniform float scale_random;\n";
-    code += "uniform float hue_variation_random;\n";
-    code += "uniform float anim_speed_random;\n";
-    code += "uniform float anim_offset_random;\n";
-    code += "uniform float lifetime_randomness;\n";
+    uniform float initial_linear_velocity_random;
+    uniform float initial_angle_random;
+    uniform float angular_velocity_random;
+    uniform float orbit_velocity_random;
+    uniform float linear_accel_random;
+    uniform float radial_accel_random;
+    uniform float tangent_accel_random;
+    uniform float damping_random;
+    uniform float scale_random;
+    uniform float hue_variation_random;
+    uniform float anim_speed_random;
+    uniform float anim_offset_random;
+    uniform float lifetime_randomness;)raw";
 
     switch (emission_shape) {
         case EMISSION_SHAPE_POINT: {
@@ -625,10 +685,10 @@ void ParticlesMaterial::flush_changes() {
     if (material_mutex)
         material_mutex->lock();
 
-    while (dirty_materials->first()) {
+    for(ParticlesMaterial *mat : s_dirty_materials )
+        mat->_update_shader();
 
-        dirty_materials->first()->self()->_update_shader();
-    }
+    s_dirty_materials.clear();
 
     if (material_mutex)
         material_mutex->unlock();
@@ -639,28 +699,29 @@ void ParticlesMaterial::_queue_shader_change() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (!element.in_list()) {
-        dirty_materials->add(&element);
+    if (!is_dirty_element) {
+        s_dirty_materials.emplace_back(this);
+        is_dirty_element= true;
     }
 
     if (material_mutex)
         material_mutex->unlock();
 }
 
-bool ParticlesMaterial::_is_shader_dirty() const {
+//bool ParticlesMaterial::_is_shader_dirty() const {
 
-    bool dirty = false;
+//    bool dirty = false;
 
-    if (material_mutex)
-        material_mutex->lock();
+//    if (material_mutex)
+//        material_mutex->lock();
 
-    dirty = element.in_list();
+//    dirty = element.in_list();
 
-    if (material_mutex)
-        material_mutex->unlock();
+//    if (material_mutex)
+//        material_mutex->unlock();
 
-    return dirty;
-}
+//    return dirty;
+//}
 
 void ParticlesMaterial::set_direction(Vector3 p_direction) {
 
@@ -1254,9 +1315,9 @@ void ParticlesMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(EMISSION_SHAPE_MAX);
 }
 
-ParticlesMaterial::ParticlesMaterial() :
-        element(this) {
+ParticlesMaterial::ParticlesMaterial() {
 
+    is_dirty_element=false;
     set_direction(Vector3(1, 0, 0));
     set_spread(45);
     set_flatness(0);
@@ -1311,6 +1372,8 @@ ParticlesMaterial::~ParticlesMaterial() {
 
         RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
+
+    s_dirty_materials.erase_first_unsorted(this);
 
     if (material_mutex)
         material_mutex->unlock();

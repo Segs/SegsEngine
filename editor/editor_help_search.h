@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/ordered_hash_map.h"
 #include "editor/code_editor.h"
 #include "editor/editor_help.h"
 #include "editor/editor_plugin.h"

@@ -15,12 +15,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_FIXED_POOL_H
-#define EASTL_INTERNAL_FIXED_POOL_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-    #pragma once
+
 
 #include <EASTL/internal/config.h>
 #include <EASTL/functional.h>
@@ -162,8 +160,12 @@ namespace eastl
 
 
         /// operator=
-        /// \note By design we do nothing. We don't attempt to deep-copy member data.
-        fixed_pool_base& operator=(const fixed_pool_base&) = default;
+		///
+		fixed_pool_base& operator=(const fixed_pool_base&)
+		{
+			// By design we do nothing. We don't attempt to deep-copy member data. 
+			return *this;
+		}
 
 
         /// init
@@ -1627,7 +1629,4 @@ namespace eastl
 #if defined(_MSC_VER)
     #pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
 

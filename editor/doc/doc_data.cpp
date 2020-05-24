@@ -35,11 +35,13 @@
 #include "core/io/compression.h"
 #include "core/io/marshalls.h"
 #include "core/method_bind_interface.h"
+#include "core/print_string.h"
 #include "core/os/dir_access.h"
 #include "core/project_settings.h"
 #include "core/script_language.h"
 #include "core/version.h"
 #include "core/string_utils.h"
+#include "core/string_formatter.h"
 #include "scene/resources/theme.h"
 
 #include "EASTL/sort.h"
@@ -252,6 +254,11 @@ void DocData::generate(bool p_basic_types) {
         HashSet<StringName> setters_getters;
 
         StringName name = classes[i];
+        if (!ClassDB::is_class_exposed(name)) {
+            print_verbose(FormatVE("Class '%s' is not exposed, skipping.", name.asCString()));
+            continue;
+        }
+
         StringName cname(name);
         if (StringUtils::begins_with(cname,"_")) //proxy class
             cname = StringName(StringUtils::substr(cname,1, strlen(name.asCString())));

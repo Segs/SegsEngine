@@ -134,7 +134,7 @@ namespace GodotTools
 
             if (file.StartsWith("res://"))
             {
-                var script = (Script)ResourceManager.Load(file, Internal.CSharpLanguageType);
+                var script = (Script)ResourceManager.Load(file,  Internal.CSharpLanguageType);//typeHint:
 
                 if (script != null && Internal.ScriptEditorEdit(script, issue.Line, issue.Column))
                     Internal.EditorNodeShowScriptScreen();

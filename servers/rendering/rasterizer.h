@@ -115,7 +115,7 @@ public:
 
         float depth; //used for sorting
 
-        SelfList<InstanceBase> dependency_item;
+        IntrusiveListNode<InstanceBase> dependency_item;
 
         InstanceBase *lightmap_capture;
         RID lightmap;
@@ -243,6 +243,10 @@ public:
 
     virtual void shader_set_default_texture_param(RID p_shader, const StringName &p_name, RID p_texture) = 0;
     virtual RID shader_get_default_texture_param(RID p_shader, const StringName &p_name) const = 0;
+
+    virtual void shader_add_custom_define(RID p_shader, StringView p_define) = 0;
+    virtual void shader_get_custom_defines(RID p_shader, Vector<StringView> *p_defines) const = 0;
+    virtual void shader_clear_custom_defines(RID p_shader) = 0;
 
     /* COMMON MATERIAL API */
 
@@ -1065,6 +1069,9 @@ public:
 
     virtual void canvas_begin() = 0;
     virtual void canvas_end() = 0;
+
+    virtual void canvas_render_items_begin(const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform) {}
+    virtual void canvas_render_items_end() {}
 
     virtual void canvas_render_items(Item *p_item_list, int p_z, const Color &p_modulate, Light3D *p_light, const Transform2D &p_base_transform) = 0;
     virtual void canvas_debug_viewport_shadows(Light3D *p_lights_with_shadow) = 0;

@@ -54,7 +54,7 @@ class PluginScriptLanguage : public ScriptLanguage {
     godot_pluginscript_language_data *_data;
 
     Mutex *_lock;
-    SelfList<PluginScript>::List _script_list;
+    InList<PluginScript> _script_list;
 
 public:
     String get_name() const override;

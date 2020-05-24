@@ -131,11 +131,11 @@ private:
     struct Quadrant {
 
         Vector2 pos;
-        ListOld<RID> canvas_items;
+        Vector<RID> canvas_items;
         RID body;
         uint32_t shape_owner_id;
 
-        SelfList<Quadrant> dirty_list;
+        IntrusiveListNode<Quadrant> dirty_list;
 
         struct NavPoly {
             RID region;
@@ -177,7 +177,7 @@ private:
 
     HashMap<PosKey, Quadrant> quadrant_map;
 
-    SelfList<Quadrant>::List dirty_quadrant_list;
+    IntrusiveList<Quadrant> dirty_quadrant_list;
 
     bool pending_update;
 

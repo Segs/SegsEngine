@@ -240,7 +240,7 @@ private:
 
     struct Playback {
 
-        ListOld<Blend> blend;
+        Vector<Blend> blend;
         PlaybackData current;
         StringName assigned;
         bool seeked;

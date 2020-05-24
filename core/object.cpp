@@ -35,6 +35,7 @@
 #include "core/core_string_names.h"
 #include "core/message_queue.h"
 #include "core/os/os.h"
+#include "core/object_rc.h"
 #include "core/print_string.h"
 #include "core/resource.h"
 #include "core/script_language.h"
@@ -46,6 +47,8 @@
 #include "core/vmap.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+
+#include <EASTL/vector_map.h>
 
 struct Object::Signal  {
 
@@ -65,7 +68,7 @@ struct Object::Signal  {
 
     struct Slot {
         Connection conn;
-        List<Connection>::iterator cE=nullptr;
+        List<Connection>::iterator cE;
         int reference_count=0;
     };
 
@@ -267,20 +270,15 @@ bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
 
     if (source != p_conn.source) {
         return source < p_conn.source;
-    } else {
-
-        if (signal == p_conn.signal) {
-
-            if (target == p_conn.target) {
-
-                return method < p_conn.method;
-            } else {
-
-                return target < p_conn.target;
-            }
-        } else
-            return signal < p_conn.signal;
     }
+    if (signal == p_conn.signal) {
+
+        if (target == p_conn.target) {
+            return method < p_conn.method;
+        }
+        return target < p_conn.target;
+    }
+    return signal < p_conn.signal;
 }
 Object::Connection::Connection(const Variant &p_variant) {
 
@@ -850,6 +848,38 @@ void Object::cancel_delete() {
 
     _predelete_ok = true;
 }
+
+#ifdef DEBUG_ENABLED
+ObjectRC *Object::_use_rc() {
+
+    // The RC object is lazily created the first time it's requested;
+    // that way, there's no need to allocate and release it at all if this Object
+    // is not being referred by any Variant at all.
+
+    // Although when dealing with Objects from multiple threads some locking
+    // mechanism should be used, this at least makes safe the case of first
+    // assignment.
+
+    ObjectRC *rc = nullptr;
+    ObjectRC *const creating = reinterpret_cast<ObjectRC *>(1);
+    if (unlikely(_rc.compare_exchange_strong(rc, creating, std::memory_order_acq_rel))) {
+        // Not created yet
+        rc = memnew(ObjectRC(this,this->get_instance_id()));
+        _rc.store(rc, std::memory_order_release);
+        return rc;
+    }
+
+    // Spin-wait until we know it's created (or just return if it's already created)
+    for (;;) {
+        if (likely(rc != creating)) {
+            rc->increment();
+            return rc;
+        }
+        rc = _rc.load(std::memory_order_acquire);
+    }
+}
+#endif
+
 //! @note some script languages can't control instance creation, so this function eases the process
 void Object::set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance) {
 
@@ -1054,7 +1084,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         return ERR_UNAVAILABLE;
     }
 
-    ListOld<_ObjectSignalDisconnectData> disconnect_data;
+    FixedVector<_ObjectSignalDisconnectData,32> disconnect_data;
 
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
@@ -1128,17 +1158,12 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
             dd.signal = p_name;
             dd.target = target;
             dd.method = c.method;
-            disconnect_data.push_back(dd);
+            disconnect_data.emplace_back(eastl::move(dd));
         }
     }
-
-    while (!disconnect_data.empty()) {
-
-        const _ObjectSignalDisconnectData &dd = disconnect_data.front()->deref();
+    for(const _ObjectSignalDisconnectData & dd : disconnect_data) {
         disconnect(dd.signal, dd.target, dd.method);
-        disconnect_data.pop_front();
     }
-
     return err;
 }
 
@@ -1235,7 +1260,24 @@ Array Object::_get_incoming_connections() const {
 
     return ret;
 }
+bool Object::has_signal(const StringName &p_name) const {
+    if (!script.is_null()) {
+        Ref<Script> scr = refFromRefPtr<Script>(script);
+        if (scr && scr->has_script_signal(p_name)) {
+            return true;
+        }
+    }
 
+    if (ClassDB::has_signal(get_class_name(), p_name)) {
+        return true;
+    }
+
+    if (_has_user_signal(p_name)) {
+        return true;
+    }
+
+    return false;
+}
 void Object::get_signal_list(Vector<MethodInfo> *p_signals) const {
 
     if (!script.is_null()) {
@@ -1345,9 +1387,6 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     }
 
     Signal::Slot slot;
-    if(p_signal==StringView("play_pressed")) {
-        printf("");
-    }
     Connection conn;
     conn.source = this;
     conn.target = p_to_object;
@@ -1580,6 +1619,7 @@ void Object::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("has_method", {"method"}), &Object::has_method);
 
+    MethodBinder::bind_method(D_METHOD("has_signal", {"signal"}), &Object::has_signal);
     MethodBinder::bind_method(D_METHOD("get_signal_list"), &Object::_get_signal_list);
     MethodBinder::bind_method(D_METHOD("get_signal_connection_list", {"signal"}), &Object::_get_signal_connection_list);
     MethodBinder::bind_method(D_METHOD("get_incoming_connections"), &Object::_get_incoming_connections);
@@ -1624,6 +1664,10 @@ void Object::_bind_methods() {
 void Object::call_deferred(const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     MessageQueue::get_singleton()->push_call(this, p_method, VARIANT_ARG_PASS);
+}
+void Object::call_deferred(eastl::function<void()> func) {
+
+    MessageQueue::get_singleton()->push_call(this->get_instance_id(), func);
 }
 
 void Object::set_deferred(const StringName &p_property, const Variant &p_value) {
@@ -1680,7 +1724,7 @@ VariantType Object::get_static_property_type(const StringName &p_property, bool 
 
 VariantType Object::get_static_property_type_indexed(const Vector<StringName> &p_path, bool *r_valid) const {
 
-    if (p_path.size() == 0) {
+    if (p_path.empty()) {
         if (r_valid)
             *r_valid = false;
 
@@ -1775,13 +1819,26 @@ Object::Object() {
     instance_binding_count = 0;
     memset(_script_instance_bindings, 0, sizeof(void *) * MAX_SCRIPT_INSTANCE_BINDINGS);
     script_instance = nullptr;
+#ifdef DEBUG_ENABLED
+    _rc.store(nullptr, std::memory_order_release);
+#endif
 }
 
 Object::~Object() {
 
+#ifdef DEBUG_ENABLED
+    ObjectRC *rc = _rc.load(std::memory_order_acquire);
+    if (rc) {
+        if (rc->invalidate()) {
+            memfree(rc);
+        }
+    }
+#endif
+
     if (script_instance)
         memdelete(script_instance);
     script_instance = nullptr;
+
     if (_emitting) {
         //@todo this may need to actually reach the debugger prioritarily somehow because it may crash before
         ERR_PRINT("Object " + to_string() +

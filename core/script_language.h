@@ -230,10 +230,7 @@ struct ScriptCodeCompletionOption {
         kind = KIND_PLAIN_TEXT;
     }
 
-    ScriptCodeCompletionOption(StringView p_text, Kind p_kind) {
-        display = p_text;
-        insert_text = p_text;
-        kind = p_kind;
+    ScriptCodeCompletionOption(StringView p_text, Kind p_kind) : kind(p_kind), display(p_text),insert_text(p_text) {
     }
 };
 
@@ -431,7 +428,7 @@ public:
     PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
         owner(p_owner),
         language(p_language),
-        script(std::move(p_script)) {
+        script(eastl::move(p_script)) {
     }
     ~PlaceHolderScriptInstance() override;
 };

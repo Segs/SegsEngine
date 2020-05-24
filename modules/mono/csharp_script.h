@@ -103,7 +103,7 @@ class CSharpScript : public Script {
     String source;
     StringName name;
 
-    SelfList<CSharpScript> script_list;
+    IntrusiveListNode<CSharpScript> script_list;
 
     struct Argument {
         StringName name;
@@ -133,8 +133,8 @@ class CSharpScript : public Script {
     bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<Argument> &params);
 
     bool _update_exports();
-#ifdef TOOLS_ENABLED
     bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
+#ifdef TOOLS_ENABLED
     static int _try_get_member_export_hint(IMonoClassMember *p_member, ManagedType p_type, VariantType p_variant_type, bool p_allow_generics, PropertyHint &r_hint, String &r_hint_string);
 #endif
 
@@ -300,7 +300,7 @@ class CSharpLanguage : public ScriptLanguage {
     bool finalizing;
 
     GDMono *gdmono;
-    SelfList<CSharpScript>::List script_list;
+    Vector<CSharpScript *> script_list;
 
     Mutex *script_instances_mutex;
     Mutex *script_gchandle_release_mutex;

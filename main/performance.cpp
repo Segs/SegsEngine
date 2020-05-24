@@ -116,6 +116,8 @@ StringView Performance::get_monitor_name(Monitor p_monitor) const {
         "raster/shader_changes",
         "raster/surface_changes",
         "raster/draw_calls",
+        "2d/items",
+        "2d/draw_calls",
         "video/video_mem",
         "video/texture_mem",
         "video/vertex_mem",
@@ -154,6 +156,8 @@ float Performance::get_monitor(Monitor p_monitor) const {
         case RENDER_SHADER_CHANGES_IN_FRAME: return RenderingServer::get_singleton()->get_render_info(RS::INFO_SHADER_CHANGES_IN_FRAME);
         case RENDER_SURFACE_CHANGES_IN_FRAME: return RenderingServer::get_singleton()->get_render_info(RS::INFO_SURFACE_CHANGES_IN_FRAME);
         case RENDER_DRAW_CALLS_IN_FRAME: return RenderingServer::get_singleton()->get_render_info(RS::INFO_DRAW_CALLS_IN_FRAME);
+        case RENDER_2D_ITEMS_IN_FRAME: return RenderingServer::get_singleton()->get_render_info(RS::INFO_2D_ITEMS_IN_FRAME);
+        case RENDER_2D_DRAW_CALLS_IN_FRAME: return RenderingServer::get_singleton()->get_render_info(RS::INFO_2D_DRAW_CALLS_IN_FRAME);
         case RENDER_VIDEO_MEM_USED: return RenderingServer::get_singleton()->get_render_info(RS::INFO_VIDEO_MEM_USED);
         case RENDER_TEXTURE_MEM_USED: return RenderingServer::get_singleton()->get_render_info(RS::INFO_TEXTURE_MEM_USED);
         case RENDER_VERTEX_MEM_USED: return RenderingServer::get_singleton()->get_render_info(RS::INFO_VERTEX_MEM_USED);
@@ -186,6 +190,8 @@ Performance::MonitorType Performance::get_monitor_type(Monitor p_monitor) const 
         MONITOR_TYPE_MEMORY,
         MONITOR_TYPE_MEMORY,
         MONITOR_TYPE_MEMORY,
+        MONITOR_TYPE_QUANTITY,
+        MONITOR_TYPE_QUANTITY,
         MONITOR_TYPE_QUANTITY,
         MONITOR_TYPE_QUANTITY,
         MONITOR_TYPE_QUANTITY,

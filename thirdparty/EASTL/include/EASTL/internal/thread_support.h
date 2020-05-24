@@ -3,12 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_THREAD_SUPPORT_H
-#define EASTL_INTERNAL_THREAD_SUPPORT_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-	#pragma once
+
 #include <EASTL/internal/config.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,14 +240,4 @@ namespace eastl
 #if defined(_MSC_VER)
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
 

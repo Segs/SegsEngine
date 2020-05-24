@@ -238,6 +238,7 @@ void Button::set_text(const StringName &p_text) {
 
     if (text == p_text)
         return;
+
     text = p_text;
     xl_text = tr(p_text);
     update();

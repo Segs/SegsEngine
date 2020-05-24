@@ -12,9 +12,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_SORT_EXTRA_H
-#define EASTL_SORT_EXTRA_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/iterator.h>
@@ -23,10 +21,6 @@
 #include <EASTL/heap.h>
 #include <EASTL/sort.h>             // For backwards compatibility due to sorts moved from here to sort.h.
 #include <EASTL/allocator.h>
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -177,26 +171,3 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

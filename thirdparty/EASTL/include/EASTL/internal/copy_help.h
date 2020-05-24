@@ -3,11 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_COPY_HELP_H
-#define EASTL_INTERNAL_COPY_HELP_H
-
-
-    #pragma once
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/type_traits.h>
@@ -110,9 +106,10 @@ namespace eastl
         template <typename T>
         static T* move_or_copy(const T* first, const T* last, T* result)
         {
-            // We could use memcpy here if there's no range overlap, but memcpy is rarely much faster than memmove.
-            if((last - first)==0)
+			if (EASTL_UNLIKELY(first == last))
                 return result;
+
+			// We could use memcpy here if there's no range overlap, but memcpy is rarely much faster than memmove.
             return (T*)memmove(result, first, (size_t)((uintptr_t)last - (uintptr_t)first)) + (last - first);
         }
     };
@@ -193,20 +190,3 @@ namespace eastl
         return eastl::move_and_copy_unwrapper<isMove>(eastl::unwrap_iterator(first), eastl::unwrap_iterator(last), result);
     }
 } // namespace eastl
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

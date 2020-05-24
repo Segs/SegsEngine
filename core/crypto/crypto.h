@@ -83,7 +83,6 @@ public:
 };
 
 class ResourceFormatLoaderCrypto : public ResourceFormatLoader {
-    GDCLASS(ResourceFormatLoaderCrypto, ResourceFormatLoader)
 
 public:
     RES load(StringView p_path, StringView p_original_path = StringView (), Error *r_error = nullptr) override;
@@ -93,7 +92,6 @@ public:
 };
 
 class ResourceFormatSaverCrypto : public ResourceFormatSaver {
-    GDCLASS(ResourceFormatSaverCrypto, ResourceFormatSaver)
 
 public:
     Error save(StringView p_path, const RES &p_resource, uint32_t p_flags = 0) override;

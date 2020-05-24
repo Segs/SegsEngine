@@ -35,14 +35,13 @@
 #include "core/os/main_loop.h"
 #include "main/main.h"
 
+#include <EASTL/algorithm.h>
+
 #ifdef CRASH_HANDLER_EXCEPTION
 
 // Backtrace code code based on: https://stackoverflow.com/questions/6205981/windows-c-stack-trace-from-a-running-app
 
 #include <psapi.h>
-#include <algorithm>
-#include <iterator>
-#include <vector>
 
 #pragma comment(lib, "psapi.lib")
 #pragma comment(lib, "dbghelp.lib")
@@ -54,8 +53,8 @@
 #pragma pack(pop, before_imagehlp)
 
 struct module_data {
-	std::string image_name;
-	std::string module_name;
+	eastl::string image_name;
+    eastl::string module_name;
 	void *base_address;
 	DWORD load_size;
 };
@@ -76,13 +75,13 @@ public:
 		SymGetSymFromAddr64(process, address, &displacement, sym);
 	}
 
-	std::string name() { return std::string(sym->Name); }
-	std::string undecorated_name() {
+    eastl::string name() { return eastl::string(sym->Name); }
+    eastl::string undecorated_name() {
 		if (*sym->Name == '\0')
 			return "<couldn't map PC to fn name>";
-		std::vector<char> und_name(max_name_len);
+        eastl::vector<char> und_name(max_name_len);
 		UnDecorateSymbolName(sym->Name, &und_name[0], max_name_len, UNDNAME_COMPLETE);
-		return std::string(&und_name[0], strlen(&und_name[0]));
+		return eastl::string(&und_name[0], strlen(&und_name[0]));
 	}
 };
 
@@ -106,8 +105,8 @@ public:
 		ret.image_name = temp;
 		GetModuleBaseName(process, module, temp, sizeof(temp));
 		ret.module_name = temp;
-		std::vector<char> img(ret.image_name.begin(), ret.image_name.end());
-		std::vector<char> mod(ret.module_name.begin(), ret.module_name.end());
+		eastl::vector<char> img(ret.image_name.begin(), ret.image_name.end());
+		eastl::vector<char> mod(ret.module_name.begin(), ret.module_name.end());
 		SymLoadModule64(process, 0, &img[0], &mod[0], (DWORD64)ret.base_address, ret.load_size);
 		return ret;
 	}
@@ -118,9 +117,9 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 	HANDLE hThread = GetCurrentThread();
 	DWORD offset_from_symbol = 0;
 	IMAGEHLP_LINE64 line = { 0 };
-	std::vector<module_data> modules;
+	eastl::vector<module_data> modules;
 	DWORD cbNeeded;
-	std::vector<HMODULE> module_handles(1);
+	eastl::vector<HMODULE> module_handles(1);
 
 	if (OS::get_singleton() == NULL || OS::get_singleton()->is_disable_crash_handler() || IsDebuggerPresent()) {
 		return EXCEPTION_CONTINUE_SEARCH;
@@ -139,7 +138,8 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 	EnumProcessModules(process, &module_handles[0], module_handles.size() * sizeof(HMODULE), &cbNeeded);
 	module_handles.resize(cbNeeded / sizeof(HMODULE));
 	EnumProcessModules(process, &module_handles[0], module_handles.size() * sizeof(HMODULE), &cbNeeded);
-	std::transform(module_handles.begin(), module_handles.end(), std::back_inserter(modules), get_mod_info(process));
+    eastl::transform(module_handles.begin(), module_handles.end(), eastl::back_inserter(modules), get_mod_info(process));
+
 	void *base = modules[0].base_address;
 
 	// Setup stuff:
@@ -182,7 +182,7 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 			skip_first = false;
 		} else {
 			if (frame.AddrPC.Offset != 0) {
-				std::string fnName = symbol(process, frame.AddrPC.Offset).undecorated_name();
+				eastl::string fnName = symbol(process, frame.AddrPC.Offset).undecorated_name();
 
 				if (SymGetLineFromAddr64(process, frame.AddrPC.Offset, &offset_from_symbol, &line))
 					fprintf(stderr, "[%d] %s (%s:%d)\n", n, fnName.c_str(), line.FileName, line.LineNumber);

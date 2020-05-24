@@ -64,11 +64,13 @@ void EditorLog::_notification(int p_what) {
 
         //button->set_icon(get_icon("Console","EditorIcons"));
         log->add_font_override("normal_font", get_font("output_source", "EditorFonts"));
+        log->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
         Ref<DynamicFont> df_output_code = dynamic_ref_cast<DynamicFont>(get_font("output_source", "EditorFonts"));
         if (df_output_code) {
             if (log != nullptr) {
                 log->add_font_override("normal_font", get_font("output_source", "EditorFonts"));
+                log->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4));
             }
         }
     }

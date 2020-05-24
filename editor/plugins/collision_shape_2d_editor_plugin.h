@@ -72,6 +72,8 @@ class CollisionShape2DEditor : public Control {
 
 protected:
     static void _bind_methods();
+    void _notification(int p_what);
+    void _node_removed(Node *p_node);
 
 public:
     bool forward_canvas_gui_input(const Ref<InputEvent> &p_event);

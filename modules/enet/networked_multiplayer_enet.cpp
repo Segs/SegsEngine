@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/string_utils.inl"
 #include "core/string_formatter.h"
+#include "core/crypto/crypto.h"
 #include "EASTL/deque.h"
 
 #include <enet/enet.h>
@@ -59,6 +60,11 @@ struct NetworkedMultiplayerENet_Priv {
     Dequeue<Packet> incoming_packets;
     Vector<uint8_t> src_compressor_mem;
     Vector<uint8_t> dst_compressor_mem;
+
+    Ref<CryptoKey> dtls_key;
+    Ref<X509Certificate> dtls_cert;
+    bool dtls_enabled;
+    bool dtls_verify;
 
     Packet current_packet;
     ENetCompressor enet_compressor;

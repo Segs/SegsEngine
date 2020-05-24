@@ -479,18 +479,20 @@ bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringNam
         }
     }
 
-    if (p_object->call_va("property_can_revert", p_property).as<bool>()) {
-
-        has_revert = true;
-    }
-
-    if (!has_revert && !p_object->get_script().is_null()) {
-        Ref<Script> scr(refFromRefPtr<Script>(p_object->get_script()));
-        if (scr) {
-            Variant orig_value;
-            if (scr->get_property_default_value(p_property, orig_value)) {
-                if (orig_value != p_object->get(p_property)) {
-                    has_revert = true;
+    // If the object implements property_can_revert, rely on that completely
+    // (i.e. don't then try to revert to default value - the property_get_revert implementation
+    // can do that if so desired)
+    if (p_object->has_method("property_can_revert")) {
+        has_revert = p_object->call_va("property_can_revert", Variant(p_property)).as<bool>();
+    } else {
+        if (!has_revert && !p_object->get_script().is_null()) {
+            Ref<Script> scr(refFromRefPtr<Script>(p_object->get_script()));
+            if (scr) {
+                Variant orig_value;
+                if (scr->get_property_default_value(p_property, orig_value)) {
+                    if (orig_value != p_object->get(p_property)) {
+                        has_revert = true;
+                    }
                 }
             }
         }
@@ -791,15 +793,11 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
     help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
-    String text = String(TTR("Property:")) + " [u][b]" + StringUtils::get_slice(p_text,"::", 0) + "[/b][/u]\n";
-    text += StringUtils::strip_edges(StringUtils::get_slice(p_text,"::", 1));
-    help_bit->set_text(text);
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
-
     auto slices = StringUtils::split(p_text,"::", false);
+
     if (!slices.empty()) {
         StringView property_name = StringUtils::strip_edges(slices[0]);
-        String text = String(TTR("Property:").asCString()) + " [u][b]" + property_name + "[/b][/u]";
+        String text = String(TTR("Property:")) + " [u][b]" + property_name + "[/b][/u]\n";
 
         if (slices.size() > 1) {
             StringView property_doc = StringUtils::strip_edges(slices[1]);
@@ -1185,7 +1183,6 @@ void EditorInspectorSection::setup(StringView p_section, StringView p_label, Obj
     object = p_object;
     bg_color = p_bg_color;
     foldable = p_foldable;
-
     if (!foldable && !vbox_added) {
         add_child(vbox);
         vbox_added = true;
@@ -1580,15 +1577,13 @@ void EditorInspector::update_tree() {
         }
 
         String basename(p.name);
-        if (!group.empty()) {
-            if (!group_base.empty()) {
-                if (begins_with(basename,group_base)) {
-                    basename = replace_first(basename,group_base, "");
-                } else if (begins_with(group_base,basename)) {
-                    //keep it, this is used pretty often
-                } else {
-                    group = ""; //no longer using group base, clear
-                }
+        if (!group.empty() && !group_base.empty()) {
+            if (begins_with(basename,group_base)) {
+                basename = replace_first(basename,group_base, "");
+            } else if (begins_with(group_base,basename)) {
+                //keep it, this is used pretty often
+            } else {
+                group = ""; //no longer using group base, clear
             }
         }
 
@@ -1636,6 +1631,7 @@ void EditorInspector::update_tree() {
 
             String acc_path;
             int level = 1;
+
             for (int i = 0; i < StringUtils::get_slice_count(path,'/'); i++) {
                 StringView path_name = StringUtils::get_slice(path,'/', i);
                 if (i > 0)
@@ -1645,6 +1641,7 @@ void EditorInspector::update_tree() {
                     EditorInspectorSection *section = memnew(EditorInspectorSection);
                     current_vbox->add_child(section);
                     sections.push_back(section);
+
                     String capitalized_path;
                     if (capitalize_paths) {
                         capitalized_path = StringUtils::capitalize(path_name);
@@ -1712,6 +1709,17 @@ void EditorInspector::update_tree() {
                         if (F->second.properties[i].name == propname.asCString()) {
                             descr = StringUtils::strip_edges(F->second.properties[i].description);
                             break;
+                        }
+                    }
+                    Vector<StringView> slices;
+                    String::split_ref(slices,propname,'/');
+                    if (slices.size() == 2 && slices[0].starts_with("custom_")) {
+                        // Likely a theme property.
+                        for (int i = 0; i < F->second.theme_properties.size(); i++) {
+                            if (F->second.theme_properties[i].name == slices[1]) {
+                                descr = StringUtils::strip_edges(F->second.theme_properties[i].description);
+                                break;
+                            }
                         }
                     }
                     if (!F->second.inherits.empty()) {

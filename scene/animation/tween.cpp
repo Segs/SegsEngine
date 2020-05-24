@@ -136,14 +136,17 @@ bool Tween::_set(const StringName &p_name, const Variant &p_value) {
     // Set the correct attribute based on the given name
     if (p_name == "playback/speed" || p_name == "speed") { // Backwards compatibility
         set_speed_scale(p_value);
+        return true;
 
     } else if (p_name == "playback/active") {
         set_active(p_value);
+        return true;
 
     } else if (p_name == "playback/repeat") {
         set_repeat(p_value);
+        return true;
     }
-    return true;
+    return false;
 }
 
 bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
@@ -151,14 +154,17 @@ bool Tween::_get(const StringName &p_name, Variant &r_ret) const {
     // Get the correct attribute based on the given name
     if (p_name == "playback/speed") { // Backwards compatibility
         r_ret = speed_scale;
+        return true;
 
     } else if (p_name == "playback/active") {
         r_ret = is_active();
+        return true;
 
     } else if (p_name == "playback/repeat") {
         r_ret = is_repeat();
+        return true;
     }
-    return true;
+    return false;
 }
 
 void Tween::_get_property_list(Vector<PropertyInfo> *p_list) const {

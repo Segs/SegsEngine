@@ -34,7 +34,7 @@
 #include "editor/plugin_interfaces/PluginDeclarations.h"
 
 class ResourceImporterOBJ : public QObject, public EditorSceneImporterInterface,public ResourceImporterInterface {
-    Q_PLUGIN_METADATA(IID "org.godot.OBJImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.OBJImporter")
     Q_INTERFACES(EditorSceneImporterInterface ResourceImporterInterface)
     Q_OBJECT
 

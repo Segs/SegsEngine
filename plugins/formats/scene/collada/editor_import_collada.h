@@ -34,7 +34,7 @@
 
 class EditorSceneImporterCollada : public QObject, public EditorSceneImporterInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.editor.SceneImporterCollada")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.editor.SceneImporterCollada")
     Q_INTERFACES(EditorSceneImporterInterface)
     Q_OBJECT
 

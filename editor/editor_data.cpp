@@ -454,6 +454,9 @@ bool EditorData::call_build() {
     for (size_t i = 0; i < editor_plugins.size() && result; i++) {
 
         result &= editor_plugins[i]->build();
+        //FIXME: remove this when we're sure things are working.
+        if(result==false)
+            static const char *a="I'm here to be a possible breakpoint location in case of plugin `build` failures";
     }
 
     return result;

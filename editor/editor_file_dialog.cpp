@@ -211,7 +211,10 @@ Vector<String> EditorFileDialog::get_selected_files() const {
 
 void EditorFileDialog::update_dir() {
 
-    dir->set_text(dir_access->get_current_dir());
+    if (drives->is_visible()) {
+        drives->select(dir_access->get_current_drive());
+    }
+    dir->set_text(dir_access->get_current_dir_without_drive());
 
     // Disable "Open" button only when selecting file(s) mode.
     get_ok()->set_disabled(_is_open_should_be_disabled());
@@ -961,7 +964,7 @@ void EditorFileDialog::add_filter(StringView p_filter) {
 }
 String EditorFileDialog::get_current_dir() const {
 
-    return dir->get_text();
+    return dir_access->get_current_dir();
 }
 String EditorFileDialog::get_current_file() const {
 
@@ -969,7 +972,7 @@ String EditorFileDialog::get_current_file() const {
 }
 String EditorFileDialog::get_current_path() const {
 
-    return PathUtils::plus_file(dir->get_text(),file->get_text());
+    return PathUtils::plus_file(dir_access->get_current_dir(),file->get_text());
 }
 void EditorFileDialog::set_current_dir(StringView p_dir) {
 
@@ -1165,6 +1168,12 @@ void EditorFileDialog::_update_drives() {
         drives->hide();
     } else {
         drives->clear();
+        Node *dp = drives->get_parent();
+        if (dp) {
+            dp->remove_child(drives);
+        }
+        dp = dir_access->drives_are_shortcuts() ? shortcuts_container : drives_container;
+        dp->add_child(drives);
         drives->show();
 
         for (int i = 0; i < dir_access->get_drive_count(); i++) {
@@ -1558,6 +1567,12 @@ EditorFileDialog::EditorFileDialog() {
     dir_up->connect("pressed", this, "_go_up");
 
     pathhb->add_child(memnew(Label(TTR("Path:"))));
+
+    drives_container = memnew(HBoxContainer);
+    pathhb->add_child(drives_container);
+
+    shortcuts_container = memnew(HBoxContainer);
+    pathhb->add_child(shortcuts_container);
 
     dir = memnew(LineEdit);
     pathhb->add_child(dir);

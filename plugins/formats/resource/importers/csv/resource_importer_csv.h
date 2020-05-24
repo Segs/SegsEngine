@@ -33,7 +33,7 @@
     #include "core/plugin_interfaces/PluginDeclarations.h"
 
     class ResourceImporterCSV : public QObject, public ResourceImporterInterface {
-        Q_PLUGIN_METADATA(IID "org.godot.CSVImporter")
+        Q_PLUGIN_METADATA(IID "org.segs_engine.CSVImporter")
         Q_INTERFACES(ResourceImporterInterface)
         Q_OBJECT
 public:

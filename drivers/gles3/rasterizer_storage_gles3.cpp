@@ -32,7 +32,7 @@
 
 #include "rasterizer_canvas_gles3.h"
 #include "rasterizer_scene_gles3.h"
-
+#include "core/print_string.h"
 #include "core/engine.h"
 #include "core/project_settings.h"
 #include "core/string_utils.h"
@@ -104,6 +104,8 @@
 #define _EXT_COMPRESSED_SRGB_ALPHA_BPTC_UNORM 0x8E8D
 #define _EXT_COMPRESSED_RGB_BPTC_SIGNED_FLOAT 0x8E8E
 #define _EXT_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT 0x8E8F
+
+#define _GL_TEXTURE_EXTERNAL_OES 0x8D65
 
 void glTexStorage2DCustom(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type) {
     for (int i = 0; i < levels; i++) {
@@ -600,6 +602,10 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
             texture->target = GL_TEXTURE_2D;
             texture->images.resize(1);
         } break;
+        case RS::TEXTURE_TYPE_EXTERNAL: {
+            texture->target = GL_TEXTURE_2D; //_GL_TEXTURE_EXTERNAL_OES;
+            texture->images.resize(0);
+        } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
             texture->target = GL_TEXTURE_CUBE_MAP;
             texture->images.resize(6);
@@ -613,26 +619,33 @@ void RasterizerStorageGLES3::texture_allocate(RID p_texture, int p_width, int p_
             texture->images.resize(p_depth_3d);
         } break;
     }
+    if (p_type != RS::TEXTURE_TYPE_EXTERNAL) {
+        Image::Format real_format;
+        _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type,
+                compressed, srgb, false);
 
-    Image::Format real_format;
-    _get_gl_image_and_format(Ref<Image>(), texture->format, texture->flags, real_format, format, internal_format, type, compressed, srgb, false);
+        texture->alloc_width = texture->width;
+        texture->alloc_height = texture->height;
+        texture->alloc_depth = texture->depth;
 
-    texture->alloc_width = texture->width;
-    texture->alloc_height = texture->height;
-    texture->alloc_depth = texture->depth;
-
-    texture->gl_format_cache = format;
-    texture->gl_type_cache = type;
-    texture->gl_internal_format_cache = internal_format;
-    texture->compressed = compressed;
-    texture->srgb = srgb;
-    texture->data_size = 0;
-    texture->mipmaps = 1;
+        texture->gl_format_cache = format;
+        texture->gl_type_cache = type;
+        texture->gl_internal_format_cache = internal_format;
+        texture->compressed = compressed;
+        texture->srgb = srgb;
+        texture->data_size = 0;
+        texture->mipmaps = 1;
+    }
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture->target, texture->tex_id);
 
-    if (p_type == RS::TEXTURE_TYPE_3D || p_type == RS::TEXTURE_TYPE_2D_ARRAY) {
+    if (p_type == RS::TEXTURE_TYPE_EXTERNAL) {
+        glTexParameteri(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(texture->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(texture->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    } else if (p_type == RS::TEXTURE_TYPE_3D || p_type == RS::TEXTURE_TYPE_2D_ARRAY) {
 
         int width = p_width;
         int height = p_height;
@@ -680,6 +693,7 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     ERR_FAIL_COND(texture->render_target);
     ERR_FAIL_COND(texture->format != p_image->get_format());
     ERR_FAIL_COND(not p_image);
+    ERR_FAIL_COND(texture->type == RS::TEXTURE_TYPE_EXTERNAL);
 
     GLenum type;
     GLenum format;
@@ -711,7 +725,8 @@ void RasterizerStorageGLES3::texture_set_data(RID p_texture, const Ref<Image> &p
     GLenum blit_target = GL_TEXTURE_2D;
 
     switch (texture->type) {
-        case RS::TEXTURE_TYPE_2D: {
+        case RS::TEXTURE_TYPE_2D:
+        case RS::TEXTURE_TYPE_EXTERNAL: {
             blit_target = GL_TEXTURE_2D;
         } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
@@ -911,6 +926,7 @@ void RasterizerStorageGLES3::texture_set_data_partial(RID p_texture, const Ref<I
     ERR_FAIL_COND(src_x < 0 || src_y < 0 || src_x + src_w > p_image->get_width() || src_y + src_h > p_image->get_height());
     ERR_FAIL_COND(dst_x < 0 || dst_y < 0 || dst_x + src_w > texture->alloc_width || dst_y + src_h > texture->alloc_height);
     ERR_FAIL_COND(p_dst_mip < 0 || p_dst_mip >= texture->mipmaps);
+    ERR_FAIL_COND(texture->type == RS::TEXTURE_TYPE_EXTERNAL);
 
     GLenum type;
     GLenum format;
@@ -930,7 +946,8 @@ void RasterizerStorageGLES3::texture_set_data_partial(RID p_texture, const Ref<I
     GLenum blit_target = GL_TEXTURE_2D;
 
     switch (texture->type) {
-        case RS::TEXTURE_TYPE_2D: {
+        case RS::TEXTURE_TYPE_2D:
+        case RS::TEXTURE_TYPE_EXTERNAL: {
             blit_target = GL_TEXTURE_2D;
         } break;
         case RS::TEXTURE_TYPE_CUBEMAP: {
@@ -2010,6 +2027,9 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
+        //reset flags on Sky Texture that may have changed
+        texture_set_flags(sky->panorama, texture->flags);
+
         glBindFramebuffer(GL_FRAMEBUFFER, RasterizerStorageGLES3::system_fbo);
         glDeleteFramebuffers(1, &tmp_fb);
         glDeleteFramebuffers(1, &tmp_fb2);
@@ -2218,7 +2238,7 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
     //all materials using this shader will have to be invalidated, unfortunately
 
-    for (SelfList<Material> *E = p_shader->materials.first(); E; E = E->next()) {
+    for (IntrusiveListNode<Material> *E = p_shader->materials.first(); E; E = E->next()) {
 
         _material_make_dirty(E->self());
     }
@@ -2319,6 +2339,7 @@ void RasterizerStorageGLES3::shader_get_param_list(RID p_shader, Vector<Property
             case ShaderLanguage::TYPE_MAT3: pi.type = VariantType::BASIS; break;
             case ShaderLanguage::TYPE_MAT4: pi.type = VariantType::TRANSFORM; break;
             case ShaderLanguage::TYPE_SAMPLER2D:
+            case ShaderLanguage::TYPE_SAMPLEREXT:
             case ShaderLanguage::TYPE_ISAMPLER2D:
             case ShaderLanguage::TYPE_USAMPLER2D: {
 
@@ -2377,6 +2398,33 @@ RID RasterizerStorageGLES3::shader_get_default_texture_param(RID p_shader, const
     return E->second;
 }
 
+void RasterizerStorageGLES3::shader_add_custom_define(RID p_shader, StringView p_define) {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->add_custom_define(p_define);
+
+    _shader_make_dirty(shader);
+}
+
+void RasterizerStorageGLES3::shader_get_custom_defines(RID p_shader, Vector<StringView> *p_defines) const {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->get_custom_defines(p_defines);
+}
+
+void RasterizerStorageGLES3::shader_clear_custom_defines(RID p_shader) {
+
+    Shader *shader = shader_owner.get(p_shader);
+    ERR_FAIL_COND(!shader);
+
+    shader->shader->clear_custom_defines();
+
+    _shader_make_dirty(shader);
+}
 /* COMMON MATERIAL API */
 
 void RasterizerStorageGLES3::_material_make_dirty(Material *p_material) const {
@@ -3087,7 +3135,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
     //fill up the UBO if it needs to be filled
     if (material->shader && material->ubo_size) {
         uint8_t *local_ubo = (uint8_t *)alloca(material->ubo_size);
-
+        //TODO: in debug mode non-set bytes of the ubo are filled with garbage, maybe it's ok?
         for (eastl::pair<const StringName,ShaderLanguage::ShaderNode::Uniform> &E : material->shader->uniforms) {
 
             if (E.second.order < 0)
@@ -6401,7 +6449,7 @@ RID RasterizerStorageGLES3::particles_get_draw_pass_mesh(RID p_particles, int p_
 
 void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_delta) {
 
-    float new_phase = Math::fmod((float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale, (float)1.0);
+    float new_phase = Math::fmod((float)p_particles->phase + (p_delta / p_particles->lifetime) * p_particles->speed_scale, 1.0f);
 
     if (p_particles->clear) {
         p_particles->cycle_number = 0;
@@ -6447,24 +6495,26 @@ void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_
 
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
     glBindVertexArray(0);
-    /* //debug particles :D
+#if 0
+    // /* //debug particles :D
     glBindBuffer(GL_ARRAY_BUFFER, p_particles->particle_buffers[0]);
 
     float *data = (float *)glMapBufferRange(GL_ARRAY_BUFFER, 0, p_particles->amount * 16 * 6, GL_MAP_READ_BIT);
     for (int i = 0; i < p_particles->amount; i++) {
         int ofs = i * 24;
         print_line(itos(i) + ":");
-        print_line("\tColor: " + Color(data[ofs + 0], data[ofs + 1], data[ofs + 2], data[ofs + 3]));
-        print_line("\tVelocity: " + Vector3(data[ofs + 4], data[ofs + 5], data[ofs + 6]));
+        print_line("\tColor: " + (String)Color(data[ofs + 0], data[ofs + 1], data[ofs + 2], data[ofs + 3]));
+        print_line("\tVelocity: " + (String)Vector3(data[ofs + 4], data[ofs + 5], data[ofs + 6]));
         print_line("\tActive: " + itos(data[ofs + 7]));
-        print_line("\tCustom: " + Color(data[ofs + 8], data[ofs + 9], data[ofs + 10], data[ofs + 11]));
-        print_line("\tXF X: " + Color(data[ofs + 12], data[ofs + 13], data[ofs + 14], data[ofs + 15]));
-        print_line("\tXF Y: " + Color(data[ofs + 16], data[ofs + 17], data[ofs + 18], data[ofs + 19]));
-        print_line("\tXF Z: " + Color(data[ofs + 20], data[ofs + 21], data[ofs + 22], data[ofs + 23]));
+        print_line("\tCustom: " + (String)Color(data[ofs + 8], data[ofs + 9], data[ofs + 10], data[ofs + 11]));
+        print_line("\tXF X: " + (String)Color(data[ofs + 12], data[ofs + 13], data[ofs + 14], data[ofs + 15]));
+        print_line("\tXF Y: " + (String)Color(data[ofs + 16], data[ofs + 17], data[ofs + 18], data[ofs + 19]));
+        print_line("\tXF Z: " + (String)Color(data[ofs + 20], data[ofs + 21], data[ofs + 22], data[ofs + 23]));
     }
 
     glUnmapBuffer(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
     //*/
 }
 
@@ -6682,6 +6732,8 @@ void RasterizerStorageGLES3::instance_remove_skeleton(RID p_skeleton, Rasterizer
 void RasterizerStorageGLES3::instance_add_dependency(RID p_base, RasterizerScene::InstanceBase *p_instance) {
 
     Instantiable *inst = nullptr;
+    assert(!p_instance->dependency_item.in_list());
+
     switch (p_instance->base_type) {
         case RS::INSTANCE_MESH: {
             inst = mesh_owner.getornull(p_base);
@@ -6761,7 +6813,7 @@ void RasterizerStorageGLES3::instance_remove_dependency(RID p_base, RasterizerSc
             ERR_FAIL_COND(!inst);
         } break;
         default: {
-            ERR_FAIL();
+            CRASH_NOW_MSG("Unhandled type in instance_remove_dependency");
         }
     }
 
@@ -7905,6 +7957,9 @@ void RasterizerStorageGLES3::render_info_end_capture() {
     info.snap.surface_switch_count = info.render.surface_switch_count - info.snap.surface_switch_count;
     info.snap.shader_rebind_count = info.render.shader_rebind_count - info.snap.shader_rebind_count;
     info.snap.vertices_count = info.render.vertices_count - info.snap.vertices_count;
+    info.snap._2d_item_count = info.render._2d_item_count - info.snap._2d_item_count;
+    info.snap._2d_draw_call_count = info.render._2d_draw_call_count - info.snap._2d_draw_call_count;
+
 }
 
 int RasterizerStorageGLES3::get_captured_render_info(RS::RenderInfo p_info) {
@@ -7930,6 +7985,12 @@ int RasterizerStorageGLES3::get_captured_render_info(RS::RenderInfo p_info) {
         case RS::INFO_DRAW_CALLS_IN_FRAME: {
             return info.snap.draw_call_count;
         } break;
+        case RS::INFO_2D_ITEMS_IN_FRAME: {
+            return info.snap._2d_item_count;
+        } break;
+        case RS::INFO_2D_DRAW_CALLS_IN_FRAME: {
+            return info.snap._2d_draw_call_count;
+        } break;
         default: {
             return get_render_info(p_info);
         }
@@ -7951,6 +8012,10 @@ int RasterizerStorageGLES3::get_render_info(RS::RenderInfo p_info) {
             return info.render_final.surface_switch_count;
         case RS::INFO_DRAW_CALLS_IN_FRAME:
             return info.render_final.draw_call_count;
+        case RS::INFO_2D_ITEMS_IN_FRAME:
+            return info.render_final._2d_item_count;
+        case RS::INFO_2D_DRAW_CALLS_IN_FRAME:
+            return info.render_final._2d_draw_call_count;
         case RS::INFO_USAGE_VIDEO_MEM_TOTAL:
             return 0; //no idea
         case RS::INFO_VIDEO_MEM_USED:

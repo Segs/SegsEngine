@@ -347,7 +347,12 @@ String OS::get_data_path() const {
 
 // OS equivalent of XDG_CONFIG_HOME
 String OS::get_config_path() const {
+    //BUG:  On windows godot assumes that config directory is the same as data path! To fix this we'll have to also fix tools that are blindly using this directory ( rider plugin etc.)
+#ifdef Q_OS_WIN
+    return get_data_path();
+#else
     return qPrintable(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).front());
+#endif
 }
 
 // OS equivalent of XDG_CACHE_HOME

@@ -12,6 +12,8 @@
 namespace eastl
 {
 
+
+	///////////////////////////////////////////////////////////////////////
     // underlying_type
     //
     // Defines a member typedef type of type that is the underlying type for the enumeration T.

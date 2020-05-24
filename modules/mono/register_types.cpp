@@ -36,12 +36,20 @@
 
 #include "csharp_script.h"
 #include "signal_awaiter_utils.h"
+#ifdef TOOLS_ENABLED
+#include <QtCore/QtGlobal>
+#endif
+
 CSharpLanguage *script_language_cs = nullptr;
 Ref<ResourceFormatLoaderCSharpScript> resource_loader_cs;
 Ref<ResourceFormatSaverCSharpScript> resource_saver_cs;
 
 _GodotSharp *_godotsharp = nullptr;
 void register_mono_types() {
+#ifdef TOOLS_ENABLED
+    Q_INIT_RESOURCE(cs_sources);
+#endif
+
     ClassDB::register_class<CSharpScript>();
     ClassDB::register_class<_GodotSharp>();
     MonoGCHandle::initialize_class();

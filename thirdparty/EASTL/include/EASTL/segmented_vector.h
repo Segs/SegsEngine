@@ -2,10 +2,7 @@
 // Copyright (c) Electronic Arts Inc. All rights reserved.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef EASTL_SEGMENTED_VECTOR_H
-#define EASTL_SEGMENTED_VECTOR_H
-
-	#pragma once 
+#pragma once 
 
 #include <EASTL/internal/config.h>
 
@@ -414,6 +411,8 @@ namespace eastl
 	inline void
 	segmented_vector<T, Count, Allocator>::erase_unsorted(segment_type& segment, typename segment_type::iterator it)
 	{
+		EA_UNUSED(segment);
+
 		*it = back();
 		pop_back();
 	}
@@ -516,4 +515,3 @@ namespace eastl
     }
 }
 
-#endif

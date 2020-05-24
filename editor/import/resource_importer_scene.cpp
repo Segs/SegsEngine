@@ -1553,7 +1553,8 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         scene = post_import_script->post_import(scene);
         if (!scene) {
             EditorNode::add_io_error(
-                    TTR("Error running post-import script:") + " " + StringView(post_import_script_path));
+                    TTR("Error running post-import script:") + " " + post_import_script_path + "\n" +
+                    TTR("Did you return a Node-derived object in the `post_import()` method?"));
             return err;
         }
     }

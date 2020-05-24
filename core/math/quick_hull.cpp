@@ -75,7 +75,7 @@ struct QHFaceConnect {
     QHFaceConnect(List<QHFace>::iterator end) : left(end),right(end) {}
 };
 struct QHRetFaceConnect {
-    ListOld<Geometry::MeshData::Face>::Element *left=nullptr, *right=nullptr;
+    List<Geometry::MeshData::Face>::iterator left, right;
 };
 } // end of anonymous namespace
 
@@ -392,7 +392,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
     //make a map of edges again
     Map<QHEdge, QHRetFaceConnect> ret_edges;
-    ListOld<Geometry::MeshData::Face> ret_faces;
+    List<Geometry::MeshData::Face> ret_faces;
 
     for (const QHFace &E : faces) {
 
@@ -403,7 +403,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
             f.indices.push_back(E.vertices[i]);
         }
 
-        ListOld<Geometry::MeshData::Face>::Element *F = ret_faces.push_back(f);
+        List<Geometry::MeshData::Face>::iterator F = ret_faces.insert(ret_faces.end(),f);
 
         for (int i = 0; i < 3; i++) {
 
@@ -427,84 +427,82 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
     //fill faces
 
-    for (ListOld<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
+    for (List<Geometry::MeshData::Face>::iterator E = ret_faces.begin(); E!= ret_faces.end(); ++E) {
 
-        Geometry::MeshData::Face &f = E->deref();
+        Geometry::MeshData::Face &f = *E;
 
         for (int i = 0; i < f.indices.size(); i++) {
 
-            int a = E->deref().indices[i];
-            int b = E->deref().indices[(i + 1) % f.indices.size()];
+            int a = E->indices[i];
+            int b = E->indices[(i + 1) % f.indices.size()];
             QHEdge e(a, b);
 
             Map<QHEdge, QHRetFaceConnect>::iterator F = ret_edges.find(e);
 
             ERR_CONTINUE(F==ret_edges.end());
-            ListOld<Geometry::MeshData::Face>::Element *O = F->second.left == E ? F->second.right : F->second.left;
+            List<Geometry::MeshData::Face>::iterator O = F->second.left == E ? F->second.right : F->second.left;
             ERR_CONTINUE(O == E);
-            ERR_CONTINUE(O == nullptr);
+            ERR_CONTINUE(O == ret_faces.end());
 
-            if (O->deref().plane.is_equal_approx(f.plane)) {
-                //merge and delete edge and contiguous face, while repointing edges (uuugh!)
-                int ois = O->deref().indices.size();
-                int merged = 0;
+            if (!O->plane.is_equal_approx(f.plane))
+                continue;
 
-                for (int j = 0; j < ois; j++) {
-                    //search a
-                    if (O->deref().indices[j] == a) {
-                        //append the rest
-                        for (int k = 0; k < ois; k++) {
+            //merge and delete edge and contiguous face, while repointing edges (uuugh!)
+            int ois = O->indices.size();
+            int merged = 0;
 
-                            int idx = O->deref().indices[(k + j) % ois];
-                            int idxn = O->deref().indices[(k + j + 1) % ois];
-                            if (idx == b && idxn == a) { //already have b!
-                                break;
-                            }
-                            if (idx != a) {
-                                f.indices.insert_at(i + 1, idx);
-                                i++;
-                                merged++;
-                            }
-                            QHEdge e2(idx, idxn);
+            for (int j = 0; j < ois; j++) {
+                //search a
+                if (O->indices[j] == a) {
+                    //append the rest
+                    for (int k = 0; k < ois; k++) {
 
-                            Map<QHEdge, QHRetFaceConnect>::iterator F2 = ret_edges.find(e2);
-                            ERR_CONTINUE(F2==ret_edges.end());
-                            //change faceconnect, point to this face instead
-                            if (F2->second.left == O)
-                                F2->second.left = E;
-                            else if (F2->second.right == O)
-                                F2->second.right = E;
+                        int idx = O->indices[(k + j) % ois];
+                        int idxn = O->indices[(k + j + 1) % ois];
+                        if (idx == b && idxn == a) { //already have b!
+                            break;
                         }
+                        if (idx != a) {
+                            f.indices.insert_at(i + 1, idx);
+                            i++;
+                            merged++;
+                        }
+                        QHEdge e2(idx, idxn);
 
-                        break;
+                        Map<QHEdge, QHRetFaceConnect>::iterator F2 = ret_edges.find(e2);
+                        ERR_CONTINUE(F2==ret_edges.end());
+                        //change faceconnect, point to this face instead
+                        if (F2->second.left == O)
+                            F2->second.left = E;
+                        else if (F2->second.right == O)
+                            F2->second.right = E;
                     }
+
+                    break;
                 }
-
-                // remove all edge connections to this face
-                for (eastl::pair<const QHEdge,QHRetFaceConnect> &G : ret_edges) {
-                    if (G.second.left == O)
-                        G.second.left = nullptr;
-
-                    if (G.second.right == O)
-                        G.second.right = nullptr;
-                }
-
-                ret_edges.erase(F); //remove the edge
-                ret_faces.erase(O); //remove the face
             }
+
+            // remove all edge connections to this face
+            for (eastl::pair<const QHEdge,QHRetFaceConnect> &G : ret_edges) {
+                if (G.second.left == O)
+                    G.second.left = ret_faces.end();
+
+                if (G.second.right == O)
+                    G.second.right = ret_faces.end();
+            }
+
+            ret_edges.erase(F); //remove the edge
+            ret_faces.erase(O); //remove the face
         }
     }
 
     //fill mesh
-    r_mesh.faces.clear();
-    r_mesh.faces.resize(ret_faces.size());
-    auto &face_wr(r_mesh.faces);
-    int idx = 0;
-    for (ListOld<Geometry::MeshData::Face>::Element *E = ret_faces.front(); E; E = E->next()) {
-        face_wr[idx++] = E->deref();
-    }
+    r_mesh.faces.assign(eastl::move_iterator(ret_faces.begin()), eastl::move_iterator(ret_faces.end()));
+    //TODO: consider r_mesh.faces.shrink_to_fit() here ?
+    //NOTE: at this point QHRetFaceConnect in ret_edges is no longer valid, since the underlying container's contents was moved-from
+
     r_mesh.edges.reserve(ret_edges.size());
-    idx = 0;
+    int idx = 0;
     for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {
 
         Geometry::MeshData::Edge e;

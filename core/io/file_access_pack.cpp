@@ -34,11 +34,11 @@
 
 #include <cstdio>
 
-Error PackedData::add_pack(StringView p_path, bool p_replace_files) {
+Error PackedData::add_pack(StringView p_path, bool p_replace_files, StringView p_destination) {
 
     for (auto & source : sources) {
 
-        if (source->try_open_pack(p_path, p_replace_files)) {
+        if (source->try_open_pack(p_path, p_replace_files, p_destination)) {
 
             return OK;
         }
@@ -89,7 +89,7 @@ void PackedData::add_path(StringView pkg_path, StringView path, uint64_t ofs, ui
             }
         }
         StringView filename = PathUtils::get_file(path);
-        // Don't add as a file if the path points to a directory
+        // Don't add as a file if the path points to a directory.
         if (!filename.empty()) {
             cd->files.insert(filename);
         }

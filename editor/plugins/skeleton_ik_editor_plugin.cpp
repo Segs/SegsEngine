@@ -54,13 +54,7 @@ void SkeletonIKEditorPlugin::_play() {
         skeleton_ik->start();
     } else {
         skeleton_ik->stop();
-
-        if (initial_bone_poses.size() != skeleton_ik->get_parent_skeleton()->get_bone_count())
-            return;
-
-        for (int i = 0; i < skeleton_ik->get_parent_skeleton()->get_bone_count(); ++i) {
-            skeleton_ik->get_parent_skeleton()->set_bone_pose(i, initial_bone_poses[i]);
-        }
+        skeleton_ik->get_parent_skeleton()->clear_bones_global_pose_override();
     }
 }
 

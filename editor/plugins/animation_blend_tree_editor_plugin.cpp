@@ -260,16 +260,11 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
         }
     }
 
-    ListOld<AnimationNodeBlendTree::NodeConnection> connections;
-    blend_tree->get_node_connections(&connections);
+    Vector<AnimationNodeBlendTree::NodeConnection> connections(blend_tree->get_node_connections());
 
-    for (ListOld<AnimationNodeBlendTree::NodeConnection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const AnimationNodeBlendTree::NodeConnection& E : connections) {
 
-        StringName from = E->deref().output_node;
-        StringName to = E->deref().input_node;
-        int to_idx = E->deref().input_index;
-
-        graph->connect_node(from, 0, to, to_idx);
+        graph->connect_node(E.output_node, 0, E.input_node, E.input_index);
     }
 }
 
@@ -415,12 +410,11 @@ void AnimationNodeBlendTreeEditor::_delete_request(const StringName & p_which) {
     undo_redo->add_do_method(blend_tree.get(), "remove_node", p_which);
     undo_redo->add_undo_method(blend_tree.get(), "add_node", p_which, blend_tree->get_node(p_which), blend_tree->get_node_position(p_which));
 
-    ListOld<AnimationNodeBlendTree::NodeConnection> conns;
-    blend_tree->get_node_connections(&conns);
+    Vector<AnimationNodeBlendTree::NodeConnection> conns(blend_tree->get_node_connections());
 
-    for (ListOld<AnimationNodeBlendTree::NodeConnection>::Element *E = conns.front(); E; E = E->next()) {
-        if (E->deref().output_node == p_which || E->deref().input_node == p_which) {
-            undo_redo->add_undo_method(blend_tree.get(), "connect_node", E->deref().input_node, E->deref().input_index, E->deref().output_node);
+    for (AnimationNodeBlendTree::NodeConnection &E : conns) {
+        if (E.output_node == p_which || E.input_node == p_which) {
+            undo_redo->add_undo_method(blend_tree.get(), "connect_node", E.input_node, E.input_index, E.output_node);
         }
     }
 
@@ -750,15 +744,15 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
             }
         }
 
-        ListOld<AnimationNodeBlendTree::NodeConnection> conns;
-        blend_tree->get_node_connections(&conns);
-        for (ListOld<AnimationNodeBlendTree::NodeConnection>::Element *E = conns.front(); E; E = E->next()) {
+        Vector<AnimationNodeBlendTree::NodeConnection> conns(blend_tree->get_node_connections());
+        
+        for (AnimationNodeBlendTree::NodeConnection& E : conns) {
             float activity = 0;
-            StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + E->deref().input_node);
+            StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + E.input_node);
             if (AnimationTreeEditor::get_singleton()->get_tree() && !AnimationTreeEditor::get_singleton()->get_tree()->is_state_invalid()) {
-                activity = AnimationTreeEditor::get_singleton()->get_tree()->get_connection_activity(path, E->deref().input_index);
+                activity = AnimationTreeEditor::get_singleton()->get_tree()->get_connection_activity(path, E.input_index);
             }
-            graph->set_connection_activity(E->deref().output_node, 0, E->deref().input_node, E->deref().input_index, activity);
+            graph->set_connection_activity(E.output_node, 0, E.input_node, E.input_index, activity);
         }
 
         AnimationTree *graph_player = AnimationTreeEditor::get_singleton()->get_tree();
@@ -867,27 +861,22 @@ void AnimationNodeBlendTreeEditor::_node_renamed(StringView p_text, const Ref<An
     gn->set_size(gn->get_minimum_size());
 
     //change editors accordingly
-    for (int i = 0; i < visible_properties.size(); i++) {
-        StringName pname(visible_properties[i]->get_edited_property());
+    for (auto &property : visible_properties) {
+        StringName pname(property->get_edited_property());
         if (StringUtils::begins_with(pname,base_path + prev_name)) {
             StringName new_name2(StringUtils::replace_first(pname,base_path + prev_name, base_path + name));
-            visible_properties[i]->set_object_and_property(visible_properties[i]->get_edited_object(), new_name2);
+            property->set_object_and_property(property->get_edited_object(), new_name2);
         }
     }
 
     //recreate connections
     graph->clear_connections();
 
-    ListOld<AnimationNodeBlendTree::NodeConnection> connections;
-    blend_tree->get_node_connections(&connections);
+    Vector<AnimationNodeBlendTree::NodeConnection> connections(blend_tree->get_node_connections());
 
-    for (ListOld<AnimationNodeBlendTree::NodeConnection>::Element *E = connections.front(); E; E = E->next()) {
+    for (const AnimationNodeBlendTree::NodeConnection &E : connections) {
 
-        StringName from = E->deref().output_node;
-        StringName to = E->deref().input_node;
-        int to_idx = E->deref().input_index;
-
-        graph->connect_node(from, 0, to, to_idx);
+        graph->connect_node(E.output_node, 0, E.input_node, E.input_index);
     }
 
     //update animations

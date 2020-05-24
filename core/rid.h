@@ -35,6 +35,7 @@
 #include "core/hash_set.h"
 #include "core/error_macros.h"
 #include "entt/fwd.hpp"
+#include "entt/entity/entity.hpp"
 class RID_OwnerBase;
 
 class GODOT_EXPORT RID_Data {
@@ -58,7 +59,7 @@ class GODOT_EXPORT RID {
     mutable RID_Data *_data = nullptr;
 
 public:
-    entt::entity eid {};
+    entt::entity eid { entt::null };
 
     RID_Data *get_data() const { return _data; }
 
@@ -166,7 +167,6 @@ public:
 #ifdef DEBUG_ENABLED
         id_map.insert(p_data);
 #endif
-
         return rid;
     }
 

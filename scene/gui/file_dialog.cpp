@@ -36,6 +36,7 @@
 #include "scene/gui/label.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
+#include "EASTL/sort.h"
 
 IMPL_GDCLASS(FileDialog)
 IMPL_GDCLASS(LineEditFileChooser)
@@ -140,7 +141,7 @@ Vector<String> FileDialog::get_selected_files() const {
 
 void FileDialog::update_dir() {
 
-    dir->set_text(dir_access->get_current_dir());
+    dir->set_text(dir_access->get_current_dir_without_drive());
     if (drives->is_visible()) {
         drives->select(dir_access->get_current_drive());
     }
@@ -430,8 +431,8 @@ void FileDialog::update_file_list() {
     TreeItem *root = tree->create_item();
     Ref<Texture> folder = get_icon("folder");
     const Color folder_color = get_color("folder_icon_modulate");
-    ListOld<String> files;
-    ListOld<String> dirs;
+    Vector<String> files;
+    Vector<String> dirs;
 
     String item;
 
@@ -449,12 +450,10 @@ void FileDialog::update_file_list() {
                 dirs.push_back(item);
         }
     }
+    eastl::sort(dirs.begin(), dirs.end(), NaturalNoCaseComparator());
+    eastl::sort(files.begin(), files.end(), NaturalNoCaseComparator());
 
-    dirs.sort_custom<NaturalNoCaseComparator>();
-    files.sort_custom<NaturalNoCaseComparator>();
-
-    while (!dirs.empty()) {
-        String &dir_name = dirs.front()->deref();
+    for(const String& dir_name : dirs) {
         TreeItem *ti = tree->create_item(root);
         ti->set_text_utf8(0, dir_name);
         ti->set_icon(0, folder);
@@ -465,9 +464,8 @@ void FileDialog::update_file_list() {
         d["dir"] = true;
 
         ti->set_metadata(0, d);
-
-        dirs.pop_front();
     }
+    dirs.clear();
 
     Vector<String> patterns;
     // build filter
@@ -501,14 +499,14 @@ void FileDialog::update_file_list() {
 
     String base_dir = dir_access->get_current_dir();
 
-    while (!files.empty()) {
+    for(const String &filename : files) {
 
         bool match = patterns.empty();
         String match_str;
 
         for (const String & E : patterns) {
 
-            if (StringUtils::matchn(files.front()->deref(),E)) {
+            if (StringUtils::matchn(filename,E)) {
                 match_str = E;
                 match = true;
                 break;
@@ -517,11 +515,11 @@ void FileDialog::update_file_list() {
 
         if (match) {
             TreeItem *ti = tree->create_item(root);
-            ti->set_text_utf8(0, files.front()->deref());
+            ti->set_text_utf8(0, filename);
 
             if (get_icon_func) {
 
-                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,files.front()->deref()));
+                Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,filename));
                 ti->set_icon(0, icon);
             }
 
@@ -530,15 +528,13 @@ void FileDialog::update_file_list() {
                 ti->set_selectable(0, false);
             }
             Dictionary d;
-            d["name"] = files.front()->deref();
+            d["name"] = filename;
             d["dir"] = false;
             ti->set_metadata(0, d);
 
-            if (file->get_text() == files.front()->deref() || match_str == files.front()->deref())
+            if (file->get_text() == filename || match_str == filename)
                 ti->select(0);
         }
-
-        files.pop_front();
     }
 
     if (tree->get_root() && tree->get_root()->get_children() && tree->get_selected() == nullptr)
@@ -791,6 +787,12 @@ void FileDialog::_update_drives() {
         drives->hide();
     } else {
         drives->clear();
+        Node *dp = drives->get_parent();
+        if (dp) {
+            dp->remove_child(drives);
+        }
+        dp = dir_access->drives_are_shortcuts() ? shortcuts_container : drives_container;
+        dp->add_child(drives);
         drives->show();
 
         for (int i = 0; i < dir_access->get_drive_count(); i++) {
@@ -904,11 +906,15 @@ FileDialog::FileDialog() {
     hbc->add_child(dir_up);
     dir_up->connect("pressed", this, "_go_up");
 
-    drives = memnew(OptionButton);
-    hbc->add_child(drives);
-    drives->connect("item_selected", this, "_select_drive");
-
     hbc->add_child(memnew(Label(RTR("Path:"))));
+
+    drives_container = memnew(HBoxContainer);
+    hbc->add_child(drives_container);
+
+    drives = memnew(OptionButton);
+    drives->connect("item_selected", this, "_select_drive");
+    hbc->add_child(drives);
+
     dir = memnew(LineEdit);
     hbc->add_child(dir);
     dir->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -924,6 +930,9 @@ FileDialog::FileDialog() {
     show_hidden->set_tooltip(RTR("Toggle the visibility of hidden files."));
     show_hidden->connect("toggled", this, "set_show_hidden_files");
     hbc->add_child(show_hidden);
+
+    shortcuts_container = memnew(HBoxContainer);
+    hbc->add_child(shortcuts_container);
 
     makedir = memnew(Button);
     makedir->set_text(RTR("Create Folder"));

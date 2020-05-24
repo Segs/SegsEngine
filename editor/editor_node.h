@@ -154,7 +154,7 @@ private:
         FILE_EXTERNAL_OPEN_SCENE,
         EDIT_UNDO,
         EDIT_REDO,
-        EDIT_REVERT,
+        EDIT_RELOAD_SAVED_SCENE,
         TOOLS_ORPHAN_RESOURCES,
         TOOLS_CUSTOM,
         RESOURCE_SAVE,
@@ -202,7 +202,8 @@ private:
         HELP_SEARCH,
         HELP_DOCS,
         HELP_QA,
-        HELP_ISSUES,
+        HELP_REPORT_A_BUG,
+        HELP_SEND_DOCS_FEEDBACK,
         HELP_COMMUNITY,
         HELP_ABOUT,
 

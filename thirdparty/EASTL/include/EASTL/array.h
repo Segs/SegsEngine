@@ -12,8 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_ARRAY_H
-#define EASTL_ARRAY_H
+#pragma once
 
 
 #include <EASTL/internal/config.h>
@@ -28,7 +27,6 @@
 	EA_RESTORE_ALL_VC_WARNINGS()
 #endif
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -127,6 +125,12 @@ namespace eastl
 	}; // class array
 
 
+	///////////////////////////////////////////////////////////////////////////
+	// template deduction guides
+	///////////////////////////////////////////////////////////////////////////
+	#ifdef __cpp_deduction_guides
+		template <class T, class... U> array(T, U...) -> array<T, 1 + sizeof...(U)>;
+	#endif
 
 
 	///////////////////////////////////////////////////////////////////////
@@ -472,16 +476,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
 

@@ -74,7 +74,7 @@ class GODOT_EXPORT Node3D : public Node {
         DIRTY_GLOBAL = 4
     };
 
-    mutable SelfList<Node> xform_change;
+    mutable IntrusiveListNode<Node> xform_change;
 
     struct Data {
 

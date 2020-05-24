@@ -464,7 +464,7 @@ namespace eastl
 		iterator         erase(const_iterator first, const_iterator last);
 		reverse_iterator erase(reverse_iterator position);
 		reverse_iterator erase(reverse_iterator first, reverse_iterator last);
-
+        iterator         erase_first(const T& value);
 		void clear();
 		//void reset_lose_memory(); // Disabled until it can be implemented efficiently and cleanly.  // This is a unilateral reset to an initially empty state. No destructors are called, no deallocation occurs.
 
@@ -2018,6 +2018,17 @@ namespace eastl
 		return reverse_iterator(erase(last.base(), first.base()));
 	}
 
+    template <typename T, typename Allocator, unsigned kDequeSubarraySize>
+    inline typename deque<T, Allocator, kDequeSubarraySize>::iterator deque<T, Allocator, kDequeSubarraySize>::erase_first(const T& value)
+    {
+        static_assert(eastl::has_equality_v<T>, "T must be comparable");
+
+        iterator it = eastl::find(begin(), end(), value);
+
+        if (it != end())
+            return erase(it);
+        return it;
+    }
 
 	template <typename T, typename Allocator, unsigned kDequeSubarraySize>
 	void deque<T, Allocator, kDequeSubarraySize>::clear()

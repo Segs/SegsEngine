@@ -12,5 +12,5 @@ set_plugin_options(
     CLASSPROP ImageLoaderTinyEXR
     SOURCES ${source_files} ${header_files} ${thirdparty_sources}
     INCLUDES ${PROJECT_SOURCE_DIR}/thirdparty/tinyexr
-
+    DEFINES TINYEXR_USE_THREAD
 )

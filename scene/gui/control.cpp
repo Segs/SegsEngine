@@ -33,13 +33,8 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
-#include "core/os/keyboard.h"
 #include "core/os/os.h"
-#include "core/print_string.h"
-#include "core/project_settings.h"
 #include "core/script_language.h"
-#include "scene/gui/label.h"
-#include "scene/gui/panel.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/scene_tree.h"
 #include "scene/main/viewport.h"
@@ -56,6 +51,25 @@
 #endif
 
 #include "EASTL/sort.h"
+
+//Debugging helper for listing cases where we fail to query for specific icon
+//#define WARN_ON_MISSING_ICONS
+
+#ifdef WARN_ON_MISSING_ICONS
+#include "core/string_formatter.h"
+
+void warn_missing_icon(const char* type, const char* icon) {
+    WARN_PRINT(FormatVE("Missing icon for %s:%s", type, icon));
+}
+#define WARN_MISSING_ICON(theme,icon,type,name) \
+    if(theme->is_default_icon(icon))\
+        warn_missing_icon(type.asCString(),name.asCString());\
+    else\
+        ((void)9)
+#else
+#define WARN_MISSING_ICON(theme,icon,type,name)
+#endif
+
 
 IMPL_GDCLASS(Control)
 
@@ -489,7 +503,8 @@ void Control::_notification(int p_notification) {
             data.parent = object_cast<Control>(get_parent());
 
             if (is_set_as_toplevel()) {
-                data.SI = get_viewport()->_gui_add_subwindow_control(this);
+                get_viewport()->_gui_add_subwindow_control(this);
+                data.SI = this;
 
                 if (not data.theme && data.parent && data.parent->data.theme_owner) {
                     data.theme_owner = data.parent->data.theme_owner;
@@ -534,10 +549,12 @@ void Control::_notification(int p_notification) {
                     }
                 } else if (subwindow) {
                     //is a subwindow (process input before other controls for that canvas)
-                    data.SI = get_viewport()->_gui_add_subwindow_control(this);
+                    get_viewport()->_gui_add_subwindow_control(this);
+                    data.SI = this;
                 } else {
                     //is a regular root control
-                    data.RI = get_viewport()->_gui_add_root_control(this);
+                    get_viewport()->_gui_add_root_control(this);
+                    data.RI = this;
                 }
 
                 data.parent_canvas_item = get_parent_item();
@@ -570,12 +587,12 @@ void Control::_notification(int p_notification) {
                 get_viewport()->disconnect("size_changed", this, "_size_changed");
             }
 
-            if (data.MI) {
+            if (data.MI != nullptr) {
                 get_viewport()->_gui_remove_modal_control(data.MI);
                 data.MI = nullptr;
             }
 
-            if (data.SI) {
+            if (data.SI != nullptr) {
                 get_viewport()->_gui_remove_subwindow_control(data.SI);
                 data.SI = nullptr;
             }
@@ -834,7 +851,9 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
 
         while (class_name != StringName()) {
             if (theme_owner->data.theme->has_icon(p_name, class_name)) {
-                return theme_owner->data.theme->get_icon(p_name, class_name);
+                Ref<Texture> res(theme_owner->data.theme->get_icon(p_name, class_name));
+                WARN_MISSING_ICON(theme_owner->data.theme,res,p_name,class_name);
+                return res;
             }
 
             class_name = ClassDB::get_parent_class_nocheck(class_name);
@@ -850,11 +869,15 @@ Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_typ
 
     if (Theme::get_project_default()) {
         if (Theme::get_project_default()->has_icon(p_name, type)) {
-            return Theme::get_project_default()->get_icon(p_name, type);
+            Ref<Texture> res(Theme::get_project_default()->get_icon(p_name, type));
+            WARN_MISSING_ICON(Theme::get_project_default(), res, p_name, type);
+            return res;
         }
     }
 
-    return Theme::get_default()->get_icon(p_name, type);
+    Ref<Texture> res(Theme::get_default()->get_icon(p_name, type));
+    WARN_MISSING_ICON(Theme::get_default(), res, p_name, type);
+    return res;
 }
 
 Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_type) const {
@@ -2195,7 +2218,8 @@ void Control::show_modal(bool p_exclusive) {
     show();
     raise();
     data.modal_exclusive = p_exclusive;
-    data.MI = get_viewport()->_gui_show_modal(this);
+    data.MI = this;
+    get_viewport()->_gui_show_modal(this);
     data.modal_frame = Engine::get_singleton()->get_frames_drawn();
 }
 
@@ -2210,7 +2234,7 @@ void Control::_modal_stack_remove() {
     if (!data.MI)
         return;
 
-    ListOld<Control *>::Element *element = data.MI;
+    Control * element = data.MI;
     data.MI = nullptr;
 
     get_viewport()->_gui_remove_from_modal_stack(element, data.modal_prev_focus_owner);
@@ -2986,7 +3010,7 @@ void Control::_bind_methods() {
     ADD_GROUP("Size Flags", "size_flags_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_horizontal", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_h_size_flags", "get_h_size_flags");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "size_flags_vertical", PropertyHint::Flags, "Fill,Expand,Shrink Center,Shrink End"), "set_v_size_flags", "get_v_size_flags");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,128,0.01"), "set_stretch_ratio", "get_stretch_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "size_flags_stretch_ratio", PropertyHint::Range, "0,20,0.01,or_greater"), "set_stretch_ratio", "get_stretch_ratio");
     ADD_GROUP("Theme", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");

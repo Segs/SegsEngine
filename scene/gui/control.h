@@ -162,9 +162,9 @@ private:
         float margin[4];
         float anchor[4];
         StringName tooltip;
-        ListOld<Control *>::Element *MI; //modal item
-        ListOld<Control *>::Element *SI;
-        ListOld<Control *>::Element *RI;
+        Control * MI; //modal item marker, holds pointer to contained object, reset when removed from modal list
+        Control * SI;
+        Control * RI; // root item container marker
         CanvasItem *parent_canvas_item;
 
         Control *parent;

@@ -1495,7 +1495,7 @@ bool CanvasItemEditor::_gui_input_rotate(const Ref<InputEvent> &p_event) {
 
                 // Remove not movable nodes
                 //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                for (auto E = selection.begin(),fin =selection.end(); E!=fin; ) {
+                for (auto E = selection.begin(); E!=selection.end(); ) {
                     if (!_is_node_movable(*E, true))
                         E = selection.erase_unsorted(E);
                     else
@@ -2312,7 +2312,7 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
 
                     // Remove not movable nodes
                     //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                    for (auto E = selection2.begin(), fin = selection2.end(); E != fin; ) {
+                    for (auto E = selection2.begin(); E != selection2.end(); ) {
                         if (!_is_node_movable(*E, true))
                             E = selection2.erase_unsorted(E);
                         else
@@ -3180,11 +3180,13 @@ void CanvasItemEditor::_draw_selection() {
 
     RID ci = viewport->get_canvas_item();
 
-    Vector<CanvasItem *> selection = _get_edited_canvas_items(false, false);
+    Vector<CanvasItem *> selection = _get_edited_canvas_items(true, false);
 
     bool single = selection.size() == 1;
     for (CanvasItem *canvas_item : selection) {
         CanvasItemEditorSelectedItem *se = editor_selection->get_node_editor_data<CanvasItemEditorSelectedItem>(canvas_item);
+
+        bool item_locked = canvas_item->has_meta("_edit_lock_");
 
         // Draw the previous position if we are dragging the node
         if (show_helpers &&
@@ -3224,6 +3226,9 @@ void CanvasItemEditor::_draw_selection() {
             };
 
             Color c = Color(1, 0.6f, 0.4f, 0.7f);
+            if (item_locked) {
+                c = Color(0.7, 0.7, 0.7, 0.7);
+            }
 
             for (int i = 0; i < 4; i++) {
                 viewport->draw_line(endpoints[i], endpoints[(i + 1) % 4], c, Math::round(2 * EDSCALE), true);
@@ -3237,7 +3242,7 @@ void CanvasItemEditor::_draw_selection() {
             viewport->draw_set_transform_matrix(viewport->get_transform());
         }
 
-        if (single && (tool == TOOL_SELECT || tool == TOOL_MOVE || tool == TOOL_SCALE || tool == TOOL_ROTATE || tool == TOOL_EDIT_PIVOT)) { //kind of sucks
+        if (single && !item_locked && (tool == TOOL_SELECT || tool == TOOL_MOVE || tool == TOOL_SCALE || tool == TOOL_ROTATE || tool == TOOL_EDIT_PIVOT)) { //kind of sucks
             // Draw the pivot
             if (canvas_item->_edit_use_pivot()) {
 
@@ -3872,12 +3877,12 @@ void CanvasItemEditor::_notification(int p_what) {
         select_sb->set_texture(get_icon("EditorRect2D", "EditorIcons"));
     }
 
-    else if (p_what == NOTIFICATION_EXIT_TREE) {
+    if (p_what == NOTIFICATION_EXIT_TREE) {
         get_tree()->disconnect("node_added", this, "_tree_changed");
         get_tree()->disconnect("node_removed", this, "_tree_changed");
     }
 
-    else if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
+    if (p_what == NOTIFICATION_ENTER_TREE || p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
         select_button->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
         list_select_button->set_button_icon(get_icon("ListSelect", "EditorIcons"));
         move_button->set_button_icon(get_icon("ToolMove", "EditorIcons"));
@@ -4144,7 +4149,9 @@ void CanvasItemEditor::_popup_warning_depop(Control *p_control) {
     p_control->hide();
     remove_child(timer);
     popup_temporarily_timers.erase(p_control);
-    memdelete(timer);
+    //NOTE:timer was deleted here using memdelete(timer);
+    //TODO:verify that queue_delete will not break things.
+    timer->queue_delete();
     info_overlay->set_margin(Margin::Left, (show_rulers ? RULER_WIDTH : 0) + 10);
 }
 
@@ -4269,10 +4276,19 @@ void CanvasItemEditor::_zoom_on_position(float p_zoom, Point2 p_position) {
 
     float prev_zoom = zoom;
     zoom = p_zoom;
-    Point2 ofs = p_position;
-    ofs = ofs / prev_zoom - ofs / zoom;
-    view_offset.x = Math::round(view_offset.x + ofs.x);
-    view_offset.y = Math::round(view_offset.y + ofs.y);
+    view_offset += p_position / prev_zoom - p_position / zoom;
+
+    // We want to align in-scene pixels to screen pixels, this prevents blurry rendering
+    // in small details (texts, lines).
+    // This correction adds a jitter movement when zooming, so we correct only when the
+    // zoom factor is an integer. (in the other cases, all pixels won't be aligned anyway)
+    float closest_zoom_factor = Math::round(zoom);
+    if (Math::is_zero_approx(zoom - closest_zoom_factor)) {
+        // make sure scene pixel at view_offset is aligned on a screen pixel
+        Vector2 view_offset_int = view_offset.floor();
+        Vector2 view_offset_frac = view_offset - view_offset_int;
+        view_offset = view_offset_int + (view_offset_frac * closest_zoom_factor).round() / closest_zoom_factor;
+    }
 
     _update_zoom_label();
     update_viewport();
@@ -5374,8 +5390,11 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor_selection->connect("selection_changed", this, "update");
     editor_selection->connect("selection_changed", this, "_selection_changed");
 
-    editor->call_deferred("connect", "play_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(true)));
-    editor->call_deferred("connect", "stop_pressed", Variant(this), "_update_override_camera_button", Variant::from(make_binds(false)));
+    editor->call_deferred([this]()
+    {
+        editor->connect("play_pressed", this, "_update_override_camera_button",{Variant(true)});
+        editor->connect("stop_pressed", this, "_update_override_camera_button", { Variant(false) });
+    });
 
     hb = memnew(HBoxContainer);
     add_child(hb);

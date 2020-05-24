@@ -216,7 +216,7 @@ String TreeItem::get_text(int p_column) const {
 void TreeItem::set_suffix(int p_column, String p_suffix) {
 
     ERR_FAIL_INDEX(p_column, cells.size());
-    cells[p_column].suffix = std::move(p_suffix);
+    cells[p_column].suffix = eastl::move(p_suffix);
 
     _changed_notify(p_column);
 }
@@ -806,6 +806,9 @@ void TreeItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_text", {"column", "text"}), &TreeItem::set_text);
     MethodBinder::bind_method(D_METHOD("get_text", {"column"}), &TreeItem::get_text);
+
+    MethodBinder::bind_method(D_METHOD("set_suffix", {"column", "text"}), &TreeItem::set_suffix);
+    MethodBinder::bind_method(D_METHOD("get_suffix", {"column"}), &TreeItem::get_suffix);
 
     MethodBinder::bind_method(D_METHOD("set_icon", {"column", "texture"}), &TreeItem::set_icon);
     MethodBinder::bind_method(D_METHOD("get_icon", {"column"}), &TreeItem::get_icon);
@@ -3059,13 +3062,6 @@ void Tree::_notification(int p_what) {
         if (root) {
 
             draw_item(Point2(), draw_ofs, draw_size, root);
-        }
-
-        int ofs = 0;
-
-        for (size_t i = 0; (i + 2) < columns.size(); i++) {
-
-            ofs += get_column_width(i);
         }
 
         if (show_column_titles) {

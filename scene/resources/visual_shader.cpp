@@ -38,13 +38,9 @@
 #include "servers/rendering/shader_types.h"
 #include "servers/rendering_server_enum_casters.h"
 #include "core/string_utils.inl"
-
-#include "EASTL/vector_map.h"
+#include "core/string_builder.h"
 
 using namespace eastl;
-
-template<typename T,typename V>
-using VMap = eastl::vector_map<T, V,eastl::less<T>,wrap_allocator>;
 
 IMPL_GDCLASS(VisualShader)
 IMPL_GDCLASS(VisualShaderNode)
@@ -63,8 +59,8 @@ namespace {
     Error _write_node(VisualShader::Type type,const VisualShader *vs,StringBuilder &global_code, StringBuilder &global_code_per_node,
             Map<VisualShader::Type, StringBuilder> &global_code_per_func, StringBuilder &code,
             Vector<VisualShader::DefaultTextureParam> &def_tex_params,
-            const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &input_connections,
-            const VMap<VisualShader::ConnectionKey, const ListOld<VisualShader::Connection>::Element *> &output_connections, int node, Set<int> &processed,
+            const Map<VisualShader::ConnectionKey, const VisualShader::Connection &> &input_connections,
+            const Map<VisualShader::ConnectionKey, const VisualShader::Connection &> &output_connections, int node, Set<int> &processed,
             bool for_preview, HashSet<StringName> &r_classes) {
 
         using Type = VisualShader::Type;
@@ -79,7 +75,7 @@ namespace {
             ck.port = i;
             auto iter=input_connections.find(ck);
             if (input_connections.end()!=iter) {
-                int from_node = iter->second->deref().from_node;
+                int from_node = iter->second.from_node;
                 if (processed.contains(from_node)) {
                     continue;
                 }
@@ -107,8 +103,8 @@ namespace {
             auto iter=input_connections.find(ck);
             if (input_connections.end()!=iter) {
                 //connected to something, use that output
-                int from_node = iter->second->deref().from_node;
-                int from_port = iter->second->deref().from_port;
+                int from_node = iter->second.from_node;
+                int from_port = iter->second.from_port;
 
                 VisualShaderNode::PortType in_type = vsnode->get_input_port_type(i);
                 VisualShaderNode::PortType out_type = vs->graph[type].nodes.at(from_node).node->get_output_port_type(from_port);
@@ -586,15 +582,15 @@ void VisualShader::remove_node(Type p_type, int p_id) {
 
     g->nodes.erase(p_id);
 
-    for (ListOld<Connection>::Element *E = g->connections.front(); E;) {
-        ListOld<Connection>::Element *N = E->next();
-        if (E->deref().from_node == p_id || E->deref().to_node == p_id) {
-            g->connections.erase(E);
-            if (E->deref().from_node == p_id) {
-                g->nodes[E->deref().to_node].prev_connected_nodes.erase(p_id);
+    for (auto iter = g->connections.begin(); iter!= g->connections.end(); ) {
+        if (iter->from_node == p_id || iter->to_node == p_id) {
+            if (iter->from_node == p_id) {
+                g->nodes[iter->to_node].prev_connected_nodes.erase_first(p_id);
             }
+            iter = g->connections.erase(iter);
         }
-        E = N;
+        else
+            ++iter;
     }
 
     _queue_update();
@@ -604,9 +600,9 @@ bool VisualShader::is_node_connection(Type p_type, int p_from_node, int p_from_p
     ERR_FAIL_INDEX_V(p_type, TYPE_MAX, false);
     const Graph *g = &graph[p_type];
 
-    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const Connection &E : g->connections) {
 
-        if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
+        if (E.from_node == p_from_node && E.from_port == p_from_port && E.to_node == p_to_node && E.to_port == p_to_port) {
             return true;
         }
     }
@@ -619,13 +615,13 @@ bool VisualShader::is_nodes_connected_relatively(const Graph *p_graph, int p_nod
 
     const VisualShader::Node &node = p_graph->nodes.at(p_node);
 
-    for (const ListOld<int>::Element *E = node.prev_connected_nodes.front(); E; E = E->next()) {
+    for (int E : node.prev_connected_nodes) {
 
-        if (E->deref() == p_target) {
+        if (E == p_target) {
             return true;
         }
 
-        result = is_nodes_connected_relatively(p_graph, E->deref(), p_target);
+        result = is_nodes_connected_relatively(p_graph, E, p_target);
         if (result) {
             break;
         }
@@ -660,9 +656,9 @@ bool VisualShader::can_connect_nodes(Type p_type, int p_from_node, int p_from_po
         return false;
     }
 
-    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const Connection &E : g->connections) {
 
-        if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
+        if (E.from_node == p_from_node && E.from_port == p_from_port && E.to_node == p_to_node && E.to_port == p_to_port) {
             return false;
         }
     }
@@ -703,9 +699,9 @@ Error VisualShader::connect_nodes(Type p_type, int p_from_node, int p_from_port,
 
     ERR_FAIL_COND_V_MSG(!is_port_types_compatible(from_port_type, to_port_type), ERR_INVALID_PARAMETER, "Incompatible port types (scalar/vec/bool) with transform.");
 
-    for (ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const Connection &E : g->connections) {
 
-        if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
+        if (E.from_node == p_from_node && E.from_port == p_from_port && E.to_node == p_to_node && E.to_port == p_to_port) {
             ERR_FAIL_V(ERR_ALREADY_EXISTS);
         }
     }
@@ -726,11 +722,11 @@ void VisualShader::disconnect_nodes(Type p_type, int p_from_node, int p_from_por
     ERR_FAIL_INDEX(p_type, TYPE_MAX);
     Graph *g = &graph[p_type];
 
-    for (ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (auto iter = g->connections.begin(); iter!= g->connections.end(); ++iter) {
 
-        if (E->deref().from_node == p_from_node && E->deref().from_port == p_from_port && E->deref().to_node == p_to_node && E->deref().to_port == p_to_port) {
-            g->connections.erase(E);
-            g->nodes[p_to_node].prev_connected_nodes.erase(p_from_node);
+        if (iter->from_node == p_from_node && iter->from_port == p_from_port && iter->to_node == p_to_node && iter->to_port == p_to_port) {
+            g->connections.erase(iter);
+            g->nodes[p_to_node].prev_connected_nodes.erase_first(p_from_node);
             _queue_update();
             return;
         }
@@ -742,24 +738,24 @@ Array VisualShader::_get_node_connections(Type p_type) const {
     const Graph *g = &graph[p_type];
 
     Array ret;
-    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
+    for (const Connection &E : g->connections) {
         Dictionary d;
-        d["from_node"] = E->deref().from_node;
-        d["from_port"] = E->deref().from_port;
-        d["to_node"] = E->deref().to_node;
-        d["to_port"] = E->deref().to_port;
+        d["from_node"] = E.from_node;
+        d["from_port"] = E.from_port;
+        d["to_node"] = E.to_node;
+        d["to_port"] = E.to_port;
         ret.push_back(d);
     }
 
     return ret;
 }
 
-void VisualShader::get_node_connections(Type p_type, ListOld<Connection> *r_connections) const {
+void VisualShader::get_node_connections(Type p_type, List<VisualShader::Connection> *r_connections) const {
     ERR_FAIL_INDEX(p_type, TYPE_MAX);
     const Graph *g = &graph[p_type];
 
-    for (const ListOld<Connection>::Element *E = g->connections.front(); E; E = E->next()) {
-        r_connections->push_back(E->deref());
+    for (const Connection &E : g->connections) {
+        r_connections->emplace_back(E);
     }
 }
 
@@ -787,14 +783,12 @@ void VisualShader::set_mode(RenderingServerEnums::ShaderMode p_mode) {
         output->shader_mode = shader_mode;
 
         // clear connections since they are no longer valid
-        for (ListOld<Connection>::Element *E = graph[i].connections.front(); E;) {
+        for (auto E = graph[i].connections.begin(); E != graph[i].connections.end(); ) {
 
             bool keep = true;
 
-            ListOld<Connection>::Element *N = E->next();
-
-            int from = E->deref().from_node;
-            int to = E->deref().to_node;
+            int from = E->from_node;
+            int to = E->to_node;
 
             if (!graph[i].nodes.contains(from)) {
                 keep = false;
@@ -815,9 +809,10 @@ void VisualShader::set_mode(RenderingServerEnums::ShaderMode p_mode) {
             }
 
             if (!keep) {
-                graph[i].connections.erase(E);
+                E = graph[i].connections.erase(E);
             }
-            E = N;
+            else
+                ++E;
         }
     }
 
@@ -876,19 +871,20 @@ String VisualShader::generate_preview_shader(Type p_type, int p_node, int p_port
     global_code += global_expressions;
 
     //make it faster to go around through shader
-    VMap<ConnectionKey, const ListOld<Connection>::Element *> input_connections;
-    VMap<ConnectionKey, const ListOld<Connection>::Element *> output_connections;
+    Map<ConnectionKey, const Connection &> input_connections;
+    Map<ConnectionKey, const Connection &> output_connections;
 
-    for (const ListOld<Connection>::Element *E = graph[p_type].connections.front(); E; E = E->next()) {
+    const auto &our_graph(graph[p_type].connections);
+    for (const Connection &E : our_graph) {
         ConnectionKey from_key;
-        from_key.node = E->deref().from_node;
-        from_key.port = E->deref().from_port;
+        from_key.node = E.from_node;
+        from_key.port = E.from_port;
 
         output_connections.emplace(from_key, E);
 
         ConnectionKey to_key;
-        to_key.node = E->deref().to_node;
-        to_key.port = E->deref().to_port;
+        to_key.node = E.to_node;
+        to_key.port = E.to_port;
 
         input_connections.emplace(to_key, E);
     }
@@ -1152,11 +1148,11 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
         if (index == "connections") {
 
             Vector<int> conns;
-            for (const ListOld<Connection>::Element *E = graph[type].connections.front(); E; E = E->next()) {
-                conns.push_back(E->deref().from_node);
-                conns.push_back(E->deref().from_port);
-                conns.push_back(E->deref().to_node);
-                conns.push_back(E->deref().to_port);
+            for (const Connection &E : graph[type].connections) {
+                conns.push_back(E.from_node);
+                conns.push_back(E.from_port);
+                conns.push_back(E.to_node);
+                conns.push_back(E.to_port);
             }
 
             r_ret = conns;
@@ -1191,7 +1187,7 @@ bool VisualShader::_get(const StringName &p_name, Variant &r_ret) const {
 void VisualShader::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     //mode
-    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Spatial,CanvasItem,Particles"));
+    p_list->push_back(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Node3D,CanvasItem,Particles"));
     //render modes
 
     Map<String, String> blend_mode_enums;
@@ -1342,21 +1338,21 @@ void VisualShader::_update_shader() const {
     for (int i = 0; i < TYPE_MAX; i++) {
 
         //make it faster to go around through shader
-        VMap<ConnectionKey, const ListOld<Connection>::Element *> input_connections;
-        VMap<ConnectionKey, const ListOld<Connection>::Element *> output_connections;
-
-        for (const ListOld<Connection>::Element *E = graph[i].connections.front(); E; E = E->next()) {
+        Map<ConnectionKey, const Connection &> input_connections;
+        Map<ConnectionKey, const Connection &> output_connections;
+        const auto &our_graph(graph[i].connections);
+        for (auto E = our_graph.begin(); E!= our_graph.end(); ++E) {
             ConnectionKey from_key;
-            from_key.node = E->deref().from_node;
-            from_key.port = E->deref().from_port;
+            from_key.node = E->from_node;
+            from_key.port = E->from_port;
 
-            output_connections.emplace(from_key, E);
+            output_connections.emplace(from_key, *E);
 
             ConnectionKey to_key;
-            to_key.node = E->deref().to_node;
-            to_key.port = E->deref().to_port;
+            to_key.node = E->to_node;
+            to_key.port = E->to_port;
 
-            input_connections.emplace(to_key, E);
+            input_connections.emplace(to_key, *E);
         }
 
         code += "\nvoid " + String(func_name[i]) + "() {\n";
@@ -1403,13 +1399,13 @@ void VisualShader::_input_type_changed(Type p_type, int p_id) {
     //erase connections using this input, as type changed
     Graph *g = &graph[p_type];
 
-    for (ListOld<Connection>::Element *E = g->connections.front(); E;) {
-        ListOld<Connection>::Element *N = E->next();
-        if (E->deref().from_node == p_id) {
-            g->connections.erase(E);
-            g->nodes[E->deref().to_node].prev_connected_nodes.erase(p_id);
+    for (auto E = g->connections.begin(); E!= g->connections.end(); ) {
+        if (E->from_node == p_id) {
+            g->nodes[E->to_node].prev_connected_nodes.erase_first(p_id);
+            E = g->connections.erase(E);
         }
-        E = N;
+        else
+            ++E;
     }
 }
 
@@ -1554,6 +1550,8 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "uv", "vec3(UV,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "color", "COLOR.rgb" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_SCALAR, "alpha", "COLOR.a" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "modulate_color", "MODULATE.rgb" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_SCALAR, "modulate_alpha", "MODULATE.a" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_SCALAR, "point_size", "POINT_SIZE" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_VERTEX, VisualShaderNode::PORT_TYPE_VECTOR, "texture_pixel_size", "vec3(TEXTURE_PIXEL_SIZE, 1.0)" },
 
@@ -1567,6 +1565,8 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "uv", "vec3(UV,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "color", "COLOR.rgb" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "alpha", "COLOR.a" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "modulate_color", "MODULATE.rgb" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_SCALAR, "modulate_alpha", "MODULATE.a" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "screen_uv", "vec3(SCREEN_UV,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "texture_pixel_size", "vec3(TEXTURE_PIXEL_SIZE, 1.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_FRAGMENT, VisualShaderNode::PORT_TYPE_VECTOR, "screen_pixel_size", "vec3(SCREEN_PIXEL_SIZE, 1.0)" },
@@ -1583,12 +1583,16 @@ const VisualShaderNodeInput::Port VisualShaderNodeInput::ports[] = {
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "normal", "NORMAL" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "color", "COLOR.rgb" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "alpha", "COLOR.a" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "modulate_color", "MODULATE.rgb" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "modulate_alpha", "MODULATE.a" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "light_vec", "vec3(LIGHT_VEC,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "light_height", "LIGHT_HEIGHT" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "light_color", "LIGHT_COLOR.rgb" },
-    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "light_alpha", "LIGHT_COLOR.a" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "light_alpha", "LIGHT_COLOR.a" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "light_uv", "vec3(LIGHT_UV,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "shadow_color", "SHADOW_COLOR.rgb" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_SCALAR, "shadow_alpha", "SHADOW_COLOR.a" },
+    { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "shadow_vec", "vec3(SHADOW_VEC, 0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "screen_uv", "vec3(SCREEN_UV,0.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "texture_pixel_size", "vec3(TEXTURE_PIXEL_SIZE, 1.0)" },
     { ShaderMode::CANVAS_ITEM, VisualShader::TYPE_LIGHT, VisualShaderNode::PORT_TYPE_VECTOR, "point_coord", "vec3(POINT_COORD,0.0)" },

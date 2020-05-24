@@ -198,7 +198,7 @@ Error ImageLoaderBMP::convert_to_image(ImageData &p_image,
             p_image.height = height;
             p_image.mipmaps = false;
             p_image.format = ImageData::FORMAT_RGBA8;
-            p_image.data = std::move(extended_data);
+            p_image.data = eastl::move(extended_data);
         }
     }
     return err;

@@ -45,6 +45,7 @@
 #include "core/math/vector3.h"
 #include "core/math/math_funcs.h"
 #include "core/object.h"
+#include "core/object_rc.h"
 #include "core/ustring.h"
 #include "core/object_db.h"
 #include "core/script_language.h"
@@ -418,7 +419,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_EQUAL, NIL) {
                 if (p_b.type == VariantType::NIL) _RETURN(true)
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN(p_b._get_obj().obj == nullptr)
+                    _RETURN(_OBJ_PTR(p_b) == nullptr)
 
                 _RETURN(false)
             }
@@ -435,9 +436,9 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
             CASE_TYPE(math, OP_EQUAL, OBJECT) {
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN((p_a._get_obj().obj == p_b._get_obj().obj))
+                    _RETURN((_OBJ_PTR(p_a) == _OBJ_PTR(p_b)))
                 if (p_b.type == VariantType::NIL)
-                    _RETURN(p_a._get_obj().obj == nullptr)
+                    _RETURN(_OBJ_PTR(p_a) == nullptr)
 
                 _RETURN_FAIL
             }
@@ -511,7 +512,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_NOT_EQUAL, NIL) {
                 if (p_b.type == VariantType::NIL) _RETURN(false)
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN(p_b._get_obj().obj != nullptr)
+                    _RETURN(_OBJ_PTR(p_b) != nullptr)
 
                 _RETURN(true)
             }
@@ -529,9 +530,9 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
             CASE_TYPE(math, OP_NOT_EQUAL, OBJECT) {
                 if (p_b.type == VariantType::OBJECT)
-                    _RETURN((p_a._get_obj().obj != p_b._get_obj().obj))
+                    _RETURN((_OBJ_PTR(p_a) != _OBJ_PTR(p_b)))
                 if (p_b.type == VariantType::NIL)
-                    _RETURN(p_a._get_obj().obj != nullptr)
+                    _RETURN(_OBJ_PTR(p_a) != nullptr)
 
                 _RETURN_FAIL
             }
@@ -615,7 +616,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_LESS, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
                     _RETURN_FAIL
-                _RETURN((p_a._get_obj().obj < p_b._get_obj().obj))
+                _RETURN((_OBJ_PTR(p_a) < _OBJ_PTR(p_b)))
             }
 
             CASE_TYPE(math, OP_LESS, ARRAY) {
@@ -675,7 +676,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_LESS_EQUAL, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
                     _RETURN_FAIL
-                _RETURN((p_a._get_obj().obj <= p_b._get_obj().obj))
+                _RETURN((_OBJ_PTR(p_a) <= _OBJ_PTR(p_b)))
             }
 
             DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int)
@@ -730,7 +731,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
                     _RETURN_FAIL;
-                _RETURN((p_a._get_obj().obj > p_b._get_obj().obj));
+                _RETURN((_OBJ_PTR(p_a) > _OBJ_PTR(p_b)));
             }
 
             CASE_TYPE(math, OP_GREATER, ARRAY) {
@@ -793,7 +794,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER_EQUAL, OBJECT) {
                 if (p_b.type != VariantType::OBJECT)
                     _RETURN_FAIL;
-                _RETURN((p_a._get_obj().obj >= p_b._get_obj().obj));
+                _RETURN((_OBJ_PTR(p_a) >= _OBJ_PTR(p_b)));
             }
 
             DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, INT, >=, _int);
@@ -1580,15 +1581,16 @@ void Variant::set_named(const StringName &p_index, const Variant &p_value, bool 
         } break;
         case VariantType::OBJECT: {
 
+            Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
-            if (!_get_obj().obj) {
-                break;
-            } else if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
+            if (unlikely(!obj)) {
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted set on a deleted object.");
+                }
                 break;
             }
-
 #endif
-            _get_obj().obj->set(p_index, p_value, &valid);
+            obj->set(p_index, p_value, &valid);
 
         } break;
         default: {
@@ -1745,25 +1747,21 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
         } break;
         case VariantType::OBJECT: {
 
+            Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
-            if (!_get_obj().obj) {
+            if (unlikely(!obj)) {
                 if (r_valid)
                     *r_valid = false;
-                return "Instance base is null.";
-            } else {
-
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
-                    if (r_valid)
-                        *r_valid = false;
-                    return "Attempted use of stray pointer object.";
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted get on a deleted object.");
                 }
+                return Variant();
             }
-
 #endif
 
-            return _get_obj().obj->get(p_index, r_valid);
+            return obj->get(p_index, r_valid);
 
-        }
+        } break;
         default: {
             return get(p_index, r_valid);
         }
@@ -2235,29 +2233,24 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
         } break;
         case VariantType::OBJECT: {
 
-            Object *obj = _get_obj().obj;
-            //only if debugging!
-
-            if (obj) {
+            Object *obj = _OBJ_PTR(*this);
+            if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
-
-                    if (!gObjectDB().instance_validate(obj)) {
-                        WARN_PRINT("Attempted use of stray pointer object.");
-                        valid = false;
-                        return;
-                    }
+                valid = false;
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted set on a deleted object.");
                 }
 #endif
-
-                if (p_index.get_type() != VariantType::STRING) {
-                    obj->setvar(p_index, p_value, r_valid);
-                    return;
-                }
-
-                obj->set(p_index.as<StringName>(), p_value, r_valid);
                 return;
             }
+
+            if (p_index.get_type() != VariantType::STRING) {
+                obj->setvar(p_index, p_value, r_valid);
+                return;
+            }
+
+            obj->set(p_index.as<StringName>(), p_value, r_valid);
+            return;
         } break;
         case VariantType::DICTIONARY: {
 
@@ -2610,24 +2603,21 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
         case VariantType::_RID: {
         } break;
         case VariantType::OBJECT: {
-            Object *obj = _get_obj().obj;
-            if (obj) {
-
+            Object *obj = _OBJ_PTR(*this);
+            if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
-                    //only if debugging!
-                    if (!gObjectDB().instance_validate(obj)) {
-                        valid = false;
-                        return "Attempted get on stray pointer.";
-                    }
+                valid = false;
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted get on a deleted object.");
                 }
 #endif
+                return Variant();
+            }
 
-                if (p_index.get_type() != VariantType::STRING) {
-                    return obj->getvar(p_index, r_valid);
-                }
-
-                return obj->get(p_index.as<StringName>(), r_valid);
+            if (p_index.get_type() != VariantType::STRING) {
+                return obj->getvar(p_index, r_valid);
+            } else {
+                return obj->get(p_index, r_valid);
             }
 
         } break;
@@ -2674,35 +2664,28 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
         } break;
         case VariantType::OBJECT: {
-            Object *obj = _get_obj().obj;
-            if (obj) {
-
-                bool valid = false;
+            Object *obj = _OBJ_PTR(*this);
+            if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
-                    //only if debugging!
-                    if (!gObjectDB().instance_validate(obj)) {
-                        if (r_valid) {
-                            *r_valid = false;
-                        }
-                        return true; // Attempted get on stray pointer.
-                    }
+                if (r_valid) {
+                    *r_valid = false;
+                }
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted 'in' on a deleted object.");
                 }
 #endif
-
-                if (p_index.get_type() != VariantType::STRING) {
-                    obj->getvar(p_index, &valid);
-                } else {
-                    obj->get(p_index.as<StringName>(), &valid);
-                }
-
-                return valid;
-            } else {
-                if (r_valid)
-                    *r_valid = false;
+                return false;
             }
-            return false;
-        }
+
+            bool result;
+            if (p_index.get_type() != VariantType::STRING) {
+                obj->getvar(p_index, &result);
+            } else {
+                obj->get(p_index, &result);
+            }
+            return result;
+        } break;
+
         case VariantType::DICTIONARY: {
 
             const Dictionary *dic = reinterpret_cast<const Dictionary *>(_data._mem);
@@ -2948,21 +2931,17 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
         } break;
         case VariantType::OBJECT: {
 
-            Object *obj = _get_obj().obj;
-            if (obj) {
+            Object *obj = _OBJ_PTR(*this);
+            if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
-                if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null()) {
-                    //only if debugging!
-                    if (!gObjectDB().instance_validate(obj)) {
-                        WARN_PRINT("Attempted get_property list on stray pointer.");
-                        return;
-                    }
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted get property list on a deleted object.");
                 }
 #endif
-
-                obj->get_property_list(p_list);
+                return;
             }
 
+            obj->get_property_list(p_list);
         } break;
         case VariantType::DICTIONARY: {
 
@@ -3028,14 +3007,13 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         }
         case VariantType::OBJECT: {
 
+            Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
-            if (!_get_obj().obj) {
+            if (unlikely(!obj)) {
                 valid = false;
-                return false;
-            }
-
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
-                valid = false;
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted iteration start on a deleted object.");
+                }
                 return false;
             }
 #endif
@@ -3045,7 +3023,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
             ref.push_back(r_iter);
             Variant vref = ref;
             const Variant *refp[] = { &vref };
-            Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_init, refp, 1, ce);
+            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_init, refp, 1, ce);
 
             if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
                 valid = false;
@@ -3054,7 +3032,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
 
             r_iter = ref[0];
             return ret;
-        }
+        } break;
 
         case VariantType::STRING: {
 
@@ -3196,14 +3174,13 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         }
         case VariantType::OBJECT: {
 
+            Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
-            if (!_get_obj().obj) {
+            if (unlikely(!obj)) {
                 valid = false;
-                return false;
-            }
-
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
-                valid = false;
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted iteration check next on a deleted object.");
+                }
                 return false;
             }
 #endif
@@ -3213,7 +3190,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
             ref.push_back(r_iter);
             Variant vref = ref;
             const Variant *refp[] = { &vref };
-            Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_next, refp, 1, ce);
+            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_next, refp, 1, ce);
 
             if (ref.size() != 1 || ce.error != Callable::CallError::CALL_OK) {
                 valid = false;
@@ -3223,7 +3200,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
             r_iter = ref[0];
 
             return ret;
-        }
+        } break;
 
         case VariantType::STRING: {
 
@@ -3355,21 +3332,20 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         }
         case VariantType::OBJECT: {
 
+            Object *obj = _OBJ_PTR(*this);
 #ifdef DEBUG_ENABLED
-            if (!_get_obj().obj) {
+            if (unlikely(!obj)) {
                 r_valid = false;
-                return Variant();
-            }
-
-            if (ScriptDebugger::get_singleton() && _get_obj().ref.is_null() && !gObjectDB().instance_validate(_get_obj().obj)) {
-                r_valid = false;
+                if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
+                    WARN_PRINT("Attempted iteration get next on a deleted object.");
+                }
                 return Variant();
             }
 #endif
             Callable::CallError ce;
             ce.error = Callable::CallError::CALL_OK;
             const Variant *refp[] = { &r_iter };
-            Variant ret = _get_obj().obj->call(CoreStringNames::get_singleton()->_iter_get, refp, 1, ce);
+            Variant ret = obj->call(CoreStringNames::get_singleton()->_iter_get, refp, 1, ce);
 
             if (ce.error != Callable::CallError::CALL_OK) {
                 r_valid = false;
@@ -3379,7 +3355,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
             //r_iter=ref[0];
 
             return ret;
-        }
+        } break;
 
         case VariantType::STRING: {
 

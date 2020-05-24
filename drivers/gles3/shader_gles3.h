@@ -374,10 +374,19 @@ public:
 
     void set_base_material_tex_index(int p_idx);
 
-    void add_custom_define(const String &p_define) {
+    void add_custom_define(StringView p_define) {
         custom_defines.emplace_back(p_define);
     }
+    void get_custom_defines(Vector<StringView> *p_defines) {
+        p_defines->reserve(p_defines->size()+custom_defines.size());
+        for (int i = 0; i < custom_defines.size(); i++) {
+            p_defines->push_back(custom_defines[i]);
+        }
+    }
 
+    void clear_custom_defines() {
+        custom_defines.clear();
+    }
     virtual ~ShaderGLES3();
 };
 

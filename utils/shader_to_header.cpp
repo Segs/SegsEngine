@@ -20,7 +20,7 @@ struct LegacyGLHeaderStruct
     QStringList fragment_lines;
     QSet<QString> uniforms;
     QMap<QString,QString> attributes;
-    QMap<QString,QString> feedbacks;
+    QVector<QPair<QString,QString>> feedbacks;
     QStringList fbos;
     QStringList conditionals;
     QMap<QString,QStringList> enums = {};
@@ -221,7 +221,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 QString name = name_bind[0];
                 QString bind = name_bind[1];
                 if (bind.indexOf("tfb:") != -1)
-                    header_data.feedbacks[name.trimmed()] = bind.replace("tfb:", "").trimmed();
+                    header_data.feedbacks.push_back(QPair<QString,QString>(name.trimmed(),bind.replace("tfb:", "").trimmed()));
             }
         }
         line.replace("\r", "");
@@ -249,8 +249,9 @@ static QString capitalized(const QString &inp)
     }
     return res;
 }
-void build_legacygl_header(const QString &filename, const char *include, const char *class_suffix,bool output_attribs, bool gles2=false)
+void build_legacygl_header(const QString &filename, const char *include, bool output_attribs)
 {
+    const char *class_suffix = "GLES3";
     LegacyGLHeaderStruct header_data;
     include_file_in_legacygl_header(filename, header_data, 0);
 
@@ -268,10 +269,10 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     out_file_base = QFileInfo(out_file_base).fileName();
     QString out_file_ifdef = QString(out_file_base).replace(".", "_").toUpper();
     fd << "#pragma once\n";
-    QString out_file_class = capitalized(QString(out_file_base).replace(".glsl.gen.h", "")).replace("_", "").replace(".", "") + "Shader" + class_suffix;
+    QString out_file_class = capitalized(QString(out_file_base).replace(".glsl.gen.h", "")).replace("_", "").replace(".", "") + "ShaderGLES3";
     fd << "\n\n";
     fd << QString("#include \"%1\"\n\n\n").arg(include).toLocal8Bit();
-    fd << QString("class %1 : public Shader%2 {\n\n").arg(out_file_class,class_suffix).toLocal8Bit();
+    fd << QString("class %1 : public ShaderGLES3 {\n\n").arg(out_file_class).toLocal8Bit();
     fd << "\t virtual const char *get_shader_name() const { return \"" + out_file_class + "\"; }\n";
 
     fd << "public:\n\n";
@@ -337,22 +338,10 @@ void build_legacygl_header(const QString &filename, const char *include, const c
         const Transform &tr = p_transform;
 
         GLfloat matrix[16]={ /* build a 16x16 matrix */
-            tr.basis.elements[0][0],
-            tr.basis.elements[1][0],
-            tr.basis.elements[2][0],
-            0,
-            tr.basis.elements[0][1],
-            tr.basis.elements[1][1],
-            tr.basis.elements[2][1],
-            0,
-            tr.basis.elements[0][2],
-            tr.basis.elements[1][2],
-            tr.basis.elements[2][2],
-            0,
-            tr.origin.x,
-            tr.origin.y,
-            tr.origin.z,
-            1
+            tr.basis.elements[0][0], tr.basis.elements[1][0], tr.basis.elements[2][0], 0,
+            tr.basis.elements[0][1], tr.basis.elements[1][1], tr.basis.elements[2][1], 0,
+            tr.basis.elements[0][2], tr.basis.elements[1][2], tr.basis.elements[2][2], 0,
+            tr.origin.x, tr.origin.y, tr.origin.z, 1
         };
         glUniformMatrix4fv(get_uniform(p_uniform),1,false,matrix);
     }
@@ -364,22 +353,10 @@ void build_legacygl_header(const QString &filename, const char *include, const c
         const Transform2D &tr = p_transform;
 
         GLfloat matrix[16]={ /* build a 16x16 matrix */
-            tr.elements[0][0],
-            tr.elements[0][1],
-            0,
-            0,
-            tr.elements[1][0],
-            tr.elements[1][1],
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            tr.elements[2][0],
-            tr.elements[2][1],
-            0,
-            1
+            tr.elements[0][0], tr.elements[0][1], 0, 0,
+            tr.elements[1][0], tr.elements[1][1], 0, 0,
+            0, 0, 1, 0,
+            tr.elements[2][0], tr.elements[2][1], 0, 1
         };
         glUniformMatrix4fv(get_uniform(p_uniform),1,false,matrix);
     }
@@ -481,13 +458,13 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     }
     int feedback_count = 0;
 
-    if (not gles2 and !header_data.feedbacks.isEmpty())
+    if (!header_data.feedbacks.isEmpty())
     {
         fd<<"\t\tstatic const Feedback _feedbacks[]={\n";
         for (auto iter =header_data.feedbacks.begin(),fin = header_data.feedbacks.end(); iter!=fin; ++iter)
         {
-            const QString &name(iter.key());
-            const QString &cond(iter.value());
+            const QString &name(iter->first);
+            const QString &cond(iter->second);
             if (conditionals_found.contains(cond))
                 fd<<"\t\t\t{\"" + name + "\"," + QString::number(conditionals_found.indexOf(cond)) + "},\n";
             else
@@ -499,8 +476,7 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     }
     else
     {
-        if(!gles2)
-            fd<<"\t\tstatic const Feedback* _feedbacks=nullptr;\n";
+        fd<<"\t\tstatic const Feedback* _feedbacks=nullptr;\n";
     }
     if (!header_data.texunits.isEmpty())
     {
@@ -512,7 +488,7 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     else
         fd<<"\t\tstatic TexUnitPair *_texunit_pairs=nullptr;\n";
 
-    if (not gles2 and !header_data.ubos.isEmpty())
+    if (!header_data.ubos.isEmpty())
     {
         fd<<"\t\tstatic UBOPair _ubo_pairs[]={\n";
         for (auto iter =header_data.ubos.begin(),fin = header_data.ubos.end(); iter!=fin; ++iter)
@@ -521,47 +497,48 @@ void build_legacygl_header(const QString &filename, const char *include, const c
     }
     else
     {
-        if(!gles2)
-            fd<<"\t\tstatic UBOPair *_ubo_pairs=nullptr;\n";
+        fd<<"\t\tstatic UBOPair *_ubo_pairs=nullptr;\n";
     }
-
-    fd<<"\t\tstatic const char _vertex_code[]={\n";
+    int msvc_string_counter=0;
+    fd<<"\t\tstatic const char *_vertex_code=R\"raw(\n";
     for(const QString &x : header_data.vertex_lines)
     {
-        for (QChar c : x)
-            fd<<QString::number(c.toLatin1()) << ",";
-        fd<<QString::number('\n') + ",";
+        if (msvc_string_counter + x.length() > 10000) {
+            fd << ")raw\"\nR\"raw(";
+            msvc_string_counter = 0;
+        }
+        fd << x;
+        fd << "\n";
+        msvc_string_counter += x.length();
     }
-    fd<<"\t\t0};\n\n";
+    fd << ")raw\";\n\n";
 
     fd<<"\t\tstatic const int _vertex_code_start=" << header_data.vertex_offset <<";\n";
-
-    fd<<"\t\tstatic const char _fragment_code[]={\n";
+    
+    fd<<"\t\tstatic const char *_fragment_code=R\"raw(\n";
+    msvc_string_counter = 0;
     for (const QString &x : header_data.fragment_lines)
     {
-        for (QChar c : x)
-            fd << QString::number(c.toLatin1()) << ",";
-        fd << QString::number('\n') + ",";
+        if (msvc_string_counter + x.length() > 10000) {
+            fd << ")raw\"\nR\"raw(";
+            msvc_string_counter = 0;
+        }
+        fd << x;
+        fd << "\n";
+        msvc_string_counter += x.length();
     }
-    fd << "\t\t0};\n\n";
+    fd << ")raw\";\n\n";
 
     fd<<"\t\tstatic const int _fragment_code_start=" << header_data.fragment_offset << ";\n";
 
     if(output_attribs)
     {
-        if(gles2)
-            fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_attribute_pairs,%3, _texunit_pairs,%4,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.attributes.size()).arg(header_data.texunits.size());
-        else
-            fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_attribute_pairs,%3, _texunit_pairs,%4,_ubo_pairs,%5,_feedbacks,%6,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.attributes.size()).arg(header_data.texunits.size()).arg(header_data.ubos.size()).arg(feedback_count);
+        fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_attribute_pairs,%3, _texunit_pairs,%4,_ubo_pairs,%5,_feedbacks,%6,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.attributes.size()).arg(header_data.texunits.size()).arg(header_data.ubos.size()).arg(feedback_count);
     }
     else
     {
-        if(gles2)
-            fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_texunit_pairs,%3,_enums,%4,_enum_values,%5,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").
-                arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.texunits.size()).arg(header_data.enums.size()).arg(enum_value_count);
-        else
-            fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_texunit_pairs,%3,_enums,%4,_enum_values,%5,_ubo_pairs,%6,_feedbacks,%7,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").
-                    arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.texunits.size()).arg(header_data.enums.size()).arg(enum_value_count).arg(header_data.ubos.size()).arg(feedback_count);
+        fd<<QString("\t\tsetup(_conditional_strings,%1,_uniform_strings,%2,_texunit_pairs,%3,_enums,%4,_enum_values,%5,_ubo_pairs,%6,_feedbacks,%7,_vertex_code,_fragment_code,_vertex_code_start,_fragment_code_start);\n").
+                arg(header_data.conditionals.size()).arg(header_data.uniforms.size()).arg(header_data.texunits.size()).arg(header_data.enums.size()).arg(enum_value_count).arg(header_data.ubos.size()).arg(feedback_count);
     }
 
     fd<<"\t}\n\n";
@@ -579,29 +556,17 @@ void build_legacygl_header(const QString &filename, const char *include, const c
 void build_gles3_headers(const QStringList &source)
 {
     for(const auto &x : source)
-        build_legacygl_header(x, "drivers/gles3/shader_gles3.h", "GLES3", true);
+        build_legacygl_header(x, "drivers/gles3/shader_gles3.h", "GLES3");
 }
-
-
-void build_gles2_headers(const QStringList &source)
-{
-    for(const auto &x : source)
-        build_legacygl_header(x, "drivers/gles2/shader_gles2.h", "GLES2", true, true);
-}
-
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc,argv);
-    if(argc<3)
+    if(argc<2)
     {
         qWarning("Not enough arguments for shader_to_header");
         return -1;
     }
-    int gl_ver = app.arguments().at(1).toInt();
-    if(gl_ver==2)
-        build_gles2_headers(app.arguments().mid(2));
-    else if(gl_ver==3)
-        build_gles3_headers(app.arguments().mid(2));
+    build_gles3_headers(app.arguments().mid(1));
     return 0;
 }

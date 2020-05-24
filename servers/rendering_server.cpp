@@ -1085,7 +1085,8 @@ void RenderingServer::mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType
         ERR_FAIL_COND_MSG(err2 != OK, "Invalid blend shape array format for surface.");
         blend_shape_data.emplace_back(eastl::move(PoolVector<uint8_t>(vertex_array_shape)));
     }
-    WARN_PRINT("Inefficient surface arrays operation");
+    //TODO: remove this message after inefficiency is removed.
+    printf("Inefficient surface arrays operation\n");
 
 
     mesh_add_surface(p_mesh, format, p_primitive, PoolVector(vertex_array), array_len,
@@ -2101,6 +2102,8 @@ void RenderingServer::_bind_methods() {
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_MATERIAL_CHANGES_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_SHADER_CHANGES_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_SURFACE_CHANGES_IN_FRAME);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_2D_ITEMS_IN_FRAME);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_2D_DRAW_CALLS_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,VIEWPORT_RENDER_INFO_MAX);
 
@@ -2161,6 +2164,8 @@ void RenderingServer::_bind_methods() {
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_SHADER_CHANGES_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_SURFACE_CHANGES_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_DRAW_CALLS_IN_FRAME);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_2D_ITEMS_IN_FRAME);
+    BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_2D_DRAW_CALLS_IN_FRAME);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_USAGE_VIDEO_MEM_TOTAL);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_VIDEO_MEM_USED);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,INFO_TEXTURE_MEM_USED);
@@ -2289,6 +2294,10 @@ RenderingServer::RenderingServer() {
     GLOBAL_DEF_RST("rendering/vram_compression/import_etc", false);
     GLOBAL_DEF_RST("rendering/vram_compression/import_etc2", true);
     GLOBAL_DEF_RST("rendering/vram_compression/import_pvrtc", false);
+
+    GLOBAL_DEF("rendering/limits/time/time_rollover_secs", 3600);
+    ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/time/time_rollover_secs", PropertyInfo(VariantType::FLOAT, "rendering/limits/time/time_rollover_secs", PropertyHint::Range, "0,10000,1,or_greater"));
+
 
     GLOBAL_DEF("rendering/quality/directional_shadow/size", 4096);
     GLOBAL_DEF("rendering/quality/directional_shadow/size.mobile", 2048);

@@ -57,7 +57,7 @@
 #include "scene/2d/parallax_layer.h"
 #include "scene/2d/gpu_particles_2d.h"
 #include "scene/2d/path_2d.h"
-#include "scene/2d/path_texture.h"
+
 #include "scene/2d/physics_body_2d.h"
 #include "scene/2d/polygon_2d.h"
 #include "scene/2d/position_2d.h"
@@ -135,7 +135,6 @@
 #include "scene/resources/audio_stream_sample.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/box_shape_3d.h"
-#include "scene/resources/canvas.h"
 #include "scene/resources/camera_texture.h"
 #include "scene/resources/capsule_shape_3d.h"
 #include "scene/resources/capsule_shape_2d.h"
@@ -163,7 +162,6 @@
 #include "scene/resources/ray_shape_3d.h"
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/resource_format_text.h"
-#include "scene/resources/space_2d.h"
 #include "scene/resources/segment_shape_2d.h"
 #include "scene/resources/sky.h"
 #include "scene/resources/sphere_shape_3d.h"
@@ -190,6 +188,7 @@
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/cpu_particles_3d.h"
 #include "scene/3d/gi_probe.h"
+#include "scene/3d/gpu_particles_3d.h"
 #include "scene/3d/immediate_geometry_3d.h"
 #include "scene/3d/interpolated_camera.h"
 #include "scene/3d/light_3d.h"
@@ -200,7 +199,6 @@
 #include "scene/3d/navigation_agent.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/navigation_obstacle.h"
-#include "scene/3d/particles.h"
 #include "scene/3d/path_3d.h"
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/physics_joint_3d.h"
@@ -269,7 +267,6 @@ void register_scene_types() {
     DynamicFontAtSize::initialize_class();
     DynamicFont::initialize_class();
     ResourceFormatLoaderDynamicFont::initialize_class();
-    Canvas::initialize_class();
     ConvexPolygonShape2D::initialize_class();
     World2D::initialize_class();
     VisualShader::initialize_class();
@@ -367,7 +364,6 @@ void register_scene_types() {
     World3D::initialize_class();
     MeshLibrary::initialize_class();
     SceneLibrary::initialize_class();
-    Space2D::initialize_class();
     CapsuleMesh::initialize_class();
     CubeMesh::initialize_class();
     CylinderMesh::initialize_class();
@@ -414,7 +410,6 @@ void register_scene_types() {
     NavigationPolygonInstance::initialize_class();
     VisibilityNotifier2D::initialize_class();
     VisibilityEnabler2D::initialize_class();
-    PathTexture::initialize_class();
     CollisionPolygon2D::initialize_class();
     Node2D::initialize_class();
     YSort::initialize_class();
@@ -526,7 +521,7 @@ void register_scene_types() {
     ARVRController::initialize_class();
     ARVRAnchor::initialize_class();
     ARVROrigin::initialize_class();
-    Particles::initialize_class();
+    GPUParticles3D::initialize_class();
     InterpolatedCamera::initialize_class();
     ProximityGroup3D::initialize_class();
     PinJoint3D::initialize_class();
@@ -790,7 +785,7 @@ void register_scene_types() {
     ClassDB::register_class<GIProbeData>();
     ClassDB::register_class<BakedLightmap>();
     ClassDB::register_class<BakedLightmapData>();
-    ClassDB::register_class<Particles>();
+    ClassDB::register_class<GPUParticles3D>();
     ClassDB::register_class<CPUParticles3D>();
     ClassDB::register_class<Position3D>();
 
@@ -1033,6 +1028,7 @@ void register_scene_types() {
     ClassDB::register_class<ProxyTexture>();
     ClassDB::register_class<AnimatedTexture>();
     ClassDB::register_class<CameraTexture>();
+    ClassDB::register_class<ExternalTexture>();
     ClassDB::register_class<CubeMap>();
     ClassDB::register_virtual_class<TextureLayered>();
     ClassDB::register_class<Texture3D>();

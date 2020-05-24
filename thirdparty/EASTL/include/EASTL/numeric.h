@@ -8,16 +8,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_NUMERIC_H
-#define EASTL_NUMERIC_H
+#pragma once
 
 
 #include <EASTL/internal/config.h>
 #include <EASTL/iterator.h>
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -233,13 +228,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
 

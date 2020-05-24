@@ -203,12 +203,13 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
 
     HashMap<StringName, AStarCost> cost_map;
 
-    ListOld<int> open_list;
+    Vector<int> open_list;
+    open_list.reserve(p_state_machine->transitions.size());
 
     //build open list
     for (int i = 0; i < p_state_machine->transitions.size(); i++) {
         if (p_state_machine->transitions[i].from == current) {
-            open_list.push_back(i);
+            open_list.emplace_back(i);
             float cost = p_state_machine->states[p_state_machine->transitions[i].to].position.distance_to(current_pos);
             cost *= p_state_machine->transitions[i].transition->get_priority();
             AStarCost ap;
@@ -232,22 +233,22 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
         }
 
         //find the last cost transition
-        ListOld<int>::Element *least_cost_transition = nullptr;
+        Vector<int>::iterator least_cost_transition = open_list.end();
         float least_cost = 1e20f;
 
-        for (ListOld<int>::Element *E = open_list.front(); E; E = E->next()) {
+        for (auto iter=open_list.begin(),fin=open_list.end(); iter!=fin; ++iter) {
 
-            float cost = cost_map[p_state_machine->transitions[E->deref()].to].distance;
-            cost += p_state_machine->states[p_state_machine->transitions[E->deref()].to].position.distance_to(target_pos);
+            float cost = cost_map[p_state_machine->transitions[*iter].to].distance;
+            cost += p_state_machine->states[p_state_machine->transitions[*iter].to].position.distance_to(target_pos);
 
             if (cost < least_cost) {
-                least_cost_transition = E;
+                least_cost_transition = iter;
                 least_cost = cost;
             }
         }
 
-        StringName transition_prev = p_state_machine->transitions[least_cost_transition->deref()].from;
-        StringName transition = p_state_machine->transitions[least_cost_transition->deref()].to;
+        StringName transition_prev = p_state_machine->transitions[*least_cost_transition].from;
+        StringName transition = p_state_machine->transitions[*least_cost_transition].to;
 
         for (int i = 0; i < p_state_machine->transitions.size(); i++) {
             if (p_state_machine->transitions[i].from != transition || p_state_machine->transitions[i].to == transition_prev) {
@@ -284,7 +285,7 @@ bool AnimationNodeStateMachinePlayback::_travel(AnimationNodeStateMachine *p_sta
             break;
         }
 
-        open_list.erase(least_cost_transition);
+        open_list.erase(least_cost_transition); // TODO: erase_unsorted here?
     }
 
     //make path
@@ -571,6 +572,27 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
     p_node->connect("tree_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
+void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<AnimationNode> p_node) {
+
+    ERR_FAIL_COND(states.contains(p_name) == false);
+    ERR_FAIL_COND(not p_node);
+    ERR_FAIL_COND(String(p_name).find("/") != -1);
+
+    {
+        Ref<AnimationNode> node = states[p_name].node;
+        if (node) {
+            node->disconnect("tree_changed", this, "_tree_changed");
+        }
+    }
+
+    states[p_name].node = dynamic_ref_cast<AnimationRootNode>(p_node);
+
+    emit_changed();
+    emit_signal("tree_changed");
+
+    p_node->connect("tree_changed", this, "_tree_changed", {}, ObjectNS::CONNECT_REFERENCE_COUNTED);
+}
+
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
 
     ERR_FAIL_COND_V(!states.contains(p_name), Ref<AnimationNode>());
@@ -588,7 +610,7 @@ StringName AnimationNodeStateMachine::get_node_name(const Ref<AnimationNode> &p_
     ERR_FAIL_V(StringName());
 }
 
-void AnimationNodeStateMachine::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeStateMachine::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     Vector<StringName> nodes;
 
     for (eastl::pair<const StringName,State> &E : states) {
@@ -688,7 +710,7 @@ void AnimationNodeStateMachine::get_node_list(List<StringName> *r_nodes) const {
         nodes.push_back(E.first);
     }
     nodes.sort(WrapAlphaCompare());
-    r_nodes->splice(r_nodes->end(),std::move(nodes));
+    r_nodes->splice(r_nodes->end(), eastl::move(nodes));
 }
 
 bool AnimationNodeStateMachine::has_transition(const StringName &p_from, const StringName &p_to) const {
@@ -949,6 +971,7 @@ void AnimationNodeStateMachine::_tree_changed() {
 void AnimationNodeStateMachine::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_node", {"name", "node", "position"}), &AnimationNodeStateMachine::add_node, {DEFVAL(Vector2())});
+    MethodBinder::bind_method(D_METHOD("replace_node", {"name", "node"}), &AnimationNodeStateMachine::replace_node);
     MethodBinder::bind_method(D_METHOD("get_node", {"name"}), &AnimationNodeStateMachine::get_node);
     MethodBinder::bind_method(D_METHOD("remove_node", {"name"}), &AnimationNodeStateMachine::remove_node);
     MethodBinder::bind_method(D_METHOD("rename_node", {"name", "new_name"}), &AnimationNodeStateMachine::rename_node);

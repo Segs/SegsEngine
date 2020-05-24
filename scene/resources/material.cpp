@@ -66,6 +66,60 @@ VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
 
 #include "scene/scene_string_names.h"
 
+namespace  {
+struct SpatialShaderNames {
+    StringName albedo;
+    StringName specular;
+    StringName metallic;
+    StringName roughness;
+    StringName emission;
+    StringName emission_energy;
+    StringName normal_scale;
+    StringName rim;
+    StringName rim_tint;
+    StringName clearcoat;
+    StringName clearcoat_gloss;
+    StringName anisotropy;
+    StringName depth_scale;
+    StringName subsurface_scattering_strength;
+    StringName transmission;
+    StringName refraction;
+    StringName point_size;
+    StringName uv1_scale;
+    StringName uv1_offset;
+    StringName uv2_scale;
+    StringName uv2_offset;
+    StringName particles_anim_h_frames;
+    StringName particles_anim_v_frames;
+    StringName particles_anim_loop;
+    StringName depth_min_layers;
+    StringName depth_max_layers;
+    StringName depth_flip;
+    StringName uv1_blend_sharpness;
+    StringName uv2_blend_sharpness;
+    StringName grow;
+    StringName proximity_fade_distance;
+    StringName distance_fade_min;
+    StringName distance_fade_max;
+    StringName ao_light_affect;
+
+    StringName metallic_texture_channel;
+    StringName roughness_texture_channel;
+    StringName ao_texture_channel;
+    StringName clearcoat_texture_channel;
+    StringName rim_texture_channel;
+    StringName depth_texture_channel;
+    StringName refraction_texture_channel;
+    StringName alpha_scissor_threshold;
+
+    StringName texture_names[SpatialMaterial::TEXTURE_MAX];
+};
+static SpatialShaderNames *shader_names;
+static Vector<SpatialMaterial *> s_dirty_materials;
+
+}
+
+
 void Material::set_next_pass(const Ref<Material> &p_pass) {
 
     for (Ref<Material> pass_child = p_pass; pass_child != nullptr; pass_child = pass_child->get_next_pass()) {
@@ -315,9 +369,7 @@ ShaderMaterial::~ShaderMaterial() {
 /////////////////////////////////
 
 Mutex *SpatialMaterial::material_mutex = nullptr;
-SelfList<SpatialMaterial>::List *SpatialMaterial::dirty_materials = nullptr;
 HashMap<SpatialMaterial::MaterialKey, SpatialMaterial::ShaderData> SpatialMaterial::shader_map;
-SpatialMaterial::ShaderNames *SpatialMaterial::shader_names = nullptr;
 
 void SpatialMaterial::init_shaders() {
 
@@ -325,9 +377,7 @@ void SpatialMaterial::init_shaders() {
     material_mutex = memnew(Mutex);
 #endif
 
-    dirty_materials = memnew(SelfList<SpatialMaterial>::List);
-
-    shader_names = memnew(ShaderNames);
+    shader_names = memnew(SpatialShaderNames);
 
     shader_names->albedo = "albedo";
     shader_names->specular = "specular";
@@ -407,16 +457,14 @@ void SpatialMaterial::finish_shaders() {
     memdelete(material_mutex);
 #endif
 
-    memdelete(dirty_materials);
-    dirty_materials = nullptr;
+    s_dirty_materials.clear();
 
     memdelete(shader_names);
 }
 
 void SpatialMaterial::_update_shader() {
 
-    dirty_materials->remove(&element);
-
+    is_dirty_element = false;
     MaterialKey mk = _compute_key();
     if (mk.key == current_key.key)
         return; //no update required in the end
@@ -1088,10 +1136,10 @@ void SpatialMaterial::flush_changes() {
     if (material_mutex)
         material_mutex->lock();
 
-    while (dirty_materials->first()) {
-
-        dirty_materials->first()->self()->_update_shader();
+    for(SpatialMaterial *mat : s_dirty_materials) {
+        mat->_update_shader();
     }
+    s_dirty_materials.clear();
 
     if (material_mutex)
         material_mutex->unlock();
@@ -1102,28 +1150,29 @@ void SpatialMaterial::_queue_shader_change() {
     if (material_mutex)
         material_mutex->lock();
 
-    if (!element.in_list()) {
-        dirty_materials->add(&element);
+    if (!is_dirty_element) {
+        s_dirty_materials.emplace_back(this);
+        is_dirty_element = true;
     }
 
     if (material_mutex)
         material_mutex->unlock();
 }
 
-bool SpatialMaterial::_is_shader_dirty() const {
+//bool SpatialMaterial::_is_shader_dirty() const {
 
-    bool dirty = false;
+//    bool dirty = false;
 
-    if (material_mutex)
-        material_mutex->lock();
+//    if (material_mutex)
+//        material_mutex->lock();
 
-    dirty = element.in_list();
+//    dirty = element.in_list();
 
-    if (material_mutex)
-        material_mutex->unlock();
+//    if (material_mutex)
+//        material_mutex->unlock();
 
-    return dirty;
-}
+//    return dirty;
+//}
 void SpatialMaterial::set_albedo(const Color &p_albedo) {
 
     albedo = p_albedo;
@@ -1400,7 +1449,7 @@ void SpatialMaterial::set_flag(Flags p_flag, bool p_enabled) {
     if (flags[p_flag] == p_enabled)
         return;
 
-    flags[p_flag] = p_enabled;
+    flags.set(p_flag,p_enabled);
     if ((p_flag == FLAG_USE_ALPHA_SCISSOR) || (p_flag == FLAG_UNSHADED) || (p_flag == FLAG_USE_SHADOW_TO_OPACITY)) {
         Object_change_notify(this);
     }
@@ -1419,7 +1468,7 @@ void SpatialMaterial::set_feature(Feature p_feature, bool p_enabled) {
     if (features[p_feature] == p_enabled)
         return;
 
-    features[p_feature] = p_enabled;
+    features.set(p_feature,p_enabled);
     Object_change_notify(this);
     _queue_shader_change();
 }
@@ -2364,9 +2413,8 @@ void SpatialMaterial::_bind_methods() {
     BIND_ENUM_CONSTANT(DISTANCE_FADE_OBJECT_DITHER)
 }
 
-SpatialMaterial::SpatialMaterial() :
-        element(this) {
-
+SpatialMaterial::SpatialMaterial() {
+    is_dirty_element = false;
     // Initialize to the same values as the shader
     set_albedo(Color(1.0, 1.0, 1.0, 1.0));
     set_specular(0.5);
@@ -2427,15 +2475,11 @@ SpatialMaterial::SpatialMaterial() :
     detail_blend_mode = BLEND_MODE_MIX;
     depth_draw_mode = DEPTH_DRAW_OPAQUE_ONLY;
     cull_mode = CULL_BACK;
-    for (int i = 0; i < FLAG_MAX; i++) {
-        flags[i] = false;
-    }
+    flags.reset();
     diffuse_mode = DIFFUSE_BURLEY;
     specular_mode = SPECULAR_SCHLICK_GGX;
 
-    for (int i = 0; i < FEATURE_MAX; i++) {
-        features[i] = false;
-    }
+    features.reset();
 
     current_key.key = 0;
     current_key.invalid_key = 1;
@@ -2457,6 +2501,8 @@ SpatialMaterial::~SpatialMaterial() {
 
         RenderingServer::get_singleton()->material_set_shader(_get_material(), RID());
     }
+    if(is_dirty_element)
+        s_dirty_materials.erase_first_unsorted(this);
 
     if (material_mutex)
         material_mutex->unlock();

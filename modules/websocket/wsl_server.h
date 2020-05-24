@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef WSLSERVER_H
-#define WSLSERVER_H
+#pragma once
 
 #ifndef JAVASCRIPT_ENABLED
 
@@ -76,7 +75,7 @@ private:
     int _out_buf_size;
     int _out_pkt_size;
 
-    ListOld<Ref<PendingPeer> > _pending;
+    Vector<Ref<PendingPeer> > _pending;
     Ref<TCP_Server> _server;
     PoolVector<String> _protocols;
 
@@ -98,5 +97,3 @@ public:
 };
 
 #endif // JAVASCRIPT_ENABLED
-
-#endif // WSLSERVER_H

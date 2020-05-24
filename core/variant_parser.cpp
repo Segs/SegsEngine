@@ -527,6 +527,10 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
             value = false;
         else if (id == "null"_sv || id == "nil"_sv)
             value = Variant();
+        else if (id == "inf"_sv)
+            value = Math_INF;
+        else if (id == "nan"_sv)
+            value = Math_NAN;
         else if (id == "Vector2"_sv) {
 
             Vector<float> args;
@@ -1410,7 +1414,17 @@ static String rtosfix(double p_value) {
     else
         return StringUtils::num_scientific(p_value);
 }
+struct VariantCompareLess {
 
+    bool operator()(const Variant& p_l, const Variant& p_r) const {
+        bool valid = false;
+        Variant res;
+        Variant::evaluate(Variant::OP_LESS, p_l, p_r, res, valid);
+        if (!valid)
+            res = false;
+        return res.as<bool>();
+    }
+};
 Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_string_func, void *p_store_string_ud, EncodeResourceFunc p_encode_res_func, void *p_encode_res_ud) {
 
     switch (p_variant.get_type()) {
@@ -1429,9 +1443,11 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
         case VariantType::FLOAT: {
 
             String s = rtosfix(p_variant.as<float>());
-            if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))
-                s += ".0";
-            p_store_string_func(p_store_string_ud, s);
+            if (s != "inf" && s != "nan") {
+                if (not StringUtils::contains(s,".") && not StringUtils::contains(s,"e"))
+                    s += ".0";
+                p_store_string_func(p_store_string_ud, s);
+            }
         } break;
         case VariantType::STRING: {
 
@@ -1608,7 +1624,7 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
             Dictionary dict = p_variant;
 
             Vector<Variant> keys(dict.get_key_list());
-            eastl::sort(keys.begin(),keys.end(),Comparator<Variant>());
+            eastl::sort(keys.begin(),keys.end(), VariantCompareLess());
 
             p_store_string_func(p_store_string_ud, "{\n");
             int size = keys.size()-1;

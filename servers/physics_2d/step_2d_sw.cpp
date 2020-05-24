@@ -137,7 +137,7 @@ void Step2DSW::step(Space2DSW *p_space, real_t p_delta, int p_iterations) {
 
     p_space->setup(); //update inertias, etc
 
-    const SelfList<Body2DSW>::List *body_list = &p_space->get_active_body_list();
+    const List<Body2DSW *> &body_list(p_space->get_active_body_list());
 
     /* INTEGRATE FORCES */
 
@@ -146,11 +146,9 @@ void Step2DSW::step(Space2DSW *p_space, real_t p_delta, int p_iterations) {
 
     int active_count = 0;
 
-    const SelfList<Body2DSW> *b = body_list->first();
-    while (b) {
+    for(Body2DSW * entry : body_list) {
 
-        b->self()->integrate_forces(p_delta);
-        b = b->next();
+        entry->integrate_forces(p_delta);
         active_count++;
     }
 
@@ -166,34 +164,30 @@ void Step2DSW::step(Space2DSW *p_space, real_t p_delta, int p_iterations) {
 
     Body2DSW *island_list = nullptr;
     Constraint2DSW *constraint_island_list = nullptr;
-    b = body_list->first();
 
     int island_count = 0;
 
-    while (b) {
-        Body2DSW *body = b->self();
+    for(Body2DSW *body : body_list) {
+        if (body->get_island_step() == _step)
+            continue;
 
-        if (body->get_island_step() != _step) {
+        Body2DSW *island = nullptr;
+        Constraint2DSW *constraint_island = nullptr;
+        _populate_island(body, &island, &constraint_island);
 
-            Body2DSW *island = nullptr;
-            Constraint2DSW *constraint_island = nullptr;
-            _populate_island(body, &island, &constraint_island);
+        island->set_island_list_next(island_list);
+        island_list = island;
 
-            island->set_island_list_next(island_list);
-            island_list = island;
-
-            if (constraint_island) {
-                constraint_island->set_island_list_next(constraint_island_list);
-                constraint_island_list = constraint_island;
-                island_count++;
-            }
+        if (constraint_island) {
+            constraint_island->set_island_list_next(constraint_island_list);
+            constraint_island_list = constraint_island;
+            island_count++;
         }
-        b = b->next();
     }
 
     p_space->set_island_count(island_count);
 
-    const SelfList<Area2DSW>::List &aml = p_space->get_moved_area_list();
+    const IntrusiveList<Area2DSW> &aml = p_space->get_moved_area_list();
 
     while (aml.first()) {
         for (Constraint2DSW * c : aml.first()->self()->get_constraints()) {
@@ -205,7 +199,7 @@ void Step2DSW::step(Space2DSW *p_space, real_t p_delta, int p_iterations) {
             c->set_island_list_next(constraint_island_list);
             constraint_island_list = c;
         }
-        p_space->area_remove_from_moved_list((SelfList<Area2DSW> *)aml.first()); //faster to remove here
+        p_space->area_remove_from_moved_list((IntrusiveListNode<Area2DSW> *)aml.first()); //faster to remove here
     }
 
     { //profile
@@ -279,11 +273,13 @@ void Step2DSW::step(Space2DSW *p_space, real_t p_delta, int p_iterations) {
 
     /* INTEGRATE VELOCITIES */
 
-    b = body_list->first();
-    while (b) {
+    List<Body2DSW *>::const_iterator b = body_list.begin();
 
-        const SelfList<Body2DSW> *n = b->next();
-        b->self()->integrate_velocities(p_delta);
+    while (b!=body_list.end()) {
+
+        List<Body2DSW *>::const_iterator n = b;
+        ++n;
+        (*b)->integrate_velocities(p_delta);
         b = n; // in case it shuts itself down
     }
 

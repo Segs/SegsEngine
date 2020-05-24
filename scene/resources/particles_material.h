@@ -131,76 +131,12 @@ private:
     }
 
     static Mutex *material_mutex;
-    static SelfList<ParticlesMaterial>::List *dirty_materials;
 
-    struct ShaderNames {
-        StringName direction;
-        StringName spread;
-        StringName flatness;
-        StringName initial_linear_velocity;
-        StringName initial_angle;
-        StringName angular_velocity;
-        StringName orbit_velocity;
-        StringName linear_accel;
-        StringName radial_accel;
-        StringName tangent_accel;
-        StringName damping;
-        StringName scale;
-        StringName hue_variation;
-        StringName anim_speed;
-        StringName anim_offset;
-
-        StringName initial_linear_velocity_random;
-        StringName initial_angle_random;
-        StringName angular_velocity_random;
-        StringName orbit_velocity_random;
-        StringName linear_accel_random;
-        StringName radial_accel_random;
-        StringName tangent_accel_random;
-        StringName damping_random;
-        StringName scale_random;
-        StringName hue_variation_random;
-        StringName anim_speed_random;
-        StringName anim_offset_random;
-
-        StringName angle_texture;
-        StringName angular_velocity_texture;
-        StringName orbit_velocity_texture;
-        StringName linear_accel_texture;
-        StringName radial_accel_texture;
-        StringName tangent_accel_texture;
-        StringName damping_texture;
-        StringName scale_texture;
-        StringName hue_variation_texture;
-        StringName anim_speed_texture;
-        StringName anim_offset_texture;
-
-        StringName color;
-        StringName color_ramp;
-
-        StringName emission_sphere_radius;
-        StringName emission_box_extents;
-        StringName emission_texture_point_count;
-        StringName emission_texture_points;
-        StringName emission_texture_normal;
-        StringName emission_texture_color;
-
-        StringName trail_divisor;
-        StringName trail_size_modifier;
-        StringName trail_color_modifier;
-
-        StringName gravity;
-
-        StringName lifetime_randomness;
-    };
-
-    static ShaderNames *shader_names;
-
-    SelfList<ParticlesMaterial> element;
+    bool is_dirty_element; //!< this value is set when this material is waiting to be updated by \fn _update_shader
 
     void _update_shader();
     _FORCE_INLINE_ void _queue_shader_change();
-    _FORCE_INLINE_ bool _is_shader_dirty() const;
+    //_FORCE_INLINE_ bool _is_shader_dirty() const;
 
     Vector3 direction;
     float spread;

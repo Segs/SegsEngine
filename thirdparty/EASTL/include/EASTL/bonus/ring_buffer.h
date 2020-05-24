@@ -14,9 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_RING_BUFFER_H
-#define EASTL_RING_BUFFER_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/iterator.h>
@@ -24,7 +22,6 @@
 #include <EASTL/initializer_list.h>
 #include <stddef.h>
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -1555,25 +1552,3 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

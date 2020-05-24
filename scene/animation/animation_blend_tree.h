@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef ANIMATION_BLEND_TREE_H
-#define ANIMATION_BLEND_TREE_H
-
+#pragma once
 #include "scene/animation/animation_tree.h"
+#include "core/deque.h"
 
 class AnimationNodeAnimation : public AnimationRootNode {
 
@@ -375,7 +374,7 @@ public:
     void set_node_position(const StringName &p_node, const Vector2 &p_position);
     Vector2 get_node_position(const StringName &p_node) const;
 
-    void get_child_nodes(ListOld<ChildNode> *r_child_nodes) override;
+    void get_child_nodes(Vector<ChildNode> *r_child_nodes) override;
 
     void connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node);
     void disconnect_node(const StringName &p_node, int p_input_index);
@@ -387,7 +386,7 @@ public:
     };
 
     ConnectionError can_connect_node(const StringName &p_input_node, int p_input_index, const StringName &p_output_node) const;
-    void get_node_connections(ListOld<NodeConnection> *r_connections) const;
+    Vector<NodeConnection> get_node_connections() const;
 
     StringView get_caption() const override;
     float process(float p_time, bool p_seek) override;
@@ -402,6 +401,3 @@ public:
     AnimationNodeBlendTree();
     ~AnimationNodeBlendTree() override;
 };
-
-
-#endif // ANIMATION_BLEND_TREE_H

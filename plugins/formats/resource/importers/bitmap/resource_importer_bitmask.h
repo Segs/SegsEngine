@@ -35,7 +35,7 @@
 
 class ResourceImporterBitMap : public QObject, public ResourceImporterInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.BitmapImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.BitmapImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
 

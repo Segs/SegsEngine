@@ -31,9 +31,7 @@
 // cells faster than a regular 2D array, as only used cells are stored.
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_SPARSE_MATRIX_H
-#define EASTL_SPARSE_MATRIX_H
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #if 0
 
@@ -42,7 +40,6 @@
 #include <EASTL/utility.h>
 #include <EASTL/functional.h>
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -1560,20 +1557,3 @@ namespace eastl
 } // namespace eastl
 
 #endif
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

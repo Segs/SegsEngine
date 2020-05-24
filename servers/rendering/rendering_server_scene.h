@@ -37,12 +37,34 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 #include "core/self_list.h"
+#include "core/deque.h"
 
 struct NewOctree {};
 enum ARVREyes : int8_t;
 class ARVRInterface;
 
 class VisualServerScene {
+    /* CAMERA API */
+
+    struct Camera3D : public RID_Data {
+
+        enum Type {
+            PERSPECTIVE,
+            ORTHOGONAL,
+            FRUSTUM
+        };
+        Type type = PERSPECTIVE;
+        float fov = 70.0f;
+        float znear = 0.05f;
+        float zfar = 100.0f;
+        float size = 1.0f;
+        Vector2 offset{};
+        uint32_t visible_layers = 0xFFFFFFFF;
+        bool vaspect = false;
+        RID env;
+
+        Transform transform;
+    };
 public:
     enum {
 
@@ -59,27 +81,6 @@ public:
 
 // FIXME: Kept as reference for future implementation
 
-    /* CAMERA API */
-
-    struct Camera3D : public RID_Data {
-
-        enum Type {
-            PERSPECTIVE,
-            ORTHOGONAL,
-            FRUSTUM
-        };
-        Type type = PERSPECTIVE;
-        float fov=70.0f;
-        float znear=0.05f;
-        float zfar=100.0f;
-        float size=1.0f;
-        Vector2 offset {};
-        uint32_t visible_layers = 0xFFFFFFFF;
-        bool vaspect = false;
-        RID env;
-
-        Transform transform;
-    };
 
     RID camera_create();
     void camera_set_perspective(RID p_camera, float p_fovy_degrees, float p_z_near, float p_z_far);
@@ -107,7 +108,7 @@ public:
         RID reflection_probe_shadow_atlas;
         RID reflection_atlas;
 
-        SelfList<Instance>::List instances;
+        IntrusiveList<Instance> instances;
 
         Scenario() { debug = RS::SCENARIO_DEBUG_DISABLED; }
     };
@@ -136,7 +137,7 @@ public:
         RID self;
         //scenario stuff
         Scenario *scenario = nullptr;
-        SelfList<Instance> scenario_item;
+        IntrusiveListNode<Instance> scenario_item;
         OctreeElementID octree_id = 0;
 
         //aabb stuff
@@ -190,7 +191,6 @@ public:
         }
     };
 
-    //SelfList<Instance>::List _instance_update_list;
     void _instance_queue_update(Instance *p_instance, bool p_update_aabb, bool p_update_materials = false);
 
     struct InstanceReflectionProbeData : public InstanceBaseData {
@@ -198,14 +198,14 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //reflection iterator in geometry
+            List<Instance *>::iterator L; //reflection iterator in geometry
             Instance *geometry;
         };
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         RID instance;
         bool reflection_dirty;
-        SelfList<InstanceReflectionProbeData> update_list;
+        IntrusiveListNode<InstanceReflectionProbeData> update_list;
 
         int render_step;
 
@@ -217,12 +217,12 @@ public:
         }
     };
 
-    SelfList<InstanceReflectionProbeData>::List reflection_probe_render_list;
+    IntrusiveList<InstanceReflectionProbeData> reflection_probe_render_list;
 
     struct InstanceLightData : public InstanceBaseData {
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //light iterator in geometry
+            List<Instance *>::iterator L; //light iterator in geometry
             Instance *geometry;
         };
 
@@ -231,7 +231,7 @@ public:
         bool D; // directional light in scenario
         bool shadow_dirty;
 
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         Instance *baked_light;
 
@@ -249,11 +249,11 @@ public:
         Instance *owner;
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //gi probe iterator in geometry
+            List<Instance *>::iterator L; //gi probe iterator in geometry
             Instance *geometry;
         };
 
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         HashSet<Instance *> lights;
 
@@ -331,7 +331,7 @@ public:
         bool invalid;
         uint32_t base_version;
 
-        SelfList<InstanceGIProbeData> update_element;
+        IntrusiveListNode<InstanceGIProbeData> update_element;
 
         InstanceGIProbeData() :
                 update_element(this) {
@@ -341,15 +341,15 @@ public:
         }
     };
 
-    SelfList<InstanceGIProbeData>::List gi_probe_update_list;
+    IntrusiveList<InstanceGIProbeData> gi_probe_update_list;
 
     struct InstanceLightmapCaptureData : public InstanceBaseData {
 
         struct PairInfo {
-            ListOld<Instance *>::Element *L; //iterator in geometry
+            List<Instance *>::iterator L; //iterator in geometry
             Instance *geometry;
         };
-        ListOld<PairInfo> geometries;
+        List<PairInfo> geometries;
 
         HashSet<Instance *> users;
 
@@ -454,7 +454,7 @@ public:
     Thread *probe_bake_thread;
     Semaphore *probe_bake_sem;
     Mutex *probe_bake_mutex;
-    ListOld<Instance *> probe_bake_list;
+    Deque<Instance *> probe_bake_list;
 
     bool _render_reflection_probe_step(Instance *p_instance, int p_step);
     void _gi_probe_fill_local_data(int p_idx, int p_level, int p_x, int p_y, int p_z, const GIProbeDataCell *p_cell,

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="SceneMap.svg">icons/SceneMap.svg</file>
+    </qresource>
+</RCC>

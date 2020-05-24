@@ -333,13 +333,16 @@ Error OS_Unix::execute(StringView p_path, const Vector<String> &p_arguments, boo
         }
 
         Vector<String> cs;
+
         cs.emplace_back(p_path);
         for (const String &arg : p_arguments)
             cs.emplace_back(arg);
 
         Vector<char *> args;
-        for (int i = 0; i < cs.size(); i++)
-            args.push_back((char *)cs[i].data());
+        args.reserve(cs.size());
+
+        for (const String & i : cs)
+            args.emplace_back((char *)i.data());
         args.push_back(nullptr);
 
         execvp(cs.front().c_str(), &args[0]);

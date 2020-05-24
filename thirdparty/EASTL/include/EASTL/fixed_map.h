@@ -8,16 +8,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_FIXED_MAP_H
-#define EASTL_FIXED_MAP_H
+#pragma once
 
 
 #include <EASTL/map.h>
 #include <EASTL/fixed_set.h> // Included because fixed_rbtree_base resides here.
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
-
 
 namespace eastl
 {
@@ -149,6 +144,7 @@ namespace eastl
 		char mBuffer[fixed_allocator_type::kBufferSize]; // kBufferSize will take into account alignment requirements.
 
 		using base_type::mAllocator;
+		using base_type::get_compare;
 
 	public:
 		fixed_multimap();
@@ -564,15 +560,4 @@ namespace eastl
 
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
 

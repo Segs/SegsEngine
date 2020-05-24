@@ -19,10 +19,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_BITSET_H
-#define EASTL_BITSET_H
-
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/algorithm.h>
@@ -51,7 +48,6 @@
 	#pragma warning(disable: 4127)  // Conditional expression is constant
 #endif
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -79,7 +75,11 @@ namespace eastl
 	/// difficult to evaluate.
 	/// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=45978
 	///
+	#if defined(__GNUC__) && (EA_COMPILER_VERSION <= 4007) && defined(EA_PLATFORM_ANDROID) // Earlier than GCC 4.7 
+		#define EASTL_DISABLE_BITSET_ARRAYBOUNDS_WARNING 1
+	#else
 		#define EASTL_DISABLE_BITSET_ARRAYBOUNDS_WARNING 0
+	#endif
 
 
 
@@ -296,7 +296,7 @@ namespace eastl
 	///
 	/// - N can be any unsigned (non-zero) value, though memory usage is 
 	///   linear with respect to N, so large values of N use large amounts of memory.
-	/// - WordType must be one of [uint16_t, uint32_t, uint64_t] 
+	/// - WordType must be one of [uint16_t, uint32_t, uint64_t, uint128_t] 
 	///   and the compiler must support the type. By default the WordType is
 	///   the largest native register type that the target platform supports.
 	///
@@ -548,6 +548,26 @@ namespace eastl
 		return 64;
 	}
 
+	#if EASTL_INT128_SUPPORTED
+		inline uint32_t GetFirstBit(eastl_uint128_t x)
+		{
+			if(x)
+			{
+				uint32_t n = 1;
+
+				if((x & UINT64_C(0xFFFFFFFFFFFFFFFF)) == 0) { n += 64; x >>= 64; }
+				if((x & 0xFFFFFFFF) == 0)                   { n += 32; x >>= 32; }
+				if((x & 0x0000FFFF) == 0)                   { n += 16; x >>= 16; }
+				if((x & 0x000000FF) == 0)                   { n +=  8; x >>=  8; }
+				if((x & 0x0000000F) == 0)                   { n +=  4; x >>=  4; }
+				if((x & 0x00000003) == 0)                   { n +=  2; x >>=  2; }
+
+				return (n - ((uint32_t)x & 1));
+			}
+
+			return 128;
+		}
+	#endif
     inline uint32_t GetLastBit(uint8_t x)
 	{
 		if(x)
@@ -617,6 +637,30 @@ namespace eastl
 
 		return 64;
 	}
+	#if EASTL_INT128_SUPPORTED
+		inline uint32_t GetLastBit(eastl_uint128_t x)
+		{
+			if(x)
+			{
+				uint32_t n = 0;
+				
+				eastl_uint128_t mask(UINT64_C(0xFFFFFFFF00000000)); // There doesn't seem to exist compiler support for INT128_C() by any compiler. EAStdC's int128_t supports it though.
+				mask <<= 64;
+
+				if(x & mask)                         { n += 64; x >>= 64; }
+				if(x & UINT64_C(0xFFFFFFFF00000000)) { n += 32; x >>= 32; }
+				if(x & UINT64_C(0x00000000FFFF0000)) { n += 16; x >>= 16; }
+				if(x & UINT64_C(0x00000000FFFFFF00)) { n +=  8; x >>=  8; }
+				if(x & UINT64_C(0x00000000FFFFFFF0)) { n +=  4; x >>=  4; }
+				if(x & UINT64_C(0x00000000FFFFFFFC)) { n +=  2; x >>=  2; }
+				if(x & UINT64_C(0x00000000FFFFFFFE)) { n +=  1;           }
+
+				return n;
+			}
+
+			return 128;
+		}
+	#endif
 
 	///////////////////////////////////////////////////////////////////////////
 	// BitsetBase
@@ -2181,18 +2225,3 @@ EA_RESTORE_GCC_WARNING()
 #if defined(_MSC_VER)
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-

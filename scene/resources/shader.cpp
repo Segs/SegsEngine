@@ -130,7 +130,26 @@ void Shader::get_default_texture_param_list(List<StringName> *r_textures) const 
         r_textures->push_back(E.first);
     }
 }
+void Shader::set_custom_defines(StringView p_defines) {
 
+    RenderingServer::get_singleton()->shader_clear_custom_defines(shader);
+    RenderingServer::get_singleton()->shader_add_custom_define(shader, p_defines);
+}
+
+String Shader::get_custom_defines() {
+    Vector<StringView> custom_defines;
+    RenderingServer::get_singleton()->shader_get_custom_defines(shader, &custom_defines);
+
+    String concatenated_defines;
+    for (int i = 0; i < custom_defines.size(); i++) {
+        if (i != 0) {
+            concatenated_defines += "\n";
+        }
+        concatenated_defines += custom_defines[i];
+    }
+
+    return concatenated_defines;
+}
 bool Shader::is_text_shader() const {
     return true;
 }
@@ -153,11 +172,16 @@ void Shader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_default_texture_param", {"param", "texture"}), &Shader::set_default_texture_param);
     MethodBinder::bind_method(D_METHOD("get_default_texture_param", {"param"}), &Shader::get_default_texture_param);
 
+    MethodBinder::bind_method(D_METHOD("set_custom_defines", {"custom_defines"}), &Shader::set_custom_defines);
+    MethodBinder::bind_method(D_METHOD("get_custom_defines"), &Shader::get_custom_defines);
+
     MethodBinder::bind_method(D_METHOD("has_param", {"name"}), &Shader::has_param);
 
     //MethodBinder::bind_method(D_METHOD("get_param_list"),&Shader::get_fragment_code);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "code", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_code", "get_code");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "custom_defines", PropertyHint::MultilineText), "set_custom_defines", "get_custom_defines");
+
 }
 
 Shader::Shader() {

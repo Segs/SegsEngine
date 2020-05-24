@@ -62,10 +62,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef EASTL_MEMORY_H
-#define EASTL_MEMORY_H
-
+#pragma once 
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/memory_base.h>
@@ -91,9 +88,6 @@ EA_RESTORE_ALL_VC_WARNINGS()
 	#pragma warning(disable: 4146)  // unary minus operator applied to unsigned type, result still unsigned
 	#pragma warning(disable: 4571)  // catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught.
 #endif
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
 
 namespace eastl
 {
@@ -167,6 +161,10 @@ namespace eastl
 	/// operator * or ->. autoConstruct is convenient but it causes * and -> to be slightly slower
 	/// and may result in construction at an inconvenient time. 
 	///
+	/// The autoDestruct template parameter controls whether the object, if constructed, is automatically
+	/// destructed when ~late_constructed() is called or must be manually destructed via a call to
+	/// destruct().
+	///
 	/// While construction can be automatic or manual, automatic destruction support is always present.
 	/// Thus you aren't required in any case to manually call destruct. However, you may safely manually
 	/// destruct the object at any time before the late_constructed destructor is executed. 
@@ -197,11 +195,11 @@ namespace eastl
 	///         // You may want to call destruct here, but aren't required to do so unless the Widget type requires it.
 	///     }
 	/// 
-	template <typename T, bool autoConstruct = true>
+	template <typename T, bool autoConstruct = true, bool autoDestruct = true>
 	class late_constructed
 	{
 	public:
-		using this_type    = late_constructed<T, autoConstruct>;
+		using this_type    = late_constructed<T, autoConstruct, autoDestruct>;
 		using value_type   = T;
 		using storage_type = eastl::aligned_storage_t<sizeof(value_type), eastl::alignment_of_v<value_type>>;
 
@@ -210,7 +208,7 @@ namespace eastl
 
 		~late_constructed()
 		{
-			if(mpValue)
+			if (autoDestruct && mpValue)
 				(*mpValue).~value_type();
 		} 
 
@@ -286,11 +284,11 @@ namespace eastl
 
 
 	// Specialization that doesn't auto-construct on demand.
-	template <typename T>
-	class late_constructed<T, false> : public late_constructed<T, true>
+	template <typename T, bool autoDestruct>
+	class late_constructed<T, false, autoDestruct> : public late_constructed<T, true, autoDestruct>
 	{
 	public:
-		typedef late_constructed<T, true> base_type;
+		typedef late_constructed<T, true, autoDestruct> base_type;
 
 		typename base_type::value_type& operator*() EA_NOEXCEPT
 			{ EASTL_ASSERT(base_type::mpValue); return *base_type::mpValue; }
@@ -1680,17 +1678,4 @@ namespace eastl
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
 

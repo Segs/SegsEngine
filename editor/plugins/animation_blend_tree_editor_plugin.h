@@ -51,8 +51,8 @@ class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
         Ref<Script> script;
         AddOption() = default;
         AddOption(String p_name, String p_type) :
-                name(std::move(p_name)),
-                type(std::move(p_type)) {
+                name(eastl::move(p_name)),
+                type(eastl::move(p_type)) {
         }
     };
     HashMap<StringName, ProgressBar *> animations;

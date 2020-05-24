@@ -36,12 +36,15 @@
 #include "core/ref_ptr.h"
 #include "core/vector.h"
 #include "core/array.h"
+#include "core/object_id.h"
+#include "core/object_rc.h"
 
 #include <cstdint>
 #include <type_traits>
 
-class RefPtr;
+
 class Object;
+class ObjectRC;
 class Node; // helper
 class Control; // helper
 using UIString = class QString;
@@ -78,12 +81,13 @@ using PoolStringArray = PoolVector<String>;
 using PoolVector2Array = PoolVector<Vector2>;
 using PoolVector3Array = PoolVector<Vector3>;
 using PoolColorArray = PoolVector<Color>;
-namespace eastl {
-template <typename T, size_t Extent>
-class span;
-}
-template <typename T>
-using Span = eastl::span<T,size_t(-1)>;
+
+#ifdef DEBUG_ENABLED
+// Ideally, an inline member of ObjectRC, but would cause circular includes
+#define _OBJ_PTR(m_variant) ((m_variant)._get_obj().rc ? (m_variant)._get_obj().rc->get_ptr() : reinterpret_cast<Ref<RefCounted> *>((m_variant)._get_obj().ref.get())->get())
+#else
+#define _OBJ_PTR(m_variant) ((m_variant)._get_obj().obj)
+#endif
 
 // Temporary workaround until c++11 alignas()
 #ifdef __GNUC__
@@ -161,7 +165,15 @@ private:
 
     struct ObjData {
 
+#ifdef DEBUG_ENABLED
+        // Will be null for every type deriving from Reference as they have their
+        // own reference count mechanism
+        ObjectRC *rc;
+#else
         Object *obj;
+#endif
+        // Always initialized, but will be null if the Ref<> assigned was null
+        // or this Variant is not even holding a Reference-derived object
         RefPtr ref;
     };
 
@@ -243,12 +255,7 @@ public:
 
     operator Node *() const;
     operator Control *() const;
-    operator Object *() const {
-
-        if (type == VariantType::OBJECT)
-            return _get_obj().obj;
-        return nullptr;
-    }
+    operator Object *() const;
 
     operator Dictionary() const;
     operator Array() const;

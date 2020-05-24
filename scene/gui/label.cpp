@@ -560,6 +560,7 @@ void Label::set_text(const StringName &p_string) {
 
     if (text == p_string)
         return;
+
     text = p_string;
     xl_text = tr(p_string);
     word_cache_dirty = true;

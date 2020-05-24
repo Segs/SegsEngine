@@ -68,7 +68,6 @@ struct RichTextItem {
 
     RichTextItem() {
         parent = nullptr;
-        E = nullptr;
         line = 0;
     }
     virtual ~RichTextItem() { _clear_children(); }
@@ -829,13 +828,14 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                                     } else {
                                         cw = drawer.draw_char(ci, p_ofs + Point2(align_ofs + pofs, y + lh - line_descent) + fx_offset, fx_char, c[i + 1], fx_color);
                                     }
-                                } else if (previously_visible) {
+                                } else if (previously_visible && c[i] != '\t') {
                                     backtrack += font->get_char_size(fx_char, c[i + 1]).x;
                                 }
 
                                 p_char_count++;
                                 if (c[i] == '\t') {
                                     cw = tab_size * font->get_char_size(' ').width;
+                                    backtrack = eastl::max(0, backtrack - cw);
                                 }
 
                                 ofs += cw;
@@ -854,7 +854,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
                         } else if (strikethrough) {
                             Color uc = color;
                             uc.a *= 0.5;
-                            int uy = y + lh / 2 - line_descent + 2;
+                            int uy = y + lh - (line_ascent + line_descent) / 2;
                             float strikethrough_width = 1.0;
 #ifdef TOOLS_ENABLED
                             strikethrough_width *= EDSCALE;
@@ -2341,6 +2341,9 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
         }
 
         StringView tag = StringUtils::substr(p_bbcode,brk_pos + 1, brk_end - brk_pos - 1);
+        Vector<StringView> split_tag_block = split(tag,' ', false);
+
+        StringView bbcode = !split_tag_block.empty() ? split_tag_block[0] : "";
 
         if (tag.starts_with('/') && !tag_stack.empty()) {
 
@@ -2574,15 +2577,14 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front(("font"));
 
-        } else if (begins_with(tag,"fade")) {
-            Vector<StringView> tags = split(tag,' ', false);
+        } else if (bbcode=="fade") {
             int startIndex = 0;
             int length = 10;
 
-            if (tags.size() > 1) {
-                tags.pop_front();
-                for (int i = 0; i < tags.size(); i++) {
-                    StringView expr = tags[i];
+            if (split_tag_block.size() > 1) {
+                split_tag_block.pop_front();
+                for (int i = 0; i < split_tag_block.size(); i++) {
+                    StringView expr = split_tag_block[i];
                     if (begins_with(expr,"start=")) {
                         StringView start_str = substr(expr,6, expr.length());
                         startIndex = to_int(start_str);
@@ -2596,15 +2598,14 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             push_fade(startIndex, length);
             pos = brk_end + 1;
             tag_stack.push_front("fade");
-        } else if (begins_with(tag,"shake")) {
-            Vector<StringView> tags = split(tag,' ', false);
+        } else if (bbcode == "shake") {
             int strength = 5;
             float rate = 20.0f;
 
-            if (tags.size() > 1) {
-                tags.pop_front();
-                for (int i = 0; i < tags.size(); i++) {
-                    StringView expr = tags[i];
+            if (split_tag_block.size() > 1) {
+                split_tag_block.pop_front();
+                for (int i = 0; i < split_tag_block.size(); i++) {
+                    StringView expr = split_tag_block[i];
                     if (begins_with(expr,"level=")) {
                         auto str_str = substr(expr,6, expr.length());
                         strength = to_int(str_str);
@@ -2619,15 +2620,14 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front("shake");
             set_process_internal(true);
-        } else if (begins_with(tag, "wave")) {
-            Vector<StringView> tags = split(tag, ' ', false);
+        } else if (bbcode == "wave") {
             float amplitude = 20.0f;
             float period = 5.0f;
 
-            if (tags.size() > 1) {
-                tags.pop_front();
-                for (int i = 0; i < tags.size(); i++) {
-                    auto expr = tags[i];
+            if (split_tag_block.size() > 1) {
+                split_tag_block.pop_front();
+                for (int i = 0; i < split_tag_block.size(); i++) {
+                    StringView expr = split_tag_block[i];
                     if (begins_with(expr, "amp=")) {
                         auto amp_str = substr(expr,4, expr.length());
                         amplitude = to_float(amp_str);
@@ -2642,15 +2642,14 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front("wave");
             set_process_internal(true);
-        } else if (begins_with(tag, "tornado")) {
-            auto tags = split(tag, ' ', false);
+        } else if (bbcode=="tornado") {
             float radius = 10.0f;
             float frequency = 1.0f;
 
-            if (tags.size() > 1) {
-                tags.pop_front();
-                for (int i = 0; i < tags.size(); i++) {
-                    auto expr = tags[i];
+            if (split_tag_block.size() > 1) {
+                split_tag_block.pop_front();
+                for (int i = 0; i < split_tag_block.size(); i++) {
+                    StringView expr = split_tag_block[i];
                     if (begins_with(expr, "radius=")) {
                         auto amp_str = substr(expr,7, expr.length());
                         radius = to_float(amp_str);
@@ -2665,16 +2664,15 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             pos = brk_end + 1;
             tag_stack.push_front(("tornado"));
             set_process_internal(true);
-        } else if (begins_with(tag, "rainbow")) {
-            auto tags = split(tag, ' ', false);
+        } else if (bbcode=="rainbow") {
             float saturation = 0.8f;
             float value = 0.8f;
             float frequency = 1.0f;
 
-            if (tags.size() > 1) {
-                tags.pop_front();
-                for (int i = 0; i < tags.size(); i++) {
-                    auto expr = tags[i];
+            if (split_tag_block.size() > 1) {
+                split_tag_block.pop_front();
+                for (int i = 0; i < split_tag_block.size(); i++) {
+                    StringView expr = split_tag_block[i];
                     if (begins_with(expr, "sat=")) {
                         auto sat_str = substr(expr,4, expr.length());
                         saturation = to_float(sat_str);
@@ -2693,7 +2691,7 @@ Error RichTextLabel::append_bbcode(StringView p_bbcode) {
             tag_stack.push_front(("rainbow"));
             set_process_internal(true);
         } else {
-            auto expr_v = split(tag, ' ', false);
+            auto &expr_v = split_tag_block;
             if (expr_v.empty()) {
                 add_text("[");
                 pos = brk_pos + 1;
@@ -2770,7 +2768,7 @@ bool RichTextLabel::search(const UIString &p_string, bool p_from_selection, bool
         if (it->type == ITEM_TEXT) {
 
             ItemText *t = static_cast<ItemText *>(it);
-            int sp = StringUtils::find(t->text,p_string, charidx);
+            int sp = StringUtils::findn(t->text,p_string, charidx);
             if (sp != -1) {
                 selection.from = it;
                 selection.from_char = sp;

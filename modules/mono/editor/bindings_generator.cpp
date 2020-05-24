@@ -57,7 +57,6 @@
 #include "csharp_project.h"
 #include "EASTL/sort.h"
 #include "EASTL/unordered_set.h"
-#include "EASTL/unordered_set.h"
 
 
 #define CS_INDENT "    " // 4 whitespaces
@@ -923,8 +922,8 @@ Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir) {
         compile_items.emplace_back(output_file);
     }
 
-    for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next()) {
-        const TypeInterface &itype = E.get();
+    for (const StringName & E : obj_type_insert_order) {
+        const TypeInterface &itype = obj_types[E];
 
         if (itype.api_type == ClassDB::API_EDITOR)
             continue;
@@ -1028,8 +1027,8 @@ Error BindingsGenerator::generate_cs_editor_project(const String &p_proj_dir) {
 
     Vector<String> compile_items;
 
-    for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next()) {
-        const TypeInterface &itype = E.get();
+    for (const StringName& E : obj_type_insert_order) {
+        const TypeInterface& itype = obj_types[E];
 
         if (itype.api_type != ClassDB::API_EDITOR)
             continue;
@@ -1316,7 +1315,7 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
     if (itype.is_singleton || itype.is_namespace) {
         output.append("\n");
     } else if (is_derived_type) {
-        if (obj_types.has(itype.base_name)) {
+        if (obj_types.contains(itype.base_name)) {
             output.append(" : ");
             output.append(obj_types[itype.base_name].proxy_name);
             output.append("\n");
@@ -1433,10 +1432,10 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     // Search it in base types too
     const TypeInterface *current_type = &p_itype;
     while (!setter && current_type->base_name != StringName()) {
-        OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V_MSG(!base_match, ERR_BUG,
+        auto base_match = obj_types.find(current_type->base_name);
+        ERR_FAIL_COND_V_MSG(obj_types.end()==base_match, ERR_BUG,
                 "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
-        current_type = &base_match.get();
+        current_type = &base_match->second;
         setter = current_type->find_method_by_name(p_iprop.setter);
     }
 
@@ -1445,10 +1444,10 @@ Error BindingsGenerator::_generate_cs_property(const BindingsGenerator::TypeInte
     // Search it in base types too
     current_type = &p_itype;
     while (!getter && current_type->base_name != StringName()) {
-        OrderedHashMap<StringName, TypeInterface>::Element base_match = obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V_MSG(!base_match, ERR_BUG,
+        auto base_match = obj_types.find(current_type->base_name);
+        ERR_FAIL_COND_V_MSG(obj_types.end() == base_match, ERR_BUG,
                 "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
-        current_type = &base_match.get();
+        current_type = &base_match->second;
         getter = current_type->find_method_by_name(p_iprop.getter);
     }
 
@@ -1777,8 +1776,8 @@ Error BindingsGenerator::generate_glue(StringView p_output_dir) {
     output.append("\n#ifdef MONO_GLUE_ENABLED\n");
 
     eastl::unordered_set<String> used;
-    for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
-        const TypeInterface &itype = type_elem.get();
+    for (const StringName& E : obj_type_insert_order) {
+        const TypeInterface& itype = obj_types[E];
         if(used.contains(ClassDB::classes[itype.cname].usage_header))
             continue;
         used.insert(ClassDB::classes[itype.cname].usage_header);
@@ -1863,8 +1862,8 @@ Array* ToArray(SurfaceArrays&& v) {
     )RAW");
     generated_icall_funcs.clear();
 
-    for (OrderedHashMap<StringName, TypeInterface>::Element type_elem = obj_types.front(); type_elem; type_elem = type_elem.next()) {
-        const TypeInterface &itype = type_elem.get();
+    for (const StringName& E : obj_type_insert_order) {
+        const TypeInterface& itype = obj_types[E];
         if(itype.is_namespace)
             continue;
 
@@ -2170,10 +2169,10 @@ static StringView replace_method_name(StringView from) {
         {"tile_set_shapes","_tile_set_shapes"},
 
         {"call_group","_call_group"},
-        {"get_expand_margin","get_expand_margin_size"},
         {"get_nodes_in_group","_get_nodes_in_group"},
         {"tile_get_shapes","_tile_get_shapes"},
-
+        {"_set_editor_description","set_editor_description"},
+        { "_get_editor_description","get_editor_description" },
     };
     auto iter = s_entries.find(from);
     if (iter != s_entries.end()) return iter->second;
@@ -2450,10 +2449,10 @@ const BindingsGenerator::TypeInterface *BindingsGenerator::_get_type_or_null(con
     if (builtin_type_match!=builtin_types.end())
         return &builtin_type_match->second;
 
-    const OrderedHashMap<StringName, TypeInterface>::Element obj_type_match = obj_types.find(p_typeref.cname);
+    const auto obj_type_match = obj_types.find(p_typeref.cname);
 
-    if (obj_type_match)
-        return &obj_type_match.get();
+    if (obj_type_match!= obj_types.end())
+        return &obj_type_match->second;
 
     if (p_typeref.is_enum) {
         Map<StringName, TypeInterface>::const_iterator enum_match = enum_types.find(p_typeref.cname);
@@ -2575,6 +2574,7 @@ StringName BindingsGenerator::_get_float_type_name_from_meta(GodotTypeInfo::Meta
 bool BindingsGenerator::_populate_object_type_interfaces() {
 
     obj_types.clear();
+    obj_type_insert_order.clear();
 
     Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
@@ -2932,7 +2932,9 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
             itype.constants.push_back(iconstant);
         }
 
-        obj_types.insert(itype.cname, itype);
+        auto insert_res = obj_types.emplace(itype.cname, itype);
+       if(insert_res.second) //was inserted, record it in order container
+            obj_type_insert_order.emplace_back(itype.cname);
 
         class_list.pop_front();
     }
@@ -3577,8 +3579,11 @@ void BindingsGenerator::_initialize() {
     core_custom_icalls.clear();
     editor_custom_icalls.clear();
 
-    for (OrderedHashMap<StringName, TypeInterface>::Element E = obj_types.front(); E; E = E.next())
-        _generate_method_icalls(E.get());
+
+    for (const StringName& E : obj_type_insert_order) {
+        const TypeInterface& itype = obj_types[E];
+        _generate_method_icalls(itype);
+    }
 
     initialized = true;
 }

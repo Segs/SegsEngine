@@ -379,6 +379,26 @@ struct ResourcePluginResolver : public ResolverInterface
         }
     }
 };
+struct ModulePluginResolver : public ResolverInterface {
+
+    bool new_plugin_detected(QObject *ob) override {
+        bool res = false;
+        auto interface = qobject_cast<ModuleInterface*>(ob);
+        if (interface) {
+            print_line(String("Adding module plugin:") + ob->metaObject()->className());
+            interface->register_module();
+            res = true;
+        }
+        return res;
+    }
+    void plugin_removed(QObject *ob) {
+        auto interface = qobject_cast<ModuleInterface*>(ob);
+        if (interface) {
+            print_line(String("Removing resource loader plugin:") + ob->metaObject()->className());
+            interface->unregister_module();
+        }
+    }
+};
 /* Engine initialization
  *
  * Consists of several methods that are called by each platform's specific main(argc, argv).
@@ -500,7 +520,14 @@ Error Main::setup(bool p_second_phase) {
 
     I = args.begin();
     while (I!= args.end()) {
-
+#ifdef OSX_ENABLED
+        // Ignore the process serial number argument passed by macOS Gatekeeper.
+        // Otherwise, Godot would try to open a non-existent project on the first start and abort.
+        if (I->starts_with("-psn_")) {
+            ++I;
+            continue;
+        }
+#endif
         Vector<String>::iterator N = eastl::next(I);
 
         if (*I == "-h" || *I == "--help" || *I == "/?") { // display help
@@ -1208,10 +1235,11 @@ Error Main::setup(bool p_second_phase) {
     project_settings->set_custom_property_info("debug/settings/fps/force_fps", PropertyInfo(VariantType::INT, "debug/settings/fps/force_fps", PropertyHint::Range, "0,120,1,or_greater"));
 
     GLOBAL_DEF("debug/settings/stdout/print_fps", false);
+    GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
 
-    if (!os->_verbose_stdout) //overridden
-        os->_verbose_stdout = GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
-
+    if (!OS::get_singleton()->_verbose_stdout) { // Not manually overridden.
+        OS::get_singleton()->_verbose_stdout = GLOBAL_GET("debug/settings/stdout/verbose_stdout");
+    }
     if (frame_delay == 0) {
         frame_delay = GLOBAL_DEF("application/run/frame_delay_msec", 0);
         project_settings->set_custom_property_info("application/run/frame_delay_msec", PropertyInfo(VariantType::INT, "application/run/frame_delay_msec", PropertyHint::Range, "0,100,1,or_greater")); // No negative numbers
@@ -1445,6 +1473,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     add_plugin_resolver(new ResourcePluginResolver);
 
+    add_plugin_resolver(new ModulePluginResolver);
     register_module_types();
 
     camera_server = CameraServer::create();
@@ -1534,7 +1563,9 @@ bool Main::start() {
 
             if (StringUtils::ends_with(positional_arg,".scn") ||
                 StringUtils::ends_with(positional_arg,".tscn") ||
-                StringUtils::ends_with(positional_arg,".escn")) {
+                StringUtils::ends_with(positional_arg,".escn") ||
+                StringUtils::ends_with(positional_arg,".res") ||
+                StringUtils::ends_with(positional_arg,".tres")) {
                 // Only consider the positional argument to be a scene path if it ends with
                 // a file extension associated with Godot scenes. This makes it possible
                 // for projects to parse command-line arguments for custom CLI arguments
@@ -1672,7 +1703,7 @@ bool Main::start() {
             return false;
         }
 
-        if (script_res->can_instance() /*&& script_res->inherits_from("SceneTreeScripted")*/) {
+        if (script_res->can_instance() ) {
 
             StringName instance_type = script_res->get_instance_base_type();
             Object *obj = ClassDB::instance(instance_type);
@@ -1680,7 +1711,7 @@ bool Main::start() {
             if (!script_loop) {
                 if (obj)
                     memdelete(obj);
-                ERR_FAIL_V_MSG(false, "Can't load script '" + script + "', it does not inherit from a MainLoop type.");
+                ERR_FAIL_V_MSG(false, "Can't load the script '" + script + "' as it doesn't inherit from SceneTree or MainLoop.");
             }
 
             script_loop->set_init_script(script_res);

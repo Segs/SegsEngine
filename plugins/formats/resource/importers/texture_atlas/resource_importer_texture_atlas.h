@@ -35,7 +35,7 @@
 
 class ResourceImporterTextureAtlas : public QObject, public ResourceImporterInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.TextureAtlasImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.TextureAtlasImporter")
     Q_INTERFACES(ResourceImporterInterface)
     Q_OBJECT
 public:

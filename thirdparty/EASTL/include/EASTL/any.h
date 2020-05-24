@@ -21,10 +21,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_ANY_H
-#define EASTL_ANY_H
-
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/in_place_t.h>
@@ -499,16 +496,20 @@ namespace eastl
 				m_handler = tmp.m_handler;
 				tmp.m_handler(storage_operation::MOVE, &tmp, this);
 			}
-			else if (m_handler == nullptr)
+			else if (m_handler == nullptr && other.m_handler)
 			{
 				eastl::swap(m_handler, other.m_handler);
 				m_handler(storage_operation::MOVE, &other, this);
 			}
-			else if(other.m_handler == nullptr)
+			else if(m_handler && other.m_handler == nullptr)
 			{
 				eastl::swap(m_handler, other.m_handler);
 				other.m_handler(storage_operation::MOVE, this, &other);
 			}
+			//else if (m_handler == nullptr && other.m_handler == nullptr)
+			//{
+			//     // nothing to swap 
+			//}
 		}
 
 	    // 20.7.3.4, observers
@@ -643,4 +644,3 @@ namespace eastl
 
 } // namespace eastl
 
-#endif // EASTL_ANY_H

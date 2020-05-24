@@ -141,7 +141,7 @@ namespace GodotTools.Ides.Rider
             if (OS.IsOSX)
             {
                 var home = Environment.GetEnvironmentVariable("HOME");
-                if (string.IsNullOrEmpty(home))
+                if (string.IsNullOrEmpty(home)) 
                     return string.Empty;
                 var localAppData = Path.Combine(home, @"Library/Application Support");
                 return GetToolboxRiderRootPath(localAppData);
@@ -150,7 +150,7 @@ namespace GodotTools.Ides.Rider
             if (OS.IsUnixLike())
             {
                 var home = Environment.GetEnvironmentVariable("HOME");
-                if (string.IsNullOrEmpty(home))
+                if (string.IsNullOrEmpty(home)) 
                     return string.Empty;
                 var localAppData = Path.Combine(home, @".local/share");
                 return GetToolboxRiderRootPath(localAppData);
@@ -162,7 +162,7 @@ namespace GodotTools.Ides.Rider
 
         private static string GetToolboxRiderRootPath(string localAppData)
         {
-            var toolboxPath = Path.Combine(localAppData, @"JetBrains\Toolbox");
+            var toolboxPath = Path.Combine(localAppData, @"JetBrains/Toolbox");
             var settingsJson = Path.Combine(toolboxPath, ".settings.json");
 
             if (File.Exists(settingsJson))
@@ -172,7 +172,7 @@ namespace GodotTools.Ides.Rider
                     toolboxPath = path;
             }
 
-            var toolboxRiderRootPath = Path.Combine(toolboxPath, @"apps\Rider");
+            var toolboxRiderRootPath = Path.Combine(toolboxPath, @"apps/Rider");
             return toolboxRiderRootPath;
         }
 
@@ -322,7 +322,7 @@ namespace GodotTools.Ides.Rider
         class SettingsJson
         {
             public string install_location;
-
+      
             [CanBeNull]
             public static string GetInstallLocationFromJson(string json)
             {

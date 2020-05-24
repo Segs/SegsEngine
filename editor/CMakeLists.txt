@@ -16,8 +16,6 @@ add_subdirectory(plugin_interfaces)
 list(APPEND editor_sources
     doc/doc_data.cpp
     doc/doc_data.h
-    doc/doc_dump.cpp
-    doc/doc_dump.h
 
     fileserver/editor_file_server.cpp
     fileserver/editor_file_server.h

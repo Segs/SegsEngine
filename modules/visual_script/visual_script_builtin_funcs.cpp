@@ -518,9 +518,11 @@ PropertyInfo VisualScriptBuiltinFunc::get_output_value_port_info(int p_idx) cons
         case MATH_CEIL: {
             t = VariantType::FLOAT;
         } break;
-        case MATH_POSMOD:
+        case MATH_POSMOD: {
+        t = VariantType::INT;
+        }
         case MATH_ROUND: {
-            t = VariantType::INT;
+            t = VariantType::FLOAT;
         } break;
         case MATH_ABS: {
             t = VariantType::NIL;

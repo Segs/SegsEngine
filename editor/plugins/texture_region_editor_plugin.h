@@ -93,8 +93,8 @@ class TextureRegionEditor : public VBoxContainer {
 	Rect2 rect_prev;
 	float prev_margin;
 	int edited_margin;
-	Map<RID, ListOld<Rect2> > cache_map;
-	ListOld<Rect2> autoslice_cache;
+	HashMap<RID, List<Rect2> > cache_map;
+	List<Rect2> autoslice_cache;
 	bool autoslice_is_dirty;
 
 	bool drag;

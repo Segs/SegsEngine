@@ -180,7 +180,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
     clear();
 
     // Use the value that is repeated the most.
-    HashMap<StringView, Dictionary> value_frequency;
+    HashMap<String, Dictionary> value_frequency;
 
     for (size_t i = 0; i < p_paths.size(); i++) {
 
@@ -457,8 +457,8 @@ void ImportDock::_reimport() {
 
         StringName importer_name = params->importer->get_importer_name();
 
-        if (params->checking) {
-            //update only what edited (checkboxes)
+        if (params->checking && config->get_value("remap", "importer") == params->importer->get_importer_name()) {
+            //update only what is edited (checkboxes) if the importer is the same
             for (const PropertyInfo &E : params->properties) {
                 if (params->checked.contains(E.name)) {
                     config->set_value("params", E.name.asCString(), params->values[E.name]);
@@ -570,7 +570,7 @@ ImportDock::ImportDock() {
     hb->add_spacer();
 
     reimport_confirm = memnew(ConfirmationDialog);
-    reimport_confirm->get_ok()->set_text(TTR("Save scenes, re-import and restart"));
+    reimport_confirm->get_ok()->set_text(TTR("Save Scenes, Re-Import and Restart"));
     add_child(reimport_confirm);
     reimport_confirm->connect("confirmed", this, "_reimport_and_restart");
 

@@ -90,9 +90,8 @@ public:
 
 private:
     struct GroupData {
-
-        bool persistent = false;
         SceneTreeGroup *group;
+        bool persistent = false;
     };
 
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
@@ -175,7 +174,7 @@ protected:
     void _set_name_nocheck(const StringName &p_name);
 
 public:
-    enum {
+    enum NodeNotification {
 
         // you can make your own, but don't use the same numbers as other notifications in other nodes
         NOTIFICATION_ENTER_TREE = 10,

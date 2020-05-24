@@ -30,7 +30,7 @@
 
 #pragma once
 
-#include "core/string_builder.h"
+
 #include "core/string.h"
 #include "core/map.h"
 
@@ -56,6 +56,9 @@ public:
         int from_port;
         int to_node;
         int to_port;
+        constexpr bool operator==(Connection oth) const {
+            return from_node==oth.from_node && from_port==oth.from_port && to_node==oth.to_node && to_port==oth.to_port;
+        }
     };
 
     struct DefaultTextureParam {
@@ -78,12 +81,12 @@ public:
     struct Node {
         Ref<VisualShaderNode> node;
         Vector2 position;
-        ListOld<int> prev_connected_nodes;
+        Vector<int> prev_connected_nodes;
     };
 
     struct Graph {
         Map<int, Node> nodes;
-        ListOld<Connection> connections;
+        Vector<Connection> connections;
     } graph[TYPE_MAX];
 
     mutable String previous_code;
@@ -141,7 +144,7 @@ public:
     bool is_port_types_compatible(int p_a, int p_b) const;
 
     void rebuild();
-    void get_node_connections(Type p_type, ListOld<Connection> *r_connections) const;
+    void get_node_connections(Type p_type, List<Connection> *r_connections) const;
 
     void set_mode(RenderingServerEnums::ShaderMode p_mode);
     RenderingServerEnums::ShaderMode get_mode() const override;

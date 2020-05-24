@@ -10,12 +10,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_GENERIC_ITERATOR_H
-#define EASTL_INTERNAL_GENERIC_ITERATOR_H
-
+#pragma once
 
 #include <EASTL/EABase/eabase.h>
-	#pragma once
+
 
 #include <EASTL/internal/config.h>
 #include <EASTL/iterator.h>
@@ -206,22 +204,3 @@ namespace eastl
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

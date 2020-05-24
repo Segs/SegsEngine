@@ -110,7 +110,7 @@ Error ImageLoader::load_image(StringView p_file, const Ref<Image> &p_image, File
             ERR_PRINT("Error loading image: " + String(p_file));
         }
         else
-            p_image->create(std::move(result_data));
+            p_image->create(eastl::move(result_data));
         if (err != ERR_FILE_UNRECOGNIZED) {
 
             if (!p_custom)
@@ -261,7 +261,7 @@ RES ResourceFormatLoaderImage::load(StringView p_path, StringView p_original_pat
 
     Ref<Image> image(make_ref_counted<Image>());
 
-    image->create(std::move(resdata));
+    image->create(eastl::move(resdata));
 
     return image;
 }

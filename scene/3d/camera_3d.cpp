@@ -324,25 +324,23 @@ Vector3 Camera3D::project_ray_origin(const Point2 &p_pos) const {
     if (mode == PROJECTION_PERSPECTIVE) {
 
         return get_camera_transform().origin;
+    }
+    Vector2 pos = cpos / viewport_size;
+    float vsize, hsize;
+    if (keep_aspect == KEEP_WIDTH) {
+        vsize = size / viewport_size.aspect();
+        hsize = size;
     } else {
+        hsize = size * viewport_size.aspect();
+        vsize = size;
+    }
 
-        Vector2 pos = cpos / viewport_size;
-        float vsize, hsize;
-        if (keep_aspect == KEEP_WIDTH) {
-            vsize = size / viewport_size.aspect();
-            hsize = size;
-        } else {
-            hsize = size * viewport_size.aspect();
-            vsize = size;
-        }
-
-        Vector3 ray;
-        ray.x = pos.x * (hsize)-hsize / 2;
-        ray.y = (1.0 - pos.y) * (vsize)-vsize / 2;
-        ray.z = -near;
-        ray = get_camera_transform().xform(ray);
-        return ray;
-    };
+    Vector3 ray;
+    ray.x = pos.x * (hsize)-hsize / 2;
+    ray.y = (1.0 - pos.y) * (vsize)-vsize / 2;
+    ray.z = -near;
+    ray = get_camera_transform().xform(ray);
+    return ray;
 };
 
 bool Camera3D::is_position_behind(const Vector3 &p_pos) const {
@@ -688,11 +686,10 @@ float Camera3D::get_h_offset() const {
 
 Vector3 Camera3D::get_doppler_tracked_velocity() const {
 
-    if (doppler_tracking != DOPPLER_TRACKING_DISABLED) {
-        return velocity_tracker->get_tracked_linear_velocity();
-    } else {
+    if (doppler_tracking == DOPPLER_TRACKING_DISABLED) {
         return Vector3();
     }
+    return velocity_tracker->get_tracked_linear_velocity();
 }
 Camera3D::Camera3D() {
 
@@ -720,7 +717,6 @@ Camera3D::Camera3D() {
 }
 
 Camera3D::~Camera3D() {
-
     RenderingServer::get_singleton()->free_rid(camera);
 }
 

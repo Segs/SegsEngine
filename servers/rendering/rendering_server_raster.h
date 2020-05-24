@@ -66,7 +66,7 @@ class  VisualServerRaster : public RenderingServer {
         Variant param;
     };
 
-    ListOld<FrameDrawnCallbacks> frame_drawn_callbacks;
+    Vector<FrameDrawnCallbacks> frame_drawn_callbacks;
 
     void _draw_margins();
     static void _changes_changed() {}
@@ -188,6 +188,10 @@ public:
 
     void shader_set_default_texture_param(RID arg1, const StringName & arg2, RID arg3) override { DISPLAY_CHANGED BINDBASE->shader_set_default_texture_param(arg1, arg2, arg3); }
     RID shader_get_default_texture_param(RID arg1, const StringName & arg2) const override { return BINDBASE->shader_get_default_texture_param(arg1, arg2); }
+
+    void shader_add_custom_define(RID arg1, StringView arg2) override { BINDBASE->shader_add_custom_define(arg1, arg2); }
+    void shader_get_custom_defines(RID arg1, Vector<StringView> * arg2) const override { BINDBASE->shader_get_custom_defines(arg1, arg2); }
+    void shader_clear_custom_defines(RID arg1) override { BINDBASE->shader_clear_custom_defines(arg1); }
 
     /* COMMON MATERIAL API */
 

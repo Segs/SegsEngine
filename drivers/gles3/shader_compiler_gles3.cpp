@@ -90,6 +90,7 @@ static int _get_datatype_size(SL::DataType p_type) {
         case SL::TYPE_ISAMPLER3D: return 16;
         case SL::TYPE_USAMPLER3D: return 16;
         case SL::TYPE_SAMPLERCUBE: return 16;
+        case SL::TYPE_SAMPLEREXT: return 16;
     }
 
     ERR_FAIL_V(0);
@@ -129,6 +130,7 @@ static int _get_datatype_alignment(SL::DataType p_type) {
         case SL::TYPE_ISAMPLER3D: return 16;
         case SL::TYPE_USAMPLER3D: return 16;
         case SL::TYPE_SAMPLERCUBE: return 16;
+        case SL::TYPE_SAMPLEREXT: return 16;
     }
 
     ERR_FAIL_V(0);
@@ -364,9 +366,9 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             r_gen_code.texture_hints.resize(max_texture_uniforms);
             r_gen_code.texture_types.resize(max_texture_uniforms);
 
-            auto uniform_sizes = eastl::make_unique<int[]>(max_uniforms);
-            auto uniform_alignments = eastl::make_unique<int[]>(max_uniforms);
-            auto uniform_defines = eastl::make_unique<StringName[]>(max_uniforms);
+            FixedVector<int,256> uniform_sizes(max_uniforms);
+            FixedVector<int, 256> uniform_alignments(max_uniforms);
+            FixedVector<String, 256> uniform_defines(max_uniforms);
 
             bool uses_uniforms = false;
 
@@ -392,7 +394,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                         r_gen_code.defines.push_back("#define USE_MATERIAL\n");
                         uses_uniforms = true;
                     }
-                    uniform_defines[E.second.order] = StringName(ucode.c_str());
+                    uniform_defines[E.second.order] = eastl::move(ucode);
                     uniform_sizes[E.second.order] = _get_datatype_size(E.second.type);
                     uniform_alignments[E.second.order] = _get_datatype_alignment(E.second.type);
                 }
@@ -401,7 +403,7 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
             }
 
             for (int i = 0; i < max_uniforms; i++) {
-                r_gen_code.uniforms += uniform_defines[i].asCString();
+                r_gen_code.uniforms += uniform_defines[i];
             }
 
             // add up
@@ -438,11 +440,11 @@ String ShaderCompilerGLES3::_dump_node_code(SL::Node *p_node, int p_level, Gener
                 r_gen_code.fragment_global += interp_mode + "in " + vcode;
             }
 
-            for (eastl::pair<const StringName, SL::ShaderNode::Constant> &E : pnode->constants) {
+            for (int i = 0; i < pnode->vconstants.size(); i++) {
                 String gcode;
-                gcode += "const " + String(_prestr(E.second.precision)) + _typestr(E.second.type) + " " +
-                         _mkid(E.first.asCString()) + "=";
-                gcode += _dump_node_code(E.second.initializer, p_level, r_gen_code, p_actions, p_default_actions, p_assigning);
+                gcode += "const " + String(_prestr(pnode->vconstants[i].precision)) + _typestr(pnode->vconstants[i].type) + " " +
+                         _mkid(pnode->vconstants[i].name.asCString()) + "=";
+                gcode += _dump_node_code(pnode->vconstants[i].initializer, p_level, r_gen_code, p_actions, p_default_actions, p_assigning);
                 gcode += ";\n";
                 r_gen_code.vertex_global += gcode;
                 r_gen_code.fragment_global += gcode;
@@ -879,6 +881,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     canvas_renames["INSTANCE_CUSTOM"] = "instance_custom";
 
     canvas_renames["COLOR"] = "color";
+    canvas_renames["MODULATE"] = "final_modulate";
     canvas_renames["NORMAL"] = "normal";
     canvas_renames["NORMALMAP"] = "normal_map";
     canvas_renames["NORMALMAP_DEPTH"] = "normal_depth";
@@ -901,6 +904,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
 
     auto &canvas_usages(actions[(int)RS::ShaderMode::CANVAS_ITEM].usage_defines);
     canvas_usages["COLOR"] = "#define COLOR_USED\n";
+    canvas_usages["MODULATE"] = "#define MODULATE_USED\n";
     canvas_usages["SCREEN_TEXTURE"] = "#define SCREEN_TEXTURE_USED\n";
     canvas_usages["SCREEN_UV"] = "#define SCREEN_UV_USED\n";
     canvas_usages["SCREEN_PIXEL_SIZE"] = "@SCREEN_UV";

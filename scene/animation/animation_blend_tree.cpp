@@ -939,7 +939,7 @@ Vector2 AnimationNodeBlendTree::get_node_position(const StringName &p_node) cons
     return nodes.at(p_node).position;
 }
 
-void AnimationNodeBlendTree::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNodeBlendTree::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
     Vector<StringName> ns;
 
     for (eastl::pair<const StringName,Node> &E : nodes) {
@@ -1084,20 +1084,23 @@ AnimationNodeBlendTree::ConnectionError AnimationNodeBlendTree::can_connect_node
     return CONNECTION_OK;
 }
 
-void AnimationNodeBlendTree::get_node_connections(ListOld<NodeConnection> *r_connections) const {
+Vector<AnimationNodeBlendTree::NodeConnection> AnimationNodeBlendTree::get_node_connections() const {
+    Vector<NodeConnection> result;
+    result.reserve(nodes.size());
 
     for (const eastl::pair<const StringName,Node> &E : nodes) {
         for (int i = 0; i < E.second.connections.size(); i++) {
             StringName output = E.second.connections[i];
-            if (output != StringName()) {
+            if (!output.empty()) {
                 NodeConnection nc;
                 nc.input_node = E.first;
                 nc.input_index = i;
                 nc.output_node = output;
-                r_connections->push_back(nc);
+                result.emplace_back(eastl::move(nc));
             }
         }
     }
+    return result;
 }
 
 StringView AnimationNodeBlendTree::get_caption() const {
@@ -1189,16 +1192,15 @@ bool AnimationNodeBlendTree::_get(const StringName &p_name, Variant &r_ret) cons
             }
         }
     } else if (p_name == "node_connections") {
-        ListOld<NodeConnection> nc;
-        get_node_connections(&nc);
+        Vector<NodeConnection> nc(get_node_connections());
         Array conns;
         conns.resize(nc.size() * 3);
 
         int idx = 0;
-        for (ListOld<NodeConnection>::Element *E = nc.front(); E; E = E->next()) {
-            conns[idx * 3 + 0] = E->deref().input_node;
-            conns[idx * 3 + 1] = E->deref().input_index;
-            conns[idx * 3 + 2] = E->deref().output_node;
+        for (const NodeConnection &E : nc) {
+            conns[idx * 3 + 0] = E.input_node;
+            conns[idx * 3 + 1] = E.input_index;
+            conns[idx * 3 + 2] = E.output_node;
             idx++;
         }
 

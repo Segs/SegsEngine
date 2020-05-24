@@ -91,6 +91,9 @@ public:
     bool operator==(const char *p_name) const noexcept {
         return *this==StringView(p_name);
     }
+    bool operator!=(const char* p_name) const noexcept {
+        return *this != StringView(p_name);
+    }
     bool operator!=(StringView p_name) const {
         return !(operator==(p_name));
     }

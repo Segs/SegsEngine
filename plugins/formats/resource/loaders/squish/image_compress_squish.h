@@ -35,7 +35,7 @@
 
 class ResourceFormatS3TC : public QObject, public ImageCodecInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.ResourceFormatS3TC")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ResourceFormatS3TC")
     Q_INTERFACES(ImageCodecInterface)
     Q_OBJECT
 

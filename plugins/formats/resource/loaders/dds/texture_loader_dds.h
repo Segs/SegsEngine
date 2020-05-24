@@ -35,7 +35,7 @@
 
 class ResourceFormatDDS : public QObject, public ResourceLoaderInterface {
 
-    Q_PLUGIN_METADATA(IID "org.godot.DDSLoader")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.DDSLoader")
     Q_INTERFACES(ResourceLoaderInterface)
     Q_OBJECT
 

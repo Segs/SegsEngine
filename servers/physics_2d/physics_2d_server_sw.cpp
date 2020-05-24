@@ -974,7 +974,7 @@ void Physics2DServerSW::body_remove_collision_exception(RID p_body, RID p_body_b
     body->wakeup();
 };
 
-void Physics2DServerSW::body_get_collision_exceptions(RID p_body, ListOld<RID> *p_exceptions) {
+void Physics2DServerSW::body_get_collision_exceptions(RID p_body, Vector<RID> *p_exceptions) {
 
     Body2DSW *body = body_owner.get(p_body);
     ERR_FAIL_COND(!body);

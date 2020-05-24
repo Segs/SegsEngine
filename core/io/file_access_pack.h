@@ -122,7 +122,7 @@ public:
     _FORCE_INLINE_ bool is_disabled() const { return disabled; }
 
     static PackedData *get_singleton() { return singleton; }
-    Error add_pack(StringView p_path, bool p_replace_files);
+    Error add_pack(StringView p_path, bool p_replace_files, StringView p_destination="");
 
     _FORCE_INLINE_ FileAccess *try_open_path(StringView p_path);
     _FORCE_INLINE_ bool has_path(StringView p_path);

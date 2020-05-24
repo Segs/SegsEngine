@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GRID_MAP_H
-#define GRID_MAP_H
+#pragma once
 
 #include "scene/3d/navigation_3d.h"
 #include "scene/3d/node_3d.h"
@@ -272,5 +271,3 @@ public:
     GridMap();
     ~GridMap() override;
 };
-
-#endif // GRID_MAP_H

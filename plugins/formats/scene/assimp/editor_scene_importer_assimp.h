@@ -54,7 +54,7 @@
 #include "import_utils.h"
 
 class EditorSceneImporterAssimp : public QObject, public EditorSceneImporterInterface {
-    Q_PLUGIN_METADATA(IID "org.godot.ASSIMPImporter")
+    Q_PLUGIN_METADATA(IID "org.segs_engine.ASSIMPImporter")
     Q_INTERFACES(EditorSceneImporterInterface)
     Q_OBJECT
 

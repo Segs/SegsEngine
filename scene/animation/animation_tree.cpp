@@ -84,7 +84,7 @@ Variant AnimationNode::get_parameter(const StringName &p_name) const {
     return state->tree->property_map[path];
 }
 
-void AnimationNode::get_child_nodes(ListOld<ChildNode> *r_child_nodes) {
+void AnimationNode::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
 
     if (get_script_instance()) {
         Dictionary cn = get_script_instance()->call("get_child_nodes");
@@ -127,7 +127,7 @@ void AnimationNode::blend_animation(const StringName &p_animation, float p_time,
     anim_state.animation = animation;
     anim_state.seeked = p_seeked;
 
-    state->animation_states.push_back(anim_state);
+    state->animation_states.emplace_back(eastl::move(anim_state));
 }
 
 float AnimationNode::_pre_process(const StringName &p_base_path, AnimationNode *p_parent, State *p_state, float p_time, bool p_seek, const Vector<
@@ -858,9 +858,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
         bool can_call = is_inside_tree() && !Engine::get_singleton()->is_editor_hint();
 
-        for (ListOld<AnimationNode::AnimationState>::Element *E = state.animation_states.front(); E; E = E->next()) {
-
-            const AnimationNode::AnimationState &as = E->deref();
+        for (const AnimationNode::AnimationState& as : state.animation_states) {
 
             Ref<Animation> a = as.animation;
             float time = as.time;
@@ -1006,12 +1004,12 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         } else if (delta != 0) {
 
-                            ListOld<int> indices;
+                            Vector<int> indices;
                             a->value_track_get_key_indices(i, time, delta, &indices);
 
-                            for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
+                            for (int F : indices) {
 
-                                Variant value = a->track_get_key_value(i, F->deref());
+                                Variant value = a->track_get_key_value(i, F);
                                 t->object->set_indexed(t->subpath, value);
                             }
                         }
@@ -1024,14 +1022,14 @@ void AnimationTree::_process_graph(float p_delta) {
                         }
                         TrackCacheMethod *t = static_cast<TrackCacheMethod *>(track);
 
-                        ListOld<int> indices;
+                        Vector<int> indices;
 
                         a->method_track_get_key_indices(i, time, delta, &indices);
 
-                        for (ListOld<int>::Element *F = indices.front(); F; F = F->next()) {
+                        for (int F : indices) {
 
-                            StringName method = a->method_track_get_name(i, F->deref());
-                            const Vector<Variant> &params = a->method_track_get_params(i, F->deref());
+                            StringName method = a->method_track_get_name(i, F);
+                            const Vector<Variant> &params = a->method_track_get_params(i, F);
 
                             int s = params.size();
 
@@ -1106,10 +1104,10 @@ void AnimationTree::_process_graph(float p_delta) {
 
                         } else {
                             //find stuff to play
-                            ListOld<int> to_play;
+                            Vector<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
                             if (!to_play.empty()) {
-                                int idx = to_play.back()->deref();
+                                int idx = to_play.back();
 
                                 Ref<AudioStream> stream = dynamic_ref_cast<AudioStream>(a->audio_track_get_key_stream(i, idx));
                                 if (not stream) {
@@ -1208,10 +1206,10 @@ void AnimationTree::_process_graph(float p_delta) {
                             }
                         } else {
                             //find stuff to play
-                            ListOld<int> to_play;
+                            Vector<int> to_play;
                             a->track_get_key_indices_in_range(i, time, delta, &to_play);
                             if (!to_play.empty()) {
-                                int idx = to_play.back()->deref();
+                                int idx = to_play.back();
 
                                 StringName anim_name = a->animation_track_get_key_animation(i, idx);
                                 if (anim_name == "[stop]" || !player2->has_animation(anim_name)) {
@@ -1447,11 +1445,11 @@ void AnimationTree::_update_properties_for_node(const StringName &p_base_path, R
         properties.emplace_back(eastl::move(pinfo));
     }
 
-    ListOld<AnimationNode::ChildNode> children;
+    Vector<AnimationNode::ChildNode> children;
     node->get_child_nodes(&children);
 
-    for (ListOld<AnimationNode::ChildNode>::Element *E = children.front(); E; E = E->next()) {
-        _update_properties_for_node(StringName(String(p_base_path) + E->deref().name + "/"), E->deref().node);
+    for (const AnimationNode::ChildNode &E : children) {
+        _update_properties_for_node(StringName(String(p_base_path) + E.name + "/"), E.node);
     }
 }
 

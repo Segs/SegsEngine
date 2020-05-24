@@ -66,6 +66,7 @@ void CPUParticles2D::set_amount(int p_amount) {
     {
         PoolVector<Particle>::Write w = particles.write();
 
+        //TODO: consider resetting whole object contents here, instead of only flag.
         for (int i = 0; i < p_amount; i++) {
             w[i].active = false;
         }
@@ -903,22 +904,21 @@ void CPUParticles2D::_update_particle_data_buffer() {
                 ptr[6] = 0;
                 ptr[7] = t.elements[2][1];
 
+                Color c = r[idx].color;
+                uint8_t *data8 = (uint8_t *)&ptr[8];
+                data8[0] = CLAMP<uint8_t>(c.r * 255.0f, 0, 255);
+                data8[1] = CLAMP<uint8_t>(c.g * 255.0f, 0, 255);
+                data8[2] = CLAMP<uint8_t>(c.b * 255.0f, 0, 255);
+                data8[3] = CLAMP<uint8_t>(c.a * 255.0f, 0, 255);
+
+                ptr[9] = r[idx].custom[0];
+                ptr[10] = r[idx].custom[1];
+                ptr[11] = r[idx].custom[2];
+                ptr[12] = r[idx].custom[3];
+
             } else {
-                memset(ptr, 0, sizeof(float) * 8);
+                memset(ptr, 0, sizeof(float) * 13);
             }
-
-            Color c = r[idx].color;
-            uint8_t *data8 = (uint8_t *)&ptr[8];
-            data8[0] = CLAMP<uint8_t>(c.r * 255.0f, 0, 255);
-            data8[1] = CLAMP<uint8_t>(c.g * 255.0f, 0, 255);
-            data8[2] = CLAMP<uint8_t>(c.b * 255.0f, 0, 255);
-            data8[3] = CLAMP<uint8_t>(c.a * 255.0f, 0, 255);
-
-            ptr[9] = r[idx].custom[0];
-            ptr[10] = r[idx].custom[1];
-            ptr[11] = r[idx].custom[2];
-            ptr[12] = r[idx].custom[3];
-
             ptr += 13;
         }
     }

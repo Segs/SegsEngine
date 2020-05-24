@@ -1,3 +1,4 @@
+#TODO: switch short name to segs_engine when we have our ide plugins lined up for that change
 set(short_name "godot")
 set(name "Segs Engine (based on Godot)")
 set(major 4)

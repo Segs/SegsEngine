@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef SPACE_2D_SW_H
-#define SPACE_2D_SW_H
+#pragma once
 
 #include "area_2d_sw.h"
 #include "area_pair_2d_sw.h"
@@ -40,6 +39,7 @@
 #include "core/hash_map.h"
 #include "core/project_settings.h"
 #include "core/typedefs.h"
+#include "core/list.h"
 
 class Physics2DDirectSpaceStateSW : public PhysicsDirectSpaceState2D {
 
@@ -87,11 +87,11 @@ private:
     RID self;
 
     BroadPhase2DSW *broadphase;
-    SelfList<Body2DSW>::List active_list;
-    SelfList<Body2DSW>::List inertia_update_list;
-    SelfList<Body2DSW>::List state_query_list;
-    SelfList<Area2DSW>::List monitor_query_list;
-    SelfList<Area2DSW>::List area_moved_list;
+    List<Body2DSW *> active_list;
+    IntrusiveList<Body2DSW> inertia_update_list;
+    IntrusiveList<Body2DSW> state_query_list;
+    IntrusiveList<Area2DSW> monitor_query_list;
+    IntrusiveList<Area2DSW> area_moved_list;
 
     static void *_broadphase_pair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_self);
     static void _broadphase_unpair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_data, void *p_self);
@@ -138,20 +138,20 @@ public:
     void set_default_area(Area2DSW *p_area) { area = p_area; }
     Area2DSW *get_default_area() const { return area; }
 
-    const SelfList<Body2DSW>::List &get_active_body_list() const;
-    void body_add_to_active_list(SelfList<Body2DSW> *p_body);
-    void body_remove_from_active_list(SelfList<Body2DSW> *p_body);
-    void body_add_to_inertia_update_list(SelfList<Body2DSW> *p_body);
-    void body_remove_from_inertia_update_list(SelfList<Body2DSW> *p_body);
-    void area_add_to_moved_list(SelfList<Area2DSW> *p_area);
-    void area_remove_from_moved_list(SelfList<Area2DSW> *p_area);
-    const SelfList<Area2DSW>::List &get_moved_area_list() const;
+    const List<Body2DSW *> &get_active_body_list() const;
+    void body_add_to_active_list(Body2DSW *p_body);
+    void body_remove_from_active_list(Body2DSW *p_body);
+    void body_add_to_inertia_update_list(IntrusiveListNode<Body2DSW> *p_body);
+    void body_remove_from_inertia_update_list(IntrusiveListNode<Body2DSW> *p_body);
+    void area_add_to_moved_list(IntrusiveListNode<Area2DSW> *p_area);
+    void area_remove_from_moved_list(IntrusiveListNode<Area2DSW> *p_area);
+    const IntrusiveList<Area2DSW> &get_moved_area_list() const;
 
-    void body_add_to_state_query_list(SelfList<Body2DSW> *p_body);
-    void body_remove_from_state_query_list(SelfList<Body2DSW> *p_body);
+    void body_add_to_state_query_list(IntrusiveListNode<Body2DSW> *p_body);
+    void body_remove_from_state_query_list(IntrusiveListNode<Body2DSW> *p_body);
 
-    void area_add_to_monitor_query_list(SelfList<Area2DSW> *p_area);
-    void area_remove_from_monitor_query_list(SelfList<Area2DSW> *p_area);
+    void area_add_to_monitor_query_list(IntrusiveListNode<Area2DSW> *p_area);
+    void area_remove_from_monitor_query_list(IntrusiveListNode<Area2DSW> *p_area);
 
     BroadPhase2DSW *get_broadphase();
 
@@ -206,5 +206,3 @@ public:
     Space2DSW();
     ~Space2DSW() override;
 };
-
-#endif // SPACE_2D_SW_H

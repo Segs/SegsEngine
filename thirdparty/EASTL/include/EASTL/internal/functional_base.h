@@ -3,10 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTERNAL_FUNCTIONAL_BASE_H
-#define EASTL_INTERNAL_FUNCTIONAL_BASE_H
-
-	#pragma once
+#pragma once
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/memory_base.h>
@@ -383,5 +380,3 @@ namespace eastl
 	}
 
 } // namespace eastl
-
-#endif // Header include guard

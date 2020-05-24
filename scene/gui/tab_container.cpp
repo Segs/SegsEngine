@@ -984,7 +984,7 @@ void TabContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_current_tab"), &TabContainer::get_current_tab);
     MethodBinder::bind_method(D_METHOD("get_previous_tab"), &TabContainer::get_previous_tab);
     MethodBinder::bind_method(D_METHOD("get_current_tab_control"), &TabContainer::get_current_tab_control);
-    MethodBinder::bind_method(D_METHOD("get_tab_control", {"idx"}), &TabContainer::get_tab_control);
+    MethodBinder::bind_method(D_METHOD("get_tab_control", {"tab_idx"}), &TabContainer::get_tab_control);
     MethodBinder::bind_method(D_METHOD("set_tab_align", {"align"}), &TabContainer::set_tab_align);
     MethodBinder::bind_method(D_METHOD("get_tab_align"), &TabContainer::get_tab_align);
     MethodBinder::bind_method(D_METHOD("set_tabs_visible", {"visible"}), &TabContainer::set_tabs_visible);

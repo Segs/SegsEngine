@@ -94,8 +94,8 @@ struct Node::PrivData {
 
 
     HashMap<StringName, GroupData> grouped;
-    List<Node *>::iterator OW; // owned element
-    List<Node *> owned;
+    Node *OW; // owned element
+    Vector<Node *> owned;
 
     PauseMode pause_mode;
     Node *pause_owner;
@@ -252,7 +252,8 @@ void Node::_notification(int p_notification) {
             // kill children as cleanly as possible
             while (!data->children.empty()) {
 
-                Node *child = data->children[data->children.size() - 1]; //begin from the end because its faster and more consistent with creation
+                //begin from the end because its faster and more consistent with creation
+                Node *child = data->children.back();
                 remove_child(child);
                 memdelete(child);
             }
@@ -265,7 +266,7 @@ void Node::_propagate_ready() {
 
     data->ready_notified = true;
     blocked++;
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         data->children[i]->_propagate_ready();
     }
@@ -315,7 +316,7 @@ void Node::_propagate_enter_tree() {
     blocked++;
     //block while adding children
 
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         if (!data->children[i]->is_inside_tree()) // could have been added in enter_tree
             data->children[i]->_propagate_enter_tree();
@@ -1307,12 +1308,13 @@ void Node::_propagate_validate_owner() {
 
         if (!found) {
 
-            data->owner->data->owned.erase(data->OW);
+            data->owner->data->owned.erase_first(data->OW);
+            data->OW = nullptr;
             data->owner = nullptr;
         }
     }
 
-    for (int i = 0; i < data->children.size(); i++) {
+    for (size_t i = 0; i < data->children.size(); i++) {
 
         data->children[i]->_propagate_validate_owner();
     }
@@ -1612,16 +1614,14 @@ void Node::_set_owner_nocheck(Node *p_owner) {
     ERR_FAIL_COND(data->owner);
     data->owner = p_owner;
     data->owner->data->owned.push_back(this);
-    auto tgtiter=data->owner->data->owned.rbegin();
-    ++tgtiter;
-    data->OW = tgtiter.base();
+    data->OW = this;
 }
 
 void Node::set_owner(Node *p_owner) {
 
     if (data->owner) {
 
-        data->owner->data->owned.erase(data->OW);
+        data->owner->data->owned.erase_first(data->OW);
         data->OW = nullptr;
         data->owner = nullptr;
     }
@@ -1926,7 +1926,7 @@ void Node::remove_and_skip() {
 
     Node *new_owner = get_owner();
 
-    ListOld<Node *> children;
+    Deque<Node *> children;
 
     while (true) {
 
@@ -1947,12 +1947,10 @@ void Node::remove_and_skip() {
             break;
     }
 
-    while (!children.empty()) {
+    for(Node * c_node : children) {
 
-        Node *c_node = children.front()->deref();
         data->parent->add_child(c_node);
         c_node->_propagate_replace_owner(nullptr, new_owner);
-        children.pop_front();
     }
 
     data->parent->remove_child(this);
@@ -2096,7 +2094,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
     StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
-    ListOld<const Node *> hidden_roots;
+    Dequeue<const Node *> hidden_roots;
     Dequeue<const Node *> node_tree;
     node_tree.push_front(this);
 
@@ -2204,16 +2202,16 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         }
     }
 
-    for (ListOld<const Node *>::Element *E = hidden_roots.front(); E; E = E->next()) {
+    for (const Node *E : hidden_roots) {
 
-        Node *parent = node->get_node(get_path_to(E->deref()->data->parent));
+        Node *parent = node->get_node(get_path_to(E->data->parent));
         if (!parent) {
 
             memdelete(node);
             return nullptr;
         }
 
-        Node *dup = E->deref()->_duplicate(p_flags, r_duplimap);
+        Node *dup = E->_duplicate(p_flags, r_duplimap);
         if (!dup) {
 
             memdelete(node);
@@ -2221,7 +2219,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         }
 
         parent->add_child(dup);
-        int pos = E->deref()->get_position_in_parent();
+        int pos = E->get_position_in_parent();
 
         if (pos < parent->get_child_count() - 1) {
 
@@ -2436,7 +2434,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_COND(p_node->data->parent);
 
-    List<Node *> owned = data->owned;
+    Vector<Node *> owned(data->owned);
     List<Node *> owned_by_owner;
     Node *owner = (data->owner == this) ? p_node : data->owner;
 
@@ -2776,7 +2774,8 @@ void Node::update_configuration_warning() {
 #ifdef TOOLS_ENABLED
     if (!is_inside_tree())
         return;
-    if (get_tree()->get_edited_scene_root() && (get_tree()->get_edited_scene_root() == this || get_tree()->get_edited_scene_root()->is_a_parent_of(this))) {
+    auto edited_root=get_tree()->get_edited_scene_root();
+    if (edited_root && (edited_root == this || edited_root->is_a_parent_of(this))) {
         get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, Variant(this));
     }
 #endif
@@ -2898,6 +2897,11 @@ void Node::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_custom_multiplayer", {"api"}), &Node::set_custom_multiplayer);
     MethodBinder::bind_method(D_METHOD("rpc_config", {"method", "mode"}), &Node::rpc_config);
     MethodBinder::bind_method(D_METHOD("rset_config", {"property", "mode"}), &Node::rset_config);
+
+    MethodBinder::bind_method(D_METHOD("_set_editor_description", {"editor_description"}), &Node::set_editor_description);
+    MethodBinder::bind_method(D_METHOD("_get_editor_description"), &Node::get_editor_description);
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "editor_description", PropertyHint::MultilineText, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_editor_description", "_get_editor_description");
+
 
     MethodBinder::bind_method(D_METHOD("_set_import_path", {"import_path"}), &Node::set_import_path);
     MethodBinder::bind_method(D_METHOD("get_import_path"), &Node::get_import_path);

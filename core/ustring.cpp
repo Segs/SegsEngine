@@ -111,7 +111,7 @@ bool select_word(const UIString &p_s, int p_col, int &r_beg, int &r_end) {
         while (beg > 0 && s[beg - 1] > 32 && (symbol == is_symbol(s[beg - 1]))) {
             beg--;
         }
-        while (end < s.length() && s[end + 1] > 32 && (symbol == is_symbol(s[end + 1]))) {
+        while ((end+1) < s.length() && s[end + 1] > 32 && (symbol == is_symbol(s[end + 1]))) {
             end++;
         }
 
@@ -1073,7 +1073,7 @@ int StringUtils::hex_to_int(StringView s,bool p_with_prefix) {
         to_convert = s;
     int res=0;
 #ifndef __MINGW32__
-    auto conv_res = std::from_chars(to_convert.begin(),to_convert.end(),res,16);
+    std::from_chars(to_convert.begin(),to_convert.end(),res,16);
 #else
     String zeroterm(to_convert);
     res = strtol(zeroterm.c_str(),nullptr,16);
@@ -1996,18 +1996,22 @@ String StringUtils::repeat(StringView str,int p_count) {
     return new_string;
 }
 UIString StringUtils::left(const UIString &s,int p_pos) {
+    if(p_pos<0)
+        return UIString();
     return s.mid(0, p_pos);
 }
 StringView StringUtils::left(StringView s,int p_pos) {
+    if(p_pos<0)
+        return StringView();
     return StringView(s).substr(0, p_pos);
 }
 
 UIString StringUtils::right(const UIString &s,int p_pos){
-
     return s.mid(p_pos);
 }
 StringView StringUtils::right(StringView s,int p_pos){
-
+    if(p_pos>=s.size())
+        return StringView();
     return s.substr(p_pos);
 }
 CharType StringUtils::ord_at(const UIString &str,int p_idx) {
@@ -3489,6 +3493,21 @@ String PathUtils::plus_file(StringView bp,StringView p_file) {
     if (bp.back() == '/' || p_file.front()=='/')
         return String(bp) + p_file;
     return String(bp) + "/" + p_file;
+}
+String PathUtils::join_path(Span<StringView> parts) {
+    if (parts.empty())
+        return String();
+    size_t needed_memory=0;
+    for(StringView v : parts)
+        needed_memory += v.size()+1;
+    String res;
+    res.reserve(needed_memory);
+    for (StringView v : parts) {
+        if(!res.empty() && res.back()!='/')
+            res.push_back('/');
+        res.append(v);
+    }
+    return res;
 }
 
 UIString StringUtils::percent_encode(const UIString &str) {

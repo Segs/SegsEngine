@@ -1172,25 +1172,25 @@ void Space2DSW::_broadphase_unpair(CollisionObject2DSW *A, int p_subindex_A, Col
     memdelete(c);
 }
 
-const SelfList<Body2DSW>::List &Space2DSW::get_active_body_list() const {
+const List<Body2DSW *> &Space2DSW::get_active_body_list() const {
 
     return active_list;
 }
-void Space2DSW::body_add_to_active_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_add_to_active_list(Body2DSW *p_body) {
 
-    active_list.add(p_body);
+    active_list.push_back(p_body);
 }
-void Space2DSW::body_remove_from_active_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_remove_from_active_list(Body2DSW *p_body) {
 
     active_list.remove(p_body);
 }
 
-void Space2DSW::body_add_to_inertia_update_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_add_to_inertia_update_list(IntrusiveListNode<Body2DSW> *p_body) {
 
     inertia_update_list.add(p_body);
 }
 
-void Space2DSW::body_remove_from_inertia_update_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_remove_from_inertia_update_list(IntrusiveListNode<Body2DSW> *p_body) {
 
     inertia_update_list.remove(p_body);
 }
@@ -1217,35 +1217,35 @@ const HashSet<CollisionObject2DSW *> &Space2DSW::get_objects() const {
     return objects;
 }
 
-void Space2DSW::body_add_to_state_query_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_add_to_state_query_list(IntrusiveListNode<Body2DSW> *p_body) {
 
     state_query_list.add(p_body);
 }
-void Space2DSW::body_remove_from_state_query_list(SelfList<Body2DSW> *p_body) {
+void Space2DSW::body_remove_from_state_query_list(IntrusiveListNode<Body2DSW> *p_body) {
 
     state_query_list.remove(p_body);
 }
 
-void Space2DSW::area_add_to_monitor_query_list(SelfList<Area2DSW> *p_area) {
+void Space2DSW::area_add_to_monitor_query_list(IntrusiveListNode<Area2DSW> *p_area) {
 
     monitor_query_list.add(p_area);
 }
-void Space2DSW::area_remove_from_monitor_query_list(SelfList<Area2DSW> *p_area) {
+void Space2DSW::area_remove_from_monitor_query_list(IntrusiveListNode<Area2DSW> *p_area) {
 
     monitor_query_list.remove(p_area);
 }
 
-void Space2DSW::area_add_to_moved_list(SelfList<Area2DSW> *p_area) {
+void Space2DSW::area_add_to_moved_list(IntrusiveListNode<Area2DSW> *p_area) {
 
     area_moved_list.add(p_area);
 }
 
-void Space2DSW::area_remove_from_moved_list(SelfList<Area2DSW> *p_area) {
+void Space2DSW::area_remove_from_moved_list(IntrusiveListNode<Area2DSW> *p_area) {
 
     area_moved_list.remove(p_area);
 }
 
-const SelfList<Area2DSW>::List &Space2DSW::get_moved_area_list() const {
+const IntrusiveList<Area2DSW> &Space2DSW::get_moved_area_list() const {
 
     return area_moved_list;
 }

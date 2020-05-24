@@ -9,10 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_INTRUSIVE_SLIST_H
-#define EASTL_INTRUSIVE_SLIST_H
 #pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
-
 
 #include <EASTL/internal/config.h>
 #include <EASTL/iterator.h>
@@ -287,30 +284,3 @@ namespace eastl
 	}
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

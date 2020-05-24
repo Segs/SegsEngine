@@ -40,6 +40,38 @@ class Constraint2DSW;
 
 class Body2DSW : public CollisionObject2DSW {
 
+    struct AreaCMP {
+
+        Area2DSW *area;
+        int refCount;
+        bool operator==(const AreaCMP &p_cmp) const { return area->get_self() == p_cmp.area->get_self(); }
+        bool operator<(const AreaCMP &p_cmp) const { return area->get_priority() < p_cmp.area->get_priority(); }
+        AreaCMP() {}
+        AreaCMP(Area2DSW *p_area) {
+            area = p_area;
+            refCount = 1;
+        }
+    };
+    struct Contact {
+
+        Vector2 local_pos;
+        Vector2 local_normal;
+        real_t depth;
+        int local_shape;
+        Vector2 collider_pos;
+        int collider_shape;
+        ObjectID collider_instance_id;
+        RID collider;
+        Vector2 collider_velocity_at_pos;
+    };
+    struct ForceIntegrationCallback {
+
+        ObjectID id;
+        StringName method;
+        Variant callback_udata;
+    };
+
+
     PhysicsServer2D::BodyMode mode;
 
     Vector2 biased_linear_velocity;
@@ -59,7 +91,6 @@ class Body2DSW : public CollisionObject2DSW {
 
     real_t _inv_mass;
     real_t _inv_inertia;
-    bool user_inertia;
 
     Vector2 gravity;
     real_t area_linear_damp;
@@ -70,66 +101,39 @@ class Body2DSW : public CollisionObject2DSW {
     Vector2 applied_force;
     real_t applied_torque;
 
-    SelfList<Body2DSW> active_list;
-    SelfList<Body2DSW> inertia_update_list;
-    SelfList<Body2DSW> direct_state_query_list;
+    //IntrusiveListNode<Body2DSW> active_list;
+    IntrusiveListNode<Body2DSW> inertia_update_list;
+    IntrusiveListNode<Body2DSW> direct_state_query_list;
 
     VSet<RID> exceptions;
     PhysicsServer2D::CCDMode continuous_cd_mode;
-    bool omit_force_integration;
-    bool active;
-    bool can_sleep;
-    bool first_time_kinematic;
-    bool first_integration;
-    void _update_inertia();
-    void _shapes_changed() override;
-    Transform2D new_transform;
+    uint8_t user_inertia : 1;
+    uint8_t omit_force_integration : 1;
+    uint8_t active : 1;
+    uint8_t in_active_list : 1;
+    uint8_t can_sleep : 1;
+    uint8_t first_time_kinematic : 1;
+    uint8_t first_integration : 1;
 
+    Transform2D new_transform;
     HashMap<Constraint2DSW *, int> constraint_map;
 
-    struct AreaCMP {
-
-        Area2DSW *area;
-        int refCount;
-        bool operator==(const AreaCMP &p_cmp) const { return area->get_self() == p_cmp.area->get_self(); }
-        bool operator<(const AreaCMP &p_cmp) const { return area->get_priority() < p_cmp.area->get_priority(); }
-        AreaCMP() {}
-        AreaCMP(Area2DSW *p_area) {
-            area = p_area;
-            refCount = 1;
-        }
-    };
 
     eastl::vector_set<AreaCMP,eastl::less<AreaCMP>,wrap_allocator> areas;
 
-    struct Contact {
-
-        Vector2 local_pos;
-        Vector2 local_normal;
-        real_t depth;
-        int local_shape;
-        Vector2 collider_pos;
-        int collider_shape;
-        ObjectID collider_instance_id;
-        RID collider;
-        Vector2 collider_velocity_at_pos;
-    };
-
     Vector<Contact> contacts; //no contacts by default
     int contact_count;
-
-    struct ForceIntegrationCallback {
-
-        ObjectID id;
-        StringName method;
-        Variant callback_udata;
-    };
 
     ForceIntegrationCallback *fi_callback;
 
     uint64_t island_step;
     Body2DSW *island_next;
     Body2DSW *island_list_next;
+
+
+    void _update_inertia();
+    void _shapes_changed() override;
+
 
     _FORCE_INLINE_ void _compute_area_gravity_and_dampenings(const Area2DSW *p_area);
 
