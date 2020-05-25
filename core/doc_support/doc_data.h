@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  string_builder.h                                                     */
+/*  doc_data.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -30,75 +30,94 @@
 
 #pragma once
 
+#include "core/hash_map.h"
 #include "core/string.h"
+#include <QString>
+#include <QHash>
 
-#include "core/vector.h"
-#include <cassert>
+enum Error : int;
+namespace DocContents {
+struct ArgumentDoc {
 
-class GODOT_EXPORT StringBuilder {
+    QString name;
+    QString type;
+    QString enumeration;
+    QString default_value;
+};
 
-    uint32_t string_length;
+struct MethodDoc {
 
-    Vector<String> strings;
-    Vector<StringView> c_strings;
-
-    // -1 means it's a Godot String
-    // a natural number means C string.
-    Vector<int32_t> appended_strings;
-
-    int current_indent_level=0;
-    void add_indent() {
-        static const char *spaces = "                                                                ";
-        assert(current_indent_level<16);
-        int32_t len = 4*current_indent_level;
-
-        c_strings.push_back(StringView(spaces,current_indent_level*4));
-        appended_strings.push_back(len);
-
-        string_length += len;
-    }
-public:
-    StringBuilder &append(StringView p_string);
-    StringBuilder &append(const char *p_cstring);
-
-    _FORCE_INLINE_ StringBuilder &operator+(const String &p_string) {
-        return append(p_string);
-    }
-
-    _FORCE_INLINE_ StringBuilder &operator+(const char *p_cstring) {
-        return append(p_cstring);
-    }
-
-    _FORCE_INLINE_ void operator+=(const String &p_string) {
-        append(p_string);
-    }
-
-    _FORCE_INLINE_ void operator+=(const char *p_cstring) {
-        append(p_cstring);
-    }
-
-    _FORCE_INLINE_ int num_strings_appended() const {
-        return appended_strings.size();
-    }
-
-    _FORCE_INLINE_ uint32_t get_string_length() const {
-        return string_length;
-    }
-
-    StringBuilder &append_indented(StringView p_string) {
-        add_indent();
-        return append(p_string);
-    }
-    void indent() { ++current_indent_level; }
-    void dedent() { if(current_indent_level>0) --current_indent_level; }
-
-    String as_string() const;
-
-    _FORCE_INLINE_ operator String() const {
-        return as_string();
-    }
-
-    StringBuilder() {
-        string_length = 0;
+    QString name;
+    QString return_type;
+    QString return_enum;
+    QString qualifiers;
+    QString description;
+    Vector<ArgumentDoc> arguments;
+    bool operator<(const MethodDoc &p_md) const {
+        return name < p_md.name;
     }
 };
+
+struct ConstantDoc {
+
+    QString name;
+    QString value;
+    QString enumeration;
+    QString description;
+};
+
+struct PropertyDoc {
+
+    QString name;
+    QString type;
+    QString enumeration;
+    QString description;
+    QString setter, getter;
+    QString default_value;
+    bool overridden = false;
+    bool operator<(const PropertyDoc &p_prop) const {
+        return name < p_prop.name;
+    }
+};
+struct ClassDoc {
+
+    QString name;
+    QString inherits;
+    QString category;
+    QString brief_description;
+    QString description;
+    Vector<QString> tutorials;
+    Vector<MethodDoc> methods;
+    Vector<MethodDoc> defined_signals;
+    Vector<ConstantDoc> constants;
+    Vector<PropertyDoc> properties;
+    Vector<PropertyDoc> theme_properties;
+    const ConstantDoc *by_name(const char * name) {
+        for(const ConstantDoc &cd : constants)
+            if(cd.name==name)
+                return &cd;
+        return nullptr;
+    }
+};
+
+}
+class DocData {
+public:
+
+
+    String version;
+
+    QHash<QString, DocContents::ClassDoc> class_list;
+    const DocContents::ClassDoc &class_doc(StringName sn) {
+        return class_list[sn.asCString()];
+    }
+public:
+    void merge_from(const DocData &p_data);
+    void remove_from(const DocData &p_data);
+    Error load_classes(QByteArray p_dir, bool recursively=false);
+    static Error erase_classes(QByteArray p_dir, bool recursively=false);
+    Error save_classes(QByteArray p_default_path, const char *version_branch, const HashMap<String, QString> &p_class_path);
+
+    Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
+};
+

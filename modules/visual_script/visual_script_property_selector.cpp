@@ -37,6 +37,7 @@
 #include "editor/editor_help.h"
 #include "editor/editor_node.h"
 #include "editor/editor_scale.h"
+#include "core/doc_support/doc_data.h"
 #include "modules/visual_script/visual_script.h"
 #include "modules/visual_script/visual_script_builtin_funcs.h"
 #include "modules/visual_script/visual_script_flow_control.h"
@@ -432,7 +433,7 @@ void VisualScriptPropertySelector::_item_selected() {
     TreeItem *item = search_options->get_selected();
     if (!item)
         return;
-    String name(item->get_metadata(0));
+    UIString name(item->get_metadata(0));
 
     StringName class_type;
     if (type != VariantType::NIL) {
@@ -443,17 +444,17 @@ void VisualScriptPropertySelector::_item_selected() {
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    String text;
+    UIString text;
 
     StringName at_class(class_type);
 
     while (not at_class.empty()) {
 
-        auto E = dd->class_list.find(at_class);
+        auto E = dd->class_list.find(at_class.asCString());
         if (E!=dd->class_list.end()) {
-            for (size_t i = 0; i < E->second.properties.size(); i++) {
-                if (E->second.properties[i].name == name) {
-                    text = E->second.properties[i].description;
+            for (size_t i = 0; i < E->properties.size(); i++) {
+                if (E->properties[i].name == name) {
+                    text = E->properties[i].description;
                 }
             }
         }
@@ -464,62 +465,63 @@ void VisualScriptPropertySelector::_item_selected() {
 
     while (!at_class.empty()) {
 
-        auto C = dd->class_list.find(at_class);
+        auto C = dd->class_list.find(at_class.asCString());
         if (C!=dd->class_list.end()) {
-            for (size_t i = 0; i < C->second.methods.size(); i++) {
-                if (C->second.methods[i].name == name) {
-                    text = C->second.methods[i].description;
+            for (size_t i = 0; i < C->methods.size(); i++) {
+                if (C->methods[i].name == name) {
+                    text = C->methods[i].description;
                 }
             }
         }
 
         at_class = ClassDB::get_parent_class_nocheck(at_class);
     }
-    auto T = dd->class_list.find(class_type);
+    auto T = dd->class_list.find(class_type.asCString());
     if (T!=dd->class_list.end()) {
-        for (size_t i = 0; i < T->second.methods.size(); i++) {
-            Vector<StringView> functions = StringUtils::rsplit(name,"/", false, 1);
-            if (T->second.methods[i].name == functions[functions.size() - 1]) {
-                text = T->second.methods[i].description;
+        for (size_t i = 0; i < T->methods.size(); i++) {
+            Vector<UIString> functions = StringUtils::rsplit(name,"/", false, 1);
+            if (T->methods[i].name == functions[functions.size() - 1]) {
+                text = T->methods[i].description;
             }
         }
     }
 
     Vector<String> names;
     VisualScriptLanguage::singleton->get_registered_node_names(&names);
-    if (names.contains(name)) {
-        Ref<VisualScriptOperator> operator_node(dynamic_ref_cast<VisualScriptOperator>(VisualScriptLanguage::singleton->create_node_from_name(name)));
+    if (names.contains(qPrintable(name))) {
+        Ref<VisualScriptOperator> operator_node(dynamic_ref_cast<VisualScriptOperator>(
+                VisualScriptLanguage::singleton->create_node_from_name(qPrintable(name))));
         if (operator_node) {
-            auto F = dd->class_list.find(operator_node->get_class_name());
+            auto F = dd->class_list.find(operator_node->get_class_name().asCString());
             if (F!=dd->class_list.end()) { // TODO: SEGS: result of `find` is unused
                 text = Variant::get_operator_name(operator_node->get_operator());
             }
         }
-        Ref<VisualScriptTypeCast> typecast_node = dynamic_ref_cast<VisualScriptTypeCast>(VisualScriptLanguage::singleton->create_node_from_name(name));
+        Ref<VisualScriptTypeCast> typecast_node = dynamic_ref_cast<VisualScriptTypeCast>(VisualScriptLanguage::singleton->create_node_from_name(qPrintable(name)));
         if (typecast_node) {
-            auto F = dd->class_list.find(typecast_node->get_class_name());
+            auto F = dd->class_list.find(typecast_node->get_class_name().asCString());
             if (F!=dd->class_list.end()) {
-                text = F->second.description;
+                text = F->description;
             }
         }
 
-        Ref<VisualScriptBuiltinFunc> builtin_node = dynamic_ref_cast<VisualScriptBuiltinFunc>(VisualScriptLanguage::singleton->create_node_from_name(name));
+        Ref<VisualScriptBuiltinFunc> builtin_node = dynamic_ref_cast<VisualScriptBuiltinFunc>(VisualScriptLanguage::singleton->create_node_from_name(qPrintable(name)));
         if (builtin_node) {
-            auto F = dd->class_list.find(builtin_node->get_class_name());
+            auto F = dd->class_list.find(builtin_node->get_class_name().asCString());
             if (F!=dd->class_list.end()) {
-                for (size_t i = 0; i < F->second.constants.size(); i++) {
-                    if (StringUtils::to_int(F->second.constants[i].value) == int(builtin_node->get_func())) {
-                        text = F->second.constants[i].description;
+                for (size_t i = 0; i < F->constants.size(); i++) {
+                    if (F->constants[i].value.toInt() == int(builtin_node->get_func())) {
+                        text = F->constants[i].description;
                     }
                 }
             }
         }
     }
 
-    if (text.empty())
+    if (text.isEmpty())
         return;
 
-    help_bit->set_text(text);
+    help_bit->set_text(qPrintable(text));
 }
 
 void VisualScriptPropertySelector::_notification(int p_what) {

@@ -30,83 +30,8 @@
 
 #pragma once
 
-#include "core/io/xml_parser.h"
 #include "core/hash_map.h"
 #include "core/string.h"
 
-class DocData {
-public:
-    struct ArgumentDoc {
-
-        String name;
-        String type;
-        String enumeration;
-        String default_value;
-    };
-
-    struct MethodDoc {
-
-        String name;
-        String return_type;
-        String return_enum;
-        String qualifiers;
-        String description;
-        Vector<ArgumentDoc> arguments;
-        bool operator<(const MethodDoc &p_md) const {
-            return name < p_md.name;
-        }
-    };
-
-    struct ConstantDoc {
-
-        String name;
-        String value;
-        String enumeration;
-        String description;
-    };
-
-    struct PropertyDoc {
-
-        String name;
-        StringName type;
-        String enumeration;
-        String description;
-        String setter, getter;
-        String default_value;
-        bool overridden = false;
-        bool operator<(const PropertyDoc &p_prop) const {
-            return name < p_prop.name;
-        }
-    };
-
-    struct ClassDoc {
-
-        StringName name;
-        StringName inherits;
-        String category;
-        String brief_description;
-        String description;
-        Vector<String> tutorials;
-        Vector<MethodDoc> methods;
-        Vector<MethodDoc> defined_signals;
-        Vector<ConstantDoc> constants;
-        Vector<PropertyDoc> properties;
-        Vector<PropertyDoc> theme_properties;
-    };
-
-    String version;
-
-    HashMap<StringName, ClassDoc> class_list;
-    Error _load(Ref<XMLParser> parser);
-
-public:
-    void merge_from(const DocData &p_data);
-    void remove_from(const DocData &p_data);
-    void generate(bool p_basic_types = false);
-    Error load_classes(StringView p_dir);
-    static Error erase_classes(StringView p_dir);
-    Error save_classes(StringView p_default_path, const HashMap<StringName, String> &p_class_path);
-
-    Error load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size);
-};
-
+class DocData;
+void GODOT_EXPORT generate_docs_from_running_program(DocData &doc,bool p_basic_types = false);

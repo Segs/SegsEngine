@@ -38,6 +38,7 @@
 #include "editor_feature_profile.h"
 #include "editor_help.h"
 
+#include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/gui/rich_text_label.h"
@@ -45,6 +46,7 @@
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
+
 
 IMPL_GDCLASS(EditorProperty)
 IMPL_GDCLASS(EditorInspectorPlugin)
@@ -1547,13 +1549,13 @@ void EditorInspector::update_tree() {
                 StringName type2 = p.name;
                 if (!class_descr_cache.contains(type2)) {
 
-                    String descr;
+                    UIString descr;
                     DocData *dd = EditorHelp::get_doc_data();
-                    auto E = dd->class_list.find(type2);
+                    auto E = dd->class_list.find(type2.asCString());
                     if (E!=dd->class_list.end()) {
-                        descr = E->second.brief_description;
+                        descr = E->brief_description;
                     }
-                    class_descr_cache[type2] = descr;
+                    class_descr_cache[type2] = StringUtils::to_utf8(descr);
                 }
 
                 category->set_tooltip_utf8(String(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
@@ -1689,7 +1691,7 @@ void EditorInspector::update_tree() {
                 classname = object_class;
             }
             StringName propname(property_prefix + p.name);
-            String descr;
+            UIString descr;
             bool found = false;
 
             auto E = descr_cache.find(classname);
@@ -1697,17 +1699,17 @@ void EditorInspector::update_tree() {
                 auto F = E->second.find(propname);
                 if (F!=E->second.end()) {
                     found = true;
-                    descr = F->second;
+                    descr = F->second.c_str();
                 }
             }
 
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
-                auto F = dd->class_list.find(classname);
-                while (F!=dd->class_list.end() && descr.empty()) {
-                    for (size_t i = 0; i < F->second.properties.size(); i++) {
-                        if (F->second.properties[i].name == propname.asCString()) {
-                            descr = StringUtils::strip_edges(F->second.properties[i].description);
+                auto F = dd->class_list.find(classname.asCString());
+                while (F!=dd->class_list.end() && descr.isEmpty()) {
+                    for (size_t i = 0; i < F->properties.size(); i++) {
+                        if (F->properties[i].name == propname.asCString()) {
+                            descr = StringUtils::strip_edges(F->properties[i].description);
                             break;
                         }
                     }
@@ -1715,23 +1717,23 @@ void EditorInspector::update_tree() {
                     String::split_ref(slices,propname,'/');
                     if (slices.size() == 2 && slices[0].starts_with("custom_")) {
                         // Likely a theme property.
-                        for (int i = 0; i < F->second.theme_properties.size(); i++) {
-                            if (F->second.theme_properties[i].name == slices[1]) {
-                                descr = StringUtils::strip_edges(F->second.theme_properties[i].description);
+                        for (int i = 0; i < F->theme_properties.size(); i++) {
+                            if (F->theme_properties[i].name == QLatin1String(slices[1].data(),slices[1].size())) {
+                                descr = StringUtils::strip_edges(F->theme_properties[i].description);
                                 break;
                             }
                         }
                     }
-                    if (!F->second.inherits.empty()) {
-                        F = dd->class_list.find(F->second.inherits);
+                    if (!F->inherits.isEmpty()) {
+                        F = dd->class_list.find(F->inherits);
                     } else {
                         break;
                     }
                 }
-                descr_cache[classname][propname] = descr;
+                descr_cache[classname][propname] = qPrintable(descr);
             }
 
-            doc_hint = descr;
+            doc_hint = qPrintable(descr);
         }
 
         for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {

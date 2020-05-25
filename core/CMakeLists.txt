@@ -344,6 +344,9 @@ set(generic_core_sources
     version.h
     version_generated.gen.h
     configuration.h
+
+    doc_support/doc_data.cpp
+    doc_support/doc_data.h
 )
 set(tool_core_sources
     math/math_fieldwise.cpp

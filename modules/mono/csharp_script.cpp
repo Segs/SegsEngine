@@ -46,7 +46,7 @@
 #include "core/io/multiplayer_api.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/bindings_generator.h"
+//#include "editor/bindings_generator.h"
 #include "editor/csharp_project.h"
 #include "editor/editor_node.h"
 #include "editor/node_dock.h"
@@ -66,6 +66,8 @@
 #include "utils/macros.h"
 #include "utils/string_utils.h"
 #include "EASTL/sort.h"
+
+#include <editor/editor_help.h>
 
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
@@ -130,8 +132,10 @@ void CSharpLanguage::init() {
     // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
-    BindingsGenerator::handle_cmdline_args(cmdline_args);
+    EditorHelp::generate_doc();
+
+//    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
+//    BindingsGenerator::handle_cmdline_args(cmdline_args);
 #endif
 
 #ifndef MONO_GLUE_ENABLED

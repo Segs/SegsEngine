@@ -31,9 +31,8 @@
 #pragma once
 
 #include "editor/code_editor.h"
-#include "editor/doc/doc_data.h"
+#include "editor/doc/doc_builder.h"
 #include "editor/editor_plugin.h"
-#include "core/ustring.h"
 #include "scene/gui/margin_container.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel_container.h"
@@ -45,18 +44,16 @@
 
 class RichTextLabel;
 
+namespace DocContents {
+    struct ArgumentDoc;
+    struct MethodDoc;
+};
+
+class FindBarPrivate;
 class FindBar : public HBoxContainer {
     GDCLASS(FindBar,HBoxContainer)
 
-    LineEdit *search_text;
-    ToolButton *find_prev;
-    ToolButton *find_next;
-    Label *matches_label;
-    TextureButton *hide_button;
-    UIString prev_search;
-
-    RichTextLabel *rich_text_label;
-
+    FindBarPrivate *m_private;
     int results_count;
 
     void _show_search();
@@ -87,8 +84,9 @@ public:
     bool search_next();
 
     FindBar();
+    ~FindBar() override;
 };
-
+class EditorHelpPrivate;
 class EditorHelp : public VBoxContainer {
 
     GDCLASS(EditorHelp,VBoxContainer)
@@ -109,15 +107,7 @@ class EditorHelp : public VBoxContainer {
     String prev_search;
 
     StringName edited_class;
-
-    Vector<Pair<String, int> > section_line;
-    Map<String, int> method_line;
-    Map<String, int> signal_line;
-    Map<String, int> property_line;
-    Map<String, int> theme_property_line;
-    Map<String, int> constant_line;
-    Map<String, int> enum_line;
-    Map<String, Map<String, int> > enum_values_line;
+    EditorHelpPrivate *m_private;
     int description_line;
 
     RichTextLabel *class_desc;
@@ -144,11 +134,12 @@ class EditorHelp : public VBoxContainer {
     void _help_callback(StringView p_topic);
 
     void _add_text(StringView p_bbcode);
+    void _add_text(const UIString &p_bbcode);
     bool scroll_locked;
 
     //void _button_pressed(int p_idx);
     void _add_type(StringView p_type, StringView p_enum = {});
-    void _add_method(const DocData::MethodDoc &p_method, bool p_overview = true);
+    void _add_method(const DocContents::MethodDoc &p_method, bool p_overview = true);
 
     void _class_list_select(StringView p_select);
     void _class_desc_select(StringView p_select);
@@ -207,5 +198,6 @@ protected:
 public:
     RichTextLabel *get_rich_text() { return rich_text; }
     void set_text(StringView p_text);
+    void set_text_ui(const UIString &p_text);
     EditorHelpBit();
 };

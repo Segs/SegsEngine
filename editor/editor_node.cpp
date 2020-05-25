@@ -48,6 +48,7 @@
 
 #include "core/bind/core_bind.h"
 #include "core/class_db.h"
+#include "core/doc_support/doc_data.h"
 #include "core/container_tools.h"
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"

@@ -9,7 +9,6 @@ set(source_files
 
     editor/godotsharp_export.cpp
     editor/editor_internal_calls.cpp
-    editor/bindings_generator.cpp
     editor/code_completion.cpp
     editor/script_class_parser.cpp
     editor/csharp_project.cpp
@@ -49,7 +48,6 @@ set(header_files
     editor/script_class_parser.h
     editor/code_completion.h
     editor/csharp_project.h
-    editor/bindings_generator.h
     utils/osx_utils.h
     utils/macros.h
     utils/mono_reg_utils.h
@@ -113,6 +111,14 @@ foreach(tgt ${global_targets})
         target_compile_options(${tgt}_module_mono PRIVATE /bigobj)
     elseif(MINGW)
         target_compile_options(${tgt}_module_mono PRIVATE -Wa,-mbig-obj)
+    endif()
+    if(tgt STREQUAL "editor")
+        add_executable(binding_generator
+                editor/bindings_generator.h
+                editor/bindings_generator.cpp
+            )
+        target_link_libraries(binding_generator PRIVATE Qt5::Core EASTL_Import)
+        set_target_properties(binding_generator PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
     endif()
 endforeach()
 

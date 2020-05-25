@@ -34,6 +34,7 @@
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
+#include "core/doc_support/doc_data.h"
 #include "editor_node.h"
 #include "editor/editor_help.h"
 #include "editor/editor_scale.h"
@@ -1003,16 +1004,16 @@ void ConnectionsDock::update_tree() {
 
                 if (!found) {
                     DocData *dd = EditorHelp::get_doc_data();
-                    auto F = dd->class_list.find(base);
+                    auto F = dd->class_list.find(base.asCString());
                     while (F!=dd->class_list.end() && descr.empty()) {
-                        for (size_t i = 0; i < F->second.defined_signals.size(); i++) {
-                            if (F->second.defined_signals[i].name == signal_name.asCString()) {
-                                descr = StringUtils::strip_edges(F->second.defined_signals[i].description);
+                        for (size_t i = 0; i < F->defined_signals.size(); i++) {
+                            if (F->defined_signals[i].name == signal_name.asCString()) {
+                                descr = StringUtils::to_utf8(F->defined_signals[i].description.trimmed());
                                 break;
                             }
                         }
-                        if (!F->second.inherits.empty()) {
-                            F = dd->class_list.find(F->second.inherits);
+                        if (!F->inherits.isEmpty()) {
+                            F = dd->class_list.find(F->inherits);
                         } else {
                             break;
                         }

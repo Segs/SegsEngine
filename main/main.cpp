@@ -79,8 +79,9 @@
 
 
 #ifdef TOOLS_ENABLED
-#include "editor/doc/doc_data.h"
+#include "core/doc_support/doc_data.h"
 #include "editor/doc_data_class_path.gen.h"
+#include "editor/doc/doc_builder.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
 #include "editor/project_manager.h"
@@ -391,7 +392,7 @@ struct ModulePluginResolver : public ResolverInterface {
         }
         return res;
     }
-    void plugin_removed(QObject *ob) {
+    void plugin_removed(QObject *ob) override {
         auto interface = qobject_cast<ModuleInterface*>(ob);
         if (interface) {
             print_line(String("Removing resource loader plugin:") + ob->metaObject()->className());
@@ -1621,24 +1622,24 @@ bool Main::start() {
             ERR_FAIL_COND_V_MSG(!da, false, "Argument supplied to --doctool must be a base Godot build directory.");
         }
         DocData doc;
-        doc.generate(doc_base);
+        generate_docs_from_running_program(doc,doc_base);
 
         DocData docsrc;
-        HashMap<StringName, String> doc_data_classes;
+        HashMap<String, UIString> doc_data_classes;
         HashSet<String> checked_paths;
         print_line("Loading docs...");
 
         for (int i = 0; i < _doc_data_class_path_count; i++) {
             String path = PathUtils::plus_file(doc_tool,_doc_data_class_paths[i].path);
             String name(_doc_data_class_paths[i].name);
-            doc_data_classes[StringName(name)] = path;
+            doc_data_classes[name] = path.c_str();
             if (!checked_paths.contains(path)) {
                 checked_paths.insert(path);
                 // Create the module documentation directory if it doesn't exist
                 DirAccess *da = DirAccess::create_for_path(path);
                 da->make_dir_recursive(path);
                 memdelete(da);
-                docsrc.load_classes(path);
+                docsrc.load_classes(path.c_str());
                 print_line("Loading docs from: " + path);
             }
         }
@@ -1648,7 +1649,7 @@ bool Main::start() {
         DirAccess *da = DirAccess::create_for_path(index_path);
         da->make_dir_recursive(index_path);
         memdelete(da);
-        docsrc.load_classes(index_path);
+        docsrc.load_classes(index_path.c_str());
         checked_paths.insert(index_path);
         print_line("Loading docs from: " + index_path);
 
@@ -1656,11 +1657,11 @@ bool Main::start() {
         doc.merge_from(docsrc);
         for (const String &E : checked_paths) {
             print_line("Erasing old docs at: " + E);
-            DocData::erase_classes(E);
+            DocData::erase_classes(E.c_str());
         }
 
         print_line("Generating new docs...");
-        doc.save_classes(index_path, doc_data_classes);
+        doc.save_classes(index_path.c_str(), VERSION_BRANCH,doc_data_classes);
 
         return false;
     }

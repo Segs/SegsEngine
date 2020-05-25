@@ -49,7 +49,7 @@ StringBuilder &StringBuilder::append(const char *p_cstring) {
 
     int32_t len = strlen(p_cstring);
 
-    c_strings.push_back(p_cstring);
+    c_strings.push_back(StringView(p_cstring));
     appended_strings.push_back(len);
 
     string_length += len;
@@ -81,13 +81,12 @@ String StringBuilder::as_string() const {
             godot_string_elem++;
         } else {
 
-            const char *s = c_strings[c_string_elem];
+            StringView s = c_strings[c_string_elem];
+            memcpy(buffer + current_position, s.data(), s.size());
 
-            for (int32_t j = 0; j < appended_string; j++) {
-                buffer[current_position + j] = s[j];
-            }
+            current_position += s.length();
 
-            current_position += appended_string;
+            godot_string_elem++;
 
             c_string_elem++;
         }

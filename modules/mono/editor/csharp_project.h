@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CSHARP_PROJECT_H
-#define CSHARP_PROJECT_H
+#pragma once
 
 #include "core/ustring.h"
 
@@ -38,5 +37,3 @@ namespace CSharpProject {
 void add_item(StringView p_project_path, const StringName &p_item_type, StringView p_include);
 
 } // namespace CSharpProject
-
-#endif // CSHARP_PROJECT_H
