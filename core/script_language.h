@@ -432,3 +432,33 @@ public:
     }
     ~PlaceHolderScriptInstance() override;
 };
+
+class BindingTypeMapper {
+public:
+    enum IntTypes {
+        INT_8,
+        UINT_8,
+        INT_16,
+        UINT_16,
+        INT_32,
+        UINT_32,
+        INT_64,
+        UINT_64,
+    };
+    enum FloatTypes {
+        FLOAT_32,
+        DOUBLE_64,
+    };
+    enum TypemapKind {
+        INPUT,
+        OUTPUT,
+    };
+    virtual String mapIntTypeName(IntTypes ) = 0;
+    virtual String mapFloatTypeName(FloatTypes ) = 0;
+    virtual String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {})=0;
+    virtual String mapArgumentName(StringView src_name) = 0;
+    virtual bool shouldSkipMethod(StringView method_name,StringView class_name={}, StringView namespace_name = {})=0;
+    virtual String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {})=0;
+
+    virtual void registerTypeMap(StringView type_name,TypemapKind, StringView pattern);
+};

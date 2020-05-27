@@ -724,17 +724,19 @@ void Generic6DOFJoint3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_precision", {"precision"}), &Generic6DOFJoint3D::set_precision);
     MethodBinder::bind_method(D_METHOD("get_precision"), &Generic6DOFJoint3D::get_precision);
-
+    
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_limit_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/upper_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_UPPER_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/lower_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_LOWER_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/softness", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_LIMIT_SOFTNESS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/restitution", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_RESTITUTION);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/damping", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_DAMPING);
+
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_motor_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_MOTOR);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_motor_x/target_velocity"), "set_param_x", "get_param_x", PARAM_LINEAR_MOTOR_TARGET_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_motor_x/force_limit"), "set_param_x", "get_param_x", PARAM_LINEAR_MOTOR_FORCE_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_spring_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_SPRING);
+
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/stiffness"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_STIFFNESS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/damping"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_DAMPING);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/equilibrium_point"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_EQUILIBRIUM_POINT);

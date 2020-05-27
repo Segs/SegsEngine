@@ -408,7 +408,7 @@ void GPUParticles3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PropertyHint::Range, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
     for (int i = 0; i < MAX_DRAW_PASSES; i++) {
 
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass_" + itos(i + 1)), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass/" + itos(i + 1) + "/mesh"), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)

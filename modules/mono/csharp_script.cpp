@@ -63,10 +63,13 @@
 #include "mono_gd/gd_mono_marshal.h"
 #include "mono_gd/gd_mono_utils.h"
 #include "signal_awaiter_utils.h"
+#include "core/reflection_support/reflection_data.h"
 #include "utils/macros.h"
 #include "utils/string_utils.h"
 #include "EASTL/sort.h"
 
+
+#include <core/reflection_support/reflection_generator.h>
 #include <editor/editor_help.h>
 
 
@@ -133,6 +136,9 @@ void CSharpLanguage::init() {
     // the applications if the api assemblies or the main tools assembly is missing, but this
     // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
     EditorHelp::generate_doc();
+    ReflectionData rd;
+    _initialize_reflection_data(rd, EditorHelp::get_doc_data());
+    rd.save_to_file("test.json");
 
 //    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
 //    BindingsGenerator::handle_cmdline_args(cmdline_args);

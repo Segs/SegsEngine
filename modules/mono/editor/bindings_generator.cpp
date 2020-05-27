@@ -30,12 +30,26 @@
 
 #include "bindings_generator.h"
 
-#ifdef GODOT_EXPORT
-#error Zx
-#endif
+
+#include "core/script_language.h"
+#include "core/string_formatter.h"
+#include "core/string_utils.h"
+#include "core/string_utils.inl"
+#include "core/reflection_support/reflection_data.h"
+#include "EASTL/vector_set.h"
+
+#include <QCoreApplication>
+#include <QDebug>
+
+
+void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
+
+    qWarning() << QLatin1String(p_error.data(), p_error.size());
+    qWarning() << QLatin1String(p_message.data(), p_message.size());
+}
 
 #if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
-
+/*
 #include "core/engine.h"
 #include "core/global_constants.h"
 #include "core/method_info.h"
@@ -45,9 +59,6 @@
 #include "core/os/file_access.h"
 #include "core/os/os.h"
 #include "core/register_core_types.h"
-#include "core/string_formatter.h"
-#include "core/string_utils.h"
-#include "core/string_utils.inl"
 #include "core/math/transform.h"
 //#include "glue/cs_glue_version.gen.h"
 #include "modules/register_module_types.h"
@@ -60,12 +71,90 @@
 #include "../utils/string_utils.h"
 #include "main/main.h"
 #include "csharp_project.h"
+*/
+#endif
+
+
+static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_upper = false) {
+
+    String ret;
+    Vector<StringView> parts = StringUtils::split(p_identifier, "_", true);
+
+    for (size_t i = 0; i < parts.size(); i++) {
+        String part(parts[i]);
+
+        if (part.length()) {
+            part[0] = StringUtils::char_uppercase(part[0]);
+            if (p_input_is_upper) {
+                for (size_t j = 1; j < part.length(); j++)
+                    part[j] = StringUtils::char_lowercase(part[j]);
+            }
+            ret += part;
+        }
+        else {
+            if (i == 0 || i == (parts.size() - 1)) {
+                // Preserve underscores at the beginning and end
+                ret += "_";
+            }
+            else {
+                // Preserve contiguous underscores
+                if (parts[i - 1].length()) {
+                    ret += "__";
+                }
+                else {
+                    ret += "_";
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper = false) {
+
+    String ret;
+    auto parts = StringUtils::split(p_identifier, '_', true);
+
+    for (size_t i = 0; i < parts.size(); i++) {
+        String part(parts[i]);
+
+        if (part.length()) {
+            if (i != 0) {
+                part[0] = StringUtils::char_uppercase(part[0]);
+            }
+            if (p_input_is_upper) {
+                for (size_t j = i != 0 ? 1 : 0; j < part.length(); j++)
+                    part[j] = StringUtils::char_lowercase(part[j]);
+            }
+            ret += part;
+        }
+        else {
+            if (i == 0 || i == (parts.size() - 1)) {
+                // Preserve underscores at the beginning and end
+                ret += "_";
+            }
+            else {
+                // Preserve contiguous underscores
+                if (parts[i - 1].length()) {
+                    ret += "__";
+                }
+                else {
+                    ret += "_";
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+#if 0
+
+#include "core/doc_support/doc_data.h"
+#include "core/typesystem_decls.h"
+#include "core/string_builder.h"
+
 #include "EASTL/sort.h"
 #include "EASTL/unordered_set.h"
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QDebug>
 
 #define CS_INDENT "    " // 4 whitespaces
 
@@ -124,7 +213,6 @@ static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static Error _save_file(StringView p_path, const StringBuilder& p_content);
 DocData *g_doc_data;
-
 static String fix_doc_description(StringView p_bbcode) {
 
     // This seems to be the correct way to do this. It's the same EditorHelp does.
@@ -133,29 +221,6 @@ static String fix_doc_description(StringView p_bbcode) {
             .replaced("\r", "")));
 }
 
-template<class T>
-static void toJson(QJsonObject &tgt,const char *name,const Vector<T> &src) {
-    QJsonArray entries;
-    for(const T & c : src) {
-        QJsonObject field;
-        c.toJson(field);
-        entries.push_back(field);
-    }
-    tgt[name] = entries;
-
-}
-template<class T>
-static void fromJson(const QJsonObject &src,const char *name,Vector<T> &tgt) {
-    assert(src[name].isArray());
-    QJsonArray arr = src[name].toArray();
-    tgt.reserve(arr.size());
-    for(int i=0; i<arr.size(); ++i) {
-        T ci;
-        ci.fromJson(arr[i].toObject());
-        tgt.emplace_back(ci);
-    }
-
-}
 struct NameCache {
     StringName type_void;
     StringName type_Array;
@@ -212,749 +277,6 @@ private:
 
 NameCache *name_cache;
 
-struct ConstantInterface {
-    String name;
-    String proxy_name;
-    int value;
-
-    ConstantInterface() {}
-
-    ConstantInterface(const String &p_name, const String &p_proxy_name, int p_value) {
-        name = p_name;
-        proxy_name = p_proxy_name;
-        value = p_value;
-    }
-    void toJson(QJsonObject &obj) const {
-        obj["name"] = name.data();
-        obj["proxy_name"] = proxy_name.data();
-        obj["value"] = value;
-    }
-    void fromJson(const QJsonObject &obj) {
-        name = StringUtils::to_utf8(obj["name"].toString());
-        proxy_name = StringUtils::to_utf8(obj["proxy_name"].toString());
-        value = obj["value"].toInt();
-    }
-};
-
-struct EnumInterface {
-    StringName cname;
-    Vector<ConstantInterface> constants;
-
-    _FORCE_INLINE_ bool operator==(const EnumInterface &p_ienum) const {
-        return p_ienum.cname == cname;
-    }
-
-    EnumInterface() {}
-
-    EnumInterface(const StringName &p_cname) {
-        cname = p_cname;
-    }
-
-    void toJson(QJsonObject &obj) const {
-        obj["cname"] = cname.asCString();
-        ::toJson(obj,"constants",constants);
-    }
-    void fromJson(const QJsonObject &obj) {
-
-        cname = StringName(StringUtils::to_utf8(obj["cname"].toString()));
-        ::fromJson(obj,"constants",constants);
-    }
-};
-
-struct PropertyInterface {
-    StringName cname;
-    String proxy_name;
-    int index;
-
-    StringName setter;
-    StringName getter;
-
-    void toJson(QJsonObject &obj) const {
-        obj["cname"] = cname.asCString();
-        obj["proxy_name"] = proxy_name.data();
-        obj["index"] = index;
-
-        obj["setter"] = setter.asCString();
-        obj["getter"] = getter.asCString();
-    }
-    void fromJson(const QJsonObject &obj) {
-        cname = StringName(StringUtils::to_utf8(obj["cname"].toString()));
-        proxy_name = StringUtils::to_utf8(obj["proxy_name"].toString());
-        index = obj["index"].toInt();
-
-        setter = StringName(StringUtils::to_utf8(obj["setter"].toString()));
-        getter = StringName(StringUtils::to_utf8(obj["getter"].toString()));
-    }
-
-};
-
-struct TypeReference {
-    StringName cname;
-    bool is_enum=false;
-    TypePassBy pass_by;
-
-    void toJson(QJsonObject &obj) const {
-        obj["cname"] = cname.asCString();
-        obj["is_enum"] = is_enum;
-        obj["pass_by"] = (int8_t)pass_by;
-    }
-    void fromJson(const QJsonObject &obj) {
-        cname = StringName(StringUtils::to_utf8(obj["cname"].toString()));
-        is_enum = obj["is_enum"].toInt();
-        pass_by = (TypePassBy)obj["pass_by"].toInt();
-    }
-};
-
-struct ArgumentInterface {
-    enum DefaultParamMode {
-        CONSTANT,
-        NULLABLE_VAL,
-        NULLABLE_REF
-    };
-
-    TypeReference type;
-
-    String name;
-    String default_argument;
-    DefaultParamMode def_param_mode;
-
-    ArgumentInterface() {
-        def_param_mode = CONSTANT;
-    }
-
-    void toJson(QJsonObject &obj) const {
-        QJsonObject sertype;
-        type.toJson(sertype);
-
-        obj["type"] = sertype;
-        obj["name"] = name.data();
-        obj["default_argument"] = default_argument.data();
-        obj["def_param_mode"] = def_param_mode;
-    }
-    void fromJson(const QJsonObject &obj) {
-        type.fromJson(obj["type"].toObject());
-        name = StringUtils::to_utf8(obj["name"].toString());
-        default_argument = StringUtils::to_utf8(obj["default_argument"].toString());
-        def_param_mode = (DefaultParamMode)obj["is_enum"].toInt();
-    }
-};
-
-struct MethodInterface {
-    String name;
-    StringName cname;
-
-    /**
-     * Name of the C# method
-     */
-    String proxy_name;
-
-    /**
-     * [TypeInterface::name] of the return type
-     */
-    TypeReference return_type;
-
-    /**
-     * Determines if the method has a variable number of arguments (VarArg)
-     */
-    bool is_vararg=false;
-
-    /**
-     * Virtual methods ("virtual" as defined by the Godot API) are methods that by default do nothing,
-     * but can be overridden by the user to add custom functionality.
-     * e.g.: _ready, _process, etc.
-     */
-    bool is_virtual=false;
-
-    /**
-     * Determines if the call should fallback to Godot's object.Call(string, params) in C#.
-     */
-    bool requires_object_call=false;
-
-    /**
-     * Determines if the method visibility is 'internal' (visible only to files in the same assembly).
-     * Currently, we only use this for methods that are not meant to be exposed,
-     * but are required by properties as getters or setters.
-     * Methods that are not meant to be exposed are those that begin with underscore and are not virtual.
-     */
-    bool is_internal=false;
-
-    Vector<ArgumentInterface> arguments;
-
-    bool is_deprecated=false;
-    String deprecation_message;
-
-    void add_argument(const ArgumentInterface &argument) {
-        arguments.push_back(argument);
-    }
-
-    void toJson(QJsonObject &obj) const {
-        QJsonObject sertype;
-        return_type.toJson(sertype);
-
-        obj["name"] = name.data();
-        obj["cname"] = cname.asCString();
-        obj["proxy_name"] = proxy_name.data();
-        obj["return_type"] = sertype;
-
-        obj["is_vararg"] = is_vararg;
-        obj["is_virtual"] = is_virtual;
-        obj["requires_object_call"] = requires_object_call;
-        obj["is_internal"] = is_internal;
-
-        ::toJson(obj,"arguments",arguments);
-
-        obj["is_deprecated"] = is_deprecated;
-        obj["deprecation_message"] = deprecation_message.data();
-    }
-    void fromJson(const QJsonObject &obj) {
-
-        name = StringUtils::to_utf8(obj["name"].toString());
-        cname = StringName(StringUtils::to_utf8(obj["cname"].toString()));
-        proxy_name = StringUtils::to_utf8(obj["proxy_name"].toString());
-        is_vararg = obj["is_vararg"].toBool();
-        is_virtual = obj["is_virtual"].toBool();
-        requires_object_call = obj["requires_object_call"].toBool();
-        is_internal = obj["is_internal"].toBool();
-
-        ::fromJson(obj,"arguments",arguments);
-        is_deprecated = obj["is_deprecated"].toBool();
-        deprecation_message = StringUtils::to_utf8(obj["deprecation_message"].toString());
-
-    }
-};
-struct TypeInterface {
-    /**
-     * Identifier name for this type.
-     * Also used to format [c_out].
-     */
-    String name;
-    StringName cname;
-
-    /**
-     * Identifier name of the base class.
-     */
-    StringName base_name;
-
-    /**
-     * Name of the C# class
-     */
-    StringName proxy_name;
-
-    ClassDB::APIType api_type;
-
-    bool is_enum;
-    bool is_object_type;
-    bool is_singleton;
-    bool is_reference;
-    bool is_namespace=false;
-
-    /**
-     * Used only by Object-derived types.
-     * Determines if this type is not abstract (incomplete).
-     * e.g.: CanvasItem cannot be instantiated.
-     */
-    bool is_instantiable;
-
-    /**
-     * Used only by Object-derived types.
-     * Determines if the C# class owns the native handle and must free it somehow when disposed.
-     * e.g.: Reference types must notify when the C# instance is disposed, for proper refcounting.
-     */
-    bool memory_own;
-
-    /**
-     * This must be set to true for any struct bigger than 32-bits. Those cannot be passed/returned by value
-     * with internal calls, so we must use pointers instead. Returns must be replace with out parameters.
-     * In this case, [c_out] and [cs_out] must have a different format, explained below.
-     * The Mono IL interpreter icall trampolines don't support passing structs bigger than 32-bits by value (at least not on WASM).
-     */
-    bool ret_as_byref_arg;
-
-    // !! The comments of the following fields make reference to other fields via square brackets, e.g.: [field_name]
-    // !! When renaming those fields, make sure to rename their references in the comments
-
-    // --- C INTERFACE ---
-
-    static constexpr const char *DEFAULT_VARARG_C_IN = "\t%0 %1_in = Variant::from(%1);\n";
-
-    /**
-     * One or more statements that manipulate the parameter before being passed as argument of a ptrcall.
-     * If the statement adds a local that must be passed as the argument instead of the parameter,
-     * the name of that local must be specified with [c_arg_in].
-     * For variadic methods, this field is required and, if empty, [DEFAULT_VARARG_C_IN] is used instead.
-     * Formatting elements:
-     * %0: [c_type] of the parameter
-     * %1: name of the parameter
-     */
-    String c_in;
-
-    /**
-     * Determines the expression that will be passed as argument to ptrcall.
-     * By default the value equals the name of the parameter,
-     * this varies for types that require special manipulation via [c_in].
-     * Formatting elements:
-     * %0 or %s: name of the parameter
-     */
-    String c_arg_in;
-
-    /**
-     * One or more statements that determine how a variable of this type is returned from a function.
-     * It must contain the return statement(s).
-     * Formatting elements:
-     * %0: [c_type_out] of the return type
-     * %1: name of the variable to be returned
-     * %2: [name] of the return type
-     * ---------------------------------------
-     * If [ret_as_byref_arg] is true, the format is different. Instead of using a return statement,
-     * the value must be assigned to a parameter. This type of this parameter is a pointer to [c_type_out].
-     * Formatting elements:
-     * %0: [c_type_out] of the return type
-     * %1: name of the variable to be returned
-     * %2: [name] of the return type
-     * %3: name of the parameter that must be assigned the return value
-     */
-    String c_out;
-
-    /**
-     * The actual expected type, as seen (in most cases) in Variant copy constructors
-     * Used for the type of the return variable and to format [c_in].
-     * The value must be the following depending of the type:
-     * Object-derived types: Object*
-     * Other types: [name]
-     * -- Exceptions --
-     * VarArg (fictitious type to represent variable arguments): Array
-     * float: double (because ptrcall only supports double)
-     * int: int64_t (because ptrcall only supports int64_t and uint64_t)
-     * Reference types override this for the type of the return variable: Ref<RefCounted>
-     */
-    String c_type;
-
-    /**
-     * Determines the type used for parameters in function signatures.
-     */
-    String c_type_in;
-
-    /**
-     * Determines the return type used for function signatures.
-     * Also used to construct a default value to return in case of errors,
-     * and to format [c_out].
-     */
-    String c_type_out;
-
-    // --- C# INTERFACE ---
-
-    /**
-     * An expression that overrides the way the parameter is passed to the internal call.
-     * If empty, the parameter is passed as is.
-     * Formatting elements:
-     * %0 or %s: name of the parameter
-     */
-    String cs_in;
-
-    /**
-     * One or more statements that determine how a variable of this type is returned from a method.
-     * It must contain the return statement(s).
-     * Formatting elements:
-     * %0: internal method name
-     * %1: internal method call arguments without surrounding parenthesis
-     * %2: [cs_type] of the return type
-     * %3: [im_type_out] of the return type
-     */
-    String cs_out;
-
-    /**
-     * Type used for method signatures, both for parameters and the return type.
-     * Same as [proxy_name] except for variable arguments (VarArg) and collections (which include the namespace).
-     */
-    String cs_type;
-
-    /**
-     * Type used for parameters of internal call methods.
-     */
-    String im_type_in;
-
-    /**
-     * Type used for the return type of internal call methods.
-     */
-    String im_type_out;
-
-    const DocData::ClassDoc *z_class_doc;
-
-    Vector<ConstantInterface> constants;
-    Vector<EnumInterface> enums;
-    Vector<PropertyInterface> properties;
-    Vector<MethodInterface> methods;
-
-    const MethodInterface *find_method_by_name(const StringName &p_cname) const {
-        for (const MethodInterface &E : methods) {
-            if (E.cname == p_cname)
-                return &E;
-        }
-
-        return nullptr;
-    }
-
-    const PropertyInterface *find_property_by_name(const StringName &p_cname) const {
-        for (const PropertyInterface &E : properties) {
-            if (E.cname == p_cname)
-                return &E;
-        }
-
-        return nullptr;
-    }
-
-    const PropertyInterface *find_property_by_proxy_name(const String &p_proxy_name) const {
-        for (const PropertyInterface &E : properties) {
-            if (E.proxy_name == p_proxy_name)
-                return &E;
-        }
-
-        return nullptr;
-    }
-
-private:
-    static void _init_value_type(TypeInterface &itype) {
-        itype.proxy_name = StringName(itype.name);
-
-        itype.c_type = itype.name;
-        itype.cs_type = itype.proxy_name;
-        itype.im_type_in = "ref " + itype.proxy_name;
-        itype.im_type_out = itype.proxy_name;
-        //itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
-    }
-
-public:
-    static TypeInterface create_value_type(const String &p_name) {
-        TypeInterface itype;
-        itype.name = p_name;
-        itype.cname = StringName(p_name);
-        _init_value_type(itype);
-        return itype;
-    }
-
-    static TypeInterface create_value_type(const StringName &p_name) {
-        TypeInterface itype;
-        itype.name = p_name;
-        itype.cname = p_name;
-        _init_value_type(itype);
-        return itype;
-    }
-
-    static TypeInterface create_object_type(const StringName &p_cname, ClassDB::APIType p_api_type) {
-        TypeInterface itype;
-
-        itype.name = p_cname;
-        itype.cname = p_cname;
-        itype.proxy_name = StringName(StringUtils::begins_with(itype.name,"_") ? itype.name.substr(1, itype.name.length()) : itype.name);
-        itype.api_type = p_api_type;
-        itype.is_object_type = true;
-        //itype.class_doc = &g_doc_data->class_list[itype.proxy_name];
-
-        return itype;
-    }
-
-    static void create_placeholder_type(TypeInterface &r_itype, const StringName &p_cname) {
-        r_itype.name = p_cname;
-        r_itype.cname = p_cname;
-        r_itype.proxy_name =p_cname;
-
-        r_itype.c_type = r_itype.name;
-        r_itype.c_type_in = "MonoObject*";
-        r_itype.c_type_out = "MonoObject*";
-        r_itype.cs_type = r_itype.proxy_name;
-        r_itype.im_type_in = r_itype.proxy_name;
-        r_itype.im_type_out = r_itype.proxy_name;
-    }
-
-    static void postsetup_enum_type(TypeInterface &r_enum_itype) {
-        // C interface for enums is the same as that of 'uint32_t'. Remember to apply
-        // any of the changes done here to the 'uint32_t' type interface as well.
-
-        r_enum_itype.c_arg_in = "%s_in";
-        {
-            // The expected types for parameters and return value in ptrcall are 'int64_t' or 'uint64_t'.
-            r_enum_itype.c_in = "\t%0 %1_in = (%0)%1;\n";
-            r_enum_itype.c_out = "\treturn (%0)%1;\n";
-            r_enum_itype.c_type = "int64_t";
-        }
-        r_enum_itype.c_type_in = "int32_t";
-        r_enum_itype.c_type_out = r_enum_itype.c_type_in;
-
-        r_enum_itype.cs_type = r_enum_itype.proxy_name;
-        r_enum_itype.cs_in = "(int)%s";
-        r_enum_itype.cs_out = "return (%2)%0(%1);";
-        r_enum_itype.im_type_in = "int";
-        r_enum_itype.im_type_out = "int";
-    }
-
-    TypeInterface() {
-
-        api_type = ClassDB::API_NONE;
-
-        is_enum = false;
-        is_object_type = false;
-        is_singleton = false;
-        is_reference = false;
-        is_instantiable = false;
-
-        memory_own = false;
-
-        ret_as_byref_arg = false;
-
-        c_arg_in = "%s";
-    }
-
-    void toJson(QJsonObject &obj) const {
-        obj["name"] = name.data();
-        obj["cname"] = cname.asCString();
-        obj["base_name"] = base_name.asCString();
-        obj["proxy_name"] = proxy_name.asCString();
-        ClassDB::APIType api_type;
-        obj["is_enum"] = is_enum;
-        obj["is_object_type"] = is_object_type;
-        obj["is_singleton"] = is_singleton;
-        obj["is_reference"] = is_reference;
-        obj["is_namespace"] = is_namespace;
-        obj["is_instantiable"] = is_instantiable;
-        obj["memory_own"] = memory_own;
-        obj["ret_as_byref_arg"] = ret_as_byref_arg;
-        obj["c_in"] = c_in.data();
-        obj["c_arg_in"] = c_arg_in.data();
-        obj["c_out"] = c_out.data();
-        obj["c_type"] = c_type.data();
-        obj["c_type_in"] = c_type_in.data();
-        obj["c_type_out"] = c_type_out.data();
-        obj["cs_in"] = cs_in.data();
-        obj["cs_out"] = cs_out.data();
-        obj["cs_type"] = cs_type.data();
-        obj["im_type_in"] = im_type_in.data();
-        obj["im_type_out"] = im_type_out.data();
-
-        ::toJson(obj,"constants",constants);
-        ::toJson(obj,"enums",enums);
-        ::toJson(obj,"properties",properties);
-        ::toJson(obj,"methods",methods);
-    }
-    void fromJson(const QJsonObject &obj) {
-        name = StringUtils::to_utf8(obj["name"].toString());
-        cname = StringName(StringUtils::to_utf8(obj["cname"].toString()));
-        base_name = StringName(StringUtils::to_utf8(obj["base_name"].toString()));
-        proxy_name = StringName(StringUtils::to_utf8(obj["proxy_name"].toString()));
-        api_type = (ClassDB::APIType)obj["api_type"].toInt();
-        is_enum = obj["is_enum"].toBool();
-        is_object_type = obj["is_object_type"].toBool();
-        is_singleton = obj["is_singleton"].toBool();
-        is_reference = obj["is_reference"].toBool();
-        is_namespace = obj["is_reference"].toBool(false);
-        is_instantiable = obj["is_instantiable"].toBool();
-        memory_own = obj["memory_own"].toBool();
-        ret_as_byref_arg = obj["ret_as_byref_arg"].toBool();
-        c_in = StringUtils::to_utf8(obj["c_in"].toString());
-        c_arg_in = StringUtils::to_utf8(obj["c_arg_in"].toString());
-        c_out = StringUtils::to_utf8(obj["c_out"].toString());
-        c_type = StringUtils::to_utf8(obj["c_type"].toString());
-        c_type_in = StringUtils::to_utf8(obj["c_type_in"].toString());
-        c_type_out = StringUtils::to_utf8(obj["c_type_out"].toString());
-        cs_in = StringUtils::to_utf8(obj["cs_in"].toString());
-        cs_out = StringUtils::to_utf8(obj["cs_out"].toString());
-        cs_type = StringUtils::to_utf8(obj["cs_type"].toString());
-        im_type_in = StringUtils::to_utf8(obj["im_type_in"].toString());
-        im_type_out = StringUtils::to_utf8(obj["im_type_out"].toString());
-    }
-};
-struct ReflectionData {
-    HashMap<StringName, TypeInterface> obj_types;
-    Vector<StringName> obj_type_insert_order;
-
-    Map<StringName, TypeInterface> placeholder_types;
-    Map<StringName, TypeInterface> builtin_types;
-    Map<StringName, TypeInterface> enum_types;
-
-    Vector<EnumInterface> global_enums;
-    Vector<ConstantInterface> global_constants;
-    DocData *doc;
-
-    struct ClassLookupHelper {
-        HashMap<String,const DocData::MethodDoc *> methods;
-        HashMap<String,const DocData::MethodDoc *> defined_signals;
-        HashMap<String,const DocData::PropertyDoc *> properties;
-        HashMap<String,const DocData::PropertyDoc *> theme_properties;
-
-        HashMap<String,const DocData::ConstantDoc *> constantsz;
-    };
-    HashMap<StringName,ClassLookupHelper> doc_lookup_helpers;
-    void build_doc_lookup_helper() {
-        for(const auto & cdoc : doc->class_list) {
-            auto & tgt = doc_lookup_helpers[cdoc.first];
-            for(const auto &mthd : cdoc.second.methods) {
-                tgt.methods[mthd.name] = &mthd;
-            }
-            for(const auto &mthd : cdoc.second.defined_signals) {
-                tgt.defined_signals[mthd.name] = &mthd;
-            }
-            for(const auto &mthd : cdoc.second.constants) {
-                tgt.constantsz[mthd.enumeration +"::" + mthd.name] = &mthd;
-            }
-            for(const auto &mthd : cdoc.second.properties) {
-                tgt.properties[mthd.name] = &mthd;
-            }
-            for(const auto &mthd : cdoc.second.theme_properties) {
-                tgt.theme_properties[mthd.name] = &mthd;
-            }
-        }
-    }
-    const DocData::ConstantDoc * constant_doc(StringName classname,String enum_name,String const_name) {
-        return doc_lookup_helpers[classname].constantsz.at(enum_name + "::" + const_name,nullptr);
-    }
-    const TypeInterface *_get_type_or_null(const TypeReference &p_typeref) {
-
-        const Map<StringName, TypeInterface>::iterator builtin_type_match = builtin_types.find(p_typeref.cname);
-
-        if (builtin_type_match!=builtin_types.end())
-            return &builtin_type_match->second;
-
-        const auto obj_type_match = obj_types.find(p_typeref.cname);
-
-        if (obj_type_match!= obj_types.end())
-            return &obj_type_match->second;
-
-        if (p_typeref.is_enum) {
-            Map<StringName, TypeInterface>::const_iterator enum_match = enum_types.find(p_typeref.cname);
-
-            if (enum_match!=enum_types.end())
-                return &enum_match->second;
-            enum_match = enum_types.find(p_typeref.cname+"Enum");
-
-            if (enum_match != enum_types.end())
-                return &enum_match->second;
-
-            // Enum not found. Most likely because none of its constants were bound, so it's empty. That's fine. Use int instead.
-            const Map<StringName, TypeInterface>::iterator int_match = builtin_types.find(name_cache->type_int);
-            ERR_FAIL_COND_V(int_match==builtin_types.end(), nullptr);
-            return &int_match->second;
-        }
-
-        return nullptr;
-    }
-    const ConstantInterface *find_constant_by_name(StringView p_name, const Vector<ConstantInterface> &p_constants) const {
-        for (const ConstantInterface &E : p_constants) {
-            if (E.name == p_name)
-                return &E;
-        }
-
-        return nullptr;
-    }
-    const TypeInterface *_get_type_or_placeholder(const TypeReference &p_typeref) {
-
-        const TypeInterface *found = _get_type_or_null(p_typeref);
-
-        if (found)
-            return found;
-
-        ERR_PRINT(String() + "Type not found. Creating placeholder: '" + p_typeref.cname + "'.");
-
-        const Map<StringName, TypeInterface>::iterator match = placeholder_types.find(p_typeref.cname);
-
-        if (match!=placeholder_types.end())
-            return &match->second;
-
-        TypeInterface placeholder;
-        TypeInterface::create_placeholder_type(placeholder, p_typeref.cname);
-
-        return &placeholder_types.emplace(placeholder.cname, placeholder).first->second;
-    }
-    bool _arg_default_value_from_variant(const Variant &p_val, ArgumentInterface &r_iarg) {
-
-        r_iarg.default_argument = p_val.as<String>();
-
-        switch (p_val.get_type()) {
-            case VariantType::NIL:
-                // Either Object type or Variant
-                r_iarg.default_argument = "null";
-                break;
-            // Atomic types
-            case VariantType::BOOL:
-                r_iarg.default_argument = bool(p_val) ? "true" : "false";
-                break;
-            case VariantType::INT:
-                if (r_iarg.type.cname != name_cache->type_int) {
-                    r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
-                }
-                break;
-            case VariantType::FLOAT:
-    #ifndef REAL_T_IS_DOUBLE
-                r_iarg.default_argument += "f";
-    #endif
-                break;
-            case VariantType::STRING:
-            case VariantType::NODE_PATH:
-                r_iarg.default_argument = "\"" + r_iarg.default_argument + "\"";
-                break;
-            case VariantType::TRANSFORM:
-                if (p_val.as<Transform>() == Transform())
-                    r_iarg.default_argument.clear();
-                r_iarg.default_argument = "new %s(" + r_iarg.default_argument + ")";
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-                break;
-            case VariantType::PLANE:
-            case VariantType::AABB:
-            case VariantType::COLOR:
-                r_iarg.default_argument = "new Color(1, 1, 1, 1)";
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-                break;
-            case VariantType::VECTOR2:
-            case VariantType::RECT2:
-            case VariantType::VECTOR3:
-                r_iarg.default_argument = "new %s" + r_iarg.default_argument;
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-                break;
-            case VariantType::OBJECT:
-                ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-                        "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
-
-                r_iarg.default_argument = "null";
-                break;
-            case VariantType::DICTIONARY:
-                r_iarg.default_argument = "new %s()";
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
-                break;
-            case VariantType::_RID:
-                ERR_FAIL_COND_V_MSG(r_iarg.type.cname != name_cache->type_RID, false,
-                        "Parameter of type '" + String(r_iarg.type.cname) + "' cannot have a default value of type '" + String(name_cache->type_RID) + "'.");
-
-                ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-                        "Parameter of type '" + String(r_iarg.type.cname) + "' can only have null/zero as the default value.");
-
-                r_iarg.default_argument = "null";
-                break;
-            case VariantType::ARRAY:
-            case VariantType::POOL_BYTE_ARRAY:
-            case VariantType::POOL_INT_ARRAY:
-            case VariantType::POOL_REAL_ARRAY:
-            case VariantType::POOL_STRING_ARRAY:
-            case VariantType::POOL_VECTOR2_ARRAY:
-            case VariantType::POOL_VECTOR3_ARRAY:
-            case VariantType::POOL_COLOR_ARRAY:
-                r_iarg.default_argument = "new %s {}";
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
-                break;
-            case VariantType::TRANSFORM2D:
-            case VariantType::BASIS:
-            case VariantType::QUAT:
-                r_iarg.default_argument = String(Variant::get_type_name(p_val.get_type())) + ".Identity";
-                r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
-                break;
-            default: {
-            }
-        }
-
-        if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == name_cache->type_Variant && r_iarg.default_argument != "null")
-            r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
-
-        return true;
-    }
-
-};
 ReflectionData rd;
 
 static inline String get_unique_sig(const TypeInterface &p_type) {
@@ -967,73 +289,7 @@ static inline String get_unique_sig(const TypeInterface &p_type) {
 
     return p_type.name;
 }
-static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_upper = false) {
 
-    String ret;
-    Vector<StringView> parts = StringUtils::split(p_identifier,"_", true);
-
-    for (size_t i = 0; i < parts.size(); i++) {
-        String part(parts[i]);
-
-        if (part.length()) {
-            part[0] = StringUtils::char_uppercase(part[0]);
-            if (p_input_is_upper) {
-                for (size_t j = 1; j < part.length(); j++)
-                    part[j] = StringUtils::char_lowercase(part[j]);
-            }
-            ret += part;
-        } else {
-            if (i == 0 || i == (parts.size() - 1)) {
-                // Preserve underscores at the beginning and end
-                ret += "_";
-            } else {
-                // Preserve contiguous underscores
-                if (parts[i - 1].length()) {
-                    ret += "__";
-                } else {
-                    ret += "_";
-                }
-            }
-        }
-    }
-
-    return ret;
-}
-
-static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper = false) {
-
-    String ret;
-    auto parts = StringUtils::split(p_identifier,'_', true);
-
-    for (size_t i = 0; i < parts.size(); i++) {
-        String part(parts[i]);
-
-        if (part.length()) {
-            if (i != 0) {
-                part[0] = StringUtils::char_uppercase(part[0]);
-            }
-            if (p_input_is_upper) {
-                for (size_t j = i != 0 ? 1 : 0; j < part.length(); j++)
-                    part[j] = StringUtils::char_lowercase(part[j]);
-            }
-            ret += part;
-        } else {
-            if (i == 0 || i == (parts.size() - 1)) {
-                // Preserve underscores at the beginning and end
-                ret += "_";
-            } else {
-                // Preserve contiguous underscores
-                if (parts[i - 1].length()) {
-                    ret += "__";
-                } else {
-                    ret += "_";
-                }
-            }
-        }
-    }
-
-    return ret;
-}
 
 String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface *p_itype,DocData *doc) {
 
@@ -1553,13 +809,14 @@ void BindingsGenerator::_apply_prefix_to_enum_constants(EnumInterface &p_ienum, 
 static void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) {
     p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
 }
-
-void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
-
-    for (const MethodInterface &imethod : p_itype.methods) {
+#endif
+void BindingsGenerator::_generate_method_icalls(const TypeInterface& p_itype) {
+    for (const MethodInterface& imethod : p_itype.methods) {
 
         if (imethod.is_virtual)
             continue;
+#if 0
+
         FixedVector<StringName,16,true> unique_parts;
         String method_signature(p_itype.cname);
         method_signature+="_"+imethod.cname+"_";
@@ -1610,21 +867,24 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface &p_itype) {
         icall_method += method_signature;
         if(p_itype.cname=="Object" && imethod.cname=="free")
             continue;
+
         InternalCall im_icall = InternalCall(p_itype.api_type, icall_method, im_type_out, im_sig, im_unique_sig);
 
         auto iter_match = method_icalls.find(im_icall.unique_sig);
 
-        if (iter_match!=method_icalls.end()) {
-            if (p_itype.api_type != ClassDB::API_EDITOR)
+        if (iter_match != method_icalls.end()) {
+            if (p_itype.api_type != APIType::Editor)
                 iter_match->second.editor_only = false;
             method_icalls_map.emplace(&imethod, &iter_match->second);
-        } else {
-            auto loc=method_icalls.emplace(im_icall.unique_sig,im_icall);
+        }
+        else {
+            auto loc = method_icalls.emplace(im_icall.unique_sig, im_icall);
             method_icalls_map.emplace(&imethod, &loc.first->second);
         }
+#endif
     }
 }
-
+#if 0
 void BindingsGenerator::_generate_global_constants(StringBuilder &p_output,DocData *doc) {
 
     // Constants (in partial GD class)
@@ -4120,101 +3380,7 @@ static bool allUpperCase(StringView s) {
     }
     return true;
 }
-void BindingsGenerator::_populate_global_constants() {
 
-    int global_constants_count = GlobalConstants::get_global_constant_count();
-
-    auto synth_global_iter = ClassDB::classes.find("@");
-    if(synth_global_iter!=ClassDB::classes.end()) {
-        for(const auto &e : synth_global_iter->second.enum_map) {
-            EnumInterface ienum(StringName(String(e.first).replaced("::",".")));
-            for(const auto &valname : e.second) {
-                ConstantInterface iconstant;
-                int constant_value = synth_global_iter->second.constant_map[valname];
-                if(allUpperCase(valname))
-                    iconstant= ConstantInterface(valname.asCString(), snake_to_pascal_case(valname, true), constant_value);
-                else
-                    iconstant = ConstantInterface(valname.asCString(), valname.asCString(), constant_value);
-                ienum.constants.emplace_back(eastl::move(iconstant));
-            }
-            rd.global_enums.emplace_back(eastl::move(ienum));
-        }
-    }
-    if (global_constants_count > 0) {
-        HashMap<StringName, DocData::ClassDoc>::iterator match = rd.doc->class_list.find("@GlobalScope");
-
-        CRASH_COND_MSG(match==rd.doc->class_list.end(), "Could not find '@GlobalScope' in DocData.");
-
-        const DocData::ClassDoc &global_scope_doc = match->second;
-
-        for (int i = 0; i < global_constants_count; i++) {
-
-            String constant_name = GlobalConstants::get_global_constant_name(i);
-
-            int constant_value = GlobalConstants::get_global_constant_value(i);
-            StringName enum_name = GlobalConstants::get_global_constant_enum(i);
-            ConstantInterface iconstant;
-            if(allUpperCase(constant_name))
-                iconstant= ConstantInterface(constant_name, snake_to_pascal_case(constant_name, true), constant_value);
-            else
-                iconstant = ConstantInterface(constant_name, constant_name, constant_value);
-
-            if (enum_name.empty()) {
-                rd.global_constants.push_back(iconstant);
-            } else {
-                EnumInterface ienum(StringName(String(enum_name).replaced("::",".")));
-                auto enum_match = rd.global_enums.find(ienum);
-                if (enum_match!= rd.global_enums.end()) {
-                    enum_match->constants.push_back(iconstant);
-                } else {
-                    ienum.constants.push_back(iconstant);
-                    rd.global_enums.push_back(ienum);
-                }
-            }
-        }
-
-        for (EnumInterface &ienum : rd.global_enums) {
-
-            TypeInterface enum_itype;
-            enum_itype.is_enum = true;
-            enum_itype.name = ienum.cname;
-            enum_itype.cname = ienum.cname;
-            enum_itype.proxy_name = StringName(enum_itype.name);
-            TypeInterface::postsetup_enum_type(enum_itype);
-
-            rd.enum_types.emplace(enum_itype.cname, enum_itype);
-
-            int prefix_length = _determine_enum_prefix(ienum);
-
-            // HARDCODED: The Error enum have the prefix 'ERR_' for everything except 'OK' and 'FAILED'.
-            if (ienum.cname == name_cache->enum_Error) {
-                if (prefix_length > 0) { // Just in case it ever changes
-                    ERR_PRINT("Prefix for enum 'Error' is not empty.");
-                }
-
-                prefix_length = 1; // 'ERR_'
-            }
-
-            _apply_prefix_to_enum_constants(ienum, prefix_length);
-        }
-    }
-
-    // HARDCODED
-    Vector<StringName> hardcoded_enums;
-    hardcoded_enums.push_back("Vector3.Axis");
-    for (const StringName &E : hardcoded_enums) {
-        // These enums are not generated and must be written manually (e.g.: Vector3.Axis)
-        // Here, we assume core types do not begin with underscore
-        TypeInterface enum_itype;
-        enum_itype.is_enum = true;
-        enum_itype.name = E;
-        enum_itype.cname = E;
-        enum_itype.proxy_name = E;
-        TypeInterface::postsetup_enum_type(enum_itype);
-        assert(!StringView(enum_itype.cname).contains("::"));
-        rd.enum_types.emplace(enum_itype.cname, enum_itype);
-    }
-}
 
 void BindingsGenerator::_initialize_blacklisted_methods() {
 
@@ -4351,7 +3517,147 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
 }
 
 #endif
+bool is_csharp_keyword(StringView p_name) {
+    using namespace eastl;
+    static vector_set<StringView, eastl::less<StringView>, EASTLAllocatorType, eastl::fixed_vector<StringView, 79, false>>
+        keywords;
+    static bool initialized = false;
+    if (!initialized) {
+        constexpr const char* kwords[] = {
+            "abstract" ,"as" ,"base" ,"bool" ,
+            "break" ,"byte" ,"case" ,"catch" ,
+            "char" ,"checked" ,"class" ,"const" ,
+            "continue" ,"decimal" ,"default" ,"delegate" ,
+            "do" ,"double" ,"else" ,"enum" ,
+            "event" ,"explicit" ,"extern" ,"false" ,
+            "finally" ,"fixed" ,"float" ,"for" ,
+            "forech" ,"goto" ,"if" ,"implicit" ,
+            "in" ,"int" ,"interface" ,"internal" ,
+            "is" ,"lock" ,"long" ,"namespace" ,
+            "new" ,"null" ,"object" ,"operator" ,
+            "out" ,"override" ,"params" ,"private" ,
+            "protected" ,"public" ,"readonly" ,"ref" ,
+            "return" ,"sbyte" ,"sealed" ,"short" ,
+            "sizeof" ,"stackalloc" ,"static" ,"string" ,
+            "struct" ,"switch" ,"this" ,"throw" ,
+            "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
+            "unchecked" ,"unsafe" ,"ushort" ,"using" ,
+            "virtual" ,"volatile" ,"void" ,"while"
+        };
+        for (const char* c : kwords)
+            keywords.emplace(c);
+        initialized = true;
+    }
+    // Reserved keywords
+    return keywords.contains(p_name);
+}
+
+String escape_csharp_keyword(StringView p_name) {
+    return is_csharp_keyword(p_name) ? String("@") + p_name : String(p_name);
+}
+
+// ENUM FIELD NAME CONVERSION snake_to_pascal_case(constant_name, true),
+
+struct CSTypeMapper : BindingTypeMapper {
+
+    String mapIntTypeName(IntTypes);
+    String mapFloatTypeName(FloatTypes);
+    String mapClassName(StringView class_name, StringView namespace_name = {}) {
+        
+    }
+    String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
+        String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
+        String mapped_class_name = mapClassName(class_name,namespace_name);
+        // Prevent the property and its enclosing type from sharing the same name
+        if (conv_name == mapped_class_name) {
+            qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
+                conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
+
+            conv_name += "_";
+        }
+        return conv_name;
+    }
+    String mapArgumentName(StringView src_name) {
+        return escape_csharp_keyword(snake_to_camel_case(src_name));
+    }
+    bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
+        
+    }
+    String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
+        String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
+        String mapped_class_name = mapClassName(class_name, namespace_name);
+
+        // Prevent the method and its enclosing type from sharing the same name
+        if ((!class_name.empty() && proxy_name == mapped_class_name) || (!namespace_name.empty() && proxy_name==namespace_name)) {
+            qWarning("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
+                proxy_name.c_str(), mapped_class_name.c_str(), String(method_name).c_str());
+
+            proxy_name += "_";
+        }
+        return proxy_name;
+    }
+};
+
+struct CSReflectionVisitor : public ReflectionDataVisitor {
+
+    void visitGlobalConstant(const ConstantInterface *) {
+        assert(false);
+    }
+    /*
+     *                //if (allUpperCase(valname))
+                //    iconstant = ConstantInterface(valname.asCString(), snake_to_pascal_case(valname, true), constant_value);
+                //else
+                //    iconstant = ConstantInterface(valname.asCString(), valname.asCString(), constant_value);
+
+     *
+     */
+    void visitGlobalEnum(const EnumInterface *) {
+        assert(false);
+    }
+    /*
+     EnumInterface ienum(StringName(String(enum_name).replaced("::", ".")));
+                auto enum_match = rd.global_enums.find(ienum);
+                if (enum_match != rd.global_enums.end()) {
+                    enum_match->constants.push_back(iconstant);
+                }
+                else {
+                    ienum.constants.push_back(iconstant);
+                    rd.global_enums.push_back(ienum);
+                }
+
+     */
+    void visitGlobalFunction(const MethodInterface *) {
+        assert(false);
+    }
+    void visitNamespace(StringView) {
+        assert(false);
+    }
+    void visitType(const TypeInterface *) {
+        assert(false);
+    }
+    void visitTypeConstant(const ConstantInterface *) {
+        assert(false);
+    }
+    void visitTypeEnum(const EnumInterface *) {
+        //int prefix_length = _determine_enum_prefix(ienum);
+
+        //_apply_prefix_to_enum_constants(ienum, prefix_length);
+        assert(false);
+    }
+    void visitTypeProperty(const PropertyInterface *) {
+        assert(false);
+    }
+    void visitTypeMethod(const PropertyInterface *) {
+        assert(false);
+    }
+};
 
 int main(int argc,char **argv) {
+    QCoreApplication app(argc,argv);
+    ReflectionData rd;
+    CSReflectionVisitor cs_builder;
+    rd.load_from_file("test.json");
+    rd.visit(&cs_builder);
+    //BindingsGenerator gen;
     return 0;
 }

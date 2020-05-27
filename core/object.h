@@ -88,7 +88,11 @@ private:
 #define VARIANT_ARGPTRS const Variant *argptr[5] = { &p_arg1, &p_arg2, &p_arg3, &p_arg4, &p_arg5 };
 #define VARIANT_ARGPTRS_PASS *argptr[0], *argptr[1], *argptr[2], *argptr[3], *argptr[4]
 #define VARIANT_ARGS_FROM_ARRAY(m_arr) m_arr[0], m_arr[1], m_arr[2], m_arr[3], m_arr[4]
-
+/**
+ * \note Property names have syntax.
+ * name/other_string defines a grouped property
+ * name/number/field_name defines an array property at index 'number' to have a field_name
+ */
 #define ADD_SIGNAL(m_signal) ClassDB::add_signal(get_class_static_name(), eastl::move(m_signal))
 #define ADD_PROPERTY(m_property, m_setter, m_getter) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter)
 #define ADD_PROPERTYI(m_property, m_setter, m_getter, m_index) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter, m_index)

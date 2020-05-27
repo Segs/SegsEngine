@@ -169,74 +169,72 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
     const auto element(parser.name().mid(0,parser.name().size()-1));
 
     while (!parser.atEnd()) {
+        auto tt = parser.readNext();
+        if (tt == QXmlStreamReader::EndElement && parser.name() == section)
+            break;
+        if (tt != QXmlStreamReader::StartElement) {
+            continue;
+        }
+        if (parser.name() != element) {
+            qCritical().noquote() << "Invalid tag in doc file: " << parser.name() + ".";
+            return ERR_FILE_CORRUPT;
+        }
+        // In tag 'method' now.
+        DocContents::MethodDoc method;
+        const auto &attrs(parser.attributes());
+        if (!attrs.hasAttribute("name")) {
+            qCritical("missing 'name' attribute");
+            return ERR_FILE_CORRUPT;
+        }
+        method.name = attrs.value("name").toString();
+        if (attrs.hasAttribute("qualifiers"))
+            method.qualifiers = attrs.value("qualifiers").toString();
 
-        if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
-            if (parser.name() == element) {
-
-                DocContents::MethodDoc method;
-                const auto &attrs(parser.attributes());
-                if(!attrs.hasAttribute("name")) {
-                    qCritical("missing 'name' attribute");
-                    return ERR_FILE_CORRUPT;
-                }
-                method.name = attrs.value("name").toString();
-                if (attrs.hasAttribute("qualifiers"))
-                    method.qualifiers = attrs.value("qualifiers").toString();
-
-                while (!parser.atEnd()) {
-
-                    if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
-                        const auto & name(parser.name());
-                        const auto &attrs(parser.attributes());
-                        if (name == "return") {
-
-                            if(!attrs.hasAttribute("type")) {
-                                qCritical("missing 'type' attribute");
-                                return ERR_FILE_CORRUPT;
-                            }
-
-                            method.return_type = attrs.value("type").toString();
-                            if (attrs.hasAttribute("enum")) {
-                                method.return_enum = attrs.value("enum").toString();
-                            }
-                        } else if (name == "argument") {
-
-                            DocContents::ArgumentDoc argument;
-                            if(!attrs.hasAttribute("name") || !attrs.hasAttribute("type")) {
-                                qCritical("missing 'name' or 'type' attribute");
-                                return ERR_FILE_CORRUPT;
-                            }
-
-                            argument.name = attrs.value("name").toString();
-                            argument.type = attrs.value("type").toString();
-                            if (attrs.hasAttribute("enum")) {
-                                argument.enumeration = attrs.value("enum").toString();
-                            }
-
-                            method.arguments.push_back(argument);
-
-                        } else if (name == "description") {
-                            if (parser.readNext() == QXmlStreamReader::Characters)
-                                method.description = parser.text().toString();
-                        }
-
-                    } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == element)
-                        break;
-                }
-
-                methods.push_back(method);
-
-            } else {
-                qCritical().noquote()<<"Invalid tag in doc file: " << parser.name() + ".";
-                return ERR_FILE_CORRUPT;
+        while (!parser.atEnd() && !parser.hasError()) {
+            parser.readNext();
+            if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == element)
+                break;
+            if (parser.tokenType() != QXmlStreamReader::StartElement) {
+                continue;
             }
 
-        } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == section)
-            break;
-    }
+            const auto &name(parser.name());
+            const auto &attrs(parser.attributes());
+            if (name == "return") {
 
+                if (!attrs.hasAttribute("type")) {
+                    qCritical("missing 'type' attribute");
+                    return ERR_FILE_CORRUPT;
+                }
+
+                method.return_type = attrs.value("type").toString();
+                if (attrs.hasAttribute("enum")) {
+                    method.return_enum = attrs.value("enum").toString();
+                }
+            } else if (name == "argument") {
+
+                DocContents::ArgumentDoc argument;
+                if (!attrs.hasAttribute("name") || !attrs.hasAttribute("type")) {
+                    qCritical("missing 'name' or 'type' attribute");
+                    return ERR_FILE_CORRUPT;
+                }
+
+                argument.name = attrs.value("name").toString();
+                argument.type = attrs.value("type").toString();
+                if (attrs.hasAttribute("enum")) {
+                    argument.enumeration = attrs.value("enum").toString();
+                }
+
+                method.arguments.push_back(argument);
+
+            } else if (name == "description") {
+                if (parser.readNext() == QXmlStreamReader::Characters)
+                    method.description = parser.text().toString();
+            }
+        }
+
+        methods.push_back(method);
+    }
     return OK;
 }
 
@@ -280,18 +278,26 @@ Error DocData::erase_classes(QByteArray p_dir, bool recursively) {
     return OK;
 }
 Error _load(QXmlStreamReader &parser,DocData &tgt) {
-
+    QString namespace_in_docs;
     while (!parser.atEnd()) {
 
         QXmlStreamReader::TokenType tt = parser.readNext();
-        if (tt == QXmlStreamReader::StartElement && parser.name() == "?xml") {
-            parser.skipCurrentElement();
+        if(tt == QXmlStreamReader::Invalid) {
+            qCritical() << "XML parsing problem" <<parser.errorString();
+            return ERR_FILE_CORRUPT;
         }
+
+        if(tt == QXmlStreamReader::StartDocument)
+            continue;;
 
         if (parser.tokenType() != QXmlStreamReader::StartElement)
             continue; //no idea what this may be, but skipping anyway
 
         const auto class_attrs(parser.attributes());
+        if(parser.name() == "namespace") {
+            tgt.namespace_name = qPrintable(class_attrs.value("name").toString());
+            continue;
+        }
         if(parser.name() != "class" || !class_attrs.hasAttribute("name")) {
             qCritical("Non-class first xml element or missing 'name' attribute");
             return ERR_FILE_CORRUPT;
@@ -314,12 +320,12 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                     parser.readNext();
                     if (parser.tokenType() == QXmlStreamReader::Characters)
-                        c.brief_description = parser.text().toString();
+                        c.brief_description = parser.text().trimmed().toString();
 
                 } else if (name2 == "description") {
                     parser.readNext();
                     if (parser.tokenType() == QXmlStreamReader::Characters)
-                        c.description = parser.text().toString();
+                        c.description = parser.text().trimmed().toString();
                 } else if (name2 == "tutorials") {
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
 
@@ -341,7 +347,6 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                             break; // End of <tutorials>.
                     }
                 } else if (name2 == "methods") {
-
                     Error err2 = _parse_methods(parser, c.methods);
                     ERR_FAIL_COND_V(err2, err2);
 
@@ -379,7 +384,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                         } else if (parser.tokenType() == QXmlStreamReader::Characters) {
                             if(in_item)
-                                c.properties.back().description = parser.text().toString();
+                                c.properties.back().description = parser.text().trimmed().toString();
 
                         } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
                             in_item  = false;
@@ -668,8 +673,13 @@ Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int
     data = uncompr_zip((const char *)p_data,p_compressed_size,p_uncompressed_size);
 
     class_list.clear();
-
-    QXmlStreamReader xml_reader(data);
+    // convert it to valid xml!
+    if(data.count("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")>1) {
+        data.replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>","");
+        data.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><namespace name=\""+QByteArray::fromRawData(namespace_name.data(), namespace_name.size())+"\">");
+        data.append("</namespace>");
+    }
+    QXmlStreamReader xml_reader(QString::fromUtf8(data));
 
     _load(xml_reader,*this);
 

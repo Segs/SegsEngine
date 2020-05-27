@@ -33,11 +33,14 @@
 //#include "core/class_db.h"
 //#include "core/string_builder.h"
 //#include "editor/doc/doc_data.h"
-//#include "core/map.h"
-
-#if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
+#include "core/doc_support/doc_data.h"
+#include "core/map.h"
+#include "core/hash_map.h"
 
 #include "core/ustring.h"
+#include "core/string.h"
+#include "core/list.h"
+#include "core/reflection_support/reflection_data.h"
 
 struct GeneratorContext;
 struct TypeInterface;
@@ -45,7 +48,7 @@ struct ConstantInterface;
 struct EnumInterface;
 struct PropertyInterface;
 struct MethodInterface;
-
+struct StringBuilder;
 class BindingsGenerator {
     friend struct GeneratorContext;
 public:
@@ -66,12 +69,12 @@ public:
             unique_sig = p_unique_sig;
         }
 
-        InternalCall(ClassDB::APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
+        InternalCall(APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
             name = p_name;
             im_type_out = p_im_type_out;
             im_sig = p_im_sig;
             unique_sig = p_unique_sig;
-            editor_only = api_type == ClassDB::API_EDITOR;
+            editor_only = api_type == APIType::Editor;
         }
 
         bool operator==(const InternalCall &p_a) const {
@@ -85,12 +88,13 @@ public:
     HashMap<String,InternalCall> method_icalls;
     Map<const MethodInterface *, const InternalCall *> method_icalls_map;
 
-    List<const InternalCall *> generated_icall_funcs;
+    Vector<const InternalCall *> generated_icall_funcs;
 
 //    List<InternalCall> core_custom_icalls;
 //    List<InternalCall> editor_custom_icalls;
 
-    Map<StringName, List<StringName> > blacklisted_methods;
+    Map<String, List<String> > blacklisted_methods;
+
 
     void _initialize_blacklisted_methods();
 
@@ -142,15 +146,17 @@ public:
 
     static void handle_cmdline_args(const Vector<String> &p_cmdline_args);
 
-    BindingsGenerator() :
+
+    BindingsGenerator(DocData* docs) :
             log_print_enabled(true),
             initialized(false) {
-        _initialize();
+        _initialize(docs);
     }
 private:
-    Error generate_cs_type_docs(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
-    void generate_cs_type_doc_summary(const TypeInterface &itype, const DocData::ClassDoc *class_doc, StringBuilder &output);
+    Error generate_cs_type_docs(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
+    void generate_cs_type_doc_summary(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
 };
+
 
 struct GeneratorContext {
     String  m_cs_namespace; // namespace used by all generated bindings
@@ -162,7 +168,8 @@ struct GeneratorContext {
     // Engine/module internal api hash
     uint64_t api_hash;
 
-    List<BindingsGenerator::InternalCall> custom_icalls;
+    Vector<BindingsGenerator::InternalCall> custom_icalls;
 
 };
-#endif
+
+

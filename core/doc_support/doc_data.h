@@ -106,7 +106,7 @@ public:
 
 
     String version;
-
+    String namespace_name;
     QHash<QString, DocContents::ClassDoc> class_list;
     const DocContents::ClassDoc &class_doc(StringName sn) {
         return class_list[sn.asCString()];

@@ -2173,8 +2173,8 @@ void AnimatedTexture::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
 
     for (int i = 0; i < MAX_FRAMES; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("frame_" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame/" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("frame/" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
     }
 
     BIND_CONSTANT(MAX_FRAMES);

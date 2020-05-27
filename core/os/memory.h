@@ -55,7 +55,7 @@ public:
     static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
     static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
 };
-class GODOT_EXPORT wrap_allocator
+class wrap_allocator
 {
 public:
     constexpr explicit wrap_allocator(const char* /*pName*/ = "") noexcept {}
