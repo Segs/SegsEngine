@@ -42,6 +42,7 @@
 #include <QByteArray>
 
 class QJsonObject;
+
 enum class APIType {
     None,
     Core,
@@ -95,8 +96,8 @@ struct PropertyInterface {
     QString cname;
     int max_property_index; // -1 for plain properties, -2 for indexed properties, >0 for arrays of multiple properties it's the maximum number.
     struct TypedEntry {
-        QString subfield_name; 
-        TypeReference entry_type; 
+        QString subfield_name;
+        TypeReference entry_type;
         int index;
         QString setter;
         QString getter;
@@ -391,13 +392,13 @@ struct NamespaceInterface {
 
     HashMap<QString, TypeInterface> obj_types;
     Vector<QString> obj_type_insert_order;
+    Vector<EnumInterface> global_enums;
+    Vector<ConstantInterface> global_constants;
 
     Map<QString, TypeInterface> placeholder_types;
     Map<QString, TypeInterface> builtin_types;
     Map<QString, TypeInterface> enum_types;
 
-    Vector<EnumInterface> global_enums;
-    Vector<ConstantInterface> global_constants;
 
 
     const TypeInterface* _get_type_or_null(const TypeReference& p_typeref);
@@ -405,19 +406,6 @@ struct NamespaceInterface {
 
     void toJson(QJsonObject& obj) const;
     void fromJson(const QJsonObject& obj);
-
-};
-struct ReflectionDataVisitor {
-
-    virtual void visitNamespace(StringView) = 0;
-    virtual void visitGlobalConstant(const ConstantInterface*) = 0;
-    virtual void visitGlobalEnum(const EnumInterface*) = 0;
-    virtual void visitGlobalFunction(const MethodInterface*) = 0;
-    virtual void visitType(const TypeInterface*) = 0;
-    virtual void visitTypeConstant(const ConstantInterface*) = 0;
-    virtual void visitTypeEnum(const EnumInterface*) = 0;
-    virtual void visitTypeProperty(const PropertyInterface*) = 0;
-    virtual void visitTypeMethod(const PropertyInterface*) = 0;
 };
 struct ReflectionData {
     class DocData* doc;
@@ -450,9 +438,7 @@ struct ReflectionData {
     }
 
     const TypeInterface *_get_type_or_placeholder(const TypeReference &p_typeref);
-    void visit(ReflectionDataVisitor *);
+
     [[nodiscard]] bool load_from_file(StringView os_path);
     [[nodiscard]] bool save_to_file(StringView os_path);
 };
-
-

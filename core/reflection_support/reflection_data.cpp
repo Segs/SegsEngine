@@ -101,6 +101,7 @@ void ConstantInterface::fromJson(const QJsonObject& obj) {
     name = obj["name"].toString();
     value = obj["value"].toInt();
 }
+
 void EnumInterface::toJson(QJsonObject& obj) const {
     obj["cname"] = cname;
     ::toJson(obj, "constants", constants);
@@ -522,10 +523,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
         obj_types[type_iface.name] = eastl::move(type_iface);
     }
 
-}
-
-void ReflectionData::visit(ReflectionDataVisitor *visitor) {
-    assert(false);
 }
 
 bool ReflectionData::load_from_file(StringView os_path) {

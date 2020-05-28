@@ -40,6 +40,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
@@ -3598,9 +3599,13 @@ struct CSTypeMapper : BindingTypeMapper {
     }
 };
 
-struct CSReflectionVisitor : public ReflectionDataVisitor {
+struct CSReflectionVisitor  {
+    Vector<const NamespaceInterface *> m_namespace_stack;
+    const ReflectionData &m_reflection_data;
+    QDir m_current_directory;
+    CSReflectionVisitor(const ReflectionData &rd) : m_reflection_data(rd) {}
 
-    void visitGlobalConstant(const ConstantInterface *) {
+    void visitConstant(const ConstantInterface *) {
         assert(false);
     }
     /*
@@ -3611,7 +3616,7 @@ struct CSReflectionVisitor : public ReflectionDataVisitor {
 
      *
      */
-    void visitGlobalEnum(const EnumInterface *) {
+    void visitEnum(const EnumInterface *) {
         assert(false);
     }
     /*
@@ -3626,12 +3631,24 @@ struct CSReflectionVisitor : public ReflectionDataVisitor {
                 }
 
      */
-    void visitGlobalFunction(const MethodInterface *) {
+    void visitFunction(const MethodInterface *) {
         assert(false);
     }
-    void visitNamespace(StringView) {
-        assert(false);
+    void visitNamespace(const NamespaceInterface *iface) {
+        m_namespace_stack.push_back(iface);
+        for (const ConstantInterface& ci : iface->global_constants) {
+            visitConstant(&ci);
+        }
+        for (const EnumInterface& ci : iface->global_enums) {
+            visitEnum(&ci);
+        }
+        leaveNamespace();
     }
+    void leaveNamespace() {
+        m_current_directory.cdUp();
+        m_namespace_stack.pop_back();
+    }
+
     void visitType(const TypeInterface *) {
         assert(false);
     }
@@ -3652,12 +3669,19 @@ struct CSReflectionVisitor : public ReflectionDataVisitor {
     }
 };
 
+void processReflectionData(const ReflectionData &rd) {
+    CSReflectionVisitor cs_builder(rd);
+    for (const NamespaceInterface& iface : rd.namespaces) {
+        cs_builder.visitNamespace(&iface);
+    }
+
+}
+
 int main(int argc,char **argv) {
     QCoreApplication app(argc,argv);
     ReflectionData rd;
-    CSReflectionVisitor cs_builder;
     rd.load_from_file("test.json");
-    rd.visit(&cs_builder);
+    processReflectionData(rd);
     //BindingsGenerator gen;
     return 0;
 }
