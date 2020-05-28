@@ -30,6 +30,26 @@
 
 #include "bindings_generator.h"
 
+/**
+ * CSharp binding generator creates the following hierarchy:
+ *  Arguments:  godot.json TARGET_DIR
+ *  TARGET_DIR/Bindings/Godot/
+ *      cpp_gen/
+ *          CMakeLists.txt
+ *          godot_editor_cs_bindings.gen.cpp
+ *          godot_client_cs_bindings.gen.cpp
+ *          godot_server_cs_bindings.gen.cpp
+ *      cs_gen/
+ *          Namespace_1/
+ *              Namespace_2/
+ *                  Class_1a.cs
+ *              Class_1.cs
+ *          Godot_Editor.csproj
+ *          Godot_Client.csproj
+ *          Godot_Server.csproj
+ *          Godot.sln
+ * Note: it will overwrite existing files !
+ */
 
 #include "core/script_language.h"
 #include "core/string_formatter.h"
@@ -3598,12 +3618,24 @@ struct CSTypeMapper : BindingTypeMapper {
         return proxy_name;
     }
 };
-
+struct CppProducer {
+    QSet<QString> needed_headers;
+    void add_cmake();
+};
+struct CSProducer {
+    void createCSProj(const QString &file_path) {
+        
+    }
+};
 struct CSReflectionVisitor  {
+    CppProducer cpp_producer;
+    CSProducer cs_producer;
     Vector<const NamespaceInterface *> m_namespace_stack;
     const ReflectionData &m_reflection_data;
     QDir m_current_directory;
-    CSReflectionVisitor(const ReflectionData &rd) : m_reflection_data(rd) {}
+    QString m_target_dir;
+    
+    CSReflectionVisitor(const ReflectionData &rd,const QString &target_dir) : m_reflection_data(rd), m_target_dir(target_dir) {}
 
     void visitConstant(const ConstantInterface *) {
         assert(false);
@@ -3669,19 +3701,37 @@ struct CSReflectionVisitor  {
     }
 };
 
-void processReflectionData(const ReflectionData &rd) {
-    CSReflectionVisitor cs_builder(rd);
+bool processReflectionData(const ReflectionData &rd,const QString &target_dir) {
+    QFileInfo fi(target_dir);
+    if((fi.exists() && !fi.isDir()) || (fi.exists() && fi.isDir() && !fi.isWritable()) ) {
+        qCritical() << "Provided target path is not a writeable directory!"<<target_dir;
+        return false;
+    }
+    QDir current_dir = QDir::current();
+    QString aa=current_dir.absolutePath();
+    if(!current_dir.mkpath(target_dir))
+        return false;
+
+    CSReflectionVisitor cs_builder(rd, target_dir);
     for (const NamespaceInterface& iface : rd.namespaces) {
         cs_builder.visitNamespace(&iface);
     }
-
+    return true;
 }
 
 int main(int argc,char **argv) {
     QCoreApplication app(argc,argv);
+    if(qApp->arguments().size()<2) {
+        qCritical() << "Binding generator takes 2 arguments, a source_reflection_data.json and target path.";
+        return -1;
+    }
     ReflectionData rd;
-    rd.load_from_file("test.json");
-    processReflectionData(rd);
-    //BindingsGenerator gen;
+    if(!rd.load_from_file(qPrintable(qApp->arguments()[1]))) {
+        qCritical() << "Binding generator failed to load source reflection data:"<< qApp->arguments()[1];
+        return -1;
+
+    }
+    processReflectionData(rd,qApp->arguments()[2]);
+
     return 0;
 }
