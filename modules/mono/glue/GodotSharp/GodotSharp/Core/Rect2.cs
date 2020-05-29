@@ -1,10 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -33,7 +28,7 @@ namespace Godot
             set { _size = value - _position; }
         }
 
-        public real_t Area
+        public float Area
         {
             get { return GetArea(); }
         }
@@ -94,12 +89,12 @@ namespace Godot
             return expanded;
         }
 
-        public real_t GetArea()
+        public float GetArea()
         {
             return _size.x * _size.y;
         }
 
-        public Rect2 Grow(real_t by)
+        public Rect2 Grow(float by)
         {
             var g = this;
 
@@ -111,7 +106,7 @@ namespace Godot
             return g;
         }
 
-        public Rect2 GrowIndividual(real_t left, real_t top, real_t right, real_t bottom)
+        public Rect2 GrowIndividual(float left, float top, float right, float bottom)
         {
             var g = this;
 
@@ -123,7 +118,7 @@ namespace Godot
             return g;
         }
 
-        public Rect2 GrowMargin(Margin margin, real_t by)
+        public Rect2 GrowMargin(Margin margin, float by)
         {
             var g = this;
 
@@ -190,17 +185,17 @@ namespace Godot
             _position = position;
             _size = size;
         }
-        public Rect2(Vector2 position, real_t width, real_t height)
+        public Rect2(Vector2 position, float width, float height)
         {
             _position = position;
             _size = new Vector2(width, height);
         }
-        public Rect2(real_t x, real_t y, Vector2 size)
+        public Rect2(float x, float y, Vector2 size)
         {
             _position = new Vector2(x, y);
             _size = size;
         }
-        public Rect2(real_t x, real_t y, real_t width, real_t height)
+        public Rect2(float x, float y, float width, float height)
         {
             _position = new Vector2(x, y);
             _size = new Vector2(width, height);

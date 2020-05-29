@@ -1,10 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -64,7 +59,7 @@ namespace Godot
         /// </summary>
         /// <param name="column">Which column, the matrix horizontal position.</param>
         /// <param name="row">Which row, the matrix vertical position.</param>
-        public real_t this[int column, int row]
+        public float this[int column, int row]
         {
             get
             {
@@ -90,7 +85,7 @@ namespace Godot
             return new Transform(basisInv, basisInv.Xform(-origin));
         }
 
-        public Transform InterpolateWith(Transform transform, real_t c)
+        public Transform InterpolateWith(Transform transform, float c)
         {
             /* not sure if very "efficient" but good enough? */
 
@@ -127,7 +122,7 @@ namespace Godot
             return new Transform(basis.Orthonormalized(), origin);
         }
 
-        public Transform Rotated(Vector3 axis, real_t phi)
+        public Transform Rotated(Vector3 axis, float phi)
         {
             return new Transform(new Basis(axis, phi), new Vector3()) * this;
         }

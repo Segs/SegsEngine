@@ -6,11 +6,6 @@
 // commit: 5ad9be4c24e9d7dc5672fdc42cea896622fe5685
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -28,11 +23,11 @@ namespace Godot
             Z
         }
 
-        public real_t x;
-        public real_t y;
-        public real_t z;
+        public float x;
+        public float y;
+        public float z;
 
-        public real_t this[int index]
+        public float this[int index]
         {
             get
             {
@@ -69,7 +64,7 @@ namespace Godot
 
         internal void Normalize()
         {
-            real_t lengthsq = LengthSquared();
+            float lengthsq = LengthSquared();
 
             if (lengthsq == 0)
             {
@@ -77,7 +72,7 @@ namespace Godot
             }
             else
             {
-                real_t length = Mathf.Sqrt(lengthsq);
+                float length = Mathf.Sqrt(lengthsq);
                 x /= length;
                 y /= length;
                 z /= length;
@@ -89,7 +84,7 @@ namespace Godot
             return new Vector3(Mathf.Abs(x), Mathf.Abs(y), Mathf.Abs(z));
         }
 
-        public real_t AngleTo(Vector3 to)
+        public float AngleTo(Vector3 to)
         {
             return Mathf.Atan2(Cross(to).Length(), Dot(to));
         }
@@ -114,15 +109,15 @@ namespace Godot
             );
         }
 
-        public Vector3 CubicInterpolate(Vector3 b, Vector3 preA, Vector3 postB, real_t t)
+        public Vector3 CubicInterpolate(Vector3 b, Vector3 preA, Vector3 postB, float t)
         {
             var p0 = preA;
             var p1 = this;
             var p2 = b;
             var p3 = postB;
 
-            real_t t2 = t * t;
-            real_t t3 = t2 * t;
+            float t2 = t * t;
+            float t3 = t2 * t;
 
             return 0.5f * (
                         p1 * 2.0f + (-p0 + p2) * t +
@@ -136,17 +131,17 @@ namespace Godot
             return new Vector3(b.x - x, b.y - y, b.z - z).Normalized();
         }
 
-        public real_t DistanceSquaredTo(Vector3 b)
+        public float DistanceSquaredTo(Vector3 b)
         {
             return (b - this).LengthSquared();
         }
 
-        public real_t DistanceTo(Vector3 b)
+        public float DistanceTo(Vector3 b)
         {
             return (b - this).Length();
         }
 
-        public real_t Dot(Vector3 b)
+        public float Dot(Vector3 b)
         {
             return x * b.x + y * b.y + z * b.z;
         }
@@ -166,25 +161,25 @@ namespace Godot
             return Mathf.Abs(LengthSquared() - 1.0f) < Mathf.Epsilon;
         }
 
-        public real_t Length()
+        public float Length()
         {
-            real_t x2 = x * x;
-            real_t y2 = y * y;
-            real_t z2 = z * z;
+            float x2 = x * x;
+            float y2 = y * y;
+            float z2 = z * z;
 
             return Mathf.Sqrt(x2 + y2 + z2);
         }
 
-        public real_t LengthSquared()
+        public float LengthSquared()
         {
-            real_t x2 = x * x;
-            real_t y2 = y * y;
-            real_t z2 = z * z;
+            float x2 = x * x;
+            float y2 = y * y;
+            float z2 = z * z;
 
             return x2 + y2 + z2;
         }
 
-        public Vector3 LinearInterpolate(Vector3 b, real_t t)
+        public Vector3 LinearInterpolate(Vector3 b, float t)
         {
             return new Vector3
             (
@@ -194,7 +189,7 @@ namespace Godot
             );
         }
 
-        public Vector3 MoveToward(Vector3 to, real_t delta)
+        public Vector3 MoveToward(Vector3 to, float delta)
         {
             var v = this;
             var vd = to - v;
@@ -228,7 +223,7 @@ namespace Godot
             );
         }
 
-        public Vector3 PosMod(real_t mod)
+        public Vector3 PosMod(float mod)
         {
             Vector3 v;
             v.x = Mathf.PosMod(x, mod);
@@ -265,13 +260,13 @@ namespace Godot
             return new Vector3(Mathf.Round(x), Mathf.Round(y), Mathf.Round(z));
         }
 
-        public Vector3 Rotated(Vector3 axis, real_t phi)
+        public Vector3 Rotated(Vector3 axis, float phi)
         {
             return new Basis(axis, phi).Xform(this);
         }
 
-        [Obsolete("Set is deprecated. Use the Vector3(" + nameof(real_t) + ", " + nameof(real_t) + ", " + nameof(real_t) + ") constructor instead.", error: true)]
-        public void Set(real_t x, real_t y, real_t z)
+        [Obsolete("Set is deprecated. Use the Vector3(float , float, float) constructor instead.", error: true)]
+        public void Set(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
@@ -294,13 +289,13 @@ namespace Godot
             return v;
         }
 
-        public Vector3 Slerp(Vector3 b, real_t t)
+        public Vector3 Slerp(Vector3 b, float t)
         {
 #if DEBUG
             if (!IsNormalized())
                 throw new InvalidOperationException("Vector3 is not normalized");
 #endif
-            real_t theta = AngleTo(b);
+            float theta = AngleTo(b);
             return Rotated(Cross(b), theta * t);
         }
 
@@ -354,7 +349,7 @@ namespace Godot
         public static Vector3 Back { get { return _back; } }
 
         // Constructors
-        public Vector3(real_t x, real_t y, real_t z)
+        public Vector3(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
@@ -391,7 +386,7 @@ namespace Godot
             return vec;
         }
 
-        public static Vector3 operator *(Vector3 vec, real_t scale)
+        public static Vector3 operator *(Vector3 vec, float scale)
         {
             vec.x *= scale;
             vec.y *= scale;
@@ -399,7 +394,7 @@ namespace Godot
             return vec;
         }
 
-        public static Vector3 operator *(real_t scale, Vector3 vec)
+        public static Vector3 operator *(float scale, Vector3 vec)
         {
             vec.x *= scale;
             vec.y *= scale;
@@ -415,7 +410,7 @@ namespace Godot
             return left;
         }
 
-        public static Vector3 operator /(Vector3 vec, real_t scale)
+        public static Vector3 operator /(Vector3 vec, float scale)
         {
             vec.x /= scale;
             vec.y /= scale;
@@ -431,7 +426,7 @@ namespace Godot
             return left;
         }
 
-        public static Vector3 operator %(Vector3 vec, real_t divisor)
+        public static Vector3 operator %(Vector3 vec, float divisor)
         {
             vec.x %= divisor;
             vec.y %= divisor;

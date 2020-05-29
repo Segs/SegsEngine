@@ -6,11 +6,6 @@
 // commit: 5ad9be4c24e9d7dc5672fdc42cea896622fe5685
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -76,7 +71,7 @@ namespace Godot
             return new AABB(begin, end - begin);
         }
 
-        public real_t GetArea()
+        public float GetArea()
         {
             return _size.x * _size.y * _size.z;
         }
@@ -109,7 +104,7 @@ namespace Godot
         public Vector3 GetLongestAxis()
         {
             var axis = new Vector3(1f, 0f, 0f);
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y > max_size)
             {
@@ -128,7 +123,7 @@ namespace Godot
         public Vector3.Axis GetLongestAxisIndex()
         {
             var axis = Vector3.Axis.X;
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y > max_size)
             {
@@ -144,9 +139,9 @@ namespace Godot
             return axis;
         }
 
-        public real_t GetLongestAxisSize()
+        public float GetLongestAxisSize()
         {
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y > max_size)
                 max_size = _size.y;
@@ -160,7 +155,7 @@ namespace Godot
         public Vector3 GetShortestAxis()
         {
             var axis = new Vector3(1f, 0f, 0f);
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y < max_size)
             {
@@ -179,7 +174,7 @@ namespace Godot
         public Vector3.Axis GetShortestAxisIndex()
         {
             var axis = Vector3.Axis.X;
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y < max_size)
             {
@@ -195,9 +190,9 @@ namespace Godot
             return axis;
         }
 
-        public real_t GetShortestAxisSize()
+        public float GetShortestAxisSize()
         {
-            real_t max_size = _size.x;
+            float max_size = _size.x;
 
             if (_size.y < max_size)
                 max_size = _size.y;
@@ -219,7 +214,7 @@ namespace Godot
                 dir.z > 0f ? -half_extents.z : half_extents.z);
         }
 
-        public AABB Grow(real_t by)
+        public AABB Grow(float by)
         {
             var res = this;
 
@@ -345,23 +340,23 @@ namespace Godot
 
         public bool IntersectsSegment(Vector3 from, Vector3 to)
         {
-            real_t min = 0f;
-            real_t max = 1f;
+            float min = 0f;
+            float max = 1f;
 
             for (int i = 0; i < 3; i++)
             {
-                real_t segFrom = from[i];
-                real_t segTo = to[i];
-                real_t boxBegin = _position[i];
-                real_t boxEnd = boxBegin + _size[i];
-                real_t cmin, cmax;
+                float segFrom = from[i];
+                float segTo = to[i];
+                float boxBegin = _position[i];
+                float boxEnd = boxBegin + _size[i];
+                float cmin, cmax;
 
                 if (segFrom < segTo)
                 {
                     if (segFrom > boxEnd || segTo < boxBegin)
                         return false;
 
-                    real_t length = segTo - segFrom;
+                    float length = segTo - segFrom;
                     cmin = segFrom < boxBegin ? (boxBegin - segFrom) / length : 0f;
                     cmax = segTo > boxEnd ? (boxEnd - segFrom) / length : 1f;
                 }
@@ -370,7 +365,7 @@ namespace Godot
                     if (segTo > boxEnd || segFrom < boxBegin)
                         return false;
 
-                    real_t length = segTo - segFrom;
+                    float length = segTo - segFrom;
                     cmin = segFrom > boxEnd ? (boxEnd - segFrom) / length : 0f;
                     cmax = segTo < boxBegin ? (boxBegin - segFrom) / length : 1f;
                 }
@@ -417,17 +412,17 @@ namespace Godot
             _position = position;
             _size = size;
         }
-        public AABB(Vector3 position, real_t width, real_t height, real_t depth)
+        public AABB(Vector3 position, float width, float height, float depth)
         {
             _position = position;
             _size = new Vector3(width, height, depth);
         }
-        public AABB(real_t x, real_t y, real_t z, Vector3 size)
+        public AABB(float x, float y, float z, Vector3 size)
         {
             _position = new Vector3(x, y, z);
             _size = size;
         }
-        public AABB(real_t x, real_t y, real_t z, real_t width, real_t height, real_t depth)
+        public AABB(float x, float y, float z, float width, float height, float depth)
         {
             _position = new Vector3(x, y, z);
             _size = new Vector3(width, height, depth);

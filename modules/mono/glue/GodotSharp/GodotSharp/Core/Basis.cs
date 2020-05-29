@@ -1,10 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -83,7 +78,7 @@ namespace Godot
         {
             get
             {
-                real_t detSign = Mathf.Sign(Determinant());
+                float detSign = Mathf.Sign(Determinant());
                 return detSign * new Vector3
                 (
                     new Vector3(this.Row0[0], this.Row1[0], this.Row2[0]).Length(),
@@ -137,7 +132,7 @@ namespace Godot
         /// </summary>
         /// <param name="column">Which column, the matrix horizontal position.</param>
         /// <param name="row">Which row, the matrix vertical position.</param>
-        public real_t this[int column, int row]
+        public float this[int column, int row]
         {
             get
             {
@@ -154,7 +149,7 @@ namespace Godot
         internal Quat RotationQuat()
         {
             Basis orthonormalizedBasis = Orthonormalized();
-            real_t det = orthonormalizedBasis.Determinant();
+            float det = orthonormalizedBasis.Determinant();
             if (det < 0)
             {
                 // Ensure that the determinant is 1, such that result is a proper rotation matrix which can be represented by Euler angles.
@@ -182,11 +177,11 @@ namespace Godot
             Row2 = new Vector3(0, 0, diagonal.z);
         }
 
-        public real_t Determinant()
+        public float Determinant()
         {
-            real_t cofac00 = Row1[1] * Row2[2] - Row1[2] * Row2[1];
-            real_t cofac10 = Row1[2] * Row2[0] - Row1[0] * Row2[2];
-            real_t cofac20 = Row1[0] * Row2[1] - Row1[1] * Row2[0];
+            float cofac00 = Row1[1] * Row2[2] - Row1[2] * Row2[1];
+            float cofac10 = Row1[2] * Row2[0] - Row1[0] * Row2[2];
+            float cofac20 = Row1[0] * Row2[1] - Row1[1] * Row2[0];
 
             return Row0[0] * cofac00 + Row0[1] * cofac10 + Row0[2] * cofac20;
         }
@@ -198,7 +193,7 @@ namespace Godot
             Vector3 euler;
             euler.z = 0.0f;
 
-            real_t mzy = m.Row1[2];
+            float mzy = m.Row1[2];
 
             if (mzy < 1.0f)
             {
@@ -282,7 +277,7 @@ namespace Godot
                 {
                     var row = orth.GetRow(i);
 
-                    real_t v = row[j];
+                    float v = row[j];
 
                     if (v > 0.5f)
                         v = 1.0f;
@@ -308,23 +303,23 @@ namespace Godot
 
         public Basis Inverse()
         {
-            real_t cofac00 = Row1[1] * Row2[2] - Row1[2] * Row2[1];
-            real_t cofac10 = Row1[2] * Row2[0] - Row1[0] * Row2[2];
-            real_t cofac20 = Row1[0] * Row2[1] - Row1[1] * Row2[0];
+            float cofac00 = Row1[1] * Row2[2] - Row1[2] * Row2[1];
+            float cofac10 = Row1[2] * Row2[0] - Row1[0] * Row2[2];
+            float cofac20 = Row1[0] * Row2[1] - Row1[1] * Row2[0];
 
-            real_t det = Row0[0] * cofac00 + Row0[1] * cofac10 + Row0[2] * cofac20;
+            float det = Row0[0] * cofac00 + Row0[1] * cofac10 + Row0[2] * cofac20;
 
             if (det == 0)
                 throw new InvalidOperationException("Matrix determinant is zero and cannot be inverted.");
 
-            real_t detInv = 1.0f / det;
+            float detInv = 1.0f / det;
 
-            real_t cofac01 = Row0[2] * Row2[1] - Row0[1] * Row2[2];
-            real_t cofac02 = Row0[1] * Row1[2] - Row0[2] * Row1[1];
-            real_t cofac11 = Row0[0] * Row2[2] - Row0[2] * Row2[0];
-            real_t cofac12 = Row0[2] * Row1[0] - Row0[0] * Row1[2];
-            real_t cofac21 = Row0[1] * Row2[0] - Row0[0] * Row2[1];
-            real_t cofac22 = Row0[0] * Row1[1] - Row0[1] * Row1[0];
+            float cofac01 = Row0[2] * Row2[1] - Row0[1] * Row2[2];
+            float cofac02 = Row0[1] * Row1[2] - Row0[2] * Row1[1];
+            float cofac11 = Row0[0] * Row2[2] - Row0[2] * Row2[0];
+            float cofac12 = Row0[2] * Row1[0] - Row0[0] * Row1[2];
+            float cofac21 = Row0[1] * Row2[0] - Row0[0] * Row2[1];
+            float cofac22 = Row0[0] * Row1[1] - Row0[1] * Row1[0];
 
             return new Basis
             (
@@ -349,7 +344,7 @@ namespace Godot
             return new Basis(column0, column1, column2);
         }
 
-        public Basis Rotated(Vector3 axis, real_t phi)
+        public Basis Rotated(Vector3 axis, float phi)
         {
             return new Basis(axis, phi) * this;
         }
@@ -363,7 +358,7 @@ namespace Godot
             return b;
         }
 
-        public Basis Slerp(Basis target, real_t t)
+        public Basis Slerp(Basis target, float t)
         {
             var from = new Quat(this);
             var to = new Quat(target);
@@ -376,17 +371,17 @@ namespace Godot
             return b;
         }
 
-        public real_t Tdotx(Vector3 with)
+        public float Tdotx(Vector3 with)
         {
             return this.Row0[0] * with[0] + this.Row1[0] * with[1] + this.Row2[0] * with[2];
         }
 
-        public real_t Tdoty(Vector3 with)
+        public float Tdoty(Vector3 with)
         {
             return this.Row0[1] * with[0] + this.Row1[1] * with[1] + this.Row2[1] * with[2];
         }
 
-        public real_t Tdotz(Vector3 with)
+        public float Tdotz(Vector3 with)
         {
             return this.Row0[2] * with[0] + this.Row1[2] * with[1] + this.Row2[2] * with[2];
         }
@@ -395,7 +390,7 @@ namespace Godot
         {
             var tr = this;
 
-            real_t temp = tr.Row0[1];
+            float temp = tr.Row0[1];
             tr.Row0[1] = tr.Row1[0];
             tr.Row1[0] = temp;
 
@@ -432,12 +427,12 @@ namespace Godot
 
         public Quat Quat()
         {
-            real_t trace = Row0[0] + Row1[1] + Row2[2];
+            float trace = Row0[0] + Row1[1] + Row2[2];
 
             if (trace > 0.0f)
             {
-                real_t s = Mathf.Sqrt(trace + 1.0f) * 2f;
-                real_t inv_s = 1f / s;
+                float s = Mathf.Sqrt(trace + 1.0f) * 2f;
+                float inv_s = 1f / s;
                 return new Quat(
                     (Row2[1] - Row1[2]) * inv_s,
                     (Row0[2] - Row2[0]) * inv_s,
@@ -448,8 +443,8 @@ namespace Godot
 
             if (Row0[0] > Row1[1] && Row0[0] > Row2[2])
             {
-                real_t s = Mathf.Sqrt(Row0[0] - Row1[1] - Row2[2] + 1.0f) * 2f;
-                real_t inv_s = 1f / s;
+                float s = Mathf.Sqrt(Row0[0] - Row1[1] - Row2[2] + 1.0f) * 2f;
+                float inv_s = 1f / s;
                 return new Quat(
                     s * 0.25f,
                     (Row0[1] + Row1[0]) * inv_s,
@@ -460,8 +455,8 @@ namespace Godot
 
             if (Row1[1] > Row2[2])
             {
-                real_t s = Mathf.Sqrt(-Row0[0] + Row1[1] - Row2[2] + 1.0f) * 2f;
-                real_t inv_s = 1f / s;
+                float s = Mathf.Sqrt(-Row0[0] + Row1[1] - Row2[2] + 1.0f) * 2f;
+                float inv_s = 1f / s;
                 return new Quat(
                     (Row0[1] + Row1[0]) * inv_s,
                     s * 0.25f,
@@ -471,8 +466,8 @@ namespace Godot
             }
             else
             {
-                real_t s = Mathf.Sqrt(-Row0[0] - Row1[1] + Row2[2] + 1.0f) * 2f;
-                real_t inv_s = 1f / s;
+                float s = Mathf.Sqrt(-Row0[0] - Row1[1] + Row2[2] + 1.0f) * 2f;
+                float inv_s = 1f / s;
                 return new Quat(
                     (Row0[2] + Row2[0]) * inv_s,
                     (Row1[2] + Row2[1]) * inv_s,
@@ -521,20 +516,20 @@ namespace Godot
 
         public Basis(Quat quat)
         {
-            real_t s = 2.0f / quat.LengthSquared;
+            float s = 2.0f / quat.LengthSquared;
 
-            real_t xs = quat.x * s;
-            real_t ys = quat.y * s;
-            real_t zs = quat.z * s;
-            real_t wx = quat.w * xs;
-            real_t wy = quat.w * ys;
-            real_t wz = quat.w * zs;
-            real_t xx = quat.x * xs;
-            real_t xy = quat.x * ys;
-            real_t xz = quat.x * zs;
-            real_t yy = quat.y * ys;
-            real_t yz = quat.y * zs;
-            real_t zz = quat.z * zs;
+            float xs = quat.x * s;
+            float ys = quat.y * s;
+            float zs = quat.z * s;
+            float wx = quat.w * xs;
+            float wy = quat.w * ys;
+            float wz = quat.w * zs;
+            float xx = quat.x * xs;
+            float xy = quat.x * ys;
+            float xz = quat.x * zs;
+            float yy = quat.y * ys;
+            float yz = quat.y * zs;
+            float zz = quat.z * zs;
 
             Row0 = new Vector3(1.0f - (yy + zz), xy - wz, xz + wy);
             Row1 = new Vector3(xy + wz, 1.0f - (xx + zz), yz - wx);
@@ -543,8 +538,8 @@ namespace Godot
 
         public Basis(Vector3 euler)
         {
-            real_t c;
-            real_t s;
+            float c;
+            float s;
 
             c = Mathf.Cos(euler.x);
             s = Mathf.Sin(euler.x);
@@ -561,19 +556,19 @@ namespace Godot
             this = ymat * xmat * zmat;
         }
 
-        public Basis(Vector3 axis, real_t phi)
+        public Basis(Vector3 axis, float phi)
         {
             Vector3 axisSq = new Vector3(axis.x * axis.x, axis.y * axis.y, axis.z * axis.z);
-            real_t cosine = Mathf.Cos(phi);
+            float cosine = Mathf.Cos(phi);
             Row0.x = axisSq.x + cosine * (1.0f - axisSq.x);
             Row1.y = axisSq.y + cosine * (1.0f - axisSq.y);
             Row2.z = axisSq.z + cosine * (1.0f - axisSq.z);
 
-            real_t sine = Mathf.Sin(phi);
-            real_t t = 1.0f - cosine;
+            float sine = Mathf.Sin(phi);
+            float t = 1.0f - cosine;
 
-            real_t xyzt = axis.x * axis.y * t;
-            real_t zyxs = axis.z * sine;
+            float xyzt = axis.x * axis.y * t;
+            float zyxs = axis.z * sine;
             Row0.y = xyzt - zyxs;
             Row1.x = xyzt + zyxs;
 
@@ -601,7 +596,7 @@ namespace Godot
         }
 
         // Arguments are named such that xy is equal to calling x.y
-        internal Basis(real_t xx, real_t yx, real_t zx, real_t xy, real_t yy, real_t zy, real_t xz, real_t yz, real_t zz)
+        internal Basis(float xx, float yx, float zx, float xy, float yy, float zy, float xz, float yz, float zz)
         {
             Row0 = new Vector3(xx, yx, zx);
             Row1 = new Vector3(xy, yy, zy);

@@ -1,10 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -16,11 +11,11 @@ namespace Godot
         public Vector2 y;
         public Vector2 origin;
 
-        public real_t Rotation
+        public float Rotation
         {
             get
             {
-                real_t det = BasisDeterminant();
+                float det = BasisDeterminant();
                 Transform2D t = Orthonormalized();
                 if (det < 0)
                 {
@@ -42,7 +37,7 @@ namespace Godot
         {
             get
             {
-                real_t detSign = Mathf.Sign(BasisDeterminant());
+                float detSign = Mathf.Sign(BasisDeterminant());
                 return new Vector2(x.Length(), detSign * y.Length());
             }
             set
@@ -98,7 +93,7 @@ namespace Godot
         /// </summary>
         /// <param name="column">Which column, the matrix horizontal position.</param>
         /// <param name="row">Which row, the matrix vertical position.</param>
-        public real_t this[int column, int row]
+        public float this[int column, int row]
         {
             get
             {
@@ -114,18 +109,18 @@ namespace Godot
 
         public Transform2D AffineInverse()
         {
-            real_t det = BasisDeterminant();
+            float det = BasisDeterminant();
 
             if (det == 0)
                 throw new InvalidOperationException("Matrix determinant is zero and cannot be inverted.");
 
             var inv = this;
 
-            real_t temp = inv[0, 0];
+            float temp = inv[0, 0];
             inv[0, 0] = inv[1, 1];
             inv[1, 1] = temp;
 
-            real_t detInv = 1.0f / det;
+            float detInv = 1.0f / det;
 
             inv[0] *= new Vector2(detInv, -detInv);
             inv[1] *= new Vector2(-detInv, detInv);
@@ -135,7 +130,7 @@ namespace Godot
             return inv;
         }
 
-        private real_t BasisDeterminant()
+        private float BasisDeterminant()
         {
             return x.x * y.y - x.y * y.x;
         }
@@ -150,10 +145,10 @@ namespace Godot
             return new Vector2(x.Dot(v), y.Dot(v));
         }
 
-        public Transform2D InterpolateWith(Transform2D m, real_t c)
+        public Transform2D InterpolateWith(Transform2D m, float c)
         {
-            real_t r1 = Rotation;
-            real_t r2 = m.Rotation;
+            float r1 = Rotation;
+            float r2 = m.Rotation;
 
             Vector2 s1 = Scale;
             Vector2 s2 = m.Scale;
@@ -162,7 +157,7 @@ namespace Godot
             var v1 = new Vector2(Mathf.Cos(r1), Mathf.Sin(r1));
             var v2 = new Vector2(Mathf.Cos(r2), Mathf.Sin(r2));
 
-            real_t dot = v1.Dot(v2);
+            float dot = v1.Dot(v2);
 
             // Clamp dot to [-1, 1]
             dot = dot < -1.0f ? -1.0f : (dot > 1.0f ? 1.0f : dot);
@@ -176,7 +171,7 @@ namespace Godot
             }
             else
             {
-                real_t angle = c * Mathf.Acos(dot);
+                float angle = c * Mathf.Acos(dot);
                 Vector2 v3 = (v2 - v1 * dot).Normalized();
                 v = v1 * Mathf.Cos(angle) + v3 * Mathf.Sin(angle);
             }
@@ -199,7 +194,7 @@ namespace Godot
             var inv = this;
 
             // Swap
-            real_t temp = inv.x.y;
+            float temp = inv.x.y;
             inv.x.y = inv.y.x;
             inv.y.x = temp;
 
@@ -225,7 +220,7 @@ namespace Godot
             return on;
         }
 
-        public Transform2D Rotated(real_t phi)
+        public Transform2D Rotated(float phi)
         {
             return this * new Transform2D(phi, new Vector2());
         }
@@ -247,12 +242,12 @@ namespace Godot
             y.y *= scale.y;
         }
 
-        private real_t Tdotx(Vector2 with)
+        private float Tdotx(Vector2 with)
         {
             return this[0, 0] * with[0] + this[1, 0] * with[1];
         }
 
-        private real_t Tdoty(Vector2 with)
+        private float Tdoty(Vector2 with)
         {
             return this[0, 1] * with[0] + this[1, 1] * with[1];
         }
@@ -293,14 +288,14 @@ namespace Godot
         }
 
         // Arguments are named such that xy is equal to calling x.y
-        public Transform2D(real_t xx, real_t xy, real_t yx, real_t yy, real_t ox, real_t oy)
+        public Transform2D(float xx, float xy, float yx, float yy, float ox, float oy)
         {
             x = new Vector2(xx, xy);
             y = new Vector2(yx, yy);
             origin = new Vector2(ox, oy);
         }
 
-        public Transform2D(real_t rot, Vector2 pos)
+        public Transform2D(float rot, Vector2 pos)
         {
             x.x = y.y = Mathf.Cos(rot);
             x.y = y.x = Mathf.Sin(rot);
@@ -312,10 +307,10 @@ namespace Godot
         {
             left.origin = left.Xform(right.origin);
 
-            real_t x0 = left.Tdotx(right.x);
-            real_t x1 = left.Tdoty(right.x);
-            real_t y0 = left.Tdotx(right.y);
-            real_t y1 = left.Tdoty(right.y);
+            float x0 = left.Tdotx(right.x);
+            float x1 = left.Tdoty(right.x);
+            float y0 = left.Tdotx(right.y);
+            float y1 = left.Tdoty(right.y);
 
             left.x.x = x0;
             left.x.y = x1;

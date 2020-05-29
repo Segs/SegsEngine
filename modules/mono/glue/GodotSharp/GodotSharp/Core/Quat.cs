@@ -1,10 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 namespace Godot
 {
@@ -12,12 +7,12 @@ namespace Godot
     [StructLayout(LayoutKind.Sequential)]
     public struct Quat : IEquatable<Quat>
     {
-        public real_t x;
-        public real_t y;
-        public real_t z;
-        public real_t w;
+        public float x;
+        public float y;
+        public float z;
+        public float w;
 
-        public real_t this[int index]
+        public float this[int index]
         {
             get
             {
@@ -57,25 +52,25 @@ namespace Godot
             }
         }
 
-        public real_t Length
+        public float Length
         {
             get { return Mathf.Sqrt(LengthSquared); }
         }
 
-        public real_t LengthSquared
+        public float LengthSquared
         {
             get { return Dot(this); }
         }
 
-        public Quat CubicSlerp(Quat b, Quat preA, Quat postB, real_t t)
+        public Quat CubicSlerp(Quat b, Quat preA, Quat postB, float t)
         {
-            real_t t2 = (1.0f - t) * t * 2f;
+            float t2 = (1.0f - t) * t * 2f;
             Quat sp = Slerp(b, t);
             Quat sq = preA.Slerpni(postB, t);
             return sp.Slerpni(sq, t2);
         }
 
-        public real_t Dot(Quat b)
+        public float Dot(Quat b)
         {
             return x * b.x + y * b.y + z * b.z + w * b.w;
         }
@@ -104,8 +99,8 @@ namespace Godot
             return this / Length;
         }
 
-        [Obsolete("Set is deprecated. Use the Quat(" + nameof(real_t) + ", " + nameof(real_t) + ", " + nameof(real_t) + ", " + nameof(real_t) + ") constructor instead.", error: true)]
-        public void Set(real_t x, real_t y, real_t z, real_t w)
+        [Obsolete("Set is deprecated. Use the Quat(float, float, float, float) constructor instead.", error: true)]
+        public void Set(float x, float y, float z, float w)
         {
             this.x = x;
             this.y = y;
@@ -119,8 +114,8 @@ namespace Godot
             this = q;
         }
 
-        [Obsolete("SetAxisAngle is deprecated. Use the Quat(" + nameof(Vector3) + ", " + nameof(real_t) + ") constructor instead.", error: true)]
-        public void SetAxisAngle(Vector3 axis, real_t angle)
+        [Obsolete("SetAxisAngle is deprecated. Use the Quat(" + nameof(Vector3) + ", float) constructor instead.", error: true)]
+        public void SetAxisAngle(Vector3 axis, float angle)
         {
             this = new Quat(axis, angle);
         }
@@ -131,7 +126,7 @@ namespace Godot
             this = new Quat(eulerYXZ);
         }
 
-        public Quat Slerp(Quat b, real_t t)
+        public Quat Slerp(Quat b, float t)
         {
 #if DEBUG
             if (!IsNormalized())
@@ -141,7 +136,7 @@ namespace Godot
 #endif
 
             // Calculate cosine
-            real_t cosom = x * b.x + y * b.y + z * b.z + w * b.w;
+            float cosom = x * b.x + y * b.y + z * b.z + w * b.w;
 
             var to1 = new Quat();
 
@@ -162,13 +157,13 @@ namespace Godot
                 to1.w = b.w;
             }
 
-            real_t sinom, scale0, scale1;
+            float sinom, scale0, scale1;
 
             // Calculate coefficients
             if (1.0 - cosom > Mathf.Epsilon)
             {
                 // Standard case (Slerp)
-                real_t omega = Mathf.Acos(cosom);
+                float omega = Mathf.Acos(cosom);
                 sinom = Mathf.Sin(omega);
                 scale0 = Mathf.Sin((1.0f - t) * omega) / sinom;
                 scale1 = Mathf.Sin(t * omega) / sinom;
@@ -190,19 +185,19 @@ namespace Godot
             );
         }
 
-        public Quat Slerpni(Quat b, real_t t)
+        public Quat Slerpni(Quat b, float t)
         {
-            real_t dot = Dot(b);
+            float dot = Dot(b);
 
             if (Mathf.Abs(dot) > 0.9999f)
             {
                 return this;
             }
 
-            real_t theta = Mathf.Acos(dot);
-            real_t sinT = 1.0f / Mathf.Sin(theta);
-            real_t newFactor = Mathf.Sin(t * theta) * sinT;
-            real_t invFactor = Mathf.Sin((1.0f - t) * theta) * sinT;
+            float theta = Mathf.Acos(dot);
+            float sinT = 1.0f / Mathf.Sin(theta);
+            float newFactor = Mathf.Sin(t * theta) * sinT;
+            float invFactor = Mathf.Sin((1.0f - t) * theta) * sinT;
 
             return new Quat
             (
@@ -228,7 +223,7 @@ namespace Godot
         public static Quat Identity { get; } = new Quat(0f, 0f, 0f, 1f);
 
         // Constructors
-        public Quat(real_t x, real_t y, real_t z, real_t w)
+        public Quat(float x, float y, float z, float w)
         {
             this.x = x;
             this.y = y;
@@ -253,20 +248,20 @@ namespace Godot
 
         public Quat(Vector3 eulerYXZ)
         {
-            real_t half_a1 = eulerYXZ.y * 0.5f;
-            real_t half_a2 = eulerYXZ.x * 0.5f;
-            real_t half_a3 = eulerYXZ.z * 0.5f;
+            float half_a1 = eulerYXZ.y * 0.5f;
+            float half_a2 = eulerYXZ.x * 0.5f;
+            float half_a3 = eulerYXZ.z * 0.5f;
 
             // R = Y(a1).X(a2).Z(a3) convention for Euler angles.
             // Conversion to quaternion as listed in https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770024290.pdf (page A-6)
             // a3 is the angle of the first rotation, following the notation in this reference.
 
-            real_t cos_a1 = Mathf.Cos(half_a1);
-            real_t sin_a1 = Mathf.Sin(half_a1);
-            real_t cos_a2 = Mathf.Cos(half_a2);
-            real_t sin_a2 = Mathf.Sin(half_a2);
-            real_t cos_a3 = Mathf.Cos(half_a3);
-            real_t sin_a3 = Mathf.Sin(half_a3);
+            float cos_a1 = Mathf.Cos(half_a1);
+            float sin_a1 = Mathf.Sin(half_a1);
+            float cos_a2 = Mathf.Cos(half_a2);
+            float sin_a2 = Mathf.Sin(half_a2);
+            float cos_a3 = Mathf.Cos(half_a3);
+            float sin_a3 = Mathf.Sin(half_a3);
 
             x = sin_a1 * cos_a2 * sin_a3 + cos_a1 * sin_a2 * cos_a3;
             y = sin_a1 * cos_a2 * cos_a3 - cos_a1 * sin_a2 * sin_a3;
@@ -274,14 +269,14 @@ namespace Godot
             w = sin_a1 * sin_a2 * sin_a3 + cos_a1 * cos_a2 * cos_a3;
         }
 
-        public Quat(Vector3 axis, real_t angle)
+        public Quat(Vector3 axis, float angle)
         {
 #if DEBUG
             if (!axis.IsNormalized())
                 throw new ArgumentException("Argument is not normalized", nameof(axis));
 #endif
 
-            real_t d = axis.Length();
+            float d = axis.Length();
 
             if (d == 0f)
             {
@@ -292,9 +287,9 @@ namespace Godot
             }
             else
             {
-                real_t sinAngle = Mathf.Sin(angle * 0.5f);
-                real_t cosAngle = Mathf.Cos(angle * 0.5f);
-                real_t s = sinAngle / d;
+                float sinAngle = Mathf.Sin(angle * 0.5f);
+                float cosAngle = Mathf.Cos(angle * 0.5f);
+                float s = sinAngle / d;
 
                 x = axis.x * s;
                 y = axis.y * s;
@@ -351,17 +346,17 @@ namespace Godot
             );
         }
 
-        public static Quat operator *(Quat left, real_t right)
+        public static Quat operator *(Quat left, float right)
         {
             return new Quat(left.x * right, left.y * right, left.z * right, left.w * right);
         }
 
-        public static Quat operator *(real_t left, Quat right)
+        public static Quat operator *(float left, Quat right)
         {
             return new Quat(right.x * left, right.y * left, right.z * left, right.w * left);
         }
 
-        public static Quat operator /(Quat left, real_t right)
+        public static Quat operator /(Quat left, float right)
         {
             return left * (1.0f / right);
         }

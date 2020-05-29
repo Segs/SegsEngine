@@ -33,7 +33,8 @@
 /**
  * CSharp binding generator creates the following hierarchy:
  *  Arguments:  godot.json TARGET_DIR
- *  TARGET_DIR/Bindings/Godot/
+ *  Project name is built from json filename
+ *  TARGET_DIR/MonoBindings/godot
  *      cpp_gen/
  *          CMakeLists.txt
  *          godot_editor_cs_bindings.gen.cpp
@@ -47,8 +48,11 @@
  *          Godot_Editor.csproj
  *          Godot_Client.csproj
  *          Godot_Server.csproj
- *          Godot.sln
+ *  TARGET_DIR/project.sln will be updated.
  * Note: it will overwrite existing files !
+ * By default, the produced plugin files are located under
+ * PROJECT_SOURCE_DIR/bin/plugins
+ * and compiled cs assemblies under PROJECT_SOURCE_DIR/bin/CSharp
  */
 
 #include "core/script_language.h"
@@ -61,7 +65,10 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QStringBuilder>
+#include <QUuid>
 
+static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfbdf7f68");
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -3618,13 +3625,193 @@ struct CSTypeMapper : BindingTypeMapper {
         return proxy_name;
     }
 };
-struct CppProducer {
+struct CppProject {
     QSet<QString> needed_headers;
-    void add_cmake();
+    QSet<QString> project_defines;
+    QString m_name;
+    QString m_target_api; // editor/client/server 
+    QString m_project_name;
+
+    QString generate_cmake_contents() {
+        QString contents = QString(
+R"raw(
+
+add_library(%1_%3_mono SHARED %1_%3_cs_bindings.gen.cpp)
+
+target_link_libraries(%1_%3_mono PRIVATE %1_%3 Qt5::Core mono_utils) # for plugin support functionality.
+target_compile_definitions(%1_%3_mono PRIVATE TARGET_%2)
+
+install(TARGETS %1_%3_mono EXPORT install_%1_%3
+    LIBRARY DESTINATION bin/plugins/
+    RUNTIME DESTINATION bin/plugins
+)
+set_target_properties(%1_%3_mono PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugin)
+
+)raw").arg(m_name.toLower(), m_target_api.toUpper(), m_target_api);
+        return contents;
+    }
+
+    void setup(const QString & project_name, const QString &tgt_api) {
+        m_project_name = project_name;
+        m_target_api = tgt_api;
+        m_name = m_project_name;
+    }
+};
+struct CppProducer {
+    QDir working_dir;
+    CppProject cpp_editor_producer;
+    CppProject cpp_client_producer;
+    CppProject cpp_server_producer;
+    QDir m_target_dir;
+    QString m_project_name;
+    //TARGET_DIR/MonoBindings/
+    CppProducer()  {
+    }
+    void setup(const QDir& target_dir, const QString& project_name) {
+        m_target_dir = target_dir.path() + "/cpp_gen";
+        m_project_name = project_name;
+        cpp_editor_producer.setup(project_name,"editor");
+        cpp_client_producer.setup(project_name, "client");
+        cpp_server_producer.setup(project_name, "server");
+    }
+    bool create_build_files() {
+        m_target_dir.mkpath(".");
+
+        QFile target_cmake(m_target_dir.filePath("CMakeLists.txt"));
+        if(target_cmake.exists()) {
+            qDebug() << "CMakeLists.txt already exists in" << m_target_dir << " overwriting it";
+        }
+        if(!target_cmake.open(QFile::WriteOnly)) {
+            qCritical() << "Cannot write: " << m_target_dir.filePath("CMakeLists.txt");
+            return false;
+        }
+        target_cmake.write(cpp_editor_producer.generate_cmake_contents().toUtf8());
+        target_cmake.write(cpp_client_producer.generate_cmake_contents().toUtf8());
+        target_cmake.write(cpp_server_producer.generate_cmake_contents().toUtf8());
+        return true;
+
+    }
 };
 struct CSProducer {
+    QFile m_current_target_file;
+    QDir m_target_dir;
+    QString m_project_name;
+    CSProducer() {
+        
+    }
     void createCSProj(const QString &file_path) {
         
+    }
+    void createCSSln(const QString& file_path) {
+
+    }
+    void setup(const QDir& target_dir, const QString& project_name) {
+        m_target_dir = target_dir;
+        m_project_name = project_name;
+    }
+    static bool add_project_guid(const QUuid &uuid,const QString &name,const QString &path,QByteArray &to_process) {
+        int start_of_insert=-1;
+        int length_of_replace=0;
+        bool global_missing = true;
+        QTextStream ts(&to_process);
+        QString to_insert = QString("Project(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"%1\", \"%2\", \"%3\"\nEndProject\n").arg(name,path,uuid.toString());
+        //Note: this assumes that the project line we search for is in this format:
+        // Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Name", "path.csproj", "{uuid}"
+        while (!ts.atEnd()) {
+            int start_of_line = ts.pos();
+            QString sln_line = ts.readLine();
+            if (sln_line.startsWith("Project(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\")")) {
+                auto parts=sln_line.splitRef("\", \"");
+                if (parts.size() != 3)
+                    continue;
+                if (parts.back() != QString("%1\"").arg(uuid.toString())) {
+                    continue;
+                }
+                start_of_insert = start_of_line;
+                length_of_replace = ts.pos() - start_of_line;
+                if(to_process.mid(start_of_line,10)=="EndProject") {
+                    length_of_replace+=11; // +1 for EOL
+                }
+            }
+            if(sln_line=="Global") {
+                global_missing = false;
+                // insert just before "Global";
+                start_of_insert = start_of_line;
+                break;
+            }
+        }
+        bool needs_skeleton = start_of_insert == -1;
+        if(needs_skeleton) {
+            start_of_insert = to_process.size();
+        }
+        if(global_missing) {
+            to_process.append(R"raw(Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|Any CPU = Debug|Any CPU
+    Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    EndGlobalSection
+EndGlobal
+)raw");
+        }
+        to_process.replace(start_of_insert, length_of_replace, to_insert.toUtf8());
+        const char *hdr_to_find = "GlobalSection(ProjectConfigurationPlatforms) = postSolution\n";
+        int idx_of_post_solution = to_process.indexOf(hdr_to_find);
+        if(idx_of_post_solution!=-1 && to_process.indexOf(uuid.toString().toUtf8()+".Debug",idx_of_post_solution)!=-1) {
+            return true; // already inserted, we don't overwrite it.
+        }
+        const char *default_build_options[] = {
+            "Debug|Any CPU.ActiveCfg = Debug|Any CPU",
+            "Debug|Any CPU.Build.0 = Debug|Any CPU",
+            "Release|Any CPU.ActiveCfg = Release|Any CPU",
+            "Release|Any CPU.Build.0 = Release|Any CPU"
+        };
+
+        QByteArray post_solution_addition;
+        QByteArray uuid_ba = uuid.toString().toUtf8();
+        for(const char *opt : default_build_options) {
+            post_solution_addition += "        "+uuid_ba + "."+opt+"\n";
+        }
+        if(idx_of_post_solution!=-1)
+            to_process.insert(idx_of_post_solution+strlen(hdr_to_find)+1, post_solution_addition);
+        return true;
+    }
+    /* re-create csproj files, and add them to the SLN*/
+    bool create_build_files() {
+        QUuid editor_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "editor").toUtf8());
+        QUuid client_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "client").toUtf8());
+        QUuid server_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "server").toUtf8());
+
+        QByteArray original_contents;
+        QByteArray new_contents;
+        QString sln_path = m_target_dir.filePath("project.sln");
+        QString new_sln_path = m_target_dir.filePath("new_project.sln");
+        if(QFile::exists(sln_path)) {
+            QFile sln(m_target_dir.filePath("project.sln"));
+            if (!sln.open(QFile::ReadOnly)) {
+                qCritical() << "Failed to read from " << m_target_dir.filePath("project.sln");
+                return false;
+            }
+            original_contents = sln.readAll();
+        }
+        if(!original_contents.isEmpty())
+            new_contents = original_contents;
+        if(new_contents.isEmpty()) {
+            new_contents = R"raw(Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+MinimumVisualStudioVersion = 15.0.0
+)raw";
+        }
+        add_project_guid(editor_uuid, m_project_name, m_project_name + "_editor.csproj", new_contents);
+        add_project_guid(client_uuid, m_project_name, m_project_name + "_client.csproj", new_contents);
+        add_project_guid(server_uuid, m_project_name, m_project_name + "_server.csproj", new_contents);
+        QFile new_sln_file(new_sln_path);
+        if(!new_sln_file.open(QFile::WriteOnly)) {
+            return false;
+        }
+        new_sln_file.write(new_contents);
+        return true;
     }
 };
 struct CSReflectionVisitor  {
@@ -3633,12 +3820,17 @@ struct CSReflectionVisitor  {
     Vector<const NamespaceInterface *> m_namespace_stack;
     const ReflectionData &m_reflection_data;
     QDir m_current_directory;
-    QString m_target_dir;
-    
-    CSReflectionVisitor(const ReflectionData &rd,const QString &target_dir) : m_reflection_data(rd), m_target_dir(target_dir) {}
 
-    void visitConstant(const ConstantInterface *) {
-        assert(false);
+    CSReflectionVisitor(const ReflectionData &rd, const QString &target_dir, const QString &project_name) :
+        m_reflection_data(rd),
+        m_current_directory(target_dir + "/MonoBindings"){
+        cpp_producer.setup(m_current_directory,project_name);
+        cs_producer.setup(m_current_directory, project_name);
+
+    }
+
+    void visitConstant(const ConstantInterface *ci) {
+       // assert(false);
     }
     /*
      *                //if (allUpperCase(valname))
@@ -3649,7 +3841,7 @@ struct CSReflectionVisitor  {
      *
      */
     void visitEnum(const EnumInterface *) {
-        assert(false);
+     //   assert(false);
     }
     /*
      EnumInterface ienum(StringName(String(enum_name).replaced("::", ".")));
@@ -3664,7 +3856,7 @@ struct CSReflectionVisitor  {
 
      */
     void visitFunction(const MethodInterface *) {
-        assert(false);
+       // assert(false);
     }
     void visitNamespace(const NamespaceInterface *iface) {
         m_namespace_stack.push_back(iface);
@@ -3682,22 +3874,27 @@ struct CSReflectionVisitor  {
     }
 
     void visitType(const TypeInterface *) {
-        assert(false);
+      //  assert(false);
     }
     void visitTypeConstant(const ConstantInterface *) {
-        assert(false);
+       // assert(false);
     }
     void visitTypeEnum(const EnumInterface *) {
         //int prefix_length = _determine_enum_prefix(ienum);
 
         //_apply_prefix_to_enum_constants(ienum, prefix_length);
-        assert(false);
+       // assert(false);
     }
     void visitTypeProperty(const PropertyInterface *) {
-        assert(false);
+      //  assert(false);
     }
     void visitTypeMethod(const PropertyInterface *) {
-        assert(false);
+      //  assert(false);
+    }
+
+    void finalize() {
+        cpp_producer.create_build_files();
+        cs_producer.create_build_files();
     }
 };
 
@@ -3712,10 +3909,11 @@ bool processReflectionData(const ReflectionData &rd,const QString &target_dir) {
     if(!current_dir.mkpath(target_dir))
         return false;
 
-    CSReflectionVisitor cs_builder(rd, target_dir);
+    CSReflectionVisitor cs_builder(rd, target_dir,"Godot");
     for (const NamespaceInterface& iface : rd.namespaces) {
         cs_builder.visitNamespace(&iface);
     }
+    cs_builder.finalize();
     return true;
 }
 

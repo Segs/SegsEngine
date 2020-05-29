@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-#if REAL_T_IS_DOUBLE
-using real_t = System.Double;
-#else
-using real_t = System.Single;
-#endif
 
 // TODO: Add comments describing what this class does. It is not obvious.
 
@@ -23,15 +18,15 @@ namespace Godot
             return godot_icall_GD_convert(what, type);
         }
 
-        public static real_t Db2Linear(real_t db)
+        public static float Db2Linear(float db)
         {
-            return (real_t)Math.Exp(db * 0.11512925464970228420089957273422);
+            return (float)Math.Exp(db * 0.11512925464970228420089957273422);
         }
 
-        public static real_t DecTime(real_t value, real_t amount, real_t step)
+        public static float DecTime(float value, float amount, float step)
         {
-            real_t sgn = Mathf.Sign(value);
-            real_t val = Mathf.Abs(value);
+            float sgn = Mathf.Sign(value);
+            float val = Mathf.Abs(value);
             val -= amount * step;
             if (val < 0)
                 val = 0;
@@ -56,9 +51,9 @@ namespace Godot
             return godot_icall_GD_instance_from_id(instanceId);
         }
 
-        public static real_t Linear2Db(real_t linear)
+        public static float Linear2Db(float linear)
         {
-            return (real_t)(Math.Log(linear) * 8.6858896380650365530225783783321);
+            return (float)(Math.Log(linear) * 8.6858896380650365530225783783321);
         }
 
         public static Resource Load(string path)
