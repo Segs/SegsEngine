@@ -395,9 +395,9 @@ struct NamespaceInterface {
     Vector<EnumInterface> global_enums;
     Vector<ConstantInterface> global_constants;
 
-    Map<QString, TypeInterface> placeholder_types;
-    Map<QString, TypeInterface> builtin_types;
-    Map<QString, TypeInterface> enum_types;
+    HashMap<QString, TypeInterface> placeholder_types;
+    HashMap<QString, TypeInterface> builtin_types;
+    HashMap<QString, TypeInterface> enum_types;
 
 
 
