@@ -103,29 +103,18 @@ Array convert_property_list(const List<PropertyInfo> *p_list);
 Array convert_property_vector(Span<const PropertyInfo> p_list);
 
 /*
-   the following is an incomprehensible blob of hacks and workarounds to compensate for many of the fallencies in C++. As a plus, this macro pretty much alone defines the object model.
+   the following is an incomprehensible blob of hacks and workarounds to compensate for many of the fallencies in C++.
+   As a plus, this macro pretty much alone defines the object model.
 */
 
-#define REVERSE_GET_PROPERTY_LIST                                  \
-public:                                                            \
-    constexpr bool _is_gpl_reversed() const { return true; }; \
-                                                                   \
-private:
-
-#define UNREVERSE_GET_PROPERTY_LIST                                 \
-public:                                                             \
-    constexpr bool _is_gpl_reversed() const { return false; }; \
-                                                                    \
-private:
-
-#define GDCLASS(m_class,m_inherits)                                                                                    \
+#define GDCLASS(m_class, m_inherits)                                                                                   \
     using ClassName = m_class;                                                                                         \
     using BaseClassName = m_inherits;                                                                                  \
                                                                                                                        \
 private:                                                                                                               \
     mutable StringName _class_name;                                                                                    \
     friend class ClassDB;                                                                                              \
-    static constexpr TypeInfo typeInfoStatic {#m_class, BaseClassName::get_type_info_static()};              \
+    static constexpr TypeInfo typeInfoStatic{ #m_class, BaseClassName::get_type_info_static() };                       \
                                                                                                                        \
 public:                                                                                                                \
     static constexpr const TypeInfo *get_type_info_static() { return &typeInfoStatic; }                                \
@@ -133,60 +122,49 @@ public:                                                                         
     const TypeInfo *get_type_info() const override { return &typeInfoStatic; }                                         \
     static bool initialize_class();                                                                                    \
     const StringName *_get_class_namev() const override {                                                              \
-        if (!_class_name)                                                                                              \
-            _class_name = StringName(#m_class);		                                                                   \
+        if (!_class_name) _class_name = StringName(#m_class);                                                          \
         return &_class_name;                                                                                           \
     }                                                                                                                  \
-    static const void *get_class_ptr_static() {                                                                        \
-        return &typeInfoStatic;                                                                                        \
+    static const void *get_class_ptr_static() { return &typeInfoStatic; }                                              \
+    static constexpr const char *get_class_static() { return #m_class; }                                               \
+    static StringName get_class_static_name() { return StringName(#m_class); }                                         \
+    static const char *get_parent_class_static() { return BaseClassName::get_class_static(); }                         \
+    virtual bool is_class(StringView p_class) const override {                                                         \
+        return (p_class == #m_class) ? true : BaseClassName::is_class(p_class);                                        \
     }                                                                                                                  \
-    static constexpr const char *get_class_static() {                                                   \
-        return #m_class;				                                                                               \
-    }                                                                                                                  \
-    static StringName get_class_static_name() {                                                         \
-        return StringName(#m_class);	                                                                               \
-    }                                                                                                                  \
-    static const char *get_parent_class_static() {                                                      \
-        return BaseClassName::get_class_static();                                                                        \
-    }                                                                                                                  \
-    virtual bool is_class(StringView p_class) const override {                                                        \
-            return (p_class==#m_class) ? true : BaseClassName::is_class(p_class); }                            \
     virtual bool is_class_ptr(void *p_ptr) const override {                                                            \
-            return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr); }                      \
+        return (p_ptr == get_class_ptr_static()) ? true : BaseClassName::is_class_ptr(p_ptr);                          \
+    }                                                                                                                  \
                                                                                                                        \
 protected:                                                                                                             \
-    static void (*_get_bind_methods())() {                                                              \
-        return &m_class::_bind_methods;                                                                                \
-    }                                                                                                                  \
+    static void (*_get_bind_methods())() { return &m_class::_bind_methods; }                                           \
                                                                                                                        \
 protected:                                                                                                             \
     bool _initialize_classv() override { return initialize_class(); }                                                  \
-    static constexpr bool (Object::*_get_get() )(const StringName &p_name, Variant &r_ret) const {      \
+    static constexpr bool (Object::*_get_get())(const StringName &p_name, Variant &r_ret) const {                      \
         return (bool (Object::*)(const StringName &, Variant &) const) & m_class::_get;                                \
     }                                                                                                                  \
     bool _getv(const StringName &p_name, Variant &r_ret) const override {                                              \
-        if (m_class::_get_get() != BaseClassName::_get_get()) {                                                          \
+        if (m_class::_get_get() != BaseClassName::_get_get()) {                                                        \
             if (_get(p_name, r_ret)) return true;                                                                      \
         }                                                                                                              \
-        return BaseClassName::_getv(p_name, r_ret);                                                                      \
+        return BaseClassName::_getv(p_name, r_ret);                                                                    \
     }                                                                                                                  \
-    static constexpr bool (Object::*_get_set() )(const StringName &p_name, const Variant &p_property) { \
+    static constexpr bool (Object::*_get_set())(const StringName &p_name, const Variant &p_property) {                 \
         return (bool (Object::*)(const StringName &, const Variant &)) & m_class::_set;                                \
     }                                                                                                                  \
     bool _setv(const StringName &p_name, const Variant &p_property) override {                                         \
-        if (BaseClassName::_setv(p_name, p_property)) return true;                                                       \
-        if (m_class::_get_set() != BaseClassName::_get_set()) {                                                          \
+        if (BaseClassName::_setv(p_name, p_property)) return true;                                                     \
+        if (m_class::_get_set() != BaseClassName::_get_set()) {                                                        \
             return _set(p_name, p_property);                                                                           \
         }                                                                                                              \
         return false;                                                                                                  \
     }                                                                                                                  \
-    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> * p_list) const {             \
-        return (void (Object::*)(Vector<PropertyInfo> *) const) & m_class::_get_property_list;                        \
+    void (Object::*_get_get_property_list() const)(Vector<PropertyInfo> * p_list) const {                              \
+        return (void (Object::*)(Vector<PropertyInfo> *) const) & m_class::_get_property_list;                         \
     }                                                                                                                  \
-    void _get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const override;                           \
-    void (Object::*_get_notification() const)(int) {                                                    \
-        return (void (Object::*)(int)) & m_class::_notification;                                                       \
-    }                                                                                                                  \
+    void _get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const override;                            \
+    void (Object::*_get_notification() const)(int) { return (void (Object::*)(int)) & m_class::_notification; }        \
     void _notificationv(int p_notification, bool p_reversed) override;                                                 \
                                                                                                                        \
 private:
@@ -195,33 +173,33 @@ private:
     bool m_class::initialize_class() {                                                                                 \
         static bool initialized = false;                                                                               \
         if (initialized) return false;                                                                                 \
-        BaseClassName::initialize_class();                                                                               \
-        ClassDB::_add_class<m_class, BaseClassName>();                                                                   \
+        BaseClassName::initialize_class();                                                                             \
+        ClassDB::_add_class<m_class, BaseClassName>();                                                                 \
         ClassDB::_set_class_header(get_class_static_name(), __FILE__);                                                 \
-        if (m_class::_get_bind_methods() != BaseClassName::_get_bind_methods()) _bind_methods();                         \
+        if (m_class::_get_bind_methods() != BaseClassName::_get_bind_methods()) _bind_methods();                       \
         initialized = true;                                                                                            \
         return true;                                                                                                   \
     }                                                                                                                  \
     void m_class::_notificationv(int p_notification, bool p_reversed) {                                                \
-        if (!p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                      \
-        if (m_class::_get_notification() != BaseClassName::_get_notification()) {                                        \
+        if (!p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                    \
+        if (m_class::_get_notification() != BaseClassName::_get_notification()) {                                      \
             _notification(p_notification);                                                                             \
         }                                                                                                              \
-        if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                       \
+        if (p_reversed) BaseClassName::_notificationv(p_notification, p_reversed);                                     \
     }                                                                                                                  \
-    void m_class::_get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const {                        \
+    void m_class::_get_property_listv(Vector<PropertyInfo> *p_list, bool p_reversed) const {                           \
         if (!p_reversed) {                                                                                             \
-            BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
+            BaseClassName::_get_property_listv(p_list, p_reversed);                                                    \
         }                                                                                                              \
         p_list->push_back(PropertyInfo(                                                                                \
                 VariantType::NIL, get_class_static_name(), PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));     \
         if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
-        if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                              \
+        if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                            \
             _get_property_list(p_list);                                                                                \
         }                                                                                                              \
         if (_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                              \
         if (p_reversed) {                                                                                              \
-            BaseClassName::_get_property_listv(p_list, p_reversed);                                                      \
+            BaseClassName::_get_property_listv(p_list, p_reversed);                                                    \
         }                                                                                                              \
     }
 
@@ -247,10 +225,7 @@ class ObjectRC;
 
 class GODOT_EXPORT Object {
     //Q_GADGET
-    // Non-copyable
 
-    //Q_DISABLE_COPY(Object)
-    //Q_PROPERTY(RefPtr script READ get_script WRITE set_script)
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
 
@@ -302,7 +277,7 @@ private:
 
 
 #ifdef DEBUG_ENABLED
-	std::atomic<ObjectRC *> _rc;
+    std::atomic<ObjectRC *> _rc;
 #endif
     bool _predelete();
     void _postinitialize();
@@ -384,7 +359,7 @@ public:
         return get_type_info_static();
     }
 #ifdef DEBUG_ENABLED
-	ObjectRC *_use_rc();
+    ObjectRC *_use_rc();
 #endif
     bool _is_gpl_reversed() const { return false; }
 

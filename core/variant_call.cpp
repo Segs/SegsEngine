@@ -341,9 +341,9 @@ struct _VariantCall {
 //    VCALL_SU_LOCALMEM0R(String, bigrams)
 //    VCALL_SU_LOCALMEM1R(String, similarity)
 
-    static void _call_String_format(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-        r_ret = StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0]);
-    }
+//    static void _call_String_format(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+//        r_ret = StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0]);
+//    }
     static void _call_String_replace(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         r_ret = StringUtils::replace(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[1]->as<String>());
     }
@@ -1666,7 +1666,7 @@ static const _VariantCall::VariantFuncDef StringFunctions[] = {
     {VariantType::STRING,StaticCString("is_subsequence_ofi"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,is_subsequence_ofi),{},{ {VariantType::STRING, "text"}}) },
 
 
-    {VariantType::STRING,StaticCString("format"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,format),{},{ {VariantType::NIL, "values"}}) },
+    //{VariantType::STRING,StaticCString("format"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,format),{},{ {VariantType::NIL, "values"}}) },
     {VariantType::STRING,StaticCString("replace"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replace),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
     {VariantType::STRING,StaticCString("replacen"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replacen),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
 

@@ -51,7 +51,7 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         // Atomic types
     case VariantType::BOOL: r_iarg.default_argument = bool(p_val) ? "true" : "false";
         break;
-    case VariantType::INT: if (r_iarg.type.cname != QLatin1String("int")) {
+    case VariantType::INT: if (r_iarg.type.cname != "int") {
         r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
     }
                          break;
@@ -80,7 +80,7 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         break;
     case VariantType::OBJECT:
         ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-            "Parameter of type '" + StringUtils::to_utf8(r_iarg.type.cname) +
+            "Parameter of type '" + r_iarg.type.cname +
             "' can only have null/zero as the default value.");
 
         r_iarg.default_argument = "null";
@@ -90,10 +90,10 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         break;
     case VariantType::_RID:
         ERR_FAIL_COND_V_MSG(r_iarg.type.cname != "RID", false,
-            "Parameter of type '" + StringUtils::to_utf8(r_iarg.type.cname) + "' cannot have a default value of type 'RID'.");
+            "Parameter of type '" + (r_iarg.type.cname) + "' cannot have a default value of type 'RID'.");
 
         ERR_FAIL_COND_V_MSG(!p_val.is_zero(), false,
-            "Parameter of type '" + StringUtils::to_utf8(r_iarg.type.cname) +
+            "Parameter of type '" + (r_iarg.type.cname) +
             "' can only have null/zero as the default value.");
 
         r_iarg.default_argument = "null";
@@ -117,7 +117,7 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
     }
     }
 
-    if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == QLatin1String("Variant") && r_iarg.default_argument != "null")
+    if (r_iarg.def_param_mode == ArgumentInterface::CONSTANT && r_iarg.type.cname == "Variant" && r_iarg.default_argument != "null")
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
 
     return true;
@@ -224,7 +224,7 @@ static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
         tgt.pass_by = TypePassBy::Reference;
     }
     else if (arginfo.type == VariantType::NIL) {
-        tgt.cname = QLatin1String("Variant");
+        tgt.cname = "Variant";
         tgt.pass_by = TypePassBy::Value;
     }
     else {
@@ -319,7 +319,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         TypeInterface itype = TypeInterface::create_object_type(type_cname.asCString(), convertApiType(api_type));
 
         itype.base_name = ClassDB::get_parent_class(type_cname).asCString();
-        itype.is_singleton = Engine::get_singleton()->has_singleton(StringName(qPrintable(itype.name)));
+        itype.is_singleton = Engine::get_singleton()->has_singleton(StringName(itype.name));
         itype.is_instantiable = class_iter->second.creation_func && !itype.is_singleton;
         itype.is_reference = ClassDB::is_parent_class(type_cname, "RefCounted");
         itype.memory_own = itype.is_reference;
@@ -367,7 +367,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                     in_array = _is_array_path(property.name);
                     indexed_property = {};
                     PropertyInterface::TypedEntry e;
-                    if (in_array) { // 
+                    if (in_array) { //
                         indexed_property.cname = String(parts[0]).c_str();
                         e.subfield_name = String(parts[2]).c_str();
                         e.index = -2;
@@ -389,7 +389,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 }
                 else {
                     PropertyInterface::TypedEntry e;
-                    if (in_array) { 
+                    if (in_array) {
                         if(this_prop_idx == 0) { // array like, scanning fields only at index 0
                             e.subfield_name = String(parts[2]).c_str();
                             e.index = -2;
@@ -477,7 +477,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             imethod.is_vararg = m && m->is_vararg();
 
             if (!m && !imethod.is_virtual) {
-                ERR_FAIL_COND_V_MSG(!virtual_method_list.find(method_info), false, qPrintable("Missing MethodBind for non-virtual method: '" + itype.name + "." + imethod.name + "'."));
+                ERR_FAIL_COND_V_MSG(!virtual_method_list.find(method_info), false, ("Missing MethodBind for non-virtual method: '" + itype.name + "." + imethod.name + "'."));
 
                 // A virtual method without the virtual flag. This is a special case.
 
@@ -487,14 +487,14 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 // The method Object.free is registered as a virtual method, but without the virtual flag.
                 // This is because this method is not supposed to be overridden, but called.
                 // We assume the return type is void.
-                imethod.return_type.cname = QLatin1String("void");
+                imethod.return_type.cname = "void";
 
                 // Actually, more methods like this may be added in the future,
                 // which could actually will return something different.
                 // Let's put this to notify us if that ever happens.
-                if (itype.name != QLatin1String("Object") || imethod.name != "free") {
-                    WARN_PRINT(qPrintable("Notification: New unexpected virtual non-overridable method found." 
-                        " We only expected Object.free, but found '" + itype.name + "." + imethod.name + "'."));
+                if (itype.name != "Object" || imethod.name != "free") {
+                    WARN_PRINT("Notification: New unexpected virtual non-overridable method found."
+                        " We only expected Object.free, but found '" + itype.name + "." + imethod.name + "'.");
                 }
             }
             else if (return_info.type == VariantType::INT && return_info.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
@@ -502,11 +502,11 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 imethod.return_type.is_enum = true;
             }
             else if (!return_info.class_name.empty()) {
-                imethod.return_type.cname = return_info.class_name.asString();
+                imethod.return_type.cname = return_info.class_name;
                 if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, StringName("Reference")) && return_info.hint != PropertyHint::ResourceType) {
                     /* clang-format off */
-                    ERR_PRINT(qPrintable("Return type is reference but hint is not 'PropertyHint::ResourceType'."
-                        " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'."));
+                    ERR_PRINT("Return type is reference but hint is not 'PropertyHint::ResourceType'."
+                        " Are you returning a reference type by pointer? Method: '" + itype.name + "." + imethod.name + "'.");
                     /* clang-format on */
                     ERR_FAIL_V(false);
                 }
@@ -515,10 +515,10 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 imethod.return_type.cname = return_info.hint_string.c_str();
             }
             else if (return_info.type == VariantType::NIL && return_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
-                imethod.return_type.cname = QLatin1String("Variant");
+                imethod.return_type.cname = "Variant";
             }
             else if (return_info.type == VariantType::NIL) {
-                imethod.return_type.cname = QLatin1String("void");
+                imethod.return_type.cname = "void";
             }
             else {
                 if (return_info.type == VariantType::INT) {
@@ -554,7 +554,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                     iarg.type.pass_by = TypePassBy::Reference;
                 }
                 else if (arginfo.type == VariantType::NIL) {
-                    iarg.type.cname = QLatin1String("Variant");
+                    iarg.type.cname = "Variant";
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 }
                 else {
@@ -582,7 +582,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 if (m && m->has_default_argument(i)) {
                     bool defval_ok = _arg_default_value_from_variant(m->get_default_argument(i), iarg);
                     ERR_FAIL_COND_V_MSG(!defval_ok, false,
-                        qPrintable(QString("Cannot determine default value for argument '") + orig_arg_name.asCString() + "' of method '" + itype.name + "." + imethod.name + "'."));
+                        String("Cannot determine default value for argument '") + orig_arg_name + "' of method '" + itype.name + "." + imethod.name + "'.");
                 }
 
                 imethod.add_argument(iarg);
@@ -590,7 +590,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
 
             if (imethod.is_vararg) {
                 ArgumentInterface ivararg;
-                ivararg.type.cname = QLatin1String("VarArg");
+                ivararg.type.cname = "VarArg";
                 ivararg.name = "@args";
                 imethod.add_argument(ivararg);
             }
@@ -632,14 +632,14 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         List<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
-        const HashMap<StringName, List<StringName> >& enum_map = class_iter->second.enum_map;
+        const HashMap<StringName, ClassDB::EnumDescriptor>& enum_map = class_iter->second.enum_map;
         for (const auto& F : enum_map) {
             auto parts = StringUtils::split(F.first, "::");
-            if (parts.size() > 1 && qPrintable(itype.name) == parts[0]) {
+            if (parts.size() > 1 && itype.name == parts[0]) {
                 parts.pop_front(); // Skip leading type name, this will be fixed below
             }
-            QString enum_proxy_cname(QLatin1String(parts.front().data(), parts.front().size()));
-            QString enum_proxy_name(enum_proxy_cname);
+            String enum_proxy_cname(parts.front().data(), parts.front().size());
+            String enum_proxy_name(enum_proxy_cname);
             /*if (itype.find_property_by_proxy_name(enum_proxy_name)) {
                 // We have several conflicts between enums and PascalCase properties,
                 // so we append 'Enum' to the enum name in those cases.
@@ -647,9 +647,10 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 enum_proxy_cname = enum_proxy_name;
             }*/
             EnumInterface ienum(enum_proxy_cname);
-            const List<StringName>& enum_constants = F.second;
+            ienum.underlying_type = F.second.underlying_type;
+            const Vector<StringName>& enum_constants = F.second.enumerators;
             for (const StringName& constant_cname : enum_constants) {
-                QString constant_name(constant_cname.asCString());
+                String constant_name(constant_cname.asCString());
                 auto value = class_iter->second.constant_map.find(constant_cname);
                 ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
                 constants.remove(constant_cname.asCString());
@@ -673,7 +674,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         for (const String& constant_name : constants) {
             auto value = class_iter->second.constant_map.find(StringName(constant_name));
             ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
-            
+
             ConstantInterface iconstant(constant_name.c_str(), value->second);
 
             itype.constants.push_back(iconstant);
@@ -872,7 +873,8 @@ void _populate_global_constants(ReflectionData &rd) {
     if (synth_global_iter != ClassDB::classes.end()) {
         for (const auto& e : synth_global_iter->second.enum_map) {
             EnumInterface ienum(String(e.first).c_str());
-            for (const auto& valname : e.second) {
+            ienum.underlying_type = e.second.underlying_type.asCString();
+            for (const auto& valname : e.second.enumerators) {
                 int constant_value = synth_global_iter->second.constant_map[valname];
                 ienum.constants.emplace_back(valname.asCString(),constant_value);
             }

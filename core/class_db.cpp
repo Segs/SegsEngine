@@ -102,7 +102,8 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 
     while (!inherits.empty()) {
 
-        if (inherits == p_inherits) return true;
+        if (inherits == p_inherits)
+            return true;
         inherits = get_parent_class(inherits);
     }
 
@@ -497,6 +498,18 @@ MethodBind *ClassDB::get_method(StringName p_class, StringName p_name) {
     }
     return nullptr;
 }
+void ClassDB::register_enum_type(const StringName &p_class, const StringName &p_enum, const StringName &p_underlying_type)
+{
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND(iter==classes.end());
+    ClassInfo *type = &iter->second;
+
+    if (type->enum_map.contains(p_enum)) {
+
+        ERR_FAIL();
+    }
+    type->enum_map[p_enum].underlying_type = p_underlying_type;
+}
 
 void ClassDB::bind_integer_constant(
         const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant) {
@@ -524,9 +537,8 @@ void ClassDB::bind_integer_constant(
         }
         const StringName interned_enum_name(enum_name);
 
-        List<StringName> &constants_list = type->enum_map[interned_enum_name];
-
-        constants_list.push_back(p_name);
+        EnumDescriptor &constants_list = type->enum_map[interned_enum_name];
+        constants_list.enumerators.push_back(p_name);
     }
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -597,7 +609,7 @@ StringName ClassDB::get_integer_constant_enum(
     while (type) {
 
         for(const auto &entry : type->enum_map) {
-            if(entry.second.contains(p_name))
+            if(entry.second.enumerators.contains(p_name))
                 return entry.first;
         }
 
@@ -641,7 +653,7 @@ void ClassDB::get_enum_constants(
         auto enum_iter = type->enum_map.find(p_enum);
 
         if (enum_iter!=type->enum_map.end()) {
-            for (const StringName &name : enum_iter->second) {
+            for (const StringName &name : enum_iter->second.enumerators) {
                 p_constants->push_back(name);
             }
         }
@@ -1310,3 +1322,4 @@ bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const Str
 #endif
     return true;
 }
+

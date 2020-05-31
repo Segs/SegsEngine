@@ -44,15 +44,21 @@
 #include <QJsonObject>
 #include <QDebug>
 
+namespace  {
+
 template<class T>
 T valFromJson(const QJsonValue& v);
 
 template<>
-static QString valFromJson<QString>(const QJsonValue& v) {
+QString valFromJson<QString>(const QJsonValue& v) {
     return v.toString();
 }
 template<>
-static bool valFromJson<bool>(const QJsonValue& v) {
+String valFromJson<String>(const QJsonValue& v) {
+    return v.toString().toUtf8().data();
+}
+template<>
+bool valFromJson<bool>(const QJsonValue& v) {
     return v.toBool();
 }
 
@@ -61,16 +67,31 @@ static void setJsonIfNonDefault(QJsonObject& obj, const char* field, const T& v)
     if (v != T())
         obj[field] = v;
 }
+
+template<>
+void setJsonIfNonDefault<String>(QJsonObject& obj, const char* field, const String& v) {
+    if (!v.empty())
+        obj[field] = v.c_str();
+}
+
 template<class T>
-static void getJsonOrDefault(const QJsonObject& obj, const char* field, T& v) {
+void getJsonOrDefault(const QJsonObject& obj, const char* field, T& v) {
     if (obj.contains(field))
         v = valFromJson<T>(obj[field]);
     else
         v = T();
 }
 
+template<>
+void getJsonOrDefault<String>(const QJsonObject& obj, const char* field, String& v) {
+    if (obj.contains(field))
+        v = valFromJson<String>(obj[field]);
+    else
+        v = String();
+}
+
 template<class T>
-static void toJson(QJsonObject& tgt, const char* name, const Vector<T>& src) {
+void toJson(QJsonObject& tgt, const char* name, const Vector<T>& src) {
     QJsonArray entries;
     for (const T& c : src) {
         QJsonObject field;
@@ -81,7 +102,7 @@ static void toJson(QJsonObject& tgt, const char* name, const Vector<T>& src) {
 
 }
 template<class T>
-static void fromJson(const QJsonObject& src, const char* name, Vector<T>& tgt) {
+void fromJson(const QJsonObject& src, const char* name, Vector<T>& tgt) {
     assert(src[name].isArray());
     QJsonArray arr = src[name].toArray();
     tgt.reserve(arr.size());
@@ -93,34 +114,41 @@ static void fromJson(const QJsonObject& src, const char* name, Vector<T>& tgt) {
 
 }
 
+}
 void ConstantInterface::toJson(QJsonObject& obj) const {
-    obj["name"] = name;
+    obj["name"] = name.c_str();
     obj["value"] = value;
 }
 void ConstantInterface::fromJson(const QJsonObject& obj) {
-    name = obj["name"].toString();
+    name = obj["name"].toString().toUtf8().data();
     value = obj["value"].toInt();
 }
 
 void EnumInterface::toJson(QJsonObject& obj) const {
-    obj["cname"] = cname;
+    obj["cname"] = cname.c_str();
+    if(!underlying_type.empty() && underlying_type!="int32_t") {
+        obj["underlying_type"] = underlying_type.c_str();
+    }
     ::toJson(obj, "constants", constants);
 }
 void EnumInterface::fromJson(const QJsonObject& obj) {
 
-    cname = obj["cname"].toString();
+    cname = obj["cname"].toString().toUtf8().data();
+    if(obj.contains("underlying_type")) {
+        underlying_type = obj["cname"].toString().toUtf8().data();
+    }
     ::fromJson(obj, "constants", constants);
 }
 
 
 void PropertyInterface::toJson(QJsonObject &obj) const {
-    obj["cname"] = cname;
+    obj["cname"] = cname.c_str();
     obj["max_property_index"] = max_property_index;
     QJsonArray prop_infos;
     if(max_property_index!=-1) {
         for(const auto & entry: indexed_entries) {
             QJsonObject entry_enc;
-            entry_enc["name"] = entry.subfield_name;
+            entry_enc["name"] = entry.subfield_name.c_str();
             if(max_property_index==-2) // enum based properties -> BlendMode(val) ->  set((PropKind)1,val)
             {
                 entry_enc["index"] = entry.index;
@@ -148,7 +176,7 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
 }
 
 void PropertyInterface::fromJson(const QJsonObject &obj) {
-    cname = obj["cname"].toString();
+    cname = obj["cname"].toString().toUtf8().data();
     max_property_index = -1;
 
     max_property_index = obj["max_property_index"].toInt();
@@ -158,7 +186,7 @@ void PropertyInterface::fromJson(const QJsonObject &obj) {
     int idx=0;
     for (auto& entry : indexed_entries) {
         QJsonObject entry_enc = subfields[idx++].toObject();
-        entry.subfield_name = entry_enc["name"].toString();
+        entry.subfield_name = entry_enc["name"].toString().toUtf8().data();
         if (max_property_index == -2) // enum based properties -> BlendMode(val) ->  set((PropKind)1,val)
         {
             entry.index = entry_enc["index"].toInt();
@@ -174,14 +202,14 @@ void PropertyInterface::fromJson(const QJsonObject &obj) {
 }
 
 void TypeReference::toJson(QJsonObject &obj) const {
-    obj["cname"] = cname;
+    obj["cname"] = cname.c_str();
     setJsonIfNonDefault(obj, "is_enum", is_enum);
     if (pass_by != TypePassBy::Value)
         obj["pass_by"] = (int8_t)pass_by;
 }
 
 void TypeReference::fromJson(const QJsonObject &obj) {
-    cname = obj["cname"].toString();
+    cname = obj["cname"].toString().toUtf8().data();
 
     getJsonOrDefault(obj, "is_enum", is_enum);
 
@@ -221,7 +249,7 @@ void MethodInterface::toJson(QJsonObject &obj) const {
     QJsonObject sertype;
     return_type.toJson(sertype);
 
-    obj["name"] = name;
+    obj["name"] = name.c_str();
     obj["return_type"] = sertype;
 
     setJsonIfNonDefault(obj,"is_vararg", is_vararg);
@@ -238,7 +266,7 @@ void MethodInterface::toJson(QJsonObject &obj) const {
 
 void MethodInterface::fromJson(const QJsonObject &obj) {
 
-    name = obj["name"].toString();
+    name = obj["name"].toString().toUtf8().data();
     return_type.fromJson(obj["return_type"].toObject());
 
     getJsonOrDefault(obj,"is_vararg", is_vararg);
@@ -265,7 +293,7 @@ void TypeInterface::_init_value_type(TypeInterface &itype) {
     //itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
 }
 
-TypeInterface TypeInterface::create_value_type(const QString &p_name) {
+TypeInterface TypeInterface::create_value_type(const String &p_name) {
     TypeInterface itype;
     itype.name = p_name;
     //itype.cname = (p_name);
@@ -273,7 +301,7 @@ TypeInterface TypeInterface::create_value_type(const QString &p_name) {
     return itype;
 }
 
-TypeInterface TypeInterface::create_object_type(const QString&p_cname, APIType p_api_type) {
+TypeInterface TypeInterface::create_object_type(const String&p_cname, APIType p_api_type) {
     TypeInterface itype;
 
     itype.name = p_cname;
@@ -286,7 +314,7 @@ TypeInterface TypeInterface::create_object_type(const QString&p_cname, APIType p
     return itype;
 }
 
-void TypeInterface::create_placeholder_type(TypeInterface &r_itype, const QString &p_cname) {
+void TypeInterface::create_placeholder_type(TypeInterface &r_itype, const String &p_cname) {
     r_itype.name = p_cname;
     //r_itype.cname = p_cname;
     //r_itype.proxy_name = p_cname;
@@ -340,7 +368,7 @@ TypeInterface::TypeInterface() {
 }
 
 void TypeInterface::toJson(QJsonObject &obj) const {
-    obj["name"] = name;
+    obj["name"] = name.c_str();
     obj["base_name"] = base_name;
     obj["api_type"] = (int)api_type;
     obj["is_enum"] = is_enum;
@@ -359,7 +387,7 @@ void TypeInterface::toJson(QJsonObject &obj) const {
 }
 
 void TypeInterface::fromJson(const QJsonObject &obj) {
-    name = obj["name"].toString();
+    name = obj["name"].toString().toUtf8().data();
     base_name = obj["base_name"].toString();
     api_type = (APIType)obj["api_type"].toInt();
     is_enum = obj["is_enum"].toBool();
@@ -395,7 +423,7 @@ void ReflectionData::build_doc_lookup_helper() {
 
 const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) {
 
-    const Map<QString, TypeInterface>::iterator builtin_type_match = builtin_types.find(p_typeref.cname);
+    const auto builtin_type_match = builtin_types.find(p_typeref.cname);
 
     if (builtin_type_match != builtin_types.end())
         return &builtin_type_match->second;
@@ -406,7 +434,7 @@ const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference 
         return &obj_type_match->second;
 
     if (p_typeref.is_enum) {
-        Map<QString, TypeInterface>::const_iterator enum_match = enum_types.find(p_typeref.cname);
+        auto enum_match = enum_types.find(p_typeref.cname);
 
         if (enum_match != enum_types.end())
             return &enum_match->second;
@@ -416,7 +444,7 @@ const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference 
             return &enum_match->second;
 
         // Enum not found. Most likely because none of its constants were bound, so it's empty. That's fine. Use int instead.
-        const Map<QString, TypeInterface>::iterator int_match = builtin_types.find("int");
+        const auto int_match = builtin_types.find("int");
         ERR_FAIL_COND_V(int_match == builtin_types.end(), nullptr);
         return &int_match->second;
     }
@@ -431,9 +459,9 @@ const TypeInterface * NamespaceInterface::_get_type_or_placeholder(const TypeRef
     if (found)
         return found;
 
-    ERR_PRINT(String() + "Type not found. Creating placeholder: '" + qPrintable(p_typeref.cname) + "'.");
+    ERR_PRINT(String() + "Type not found. Creating placeholder: '" + p_typeref.cname + "'.");
 
-    const Map<QString, TypeInterface>::iterator match = placeholder_types.find(p_typeref.cname);
+    const auto match = placeholder_types.find(p_typeref.cname);
 
     if (match != placeholder_types.end())
         return &match->second;
@@ -450,7 +478,7 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
 
     QJsonArray insert_order_j;
     for (const auto& v : obj_type_insert_order)
-        insert_order_j.push_back(v);
+        insert_order_j.push_back(v.c_str());
     root_obj["insert_order"] = insert_order_j;
 
     QJsonArray enum_arr;
@@ -479,21 +507,21 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
     }
     root_obj["obj_types"] = types_arr;
 
-    obj["name"] = namespace_name;
-    obj["required_header"] = required_header;
+    obj["name"] = namespace_name.c_str();
+    obj["required_header"] = required_header.c_str();
     obj["namespace_contents"] = root_obj;
 }
 
 void NamespaceInterface::fromJson(const QJsonObject &obj)
 {
-    namespace_name = obj["name"].toString();
-    required_header = obj["required_header"].toString();
+    namespace_name = obj["name"].toString().toUtf8().data();
+    required_header = obj["required_header"].toString().toUtf8().data();
     QJsonObject root_obj = obj["namespace_contents"].toObject();
 
     QJsonArray insert_order_j = root_obj["insert_order"].toArray();
     obj_type_insert_order.reserve(insert_order_j.size());
     for (const auto& v : insert_order_j)
-        obj_type_insert_order.emplace_back(v.toString());
+        obj_type_insert_order.emplace_back(v.toString().toUtf8().data());
 
     QJsonArray enum_arr = root_obj["global_enums"].toArray();
     global_enums.reserve(enum_arr.size());
@@ -503,7 +531,7 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
         entry.fromJson(v.toObject());
         global_enums.emplace_back(eastl::move(entry));
     }
-    
+
     QJsonArray globals_arr = root_obj["global_constants"].toArray();
     global_constants.reserve(globals_arr.size());
     for (const auto& v : globals_arr) {

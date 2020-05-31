@@ -1,34 +1,8 @@
-/*************************************************************************/
-/*  bindings_generator.cpp                                               */
-/*************************************************************************/
-/*                       This file is part of:                           */
-/*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
-/*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
-/*                                                                       */
-/* Permission is hereby granted, free of charge, to any person obtaining */
-/* a copy of this software and associated documentation files (the       */
-/* "Software"), to deal in the Software without restriction, including   */
-/* without limitation the rights to use, copy, modify, merge, publish,   */
-/* distribute, sublicense, and/or sell copies of the Software, and to    */
-/* permit persons to whom the Software is furnished to do so, subject to */
-/* the following conditions:                                             */
-/*                                                                       */
-/* The above copyright notice and this permission notice shall be        */
-/* included in all copies or substantial portions of the Software.       */
-/*                                                                       */
-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,       */
-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF    */
-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.*/
-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY  */
-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,  */
-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
-/*************************************************************************/
-
-#include "bindings_generator.h"
+/* http://www.segs.dev/
+ * Copyright (c) 2006 - 2020 SEGS Team (see AUTHORS.md)
+ * This software is licensed under the terms of the 3-clause BSD License.
+ * See LICENSE.md for details.
+*/
 
 /**
  * CSharp binding generator creates the following hierarchy:
@@ -55,10 +29,18 @@
  * and compiled cs assemblies under PROJECT_SOURCE_DIR/bin/CSharp
  */
 
+#include "bindings_generator.h"
+
+#include "sln_support.h"
+#include "cmake_support.h"
+
+#include "core/string_builder.h"
+
+
 #include "core/script_language.h"
-#include "core/string_formatter.h"
-#include "core/string_utils.h"
-#include "core/string_utils.inl"
+//#include "core/string_formatter.h"
+//#include "core/string_utils.h"
+//#include "core/string_utils.inl"
 #include "core/reflection_support/reflection_data.h"
 #include "EASTL/vector_set.h"
 
@@ -67,16 +49,26 @@
 #include <QDir>
 #include <QStringBuilder>
 #include <QUuid>
+#include <cstdio>
 
 static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfbdf7f68");
+
+#if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
     qWarning() << QLatin1String(p_error.data(), p_error.size());
     qWarning() << QLatin1String(p_message.data(), p_message.size());
 }
+int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list arguments)
+{
+    #ifdef _MSC_VER
+        return _vsnprintf(pDestination, n, pFormat, arguments);
+    #else
+        return vsnprintf(pDestination, n, pFormat, arguments);
+    #endif
+}
 
-#if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
 /*
 #include "core/engine.h"
 #include "core/global_constants.h"
@@ -106,16 +98,17 @@ void _err_print_error(const char* p_function, const char* p_file, int p_line, St
 static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_upper = false) {
 
     String ret;
-    Vector<StringView> parts = StringUtils::split(p_identifier, "_", true);
+    Vector<StringView> parts;
+    String::split_ref(parts,p_identifier, "_", true);
 
     for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
 
         if (part.length()) {
-            part[0] = StringUtils::char_uppercase(part[0]);
+            part[0] = eastl::CharToUpper(part[0]);
             if (p_input_is_upper) {
                 for (size_t j = 1; j < part.length(); j++)
-                    part[j] = StringUtils::char_lowercase(part[j]);
+                    part[j] = eastl::CharToLower(part[j]);
             }
             ret += part;
         }
@@ -141,18 +134,19 @@ static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_uppe
 static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper = false) {
 
     String ret;
-    auto parts = StringUtils::split(p_identifier, '_', true);
+    Vector<StringView> parts;
+    String::split_ref(parts,p_identifier,'_',true);
 
     for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
 
         if (part.length()) {
             if (i != 0) {
-                part[0] = StringUtils::char_uppercase(part[0]);
+                part[0] = eastl::CharToUpper(part[0]);
             }
             if (p_input_is_upper) {
                 for (size_t j = i != 0 ? 1 : 0; j < part.length(); j++)
-                    part[j] = StringUtils::char_lowercase(part[j]);
+                    part[j] = eastl::CharToLower(part[j]);
             }
             ret += part;
         }
@@ -3591,7 +3585,7 @@ struct CSTypeMapper : BindingTypeMapper {
     String mapIntTypeName(IntTypes);
     String mapFloatTypeName(FloatTypes);
     String mapClassName(StringView class_name, StringView namespace_name = {}) {
-        
+
     }
     String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
         String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
@@ -3609,7 +3603,7 @@ struct CSTypeMapper : BindingTypeMapper {
         return escape_csharp_keyword(snake_to_camel_case(src_name));
     }
     bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-        
+
     }
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
         String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
@@ -3625,41 +3619,10 @@ struct CSTypeMapper : BindingTypeMapper {
         return proxy_name;
     }
 };
-struct CppProject {
-    QSet<QString> needed_headers;
-    QSet<QString> project_defines;
-    QString m_name;
-    QString m_target_api; // editor/client/server 
-    QString m_project_name;
 
-    QString generate_cmake_contents() {
-        QString contents = QString(
-R"raw(
-
-add_library(%1_%3_mono SHARED %1_%3_cs_bindings.gen.cpp)
-
-target_link_libraries(%1_%3_mono PRIVATE %1_%3 Qt5::Core mono_utils) # for plugin support functionality.
-target_compile_definitions(%1_%3_mono PRIVATE TARGET_%2)
-
-install(TARGETS %1_%3_mono EXPORT install_%1_%3
-    LIBRARY DESTINATION bin/plugins/
-    RUNTIME DESTINATION bin/plugins
-)
-set_target_properties(%1_%3_mono PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugin)
-
-)raw").arg(m_name.toLower(), m_target_api.toUpper(), m_target_api);
-        return contents;
-    }
-
-    void setup(const QString & project_name, const QString &tgt_api) {
-        m_project_name = project_name;
-        m_target_api = tgt_api;
-        m_name = m_project_name;
-    }
-};
 struct FileProducer {
-    QMap<QString,QString> target_files;
-    bool add_to_file(QString fname,QString contents) {
+    Map<String,String> target_files;
+    bool add_to_file(String fname,String contents) {
         target_files[fname] += contents;
         return true;
     }
@@ -3670,12 +3633,12 @@ struct CppProducer : FileProducer {
     CppProject cpp_client_producer;
     CppProject cpp_server_producer;
     QDir m_target_dir;
-    QString m_project_name;
+    String m_project_name;
     //TARGET_DIR/MonoBindings/
     CppProducer()  {
     }
-    void setup(const QDir& target_dir, const QString& project_name) {
-        m_target_dir = target_dir.path() + "/cpp_gen";
+    void setup(const QDir& target_dir, const String& project_name) {
+        m_target_dir.setPath(target_dir.path() + "/cpp_gen");
         m_project_name = project_name;
         cpp_editor_producer.setup(project_name, "editor");
         cpp_client_producer.setup(project_name, "client");
@@ -3683,7 +3646,7 @@ struct CppProducer : FileProducer {
     }
     bool create_build_files() {
         if(!m_target_dir.mkpath(".")) {
-            
+
             qCritical() << "Cannot create: " << m_target_dir.path();
             return false;
         }
@@ -3696,155 +3659,29 @@ struct CppProducer : FileProducer {
             qCritical() << "Cannot write: " << m_target_dir.filePath("CMakeLists.txt");
             return false;
         }
-        target_cmake.write(cpp_editor_producer.generate_cmake_contents().toUtf8());
-        target_cmake.write(cpp_client_producer.generate_cmake_contents().toUtf8());
-        target_cmake.write(cpp_server_producer.generate_cmake_contents().toUtf8());
+        target_cmake.write(cpp_editor_producer.generate_cmake_contents().c_str());
+        target_cmake.write(cpp_client_producer.generate_cmake_contents().c_str());
+        target_cmake.write(cpp_server_producer.generate_cmake_contents().c_str());
         return true;
 
-    }
-};
-struct SLNTransformer {
-    struct GlobalSection {
-        QString name;
-        QString header;
-        QStringList entries;
-    };
-    QStringList project_definitions;
-    QList<GlobalSection> global_sections;
-
-    void parse(const QByteArray &to_process) {
-        QTextStream ts(to_process);
-        QString collected_project;
-        GlobalSection collected_section;
-        int in_section=-1; // 0 in project, 1 in global
-        while(!ts.atEnd()) {
-            QString sln_line = ts.readLine().trimmed();
-            if(in_section==0) {
-                collected_project.append(sln_line % "\n");
-            }
-            else if (in_section==1) {
-                collected_section.entries.push_back(sln_line % "\n");
-            }
-            if(in_section==-1 && sln_line.startsWith("Project(")) {
-                collected_project.append(sln_line % "\n");
-                in_section=0;
-            }
-            if (in_section == -1 && sln_line.startsWith("GlobalSection(")) {
-                collected_section.header = sln_line % "\n";
-                collected_section.name = sln_line.splitRef("=").last().toString().trimmed();
-                in_section = 1;
-            }
-            if(in_section==0 && sln_line=="EndProject") {
-                project_definitions.push_back(collected_project);
-                collected_project.clear();
-                in_section=-1;
-            }
-            if (in_section == 1 && sln_line == "EndGlobalSection") {
-                collected_section.entries.pop_back();
-                global_sections.push_back(collected_section);
-                collected_section = {};
-                in_section = -1;
-            }
-        }
-    }
-    QString generate() {
-        QString new_contents = R"raw(Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-MinimumVisualStudioVersion = 15.0.0
-)raw";
-        for(const QString & proj : project_definitions) {
-            new_contents = new_contents % proj;
-        }
-        new_contents += "Global\n";
-        for (const GlobalSection& glob : global_sections) {
-            new_contents = new_contents % glob.header;
-            for(const auto &entry : glob.entries)
-                new_contents = new_contents % "    " % entry;
-
-            new_contents += "\nEndGlobalSection\n";
-        }
-
-        new_contents += "EndGlobal\n";
-        return new_contents;
-    }
-
-    void add_to_section(const char * section_type, const char * section_name, const QString & proj_uuid) {
-        const char* default_build_options[] = {
-    "Debug|Any CPU.ActiveCfg = Debug|Any CPU",
-    "Debug|Any CPU.Build.0 = Debug|Any CPU",
-    "Release|Any CPU.ActiveCfg = Release|Any CPU",
-    "Release|Any CPU.Build.0 = Release|Any CPU"
-        };
-        for (GlobalSection& t : global_sections) {
-            if (t.name == section_name && t.header.contains(section_type)) {
-                for(const char * opt : default_build_options)
-                    t.entries.push_back(proj_uuid % "." + opt + "\n");
-                return;
-            }
-        }
-        // not added, missing the required section ?
-        GlobalSection new_section;
-        new_section.name = section_name;
-        new_section.header = QString("GlobalSection(%1) = %2\n").arg(section_type,section_name);
-        for (const char* opt : default_build_options)
-            new_section.entries.push_back(proj_uuid % "." + opt + "\n");
-        global_sections.push_back(new_section);
     }
 };
 struct CSProducer : FileProducer {
     QFile m_current_target_file;
     QDir m_target_dir;
-    QString m_project_name;
+    String m_project_name;
     CSProducer() {
-        
+
     }
-    void createCSProj(const QString &file_path) {
-        
-    }
-    void setup(const QDir& target_dir, const QString& project_name) {
+    void setup(const QDir& target_dir, const String& project_name) {
         m_target_dir = target_dir;
         m_project_name = project_name;
     }
-    static bool add_project_guid(const QUuid &uuid,const QString &name,const QString &path,QByteArray &to_process) {
-        SLNTransformer transform;
-
-        transform.parse(to_process);
-        bool already_in_projects=false;
-        for(const QString &t : transform.project_definitions) {
-            if(t.contains(uuid.toString(),Qt::CaseInsensitive)) {
-                already_in_projects = true;
-                break;
-            }
-        }
-        if(!already_in_projects) {
-            const QString to_insert = QString("Project(\"{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}\") = \"%1\", \"%2\", \"%3\"\nEndProject\n").arg(name, path, uuid.toString());
-            transform.project_definitions.push_back(to_insert);
-        }
-        bool already_in_globals = false;
-        for (const SLNTransformer::GlobalSection& t : transform.global_sections) {
-            if(t.name=="postSolution" && t.header.contains("ProjectConfigurationPlatforms")) {
-                for(const QString &ln : t.entries) {
-                    if (ln.contains(uuid.toString() + ".Debug", Qt::CaseInsensitive)) {
-                        already_in_globals = true;
-                        break;
-                    }
-                }
-                if(already_in_globals)
-                    break;
-            }
-
-        }
-        if(!already_in_globals) {
-            transform.add_to_section("ProjectConfigurationPlatforms", "postSolution",uuid.toString());
-        }
-        to_process = transform.generate().toUtf8();
-        return true;
-    }
     /* re-create csproj files, and add them to the SLN*/
     bool create_build_files() {
-        QUuid editor_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "editor").toUtf8());
-        QUuid client_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "client").toUtf8());
-        QUuid server_uuid = QUuid::createUuidV5(g_generator_project_namespace,(m_project_name + "server").toUtf8());
+        QUuid editor_uuid = QUuid::createUuidV5(g_generator_project_namespace,QByteArray((m_project_name + "editor").c_str()));
+        QUuid client_uuid = QUuid::createUuidV5(g_generator_project_namespace,QByteArray((m_project_name + "client").c_str()));
+        QUuid server_uuid = QUuid::createUuidV5(g_generator_project_namespace,QByteArray((m_project_name + "server").c_str()));
 
         QByteArray original_contents;
         QByteArray new_contents;
@@ -3860,9 +3697,15 @@ struct CSProducer : FileProducer {
         }
         if(!original_contents.isEmpty())
             new_contents = original_contents;
-        add_project_guid(editor_uuid, m_project_name, m_project_name + "_editor.csproj", new_contents);
-        add_project_guid(client_uuid, m_project_name, m_project_name + "_client.csproj", new_contents);
-        add_project_guid(server_uuid, m_project_name, m_project_name + "_server.csproj", new_contents);
+
+        SLNTransformer transform;
+
+        transform.parse(new_contents);
+        transform.add_project_guid(editor_uuid, m_project_name, m_project_name + "_editor.csproj");
+        transform.add_project_guid(client_uuid, m_project_name, m_project_name + "_client.csproj");
+        transform.add_project_guid(server_uuid, m_project_name, m_project_name + "_server.csproj");
+        new_contents = transform.generate().c_str();
+
         QFile new_sln_file(new_sln_path);
         if(!new_sln_file.open(QFile::WriteOnly)) {
             return false;
@@ -3872,28 +3715,170 @@ struct CSProducer : FileProducer {
     }
 
 };
-struct CSReflectionVisitor  {
+enum class CSAccessLevel {
+    Public,
+    Internal,
+    Protected,
+    Private
+};
+
+struct CSConstant {
+    static HashMap<String,CSConstant *> constants;
+    const ConstantInterface *m_rd_data;
+    const TypeInterface *const_type;
+    String xml_doc;
+    String cs_name;
+    String value;
+    CSAccessLevel access_level = CSAccessLevel::Public;
+    static String convert_name(StringView cpp_ns_name) {
+        return String(cpp_ns_name);
+    }
+    static CSConstant *get_instance_for(const String &access_path,const ConstantInterface *src) {
+        auto iter = constants.find(access_path+src->name);
+        if(iter!=constants.end())
+            return iter->second;
+        auto res = new CSConstant;
+        res->m_rd_data = src;
+        res->cs_name = convert_name(src->name);
+        char buf[32]={0};
+        snprintf(buf,31,"%d",src->value);
+        res->value = buf;
+        constants.emplace(access_path+src->name,res);
+        //assert(false);
+        return res;
+    }
+};
+HashMap<String,CSConstant *> CSConstant::constants;
+
+struct CSEnum {
+    static HashMap<String,CSEnum *> enums;
+    const EnumInterface *m_rd_data;
+    Vector<const CSConstant *> m_entries;
+    String xml_doc;
+    String cs_name;
+
+    static String convert_name(StringView cpp_ns_name) {
+        return String(cpp_ns_name);
+    }
+    void add_constant(const String &access_path, const ConstantInterface *ci) {
+
+        bool already_have_it=eastl::find_if(m_entries.begin(),m_entries.end(),
+                                            [ci](const CSConstant *a) {
+                          return a->m_rd_data==ci;
+                      })!=m_entries.end();
+        assert(!already_have_it);
+
+        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
+        m_entries.emplace_back(to_add);
+    }
+    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
+        auto iter = enums.find(access_path+src->cname);
+        if(iter!=enums.end())
+            return iter->second;
+        auto res = new CSEnum;
+        res->m_rd_data = src;
+        res->cs_name = convert_name(src->cname);
+        enums.emplace(access_path+src->cname,res);
+        //assert(false);
+        return res;
+    }
+};
+HashMap<String,CSEnum *> CSEnum::enums;
+
+struct CSType {
+    String xml_doc;
+    String cs_name;
+
+    const TypeInterface* source_type;
+    Vector<CSConstant *> m_class_constants;
+    void add_constant(const String &access_path, const ConstantInterface *ci) {
+
+        bool already_have_it=eastl::find_if(m_class_constants.begin(),m_class_constants.end(),
+                                            [ci](const CSConstant *a) {
+                          return a->m_rd_data==ci;
+                      })!=m_class_constants.end();
+        assert(!already_have_it);
+
+        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
+        m_class_constants.emplace_back(to_add);
+    }
+};
+
+struct CSNamespace {
+    static HashMap<String,CSNamespace *> namespaces;
+    String cs_name;
+    CSType m_globals;
+    const NamespaceInterface *m_rd_data;
+
+    Vector<CSEnum> m_enums;
+    Vector<CSType> m_types;
+    Vector<CSNamespace *> m_child_namespaces;
+
+    static String convert_ns_name(StringView cpp_ns_name) {
+        return String(cpp_ns_name);
+    }
+    static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
+        auto iter = namespaces.find(access_path+src->namespace_name);
+        if(iter!=namespaces.end())
+            return iter->second;
+
+        auto res=new CSNamespace();
+        res->m_rd_data = src;
+        res->cs_name = convert_ns_name(src->namespace_name);
+        namespaces[access_path+src->namespace_name] = res;
+        return res;
+    }
+};
+HashMap<String,CSNamespace *> CSNamespace::namespaces;
+
+struct CSReflectionVisitor {
+
     CppProducer cpp_producer;
     CSProducer cs_producer;
-    Vector<const NamespaceInterface *> m_namespace_stack;
-    Vector<const TypeInterface*> m_type_stack;
+    Vector<CSNamespace *> m_namespace_stack;
+    Vector<CSType *> m_type_stack;
     const ReflectionData &m_reflection_data;
+    CSEnum *m_current_enum = nullptr;
     QDir m_current_directory;
-    QString current_namespace;
 
-    CSReflectionVisitor(const ReflectionData &rd, const QString &target_dir, const QString &project_name) :
+    CSReflectionVisitor(const ReflectionData &rd, const QString &target_dir, const String &project_name) :
         m_reflection_data(rd),
         m_current_directory(target_dir + "/MonoBindings") {
         cpp_producer.setup(m_current_directory,project_name);
         cs_producer.setup(m_current_directory, project_name);
 
     }
+    String current_access_path() const {
+        StringBuilder res;
+        for(const auto ns : m_namespace_stack) {
+            res += ns->cs_name;
+            res += "::";
+        }
+        for(const auto ts : m_type_stack) {
+            res += ts->cs_name;
+            res += "::";
+        }
+        if(m_current_enum) {
+            res += m_current_enum->cs_name;
+            res += "::";
+        }
+        return res;
+    }
+    void visit_constant(const ConstantInterface *ci) {
+        // A few cases:
+        // In namespace, create Constants class, add entry for the constant
 
-    void visitConstant(const ConstantInterface *ci) {
-        // Few cases, in class, in enum, in namespace
-        cs_producer.add_to_file("_GlobalConstants.cs",ci->name);
-
-        
+        // In class add entry for the constant
+        // In enum add entry for the constant
+        if(m_current_enum) {
+            m_current_enum->add_constant(current_access_path(),ci);
+            cs_producer.add_to_file("_GlobalConstants.cs",ci->name);
+        } else if(m_type_stack.empty()) {
+            assert(!m_namespace_stack.empty());
+            m_namespace_stack.back()->m_globals.add_constant(current_access_path(),ci);
+        } else {
+            m_type_stack.back()->add_constant(current_access_path(),ci);
+        }
     }
     /*
      *                //if (allUpperCase(valname))
@@ -3904,7 +3889,13 @@ struct CSReflectionVisitor  {
      *
      */
     void visitEnum(const EnumInterface *ei) {
-        assert(false);
+        CSEnum *en = CSEnum::get_instance_for(current_access_path(),ei);
+        m_current_enum = en;
+        for(const ConstantInterface & ci : ei->constants)
+        {
+            visit_constant(&ci);
+        }
+        m_current_enum = nullptr;
     }
     /*
      EnumInterface ienum(StringName(String(enum_name).replaced("::", ".")));
@@ -3922,15 +3913,15 @@ struct CSReflectionVisitor  {
        assert(false);
     }
     void visitNamespace(const NamespaceInterface *iface) {
-        m_namespace_stack.push_back(iface);
+        m_namespace_stack.push_back(CSNamespace::get_instance_for(current_access_path(),iface));
         for (const ConstantInterface& ci : iface->global_constants) {
-            visitConstant(&ci);
+            visit_constant(&ci);
         }
         for (const EnumInterface& ci : iface->global_enums) {
             visitEnum(&ci);
         }
-        for (const TypeInterface& ci : iface->obj_types) {
-            visitType(&ci);
+        for (const auto& ci : iface->obj_types) {
+            visitType(&ci.second);
         }
 
         leaveNamespace();

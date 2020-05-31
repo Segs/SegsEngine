@@ -38,8 +38,6 @@
 #include "core/ustring.h"
 
 #include <QString>
-#include <QHash>
-#include <QByteArray>
 
 class QJsonObject;
 
@@ -51,15 +49,14 @@ enum class APIType {
 
 };
 struct ConstantInterface {
-    QString name;
+    String name;
     //QString proxy_name;
     int value;
 
     ConstantInterface() {}
 
-    ConstantInterface(const QString& p_name, int p_value) {
+    ConstantInterface(const String& p_name, int p_value) {
         name = p_name;
-        //proxy_name = p_proxy_name;
         value = p_value;
     }
     void toJson(QJsonObject& obj) const;
@@ -67,7 +64,8 @@ struct ConstantInterface {
 };
 
 struct EnumInterface {
-    QString cname;
+    String cname;
+    String underlying_type;
     Vector<ConstantInterface> constants;
 
     _FORCE_INLINE_ bool operator==(const EnumInterface& p_ienum) const {
@@ -76,7 +74,7 @@ struct EnumInterface {
 
     EnumInterface() {}
 
-    EnumInterface(const QString& p_cname) {
+    EnumInterface(const String& p_cname) {
         cname = p_cname;
     }
 
@@ -84,7 +82,7 @@ struct EnumInterface {
     void fromJson(const QJsonObject& obj);
 };
 struct TypeReference {
-    QString cname;
+    String cname;
     bool is_enum = false;
     TypePassBy pass_by = TypePassBy::Value;
 
@@ -93,14 +91,14 @@ struct TypeReference {
     void fromJson(const QJsonObject& obj);
 };
 struct PropertyInterface {
-    QString cname;
+    String cname;
     int max_property_index; // -1 for plain properties, -2 for indexed properties, >0 for arrays of multiple properties it's the maximum number.
     struct TypedEntry {
-        QString subfield_name;
+        String subfield_name;
         TypeReference entry_type;
         int index;
-        QString setter;
-        QString getter;
+        String setter;
+        String getter;
     };
     QVector<TypedEntry> indexed_entries;
 
@@ -132,7 +130,7 @@ struct ArgumentInterface {
 };
 
 struct MethodInterface {
-    QString name;
+    String name;
 
     /**
      * Name of the C# method
@@ -187,7 +185,7 @@ struct TypeInterface {
      * Identifier name for this type.
      * Also used to format [c_out].
      */
-    QString name;
+    String name;
     /**
      * Identifier name of the base class.
      */
@@ -341,7 +339,7 @@ struct TypeInterface {
     Vector<PropertyInterface> properties;
     Vector<MethodInterface> methods;
 
-    const MethodInterface* find_method_by_name(const QString& p_cname) const {
+    const MethodInterface* find_method_by_name(const String& p_cname) const {
         for (const MethodInterface& E : methods) {
             if (E.name == p_cname)
                 return &E;
@@ -350,7 +348,7 @@ struct TypeInterface {
         return nullptr;
     }
 
-    const PropertyInterface* find_property_by_name(const QString& p_cname) const {
+    const PropertyInterface* find_property_by_name(const String& p_cname) const {
         for (const PropertyInterface& E : properties) {
             if (E.cname == p_cname)
                 return &E;
@@ -372,11 +370,11 @@ private:
     static void _init_value_type(TypeInterface &itype);
 
 public:
-    static TypeInterface create_value_type(const QString&p_name);
+    static TypeInterface create_value_type(const String&p_name);
 
-    static TypeInterface create_object_type(const QString&p_cname, APIType p_api_type);
+    static TypeInterface create_object_type(const String&p_cname, APIType p_api_type);
 
-    static void create_placeholder_type(TypeInterface &r_itype, const QString&p_cname);
+    static void create_placeholder_type(TypeInterface &r_itype, const String &p_cname);
 
     static void postsetup_enum_type(TypeInterface &r_enum_itype);
 
@@ -387,17 +385,17 @@ public:
     void fromJson(const QJsonObject &obj);
 };
 struct NamespaceInterface {
-    QString namespace_name;
-    QString required_header;
+    String namespace_name;
+    String required_header;
 
-    HashMap<QString, TypeInterface> obj_types;
-    Vector<QString> obj_type_insert_order;
+    HashMap<String, TypeInterface> obj_types;
+    Vector<String> obj_type_insert_order;
     Vector<EnumInterface> global_enums;
     Vector<ConstantInterface> global_constants;
 
-    HashMap<QString, TypeInterface> placeholder_types;
-    HashMap<QString, TypeInterface> builtin_types;
-    HashMap<QString, TypeInterface> enum_types;
+    HashMap<String, TypeInterface> placeholder_types;
+    HashMap<String, TypeInterface> builtin_types;
+    HashMap<String, TypeInterface> enum_types;
 
 
 
@@ -428,7 +426,7 @@ struct ReflectionData {
 
     const TypeInterface *_get_type_or_null(const TypeReference &p_typeref);
 
-    const ConstantInterface* find_constant_by_name(const QString &p_name, const Vector<ConstantInterface>& p_constants) const {
+    const ConstantInterface* find_constant_by_name(const String &p_name, const Vector<ConstantInterface>& p_constants) const {
         for (const ConstantInterface& E : p_constants) {
             if (E.name == p_name)
                 return &E;

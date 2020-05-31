@@ -30,17 +30,15 @@
 
 #pragma once
 
+#include "common.h"
+
+#include "core/hash_map.h"
+#include "core/map.h"
 //#include "core/class_db.h"
 //#include "core/string_builder.h"
 //#include "editor/doc/doc_data.h"
-#include "core/doc_support/doc_data.h"
-#include "core/map.h"
-#include "core/hash_map.h"
-
-#include "core/ustring.h"
-#include "core/string.h"
-#include "core/list.h"
-#include "core/reflection_support/reflection_data.h"
+//#include "core/doc_support/doc_data.h"
+//#include "core/reflection_support/reflection_data.h"
 
 struct GeneratorContext;
 struct TypeInterface;
@@ -49,6 +47,15 @@ struct EnumInterface;
 struct PropertyInterface;
 struct MethodInterface;
 struct StringBuilder;
+
+class DocData;
+namespace DocContents {
+class ClassDoc;
+};
+class GenError {
+
+};
+
 class BindingsGenerator {
     friend struct GeneratorContext;
 public:
@@ -69,13 +76,13 @@ public:
             unique_sig = p_unique_sig;
         }
 
-        InternalCall(APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
-            name = p_name;
-            im_type_out = p_im_type_out;
-            im_sig = p_im_sig;
-            unique_sig = p_unique_sig;
-            editor_only = api_type == APIType::Editor;
-        }
+//        InternalCall(APIType api_type, const String &p_name, const String &p_im_type_out, const String &p_im_sig = String(), const String &p_unique_sig = String()) {
+//            name = p_name;
+//            im_type_out = p_im_type_out;
+//            im_sig = p_im_sig;
+//            unique_sig = p_unique_sig;
+//            editor_only = api_type == APIType::Editor;
+//        }
 
         bool operator==(const InternalCall &p_a) const {
             return p_a.unique_sig == unique_sig;
@@ -93,12 +100,12 @@ public:
 //    List<InternalCall> core_custom_icalls;
 //    List<InternalCall> editor_custom_icalls;
 
-    Map<String, List<String> > blacklisted_methods;
+    Map<String, Vector<String> > blacklisted_methods;
 
 
     void _initialize_blacklisted_methods();
 
-    bool has_named_icall(const String &p_name, const List<InternalCall> &p_list) {
+    bool has_named_icall(const String &p_name, const Vector<InternalCall> &p_list) {
         for (const InternalCall &E : p_list) {
             if (E.name == p_name)
                 return true;
@@ -118,24 +125,22 @@ public:
 
     void _populate_global_constants();
 
-    Error _generate_cs_type(const TypeInterface &itype, StringView p_output_file, GeneratorContext &ctx);
+    GenError _generate_cs_type(const TypeInterface &itype, StringView p_output_file, GeneratorContext &ctx);
 
-    Error _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
-    Error _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
+    GenError _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
+    GenError _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
 
     void _generate_global_constants(StringBuilder &p_output, DocData *doc);
 
-    Error _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
-
-    void _log(const char *p_format, ...) _PRINTF_FORMAT_ATTRIBUTE_2_3;
+    GenError _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
 
     void _initialize(DocData *docs);
 
 public:
-    Error generate_cs_core_project(StringView p_proj_dir, GeneratorContext &ctx, DocData *doc);
-    Error generate_cs_editor_project(const String &p_proj_dir, GeneratorContext &ctx);
-    Error generate_cs_api(StringView p_output_dir, GeneratorContext &ctx, DocData *doc);
-    Error generate_glue(StringView p_output_dir, GeneratorContext &ctx);
+    GenError generate_cs_core_project(StringView p_proj_dir, GeneratorContext &ctx, DocData *doc);
+    GenError generate_cs_editor_project(const String &p_proj_dir, GeneratorContext &ctx);
+    GenError generate_cs_api(StringView p_output_dir, GeneratorContext &ctx, DocData *doc);
+    GenError generate_glue(StringView p_output_dir, GeneratorContext &ctx);
 
     bool is_log_print_enabled() const { return log_print_enabled; }
     void set_log_print_enabled(bool p_enabled) { log_print_enabled = p_enabled; }
@@ -153,7 +158,7 @@ public:
         _initialize(docs);
     }
 private:
-    Error generate_cs_type_docs(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
+    GenError generate_cs_type_docs(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
     void generate_cs_type_doc_summary(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
 };
 

@@ -47,6 +47,7 @@ class Variant;
 
 
 #ifndef __MINGW32__
+#ifdef GODOT_EXPORTS
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class StringName,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<String,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
@@ -56,7 +57,7 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class 
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3,wrap_allocator>;
-
+#endif
 #endif
 extern const Vector<struct Vector2> null_vec2_pvec;
 extern const Vector<struct Vector3> null_vec3_pvec;

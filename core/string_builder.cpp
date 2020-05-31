@@ -72,23 +72,16 @@ String StringBuilder::as_string() const {
     for (int appended_string : appended_strings) {
         if (appended_string == -1) {
             // Godot string
-            const String &s = strings[godot_string_elem];
-
+            const String &s = strings[godot_string_elem++];
             memcpy(buffer + current_position, s.c_str(), s.size() * sizeof(char));
 
             current_position += s.length();
-
-            godot_string_elem++;
         } else {
 
-            StringView s = c_strings[c_string_elem];
+            StringView s = c_strings[c_string_elem++];
             memcpy(buffer + current_position, s.data(), s.size());
 
             current_position += s.length();
-
-            godot_string_elem++;
-
-            c_string_elem++;
         }
     }
 
