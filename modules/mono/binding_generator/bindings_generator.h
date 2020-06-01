@@ -130,8 +130,6 @@ public:
     GenError _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
     GenError _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
 
-    void _generate_global_constants(StringBuilder &p_output, DocData *doc);
-
     GenError _generate_glue_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, StringBuilder &p_output);
 
     void _initialize(DocData *docs);

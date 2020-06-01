@@ -69,6 +69,15 @@ int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list argume
     #endif
 }
 
+static bool allUpperCase(StringView s) {
+    for(char c : s) {
+        if(eastl::CharToUpper(c)!=c)
+            return false;
+    }
+    return true;
+}
+
+
 /*
 #include "core/engine.h"
 #include "core/global_constants.h"
@@ -169,6 +178,128 @@ static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper
 
     return ret;
 }
+
+
+enum class CSAccessLevel {
+    Public,
+    Internal,
+    Protected,
+    Private
+};
+
+struct CSConstant {
+    static HashMap<String,CSConstant *> constants;
+    const ConstantInterface *m_rd_data;
+    const TypeInterface *const_type;
+    String xml_doc;
+    String cs_name;
+    String value;
+    CSAccessLevel access_level = CSAccessLevel::Public;
+    static String convert_name(StringView cpp_ns_name) {
+        if (allUpperCase(cpp_ns_name))
+            return snake_to_pascal_case(cpp_ns_name, true);
+        return String(cpp_ns_name);
+    }
+    static CSConstant *get_instance_for(const String &access_path,const ConstantInterface *src) {
+        auto iter = constants.find(access_path+src->name);
+        if(iter!=constants.end())
+            return iter->second;
+        auto res = new CSConstant;
+        res->m_rd_data = src;
+        res->cs_name = convert_name(src->name);
+        char buf[32]={0};
+        snprintf(buf,31,"%d",src->value);
+        res->value = buf;
+        constants.emplace(access_path+src->name,res);
+        //assert(false);
+        return res;
+    }
+};
+HashMap<String,CSConstant *> CSConstant::constants;
+
+struct CSEnum {
+    static HashMap<String,CSEnum *> enums;
+    const EnumInterface *m_rd_data;
+    Vector<const CSConstant *> m_entries;
+    String xml_doc;
+    String cs_name;
+
+    static String convert_name(StringView cpp_ns_name) {
+        return String(cpp_ns_name);
+    }
+    void add_constant(const String &access_path, const ConstantInterface *ci) {
+
+        bool already_have_it=eastl::find_if(m_entries.begin(),m_entries.end(),
+                                            [ci](const CSConstant *a) {
+                          return a->m_rd_data==ci;
+                      })!=m_entries.end();
+        assert(!already_have_it);
+
+        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
+        m_entries.emplace_back(to_add);
+    }
+    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
+        auto iter = enums.find(access_path+src->cname);
+        if(iter!=enums.end())
+            return iter->second;
+        auto res = new CSEnum;
+        res->m_rd_data = src;
+        res->cs_name = convert_name(src->cname);
+        enums.emplace(access_path+src->cname,res);
+        //assert(false);
+        return res;
+    }
+};
+HashMap<String,CSEnum *> CSEnum::enums;
+
+struct CSType {
+    String xml_doc;
+    String cs_name;
+
+    const TypeInterface* source_type;
+    Vector<CSConstant *> m_class_constants;
+    void add_constant(const String &access_path, const ConstantInterface *ci) {
+
+        bool already_have_it=eastl::find_if(m_class_constants.begin(),m_class_constants.end(),
+                                            [ci](const CSConstant *a) {
+                          return a->m_rd_data==ci;
+                      })!=m_class_constants.end();
+        assert(!already_have_it);
+
+        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
+        m_class_constants.emplace_back(to_add);
+    }
+};
+
+struct CSNamespace {
+    static HashMap<String,CSNamespace *> namespaces;
+    String cs_name;
+    CSType m_globals;
+    const NamespaceInterface *m_rd_data;
+
+    Vector<CSEnum> m_enums;
+    Vector<CSType> m_types;
+    Vector<CSNamespace *> m_child_namespaces;
+
+    static String convert_ns_name(StringView cpp_ns_name) {
+        return String(cpp_ns_name);
+    }
+    static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
+        auto iter = namespaces.find(access_path+src->namespace_name);
+        if(iter!=namespaces.end())
+            return iter->second;
+
+        auto res=new CSNamespace();
+        res->m_rd_data = src;
+        res->cs_name = convert_ns_name(src->namespace_name);
+        namespaces[access_path+src->namespace_name] = res;
+        return res;
+    }
+
+};
+HashMap<String,CSNamespace *> CSNamespace::namespaces;
+
+
 #if 0
 
 #include "core/doc_support/doc_data.h"
@@ -906,19 +1037,19 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface& p_itype) {
 #endif
     }
 }
-#if 0
-void BindingsGenerator::_generate_global_constants(StringBuilder &p_output,DocData *doc) {
+static void _generate_global_constants(StringBuilder &p_output,const String &ns_name,DocData *doc) {
 
     // Constants (in partial GD class)
 
     p_output.append("\n#pragma warning disable CS1591 // Disable warning: "
                     "'Missing XML comment for publicly visible type or member'\n");
 
-    p_output.append("namespace " BINDINGS_NAMESPACE "\n" OPEN_BLOCK);
+    p_output.append("namespace " +ns_name+ "\n {\n");
     p_output.indent();
-    p_output.append_indented("public static partial class " BINDINGS_GLOBAL_SCOPE_CLASS "\n");
+    p_output.append_indented("public static partial class Constants\n");
     p_output.append_indented("{\n");
 
+#if 0
     for (const ConstantInterface &iconstant : rd.global_constants) {
         p_output.indent();
         auto const_doc = rd.constant_doc("@GlobalScope","",iconstant.name);
@@ -1014,11 +1145,12 @@ void BindingsGenerator::_generate_global_constants(StringBuilder &p_output,DocDa
             p_output.append(INDENT1 CLOSE_BLOCK);
     }
 
-    p_output.append(CLOSE_BLOCK); // end of namespace
+#endif
+    p_output.append("} // end of namespace");
 
     p_output.append("\n#pragma warning restore CS1591\n");
 }
-
+#if 0
 Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir,GeneratorContext &ctx,DocData *doc) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
@@ -3395,13 +3527,6 @@ void BindingsGenerator::_populate_builtin_type_interfaces() {
     itype.im_type_out = itype.proxy_name;
     rd.builtin_types.emplace(itype.cname, itype);
 }
-static bool allUpperCase(StringView s) {
-    for(char c : s) {
-        if(StringUtils::char_uppercase(c)!=c)
-            return false;
-    }
-    return true;
-}
 
 
 void BindingsGenerator::_initialize_blacklisted_methods() {
@@ -3620,6 +3745,7 @@ struct CSTypeMapper : BindingTypeMapper {
     }
 };
 
+
 struct FileProducer {
     Map<String,String> target_files;
     bool add_to_file(String fname,String contents) {
@@ -3670,6 +3796,8 @@ struct CSProducer : FileProducer {
     QFile m_current_target_file;
     QDir m_target_dir;
     String m_project_name;
+    Vector<String> generated_filenames;
+
     CSProducer() {
 
     }
@@ -3713,123 +3841,22 @@ struct CSProducer : FileProducer {
         new_sln_file.write(new_contents);
         return true;
     }
+    bool generate_constant_files() {
+        assert(false);
+        // Generate source file for global scope constants and enums
+//        for(const auto &ns : CSNamespace::namespaces) {
+//            StringBuilder constants_source;
+//            _generate_global_constants(constants_source,ns.second,doc);
+//            QString output_file =QDir(m_target_dir).filePath((ns.second->cs_name + "_constants.cs").c_str());
+//            auto save_err = _save_file(output_file, constants_source);
+//            if (save_err != OK)
+//                return false;
 
-};
-enum class CSAccessLevel {
-    Public,
-    Internal,
-    Protected,
-    Private
-};
+//            generated_filenames.emplace_back(qPrintable(output_file));
 
-struct CSConstant {
-    static HashMap<String,CSConstant *> constants;
-    const ConstantInterface *m_rd_data;
-    const TypeInterface *const_type;
-    String xml_doc;
-    String cs_name;
-    String value;
-    CSAccessLevel access_level = CSAccessLevel::Public;
-    static String convert_name(StringView cpp_ns_name) {
-        return String(cpp_ns_name);
-    }
-    static CSConstant *get_instance_for(const String &access_path,const ConstantInterface *src) {
-        auto iter = constants.find(access_path+src->name);
-        if(iter!=constants.end())
-            return iter->second;
-        auto res = new CSConstant;
-        res->m_rd_data = src;
-        res->cs_name = convert_name(src->name);
-        char buf[32]={0};
-        snprintf(buf,31,"%d",src->value);
-        res->value = buf;
-        constants.emplace(access_path+src->name,res);
-        //assert(false);
-        return res;
+//        }
     }
 };
-HashMap<String,CSConstant *> CSConstant::constants;
-
-struct CSEnum {
-    static HashMap<String,CSEnum *> enums;
-    const EnumInterface *m_rd_data;
-    Vector<const CSConstant *> m_entries;
-    String xml_doc;
-    String cs_name;
-
-    static String convert_name(StringView cpp_ns_name) {
-        return String(cpp_ns_name);
-    }
-    void add_constant(const String &access_path, const ConstantInterface *ci) {
-
-        bool already_have_it=eastl::find_if(m_entries.begin(),m_entries.end(),
-                                            [ci](const CSConstant *a) {
-                          return a->m_rd_data==ci;
-                      })!=m_entries.end();
-        assert(!already_have_it);
-
-        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
-        m_entries.emplace_back(to_add);
-    }
-    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
-        auto iter = enums.find(access_path+src->cname);
-        if(iter!=enums.end())
-            return iter->second;
-        auto res = new CSEnum;
-        res->m_rd_data = src;
-        res->cs_name = convert_name(src->cname);
-        enums.emplace(access_path+src->cname,res);
-        //assert(false);
-        return res;
-    }
-};
-HashMap<String,CSEnum *> CSEnum::enums;
-
-struct CSType {
-    String xml_doc;
-    String cs_name;
-
-    const TypeInterface* source_type;
-    Vector<CSConstant *> m_class_constants;
-    void add_constant(const String &access_path, const ConstantInterface *ci) {
-
-        bool already_have_it=eastl::find_if(m_class_constants.begin(),m_class_constants.end(),
-                                            [ci](const CSConstant *a) {
-                          return a->m_rd_data==ci;
-                      })!=m_class_constants.end();
-        assert(!already_have_it);
-
-        CSConstant *to_add = CSConstant::get_instance_for(access_path+"::"+cs_name,ci);
-        m_class_constants.emplace_back(to_add);
-    }
-};
-
-struct CSNamespace {
-    static HashMap<String,CSNamespace *> namespaces;
-    String cs_name;
-    CSType m_globals;
-    const NamespaceInterface *m_rd_data;
-
-    Vector<CSEnum> m_enums;
-    Vector<CSType> m_types;
-    Vector<CSNamespace *> m_child_namespaces;
-
-    static String convert_ns_name(StringView cpp_ns_name) {
-        return String(cpp_ns_name);
-    }
-    static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
-        auto iter = namespaces.find(access_path+src->namespace_name);
-        if(iter!=namespaces.end())
-            return iter->second;
-
-        auto res=new CSNamespace();
-        res->m_rd_data = src;
-        res->cs_name = convert_ns_name(src->namespace_name);
-        namespaces[access_path+src->namespace_name] = res;
-        return res;
-    }
-};
-HashMap<String,CSNamespace *> CSNamespace::namespaces;
 
 struct CSReflectionVisitor {
 
@@ -3880,14 +3907,6 @@ struct CSReflectionVisitor {
             m_type_stack.back()->add_constant(current_access_path(),ci);
         }
     }
-    /*
-     *                //if (allUpperCase(valname))
-                //    iconstant = ConstantInterface(valname.asCString(), snake_to_pascal_case(valname, true), constant_value);
-                //else
-                //    iconstant = ConstantInterface(valname.asCString(), valname.asCString(), constant_value);
-
-     *
-     */
     void visitEnum(const EnumInterface *ei) {
         CSEnum *en = CSEnum::get_instance_for(current_access_path(),ei);
         m_current_enum = en;
@@ -3934,15 +3953,6 @@ struct CSReflectionVisitor {
     void visitType(const TypeInterface *) {
       //  assert(false);
     }
-    void visitTypeConstant(const ConstantInterface *) {
-       // assert(false);
-    }
-    void visitTypeEnum(const EnumInterface *) {
-        //int prefix_length = _determine_enum_prefix(ienum);
-
-        //_apply_prefix_to_enum_constants(ienum, prefix_length);
-       // assert(false);
-    }
     void visitTypeProperty(const PropertyInterface *) {
       //  assert(false);
     }
@@ -3951,6 +3961,7 @@ struct CSReflectionVisitor {
     }
 
     void finalize() {
+        cs_producer.generate_constant_files();
         cpp_producer.create_build_files();
         cs_producer.create_build_files();
     }
