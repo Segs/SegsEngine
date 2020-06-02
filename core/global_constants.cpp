@@ -597,6 +597,7 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_FROM_SCRIPT)
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAGS_DEFAULT)
 
+    //_global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_NIL", VariantType::NIL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_BOOL", VariantType::BOOL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT", VariantType::INT)

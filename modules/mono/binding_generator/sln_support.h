@@ -24,3 +24,12 @@ public:
     String generate();
 
 };
+
+class CSProjGenerator {
+public:
+    void add_file_set(Span<const String> files);
+    void add_defines(Span<const StringView> defines);
+    void add_references(Span<const StringView> refs);
+
+    String generate();
+};

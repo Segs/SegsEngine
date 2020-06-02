@@ -41,12 +41,13 @@
 
 class QJsonObject;
 
+// TODO: consider switching to flag enum for APIType
 enum class APIType {
-    None,
-    Core,
+    Invalid = -1,
+    Common=0,
     Editor,
-    User
-
+    Client,
+    Server,
 };
 struct ConstantInterface {
     String name;

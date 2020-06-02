@@ -1245,33 +1245,6 @@ void ScriptTextEditor::_edit_option(int p_op) {
 
             _convert_case(CodeTextEditor::CAPITALIZE);
         } break;
-        case EDIT_EVALUATE: {
-
-            Expression expression;
-            Vector<StringView> lines = StringUtils::split(code_editor->get_text_edit()->get_selection_text(),'\n');
-            Vector<String> results;
-
-            for (size_t i = 0; i < lines.size(); i++) {
-                StringView line = lines[i];
-                //extract the whitespace at the beginning
-                StringView whitespace = StringUtils::substr(line,0, line.size() - StringUtils::strip_edges(line,true, false).size());
-
-                if (expression.parse(line) == OK) {
-                    Variant result = expression.execute(Array(), Variant(), false);
-                    if (expression.get_error_text().empty()) {
-                        results.push_back(String(whitespace)+result.get_construct_string());
-                    } else {
-                        results.emplace_back(line);
-                    }
-                } else {
-                    results.emplace_back(line);
-                }
-            }
-
-            code_editor->get_text_edit()->begin_complex_operation(); //prevents creating a two-step undo
-            code_editor->get_text_edit()->insert_text_at_cursor_ui(StringUtils::from_utf8(String::joined(results,"\n")));
-            code_editor->get_text_edit()->end_complex_operation();
-        } break;
         case SEARCH_FIND: {
 
             code_editor->get_find_replace_bar()->popup_search();
@@ -1755,7 +1728,6 @@ void ScriptTextEditor::_make_context_menu(bool p_selection, bool p_color, bool p
         context_menu->add_separator();
         context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_to_uppercase"), EDIT_TO_UPPERCASE);
         context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_to_lowercase"), EDIT_TO_LOWERCASE);
-        context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/evaluate_selection"), EDIT_EVALUATE);
     }
     if (p_foldable)
         context_menu->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_fold_line"), EDIT_TOGGLE_FOLD_LINE);
@@ -1865,7 +1837,6 @@ ScriptTextEditor::ScriptTextEditor() {
     edit_menu->get_popup()->add_separator();
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/clone_down"), EDIT_CLONE_DOWN);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/complete_symbol"), EDIT_COMPLETE);
-    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/evaluate_selection"), EDIT_EVALUATE);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/trim_trailing_whitespace"), EDIT_TRIM_TRAILING_WHITESAPCE);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_spaces"), EDIT_CONVERT_INDENT_TO_SPACES);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_tabs"), EDIT_CONVERT_INDENT_TO_TABS);

@@ -1,5 +1,7 @@
 #include "sln_support.h"
 
+#include <EASTL/span.h>
+
 #include <QTextStream>
 #include <QStringBuilder>
 #include <QUuid>
@@ -59,6 +61,28 @@ String SLNTransformer::generate() {
 
     new_contents += "EndGlobal\n";
     return new_contents;
+}
+
+void CSProjGenerator::add_file_set(Span<const String> files)
+{
+    assert(false);
+
+}
+
+void CSProjGenerator::add_defines(Span<const StringView> defines)
+{
+    assert(false);
+}
+
+void CSProjGenerator::add_references(Span<const StringView> refs)
+{
+    assert(false);
+}
+
+String CSProjGenerator::generate()
+{
+    assert(false);
+    return "";
 }
 
 void SLNTransformer::add_to_section(const char *section_type, const char *section_name, const String &proj_uuid) {

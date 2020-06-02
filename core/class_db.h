@@ -105,6 +105,7 @@ public:
     enum APIType {
         API_CORE,
         API_EDITOR,
+        API_SERVER, // server only APIs ?
         API_NONE
     };
 

@@ -352,7 +352,7 @@ void TypeInterface::postsetup_enum_type(TypeInterface &r_enum_itype) {
 
 TypeInterface::TypeInterface() {
 
-    api_type = APIType::None;
+    api_type = APIType::Common;
 
     is_enum = false;
     is_object_type = false;

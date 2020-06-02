@@ -124,12 +124,14 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
 }
 static APIType convertApiType(ClassDB::APIType ap) {
     if(ap==ClassDB::API_NONE)
-        return APIType::None;
+        return APIType::Invalid;
     if (ap == ClassDB::API_CORE)
-        return APIType::Core;
+        return APIType::Common;
     if (ap == ClassDB::API_EDITOR)
         return APIType::Editor;
-    return APIType::User;
+    if (ap == ClassDB::API_SERVER)
+        return APIType::Server;
+    return APIType::Invalid;
 
 }
 static StringView _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {

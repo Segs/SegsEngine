@@ -20,5 +20,5 @@ add_executable(binding_generator
     )
 target_link_libraries(binding_generator PRIVATE Qt5::Core EASTL) #se_core
 set_target_properties(binding_generator PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-#target_compile_definitions(binding_generator PRIVATE GODOT_STATIC_DEFINE)
+target_compile_definitions(binding_generator PRIVATE GODOT_STATIC_DEFINE)
 target_include_directories(binding_generator PRIVATE ${PROJECT_SOURCE_DIR})
