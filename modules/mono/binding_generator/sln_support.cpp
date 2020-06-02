@@ -65,23 +65,22 @@ String SLNTransformer::generate() {
 
 void CSProjGenerator::add_file_set(Span<const String> files)
 {
-    assert(false);
-
+    m_project_sources.insert(files.begin(), files.end());
 }
 
 void CSProjGenerator::add_defines(Span<const StringView> defines)
 {
-    assert(false);
+    m_project_defines.insert(defines.begin(),defines.end());
 }
 
 void CSProjGenerator::add_references(Span<const StringView> refs)
 {
-    assert(false);
+    m_project_references.insert(refs.begin(), refs.end());
 }
 
 String CSProjGenerator::generate()
 {
-    assert(false);
+    //assert(false);
     return "";
 }
 

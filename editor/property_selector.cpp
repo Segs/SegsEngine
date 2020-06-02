@@ -352,7 +352,7 @@ void PropertySelector::_item_selected() {
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    UIString text;
+    String text;
 
     if (properties) {
 
@@ -390,10 +390,10 @@ void PropertySelector::_item_selected() {
         }
     }
 
-    if (text.isEmpty())
+    if (text.empty())
         return;
 
-    help_bit->set_text_ui(text);
+    help_bit->set_text(text);
 }
 
 void PropertySelector::_notification(int p_what) {

@@ -400,7 +400,7 @@ struct NamespaceInterface {
 
 
 
-    const TypeInterface* _get_type_or_null(const TypeReference& p_typeref);
+    const TypeInterface* _get_type_or_null(const TypeReference& p_typeref) const;
     const TypeInterface* _get_type_or_placeholder(const TypeReference& p_typeref);
 
     void toJson(QJsonObject& obj) const;
@@ -415,17 +415,17 @@ struct ReflectionData {
         HashMap<QString, const DocContents::PropertyDoc*> properties;
         HashMap<QString, const DocContents::PropertyDoc*> theme_properties;
 
-        HashMap<QString, const DocContents::ConstantDoc*> constantsz;
+        HashMap<QString, const DocContents::ConstantDoc*> constants;
     };
     HashMap<QString, ClassLookupHelper> doc_lookup_helpers;
     void build_doc_lookup_helper();
 
     Vector<NamespaceInterface> namespaces;
-    /*const DocContents::ConstantDoc* constant_doc(QString classname, QString enum_name, QString const_name) {
-        return doc_lookup_helpers[classname].constantsz.at(enum_name + "::" + const_name, nullptr);
-    }*/
+    const DocContents::ConstantDoc* constant_doc(QString classname, QString enum_name, QString const_name) const {
+        return doc_lookup_helpers.at(classname).constants.at(enum_name + "::" + const_name, nullptr);
+    }
 
-    const TypeInterface *_get_type_or_null(const TypeReference &p_typeref);
+    const TypeInterface *_get_type_or_null(const NamespaceInterface *ns,const TypeReference &p_typeref) const;
 
     const ConstantInterface* find_constant_by_name(const String &p_name, const Vector<ConstantInterface>& p_constants) const {
         for (const ConstantInterface& E : p_constants) {

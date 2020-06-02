@@ -398,6 +398,11 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
     is_instantiable = obj["is_instantiable"].toBool();
     memory_own = obj["memory_own"].toBool();
     ret_as_byref_arg = obj["ret_as_byref_arg"].toBool();
+
+    ::fromJson(obj,"constants",constants);
+    ::fromJson(obj, "enums", enums);
+    ::fromJson(obj, "properties", properties);
+    ::fromJson(obj, "methods", methods);
 }
 
 void ReflectionData::build_doc_lookup_helper() {
@@ -410,7 +415,7 @@ void ReflectionData::build_doc_lookup_helper() {
             tgt.defined_signals[mthd.name] = &mthd;
         }
         for (const auto &mthd : iter->constants) {
-            tgt.constantsz[mthd.enumeration + "::" + mthd.name] = &mthd;
+            tgt.constants[mthd.enumeration + "::" + mthd.name] = &mthd;
         }
         for (const auto &mthd : iter->properties) {
             tgt.properties[mthd.name] = &mthd;
@@ -421,7 +426,12 @@ void ReflectionData::build_doc_lookup_helper() {
     }
 }
 
-const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) {
+const TypeInterface * ReflectionData::_get_type_or_null(const NamespaceInterface *ns,const TypeReference &p_typeref) const {
+    assert(false);
+    return nullptr;
+}
+
+const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) const {
 
     const auto builtin_type_match = builtin_types.find(p_typeref.cname);
 

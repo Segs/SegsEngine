@@ -42,7 +42,10 @@
 //#include "core/string_utils.h"
 //#include "core/string_utils.inl"
 #include "core/reflection_support/reflection_data.h"
+#include "modules/mono/godotsharp_defs.h"
+
 #include "EASTL/vector_set.h"
+#include "EASTL/deque.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -50,6 +53,7 @@
 #include <QStringBuilder>
 #include <QUuid>
 #include <cstdio>
+#include <QXmlStreamWriter>
 
 static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfbdf7f68");
 
@@ -233,9 +237,10 @@ HashMap<String,CSConstant *> CSConstant::constants;
 struct CSEnum {
     static HashMap<String,CSEnum *> enums;
     const EnumInterface *m_rd_data;
-    Vector<const CSConstant *> m_entries;
+    Vector<CSConstant *> m_entries;
     String xml_doc;
     String cs_name;
+    String static_wrapper_class;
 
     static String convert_name(const String& access_path,StringView cpp_ns_name) {
         FixedVector<StringView,4,true> parts;
@@ -273,14 +278,34 @@ struct CSEnum {
     }
 };
 HashMap<String,CSEnum *> CSEnum::enums;
+struct CSFunction {
+    String cs_name;
+    const MethodInterface* source_type;
+    static HashMap< const MethodInterface*, CSFunction*> s_ptr_cache;
+
+    static CSFunction* from_rd(const MethodInterface* type_interface) {
+
+        CSFunction* res = s_ptr_cache[type_interface];
+        if(res)
+            return res;
+
+        res = new CSFunction;
+        res->cs_name = type_interface->name;
+        res->source_type = type_interface;
+        s_ptr_cache[type_interface] = res;
+        return res;
+    }
+};
+HashMap< const MethodInterface*, CSFunction*> CSFunction::s_ptr_cache;
 
 struct CSType {
-    String xml_doc;
     String cs_name;
 
     const TypeInterface* source_type;
     Vector<CSConstant *> m_class_constants;
     Vector<CSEnum*> m_class_enums;
+    Vector<CSFunction *> m_class_functions;
+
     void add_constant(const String &access_path, const ConstantInterface *ci) {
 
         bool already_have_it=eastl::find_if(m_class_constants.begin(),m_class_constants.end(),
@@ -296,6 +321,24 @@ struct CSType {
         //TODO: add sanity checks here
         m_class_enums.emplace_back(enm);
     }
+
+    CSFunction * find_method_by_name(const StringName & string_name) const {
+        auto internal = source_type->find_method_by_name(string_name.asCString());
+        if(!internal) {
+            qCritical()<<"Missing method "<<source_type->name.c_str()<<"::"<<string_name.asCString();
+            return nullptr;
+        }
+        CSFunction *res = CSFunction::from_rd(internal);
+        assert(m_class_functions.contains(res));
+        return res;
+    }
+
+    static CSType * from_rd(const TypeInterface * type_interface) {
+        CSType *res=new CSType;
+        res->cs_name = type_interface->name;
+        res->source_type = type_interface;
+        return res;
+    }   
 };
 
 struct CSNamespace {
@@ -304,6 +347,7 @@ struct CSNamespace {
     CSType m_globals;
     const NamespaceInterface *m_rd_data;
 
+    CSNamespace* parent;
     Vector<CSEnum *> m_enums;
     Vector<CSType *> m_types;
     Vector<CSNamespace *> m_child_namespaces;
@@ -312,15 +356,63 @@ struct CSNamespace {
         return String(cpp_ns_name);
     }
     static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
+        
         auto iter = namespaces.find(access_path+src->namespace_name);
         if(iter!=namespaces.end())
             return iter->second;
-
+        CSNamespace *parent = nullptr;
+        if(!access_path.empty()) {
+            auto parent_iter = namespaces.find(access_path.substr(0, access_path.size() - 2));
+            parent = parent_iter->second;
+        }
         auto res=new CSNamespace();
         res->m_rd_data = src;
         res->cs_name = convert_ns_name(src->namespace_name);
         namespaces[access_path+src->namespace_name] = res;
+        res->parent = parent;
+        if(parent)
+            parent->m_child_namespaces.push_back(res);
         return res;
+    }
+    static CSNamespace *from_path(Span<const StringView> path) {
+        String to_test = String::joined(path,"::");
+        auto iter = namespaces.find(to_test);
+        assert(iter!=namespaces.end());
+        return iter->second;
+    }
+    CSType *find_by_cpp_name(const String &name) {
+        CSNamespace* ns_iter = this;
+
+        const TypeInterface *target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
+        while (!target_itype && ns_iter) {
+            ns_iter = ns_iter->parent;
+            target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
+        }
+        for(CSType *t : m_types) {
+            if(t->source_type == target_itype)
+                return t;
+        }
+        m_types.push_back(CSType::from_rd(target_itype));
+        return m_types.back();
+    }
+    String cs_path() const {
+        Dequeue<String> parts;
+        const CSNamespace* ns_iter = this;
+        while(ns_iter) {
+            parts.push_front(ns_iter->cs_name);
+            ns_iter = ns_iter->parent;
+        }
+        return String::joined(parts,".");
+    }
+    Vector<StringView> cs_path_components() const {
+        Dequeue<StringView> parts;
+        const CSNamespace* ns_iter = this;
+        while (ns_iter) {
+            parts.push_front(ns_iter->cs_name);
+            ns_iter = ns_iter->parent;
+        }
+        Vector<StringView> continous(parts.begin(),parts.end());
+        return continous;
     }
 
 };
@@ -393,6 +485,7 @@ static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static Error _save_file(StringView p_path, const StringBuilder& p_content);
 DocData *g_doc_data;
+#endif
 static String fix_doc_description(StringView p_bbcode) {
 
     // This seems to be the correct way to do this. It's the same EditorHelp does.
@@ -400,7 +493,7 @@ static String fix_doc_description(StringView p_bbcode) {
     return String(StringUtils::strip_edges(StringUtils::dedent(p_bbcode).replaced("\t", "")
             .replaced("\r", "")));
 }
-
+#if 0
 struct NameCache {
     StringName type_void;
     StringName type_Array;
@@ -469,23 +562,25 @@ static inline String get_unique_sig(const TypeInterface &p_type) {
 
     return p_type.name;
 }
+#endif
 
+String bbcode_to_xml(StringView p_bbcode,Span<const StringView> access_path, const CSType *p_itype,const ReflectionData &rd,bool verbose) {
 
-String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface *p_itype,DocData *doc) {
-
+    CSNamespace *our_ns = CSNamespace::from_path(access_path);
+    // Get namespace from path
     // Based on the version in EditorHelp
     using namespace eastl;
+    QByteArray target;
+    QXmlStreamWriter xml_output(&target);
 
     if (p_bbcode.empty())
         return String();
 
     String bbcode(p_bbcode);
 
-    StringBuilder xml_output;
+    xml_output.writeStartElement("para");
 
-    xml_output.append("<para>");
-
-    List<String> tag_stack;
+    Vector<String> tag_stack;
     bool code_tag = false;
 
     size_t pos = 0;
@@ -497,18 +592,18 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
 
         if (brk_pos > pos) {
             StringView text = StringUtils::substr(bbcode,pos, brk_pos - pos);
-            if (code_tag || tag_stack.size() > 0) {
-                xml_output.append(StringUtils::xml_escape(text));
+            if (code_tag || !tag_stack.empty() ) {
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
             } else {
-                Vector<StringView> lines = StringUtils::split(text,'\n');
+                Vector<StringView> lines;
+                String::split_ref(lines,text,'\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
-                        xml_output.append("<para>");
-
-                    xml_output.append(StringUtils::xml_escape(lines[i]));
+                        xml_output.writeStartElement("para");
+                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
 
                     if (i != lines.size() - 1)
-                        xml_output.append("</para>\n");
+                        xml_output.writeEndElement();
                 }
             }
         }
@@ -520,18 +615,20 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
 
         if (brk_end == String::npos) {
             StringView text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
-            if (code_tag || tag_stack.size() > 0) {
-                xml_output.append(StringUtils::xml_escape(text));
+            if (code_tag || !tag_stack.empty()) {
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
             } else {
-                Vector<StringView> lines = StringUtils::split(text,'\n');
+
+                Vector<StringView> lines;
+                String::split_ref(lines, text, '\n');
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
-                        xml_output.append("<para>");
+                        xml_output.writeStartElement("para");
 
-                    xml_output.append(StringUtils::xml_escape(lines[i]));
+                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
 
                     if (i != lines.size() - 1)
-                        xml_output.append("</para>\n");
+                        xml_output.writeEndElement();
                 }
             }
 
@@ -544,7 +641,7 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             bool tag_ok = tag_stack.size() && tag_stack.front() == tag.substr(1, tag.length());
 
             if (!tag_ok) {
-                xml_output.append("[");
+                xml_output.writeCharacters("[");
                 pos = brk_pos + 1;
                 continue;
             }
@@ -554,71 +651,66 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             code_tag = false;
 
             if (tag == "/url"_sv) {
-                xml_output.append("</a>");
+                xml_output.writeEndElement(); //</a>
             } else if (tag == "/code"_sv) {
-                xml_output.append("</c>");
+                xml_output.writeEndElement(); //</c>
             } else if (tag == "/codeblock"_sv) {
-                xml_output.append("</code>");
+                xml_output.writeEndElement(); //</code>
             }
         } else if (code_tag) {
-            xml_output.append("[");
+            xml_output.writeCharacters("[");
             pos = brk_pos + 1;
         } else if (tag.starts_with("method ") || tag.starts_with("member ") || tag.starts_with("signal ") || tag.starts_with("enum ") || tag.starts_with("constant ")) {
             StringView link_target = tag.substr(tag.find(" ") + 1, tag.length());
             StringView link_tag = tag.substr(0, tag.find(" "));
 
-            Vector<StringView> link_target_parts = StringUtils::split(link_target,".");
+            Vector<StringView> link_target_parts;
+            String::split_ref(link_target_parts, link_target, '.');
 
-            if (link_target_parts.size() <= 0 || link_target_parts.size() > 2) {
+            if (link_target_parts.empty() || link_target_parts.size() > 2) {
                 ERR_PRINT("Invalid reference format: '" + tag + "'.");
 
-                xml_output.append("<c>");
-                xml_output.append(tag);
-                xml_output.append("</c>");
+                xml_output.writeTextElement("c",QString::fromUtf8(tag.data(),tag.size()));
 
                 pos = brk_end + 1;
                 continue;
             }
 
-            const TypeInterface *target_itype;
+            const CSType *target_itype;
             StringName target_cname;
 
             if (link_target_parts.size() == 2) {
-                target_itype = rd._get_type_or_null(TypeReference { StringName(link_target_parts[0]) });
+                target_itype = our_ns->find_by_cpp_name(String(link_target_parts.front()));
                 if (!target_itype) {
-                    target_itype = rd._get_type_or_null(TypeReference {"_" + link_target_parts[0]});
+                    target_itype = our_ns->find_by_cpp_name("_"+ String(link_target_parts.front()));
                 }
                 target_cname = StringName(link_target_parts[1]);
             } else {
                 target_itype = p_itype;
                 target_cname = StringName(link_target_parts[0]);
             }
-
             if (link_tag == "method"_sv) {
-                if (!target_itype || !target_itype->is_object_type) {
-                    if (OS::get_singleton()->is_stdout_verbose()) {
+                if (!target_itype || !target_itype->source_type->is_object_type) {
+                    if (verbose) {
                         if (target_itype) {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
                         } else {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve type from method reference in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve type from method reference in documentation: %.*s\n", link_target.size(),link_target.data());
                         }
                     }
 
                     // TODO Map what we can
-                    xml_output.append("<c>");
-                    xml_output.append(link_target);
-                    xml_output.append("</c>");
+                    xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
                 } else {
-                    const MethodInterface *target_imethod = target_itype->find_method_by_name(target_cname);
+                    const CSFunction *target_imethod = target_itype->find_method_by_name(target_cname);
 
                     if (target_imethod) {
-                        xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                        xml_output.append(target_itype->proxy_name);
-                        xml_output.append(".");
-                        xml_output.append(target_imethod->proxy_name);
-                        xml_output.append("\"/>");
+                        xml_output.writeEmptyElement("see");
+                        String full_path= our_ns->cs_path() + "." + target_imethod->cs_name;
+                        xml_output.writeAttribute("cref",QString::fromUtf8(full_path.c_str()));
                     }
                 }
+#if 0
             } else if (link_tag == "member"_sv) {
                 if (!target_itype || !target_itype->is_object_type) {
                     if (OS::get_singleton()->is_stdout_verbose()) {
@@ -761,57 +853,66 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
                         }
                     }
                 }
-            }
-
-            pos = brk_end + 1;
-        } else if (doc->class_list.contains(StringName(tag))) {
-            if (tag == "Array"_sv || tag == "Dictionary"_sv) {
-                xml_output.append("<see cref=\"" BINDINGS_NAMESPACE_COLLECTIONS ".");
-                xml_output.append(tag);
-                xml_output.append("\"/>");
-            } else if (tag == "bool"_sv || tag == "int"_sv) {
-                xml_output.append("<see cref=\"");
-                xml_output.append(tag);
-                xml_output.append("\"/>");
-            } else if (tag == "float"_sv) {
-                xml_output.append("<see cref=\""
-#ifdef REAL_T_IS_DOUBLE
-                                  "double"
-#else
-                                  "float"
 #endif
-                                  "\"/>");
+            }
+            pos = brk_end + 1;
+        } else if (rd.doc->class_list.contains(String(tag).c_str())) {
+            QString qtag=QString::fromUtf8(tag.data(), tag.size());
+            if (tag == "Array"_sv || tag == "Dictionary"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", QString(BINDINGS_NAMESPACE_COLLECTIONS)+"."+qtag);
+            } else if (tag == "bool"_sv || tag == "int"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", qtag);
+            } else if (tag == "float"_sv) {
+#ifdef REAL_T_IS_DOUBLE
+                const char *tname = "double";
+#else
+                const char* tname = "float";
+#endif
+
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", tname);
             } else if (tag == "Variant"_sv) {
                 // We use System.Object for Variant, so there is no Variant type in C#
-                xml_output.append("<c>Variant</c>");
+                xml_output.writeTextElement("c","Variant");
             } else if (tag == "String"_sv) {
-                xml_output.append("<see cref=\"string\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"string\"");
             } else if (tag == "Nil"_sv) {
-                xml_output.append("<see langword=\"null\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("langword", "\"null\"");
             } else if (tag.starts_with('@')) {
                 // @GlobalScope, @GDScript, etc
-                xml_output.append("<c>");
-                xml_output.append(tag);
-                xml_output.append("</c>");
+                xml_output.writeTextElement("c", qtag);
             } else if (tag == "PoolByteArray"_sv) {
-                xml_output.append("<see cref=\"byte\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"byte\"");
             } else if (tag == "PoolIntArray"_sv) {
-                xml_output.append("<see cref=\"int\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"int\"");
             } else if (tag == "PoolRealArray"_sv) {
+                xml_output.writeEmptyElement("see");
 #ifdef REAL_T_IS_DOUBLE
-                xml_output.append("<see cref=\"double\"/>");
+                xml_output.writeAttribute("cref", "\"double\"");
 #else
-                xml_output.append("<see cref=\"float\"/>");
+                xml_output.writeAttribute("cref", "\"float\"");
 #endif
             } else if (tag == "PoolStringArray"_sv) {
-                xml_output.append("<see cref=\"string\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"string\"");
             } else if (tag == "PoolVector2Array"_sv) {
-                xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".Vector2\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector2\"");
             } else if (tag == "PoolVector3Array"_sv) {
-                xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".Vector3\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector3\"");
             } else if (tag == "PoolColorArray"_sv) {
-                xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".Color\"/>");
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Color\"");
             } else {
+                assert(false);
+#if 0
                 const TypeInterface *target_itype = rd._get_type_or_null({StringName(tag)});
 
                 if (!target_itype) {
@@ -829,6 +930,7 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
                     xml_output.append(tag);
                     xml_output.append("</c>");
                 }
+#endif
             }
 
             pos = brk_end + 1;
@@ -841,13 +943,13 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag == "code"_sv) {
-            xml_output.append("<c>");
+            xml_output.writeStartElement("c");
 
             code_tag = true;
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag == "codeblock"_sv) {
-            xml_output.append("<code>");
+            xml_output.writeStartElement("code");
 
             code_tag = true;
             pos = brk_end + 1;
@@ -857,7 +959,8 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag == "br"_sv) {
-            xml_output.append("\n"); // FIXME: Should use <para> instead. Luckily this tag isn't used for now.
+            assert(false);
+            //xml_output.append("\n"); // FIXME: Should use <para> instead. Luckily this tag isn't used for now.
             pos = brk_end + 1;
         } else if (tag == "u"_sv) {
             // underline is not supported in xml comments
@@ -872,18 +975,18 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             if (end == String::npos)
                 end = bbcode.length();
             StringView url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
-            xml_output.append("<a href=\"");
-            xml_output.append(url);
-            xml_output.append("\">");
-            xml_output.append(url);
+            QString qurl = QString::fromUtf8(url.data(), url.size());
+            xml_output.writeEmptyElement("a");
+            xml_output.writeAttribute("href","\""+qurl+"\"");
+            xml_output.writeCharacters(qurl);
 
             pos = brk_end + 1;
             tag_stack.push_front(String(tag));
         } else if (tag.starts_with("url=")) {
             StringView url = tag.substr(4, tag.length());
-            xml_output.append("<a href=\"");
-            xml_output.append(url);
-            xml_output.append("\">");
+            QString qurl = QString::fromUtf8(url.data(), url.size());
+            xml_output.writeStartElement("a");
+            xml_output.writeAttribute("href", "\"" + qurl + "\"");
 
             pos = brk_end + 1;
             tag_stack.push_front("url");
@@ -894,9 +997,7 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             StringView image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
 
             // Not supported. Just append the bbcode.
-            xml_output.append("[img]");
-            xml_output.append(image);
-            xml_output.append("[/img]");
+            xml_output.writeCharacters("[img]"+QString::fromUtf8(image.data(),image.size())+ "[/img]");
 
             pos = end;
             tag_stack.push_front(String(tag));
@@ -909,30 +1010,29 @@ String BindingsGenerator::bbcode_to_xml(StringView p_bbcode, const TypeInterface
             pos = brk_end + 1;
             tag_stack.push_front("font");
         } else {
-            xml_output.append("["); // ignore
+            xml_output.writeCharacters("["); // ignore
             pos = brk_pos + 1;
         }
     }
-
-    xml_output.append("</para>");
-
-    return xml_output.as_string();
+    xml_output.writeEndElement();
+    
+    return target.data();
 }
 
-int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
+int _determine_enum_prefix(const CSEnum &p_ienum) {
 
-    CRASH_COND(p_ienum.constants.empty());
+    CRASH_COND(p_ienum.m_entries.empty());
 
-    const ConstantInterface &front_iconstant = p_ienum.constants.front();
-    auto front_parts = front_iconstant.name.split('_', /* p_allow_empty: */ true);
+    const CSConstant *front_iconstant = p_ienum.m_entries.front();
+    auto front_parts = front_iconstant->m_rd_data->name.split('_', /* p_allow_empty: */ true);
     size_t candidate_len = front_parts.size() - 1;
 
     if (candidate_len == 0)
         return 0;
 
-    for (const ConstantInterface &iconstant : p_ienum.constants) {
+    for (const CSConstant *iconstant : p_ienum.m_entries) {
 
-        auto parts = iconstant.name.split('_', /* p_allow_empty: */ true);
+        auto parts = iconstant->m_rd_data->name.split('_', /* p_allow_empty: */ true);
 
         size_t i;
         for (i = 0; i < candidate_len && i < parts.size(); i++) {
@@ -951,16 +1051,15 @@ int BindingsGenerator::_determine_enum_prefix(const EnumInterface &p_ienum) {
 
     return candidate_len;
 }
-
-void BindingsGenerator::_apply_prefix_to_enum_constants(EnumInterface &p_ienum, int p_prefix_length) {
+void _apply_prefix_to_enum_constants(CSEnum &p_ienum, int p_prefix_length) {
 
     if (p_prefix_length <= 0)
         return;
 
-    for (ConstantInterface &curr_const : p_ienum.constants) {
+    for (CSConstant *curr_const : p_ienum.m_entries) {
         int curr_prefix_length = p_prefix_length;
 
-        String constant_name = curr_const.name;
+        String constant_name = curr_const->m_rd_data->name;
 
         auto parts = constant_name.split('_', /* p_allow_empty: */ true);
 
@@ -983,13 +1082,13 @@ void BindingsGenerator::_apply_prefix_to_enum_constants(EnumInterface &p_ienum, 
             constant_name += parts[i];
         }
 
-        curr_const.proxy_name = snake_to_pascal_case(constant_name, true);
+        curr_const->cs_name = snake_to_pascal_case(constant_name, true);
     }
 }
 static void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) {
     p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
 }
-#endif
+
 void BindingsGenerator::_generate_method_icalls(const TypeInterface& p_itype) {
     for (const MethodInterface& imethod : p_itype.methods) {
 
@@ -1064,7 +1163,67 @@ void BindingsGenerator::_generate_method_icalls(const TypeInterface& p_itype) {
 #endif
     }
 }
-static void _generate_namespace_constants(StringBuilder &p_output,const CSNamespace &ns,DocData *doc) {
+static int number_complexity(const char *f) {
+    uint8_t counts[16] = {0,0,0,0,0,0,0, 0, 0,0,0,0, 0,0,0,0};
+    uint8_t other=0;
+    uint8_t count=0;
+    while(*f) {
+        if(isdigit(*f)) {
+            counts[*f -'0']++;
+        }
+        else if(eastl::CharToLower(*f)>='a' && eastl::CharToLower(*f) <= 'f') {
+            counts[10+ eastl::CharToLower(*f) - 'a']++;
+        }
+        else
+            other++;
+        ++f;
+        count++;
+    }
+    int digit_count = 0;
+    int highest_count=0;
+    for(uint8_t v : counts) {
+        digit_count+=v;
+        if(v> highest_count)
+            highest_count = v;
+    }
+    // reduce complexity by removing the highest repeating digit
+        digit_count -= highest_count;
+    if(other!=0)
+        digit_count++;
+    return digit_count + count;
+}
+static void _write_constant(StringBuilder& p_output, const CSConstant &constant) {
+    p_output.append(constant.cs_name);
+    p_output.append(" = ");
+    bool was_parsed=true;
+    int64_t sig_val = QString(constant.value.c_str()).toLongLong(&was_parsed);
+    if(!was_parsed) { // non number constants
+        p_output.append(constant.value);
+        return;
+    }
+    uint32_t val = sig_val;
+    if(val<32) {
+        p_output.append(constant.value);
+        return;
+    }
+    char select[3][32];
+    snprintf(select[0],32,"%d",val);
+    snprintf(select[1], 32, "0x%x", val);
+    snprintf(select[2], 32, "~0x%x", ~val);
+    int complexity[3] = {
+        number_complexity(select[0])+1, // so 0x is disregarded during complexity compare
+        number_complexity(select[1]),
+        number_complexity(select[2]),
+    };
+    int best=0;
+    for(int i=1; i<3; ++i) {
+        if(complexity[i]<complexity[best]) {
+            best = i;
+        }
+    }
+    p_output.append(String(select[best]));
+}
+static void _generate_namespace_constants(StringBuilder &p_output,const CSNamespace &ns,const ReflectionData& rd) {
 
     // Constants (in partial GD class)
 
@@ -1076,16 +1235,15 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
     p_output.append_indented("public static partial class Constants\n");
     p_output.append_indented("{\n");
     p_output.indent();
-    
+    auto ns_path = ns.cs_path_components();
     //ns.m_globals.m_class_constants
     for (const CSConstant * iconstant : ns.m_globals.m_class_constants) {
         p_output.indent();
-#if 0
-        auto const_doc = rd.constant_doc("@GlobalScope","",iconstant.name);
-        if (const_doc && const_doc->description.size()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), nullptr,doc);
-            auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+        auto const_doc = rd.constant_doc("@GlobalScope", "", iconstant->m_rd_data->name.c_str());
 
+        if (const_doc && !const_doc->description.empty()) {
+            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr, rd,true);
+            auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
             if (summary_lines.size()) {
                 p_output.append_indented("/// <summary>\n");
 
@@ -1098,12 +1256,9 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
                 p_output.append_indented("/// </summary>\n");
             }
         }
-#endif
         // TODO: use iconstant->const_type below.
         p_output.append_indented("public const int ");
-        p_output.append(iconstant->cs_name);
-        p_output.append(" = ");
-        p_output.append(iconstant->value);
+        _write_constant(p_output,*iconstant);
         p_output.append(";");
         p_output.dedent();
     }
@@ -1121,24 +1276,13 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
 
         StringView enum_proxy_name(ienum->cs_name);
 
-        bool enum_in_static_class = false;
-#if 0
-
-        if (enum_proxy_name.contains(".")) {
-            enum_in_static_class = true;
-            StringView enum_class_name = StringUtils::get_slice(enum_proxy_name,'.', 0);
-            enum_proxy_name = StringUtils::get_slice(enum_proxy_name,'.', 1);
-
-            CRASH_COND(enum_class_name != StringView("Variant")); // Hard-coded...
-
-            _log("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_proxy_name.size()),enum_proxy_name.data(),
-                 int(enum_class_name.size()),enum_class_name.data());
-
-            p_output.append("\n" INDENT1 "public static partial class ");
-            p_output.append(enum_class_name);
-            p_output.append("\n" INDENT1 OPEN_BLOCK);
+        if (!ienum->static_wrapper_class.empty()) {
+            p_output.append_indented("public static partial class ");
+            p_output.append(ienum->static_wrapper_class);
+            p_output.append("\n");
+            p_output.append_indented("{\n");
+            p_output.indent();
         }
-#endif
         p_output.append_indented("\n");
         p_output.append_indented("public enum ");
         p_output.append(enum_proxy_name);
@@ -1146,37 +1290,34 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
         p_output.append_indented("{\n");
         p_output.indent();
         for(const CSConstant * ci : ienum->m_entries) {
-#if 0
-            auto const_doc = rd.constant_doc("@GlobalScope",String(ienum.cname),iconstant.name);
+            auto const_doc = rd.constant_doc("@GlobalScope", ienum->m_rd_data->cname.c_str(), ci->m_rd_data->name.c_str());
 
             if (const_doc && const_doc->description.size()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), nullptr,doc);
+                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr,rd,true);
                 Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
-                if (summary_lines.size()) {
-                    p_output.append(INDENT2 "/// <summary>\n");
-
+                if (!summary_lines.empty()) {
+                    p_output.append_indented("/// <summary>\n");
                     for (int i = 0; i < summary_lines.size(); i++) {
-                        p_output.append(INDENT2 "/// ");
+                        p_output.append_indented("/// ");
                         p_output.append(summary_lines[i]);
                         p_output.append("\n");
                     }
-
-                    p_output.append(INDENT2 "/// </summary>\n");
+                    p_output.append_indented("/// </summary>\n");
                 }
             }
 
-#endif
-            p_output.append_indented(ci->cs_name);
-            p_output.append(" = ");
-            p_output.append(ci->value);
+            p_output.append_indented("");
+            _write_constant(p_output, *ci);
             p_output.append(ci != ienum->m_entries.back() ? ",\n" : "\n");
         }
         p_output.dedent();
         p_output.append_indented("}\n");
 
-        if (enum_in_static_class)
+        if (!ienum->static_wrapper_class.empty()) {
+            p_output.dedent();
             p_output.append_indented("}\n");
+        }
     }
 
     p_output.append("} // end of namespace");
@@ -3741,10 +3882,31 @@ String escape_csharp_keyword(StringView p_name) {
 
 struct CSTypeMapper : BindingTypeMapper {
 
-    String mapIntTypeName(IntTypes);
-    String mapFloatTypeName(FloatTypes);
-    String mapClassName(StringView class_name, StringView namespace_name = {}) {
+    String mapIntTypeName(IntTypes it) override {
+        switch (it) {
+            case INT_8: return "sbyte";
+            case UINT_8: return "byte";
+            case INT_16: return "short";
+            case UINT_16:return "ushort";
+            case INT_32: return "int";
+            case UINT_32:return "uint";
+            case INT_64: return "long";
+            case UINT_64:return "ulong";
+        }
+        assert(false);
+        return "";
+    }
+    String mapFloatTypeName(FloatTypes ft) {
+        switch(ft) {
 
+            case FLOAT_32:  return "float";
+            case DOUBLE_64: return "double";
+        }
+        assert(false);
+        return "";
+    }
+    String mapClassName(StringView class_name, StringView namespace_name = {}) {
+        return "";
     }
     String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
         String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
@@ -3762,7 +3924,7 @@ struct CSTypeMapper : BindingTypeMapper {
         return escape_csharp_keyword(snake_to_camel_case(src_name));
     }
     bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-
+        return false;
     }
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
         String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
@@ -3776,6 +3938,10 @@ struct CSTypeMapper : BindingTypeMapper {
             proxy_name += "_";
         }
         return proxy_name;
+    }
+
+    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override {
+        assert(false);
     }
 };
 
@@ -3842,6 +4008,7 @@ struct CSProducer : FileProducer {
     String m_project_name;
     Vector<String> common_files;
     HashMap<APIType, Vector<String>> distinct_files;
+    CSTypeMapper type_mapper;
     DocData *docs;
     CSProducer() {
 
@@ -3908,7 +4075,7 @@ struct CSProducer : FileProducer {
         new_sln_file.write(new_contents);
         return true;
     }
-    bool generate_constant_files() {
+    bool generate_constant_files(const ReflectionData &rd) {
         if(!m_target_dir.cd("cs_gen")) {
             bool mk_ok = m_target_dir.mkpath("cs_gen");
             if(!mk_ok) {
@@ -3921,7 +4088,7 @@ struct CSProducer : FileProducer {
         // Generate source file for global scope constants and enums
         for(const auto &ns : CSNamespace::namespaces) {
             StringBuilder constants_source;
-            _generate_namespace_constants(constants_source,*ns.second,docs);
+            _generate_namespace_constants(constants_source,*ns.second,rd);
             output_file =QDir(m_target_dir).filePath((ns.second->cs_name + "_constants.cs").c_str());
             auto save_err = _save_file(qPrintable(output_file), constants_source);
             if (save_err != OK)
@@ -3987,6 +4154,7 @@ struct CSReflectionVisitor {
     void visitEnum(const EnumInterface *ei) {
         // Two cases, in namespace, in class
         CSEnum *en = CSEnum::get_instance_for(current_access_path(),ei);
+
         m_current_enum = en;
         for(const ConstantInterface & ci : ei->constants)
         {
@@ -4002,6 +4170,20 @@ struct CSReflectionVisitor {
             m_namespace_stack.back()->m_enums.push_back(en);
         }
         m_current_enum = nullptr;
+        int prefix_length = _determine_enum_prefix(*en);
+
+        StringView enum_proxy_name(en->cs_name);
+
+        if (enum_proxy_name.contains("::")) {
+            Vector<StringView> parts;
+            String::split_ref(parts, enum_proxy_name, "::");
+            en->static_wrapper_class = parts.front();
+            enum_proxy_name = parts[1];
+            assert(en->static_wrapper_class == StringView("Variant")); // Hard-coded...
+            qDebug("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_proxy_name.size()), enum_proxy_name.data(),
+                int(en->static_wrapper_class.size()), en->static_wrapper_class.data());
+        }
+        _apply_prefix_to_enum_constants(*en, prefix_length);
     }
     /*
      EnumInterface ienum(StringName(String(enum_name).replaced("::", ".")));
@@ -4051,7 +4233,7 @@ struct CSReflectionVisitor {
     }
 
     void finalize() {
-        cs_producer.generate_constant_files();
+        cs_producer.generate_constant_files(m_reflection_data);
         cpp_producer.create_build_files();
         cs_producer.create_build_files();
     }
@@ -4075,6 +4257,107 @@ bool processReflectionData(const ReflectionData &rd,const QString &target_dir) {
     cs_builder.finalize();
     return true;
 }
+// a few fake and copied functions to allow proper linking.
+void register_core_types() {
+    //fake register_core_types to access StringName::setup
+    StringName::setup();
+}
+void print_line(StringView p_string) {
+    qDebug()<< String(p_string).c_str();
+}
+void print_verbose(StringView p_string) {
+    qDebug() << "V: "<<String(p_string).c_str();
+}
+String itos(int64_t v) {
+    char buf[32];
+    snprintf(buf,31,"%lld",v);
+    return buf;
+}
+StringView StringUtils::substr(StringView s, int p_from, size_t p_chars) {
+    StringView res(s);
+    if (s.empty())
+        return res;
+    ssize_t count = static_cast<ssize_t>(p_chars);
+    if ((p_from + count) > ssize_t(s.length())) {
+
+        p_chars = s.length() - p_from;
+    }
+
+    return res.substr(p_from, p_chars);
+}
+StringView StringUtils::strip_edges(StringView str, bool left, bool right) {
+
+    int len = str.length();
+    int beg = 0, end = len;
+
+    if (left) {
+        for (int i = 0; i < len; i++) {
+
+            if (str[i] <= 32)
+                beg++;
+            else
+                break;
+        }
+    }
+
+    if (right) {
+        for (int i = (int)(len - 1); i >= 0; i--) {
+
+            if (str[i] <= 32)
+                end--;
+            else
+                break;
+        }
+    }
+
+    if (beg == 0 && end == len)
+        return str;
+
+    return substr(str, beg, end - beg);
+}
+String StringUtils::dedent(StringView str) {
+
+    String new_string;
+    String indent;
+    bool has_indent = false;
+    bool has_text = false;
+    size_t line_start = 0;
+    int indent_stop = -1;
+
+    for (size_t i = 0; i < str.length(); i++) {
+
+        char c = str[i];
+        if (c == '\n') {
+            if (has_text)
+                new_string += substr(str, indent_stop, i - indent_stop);
+            new_string += '\n';
+            has_text = false;
+            line_start = i + 1;
+            indent_stop = -1;
+        }
+        else if (!has_text) {
+            if (c > 32) {
+                has_text = true;
+                if (!has_indent) {
+                    has_indent = true;
+                    indent = substr(str, line_start, i - line_start);
+                    indent_stop = i;
+                }
+            }
+            if (has_indent && indent_stop < 0) {
+                int j = i - line_start;
+                if (j >= indent.length() || c != indent[j])
+                    indent_stop = i;
+            }
+        }
+    }
+
+    if (has_text)
+        new_string += substr(str, indent_stop);
+
+    return new_string;
+}
+
 
 int main(int argc,char **argv) {
     QCoreApplication app(argc,argv);
@@ -4082,12 +4365,18 @@ int main(int argc,char **argv) {
         qCritical() << "Binding generator takes 2 arguments, a source_reflection_data.json and target path.";
         return -1;
     }
+    register_core_types();
     ReflectionData rd;
+    DocData docs;
     if(!rd.load_from_file(qPrintable(qApp->arguments()[1]))) {
         qCritical() << "Binding generator failed to load source reflection data:"<< qApp->arguments()[1];
         return -1;
-
     }
+    if(OK!=docs.load_classes("c:/dev/SegsEngine/doc/classes")) {
+        qCritical("Failed to read documentation files");
+    }
+    rd.doc = &docs;
+    rd.build_doc_lookup_helper();
     processReflectionData(rd,qApp->arguments()[2]);
 
     return 0;

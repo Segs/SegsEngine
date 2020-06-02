@@ -1008,7 +1008,7 @@ void ConnectionsDock::update_tree() {
                     while (F!=dd->class_list.end() && descr.empty()) {
                         for (size_t i = 0; i < F->defined_signals.size(); i++) {
                             if (F->defined_signals[i].name == signal_name.asCString()) {
-                                descr = StringUtils::to_utf8(F->defined_signals[i].description.trimmed());
+                                descr = F->defined_signals[i].description.trimmed();
                                 break;
                             }
                         }

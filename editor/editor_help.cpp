@@ -288,7 +288,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
         class_desc->add_text(" ");
     }
 
-    if (p_overview && !p_method.description.isEmpty()) {
+    if (p_overview && !p_method.description.empty()) {
         class_desc->push_meta(String("@method ") + qPrintable(p_method.name));
     }
 
@@ -296,7 +296,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
     _add_text(p_method.name);
     class_desc->pop();
 
-    if (p_overview && !p_method.description.isEmpty()) {
+    if (p_overview && !p_method.description.empty()) {
         class_desc->pop(); //meta
     }
 
@@ -480,7 +480,7 @@ void EditorHelp::_update_doc() {
     }
 
     // Class description
-    if (!cd.description.isEmpty()) {
+    if (!cd.description.empty()) {
 
         m_private->section_line.push_back(Pair<String, int>(String(TTR("Description")), class_desc->get_line_count() - 2));
         description_line = class_desc->get_line_count() - 2;
@@ -575,7 +575,7 @@ void EditorHelp::_update_doc() {
                 describe = true;
             }
 
-            if (!cd.properties[i].description.isEmpty()) {
+            if (!cd.properties[i].description.empty()) {
                 describe = true;
             }
 
@@ -694,7 +694,7 @@ void EditorHelp::_update_doc() {
                     class_desc->pop(); //cell
                 }
 
-                if (!m[i].description.isEmpty()) {
+                if (!m[i].description.empty()) {
                     method_descr = true;
                 }
 
@@ -757,7 +757,7 @@ void EditorHelp::_update_doc() {
 
             class_desc->pop();
 
-            if (!cd.theme_properties[i].description.isEmpty()) {
+            if (!cd.theme_properties[i].description.empty()) {
                 class_desc->push_font(doc_font);
                 class_desc->add_text("  ");
                 class_desc->push_color(comment_color);
@@ -825,7 +825,7 @@ void EditorHelp::_update_doc() {
             class_desc->add_text(")");
             class_desc->pop();
             class_desc->pop(); // end monofont
-            if (!cd.defined_signals[i].description.isEmpty()) {
+            if (!cd.defined_signals[i].description.empty()) {
 
                 class_desc->push_font(doc_font);
                 class_desc->push_color(comment_color);
@@ -919,7 +919,7 @@ void EditorHelp::_update_doc() {
                     _add_text(_fix_constant(qPrintable(enum_list[i].value)));
                     class_desc->pop();
                     class_desc->pop();
-                    if (!enum_list[i].description.isEmpty()) {
+                    if (!enum_list[i].description.empty()) {
                         class_desc->push_font(doc_font);
                         //class_desc->add_text("  ");
                         class_desc->push_indent(1);
@@ -986,7 +986,7 @@ void EditorHelp::_update_doc() {
                 class_desc->pop();
 
                 class_desc->pop();
-                if (!constants[i].description.isEmpty()) {
+                if (!constants[i].description.empty()) {
                     class_desc->push_font(doc_font);
                     class_desc->push_indent(1);
                     class_desc->push_color(comment_color);
@@ -1101,7 +1101,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(text_color);
             class_desc->push_font(doc_font);
             class_desc->push_indent(1);
-            if (not StringUtils::strip_edges(cd.properties[i].description).isEmpty()) {
+            if (not StringUtils::strip_edges(cd.properties[i].description).empty()) {
                 _add_text(cd.properties[i].description);
             }
             else {
@@ -1156,7 +1156,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_color(text_color);
                 class_desc->push_font(doc_font);
                 class_desc->push_indent(1);
-                if (not StringUtils::strip_edges(methods_filtered[i].description).isEmpty()) {
+                if (not StringUtils::strip_edges(methods_filtered[i].description).empty()) {
                     _add_text(methods_filtered[i].description);
                 } else {
                     class_desc->add_image(get_icon("Error", "EditorIcons"));

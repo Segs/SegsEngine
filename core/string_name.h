@@ -64,7 +64,7 @@ class GODOT_EXPORT StringName {
 
     GODOT_NO_EXPORT static _Data *_table[STRING_TABLE_LEN];
     GODOT_NO_EXPORT static void setup();
-    GODOT_NO_EXPORT static void cleanup();
+    GODOT_NO_EXPORT static void cleanup(bool log_orphans);
     static bool configured;
 
     _Data *_data;

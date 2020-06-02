@@ -112,30 +112,29 @@ void StringName::setup() {
     lock = memnew(Mutex);
 
     ERR_FAIL_COND(configured);
-    for (int i = 0; i < STRING_TABLE_LEN; i++) {
-
-        _table[i] = nullptr;
+    for (auto &entry : _table) {
+        entry = nullptr;
     }
     configured = true;
 }
 
-void StringName::cleanup() {
+void StringName::cleanup(bool log_orphans) {
 
     { // this block is done under lock, exiting the block will release the block automatically.
         MutexLock mlocker(*lock);
 
         int lost_strings = 0;
-        for (int i = 0; i < STRING_TABLE_LEN; i++) {
+        for (auto &entry : _table) {
 
-            while (_table[i]) {
+            while (entry) {
 
-                _Data *d = _table[i];
+                _Data *d = entry;
                 lost_strings++;
-                if (OS::get_singleton()->is_stdout_verbose()) {
+                if (log_orphans) {
                     print_line(String("Orphan StringName: ") + d->get_name());
                 }
 
-                _table[i] = _table[i]->next;
+                entry = entry->next;
                 memdelete(d);
             }
         }

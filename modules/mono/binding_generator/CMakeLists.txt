@@ -12,6 +12,8 @@ add_executable(binding_generator
         ${PROJECT_SOURCE_DIR}/core/doc_support/doc_data.h
         ${PROJECT_SOURCE_DIR}/core/reflection_support/reflection_data.cpp
         ${PROJECT_SOURCE_DIR}/core/reflection_support/reflection_data.h
+        ${PROJECT_SOURCE_DIR}/core/string_name.cpp
+        ${PROJECT_SOURCE_DIR}/core/string_name.h
         ${PROJECT_SOURCE_DIR}/core/string_builder.cpp
         ${PROJECT_SOURCE_DIR}/core/string_builder.h
         ${PROJECT_SOURCE_DIR}/core/os/memory.cpp

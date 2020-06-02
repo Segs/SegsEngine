@@ -26,6 +26,9 @@ public:
 };
 
 class CSProjGenerator {
+    Set<String> m_project_defines;
+    Set<String> m_project_sources;
+    Set<String> m_project_references;
 public:
     void add_file_set(Span<const String> files);
     void add_defines(Span<const StringView> defines);

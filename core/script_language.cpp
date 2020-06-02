@@ -565,8 +565,6 @@ Variant PlaceHolderScriptInstance::property_get_fallback(const StringName &p_nam
     return Variant();
 }
 
-
-
 PlaceHolderScriptInstance::~PlaceHolderScriptInstance() {
 
     if (script) {

@@ -51,7 +51,7 @@ struct MethodDoc {
     QString return_type;
     QString return_enum;
     QString qualifiers;
-    QString description;
+    String description;
     Vector<ArgumentDoc> arguments;
     bool operator<(const MethodDoc &p_md) const {
         return name < p_md.name;
@@ -63,7 +63,7 @@ struct ConstantDoc {
     QString name;
     QString value;
     QString enumeration;
-    QString description;
+    String description;
 };
 
 struct PropertyDoc {
@@ -71,7 +71,7 @@ struct PropertyDoc {
     QString name;
     QString type;
     QString enumeration;
-    QString description;
+    String description;
     QString setter, getter;
     QString default_value;
     bool overridden = false;
@@ -85,7 +85,7 @@ struct ClassDoc {
     QString inherits;
     QString category;
     QString brief_description;
-    QString description;
+    String description;
     Vector<QString> tutorials;
     Vector<MethodDoc> methods;
     Vector<MethodDoc> defined_signals;

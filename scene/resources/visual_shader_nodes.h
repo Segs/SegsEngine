@@ -840,7 +840,6 @@ public:
 class VisualShaderNodeScalarClamp : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarClamp,VisualShaderNode)
 
-
 public:
     StringView get_caption() const override;
 

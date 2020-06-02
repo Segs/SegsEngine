@@ -229,7 +229,7 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
 
             } else if (name == "description") {
                 if (parser.readNext() == QXmlStreamReader::Characters)
-                    method.description = parser.text().toString();
+                    method.description = parser.text().toUtf8().data();
             }
         }
 
@@ -325,7 +325,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                 } else if (name2 == "description") {
                     parser.readNext();
                     if (parser.tokenType() == QXmlStreamReader::Characters)
-                        c.description = parser.text().trimmed().toString();
+                        c.description = parser.text().trimmed().toUtf8().data();
                 } else if (name2 == "tutorials") {
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
 
@@ -384,7 +384,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                         } else if (parser.tokenType() == QXmlStreamReader::Characters) {
                             if(in_item)
-                                c.properties.back().description = parser.text().trimmed().toString();
+                                c.properties.back().description = parser.text().trimmed().toUtf8().data();
 
                         } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
                             in_item  = false;
@@ -417,7 +417,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                         }
                         else if (parser.tokenType() == QXmlStreamReader::Characters) {
                             if(in_theme_item)
-                                c.theme_properties.back().description = parser.text().toString();
+                                c.theme_properties.back().description = parser.text().toUtf8().data();
 
                         }
                         else if (parser.tokenType() == QXmlStreamReader::EndElement) {
@@ -455,7 +455,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                         } else if (parser.tokenType() == QXmlStreamReader::Characters) {
                             if(in_item)
-                                c.constants.back().description = parser.text().toString();
+                                c.constants.back().description = parser.text().toString().toUtf8().data();
 
                         } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
                             in_item  = false;
@@ -503,7 +503,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
         writer.writeAttribute("version",version_branch);
         writer.writeTextElement("brief_description",c.brief_description.trimmed());
-        writer.writeTextElement("description",c.description.trimmed());
+        writer.writeTextElement("description",c.description.trimmed().c_str());
 
         writer.writeStartElement("tutorials");
 
@@ -552,7 +552,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
                 writer.writeEndElement();
             }
-            writer.writeTextElement("description",m.description.trimmed());
+            writer.writeTextElement("description",m.description.trimmed().c_str());
 
             writer.writeEndElement();
         }
@@ -581,7 +581,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 if (!c.properties[i].default_value.isEmpty())
                     writer.writeAttribute("default",a.default_value);
                 if (!c.properties[i].overridden)
-                    writer.writeCharacters(a.description);
+                    writer.writeCharacters(a.description.c_str());
 
                 writer.writeEndElement();
             }
@@ -607,7 +607,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                         writer.writeAttribute("type",a.type.trimmed());
                     writer.writeEndElement();
                 }
-                writer.writeTextElement("description",m.description.trimmed());
+                writer.writeTextElement("description",m.description.trimmed().c_str());
 
                 writer.writeEndElement();
             }
@@ -623,7 +623,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 writer.writeAttribute("value",k.value);
                 if (!k.enumeration.isEmpty())
                     writer.writeAttribute("enumeration",k.enumeration);
-                writer.writeCharacters(k.description.trimmed());
+                writer.writeCharacters(k.description.trimmed().c_str());
             writer.writeEndElement();
         }
 
@@ -643,7 +643,7 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 if(!p.default_value.isEmpty())
                     writer.writeAttribute("default_value",p.default_value);
 
-                writer.writeCharacters(p.description);
+                writer.writeCharacters(p.description.c_str());
 
                 writer.writeEndElement();
             }

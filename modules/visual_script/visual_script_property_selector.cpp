@@ -444,7 +444,7 @@ void VisualScriptPropertySelector::_item_selected() {
     }
 
     DocData *dd = EditorHelp::get_doc_data();
-    UIString text;
+    String text;
 
     StringName at_class(class_type);
 
@@ -518,10 +518,10 @@ void VisualScriptPropertySelector::_item_selected() {
         }
     }
 
-    if (text.isEmpty())
+    if (text.empty())
         return;
 
-    help_bit->set_text(qPrintable(text));
+    help_bit->set_text(text);
 }
 
 void VisualScriptPropertySelector::_notification(int p_what) {

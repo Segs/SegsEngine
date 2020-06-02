@@ -1691,7 +1691,7 @@ void EditorInspector::update_tree() {
                 classname = object_class;
             }
             StringName propname(property_prefix + p.name);
-            UIString descr;
+            String descr;
             bool found = false;
 
             auto E = descr_cache.find(classname);
@@ -1699,14 +1699,14 @@ void EditorInspector::update_tree() {
                 auto F = E->second.find(propname);
                 if (F!=E->second.end()) {
                     found = true;
-                    descr = F->second.c_str();
+                    descr = F->second;
                 }
             }
 
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
                 auto F = dd->class_list.find(classname.asCString());
-                while (F!=dd->class_list.end() && descr.isEmpty()) {
+                while (F!=dd->class_list.end() && descr.empty()) {
                     for (size_t i = 0; i < F->properties.size(); i++) {
                         if (F->properties[i].name == propname.asCString()) {
                             descr = StringUtils::strip_edges(F->properties[i].description);
@@ -1730,10 +1730,10 @@ void EditorInspector::update_tree() {
                         break;
                     }
                 }
-                descr_cache[classname][propname] = qPrintable(descr);
+                descr_cache[classname][propname] = descr;
             }
 
-            doc_hint = qPrintable(descr);
+            doc_hint = descr;
         }
 
         for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {

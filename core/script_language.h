@@ -460,5 +460,5 @@ public:
     virtual bool shouldSkipMethod(StringView method_name,StringView class_name={}, StringView namespace_name = {})=0;
     virtual String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {})=0;
 
-    virtual void registerTypeMap(StringView type_name,TypemapKind, StringView pattern);
+    virtual void registerTypeMap(StringView type_name,TypemapKind, StringView pattern)=0;
 };
