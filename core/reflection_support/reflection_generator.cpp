@@ -61,10 +61,12 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
 #endif
         break;
     case VariantType::STRING:
-    case VariantType::NODE_PATH: r_iarg.default_argument = "\"" + r_iarg.default_argument + "\"";
+    case VariantType::NODE_PATH:
+        r_iarg.default_argument = "\"" + r_iarg.default_argument + "\"";
         break;
-    case VariantType::TRANSFORM: if (p_val.as<Transform>() == Transform())
-        r_iarg.default_argument.clear();
+    case VariantType::TRANSFORM:
+        if (p_val.as<Transform>() == Transform())
+            r_iarg.default_argument.clear();
         r_iarg.default_argument = "new %s(" + r_iarg.default_argument + ")";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
         break;
@@ -110,7 +112,8 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         break;
     case VariantType::TRANSFORM2D:
     case VariantType::BASIS:
-    case VariantType::QUAT: r_iarg.default_argument = QString(Variant::get_type_name(p_val.get_type())) + ".Identity";
+    case VariantType::QUAT:
+        r_iarg.default_argument = String(Variant::get_type_name(p_val.get_type())) + ".Identity";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_VAL;
         break;
     default: {

@@ -451,7 +451,9 @@ public:
     };
     enum TypemapKind {
         INPUT,
+        INOUT,
         OUTPUT,
+        RETURN,
     };
     virtual String mapIntTypeName(IntTypes ) = 0;
     virtual String mapFloatTypeName(FloatTypes ) = 0;

@@ -121,8 +121,8 @@ struct ArgumentInterface {
 
     TypeReference type;
 
-    QString name;
-    QString default_argument;
+    String name;
+    String default_argument;
     DefaultParamMode def_param_mode = CONSTANT;
 
     void toJson(QJsonObject &obj) const;

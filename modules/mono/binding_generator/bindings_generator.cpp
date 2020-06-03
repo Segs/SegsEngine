@@ -54,10 +54,10 @@
 #include <QUuid>
 #include <cstdio>
 #include <QXmlStreamWriter>
+#include <QCommandLineParser>
+#include <QCommandLineOption>
 
 static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfbdf7f68");
-
-#if defined(DEBUG_METHODS_ENABLED) && defined(TOOLS_ENABLED)
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -80,33 +80,6 @@ static bool allUpperCase(StringView s) {
     }
     return true;
 }
-
-
-/*
-#include "core/engine.h"
-#include "core/global_constants.h"
-#include "core/method_info.h"
-#include "core/method_bind.h"
-#include "core/io/compression.h"
-#include "core/os/dir_access.h"
-#include "core/os/file_access.h"
-#include "core/os/os.h"
-#include "core/register_core_types.h"
-#include "core/math/transform.h"
-//#include "glue/cs_glue_version.gen.h"
-#include "modules/register_module_types.h"
-#include "plugins/plugin_registry_interface.h"
-#include "scene/register_scene_types.h"
-
-#include "../godotsharp_defs.h"
-//#include "../mono_gd/gd_mono_marshal.h"
-#include "../utils/path_utils.h"
-#include "../utils/string_utils.h"
-#include "main/main.h"
-#include "csharp_project.h"
-*/
-#endif
-
 
 static String snake_to_pascal_case(StringView p_identifier, bool p_input_is_upper = false) {
 
@@ -182,7 +155,47 @@ static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper
 
     return ret;
 }
+static bool is_csharp_keyword(StringView p_name) {
+    using namespace eastl;
+    static vector_set<StringView, eastl::less<StringView>, EASTLAllocatorType, eastl::fixed_vector<StringView, 79, false>>
+        keywords;
+    static bool initialized = false;
+    if (!initialized) {
+        constexpr const char* kwords[] = {
+            "abstract" ,"as" ,"base" ,"bool" ,
+            "break" ,"byte" ,"case" ,"catch" ,
+            "char" ,"checked" ,"class" ,"const" ,
+            "continue" ,"decimal" ,"default" ,"delegate" ,
+            "do" ,"double" ,"else" ,"enum" ,
+            "event" ,"explicit" ,"extern" ,"false" ,
+            "finally" ,"fixed" ,"float" ,"for" ,
+            "forech" ,"goto" ,"if" ,"implicit" ,
+            "in" ,"int" ,"interface" ,"internal" ,
+            "is" ,"lock" ,"long" ,"namespace" ,
+            "new" ,"null" ,"object" ,"operator" ,
+            "out" ,"override" ,"params" ,"private" ,
+            "protected" ,"public" ,"readonly" ,"ref" ,
+            "return" ,"sbyte" ,"sealed" ,"short" ,
+            "sizeof" ,"stackalloc" ,"static" ,"string" ,
+            "struct" ,"switch" ,"this" ,"throw" ,
+            "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
+            "unchecked" ,"unsafe" ,"ushort" ,"using" ,
+            "virtual" ,"volatile" ,"void" ,"while"
+        };
+        for (const char* c : kwords)
+            keywords.emplace(c);
+        initialized = true;
+    }
+    // Reserved keywords
+    return keywords.contains(p_name);
+}
 
+static String escape_csharp_keyword(StringView p_name) {
+    return is_csharp_keyword(p_name) ? String("@") + p_name : String(p_name);
+}
+
+
+// ENUM FIELD NAME CONVERSION snake_to_pascal_case(constant_name, true),
 
 enum class CSAccessLevel {
     Public,
@@ -279,9 +292,14 @@ struct CSEnum {
 };
 HashMap<String,CSEnum *> CSEnum::enums;
 struct CSFunction {
-    String cs_name;
-    const MethodInterface* source_type;
     static HashMap< const MethodInterface*, CSFunction*> s_ptr_cache;
+
+    String cs_name;
+    struct CSType *return_type;
+    Vector<CSType *> arg_types;
+    Vector<String> arg_names;
+
+    const MethodInterface* source_type;
 
     static CSFunction* from_rd(const MethodInterface* type_interface) {
 
@@ -298,6 +316,26 @@ struct CSFunction {
 };
 HashMap< const MethodInterface*, CSFunction*> CSFunction::s_ptr_cache;
 
+struct CSProperty {
+    static HashMap< const PropertyInterface*, CSProperty *> s_ptr_cache;
+
+    String cs_name;
+    const PropertyInterface *source_type;
+
+    static CSProperty * from_rd(const PropertyInterface *type_interface) {
+        CSProperty* res = s_ptr_cache[type_interface];
+        if(res)
+            return res;
+
+        res = new CSProperty;
+        res->cs_name = type_interface->cname;
+        res->source_type = type_interface;
+        s_ptr_cache[type_interface] = res;
+        return res;
+    }
+};
+HashMap< const PropertyInterface*, CSProperty *> CSProperty::s_ptr_cache;
+
 struct CSType {
     String cs_name;
 
@@ -305,6 +343,7 @@ struct CSType {
     Vector<CSConstant *> m_class_constants;
     Vector<CSEnum*> m_class_enums;
     Vector<CSFunction *> m_class_functions;
+    Vector<CSProperty *> m_properties;
 
     void add_constant(const String &access_path, const ConstantInterface *ci) {
 
@@ -322,17 +361,26 @@ struct CSType {
         m_class_enums.emplace_back(enm);
     }
 
-    CSFunction * find_method_by_name(const StringName & string_name) const {
-        auto internal = source_type->find_method_by_name(string_name.asCString());
+    CSFunction * find_method_by_name(const StringName & name) const {
+        auto internal = source_type->find_method_by_name(name.asCString());
         if(!internal) {
-            qCritical()<<"Missing method "<<source_type->name.c_str()<<"::"<<string_name.asCString();
+            qCritical()<<"Missing method "<<source_type->name.c_str()<<"::"<<name.asCString();
             return nullptr;
         }
         CSFunction *res = CSFunction::from_rd(internal);
         assert(m_class_functions.contains(res));
         return res;
     }
-
+    CSProperty * find_property_by_name(const StringName &name) const {
+        auto internal = source_type->find_property_by_name(name.asCString());
+        if(!internal) {
+            qCritical()<<"Missing property "<<source_type->name.c_str()<<"::"<<name.asCString();
+            return nullptr;
+        }
+        CSProperty *res = CSProperty::from_rd(internal);
+        assert(m_properties.contains(res));
+        return res;
+    }
     static CSType * from_rd(const TypeInterface * type_interface) {
         CSType *res=new CSType;
         res->cs_name = type_interface->name;
@@ -418,7 +466,320 @@ struct CSNamespace {
 };
 HashMap<String,CSNamespace *> CSNamespace::namespaces;
 
+struct CSTypeMapper : BindingTypeMapper {
 
+    String mapIntTypeName(IntTypes it) override {
+        switch (it) {
+            case INT_8: return "sbyte";
+            case UINT_8: return "byte";
+            case INT_16: return "short";
+            case UINT_16:return "ushort";
+            case INT_32: return "int";
+            case UINT_32:return "uint";
+            case INT_64: return "long";
+            case UINT_64:return "ulong";
+        }
+        assert(false);
+        return "";
+    }
+    String mapFloatTypeName(FloatTypes ft) {
+        switch(ft) {
+
+            case FLOAT_32:  return "float";
+            case DOUBLE_64: return "double";
+        }
+        assert(false);
+        return "";
+    }
+    String mapClassName(StringView class_name, StringView namespace_name = {}) {
+        return "";
+    }
+    String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
+        String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
+        String mapped_class_name = mapClassName(class_name,namespace_name);
+        // Prevent the property and its enclosing type from sharing the same name
+        if (conv_name == mapped_class_name) {
+            qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
+                conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
+
+            conv_name += "_";
+        }
+        return conv_name;
+    }
+    String mapArgumentName(StringView src_name) {
+        return escape_csharp_keyword(snake_to_camel_case(src_name));
+    }
+    bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
+        return false;
+    }
+    String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
+        String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
+        String mapped_class_name = mapClassName(class_name, namespace_name);
+
+        // Prevent the method and its enclosing type from sharing the same name
+        if ((!class_name.empty() && proxy_name == mapped_class_name) || (!namespace_name.empty() && proxy_name==namespace_name)) {
+            qWarning("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
+                proxy_name.c_str(), mapped_class_name.c_str(), String(method_name).c_str());
+
+            proxy_name += "_";
+        }
+        return proxy_name;
+    }
+
+    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override {
+        assert(false);
+    }
+
+    String map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name) {
+        assert(false);
+        return "";
+    }
+
+    CSType *map_type(TypemapKind kind, const TypeReference &ref) {
+        assert(false);
+        return nullptr;
+    }
+};
+
+Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod, CSTypeMapper &rd) {
+
+    CSType *return_type = rd.map_type(CSTypeMapper::RETURN,p_imethod.return_type);
+    CSFunction *mapped_func = CSFunction::from_rd(&p_imethod);
+    String arguments_sig;
+
+    mapped_func->return_type = return_type;
+
+    // Retrieve information from the arguments
+    for (const ArgumentInterface &iarg : p_imethod.arguments) {
+
+        const CSType *arg_type = rd.map_type(CSTypeMapper::INPUT, iarg.type);
+        mapped_func->arg_types.push_back(return_type);
+
+        // Add the current arguments to the signature
+        // If the argument has a default value which is not a constant, we will make it Nullable
+        {
+            if (&iarg != &p_imethod.arguments.front())
+                arguments_sig += ", ";
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                arguments_sig += "Nullable<";
+
+            arguments_sig += arg_type->cs_name;
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                arguments_sig += "> ";
+            else
+                arguments_sig += " ";
+
+            arguments_sig += iarg.name;
+
+            if (!iarg.default_argument.empty()) {
+                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
+                    arguments_sig += " = null";
+                else
+                    arguments_sig += " = " + String().sprintf(iarg.default_argument.c_str(), arg_type->cs_name.c_str());
+            }
+        }
+    }
+    return OK;
+}
+/*
+Error BindingsGenerator::_generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod,
+        int &p_method_bind_count, StringBuilder &p_output) {
+
+    const TypeInterface *return_type = rd._get_type_or_placeholder(p_imethod.return_type);
+
+    String arguments_sig;
+    String cs_in_statements;
+
+    String icall_params;
+    icall_params += sformat(p_itype.cs_in, "this");
+
+    StringBuilder default_args_doc;
+
+    // Retrieve information from the arguments
+    for (const ArgumentInterface &iarg : p_imethod.arguments) {
+
+        const TypeInterface *arg_type = rd._get_type_or_placeholder(iarg.type);
+
+        // Add the current arguments to the signature
+        // If the argument has a default value which is not a constant, we will make it Nullable
+        {
+            if (&iarg != &p_imethod.arguments.front())
+                arguments_sig += ", ";
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                arguments_sig += "Nullable<";
+
+            arguments_sig += arg_type->cs_type;
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                arguments_sig += "> ";
+            else
+                arguments_sig += " ";
+
+            arguments_sig += iarg.name;
+
+            if (!iarg.default_argument.empty()) {
+                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
+                    arguments_sig += " = null";
+                else
+                    arguments_sig += " = " + sformat(iarg.default_argument, arg_type->cs_type);
+            }
+        }
+
+        icall_params += ", ";
+
+        if (iarg.default_argument.size() && iarg.def_param_mode != ArgumentInterface::CONSTANT) {
+            // The default value of an argument must be constant. Otherwise we make it Nullable and do the following:
+            // Type arg_in = arg.HasValue ? arg.Value : <non-const default value>;
+            String arg_in = iarg.name;
+            arg_in += "_in";
+
+            cs_in_statements += arg_type->cs_type;
+            cs_in_statements += " ";
+            cs_in_statements += arg_in;
+            cs_in_statements += " = ";
+            cs_in_statements += iarg.name;
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                cs_in_statements += ".HasValue ? ";
+            else
+                cs_in_statements += " != null ? ";
+
+            cs_in_statements += iarg.name;
+
+            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+                cs_in_statements += ".Value : ";
+            else
+                cs_in_statements += " : ";
+
+            String def_arg = sformat(iarg.default_argument, arg_type->cs_type);
+
+            cs_in_statements += def_arg;
+            cs_in_statements += ";\n" INDENT3;
+
+            icall_params += arg_type->cs_in.empty() ? arg_in : sformat(arg_type->cs_in, arg_in);
+
+            // Apparently the name attribute must not include the @
+            String param_tag_name = iarg.name.starts_with("@") ? iarg.name.substr(1, iarg.name.length()) : iarg.name;
+
+            default_args_doc.append(INDENT2 "/// <param name=\"" + param_tag_name + "\">If the parameter is null, then the default value is " + def_arg + "</param>\n");
+        } else {
+            icall_params += arg_type->cs_in.empty() ? iarg.name : sformat(arg_type->cs_in, iarg.name);
+        }
+    }
+
+    // Generate method
+    {
+        auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
+        if (method_doc && method_doc->description.size()) {
+            String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
+            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+            if (summary_lines.size() || default_args_doc.get_string_length()) {
+                p_output.append(MEMBER_BEGIN "/// <summary>\n");
+
+                for (int i = 0; i < summary_lines.size(); i++) {
+                    p_output.append(INDENT2 "/// ");
+                    p_output.append(summary_lines[i]);
+                    p_output.append("\n");
+                }
+
+                p_output.append(default_args_doc.as_string());
+                p_output.append(INDENT2 "/// </summary>");
+            }
+        }
+
+        if (!p_imethod.is_internal) {
+            p_output.append(MEMBER_BEGIN "[GodotMethod(\"");
+            p_output.append(p_imethod.name);
+            p_output.append("\")]");
+        }
+
+        if (p_imethod.is_deprecated) {
+            if (p_imethod.deprecation_message.empty()) {
+                WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.");
+            }
+
+            p_output.append(MEMBER_BEGIN "[Obsolete(\"");
+            p_output.append(p_imethod.deprecation_message);
+            p_output.append("\")]");
+        }
+
+        p_output.append(MEMBER_BEGIN);
+        p_output.append(p_imethod.is_internal ? "internal " : "public ");
+
+        if (p_itype.is_singleton) {
+            p_output.append("static ");
+        } else if (p_imethod.is_virtual) {
+            p_output.append("virtual ");
+        }
+
+        p_output.append(return_type->cs_type + " ");
+        p_output.append(p_imethod.proxy_name + "(");
+        p_output.append(arguments_sig + ")\n" OPEN_BLOCK_L2);
+
+        if (p_imethod.is_virtual) {
+            // Godot virtual method must be overridden, therefore we return a default value by default.
+
+            if (return_type->cname == name_cache->type_void) {
+                p_output.append("return;\n" CLOSE_BLOCK_L2);
+            } else {
+                p_output.append("return default(");
+                p_output.append(return_type->cs_type);
+                p_output.append(");\n" CLOSE_BLOCK_L2);
+            }
+
+            return OK; // Won't increment method bind count
+        }
+
+        if (p_imethod.requires_object_call) {
+            // Fallback to Godot's object.Call(string, params)
+
+            p_output.append(CS_METHOD_CALL "(\"");
+            p_output.append(p_imethod.name);
+            p_output.append("\"");
+
+            for (const ArgumentInterface &F : p_imethod.arguments) {
+                p_output.append(", ");
+                p_output.append(F.name);
+            }
+
+            p_output.append(");\n" CLOSE_BLOCK_L2);
+
+            return OK; // Won't increment method bind count
+        }
+
+        const Map<const MethodInterface *, const InternalCall *>::iterator match = method_icalls_map.find(&p_imethod);
+        ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG);
+
+        const InternalCall *im_icall = match->second;
+
+        String im_call = im_icall->editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS;
+        im_call += ".";
+        im_call += im_icall->name;
+
+        if (!p_imethod.arguments.empty())
+            p_output.append(cs_in_statements);
+
+        if (return_type->cname == name_cache->type_void) {
+            p_output.append(im_call + "(" + icall_params + ");\n");
+        } else if (return_type->cs_out.empty()) {
+            p_output.append("return " + im_call + "(" + icall_params + ");\n");
+        } else {
+            p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
+            p_output.append("\n");
+        }
+
+        p_output.append(CLOSE_BLOCK_L2);
+    }
+
+    p_method_bind_count++;
+
+    return OK;
+}
+*/
 #if 0
 
 #include "core/doc_support/doc_data.h"
@@ -710,37 +1071,31 @@ String bbcode_to_xml(StringView p_bbcode,Span<const StringView> access_path, con
                         xml_output.writeAttribute("cref",QString::fromUtf8(full_path.c_str()));
                     }
                 }
-#if 0
             } else if (link_tag == "member"_sv) {
-                if (!target_itype || !target_itype->is_object_type) {
-                    if (OS::get_singleton()->is_stdout_verbose()) {
+                if (!target_itype || !target_itype->source_type->is_object_type) {
+                    if (verbose) {
                         if (target_itype) {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
                         } else {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve type from member reference in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve type from member reference in documentation: %.*s\n", link_target.size(),link_target.data());
                         }
                     }
 
                     // TODO Map what we can
-                    xml_output.append("<c>");
-                    xml_output.append(link_target);
-                    xml_output.append("</c>");
+                    xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(),link_target.size()));
                 } else {
-                    const PropertyInterface *target_iprop = target_itype->find_property_by_name(target_cname);
+                    const CSProperty *target_iprop = target_itype->find_property_by_name(target_cname);
 
                     if (target_iprop) {
-                        xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                        xml_output.append(target_itype->proxy_name);
-                        xml_output.append(".");
-                        xml_output.append(target_iprop->proxy_name);
-                        xml_output.append("\"/>");
+                        xml_output.writeEmptyElement("see");
+                        String full_path= our_ns->cs_path() + "." + target_itype->cs_name + "." + target_iprop->cs_name;
+                        xml_output.writeAttribute("cref",full_path.c_str());
                     }
                 }
             } else if (link_tag == "signal"_sv) {
                 // We do not declare signals in any way in C#, so there is nothing to reference
-                xml_output.append("<c>");
-                xml_output.append(link_target);
-                xml_output.append("</c>");
+                xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
+#if 0
             } else if (link_tag == "enum"_sv) {
                 StringName search_cname = !target_itype ? target_cname :
                                                           StringName(target_itype->name + "." + (String)target_cname);
@@ -2011,203 +2366,6 @@ Error BindingsGenerator::_generate_cs_property(const TypeInterface &p_itype, con
 
     return OK;
 }
-
-Error BindingsGenerator::_generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod,
-        int &p_method_bind_count, StringBuilder &p_output) {
-
-    const TypeInterface *return_type = rd._get_type_or_placeholder(p_imethod.return_type);
-
-    String arguments_sig;
-    String cs_in_statements;
-
-    String icall_params;
-    icall_params += sformat(p_itype.cs_in, "this");
-
-    StringBuilder default_args_doc;
-
-    // Retrieve information from the arguments
-    for (const ArgumentInterface &iarg : p_imethod.arguments) {
-
-        const TypeInterface *arg_type = rd._get_type_or_placeholder(iarg.type);
-
-        // Add the current arguments to the signature
-        // If the argument has a default value which is not a constant, we will make it Nullable
-        {
-            if (&iarg != &p_imethod.arguments.front())
-                arguments_sig += ", ";
-
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                arguments_sig += "Nullable<";
-
-            arguments_sig += arg_type->cs_type;
-
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                arguments_sig += "> ";
-            else
-                arguments_sig += " ";
-
-            arguments_sig += iarg.name;
-
-            if (!iarg.default_argument.empty()) {
-                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
-                    arguments_sig += " = null";
-                else
-                    arguments_sig += " = " + sformat(iarg.default_argument, arg_type->cs_type);
-            }
-        }
-
-        icall_params += ", ";
-
-        if (iarg.default_argument.size() && iarg.def_param_mode != ArgumentInterface::CONSTANT) {
-            // The default value of an argument must be constant. Otherwise we make it Nullable and do the following:
-            // Type arg_in = arg.HasValue ? arg.Value : <non-const default value>;
-            String arg_in = iarg.name;
-            arg_in += "_in";
-
-            cs_in_statements += arg_type->cs_type;
-            cs_in_statements += " ";
-            cs_in_statements += arg_in;
-            cs_in_statements += " = ";
-            cs_in_statements += iarg.name;
-
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                cs_in_statements += ".HasValue ? ";
-            else
-                cs_in_statements += " != null ? ";
-
-            cs_in_statements += iarg.name;
-
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                cs_in_statements += ".Value : ";
-            else
-                cs_in_statements += " : ";
-
-            String def_arg = sformat(iarg.default_argument, arg_type->cs_type);
-
-            cs_in_statements += def_arg;
-            cs_in_statements += ";\n" INDENT3;
-
-            icall_params += arg_type->cs_in.empty() ? arg_in : sformat(arg_type->cs_in, arg_in);
-
-            // Apparently the name attribute must not include the @
-            String param_tag_name = iarg.name.starts_with("@") ? iarg.name.substr(1, iarg.name.length()) : iarg.name;
-
-            default_args_doc.append(INDENT2 "/// <param name=\"" + param_tag_name + "\">If the parameter is null, then the default value is " + def_arg + "</param>\n");
-        } else {
-            icall_params += arg_type->cs_in.empty() ? iarg.name : sformat(arg_type->cs_in, iarg.name);
-        }
-    }
-
-    // Generate method
-    {
-        auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
-        if (method_doc && method_doc->description.size()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
-            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-            if (summary_lines.size() || default_args_doc.get_string_length()) {
-                p_output.append(MEMBER_BEGIN "/// <summary>\n");
-
-                for (int i = 0; i < summary_lines.size(); i++) {
-                    p_output.append(INDENT2 "/// ");
-                    p_output.append(summary_lines[i]);
-                    p_output.append("\n");
-                }
-
-                p_output.append(default_args_doc.as_string());
-                p_output.append(INDENT2 "/// </summary>");
-            }
-        }
-
-        if (!p_imethod.is_internal) {
-            p_output.append(MEMBER_BEGIN "[GodotMethod(\"");
-            p_output.append(p_imethod.name);
-            p_output.append("\")]");
-        }
-
-        if (p_imethod.is_deprecated) {
-            if (p_imethod.deprecation_message.empty()) {
-                WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.");
-            }
-
-            p_output.append(MEMBER_BEGIN "[Obsolete(\"");
-            p_output.append(p_imethod.deprecation_message);
-            p_output.append("\")]");
-        }
-
-        p_output.append(MEMBER_BEGIN);
-        p_output.append(p_imethod.is_internal ? "internal " : "public ");
-
-        if (p_itype.is_singleton) {
-            p_output.append("static ");
-        } else if (p_imethod.is_virtual) {
-            p_output.append("virtual ");
-        }
-
-        p_output.append(return_type->cs_type + " ");
-        p_output.append(p_imethod.proxy_name + "(");
-        p_output.append(arguments_sig + ")\n" OPEN_BLOCK_L2);
-
-        if (p_imethod.is_virtual) {
-            // Godot virtual method must be overridden, therefore we return a default value by default.
-
-            if (return_type->cname == name_cache->type_void) {
-                p_output.append("return;\n" CLOSE_BLOCK_L2);
-            } else {
-                p_output.append("return default(");
-                p_output.append(return_type->cs_type);
-                p_output.append(");\n" CLOSE_BLOCK_L2);
-            }
-
-            return OK; // Won't increment method bind count
-        }
-
-        if (p_imethod.requires_object_call) {
-            // Fallback to Godot's object.Call(string, params)
-
-            p_output.append(CS_METHOD_CALL "(\"");
-            p_output.append(p_imethod.name);
-            p_output.append("\"");
-
-            for (const ArgumentInterface &F : p_imethod.arguments) {
-                p_output.append(", ");
-                p_output.append(F.name);
-            }
-
-            p_output.append(");\n" CLOSE_BLOCK_L2);
-
-            return OK; // Won't increment method bind count
-        }
-
-        const Map<const MethodInterface *, const InternalCall *>::iterator match = method_icalls_map.find(&p_imethod);
-        ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG);
-
-        const InternalCall *im_icall = match->second;
-
-        String im_call = im_icall->editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS;
-        im_call += ".";
-        im_call += im_icall->name;
-
-        if (!p_imethod.arguments.empty())
-            p_output.append(cs_in_statements);
-
-        if (return_type->cname == name_cache->type_void) {
-            p_output.append(im_call + "(" + icall_params + ");\n");
-        } else if (return_type->cs_out.empty()) {
-            p_output.append("return " + im_call + "(" + icall_params + ");\n");
-        } else {
-            p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
-            p_output.append("\n");
-        }
-
-        p_output.append(CLOSE_BLOCK_L2);
-    }
-
-    p_method_bind_count++;
-
-    return OK;
-}
-
 Error BindingsGenerator::generate_glue(StringView p_output_dir,GeneratorContext &ctx) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
@@ -3839,111 +3997,6 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
 }
 
 #endif
-bool is_csharp_keyword(StringView p_name) {
-    using namespace eastl;
-    static vector_set<StringView, eastl::less<StringView>, EASTLAllocatorType, eastl::fixed_vector<StringView, 79, false>>
-        keywords;
-    static bool initialized = false;
-    if (!initialized) {
-        constexpr const char* kwords[] = {
-            "abstract" ,"as" ,"base" ,"bool" ,
-            "break" ,"byte" ,"case" ,"catch" ,
-            "char" ,"checked" ,"class" ,"const" ,
-            "continue" ,"decimal" ,"default" ,"delegate" ,
-            "do" ,"double" ,"else" ,"enum" ,
-            "event" ,"explicit" ,"extern" ,"false" ,
-            "finally" ,"fixed" ,"float" ,"for" ,
-            "forech" ,"goto" ,"if" ,"implicit" ,
-            "in" ,"int" ,"interface" ,"internal" ,
-            "is" ,"lock" ,"long" ,"namespace" ,
-            "new" ,"null" ,"object" ,"operator" ,
-            "out" ,"override" ,"params" ,"private" ,
-            "protected" ,"public" ,"readonly" ,"ref" ,
-            "return" ,"sbyte" ,"sealed" ,"short" ,
-            "sizeof" ,"stackalloc" ,"static" ,"string" ,
-            "struct" ,"switch" ,"this" ,"throw" ,
-            "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
-            "unchecked" ,"unsafe" ,"ushort" ,"using" ,
-            "virtual" ,"volatile" ,"void" ,"while"
-        };
-        for (const char* c : kwords)
-            keywords.emplace(c);
-        initialized = true;
-    }
-    // Reserved keywords
-    return keywords.contains(p_name);
-}
-
-String escape_csharp_keyword(StringView p_name) {
-    return is_csharp_keyword(p_name) ? String("@") + p_name : String(p_name);
-}
-
-// ENUM FIELD NAME CONVERSION snake_to_pascal_case(constant_name, true),
-
-struct CSTypeMapper : BindingTypeMapper {
-
-    String mapIntTypeName(IntTypes it) override {
-        switch (it) {
-            case INT_8: return "sbyte";
-            case UINT_8: return "byte";
-            case INT_16: return "short";
-            case UINT_16:return "ushort";
-            case INT_32: return "int";
-            case UINT_32:return "uint";
-            case INT_64: return "long";
-            case UINT_64:return "ulong";
-        }
-        assert(false);
-        return "";
-    }
-    String mapFloatTypeName(FloatTypes ft) {
-        switch(ft) {
-
-            case FLOAT_32:  return "float";
-            case DOUBLE_64: return "double";
-        }
-        assert(false);
-        return "";
-    }
-    String mapClassName(StringView class_name, StringView namespace_name = {}) {
-        return "";
-    }
-    String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
-        String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
-        String mapped_class_name = mapClassName(class_name,namespace_name);
-        // Prevent the property and its enclosing type from sharing the same name
-        if (conv_name == mapped_class_name) {
-            qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
-                conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
-
-            conv_name += "_";
-        }
-        return conv_name;
-    }
-    String mapArgumentName(StringView src_name) {
-        return escape_csharp_keyword(snake_to_camel_case(src_name));
-    }
-    bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-        return false;
-    }
-    String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-        String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
-        String mapped_class_name = mapClassName(class_name, namespace_name);
-
-        // Prevent the method and its enclosing type from sharing the same name
-        if ((!class_name.empty() && proxy_name == mapped_class_name) || (!namespace_name.empty() && proxy_name==namespace_name)) {
-            qWarning("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
-                proxy_name.c_str(), mapped_class_name.c_str(), String(method_name).c_str());
-
-            proxy_name += "_";
-        }
-        return proxy_name;
-    }
-
-    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override {
-        assert(false);
-    }
-};
 
 
 struct FileProducer {
@@ -4361,23 +4414,36 @@ String StringUtils::dedent(StringView str) {
 
 int main(int argc,char **argv) {
     QCoreApplication app(argc,argv);
-    if(qApp->arguments().size()<2) {
-        qCritical() << "Binding generator takes 2 arguments, a source_reflection_data.json and target path.";
-        return -1;
+    QCoreApplication::setApplicationName("binding_generator");
+    QCoreApplication::setApplicationVersion("0.1");
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Test helper");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("source", "Main reflection json file");
+    parser.addPositionalArgument("docs", "documentation directory");
+    parser.addPositionalArgument("target", "destination directory");
+
+    parser.process(app);
+
+    const QStringList args = parser.positionalArguments();
+    if(args.size()!=3) {
+        parser.showHelp(-1);
     }
     register_core_types();
     ReflectionData rd;
     DocData docs;
-    if(!rd.load_from_file(qPrintable(qApp->arguments()[1]))) {
-        qCritical() << "Binding generator failed to load source reflection data:"<< qApp->arguments()[1];
+    if(!rd.load_from_file(qPrintable(args[0]))) {
+        qCritical() << "Binding generator failed to load source reflection data:"<< args[0];
         return -1;
     }
-    if(OK!=docs.load_classes("c:/dev/SegsEngine/doc/classes")) {
+    if(OK!=docs.load_classes(qPrintable(args[1]))) {
         qCritical("Failed to read documentation files");
     }
     rd.doc = &docs;
     rd.build_doc_lookup_helper();
-    processReflectionData(rd,qApp->arguments()[2]);
+    processReflectionData(rd,args[2]);
 
     return 0;
 }

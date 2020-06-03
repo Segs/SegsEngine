@@ -224,16 +224,16 @@ void ArgumentInterface::toJson(QJsonObject &obj) const {
     type.toJson(sertype);
 
     obj["type"] = sertype;
-    obj["name"] = name;
-    if(!default_argument.isEmpty())
-        obj["default_argument"] = default_argument;
+    obj["name"] = name.c_str();
+    if(!default_argument.empty())
+        obj["default_argument"] = default_argument.c_str();
     if (def_param_mode != CONSTANT)
         obj["def_param_mode"] = def_param_mode;
 }
 
 void ArgumentInterface::fromJson(const QJsonObject &obj) {
     type.fromJson(obj["type"].toObject());
-    name = obj["name"].toString();
+    name = obj["name"].toString().toUtf8().data();
 
     getJsonOrDefault(obj, "default_argument", default_argument);
 
