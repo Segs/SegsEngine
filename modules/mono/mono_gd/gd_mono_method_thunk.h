@@ -31,7 +31,7 @@
 #ifndef GD_MONO_METHOD_THUNK_H
 #define GD_MONO_METHOD_THUNK_H
 
-#include <type_traits>
+#include "EASTL/type_traits.h"
 
 #include "gd_mono_class.h"
 #include "gd_mono_header.h"

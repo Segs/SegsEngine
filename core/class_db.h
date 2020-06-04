@@ -103,8 +103,10 @@ void register_custom_data_to_otdb() {
 class GODOT_EXPORT ClassDB {
 public:
     enum APIType {
+        API_INVALID=-1,
         API_CORE,
         API_EDITOR,
+        API_CLIENT,
         API_SERVER, // server only APIs ?
         API_NONE
     };

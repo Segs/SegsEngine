@@ -138,7 +138,9 @@ void CSharpLanguage::init() {
     EditorHelp::generate_doc();
     ReflectionData rd;
     _initialize_reflection_data(rd, EditorHelp::get_doc_data());
-    rd.save_to_file("test.json");
+    if(!rd.save_to_file("test.json")) {
+        print_error("Failed to save reflection data json file.");
+    }
 
 //    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
 //    BindingsGenerator::handle_cmdline_args(cmdline_args);

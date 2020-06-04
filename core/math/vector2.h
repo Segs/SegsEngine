@@ -32,7 +32,6 @@
 
 #include "core/math/math_funcs.h"
 #include "core/error_macros.h"
-#include <type_traits>
 
 struct Vector2i;
 

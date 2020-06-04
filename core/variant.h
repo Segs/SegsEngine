@@ -40,7 +40,7 @@
 #include "core/object_rc.h"
 
 #include <cstdint>
-#include <type_traits>
+#include "EASTL/type_traits.h"
 
 
 class Object;
@@ -277,14 +277,14 @@ public:
     operator IP_Address() const;
     //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
     template<class T ,
-               class = typename std::enable_if<std::is_same<bool,T>::value>::type >
+               class = typename eastl::enable_if<eastl::is_same<bool,T>::value>::type >
     Variant(T p_bool) {
         type = VariantType::BOOL;
         _data._bool = p_bool;
     }
     template<class T ,
-               class = typename std::enable_if<std::is_enum<T>::value>::type >
-    Variant(T p_bool,int=0) : Variant(std::underlying_type_t<T>(p_bool)){
+               class = typename eastl::enable_if<eastl::is_enum<T>::value>::type >
+    Variant(T p_bool,int=0) : Variant(eastl::underlying_type_t<T>(p_bool)){
     }
     Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
     constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }

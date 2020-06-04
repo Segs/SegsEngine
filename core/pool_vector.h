@@ -38,7 +38,7 @@
 #include "core/error_macros.h"
 #include "core/vector.h"
 
-#include <type_traits>
+#include "EASTL/type_traits.h"
 
 class Object;
 namespace std {

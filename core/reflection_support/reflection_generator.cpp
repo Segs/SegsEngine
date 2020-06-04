@@ -282,8 +282,8 @@ static int new_group_prop_status(int curr_idx,int prev_idx) {
     // else (curr_idx<prev_idx)
     return STARTED_GROUP;
 }
-static bool _populate_object_type_interfaces(ReflectionData &rd) {
 
+static bool _populate_object_type_interfaces(ReflectionData &rd) {
     auto& current_namespace = rd.namespaces.back();
     current_namespace.obj_types.clear();
     current_namespace.obj_type_insert_order.clear();
@@ -505,6 +505,8 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             }
             else if (!return_info.class_name.empty()) {
                 imethod.return_type.cname = return_info.class_name;
+                if(return_info.hint == PropertyHint::ResourceType) // assumption -> resource types all return by ref
+                    imethod.return_type.pass_by = TypePassBy::RefValue;
                 if (!imethod.is_virtual && ClassDB::is_parent_class(return_info.class_name, StringName("Reference")) && return_info.hint != PropertyHint::ResourceType) {
                     /* clang-format off */
                     ERR_PRINT("Return type is reference but hint is not 'PropertyHint::ResourceType'."

@@ -301,7 +301,7 @@ template <class T>
 struct GetTypeInfo<Ref<T>,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::RefValue;
 
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo{ nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
@@ -312,7 +312,7 @@ template <class T>
 struct GetTypeInfo<const Ref<T> &,void> {
     static const VariantType VARIANT_TYPE = VariantType::OBJECT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Reference;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::ConstRefReference;
 
     constexpr static inline RawPropertyInfo get_class_info() {
         return RawPropertyInfo { nullptr,T::get_class_static(),T::get_class_static(),int8_t(VariantType::OBJECT), PropertyHint::ResourceType };

@@ -35,6 +35,7 @@
 #include "core/type_info.h"
 #include "core/method_bind.h"
 
+
 struct _GlobalConstant {
 
 #ifdef DEBUG_METHODS_ENABLED

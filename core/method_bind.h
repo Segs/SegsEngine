@@ -41,7 +41,9 @@
 #include "core/math/vector3.h"
 
 #include <cstdio>
-#include <type_traits>
+//#include <type_traits>
+#include "EASTL/type_traits.h"
+
 #include <functional>
 
 namespace ObjectNS
@@ -190,7 +192,7 @@ class MethodBindVA final : public MethodBind {
 
 protected:
     template <std::size_t... Is>
-    RESULT converting_call(T *instance, const Variant **p_args, int p_arg_count, std::index_sequence<Is...>) {
+    RESULT converting_call(T *instance, const Variant **p_args, int p_arg_count, eastl::index_sequence<Is...>) {
 
         if constexpr (sizeof...(Args) == 0) {
             // TODO: SEGS: add assertion p_arg_count==0
@@ -220,15 +222,15 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
     };
-    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
+    constexpr Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
-    Span<const TypePassBy> do_get_argument_passby() const override {
+    constexpr Span<const TypePassBy> do_get_argument_passby() const override {
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
         if(p_arg==-1) {
-            if constexpr (!std::is_same_v<void,RESULT>) {
+            if constexpr (!eastl::is_same_v<void,RESULT>) {
                 return GetTypeInfo<RESULT>::get_class_info();
             }
             else
@@ -252,9 +254,9 @@ public:
             return Variant::null_variant;
 
 #endif
-        auto seq = std::index_sequence_for<Args...>();
+        auto seq = eastl::index_sequence_for<Args...>();
         static_assert (seq.size()==sizeof... (Args) );
-        if constexpr(!std::is_same_v<void,RESULT>) {
+        if constexpr(!eastl::is_same_v<void,RESULT>) {
             return Variant::from(converting_call(instance,p_args,p_arg_count,seq));
         }
         else
@@ -268,20 +270,20 @@ public:
         instance_class_name = T::get_class_static();
         set_argument_count(sizeof...(Args));
 #ifdef DEBUG_METHODS_ENABLED
-        _set_const(std::is_const_v<T>);
+        _set_const(eastl::is_const_v<T>);
 
         VariantType *argt = memnew_arr(VariantType, sizeof...(Args) + 1);
         constexpr VariantType arg_types[sizeof...(Args)+1] = { // +1 is here because vs2017 requires constexpr array of non-zero size
             GetTypeInfo<Args>::VARIANT_TYPE...,
         };
         memcpy(argt+1,arg_types,(sizeof...(Args))*sizeof(VariantType));
-        if constexpr (std::is_same_v<void,RESULT>)
+        if constexpr (eastl::is_same_v<void,RESULT>)
             argt[0] = VariantType::NIL;
         else
             argt[0] = GetTypeInfo<RESULT>::VARIANT_TYPE;
         argument_types = argt;
 #endif
-        _set_returns(!std::is_same_v<void,RESULT>);
+        _set_returns(!eastl::is_same_v<void,RESULT>);
 
     }
 };

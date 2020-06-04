@@ -26,11 +26,11 @@
 
 
 #ifndef ENTT_DISABLE_ETO
-#include <type_traits>
-#define ENTT_ENABLE_ETO(Type) std::is_empty_v<Type>
+#include "EASTL/type_traits.h"
+#define ENTT_ENABLE_ETO(Type) eastl::is_empty_v<Type>
 #else // ENTT_DISABLE_ETO
 // sfinae-friendly definition
-#define ENTT_ENABLE_ETO(Type) (false && std::is_empty_v<Type>)
+#define ENTT_ENABLE_ETO(Type) (false && eastl::is_empty_v<Type>)
 #endif // ENTT_DISABLE_ETO
 
 
