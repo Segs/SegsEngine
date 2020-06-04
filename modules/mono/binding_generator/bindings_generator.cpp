@@ -73,6 +73,26 @@ int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list argume
     #endif
 }
 
+struct CSType;
+
+struct CSTypeMapper : BindingTypeMapper {
+
+    String mapIntTypeName(IntTypes it) override;
+    String mapFloatTypeName(FloatTypes ft) override;
+    String mapClassName(StringView class_name, StringView namespace_name = {});
+    String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) override;
+    String mapArgumentName(StringView src_name) override;
+    bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
+    String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
+
+    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override;
+
+    String map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
+
+    CSType *map_type(TypemapKind kind, const TypeReference &ref);
+};
+
+
 static bool allUpperCase(StringView s) {
     for(char c : s) {
         if(eastl::CharToUpper(c)!=c)
@@ -301,16 +321,16 @@ struct CSFunction {
 
     const MethodInterface* source_type;
 
-    static CSFunction* from_rd(const MethodInterface* type_interface) {
+    static CSFunction* from_rd(const MethodInterface* method_interface,CSTypeMapper &mapper) {
 
-        CSFunction* res = s_ptr_cache[type_interface];
+        CSFunction* res = s_ptr_cache[method_interface];
         if(res)
             return res;
 
         res = new CSFunction;
-        res->cs_name = type_interface->name;
-        res->source_type = type_interface;
-        s_ptr_cache[type_interface] = res;
+        res->cs_name = mapper.mapMethodName(method_interface->name);
+        res->source_type = method_interface;
+        s_ptr_cache[method_interface] = res;
         return res;
     }
 };
@@ -361,13 +381,13 @@ struct CSType {
         m_class_enums.emplace_back(enm);
     }
 
-    CSFunction * find_method_by_name(const StringName & name) const {
+    CSFunction * find_method_by_name(const StringName & name,CSTypeMapper &mapper) const {
         auto internal = source_type->find_method_by_name(name.asCString());
         if(!internal) {
             qCritical()<<"Missing method "<<source_type->name.c_str()<<"::"<<name.asCString();
             return nullptr;
         }
-        CSFunction *res = CSFunction::from_rd(internal);
+        CSFunction *res = CSFunction::from_rd(internal,mapper);
         assert(m_class_functions.contains(res));
         return res;
     }
@@ -386,7 +406,7 @@ struct CSType {
         res->cs_name = type_interface->name;
         res->source_type = type_interface;
         return res;
-    }   
+    }
 };
 
 struct CSNamespace {
@@ -404,7 +424,7 @@ struct CSNamespace {
         return String(cpp_ns_name);
     }
     static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
-        
+
         auto iter = namespaces.find(access_path+src->namespace_name);
         if(iter!=namespaces.end())
             return iter->second;
@@ -466,85 +486,10 @@ struct CSNamespace {
 };
 HashMap<String,CSNamespace *> CSNamespace::namespaces;
 
-struct CSTypeMapper : BindingTypeMapper {
-
-    String mapIntTypeName(IntTypes it) override {
-        switch (it) {
-            case INT_8: return "sbyte";
-            case UINT_8: return "byte";
-            case INT_16: return "short";
-            case UINT_16:return "ushort";
-            case INT_32: return "int";
-            case UINT_32:return "uint";
-            case INT_64: return "long";
-            case UINT_64:return "ulong";
-        }
-        assert(false);
-        return "";
-    }
-    String mapFloatTypeName(FloatTypes ft) {
-        switch(ft) {
-
-            case FLOAT_32:  return "float";
-            case DOUBLE_64: return "double";
-        }
-        assert(false);
-        return "";
-    }
-    String mapClassName(StringView class_name, StringView namespace_name = {}) {
-        return "";
-    }
-    String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {}) {
-        String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
-        String mapped_class_name = mapClassName(class_name,namespace_name);
-        // Prevent the property and its enclosing type from sharing the same name
-        if (conv_name == mapped_class_name) {
-            qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
-                conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
-
-            conv_name += "_";
-        }
-        return conv_name;
-    }
-    String mapArgumentName(StringView src_name) {
-        return escape_csharp_keyword(snake_to_camel_case(src_name));
-    }
-    bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-        return false;
-    }
-    String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) {
-        String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
-        String mapped_class_name = mapClassName(class_name, namespace_name);
-
-        // Prevent the method and its enclosing type from sharing the same name
-        if ((!class_name.empty() && proxy_name == mapped_class_name) || (!namespace_name.empty() && proxy_name==namespace_name)) {
-            qWarning("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
-                proxy_name.c_str(), mapped_class_name.c_str(), String(method_name).c_str());
-
-            proxy_name += "_";
-        }
-        return proxy_name;
-    }
-
-    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override {
-        assert(false);
-    }
-
-    String map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name) {
-        assert(false);
-        return "";
-    }
-
-    CSType *map_type(TypemapKind kind, const TypeReference &ref) {
-        assert(false);
-        return nullptr;
-    }
-};
-
 Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod, CSTypeMapper &rd) {
 
     CSType *return_type = rd.map_type(CSTypeMapper::RETURN,p_imethod.return_type);
-    CSFunction *mapped_func = CSFunction::from_rd(&p_imethod);
+    CSFunction *mapped_func = CSFunction::from_rd(&p_imethod,rd);
     String arguments_sig;
 
     mapped_func->return_type = return_type;
@@ -552,34 +497,34 @@ Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod
     // Retrieve information from the arguments
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
 
-        const CSType *arg_type = rd.map_type(CSTypeMapper::INPUT, iarg.type);
-        mapped_func->arg_types.push_back(return_type);
+        CSType *arg_type = rd.map_type(CSTypeMapper::INPUT, iarg.type);
+        mapped_func->arg_types.push_back(arg_type);
 
         // Add the current arguments to the signature
         // If the argument has a default value which is not a constant, we will make it Nullable
-        {
-            if (&iarg != &p_imethod.arguments.front())
-                arguments_sig += ", ";
+//        {
+//            if (&iarg != &p_imethod.arguments.front())
+//                arguments_sig += ", ";
 
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                arguments_sig += "Nullable<";
+//            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+//                arguments_sig += "Nullable<";
 
-            arguments_sig += arg_type->cs_name;
+//            arguments_sig += arg_type->cs_name;
 
-            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-                arguments_sig += "> ";
-            else
-                arguments_sig += " ";
+//            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
+//                arguments_sig += "> ";
+//            else
+//                arguments_sig += " ";
 
-            arguments_sig += iarg.name;
+//            arguments_sig += iarg.name;
 
-            if (!iarg.default_argument.empty()) {
-                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
-                    arguments_sig += " = null";
-                else
-                    arguments_sig += " = " + String().sprintf(iarg.default_argument.c_str(), arg_type->cs_name.c_str());
-            }
-        }
+//            if (!iarg.default_argument.empty()) {
+//                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
+//                    arguments_sig += " = null";
+//                else
+//                    arguments_sig += " = " + String().sprintf(iarg.default_argument.c_str(), arg_type->cs_name.c_str());
+//            }
+//        }
     }
     return OK;
 }
@@ -925,7 +870,8 @@ static inline String get_unique_sig(const TypeInterface &p_type) {
 }
 #endif
 
-String bbcode_to_xml(StringView p_bbcode,Span<const StringView> access_path, const CSType *p_itype,const ReflectionData &rd,bool verbose) {
+String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, const CSType *p_itype,
+        const ReflectionData &rd,CSTypeMapper &mapper, bool verbose) {
 
     CSNamespace *our_ns = CSNamespace::from_path(access_path);
     // Get namespace from path
@@ -1063,7 +1009,7 @@ String bbcode_to_xml(StringView p_bbcode,Span<const StringView> access_path, con
                     // TODO Map what we can
                     xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
                 } else {
-                    const CSFunction *target_imethod = target_itype->find_method_by_name(target_cname);
+                    const CSFunction *target_imethod = target_itype->find_method_by_name(target_cname,mapper);
 
                     if (target_imethod) {
                         xml_output.writeEmptyElement("see");
@@ -1370,7 +1316,7 @@ String bbcode_to_xml(StringView p_bbcode,Span<const StringView> access_path, con
         }
     }
     xml_output.writeEndElement();
-    
+
     return target.data();
 }
 
@@ -1578,7 +1524,7 @@ static void _write_constant(StringBuilder& p_output, const CSConstant &constant)
     }
     p_output.append(String(select[best]));
 }
-static void _generate_namespace_constants(StringBuilder &p_output,const CSNamespace &ns,const ReflectionData& rd) {
+static void _generate_namespace_constants(StringBuilder &p_output,const CSNamespace &ns,const ReflectionData& rd,CSTypeMapper &mapper) {
 
     // Constants (in partial GD class)
 
@@ -1597,7 +1543,7 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
         auto const_doc = rd.constant_doc("@GlobalScope", "", iconstant->m_rd_data->name.c_str());
 
         if (const_doc && !const_doc->description.empty()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr, rd,true);
+            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr, rd,mapper,true);
             auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
             if (summary_lines.size()) {
                 p_output.append_indented("/// <summary>\n");
@@ -1622,8 +1568,8 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
         p_output.append("\n");
     p_output.dedent();
     p_output.append_indented("}\n"); // end of GD class
-    
-    
+
+
     // Enums
     for (const CSEnum * const ienum : ns.m_enums) {
         if(ienum->m_entries.empty())
@@ -1648,7 +1594,7 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
             auto const_doc = rd.constant_doc("@GlobalScope", ienum->m_rd_data->cname.c_str(), ci->m_rd_data->name.c_str());
 
             if (const_doc && const_doc->description.size()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr,rd,true);
+                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr,rd,mapper,true);
                 Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
                 if (!summary_lines.empty()) {
@@ -4092,7 +4038,7 @@ struct CSProducer : FileProducer {
         }
         if(!original_contents.isEmpty())
             new_contents = original_contents;
-        
+
         SLNTransformer transform;
         StringView editor_defines[] = { "SEGSENGINE_EDITOR" };
         StringView client_defines[] = { "SEGSENGINE_CLIENT" };
@@ -4128,7 +4074,7 @@ struct CSProducer : FileProducer {
         new_sln_file.write(new_contents);
         return true;
     }
-    bool generate_constant_files(const ReflectionData &rd) {
+    bool generate_constant_files(const ReflectionData &rd,CSTypeMapper &mapper) {
         if(!m_target_dir.cd("cs_gen")) {
             bool mk_ok = m_target_dir.mkpath("cs_gen");
             if(!mk_ok) {
@@ -4141,7 +4087,7 @@ struct CSProducer : FileProducer {
         // Generate source file for global scope constants and enums
         for(const auto &ns : CSNamespace::namespaces) {
             StringBuilder constants_source;
-            _generate_namespace_constants(constants_source,*ns.second,rd);
+            _generate_namespace_constants(constants_source,*ns.second,rd,mapper);
             output_file =QDir(m_target_dir).filePath((ns.second->cs_name + "_constants.cs").c_str());
             auto save_err = _save_file(qPrintable(output_file), constants_source);
             if (save_err != OK)
@@ -4150,6 +4096,19 @@ struct CSProducer : FileProducer {
             common_files.emplace_back(qPrintable(output_file));
 
         }
+        m_target_dir.cdUp();
+        return true;
+    }
+    bool generate_type_file(CSType *to_gen,const ReflectionData &rd,CSTypeMapper &mapper) {
+        if(!m_target_dir.cd("cs_gen")) {
+            bool mk_ok = m_target_dir.mkpath("cs_gen");
+            if(!mk_ok) {
+                qFatal("Failed to create cs_gen target directory");
+                return false;
+            }
+            m_target_dir.cd("cs_gen");
+        }
+
         m_target_dir.cdUp();
         return true;
     }
@@ -4275,7 +4234,11 @@ struct CSReflectionVisitor {
         m_namespace_stack.pop_back();
     }
 
-    void visitType(const TypeInterface *) {
+    void visitType(const TypeInterface *ti) {
+        CSType *type = CSType::from_rd(ti);
+        m_type_stack.push_back(type);
+        cs_producer.generate_type_file(type,m_reflection_data,cs_producer.type_mapper);
+        m_type_stack.pop_back();
       //  assert(false);
     }
     void visitTypeProperty(const PropertyInterface *) {
@@ -4286,7 +4249,7 @@ struct CSReflectionVisitor {
     }
 
     void finalize() {
-        cs_producer.generate_constant_files(m_reflection_data);
+        cs_producer.generate_constant_files(m_reflection_data,cs_producer.type_mapper);
         cpp_producer.create_build_files();
         cs_producer.create_build_files();
     }
@@ -4409,6 +4372,84 @@ String StringUtils::dedent(StringView str) {
         new_string += substr(str, indent_stop);
 
     return new_string;
+}
+
+String CSTypeMapper::mapIntTypeName(BindingTypeMapper::IntTypes it) {
+    switch (it) {
+    case INT_8: return "sbyte";
+    case UINT_8: return "byte";
+    case INT_16: return "short";
+    case UINT_16:return "ushort";
+    case INT_32: return "int";
+    case UINT_32:return "uint";
+    case INT_64: return "long";
+    case UINT_64:return "ulong";
+    }
+    assert(false);
+    return "";
+}
+
+String CSTypeMapper::mapFloatTypeName(BindingTypeMapper::FloatTypes ft) {
+    switch(ft) {
+
+    case FLOAT_32:  return "float";
+    case DOUBLE_64: return "double";
+    }
+    assert(false);
+    return "";
+}
+
+String CSTypeMapper::mapClassName(StringView class_name, StringView namespace_name) {
+    return "";
+}
+
+String CSTypeMapper::mapPropertyName(StringView src_name, StringView class_name, StringView namespace_name) {
+    String conv_name = escape_csharp_keyword(snake_to_pascal_case(src_name));
+    String mapped_class_name = mapClassName(class_name,namespace_name);
+    // Prevent the property and its enclosing type from sharing the same name
+    if (conv_name == mapped_class_name) {
+        qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
+                 conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
+
+        conv_name += "_";
+    }
+    return conv_name;
+}
+
+String CSTypeMapper::mapArgumentName(StringView src_name) {
+    return escape_csharp_keyword(snake_to_camel_case(src_name));
+}
+
+bool CSTypeMapper::shouldSkipMethod(StringView method_name, StringView class_name, StringView namespace_name) {
+    return false;
+}
+
+String CSTypeMapper::mapMethodName(StringView method_name, StringView class_name, StringView namespace_name) {
+    String proxy_name = escape_csharp_keyword(snake_to_pascal_case(method_name));
+    String mapped_class_name = mapClassName(class_name, namespace_name);
+
+    // Prevent the method and its enclosing type from sharing the same name
+    if ((!class_name.empty() && proxy_name == mapped_class_name) || (!namespace_name.empty() && proxy_name==namespace_name)) {
+        qWarning("Name of method '%s' is ambiguous with the name of its enclosing class '%s'. Renaming method to '%s_'\n",
+                 proxy_name.c_str(), mapped_class_name.c_str(), String(method_name).c_str());
+
+        proxy_name += "_";
+    }
+    return proxy_name;
+}
+
+void CSTypeMapper::registerTypeMap(StringView type_name, BindingTypeMapper::TypemapKind, StringView pattern) {
+    assert(false);
+}
+
+String CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref, StringView instance_name) {
+    assert(false);
+    return "";
+}
+
+CSType *CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref) {
+    assert(false);
+    return nullptr;
 }
 
 
