@@ -401,6 +401,7 @@ inline StringName __constant_get_enum_name(T /*param*/, const char *p_constant) 
 #else
 
 #define MAKE_ENUM_TYPE_INFO(m_enum)
+#define TEMPL_MAKE_ENUM_TYPE_INFO(m_enum, m_impl)
 #define EXTERN_MAKE_ENUM_TYPE_INFO(m_enum)
 #define CLASS_INFO(m_type) VariantType::OBJECT
 

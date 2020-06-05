@@ -137,7 +137,7 @@ public:
         return m_wrapped->get_resource_type(p_path);
     }
 
-    ResourceFormatLoaderWrap(ResourceLoaderInterface* w) : m_wrapped(w) {}
+    explicit ResourceFormatLoaderWrap(ResourceLoaderInterface* w) : m_wrapped(w) {}
     ~ResourceFormatLoaderWrap() override = default;
     bool wrapped_same(const ResourceLoaderInterface* wrapped) const { return m_wrapped == wrapped; }
 };

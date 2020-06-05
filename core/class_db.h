@@ -140,9 +140,9 @@ public:
         HashSet<StringName> methods_in_properties;
         Vector<MethodInfo> virtual_methods;
         StringName category;
-        String usage_header;
 #endif
         HashMap<StringName, PropertySetGet> property_setget;
+        String usage_header;
 
         StringName inherits;
         StringName name;
@@ -363,6 +363,13 @@ public:
 
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
+
+#define REGISTER_ENUM(name,type) \
+    ClassDB::register_enum_type(get_class_static_name(),#name, #type);
+
+#define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
+    ClassDB::bind_integer_constant("@", StringName(), #m_constant, int(m_constant))
+
 
 #endif
 

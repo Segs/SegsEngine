@@ -1158,22 +1158,22 @@ void CanvasItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_toplevel_raise_self"), &CanvasItem::_toplevel_raise_self);
     MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
 #ifdef TOOLS_ENABLED
-    MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state);
-    MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state);
-    MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position);
-    MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position);
-    MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale);
-    MethodBinder::bind_method(D_METHOD("_edit_get_scale"), &CanvasItem::_edit_get_scale);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rect", {"rect"}), &CanvasItem::_edit_set_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_get_rect"), &CanvasItem::_edit_get_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_use_rect"), &CanvasItem::_edit_use_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", {"degrees"}), &CanvasItem::_edit_set_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_get_rotation"), &CanvasItem::_edit_get_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_use_rotation"), &CanvasItem::_edit_use_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
+    MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_scale"), &CanvasItem::_edit_get_scale,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rect", {"rect"}), &CanvasItem::_edit_set_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_rect"), &CanvasItem::_edit_get_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_rect"), &CanvasItem::_edit_use_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", {"degrees"}), &CanvasItem::_edit_set_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_rotation"), &CanvasItem::_edit_get_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_rotation"), &CanvasItem::_edit_use_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform,METHOD_FLAG_EDITOR_ONLY);
 #endif
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);

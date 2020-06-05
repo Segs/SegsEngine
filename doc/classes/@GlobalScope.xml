@@ -1424,20 +1424,11 @@
         <constant name="METHOD_FLAG_EDITOR" value="2" enum="MethodFlags">
             Flag for an editor method.
         </constant>
-        <constant name="METHOD_FLAG_NOSCRIPT" value="4" enum="MethodFlags">
-            Deprecated method flag, unused.
-        </constant>
         <constant name="METHOD_FLAG_CONST" value="8" enum="MethodFlags">
             Flag for a constant method.
         </constant>
-        <constant name="METHOD_FLAG_REVERSE" value="16" enum="MethodFlags">
-            Deprecated method flag, unused.
-        </constant>
         <constant name="METHOD_FLAG_VIRTUAL" value="32" enum="MethodFlags">
             Flag for a virtual method.
-        </constant>
-        <constant name="METHOD_FLAG_FROM_SCRIPT" value="64" enum="MethodFlags">
-            Deprecated method flag, unused.
         </constant>
         <constant name="METHOD_FLAGS_DEFAULT" value="1" enum="MethodFlags">
             Default method flags.

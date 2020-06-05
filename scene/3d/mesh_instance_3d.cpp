@@ -404,13 +404,10 @@ void MeshInstance3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_surface_material", {"surface"}), &MeshInstance3D::get_surface_material);
 
     MethodBinder::bind_method(D_METHOD("create_trimesh_collision"), &MeshInstance3D::create_trimesh_collision);
-    ClassDB::set_method_flags("MeshInstance3D", "create_trimesh_collision", METHOD_FLAGS_DEFAULT);
     MethodBinder::bind_method(D_METHOD("create_convex_collision"), &MeshInstance3D::create_convex_collision);
-    ClassDB::set_method_flags("MeshInstance3D", "create_convex_collision", METHOD_FLAGS_DEFAULT);
     MethodBinder::bind_method(D_METHOD("_mesh_changed"), &MeshInstance3D::_mesh_changed);
 
-    MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents);
-    ClassDB::set_method_flags("MeshInstance3D", "create_debug_tangents", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+    MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mesh", PropertyHint::ResourceType, "Mesh"), "set_mesh", "get_mesh");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "skin", PropertyHint::ResourceType, "Skin"), "set_skin", "get_skin");

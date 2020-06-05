@@ -466,9 +466,9 @@ void ClassDB::get_method_list(
 
         const StringName *K = nullptr;
 
-        while ((K = type->method_map.next(K))) {
+        for(const auto &entry : type->method_map) {
 
-            MethodBind *m = type->method_map[*K];
+            MethodBind *m = type->method_map[entry.first];
             MethodInfo mi;
             mi.name = m->get_name();
             p_methods->push_back(mi);
@@ -560,10 +560,8 @@ void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> 
             p_constants->push_back(name.asCString());
         }
 #else
-        const StringName *K = nullptr;
-
-        while ((K = type->constant_map.next(K))) {
-            p_constants->push_back(*K);
+        for(const auto &e : type->constant_map) {
+            p_constants->emplace_back(e.first);
         }
 
 #endif
@@ -1110,7 +1108,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
     p_bind->set_hint_flags(p_flags);
     return p_bind;
 }
-
+#ifdef DEBUG_METHODS_ENABLED
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
     //TODO: SEGS: fragile piece of code, assumes this file is always at `core/class_db.cpp` path.
     StringView current_path = __FILE__;
@@ -1120,6 +1118,7 @@ void ClassDB::_set_class_header(const StringName &p_class, StringView header_fil
     String hdr(hdr_path.substr(prefix_len));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
+#endif
 
 void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual) {
     ERR_FAIL_COND(!classes.contains(p_class));

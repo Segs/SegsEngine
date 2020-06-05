@@ -319,6 +319,8 @@ struct GetTypeInfo<const Ref<T> &,void> {
     }
 };
 
+#endif // DEBUG_METHODS_ENABLED
+
 namespace eastl {
 template<typename T>
 struct hash<Ref<T>> {
@@ -327,5 +329,3 @@ struct hash<Ref<T>> {
     }
 };
 }
-
-#endif // DEBUG_METHODS_ENABLED

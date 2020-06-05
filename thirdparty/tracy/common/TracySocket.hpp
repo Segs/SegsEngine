@@ -2,7 +2,7 @@
 #define __TRACYSOCKET_HPP__
 
 #include <functional>
-
+#include <stdint.h>
 struct sockaddr;
 
 namespace tracy

@@ -1614,7 +1614,7 @@ Node *SceneTree::get_edited_scene_root() const {
 #ifdef TOOLS_ENABLED
     return edited_scene_root;
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 

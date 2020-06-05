@@ -840,8 +840,7 @@ void BakedLightmap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_image_path"), &BakedLightmap::get_image_path);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &BakedLightmap::bake, {DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("debug_bake"), &BakedLightmap::debug_bake);
-    ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+    MethodBinder::bind_method(D_METHOD("debug_bake"), &BakedLightmap::debug_bake,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_GROUP("Bake", "bake_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bake_cell_size", PropertyHint::Range, "0.01,64,0.01"), "set_bake_cell_size", "get_bake_cell_size");

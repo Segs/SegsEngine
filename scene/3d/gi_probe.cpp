@@ -535,8 +535,7 @@ void GIProbe::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_compressed"), &GIProbe::is_compressed);
 
     MethodBinder::bind_method(D_METHOD("bake", {"from_node", "create_visual_debug"}), &GIProbe::bake, {DEFVAL(Variant()), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake);
-    ClassDB::set_method_flags(get_class_static_name(), StringName("debug_bake"), METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+    MethodBinder::bind_method(D_METHOD("debug_bake"), &GIProbe::debug_bake,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "subdiv", PropertyHint::Enum, "64,128,256,512"), "set_subdiv", "get_subdiv");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "extents"), "set_extents", "get_extents");

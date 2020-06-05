@@ -324,10 +324,12 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         TypeInterface itype = TypeInterface::create_object_type(type_cname.asCString(), convertApiType(api_type));
         String proxy_name = itype.name.starts_with('_') ? itype.name.substr(1) : itype.name;
         itype.base_name = ClassDB::get_parent_class(type_cname).asCString();
+        itype.header_path = class_iter->second.usage_header;
         itype.is_singleton = Engine::get_singleton()->has_singleton(StringName(proxy_name));
         itype.is_instantiable = class_iter->second.creation_func && !itype.is_singleton;
         itype.is_reference = ClassDB::is_parent_class(type_cname, "RefCounted");
         itype.memory_own = itype.is_reference;
+
         itype.is_namespace = class_iter->second.is_namespace;
 
         //itype.c_out = "\treturn ";
@@ -771,20 +773,24 @@ void _populate_builtin_type_interfaces(ReflectionData &rd) {
     // String
     itype = TypeInterface();
     itype.name = "String";
+    itype.header_path = "core/string.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // StringView
     itype = TypeInterface();
-    itype.name = "String";
+    itype.name = "StringView";
+    itype.header_path = "core/string.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
     // StringName
     itype = TypeInterface();
-    itype.name = "String";
+    itype.name = "StringName";
+    itype.header_path = "core/string_name.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // NodePath
     itype = TypeInterface();
     itype.name = "NodePath";
+    itype.header_path = "core/node_path.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // RID
@@ -795,6 +801,7 @@ void _populate_builtin_type_interfaces(ReflectionData &rd) {
     // Variant
     itype = TypeInterface();
     itype.name = "Variant";
+    itype.header_path = "core/variant.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // VarArg (fictitious type to represent variable arguments)
@@ -852,11 +859,13 @@ void _populate_builtin_type_interfaces(ReflectionData &rd) {
         // Array
         itype = TypeInterface();
     itype.name = "Array";
+    itype.header_path = "core/array.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // Dictionary
     itype = TypeInterface();
     itype.name = "Dictionary";
+    itype.header_path = "core/dictionary.h";
     current_namespace.builtin_types.emplace(itype.name, itype);
 
     // void (fictitious type to represent the return type of methods that do not return anything)

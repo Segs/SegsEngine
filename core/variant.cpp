@@ -1690,13 +1690,13 @@ Variant::operator RID() const {
         return *reinterpret_cast<const RID *>(_data._mem);
     if (type != VariantType::OBJECT)
         return RID();
-    if (!_get_obj().ref.is_null()) 
+    if (!_get_obj().ref.is_null())
         return _get_obj().ref.get_rid();
 #ifdef DEBUG_ENABLED
     Object *obj = likely(_get_obj().rc) ? _get_obj().rc->get_ptr() : NULL;
 #else
     Object *obj = _get_obj().obj;
-#endif    
+#endif
     if (unlikely(!obj)) {
 #ifdef DEBUG_ENABLED
         if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
@@ -1708,7 +1708,7 @@ Variant::operator RID() const {
 
     Callable::CallError ce;
     Variant ret = obj->call(CoreStringNames::get_singleton()->get_rid, nullptr, 0, ce);
-    if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID) 
+    if (ce.error == Callable::CallError::CALL_OK && ret.get_type() == VariantType::_RID)
         return ret;
     return RID();
 }
@@ -2123,10 +2123,10 @@ Variant::Variant(const RefPtr &p_resource) {
     type = VariantType::OBJECT;
     memnew_placement(_data._mem, ObjData);
 #ifdef DEBUG_ENABLED
-    _get_obj().rc = NULL;
+    _get_obj().rc = nullptr;
 #else
-    REF *ref = reinterpret_cast<REF *>(p_resource.get_data());
-    _get_obj().obj = ref->ptr();
+    REF *ref = reinterpret_cast<REF *>(p_resource.get());
+    _get_obj().obj = ref->get();
 #endif
     _get_obj().ref = p_resource;
 }

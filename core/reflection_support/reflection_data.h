@@ -192,10 +192,11 @@ struct TypeInterface {
      */
     String base_name;
 
+
     /**
-     * Name of the C# class
+     * Relative path to header defining this type.
      */
-    //QString proxy_name;
+    String header_path;
 
     APIType api_type;
 
@@ -366,9 +367,6 @@ struct TypeInterface {
 
         return nullptr;
     }*/
-
-private:
-    static void _init_value_type(TypeInterface &itype);
 
 public:
     static TypeInterface create_value_type(const String&p_name);

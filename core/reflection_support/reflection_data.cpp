@@ -282,22 +282,11 @@ void MethodInterface::fromJson(const QJsonObject &obj) {
 
 }
 
-void TypeInterface::_init_value_type(TypeInterface &itype) {
-    //assert(false);
-    //itype.proxy_name = (itype.name);
-
-    //itype.c_type = itype.name;
-    //itype.cs_type = itype.proxy_name;
-    //itype.im_type_in = "ref " + itype.proxy_name;
-    //itype.im_type_out = itype.proxy_name;
-    //itype.class_doc = &EditorHelp::get_doc_data()->class_list[itype.proxy_name];
-}
-
 TypeInterface TypeInterface::create_value_type(const String &p_name) {
     TypeInterface itype;
     itype.name = p_name;
     //itype.cname = (p_name);
-    _init_value_type(itype);
+    //_init_value_type(itype);
     return itype;
 }
 
@@ -370,6 +359,7 @@ TypeInterface::TypeInterface() {
 void TypeInterface::toJson(QJsonObject &obj) const {
     obj["name"] = name.c_str();
     obj["base_name"] = base_name.c_str();
+    obj["header_path"] = header_path.c_str();
     obj["api_type"] = (int)api_type;
     obj["is_enum"] = is_enum;
     obj["is_object_type"] = is_object_type;
@@ -390,6 +380,8 @@ void TypeInterface::toJson(QJsonObject &obj) const {
 void TypeInterface::fromJson(const QJsonObject &obj) {
     name = obj["name"].toString().toUtf8().data();
     base_name = obj["base_name"].toString().toUtf8().data();
+    header_path = obj["header_path"].toString().toUtf8().data();
+
     api_type = (APIType)obj["api_type"].toInt();
     is_enum = obj["is_enum"].toBool();
     is_object_type = obj["is_object_type"].toBool();

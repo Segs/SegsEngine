@@ -78,13 +78,18 @@ static Vector<_GlobalConstant> _global_constants;
 #else
 
 #define BIND_GLOBAL_CONSTANT(m_constant) \
-    _global_constants.push_back(_GlobalConstant(#m_constant, int(m_constant)));
+    _global_constants.emplace_back(#m_constant, int(m_constant));
 
 #define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
-    _global_constants.push_back(_GlobalConstant(#m_constant, int(m_constant)));
+    _global_constants.emplace_back(#m_constant, int(m_constant));
 
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM(m_custom_name, m_constant) \
-    _global_constants.push_back(_GlobalConstant(m_custom_name, int(m_constant)));
+    _global_constants.emplace_back(m_custom_name, int(m_constant));
+
+#define BIND_STATIC_GLOBAL_ENUM_CONSTANT(m_constant) \
+    _global_constants.emplace_back(#m_constant, int(m_constant));
+#define BIND_GLOBAL_CLASS_ENUM_CONSTANT(m_class,m_constant) \
+    _global_constants.emplace_back(#m_constant, int(m_class::m_constant));
 
 #endif
 
@@ -591,11 +596,11 @@ void register_global_constants() {
 
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_NORMAL)
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_EDITOR)
-    BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_NOSCRIPT)
+    //BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_NOSCRIPT)
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_CONST)
-    BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_REVERSE)
+    //BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_REVERSE)
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_VIRTUAL)
-    BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_FROM_SCRIPT)
+    //BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAG_FROM_SCRIPT)
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAGS_DEFAULT)
 
     //_global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
@@ -627,7 +632,7 @@ void register_global_constants() {
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3_ARRAY", VariantType::POOL_VECTOR3_ARRAY)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_COLOR_ARRAY", VariantType::POOL_COLOR_ARRAY)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_MAX", VariantType::VARIANT_MAX)
-    
+
     //comparison
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_EQUAL", Variant::OP_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_NOT_EQUAL", Variant::OP_NOT_EQUAL)

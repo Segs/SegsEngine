@@ -216,11 +216,10 @@ struct MethodBinder {
         return a;
     }
     template <class N, class M>
-    static MethodBind *bind_method(N p_method_name, M p_method) {
+    static MethodBind *bind_method(N p_method_name, M p_method, uint32_t flags=METHOD_FLAGS_DEFAULT) {
 
         MethodBind *bind = create_method_bind_va(p_method);
-
-        return ClassDB::bind_methodfi(METHOD_FLAGS_DEFAULT, bind, p_method_name, {}); //use static function, much smaller binary usage
+        return ClassDB::bind_methodfi(flags, bind, p_method_name, {}); //use static function, much smaller binary usage
     }
 
     template <class N, class M>
