@@ -369,7 +369,7 @@ TypeInterface::TypeInterface() {
 
 void TypeInterface::toJson(QJsonObject &obj) const {
     obj["name"] = name.c_str();
-    obj["base_name"] = base_name;
+    obj["base_name"] = base_name.c_str();
     obj["api_type"] = (int)api_type;
     obj["is_enum"] = is_enum;
     obj["is_object_type"] = is_object_type;
@@ -384,11 +384,12 @@ void TypeInterface::toJson(QJsonObject &obj) const {
     ::toJson(obj, "enums", enums);
     ::toJson(obj, "properties", properties);
     ::toJson(obj, "methods", methods);
+
 }
 
 void TypeInterface::fromJson(const QJsonObject &obj) {
     name = obj["name"].toString().toUtf8().data();
-    base_name = obj["base_name"].toString();
+    base_name = obj["base_name"].toString().toUtf8().data();
     api_type = (APIType)obj["api_type"].toInt();
     is_enum = obj["is_enum"].toBool();
     is_object_type = obj["is_object_type"].toBool();

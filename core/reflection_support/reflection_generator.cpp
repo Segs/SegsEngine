@@ -322,9 +322,9 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         auto class_iter = ClassDB::classes.find(type_cname);
 
         TypeInterface itype = TypeInterface::create_object_type(type_cname.asCString(), convertApiType(api_type));
-
+        String proxy_name = itype.name.starts_with('_') ? itype.name.substr(1) : itype.name;
         itype.base_name = ClassDB::get_parent_class(type_cname).asCString();
-        itype.is_singleton = Engine::get_singleton()->has_singleton(StringName(itype.name));
+        itype.is_singleton = Engine::get_singleton()->has_singleton(StringName(proxy_name));
         itype.is_instantiable = class_iter->second.creation_func && !itype.is_singleton;
         itype.is_reference = ClassDB::is_parent_class(type_cname, "RefCounted");
         itype.memory_own = itype.is_reference;

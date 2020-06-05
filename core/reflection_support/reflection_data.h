@@ -190,7 +190,7 @@ struct TypeInterface {
     /**
      * Identifier name of the base class.
      */
-    QString base_name;
+    String base_name;
 
     /**
      * Name of the C# class

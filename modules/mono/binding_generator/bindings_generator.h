@@ -125,8 +125,6 @@ public:
 
     void _populate_global_constants();
 
-    GenError _generate_cs_type(const TypeInterface &itype, StringView p_output_file, GeneratorContext &ctx);
-
     GenError _generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output);
     GenError _generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod, int &p_method_bind_count, StringBuilder &p_output);
 

@@ -380,7 +380,9 @@ struct CSType {
         //TODO: add sanity checks here
         m_class_enums.emplace_back(enm);
     }
-
+    static String convert_name(StringView name) {
+        return String(name.starts_with('_') ? name.substr(1) : name);
+    }
     CSFunction * find_method_by_name(const StringName & name,CSTypeMapper &mapper) const {
         auto internal = source_type->find_method_by_name(name.asCString());
         if(!internal) {
@@ -403,7 +405,7 @@ struct CSType {
     }
     static CSType * from_rd(const TypeInterface * type_interface) {
         CSType *res=new CSType;
-        res->cs_name = type_interface->name;
+        res->cs_name = convert_name(type_interface->name);
         res->source_type = type_interface;
         return res;
     }
@@ -485,6 +487,18 @@ struct CSNamespace {
 
 };
 HashMap<String,CSNamespace *> CSNamespace::namespaces;
+
+static bool _save_file(StringView p_path, const StringBuilder& p_content) {
+    QFile file(QByteArray::fromRawData(p_path.data(), p_path.size()));
+    if (!file.open(QFile::WriteOnly)) {
+        qCritical("Failed to open %.*s.", p_path.size(), p_path.data());
+        return false;
+    }
+    String data(p_content.as_string());
+    file.write(data.c_str(), data.size());
+
+    return OK;
+}
 
 Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod, CSTypeMapper &rd) {
 
@@ -1592,8 +1606,8 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
         p_output.indent();
         for(const CSConstant * ci : ienum->m_entries) {
             auto const_doc = rd.constant_doc("@GlobalScope", ienum->m_rd_data->cname.c_str(), ci->m_rd_data->name.c_str());
-
-            if (const_doc && const_doc->description.size()) {
+#ifdef PROCESS_DOCS
+            if (const_doc && !const_doc->description.empty()) {
                 String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr,rd,mapper,true);
                 Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
@@ -1607,7 +1621,7 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
                     p_output.append_indented("/// </summary>\n");
                 }
             }
-
+#endif
             p_output.append_indented("");
             _write_constant(p_output, *ci);
             p_output.append(ci != ienum->m_entries.back() ? ",\n" : "\n");
@@ -2008,12 +2022,13 @@ void BindingsGenerator::generate_cs_type_doc_summary(const TypeInterface &itype,
 // - Csc warning e.g.:
 // ObjectType/LineEdit.cs(140,38): warning CS0108: 'LineEdit.FocusMode' hides inherited member 'Control.FocusMode'. Use the new keyword if hiding was intended.
 
+#endif
 
-Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringView p_output_file, GeneratorContext &ctx) {
+bool _generate_cs_type(const CSType *itype, StringView p_output_file) {
+    CRASH_COND(!itype->source_type->is_object_type);
 
-    CRASH_COND(!itype.is_object_type);
-
-    bool is_derived_type = itype.base_name != StringName();
+    bool is_derived_type = !itype->source_type->base_name.empty();
+#if 0
 
     if (!is_derived_type && !itype.is_namespace) {
         // Some Godot.Object assertions
@@ -2023,6 +2038,19 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
         CRASH_COND(itype.is_reference);
         CRASH_COND(itype.is_singleton);
     }
+#endif
+    StringBuilder output;
+
+    output.append("using System;\n"); // IntPtr
+    output.append("using System.Diagnostics;\n"); // DebuggerBrowsable
+
+    output.append("\n"
+        "#pragma warning disable CS1591 // Disable warning: "
+        "'Missing XML comment for publicly visible type or member'\n"
+        "#pragma warning disable CS1573 // Disable warning: "
+        "'Parameter has no matching param tag in the XML comment'\n");
+
+#if 0
     //itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
     List<InternalCall> &custom_icalls = ctx.custom_icalls;
 
@@ -2030,16 +2058,6 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
 
     String ctor_method(ICALL_PREFIX + itype.proxy_name + "_Ctor"); // Used only for derived types
 
-    StringBuilder output;
-
-    output.append("using System;\n"); // IntPtr
-    output.append("using System.Diagnostics;\n"); // DebuggerBrowsable
-
-    output.append("\n"
-                  "#pragma warning disable CS1591 // Disable warning: "
-                  "'Missing XML comment for publicly visible type or member'\n"
-                  "#pragma warning disable CS1573 // Disable warning: "
-                  "'Parameter has no matching param tag in the XML comment'\n");
 
     output.append("\nnamespace " BINDINGS_NAMESPACE "\n" OPEN_BLOCK);
 
@@ -2161,9 +2179,10 @@ Error BindingsGenerator::_generate_cs_type(const TypeInterface &itype, StringVie
     output.append("\n"
                   "#pragma warning restore CS1591\n"
                   "#pragma warning restore CS1573\n");
-
+#endif
     return _save_file(p_output_file, output);
 }
+#if 0
 static bool covariantSetterGetterTypes(StringView getter,StringView setter) {
     using namespace eastl;
     if(getter==setter)
@@ -2578,19 +2597,6 @@ void register_generated_icalls() {
 uint32_t BindingsGenerator::get_version() {
     return BINDINGS_GENERATOR_VERSION;
 }
-#endif
-static bool _save_file(StringView p_path, const StringBuilder &p_content) {
-    QFile file(QByteArray::fromRawData(p_path.data(), p_path.size()));
-    if(!file.open(QFile::WriteOnly)) {
-        qCritical("Failed to open %.*s.",p_path.size(),p_path.data());
-        return false;
-    }
-    String data(p_content.as_string());
-    file.write(data.c_str(),data.size());
-
-    return OK;
-}
-#if 0
 static StringView replace_method_name(StringView from) {
     StringView res = from;
     static const HashMap<StringView, StringView> s_entries = {
@@ -4099,17 +4105,43 @@ struct CSProducer : FileProducer {
         m_target_dir.cdUp();
         return true;
     }
-    bool generate_type_file(CSType *to_gen,const ReflectionData &rd,CSTypeMapper &mapper) {
-        if(!m_target_dir.cd("cs_gen")) {
-            bool mk_ok = m_target_dir.mkpath("cs_gen");
-            if(!mk_ok) {
-                qFatal("Failed to create cs_gen target directory");
-                return false;
-            }
-            m_target_dir.cd("cs_gen");
+
+private:
+    bool enter_directory_or_create(const String &path) {
+
+        if(m_target_dir.cd(path.c_str()))
+            return true;
+
+        bool mk_ok = m_target_dir.mkpath(path.c_str());
+        if(!mk_ok) {
+            qFatal("Failed to create cs_gen target directory");
+            return false;
+        }
+        return m_target_dir.cd(path.c_str());
+    }
+public:
+    bool generate_type_file(CSType *to_gen,const ReflectionData &rd) {
+
+        if(!enter_directory_or_create("cs_gen"))
+            return false;
+
+        const char *subdir_names[] = {"Common","Editor","Client","Server"};
+        if(to_gen->source_type->api_type==APIType::Invalid) {
+            m_target_dir.cdUp();
+            return false;
+        }
+        const char *selected_subdir = subdir_names[(int)to_gen->source_type->api_type];
+        if (!enter_directory_or_create(selected_subdir)) {
+            m_target_dir.cdUp();
+            return false;
         }
 
+        qDebug() << "Generating file for type"<< to_gen->cs_name.c_str() << " API: " << (int)to_gen->source_type->api_type;
+        _generate_cs_type(to_gen,qPrintable(m_target_dir.filePath(to_gen->cs_name.c_str())+".cs"));
+
         m_target_dir.cdUp();
+        m_target_dir.cdUp();
+        qDebug() << m_target_dir.path();
         return true;
     }
 };
@@ -4237,7 +4269,7 @@ struct CSReflectionVisitor {
     void visitType(const TypeInterface *ti) {
         CSType *type = CSType::from_rd(ti);
         m_type_stack.push_back(type);
-        cs_producer.generate_type_file(type,m_reflection_data,cs_producer.type_mapper);
+        cs_producer.generate_type_file(type,m_reflection_data);
         m_type_stack.pop_back();
       //  assert(false);
     }
@@ -4250,6 +4282,14 @@ struct CSReflectionVisitor {
 
     void finalize() {
         cs_producer.generate_constant_files(m_reflection_data,cs_producer.type_mapper);
+        for(const NamespaceInterface &ns_i : m_reflection_data.namespaces) {
+            auto iter = CSNamespace::namespaces.find(ns_i.namespace_name);
+            for(const String &order : ns_i.obj_type_insert_order) {
+                const TypeInterface & ti(ns_i.obj_types.at(order));
+                CSType *t = CSType::from_rd(&ti);
+                cs_producer.generate_type_file(t,m_reflection_data);
+            }
+        }
         cpp_producer.create_build_files();
         cs_producer.create_build_files();
     }
