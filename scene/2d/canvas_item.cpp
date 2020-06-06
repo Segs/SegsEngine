@@ -50,6 +50,8 @@
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering_server.h"
 
+#include <QDebug>
+
 IMPL_GDCLASS(CanvasItemMaterial)
 IMPL_GDCLASS(CanvasItem)
 
@@ -1152,6 +1154,46 @@ void CanvasItem::force_update_transform() {
 
     notification(NOTIFICATION_TRANSFORM_CHANGED);
 }
+
+#if 0
+#define ADD_TYPE(name,parent) entt::meta<name>().type(#name ## _hs)\
+    .base<parent>()
+#define ADD_METHOD(cl,name,...) .func<&cl::name>(#name ## _hs)
+#define ADD_METHOD_FLAGS(flags) .prop("flags"_hs,uint32_t(flags))
+#ifdef DEBUG_ENABLED
+#define ARG_NAMES(...) .prop("arg_names"_hs,eastl::array {__VA_ARGS__})
+
+#else
+#define ARG_NAMES(...)
+
+#endif
+
+#include "entt/entt.hpp"
+
+auto fac=ADD_TYPE(CanvasItem,Node)
+    ADD_METHOD(CanvasItem,_toplevel_raise_self)
+    ADD_METHOD(CanvasItem,_update_callback)
+#ifdef TOOLS_ENABLED
+    ADD_METHOD(CanvasItem,_edit_set_state)
+        ARG_NAMES("state")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_state)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_set_position)
+        ARG_NAMES("position")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_position)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_set_scale)
+        ARG_NAMES("scale")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_scale)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+#endif
+    ADD_METHOD(CanvasItem,get_canvas_item)
+    ADD_METHOD(CanvasItem,set_visible)
+;
+#endif
 
 void CanvasItem::_bind_methods() {
 
