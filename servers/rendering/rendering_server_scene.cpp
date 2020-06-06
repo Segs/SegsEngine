@@ -130,7 +130,7 @@ void set_dirty(RID id, bool p_update_aabb, bool p_update_materials) {
 
     auto &reg = VSG::ecs->registry;
     if (!has_component<Dirty>(id.eid)) {
-        reg.assign_or_replace<Dirty>(id.eid, Dirty({p_update_aabb,p_update_materials}));
+        reg.emplace_or_replace<Dirty>(id.eid, p_update_aabb,p_update_materials);
     }
     else if(p_update_aabb|| p_update_materials) {
         auto &c_data(get_component<Dirty>(id));
@@ -145,7 +145,7 @@ void set_dirty(RID id, bool p_update_aabb, bool p_update_materials) {
 
 RID VisualServerScene::camera_create() {
     auto eid = VSG::ecs->registry.create();
-    VSG::ecs->registry.assign<Camera3D>(eid, Camera3D());
+    VSG::ecs->registry.emplace<Camera3D>(eid);
     RID newid;
     newid.eid = eid;
 
@@ -461,8 +461,8 @@ RID VisualServerScene::instance_create() {
     instance_rid.eid = VSG::ecs->registry.create();
 
     instance->self = instance_rid;
-    VSG::ecs->registry.assign_or_replace<InstanceComponent>(instance_rid.eid, instance);
-    VSG::ecs->registry.assign_or_replace<InstanceBoundsComponent>(instance_rid.eid, InstanceBoundsComponent());
+    VSG::ecs->registry.emplace_or_replace<InstanceComponent>(instance_rid.eid, instance);
+    VSG::ecs->registry.emplace_or_replace<InstanceBoundsComponent>(instance_rid.eid);
     return instance_rid;
 }
 
@@ -597,7 +597,7 @@ void VisualServerScene::instance_set_base(RID p_instance, RID p_base) {
         case RS::INSTANCE_PARTICLES: {
 
             InstanceGeometryData *geom = memnew(InstanceGeometryData);
-            VSG::ecs->registry.assign_or_replace<GeometryComponent>(instance->self.eid,geom);
+            VSG::ecs->registry.emplace_or_replace<GeometryComponent>(instance->self.eid,geom);
 
             if (instance->base_type == RS::INSTANCE_MESH) {
                 instance->blend_values.resize(VSG::storage->mesh_get_blend_shape_count(p_base));
@@ -3613,7 +3613,7 @@ void VisualServerScene::update_dirty_instances() {
         VSG::storage->update_dirty_resources();
     }
     //auto view = VSG::ecs->registry.view<InstanceComponent, Dirty>();
-    auto view = VSG::ecs->registry.group<>(wrap_allocator(),entt::get<InstanceComponent, Dirty>);
+    auto view = VSG::ecs->registry.group<>(entt::get<InstanceComponent, Dirty>);
 
     for (auto entity : view) {
         Instance *p_instance = view.get<InstanceComponent>(entity).instance;
@@ -3627,7 +3627,7 @@ void VisualServerScene::update_dirty_instances() {
         _update_instance(p_instance);
     }
     //remove dirty for everything
-    VSG::ecs->registry.reset<Dirty>();
+    VSG::ecs->registry.clear<Dirty>();
 }
 
 bool VisualServerScene::free(RID p_rid) {

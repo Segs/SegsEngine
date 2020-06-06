@@ -6,8 +6,9 @@
 [![GitHub version](https://badge.fury.io/gh/skypjack%2Fentt.svg)](https://github.com/skypjack/entt/releases)
 [![Build Status](https://github.com/skypjack/entt/workflows/build/badge.svg)](https://github.com/skypjack/entt/actions)
 [![Coverage](https://codecov.io/gh/skypjack/entt/branch/master/graph/badge.svg)](https://codecov.io/gh/skypjack/entt)
-[![Try online](https://img.shields.io/badge/try-online-brightgreen)](https://godbolt.org/z/v8txVr)
+[![Try online](https://img.shields.io/badge/try-online-brightgreen)](https://godbolt.org/z/cOUcm1)
 [![Gitter chat](https://badges.gitter.im/skypjack/entt.png)](https://gitter.im/skypjack/entt)
+[![Discord channel](https://img.shields.io/discord/707607951396962417?logo=discord)](https://discord.gg/5BjPWBd)
 [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://www.paypal.me/skypjack)
 [![Patreon](https://img.shields.io/badge/become-patron-red.svg)](https://www.patreon.com/bePatron?c=1772573)
 
@@ -17,7 +18,9 @@ much more written in **modern C++**, mainly known for its innovative
 [Among others](https://github.com/skypjack/entt/wiki/EnTT-in-Action), it's used
 in [**Minecraft**](https://minecraft.net/en-us/attribution/) by Mojang and the
 [**ArcGIS Runtime SDKs**](https://developers.arcgis.com/arcgis-runtime/) by
-Esri. Open an issue or submit a PR if you don't see your project in the list!
+Esri.<br/>
+If you don't see your project in the list, please open an issue, submit a PR or
+add the [#entt](https://github.com/topics/entt) tag to your _topics_! :+1:
 
 ---
 
@@ -151,8 +154,8 @@ int main() {
 
     for(auto i = 0; i < 10; ++i) {
         auto entity = registry.create();
-        registry.assign<position>(entity, i * 1.f, i * 1.f);
-        if(i % 2 == 0) { registry.assign<velocity>(entity, i * .1f, i * .1f); }
+        registry.emplace<position>(entity, i * 1.f, i * 1.f);
+        if(i % 2 == 0) { registry.emplace<velocity>(entity, i * .1f, i * .1f); }
     }
 
     update(dt, registry);
@@ -217,13 +220,11 @@ supports at least C++17.<br/>
 The requirements below are mandatory to compile the tests and to extract the
 documentation:
 
-* `CMake` version 3.2 or later.
+* `CMake` version 3.7 or later.
 * `Doxygen` version 1.8 or later.
 
-Alternatively, `Bazel` is also supported as a build system (credits to
-[zaucy](https://github.com/zaucy) who introduced what's required with
-[this](https://github.com/skypjack/entt/pull/291) pull request and offered to
-maintain it).<br/>
+Alternatively, [Bazel](https://bazel.build) is also supported as a build system
+(credits to [zaucy](https://github.com/zaucy) who offered to maintain it).<br/>
 In the documentation below I'll still refer to `CMake`, this being the official
 build system of the library.
 
@@ -269,8 +270,8 @@ The API reference will be created in HTML format within the directory
 @cond TURN_OFF_DOXYGEN
 -->
 It's also available [online](https://skypjack.github.io/entt/) for the latest
-version.<br/>
-Finally, there exists a [wiki](https://github.com/skypjack/entt/wiki) dedicated
+version, that is the last stable tag.<br/>
+Moreover, there exists a [wiki](https://github.com/skypjack/entt/wiki) dedicated
 to the project where users can find all related documentation pages.
 <!--
 @endcond TURN_OFF_DOXYGEN
@@ -295,11 +296,11 @@ Note that benchmarks are not part of this set.
 
 `EnTT` is available for some of the most known packaging tools. In particular:
 
-* [`Conan`](https://bintray.com/skypjack/conan/entt%3Askypjack/_latestVersion),
-  the C/C++ Package Manager for Developers.
+* [`Conan`](https://github.com/conan-io/conan-center-index), the C/C++ Package
+  Manager for Developers.
 
-* [`vcpkg`](https://github.com/Microsoft/vcpkg/tree/master/ports/entt),
-  Microsoft VC++ Packaging Tool.<br/>
+* [`vcpkg`](https://github.com/Microsoft/vcpkg), Microsoft VC++ Packaging
+  Tool.<br/>
   You can download and install `EnTT` in just a few simple steps:
 
   ```
@@ -371,8 +372,8 @@ know who has participated so far.
 
 # License
 
-Code and documentation Copyright (c) 2017-2019 Michele Caini.<br/>
-Logo Copyright (c) 2018-2019 Richard Caseres.
+Code and documentation Copyright (c) 2017-2020 Michele Caini.<br/>
+Logo Copyright (c) 2018-2020 Richard Caseres.
 
 Code released under
 [the MIT license](https://github.com/skypjack/entt/blob/master/LICENSE).

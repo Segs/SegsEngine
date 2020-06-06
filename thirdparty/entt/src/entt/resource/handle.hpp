@@ -2,7 +2,6 @@
 #define ENTT_RESOURCE_HANDLE_HPP
 
 
-#include "EASTL/memory.h"
 #include "EASTL/utility.h"
 #include <memory>
 
@@ -95,7 +94,9 @@ public:
      * @brief Returns true if a handle contains a resource, false otherwise.
      * @return True if the handle contains a resource, false otherwise.
      */
-    explicit operator bool() const { return static_cast<bool>(resource); }
+    explicit operator bool() const ENTT_NOEXCEPT {
+        return static_cast<bool>(resource);
+    }
 
 private:
     std::shared_ptr<Resource> resource;
@@ -105,4 +106,4 @@ private:
 }
 
 
-#endif // ENTT_RESOURCE_HANDLE_HPP
+#endif

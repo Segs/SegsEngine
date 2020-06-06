@@ -2,10 +2,12 @@
 #define ENTT_CORE_IDENT_HPP
 
 
+
 #include "EASTL/tuple.h"
 #include "EASTL/utility.h"
 #include "EASTL/type_traits.h"
 #include "../config/config.h"
+#include "fwd.hpp"
 
 
 namespace entt {
@@ -43,14 +45,14 @@ class identifier {
     using tuple_type = eastl::tuple<std::decay_t<Types>...>;
 
     template<typename Type, std::size_t... Indexes>
-    static constexpr ENTT_ID_TYPE get(eastl::index_sequence<Indexes...>) ENTT_NOEXCEPT {
+    static constexpr id_type get(eastl::index_sequence<Indexes...>) {
         static_assert(eastl::disjunction_v<eastl::is_same<Type, Types>...>);
-        return (0 + ... + (eastl::is_same_v<Type, eastl::tuple_element_t<Indexes, tuple_type>> ? ENTT_ID_TYPE(Indexes) : ENTT_ID_TYPE{}));
+        return (0 + ... + (eastl::is_same_v<Type, eastl::tuple_element_t<Indexes, tuple_type>> ? id_type(Indexes) : id_type{}));
     }
 
 public:
     /*! @brief Unsigned integer type. */
-    using identifier_type = ENTT_ID_TYPE;
+    using identifier_type = id_type;
 
     /*! @brief Statically generated unique identifier for the given type. */
     template<typename Type>
@@ -61,4 +63,4 @@ public:
 }
 
 
-#endif // ENTT_CORE_IDENT_HPP
+#endif

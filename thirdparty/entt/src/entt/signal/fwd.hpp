@@ -9,6 +9,18 @@ namespace entt {
 template<typename>
 class delegate;
 
+/*! @class dispatcher */
+class dispatcher;
+
+/*! @class emitter */
+template<typename>
+class emitter;
+
+/*! @class connection */
+class connection;
+
+/*! @class scoped_connection */
+struct scoped_connection;
 /*! @class sink */
 template<typename>
 class sink;
@@ -21,4 +33,4 @@ class sigh;
 }
 
 
-#endif // ENTT_SIGNAL_FWD_HPP
+#endif

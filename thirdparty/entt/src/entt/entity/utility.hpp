@@ -21,7 +21,7 @@ struct exclude_t: type_list<Type...> {};
  * @tparam Type List of types.
  */
 template<typename... Type>
-constexpr exclude_t<Type...> exclude{};
+inline constexpr exclude_t<Type...> exclude{};
 
 
 /**
@@ -37,10 +37,10 @@ struct get_t: type_list<Type...>{};
  * @tparam Type List of types.
  */
 template<typename... Type>
-constexpr get_t<Type...> get{};
+inline constexpr get_t<Type...> get{};
 
 
 }
 
 
-#endif // ENTT_ENTITY_UTILITY_HPP
+#endif

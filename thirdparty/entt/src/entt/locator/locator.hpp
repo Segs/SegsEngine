@@ -109,4 +109,4 @@ private:
 }
 
 
-#endif // ENTT_LOCATOR_LOCATOR_HPP
+#endif

@@ -2,6 +2,7 @@
 #define ENTT_SIGNAL_DELEGATE_HPP
 
 
+
 #include "EASTL/tuple.h"
 #include "EASTL/utility.h"
 #include "EASTL/algorithm.h"
@@ -9,7 +10,6 @@
 #include "EASTL/type_traits.h"
 
 #include <cstring>
-
 #include "../config/config.h"
 
 
@@ -26,36 +26,32 @@ namespace internal {
 
 
 template<typename Ret, typename... Args>
-auto to_function_pointer(Ret(*)(Args...)) -> Ret(*)(Args...);
+auto function_pointer(Ret(*)(Args...)) -> Ret(*)(Args...);
 
 
-template<typename Ret, typename... Args, typename Type, typename Payload, typename = eastl::enable_if_t<eastl::is_convertible_v<const Payload *, const Type *>>>
-auto to_function_pointer(Ret(*)(Type &, Args...), const Payload *) -> Ret(*)(Args...);
+template<typename Ret, typename Type, typename... Args, typename Other>
+auto function_pointer(Ret(*)(Type, Args...), Other &&) -> Ret(*)(Args...);
 
 
-template<typename Ret, typename... Args, typename Type, typename Payload, typename = eastl::enable_if_t<eastl::is_convertible_v<const Payload *, const Type *>>>
-auto to_function_pointer(Ret(*)(Type *, Args...), const Payload *) -> Ret(*)(Args...);
+template<typename Class, typename Ret, typename... Args, typename... Other>
+auto function_pointer(Ret(Class:: *)(Args...), Other &&...) -> Ret(*)(Args...);
 
 
-template<typename Class, typename Ret, typename... Args>
-auto to_function_pointer(Ret(Class:: *)(Args...), const Class *) -> Ret(*)(Args...);
+template<typename Class, typename Ret, typename... Args, typename... Other>
+auto function_pointer(Ret(Class:: *)(Args...) const, Other &&...) -> Ret(*)(Args...);
 
 
-template<typename Class, typename Ret, typename... Args>
-auto to_function_pointer(Ret(Class:: *)(Args...) const, const Class *) -> Ret(*)(Args...);
-
-
-template<typename Class, typename Type>
-auto to_function_pointer(Type Class:: *, const Class *) -> Type(*)();
+template<typename Class, typename Type, typename... Other>
+auto function_pointer(Type Class:: *, Other &&...) -> Type(*)();
 
 
 template<typename... Type>
-using to_function_pointer_t = decltype(internal::to_function_pointer(eastl::declval<Type>()...));
+using function_pointer_t = decltype(internal::function_pointer(eastl::declval<Type>()...));
 
 
-template<typename Ret, typename... Args>
+template<typename... Class, typename Ret, typename... Args>
 constexpr auto index_sequence_for(Ret(*)(Args...)) {
-    return eastl::index_sequence_for<Args...>{};
+    return eastl::index_sequence_for<Class..., Args...>{};
 }
 
 
@@ -75,7 +71,7 @@ struct connect_arg_t {};
 
 /*! @brief Constant of type connect_arg_t used to disambiguate calls. */
 template<auto Func>
-constexpr connect_arg_t<Func> connect_arg{};
+inline constexpr connect_arg_t<Func> connect_arg{};
 
 
 /**
@@ -94,49 +90,39 @@ class delegate;
  * Unmanaged delegate for function pointers and members. Users of this class are
  * in charge of disconnecting instances before deleting them.
  *
- * A delegate can be used as general purpose invoker with no memory overhead for
- * free functions (with or without payload) and members provided along with an
- * instance on which to invoke them.
+ * A delegate can be used as a general purpose invoker without memory overhead
+ * for free functions possibly with payloads and bound or unbound members.
  *
  * @tparam Ret Return type of a function type.
  * @tparam Args Types of arguments of a function type.
  */
 template<typename Ret, typename... Args>
 class delegate<Ret(Args...)> {
-    using proto_fn_type = Ret(const void *, eastl::tuple<Args &&...>);
+    using proto_fn_type = Ret(const void *, Args...);
 
-    template<auto Function, std::size_t... Index>
-    void connect(eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
-        static_assert(eastl::is_invocable_r_v<Ret, decltype(Function), eastl::tuple_element_t<Index, eastl::tuple<Args...>>...>);
-        data = nullptr;
-
-        fn = [](const void *, eastl::tuple<Args &&...> args) -> Ret {
-            // Ret(...) makes void(...) eat the return values to avoid errors
-            return Ret(eastl::invoke(Function, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(args))...));
+    template<auto Candidate, std::size_t... Index>
+    auto wrap(eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
+        return [](const void *, Args... args) -> Ret {
+            const auto arguments = eastl::forward_as_tuple(eastl::forward<Args>(args)...);
+            return Ret(eastl::invoke(Candidate, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(arguments))...));
         };
     }
 
     template<auto Candidate, typename Type, std::size_t... Index>
-    void connect(Type &value_or_instance, eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
-        static_assert(eastl::is_invocable_r_v<Ret, decltype(Candidate), Type &, eastl::tuple_element_t<Index, eastl::tuple<Args...>>...>);
-        data = &value_or_instance;
-
-        fn = [](const void *payload, eastl::tuple<Args &&...> args) -> Ret {
+    auto wrap(Type &, eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
+        return [](const void *payload, Args... args) -> Ret {
+            const auto arguments = eastl::forward_as_tuple(eastl::forward<Args>(args)...);
             Type *curr = static_cast<Type *>(const_cast<eastl::conditional_t<eastl::is_const_v<Type>, const void *, void *>>(payload));
-            // Ret(...) makes void(...) eat the return values to avoid errors
-            return Ret(eastl::invoke(Candidate, *curr, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(args))...));
+            return Ret(eastl::invoke(Candidate, *curr, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(arguments))...));
         };
     }
 
     template<auto Candidate, typename Type, std::size_t... Index>
-    void connect(Type *value_or_instance, eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
-        static_assert(eastl::is_invocable_r_v<Ret, decltype(Candidate), Type *, eastl::tuple_element_t<Index, eastl::tuple<Args...>>...>);
-        data = value_or_instance;
-
-        fn = [](const void *payload, eastl::tuple<Args &&...> args) -> Ret {
+    auto wrap(Type *, eastl::index_sequence<Index...>) ENTT_NOEXCEPT {
+        return [](const void *payload, Args... args) -> Ret {
+            const auto arguments = eastl::forward_as_tuple(eastl::forward<Args>(args)...);
             Type *curr = static_cast<Type *>(const_cast<eastl::conditional_t<eastl::is_const_v<Type>, const void *, void *>>(payload));
-            // Ret(...) makes void(...) eat the return values to avoid errors
-            return Ret(eastl::invoke(Candidate, curr, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(args))...));
+            return Ret(eastl::invoke(Candidate, curr, eastl::forward<eastl::tuple_element_t<Index, eastl::tuple<Args...>>>(eastl::get<Index>(arguments))...));
         };
     }
 
@@ -150,56 +136,53 @@ public:
     {}
 
     /**
-     * @brief Constructs a delegate and connects a free function to it.
-     * @tparam Function A valid free function pointer.
+     * @brief Constructs a delegate and connects a free function or an unbound
+     * member.
+     * @tparam Candidate Function or member to connect to the delegate.
      */
-    template<auto Function>
-    delegate(connect_arg_t<Function>) ENTT_NOEXCEPT
+    template<auto Candidate>
+    delegate(connect_arg_t<Candidate>) ENTT_NOEXCEPT
         : delegate{}
     {
-        connect<Function>();
+        connect<Candidate>();
     }
 
     /**
-     * @brief Constructs a delegate and connects a member for a given instance
-     * or a free function with payload.
-     * @tparam Candidate Member or free function to connect to the delegate.
+     * @brief Constructs a delegate and connects a free function with payload or
+     * a bound member.
+     * @tparam Candidate Function or member to connect to the delegate.
      * @tparam Type Type of class or type of payload.
-     * @param value_or_instance A valid reference that fits the purpose.
+     * @param value_or_instance A valid object that fits the purpose.
      */
     template<auto Candidate, typename Type>
-    delegate(connect_arg_t<Candidate>, Type &value_or_instance) ENTT_NOEXCEPT
+    delegate(connect_arg_t<Candidate>, Type &&value_or_instance) ENTT_NOEXCEPT
         : delegate{}
     {
-        connect<Candidate>(value_or_instance);
+        connect<Candidate>(eastl::forward<Type>(value_or_instance));
     }
 
     /**
-     * @brief Constructs a delegate and connects a member for a given instance
-     * or a free function with payload.
-     * @tparam Candidate Member or free function to connect to the delegate.
-     * @tparam Type Type of class or type of payload.
-     * @param value_or_instance A valid pointer that fits the purpose.
+     * @brief Connects a free function or an unbound member to a delegate.
+     * @tparam Candidate Function or member to connect to the delegate.
      */
-    template<auto Candidate, typename Type>
-    delegate(connect_arg_t<Candidate>, Type *value_or_instance) ENTT_NOEXCEPT
-        : delegate{}
-    {
-        connect<Candidate>(value_or_instance);
-    }
-
-    /**
-     * @brief Connects a free function to a delegate.
-     * @tparam Function A valid free function pointer.
-     */
-    template<auto Function>
+    template<auto Candidate>
     void connect() ENTT_NOEXCEPT {
-        connect<Function>(internal::index_sequence_for(internal::to_function_pointer_t<decltype(Function)>{}));
+        data = nullptr;
+
+        if constexpr(eastl::is_invocable_r_v<Ret, decltype(Candidate), Args...>) {
+            fn = [](const void *, Args... args) -> Ret {
+                return Ret(eastl::invoke(Candidate, eastl::forward<Args>(args)...));
+            };
+        } else if constexpr(eastl::is_member_pointer_v<decltype(Candidate)>) {
+            fn = wrap<Candidate>(internal::index_sequence_for<eastl::tuple_element_t<0, eastl::tuple<Args...>>>(internal::function_pointer_t<decltype(Candidate)>{}));
+        } else {
+            fn = wrap<Candidate>(internal::index_sequence_for(internal::function_pointer_t<decltype(Candidate)>{}));
+        }
     }
 
     /**
-     * @brief Connects a member function for a given instance or a free function
-     * with payload to a delegate.
+     * @brief Connects a free function with payload or a bound member to a
+     * delegate.
      *
      * The delegate isn't responsible for the connected object or the payload.
      * Users must always guarantee that the lifetime of the instance overcomes
@@ -208,33 +191,46 @@ public:
      * such that the instance is the first argument before the ones used to
      * define the delegate itself.
      *
-     * @tparam Candidate Member or free function to connect to the delegate.
+     * @tparam Candidate Function or member to connect to the delegate.
      * @tparam Type Type of class or type of payload.
      * @param value_or_instance A valid reference that fits the purpose.
      */
     template<auto Candidate, typename Type>
     void connect(Type &value_or_instance) ENTT_NOEXCEPT {
-        connect<Candidate>(value_or_instance, internal::index_sequence_for(internal::to_function_pointer_t<decltype(Candidate), Type *>{}));
+        data = &value_or_instance;
+
+        if constexpr(eastl::is_invocable_r_v<Ret, decltype(Candidate), Type &, Args...>) {
+            fn = [](const void *payload, Args... args) -> Ret {
+                Type *curr = static_cast<Type *>(const_cast<eastl::conditional_t<eastl::is_const_v<Type>, const void *, void *>>(payload));
+                return Ret(eastl::invoke(Candidate, *curr, eastl::forward<Args>(args)...));
+            };
+        } else {
+            fn = wrap<Candidate>(value_or_instance, internal::index_sequence_for(internal::function_pointer_t<decltype(Candidate), Type>{}));
+        }
     }
 
     /**
-     * @brief Connects a member function for a given instance or a free function
-     * with payload to a delegate.
+     * @brief Connects a free function with payload or a bound member to a
+     * delegate.
      *
-     * The delegate isn't responsible for the connected object or the payload.
-     * Users must always guarantee that the lifetime of the instance overcomes
-     * the one  of the delegate.<br/>
-     * When used to connect a free function with payload, its signature must be
-     * such that the instance is the first argument before the ones used to
-     * define the delegate itself.
+     * @sa connect(Type &)
      *
-     * @tparam Candidate Member or free function to connect to the delegate.
+     * @tparam Candidate Function or member to connect to the delegate.
      * @tparam Type Type of class or type of payload.
      * @param value_or_instance A valid pointer that fits the purpose.
      */
     template<auto Candidate, typename Type>
     void connect(Type *value_or_instance) ENTT_NOEXCEPT {
-        connect<Candidate>(value_or_instance, internal::index_sequence_for(internal::to_function_pointer_t<decltype(Candidate), Type *>{}));
+        data = value_or_instance;
+
+        if constexpr(eastl::is_invocable_r_v<Ret, decltype(Candidate), Type *, Args...>) {
+            fn = [](const void *payload, Args... args) -> Ret {
+                Type *curr = static_cast<Type *>(const_cast<eastl::conditional_t<eastl::is_const_v<Type>, const void *, void *>>(payload));
+                return Ret(eastl::invoke(Candidate, curr, eastl::forward<Args>(args)...));
+            };
+        } else {
+            fn = wrap<Candidate>(value_or_instance, internal::index_sequence_for(internal::function_pointer_t<decltype(Candidate), Type>{}));
+        }
     }
 
     /**
@@ -271,7 +267,7 @@ public:
      */
     Ret operator()(Args... args) const {
         ENTT_ASSERT(fn);
-        return fn(data, eastl::forward_as_tuple(eastl::forward<Args>(args)...));
+        return fn(data, eastl::forward<Args>(args)...);
     }
 
     /**
@@ -280,7 +276,7 @@ public:
      */
     explicit operator bool() const ENTT_NOEXCEPT {
         // no need to test also data
-        return fn;
+        return !(fn == nullptr);
     }
 
     /**
@@ -314,46 +310,24 @@ bool operator!=(const delegate<Ret(Args...)> &lhs, const delegate<Ret(Args...)> 
 
 /**
  * @brief Deduction guide.
- *
- * It allows to deduce the function type of the delegate directly from a
- * function provided to the constructor.
- *
- * @tparam Function A valid free function pointer.
+ * @tparam Candidate Function or member to connect to the delegate.
  */
-template<auto Function>
-delegate(connect_arg_t<Function>) ENTT_NOEXCEPT
--> delegate<eastl::remove_pointer_t<internal::to_function_pointer_t<decltype(Function)>>>;
+template<auto Candidate>
+delegate(connect_arg_t<Candidate>) ENTT_NOEXCEPT
+-> delegate<eastl::remove_pointer_t<internal::function_pointer_t<decltype(Candidate)>>>;
 
 
 /**
  * @brief Deduction guide.
- *
- * It allows to deduce the function type of the delegate directly from a member
- * or a free function with payload provided to the constructor.
- *
- * @tparam Candidate Member or free function to connect to the delegate.
+ * @tparam Candidate Function or member to connect to the delegate.
  * @tparam Type Type of class or type of payload.
  */
 template<auto Candidate, typename Type>
-delegate(connect_arg_t<Candidate>, Type &) ENTT_NOEXCEPT
--> delegate<eastl::remove_pointer_t<internal::to_function_pointer_t<decltype(Candidate), Type *>>>;
-
-
-/**
- * @brief Deduction guide.
- *
- * It allows to deduce the function type of the delegate directly from a member
- * or a free function with payload provided to the constructor.
- *
- * @tparam Candidate Member or free function to connect to the delegate.
- * @tparam Type Type of class or type of payload.
- */
-template<auto Candidate, typename Type>
-delegate(connect_arg_t<Candidate>, Type *) ENTT_NOEXCEPT
--> delegate<eastl::remove_pointer_t<internal::to_function_pointer_t<decltype(Candidate), Type *>>>;
+delegate(connect_arg_t<Candidate>, Type &&) ENTT_NOEXCEPT
+-> delegate<eastl::remove_pointer_t<internal::function_pointer_t<decltype(Candidate), Type>>>;
 
 
 }
 
 
-#endif // ENTT_SIGNAL_DELEGATE_HPP
+#endif

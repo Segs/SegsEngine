@@ -2,8 +2,7 @@
 #define ENTT_ENTITY_FWD_HPP
 
 
-#include "../config/config.h"
-#include "../core/type_traits.hpp"
+#include "../core/fwd.hpp"
 
 namespace eastl {
 class allocator;
@@ -28,7 +27,7 @@ template<typename...>
 class basic_group;
 
 /*! @class basic_observer */
-template<typename>
+template<typename,typename>
 class basic_observer;
 
 /*! @struct basic_actor */
@@ -47,17 +46,14 @@ class basic_snapshot_loader;
 template<typename, typename>
 class basic_continuous_loader;
 
-/*! @brief Alias declaration for the most common use case. */
-ENTT_OPAQUE_TYPE(entity, ENTT_ID_TYPE);
-
-/*! @brief Alias declaration for the most common use case. */
-ENTT_OPAQUE_TYPE(component, ENTT_ID_TYPE);
+/*! @class entity */
+enum class entity: id_type;
 
 /*! @brief Alias declaration for the most common use case. */
 using registry = basic_registry<entity, EASTLAllocatorType>;
 
 /*! @brief Alias declaration for the most common use case. */
-using observer = basic_observer<entity>;
+using observer = basic_observer<entity, EASTLAllocatorType>;
 
 /*! @brief Alias declaration for the most common use case. */
 using actor = basic_actor<entity>;
@@ -76,7 +72,7 @@ using continuous_loader = basic_continuous_loader<entity, EASTLAllocatorType>;
  * @tparam Types Types of components iterated by the view.
  */
 template<typename... Types>
-using view = basic_view<entity, Types...>;
+using view = basic_view<entity,EASTLAllocatorType, Types...>;
 
 /*! @brief Alias declaration for the most common use case. */
 using runtime_view = basic_runtime_view<entity, EASTLAllocatorType>;
@@ -86,10 +82,10 @@ using runtime_view = basic_runtime_view<entity, EASTLAllocatorType>;
  * @tparam Types Types of components iterated by the group.
  */
 template<typename... Types>
-using group = basic_group<entity, Types...>;
+using group = basic_group<entity,EASTLAllocatorType, Types...>;
 
 
 }
 
 
-#endif // ENTT_ENTITY_FWD_HPP
+#endif
