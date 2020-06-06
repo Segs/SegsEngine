@@ -222,10 +222,10 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
     };
-    constexpr Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
+    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
-    constexpr Span<const TypePassBy> do_get_argument_passby() const override {
+    Span<const TypePassBy> do_get_argument_passby() const override {
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {

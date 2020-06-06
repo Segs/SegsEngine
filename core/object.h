@@ -500,7 +500,9 @@ public:
     Object();
     virtual ~Object();
 
+#ifndef DEBUG_ENABLED
     Object(Object &&) noexcept = default;
+#endif
 };
 
 template <class T>
