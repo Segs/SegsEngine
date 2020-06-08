@@ -136,9 +136,9 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             continue;
         }
 
-        UIString cname(name);
-        if (cname.startsWith("_")) //proxy class
-            cname = cname.mid(1);
+        String cname(name);
+        if (cname.starts_with('_')) //proxy class
+            cname = cname.substr(1);
 
         tgt.class_list[cname] = DocContents::ClassDoc();
         DocContents::ClassDoc &c = tgt.class_list[cname];
@@ -255,14 +255,14 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
 
         for (const MethodInfo &E : method_list) {
 
-            if (E.name.empty() || (E.name.asCString()[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL)))
+            if (E.name.empty() || E.name.asCString()[0] == '_' && !(E.flags & METHOD_FLAG_VIRTUAL))
                 continue; //hidden, don't count
 
             if (skip_setter_getter_methods && setters_getters.contains(E.name)) {
                 // Don't skip parametric setters and getters, i.e. method which require
                 // one or more parameters to define what property should be set or retrieved.
                 // E.g. CPUParticles3D::set_param(Parameter param, float value).
-                if (E.arguments.empty() /* getter */ || (E.arguments.size() == 1 && E.return_val.type == VariantType::NIL) /* setter */) {
+                if (E.arguments.empty() /* getter */ || E.arguments.size() == 1 && E.return_val.type == VariantType::NIL /* setter */) {
                     continue;
                 }
             }
@@ -275,11 +275,11 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
                 method.qualifiers = "virtual";
 
             if (E.flags & METHOD_FLAG_CONST) {
-                if (!method.qualifiers.isEmpty())
+                if (!method.qualifiers.empty())
                     method.qualifiers += ' ';
                 method.qualifiers += "const";
             } else if (E.flags & METHOD_FLAG_VARARG) {
-                if (!method.qualifiers.isEmpty())
+                if (!method.qualifiers.empty())
                     method.qualifiers += ' ';
                 method.qualifiers += "vararg";
             }
@@ -342,7 +342,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         }
 
         //theme stuff
-        StringName scname(qPrintable(cname));
+        StringName scname((cname));
         {
             Vector<StringName> l;
             Theme::get_default()->get_constant_list(scname, &l);
@@ -513,10 +513,10 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             }
             pd.name = s.name.asCString();
             pd.type = StringName(s.ptr->get_class()).asCString();
-            while (ClassDB::get_parent_class(StringName(qPrintable(pd.type))) != StringView("Object"))
-                pd.type = ClassDB::get_parent_class(StringName(qPrintable(pd.type))).asCString();
-            if (pd.type.startsWith("_"))
-                pd.type = pd.type.mid(1);
+            while (ClassDB::get_parent_class(StringName(pd.type)) != StringView("Object"))
+                pd.type = ClassDB::get_parent_class(StringName(pd.type)).asCString();
+            if (pd.type.starts_with('_'))
+                pd.type = pd.type.substr(1);
             c.properties.push_back(pd);
         }
     }
@@ -543,7 +543,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
                 md.name = mi.name.asCString();
 
                 if (mi.flags & METHOD_FLAG_VARARG) {
-                    if (!md.qualifiers.isEmpty())
+                    if (!md.qualifiers.empty())
                         md.qualifiers += ' ';
                     md.qualifiers += "vararg";
                 }
@@ -574,8 +574,8 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             for (const Pair<StringView, Variant> & E : cinfo) {
 
                 DocContents::ConstantDoc cd;
-                cd.name = StringUtils::from_utf8(E.first);
-                cd.value = E.second.as<UIString>();
+                cd.name = E.first;
+                cd.value = E.second.as<String>();
                 c.constants.push_back(cd);
             }
         }

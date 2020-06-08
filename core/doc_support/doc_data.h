@@ -39,41 +39,41 @@ enum Error : int;
 namespace DocContents {
 struct ArgumentDoc {
 
-    QString name;
-    QString type;
-    QString enumeration;
-    QString default_value;
+    String name;
+    String type;
+    String enumeration;
+    String default_value;
 };
 
 struct MethodDoc {
 
-    QString name;
-    QString return_type;
-    QString return_enum;
-    QString qualifiers;
+    String name;
+    String return_type;
+    String return_enum;
+    String qualifiers;
     String description;
     Vector<ArgumentDoc> arguments;
     bool operator<(const MethodDoc &p_md) const {
-        return name < p_md.name;
+        return name.compare(p_md.name)<0;
     }
 };
 
 struct ConstantDoc {
 
-    QString name;
-    QString value;
-    QString enumeration;
+    String name;
+    String value;
+    String enumeration;
     String description;
 };
 
 struct PropertyDoc {
 
-    QString name;
-    QString type;
-    QString enumeration;
+    String name;
+    String type;
+    String enumeration;
     String description;
-    QString setter, getter;
-    QString default_value;
+    String setter, getter;
+    String default_value;
     bool overridden = false;
     bool operator<(const PropertyDoc &p_prop) const {
         return name < p_prop.name;
@@ -81,12 +81,12 @@ struct PropertyDoc {
 };
 struct ClassDoc {
 
-    QString name;
-    QString inherits;
-    QString category;
-    QString brief_description;
+    String name;
+    String inherits;
+    String category;
+    String brief_description;
     String description;
-    Vector<QString> tutorials;
+    Vector<String> tutorials;
     Vector<MethodDoc> methods;
     Vector<MethodDoc> defined_signals;
     Vector<ConstantDoc> constants;
@@ -107,7 +107,7 @@ public:
 
     String version;
     String namespace_name;
-    QHash<QString, DocContents::ClassDoc> class_list;
+    HashMap<String, DocContents::ClassDoc> class_list;
     const DocContents::ClassDoc &class_doc(StringName sn) {
         return class_list[sn.asCString()];
     }

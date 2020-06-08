@@ -1006,14 +1006,14 @@ void ConnectionsDock::update_tree() {
                     DocData *dd = EditorHelp::get_doc_data();
                     auto F = dd->class_list.find(base.asCString());
                     while (F!=dd->class_list.end() && descr.empty()) {
-                        for (size_t i = 0; i < F->defined_signals.size(); i++) {
-                            if (F->defined_signals[i].name == signal_name.asCString()) {
-                                descr = F->defined_signals[i].description.trimmed();
+                        for (size_t i = 0; i < F->second.defined_signals.size(); i++) {
+                            if (F->second.defined_signals[i].name == signal_name.asCString()) {
+                                descr = F->second.defined_signals[i].description.trimmed();
                                 break;
                             }
                         }
-                        if (!F->inherits.isEmpty()) {
-                            F = dd->class_list.find(F->inherits);
+                        if (!F->second.inherits.empty()) {
+                            F = dd->class_list.find(F->second.inherits);
                         } else {
                             break;
                         }

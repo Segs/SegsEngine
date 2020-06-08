@@ -50,19 +50,19 @@ Error _load(QXmlStreamReader &parser,DocData &tgt);
 
 void DocData::merge_from(const DocData &p_data) {
 
-    for (ClassDoc &c : class_list) {
+    for (eastl::pair<const String,ClassDoc> &c : class_list) {
 
-        auto iter = p_data.class_list.find(c.name);
+        auto iter = p_data.class_list.find(c.second.name);
         if (iter==p_data.class_list.end())
             continue;
 
-        const ClassDoc &cf = *iter;
+        const ClassDoc &cf = iter->second;
 
-        c.description = cf.description;
-        c.brief_description = cf.brief_description;
-        c.tutorials = cf.tutorials;
+        c.second.description = cf.description;
+        c.second.brief_description = cf.brief_description;
+        c.second.tutorials = cf.tutorials;
 
-        for (MethodDoc &m : c.methods) {
+        for (MethodDoc &m : c.second.methods) {
 
             for (int j = 0; j < cf.methods.size(); j++) {
 
@@ -100,9 +100,9 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (int i = 0; i < c.defined_signals.size(); i++) {
+        for (int i = 0; i < c.second.defined_signals.size(); i++) {
 
-            MethodDoc &m = c.defined_signals[i];
+            MethodDoc &m = c.second.defined_signals[i];
 
             for (int j = 0; j < cf.defined_signals.size(); j++) {
 
@@ -115,7 +115,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (ConstantDoc &m : c.constants) {
+        for (ConstantDoc &m : c.second.constants) {
 
             for (int j = 0; j < cf.constants.size(); j++) {
 
@@ -128,7 +128,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (PropertyDoc &p : c.properties) {
+        for (PropertyDoc &p : c.second.properties) {
 
             for (int j = 0; j < cf.properties.size(); j++) {
 
@@ -141,7 +141,7 @@ void DocData::merge_from(const DocData &p_data) {
             }
         }
 
-        for (PropertyDoc &p : c.theme_properties) {
+        for (PropertyDoc &p : c.second.theme_properties) {
 
             for (int j = 0; j < cf.theme_properties.size(); j++) {
 
@@ -157,9 +157,9 @@ void DocData::merge_from(const DocData &p_data) {
 }
 
 void DocData::remove_from(const DocData &p_data) {
-    for (const QString &E : p_data.class_list.keys()) {
+    for (const String &E : p_data.class_list.keys()) {
         if (class_list.contains(E))
-            class_list.remove(E);
+            class_list.erase(E);
     }
 }
 
@@ -186,9 +186,9 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
             qCritical("missing 'name' attribute");
             return ERR_FILE_CORRUPT;
         }
-        method.name = attrs.value("name").toString();
+        method.name = attrs.value("name").toUtf8().data();
         if (attrs.hasAttribute("qualifiers"))
-            method.qualifiers = attrs.value("qualifiers").toString();
+            method.qualifiers = attrs.value("qualifiers").toUtf8().data();
 
         while (!parser.atEnd() && !parser.hasError()) {
             parser.readNext();
@@ -207,9 +207,9 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
                     return ERR_FILE_CORRUPT;
                 }
 
-                method.return_type = attrs.value("type").toString();
+                method.return_type = attrs.value("type").toUtf8().data();
                 if (attrs.hasAttribute("enum")) {
-                    method.return_enum = attrs.value("enum").toString();
+                    method.return_enum = attrs.value("enum").toUtf8().data();
                 }
             } else if (name == "argument") {
 
@@ -219,10 +219,10 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
                     return ERR_FILE_CORRUPT;
                 }
 
-                argument.name = attrs.value("name").toString();
-                argument.type = attrs.value("type").toString();
+                argument.name = attrs.value("name").toUtf8().data();
+                argument.type = attrs.value("type").toUtf8().data();
                 if (attrs.hasAttribute("enum")) {
-                    argument.enumeration = attrs.value("enum").toString();
+                    argument.enumeration = attrs.value("enum").toUtf8().data();
                 }
 
                 method.arguments.push_back(argument);
@@ -302,13 +302,13 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
             qCritical("Non-class first xml element or missing 'name' attribute");
             return ERR_FILE_CORRUPT;
         }
-        QString name(class_attrs.value("name").toString());
+        String name(class_attrs.value("name").toString().toUtf8().data());
         tgt.class_list[name] = DocContents::ClassDoc();
         DocContents::ClassDoc &c = tgt.class_list[name];
 
         c.name = name;
         if (class_attrs.hasAttribute("inherits"))
-            c.inherits = class_attrs.value("inherits").toString();
+            c.inherits = class_attrs.value("inherits").toUtf8().data();
 
         while (parser.readNext() != QXmlStreamReader::Invalid) {
 
@@ -320,7 +320,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                     parser.readNext();
                     if (parser.tokenType() == QXmlStreamReader::Characters)
-                        c.brief_description = parser.text().trimmed().toString();
+                        c.brief_description = parser.text().trimmed().toUtf8().data();
 
                 } else if (name2 == "description") {
                     parser.readNext();
@@ -337,7 +337,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                                 parser.readNext();
                                 if (parser.tokenType() == QXmlStreamReader::Characters)
-                                    c.tutorials.emplace_back(parser.text().trimmed().toString());
+                                    c.tutorials.emplace_back(parser.text().trimmed().toUtf8().data());
                             } else {
 
                                 qCritical().noquote()<<"Invalid tag in doc file: " + name3 + ".";
@@ -367,15 +367,15 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                                 DocContents::PropertyDoc prop2;
                                 const auto attrs(parser.attributes());
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
-                                prop2.name = attrs.value("name").toString();
+                                prop2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("type"), ERR_FILE_CORRUPT);
-                                prop2.type = attrs.value("type").toString();
+                                prop2.type = attrs.value("type").toUtf8().data();
                                 if (attrs.hasAttribute("setter"))
-                                    prop2.setter = attrs.value("setter").toString();
+                                    prop2.setter = attrs.value("setter").toUtf8().data();
                                 if (attrs.hasAttribute("getter"))
-                                    prop2.getter = attrs.value("getter").toString();
+                                    prop2.getter = attrs.value("getter").toUtf8().data();
                                 if (attrs.hasAttribute("enum"))
-                                    prop2.enumeration = attrs.value("enum").toString();
+                                    prop2.enumeration = attrs.value("enum").toUtf8().data();
                                 c.properties.push_back(prop2);
                             } else {
                                 qCritical()<<"Invalid tag in doc file: " << name3 << ".";
@@ -406,9 +406,9 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                                 DocContents::PropertyDoc prop2;
                                 const auto attrs(parser.attributes());
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
-                                prop2.name = attrs.value("name").toString();
+                                prop2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("type"), ERR_FILE_CORRUPT);
-                                prop2.type = attrs.value("type").toString();
+                                prop2.type = attrs.value("type").toUtf8().data();
                                 c.theme_properties.emplace_back(prop2);
                             } else {
                                 qCritical() << "Invalid tag in doc file: " + name3 + ".";
@@ -441,11 +441,11 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
                                 DocContents::ConstantDoc constant2;
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("name"), ERR_FILE_CORRUPT);
-                                constant2.name = attrs.value("name").toString();
+                                constant2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("value"), ERR_FILE_CORRUPT);
-                                constant2.value = attrs.value("value").toString();
+                                constant2.value = attrs.value("value").toUtf8().data();
                                 if (attrs.hasAttribute("enum")) {
-                                    constant2.enumeration = attrs.value("enum").toString();
+                                    constant2.enumeration = attrs.value("enum").toUtf8().data();
                                 }
                                 c.constants.push_back(constant2);
                             } else {
@@ -479,16 +479,17 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
 Error DocData::save_classes(QByteArray p_default_path, const char *version_branch, const HashMap<String, QString> &p_class_path) {
 
-    for (ClassDoc &c : class_list) {
+    for (eastl::pair<const String,ClassDoc> &class_entry : class_list) {
 
+        ClassDoc &c(class_entry.second);
         QString save_path;
-        if (p_class_path.contains_as(qPrintable(c.name))) {
-            save_path = p_class_path.at(qPrintable(c.name));
+        if (p_class_path.contains_as(c.name)) {
+            save_path = p_class_path.at(c.name);
         } else {
             save_path = p_default_path;
         }
 
-        QString save_file = save_path+"/"+c.name + ".xml";
+        QString save_file = save_path+"/"+c.name.c_str() + ".xml";
         QFile f(save_file);
         if(!f.open(QFile::WriteOnly)) {
             qWarning()<<"Can't write doc file: " + save_file + ".";
@@ -497,18 +498,18 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
         QXmlStreamWriter writer(&f);
         writer.writeStartDocument();
         writer.writeStartElement("class");
-        writer.writeAttribute("name",c.name);
-        if (!c.inherits.isEmpty())
-            writer.writeAttribute("inherits",c.inherits);
+        writer.writeAttribute("name",c.name.c_str());
+        if (!c.inherits.empty())
+            writer.writeAttribute("inherits",c.inherits.c_str());
 
         writer.writeAttribute("version",version_branch);
-        writer.writeTextElement("brief_description",c.brief_description.trimmed());
+        writer.writeTextElement("brief_description",c.brief_description.trimmed().c_str());
         writer.writeTextElement("description",c.description.trimmed().c_str());
 
         writer.writeStartElement("tutorials");
 
         for (size_t i = 0; i < c.tutorials.size(); i++) {
-            writer.writeTextElement("link",c.tutorials[i].trimmed());
+            writer.writeTextElement("link",c.tutorials[i].trimmed().c_str());
         }
         writer.writeEndElement();
 
@@ -523,16 +524,16 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
             String qualifiers;
 
-            writer.writeAttribute("name",m.name);
-            if (!m.qualifiers.isEmpty())
-                writer.writeAttribute("qualifiers",m.qualifiers);
+            writer.writeAttribute("name",m.name.c_str());
+            if (!m.qualifiers.empty())
+                writer.writeAttribute("qualifiers",m.qualifiers.c_str());
 
-            if (!m.return_type.isEmpty()) {
+            if (!m.return_type.empty()) {
                 writer.writeStartElement("return");
-                writer.writeAttribute("type",m.return_type);
+                writer.writeAttribute("type",m.return_type.c_str());
                 String enum_text;
-                if (!m.return_enum.isEmpty()) {
-                    writer.writeAttribute("enum",m.return_enum);
+                if (!m.return_enum.empty()) {
+                    writer.writeAttribute("enum",m.return_enum.c_str());
                 }
                 writer.writeEndElement();
             }
@@ -543,12 +544,12 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 writer.writeStartElement("argument");
 
                 writer.writeAttribute("index",QString::number(j));
-                writer.writeAttribute("name",a.name);
-                writer.writeAttribute("type",a.type);
-                if(!a.enumeration.isEmpty())
-                    writer.writeAttribute("enum",a.enumeration);
-                if(!a.default_value.isEmpty())
-                    writer.writeAttribute("default",a.default_value);
+                writer.writeAttribute("name",a.name.c_str());
+                writer.writeAttribute("type",a.type.c_str());
+                if(!a.enumeration.empty())
+                    writer.writeAttribute("enum",a.enumeration.c_str());
+                if(!a.default_value.empty())
+                    writer.writeAttribute("default",a.default_value.c_str());
 
                 writer.writeEndElement();
             }
@@ -568,18 +569,18 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 writer.writeStartElement("member");
                 const PropertyDoc &a(c.properties[i]);
 
-                writer.writeAttribute("name",a.name);
-                writer.writeAttribute("type",a.type);
-                writer.writeAttribute("setter",a.setter);
-                writer.writeAttribute("getter",a.getter);
+                writer.writeAttribute("name",a.name.c_str());
+                writer.writeAttribute("type",a.type.c_str());
+                writer.writeAttribute("setter",a.setter.c_str());
+                writer.writeAttribute("getter",a.getter.c_str());
                 if (c.properties[i].overridden)
                     writer.writeAttribute("overridden","true");
 
-                if (!c.properties[i].enumeration.isEmpty())
-                    writer.writeAttribute("enum",a.enumeration);
+                if (!c.properties[i].enumeration.empty())
+                    writer.writeAttribute("enum",a.enumeration.c_str());
 
-                if (!c.properties[i].default_value.isEmpty())
-                    writer.writeAttribute("default",a.default_value);
+                if (!c.properties[i].default_value.empty())
+                    writer.writeAttribute("default",a.default_value.c_str());
                 if (!c.properties[i].overridden)
                     writer.writeCharacters(a.description.c_str());
 
@@ -597,14 +598,14 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
                 const MethodDoc &m = c.defined_signals[i];
                 writer.writeStartElement("signal");
-                writer.writeAttribute("name",m.name);
+                writer.writeAttribute("name",m.name.c_str());
 
                 for (int j = 0; j < m.arguments.size(); j++) {
                     const ArgumentDoc &a = m.arguments[j];
                     writer.writeStartElement("argument");
                         writer.writeAttribute("index",QString::number(j));
-                        writer.writeAttribute("name",a.name);
-                        writer.writeAttribute("type",a.type.trimmed());
+                        writer.writeAttribute("name",a.name.c_str());
+                        writer.writeAttribute("type",a.type.trimmed().c_str());
                     writer.writeEndElement();
                 }
                 writer.writeTextElement("description",m.description.trimmed().c_str());
@@ -619,10 +620,10 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
         for (int i = 0; i < c.constants.size(); i++) {
             const ConstantDoc &k = c.constants[i];
             writer.writeStartElement("constant");
-                writer.writeAttribute("name",k.name);
-                writer.writeAttribute("value",k.value);
-                if (!k.enumeration.isEmpty())
-                    writer.writeAttribute("enumeration",k.enumeration);
+                writer.writeAttribute("name",k.name.c_str());
+                writer.writeAttribute("value",k.value.c_str());
+                if (!k.enumeration.empty())
+                    writer.writeAttribute("enumeration",k.enumeration.c_str());
                 writer.writeCharacters(k.description.trimmed().c_str());
             writer.writeEndElement();
         }
@@ -638,10 +639,10 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
                 const PropertyDoc &p = c.theme_properties[i];
                 writer.writeStartElement("theme_item");
-                writer.writeAttribute("name",p.name);
-                writer.writeAttribute("type",p.type);
-                if(!p.default_value.isEmpty())
-                    writer.writeAttribute("default_value",p.default_value);
+                writer.writeAttribute("name",p.name.c_str());
+                writer.writeAttribute("type",p.type.c_str());
+                if(!p.default_value.empty())
+                    writer.writeAttribute("default_value",p.default_value.c_str());
 
                 writer.writeCharacters(p.description.c_str());
 

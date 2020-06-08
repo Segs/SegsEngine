@@ -35,9 +35,6 @@
 #include "core/typesystem_decls.h"
 #include "core/map.h"
 #include "core/doc_support/doc_data.h"
-#include "core/ustring.h"
-
-#include <QString>
 
 class QJsonObject;
 
@@ -101,7 +98,7 @@ struct PropertyInterface {
         String setter;
         String getter;
     };
-    QVector<TypedEntry> indexed_entries;
+    Vector<TypedEntry> indexed_entries;
 
 
     void toJson(QJsonObject &obj) const;
@@ -396,8 +393,6 @@ struct NamespaceInterface {
     HashMap<String, TypeInterface> builtin_types;
     HashMap<String, TypeInterface> enum_types;
 
-
-
     const TypeInterface* _get_type_or_null(const TypeReference& p_typeref) const;
     const TypeInterface* _get_type_or_placeholder(const TypeReference& p_typeref);
 
@@ -408,18 +403,18 @@ struct ReflectionData {
     class DocData* doc;
 
     struct ClassLookupHelper {
-        HashMap<QString, const DocContents::MethodDoc*> methods;
-        HashMap<QString, const DocContents::MethodDoc*> defined_signals;
-        HashMap<QString, const DocContents::PropertyDoc*> properties;
-        HashMap<QString, const DocContents::PropertyDoc*> theme_properties;
+        HashMap<String, const DocContents::MethodDoc*> methods;
+        HashMap<String, const DocContents::MethodDoc*> defined_signals;
+        HashMap<String, const DocContents::PropertyDoc*> properties;
+        HashMap<String, const DocContents::PropertyDoc*> theme_properties;
 
-        HashMap<QString, const DocContents::ConstantDoc*> constants;
+        HashMap<String, const DocContents::ConstantDoc*> constants;
     };
-    HashMap<QString, ClassLookupHelper> doc_lookup_helpers;
+    HashMap<String, ClassLookupHelper> doc_lookup_helpers;
     void build_doc_lookup_helper();
 
     Vector<NamespaceInterface> namespaces;
-    const DocContents::ConstantDoc* constant_doc(QString classname, QString enum_name, QString const_name) const {
+    const DocContents::ConstantDoc* constant_doc(const String &classname, String enum_name, String const_name) const {
         return doc_lookup_helpers.at(classname).constants.at(enum_name + "::" + const_name, nullptr);
     }
 

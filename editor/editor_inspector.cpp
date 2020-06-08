@@ -1549,13 +1549,13 @@ void EditorInspector::update_tree() {
                 StringName type2 = p.name;
                 if (!class_descr_cache.contains(type2)) {
 
-                    UIString descr;
+                    String descr;
                     DocData *dd = EditorHelp::get_doc_data();
                     auto E = dd->class_list.find(type2.asCString());
                     if (E!=dd->class_list.end()) {
-                        descr = E->brief_description;
+                        descr = E->second.brief_description;
                     }
-                    class_descr_cache[type2] = StringUtils::to_utf8(descr);
+                    class_descr_cache[type2] = descr;
                 }
 
                 category->set_tooltip_utf8(String(p.name.asCString()) + "::" + (class_descr_cache[type2].empty() ? "" : class_descr_cache[type2]));
@@ -1707,9 +1707,9 @@ void EditorInspector::update_tree() {
                 DocData *dd = EditorHelp::get_doc_data();
                 auto F = dd->class_list.find(classname.asCString());
                 while (F!=dd->class_list.end() && descr.empty()) {
-                    for (size_t i = 0; i < F->properties.size(); i++) {
-                        if (F->properties[i].name == propname.asCString()) {
-                            descr = StringUtils::strip_edges(F->properties[i].description);
+                    for (size_t i = 0; i < F->second.properties.size(); i++) {
+                        if (F->second.properties[i].name == propname.asCString()) {
+                            descr = StringUtils::strip_edges(F->second.properties[i].description);
                             break;
                         }
                     }
@@ -1717,15 +1717,15 @@ void EditorInspector::update_tree() {
                     String::split_ref(slices,propname,'/');
                     if (slices.size() == 2 && slices[0].starts_with("custom_")) {
                         // Likely a theme property.
-                        for (int i = 0; i < F->theme_properties.size(); i++) {
-                            if (F->theme_properties[i].name == QLatin1String(slices[1].data(),slices[1].size())) {
-                                descr = StringUtils::strip_edges(F->theme_properties[i].description);
+                        for (int i = 0; i < F->second.theme_properties.size(); i++) {
+                            if (F->second.theme_properties[i].name == slices[1]) {
+                                descr = StringUtils::strip_edges(F->second.theme_properties[i].description);
                                 break;
                             }
                         }
                     }
-                    if (!F->inherits.isEmpty()) {
-                        F = dd->class_list.find(F->inherits);
+                    if (!F->second.inherits.empty()) {
+                        F = dd->class_list.find(F->second.inherits);
                     } else {
                         break;
                     }

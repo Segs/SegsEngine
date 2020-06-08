@@ -400,20 +400,20 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
 
 void ReflectionData::build_doc_lookup_helper() {
     for (auto iter = doc->class_list.begin(); iter!=doc->class_list.end(); ++iter) {
-        auto &tgt = doc_lookup_helpers[iter.key()];
-        for (const auto &mthd : iter->methods) {
+        auto &tgt = doc_lookup_helpers[iter->first];
+        for (const auto &mthd : iter->second.methods) {
             tgt.methods[mthd.name] = &mthd;
         }
-        for (const auto &mthd : iter->defined_signals) {
+        for (const auto &mthd : iter->second.defined_signals) {
             tgt.defined_signals[mthd.name] = &mthd;
         }
-        for (const auto &mthd : iter->constants) {
+        for (const auto &mthd : iter->second.constants) {
             tgt.constants[mthd.enumeration + "::" + mthd.name] = &mthd;
         }
-        for (const auto &mthd : iter->properties) {
+        for (const auto &mthd : iter->second.properties) {
             tgt.properties[mthd.name] = &mthd;
         }
-        for (const auto &mthd : iter->theme_properties) {
+        for (const auto &mthd : iter->second.theme_properties) {
             tgt.theme_properties[mthd.name] = &mthd;
         }
     }

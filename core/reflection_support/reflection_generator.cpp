@@ -898,11 +898,11 @@ void _populate_global_constants(ReflectionData &rd) {
         }
     }
     if (global_constants_count > 0) {
-        QHash<QString, DocContents::ClassDoc>::iterator match = rd.doc->class_list.find("@GlobalScope");
+        HashMap<String, DocContents::ClassDoc>::iterator match = rd.doc->class_list.find("@GlobalScope");
 
         CRASH_COND_MSG(match == rd.doc->class_list.end(), "Could not find '@GlobalScope' in DocData.");
 
-        const DocContents::ClassDoc& global_scope_doc = *match;
+        const DocContents::ClassDoc& global_scope_doc = match->second;
 
         for (int i = 0; i < global_constants_count; i++) {
 

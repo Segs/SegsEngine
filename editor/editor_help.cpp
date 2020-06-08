@@ -61,13 +61,13 @@ DocData *EditorHelp::doc = nullptr;
 class EditorHelpPrivate {
 public:
     Vector<Pair<String, int> > section_line;
-    HashMap<UIString, int> method_line;
-    HashMap<UIString, int> signal_line;
-    HashMap<UIString, int> property_line;
-    HashMap<UIString, int> theme_property_line;
-    HashMap<UIString, int> constant_line;
-    HashMap<UIString, int> enum_line;
-    HashMap<UIString, HashMap<UIString, int> > enum_values_line;
+    HashMap<String, int> method_line;
+    HashMap<String, int> signal_line;
+    HashMap<String, int> property_line;
+    HashMap<String, int> theme_property_line;
+    HashMap<String, int> constant_line;
+    HashMap<String, int> enum_line;
+    HashMap<String, HashMap<String, int> > enum_values_line;
 };
 class FindBarPrivate {
 public:
@@ -146,7 +146,7 @@ void EditorHelp::_class_desc_select(StringView p_select) {
         StringView link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
 
         String topic;
-        HashMap<UIString, int> *table = nullptr;
+        HashMap<String, int> *table = nullptr;
 
         if (tag == "method"_sv) {
             topic = "class_method";
@@ -170,16 +170,17 @@ void EditorHelp::_class_desc_select(StringView p_select) {
         if (StringUtils::contains(link,".")) {
             emit_signal("go_to_help", topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1));
         } else {
-            if (table->contains(QLatin1String(link.data(),link.size()))) {
+            auto iter = table->find_as(link);
+            if (iter!=table->end()) {
                 // Found in the current page
-                class_desc->scroll_to_line(table->at(StringUtils::from_utf8(link)));
+                class_desc->scroll_to_line(iter->second);
             } else {
                 if (topic == "class_enum") {
                     // Try to find the enum in @GlobalScope
-                    const DocContents::ClassDoc &cd = doc->class_list[gscope.asString()];
+                    const DocContents::ClassDoc &cd = doc->class_list[String(gscope)];
 
                     for (int i = 0; i < cd.constants.size(); i++) {
-                        if (cd.constants[i].enumeration == StringUtils::from_utf8(link)) {
+                        if (cd.constants[i].enumeration == link) {
                             // Found in @GlobalScope
                             emit_signal("go_to_help", String(topic + ":@GlobalScope:" + link));
                             break;
@@ -187,10 +188,10 @@ void EditorHelp::_class_desc_select(StringView p_select) {
                     }
                 } else if (topic == "class_constant") {
                     // Try to find the constant in @GlobalScope
-                    const DocContents::ClassDoc &cd = doc->class_list[gscope.asString()];
+                    const DocContents::ClassDoc &cd = doc->class_list[String(gscope)];
 
                     for (int i = 0; i < cd.constants.size(); i++) {
-                        if (cd.constants[i].name == StringUtils::from_utf8(link)) {
+                        if (cd.constants[i].name == link) {
                             // Found in @GlobalScope
                             emit_signal("go_to_help", String(topic + ":@GlobalScope:" + link));
                             break;
@@ -225,7 +226,7 @@ void EditorHelp::_add_type(StringView p_type, StringView p_enum) {
     StringView t = p_type;
     if (t.empty())
         t = "void";
-    bool can_ref = (t != "void"_sv) || !p_enum.empty();
+    bool can_ref = t != "void"_sv || !p_enum.empty();
 
     if (!p_enum.empty()) {
         if (StringUtils::get_slice_count(p_enum,'.') > 1) {
@@ -269,7 +270,7 @@ StringView _fix_constant(StringView p_constant) {
 
 void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_overview) {
 
-    m_private->method_line[qPrintable(p_method.name)] = class_desc->get_line_count() - 2; //gets overridden if description
+    m_private->method_line[String(p_method.name)] = class_desc->get_line_count() - 2; //gets overridden if description
 
     const bool is_vararg = p_method.qualifiers.contains("vararg");
 
@@ -278,7 +279,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
         class_desc->push_align(RichTextLabel::ALIGN_RIGHT);
     }
 
-    _add_type(qPrintable(p_method.return_type), qPrintable(p_method.return_enum));
+    _add_type(p_method.return_type, p_method.return_enum);
 
     if (p_overview) {
         class_desc->pop(); //align
@@ -289,7 +290,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
     }
 
     if (p_overview && !p_method.description.empty()) {
-        class_desc->push_meta(String("@method ") + qPrintable(p_method.name));
+        class_desc->push_meta(String("@method ") + p_method.name);
     }
 
     class_desc->push_color(headline_color);
@@ -310,14 +311,14 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
             class_desc->add_text(", ");
         _add_text(p_method.arguments[j].name);
         class_desc->add_text(": ");
-        _add_type(qPrintable(p_method.arguments[j].type), qPrintable(p_method.arguments[j].enumeration));
-        if (not p_method.arguments[j].default_value.isEmpty()) {
+        _add_type(p_method.arguments[j].type, p_method.arguments[j].enumeration);
+        if (not p_method.arguments[j].default_value.empty()) {
 
             class_desc->push_color(symbol_color);
             class_desc->add_text(" = ");
             class_desc->pop();
             class_desc->push_color(value_color);
-            _add_text(_fix_constant(qPrintable(p_method.arguments[j].default_value)));
+            _add_text(_fix_constant(p_method.arguments[j].default_value));
             class_desc->pop();
         }
 
@@ -337,7 +338,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
     class_desc->push_color(symbol_color);
     class_desc->add_text(")");
     class_desc->pop();
-    if (!p_method.qualifiers.isEmpty()) {
+    if (!p_method.qualifiers.empty()) {
 
         class_desc->push_color(qualifier_color);
         class_desc->add_text(" ");
@@ -350,7 +351,7 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
 }
 Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 
-    if (!doc->class_list.contains(StringUtils::from_utf8(p_class)))
+    if (!doc->class_list.contains_as(p_class))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -370,7 +371,7 @@ Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 void EditorHelp::_update_doc() {
     using namespace StringUtils;
 
-    if (!doc->class_list.contains(StringUtils::from_utf8(edited_class)))
+    if (!doc->class_list.contains_as(edited_class))
         return;
 
     scroll_locked = true;
@@ -381,7 +382,7 @@ void EditorHelp::_update_doc() {
 
     _init_colors();
 
-    DocContents::ClassDoc cd = doc->class_list[StringUtils::from_utf8(edited_class)]; //make a copy, so we can sort without worrying
+    DocContents::ClassDoc cd = doc->class_list[String(edited_class)]; //make a copy, so we can sort without worrying
 
     Ref<Font> doc_font = get_font("doc", "EditorFonts");
     Ref<Font> doc_bold_font = get_font("doc_bold", "EditorFonts");
@@ -404,21 +405,21 @@ void EditorHelp::_update_doc() {
     // Inheritance tree
 
     // Ascendents
-    if (!cd.inherits.isEmpty()) {
+    if (!cd.inherits.empty()) {
 
         class_desc->push_color(title_color);
         class_desc->push_font(doc_font);
         class_desc->add_text_uistring((TTR("Inherits:") + " ").asString());
         class_desc->pop();
 
-        UIString inherits(cd.inherits);
+        String inherits(cd.inherits);
 
-        while (!inherits.isEmpty()) {
-            _add_type(qPrintable(inherits));
+        while (!inherits.empty()) {
+            _add_type(inherits);
 
             inherits = doc->class_list[inherits].inherits;
 
-            if (!inherits.isEmpty()) {
+            if (!inherits.empty()) {
                 class_desc->add_text(" < ");
             }
         }
@@ -428,14 +429,14 @@ void EditorHelp::_update_doc() {
     }
 
     // Descendents
-    if (ClassDB::class_exists(StringName(qPrintable(cd.name)))) {
+    if (ClassDB::class_exists(StringName(cd.name))) {
 
         bool found = false;
         bool prev = false;
 
-        for (const DocContents::ClassDoc &E : doc->class_list) {
+        for (const eastl::pair<const String,DocContents::ClassDoc> &E : doc->class_list) {
 
-            if (E.inherits == cd.name) {
+            if (E.second.inherits == cd.name) {
 
                 if (!found) {
                     class_desc->push_color(title_color);
@@ -450,7 +451,7 @@ void EditorHelp::_update_doc() {
                     class_desc->add_text(" , ");
                 }
 
-                _add_type(qPrintable(E.name));
+                _add_type(E.second.name);
                 prev = true;
             }
         }
@@ -465,7 +466,7 @@ void EditorHelp::_update_doc() {
     class_desc->add_newline();
 
     // Brief description
-    if (!cd.brief_description.isEmpty()) {
+    if (!cd.brief_description.empty()) {
 
         class_desc->push_color(text_color);
         class_desc->push_font(doc_bold_font);
@@ -516,15 +517,15 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int i = 0; i < cd.tutorials.size(); i++) {
-            const UIString link = cd.tutorials[i];
-            UIString linktxt = link;
-            const int seppos = linktxt.indexOf("//");
-            if (seppos != -1) {
+            const String &link = cd.tutorials[i];
+            String linktxt = link;
+            const auto seppos = linktxt.find("//");
+            if (seppos != String::npos) {
                 linktxt = link.right(seppos + 2);
             }
 
             class_desc->push_color(symbol_color);
-            class_desc->append_bbcode(String("[url=") + qPrintable(link) + "]" + qPrintable(linktxt) + "[/url]");
+            class_desc->append_bbcode(String("[url=") + link + "]" + linktxt + "[/url]");
             class_desc->pop();
             class_desc->add_newline();
         }
@@ -535,7 +536,7 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
     }
     // Properties overview
-    HashSet<UIString> skip_methods;
+    HashSet<String> skip_methods;
     bool property_descr = false;
 
     if (!cd.properties.empty()) {
@@ -559,18 +560,18 @@ void EditorHelp::_update_doc() {
             class_desc->push_cell();
             class_desc->push_align(RichTextLabel::ALIGN_RIGHT);
             class_desc->push_font(doc_code_font);
-            _add_type(qPrintable(cd.properties[i].type), qPrintable(cd.properties[i].enumeration));
+            _add_type(cd.properties[i].type, cd.properties[i].enumeration);
             class_desc->pop();
             class_desc->pop();
             class_desc->pop();
 
             bool describe = false;
 
-            if (!cd.properties[i].setter.isEmpty()) {
+            if (!cd.properties[i].setter.empty()) {
                 skip_methods.insert(cd.properties[i].setter);
                 describe = true;
             }
-            if (!cd.properties[i].getter.isEmpty()) {
+            if (!cd.properties[i].getter.empty()) {
                 skip_methods.insert(cd.properties[i].getter);
                 describe = true;
             }
@@ -588,7 +589,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(headline_color);
 
             if (describe) {
-                class_desc->push_meta(String("@member ") + qPrintable(cd.properties[i].name));
+                class_desc->push_meta(String("@member ") + cd.properties[i].name);
             }
 
             _add_text(cd.properties[i].name);
@@ -598,12 +599,12 @@ void EditorHelp::_update_doc() {
                 property_descr = true;
             }
 
-            if (!cd.properties[i].default_value.isEmpty()) {
+            if (!cd.properties[i].default_value.empty()) {
                 class_desc->push_color(symbol_color);
                 class_desc->add_text(cd.properties[i].overridden ? String(" [") + TTR("override:") + " " : String(" [") + TTR("default:") + " ");
                 class_desc->pop();
                 class_desc->push_color(value_color);
-                _add_text(_fix_constant(qPrintable(cd.properties[i].default_value)));
+                _add_text(_fix_constant(cd.properties[i].default_value));
                 class_desc->pop();
                 class_desc->push_color(symbol_color);
                 class_desc->add_text("]");
@@ -632,7 +633,7 @@ void EditorHelp::_update_doc() {
     for (size_t i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
             if (cd.methods[i].arguments.empty() /* getter */ ||
-                    (cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */)) {
+                    cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */) {
                 continue;
             }
         }
@@ -661,8 +662,8 @@ void EditorHelp::_update_doc() {
             Vector<DocContents::MethodDoc> m;
 
             for (const DocContents::MethodDoc &dm : methods) {
-                QStringRef q = &dm.qualifiers;
-                if ((pass == 0 && q.contains("virtual")) || (pass == 1 && !q.contains("virtual"))) {
+                StringView q = dm.qualifiers;
+                if (pass == 0 && q.contains("virtual") || pass == 1 && !q.contains("virtual")) {
                     m.push_back(dm);
                 }
             }
@@ -674,17 +675,17 @@ void EditorHelp::_update_doc() {
                 class_desc->pop(); //cell
             }
 
-            QStringRef group_prefix;
+            StringView group_prefix;
             for (size_t i = 0; i < m.size(); i++) {
-                const QStringRef new_prefix = m[i].name.midRef(0, 3);
+                const StringView new_prefix = m[i].name.substr(0, 3);
                 bool is_new_group = false;
 
                 if (i < m.size() - 1 && new_prefix == StringUtils::substr(m[i + 1].name,0, 3) && new_prefix != group_prefix) {
                     is_new_group = i > 0;
                     group_prefix = new_prefix;
-                } else if (!group_prefix.isEmpty() && new_prefix != group_prefix) {
+                } else if (!group_prefix.empty() && new_prefix != group_prefix) {
                     is_new_group = true;
-                    group_prefix = QStringRef();
+                    group_prefix = {};
                 }
 
                 if (is_new_group && pass == 1) {
@@ -732,7 +733,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_cell();
             class_desc->push_align(RichTextLabel::ALIGN_RIGHT);
             class_desc->push_font(doc_code_font);
-            _add_type(qPrintable(cd.theme_properties[i].type));
+            _add_type(cd.theme_properties[i].type);
             class_desc->pop();
             class_desc->pop();
             class_desc->pop();
@@ -743,12 +744,12 @@ void EditorHelp::_update_doc() {
             _add_text(cd.theme_properties[i].name);
             class_desc->pop();
 
-            if (!cd.theme_properties[i].default_value.isEmpty()) {
+            if (!cd.theme_properties[i].default_value.empty()) {
                 class_desc->push_color(symbol_color);
                 class_desc->add_text(String(" [") + TTR("default:") + " ");
                 class_desc->pop();
                 class_desc->push_color(value_color);
-                _add_text(_fix_constant(qPrintable(cd.theme_properties[i].default_value)));
+                _add_text(_fix_constant(cd.theme_properties[i].default_value));
                 class_desc->pop();
                 class_desc->push_color(symbol_color);
                 class_desc->add_text("]");
@@ -809,8 +810,8 @@ void EditorHelp::_update_doc() {
                     class_desc->add_text(", ");
                 _add_text(cd.defined_signals[i].arguments[j].name);
                 class_desc->add_text(": ");
-                _add_type(qPrintable(cd.defined_signals[i].arguments[j].type));
-                if (!cd.defined_signals[i].arguments[j].default_value.isEmpty()) {
+                _add_type(cd.defined_signals[i].arguments[j].type);
+                if (!cd.defined_signals[i].arguments[j].default_value.empty()) {
 
                     class_desc->push_color(symbol_color);
                     class_desc->add_text(" = ");
@@ -846,12 +847,12 @@ void EditorHelp::_update_doc() {
     // Constants and enums
     if (!cd.constants.empty()) {
 
-        Map<UIString, Vector<DocContents::ConstantDoc> > enums;
+        Map<String, Vector<DocContents::ConstantDoc> > enums;
         Vector<DocContents::ConstantDoc> constants;
 
         for (size_t i = 0; i < cd.constants.size(); i++) {
 
-            if (not cd.constants[i].enumeration.isEmpty()) {
+            if (not cd.constants[i].enumeration.empty()) {
                 enums[cd.constants[i].enumeration].push_back(cd.constants[i]);
             } else {
 
@@ -881,13 +882,13 @@ void EditorHelp::_update_doc() {
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
                 auto e = E->first;
-                auto parts = E->first.splitRef('.');
+                auto parts = E->first.split('.');
                 if (parts.size()>1 && edited_class.asCString()==parts[0]) {
-                    e = parts[1].toString();
+                    e = parts[1];
                 }
 
                 class_desc->push_color(headline_color);
-                class_desc->add_text_uistring(e);
+                class_desc->add_text(e);
                 class_desc->pop();
                 class_desc->pop();
                 class_desc->push_color(symbol_color);
@@ -898,7 +899,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_indent(1);
                 Vector<DocContents::ConstantDoc> enum_list = E->second;
 
-                HashMap<UIString, int> enumValuesContainer;
+                HashMap<String, int> enumValuesContainer;
                 int enumStartingLine = m_private->enum_line[E->first];
 
                 for (size_t i = 0; i < enum_list.size(); i++) {
@@ -916,7 +917,7 @@ void EditorHelp::_update_doc() {
                     class_desc->add_text(" = ");
                     class_desc->pop();
                     class_desc->push_color(value_color);
-                    _add_text(_fix_constant(qPrintable(enum_list[i].value)));
+                    _add_text(_fix_constant(enum_list[i].value));
                     class_desc->pop();
                     class_desc->pop();
                     if (!enum_list[i].description.empty()) {
@@ -965,8 +966,9 @@ void EditorHelp::_update_doc() {
                 class_desc->push_font(doc_code_font);
                 auto cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
-                    UIString stripped = cval.replace(" ", "").replace("Color(", "").replace(")", "");
-                    Vector<float> color = StringUtils::split_floats(qPrintable(stripped),",");
+                    
+                    String stripped = cval.replaced(" ", "").replaced("Color(", "").replaced(")", "");
+                    Vector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
                         static const CharType prefix[3] = { 0x25CF /* filled circle */, ' ', 0 };
@@ -982,7 +984,7 @@ void EditorHelp::_update_doc() {
                 class_desc->add_text(" = ");
                 class_desc->pop();
                 class_desc->push_color(value_color);
-                _add_text(_fix_constant(qPrintable(cval)));
+                _add_text(_fix_constant(cval));
                 class_desc->pop();
 
                 class_desc->pop();
@@ -1029,7 +1031,7 @@ void EditorHelp::_update_doc() {
 
             class_desc->push_cell();
             class_desc->push_font(doc_code_font);
-            _add_type(qPrintable(cd.properties[i].type), qPrintable(cd.properties[i].enumeration));
+            _add_type(cd.properties[i].type, cd.properties[i].enumeration);
             class_desc->add_text(" ");
             class_desc->pop(); // font
             class_desc->pop(); // cell
@@ -1040,13 +1042,13 @@ void EditorHelp::_update_doc() {
             _add_text(cd.properties[i].name);
             class_desc->pop(); // color
 
-            if (!cd.properties[i].default_value.isEmpty()) {
+            if (!cd.properties[i].default_value.empty()) {
                 class_desc->push_color(symbol_color);
                 class_desc->add_text(String(" [") + TTR("default:") + " ");
                 class_desc->pop(); // color
 
                 class_desc->push_color(value_color);
-                _add_text(_fix_constant(qPrintable(cd.properties[i].default_value)));
+                _add_text(_fix_constant(cd.properties[i].default_value));
                 class_desc->pop(); // color
 
                 class_desc->push_color(symbol_color);
@@ -1057,7 +1059,7 @@ void EditorHelp::_update_doc() {
             class_desc->pop(); // font
             class_desc->pop(); // cell
 
-            if (!cd.properties[i].setter.isEmpty()) {
+            if (!cd.properties[i].setter.empty()) {
 
                 class_desc->push_cell();
                 class_desc->pop(); // cell
@@ -1065,7 +1067,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_cell();
                 class_desc->push_font(doc_code_font);
                 class_desc->push_color(text_color);
-                class_desc->add_text_uistring(cd.properties[i].setter + StringUtils::from_utf8(TTR("(value)")));
+                class_desc->add_text(cd.properties[i].setter + TTR("(value)"));
                 class_desc->pop(); // color
                 class_desc->push_color(comment_color);
                 class_desc->add_text(" setter");
@@ -1075,7 +1077,7 @@ void EditorHelp::_update_doc() {
                 m_private->method_line[cd.properties[i].setter] = m_private->property_line[cd.properties[i].name];
             }
 
-            if (!cd.properties[i].getter.isEmpty()) {
+            if (!cd.properties[i].getter.empty()) {
 
                 class_desc->push_cell();
                 class_desc->pop(); // cell
@@ -1083,7 +1085,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_cell();
                 class_desc->push_font(doc_code_font);
                 class_desc->push_color(text_color);
-                class_desc->add_text_uistring(cd.properties[i].getter + "()");
+                class_desc->add_text(cd.properties[i].getter + "()");
                 class_desc->pop(); //color
                 class_desc->push_color(comment_color);
                 class_desc->add_text(" getter");
@@ -1140,7 +1142,7 @@ void EditorHelp::_update_doc() {
 
             for (size_t i = 0; i < methods.size(); i++) {
                 auto q = methods[i].qualifiers;
-                if ((pass == 0 && q.contains("virtual")) || (pass == 1 && not q.contains("virtual"))) {
+                if (pass == 0 && q.contains("virtual") || pass == 1 && not q.contains("virtual")) {
                     methods_filtered.push_back(methods[i]);
                 }
             }
@@ -1193,9 +1195,9 @@ void EditorHelp::_help_callback(StringView p_topic) {
 
     StringView what = StringUtils::get_slice(p_topic,":", 0);
     StringView clss = StringUtils::get_slice(p_topic,":", 1);
-    UIString name;
+    String name;
     if (StringUtils::get_slice_count(p_topic,':') == 3)
-        name = StringUtils::from_utf8(StringUtils::get_slice(p_topic,":", 2));
+        name = StringUtils::get_slice(p_topic,":", 2);
 
     _request_help(clss); //first go to class
 
@@ -1330,7 +1332,7 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains(StringUtils::from_utf8(tag))) {
+        } else if (doc->class_list.contains_as(tag)) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#") + tag);

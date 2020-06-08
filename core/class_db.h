@@ -340,7 +340,7 @@ public:
     ClassDB::bind_integer_constant(#ns, StringName(), #m_constant, int(ns::m_constant));
 
 #define REGISTER_ENUM(name,type) \
-    ClassDB::register_enum_type(get_class_static_name(),#name, #type);\
+    ClassDB::register_enum_type(get_class_static_name(),get_class_static_name()+"::"+#name, #type);\
     static_assert(eastl::is_same_v<eastl::underlying_type_t<name>,type>);
 
 #define BIND_ENUM_CONSTANT(m_constant) \
