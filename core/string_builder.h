@@ -89,6 +89,16 @@ public:
         add_indent();
         return append(p_string);
     }
+    StringBuilder& append_indented_multiline(StringView p_string) {
+        Vector<StringView> lines;
+        String::split_ref(lines,p_string,'\n');
+        for(StringView line : lines) {
+            add_indent();
+            append(line);
+            append("\n");
+        }
+        return *this;
+    }
     void indent(int level=1) { current_indent_level += level; }
     void dedent(int level=1) { current_indent_level -= level; if(current_indent_level<0) current_indent_level=0; }
 

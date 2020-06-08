@@ -450,10 +450,15 @@ public:
         DOUBLE_64,
     };
     enum TypemapKind {
-        INPUT,
-        INOUT,
-        OUTPUT,
-        RETURN,
+        C_INPUT,
+        C_INOUT,
+        C_OUTPUT,
+        C_RETURN,
+        SC_INPUT, // Map argument of a named Type to script-language specific version
+        SC_OUTPUT, // Map out-argument of a named Type to script-language specific version
+        SC_INOUTPUT, // Map onput/out-argument of a named Type to script-language specific version
+        SC_RETURN, // Map return value type to script-language specific version
+
     };
     virtual String mapIntTypeName(IntTypes ) = 0;
     virtual String mapFloatTypeName(FloatTypes ) = 0;

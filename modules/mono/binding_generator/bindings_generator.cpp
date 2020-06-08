@@ -60,6 +60,11 @@
 static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfbdf7f68");
 
 struct CSReflectionVisitor;
+struct CSType;
+struct CSFunction;
+struct CSTypeMapper;
+
+static bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output, CSTypeMapper &);
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -566,7 +571,7 @@ static bool _save_file(StringView p_path, const StringBuilder& p_content) {
 
 Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod, CSTypeMapper &rd) {
 
-    CSType *return_type = rd.map_type(CSTypeMapper::RETURN,p_imethod.return_type);
+    CSType *return_type = rd.map_type(CSTypeMapper::SC_RETURN,p_imethod.return_type);
     CSFunction *mapped_func = CSFunction::from_rd(&p_imethod,rd);
     String arguments_sig;
 
@@ -576,7 +581,7 @@ Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod
     // Retrieve information from the arguments
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
 
-        CSType *arg_type = rd.map_type(CSTypeMapper::INPUT, iarg.type);
+        CSType *arg_type = rd.map_type(CSTypeMapper::SC_INPUT, iarg.type);
         assert(false);
         //mapped_func->arg_types.push_back(arg_type);
 
@@ -608,16 +613,18 @@ Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod
     }
     return OK;
 }
-/*
-Error BindingsGenerator::_generate_cs_method(const TypeInterface &p_itype, const MethodInterface &p_imethod,
-        int &p_method_bind_count, StringBuilder &p_output) {
-
-    const TypeInterface *return_type = rd._get_type_or_placeholder(p_imethod.return_type);
+bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output,CSTypeMapper &mapper) {
 
     String arguments_sig;
     String cs_in_statements;
 
     String icall_params;
+    // For every argument, we find the type mapping
+
+/*
+
+    const TypeInterface *return_type = rd._get_type_or_placeholder(p_imethod.return_type);
+
     icall_params += sformat(p_itype.cs_in, "this");
 
     StringBuilder default_args_doc;
@@ -800,29 +807,17 @@ Error BindingsGenerator::_generate_cs_method(const TypeInterface &p_itype, const
         p_output.append(CLOSE_BLOCK_L2);
     }
 
-    p_method_bind_count++;
-
+*/
     return OK;
 }
-*/
+#include "EASTL/sort.h"
+#include "EASTL/unordered_set.h"
 #if 0
 
 #include "core/doc_support/doc_data.h"
 #include "core/typesystem_decls.h"
 #include "core/string_builder.h"
 
-#include "EASTL/sort.h"
-#include "EASTL/unordered_set.h"
-
-#define CS_INDENT "    " // 4 whitespaces
-
-#define INDENT1 CS_INDENT
-#define INDENT2 INDENT1 INDENT1
-#define INDENT3 INDENT2 INDENT1
-#define INDENT4 INDENT3 INDENT1
-#define INDENT5 INDENT4 INDENT1
-
-#define MEMBER_BEGIN "\n" INDENT2
 
 #define OPEN_BLOCK "{\n"
 #define CLOSE_BLOCK "}\n"
@@ -842,7 +837,7 @@ Error BindingsGenerator::_generate_cs_method(const TypeInterface &p_itype, const
 #define GLUE_HEADER_FILE "modules/mono/glue/glue_header.h"
 #define ICALL_PREFIX "godot_icall_"
 #define SINGLETON_ICALL_SUFFIX "_get_singleton"
-#define ICALL_GET_METHODBIND ICALL_PREFIX "Object_ClassDB_get_method"
+#define ICALL_GET_METHODBIND "godot_icall_Object_ClassDB_get_method"
 
 #define C_LOCAL_RET "ret"
 #define C_LOCAL_VARARG_RET "vararg_ret"
@@ -958,6 +953,7 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
     using namespace eastl;
     QByteArray target;
     QXmlStreamWriter xml_output(&target);
+    xml_output.setAutoFormatting(true);
 
     if (p_bbcode.empty())
         return String();
@@ -1299,7 +1295,7 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 }
                 if (target_itype) {
                     xml_output.writeEmptyElement("see");
-                    xml_output.writeAttribute("cref", ("\"" + our_ns->cs_path() + target_itype->cs_name + "\"").c_str());
+                    xml_output.writeAttribute("cref", (our_ns->cs_path() + target_itype->cs_name).c_str());
                 }
                 else {
                     ERR_PRINT("Cannot resolve type reference in documentation: '" + tag + "'.");
@@ -4174,7 +4170,7 @@ struct CSReflectionVisitor {
         qDebug() << "Generating file for type" << to_gen->cs_name.c_str() << " API: " << (int)to_gen->source_type->api_type;
         StringBuilder contents;
 
-        _generate_cs_type(to_gen, contents);
+        _generate_cs_type(to_gen, contents,cs_producer.type_mapper);
 
         cs_producer.finalize_file(selected_subdir,to_gen->cs_name + ".cs",contents);
 
@@ -4208,7 +4204,7 @@ struct CSReflectionVisitor {
             output.append(iconstant->cs_name);
             output.append(" = ");
             output.append(iconstant->value);
-            output.append(";");
+            output.append(";\n");
     }
 
         if (!itype->m_class_constants.empty())
@@ -4267,8 +4263,10 @@ struct CSReflectionVisitor {
         return true;
 }
 
-    bool _generate_cs_type(const CSType* itype, StringBuilder &output) {
+    bool _generate_cs_type(const CSType* itype, StringBuilder &output,CSTypeMapper &mapper) {
         CRASH_COND(!itype->source_type->is_object_type);
+        String nativecalls_ns = "NativeCalls"; // namespace that contains all generated nativecalls
+
 
         bool is_derived_type = !itype->source_type->base_name.empty();
 #if 0
@@ -4333,107 +4331,60 @@ struct CSReflectionVisitor {
         bool res = generate_cs_type_docs(itype, class_doc, output);
         if (!res)
             return res;
+        output.indent();
+        // TODO: nativeName should be StringName, once we support it in C#
         if (itype->source_type->is_singleton) {
             // Add the type name and the singleton pointer as static fields
 
-            output.append_indented(R"raw(private static Godot.Object singleton;
+            output.append_indented_multiline(
+String().sprintf(
+R"raw(private static Godot.Object singleton;
 public static Godot.Object Singleton
 {
     get
     {
         if (singleton == null)
-            singleton = Engine.GetNamedSingleton(typeof(
+            singleton = Engine.GetNamedSingleton(typeof(%s).Name);
+        return singleton;
+    }
+}
+)raw", itype->cs_name.c_str()));
 
-)raw");
-            output.append(itype->cs_name);
-            output.indent(3);
-            output.append_indented(R"raw().Name);
-return singleton;\n)raw");
-            output.dedent(2);
-            output.append_indented("}\n");
-            output.dedent();
-            output.append_indented("}\n");
-/*
-            output.append_indented("private const string " BINDINGS_NATIVE_NAME_FIELD " = \"");
-            output.append_indented(itype.name);
-            output.append("\";\n");
+            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n", itype->source_type->name.c_str()));
+            output.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
+        }
+        else if (is_derived_type) {
+            // Add member fields
+            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n", itype->source_type->name.c_str()));
+            // Add default constructor
+            if (itype->source_type->is_instantiable) {
+                output.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name.c_str(), itype->source_type->memory_own ? "true" : "false"));
+                // The default constructor may also be called by the engine when instancing existing native objects
+                // The engine will initialize the pointer field of the managed side before calling the constructor
+                // This is why we only allocate a new native object from the constructor if the pointer field is not set
+                output.append_indented_multiline(String().sprintf(R"raw({
+    if ( ptr == IntPtr.Zero)
+        ptr = %s.%s(this);
+}
+)raw", nativecalls_ns.c_str(), ctor_method.c_str()));
 
-            output.append(INDENT2 "internal static IntPtr " BINDINGS_PTR_FIELD " = ");
-            output.append(itype.api_type == ClassDB::API_EDITOR ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS);
-            output.append("." ICALL_PREFIX);
-*/
-            output.append(itype->source_type->name);
-            output.append("_get_singleton();\n");
+            }
+            else {
+                // Hide the constructor
+                output.append_indented(String().sprintf("internal %s(){}\n",itype->cs_name.c_str()));
+            }
+            // Add.. em.. trick constructor. Sort of.
+            output.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n", itype->cs_name.c_str()));
+        }
+        int method_bind_count = 0;
+        for (const CSFunction * imethod : itype->m_class_functions) {
+            bool method_ok = _generate_cs_method(itype, imethod, output,mapper);
+            ERR_FAIL_COND_V_MSG(method_ok==false, false,
+                "Failed to generate method '" + imethod->cs_name + "' for class '" + itype->cs_name+ "'.");
         }
 #if 0
         //itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
         List<InternalCall>& custom_icalls = ctx.custom_icalls;
-
-
-        // TODO: BINDINGS_NATIVE_NAME_FIELD should be StringName, once we support it in C#
-
-        if (itype.is_singleton) {
-            // Add the type name and the singleton pointer as static fields
-
-            output.append(MEMBER_BEGIN "private static Godot.Object singleton;\n");
-            output.append(MEMBER_BEGIN "public static Godot.Object Singleton\n" INDENT2 "{\n" INDENT3
-                "get\n" INDENT3 "{\n" INDENT4 "if (singleton == null)\n" INDENT5
-                "singleton = Engine.GetNamedSingleton(typeof(");
-            output.append(itype.proxy_name);
-            output.append(").Name);\n" INDENT4 "return singleton;\n" INDENT3 "}\n" INDENT2 "}\n");
-
-            output.append(MEMBER_BEGIN "private const string " BINDINGS_NATIVE_NAME_FIELD " = \"");
-            output.append(itype.name);
-            output.append("\";\n");
-
-            output.append(INDENT2 "internal static IntPtr " BINDINGS_PTR_FIELD " = ");
-            output.append(itype.api_type == ClassDB::API_EDITOR ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS);
-            output.append("." ICALL_PREFIX);
-            output.append(itype.name);
-            output.append(SINGLETON_ICALL_SUFFIX "();\n");
-        }
-        else if (is_derived_type) {
-            // Add member fields
-
-            output.append(MEMBER_BEGIN "private const string " BINDINGS_NATIVE_NAME_FIELD " = \"");
-            output.append(itype.name);
-            output.append("\";\n");
-
-            // Add default constructor
-            if (itype.is_instantiable) {
-                output.append(MEMBER_BEGIN "public ");
-                output.append(itype.proxy_name);
-                output.append("() : this(");
-                output.append(itype.memory_own ? "true" : "false");
-
-                // The default constructor may also be called by the engine when instancing existing native objects
-                // The engine will initialize the pointer field of the managed side before calling the constructor
-                // This is why we only allocate a new native object from the constructor if the pointer field is not set
-                output.append(")\n" OPEN_BLOCK_L2 "if (" BINDINGS_PTR_FIELD " == IntPtr.Zero)\n" INDENT4 BINDINGS_PTR_FIELD " = ");
-                output.append(itype.api_type == ClassDB::API_EDITOR ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS);
-                output.append("." + ctor_method);
-                output.append("(this);\n" CLOSE_BLOCK_L2);
-            }
-            else {
-                // Hide the constructor
-                output.append(MEMBER_BEGIN "internal ");
-                output.append(itype.proxy_name);
-                output.append("() {}\n");
-            }
-
-            // Add.. em.. trick constructor. Sort of.
-            output.append(MEMBER_BEGIN "internal ");
-            output.append(itype.proxy_name);
-            output.append("(bool " CS_FIELD_MEMORYOWN ") : base(" CS_FIELD_MEMORYOWN ") {}\n");
-        }
-
-        int method_bind_count = 0;
-        for (const MethodInterface& imethod : itype.methods) {
-
-            Error method_err = _generate_cs_method(itype, imethod, method_bind_count, output);
-            ERR_FAIL_COND_V_MSG(method_err != OK, method_err,
-                "Failed to generate method '" + imethod.name + "' for class '" + itype.name + "'.");
-        }
 
         if (itype.is_singleton) {
             InternalCall singleton_icall = InternalCall(itype.api_type, ICALL_PREFIX + itype.name + SINGLETON_ICALL_SUFFIX, "IntPtr");
@@ -4450,9 +4401,10 @@ return singleton;\n)raw");
         }
 
 #endif
-        output.append_indented("} // end of class");
         output.dedent();
-        output.append("} // end of namespace");
+        output.append_indented("} // end of class\n");
+        output.dedent();
+        output.append("} // end of namespace\n");
         output.append("\n"
             "#pragma warning restore CS1591\n"
             "#pragma warning restore CS1573\n");
