@@ -89,8 +89,8 @@ public:
         add_indent();
         return append(p_string);
     }
-    void indent() { ++current_indent_level; }
-    void dedent() { if(current_indent_level>0) --current_indent_level; }
+    void indent(int level=1) { current_indent_level += level; }
+    void dedent(int level=1) { current_indent_level -= level; if(current_indent_level<0) current_indent_level=0; }
 
     String as_string() const;
 

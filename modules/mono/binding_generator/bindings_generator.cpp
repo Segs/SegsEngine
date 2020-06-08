@@ -485,10 +485,12 @@ struct CSNamespace {
     CSType *find_by_cpp_name(const String &name) const {
         const CSNamespace* ns_iter = this;
 
-        const TypeInterface *target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
-        while (!target_itype && ns_iter) {
-            ns_iter = ns_iter->parent;
+        const TypeInterface *target_itype=nullptr;
+        while (ns_iter) {
             target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
+            if(nullptr != target_itype)
+                break;
+            ns_iter = ns_iter->parent;
         }
         for(CSType *t : m_types) {
             if(t->source_type == target_itype)
@@ -4292,7 +4294,7 @@ struct CSReflectionVisitor {
 
         qDebug("Generating %s.cs...\n", itype->cs_name.c_str());
         output.append("namespace " + itype->m_owning_ns->cs_path() + "\n");
-        output.append("{");
+        output.append("{\n");
         output.indent();
 
         String ctor_method("icall_" + itype->cs_name + "_Ctor"); // Used only for derived types
@@ -4327,11 +4329,42 @@ struct CSReflectionVisitor {
                 return false;
             }
         }
-        output.append_indented("{");
+        output.append_indented("{\n");
         bool res = generate_cs_type_docs(itype, class_doc, output);
         if (!res)
             return res;
+        if (itype->source_type->is_singleton) {
+            // Add the type name and the singleton pointer as static fields
 
+            output.append_indented(R"raw(private static Godot.Object singleton;
+public static Godot.Object Singleton
+{
+    get
+    {
+        if (singleton == null)
+            singleton = Engine.GetNamedSingleton(typeof(
+
+)raw");
+            output.append(itype->cs_name);
+            output.indent(3);
+            output.append_indented(R"raw().Name);
+return singleton;\n)raw");
+            output.dedent(2);
+            output.append_indented("}\n");
+            output.dedent();
+            output.append_indented("}\n");
+/*
+            output.append_indented("private const string " BINDINGS_NATIVE_NAME_FIELD " = \"");
+            output.append_indented(itype.name);
+            output.append("\";\n");
+
+            output.append(INDENT2 "internal static IntPtr " BINDINGS_PTR_FIELD " = ");
+            output.append(itype.api_type == ClassDB::API_EDITOR ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS);
+            output.append("." ICALL_PREFIX);
+*/
+            output.append(itype->source_type->name);
+            output.append("_get_singleton();\n");
+        }
 #if 0
         //itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
         List<InternalCall>& custom_icalls = ctx.custom_icalls;
