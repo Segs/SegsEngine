@@ -156,7 +156,7 @@ bool Shader::is_text_shader() const {
 
 bool Shader::has_param(const StringName &p_param) const {
 
-    return params_cache.contains(p_param);
+    return params_cache.contains_as(String("shader_param/")+p_param);
 }
 
 void Shader::_update_shader() const {
@@ -221,14 +221,14 @@ void ResourceFormatLoaderShader::get_recognized_extensions(Vector<String> &p_ext
 
 bool ResourceFormatLoaderShader::handles_type(StringView p_type) const {
 
-    return (p_type == StringView("Shader"));
+    return p_type == StringView("Shader");
 }
 
 String ResourceFormatLoaderShader::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "shader")
-        return ("Shader");
+        return "Shader";
     return String();
 }
 

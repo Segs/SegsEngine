@@ -158,7 +158,7 @@ private:
     void generate_cs_type_doc_summary(const TypeInterface &itype, const DocContents::ClassDoc *class_doc, StringBuilder &output);
 };
 
-
+/*
 struct GeneratorContext {
     String  m_cs_namespace; // namespace used by all generated bindings
     String m_globals_class; // a class where all non-enum globals will be put
@@ -172,5 +172,4 @@ struct GeneratorContext {
     Vector<BindingsGenerator::InternalCall> custom_icalls;
 
 };
-
-
+*/

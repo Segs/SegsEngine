@@ -456,9 +456,9 @@ public:
         C_RETURN,
         SC_INPUT, // Map argument of a named Type to script-language specific version
         SC_OUTPUT, // Map out-argument of a named Type to script-language specific version
-        SC_INOUTPUT, // Map onput/out-argument of a named Type to script-language specific version
+        SC_INOUT, // Map onput/out-argument of a named Type to script-language specific version
         SC_RETURN, // Map return value type to script-language specific version
-
+        TK_MAX
     };
     virtual String mapIntTypeName(IntTypes ) = 0;
     virtual String mapFloatTypeName(FloatTypes ) = 0;
@@ -467,5 +467,5 @@ public:
     virtual bool shouldSkipMethod(StringView method_name,StringView class_name={}, StringView namespace_name = {})=0;
     virtual String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {})=0;
 
-    virtual void registerTypeMap(StringView type_name,TypemapKind, StringView pattern)=0;
+    virtual void registerTypeMap(struct TypeInterface *type,TypemapKind, StringView prepare_pattern, StringView execute_pattern)=0;
 };

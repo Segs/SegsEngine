@@ -168,7 +168,7 @@ struct MethodInterface {
     Vector<ArgumentInterface> arguments;
 
     bool is_deprecated = false;
-    QString deprecation_message;
+    String deprecation_message;
 
     void add_argument(const ArgumentInterface& argument) {
         arguments.push_back(argument);
@@ -184,16 +184,8 @@ struct TypeInterface {
      * Also used to format [c_out].
      */
     String name;
-    /**
-     * Identifier name of the base class.
-     */
-    String base_name;
-
-
-    /**
-     * Relative path to header defining this type.
-     */
-    String header_path;
+    String base_name; //!< Identifier name of the base class.
+    String header_path; //!<Relative path to header defining this type.
 
     APIType api_type;
 
@@ -356,15 +348,6 @@ struct TypeInterface {
         return nullptr;
     }
 
-    /*const PropertyInterface* find_property_by_proxy_name(const QString& p_proxy_name) const {
-        for (const PropertyInterface& E : properties) {
-            if (E.proxy_name == p_proxy_name)
-                return &E;
-        }
-
-        return nullptr;
-    }*/
-
 public:
     static TypeInterface create_value_type(const String&p_name);
 
@@ -375,6 +358,7 @@ public:
     static void postsetup_enum_type(TypeInterface &r_enum_itype);
 
     TypeInterface();
+    TypeInterface(String n) : TypeInterface() { name = n; }
 
     void toJson(QJsonObject &obj) const;
 

@@ -82,7 +82,31 @@ int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list argume
 
 struct CSType;
 
+struct CSTypeWrapper {
+    const CSType *underlying_type=nullptr;
+    StringView map_prepare; // a code block to prepare the value for transformation ( checks etc. )
+    StringView map_perform; // a code block
+};
 struct CSTypeMapper : BindingTypeMapper {
+    struct MappingEntry {
+        String type;
+        String marshall;
+    };
+    struct Mapping {
+        const CSType* underlying_type;
+        MappingEntry  c_return;
+        MappingEntry  c_arg_input;
+        MappingEntry  c_arg_output;
+        MappingEntry  c_arg_inout;
+
+        MappingEntry cs_return;
+        MappingEntry cs_input;
+        MappingEntry cs_inout;
+        MappingEntry cs_output;
+    };
+    Dequeue<Mapping> stored_mappings;
+    HashMap<String, Mapping *> from_c_name_to_mapping;
+    HashMap<String, Mapping*> from_cs_name_to_mapping;
 
     String mapIntTypeName(IntTypes it) override;
     String mapFloatTypeName(FloatTypes ft) override;
@@ -92,11 +116,10 @@ struct CSTypeMapper : BindingTypeMapper {
     bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
 
-    void registerTypeMap(StringView type_name, TypemapKind, StringView pattern) override;
+    void registerTypeMap(TypeInterface *ti, TypemapKind, StringView pattern,StringView execute_pattern) override;
 
-    String map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
-
-    CSType *map_type(TypemapKind kind, const TypeReference &ref);
+    CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
+    CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
 };
 
 
@@ -153,7 +176,7 @@ static String snake_to_camel_case(StringView p_identifier, bool p_input_is_upper
     for (size_t i = 0; i < parts.size(); i++) {
         String part(parts[i]);
 
-        if (part.length()) {
+        if (!part.empty()) {
             if (i != 0) {
                 part[0] = eastl::CharToUpper(part[0]);
             }
@@ -230,20 +253,11 @@ enum class CSAccessLevel {
     Protected,
     Private
 };
-/**
- * \brief A type reference
- */
-struct CSTypeRef {
-    String cs_name; // name of referenced type
-    CSType* referenced_type; // resolved type pointer
-    TypePassBy passed_by;
-    bool resolved = false;
-};
 
 struct CSConstant {
     static HashMap<String,CSConstant *> constants;
     const ConstantInterface *m_rd_data;
-    const CSTypeRef const_type;
+    const TypeReference const_type;
     String xml_doc;
     String cs_name;
     String value;
@@ -290,7 +304,7 @@ struct CSEnum {
     String xml_doc;
     String cs_name;
     String static_wrapper_class;
-    CSTypeRef underlying_val_type;
+    TypeReference underlying_val_type;
 
     static String convert_name(const String& access_path,StringView cpp_ns_name) {
         FixedVector<StringView,4,true> parts;
@@ -327,21 +341,15 @@ struct CSEnum {
         return res;
     }
 };
-CSTypeRef fromTypeRef(const TypeReference &tr, CSTypeMapper& mapper) {
-    CSTypeRef res;
-    res.cs_name = mapper.mapClassName(tr.cname);
-    res.passed_by = tr.pass_by;
-    res.referenced_type = nullptr;
-    res.resolved = false;
-    return res;
-}
+
 HashMap<String,CSEnum *> CSEnum::enums;
 struct CSFunction {
     static HashMap< const MethodInterface*, CSFunction*> s_ptr_cache;
 
     String cs_name;
-    CSTypeRef return_type;
-    Vector<CSTypeRef> arg_types;
+    TypeReference ref;
+    //CSTypeRef return_type;
+    //Vector<CSTypeRef> arg_types;
     Vector<String> arg_names;
 
     const MethodInterface* source_type;
@@ -355,9 +363,9 @@ struct CSFunction {
         res = new CSFunction;
         res->cs_name = mapper.mapMethodName(method_interface->name);
         res->source_type = method_interface;
-        res->return_type = fromTypeRef(method_interface->return_type, mapper);
+        //res->return_type = fromTypeRef(method_interface->return_type, mapper);
         for(const ArgumentInterface & ai : method_interface->arguments) {
-            res->arg_types.emplace_back(fromTypeRef(ai.type, mapper));
+          //  res->arg_types.emplace_back(fromTypeRef(ai.type, mapper));
             res->arg_names.emplace_back(ai.name);
         }
         s_ptr_cache[method_interface] = res;
@@ -430,6 +438,9 @@ struct CSType {
             return nullptr;
         return *iter;
     }
+    static CSType* by_rd(const TypeInterface* type_interface) {
+        return s_ptr_cache[type_interface];
+    }
     static CSType * from_rd(const CSNamespace *owning_ns, const TypeInterface * type_interface) {
         CSType* res = s_ptr_cache[type_interface];
         if (res)
@@ -463,6 +474,7 @@ struct CSNamespace {
         return String(cpp_ns_name);
     }
     static CSNamespace *get_instance_for(const String &access_path,const NamespaceInterface *src) {
+        assert(src);
 
         auto iter = namespaces.find(access_path+src->namespace_name);
         if(iter!=namespaces.end())
@@ -480,6 +492,11 @@ struct CSNamespace {
         if(parent)
             parent->m_child_namespaces.push_back(res);
         return res;
+    }
+    static CSNamespace* from_path(StringView path) {
+        auto iter = namespaces.find_as(path);
+        assert(iter != namespaces.end());
+        return iter->second;
     }
     static CSNamespace *from_path(Span<const StringView> path) {
         String to_test = String::joined(path,"::");
@@ -568,66 +585,88 @@ static bool _save_file(StringView p_path, const StringBuilder& p_content) {
 
     return OK;
 }
-
-Error _convert_cs_method(const CSType &p_itype, const MethodInterface &p_imethod, CSTypeMapper &rd) {
-
-    CSType *return_type = rd.map_type(CSTypeMapper::SC_RETURN,p_imethod.return_type);
-    CSFunction *mapped_func = CSFunction::from_rd(&p_imethod,rd);
-    String arguments_sig;
-
-    mapped_func->return_type.referenced_type = return_type;
-    mapped_func->return_type.resolved = return_type!=nullptr;
-
-    // Retrieve information from the arguments
-    for (const ArgumentInterface &iarg : p_imethod.arguments) {
-
-        CSType *arg_type = rd.map_type(CSTypeMapper::SC_INPUT, iarg.type);
-        assert(false);
-        //mapped_func->arg_types.push_back(arg_type);
-
-        // Add the current arguments to the signature
-        // If the argument has a default value which is not a constant, we will make it Nullable
-//        {
-//            if (&iarg != &p_imethod.arguments.front())
-//                arguments_sig += ", ";
-
-//            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-//                arguments_sig += "Nullable<";
-
-//            arguments_sig += arg_type->cs_name;
-
-//            if (iarg.def_param_mode == ArgumentInterface::NULLABLE_VAL)
-//                arguments_sig += "> ";
-//            else
-//                arguments_sig += " ";
-
-//            arguments_sig += iarg.name;
-
-//            if (!iarg.default_argument.empty()) {
-//                if (iarg.def_param_mode != ArgumentInterface::CONSTANT)
-//                    arguments_sig += " = null";
-//                else
-//                    arguments_sig += " = " + String().sprintf(iarg.default_argument.c_str(), arg_type->cs_name.c_str());
-//            }
-//        }
+struct GeneratorContext {
+    StringBuilder& out;
+    CSTypeMapper& mapper;
+    const CSType* p_type;
+    const CSFunction* func;
+    GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSType*t, const CSFunction*f) : out(o),mapper(m),p_type(t),func(f) {}
+    void start_block() {
+        out.append_indented("{\n");
+        out.indent();
     }
-    return OK;
+    void end_block() {
+        out.dedent();
+        out.append_indented("}\n");
+    }
+};
+static const char* cs_method_template = R"raw(
+%cs_docs%
+%cs_attributes%
+%method_access% %return_type% %cs_method_name%(%cs_arguments%) {
+    NativeCalls.%native_name%(%native_args%);
+    %return%
+}
+)raw";
+
+void gen_cs_docs(StringBuilder &out,const CSType *p_type,const CSFunction *func) {
+    //TODO: retrieve and convert bbcode docs to xml ones, add them to out
+    out.append_indented("/// TODO:Some docs here");
+}
+void gen_cs_attributes(GeneratorContext &ctx) {
+    ctx.out.append_indented(String().sprintf("[GodotMethod(%s)]", ctx.func->source_type->name.c_str()));
+    if (ctx.func->source_type->is_deprecated) {
+        if (ctx.func->source_type->deprecation_message.empty()) {
+            qDebug("An empty deprecation message is discouraged. Method: '%s'.", ctx.func->source_type->name.c_str());
+        }
+
+        ctx.out.append_indented("[Obsolete(\"");
+        ctx.out.append(ctx.func->source_type->deprecation_message);
+        ctx.out.append("\")]\n");
+    }
+}
+void gen_method_access(GeneratorContext& ctx) {
+    ctx.out.append_indented(ctx.func->source_type->is_internal ? "internal " : "public ");
+    if (ctx.p_type->source_type->is_singleton) {
+        ctx.out.append("static ");
+    }
+    else if (ctx.func->source_type->is_virtual) {
+        ctx.out.append("virtual ");
+    }
+}
+void gen_return(GeneratorContext &ctx) {
+    ctx.out.append(ctx.mapper.map_type(BindingTypeMapper::SC_RETURN,ctx.func->source_type->return_type).underlying_type->cs_name);
+    ctx.out.append(" ");
+}
+void gen_cs_method_name(GeneratorContext& ctx) {
+    ctx.out.append(ctx.func->cs_name);
+}
+void gen_cs_arguments(GeneratorContext& ctx) {
+    ctx.out.append("(");
+    ctx.out.append("CONVERT THE ARGUMENTS!");
+    ctx.out.append(")");
 }
 bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output,CSTypeMapper &mapper) {
 
+    StringBuilder default_args_doc;
     String arguments_sig;
     String cs_in_statements;
-
     String icall_params;
-    // For every argument, we find the type mapping
 
+    GeneratorContext ctx(p_output,mapper,p_itype,p_imethod);
+    
+
+    // For every argument, we find the type mapping
+    CSTypeWrapper return_type = mapper.map_type(BindingTypeMapper::SC_RETURN,p_imethod->source_type->return_type);
+    // Retrieve information from the arguments
+    for (const ArgumentInterface& iarg : p_imethod->source_type->arguments) {
+    }
 /*
 
     const TypeInterface *return_type = rd._get_type_or_placeholder(p_imethod.return_type);
 
     icall_params += sformat(p_itype.cs_in, "this");
 
-    StringBuilder default_args_doc;
 
     // Retrieve information from the arguments
     for (const ArgumentInterface &iarg : p_imethod.arguments) {
@@ -701,9 +740,10 @@ bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, Str
             icall_params += arg_type->cs_in.empty() ? iarg.name : sformat(arg_type->cs_in, iarg.name);
         }
     }
-
+    */
     // Generate method
     {
+        /*
         auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
         if (method_doc && method_doc->description.size()) {
             String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
@@ -722,36 +762,28 @@ bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, Str
                 p_output.append(INDENT2 "/// </summary>");
             }
         }
+        */
+        gen_cs_attributes(ctx);
+        gen_method_access(ctx);
+        gen_return(ctx);
+        gen_cs_method_name(ctx);
+        gen_cs_arguments(ctx); //arguments_sig
+        ctx.start_block();
+        if (p_imethod->source_type->is_virtual) {
+            // Godot virtual method must be overridden, therefore we return a default value by default.
 
-        if (!p_imethod.is_internal) {
-            p_output.append(MEMBER_BEGIN "[GodotMethod(\"");
-            p_output.append(p_imethod.name);
-            p_output.append("\")]");
-        }
-
-        if (p_imethod.is_deprecated) {
-            if (p_imethod.deprecation_message.empty()) {
-                WARN_PRINT("An empty deprecation message is discouraged. Method: '" + p_imethod.proxy_name + "'.");
+            if (return_type.underlying_type->cs_name == "void") {
+                p_output.append_indented("return;\n");
             }
-
-            p_output.append(MEMBER_BEGIN "[Obsolete(\"");
-            p_output.append(p_imethod.deprecation_message);
-            p_output.append("\")]");
+            else {
+                p_output.append_indented("return default(");
+                p_output.append(return_type.underlying_type->cs_name);
+                p_output.append(");\n");
+            }
+            ctx.end_block();
+            return OK; // Won't increment method bind count
         }
-
-        p_output.append(MEMBER_BEGIN);
-        p_output.append(p_imethod.is_internal ? "internal " : "public ");
-
-        if (p_itype.is_singleton) {
-            p_output.append("static ");
-        } else if (p_imethod.is_virtual) {
-            p_output.append("virtual ");
-        }
-
-        p_output.append(return_type->cs_type + " ");
-        p_output.append(p_imethod.proxy_name + "(");
-        p_output.append(arguments_sig + ")\n" OPEN_BLOCK_L2);
-
+        /*
         if (p_imethod.is_virtual) {
             // Godot virtual method must be overridden, therefore we return a default value by default.
 
@@ -803,12 +835,11 @@ bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, Str
             p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
             p_output.append("\n");
         }
-
-        p_output.append(CLOSE_BLOCK_L2);
+*/
+        ctx.end_block();
     }
 
-*/
-    return OK;
+    return true;
 }
 #include "EASTL/sort.h"
 #include "EASTL/unordered_set.h"
@@ -3736,12 +3767,6 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
 //            ERR_PRINT(generate_all_glue_option + ": Failed to generate the C# API.");
 //        }
     }
-
-    // Exit once done
-    unload_plugins();
-    unregister_scene_types();
-    unregister_module_types();
-    unregister_core_types();
     ::exit(0);
 }
 
@@ -3946,6 +3971,7 @@ struct CSReflectionVisitor {
     CSReflectionVisitor(const ReflectionData &rd, const QString &target_dir, const String &project_name) :
         m_reflection_data(rd),
         m_current_directory(target_dir + "/MonoBindings") {
+        //cs_producer.type_mapper.registerTypeMap(m_reflection_data.namespaces)
         cpp_producer.setup(m_current_directory,project_name);
         cs_producer.setup(m_current_directory, project_name);
 
@@ -4127,7 +4153,7 @@ struct CSReflectionVisitor {
             }
         }
         if (getter && setter) {
-            if (unlikely(!covariantSetterGetterTypes(getter->return_type.cs_name, setter->arg_types.back().cs_name))) {
+            if (unlikely(!covariantSetterGetterTypes(getter->source_type->return_type.cname, setter->source_type->arguments.back().type.cname))) {
                 qCritical() << "Getter and setter types are not covariant for property" << prop->cs_name.c_str() << " in class " << curr_type->cs_name.c_str();
                 return;
             }
@@ -4348,14 +4374,15 @@ public static Godot.Object Singleton
         return singleton;
     }
 }
+
 )raw", itype->cs_name.c_str()));
 
-            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n", itype->source_type->name.c_str()));
-            output.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
+            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
+            output.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
         }
         else if (is_derived_type) {
             // Add member fields
-            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n", itype->source_type->name.c_str()));
+            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
             // Add default constructor
             if (itype->source_type->is_instantiable) {
                 output.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name.c_str(), itype->source_type->memory_own ? "true" : "false"));
@@ -4371,10 +4398,10 @@ public static Godot.Object Singleton
             }
             else {
                 // Hide the constructor
-                output.append_indented(String().sprintf("internal %s(){}\n",itype->cs_name.c_str()));
+                output.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name.c_str()));
             }
             // Add.. em.. trick constructor. Sort of.
-            output.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n", itype->cs_name.c_str()));
+            output.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name.c_str()));
         }
         int method_bind_count = 0;
         for (const CSFunction * imethod : itype->m_class_functions) {
@@ -4585,7 +4612,7 @@ String CSTypeMapper::mapPropertyName(StringView src_name, StringView class_name,
     // Prevent the property and its enclosing type from sharing the same name
     if (conv_name == mapped_class_name) {
         qWarning("Name of property '%s' is ambiguous with the name of its enclosing class '%s'. Renaming property to '%s_'\n",
-                 conv_name.c_str(), mapped_class_name.c_str(), String(src_name).c_str());
+                 conv_name.c_str(), mapped_class_name.c_str(), conv_name.c_str());
 
         conv_name += "_";
     }
@@ -4614,18 +4641,104 @@ String CSTypeMapper::mapMethodName(StringView method_name, StringView class_name
     return proxy_name;
 }
 
-void CSTypeMapper::registerTypeMap(StringView type_name, BindingTypeMapper::TypemapKind, StringView pattern) {
-    assert(false);
+void CSTypeMapper::registerTypeMap(TypeInterface* ti, TypemapKind kind, StringView pattern, StringView execute_pattern) {
+    CSType * t = CSType::by_rd(ti);
+    assert(t != nullptr);
+
+    auto iter= from_c_name_to_mapping.find(ti->name);
+    Mapping *m;
+    if(iter!=from_c_name_to_mapping.end()) {
+        m = iter->second;
+    }
+    else {
+        stored_mappings.emplace_back();
+        from_c_name_to_mapping[ti->name] = &stored_mappings.back();
+        from_cs_name_to_mapping[ti->name] = &stored_mappings.back();
+    }
+    MappingEntry *tgt = nullptr;
+    switch (kind) {
+        case C_INPUT: tgt = &m->c_arg_input; break;
+        case C_INOUT: tgt = &m->c_arg_inout; break;
+        case C_OUTPUT: tgt = &m->c_arg_output; break;
+        case C_RETURN: tgt = &m->c_return; break;
+        case SC_INPUT: tgt = &m->cs_input; break;
+        case SC_OUTPUT: tgt = &m->cs_output; break;
+        case SC_INOUT: tgt = &m->cs_inout; break;
+        case SC_RETURN: tgt = &m->cs_return; break;
+        default:
+        ;
+    }
+    assert(tgt!=nullptr);
+    tgt->type = pattern;
+    tgt->marshall = execute_pattern;
+
 }
 
-String CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref, StringView instance_name) {
+CSTypeWrapper CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref, StringView instance_name) {
     assert(false);
-    return "";
+    return CSTypeWrapper{};
 }
 
-CSType *CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref) {
+CSTypeWrapper CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref) {
+
     assert(false);
-    return nullptr;
+    return CSTypeWrapper{};
+}
+
+Dequeue<TypeInterface> builtins;
+
+static void _add_value_type_mapping(CSTypeMapper& mapper, StringView ns,StringView c_typename) {
+    builtins.emplace_back(String(c_typename));
+    CSNamespace *ptr_ns = CSNamespace::from_path(ns);
+    TypeInterface *iface= &builtins.back();
+    CSType *reg = CSType::from_rd(ptr_ns,iface); // make sure the type has associated CSType
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_INPUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_INOUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INPUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INOUT, "ref %s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_OUTPUT, "%s", "%s");
+}
+/*
+ * %type
+ * %tmpname
+ * %argtype
+ * %arg
+ * %outval
+ * %outtype
+ * %tgtarg name of target argument to be written with data marshalled out from %outval
+ */
+static void _add_struct_type_mapping(CSTypeMapper& mapper, StringView ns, StringView c_typename) {                                                                  
+    CSNamespace* ptr_ns = CSNamespace::from_path(ns);
+    TypeInterface* iface = &builtins.back();
+    CSType* reg = CSType::from_rd(ptr_ns, iface); // make sure the type has associated CSType
+    /*
+    */
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_OUTPUT, "GDMonoMarshal::M_", "*%tgtarg = MARSHALLED_OUT(%outtype,%outval);");
+}
+
+static void _populate_builtin_type_interfaces(CSTypeMapper &mapper) {
+#define INSERT_STRUCT_TYPE(m_type)                             \
+    {                                                          \
+        itype = TypeInterface::create_value_type(#m_type);     \
+        itype.ret_as_byref_arg = true;                         \
+        current_namespace.builtin_types.emplace(itype.name, itype);           \
+    }
+    builtins.emplace_back("void");
+    mapper.registerTypeMap(&builtins.back(), BindingTypeMapper::C_INPUT,"","");
+
+    _add_value_type_mapping(mapper,"Godot","Vector2");
+    /*
+    INSERT_STRUCT_TYPE(Vector2)
+    _add_value_type_mapping(mapper,"Godot","Rect2)
+    _add_value_type_mapping(mapper,"Godot","Transform2D)
+    _add_value_type_mapping(mapper,"Godot","Vector3)
+    _add_value_type_mapping(mapper,"Godot","Basis)
+    _add_value_type_mapping(mapper,"Godot","Quat)
+    _add_value_type_mapping(mapper,"Godot","Transform)
+    _add_value_type_mapping(mapper,"Godot","AABB)
+    _add_value_type_mapping(mapper,"Godot","Color)
+    _add_value_type_mapping(mapper,"Godot","Plane)
+    */
 }
 
 CSProperty *CSProperty::from_rd(const CSType *owner, const PropertyInterface *type_interface, CSTypeMapper &tm) {
