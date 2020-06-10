@@ -65,6 +65,7 @@ struct CSFunction;
 struct CSTypeMapper;
 
 static bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output, CSTypeMapper &);
+//static void _populate_builtin_type_interfaces(CSTypeMapper& mapper);
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -92,6 +93,15 @@ struct CSTypeMapper : BindingTypeMapper {
         String type;
         String marshall;
     };
+/* Type mapping expression elements
+ * %type
+ * %tmpname
+ * %argtype
+ * %arg
+ * %outval
+ * %outtype
+ * %tgtarg name of target argument to be written with data marshalled out from %outval
+ */
     struct Mapping {
         const CSType* underlying_type;
         MappingEntry  c_return;
@@ -104,6 +114,8 @@ struct CSTypeMapper : BindingTypeMapper {
         MappingEntry cs_inout;
         MappingEntry cs_output;
     };
+    Dequeue<TypeInterface> builtins;
+
     Dequeue<Mapping> stored_mappings;
     HashMap<String, Mapping *> from_c_name_to_mapping;
     HashMap<String, Mapping*> from_cs_name_to_mapping;
@@ -116,10 +128,13 @@ struct CSTypeMapper : BindingTypeMapper {
     bool shouldSkipMethod(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) override;
 
-    void registerTypeMap(TypeInterface *ti, TypemapKind, StringView pattern,StringView execute_pattern) override;
+    void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern) override;
 
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
+
+    void register_default_types();
+    void register_complex_type(CSType * cs);
 };
 
 
@@ -441,16 +456,17 @@ struct CSType {
     static CSType* by_rd(const TypeInterface* type_interface) {
         return s_ptr_cache[type_interface];
     }
-    static CSType * from_rd(const CSNamespace *owning_ns, const TypeInterface * type_interface) {
+    static CSType* register_type(const CSNamespace *owning_ns, const TypeInterface * type_interface) {
         CSType* res = s_ptr_cache[type_interface];
-        if (res)
+        if (res) {
+            assert(res->m_owning_ns==owning_ns);
             return res;
+        }
 
         res=new CSType;
         res->cs_name = convert_name(type_interface->name);
         res->m_owning_ns = owning_ns;
         res->source_type = type_interface;
-
         s_ptr_cache[type_interface] = res;
         return res;
     }
@@ -535,7 +551,7 @@ struct CSNamespace {
             if (t->source_type == target_itype)
                 return t;
         }
-        m_types.push_back(CSType::from_rd(this, target_itype));
+        m_types.push_back(CSType::register_type(this, target_itype));
         return m_types.back();
     }
     CSType* find_by_cs_name(const String& name) {
@@ -3242,8 +3258,57 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
 
     return true;
 }
+
+static void _add_struct_type_mapping(CSTypeMapper& mapper, StringView ns, StringView c_typename) {
+    CSNamespace* ptr_ns = CSNamespace::from_path(ns);
+    builtins.emplace_back();
+    TypeInterface* iface = &builtins.back();
+    
+    CSType* reg = CSType::from_rd(ptr_ns, iface); // make sure the type has associated CSType
+    /*
+    */
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_OUTPUT, "GDMonoMarshal::M_", "*%tgtarg = MARSHALLED_OUT(%outtype,%outval);");
+}
+static void _add_value_type_mapping(CSTypeMapper& mapper, StringView ns, StringView c_typename) {
+    builtins.emplace_back(String(c_typename));
+    CSNamespace* ptr_ns = CSNamespace::from_path(ns);
+    TypeInterface* iface = &builtins.back();
+    CSType* reg = CSType::from_rd(ptr_ns, iface); // make sure the type has associated CSType
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_INPUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::C_INOUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INPUT, "%s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INOUT, "ref %s", "%s");
+    mapper.registerTypeMap(iface, BindingTypeMapper::SC_OUTPUT, "%s", "%s");
+}
+
+static void _populate_builtin_type_interfaces(CSTypeMapper& mapper) {
+#define INSERT_STRUCT_TYPE(m_type)                             \
+    {                                                          \
+        itype = TypeInterface::create_value_type(#m_type);     \
+        itype.ret_as_byref_arg = true;                         \
+        current_namespace.builtin_types.emplace(itype.name, itype);           \
+    }
+    mapper.register_default_types();
+    builtins.emplace_back("void");
+    CSNamespace* ptr_ns = CSNamespace::from_path("Godot");
+    CSType::from_rd(ptr_ns,&builtins.back());
+    mapper.registerTypeMap(&builtins.back(), BindingTypeMapper::C_INPUT, "", "");
+    _add_value_type_mapping(mapper, "Godot", "Vector2");
+    /*
+    INSERT_STRUCT_TYPE(Vector2)
+    _add_value_type_mapping(mapper,"Godot","Rect2)
+    _add_value_type_mapping(mapper,"Godot","Transform2D)
+    _add_value_type_mapping(mapper,"Godot","Vector3)
+    _add_value_type_mapping(mapper,"Godot","Basis)
+    _add_value_type_mapping(mapper,"Godot","Quat)
+    _add_value_type_mapping(mapper,"Godot","Transform)
+    _add_value_type_mapping(mapper,"Godot","AABB)
+    _add_value_type_mapping(mapper,"Godot","Color)
+    _add_value_type_mapping(mapper,"Godot","Plane)
+}
 #endif
-void _populate_builtin_type_interfaces(ReflectionData &rd) {
+
+//void _populate_builtin_type_interfaces(ReflectionData &rd) {
 
 #if 0
     rd.builtin_types.clear();
@@ -3403,54 +3468,6 @@ void _populate_builtin_type_interfaces(ReflectionData &rd) {
         itype.ret_as_byref_arg = true;
         rd.builtin_types.emplace(itype.cname, itype);
     }
-
-    // String
-    itype = TypeInterface();
-    itype.name = "String";
-    itype.cname = StringName(itype.name);
-    itype.proxy_name = "string";
-    itype.c_in = "\t%0 %1_in = " C_METHOD_MONOSTR_TO_GODOT "(%1);\n";
-    itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
-    itype.c_arg_in = "%s_in";
-    itype.c_type = itype.name;
-    itype.c_type_in = "MonoString*";
-    itype.c_type_out = "MonoString*";
-    itype.cs_type = itype.proxy_name;
-    itype.im_type_in = itype.proxy_name;
-    itype.im_type_out = itype.proxy_name;
-    rd.builtin_types.emplace(itype.cname, itype);
-
-    // StringView
-    itype = TypeInterface();
-    itype.name = "String";
-    itype.cname = "StringView";
-    itype.proxy_name = "string";
-    // Use tmp string to allocate the string contents on stack, reducing allocations slightly.
-    itype.c_in = "\tTmpString<512> %1_in(" C_METHOD_MONOSTR_TO_GODOT "(%1));\n";
-    itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
-    itype.c_arg_in = "%s_in";
-    itype.c_type = "StringView";
-    itype.c_type_in = "MonoString*";
-    itype.c_type_out = "MonoString*";
-    itype.cs_type = itype.proxy_name;
-    itype.im_type_in = itype.proxy_name;
-    itype.im_type_out = itype.proxy_name;
-    rd.builtin_types.emplace(itype.cname, itype);
-    // StringName
-    itype = TypeInterface();
-    itype.name = "String";
-    itype.cname = "StringName";
-    itype.proxy_name = "string";
-    itype.c_in = "\tStringName %1_in(" C_METHOD_MONOSTR_TO_GODOT "(%1));\n";
-    itype.c_out = "\treturn " C_METHOD_MONOSTR_FROM_GODOT "(%1);\n";
-    itype.c_arg_in = "%s_in";
-    itype.c_type = "StringName";
-    itype.c_type_in = "MonoString*";
-    itype.c_type_out = "MonoString*";
-    itype.cs_type = itype.proxy_name;
-    itype.im_type_in = itype.proxy_name;
-    itype.im_type_out = itype.proxy_name;
-    rd.builtin_types.emplace(itype.cname, itype);
 
     // NodePath
     itype = TypeInterface();
@@ -3639,7 +3656,7 @@ void _populate_builtin_type_interfaces(ReflectionData &rd) {
     itype.im_type_out = itype.proxy_name;
     rd.builtin_types.emplace(itype.cname, itype);
 #endif
-}
+//}
 
 #if 0
 void BindingsGenerator::_initialize_blacklisted_methods() {
@@ -4070,7 +4087,7 @@ struct CSReflectionVisitor {
         }
         // Register all types in CSType lookup hash
         for (const auto& ci : iface->obj_types) {
-            CSType* type = CSType::from_rd(m_namespace_stack.back(), &ci.second);
+            CSType* type = CSType::register_type(m_namespace_stack.back(), &ci.second);
             m_namespace_stack.back()->m_types.emplace_back(type);
         }
         for (const auto& ci : iface->obj_types) {
@@ -4085,7 +4102,7 @@ struct CSReflectionVisitor {
     }
 
     void visitType(const TypeInterface *ti) {
-        CSType *type = CSType::from_rd(m_namespace_stack.back(),ti);
+        CSType *type = CSType::by_rd(ti);
 
         if(type->pass>0)
             return;
@@ -4097,7 +4114,7 @@ struct CSReflectionVisitor {
         }
 
         m_type_stack.push_back(type);
-
+        cs_producer.type_mapper.register_complex_type(type);
         for(const ConstantInterface &ci : ti->constants) {
             visit_constant(&ci);
         }
@@ -4170,12 +4187,14 @@ struct CSReflectionVisitor {
     }
 
     void finalize() {
+        cs_producer.type_mapper.register_default_types();
+
         cs_producer.generate_constant_files(m_reflection_data,cs_producer.type_mapper);
         for(const NamespaceInterface &ns_i : m_reflection_data.namespaces) {
             auto iter = CSNamespace::namespaces.find(ns_i.namespace_name);
             for(const String &order : ns_i.obj_type_insert_order) {
                 const TypeInterface & ti(ns_i.obj_types.at(order));
-                CSType *t = CSType::from_rd(iter->second,&ti);
+                CSType *t = CSType::by_rd(&ti);
                 generate_type_file(t,m_reflection_data);
             }
         }
@@ -4641,7 +4660,7 @@ String CSTypeMapper::mapMethodName(StringView method_name, StringView class_name
     return proxy_name;
 }
 
-void CSTypeMapper::registerTypeMap(TypeInterface* ti, TypemapKind kind, StringView pattern, StringView execute_pattern) {
+void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, StringView pattern, StringView execute_pattern) {
     CSType * t = CSType::by_rd(ti);
     assert(t != nullptr);
 
@@ -4653,20 +4672,30 @@ void CSTypeMapper::registerTypeMap(TypeInterface* ti, TypemapKind kind, StringVi
     else {
         stored_mappings.emplace_back();
         from_c_name_to_mapping[ti->name] = &stored_mappings.back();
-        from_cs_name_to_mapping[ti->name] = &stored_mappings.back();
+        from_cs_name_to_mapping[t->cs_name] = &stored_mappings.back();
+        m = &stored_mappings.back();
+        m->underlying_type = t;
     }
     MappingEntry *tgt = nullptr;
     switch (kind) {
-        case C_INPUT: tgt = &m->c_arg_input; break;
-        case C_INOUT: tgt = &m->c_arg_inout; break;
-        case C_OUTPUT: tgt = &m->c_arg_output; break;
-        case C_RETURN: tgt = &m->c_return; break;
-        case SC_INPUT: tgt = &m->cs_input; break;
-        case SC_OUTPUT: tgt = &m->cs_output; break;
-        case SC_INOUT: tgt = &m->cs_inout; break;
-        case SC_RETURN: tgt = &m->cs_return; break;
+        case C_INPUT: tgt = &m->c_arg_input;
+            break;
+        case C_INOUT: tgt = &m->c_arg_inout;
+            break;
+        case C_OUTPUT: tgt = &m->c_arg_output;
+            break;
+        case C_RETURN: tgt = &m->c_return;
+            break;
+        case SC_INPUT: tgt = &m->cs_input;
+            break;
+        case SC_OUTPUT: tgt = &m->cs_output;
+            break;
+        case SC_INOUT: tgt = &m->cs_inout;
+            break;
+        case SC_RETURN: tgt = &m->cs_return;
+            break;
         default:
-        ;
+            ;
     }
     assert(tgt!=nullptr);
     tgt->type = pattern;
@@ -4680,65 +4709,131 @@ CSTypeWrapper CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const 
 }
 
 CSTypeWrapper CSTypeMapper::map_type(BindingTypeMapper::TypemapKind kind, const TypeReference &ref) {
-
-    assert(false);
-    return CSTypeWrapper{};
+    auto iter = from_c_name_to_mapping.find(ref.cname);
+    assert(iter!=from_c_name_to_mapping.end());
+    const auto &mapping(*iter->second);
+    CSTypeWrapper res;
+    res.underlying_type=mapping.underlying_type;
+    return res;
 }
 
-Dequeue<TypeInterface> builtins;
+void CSTypeMapper::register_default_types() {
 
-static void _add_value_type_mapping(CSTypeMapper& mapper, StringView ns,StringView c_typename) {
-    builtins.emplace_back(String(c_typename));
-    CSNamespace *ptr_ns = CSNamespace::from_path(ns);
-    TypeInterface *iface= &builtins.back();
-    CSType *reg = CSType::from_rd(ptr_ns,iface); // make sure the type has associated CSType
-    mapper.registerTypeMap(iface, BindingTypeMapper::C_INPUT, "%s", "%s");
-    mapper.registerTypeMap(iface, BindingTypeMapper::C_INOUT, "%s", "%s");
-    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INPUT, "%s", "%s");
-    mapper.registerTypeMap(iface, BindingTypeMapper::SC_INOUT, "ref %s", "%s");
-    mapper.registerTypeMap(iface, BindingTypeMapper::SC_OUTPUT, "%s", "%s");
-}
-/*
- * %type
- * %tmpname
- * %argtype
- * %arg
- * %outval
- * %outtype
- * %tgtarg name of target argument to be written with data marshalled out from %outval
- */
-static void _add_struct_type_mapping(CSTypeMapper& mapper, StringView ns, StringView c_typename) {                                                                  
-    CSNamespace* ptr_ns = CSNamespace::from_path(ns);
-    TypeInterface* iface = &builtins.back();
-    CSType* reg = CSType::from_rd(ptr_ns, iface); // make sure the type has associated CSType
-    /*
-    */
-    mapper.registerTypeMap(iface, BindingTypeMapper::C_OUTPUT, "GDMonoMarshal::M_", "*%tgtarg = MARSHALLED_OUT(%outtype,%outval);");
-}
-
-static void _populate_builtin_type_interfaces(CSTypeMapper &mapper) {
-#define INSERT_STRUCT_TYPE(m_type)                             \
-    {                                                          \
-        itype = TypeInterface::create_value_type(#m_type);     \
-        itype.ret_as_byref_arg = true;                         \
-        current_namespace.builtin_types.emplace(itype.name, itype);           \
-    }
     builtins.emplace_back("void");
-    mapper.registerTypeMap(&builtins.back(), BindingTypeMapper::C_INPUT,"","");
-
-    _add_value_type_mapping(mapper,"Godot","Vector2");
+    CSType::register_type(nullptr, &builtins.back());
+    registerTypeMap(&builtins.back(), C_INPUT, "", "");
     /*
-    INSERT_STRUCT_TYPE(Vector2)
-    _add_value_type_mapping(mapper,"Godot","Rect2)
-    _add_value_type_mapping(mapper,"Godot","Transform2D)
-    _add_value_type_mapping(mapper,"Godot","Vector3)
-    _add_value_type_mapping(mapper,"Godot","Basis)
-    _add_value_type_mapping(mapper,"Godot","Quat)
-    _add_value_type_mapping(mapper,"Godot","Transform)
-    _add_value_type_mapping(mapper,"Godot","AABB)
-    _add_value_type_mapping(mapper,"Godot","Color)
-    _add_value_type_mapping(mapper,"Godot","Plane)
-    */
+     %ctype%d
+     %cstype%d
+     %monotype%d
+     %monoarg%d
+ %tmpname%d
+ %argtype%d
+ %arg%d
+ %outval%d
+ %outtype%d
+ %tgtarg%d name of target argument to be written with data marshalled out from %outval
+
+ #define INSERT_INT_TYPE(m_name, m_c_type_in_out, m_c_type)        \
+    {                                                             \
+        itype = TypeInterface::create_value_type(StringName(m_name)); \
+        {                                                         \
+            itype.c_in = "\t%0 %1_in = static_cast<%0>(%1);\n";                \
+            itype.c_out = "\treturn static_cast<%0>(%1);\n";      \
+            itype.c_type = #m_c_type;                             \
+            itype.c_arg_in = "%s_in";                             \
+        }                                                         \
+        itype.c_type_in = #m_c_type_in_out;                       \
+        itype.c_type_out = itype.c_type_in;                       \
+        itype.im_type_in = itype.name;                            \
+        itype.im_type_out = itype.name;                           \
+        rd.builtin_types.emplace(itype.cname, itype);                 \
+    }
+
+
+     */
+    // Integer types
+    {
+        // C interface for 'uint32_t' is the same as that of enums. Remember to apply
+        // any of the changes done here to 'TypeInterface::postsetup_enum_type' as well.
+    CSType *reg;
+#define INSERT_INT_TYPE(m_kind, m_c_name) \
+    builtins.emplace_back(#m_c_name); \
+    reg = CSType::register_type(nullptr, &builtins.back()); \
+    reg->cs_name = m_kind;\
+    registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(%monoarg%d)", "%arg%d_in");\
+    registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "")
+
+        INSERT_INT_TYPE("sbyte", int8_t);
+        INSERT_INT_TYPE("short", int16_t, int16_t);
+        INSERT_INT_TYPE("int", int32_t, int32_t);
+        INSERT_INT_TYPE("byte", uint8_t, uint8_t);
+        INSERT_INT_TYPE("ushort", uint16_t, uint16_t);
+        INSERT_INT_TYPE("uint", uint32_t, uint32_t);
+#undef INSERT_INT_TYPE
+    }
+
+    // String
+    builtins.emplace_back("String");
+    CSType* reg = CSType::register_type(nullptr, &builtins.back());
+    reg->cs_name = "string";
+    registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = ::mono_string_to_godot(%arg%d)", "MonoString*,%arg%d_in"); 
+    //registerTypeMap(&builtins.back(), C_OUTPUT, "return ::mono_string_from_godot(%outval%d)", "MonoString* %outval%d"); 
+    registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+
+    // StringView
+    builtins.emplace_back("StringView");
+    reg = CSType::register_type(nullptr, &builtins.back());
+    reg->cs_name = "string";
+    registerTypeMap(&builtins.back(), C_INPUT, "TmpString<512> %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
+    registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+
+    builtins.emplace_back("StringName");
+    reg = CSType::register_type(nullptr, &builtins.back());
+    reg->cs_name = "string";
+    registerTypeMap(&builtins.back(), C_INPUT, "tStringName %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
+    registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+
+    // bool
+    builtins.emplace_back("bool");
+    reg = CSType::register_type(nullptr, &builtins.back());
+    reg->cs_name = "bool";
+    registerTypeMap(&builtins.back(), C_INPUT, "bool %arg%d_in(%arg%d);", "MonoBoolean,%arg%d_in");
+    registerTypeMap(&builtins.back(), C_RETURN, "return static_cast<MonoBoolean>(%outval%d)", "MonoBoolean");
+
+//        itype.ret_as_byref_arg = true;                                 
+
+#define INSERT_STRUCT_TYPE(m_type)                                     \
+    if constexpr (true) {                                                                  \
+        builtins.emplace_back(#m_type); \
+        reg = CSType::register_type(nullptr, &builtins.back());\
+        registerTypeMap(&builtins.back(), C_INPUT, "%argtype%d %arg%d_in = MARSHALLED_IN(" #m_type ",%arg%d);", "GDMonoMarshal::M_" #m_type "*,%arg%d_in");\
+        registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");\
+        registerTypeMap(&builtins.back(), SC_OUTPUT, "ref %arg%d", "out %arg%d");\
+        registerTypeMap(&builtins.back(), C_OUTPUT, "*%outval%d = MARSHALLED_OUT(" #m_type ", %outval%d)", "GDMonoMarshal::M_" #m_type);\
+        registerTypeMap(&builtins.back(), C_RETURN, "%method(%1, %3 argRet); return (%2)argRet;", "MonoBoolean");\
+    } else\
+        void()
+
+    INSERT_STRUCT_TYPE(Vector2);
+    INSERT_STRUCT_TYPE(Rect2);
+    INSERT_STRUCT_TYPE(Transform2D);
+    INSERT_STRUCT_TYPE(Vector3);
+    INSERT_STRUCT_TYPE(Basis);
+    INSERT_STRUCT_TYPE(Quat);
+    INSERT_STRUCT_TYPE(Transform);
+    INSERT_STRUCT_TYPE(AABB);
+    INSERT_STRUCT_TYPE(Color);
+    INSERT_STRUCT_TYPE(Plane);
+
+
+}
+
+void CSTypeMapper::register_complex_type(CSType *cs) {
+    assert(from_cs_name_to_mapping.end()==from_cs_name_to_mapping.find(cs->cs_name));
+
+    registerTypeMap(cs->source_type, C_INPUT, "%argtype%d %arg%d_in = FOO;", "BAR*,%arg%d_in"); 
+
 }
 
 CSProperty *CSProperty::from_rd(const CSType *owner, const PropertyInterface *type_interface, CSTypeMapper &tm) {

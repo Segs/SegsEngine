@@ -444,6 +444,7 @@ public:
         UINT_32,
         INT_64,
         UINT_64,
+        INT_TYPE_LAST
     };
     enum FloatTypes {
         FLOAT_32,
@@ -467,5 +468,5 @@ public:
     virtual bool shouldSkipMethod(StringView method_name,StringView class_name={}, StringView namespace_name = {})=0;
     virtual String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {})=0;
 
-    virtual void registerTypeMap(struct TypeInterface *type,TypemapKind, StringView prepare_pattern, StringView execute_pattern)=0;
+    virtual void registerTypeMap(const ::TypeInterface *type, TypemapKind, StringView prepare_pattern, StringView execute_pattern)=0;
 };

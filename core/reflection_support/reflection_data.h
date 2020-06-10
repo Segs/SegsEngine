@@ -37,7 +37,7 @@
 #include "core/doc_support/doc_data.h"
 
 class QJsonObject;
-
+#define DEFAULT_NS "Godot"
 // TODO: consider switching to flag enum for APIType
 enum class APIType {
     Invalid = -1,
@@ -412,7 +412,6 @@ struct ReflectionData {
 
         return nullptr;
     }
-
     const TypeInterface *_get_type_or_placeholder(const TypeReference &p_typeref);
 
     [[nodiscard]] bool load_from_file(StringView os_path);
