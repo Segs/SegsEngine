@@ -42,6 +42,7 @@
 
 class ScriptLanguage;
 class MultiplayerAPI;
+struct TypeInterface;
 enum MultiplayerAPI_RPCMode : int8_t;
 
 using ScriptEditRequestFunction = void (*)(StringView);
@@ -433,40 +434,3 @@ public:
     ~PlaceHolderScriptInstance() override;
 };
 
-class BindingTypeMapper {
-public:
-    enum IntTypes {
-        INT_8,
-        UINT_8,
-        INT_16,
-        UINT_16,
-        INT_32,
-        UINT_32,
-        INT_64,
-        UINT_64,
-        INT_TYPE_LAST
-    };
-    enum FloatTypes {
-        FLOAT_32,
-        DOUBLE_64,
-    };
-    enum TypemapKind {
-        C_INPUT,
-        C_INOUT,
-        C_OUTPUT,
-        C_RETURN,
-        SC_INPUT, // Map argument of a named Type to script-language specific version
-        SC_OUTPUT, // Map out-argument of a named Type to script-language specific version
-        SC_INOUT, // Map onput/out-argument of a named Type to script-language specific version
-        SC_RETURN, // Map return value type to script-language specific version
-        TK_MAX
-    };
-    virtual String mapIntTypeName(IntTypes ) = 0;
-    virtual String mapFloatTypeName(FloatTypes ) = 0;
-    virtual String mapPropertyName(StringView src_name, StringView class_name = {}, StringView namespace_name = {})=0;
-    virtual String mapArgumentName(StringView src_name) = 0;
-    virtual bool shouldSkipMethod(StringView method_name,StringView class_name={}, StringView namespace_name = {})=0;
-    virtual String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {})=0;
-
-    virtual void registerTypeMap(const ::TypeInterface *type, TypemapKind, StringView prepare_pattern, StringView execute_pattern)=0;
-};
