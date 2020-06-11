@@ -349,7 +349,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         Vector<PropertyInfo> property_list;
         ClassDB::get_property_list(type_cname, &property_list, true);
 
-        Map<QString, QString> accessor_methods;
+        Map<String, String> accessor_methods;
         int last_prop_idx = -1;
         int this_prop_idx = -1;
         String indexed_group_prefix;
@@ -439,10 +439,10 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             iprop.indexed_entries.push_back(e);
             iprop.max_property_index = -1;
 
-            /*if (!iprop.setter.isEmpty())
-                accessor_methods[iprop.setter] = iprop.cname;
-            if (!iprop.getter.isEmpty())
-                accessor_methods[iprop.getter] = iprop.cname;*/
+            if (!iprop.indexed_entries.back().setter.empty())
+                accessor_methods[iprop.indexed_entries.back().setter] = iprop.cname;
+            if (!iprop.indexed_entries.back().getter.empty())
+                accessor_methods[iprop.indexed_entries.back().getter] = iprop.cname;
             //iprop.proxy_name = mapper->mapPropertyName(iprop.cname.toUtf8().data()).c_str();
             //iprop.proxy_name.replace("/", "__"); // Some members have a slash...
             itype.properties.push_back(iprop);
@@ -606,15 +606,15 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
 
             //imethod.proxy_name = mapper->mapMethodName(qPrintable(imethod.name),qPrintable(itype.cname)).c_str();
 
-            //Map<QString, QString>::iterator accessor = accessor_methods.find(imethod.cname);
-            //if (accessor != accessor_methods.end()) {
-            //    const PropertyInterface* accessor_property = itype.find_property_by_name(accessor->second);
+            Map<String, String>::iterator accessor = accessor_methods.find(imethod.name);
+            if (accessor != accessor_methods.end()) {
+                const PropertyInterface* accessor_property = itype.find_property_by_name(accessor->second);
 
-            //    // We only deprecate an accessor method if it's in the same class as the property. It's easier this way, but also
-            //    // we don't know if an accessor method in a different class could have other purposes, so better leave those untouched.
-            //    imethod.is_deprecated = true;
-            //    imethod.deprecation_message = imethod.proxy_name + " is deprecated. Use the " + accessor_property->proxy_name + " property instead.";
-            //}
+                // We only deprecate an accessor method if it's in the same class as the property. It's easier this way, but also
+                // we don't know if an accessor method in a different class could have other purposes, so better leave those untouched.
+                imethod.is_deprecated = true;
+                imethod.deprecation_message = imethod.name + " is deprecated. Use the " + accessor_property->cname + " property instead.";
+            }
 
             if (!imethod.is_virtual && imethod.name[0] == '_') {
                 bool found=false;
