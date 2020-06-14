@@ -33,7 +33,6 @@
 #include "core/hash_map.h"
 #include "core/string.h"
 #include <QString>
-#include <QHash>
 
 enum Error : int;
 namespace DocContents {
@@ -92,7 +91,7 @@ struct ClassDoc {
     Vector<ConstantDoc> constants;
     Vector<PropertyDoc> properties;
     Vector<PropertyDoc> theme_properties;
-    const ConstantDoc *by_name(const char * name) {
+    const ConstantDoc *by_name(const char * name) const {
         for(const ConstantDoc &cd : constants)
             if(cd.name==name)
                 return &cd;

@@ -898,7 +898,7 @@ void _populate_global_constants(ReflectionData &rd) {
         }
     }
     if (global_constants_count > 0) {
-        HashMap<String, DocContents::ClassDoc>::iterator match = rd.doc->class_list.find("@GlobalScope");
+        auto match = rd.doc->class_list.find("@GlobalScope");
 
         CRASH_COND_MSG(match == rd.doc->class_list.end(), "Could not find '@GlobalScope' in DocData.");
 

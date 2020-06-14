@@ -408,7 +408,10 @@ void ReflectionData::build_doc_lookup_helper() {
             tgt.defined_signals[mthd.name] = &mthd;
         }
         for (const auto &mthd : iter->second.constants) {
-            tgt.constants[mthd.enumeration + "::" + mthd.name] = &mthd;
+            if(!mthd.enumeration.empty())
+                tgt.constants[mthd.enumeration + "::" + mthd.name] = &mthd;
+            else
+                tgt.constants[mthd.name] = &mthd;
         }
         for (const auto &mthd : iter->second.properties) {
             tgt.properties[mthd.name] = &mthd;

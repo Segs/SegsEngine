@@ -138,7 +138,8 @@ def qdump__eastl__map(d, value):
     if d.isExpanded():
         keyType = value.type.stripTypedefs()[0]
         valueType = value.type.stripTypedefs()[1]
-        node = impl["mAnchor"]["mpNodeLeft"]
+        node = impl["mAnchor"]["mpNodeLeft"] # begin
+        # end_node = impl["mAnchor"]
         nodeSize = node.dereference().type.size()
         typeCode = "@{%s}@{%s}" % (keyType.name,valueType.name)
         #d.putItem(node)
@@ -146,19 +147,18 @@ def qdump__eastl__map(d, value):
             for i in d.childRange():
 
                 (pad1, key, pad2, val) = d.split(typeCode, node.pointer() + nodeSize)
-
                 d.putPairItem(i, (key, val))
-                if node["mpNodeRight"].pointer() == 0:
-                    parent = node["mpNodeParent"]
-                    while node == parent["mpNodeRight"]:
-                        node = parent
-                        parent = parent["mpNodeParent"]
-                    if node["mpNodeRight"] != parent:
-                        node = parent
-                else:
+                if node["mpNodeRight"].pointer() != 0:
                     node = node["mpNodeRight"]
                     while node["mpNodeLeft"].pointer() != 0:
                         node = node["mpNodeLeft"]
+                else:
+                    parentTmp = node["mpNodeParent"]
+                    while node.pointer() == parentTmp["mpNodeRight"].pointer():
+                        node = parentTmp
+                        parentTmp = parentTmp["mpNodeParent"]
+                    if node["mpNodeRight"].pointer() != parentTmp.pointer():
+                        node = parentTmp
 
 def qdump_eastl__map__helper(d, value):
     (proxy, head, size) = value.split("ppp")
@@ -363,7 +363,6 @@ def qdump__eastl____1__stack(d, value):
 #            Utf8StringFormat, SeparateUtf8StringFormat ]
 
 def qdump__eastl__string(d, value):
-    warn("zxzzzxz ")
     qdumpHelper_eastl__string(d, value, d.createType("char"), d.currentItemFormat())
 
 def qdumpHelper_eastl__string(d, value, charType, format):

@@ -27,7 +27,15 @@
  * By default, the produced plugin files are located under
  * PROJECT_SOURCE_DIR/bin/plugins
  * and compiled cs assemblies under PROJECT_SOURCE_DIR/bin/CSharp
+ *
+ * What we generate consists of three parts:
+ * C# interface code
+ * C# glue
+ * C++ implementation
+ *
+ *
  */
+
 
 #include "bindings_generator.h"
 
@@ -62,10 +70,13 @@ static const QUuid g_generator_project_namespace("527d3b9b-e33e-485b-a8ea-baddfb
 struct CSReflectionVisitor;
 struct CSType;
 struct CSFunction;
+struct CSNamespace;
 struct CSTypeMapper;
+struct GeneratorContext;
 
-static bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output, CSTypeMapper &);
+static bool _generate_cs_method(GeneratorContext &ctx);
 //static void _populate_builtin_type_interfaces(CSTypeMapper& mapper);
+
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -81,8 +92,13 @@ int Vsnprintf8(char* pDestination, size_t n, const char* pFormat, va_list argume
     #endif
 }
 
-struct CSType;
-struct CSNamespace;
+
+enum TargetCode {
+    CS_INTERFACE,
+    CS_GLUE,
+    CPP_IMPL
+};
+
 
 struct CSTypeWrapper {
     const CSType *underlying_type=nullptr;
@@ -117,6 +133,7 @@ public:
         SC_RETURN, // Map return value type to script-language specific version
         TK_MAX
     };
+
     struct MappingEntry {
         String type;
         String marshall;
@@ -159,11 +176,13 @@ public:
 
     void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern);
     void register_enum(const CSNamespace *ns, const CSType *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type);
-    CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
+    //CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
 
     void register_default_types(const CSNamespace *tgt_ns);
     void register_complex_type(CSType * cs);
+    //Render selected value, taking current namespace/type into account
+    StringView render(CSTypeWrapper tw,TargetCode tc, const CSNamespace *current_ns, const CSType *current_type);
 };
 
 
@@ -291,97 +310,20 @@ static String escape_csharp_keyword(StringView p_name) {
 
 // ENUM FIELD NAME CONVERSION snake_to_pascal_case(constant_name, true),
 
+struct CSEnum;
+
 enum class CSAccessLevel {
     Public,
     Internal,
     Protected,
     Private
 };
+struct CSConstant;
 
-struct CSConstant {
-    static HashMap<String,CSConstant *> constants;
-    const ConstantInterface *m_rd_data;
-    const TypeReference const_type;
-    String xml_doc;
-    String cs_name;
-    String value;
-    CSAccessLevel access_level = CSAccessLevel::Public;
-    static String fix_cs_name(StringView cpp_ns_name) {
-        if (allUpperCase(cpp_ns_name))
-            return snake_to_pascal_case(cpp_ns_name, true);
-        return String(cpp_ns_name);
-    }
-    static String convert_name(const String& access_path, StringView cpp_ns_name) {
-        StringView to_convert = cpp_ns_name;
-        FixedVector<StringView, 4, true> parts;
-        FixedVector<StringView, 10, true> access_path_parts;
-        String::split_ref(parts, cpp_ns_name, "::");
-        if (parts.size() != 1) {
-            String::split_ref(access_path_parts, access_path, "::");
-            if (parts.size() > 1 && parts.front() == access_path_parts.back()) {
-                to_convert = parts[1];
-            }
-        }
-        return fix_cs_name(to_convert);
-    }
-    static CSConstant *get_instance_for(const String &access_path,const ConstantInterface *src) {
-        auto iter = constants.find(access_path+src->name);
-        if(iter!=constants.end())
-            return iter->second;
-        auto res = new CSConstant;
-        res->m_rd_data = src;
-        res->cs_name = convert_name(access_path,src->name);
-        char buf[32]={0};
-        snprintf(buf,31,"%d",src->value);
-        res->value = buf;
-        constants.emplace(access_path+res->cs_name,res);
-        //assert(false);
-        return res;
-    }
-};
-HashMap<String,CSConstant *> CSConstant::constants;
-
-struct CSEnum {
-    static HashMap<String,CSEnum *> enums;
-    const EnumInterface *m_rd_data;
-    Vector<CSConstant *> m_entries;
-    String xml_doc;
-    String cs_name;
-    String static_wrapper_class;
-    TypeReference underlying_val_type;
-
-    static String convert_name(const String &access_path, StringView cpp_ns_name);
-
-    void add_constant(const String &access_path, const ConstantInterface *ci) {
-
-        bool already_have_it=eastl::find_if(m_entries.begin(),m_entries.end(),
-                                            [ci](const CSConstant *a) {
-                          return a->m_rd_data==ci;
-                      })!=m_entries.end();
-        assert(!already_have_it);
-
-        CSConstant *to_add = CSConstant::get_instance_for(access_path+cs_name,ci);
-        m_entries.emplace_back(to_add);
-    }
-    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
-        auto iter = enums.find(access_path+src->cname);
-        if(iter!=enums.end())
-            return iter->second;
-        auto res = new CSEnum;
-        res->m_rd_data = src;
-        res->cs_name = convert_name(access_path,src->cname);
-        enums.emplace(access_path+res->cs_name,res);
-        //assert(false);
-        return res;
-    }
-};
-
-HashMap<String,CSEnum *> CSEnum::enums;
 struct CSFunction {
     static HashMap< const MethodInterface*, CSFunction*> s_ptr_cache;
 
     String cs_name;
-    TypeReference ref;
     //CSTypeRef return_type;
     //Vector<CSTypeRef> arg_types;
     Vector<String> arg_names;
@@ -408,10 +350,199 @@ struct CSFunction {
 };
 HashMap< const MethodInterface*, CSFunction*> CSFunction::s_ptr_cache;
 
+// Anything that acts like a type ( can have methods, constants, etc. )
+struct CSTypeLike {
+    enum TypeKind {
+        NAMESPACE,
+        CLASS,
+        ENUM
+    };
+
+    String cs_name;
+    // Support for tree of nesting structures - namespace in another namespace, nested types etc.
+    const CSTypeLike *parent=nullptr;
+    // Nested types - (enum,type) in type, (namespace,enum,type) in namespace, () in enum
+    Vector<CSTypeLike *> m_children;
+    Vector<CSConstant *> m_constants;
+    Vector<CSFunction *> m_functions;
+    const DocContents::ClassDoc *m_docs = nullptr;
+
+    virtual TypeKind kind() const = 0;
+    virtual StringView c_name() const = 0;
+
+    // overriden by Type to also visit base classes.
+    virtual CSTypeLike *find_by(eastl::function<bool(const CSTypeLike *)> func) const {
+        // search through our children, then go to parent.
+        auto iter = eastl::find_if(m_children.begin(),m_children.end(),func);
+        if(iter!=m_children.end())
+            return *iter;
+        if(parent)
+            return parent->find_by(func);
+        return nullptr;
+    }
+    // find a common base type for this and with
+    virtual const CSTypeLike *common_base(const CSTypeLike *with) const {
+
+        const CSTypeLike *lh = this;
+        const CSTypeLike *rh = with;
+        if(!lh||!rh)
+            return nullptr;
+
+        //NOTE: this assumes that no type path will be longer than 16, should be enough though ?
+        FixedVector<const CSTypeLike *,16,false> lh_path;
+        FixedVector<const CSTypeLike *,16,false> rh_path;
+
+        // collect paths to root for both types
+
+        while(lh->parent) {
+            lh_path.push_back(lh);
+            lh=lh->parent;
+        }
+        while(rh->parent) {
+            rh_path.push_back(rh);
+            rh=rh->parent;
+        }
+        if(lh!=rh)
+            return nullptr; // no common base
+
+        auto rb_lh = lh_path.rbegin();
+        auto rb_rh = rh_path.rbegin();
+
+        // walk backwards on both paths
+        while(rb_lh!=lh_path.rend() && rb_rh!=rh_path.rend()) {
+
+            if(*rb_lh!=*rb_rh) {
+                // encountered non-common type, take a step back and return
+                --rb_lh;
+                return *rb_lh;
+            }
+            rb_lh++;
+            rb_rh++;
+        }
+        return nullptr;
+    }
+    CSType *find_by_cpp_name(StringView name) const {
+        return (CSType *)find_by([name](const CSTypeLike *entry)->bool {
+            if(entry->kind()!=CLASS)
+                return false;
+            return entry->c_name()==name;
+        });
+    }
+    CSEnum *find_enum_by_cpp_name(StringView name) const;
+    CSType* find_by_cs_name(const String& name) const;
+    String relative_path(TargetCode tgt,const CSTypeLike *rel_to=nullptr) const {
+        Dequeue<String> parts;
+        const CSTypeLike* ns_iter = this;
+        while (ns_iter && ns_iter!=rel_to) {
+            parts.push_front(tgt==CPP_IMPL ? String(ns_iter->c_name()) : ns_iter->cs_name);
+            ns_iter = ns_iter->parent;
+        }
+        return String::joined(parts, tgt==CPP_IMPL ? "::" : ".");
+    }
+
+    void visit_kind(TypeKind to_visit,eastl::function<void(const CSTypeLike *)> visitor) const{
+        for(const CSTypeLike *tl : m_children) {
+            if(tl->kind()==to_visit)
+                visitor(tl);
+        }
+    };
+    void add_constant(const ConstantInterface *ci);
+    virtual CSFunction * find_method_by_name(TargetCode tgt,StringView name, bool try_parent) const {
+        auto iter = eastl::find_if(m_functions.begin(), m_functions.end(), [name,tgt](const CSFunction* p) {
+            if(tgt==CPP_IMPL)
+                return p->source_type->name==name;
+            return p->cs_name == name;
+        });
+        if(iter!=m_functions.end())
+            return *iter;
+        if(!try_parent)
+            return nullptr;
+
+        // retry in enclosing container
+        return parent ? parent->find_method_by_name(tgt,name,try_parent) : nullptr;
+    }
+
+    CSConstant *find_constant_by_name(TargetCode tgt,StringView name) const;
+};
+struct CSConstant {
+    static HashMap<String,CSConstant *> constants;
+    const ConstantInterface *m_rd_data;
+    const DocContents::ConstantDoc *m_resolved_doc;
+    TypeReference const_type {"int32_t",false};
+    String xml_doc;
+    String cs_name;
+    String value;
+    CSAccessLevel access_level = CSAccessLevel::Public;
+    const CSTypeLike *enclosing_type;
+
+    static String fix_cs_name(StringView cpp_ns_name) {
+        if (allUpperCase(cpp_ns_name))
+            return snake_to_pascal_case(cpp_ns_name, true);
+        return String(cpp_ns_name);
+    }
+    static String convert_name(StringView cpp_ns_name) {
+        StringView to_convert = cpp_ns_name;
+        FixedVector<StringView, 4, true> parts;
+        FixedVector<StringView, 10, true> access_path_parts;
+        String::split_ref(parts, cpp_ns_name, "::");
+        return fix_cs_name(to_convert);
+    }
+    static CSConstant *get_instance_for(const CSTypeLike *tl,const ConstantInterface *src) {
+        auto iter = constants.find(tl->relative_path(TargetCode::CS_INTERFACE)+"."+src->name);
+        if(iter!=constants.end())
+            return iter->second;
+        auto res = new CSConstant;
+        res->m_rd_data = src;
+        res->m_resolved_doc = tl->m_docs ? tl->m_docs->by_name(src->name.c_str()) : nullptr;
+
+        res->cs_name = convert_name(src->name);
+        char buf[32]={0};
+        snprintf(buf,31,"%d",src->value);
+        res->value = buf;
+        res->enclosing_type = tl;
+        constants.emplace(tl->relative_path(TargetCode::CS_INTERFACE)+"."+res->cs_name,res);
+        //assert(false);
+        return res;
+    }
+    String relative_path(TargetCode tgt,const CSTypeLike *rel_to=nullptr) const {
+        const CSTypeLike *common_base=enclosing_type->common_base(rel_to);
+        return enclosing_type->relative_path(tgt,common_base) + (tgt==TargetCode::CPP_IMPL ? "::" : ".") + (tgt==TargetCode::CPP_IMPL ? m_rd_data->name : cs_name);
+    }
+};
+HashMap<String,CSConstant *> CSConstant::constants;
+
+struct CSEnum : public CSTypeLike {
+    static HashMap<String,CSEnum *> enums;
+    const EnumInterface *m_rd_data;
+    String xml_doc;
+    String static_wrapper_class;
+    TypeReference underlying_val_type;
+
+    TypeKind kind() const override { return ENUM; }
+    StringView c_name() const override { return m_rd_data->cname; }
+
+    static String convert_name(const String &access_path, StringView cpp_ns_name);
+
+    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
+        auto iter = enums.find(access_path+src->cname);
+        if(iter!=enums.end())
+            return iter->second;
+        auto res = new CSEnum;
+        res->m_rd_data = src;
+        res->cs_name = convert_name(access_path,src->cname);
+        enums.emplace(access_path+res->cs_name,res);
+        //assert(false);
+        return res;
+    }
+};
+
+HashMap<String,CSEnum *> CSEnum::enums;
+
 struct CSProperty {
     static HashMap< const PropertyInterface*, CSProperty *> s_ptr_cache;
 
     String cs_name;
+    const CSType *m_owner;
     const PropertyInterface *source_type;
     const CSFunction *setter = nullptr;
     const CSFunction* getter = nullptr;
@@ -420,57 +551,29 @@ struct CSProperty {
 };
 HashMap< const PropertyInterface*, CSProperty *> CSProperty::s_ptr_cache;
 
+
 struct CSNamespace;
 
-struct CSType {
+struct CSType : CSTypeLike {
     static HashMap< const TypeInterface*, CSType*> s_ptr_cache;
 
-    String cs_name;
     const CSNamespace* m_owning_ns=nullptr;
     const TypeInterface* source_type;
     const CSType *base_type=nullptr;
-    const CSType *parent_class = nullptr; // for nested classes
-    Vector<CSConstant *> m_class_constants;
-    Vector<CSEnum*> m_class_enums;
-    Vector<CSFunction *> m_class_functions;
     Vector<CSProperty *> m_properties;
+
     int pass=0;
-    void add_constant(const String &access_path, const ConstantInterface *ci) {
 
-        bool already_have_it=eastl::find_if(m_class_constants.begin(),m_class_constants.end(),
-                                            [ci](const CSConstant *a) {
-                          return a->m_rd_data==ci;
-                      })!=m_class_constants.end();
-        assert(!already_have_it);
-
-        CSConstant *to_add = CSConstant::get_instance_for(access_path+cs_name,ci);
-        m_class_constants.emplace_back(to_add);
-    }
     void add_enum(CSEnum *enm) {
         //TODO: add sanity checks here
-        m_class_enums.emplace_back(enm);
+        m_children.emplace_back(enm);
     }
+
+    TypeKind kind() const override { return CLASS; }
+    StringView c_name() const override { return source_type->name; }
+
     static String convert_name(StringView name) {
         return String(name.starts_with('_') ? name.substr(1) : name);
-    }
-    CSFunction * find_method_by_name(StringView name,CSTypeMapper &mapper) const {
-        auto iter = eastl::find_if(m_class_functions.begin(), m_class_functions.end(), [name](const CSFunction* p) {
-            return p->cs_name == name;
-        });
-        if(iter==m_class_functions.end()) {
-            if(base_type)
-                return base_type->find_method_by_name(name,mapper);
-            return nullptr;
-        }
-        return *iter;
-    }
-    CSProperty * find_property_by_name(const StringName &name) const {
-        auto iter = eastl::find_if(m_properties.begin(), m_properties.end(),[name](const CSProperty *p) {
-            return p->cs_name==name;
-        });
-        if(iter==m_properties.end())
-            return nullptr;
-        return *iter;
     }
     static CSType* by_rd(const TypeInterface* type_interface) {
         return s_ptr_cache[type_interface];
@@ -489,21 +592,48 @@ struct CSType {
         s_ptr_cache[type_interface] = res;
         return res;
     }
+    CSProperty * find_property_by_name(StringView name) const {
+        auto iter = eastl::find_if(m_properties.begin(), m_properties.end(),[name](const CSProperty *p) {
+            return p->cs_name==name;
+        });
+        if(iter==m_properties.end())
+            return nullptr;
+        return *iter;
+    }
+    // search in base class first, then enclosing space
+    CSTypeLike *find_by(eastl::function<bool(const CSTypeLike *)> func) const override {
+        if(base_type) {
+            auto res=base_type->find_by(func);
+            if(res)
+                return res;
+        }
+        // use base-class version:
+        return CSTypeLike::find_by(func);
+    }
+    CSFunction * find_method_by_name(TargetCode tgt,StringView name, bool try_parent) const override {
+        //follows the C++ logic first try this class, then the base classes, then enclosing namespace route
 
-    Vector<StringView> access_path() const;
+        //Try to find in 'self' and base classes
+        const CSType *current=this;
+        while(current) {
+            CSFunction *res = current->CSTypeLike::find_method_by_name(tgt,name,false); // call base version on current.
+            if(res)
+                return res;
+            current = current->base_type;
+        }
+
+        return parent ? parent->CSTypeLike::find_method_by_name(tgt,name,true) : nullptr;
+    }
+
 };
 HashMap< const TypeInterface*, CSType*> CSType::s_ptr_cache;
 
-struct CSNamespace {
+struct CSNamespace : CSTypeLike {
     static HashMap<String,CSNamespace *> namespaces;
-    String cs_name;
-    CSType m_globals;
-    const NamespaceInterface *m_rd_data;
+    const NamespaceInterface *m_source;
 
-    Vector<CSEnum *> m_enums;
-    Vector<CSType *> m_types;
-    CSNamespace* parent;
-    Vector<CSNamespace *> m_child_namespaces;
+    TypeKind kind() const override { return NAMESPACE; }
+    StringView c_name() const override { return m_source->namespace_name; }
 
     static String convert_ns_name(StringView cpp_ns_name) {
         return String(cpp_ns_name);
@@ -520,12 +650,12 @@ struct CSNamespace {
             parent = parent_iter->second;
         }
         auto res=new CSNamespace();
-        res->m_rd_data = src;
+        res->m_source = src;
         res->cs_name = convert_ns_name(src->namespace_name);
         namespaces[access_path+src->namespace_name] = res;
         res->parent = parent;
         if(parent)
-            parent->m_child_namespaces.push_back(res);
+            parent->m_children.push_back(res);
         return res;
     }
     static CSNamespace* from_path(StringView path) {
@@ -539,74 +669,27 @@ struct CSNamespace {
         assert(iter!=namespaces.end());
         return iter->second;
     }
-    CSType *find_by_cpp_name(const String &name) const {
-        const CSNamespace* ns_iter = this;
 
-        const TypeInterface *target_itype=nullptr;
-        while (ns_iter) {
-            target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
-            if(nullptr != target_itype)
-                break;
-            ns_iter = ns_iter->parent;
-        }
-        for(CSType *t : m_types) {
-            if(t->source_type == target_itype)
-                return t;
-        }
-        return nullptr;
-    }
     CSType* find_or_create_by_cpp_name(const String& name)  {
+        auto cstype = find_by_cpp_name(name);
+        if(cstype)
+            return cstype;
         CSNamespace* ns_iter = this;
         const TypeInterface* target_itype;
         while(ns_iter) {
-            target_itype = ns_iter->m_rd_data->_get_type_or_null(TypeReference{ name });
+            target_itype = ns_iter->m_source->_get_type_or_null(TypeReference{ name });
             if(target_itype)
                 break;
-            ns_iter = ns_iter->parent;
+            ns_iter = (CSNamespace*)ns_iter->parent;
         }
         if(target_itype==nullptr)
             return nullptr;
-        for (CSType* t : m_types) {
-            if (t->source_type == target_itype)
-                return t;
-        }
-        m_types.push_back(CSType::register_type(this, target_itype));
-        return m_types.back();
-    }
-    CSType* find_by_cs_name(const String& name) {
-        CSNamespace* ns_iter = this;
-        const CSType* target_itype;
-        while (ns_iter) {
-            auto t_iter =eastl::find_if(m_types.begin(),m_types.end(),[name](const CSType *s)->bool {
-                return s->cs_name==name;
-            });
-            if (t_iter!=m_types.end())
-                return *t_iter;
-            ns_iter = ns_iter->parent;
-        }
-        return nullptr;
-    }
-    String cs_path() const {
-        Dequeue<String> parts;
-        const CSNamespace* ns_iter = this;
-        while(ns_iter) {
-            parts.push_front(ns_iter->cs_name);
-            ns_iter = ns_iter->parent;
-        }
-        return String::joined(parts,".");
-    }
-    String c_path() const {
-        Dequeue<String> parts;
-        const CSNamespace* ns_iter = this;
-        while (ns_iter) {
-            parts.push_front(ns_iter->cs_name);
-            ns_iter = ns_iter->parent;
-        }
-        return String::joined(parts, "::");
+        m_children.push_back(CSType::register_type(this, target_itype));
+        return (CSType *)m_children.back();
     }
     Vector<StringView> cs_path_components() const {
         Dequeue<StringView> parts;
-        const CSNamespace* ns_iter = this;
+        const CSTypeLike* ns_iter = this;
         while (ns_iter) {
             parts.push_front(ns_iter->cs_name);
             ns_iter = ns_iter->parent;
@@ -633,15 +716,39 @@ struct GeneratorContext {
     StringBuilder& out;
     CSTypeMapper& mapper;
     const CSType* p_type;
+    const CSNamespace *p_namespace=nullptr;
     const CSFunction* func;
-    GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSType*t, const CSFunction*f) : out(o),mapper(m),p_type(t),func(f) {}
+    Vector<String> arg_names;
+    CSTypeWrapper return_type;
+    GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSType*t) : out(o),mapper(m),p_type(t) {
+        if(t)
+            p_namespace = t->m_owning_ns;
+    }
+    void enter_function(const CSFunction *f) {
+        return_type = {};
+        func = f;
+    }
     void start_block() {
         out.append_indented("{\n");
         out.indent();
     }
-    void end_block() {
+    void start_cs_namespace(StringView name) {
+        out.append_indented("namespace ");
+        out.append(name);
+        out.append(" ");
+        start_block();
+    }
+
+    void end_block(StringView comment="") {
         out.dedent();
-        out.append_indented("}\n");
+        if(!comment.empty()) {
+            out.append_indented("} //");
+            out.append(comment);
+            out.append("\n");
+        }
+        else
+            out.append_indented("}\n");
+
     }
 };
 static const char* cs_method_template = R"raw(
@@ -653,9 +760,29 @@ static const char* cs_method_template = R"raw(
 }
 )raw";
 
-void gen_cs_docs(StringBuilder &out,const CSType *p_type,const CSFunction *func) {
+void gen_cs_docs(GeneratorContext &ctx) {
+    /*
+    auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
+    if (method_doc && method_doc->description.size()) {
+        String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
+        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+        if (summary_lines.size() || default_args_doc.get_string_length()) {
+            p_output.append(MEMBER_BEGIN "/// <summary>\n");
+
+            for (int i = 0; i < summary_lines.size(); i++) {
+                p_output.append(INDENT2 "/// ");
+                p_output.append(summary_lines[i]);
+                p_output.append("\n");
+            }
+
+            p_output.append(default_args_doc.as_string());
+            p_output.append(INDENT2 "/// </summary>");
+        }
+    }
+    */
     //TODO: retrieve and convert bbcode docs to xml ones, add them to out
-    out.append_indented("/// TODO:Some docs here");
+    ctx.out.append_indented("/// TODO:Some docs here\n");
 }
 void gen_cs_attributes(GeneratorContext &ctx) {
     ctx.out.append_indented(String().sprintf("[GodotMethod(\"%s\")]\n", ctx.func->source_type->name.c_str()));
@@ -678,8 +805,9 @@ void gen_method_access(GeneratorContext& ctx) {
         ctx.out.append("virtual ");
     }
 }
-void gen_return(GeneratorContext &ctx) {
-    ctx.out.append(ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type).underlying_type->cs_name);
+void gen_cs_return_type(GeneratorContext &ctx) {
+    CSTypeWrapper wrap(ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type));
+    ctx.out.append(ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_namespace,ctx.p_type));
     ctx.out.append(" ");
 }
 void gen_cs_method_name(GeneratorContext& ctx) {
@@ -687,24 +815,96 @@ void gen_cs_method_name(GeneratorContext& ctx) {
 }
 void gen_cs_arguments(GeneratorContext& ctx) {
     ctx.out.append("(");
-    if(!ctx.func->source_type->arguments.empty())
-        ctx.out.append("CONVERT THE ARGUMENTS!");
+    int argc =  ctx.func->source_type->arguments.size();
+    if(argc!=0) {
+        Vector<String> argline;
+        for(int i=0; i<argc; ++i) {
+            const ArgumentInterface &ai(ctx.func->source_type->arguments[i]);
+            CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
+            String name;
+            if(i<ctx.func->arg_names.size() && !ctx.func->arg_names[i].empty()) {
+                name=ctx.func->arg_names[i];
+            }
+            if(name.empty())
+                name= String().sprintf("arg_%d",i);
+            ctx.arg_names.push_back(name);
+            argline.push_back(String().sprintf("%s %s%s",ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_namespace,ctx.p_type).data(),"",name.c_str()));
+
+        }
+        ctx.out.append(String::joined(argline,", "));
+    }
     ctx.out.append(")\n");
 }
-bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, StringBuilder& p_output,CSTypeMapper &mapper) {
+void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
+
+}
+void gen_cs_perform_internal_call(GeneratorContext& ctx) {
+    if (ctx.func->source_type->is_virtual) {
+        // Godot virtual method must be overridden, therefore we return a default value by default.
+
+        if (ctx.return_type.underlying_type->cs_name == "void") {
+            ctx.out.append_indented("return;\n");
+        }
+        else {
+            ctx.out.append_indented("return default(");
+            ctx.out.append(ctx.return_type.underlying_type->cs_name);
+            ctx.out.append(");\n");
+        }
+    }
+    else if (ctx.func->source_type->requires_object_call) {
+        // Fallback to Godot's object.Call(string, params)
+
+        ctx.out.append_indented("Call(\"");
+        ctx.out.append(ctx.func->source_type->name);
+        ctx.out.append("\"");
+
+        for (const String &F : ctx.arg_names) {
+            ctx.out.append(", ");
+            ctx.out.append(F);
+        }
+
+        ctx.out.append(");\n");
+    } else {
+        /*
+
+        const Map<const MethodInterface *, const InternalCall *>::iterator match = method_icalls_map.find(&p_imethod);
+        ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG);
+
+        const InternalCall *im_icall = match->second;
+
+        String im_call = im_icall->editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS;
+        im_call += ".";
+        im_call += im_icall->name;
+
+        if (!p_imethod.arguments.empty())
+            p_output.append(cs_in_statements);
+
+        if (return_type->cname == name_cache->type_void) {
+            p_output.append(im_call + "(" + icall_params + ");\n");
+        } else if (return_type->cs_out.empty()) {
+            p_output.append("return " + im_call + "(" + icall_params + ");\n");
+        } else {
+            p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
+            p_output.append("\n");
+        }
+*/
+    }
+
+}
+
+bool _generate_cs_method(GeneratorContext &ctx) {
 
     StringBuilder default_args_doc;
     String arguments_sig;
     String cs_in_statements;
     String icall_params;
 
-    GeneratorContext ctx(p_output,mapper,p_itype,p_imethod);
-    
+
 
     // For every argument, we find the type mapping
-    CSTypeWrapper return_type = mapper.map_type(CSTypeMapper::SC_RETURN,p_imethod->source_type->return_type);
+    ctx.return_type = ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type);
     // Retrieve information from the arguments
-    for (const ArgumentInterface& iarg : p_imethod->source_type->arguments) {
+    for (const ArgumentInterface& iarg : ctx.func->source_type->arguments) {
     }
 /*
 
@@ -788,99 +988,17 @@ bool _generate_cs_method(const CSType* p_itype, const CSFunction* p_imethod, Str
     */
     // Generate method
     {
-        /*
-        auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
-        if (method_doc && method_doc->description.size()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
-            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
-            if (summary_lines.size() || default_args_doc.get_string_length()) {
-                p_output.append(MEMBER_BEGIN "/// <summary>\n");
-
-                for (int i = 0; i < summary_lines.size(); i++) {
-                    p_output.append(INDENT2 "/// ");
-                    p_output.append(summary_lines[i]);
-                    p_output.append("\n");
-                }
-
-                p_output.append(default_args_doc.as_string());
-                p_output.append(INDENT2 "/// </summary>");
-            }
-        }
-        */
+        gen_cs_docs(ctx);
         gen_cs_attributes(ctx);
         gen_method_access(ctx);
-        gen_return(ctx);
+        gen_cs_return_type(ctx);
         gen_cs_method_name(ctx);
         gen_cs_arguments(ctx); //arguments_sig
         ctx.start_block();
-        if (p_imethod->source_type->is_virtual) {
-            // Godot virtual method must be overridden, therefore we return a default value by default.
-
-            if (return_type.underlying_type->cs_name == "void") {
-                p_output.append_indented("return;\n");
-            }
-            else {
-                p_output.append_indented("return default(");
-                p_output.append(return_type.underlying_type->cs_name);
-                p_output.append(");\n");
-            }
-            ctx.end_block();
-            return OK; // Won't increment method bind count
-        }
-        /*
-        if (p_imethod.is_virtual) {
-            // Godot virtual method must be overridden, therefore we return a default value by default.
-
-            if (return_type->cname == name_cache->type_void) {
-                p_output.append("return;\n" CLOSE_BLOCK_L2);
-            } else {
-                p_output.append("return default(");
-                p_output.append(return_type->cs_type);
-                p_output.append(");\n" CLOSE_BLOCK_L2);
-            }
-
-            return OK; // Won't increment method bind count
-        }
-
-        if (p_imethod.requires_object_call) {
-            // Fallback to Godot's object.Call(string, params)
-
-            p_output.append(CS_METHOD_CALL "(\"");
-            p_output.append(p_imethod.name);
-            p_output.append("\"");
-
-            for (const ArgumentInterface &F : p_imethod.arguments) {
-                p_output.append(", ");
-                p_output.append(F.name);
-            }
-
-            p_output.append(");\n" CLOSE_BLOCK_L2);
-
-            return OK; // Won't increment method bind count
-        }
-
-        const Map<const MethodInterface *, const InternalCall *>::iterator match = method_icalls_map.find(&p_imethod);
-        ERR_FAIL_COND_V(match==method_icalls_map.end(), ERR_BUG);
-
-        const InternalCall *im_icall = match->second;
-
-        String im_call = im_icall->editor_only ? BINDINGS_CLASS_NATIVECALLS_EDITOR : BINDINGS_CLASS_NATIVECALLS;
-        im_call += ".";
-        im_call += im_icall->name;
-
-        if (!p_imethod.arguments.empty())
-            p_output.append(cs_in_statements);
-
-        if (return_type->cname == name_cache->type_void) {
-            p_output.append(im_call + "(" + icall_params + ");\n");
-        } else if (return_type->cs_out.empty()) {
-            p_output.append("return " + im_call + "(" + icall_params + ");\n");
-        } else {
-            p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
-            p_output.append("\n");
-        }
-*/
+            // Prepare temporary variables needed to call internal function etc.
+            gen_cs_prepare_internal_call(ctx);
+            gen_cs_perform_internal_call(ctx);
         ctx.end_block();
     }
 
@@ -1021,9 +1139,9 @@ static inline String get_unique_sig(const TypeInterface &p_type) {
 }
 #endif
 
-String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, const CSType *p_itype, const ReflectionData &rd,CSTypeMapper &mapper, bool verbose) {
+String bbcode_to_xml(StringView p_bbcode, const CSNamespace *our_ns, const CSType *p_itype, const ReflectionData &rd,CSTypeMapper &mapper, bool verbose) {
 
-    CSNamespace *our_ns = CSNamespace::from_path(access_path);
+    //CSNamespace *our_ns = CSNamespace::from_path(access_path);
     // Get namespace from path
     // Based on the version in EditorHelp
     using namespace eastl;
@@ -1134,7 +1252,7 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 continue;
             }
 
-            const CSType *target_itype;
+            const CSTypeLike *target_itype;
             StringName target_cname;
 
             if (link_target_parts.size() == 2) {
@@ -1148,28 +1266,28 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 target_cname = StringName(link_target_parts[0]);
             }
             if (link_tag == "method"_sv) {
-                if (!target_itype || !target_itype->source_type->is_object_type) {
+                if (!target_itype) { // || !target_itype->source_type->is_object_type
                     if (verbose) {
                         if (target_itype) {
-                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
+                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", (int)link_target.size(),link_target.data());
                         } else {
-                            qDebug("Cannot resolve type from method reference in documentation: %.*s\n", link_target.size(),link_target.data());
+                            qDebug("Cannot resolve type from method reference in documentation: %.*s\n", (int)link_target.size(),link_target.data());
                         }
                     }
 
                     // TODO Map what we can
                     xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
                 } else {
-                    const CSFunction *target_imethod = target_itype->find_method_by_name(mapper.mapMethodName(target_cname,target_itype->cs_name),mapper);
+                    const CSFunction *target_imethod = target_itype->find_method_by_name(CS_INTERFACE,mapper.mapMethodName(target_cname,target_itype->cs_name),true);
 
                     if (target_imethod) {
                         xml_output.writeEmptyElement("see");
-                        String full_path= our_ns->cs_path() + "." + target_imethod->cs_name;
+                        String full_path= target_itype->relative_path(CS_INTERFACE) + "." + target_imethod->cs_name;
                         xml_output.writeAttribute("cref",QString::fromUtf8(full_path.c_str()));
                     }
                 }
             } else if (link_tag == "member"_sv) {
-                if (!target_itype || !target_itype->source_type->is_object_type) {
+                if (!target_itype) { // || !target_itype->source_type->is_object_type
                     if (verbose) {
                         if (target_itype) {
                             qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
@@ -1181,131 +1299,118 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                     // TODO Map what we can
                     xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(),link_target.size()));
                 } else {
-                    const CSProperty *target_iprop = target_itype->find_property_by_name(target_cname);
+                    assert(target_itype->kind()==CSTypeLike::CLASS);
 
+                    const CSProperty *target_iprop = ((const CSType *)target_itype)->find_property_by_name(mapper.mapPropertyName(target_cname));
+                    qDebug() << "Missing CSProperty for:"<<target_cname.asCString();
                     if (target_iprop) {
                         xml_output.writeEmptyElement("see");
-                        String full_path= our_ns->cs_path() + "." + target_itype->cs_name + "." + target_iprop->cs_name;
+                        String full_path= target_itype->relative_path(CS_INTERFACE) + "." + target_iprop->cs_name;
                         xml_output.writeAttribute("cref",full_path.c_str());
                     }
                 }
             } else if (link_tag == "signal"_sv) {
                 // We do not declare signals in any way in C#, so there is nothing to reference
                 xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
-#if 0
             } else if (link_tag == "enum"_sv) {
-                StringName search_cname = !target_itype ? target_cname :
-                                                          StringName(target_itype->name + "." + (String)target_cname);
+                String search_cname = !target_itype ? target_cname.asCString() :
+                                                          String(target_itype->cs_name + "." + (String)target_cname);
 
-                auto enum_match = rd.enum_types.find(search_cname);
+                const CSTypeLike *search_through = target_itype ? target_itype : static_cast<const CSTypeLike *>(our_ns);
+                auto enum_match = search_through->find_enum_by_cpp_name(search_cname);
 
-                if (rd.enum_types.end()==enum_match && search_cname != target_cname) {
-                    enum_match = rd.enum_types.find(target_cname);
-                }
-                if (rd.enum_types.end() == enum_match) // try the fixed name -> "Enum"
-                    enum_match = rd.enum_types.find(search_cname+"Enum");
+                if (!enum_match) // try the fixed name -> "Enum"
+                    enum_match = search_through->find_enum_by_cpp_name(search_cname+"Enum");
 
-                if (rd.enum_types.end()!=enum_match) {
-                    const TypeInterface &target_enum_itype = enum_match->second;
-
-                    xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                    xml_output.append(target_enum_itype.proxy_name); // Includes nesting class if any
-                    xml_output.append("\"/>");
+                if (enum_match) {
+                    const CSEnum *target_enum_itype = enum_match;
+                    xml_output.writeEmptyElement("see");
+                    String full_path= target_itype->relative_path(CS_INTERFACE) + "." + enum_match->cs_name;
+                    xml_output.writeEmptyElement("see");
+                    xml_output.writeAttribute("cref",full_path.c_str()); // Includes nesting class if any
                 } else {
                     ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.");
 
-                    xml_output.append("<c>");
-                    xml_output.append(link_target);
-                    xml_output.append("</c>");
+                    xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
                 }
             } else if (link_tag == "const"_sv) {
-                if (!target_itype || !target_itype->is_object_type) {
-                    if (OS::get_singleton()->is_stdout_verbose()) {
+                assert(false);
+                if (!target_itype ) { //|| !target_itype->source_type->is_object_type
+                    if (verbose) {
                         if (target_itype) {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve constant reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve constant reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
                         } else {
-                            OS::get_singleton()->print(FormatVE("Cannot resolve type from constant reference in documentation: %.*s\n", link_target.size(),link_target.data()));
+                            qDebug("Cannot resolve type from constant reference in documentation: %.*s\n", link_target.size(),link_target.data());
                         }
                     }
 
                     // TODO Map what we can
-                    xml_output.append("<c>");
-                    xml_output.append(link_target);
-                    xml_output.append("</c>");
-                } else if (!target_itype && target_cname == name_cache->type_at_GlobalScope) {
+                    xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
+                } else if (!target_itype && target_cname == "@GlobalScope") {
                     // Try to find as a global constant
-                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, rd.global_constants);
 
-                    if (target_iconst) {
-                        // Found global constant
-                        xml_output.append("<see cref=\"" BINDINGS_NAMESPACE "." BINDINGS_GLOBAL_SCOPE_CLASS ".");
-                        xml_output.append(target_iconst->proxy_name);
-                        xml_output.append("\"/>");
-                    } else {
-                        // Try to find as global enum constant
-                        const EnumInterface *target_ienum = nullptr;
+//                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, rd.global_constants);
 
-                        for (const EnumInterface &E : rd.global_enums) {
-                            target_ienum = &E;
-                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
-                            if (target_iconst)
-                                break;
-                        }
+//                    if (target_iconst) {
+//                        // Found global constant
+//                        xml_output.writeEmptyElement("see");
+//                        xml_output.writeAttribute("cref",target_iconst-);
+//                    } else {
+//                        // Try to find as global enum constant
+//                        const EnumInterface *target_ienum = nullptr;
 
-                        if (target_iconst) {
-                            xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                            xml_output.append(target_ienum->cname);
-                            xml_output.append(".");
-                            xml_output.append(target_iconst->proxy_name);
-                            xml_output.append("\"/>");
-                        } else {
-                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
+//                        for (const EnumInterface &E : rd.global_enums) {
+//                            target_ienum = &E;
+//                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
+//                            if (target_iconst)
+//                                break;
+//                        }
 
-                            xml_output.append("<c>");
-                            xml_output.append(link_target);
-                            xml_output.append("</c>");
-                        }
-                    }
+//                        if (target_iconst) {
+//                            xml_output.writeEmptyElement("see");
+//                            xml_output.writeAttribute("cref",BINDINGS_NAMESPACE "."+target_ienum->cname+"."+target_iconst->proxy_name);
+//                        } else {
+//                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
+//                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
+//                        }
+//                    }
                 } else {
                     // Try to find the constant in the current class
-                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, target_itype->constants);
+                    assert(false);
+//                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, target_itype->constants);
 
-                    if (target_iconst) {
-                        // Found constant in current class
-                        xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                        xml_output.append(target_itype->proxy_name);
-                        xml_output.append(".");
-                        xml_output.append(target_iconst->proxy_name);
-                        xml_output.append("\"/>");
-                    } else {
-                        // Try to find as enum constant in the current class
-                        const EnumInterface *target_ienum = nullptr;
+//                    if (target_iconst) {
+//                        // Found constant in current class
+//                        xml_output.writeEmptyElement("see");
 
-                        for (const EnumInterface &E : target_itype->enums) {
-                            target_ienum = &E;
-                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
-                            if (target_iconst)
-                                break;
-                        }
+//                        xml_output.writeAttribute("cref",(target_itype->relative_path(TargetCode::CS_INTERFACE)+"."+target_iconst->name).c_str());
+//                    } else {
+//                        // Try to find as enum constant in the current class
+//                        const EnumInterface *target_ienum = nullptr;
 
-                        if (target_iconst) {
-                            xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-                            xml_output.append(target_itype->proxy_name);
-                            xml_output.append(".");
-                            xml_output.append(target_ienum->cname);
-                            xml_output.append(".");
-                            xml_output.append(target_iconst->proxy_name);
-                            xml_output.append("\"/>");
-                        } else {
-                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
+//                        for (const EnumInterface &E : target_itype->enums) {
+//                            target_ienum = &E;
+//                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
+//                            if (target_iconst)
+//                                break;
+//                        }
 
-                            xml_output.append("<c>");
-                            xml_output.append(link_target);
-                            xml_output.append("</c>");
-                        }
-                    }
+//                        if (target_iconst) {
+//                            xml_output.writeEmptyElement("see");
+//                            xml_output.writeAttribute("cref",);
+//                            xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
+//                            xml_output.append(target_itype->proxy_name);
+//                            xml_output.append(".");
+//                            xml_output.append(target_ienum->cname);
+//                            xml_output.append(".");
+//                            xml_output.append(target_iconst->proxy_name);
+//                            xml_output.append("\"/>");
+//                        } else {
+//                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
+//                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
+//                        }
+//                    }
                 }
-#endif
             }
             pos = brk_end + 1;
         } else if (rd.doc->class_list.contains(String(tag).c_str())) {
@@ -1317,12 +1422,7 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 xml_output.writeEmptyElement("see");
                 xml_output.writeAttribute("cref", qtag);
             } else if (tag == "float"_sv) {
-#ifdef REAL_T_IS_DOUBLE
-                const char *tname = "double";
-#else
                 const char* tname = "float";
-#endif
-
                 xml_output.writeEmptyElement("see");
                 xml_output.writeAttribute("cref", tname);
             } else if (tag == "Variant"_sv) {
@@ -1345,11 +1445,7 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 xml_output.writeAttribute("cref", "\"int\"");
             } else if (tag == "PoolRealArray"_sv) {
                 xml_output.writeEmptyElement("see");
-#ifdef REAL_T_IS_DOUBLE
-                xml_output.writeAttribute("cref", "\"double\"");
-#else
                 xml_output.writeAttribute("cref", "\"float\"");
-#endif
             } else if (tag == "PoolStringArray"_sv) {
                 xml_output.writeEmptyElement("see");
                 xml_output.writeAttribute("cref", "\"string\"");
@@ -1364,14 +1460,14 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
                 xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Color\"");
             } else {
 
-                String cs_classname =  mapper.mapClassName(tag,our_ns->cs_path());
+                String cs_classname =  mapper.mapClassName(tag,our_ns->relative_path(CS_INTERFACE));
                 CSType * target_itype = our_ns->find_by_cs_name(cs_classname);
                 if (!target_itype) {
                     target_itype = our_ns->find_by_cs_name("_"+cs_classname);
                 }
                 if (target_itype) {
                     xml_output.writeEmptyElement("see");
-                    xml_output.writeAttribute("cref", (our_ns->cs_path() + target_itype->cs_name).c_str());
+                    xml_output.writeAttribute("cref", target_itype->relative_path(CS_INTERFACE).c_str());
                 }
                 else {
                     ERR_PRINT("Cannot resolve type reference in documentation: '" + tag + "'.");
@@ -1462,21 +1558,21 @@ String bbcode_to_xml(StringView p_bbcode, Span<const StringView> access_path, co
     }
     xml_output.writeEndElement();
 
-    return target.data();
+    return target.trimmed().data();
 }
 
 int _determine_enum_prefix(const CSEnum &p_ienum) {
 
-    CRASH_COND(p_ienum.m_entries.empty());
+    CRASH_COND(p_ienum.m_constants.empty());
 
-    const CSConstant *front_iconstant = p_ienum.m_entries.front();
+    const CSConstant *front_iconstant = p_ienum.m_constants.front();
     auto front_parts = front_iconstant->m_rd_data->name.split('_', /* p_allow_empty: */ true);
     size_t candidate_len = front_parts.size() - 1;
 
     if (candidate_len == 0)
         return 0;
 
-    for (const CSConstant *iconstant : p_ienum.m_entries) {
+    for (const CSConstant *iconstant : p_ienum.m_constants) {
 
         auto parts = iconstant->m_rd_data->name.split('_', /* p_allow_empty: */ true);
 
@@ -1502,7 +1598,7 @@ void _apply_prefix_to_enum_constants(CSEnum &p_ienum, int p_prefix_length) {
     if (p_prefix_length <= 0)
         return;
 
-    for (CSConstant *curr_const : p_ienum.m_entries) {
+    for (CSConstant *curr_const : p_ienum.m_constants) {
         int curr_prefix_length = p_prefix_length;
 
         String constant_name = curr_const->m_rd_data->name;
@@ -1535,7 +1631,7 @@ static void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) {
     p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
 }
 
-void BindingsGenerator::_generate_method_icalls(const TypeInterface& p_itype) {
+void _generate_method_icalls(const TypeInterface& p_itype) {
     for (const MethodInterface& imethod : p_itype.methods) {
 
         if (imethod.is_virtual)
@@ -1683,12 +1779,12 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
     p_output.indent();
     auto ns_path = ns.cs_path_components();
     //ns.m_globals.m_class_constants
-    for (const CSConstant * iconstant : ns.m_globals.m_class_constants) {
+    for (const CSConstant * iconstant : ns.m_constants) {
         p_output.indent();
-        auto const_doc = rd.constant_doc("@GlobalScope", "", iconstant->m_rd_data->name.c_str());
+        auto const_doc = rd.constant_doc("@GlobalScope", iconstant->m_rd_data->name.c_str());
 
         if (const_doc && !const_doc->description.empty()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr, rd,mapper,true);
+            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &ns, nullptr, rd,mapper,true);
             auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
             if (summary_lines.size()) {
                 p_output.append_indented("/// <summary>\n");
@@ -1709,15 +1805,16 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
         p_output.dedent();
     }
 
-    if (!ns.m_globals.m_class_constants.empty())
+    if (!ns.m_constants.empty())
         p_output.append("\n");
     p_output.dedent();
     p_output.append_indented("}\n"); // end of GD class
 
 
     // Enums
-    for (const CSEnum * const ienum : ns.m_enums) {
-        if(ienum->m_entries.empty())
+    ns.visit_kind(CSTypeLike::ENUM,[&](const CSTypeLike *entry) {
+        const CSEnum *ienum=(const CSEnum *)entry;
+        if(ienum->m_constants.empty())
             qFatal("Attempting to generate code for enum without entries");
 
         StringView enum_proxy_name(ienum->cs_name);
@@ -1729,33 +1826,31 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
             p_output.append_indented("{\n");
             p_output.indent();
         }
-        p_output.append_indented("\n");
+        p_output.append("\n");
         p_output.append_indented("public enum ");
         p_output.append(enum_proxy_name);
         p_output.append("\n");
         p_output.append_indented("{\n");
         p_output.indent();
-        for(const CSConstant * ci : ienum->m_entries) {
-            auto const_doc = rd.constant_doc("@GlobalScope", ienum->m_rd_data->cname.c_str(), ci->m_rd_data->name.c_str());
-#ifdef PROCESS_DOCS
+        for(const CSConstant * ci : ienum->m_constants) {
+            auto const_doc = rd.constant_doc("@GlobalScope", ci->m_rd_data->name);
             if (const_doc && !const_doc->description.empty()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), ns_path, nullptr,rd,mapper,true);
-                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
+                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &ns, nullptr,rd,mapper,true);
+                Vector<StringView> summary_lines;
+                String::split_ref(summary_lines,xml_summary,'\n');
                 if (!summary_lines.empty()) {
                     p_output.append_indented("/// <summary>\n");
-                    for (int i = 0; i < summary_lines.size(); i++) {
+                    for (StringView entry : summary_lines) {
                         p_output.append_indented("/// ");
-                        p_output.append(summary_lines[i]);
+                        p_output.append(entry);
                         p_output.append("\n");
                     }
                     p_output.append_indented("/// </summary>\n");
                 }
             }
-#endif
             p_output.append_indented("");
             _write_constant(p_output, *ci);
-            p_output.append(ci != ienum->m_entries.back() ? ",\n" : "\n");
+            p_output.append(ci != ienum->m_constants.back() ? ",\n" : "\n");
         }
         p_output.dedent();
         p_output.append_indented("}\n");
@@ -1764,7 +1859,7 @@ static void _generate_namespace_constants(StringBuilder &p_output,const CSNamesp
             p_output.dedent();
             p_output.append_indented("}\n");
         }
-    }
+    });
 
     p_output.append("} // end of namespace");
 
@@ -2061,147 +2156,8 @@ static bool covariantSetterGetterTypes(StringView getter, StringView setter) {
     bool setter_stringy_type = (setter == "String"_sv) || (setter == "StringName"_sv) || (setter == "StringView"_sv);
     return getter_stringy_type == setter_stringy_type;
 }
+
 #if 0
-Error BindingsGenerator::_generate_cs_property(const TypeInterface &p_itype, const PropertyInterface &p_iprop, StringBuilder &p_output) {
-
-    const MethodInterface *setter = p_itype.find_method_by_name(p_iprop.setter);
-
-    // Search it in base types too
-    const TypeInterface *current_type = &p_itype;
-    while (!setter && current_type->base_name != StringName()) {
-        auto base_match = rd.obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V_MSG(rd.obj_types.end()==base_match, ERR_BUG,
-                "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
-        current_type = &base_match->second;
-        setter = current_type->find_method_by_name(p_iprop.setter);
-    }
-
-    const MethodInterface *getter = p_itype.find_method_by_name(p_iprop.getter);
-
-    // Search it in base types too
-    current_type = &p_itype;
-    while (!getter && current_type->base_name != StringName()) {
-        auto base_match = rd.obj_types.find(current_type->base_name);
-        ERR_FAIL_COND_V_MSG(rd.obj_types.end() == base_match, ERR_BUG,
-                "Type not found '" + current_type->base_name + "'. Inherited by '" + current_type->name + "'.");
-        current_type = &base_match->second;
-        getter = current_type->find_method_by_name(p_iprop.getter);
-    }
-
-    ERR_FAIL_COND_V(!setter && !getter, ERR_BUG);
-
-    if (setter) {
-        int setter_argc = p_iprop.index != -1 ? 2 : 1;
-        ERR_FAIL_COND_V(setter->arguments.size() != setter_argc, ERR_BUG);
-    }
-
-    if (getter) {
-        int getter_argc = p_iprop.index != -1 ? 1 : 0;
-        ERR_FAIL_COND_V(getter->arguments.size() != getter_argc, ERR_BUG);
-    }
-
-    if (getter && setter) {
-        if (unlikely(!covariantSetterGetterTypes(getter->return_type.cname , setter->arguments.back().type.cname))) {
-            _err_print_error(FUNCTION_STR, __FILE__, __LINE__,
-                    "Condition ' getter->return_type.cname != setter->arguments.back().type.cname "
-                    " ' is true. returned: ERR_BUG");
-            return ERR_BUG;
-        }
-    }
-
-    const TypeReference &proptype_name = getter ? getter->return_type : setter->arguments.back().type;
-
-    const TypeInterface *prop_itype = rd._get_type_or_null(proptype_name);
-    ERR_FAIL_NULL_V(prop_itype, ERR_BUG); // Property type not found
-    auto prop_doc = rd.doc_lookup_helpers[p_itype.proxy_name].properties.at(String(p_iprop.cname),nullptr);
-    if (prop_doc && prop_doc->description.size()) {
-        String xml_summary = bbcode_to_xml(fix_doc_description(prop_doc->description), &p_itype,rd.doc);
-        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-        if (!summary_lines.empty()) {
-            p_output.append(MEMBER_BEGIN "/// <summary>\n");
-
-            for (int i = 0; i < summary_lines.size(); i++) {
-                p_output.append(INDENT2 "/// ");
-                p_output.append(summary_lines[i]);
-                p_output.append("\n");
-            }
-
-            p_output.append(INDENT2 "/// </summary>");
-        }
-    }
-
-    p_output.append(MEMBER_BEGIN "public ");
-
-    if (p_itype.is_singleton)
-        p_output.append("static ");
-
-    p_output.append(prop_itype->cs_type);
-    p_output.append(" ");
-    p_output.append(p_iprop.proxy_name);
-    p_output.append("\n" INDENT2 OPEN_BLOCK);
-
-    if (getter) {
-        p_output.append(INDENT3 "get\n"
-
-                                // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                                "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
-
-                OPEN_BLOCK_L3);
-
-        p_output.append("return ");
-        p_output.append(getter->proxy_name + "(");
-        if (p_iprop.index != -1) {
-            const ArgumentInterface &idx_arg = getter->arguments.front();
-            if (idx_arg.type.cname != name_cache->type_int) {
-                // Assume the index parameter is an enum
-                const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
-                CRASH_COND(idx_arg_type == nullptr);
-                p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index));
-            } else {
-                p_output.append(itos(p_iprop.index));
-            }
-        }
-        p_output.append(");\n"
-
-                CLOSE_BLOCK_L3
-
-                        // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                        "#pragma warning restore CS0618\n");
-    }
-
-    if (setter) {
-        p_output.append(INDENT3 "set\n"
-
-                                // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                                "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
-
-                OPEN_BLOCK_L3);
-
-        p_output.append(setter->proxy_name + "(");
-        if (p_iprop.index != -1) {
-            const ArgumentInterface &idx_arg = setter->arguments.front();
-            if (idx_arg.type.cname != name_cache->type_int) {
-                // Assume the index parameter is an enum
-                const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
-                CRASH_COND(idx_arg_type == NULL);
-                p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index) + ", ");
-            } else {
-                p_output.append(itos(p_iprop.index) + ", ");
-            }
-        }
-        p_output.append("value);\n"
-
-                CLOSE_BLOCK_L3
-
-                        // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                        "#pragma warning restore CS0618\n");
-    }
-
-    p_output.append(CLOSE_BLOCK_L2);
-
-    return OK;
-}
 Error BindingsGenerator::generate_glue(StringView p_output_dir,GeneratorContext &ctx) {
 
     ERR_FAIL_COND_V(!initialized, ERR_UNCONFIGURED);
@@ -2872,32 +2828,6 @@ Error BindingsGenerator::_generate_glue_method(
     return OK;
 }
 
-
-
-StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
-
-    switch (p_meta) {
-        case GodotTypeInfo::METADATA_INT_IS_INT8:
-            return "sbyte";
-        case GodotTypeInfo::METADATA_INT_IS_INT16:
-            return "short";
-        case GodotTypeInfo::METADATA_INT_IS_INT32:
-            return "int";
-        case GodotTypeInfo::METADATA_INT_IS_INT64:
-            return "long";
-        case GodotTypeInfo::METADATA_INT_IS_UINT8:
-            return "byte";
-        case GodotTypeInfo::METADATA_INT_IS_UINT16:
-            return "ushort";
-        case GodotTypeInfo::METADATA_INT_IS_UINT32:
-            return "uint";
-        case GodotTypeInfo::METADATA_INT_IS_UINT64:
-            return "ulong";
-        default:
-            // Assume INT32
-            return "int";
-    }
-}
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
     switch (p_meta) {
@@ -2934,22 +2864,6 @@ static StringName _get_variant_type_name_from_meta(VariantType tp,GodotTypeInfo:
         }
     }
     return Variant::interned_type_name(tp);
-}
-static StringName _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
-
-    switch (p_meta) {
-        case GodotTypeInfo::METADATA_REAL_IS_FLOAT:
-            return "float";
-        case GodotTypeInfo::METADATA_REAL_IS_DOUBLE:
-            return "double";
-        default:
-            // Assume real_t (float or double depending of REAL_T_IS_DOUBLE)
-#ifdef REAL_T_IS_DOUBLE
-            return "double";
-#else
-            return "float";
-#endif
-    }
 }
 
 bool BindingsGenerator::_populate_object_type_interfaces() {
@@ -3606,6 +3520,10 @@ struct CSProducer : FileProducer {
         return res;
     }
 };
+static void generate_cs_type_usings(const CSType* itype, GeneratorContext &ctx) {
+    ctx.out.append("using System;\n"); // IntPtr
+    ctx.out.append("using System.Diagnostics;\n"); // DebuggerBrowsable
+}
 
 struct CSReflectionVisitor {
 
@@ -3651,18 +3569,19 @@ struct CSReflectionVisitor {
         // In class add entry for the constants
         // In enum add entry for the constant
         if(m_current_enum) {
-            m_current_enum->add_constant(current_access_path(),ci);
+            m_current_enum->add_constant(ci);
             cs_producer.add_to_file("_GlobalConstants.cs",ci->name);
         } else if(m_type_stack.empty()) {
             assert(!m_namespace_stack.empty());
-            m_namespace_stack.back()->m_globals.add_constant(current_access_path(),ci);
+            m_namespace_stack.back()->add_constant(ci);
         } else {
-            m_type_stack.back()->add_constant(current_access_path(),ci);
+            m_type_stack.back()->add_constant(ci);
         }
     }
     void visitEnum(const EnumInterface *ei) {
         // Two cases, in namespace, in class
         CSEnum *en = CSEnum::get_instance_for(current_access_path(),ei);
+        auto res = m_reflection_data.doc_lookup_helpers.at(ei->cname);
         String c_base_name = m_type_stack.empty() ? "" : m_type_stack.back()->source_type->name+"::";
         String cs_base_name = m_type_stack.empty() ? "" : m_type_stack.back()->cs_name + ".";
         CSType *parent = m_type_stack.empty() ? nullptr : m_type_stack.back();
@@ -3679,7 +3598,7 @@ struct CSReflectionVisitor {
         else
         {
             // In namespace add to global enums
-            m_namespace_stack.back()->m_enums.push_back(en);
+            m_namespace_stack.back()->m_children.push_back(en);
         }
         m_current_enum = nullptr;
         int prefix_length = _determine_enum_prefix(*en);
@@ -3725,7 +3644,7 @@ struct CSReflectionVisitor {
         // Register all types in CSType lookup hash
         for (const auto& ci : iface->obj_types) {
             CSType* type = CSType::register_type(m_namespace_stack.back(), &ci.second);
-            m_namespace_stack.back()->m_types.emplace_back(type);
+            m_namespace_stack.back()->m_children.emplace_back(type);
         }
         for (const auto& ci : iface->obj_types) {
             visitType(&ci.second);
@@ -3781,11 +3700,11 @@ struct CSReflectionVisitor {
 
         if(!pi->indexed_entries.front().setter.empty()) {
             String mapped_setter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().setter, curr_type->cs_name);
-            setter = curr_type->find_method_by_name(mapped_setter_name, cs_producer.type_mapper);
+            setter = curr_type->find_method_by_name(CS_INTERFACE, mapped_setter_name, true);
         }
         if (!pi->indexed_entries.front().getter.empty()) {
             String mapped_getter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().getter, curr_type->cs_name);
-            getter = curr_type->find_method_by_name(mapped_getter_name, cs_producer.type_mapper);
+            getter = curr_type->find_method_by_name(CS_INTERFACE,mapped_getter_name, true);
         }
 
         if(!setter && !getter) {
@@ -3818,7 +3737,7 @@ struct CSReflectionVisitor {
     void visitTypeMethod(const MethodInterface *fi) {
         CSFunction *func = CSFunction::from_rd(fi,cs_producer.type_mapper);
         CSType* curr_type = m_type_stack.back();
-        curr_type->m_class_functions.emplace_back(func);
+        curr_type->m_functions.emplace_back(func);
 
       //  assert(false);
     }
@@ -3847,10 +3766,11 @@ struct CSReflectionVisitor {
 
         const char* selected_subdir = subdir_names[(int)to_gen->source_type->api_type];
 
-        qDebug() << "Generating file for type" << to_gen->cs_name.c_str() << " API: " << (int)to_gen->source_type->api_type;
+        qDebug() << "Generating cs file for type" << to_gen->cs_name.c_str() << " API: " << (int)to_gen->source_type->api_type;
         StringBuilder contents;
+        GeneratorContext ctx(contents,cs_producer.type_mapper,to_gen);
 
-        _generate_cs_type(to_gen, contents,cs_producer.type_mapper);
+        generate_cs_type_file(to_gen, ctx);
 
         cs_producer.finalize_file(selected_subdir,to_gen->cs_name + ".cs",contents);
 
@@ -3860,26 +3780,22 @@ struct CSReflectionVisitor {
     {
         // Add constants
 
-        for (const CSConstant* iconstant : itype->m_class_constants) {
-#if 0
-            auto const_doc = rd.constant_doc(itype->source_type->name.c_str(), "", iconstant->m_rd_data->name);
+        for (const CSConstant* iconstant : itype->m_constants) {
+            const DocContents::ConstantDoc *const_doc = class_doc ? class_doc->by_name(iconstant->m_rd_data->name.c_str()) : nullptr;
             if (const_doc && const_doc->description.size()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &itype, rd.doc);
-                Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
+                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), itype->m_owning_ns,itype, m_reflection_data,cs_producer.type_mapper,true);
+                Vector<StringView> summary_lines;
+                String::split_ref(summary_lines,xml_summary,'\n');
                 if (summary_lines.size()) {
-                    output.append(MEMBER_BEGIN "/// <summary>\n");
-
-                    for (int i = 0; i < summary_lines.size(); i++) {
-                        output.append(INDENT2 "/// ");
-                        output.append(summary_lines[i]);
+                    output.append_indented("/// <summary>\n");
+                    for (StringView line : summary_lines) {
+                        output.append_indented("/// ");
+                        output.append(line);
                         output.append("\n");
                     }
-
-                    output.append(INDENT2 "/// </summary>");
-    }
-        }
-#endif
+                    output.append_indented("/// </summary>\n");
+                }
+            }
             output.append_indented("public const int ");
             output.append(iconstant->cs_name);
             output.append(" = ");
@@ -3887,21 +3803,22 @@ struct CSReflectionVisitor {
             output.append(";\n");
     }
 
-        if (!itype->m_class_constants.empty())
+        if (!itype->m_constants.empty())
             output.append("\n");
 
         // Add enums
-
-        for (const CSEnum* ienum : itype->m_class_enums) {
-
-            ERR_FAIL_COND_V(ienum->m_entries.empty(), false);
-
+        itype->visit_kind(CSTypeLike::ENUM,[&](const CSTypeLike *entry) {
+            const CSEnum* ienum=(const CSEnum*)entry;
+            if(ienum->m_constants.empty()) {
+                qCritical("Encountered enum '%s' without constants!",ienum->cs_name.c_str());
+                return;
+            }
             output.append_indented("public enum ");
             output.append(ienum->cs_name);
             output.append(" {\n");
             output.indent();
 
-            for (const CSConstant* iconstant : ienum->m_entries) {
+            for (const CSConstant* iconstant : ienum->m_constants) {
 #if 0
                 auto const_doc = rd.constant_doc(itype.proxy_name, String(ienum.cname), iconstant.name);
 
@@ -3929,7 +3846,8 @@ struct CSReflectionVisitor {
             }
             output.dedent();
             output.append_indented("}\n");
-        }
+
+        });
 
         // Add properties
 
@@ -3942,8 +3860,126 @@ struct CSReflectionVisitor {
         }
         return true;
 }
+    bool _generate_cs_property(const CSProperty *p_iprop, GeneratorContext &ctx) {
+    /*
+        /// %PropertyDocs%
+        %PropertyType% %PropertyName% {
+            set {
+                %value_converter%
+                internal_call(%value_name%);
+            }
+            get {
+                return internal_call();
+            }
+        }
+    */
 
-    bool _generate_cs_type(const CSType* itype, StringBuilder &output,CSTypeMapper &mapper) {
+        const CSFunction *setter = p_iprop->setter;
+        const TypeReference &proptype_name = p_iprop->getter ? p_iprop->getter->source_type->return_type : setter->source_type->arguments.back().type;
+
+    #if 0
+        const TypeInterface *prop_itype = rd._get_type_or_null(proptype_name);
+        ERR_FAIL_NULL_V(prop_itype, ERR_BUG); // Property type not found
+        auto prop_doc = rd.doc_lookup_helpers[p_itype.proxy_name].properties.at(String(p_iprop.cname),nullptr);
+        if (prop_doc && prop_doc->description.size()) {
+            String xml_summary = bbcode_to_xml(fix_doc_description(prop_doc->description), &p_itype,rd.doc);
+            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
+
+            if (!summary_lines.empty()) {
+                p_output.append(MEMBER_BEGIN "/// <summary>\n");
+
+                for (int i = 0; i < summary_lines.size(); i++) {
+                    p_output.append(INDENT2 "/// ");
+                    p_output.append(summary_lines[i]);
+                    p_output.append("\n");
+                }
+
+                p_output.append(INDENT2 "/// </summary>");
+            }
+        }
+
+        p_output.append(MEMBER_BEGIN "public ");
+
+        if (p_itype.is_singleton)
+            p_output.append("static ");
+
+        p_output.append(prop_itype->cs_type);
+        p_output.append(" ");
+        p_output.append(p_iprop.proxy_name);
+        p_output.append("\n" INDENT2 OPEN_BLOCK);
+
+        if (getter) {
+            p_output.append(INDENT3 "get\n"
+
+                                    // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
+                                    "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
+
+                    OPEN_BLOCK_L3);
+
+            p_output.append("return ");
+            p_output.append(getter->proxy_name + "(");
+            if (p_iprop.index != -1) {
+                const ArgumentInterface &idx_arg = getter->arguments.front();
+                if (idx_arg.type.cname != name_cache->type_int) {
+                    // Assume the index parameter is an enum
+                    const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
+                    CRASH_COND(idx_arg_type == nullptr);
+                    p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index));
+                } else {
+                    p_output.append(itos(p_iprop.index));
+                }
+            }
+            p_output.append(");\n"
+
+                    CLOSE_BLOCK_L3
+
+                            // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
+                            "#pragma warning restore CS0618\n");
+        }
+
+        if (setter) {
+            p_output.append(INDENT3 "set\n"
+
+                                    // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
+                                    "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
+
+                    OPEN_BLOCK_L3);
+
+            p_output.append(setter->proxy_name + "(");
+            if (p_iprop.index != -1) {
+                const ArgumentInterface &idx_arg = setter->arguments.front();
+                if (idx_arg.type.cname != name_cache->type_int) {
+                    // Assume the index parameter is an enum
+                    const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
+                    CRASH_COND(idx_arg_type == NULL);
+                    p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index) + ", ");
+                } else {
+                    p_output.append(itos(p_iprop.index) + ", ");
+                }
+            }
+            p_output.append("value);\n"
+
+                    CLOSE_BLOCK_L3
+
+                            // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
+                            "#pragma warning restore CS0618\n");
+        }
+
+    #endif
+        ctx.end_block();
+        return OK;
+    }
+
+    bool generate_cs_type_file(const CSType * itype, GeneratorContext &ctx) {
+        /*
+            %dependencies%
+            %pragmas%
+            namespace %type_ns% {
+            %typedocs%
+            %class_or_struct_or_enum% %cs_typename%
+
+            } // end of namespace
+        */
         CRASH_COND(!itype->source_type->is_object_type);
         String nativecalls_ns = "NativeCalls"; // namespace that contains all generated nativecalls
 
@@ -3960,63 +3996,59 @@ struct CSReflectionVisitor {
             CRASH_COND(itype.is_singleton);
         }
 #endif
-        output.append("using System;\n"); // IntPtr
-        output.append("using System.Diagnostics;\n"); // DebuggerBrowsable
+        generate_cs_type_usings(itype,ctx);
 
-        output.append("\n"
+        ctx.out.append("\n"
             "#pragma warning disable CS1591 // Disable warning: "
             "'Missing XML comment for publicly visible type or member'\n"
             "#pragma warning disable CS1573 // Disable warning: "
             "'Parameter has no matching param tag in the XML comment'\n");
 
 
-        qDebug("Generating %s.cs...\n", itype->cs_name.c_str());
-        output.append("namespace " + itype->m_owning_ns->cs_path() + "\n");
-        output.append("{\n");
-        output.indent();
+        ctx.start_cs_namespace(itype->m_owning_ns->relative_path(CS_INTERFACE));
 
         String ctor_method("icall_" + itype->cs_name + "_Ctor"); // Used only for derived types
         auto iter = m_reflection_data.doc->class_list.find(itype->source_type->name);
         const DocContents::ClassDoc* class_doc = iter != m_reflection_data.doc->class_list.end() ? &iter->second : nullptr;
 
-        generate_cs_type_doc_summary(itype, class_doc, output);
+        generate_cs_type_doc_summary(itype, class_doc, ctx);
 
-        output.append_indented("public ");
+        ctx.out.append_indented("public ");
         if (itype->source_type->is_singleton) {
-            output.append("static partial class ");
+            ctx.out.append("static partial class ");
         }
         else {
             if (itype->source_type->is_namespace)
-                output.append("static class ");
+                ctx.out.append("static class ");
             else
-                output.append(itype->source_type->is_instantiable ? "partial class " : "abstract partial class ");
+                ctx.out.append(itype->source_type->is_instantiable ? "partial class " : "abstract partial class ");
         }
-        output.append(itype->cs_name);
+        ctx.out.append(itype->cs_name);
         if (itype->source_type->is_singleton || itype->source_type->is_namespace) {
-            output.append("\n");
+            ctx.out.append("\n");
         }
         else if (is_derived_type) {
             CSType* base_type = itype->m_owning_ns->find_by_cpp_name(itype->source_type->base_name);
             if (base_type) {
-                output.append(" : ");
-                output.append(base_type->cs_name.c_str());
-                output.append("\n");
+                ctx.out.append(" : ");
+                ctx.out.append(base_type->cs_name.c_str());
+                ctx.out.append("\n");
             }
             else {
                 qCritical("Base type '%s' does not exist, for class '%s'.", itype->source_type->base_name.c_str(), itype->source_type->name.c_str());
                 return false;
             }
         }
-        output.append_indented("{\n");
-        bool res = generate_cs_type_docs(itype, class_doc, output);
+        ctx.start_block();
+        bool res = generate_cs_type_docs(itype, class_doc, ctx.out);
         if (!res)
             return res;
-        output.indent();
+
         // TODO: nativeName should be StringName, once we support it in C#
         if (itype->source_type->is_singleton) {
             // Add the type name and the singleton pointer as static fields
 
-            output.append_indented_multiline(
+            ctx.out.append_indented_multiline(
 String().sprintf(
 R"raw(private static Godot.Object singleton;
 public static Godot.Object Singleton
@@ -4031,19 +4063,19 @@ public static Godot.Object Singleton
 
 )raw", itype->cs_name.c_str()));
 
-            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
-            output.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
+            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
+            ctx.out.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
         }
         else if (is_derived_type) {
             // Add member fields
-            output.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
+            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
             // Add default constructor
             if (itype->source_type->is_instantiable) {
-                output.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name.c_str(), itype->source_type->memory_own ? "true" : "false"));
+                ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name.c_str(), itype->source_type->memory_own ? "true" : "false"));
                 // The default constructor may also be called by the engine when instancing existing native objects
                 // The engine will initialize the pointer field of the managed side before calling the constructor
                 // This is why we only allocate a new native object from the constructor if the pointer field is not set
-                output.append_indented_multiline(String().sprintf(R"raw({
+                ctx.out.append_indented_multiline(String().sprintf(R"raw({
     if ( ptr == IntPtr.Zero)
         ptr = %s.%s(this);
 }
@@ -4052,14 +4084,16 @@ public static Godot.Object Singleton
             }
             else {
                 // Hide the constructor
-                output.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name.c_str()));
+                ctx.out.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name.c_str()));
             }
             // Add.. em.. trick constructor. Sort of.
-            output.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name.c_str()));
+            ctx.out.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name.c_str()));
         }
+
         int method_bind_count = 0;
-        for (const CSFunction * imethod : itype->m_class_functions) {
-            bool method_ok = _generate_cs_method(itype, imethod, output,mapper);
+        for (const CSFunction * imethod : itype->m_functions) {
+            ctx.enter_function(imethod);
+            bool method_ok = _generate_cs_method(ctx);
             ERR_FAIL_COND_V_MSG(method_ok==false, false,
                 "Failed to generate method '" + imethod->cs_name + "' for class '" + itype->cs_name+ "'.");
         }
@@ -4082,31 +4116,29 @@ public static Godot.Object Singleton
         }
 
 #endif
-        output.dedent();
-        output.append_indented("} // end of class\n");
-        output.dedent();
-        output.append("} // end of namespace\n");
-        output.append("\n"
+        ctx.end_block("end of class");
+        ctx.end_block("end of namespace");
+        ctx.out.append("\n"
             "#pragma warning restore CS1591\n"
             "#pragma warning restore CS1573\n");
         return true;
     }
-    void generate_cs_type_doc_summary(const CSType* itype, const DocContents::ClassDoc* class_doc, StringBuilder& output)
+    void generate_cs_type_doc_summary(const CSType* itype, const DocContents::ClassDoc* class_doc, GeneratorContext& ctx)
     {
         if (class_doc && !class_doc->description.empty()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), itype->access_path(), itype, m_reflection_data, cs_producer.type_mapper, true);
+            String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), itype->m_owning_ns, itype, m_reflection_data, cs_producer.type_mapper, true);
             Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
 
             if (summary_lines.size()) {
-                output.append_indented("/// <summary>\n");
+                ctx.out.append_indented("/// <summary>\n");
 
                 for (size_t i = 0; i < summary_lines.size(); i++) {
-                    output.append_indented("/// ");
-                    output.append(summary_lines[i]);
-                    output.append("\n");
+                    ctx.out.append_indented("/// ");
+                    ctx.out.append(summary_lines[i]);
+                    ctx.out.append("\n");
                 }
 
-                output.append_indented("/// </summary>\n");
+                ctx.out.append_indented("/// </summary>\n");
             }
         }
     }
@@ -4339,8 +4371,8 @@ void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, St
 }
 
 void CSTypeMapper::register_enum(const CSNamespace *ns, const CSType *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type) {
-    String full_c_name = (ns->c_path() +"::"+c_enum_name).replaced(".","::");
-    String full_cs_name = ns->cs_path() + "." + cs_enum_name;
+    String full_c_name = (ns->relative_path(CPP_IMPL) +"::"+c_enum_name).replaced(".","::");
+    String full_cs_name = ns->relative_path(CS_INTERFACE) + "." + cs_enum_name;
 
     if (from_c_name_to_mapping.contains(full_c_name)) {
         return;
@@ -4349,9 +4381,9 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSType *parent, St
     enum_itype.is_enum = true;
     enum_itype.name = c_enum_name;
     enum_wrappers.emplace_back(enum_itype);
-    
+
     CSType *reg = CSType::register_type(ns,&enum_wrappers.back());
-    reg->parent_class = parent;
+    reg->parent = parent;
     reg->cs_name = CSEnum::convert_name("",c_enum_name);
     reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m;
@@ -4359,11 +4391,6 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSType *parent, St
     this->stored_mappings.emplace_back(m);
     from_cs_name_to_mapping[full_cs_name] = &stored_mappings.back();
     from_c_name_to_mapping[full_c_name] = &stored_mappings.back();
-}
-
-CSTypeWrapper CSTypeMapper::map_type(CSTypeMapper::TypemapKind kind, const TypeReference &ref, StringView instance_name) {
-    assert(false);
-    return CSTypeWrapper{};
 }
 
 CSTypeWrapper CSTypeMapper::map_type(CSTypeMapper::TypemapKind kind, const TypeReference &ref) {
@@ -4446,13 +4473,13 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "")
 
         INSERT_INT_TYPE("sbyte", int8_t);
-        INSERT_INT_TYPE("short", int16_t, int16_t);
-        INSERT_INT_TYPE("int", int32_t, int32_t);
-        INSERT_INT_TYPE("byte", uint8_t, uint8_t);
-        INSERT_INT_TYPE("ushort", uint16_t, uint16_t);
-        INSERT_INT_TYPE("uint", uint32_t, uint32_t);
-        INSERT_INT_TYPE("ulong", uint64_t, uint64_t);
-        INSERT_INT_TYPE("long", int64_t, int64_t);
+        INSERT_INT_TYPE("short", int16_t);
+        INSERT_INT_TYPE("int", int32_t);
+        INSERT_INT_TYPE("byte", uint8_t);
+        INSERT_INT_TYPE("ushort", uint16_t);
+        INSERT_INT_TYPE("uint", uint32_t);
+        INSERT_INT_TYPE("ulong", uint64_t);
+        INSERT_INT_TYPE("long", int64_t);
 #undef INSERT_INT_TYPE
     }
 
@@ -4460,8 +4487,8 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("String");
     CSType* reg = CSType::register_type(nullptr, &builtins.back());
     reg->cs_name = "string";
-    registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = ::mono_string_to_godot(%arg%d)", "MonoString*,%arg%d_in"); 
-    //registerTypeMap(&builtins.back(), C_OUTPUT, "return ::mono_string_from_godot(%outval%d)", "MonoString* %outval%d"); 
+    registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = ::mono_string_to_godot(%arg%d)", "MonoString*,%arg%d_in");
+    //registerTypeMap(&builtins.back(), C_OUTPUT, "return ::mono_string_from_godot(%outval%d)", "MonoString* %outval%d");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
 
     // StringView
@@ -4484,7 +4511,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     registerTypeMap(&builtins.back(), C_INPUT, "bool %arg%d_in(%arg%d);", "MonoBoolean,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return static_cast<MonoBoolean>(%outval%d)", "MonoBoolean");
 
-//        itype.ret_as_byref_arg = true;                                 
+//        itype.ret_as_byref_arg = true;
 
 #define INSERT_STRUCT_TYPE(m_type)                                     \
     if constexpr (true) {                                                                  \
@@ -4515,7 +4542,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         builtins.emplace_back("float");
         reg = CSType::register_type(nullptr, &builtins.back());
         reg->cs_name = "float";
-        registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in"); 
+        registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");
         registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "float");
@@ -4616,6 +4643,12 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     itype.im_type_out = itype.proxy_name;
     rd.builtin_types.emplace(itype.cname, itype);
     */
+    //
+    builtins.emplace_back("VarArg");
+    reg = CSType::register_type(nullptr, &builtins.back());
+    reg->cs_name = "params object[]";
+    registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+
 #define INSERT_ARRAY_FULL(m_name, m_type, m_proxy_t)                          \
     {                                                                         \
         builtins.emplace_back(#m_name);\
@@ -4669,15 +4702,31 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     INSERT_ARRAY(PoolVector3Array, Vector3);
 
 #undef INSERT_ARRAY
-    
+
     register_enum(tgt_ns, from_c_name_to_mapping["Vector3"]->underlying_type,"Vector3::Axis", "Vector3::Axis",INT_32);
 }
 
 void CSTypeMapper::register_complex_type(CSType *cs) {
     assert(from_cs_name_to_mapping.end()==from_cs_name_to_mapping.find(cs->cs_name));
 
-    registerTypeMap(cs->source_type, C_INPUT, "%argtype%d %arg%d_in = FOO;", "BAR*,%arg%d_in"); 
+    registerTypeMap(cs->source_type, C_INPUT, "%argtype%d %arg%d_in = FOO;", "BAR*,%arg%d_in");
 
+}
+
+StringView CSTypeMapper::render(CSTypeWrapper tw, TargetCode tc, const CSNamespace *current_ns, const CSType *current_type)
+{
+    thread_local char buf[512];
+    buf[0]=0;
+    if(tc==CS_INTERFACE) {
+        auto dot_idx = tw.underlying_type->cs_name.find_first_of('.');
+        if(dot_idx!=String::npos) {
+            if(tw.underlying_type->cs_name.substr(0,dot_idx)==current_type->cs_name)
+                return tw.underlying_type->cs_name.substr(dot_idx+1);
+        }
+        return tw.underlying_type->cs_name.c_str();
+    }
+    assert(false);
+    return buf;
 }
 
 String CSEnum::convert_name(const String &access_path, StringView cpp_ns_name) {
@@ -4702,24 +4751,54 @@ CSProperty *CSProperty::from_rd(const CSType *owner, const PropertyInterface *ty
         return res;
 
     res = new CSProperty;
+    res->m_owner = owner;
     res->cs_name = tm.mapPropertyName(type_interface->cname,owner->cs_name,owner->m_owning_ns->cs_name);
     res->source_type = type_interface;
     s_ptr_cache[type_interface] = res;
     return res;
 }
 
-Vector<StringView> CSType::access_path() const {
-    Vector<StringView> res = m_owning_ns->cs_path_components();
-    if(parent_class) {
-        Dequeue<StringView> parents;
-        const CSType *iter=parent_class;
-        while(iter!=nullptr) {
-            parents.push_front(iter->cs_name);
-            iter=iter->parent_class;
-        }
-        res.insert(res.end(),parents.begin(),parents.end());
-    }
-    return res;
+CSEnum *CSTypeLike::find_enum_by_cpp_name(StringView name) const {
+    return (CSEnum *)find_by([name](const CSTypeLike *entry)->bool {
+        if(entry->kind()!=ENUM)
+            return false;
+        return entry->c_name()==name;
+    });
+}
+
+CSType *CSTypeLike::find_by_cs_name(const String &name) const {
+    return (CSType *)find_by([&name](const CSTypeLike *entry)->bool {
+        if(entry->kind()!=CLASS)
+            return false;
+        return entry->cs_name==name;
+    });
+}
+
+void CSTypeLike::add_constant(const ConstantInterface *ci) {
+
+    bool already_have_it=eastl::find_if(m_constants.begin(),m_constants.end(),
+                                        [ci](const CSConstant *a) {
+        return a->m_rd_data==ci;
+    })!=m_constants.end();
+    assert(!already_have_it);
+
+    CSConstant *to_add = CSConstant::get_instance_for(this,ci);
+    to_add->enclosing_type = this;
+    m_constants.emplace_back(to_add);
+}
+
+CSConstant *CSTypeLike::find_constant_by_name(TargetCode tgt, StringView name) const {
+    auto iter = eastl::find_if(m_constants.begin(), m_constants.end(), [name,tgt](const CSConstant* p) {
+        if(tgt==CPP_IMPL)
+            return p->m_rd_data->name==name;
+        return p->cs_name == name;
+    });
+    if(iter!=m_constants.end())
+        return *iter;
+
+    // retry in enclosing container
+    return parent ? parent->find_constant_by_name(tgt,name) : nullptr;
+
 }
 
 int main(int argc,char **argv) {
@@ -4732,7 +4811,7 @@ int main(int argc,char **argv) {
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addPositionalArgument("source", "Main reflection json file");
-    parser.addPositionalArgument("docs", "documentation directory");
+    parser.addPositionalArgument("docs", "documentation directory, scanned recursively for xml doc files");
     parser.addPositionalArgument("target", "destination directory");
 
     parser.process(app);
@@ -4748,7 +4827,7 @@ int main(int argc,char **argv) {
         qCritical() << "Binding generator failed to load source reflection data:"<< args[0];
         return -1;
     }
-    if(OK!=docs.load_classes(qPrintable(args[1]))) {
+    if(OK!=docs.load_classes(qPrintable(args[1]),true)) {
         qCritical("Failed to read documentation files");
     }
     rd.doc = &docs;
@@ -4757,3 +4836,4 @@ int main(int argc,char **argv) {
 
     return 0;
 }
+

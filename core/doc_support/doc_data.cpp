@@ -249,6 +249,10 @@ Error DocData::load_classes(QByteArray p_dir, bool recursively) {
     while(fl.hasNext()) {
         QString name=fl.next();
         auto fi(fl.fileInfo());
+
+        if(!name.contains("doc") || !name.contains("classes"))
+            continue;
+
         if(fi.isFile()) {
             QFile src_file(name);
             if(!src_file.open(QFile::ReadOnly)) {

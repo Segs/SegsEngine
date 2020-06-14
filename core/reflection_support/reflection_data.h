@@ -398,8 +398,8 @@ struct ReflectionData {
     void build_doc_lookup_helper();
 
     Vector<NamespaceInterface> namespaces;
-    const DocContents::ConstantDoc* constant_doc(const String &classname, String enum_name, String const_name) const {
-        return doc_lookup_helpers.at(classname).constants.at(enum_name + "::" + const_name, nullptr);
+    const DocContents::ConstantDoc* constant_doc(const String &classname, String const_name) const {
+        return doc_lookup_helpers.at( classname).constants.at(const_name, nullptr);
     }
 
     const TypeInterface *_get_type_or_null(const NamespaceInterface *ns,const TypeReference &p_typeref) const;
