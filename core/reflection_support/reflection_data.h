@@ -372,6 +372,7 @@ struct NamespaceInterface {
     Vector<String> obj_type_insert_order;
     Vector<EnumInterface> global_enums;
     Vector<ConstantInterface> global_constants;
+    Vector<MethodInterface> global_functions; // functions exposed directly by this namespace
 
     HashMap<String, TypeInterface> placeholder_types;
     HashMap<String, TypeInterface> builtin_types;
@@ -384,6 +385,7 @@ struct NamespaceInterface {
     void fromJson(const QJsonObject& obj);
 };
 struct ReflectionData {
+    //TODO: doc class is for a singular namespace!
     class DocData* doc;
 
     struct ClassLookupHelper {

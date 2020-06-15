@@ -78,6 +78,8 @@ struct PropertyDoc {
         return name < p_prop.name;
     }
 };
+
+//TODO: allow nested type/namespace docs.
 struct ClassDoc {
 
     String name;
@@ -91,11 +93,31 @@ struct ClassDoc {
     Vector<ConstantDoc> constants;
     Vector<PropertyDoc> properties;
     Vector<PropertyDoc> theme_properties;
-    const ConstantDoc *by_name(const char * name) const {
+    const ConstantDoc *const_by_name(const char * name) const {
         for(const ConstantDoc &cd : constants)
             if(cd.name==name)
                 return &cd;
         return nullptr;
+    }
+    const ConstantDoc* const_by_enum_name(const char* name) const {
+        Vector<StringView> parts;
+        String::split_ref(parts,name,"::");
+        if(parts.size()>2)
+            return nullptr;
+        if(parts.size()==1)
+            return const_by_name(name);
+
+        for (const ConstantDoc& cd : constants)
+            if (cd.enumeration==parts[0] && cd.name == parts[1])
+                return &cd;
+        return nullptr;
+    }
+    const MethodDoc *func_by_name(StringView name) const {
+        for (const MethodDoc& method_doc : methods)
+            if (method_doc.name == name)
+                return &method_doc;
+        return nullptr;
+
     }
 };
 
@@ -107,6 +129,7 @@ public:
     String version;
     String namespace_name;
     HashMap<String, DocContents::ClassDoc> class_list;
+    HashMap<String, DocData *> child_namespaces;
     const DocContents::ClassDoc &class_doc(StringName sn) {
         return class_list[sn.asCString()];
     }

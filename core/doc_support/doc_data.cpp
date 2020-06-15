@@ -283,6 +283,8 @@ Error DocData::erase_classes(QByteArray p_dir, bool recursively) {
 }
 Error _load(QXmlStreamReader &parser,DocData &tgt) {
     QString namespace_in_docs;
+    Vector<DocData *> target_doc_stack;
+    target_doc_stack.emplace_back(&tgt);
     while (!parser.atEnd()) {
 
         QXmlStreamReader::TokenType tt = parser.readNext();
@@ -299,7 +301,7 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
 
         const auto class_attrs(parser.attributes());
         if(parser.name() == "namespace") {
-            tgt.namespace_name = qPrintable(class_attrs.value("name").toString());
+            tgt.namespace_name = class_attrs.value("name").toUtf8().data();
             continue;
         }
         if(parser.name() != "class" || !class_attrs.hasAttribute("name")) {

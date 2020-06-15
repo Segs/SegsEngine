@@ -503,6 +503,13 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
     }
     root_obj["global_constants"] = globals_arr;
 
+    QJsonArray global_funcs_arr;
+    for (const auto& v : global_functions) {
+        QJsonObject entry;
+        v.toJson(entry);
+        global_funcs_arr.push_back(entry);
+    }
+    root_obj["global_functions"] = global_funcs_arr;
 
     QJsonArray types_arr;
     for (const auto& type : obj_type_insert_order) {
@@ -543,8 +550,17 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
     for (const auto& v : globals_arr) {
         ConstantInterface global;
         global.fromJson(v.toObject());
-        global_constants.push_back(global);
+        global_constants.emplace_back(eastl::move(global));
     }
+
+    QJsonArray global_funcs_arr = root_obj["global_functions"].toArray();
+    global_constants.reserve(global_funcs_arr.size());
+    for (const auto& v : global_funcs_arr) {
+        MethodInterface global;
+        global.fromJson(v.toObject());
+        global_functions.emplace_back(eastl::move(global));
+    }
+
 
     QJsonArray types_arr = root_obj["obj_types"].toArray();
     obj_types.reserve(types_arr.size());

@@ -656,14 +656,5 @@
         <constant name="ALPHA_BLEND" value="2" enum="AlphaMode">
             Image uses alpha.
         </constant>
-        <constant name="COMPRESS_SOURCE_GENERIC" value="0" enum="ImageCompressSource">
-            Source texture (before compression) is a regular texture. Default for all textures.
-        </constant>
-        <constant name="COMPRESS_SOURCE_SRGB" value="1" enum="ImageCompressSource">
-            Source texture (before compression) is in sRGB space.
-        </constant>
-        <constant name="COMPRESS_SOURCE_NORMAL" value="2" enum="ImageCompressSource">
-            Source texture (before compression) is a normal texture (e.g. it can be compressed into two channels).
-        </constant>
     </constants>
 </class>

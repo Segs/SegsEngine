@@ -25,7 +25,7 @@
 		# Only `node` and `rigid` are now packed.
 		var result = scene.pack(node)
 		if result == OK:
-		    var error = ResourceSaver.save("res://path/name.scn", scene)  # Or "user://..."
+		    var error = ResourceManager.save("res://path/name.scn", scene)  # Or "user://..."
 		    if error != OK:
 		        push_error("An error occurred while saving the scene to disk.")
 		[/codeblock]

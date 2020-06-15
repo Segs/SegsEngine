@@ -44,7 +44,7 @@
 		    # Fill the Mesh with data read in "file", left as an exercise to the reader
 
 		    var filename = save_path + "." + get_save_extension()
-		    ResourceSaver.save(filename, mesh)
+		    ResourceManager.save(filename, mesh)
 		    return OK
 		[/codeblock]
 	</description>

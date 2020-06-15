@@ -72,11 +72,15 @@ struct CSType;
 struct CSFunction;
 struct CSNamespace;
 struct CSTypeMapper;
+struct CSTypeLike;
 struct GeneratorContext;
+struct CSConstant;
+
 
 static bool _generate_cs_method(GeneratorContext &ctx);
 //static void _populate_builtin_type_interfaces(CSTypeMapper& mapper);
-
+void _generate_docs_for(const CSTypeLike* itype, GeneratorContext& ctx);
+static void _generate_docs_for(const CSConstant* iconstant, GeneratorContext& ctx);
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -101,7 +105,7 @@ enum TargetCode {
 
 
 struct CSTypeWrapper {
-    const CSType *underlying_type=nullptr;
+    const CSTypeLike *underlying_type=nullptr;
     StringView map_prepare; // a code block to prepare the value for transformation ( checks etc. )
     StringView map_perform; // a code block
 };
@@ -175,14 +179,18 @@ public:
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) ;
 
     void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern);
-    void register_enum(const CSNamespace *ns, const CSType *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type);
+    void register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type);
     //CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
 
     void register_default_types(const CSNamespace *tgt_ns);
     void register_complex_type(CSType * cs);
     //Render selected value, taking current namespace/type into account
-    StringView render(CSTypeWrapper tw,TargetCode tc, const CSNamespace *current_ns, const CSType *current_type);
+    StringView render(CSTypeWrapper tw, TargetCode tc, const CSTypeLike *current_type);
+
+    bool isRegisteredType(StringView type_name) const {
+        return from_c_name_to_mapping.contains_as(type_name);
+    }
 };
 
 
@@ -327,10 +335,12 @@ struct CSFunction {
     //CSTypeRef return_type;
     //Vector<CSTypeRef> arg_types;
     Vector<String> arg_names;
+    const DocContents::MethodDoc *m_resolved_doc = nullptr;
 
     const MethodInterface* source_type;
+    const CSTypeLike *enclosing_type;
 
-    static CSFunction* from_rd(const MethodInterface* method_interface,CSTypeMapper &mapper) {
+    static CSFunction* from_rd(const CSTypeLike* inside,const MethodInterface* method_interface,CSTypeMapper &mapper) {
 
         CSFunction* res = s_ptr_cache[method_interface];
         if(res)
@@ -339,6 +349,7 @@ struct CSFunction {
         res = new CSFunction;
         res->cs_name = mapper.mapMethodName(method_interface->name);
         res->source_type = method_interface;
+        res->enclosing_type = inside;
         //res->return_type = fromTypeRef(method_interface->return_type, mapper);
         for(const ArgumentInterface & ai : method_interface->arguments) {
           //  res->arg_types.emplace_back(fromTypeRef(ai.type, mapper));
@@ -352,14 +363,16 @@ HashMap< const MethodInterface*, CSFunction*> CSFunction::s_ptr_cache;
 
 // Anything that acts like a type ( can have methods, constants, etc. )
 struct CSTypeLike {
+protected:
+    String m_cs_name;
+public:
     enum TypeKind {
         NAMESPACE,
         CLASS,
         ENUM
     };
 
-    String cs_name;
-    // Support for tree of nesting structures - namespace in another namespace, nested types etc.
+    // Support for tree of nesting structures - namespace in another namespace, type in namespace,nested types etc.
     const CSTypeLike *parent=nullptr;
     // Nested types - (enum,type) in type, (namespace,enum,type) in namespace, () in enum
     Vector<CSTypeLike *> m_children;
@@ -369,9 +382,15 @@ struct CSTypeLike {
 
     virtual TypeKind kind() const = 0;
     virtual StringView c_name() const = 0;
+    virtual const String &cs_name() const { return m_cs_name; }
+    void set_cs_name(const String &n) { m_cs_name=n; }
 
     // overriden by Type to also visit base classes.
     virtual CSTypeLike *find_by(eastl::function<bool(const CSTypeLike *)> func) const {
+        // check self first
+        if(func(this))
+            return const_cast<CSTypeLike *>(this);
+
         // search through our children, then go to parent.
         auto iter = eastl::find_if(m_children.begin(),m_children.end(),func);
         if(iter!=m_children.end())
@@ -421,20 +440,26 @@ struct CSTypeLike {
         }
         return nullptr;
     }
-    CSType *find_by_cpp_name(StringView name) const {
+    CSType *find_type_by_cpp_name(StringView name) const {
         return (CSType *)find_by([name](const CSTypeLike *entry)->bool {
             if(entry->kind()!=CLASS)
                 return false;
             return entry->c_name()==name;
         });
     }
+    CSTypeLike* find_typelike_by_cpp_name(StringView name) const {
+        return find_by([name](const CSTypeLike* entry)->bool {
+            return entry->c_name() == name;
+        });
+    }
+
     CSEnum *find_enum_by_cpp_name(StringView name) const;
     CSType* find_by_cs_name(const String& name) const;
     String relative_path(TargetCode tgt,const CSTypeLike *rel_to=nullptr) const {
         Dequeue<String> parts;
         const CSTypeLike* ns_iter = this;
         while (ns_iter && ns_iter!=rel_to) {
-            parts.push_front(tgt==CPP_IMPL ? String(ns_iter->c_name()) : ns_iter->cs_name);
+            parts.push_front(tgt==CPP_IMPL ? String(ns_iter->c_name()) : ns_iter->cs_name());
             ns_iter = ns_iter->parent;
         }
         return String::joined(parts, tgt==CPP_IMPL ? "::" : ".");
@@ -461,8 +486,18 @@ struct CSTypeLike {
         // retry in enclosing container
         return parent ? parent->find_method_by_name(tgt,name,try_parent) : nullptr;
     }
-
+    const CSTypeLike *owning_ns() const {
+        const CSTypeLike *iter=this;
+        while(iter && iter->kind()!=NAMESPACE) {
+            iter=iter->parent;
+        }
+        return iter;
+    }
     CSConstant *find_constant_by_name(TargetCode tgt,StringView name) const;
+    void add_enum(CSEnum* enm) {
+        //TODO: add sanity checks here
+        m_children.emplace_back(enm);
+    }
 };
 struct CSConstant {
     static HashMap<String,CSConstant *> constants;
@@ -493,7 +528,7 @@ struct CSConstant {
             return iter->second;
         auto res = new CSConstant;
         res->m_rd_data = src;
-        res->m_resolved_doc = tl->m_docs ? tl->m_docs->by_name(src->name.c_str()) : nullptr;
+        res->m_resolved_doc = tl->m_docs ? tl->m_docs->const_by_name(src->name.c_str()) : nullptr;
 
         res->cs_name = convert_name(src->name);
         char buf[32]={0};
@@ -523,14 +558,15 @@ struct CSEnum : public CSTypeLike {
 
     static String convert_name(const String &access_path, StringView cpp_ns_name);
 
-    static CSEnum *get_instance_for(const String &access_path,const EnumInterface *src) {
+    static CSEnum *get_instance_for(const CSTypeLike *enclosing,const String &access_path,const EnumInterface *src) {
         auto iter = enums.find(access_path+src->cname);
         if(iter!=enums.end())
             return iter->second;
         auto res = new CSEnum;
         res->m_rd_data = src;
-        res->cs_name = convert_name(access_path,src->cname);
-        enums.emplace(access_path+res->cs_name,res);
+        res->parent = enclosing;
+        res->set_cs_name(convert_name(access_path,src->cname));
+        enums.emplace(access_path+res->cs_name(),res);
         //assert(false);
         return res;
     }
@@ -557,17 +593,13 @@ struct CSNamespace;
 struct CSType : CSTypeLike {
     static HashMap< const TypeInterface*, CSType*> s_ptr_cache;
 
-    const CSNamespace* m_owning_ns=nullptr;
     const TypeInterface* source_type;
     const CSType *base_type=nullptr;
     Vector<CSProperty *> m_properties;
 
     int pass=0;
 
-    void add_enum(CSEnum *enm) {
-        //TODO: add sanity checks here
-        m_children.emplace_back(enm);
-    }
+
 
     TypeKind kind() const override { return CLASS; }
     StringView c_name() const override { return source_type->name; }
@@ -578,16 +610,16 @@ struct CSType : CSTypeLike {
     static CSType* by_rd(const TypeInterface* type_interface) {
         return s_ptr_cache[type_interface];
     }
-    static CSType* register_type(const CSNamespace *owning_ns, const TypeInterface * type_interface) {
+    static CSType* register_type(const CSTypeLike *owning_type, const TypeInterface * type_interface) {
         CSType* res = s_ptr_cache[type_interface];
         if (res) {
-            assert(res->m_owning_ns==owning_ns);
+            assert(res->parent==owning_type);
             return res;
         }
 
         res=new CSType;
-        res->cs_name = convert_name(type_interface->name);
-        res->m_owning_ns = owning_ns;
+        res->set_cs_name(convert_name(type_interface->name));
+        res->parent = owning_type;
         res->source_type = type_interface;
         s_ptr_cache[type_interface] = res;
         return res;
@@ -651,7 +683,7 @@ struct CSNamespace : CSTypeLike {
         }
         auto res=new CSNamespace();
         res->m_source = src;
-        res->cs_name = convert_ns_name(src->namespace_name);
+        res->set_cs_name(convert_ns_name(src->namespace_name));
         namespaces[access_path+src->namespace_name] = res;
         res->parent = parent;
         if(parent)
@@ -671,7 +703,7 @@ struct CSNamespace : CSTypeLike {
     }
 
     CSType* find_or_create_by_cpp_name(const String& name)  {
-        auto cstype = find_by_cpp_name(name);
+        auto cstype = find_type_by_cpp_name(name);
         if(cstype)
             return cstype;
         CSNamespace* ns_iter = this;
@@ -691,7 +723,7 @@ struct CSNamespace : CSTypeLike {
         Dequeue<StringView> parts;
         const CSTypeLike* ns_iter = this;
         while (ns_iter) {
-            parts.push_front(ns_iter->cs_name);
+            parts.push_front(ns_iter->cs_name());
             ns_iter = ns_iter->parent;
         }
         Vector<StringView> continous(parts.begin(),parts.end());
@@ -715,14 +747,11 @@ static bool _save_file(StringView p_path, const StringBuilder& p_content) {
 struct GeneratorContext {
     StringBuilder& out;
     CSTypeMapper& mapper;
-    const CSType* p_type;
-    const CSNamespace *p_namespace=nullptr;
+    const CSTypeLike* p_type;
     const CSFunction* func;
     Vector<String> arg_names;
     CSTypeWrapper return_type;
-    GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSType*t) : out(o),mapper(m),p_type(t) {
-        if(t)
-            p_namespace = t->m_owning_ns;
+    GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSTypeLike *t) : out(o),mapper(m),p_type(t) {
     }
     void enter_function(const CSFunction *f) {
         return_type = {};
@@ -751,6 +780,540 @@ struct GeneratorContext {
 
     }
 };
+
+static String fix_doc_description(StringView p_bbcode) {
+
+    // This seems to be the correct way to do this. It's the same EditorHelp does.
+
+    return String(StringUtils::strip_edges(StringUtils::dedent(p_bbcode).replaced("\t", "")
+        .replaced("\r", "")));
+}
+static String bbcode_to_xml(StringView p_bbcode, const CSTypeLike* p_itype, CSTypeMapper& mapper, bool verbose) {
+
+    //CSNamespace *our_ns = CSNamespace::from_path(access_path);
+    // Get namespace from path
+    // Based on the version in EditorHelp
+    using namespace eastl;
+    QByteArray target;
+    QXmlStreamWriter xml_output(&target);
+    xml_output.setAutoFormatting(true);
+
+    if (p_bbcode.empty())
+        return String();
+
+    String bbcode(p_bbcode);
+
+    xml_output.writeStartElement("para");
+
+    Vector<String> tag_stack;
+    bool code_tag = false;
+
+    size_t pos = 0;
+    while (pos < bbcode.length()) {
+        auto brk_pos = bbcode.find('[', pos);
+
+        if (brk_pos == String::npos)
+            brk_pos = bbcode.length();
+
+        if (brk_pos > pos) {
+            StringView text = StringUtils::substr(bbcode, pos, brk_pos - pos);
+            if (code_tag || !tag_stack.empty()) {
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
+            }
+            else {
+                Vector<StringView> lines;
+                String::split_ref(lines, text, '\n');
+                for (size_t i = 0; i < lines.size(); i++) {
+                    if (i != 0)
+                        xml_output.writeStartElement("para");
+                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
+
+                    if (i != lines.size() - 1)
+                        xml_output.writeEndElement();
+                }
+            }
+        }
+
+        if (brk_pos == bbcode.length())
+            break; // nothing else to add
+
+        size_t brk_end = bbcode.find("]", brk_pos + 1);
+
+        if (brk_end == String::npos) {
+            StringView text = StringUtils::substr(bbcode, brk_pos, bbcode.length() - brk_pos);
+            if (code_tag || !tag_stack.empty()) {
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
+            }
+            else {
+
+                Vector<StringView> lines;
+                String::split_ref(lines, text, '\n');
+                for (size_t i = 0; i < lines.size(); i++) {
+                    if (i != 0)
+                        xml_output.writeStartElement("para");
+
+                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
+
+                    if (i != lines.size() - 1)
+                        xml_output.writeEndElement();
+                }
+            }
+
+            break;
+        }
+
+        StringView tag = StringUtils::substr(bbcode, brk_pos + 1, brk_end - brk_pos - 1);
+
+        if (tag.starts_with('/')) {
+            bool tag_ok = tag_stack.size() && tag_stack.front() == tag.substr(1, tag.length());
+
+            if (!tag_ok) {
+                xml_output.writeCharacters("[");
+                pos = brk_pos + 1;
+                continue;
+            }
+
+            tag_stack.pop_front();
+            pos = brk_end + 1;
+            code_tag = false;
+
+            if (tag == "/url"_sv) {
+                xml_output.writeEndElement(); //</a>
+            }
+            else if (tag == "/code"_sv) {
+                xml_output.writeEndElement(); //</c>
+            }
+            else if (tag == "/codeblock"_sv) {
+                xml_output.writeEndElement(); //</code>
+            }
+        }
+        else if (code_tag) {
+            xml_output.writeCharacters("[");
+            pos = brk_pos + 1;
+        }
+        else if (tag.starts_with("method ") || tag.starts_with("member ") || tag.starts_with("signal ") || tag.starts_with("enum ") || tag.starts_with("constant ")) {
+            StringView link_target = tag.substr(tag.find(" ") + 1, tag.length());
+            StringView link_tag = tag.substr(0, tag.find(" "));
+
+            Vector<StringView> link_target_parts;
+            String::split_ref(link_target_parts, link_target, '.');
+
+            if (link_target_parts.empty() || link_target_parts.size() > 2) {
+                ERR_PRINT("Invalid reference format: '" + tag + "'.");
+
+                xml_output.writeTextElement("c", QString::fromUtf8(tag.data(), tag.size()));
+
+                pos = brk_end + 1;
+                continue;
+            }
+
+            const CSTypeLike* target_itype;
+            StringName target_cname;
+
+            if (link_target_parts.size() == 2) {
+                if(link_target_parts[0]=="@GlobalScope")
+                    link_target_parts[0] = "Godot";
+                target_itype = p_itype->find_typelike_by_cpp_name(String(link_target_parts.front()));
+                if (!target_itype) {
+                    target_itype = p_itype->find_typelike_by_cpp_name("_" + String(link_target_parts.front()));
+                }
+                target_cname = StringName(link_target_parts[1]);
+            }
+            else {
+                target_itype = p_itype;
+                target_cname = StringName(link_target_parts[0]);
+            }
+            if (link_tag == "method"_sv) {
+                if (!target_itype) { // || !target_itype->source_type->is_object_type
+                    if (verbose) {
+                        if (target_itype) {
+                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", (int)link_target.size(), link_target.data());
+                        }
+                        else {
+                            qDebug("Cannot resolve type from method reference in documentation: %.*s\n", (int)link_target.size(), link_target.data());
+                        }
+                    }
+
+                    // TODO Map what we can
+                    xml_output.writeTextElement("c", QString::fromUtf8(link_target.data(), link_target.size()));
+                }
+                else {
+                    const CSFunction* target_imethod = target_itype->find_method_by_name(CS_INTERFACE, mapper.mapMethodName(target_cname, target_itype->cs_name()), true);
+
+                    if (target_imethod) {
+                        xml_output.writeEmptyElement("see");
+                        String full_path = target_itype->relative_path(CS_INTERFACE) + "." + target_imethod->cs_name;
+                        xml_output.writeAttribute("cref", QString::fromUtf8(full_path.c_str()));
+                    }
+                }
+            }
+            else if (link_tag == "member"_sv) {
+                if (!target_itype) { // || !target_itype->source_type->is_object_type
+                    if (verbose) {
+                        if (target_itype) {
+                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(), link_target.data());
+                        }
+                        else {
+                            qDebug("Cannot resolve type from member reference in documentation: %.*s\n", link_target.size(), link_target.data());
+                        }
+                    }
+
+                    // TODO Map what we can
+                    xml_output.writeTextElement("c", QString::fromUtf8(link_target.data(), link_target.size()));
+                }
+                else {
+                    // member reference could have been made in a constant belonging to enum belonging to class, so we need to find first enclosing class.
+                    const CSTypeLike *actual_type = target_itype;
+                    while(actual_type->kind()!= CSTypeLike::CLASS)
+                        actual_type = target_itype->parent;
+                    assert(actual_type);
+
+                    const CSProperty* target_iprop = ((const CSType*)actual_type)->find_property_by_name(mapper.mapPropertyName(target_cname));
+                    qDebug() << "Missing CSProperty for:" << target_cname.asCString();
+                    if (target_iprop) {
+                        xml_output.writeEmptyElement("see");
+                        String full_path = actual_type->relative_path(CS_INTERFACE) + "." + target_iprop->cs_name;
+                        xml_output.writeAttribute("cref", full_path.c_str());
+                    }
+                }
+            }
+            else if (link_tag == "signal"_sv) {
+                // We do not declare signals in any way in C#, so there is nothing to reference
+                xml_output.writeTextElement("c", QString::fromUtf8(link_target.data(), link_target.size()));
+            }
+            else if (link_tag == "enum"_sv) {
+                String search_cname = target_cname.asCString();
+                if(target_itype==nullptr)
+                    target_itype = p_itype;
+                auto enum_match = target_itype->find_enum_by_cpp_name(search_cname);
+
+                if (!enum_match) // try the fixed name -> "Enum"
+                    enum_match = target_itype->find_enum_by_cpp_name(search_cname + "Enum");
+                if(!enum_match)
+                    if (search_cname == "Operator") //HACK: to handle Variant fiasco
+                        enum_match = target_itype->find_enum_by_cpp_name("Variant::Operator");
+
+                if (enum_match) {
+                    const CSEnum* target_enum_itype = enum_match;
+                    xml_output.writeEmptyElement("see");
+                    String full_path = enum_match->relative_path(CS_INTERFACE, target_itype);
+                    xml_output.writeEmptyElement("see");
+                    xml_output.writeAttribute("cref", full_path.c_str()); // Includes nesting class if any
+                }
+                else {
+                    ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.");
+
+                    xml_output.writeTextElement("c", QByteArray::fromRawData(link_target.data(), link_target.size()));
+                }
+            }
+            else if (link_tag == "const"_sv) {
+                assert(false);
+                if (!target_itype) { //|| !target_itype->source_type->is_object_type
+                    if (verbose) {
+                        if (target_itype) {
+                            qDebug("Cannot resolve constant reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(), link_target.data());
+                        }
+                        else {
+                            qDebug("Cannot resolve type from constant reference in documentation: %.*s\n", link_target.size(), link_target.data());
+                        }
+                    }
+
+                    // TODO Map what we can
+                    xml_output.writeTextElement("c", QByteArray::fromRawData(link_target.data(), link_target.size()));
+                }
+                else if (!target_itype && target_cname == "@GlobalScope") {
+                    // Try to find as a global constant
+
+//                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, rd.global_constants);
+
+//                    if (target_iconst) {
+//                        // Found global constant
+//                        xml_output.writeEmptyElement("see");
+//                        xml_output.writeAttribute("cref",target_iconst-);
+//                    } else {
+//                        // Try to find as global enum constant
+//                        const EnumInterface *target_ienum = nullptr;
+
+//                        for (const EnumInterface &E : rd.global_enums) {
+//                            target_ienum = &E;
+//                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
+//                            if (target_iconst)
+//                                break;
+//                        }
+
+//                        if (target_iconst) {
+//                            xml_output.writeEmptyElement("see");
+//                            xml_output.writeAttribute("cref",BINDINGS_NAMESPACE "."+target_ienum->cname+"."+target_iconst->proxy_name);
+//                        } else {
+//                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
+//                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
+//                        }
+//                    }
+                }
+                else {
+                    // Try to find the constant in the current class
+                    assert(false);
+                    //                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, target_itype->constants);
+
+                    //                    if (target_iconst) {
+                    //                        // Found constant in current class
+                    //                        xml_output.writeEmptyElement("see");
+
+                    //                        xml_output.writeAttribute("cref",(target_itype->relative_path(TargetCode::CS_INTERFACE)+"."+target_iconst->name).c_str());
+                    //                    } else {
+                    //                        // Try to find as enum constant in the current class
+                    //                        const EnumInterface *target_ienum = nullptr;
+
+                    //                        for (const EnumInterface &E : target_itype->enums) {
+                    //                            target_ienum = &E;
+                    //                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
+                    //                            if (target_iconst)
+                    //                                break;
+                    //                        }
+
+                    //                        if (target_iconst) {
+                    //                            xml_output.writeEmptyElement("see");
+                    //                            xml_output.writeAttribute("cref",);
+                    //                            xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
+                    //                            xml_output.append(target_itype->proxy_name);
+                    //                            xml_output.append(".");
+                    //                            xml_output.append(target_ienum->cname);
+                    //                            xml_output.append(".");
+                    //                            xml_output.append(target_iconst->proxy_name);
+                    //                            xml_output.append("\"/>");
+                    //                        } else {
+                    //                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
+                    //                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
+                    //                        }
+                    //                    }
+                }
+            }
+            pos = brk_end + 1;
+        }
+        else if (tag == "b"_sv) {
+            // bold is not supported in xml comments
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "i"_sv) {
+            // italics is not supported in xml comments
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "code"_sv) {
+            xml_output.writeStartElement("c");
+
+            code_tag = true;
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "codeblock"_sv) {
+            xml_output.writeStartElement("code");
+
+            code_tag = true;
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "center"_sv) {
+            // center is alignment not supported in xml comments
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "br"_sv) {
+            assert(false);
+            //xml_output.append("\n"); // FIXME: Should use <para> instead. Luckily this tag isn't used for now.
+            pos = brk_end + 1;
+        }
+        else if (tag == "u"_sv) {
+            // underline is not supported in xml comments
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "s"_sv) {
+            // strikethrough is not supported in xml comments
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag == "url"_sv) {
+            size_t end = bbcode.find("[", brk_end);
+            if (end == String::npos)
+                end = bbcode.length();
+            StringView url = StringUtils::substr(bbcode, brk_end + 1, end - brk_end - 1);
+            QString qurl = QString::fromUtf8(url.data(), url.size());
+            xml_output.writeEmptyElement("a");
+            xml_output.writeAttribute("href", "\"" + qurl + "\"");
+            xml_output.writeCharacters(qurl);
+
+            pos = brk_end + 1;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag.starts_with("url=")) {
+            StringView url = tag.substr(4, tag.length());
+            QString qurl = QString::fromUtf8(url.data(), url.size());
+            xml_output.writeStartElement("a");
+            xml_output.writeAttribute("href", "\"" + qurl + "\"");
+
+            pos = brk_end + 1;
+            tag_stack.push_front("url");
+        }
+        else if (tag == "img"_sv) {
+            auto end = bbcode.find("[", brk_end);
+            if (end == String::npos)
+                end = bbcode.length();
+            StringView image(StringUtils::substr(bbcode, brk_end + 1, end - brk_end - 1));
+
+            // Not supported. Just append the bbcode.
+            xml_output.writeCharacters("[img]" + QString::fromUtf8(image.data(), image.size()) + "[/img]");
+
+            pos = end;
+            tag_stack.push_front(String(tag));
+        }
+        else if (tag.starts_with("color=")) {
+            // Not supported.
+            pos = brk_end + 1;
+            tag_stack.push_front("color");
+        }
+        else if (tag.starts_with("font=")) {
+            // Not supported.
+            pos = brk_end + 1;
+            tag_stack.push_front("font");
+        }
+        else if (mapper.isRegisteredType(tag)) {
+            QString qtag = QString::fromUtf8(tag.data(), tag.size());
+            if (tag == "Array"_sv || tag == "Dictionary"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", QString(BINDINGS_NAMESPACE_COLLECTIONS) + "." + qtag);
+            }
+            else if (tag == "bool"_sv || tag == "int"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", qtag);
+            }
+            else if (tag == "float"_sv) {
+                const char* tname = "float";
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", tname);
+            }
+            else if (tag == "Variant"_sv) {
+                // We use System.Object for Variant, so there is no Variant type in C#
+                xml_output.writeTextElement("c", "Variant");
+            }
+            else if (tag == "String"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"string\"");
+            }
+            else if (tag == "Nil"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("langword", "\"null\"");
+            }
+            else if (tag.starts_with('@')) {
+                // @GlobalScope, @GDScript, etc
+                xml_output.writeTextElement("c", qtag);
+            }
+            else if (tag == "PoolByteArray"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"byte\"");
+            }
+            else if (tag == "PoolIntArray"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"int\"");
+            }
+            else if (tag == "PoolRealArray"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"float\"");
+            }
+            else if (tag == "PoolStringArray"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"string\"");
+            }
+            else if (tag == "PoolVector2Array"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector2\"");
+            }
+            else if (tag == "PoolVector3Array"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector3\"");
+            }
+            else if (tag == "PoolColorArray"_sv) {
+                xml_output.writeEmptyElement("see");
+                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Color\"");
+            }
+            else {
+
+                String cs_classname = mapper.mapClassName(tag, p_itype->relative_path(CS_INTERFACE));
+                const CSTypeLike* target_itype = p_itype->find_by_cs_name(cs_classname);
+                if (!target_itype) {
+                    target_itype = p_itype->find_by_cs_name("_" + cs_classname);
+                }
+                if (!target_itype) {
+                    CSTypeWrapper wrapped = mapper.map_type(CSTypeMapper::SC_INPUT, { cs_classname });
+                    if (wrapped.underlying_type)
+                        target_itype = wrapped.underlying_type;
+                }
+                if (target_itype) {
+                    xml_output.writeEmptyElement("see");
+                    xml_output.writeAttribute("cref", target_itype->relative_path(CS_INTERFACE).c_str());
+                }
+                else {
+                    ERR_PRINT("Cannot resolve type reference in documentation: '" + tag + "'.");
+                    xml_output.writeTextElement("c", qtag);
+                }
+            }
+
+            pos = brk_end + 1;
+
+        }
+        else {
+            xml_output.writeCharacters("["); // ignore
+            pos = brk_pos + 1;
+        }
+    }
+    xml_output.writeEndElement();
+
+    return target.trimmed().data();
+}
+
+static void _add_doc_lines(GeneratorContext& ctx, StringView xml_summary) {
+    Vector<StringView> summary_lines;
+    String::split_ref(summary_lines, xml_summary, '\n');
+    if (summary_lines.empty())
+        return;
+
+    ctx.out.append_indented("/// <summary>\n");
+
+    for (StringView summary_line : summary_lines) {
+        ctx.out.append_indented("/// ");
+        ctx.out.append(summary_line);
+        ctx.out.append("\n");
+    }
+
+    ctx.out.append_indented("/// </summary>\n");
+}
+
+static void _generate_docs_for(const CSTypeLike* itype, GeneratorContext& ctx)
+{
+    if (!itype->m_docs || itype->m_docs->description.empty())
+        return;
+
+    String xml_summary = bbcode_to_xml(fix_doc_description(itype->m_docs->description), itype, ctx.mapper, true);
+
+    _add_doc_lines(ctx, xml_summary);
+}
+static void _generate_docs_for(const CSConstant* iconstant, GeneratorContext& ctx) {
+    if (!iconstant->m_resolved_doc || iconstant->m_resolved_doc->description.empty())
+        return;
+
+    String xml_summary = bbcode_to_xml(fix_doc_description(iconstant->m_resolved_doc->description), iconstant->enclosing_type, ctx.mapper, true);
+
+    _add_doc_lines(ctx, xml_summary);
+}
+static void _generate_docs_for(const CSFunction* func, GeneratorContext& ctx) {
+    if (!func->m_resolved_doc || func->m_resolved_doc->description.empty())
+        return;
+
+    String xml_summary = bbcode_to_xml(fix_doc_description(func->m_resolved_doc->description), func->enclosing_type, ctx.mapper, true);
+    _add_doc_lines(ctx, xml_summary);
+}
+
 static const char* cs_method_template = R"raw(
 %cs_docs%
 %cs_attributes%
@@ -781,6 +1344,7 @@ void gen_cs_docs(GeneratorContext &ctx) {
         }
     }
     */
+    _generate_docs_for(ctx.func,ctx);
     //TODO: retrieve and convert bbcode docs to xml ones, add them to out
     ctx.out.append_indented("/// TODO:Some docs here\n");
 }
@@ -798,16 +1362,19 @@ void gen_cs_attributes(GeneratorContext &ctx) {
 }
 void gen_method_access(GeneratorContext& ctx) {
     ctx.out.append_indented(ctx.func->source_type->is_internal ? "internal " : "public ");
-    if (ctx.p_type->source_type->is_singleton) {
-        ctx.out.append("static ");
-    }
-    else if (ctx.func->source_type->is_virtual) {
-        ctx.out.append("virtual ");
+    if(ctx.p_type->kind()==CSTypeLike::CLASS) {
+        const CSType *as_class=(const CSType *)ctx.p_type;
+        if (as_class->source_type->is_singleton) {
+            ctx.out.append("static ");
+        }
+        else if (ctx.func->source_type->is_virtual) {
+            ctx.out.append("virtual ");
+        }
     }
 }
 void gen_cs_return_type(GeneratorContext &ctx) {
     CSTypeWrapper wrap(ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type));
-    ctx.out.append(ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_namespace,ctx.p_type));
+    ctx.out.append(ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type));
     ctx.out.append(" ");
 }
 void gen_cs_method_name(GeneratorContext& ctx) {
@@ -828,7 +1395,7 @@ void gen_cs_arguments(GeneratorContext& ctx) {
             if(name.empty())
                 name= String().sprintf("arg_%d",i);
             ctx.arg_names.push_back(name);
-            argline.push_back(String().sprintf("%s %s%s",ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_namespace,ctx.p_type).data(),"",name.c_str()));
+            argline.push_back(String().sprintf("%s %s%s",ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type).data(),"",name.c_str()));
 
         }
         ctx.out.append(String::joined(argline,", "));
@@ -842,12 +1409,12 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
     if (ctx.func->source_type->is_virtual) {
         // Godot virtual method must be overridden, therefore we return a default value by default.
 
-        if (ctx.return_type.underlying_type->cs_name == "void") {
+        if (ctx.return_type.underlying_type->cs_name() == "void") {
             ctx.out.append_indented("return;\n");
         }
         else {
             ctx.out.append_indented("return default(");
-            ctx.out.append(ctx.return_type.underlying_type->cs_name);
+            ctx.out.append(ctx.return_type.underlying_type->cs_name());
             ctx.out.append(");\n");
         }
     }
@@ -1060,15 +1627,7 @@ static StringName _get_int_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static StringName _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta);
 static Error _save_file(StringView p_path, const StringBuilder& p_content);
 DocData *g_doc_data;
-#endif
-static String fix_doc_description(StringView p_bbcode) {
 
-    // This seems to be the correct way to do this. It's the same EditorHelp does.
-
-    return String(StringUtils::strip_edges(StringUtils::dedent(p_bbcode).replaced("\t", "")
-            .replaced("\r", "")));
-}
-#if 0
 struct NameCache {
     StringName type_void;
     StringName type_Array;
@@ -1139,427 +1698,6 @@ static inline String get_unique_sig(const TypeInterface &p_type) {
 }
 #endif
 
-String bbcode_to_xml(StringView p_bbcode, const CSNamespace *our_ns, const CSType *p_itype, const ReflectionData &rd,CSTypeMapper &mapper, bool verbose) {
-
-    //CSNamespace *our_ns = CSNamespace::from_path(access_path);
-    // Get namespace from path
-    // Based on the version in EditorHelp
-    using namespace eastl;
-    QByteArray target;
-    QXmlStreamWriter xml_output(&target);
-    xml_output.setAutoFormatting(true);
-
-    if (p_bbcode.empty())
-        return String();
-
-    String bbcode(p_bbcode);
-
-    xml_output.writeStartElement("para");
-
-    Vector<String> tag_stack;
-    bool code_tag = false;
-
-    size_t pos = 0;
-    while (pos < bbcode.length()) {
-        auto brk_pos = bbcode.find('[', pos);
-
-        if (brk_pos == String::npos)
-            brk_pos = bbcode.length();
-
-        if (brk_pos > pos) {
-            StringView text = StringUtils::substr(bbcode,pos, brk_pos - pos);
-            if (code_tag || !tag_stack.empty() ) {
-                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
-            } else {
-                Vector<StringView> lines;
-                String::split_ref(lines,text,'\n');
-                for (size_t i = 0; i < lines.size(); i++) {
-                    if (i != 0)
-                        xml_output.writeStartElement("para");
-                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
-
-                    if (i != lines.size() - 1)
-                        xml_output.writeEndElement();
-                }
-            }
-        }
-
-        if (brk_pos == bbcode.length())
-            break; // nothing else to add
-
-        size_t brk_end = bbcode.find("]", brk_pos + 1);
-
-        if (brk_end == String::npos) {
-            StringView text = StringUtils::substr(bbcode,brk_pos, bbcode.length() - brk_pos);
-            if (code_tag || !tag_stack.empty()) {
-                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
-            } else {
-
-                Vector<StringView> lines;
-                String::split_ref(lines, text, '\n');
-                for (size_t i = 0; i < lines.size(); i++) {
-                    if (i != 0)
-                        xml_output.writeStartElement("para");
-
-                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
-
-                    if (i != lines.size() - 1)
-                        xml_output.writeEndElement();
-                }
-            }
-
-            break;
-        }
-
-        StringView tag = StringUtils::substr(bbcode,brk_pos + 1, brk_end - brk_pos - 1);
-
-        if (tag.starts_with('/')) {
-            bool tag_ok = tag_stack.size() && tag_stack.front() == tag.substr(1, tag.length());
-
-            if (!tag_ok) {
-                xml_output.writeCharacters("[");
-                pos = brk_pos + 1;
-                continue;
-            }
-
-            tag_stack.pop_front();
-            pos = brk_end + 1;
-            code_tag = false;
-
-            if (tag == "/url"_sv) {
-                xml_output.writeEndElement(); //</a>
-            } else if (tag == "/code"_sv) {
-                xml_output.writeEndElement(); //</c>
-            } else if (tag == "/codeblock"_sv) {
-                xml_output.writeEndElement(); //</code>
-            }
-        } else if (code_tag) {
-            xml_output.writeCharacters("[");
-            pos = brk_pos + 1;
-        } else if (tag.starts_with("method ") || tag.starts_with("member ") || tag.starts_with("signal ") || tag.starts_with("enum ") || tag.starts_with("constant ")) {
-            StringView link_target = tag.substr(tag.find(" ") + 1, tag.length());
-            StringView link_tag = tag.substr(0, tag.find(" "));
-
-            Vector<StringView> link_target_parts;
-            String::split_ref(link_target_parts, link_target, '.');
-
-            if (link_target_parts.empty() || link_target_parts.size() > 2) {
-                ERR_PRINT("Invalid reference format: '" + tag + "'.");
-
-                xml_output.writeTextElement("c",QString::fromUtf8(tag.data(),tag.size()));
-
-                pos = brk_end + 1;
-                continue;
-            }
-
-            const CSTypeLike *target_itype;
-            StringName target_cname;
-
-            if (link_target_parts.size() == 2) {
-                target_itype = our_ns->find_by_cpp_name(String(link_target_parts.front()));
-                if (!target_itype) {
-                    target_itype = our_ns->find_by_cpp_name("_"+ String(link_target_parts.front()));
-                }
-                target_cname = StringName(link_target_parts[1]);
-            } else {
-                target_itype = p_itype;
-                target_cname = StringName(link_target_parts[0]);
-            }
-            if (link_tag == "method"_sv) {
-                if (!target_itype) { // || !target_itype->source_type->is_object_type
-                    if (verbose) {
-                        if (target_itype) {
-                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s\n", (int)link_target.size(),link_target.data());
-                        } else {
-                            qDebug("Cannot resolve type from method reference in documentation: %.*s\n", (int)link_target.size(),link_target.data());
-                        }
-                    }
-
-                    // TODO Map what we can
-                    xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
-                } else {
-                    const CSFunction *target_imethod = target_itype->find_method_by_name(CS_INTERFACE,mapper.mapMethodName(target_cname,target_itype->cs_name),true);
-
-                    if (target_imethod) {
-                        xml_output.writeEmptyElement("see");
-                        String full_path= target_itype->relative_path(CS_INTERFACE) + "." + target_imethod->cs_name;
-                        xml_output.writeAttribute("cref",QString::fromUtf8(full_path.c_str()));
-                    }
-                }
-            } else if (link_tag == "member"_sv) {
-                if (!target_itype) { // || !target_itype->source_type->is_object_type
-                    if (verbose) {
-                        if (target_itype) {
-                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
-                        } else {
-                            qDebug("Cannot resolve type from member reference in documentation: %.*s\n", link_target.size(),link_target.data());
-                        }
-                    }
-
-                    // TODO Map what we can
-                    xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(),link_target.size()));
-                } else {
-                    assert(target_itype->kind()==CSTypeLike::CLASS);
-
-                    const CSProperty *target_iprop = ((const CSType *)target_itype)->find_property_by_name(mapper.mapPropertyName(target_cname));
-                    qDebug() << "Missing CSProperty for:"<<target_cname.asCString();
-                    if (target_iprop) {
-                        xml_output.writeEmptyElement("see");
-                        String full_path= target_itype->relative_path(CS_INTERFACE) + "." + target_iprop->cs_name;
-                        xml_output.writeAttribute("cref",full_path.c_str());
-                    }
-                }
-            } else if (link_tag == "signal"_sv) {
-                // We do not declare signals in any way in C#, so there is nothing to reference
-                xml_output.writeTextElement("c",QString::fromUtf8(link_target.data(), link_target.size()));
-            } else if (link_tag == "enum"_sv) {
-                String search_cname = !target_itype ? target_cname.asCString() :
-                                                          String(target_itype->cs_name + "." + (String)target_cname);
-
-                const CSTypeLike *search_through = target_itype ? target_itype : static_cast<const CSTypeLike *>(our_ns);
-                auto enum_match = search_through->find_enum_by_cpp_name(search_cname);
-
-                if (!enum_match) // try the fixed name -> "Enum"
-                    enum_match = search_through->find_enum_by_cpp_name(search_cname+"Enum");
-
-                if (enum_match) {
-                    const CSEnum *target_enum_itype = enum_match;
-                    xml_output.writeEmptyElement("see");
-                    String full_path= target_itype->relative_path(CS_INTERFACE) + "." + enum_match->cs_name;
-                    xml_output.writeEmptyElement("see");
-                    xml_output.writeAttribute("cref",full_path.c_str()); // Includes nesting class if any
-                } else {
-                    ERR_PRINT("Cannot resolve enum reference in documentation: '" + link_target + "'.");
-
-                    xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
-                }
-            } else if (link_tag == "const"_sv) {
-                assert(false);
-                if (!target_itype ) { //|| !target_itype->source_type->is_object_type
-                    if (verbose) {
-                        if (target_itype) {
-                            qDebug("Cannot resolve constant reference for non-Godot.Object type in documentation: %.*s\n", link_target.size(),link_target.data());
-                        } else {
-                            qDebug("Cannot resolve type from constant reference in documentation: %.*s\n", link_target.size(),link_target.data());
-                        }
-                    }
-
-                    // TODO Map what we can
-                    xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
-                } else if (!target_itype && target_cname == "@GlobalScope") {
-                    // Try to find as a global constant
-
-//                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, rd.global_constants);
-
-//                    if (target_iconst) {
-//                        // Found global constant
-//                        xml_output.writeEmptyElement("see");
-//                        xml_output.writeAttribute("cref",target_iconst-);
-//                    } else {
-//                        // Try to find as global enum constant
-//                        const EnumInterface *target_ienum = nullptr;
-
-//                        for (const EnumInterface &E : rd.global_enums) {
-//                            target_ienum = &E;
-//                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
-//                            if (target_iconst)
-//                                break;
-//                        }
-
-//                        if (target_iconst) {
-//                            xml_output.writeEmptyElement("see");
-//                            xml_output.writeAttribute("cref",BINDINGS_NAMESPACE "."+target_ienum->cname+"."+target_iconst->proxy_name);
-//                        } else {
-//                            ERR_PRINT("Cannot resolve global constant reference in documentation: '" + link_target + "'.");
-//                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
-//                        }
-//                    }
-                } else {
-                    // Try to find the constant in the current class
-                    assert(false);
-//                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, target_itype->constants);
-
-//                    if (target_iconst) {
-//                        // Found constant in current class
-//                        xml_output.writeEmptyElement("see");
-
-//                        xml_output.writeAttribute("cref",(target_itype->relative_path(TargetCode::CS_INTERFACE)+"."+target_iconst->name).c_str());
-//                    } else {
-//                        // Try to find as enum constant in the current class
-//                        const EnumInterface *target_ienum = nullptr;
-
-//                        for (const EnumInterface &E : target_itype->enums) {
-//                            target_ienum = &E;
-//                            target_iconst = rd.find_constant_by_name(target_cname, target_ienum->constants);
-//                            if (target_iconst)
-//                                break;
-//                        }
-
-//                        if (target_iconst) {
-//                            xml_output.writeEmptyElement("see");
-//                            xml_output.writeAttribute("cref",);
-//                            xml_output.append("<see cref=\"" BINDINGS_NAMESPACE ".");
-//                            xml_output.append(target_itype->proxy_name);
-//                            xml_output.append(".");
-//                            xml_output.append(target_ienum->cname);
-//                            xml_output.append(".");
-//                            xml_output.append(target_iconst->proxy_name);
-//                            xml_output.append("\"/>");
-//                        } else {
-//                            ERR_PRINT("Cannot resolve constant reference in documentation: '" + link_target + "'.");
-//                            xml_output.writeTextElement("c",QByteArray::fromRawData(link_target.data(),link_target.size()));
-//                        }
-//                    }
-                }
-            }
-            pos = brk_end + 1;
-        } else if (rd.doc->class_list.contains(String(tag).c_str())) {
-            QString qtag=QString::fromUtf8(tag.data(), tag.size());
-            if (tag == "Array"_sv || tag == "Dictionary"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", QString(BINDINGS_NAMESPACE_COLLECTIONS)+"."+qtag);
-            } else if (tag == "bool"_sv || tag == "int"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", qtag);
-            } else if (tag == "float"_sv) {
-                const char* tname = "float";
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", tname);
-            } else if (tag == "Variant"_sv) {
-                // We use System.Object for Variant, so there is no Variant type in C#
-                xml_output.writeTextElement("c","Variant");
-            } else if (tag == "String"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"string\"");
-            } else if (tag == "Nil"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("langword", "\"null\"");
-            } else if (tag.starts_with('@')) {
-                // @GlobalScope, @GDScript, etc
-                xml_output.writeTextElement("c", qtag);
-            } else if (tag == "PoolByteArray"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"byte\"");
-            } else if (tag == "PoolIntArray"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"int\"");
-            } else if (tag == "PoolRealArray"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"float\"");
-            } else if (tag == "PoolStringArray"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"string\"");
-            } else if (tag == "PoolVector2Array"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector2\"");
-            } else if (tag == "PoolVector3Array"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Vector3\"");
-            } else if (tag == "PoolColorArray"_sv) {
-                xml_output.writeEmptyElement("see");
-                xml_output.writeAttribute("cref", "\"" BINDINGS_NAMESPACE ".Color\"");
-            } else {
-
-                String cs_classname =  mapper.mapClassName(tag,our_ns->relative_path(CS_INTERFACE));
-                CSType * target_itype = our_ns->find_by_cs_name(cs_classname);
-                if (!target_itype) {
-                    target_itype = our_ns->find_by_cs_name("_"+cs_classname);
-                }
-                if (target_itype) {
-                    xml_output.writeEmptyElement("see");
-                    xml_output.writeAttribute("cref", target_itype->relative_path(CS_INTERFACE).c_str());
-                }
-                else {
-                    ERR_PRINT("Cannot resolve type reference in documentation: '" + tag + "'.");
-                    xml_output.writeTextElement("c",qtag);
-                }
-            }
-
-            pos = brk_end + 1;
-        } else if (tag == "b"_sv) {
-            // bold is not supported in xml comments
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "i"_sv) {
-            // italics is not supported in xml comments
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "code"_sv) {
-            xml_output.writeStartElement("c");
-
-            code_tag = true;
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "codeblock"_sv) {
-            xml_output.writeStartElement("code");
-
-            code_tag = true;
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "center"_sv) {
-            // center is alignment not supported in xml comments
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "br"_sv) {
-            assert(false);
-            //xml_output.append("\n"); // FIXME: Should use <para> instead. Luckily this tag isn't used for now.
-            pos = brk_end + 1;
-        } else if (tag == "u"_sv) {
-            // underline is not supported in xml comments
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "s"_sv) {
-            // strikethrough is not supported in xml comments
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag == "url"_sv) {
-            size_t end = bbcode.find("[", brk_end);
-            if (end == String::npos)
-                end = bbcode.length();
-            StringView url = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
-            QString qurl = QString::fromUtf8(url.data(), url.size());
-            xml_output.writeEmptyElement("a");
-            xml_output.writeAttribute("href","\""+qurl+"\"");
-            xml_output.writeCharacters(qurl);
-
-            pos = brk_end + 1;
-            tag_stack.push_front(String(tag));
-        } else if (tag.starts_with("url=")) {
-            StringView url = tag.substr(4, tag.length());
-            QString qurl = QString::fromUtf8(url.data(), url.size());
-            xml_output.writeStartElement("a");
-            xml_output.writeAttribute("href", "\"" + qurl + "\"");
-
-            pos = brk_end + 1;
-            tag_stack.push_front("url");
-        } else if (tag == "img"_sv) {
-            auto end = bbcode.find("[", brk_end);
-            if (end == String::npos)
-                end = bbcode.length();
-            StringView image(StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1));
-
-            // Not supported. Just append the bbcode.
-            xml_output.writeCharacters("[img]"+QString::fromUtf8(image.data(),image.size())+ "[/img]");
-
-            pos = end;
-            tag_stack.push_front(String(tag));
-        } else if (tag.starts_with("color=")) {
-            // Not supported.
-            pos = brk_end + 1;
-            tag_stack.push_front("color");
-        } else if (tag.starts_with("font=")) {
-            // Not supported.
-            pos = brk_end + 1;
-            tag_stack.push_front("font");
-        } else {
-            xml_output.writeCharacters("["); // ignore
-            pos = brk_pos + 1;
-        }
-    }
-    xml_output.writeEndElement();
-
-    return target.trimmed().data();
-}
 
 int _determine_enum_prefix(const CSEnum &p_ienum) {
 
@@ -1765,106 +1903,8 @@ static void _write_constant(StringBuilder& p_output, const CSConstant &constant)
     }
     p_output.append(String(select[best]));
 }
-static void _generate_namespace_constants(StringBuilder &p_output,const CSNamespace &ns,const ReflectionData& rd,CSTypeMapper &mapper) {
-
-    // Constants (in partial GD class)
-
-    p_output.append("\n#pragma warning disable CS1591 // Disable warning: "
-                    "'Missing XML comment for publicly visible type or member'\n");
-
-    p_output.append("namespace " +ns.cs_name+ "\n {\n");
-    p_output.indent();
-    p_output.append_indented("public static partial class Constants\n");
-    p_output.append_indented("{\n");
-    p_output.indent();
-    auto ns_path = ns.cs_path_components();
-    //ns.m_globals.m_class_constants
-    for (const CSConstant * iconstant : ns.m_constants) {
-        p_output.indent();
-        auto const_doc = rd.constant_doc("@GlobalScope", iconstant->m_rd_data->name.c_str());
-
-        if (const_doc && !const_doc->description.empty()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &ns, nullptr, rd,mapper,true);
-            auto summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-            if (summary_lines.size()) {
-                p_output.append_indented("/// <summary>\n");
-
-                for (size_t i = 0; i < summary_lines.size(); i++) {
-                    p_output.append_indented("/// ");
-                    p_output.append(summary_lines[i]);
-                    p_output.append("\n");
-                }
-
-                p_output.append_indented("/// </summary>\n");
-            }
-        }
-        // TODO: use iconstant->const_type below.
-        p_output.append_indented("public const int ");
-        _write_constant(p_output,*iconstant);
-        p_output.append(";");
-        p_output.dedent();
-    }
-
-    if (!ns.m_constants.empty())
-        p_output.append("\n");
-    p_output.dedent();
-    p_output.append_indented("}\n"); // end of GD class
 
 
-    // Enums
-    ns.visit_kind(CSTypeLike::ENUM,[&](const CSTypeLike *entry) {
-        const CSEnum *ienum=(const CSEnum *)entry;
-        if(ienum->m_constants.empty())
-            qFatal("Attempting to generate code for enum without entries");
-
-        StringView enum_proxy_name(ienum->cs_name);
-
-        if (!ienum->static_wrapper_class.empty()) {
-            p_output.append_indented("public static partial class ");
-            p_output.append(ienum->static_wrapper_class);
-            p_output.append("\n");
-            p_output.append_indented("{\n");
-            p_output.indent();
-        }
-        p_output.append("\n");
-        p_output.append_indented("public enum ");
-        p_output.append(enum_proxy_name);
-        p_output.append("\n");
-        p_output.append_indented("{\n");
-        p_output.indent();
-        for(const CSConstant * ci : ienum->m_constants) {
-            auto const_doc = rd.constant_doc("@GlobalScope", ci->m_rd_data->name);
-            if (const_doc && !const_doc->description.empty()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &ns, nullptr,rd,mapper,true);
-                Vector<StringView> summary_lines;
-                String::split_ref(summary_lines,xml_summary,'\n');
-                if (!summary_lines.empty()) {
-                    p_output.append_indented("/// <summary>\n");
-                    for (StringView entry : summary_lines) {
-                        p_output.append_indented("/// ");
-                        p_output.append(entry);
-                        p_output.append("\n");
-                    }
-                    p_output.append_indented("/// </summary>\n");
-                }
-            }
-            p_output.append_indented("");
-            _write_constant(p_output, *ci);
-            p_output.append(ci != ienum->m_constants.back() ? ",\n" : "\n");
-        }
-        p_output.dedent();
-        p_output.append_indented("}\n");
-
-        if (!ienum->static_wrapper_class.empty()) {
-            p_output.dedent();
-            p_output.append_indented("}\n");
-        }
-    });
-
-    p_output.append("} // end of namespace");
-
-    p_output.append("\n#pragma warning restore CS1591\n");
-}
 #if 0
 Error BindingsGenerator::generate_cs_core_project(StringView p_proj_dir,GeneratorContext &ctx,DocData *doc) {
 
@@ -3335,6 +3375,98 @@ void BindingsGenerator::handle_cmdline_args(const Vector<String> &p_cmdline_args
 
 #endif
 
+static void generate_cs_type_usings(const CSType* itype, GeneratorContext& ctx) {
+    ctx.out.append("using System;\n"); // IntPtr
+    ctx.out.append("using System.Diagnostics;\n"); // DebuggerBrowsable
+}
+
+static void generate_enum_entry(const CSConstant* iconstant, GeneratorContext& ctx) {
+    _generate_docs_for(iconstant, ctx);
+    ctx.out.append_indented("");
+    _write_constant(ctx.out, *iconstant);
+    ctx.out.append(",\n");
+}
+static void _resolveFuncDocs(CSFunction* tgt) {
+    if(!tgt->enclosing_type || !tgt->enclosing_type->m_docs)
+        return;
+    const CSTypeLike *iter = tgt->enclosing_type;
+    const DocContents::MethodDoc* located_docs = nullptr;
+    while(iter) {
+        const DocContents::ClassDoc* our_class_docs = iter->m_docs;
+        auto doc_data = our_class_docs->func_by_name(tgt->source_type->name);
+        if (doc_data) {
+            located_docs = doc_data;
+            break;
+        }
+        // try in base class.
+        if(iter->kind()==CSTypeLike::CLASS) {
+            iter=((const CSType *)iter)->base_type;
+        }
+        else
+            break;
+    }
+
+    tgt->m_resolved_doc = located_docs;
+}
+
+static void _generate_namespace_constants(GeneratorContext& ctx, const CSNamespace& ns) {
+
+    // Constants (in partial GD class)
+
+    ctx.out.append("\n#pragma warning disable CS1591 // Disable warning: "
+        "'Missing XML comment for publicly visible type or member'\n");
+
+    ctx.start_cs_namespace(ns.cs_name());
+    ctx.out.append_indented("public static partial class Constants\n");
+    ctx.start_block();
+    auto ns_path = ns.cs_path_components();
+    //ns.m_globals.m_class_constants
+    for (const CSConstant* iconstant : ns.m_constants) {
+        ctx.out.indent();
+        _generate_docs_for(iconstant, ctx);
+        // TODO: use iconstant->const_type below.
+        ctx.out.append_indented("public const int ");
+        _write_constant(ctx.out, *iconstant);
+        ctx.out.append(";");
+        ctx.out.dedent();
+    }
+
+    if (!ns.m_constants.empty())
+        ctx.out.append("\n");
+    ctx.end_block();
+
+
+    // Enums
+    ns.visit_kind(CSTypeLike::ENUM, [&](const CSTypeLike* entry) {
+        const CSEnum* ienum = (const CSEnum*)entry;
+        if (ienum->m_constants.empty())
+            qFatal("Attempting to generate code for enum without entries");
+
+        String enum_proxy_name(ienum->cs_name());
+
+        if (!ienum->static_wrapper_class.empty()) {
+            ctx.out.append_indented("public static partial class ");
+            ctx.out.append(ienum->static_wrapper_class);
+            ctx.out.append("\n");
+            ctx.start_block();
+        }
+        ctx.out.append("\n");
+        ctx.out.append_indented("public enum ");
+        ctx.out.append(enum_proxy_name);
+        ctx.out.append("\n");
+        ctx.start_block();
+        for (const CSConstant* ci : ienum->m_constants) {
+            generate_enum_entry(ci, ctx);
+        }
+        ctx.end_block();
+
+        if (!ienum->static_wrapper_class.empty()) {
+            ctx.end_block();
+        }
+        });
+    ctx.end_block("// end of namespace");
+    ctx.out.append("\n#pragma warning restore CS1591\n");
+}
 
 struct FileProducer {
     Map<String,String> target_files;
@@ -3478,8 +3610,9 @@ struct CSProducer : FileProducer {
         // Generate source file for global scope constants and enums
         for(const auto &ns : CSNamespace::namespaces) {
             StringBuilder constants_source;
-            _generate_namespace_constants(constants_source,*ns.second,rd,mapper);
-            output_file =QDir(m_target_dir).filePath((ns.second->cs_name + "_constants.cs").c_str());
+            GeneratorContext ctx(constants_source,mapper,ns.second);
+            _generate_namespace_constants(ctx,*ns.second);
+            output_file =QDir(m_target_dir).filePath((ns.second->cs_name() + "_constants.cs").c_str());
             auto save_err = _save_file(qPrintable(output_file), constants_source);
             if (save_err != OK)
                 return false;
@@ -3520,10 +3653,6 @@ struct CSProducer : FileProducer {
         return res;
     }
 };
-static void generate_cs_type_usings(const CSType* itype, GeneratorContext &ctx) {
-    ctx.out.append("using System;\n"); // IntPtr
-    ctx.out.append("using System.Diagnostics;\n"); // DebuggerBrowsable
-}
 
 struct CSReflectionVisitor {
 
@@ -3548,15 +3677,15 @@ struct CSReflectionVisitor {
     String current_access_path() const {
         StringBuilder res;
         for(const CSNamespace *ns : m_namespace_stack) {
-            res += ns->cs_name;
+            res += ns->cs_name();
             res += "::";
         }
         for(const CSType *ts : m_type_stack) {
-            res += ts->cs_name;
+            res += ts->cs_name();
             res += "::";
         }
         if(m_current_enum) {
-            res += m_current_enum->cs_name;
+            res += m_current_enum->cs_name();
             res += "::";
         }
         return res;
@@ -3570,7 +3699,6 @@ struct CSReflectionVisitor {
         // In enum add entry for the constant
         if(m_current_enum) {
             m_current_enum->add_constant(ci);
-            cs_producer.add_to_file("_GlobalConstants.cs",ci->name);
         } else if(m_type_stack.empty()) {
             assert(!m_namespace_stack.empty());
             m_namespace_stack.back()->add_constant(ci);
@@ -3578,66 +3706,88 @@ struct CSReflectionVisitor {
             m_type_stack.back()->add_constant(ci);
         }
     }
+    void resolveTypeDocs(CSTypeLike *tgt) {
+        StringView type_name(tgt->c_name());
+        if(type_name.starts_with('_')) // types starting with '_' are assumed to wrap the non-prefixed class for script acces.
+            type_name = type_name.substr(1);
+        auto res = m_reflection_data.doc->class_list.find_as(type_name);
+        if (m_reflection_data.doc->class_list.end() == res)
+            res = m_reflection_data.doc->class_list.find(tgt->relative_path(CPP_IMPL));
+        if (m_reflection_data.doc->class_list.end() != res)
+            tgt->m_docs = &res->second;
+        else {
+            qDebug() << "Failed to find docs for" << tgt->relative_path(CPP_IMPL).c_str();
+        }
+    }
+
     void visitEnum(const EnumInterface *ei) {
         // Two cases, in namespace, in class
-        CSEnum *en = CSEnum::get_instance_for(current_access_path(),ei);
-        auto res = m_reflection_data.doc_lookup_helpers.at(ei->cname);
-        String c_base_name = m_type_stack.empty() ? "" : m_type_stack.back()->source_type->name+"::";
-        String cs_base_name = m_type_stack.empty() ? "" : m_type_stack.back()->cs_name + ".";
-        CSType *parent = m_type_stack.empty() ? nullptr : m_type_stack.back();
-        cs_producer.type_mapper.register_enum(m_namespace_stack.back(), parent, c_base_name+ei->cname,cs_base_name+en->cs_name, CSTypeMapper::INT_32);
+        CSTypeLike* parent = m_type_stack.empty() ? nullptr : m_type_stack.back();
+        assert(!m_namespace_stack.empty());
+        parent = parent ? parent : m_namespace_stack.back();
+
+        StringView enum_c_name(ei->cname);
+        StringView static_wrapper_class;
+        bool add_to_ns_too=false;
+        if (enum_c_name.contains("::")) {
+            Vector<StringView> parts;
+            String::split_ref(parts, enum_c_name, "::");
+            static_wrapper_class = parts.front();
+            enum_c_name = parts[1];
+            assert(static_wrapper_class == StringView("Variant")); // Hard-coded...
+            // an enum that belongs to a synthetic type
+            CSTypeWrapper w = cs_producer.type_mapper.map_type(CSTypeMapper::C_INPUT, { String(static_wrapper_class) });
+
+            qDebug("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_c_name.size()), enum_c_name.data(),
+                int(static_wrapper_class.size()), static_wrapper_class.data());
+            parent = const_cast<CSTypeLike *>(w.underlying_type);
+            assert(parent);
+            add_to_ns_too = true;
+        }
+
+
+        CSEnum *en = CSEnum::get_instance_for(parent,current_access_path(),ei);
+        en->static_wrapper_class = static_wrapper_class;
+
+        //resolveTypeDocs(en);
+        // right now there are no direct docs for enums, they use their enclosing class constant docs instead.
+        if(parent->m_docs)
+            en->m_docs = parent->m_docs;
+        else {
+            // try to find some docs in parent type?
+            const CSTypeLike *iter=parent;
+            while(iter) {
+                en->m_docs = iter->m_docs;
+                if(en->m_docs)
+                    break;
+                iter = iter->parent;
+            }
+        }
+
+        cs_producer.type_mapper.register_enum(m_namespace_stack.back(), parent, enum_c_name, en->cs_name(), CSTypeMapper::INT_32);
         m_current_enum = en;
         for(const ConstantInterface & ci : ei->constants)
         {
             visit_constant(&ci);
         }
-        // In type add to enums
-        if(!m_type_stack.empty()) {
-            m_type_stack.back()->add_enum(en);
-        }
-        else
-        {
-            // In namespace add to global enums
-            m_namespace_stack.back()->m_children.push_back(en);
-        }
+        parent->add_enum(en);
+        if(add_to_ns_too) // need this hack to actually output the enum in cs file if the enum is bound to static_wrapper_class
+            m_namespace_stack.back()->add_enum(en);
         m_current_enum = nullptr;
         int prefix_length = _determine_enum_prefix(*en);
 
-        StringView enum_proxy_name(en->cs_name);
 
-        if (enum_proxy_name.contains("::")) {
-            Vector<StringView> parts;
-            String::split_ref(parts, enum_proxy_name, "::");
-            en->static_wrapper_class = parts.front();
-            enum_proxy_name = parts[1];
-            assert(en->static_wrapper_class == StringView("Variant")); // Hard-coded...
-            qDebug("Declaring global enum '%.*s' inside static class '%.*s'\n", int(enum_proxy_name.size()), enum_proxy_name.data(),
-                int(en->static_wrapper_class.size()), en->static_wrapper_class.data());
-        }
         _apply_prefix_to_enum_constants(*en, prefix_length);
-    }
-    /*
-     EnumInterface ienum(StringName(String(enum_name).replaced("::", ".")));
-                auto enum_match = rd.global_enums.find(ienum);
-                if (enum_match != rd.global_enums.end()) {
-                    enum_match->constants.push_back(iconstant);
-                }
-                else {
-                    ienum.constants.push_back(iconstant);
-                    rd.global_enums.push_back(ienum);
-                }
-
-     */
-    void visitFunction(const MethodInterface *mi) {
-       assert(false);
     }
     void visitNamespace(const NamespaceInterface *iface) {
         m_namespace_stack.push_back(CSNamespace::get_instance_for(current_access_path(),iface));
+        //TODO: handle namespace docs stuff in the future
+        m_namespace_stack.back()->m_docs = &m_reflection_data.doc->class_doc("@GlobalScope");
 
         for (const ConstantInterface& ci : iface->global_constants) {
             visit_constant(&ci);
         }
-
+        bool in_synthetic_type;
         for (const EnumInterface& ci : iface->global_enums) {
             visitEnum(&ci);
         }
@@ -3648,6 +3798,10 @@ struct CSReflectionVisitor {
         }
         for (const auto& ci : iface->obj_types) {
             visitType(&ci.second);
+        }
+
+        for (const auto& ci : iface->global_functions) {
+            visitTypeMethod(&ci);
         }
 
         leaveNamespace();
@@ -3670,6 +3824,9 @@ struct CSReflectionVisitor {
         }
 
         m_type_stack.push_back(type);
+
+        resolveTypeDocs(type);
+
         cs_producer.type_mapper.register_complex_type(type);
         for(const ConstantInterface &ci : ti->constants) {
             visit_constant(&ci);
@@ -3699,35 +3856,35 @@ struct CSReflectionVisitor {
         curr_type->m_properties.emplace_back(prop);
 
         if(!pi->indexed_entries.front().setter.empty()) {
-            String mapped_setter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().setter, curr_type->cs_name);
+            String mapped_setter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().setter, curr_type->cs_name());
             setter = curr_type->find_method_by_name(CS_INTERFACE, mapped_setter_name, true);
         }
         if (!pi->indexed_entries.front().getter.empty()) {
-            String mapped_getter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().getter, curr_type->cs_name);
+            String mapped_getter_name = cs_producer.type_mapper.mapMethodName(pi->indexed_entries.front().getter, curr_type->cs_name());
             getter = curr_type->find_method_by_name(CS_INTERFACE,mapped_getter_name, true);
         }
 
         if(!setter && !getter) {
-            qCritical() << "Failed to get setter or getter for property" << prop->cs_name.c_str() << " in class " <<curr_type->cs_name.c_str();
+            qCritical() << "Failed to get setter or getter for property" << prop->cs_name.c_str() << " in class " <<curr_type->cs_name().c_str();
             return;
         }
         if (setter) {
             int setter_argc = pi->max_property_index != -1 ? 2 : 1;
             if(setter->source_type->arguments.size() != setter_argc) {
-                qCritical() << "Setter function "<< setter->cs_name.c_str() <<"has incorrect number of arguments in class " << curr_type->cs_name.c_str();
+                qCritical() << "Setter function "<< setter->cs_name.c_str() <<"has incorrect number of arguments in class " << curr_type->cs_name().c_str();
                 return;
             }
         }
         if (getter) {
             int getter_argc = pi->max_property_index != -1 ? 1 : 0;
             if (getter->source_type->arguments.size() != getter_argc) {
-                qCritical() << "Getter function " << getter->cs_name.c_str() << "has incorrect number of arguments in class " << curr_type->cs_name.c_str();
+                qCritical() << "Getter function " << getter->cs_name.c_str() << "has incorrect number of arguments in class " << curr_type->cs_name().c_str();
                 return;
             }
         }
         if (getter && setter) {
             if (unlikely(!covariantSetterGetterTypes(getter->source_type->return_type.cname, setter->source_type->arguments.back().type.cname))) {
-                qCritical() << "Getter and setter types are not covariant for property" << prop->cs_name.c_str() << " in class " << curr_type->cs_name.c_str();
+                qCritical() << "Getter and setter types are not covariant for property" << prop->cs_name.c_str() << " in class " << curr_type->cs_name().c_str();
                 return;
             }
         }
@@ -3735,9 +3892,17 @@ struct CSReflectionVisitor {
         prop->setter = setter;
     }
     void visitTypeMethod(const MethodInterface *fi) {
-        CSFunction *func = CSFunction::from_rd(fi,cs_producer.type_mapper);
-        CSType* curr_type = m_type_stack.back();
-        curr_type->m_functions.emplace_back(func);
+        CSTypeLike *tgt;
+        if(m_type_stack.empty()) {
+            assert(!m_namespace_stack.empty());
+            tgt = m_namespace_stack.back();
+        }
+        else {
+            tgt = m_type_stack.back();
+        }
+        CSFunction* func = CSFunction::from_rd(tgt,fi, cs_producer.type_mapper);
+        _resolveFuncDocs(func);
+        tgt->m_functions.emplace_back(func);
 
       //  assert(false);
     }
@@ -3766,86 +3931,48 @@ struct CSReflectionVisitor {
 
         const char* selected_subdir = subdir_names[(int)to_gen->source_type->api_type];
 
-        qDebug() << "Generating cs file for type" << to_gen->cs_name.c_str() << " API: " << (int)to_gen->source_type->api_type;
+        qDebug() << "Generating cs file for type" << to_gen->cs_name().c_str() << " API: " << (int)to_gen->source_type->api_type;
         StringBuilder contents;
         GeneratorContext ctx(contents,cs_producer.type_mapper,to_gen);
 
         generate_cs_type_file(to_gen, ctx);
 
-        cs_producer.finalize_file(selected_subdir,to_gen->cs_name + ".cs",contents);
+        cs_producer.finalize_file(selected_subdir,to_gen->cs_name() + ".cs",contents);
 
         return true;
     }
-    bool generate_cs_type_docs(const CSType* itype, const DocContents::ClassDoc* class_doc, StringBuilder& output)
+    bool generate_cs_type_docs(const CSType* itype, GeneratorContext& ctx)
     {
         // Add constants
 
         for (const CSConstant* iconstant : itype->m_constants) {
-            const DocContents::ConstantDoc *const_doc = class_doc ? class_doc->by_name(iconstant->m_rd_data->name.c_str()) : nullptr;
-            if (const_doc && const_doc->description.size()) {
-                String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), itype->m_owning_ns,itype, m_reflection_data,cs_producer.type_mapper,true);
-                Vector<StringView> summary_lines;
-                String::split_ref(summary_lines,xml_summary,'\n');
-                if (summary_lines.size()) {
-                    output.append_indented("/// <summary>\n");
-                    for (StringView line : summary_lines) {
-                        output.append_indented("/// ");
-                        output.append(line);
-                        output.append("\n");
-                    }
-                    output.append_indented("/// </summary>\n");
-                }
-            }
-            output.append_indented("public const int ");
-            output.append(iconstant->cs_name);
-            output.append(" = ");
-            output.append(iconstant->value);
-            output.append(";\n");
+            _generate_docs_for(iconstant,ctx);
+            ctx.out.append_indented("public const int ");
+            ctx.out.append(iconstant->cs_name);
+            ctx.out.append(" = ");
+            ctx.out.append(iconstant->value);
+            ctx.out.append(";\n");
     }
 
         if (!itype->m_constants.empty())
-            output.append("\n");
+            ctx.out.append("\n");
 
         // Add enums
         itype->visit_kind(CSTypeLike::ENUM,[&](const CSTypeLike *entry) {
             const CSEnum* ienum=(const CSEnum*)entry;
             if(ienum->m_constants.empty()) {
-                qCritical("Encountered enum '%s' without constants!",ienum->cs_name.c_str());
+                qCritical("Encountered enum '%s' without constants!",ienum->cs_name().c_str());
                 return;
             }
-            output.append_indented("public enum ");
-            output.append(ienum->cs_name);
-            output.append(" {\n");
-            output.indent();
+            ctx.out.append_indented("public enum ");
+            ctx.out.append(ienum->cs_name());
+            ctx.out.append(" ");
+            ctx.start_block();
 
             for (const CSConstant* iconstant : ienum->m_constants) {
-#if 0
-                auto const_doc = rd.constant_doc(itype.proxy_name, String(ienum.cname), iconstant.name);
-
-                if (const_doc && const_doc->description.size()) {
-                    String xml_summary = bbcode_to_xml(fix_doc_description(const_doc->description), &itype, rd.doc);
-                    Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-                    if (summary_lines.size()) {
-                        output.append(INDENT3 "/// <summary>\n");
-
-                        for (size_t i = 0; i < summary_lines.size(); i++) {
-                            output.append(INDENT3 "/// ");
-                            output.append(summary_lines[i]);
-                            output.append("\n");
-                        }
-
-                        output.append(INDENT3 "/// </summary>\n");
-                    }
-                }
-#endif
-                output.append_indented(iconstant->cs_name);
-                output.append(" = ");
-                output.append(iconstant->value);
-                output.append(",\n");
+                generate_enum_entry(iconstant,ctx);
             }
-            output.dedent();
-            output.append_indented("}\n");
+            ctx.end_block();
 
         });
 
@@ -4005,13 +4132,13 @@ struct CSReflectionVisitor {
             "'Parameter has no matching param tag in the XML comment'\n");
 
 
-        ctx.start_cs_namespace(itype->m_owning_ns->relative_path(CS_INTERFACE));
+        ctx.start_cs_namespace(itype->owning_ns()->relative_path(CS_INTERFACE));
 
-        String ctor_method("icall_" + itype->cs_name + "_Ctor"); // Used only for derived types
+        String ctor_method("icall_" + itype->cs_name() + "_Ctor"); // Used only for derived types
         auto iter = m_reflection_data.doc->class_list.find(itype->source_type->name);
-        const DocContents::ClassDoc* class_doc = iter != m_reflection_data.doc->class_list.end() ? &iter->second : nullptr;
+        const DocContents::ClassDoc* class_doc = itype->m_docs;
 
-        generate_cs_type_doc_summary(itype, class_doc, ctx);
+        _generate_docs_for(itype, ctx);
 
         ctx.out.append_indented("public ");
         if (itype->source_type->is_singleton) {
@@ -4023,15 +4150,15 @@ struct CSReflectionVisitor {
             else
                 ctx.out.append(itype->source_type->is_instantiable ? "partial class " : "abstract partial class ");
         }
-        ctx.out.append(itype->cs_name);
+        ctx.out.append(itype->cs_name());
         if (itype->source_type->is_singleton || itype->source_type->is_namespace) {
             ctx.out.append("\n");
         }
         else if (is_derived_type) {
-            CSType* base_type = itype->m_owning_ns->find_by_cpp_name(itype->source_type->base_name);
+            CSType* base_type = itype->find_type_by_cpp_name(itype->source_type->base_name);
             if (base_type) {
                 ctx.out.append(" : ");
-                ctx.out.append(base_type->cs_name.c_str());
+                ctx.out.append(base_type->cs_name().c_str());
                 ctx.out.append("\n");
             }
             else {
@@ -4040,7 +4167,7 @@ struct CSReflectionVisitor {
             }
         }
         ctx.start_block();
-        bool res = generate_cs_type_docs(itype, class_doc, ctx.out);
+        bool res = generate_cs_type_docs(itype, ctx);
         if (!res)
             return res;
 
@@ -4061,7 +4188,7 @@ public static Godot.Object Singleton
     }
 }
 
-)raw", itype->cs_name.c_str()));
+)raw", itype->cs_name().c_str()));
 
             ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
             ctx.out.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
@@ -4071,7 +4198,7 @@ public static Godot.Object Singleton
             ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
             // Add default constructor
             if (itype->source_type->is_instantiable) {
-                ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name.c_str(), itype->source_type->memory_own ? "true" : "false"));
+                ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name().c_str(), itype->source_type->memory_own ? "true" : "false"));
                 // The default constructor may also be called by the engine when instancing existing native objects
                 // The engine will initialize the pointer field of the managed side before calling the constructor
                 // This is why we only allocate a new native object from the constructor if the pointer field is not set
@@ -4084,10 +4211,10 @@ public static Godot.Object Singleton
             }
             else {
                 // Hide the constructor
-                ctx.out.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name.c_str()));
+                ctx.out.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name().c_str()));
             }
             // Add.. em.. trick constructor. Sort of.
-            ctx.out.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name.c_str()));
+            ctx.out.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name().c_str()));
         }
 
         int method_bind_count = 0;
@@ -4095,7 +4222,7 @@ public static Godot.Object Singleton
             ctx.enter_function(imethod);
             bool method_ok = _generate_cs_method(ctx);
             ERR_FAIL_COND_V_MSG(method_ok==false, false,
-                "Failed to generate method '" + imethod->cs_name + "' for class '" + itype->cs_name+ "'.");
+                "Failed to generate method '" + imethod->cs_name + "' for class '" + itype->cs_name() + "'.");
         }
 #if 0
         //itype.api_type == ClassDB::API_EDITOR ? editor_custom_icalls : core_custom_icalls;
@@ -4123,26 +4250,8 @@ public static Godot.Object Singleton
             "#pragma warning restore CS1573\n");
         return true;
     }
-    void generate_cs_type_doc_summary(const CSType* itype, const DocContents::ClassDoc* class_doc, GeneratorContext& ctx)
-    {
-        if (class_doc && !class_doc->description.empty()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(class_doc->description), itype->m_owning_ns, itype, m_reflection_data, cs_producer.type_mapper, true);
-            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-            if (summary_lines.size()) {
-                ctx.out.append_indented("/// <summary>\n");
-
-                for (size_t i = 0; i < summary_lines.size(); i++) {
-                    ctx.out.append_indented("/// ");
-                    ctx.out.append(summary_lines[i]);
-                    ctx.out.append("\n");
-                }
-
-                ctx.out.append_indented("/// </summary>\n");
-            }
-        }
-    }
 };
+
 
 bool processReflectionData(const ReflectionData &rd,const QString &target_dir) {
     QFileInfo fi(target_dir);
@@ -4339,7 +4448,9 @@ void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, St
     else {
         stored_mappings.emplace_back();
         from_c_name_to_mapping[ti->name] = &stored_mappings.back();
-        from_cs_name_to_mapping[t->cs_name] = &stored_mappings.back();
+        if (ti->name.starts_with('_')) // allow using non-underscore names for type lookup
+            from_c_name_to_mapping[ti->name.substr(1)] = &stored_mappings.back();
+        from_cs_name_to_mapping[t->cs_name()] = &stored_mappings.back();
         m = &stored_mappings.back();
         m->underlying_type = t;
     }
@@ -4370,13 +4481,15 @@ void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, St
 
 }
 
-void CSTypeMapper::register_enum(const CSNamespace *ns, const CSType *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type) {
-    String full_c_name = (ns->relative_path(CPP_IMPL) +"::"+c_enum_name).replaced(".","::");
-    String full_cs_name = ns->relative_path(CS_INTERFACE) + "." + cs_enum_name;
+void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type) {
+    String full_c_name = parent->relative_path(CPP_IMPL) +"::"+c_enum_name;
+    String full_cs_name = parent->relative_path(CS_INTERFACE) + "." + cs_enum_name;
 
     if (from_c_name_to_mapping.contains(full_c_name)) {
         return;
     }
+    assert(parent);
+
     TypeInterface enum_itype;
     enum_itype.is_enum = true;
     enum_itype.name = c_enum_name;
@@ -4384,7 +4497,7 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSType *parent, St
 
     CSType *reg = CSType::register_type(ns,&enum_wrappers.back());
     reg->parent = parent;
-    reg->cs_name = CSEnum::convert_name("",c_enum_name);
+    reg->set_cs_name(CSEnum::convert_name("",c_enum_name));
     reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m;
     m.underlying_type = reg;
@@ -4468,7 +4581,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 #define INSERT_INT_TYPE(m_kind, m_c_name) \
     builtins.emplace_back(#m_c_name); \
     reg = CSType::register_type(nullptr, &builtins.back()); \
-    reg->cs_name = m_kind;\
+    reg->set_cs_name(m_kind);\
     registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(%monoarg%d)", "%arg%d_in");\
     registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "")
 
@@ -4486,7 +4599,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     // String
     builtins.emplace_back("String");
     CSType* reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "string";
+    reg->set_cs_name("string");
     registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = ::mono_string_to_godot(%arg%d)", "MonoString*,%arg%d_in");
     //registerTypeMap(&builtins.back(), C_OUTPUT, "return ::mono_string_from_godot(%outval%d)", "MonoString* %outval%d");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
@@ -4494,20 +4607,20 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     // StringView
     builtins.emplace_back("StringView");
     reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "string";
+    reg->set_cs_name("string");
     registerTypeMap(&builtins.back(), C_INPUT, "TmpString<512> %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
 
     builtins.emplace_back("StringName");
     reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "string";
+    reg->set_cs_name("string");
     registerTypeMap(&builtins.back(), C_INPUT, "tStringName %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
 
     // bool
     builtins.emplace_back("bool");
     reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "bool";
+    reg->set_cs_name("bool");
     registerTypeMap(&builtins.back(), C_INPUT, "bool %arg%d_in(%arg%d);", "MonoBoolean,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return static_cast<MonoBoolean>(%outval%d)", "MonoBoolean");
 
@@ -4516,7 +4629,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 #define INSERT_STRUCT_TYPE(m_type)                                     \
     if constexpr (true) {                                                                  \
         builtins.emplace_back(#m_type); \
-        reg = CSType::register_type(nullptr, &builtins.back());\
+        reg = CSType::register_type(tgt_ns, &builtins.back());\
         registerTypeMap(&builtins.back(), C_INPUT, "%argtype%d %arg%d_in = MARSHALLED_IN(" #m_type ",%arg%d);", "GDMonoMarshal::M_" #m_type "*,%arg%d_in");\
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");\
         registerTypeMap(&builtins.back(), SC_OUTPUT, "ref %arg%d", "out %arg%d");\
@@ -4541,7 +4654,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         // float
         builtins.emplace_back("float");
         reg = CSType::register_type(nullptr, &builtins.back());
-        reg->cs_name = "float";
+        reg->set_cs_name("float");
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");
@@ -4549,7 +4662,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 
         builtins.emplace_back("double");
         reg = CSType::register_type(nullptr, &builtins.back());
-        reg->cs_name = "float";
+        reg->set_cs_name("float");
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");
@@ -4576,8 +4689,8 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 
     // Dictionary
     builtins.emplace_back("Dictionary");
-    reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "Collections.Dictionary";
+    reg = CSType::register_type(tgt_ns, &builtins.back());
+    reg->set_cs_name("Collections.Dictionary");
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
 
     /*
@@ -4596,7 +4709,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 
     // NodePath
     builtins.emplace_back("NodePath");
-    reg = CSType::register_type(nullptr, &builtins.back());
+    reg = CSType::register_type(tgt_ns, &builtins.back());
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
 /*
     itype.c_out = "\treturn memnew(NodePath(%1));\n";
@@ -4612,7 +4725,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 */
 // RID
     builtins.emplace_back("RID");
-    reg = CSType::register_type(nullptr, &builtins.back());
+    reg = CSType::register_type(tgt_ns, &builtins.back());
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
 /*
     itype.c_out = "\treturn memnew(RID(%1));\n";
@@ -4628,8 +4741,8 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 */
     // Variant
     builtins.emplace_back("Variant");
-    reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "object";
+    reg = CSType::register_type(tgt_ns, &builtins.back());
+    reg->set_cs_name("Variant"); //TODO: original was using 'object' as cs name but that broke many codegen things around here.
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
     /*
     itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_VARIANT "(%1);\n";
@@ -4646,14 +4759,14 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     //
     builtins.emplace_back("VarArg");
     reg = CSType::register_type(nullptr, &builtins.back());
-    reg->cs_name = "params object[]";
+    reg->set_cs_name("params object[]");
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
 
 #define INSERT_ARRAY_FULL(m_name, m_type, m_proxy_t)                          \
     {                                                                         \
         builtins.emplace_back(#m_name);\
         reg = CSType::register_type(nullptr, &builtins.back());\
-        reg->cs_name = #m_proxy_t "[]";\
+        reg->set_cs_name(#m_proxy_t "[]");\
         registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");\
     }
 
@@ -4661,7 +4774,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     {                                                                         \
         builtins.emplace_back(#m_name);\
         reg = CSType::register_type(nullptr, &builtins.back());\
-        reg->cs_name = #m_proxy_t "[]";\
+        reg->set_cs_name(#m_proxy_t "[]");\
         registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");\
     }
 #define INSERT_ARRAY_TPL_FULL(m_name, m_type, m_proxy_t)                      \
@@ -4703,27 +4816,27 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 
 #undef INSERT_ARRAY
 
-    register_enum(tgt_ns, from_c_name_to_mapping["Vector3"]->underlying_type,"Vector3::Axis", "Vector3::Axis",INT_32);
+    register_enum(tgt_ns, from_c_name_to_mapping["Vector3"]->underlying_type,"Axis", "Axis",INT_32);
 }
 
 void CSTypeMapper::register_complex_type(CSType *cs) {
-    assert(from_cs_name_to_mapping.end()==from_cs_name_to_mapping.find(cs->cs_name));
+    assert(from_cs_name_to_mapping.end()==from_cs_name_to_mapping.find(cs->cs_name()));
 
     registerTypeMap(cs->source_type, C_INPUT, "%argtype%d %arg%d_in = FOO;", "BAR*,%arg%d_in");
 
 }
 
-StringView CSTypeMapper::render(CSTypeWrapper tw, TargetCode tc, const CSNamespace *current_ns, const CSType *current_type)
+StringView CSTypeMapper::render(CSTypeWrapper tw, TargetCode tc, const CSTypeLike *current_type)
 {
     thread_local char buf[512];
     buf[0]=0;
     if(tc==CS_INTERFACE) {
-        auto dot_idx = tw.underlying_type->cs_name.find_first_of('.');
+        auto dot_idx = tw.underlying_type->cs_name().find_first_of('.');
         if(dot_idx!=String::npos) {
-            if(tw.underlying_type->cs_name.substr(0,dot_idx)==current_type->cs_name)
-                return tw.underlying_type->cs_name.substr(dot_idx+1);
+            if(tw.underlying_type->cs_name().substr(0,dot_idx)==current_type->cs_name())
+                return tw.underlying_type->cs_name().substr(dot_idx+1);
         }
-        return tw.underlying_type->cs_name.c_str();
+        return tw.underlying_type->cs_name();
     }
     assert(false);
     return buf;
@@ -4740,7 +4853,8 @@ String CSEnum::convert_name(const String &access_path, StringView cpp_ns_name) {
         return String(parts[1]);
     }
     if (parts.size() == 2) {
-        return CSType::convert_name(parts[0]) + "." + parts[1];
+        // NOTE: this assumes that handling of nested enum names is done outside.
+        return String(parts[1]);
     }
     return String(cpp_ns_name);
 }
@@ -4751,12 +4865,15 @@ CSProperty *CSProperty::from_rd(const CSType *owner, const PropertyInterface *ty
         return res;
 
     res = new CSProperty;
+    assert(owner && owner->parent);
     res->m_owner = owner;
-    res->cs_name = tm.mapPropertyName(type_interface->cname,owner->cs_name,owner->m_owning_ns->cs_name);
+    res->cs_name = tm.mapPropertyName(type_interface->cname,owner->cs_name(),owner->parent->cs_name());
     res->source_type = type_interface;
     s_ptr_cache[type_interface] = res;
     return res;
 }
+
+
 
 CSEnum *CSTypeLike::find_enum_by_cpp_name(StringView name) const {
     return (CSEnum *)find_by([name](const CSTypeLike *entry)->bool {
@@ -4770,19 +4887,26 @@ CSType *CSTypeLike::find_by_cs_name(const String &name) const {
     return (CSType *)find_by([&name](const CSTypeLike *entry)->bool {
         if(entry->kind()!=CLASS)
             return false;
-        return entry->cs_name==name;
+        return entry->cs_name()==name;
     });
 }
 
 void CSTypeLike::add_constant(const ConstantInterface *ci) {
 
-    bool already_have_it=eastl::find_if(m_constants.begin(),m_constants.end(),
-                                        [ci](const CSConstant *a) {
-        return a->m_rd_data==ci;
-    })!=m_constants.end();
+    bool already_have_it = eastl::find_if(m_constants.begin(), m_constants.end(),
+                                   [ci](const CSConstant *a)
+                                   {
+                                       return a->m_rd_data == ci;
+                                   }) != m_constants.end();
     assert(!already_have_it);
 
-    CSConstant *to_add = CSConstant::get_instance_for(this,ci);
+    CSConstant *to_add = CSConstant::get_instance_for(this, ci);
+    if(m_docs) {
+        if(kind()!=ENUM)
+            to_add->m_resolved_doc = m_docs->const_by_name(ci->name.c_str());
+        else
+            to_add->m_resolved_doc = m_docs->const_by_enum_name(ci->name.c_str());
+    }
     to_add->enclosing_type = this;
     m_constants.emplace_back(to_add);
 }
