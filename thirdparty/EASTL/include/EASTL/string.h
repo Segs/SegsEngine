@@ -1017,17 +1017,17 @@ namespace eastl
         template<typename CONTAINER>
         static this_type joined(const CONTAINER & subStrings, const this_type& glue)
         {
-            if (subStrings.empty())
+            if (eastl::empty(subStrings))
                 return this_type();
 
-            size_type result_size = (subStrings.size() - 1) * glue.length();
+            size_type result_size = (eastl::size(subStrings) - 1) * glue.length();
             for (const auto& sub : subStrings)
                 result_size += view_type(sub).length()+glue.size();
 
             this_type joinedString;
             joinedString.reserve(result_size);
             joinedString.append(subStrings[0]);
-            for (unsigned i = 1; i < subStrings.size(); ++i)
+            for (unsigned i = 1; i < eastl::size(subStrings); ++i)
                 joinedString.append(glue).append(subStrings[i]);
 
             return joinedString;

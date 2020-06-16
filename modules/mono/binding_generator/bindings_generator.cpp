@@ -106,8 +106,8 @@ enum TargetCode {
 
 struct CSTypeWrapper {
     const CSTypeLike *underlying_type=nullptr;
-    StringView map_prepare; // a code block to prepare the value for transformation ( checks etc. )
-    StringView map_perform; // a code block
+    const String *map_prepare; // a code block to prepare the value for transformation ( checks etc. )
+    const String* map_perform; // a code block
 };
 struct CSTypeMapper {
 public:
@@ -470,7 +470,9 @@ public:
             if(tl->kind()==to_visit)
                 visitor(tl);
         }
-    };
+    }
+
+    virtual bool needs_instance() const { return false; }
     void add_constant(const ConstantInterface *ci);
     virtual CSFunction * find_method_by_name(TargetCode tgt,StringView name, bool try_parent) const {
         auto iter = eastl::find_if(m_functions.begin(), m_functions.end(), [name,tgt](const CSFunction* p) {
@@ -603,7 +605,8 @@ struct CSType : CSTypeLike {
 
     TypeKind kind() const override { return CLASS; }
     StringView c_name() const override { return source_type->name; }
-
+    // If this object is not a singleton, it needs the instance pointer.
+    bool needs_instance() const override { return !source_type->is_singleton; }
     static String convert_name(StringView name) {
         return String(name.starts_with('_') ? name.substr(1) : name);
     }
@@ -1324,29 +1327,7 @@ static const char* cs_method_template = R"raw(
 )raw";
 
 void gen_cs_docs(GeneratorContext &ctx) {
-    /*
-    auto method_doc = rd.doc_lookup_helpers[p_itype.proxy_name].methods.at(String(p_imethod.cname));
-    if (method_doc && method_doc->description.size()) {
-        String xml_summary = bbcode_to_xml(fix_doc_description(method_doc->description), &p_itype,rd.doc);
-        Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-        if (summary_lines.size() || default_args_doc.get_string_length()) {
-            p_output.append(MEMBER_BEGIN "/// <summary>\n");
-
-            for (int i = 0; i < summary_lines.size(); i++) {
-                p_output.append(INDENT2 "/// ");
-                p_output.append(summary_lines[i]);
-                p_output.append("\n");
-            }
-
-            p_output.append(default_args_doc.as_string());
-            p_output.append(INDENT2 "/// </summary>");
-        }
-    }
-    */
     _generate_docs_for(ctx.func,ctx);
-    //TODO: retrieve and convert bbcode docs to xml ones, add them to out
-    ctx.out.append_indented("/// TODO:Some docs here\n");
 }
 void gen_cs_attributes(GeneratorContext &ctx) {
     ctx.out.append_indented(String().sprintf("[GodotMethod(\"%s\")]\n", ctx.func->source_type->name.c_str()));
@@ -1403,7 +1384,19 @@ void gen_cs_arguments(GeneratorContext& ctx) {
     ctx.out.append(")\n");
 }
 void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
-
+    int idx=0;
+    for(const auto &v : ctx.func->source_type->arguments) {
+        CSTypeWrapper wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT,v.type);
+        if(!wrap.underlying_type) {
+            qCritical("Failed to find type mapping for %s",v.type.cname.c_str());
+            continue;
+        }
+        if(!wrap.map_prepare->empty()) {
+            ctx.out.append_indented("Preparing arg:\n");
+            ctx.out.append_indented(*wrap.map_prepare);
+            ctx.out.append_indented("\n");
+        }
+    }
 }
 void gen_cs_perform_internal_call(GeneratorContext& ctx) {
     if (ctx.func->source_type->is_virtual) {
@@ -1443,18 +1436,29 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
         im_call += ".";
         im_call += im_icall->name;
 
-        if (!p_imethod.arguments.empty())
-            p_output.append(cs_in_statements);
-
-        if (return_type->cname == name_cache->type_void) {
-            p_output.append(im_call + "(" + icall_params + ");\n");
-        } else if (return_type->cs_out.empty()) {
-            p_output.append("return " + im_call + "(" + icall_params + ");\n");
-        } else {
-            p_output.append(sformat(return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out));
-            p_output.append("\n");
-        }
 */
+        String im_call = "$imcallname$";
+        String icall_params = "";
+
+        if (!ctx.func->source_type->arguments.empty()) {
+            ctx.out.append_indented("%prepare_cs_args%;\n");
+            icall_params = "$icall_params$";
+        }
+        if (ctx.p_type->needs_instance()) {
+            StringView new_args[2] = { "Object.GetPtr(this)" ,icall_params };
+            icall_params = String::joined(new_args, ",");
+        }
+
+        if (ctx.return_type.underlying_type->c_name() == "void") {
+            ctx.out.append_indented(im_call + "(" + icall_params + ");\n");
+        }
+        else if (ctx.return_type.map_perform->empty()) {
+            ctx.out.append_indented("return " + im_call + "(" + icall_params + ");\n");
+        }
+        else {
+            ctx.out.append(String().sprintf("FLORB BLORB?"));//return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out
+            ctx.out.append("\n");
+        }
     }
 
 }
@@ -2951,8 +2955,7 @@ bool BindingsGenerator::_populate_object_type_interfaces() {
         itype.memory_own = itype.is_reference;
         itype.is_namespace = class_iter->second.is_namespace;
 
-        itype.c_out = "\treturn ";
-        itype.c_out += C_METHOD_UNMANAGED_GET_MANAGED;
+        itype.c_out = "\treturn " C_METHOD_UNMANAGED_GET_MANAGED;
         itype.c_out += itype.is_reference ? "((Object *)%1.get());\n" : "((Object *)%1);\n";
 
         itype.cs_in = itype.is_singleton ? BINDINGS_PTR_FIELD : "Object." CS_SMETHOD_GETINSTANCE "(%0)";
@@ -4507,13 +4510,12 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
 }
 
 CSTypeWrapper CSTypeMapper::map_type(CSTypeMapper::TypemapKind kind, const TypeReference &ref) {
-    Map<String, Mapping*>::iterator iter;
     String actual_name = ref.cname;
     if(ref.is_enum) {
         auto parts = ref.cname.split('.');
         actual_name = String::joined(parts,"::");
     }
-    iter = from_c_name_to_mapping.find(actual_name);
+    auto iter = from_c_name_to_mapping.find(actual_name);
     if(iter == from_c_name_to_mapping.end()) // try default NS ?
         iter = from_c_name_to_mapping.find("Godot::"+ actual_name);
     assert(iter!=from_c_name_to_mapping.end());
@@ -4532,8 +4534,8 @@ CSTypeWrapper CSTypeMapper::map_type(CSTypeMapper::TypemapKind kind, const TypeR
         case SC_RETURN: sel = &mapping.cs_return; break;
     }
     assert(sel);
-    res.map_prepare = sel->type;
-    res.map_perform = sel->marshall;
+    res.map_prepare = &sel->type;
+    res.map_perform = &sel->marshall;
     return res;
 }
 
