@@ -551,7 +551,6 @@ HashMap<String,CSConstant *> CSConstant::constants;
 struct CSEnum : public CSTypeLike {
     static HashMap<String,CSEnum *> enums;
     const EnumInterface *m_rd_data;
-    String xml_doc;
     String static_wrapper_class;
     TypeReference underlying_val_type;
 
@@ -580,8 +579,9 @@ struct CSProperty {
     static HashMap< const PropertyInterface*, CSProperty *> s_ptr_cache;
 
     String cs_name;
-    const CSType *m_owner;
-    const PropertyInterface *source_type;
+    const CSType *m_owner = nullptr;
+    const DocContents::PropertyDoc* m_docs=nullptr;
+    const PropertyInterface *source_type = nullptr;
     const CSFunction *setter = nullptr;
     const CSFunction* getter = nullptr;
 
@@ -590,18 +590,13 @@ struct CSProperty {
 HashMap< const PropertyInterface*, CSProperty *> CSProperty::s_ptr_cache;
 
 
-struct CSNamespace;
-
 struct CSType : CSTypeLike {
     static HashMap< const TypeInterface*, CSType*> s_ptr_cache;
 
     const TypeInterface* source_type;
     const CSType *base_type=nullptr;
     Vector<CSProperty *> m_properties;
-
     int pass=0;
-
-
 
     TypeKind kind() const override { return CLASS; }
     StringView c_name() const override { return source_type->name; }
@@ -825,7 +820,7 @@ static String bbcode_to_xml(StringView p_bbcode, const CSTypeLike* p_itype, CSTy
             }
             else {
                 Vector<StringView> lines;
-                String::split_ref(lines, text, '\n');
+                String::split_ref(lines, text, '\n',true);
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.writeStartElement("para");
@@ -857,8 +852,10 @@ static String bbcode_to_xml(StringView p_bbcode, const CSTypeLike* p_itype, CSTy
 
                     xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
 
-                    if (i != lines.size() - 1)
+                    if (i != lines.size() - 1) {
                         xml_output.writeEndElement();
+                        target.append("\n");
+                    }
                 }
             }
 
@@ -1000,7 +997,6 @@ static String bbcode_to_xml(StringView p_bbcode, const CSTypeLike* p_itype, CSTy
                     const CSEnum* target_enum_itype = enum_match;
                     xml_output.writeEmptyElement("see");
                     String full_path = enum_match->relative_path(CS_INTERFACE, target_itype);
-                    xml_output.writeEmptyElement("see");
                     xml_output.writeAttribute("cref", full_path.c_str()); // Includes nesting class if any
                 }
                 else {
@@ -1301,6 +1297,15 @@ static void _generate_docs_for(const CSTypeLike* itype, GeneratorContext& ctx)
 
     _add_doc_lines(ctx, xml_summary);
 }
+static void _generate_docs_for(const CSProperty* property, GeneratorContext& ctx)
+{
+    if (!property->m_docs || property->m_docs->description.empty())
+        return;
+
+    String xml_summary = bbcode_to_xml(fix_doc_description(property->m_docs->description), property->m_owner, ctx.mapper, true);
+
+    _add_doc_lines(ctx, xml_summary);
+}
 static void _generate_docs_for(const CSConstant* iconstant, GeneratorContext& ctx) {
     if (!iconstant->m_resolved_doc || iconstant->m_resolved_doc->description.empty())
         return;
@@ -1398,6 +1403,15 @@ void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
         }
     }
 }
+
+StringView get_internal_call_name(const CSFunction * func) {
+    //"NativeCalls.godot_icall_AcceptDialog_register_text_enter_598860a7";
+    static char buffer[512];
+    buffer[0]=0;
+    sprintf(buffer,"NativeCalls.godot_icall_%s_%s_SOMEARGHASHHERE", func->enclosing_type->cs_name().c_str(), func->source_type->name.c_str());
+    return buffer;
+}
+
 void gen_cs_perform_internal_call(GeneratorContext& ctx) {
     if (ctx.func->source_type->is_virtual) {
         // Godot virtual method must be overridden, therefore we return a default value by default.
@@ -1437,7 +1451,8 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
         im_call += im_icall->name;
 
 */
-        String im_call = "$imcallname$";
+        ;
+        String im_call(get_internal_call_name(ctx.func));
         String icall_params = "";
 
         if (!ctx.func->source_type->arguments.empty()) {
@@ -2181,7 +2196,6 @@ Error BindingsGenerator::generate_cs_api(StringView p_output_dir, GeneratorConte
 }
 #endif
 
-#if 0
 // FIXME: There are some members that hide other inherited members.
 // - In the case of both members being the same kind, the new one must be declared
 // explicitly as 'new' to avoid the warning (and we must print a message about it).
@@ -2189,8 +2203,6 @@ Error BindingsGenerator::generate_cs_api(StringView p_output_dir, GeneratorConte
 // be renamed to avoid the name collision (and we must print a warning about it).
 // - Csc warning e.g.:
 // ObjectType/LineEdit.cs(140,38): warning CS0108: 'LineEdit.FocusMode' hides inherited member 'Control.FocusMode'. Use the new keyword if hiding was intended.
-
-#endif
 
 static bool covariantSetterGetterTypes(StringView getter, StringView setter) {
     using namespace eastl;
@@ -3411,6 +3423,50 @@ static void _resolveFuncDocs(CSFunction* tgt) {
 
     tgt->m_resolved_doc = located_docs;
 }
+void generate_cs_type_constants(const CSTypeLike* itype, GeneratorContext& ctx) {
+
+    ctx.out.append("// ");
+    ctx.out.append(itype->cs_name());
+    ctx.out.append(" constants\n");
+
+
+    for (const CSConstant* iconstant : itype->m_constants) {
+        _generate_docs_for(iconstant, ctx);
+        // TODO: use iconstant->const_type below.
+        ctx.out.append_indented("public const int ");
+        _write_constant(ctx.out, *iconstant);
+        ctx.out.append(";");
+    }
+    if (!itype->m_constants.empty())
+        ctx.out.append("\n");
+}
+void generate_cs_type_enums(const CSTypeLike* itype, GeneratorContext& ctx) {
+    itype->visit_kind(CSTypeLike::ENUM, [&](const CSTypeLike* entry) {
+        const CSEnum* ienum = (const CSEnum*)entry;
+        if (ienum->m_constants.empty()) {
+            qCritical("Encountered enum '%s' without constants!", ienum->cs_name().c_str());
+            return;
+        }
+        if (!ienum->static_wrapper_class.empty()) {
+            ctx.out.append_indented("public static partial class ");
+            ctx.out.append(ienum->static_wrapper_class);
+            ctx.out.append("\n");
+            ctx.start_block();
+        }
+        ctx.out.append_indented("public enum ");
+        ctx.out.append(ienum->cs_name());
+        ctx.out.append("\n");
+        ctx.start_block();
+        for (const CSConstant* iconstant : ienum->m_constants) {
+            generate_enum_entry(iconstant, ctx);
+        }
+        ctx.end_block();
+        if (!ienum->static_wrapper_class.empty()) {
+            ctx.end_block();
+        }
+
+    });
+}
 
 static void _generate_namespace_constants(GeneratorContext& ctx, const CSNamespace& ns) {
 
@@ -3424,49 +3480,10 @@ static void _generate_namespace_constants(GeneratorContext& ctx, const CSNamespa
     ctx.start_block();
     auto ns_path = ns.cs_path_components();
     //ns.m_globals.m_class_constants
-    for (const CSConstant* iconstant : ns.m_constants) {
-        ctx.out.indent();
-        _generate_docs_for(iconstant, ctx);
-        // TODO: use iconstant->const_type below.
-        ctx.out.append_indented("public const int ");
-        _write_constant(ctx.out, *iconstant);
-        ctx.out.append(";");
-        ctx.out.dedent();
-    }
-
-    if (!ns.m_constants.empty())
-        ctx.out.append("\n");
+    generate_cs_type_constants(&ns,ctx);
     ctx.end_block();
-
-
     // Enums
-    ns.visit_kind(CSTypeLike::ENUM, [&](const CSTypeLike* entry) {
-        const CSEnum* ienum = (const CSEnum*)entry;
-        if (ienum->m_constants.empty())
-            qFatal("Attempting to generate code for enum without entries");
-
-        String enum_proxy_name(ienum->cs_name());
-
-        if (!ienum->static_wrapper_class.empty()) {
-            ctx.out.append_indented("public static partial class ");
-            ctx.out.append(ienum->static_wrapper_class);
-            ctx.out.append("\n");
-            ctx.start_block();
-        }
-        ctx.out.append("\n");
-        ctx.out.append_indented("public enum ");
-        ctx.out.append(enum_proxy_name);
-        ctx.out.append("\n");
-        ctx.start_block();
-        for (const CSConstant* ci : ienum->m_constants) {
-            generate_enum_entry(ci, ctx);
-        }
-        ctx.end_block();
-
-        if (!ienum->static_wrapper_class.empty()) {
-            ctx.end_block();
-        }
-        });
+    generate_cs_type_enums(&ns,ctx);
     ctx.end_block("// end of namespace");
     ctx.out.append("\n#pragma warning restore CS1591\n");
 }
@@ -3709,7 +3726,7 @@ struct CSReflectionVisitor {
             m_type_stack.back()->add_constant(ci);
         }
     }
-    void resolveTypeDocs(CSTypeLike *tgt) {
+    void resolveTypeDocs(CSTypeLike *tgt) const {
         StringView type_name(tgt->c_name());
         if(type_name.starts_with('_')) // types starting with '_' are assumed to wrap the non-prefixed class for script acces.
             type_name = type_name.substr(1);
@@ -3849,6 +3866,7 @@ struct CSReflectionVisitor {
         m_type_stack.pop_back();
     }
     void visitTypeProperty(const PropertyInterface *pi) {
+        //TODO: mark both setter and getter as do-not-generate
         const CSFunction* setter = nullptr;
         const CSFunction* getter = nullptr;
 
@@ -3944,160 +3962,138 @@ struct CSReflectionVisitor {
 
         return true;
     }
-    bool generate_cs_type_docs(const CSType* itype, GeneratorContext& ctx)
-    {
-        // Add constants
 
-        for (const CSConstant* iconstant : itype->m_constants) {
-            _generate_docs_for(iconstant,ctx);
-            ctx.out.append_indented("public const int ");
-            ctx.out.append(iconstant->cs_name);
-            ctx.out.append(" = ");
-            ctx.out.append(iconstant->value);
-            ctx.out.append(";\n");
-    }
-
-        if (!itype->m_constants.empty())
-            ctx.out.append("\n");
-
-        // Add enums
-        itype->visit_kind(CSTypeLike::ENUM,[&](const CSTypeLike *entry) {
-            const CSEnum* ienum=(const CSEnum*)entry;
-            if(ienum->m_constants.empty()) {
-                qCritical("Encountered enum '%s' without constants!",ienum->cs_name().c_str());
-                return;
-            }
-            ctx.out.append_indented("public enum ");
-            ctx.out.append(ienum->cs_name());
-            ctx.out.append(" ");
-            ctx.start_block();
-
-            for (const CSConstant* iconstant : ienum->m_constants) {
-                generate_enum_entry(iconstant,ctx);
-            }
-            ctx.end_block();
-
-        });
-
-        // Add properties
-
-        for (const CSProperty* iprop : itype->m_properties) {
-#if 0
-            Error prop_err = _generate_cs_property(itype, iprop, output);
-            ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
-                String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
-#endif
-        }
-        return true;
-}
     bool _generate_cs_property(const CSProperty *p_iprop, GeneratorContext &ctx) {
     /*
         /// %PropertyDocs%
+        %if_non_indexed_property%
         %PropertyType% %PropertyName% {
+            get {
+                return internal_call();
+            }
             set {
                 %value_converter%
                 internal_call(%value_name%);
             }
-            get {
-                return internal_call();
-            }
         }
     */
+        _generate_docs_for(p_iprop, ctx);
 
         const CSFunction *setter = p_iprop->setter;
         const TypeReference &proptype_name = p_iprop->getter ? p_iprop->getter->source_type->return_type : setter->source_type->arguments.back().type;
-
-    #if 0
-        const TypeInterface *prop_itype = rd._get_type_or_null(proptype_name);
-        ERR_FAIL_NULL_V(prop_itype, ERR_BUG); // Property type not found
-        auto prop_doc = rd.doc_lookup_helpers[p_itype.proxy_name].properties.at(String(p_iprop.cname),nullptr);
-        if (prop_doc && prop_doc->description.size()) {
-            String xml_summary = bbcode_to_xml(fix_doc_description(prop_doc->description), &p_itype,rd.doc);
-            Vector<String> summary_lines = xml_summary.length() ? xml_summary.split('\n') : Vector<String>();
-
-            if (!summary_lines.empty()) {
-                p_output.append(MEMBER_BEGIN "/// <summary>\n");
-
-                for (int i = 0; i < summary_lines.size(); i++) {
-                    p_output.append(INDENT2 "/// ");
-                    p_output.append(summary_lines[i]);
-                    p_output.append("\n");
-                }
-
-                p_output.append(INDENT2 "/// </summary>");
-            }
-        }
-
-        p_output.append(MEMBER_BEGIN "public ");
-
-        if (p_itype.is_singleton)
-            p_output.append("static ");
-
-        p_output.append(prop_itype->cs_type);
-        p_output.append(" ");
-        p_output.append(p_iprop.proxy_name);
-        p_output.append("\n" INDENT2 OPEN_BLOCK);
-
-        if (getter) {
-            p_output.append(INDENT3 "get\n"
-
-                                    // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                                    "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
-
-                    OPEN_BLOCK_L3);
-
-            p_output.append("return ");
-            p_output.append(getter->proxy_name + "(");
+        ctx.out.append_indented("public ");
+        //TODO: handle static properties better
+        if (p_iprop->m_owner->source_type->is_singleton)
+            ctx.out.append("static ");
+        CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::SC_RETURN, proptype_name);
+        assert(wrap.underlying_type);
+        ctx.out.append(wrap.underlying_type->cs_name());
+        ctx.out.append(" ");
+        ctx.out.append(p_iprop->cs_name);
+        ctx.out.append("\n");
+        ctx.start_block();
+        if(p_iprop->getter) {
+            ctx.out.append_indented("get\n");
+            ctx.out.append("#pragma warning disable CS0618 // Disable warning about obsolete method\n");
+            ctx.start_block();
+            ctx.out.append_indented("return ");
+            ctx.out.append(p_iprop->getter->cs_name);
+            ctx.out.append("(");
+            ctx.out.append(");\n");
+#if 0
             if (p_iprop.index != -1) {
-                const ArgumentInterface &idx_arg = getter->arguments.front();
+                const ArgumentInterface& idx_arg = getter->arguments.front();
                 if (idx_arg.type.cname != name_cache->type_int) {
                     // Assume the index parameter is an enum
-                    const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
+                    const TypeInterface* idx_arg_type = rd._get_type_or_null(idx_arg.type);
                     CRASH_COND(idx_arg_type == nullptr);
                     p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index));
-                } else {
+                }
+                else {
                     p_output.append(itos(p_iprop.index));
                 }
             }
-            p_output.append(");\n"
-
-                    CLOSE_BLOCK_L3
-
-                            // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                            "#pragma warning restore CS0618\n");
+#endif
+            ctx.end_block();
+            ctx.out.append("#pragma warning restore CS0618\n");
         }
+        if (p_iprop->setter) {
+            ctx.out.append_indented("set\n");
+            ctx.out.append("#pragma warning disable CS0618 // Disable warning about obsolete method\n");
+            ctx.start_block();
+            ctx.out.append_indented(p_iprop->setter->cs_name);
+            ctx.out.append("(");
+            ctx.out.append("value);\n");
 
-        if (setter) {
-            p_output.append(INDENT3 "set\n"
-
-                                    // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                                    "#pragma warning disable CS0618 // Disable warning about obsolete method\n"
-
-                    OPEN_BLOCK_L3);
-
-            p_output.append(setter->proxy_name + "(");
-            if (p_iprop.index != -1) {
-                const ArgumentInterface &idx_arg = setter->arguments.front();
-                if (idx_arg.type.cname != name_cache->type_int) {
-                    // Assume the index parameter is an enum
-                    const TypeInterface *idx_arg_type = rd._get_type_or_null(idx_arg.type);
-                    CRASH_COND(idx_arg_type == NULL);
-                    p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index) + ", ");
-                } else {
-                    p_output.append(itos(p_iprop.index) + ", ");
+#if 0
+                if (p_iprop.index != -1) {
+                    const ArgumentInterface& idx_arg = setter->arguments.front();
+                    if (idx_arg.type.cname != name_cache->type_int) {
+                        // Assume the index parameter is an enum
+                        const TypeInterface* idx_arg_type = rd._get_type_or_null(idx_arg.type);
+                        CRASH_COND(idx_arg_type == NULL);
+                        p_output.append("(" + idx_arg_type->proxy_name + ")" + itos(p_iprop.index) + ", ");
+                    }
+                    else {
+                        p_output.append(itos(p_iprop.index) + ", ");
+                    }
                 }
-            }
-            p_output.append("value);\n"
-
-                    CLOSE_BLOCK_L3
-
-                            // TODO Remove this once we make accessor methods private/internal (they will no longer be marked as obsolete after that)
-                            "#pragma warning restore CS0618\n");
+#endif
+            ctx.end_block();
+            ctx.out.append("#pragma warning restore CS0618\n");
         }
 
-    #endif
         ctx.end_block();
         return OK;
+    }
+
+    void generate_cs_type_constructors(const CSType *itype, GeneratorContext &ctx, String nativecalls_ns) {
+        // TODO: nativeName should be StringName, once we support it in C#
+        if (itype->source_type->is_singleton) {
+            // Add the type name and the singleton pointer as static fields
+
+            ctx.out.append_indented_multiline(
+                    String().sprintf(
+                            R"raw(private static Godot.Object singleton;
+public static Godot.Object Singleton
+{
+    get
+    {
+        if (singleton == null)
+            singleton = Engine.GetNamedSingleton(typeof(%s).Name);
+        return singleton;
+    }
+}
+
+)raw", itype->cs_name().c_str()));
+
+            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
+            ctx.out.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
+        }
+        else if (!itype->source_type->base_name.empty()) {
+            String ctor_method("godot_icall_" + itype->cs_name() + "_Ctor"); // Used only for derived types
+            // Add member fields
+            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
+            // Add default constructor
+            if (itype->source_type->is_instantiable) {
+                ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name().c_str(), itype->source_type->memory_own ? "true" : "false"));
+                // The default constructor may also be called by the engine when instancing existing native objects
+                // The engine will initialize the pointer field of the managed side before calling the constructor
+                // This is why we only allocate a new native object from the constructor if the pointer field is not set
+                ctx.out.append_indented_multiline(String().sprintf(R"raw({
+    if (ptr == IntPtr.Zero)
+        ptr = %s.%s(this);
+}
+)raw", nativecalls_ns.c_str(), ctor_method.c_str()));
+
+            }
+            else {
+                // Hide the constructor
+                ctx.out.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name().c_str()));
+            }
+            // Add.. em.. trick constructor. Sort of.
+            ctx.out.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name().c_str()));
+        }
     }
 
     bool generate_cs_type_file(const CSType * itype, GeneratorContext &ctx) {
@@ -4137,7 +4133,6 @@ struct CSReflectionVisitor {
 
         ctx.start_cs_namespace(itype->owning_ns()->relative_path(CS_INTERFACE));
 
-        String ctor_method("icall_" + itype->cs_name() + "_Ctor"); // Used only for derived types
         auto iter = m_reflection_data.doc->class_list.find(itype->source_type->name);
         const DocContents::ClassDoc* class_doc = itype->m_docs;
 
@@ -4157,7 +4152,7 @@ struct CSReflectionVisitor {
         if (itype->source_type->is_singleton || itype->source_type->is_namespace) {
             ctx.out.append("\n");
         }
-        else if (is_derived_type) {
+        else if (!itype->source_type->base_name.empty()) {
             CSType* base_type = itype->find_type_by_cpp_name(itype->source_type->base_name);
             if (base_type) {
                 ctx.out.append(" : ");
@@ -4170,55 +4165,24 @@ struct CSReflectionVisitor {
             }
         }
         ctx.start_block();
-        bool res = generate_cs_type_docs(itype, ctx);
-        if (!res)
-            return res;
 
-        // TODO: nativeName should be StringName, once we support it in C#
-        if (itype->source_type->is_singleton) {
-            // Add the type name and the singleton pointer as static fields
+        // Add constants
+        generate_cs_type_constants(itype, ctx);
 
-            ctx.out.append_indented_multiline(
-String().sprintf(
-R"raw(private static Godot.Object singleton;
-public static Godot.Object Singleton
-{
-    get
-    {
-        if (singleton == null)
-            singleton = Engine.GetNamedSingleton(typeof(%s).Name);
-        return singleton;
-    }
-}
+        // Add enums
+        generate_cs_type_enums(itype, ctx);
 
-)raw", itype->cs_name().c_str()));
+        // Add properties
 
-            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
-            ctx.out.append_indented(String().sprintf("internal static IntPtr ptr = %s.godot_icall_%s_get_singleton();\n\n", nativecalls_ns.c_str(),itype->source_type->name.c_str()));
+        for (const CSProperty* iprop : itype->m_properties) {
+            bool prop_err = _generate_cs_property(iprop,ctx);
+#if 0
+            ERR_FAIL_COND_V_MSG(prop_err != OK, prop_err,
+                String("Failed to generate property '") + iprop.cname + "' for class '" + itype.name + "'.");
+#endif
         }
-        else if (is_derived_type) {
-            // Add member fields
-            ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", itype->source_type->name.c_str()));
-            // Add default constructor
-            if (itype->source_type->is_instantiable) {
-                ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name().c_str(), itype->source_type->memory_own ? "true" : "false"));
-                // The default constructor may also be called by the engine when instancing existing native objects
-                // The engine will initialize the pointer field of the managed side before calling the constructor
-                // This is why we only allocate a new native object from the constructor if the pointer field is not set
-                ctx.out.append_indented_multiline(String().sprintf(R"raw({
-    if ( ptr == IntPtr.Zero)
-        ptr = %s.%s(this);
-}
-)raw", nativecalls_ns.c_str(), ctor_method.c_str()));
 
-            }
-            else {
-                // Hide the constructor
-                ctx.out.append_indented(String().sprintf("internal %s(){}\n\n",itype->cs_name().c_str()));
-            }
-            // Add.. em.. trick constructor. Sort of.
-            ctx.out.append_indented(String().sprintf("internal %s(bool memoryOwn) : base(memoryOwn){}\n\n", itype->cs_name().c_str()));
-        }
+        generate_cs_type_constructors(itype, ctx, nativecalls_ns);
 
         int method_bind_count = 0;
         for (const CSFunction * imethod : itype->m_functions) {
@@ -4869,6 +4833,9 @@ CSProperty *CSProperty::from_rd(const CSType *owner, const PropertyInterface *ty
     res = new CSProperty;
     assert(owner && owner->parent);
     res->m_owner = owner;
+    if(owner && owner->m_docs) {
+        res->m_docs = owner->m_docs->property_by_name(type_interface->cname);
+    }
     res->cs_name = tm.mapPropertyName(type_interface->cname,owner->cs_name(),owner->parent->cs_name());
     res->source_type = type_interface;
     s_ptr_cache[type_interface] = res;

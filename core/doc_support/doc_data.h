@@ -93,29 +93,40 @@ struct ClassDoc {
     Vector<ConstantDoc> constants;
     Vector<PropertyDoc> properties;
     Vector<PropertyDoc> theme_properties;
-    const ConstantDoc *const_by_name(const char * name) const {
+    const ConstantDoc *const_by_name(const char * c_name) const {
         for(const ConstantDoc &cd : constants)
-            if(cd.name==name)
+            if(cd.name==c_name)
                 return &cd;
         return nullptr;
     }
-    const ConstantDoc* const_by_enum_name(const char* name) const {
+    const ConstantDoc* const_by_enum_name(const char* c_name) const {
         Vector<StringView> parts;
-        String::split_ref(parts,name,"::");
+        String::split_ref(parts,c_name,"::");
         if(parts.size()>2)
             return nullptr;
         if(parts.size()==1)
-            return const_by_name(name);
+            return const_by_name(c_name);
 
         for (const ConstantDoc& cd : constants)
             if (cd.enumeration==parts[0] && cd.name == parts[1])
                 return &cd;
         return nullptr;
     }
-    const MethodDoc *func_by_name(StringView name) const {
+    const MethodDoc *func_by_name(StringView c_name) const {
         for (const MethodDoc& method_doc : methods)
-            if (method_doc.name == name)
+            if (method_doc.name == c_name)
                 return &method_doc;
+        return nullptr;
+
+    }
+
+    const PropertyDoc * property_by_name(StringView c_name) const {
+        for (const PropertyDoc& property_doc : properties)
+            if (property_doc.name == c_name)
+                return &property_doc;
+        for (const PropertyDoc& property_doc : theme_properties)
+            if (property_doc.name == c_name)
+                return &property_doc;
         return nullptr;
 
     }
