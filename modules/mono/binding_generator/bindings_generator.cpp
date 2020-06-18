@@ -1382,6 +1382,9 @@ void gen_cs_arguments(GeneratorContext& ctx) {
                 name= String().sprintf("arg_%d",i);
             ctx.arg_names.push_back(name);
             argline.push_back(String().sprintf("%s %s%s",ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type).data(),"",name.c_str()));
+            if(!ai.default_argument.empty()) {
+                argline.back() += " = "+ ai.default_argument;
+            }
 
         }
         ctx.out.append(String::joined(argline,", "));
