@@ -79,8 +79,9 @@ struct CSConstant;
 
 static bool _generate_cs_method(GeneratorContext &ctx);
 //static void _populate_builtin_type_interfaces(CSTypeMapper& mapper);
-void _generate_docs_for(const CSTypeLike* itype, GeneratorContext& ctx);
+static void _generate_docs_for(const CSTypeLike* itype, GeneratorContext& ctx);
 static void _generate_docs_for(const CSConstant* iconstant, GeneratorContext& ctx);
+static StringView func_signature_hash(const CSFunction *imethod);
 
 void _err_print_error(const char* p_function, const char* p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
 
@@ -357,6 +358,10 @@ struct CSFunction {
         }
         s_ptr_cache[method_interface] = res;
         return res;
+    }
+    const StringView c_name() const {
+        assert(source_type);
+        return source_type->name;
     }
 };
 HashMap< const MethodInterface*, CSFunction*> CSFunction::s_ptr_cache;
@@ -1392,7 +1397,6 @@ void gen_cs_arguments(GeneratorContext& ctx) {
     ctx.out.append(")\n");
 }
 void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
-    int idx=0;
     for(const auto &v : ctx.func->source_type->arguments) {
         CSTypeWrapper wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT,v.type);
         if(!wrap.underlying_type) {
@@ -1407,11 +1411,13 @@ void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
     }
 }
 
-StringView get_internal_call_name(const CSFunction * func) {
+StringView get_internal_call_name(const CSFunction *func) {
     //"NativeCalls.godot_icall_AcceptDialog_register_text_enter_598860a7";
     static char buffer[512];
-    buffer[0]=0;
-    sprintf(buffer,"NativeCalls.godot_icall_%s_%s_SOMEARGHASHHERE", func->enclosing_type->cs_name().c_str(), func->source_type->name.c_str());
+    buffer[0] = 0;
+    StringView hash_val(func_signature_hash(func));
+    sprintf(buffer, "NativeCalls.godot_icall_%s_%s_%.*s", func->enclosing_type->cs_name().c_str(),
+            func->source_type->name.c_str(), hash_val.size(), hash_val.data());
     return buffer;
 }
 
@@ -1791,6 +1797,25 @@ static void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) {
     p_hash ^= p_with_hash + 0x9e3779b9 + (p_hash << 6) + (p_hash >> 2);
 }
 
+static StringView func_signature_hash(const CSFunction *imethod) {
+    String method_signature(imethod->enclosing_type->c_name());
+    method_signature+="_"+imethod->c_name()+"_";
+    method_signature = method_signature.replaced(".","_");
+    uint32_t arg_hash= StringUtils::hash(imethod->source_type->return_type.cname);
+    FixedVector<StringName,16,true> unique_parts;
+
+    for (const ArgumentInterface &F : imethod->source_type->arguments) {
+        unique_parts.emplace_back(F.type.cname);
+    }
+
+    for(const StringName &s : unique_parts) {
+        hash_combine(arg_hash, StringUtils::hash(s));
+    }
+    static char buf[32];
+    sprintf(buf,"%08x",arg_hash);
+    return buf;
+
+}
 void _generate_method_icalls(const TypeInterface& p_itype) {
     for (const MethodInterface& imethod : p_itype.methods) {
 
