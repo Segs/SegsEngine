@@ -1380,7 +1380,11 @@ void gen_cs_arguments(GeneratorContext& ctx) {
             const ArgumentInterface &ai(ctx.func->source_type->arguments[i]);
             CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
             String name;
-            if(i<ctx.func->arg_names.size() && !ctx.func->arg_names[i].empty()) {
+            if(ctx.func->m_resolved_doc) {
+               if(i<ctx.func->m_resolved_doc->arguments.size())
+                   name=ctx.func->m_resolved_doc->arguments[i].name;
+            }
+            if(name.empty() && i<ctx.func->arg_names.size() && !ctx.func->arg_names[i].empty()) {
                 name=ctx.func->arg_names[i];
             }
             if(name.empty())
@@ -4600,6 +4604,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg = CSType::register_type(nullptr, &builtins.back()); \
     reg->set_cs_name(m_kind);\
     registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(%monoarg%d)", "%arg%d_in");\
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%s");\
     registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "")
 
         INSERT_INT_TYPE("sbyte", int8_t);
