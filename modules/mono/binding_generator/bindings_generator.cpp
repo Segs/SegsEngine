@@ -1422,6 +1422,9 @@ StringView get_internal_call_name(const CSFunction *func) {
 }
 
 void gen_cs_perform_internal_call(GeneratorContext& ctx) {
+    if(ctx.func->cs_name=="GetSize") {
+        printf("1");
+    }
     if (ctx.func->source_type->is_virtual) {
         // Godot virtual method must be overridden, therefore we return a default value by default.
 
@@ -1463,25 +1466,35 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
         ;
         String im_call(get_internal_call_name(ctx.func));
         String icall_params = "";
-
+        FixedVector<StringView,8,true> args;
         if (!ctx.func->source_type->arguments.empty()) {
             ctx.out.append_indented("%prepare_cs_args%;\n");
-            icall_params = "$icall_params$";
+            int idx=0;
+            for(const ArgumentInterface &ai : ctx.func->source_type->arguments) {
+                CSTypeWrapper arg_wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
+                args.push_back(String().sprintf(arg_wrap.map_perform->c_str(),ctx.arg_names[idx++].c_str()));
+
+            }
         }
         if (ctx.p_type->needs_instance()) {
-            StringView new_args[2] = { "Object.GetPtr(this)" ,icall_params };
-            icall_params = String::joined(new_args, ",");
+            args.push_front("Object.GetPtr(this)");
         }
+        if(!ctx.return_type.map_perform->empty()) {
+            args.push_back(*ctx.return_type.map_perform);
 
+        }
         if (ctx.return_type.underlying_type->c_name() == "void") {
             ctx.out.append_indented(im_call + "(" + icall_params + ");\n");
         }
-        else if (ctx.return_type.map_perform->empty()) {
-            ctx.out.append_indented("return " + im_call + "(" + icall_params + ");\n");
-        }
         else {
-            ctx.out.append(String().sprintf("FLORB BLORB?"));//return_type->cs_out, im_call, icall_params, return_type->cs_type, return_type->im_type_out
-            ctx.out.append("\n");
+            if(ctx.return_type.map_perform->empty()) {
+                ctx.out.append_indented("return " + im_call + "(" + String::joined(args,",") + ");\n");
+            }
+            else {
+                ctx.out.append_indented(im_call + "(" + String::joined(args,",") + ");");
+                ctx.out.append(String().sprintf(" return (%s)argRet;\n",ctx.return_type.underlying_type->cs_name().c_str()));
+
+            }
         }
     }
 
@@ -3452,11 +3465,11 @@ static void _resolveFuncDocs(CSFunction* tgt) {
     tgt->m_resolved_doc = located_docs;
 }
 void generate_cs_type_constants(const CSTypeLike* itype, GeneratorContext& ctx) {
-
+#ifdef EXT_GEN
     ctx.out.append("// ");
     ctx.out.append(itype->cs_name());
     ctx.out.append(" constants\n");
-
+#endif
 
     for (const CSConstant* iconstant : itype->m_constants) {
         _generate_docs_for(iconstant, ctx);
@@ -3512,7 +3525,11 @@ static void _generate_namespace_constants(GeneratorContext& ctx, const CSNamespa
     ctx.end_block();
     // Enums
     generate_cs_type_enums(&ns,ctx);
+#ifdef EXT_GEN
     ctx.end_block("// end of namespace");
+#else
+    ctx.end_block();
+#endif
     ctx.out.append("\n#pragma warning restore CS1591\n");
 }
 
@@ -4238,8 +4255,14 @@ public static Godot.Object Singleton
         }
 
 #endif
-        ctx.end_block("end of class");
-        ctx.end_block("end of namespace");
+#ifdef EXT_GEN
+    ctx.end_block("end of class");
+    ctx.end_block("end of namespace");
+#else
+    ctx.end_block();
+    ctx.end_block();
+#endif
+
         ctx.out.append("\n"
             "#pragma warning restore CS1591\n"
             "#pragma warning restore CS1573\n");
@@ -4627,6 +4650,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         registerTypeMap(&builtins.back(), C_INPUT, "%argtype%d %arg%d_in = MARSHALLED_IN(" #m_type ",%arg%d);", "GDMonoMarshal::M_" #m_type "*,%arg%d_in");\
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");\
         registerTypeMap(&builtins.back(), SC_OUTPUT, "ref %arg%d", "out %arg%d");\
+        registerTypeMap(&builtins.back(), SC_RETURN, "ref %arg%d", "out " #m_type " argRet");\
         registerTypeMap(&builtins.back(), C_OUTPUT, "*%outval%d = MARSHALLED_OUT(" #m_type ", %outval%d)", "GDMonoMarshal::M_" #m_type);\
         registerTypeMap(&builtins.back(), C_RETURN, "%method(%1, %3 argRet); return (%2)argRet;", "MonoBoolean");\
     } else\
