@@ -757,6 +757,7 @@ struct GeneratorContext {
     GeneratorContext(StringBuilder & o, CSTypeMapper& m, const CSTypeLike *t) : out(o),mapper(m),p_type(t) {
     }
     void enter_function(const CSFunction *f) {
+        arg_names.clear();
         return_type = {};
         func = f;
     }
@@ -781,6 +782,13 @@ struct GeneratorContext {
         else
             out.append_indented("}\n");
 
+    }
+    String formatTypeMapStanza(StringView fmt,int arg_idx) {
+        String res(fmt);
+        if(arg_idx>=0) {
+            res.replace("%arg%d",arg_names[arg_idx]);
+        }
+        return res;
     }
 };
 
@@ -1364,7 +1372,7 @@ void gen_method_access(GeneratorContext& ctx) {
     }
 }
 void gen_cs_return_type(GeneratorContext &ctx) {
-    CSTypeWrapper wrap(ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type));
+    CSTypeWrapper wrap(ctx.return_type);
     ctx.out.append(ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type));
     ctx.out.append(" ");
 }
@@ -1372,32 +1380,50 @@ void gen_cs_method_name(GeneratorContext& ctx) {
     ctx.out.append(ctx.func->cs_name);
 }
 void gen_cs_arguments(GeneratorContext& ctx) {
+    // ( %argtype %arg_modifier %argname [= %argdefault], ... )\n
+
     ctx.out.append("(");
     int argc =  ctx.func->source_type->arguments.size();
-    if(argc!=0) {
-        Vector<String> argline;
-        for(int i=0; i<argc; ++i) {
-            const ArgumentInterface &ai(ctx.func->source_type->arguments[i]);
-            CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
-            String name;
-            if(ctx.func->m_resolved_doc) {
-               if(i<ctx.func->m_resolved_doc->arguments.size())
-                   name=ctx.func->m_resolved_doc->arguments[i].name;
-            }
-            if(name.empty() && i<ctx.func->arg_names.size() && !ctx.func->arg_names[i].empty()) {
-                name=ctx.func->arg_names[i];
-            }
-            if(name.empty())
-                name= String().sprintf("arg_%d",i);
-            ctx.arg_names.push_back(name);
-            argline.push_back(String().sprintf("%s %s%s",ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type).data(),"",name.c_str()));
-            if(!ai.default_argument.empty()) {
-                argline.back() += " = "+ ai.default_argument;
-            }
-
-        }
-        ctx.out.append(String::joined(argline,", "));
+    if(argc==0) {
+        ctx.out.append(")\n");
+        return;
     }
+
+    Vector<String> argline;
+    for(int i=0; i<argc; ++i) {
+        const ArgumentInterface &ai(ctx.func->source_type->arguments[i]);
+        CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
+        String name;
+        if(ctx.func->m_resolved_doc) {
+           if(i<ctx.func->m_resolved_doc->arguments.size())
+               name=ctx.func->m_resolved_doc->arguments[i].name;
+        }
+        if(name.empty() && i<ctx.func->arg_names.size() && !ctx.func->arg_names[i].empty()) {
+            name=ctx.func->arg_names[i];
+        }
+        if(name.empty())
+            name = String().sprintf("arg_%d",i);
+        if(i>=ctx.arg_names.size())
+            ctx.arg_names.resize(i+1);
+        ctx.arg_names[i] = name;
+
+        StringView argtype = ctx.mapper.render(wrap,CS_INTERFACE,ctx.p_type);
+        StringView arg_modifier="";
+        StringView argname = name;
+
+        TmpString<1024,false> tmp_string;
+        tmp_string.append(argtype);
+        tmp_string.append(" ");
+        tmp_string.append(arg_modifier);
+        tmp_string.append(argname);
+        if(!ai.default_argument.empty()) {
+            tmp_string.append(" = "+ ai.default_argument);
+        }
+
+        argline.emplace_back(tmp_string);
+
+    }
+    ctx.out.append(String::joined(argline,", "));
     ctx.out.append(")\n");
 }
 void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
@@ -1408,9 +1434,9 @@ void gen_cs_prepare_internal_call(GeneratorContext& ctx) {
             continue;
         }
         if(!wrap.map_prepare->empty()) {
-            ctx.out.append_indented("Preparing arg:\n");
+            ctx.out.append_indented("//Preparing arg:\n");
             ctx.out.append_indented(*wrap.map_prepare);
-            ctx.out.append_indented("\n");
+            ctx.out.append("\n");
         }
     }
 }
@@ -1420,15 +1446,19 @@ StringView get_internal_call_name(const CSFunction *func) {
     static char buffer[512];
     buffer[0] = 0;
     StringView hash_val(func_signature_hash(func));
-    sprintf(buffer, "NativeCalls.godot_icall_%s_%s_%.*s", func->enclosing_type->cs_name().c_str(),
-            func->source_type->name.c_str(), hash_val.size(), hash_val.data());
+    assert(func->enclosing_type->cs_name().size()+func->source_type->name.size()+hash_val.size()<400);
+    strcat(buffer,"NativeCalls.godot_icall_");
+    strncat(buffer,func->enclosing_type->cs_name().c_str(),func->enclosing_type->cs_name().size());
+    strncat(buffer,"_",1);
+    strncat(buffer,func->source_type->name.c_str(),func->source_type->name.size());
+    strncat(buffer,"_",1);
+    strncat(buffer,hash_val.data(),hash_val.size());
+
     return buffer;
 }
 
 void gen_cs_perform_internal_call(GeneratorContext& ctx) {
-    if(ctx.func->cs_name=="GetSize") {
-        printf("1");
-    }
+
     if (ctx.func->source_type->is_virtual) {
         // Godot virtual method must be overridden, therefore we return a default value by default.
 
@@ -1469,14 +1499,17 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
 */
         ;
         String im_call(get_internal_call_name(ctx.func));
-        String icall_params = "";
+
         FixedVector<StringView,8,true> args;
         if (!ctx.func->source_type->arguments.empty()) {
+#ifdef EXT_GEN
             ctx.out.append_indented("%prepare_cs_args%;\n");
+#endif
             int idx=0;
             for(const ArgumentInterface &ai : ctx.func->source_type->arguments) {
                 CSTypeWrapper arg_wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
-                args.push_back(String().sprintf(arg_wrap.map_perform->c_str(),ctx.arg_names[idx++].c_str()));
+
+                args.emplace_back(ctx.formatTypeMapStanza(*arg_wrap.map_perform,idx++));
 
             }
         }
@@ -1488,7 +1521,7 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
 
         }
         if (ctx.return_type.underlying_type->c_name() == "void") {
-            ctx.out.append_indented(im_call + "(" + icall_params + ");\n");
+            ctx.out.append_indented(im_call + "(" + String::joined(args,",") + ");\n");
         }
         else {
             if(ctx.return_type.map_perform->empty()) {
@@ -1512,7 +1545,9 @@ bool _generate_cs_method(GeneratorContext &ctx) {
     String icall_params;
 
 
-
+    if(ctx.func->cs_name=="GetTrackingStatus") {
+        printf("1");
+    }
     // For every argument, we find the type mapping
     ctx.return_type = ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type);
     // Retrieve information from the arguments
@@ -4521,8 +4556,9 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
     reg->parent = parent;
     reg->set_cs_name(CSEnum::convert_name("",c_enum_name));
     reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
-    Mapping m;
+    Mapping m(*from_cs_name_to_mapping[mapIntTypeName(underlying_type)]);
     m.underlying_type = reg;
+    m.cs_return.marshall ="return (%rettype)%call";
     this->stored_mappings.emplace_back(m);
     from_cs_name_to_mapping[full_cs_name] = &stored_mappings.back();
     from_c_name_to_mapping[full_c_name] = &stored_mappings.back();
@@ -4604,7 +4640,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg = CSType::register_type(nullptr, &builtins.back()); \
     reg->set_cs_name(m_kind);\
     registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(%monoarg%d)", "%arg%d_in");\
-    registerTypeMap(&builtins.back(), SC_INPUT, "", "%s");\
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");\
     registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "")
 
         INSERT_INT_TYPE("sbyte", int8_t);
@@ -4625,6 +4661,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = ::mono_string_to_godot(%arg%d)", "MonoString*,%arg%d_in");
     //registerTypeMap(&builtins.back(), C_OUTPUT, "return ::mono_string_from_godot(%outval%d)", "MonoString* %outval%d");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
 
     // StringView
     builtins.emplace_back("StringView");
@@ -4632,12 +4669,14 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg->set_cs_name("string");
     registerTypeMap(&builtins.back(), C_INPUT, "TmpString<512> %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
 
     builtins.emplace_back("StringName");
     reg = CSType::register_type(nullptr, &builtins.back());
     reg->set_cs_name("string");
     registerTypeMap(&builtins.back(), C_INPUT, "tStringName %arg%d_in(::mono_string_to_godot(%arg%d));", "MonoString*,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return ::mono_string_from_godot(%outval%d)", "MonoString*");
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
 
     // bool
     builtins.emplace_back("bool");
@@ -4645,6 +4684,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg->set_cs_name("bool");
     registerTypeMap(&builtins.back(), C_INPUT, "bool %arg%d_in(%arg%d);", "MonoBoolean,%arg%d_in");
     registerTypeMap(&builtins.back(), C_RETURN, "return static_cast<MonoBoolean>(%outval%d)", "MonoBoolean");
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
 
 //        itype.ret_as_byref_arg = true;
 
@@ -4680,16 +4720,16 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         reg->set_cs_name("float");
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
-        registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");
-        registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "float");
+        registerTypeMap(&builtins.back(), SC_INPUT, "", "ref %arg%d");
+        registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "out float argRet");
 
         builtins.emplace_back("double");
         reg = CSType::register_type(nullptr, &builtins.back());
         reg->set_cs_name("float");
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
-        registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");
-        registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "float");
+        registerTypeMap(&builtins.back(), SC_INPUT, "", "ref %arg%d");
+        registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "out float argRet");
 
     }
 
@@ -4808,7 +4848,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         itype.proxy_name = #m_proxy_t "[]";                                   \
         itype.c_in = "\tauto %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
         itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";  \
-        itype.c_arg_in = "%s_in";                                             \
+        itype.c_arg_in = "%arg%d_in";                                             \
         itype.c_type = #m_type;                                               \
         itype.c_type_in = "MonoArray*";                                       \
         itype.c_type_out = "MonoArray*";                                      \
