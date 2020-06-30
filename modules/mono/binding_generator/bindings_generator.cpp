@@ -180,6 +180,7 @@ public:
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) ;
 
     void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern);
+    void registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView execute_pattern);
     void register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type);
     //CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
@@ -476,7 +477,9 @@ public:
                 visitor(tl);
         }
     }
-
+    virtual bool enum_name_would_clash_with_property(StringView cs_enum_name) const {
+        return false;
+    }
     virtual bool needs_instance() const { return false; }
     void add_constant(const ConstantInterface *ci);
     virtual CSFunction * find_method_by_name(TargetCode tgt,StringView name, bool try_parent) const {
@@ -571,7 +574,11 @@ struct CSEnum : public CSTypeLike {
         auto res = new CSEnum;
         res->m_rd_data = src;
         res->parent = enclosing;
-        res->set_cs_name(convert_name(access_path,src->cname));
+        String cs_name = convert_name(access_path, src->cname);
+        if(enclosing->enum_name_would_clash_with_property(cs_name)) {
+            cs_name += "Enum";
+        }
+        res->set_cs_name(cs_name);
         enums.emplace(access_path+res->cs_name(),res);
         //assert(false);
         return res;
@@ -658,6 +665,14 @@ struct CSType : CSTypeLike {
         }
 
         return parent ? parent->CSTypeLike::find_method_by_name(tgt,name,true) : nullptr;
+    }
+    bool enum_name_would_clash_with_property(StringView cs_enum_name) const override {
+        for (const PropertyInterface& prop : this->source_type->properties) {
+            String conv_name = escape_csharp_keyword(snake_to_pascal_case(prop.cname));
+            if(conv_name==cs_enum_name)
+                return true;
+        }
+        return false;
     }
 
 };
@@ -768,7 +783,7 @@ struct GeneratorContext {
     void start_cs_namespace(StringView name) {
         out.append_indented("namespace ");
         out.append(name);
-        out.append(" ");
+        out.append("\n");
         start_block();
     }
 
@@ -1412,12 +1427,13 @@ void gen_cs_arguments(GeneratorContext& ctx) {
         StringView argname = name;
 
         TmpString<1024,false> tmp_string;
+
         tmp_string.append(argtype);
         tmp_string.append(" ");
         tmp_string.append(arg_modifier);
         tmp_string.append(argname);
         if(!ai.default_argument.empty()) {
-            tmp_string.append(" = "+ ai.default_argument);
+            tmp_string.append(" = "+ String().sprintf(ai.default_argument.c_str(),argtype.data()));
         }
 
         argline.emplace_back(tmp_string);
@@ -1499,8 +1515,10 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
 */
         ;
         String im_call(get_internal_call_name(ctx.func));
-
-        FixedVector<StringView,8,true> args;
+        if(im_call.ends_with("godot_icall_AnimationNode_blend_node_add2e684")) {
+            printf("1");
+        }
+        FixedVector<String,8,true> args;
         if (!ctx.func->source_type->arguments.empty()) {
 #ifdef EXT_GEN
             ctx.out.append_indented("%prepare_cs_args%;\n");
@@ -1516,20 +1534,31 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
         if (ctx.p_type->needs_instance()) {
             args.push_front("Object.GetPtr(this)");
         }
-        if(!ctx.return_type.map_perform->empty()) {
-            args.push_back(*ctx.return_type.map_perform);
+        if(!ctx.return_type.map_prepare->empty()) {
+            args.push_back(*ctx.return_type.map_prepare);
 
         }
         if (ctx.return_type.underlying_type->c_name() == "void") {
-            ctx.out.append_indented(im_call + "(" + String::joined(args,",") + ");\n");
+            ctx.out.append_indented(im_call + "(" + String::joined(args,", ") + ");\n");
         }
         else {
             if(ctx.return_type.map_perform->empty()) {
-                ctx.out.append_indented("return " + im_call + "(" + String::joined(args,",") + ");\n");
+                ctx.out.append_indented("return " + im_call + "(" + String::joined(args,", ") + ");\n");
             }
             else {
-                ctx.out.append_indented(im_call + "(" + String::joined(args,",") + ");");
-                ctx.out.append(String().sprintf(" return (%s)argRet;\n",ctx.return_type.underlying_type->cs_name().c_str()));
+                String call_inv= im_call + "(" + String::joined(args, ", ") + ")";
+                if(!ctx.return_type.map_perform->contains("call")) {
+                    ctx.out.append_indented(call_inv);
+                    ctx.out.append(";\n");
+                    ctx.out.append_indented(String().sprintf("return (%s)argRet;\n", ctx.return_type.underlying_type->cs_name().c_str()));
+                }
+                else {
+                    String wrapped = *ctx.return_type.map_perform;
+                    wrapped.replace("%call",call_inv);
+                    wrapped.replace("%rettype", ctx.return_type.underlying_type->cs_name().c_str());
+                    ctx.out.append_indented(wrapped);
+                    ctx.out.append("\n");
+                }
 
             }
         }
@@ -3849,7 +3878,6 @@ struct CSReflectionVisitor {
             add_to_ns_too = true;
         }
 
-
         CSEnum *en = CSEnum::get_instance_for(parent,current_access_path(),ei);
         en->static_wrapper_class = static_wrapper_class;
 
@@ -4064,6 +4092,9 @@ struct CSReflectionVisitor {
         _generate_docs_for(p_iprop, ctx);
 
         const CSFunction *setter = p_iprop->setter;
+        if(setter && setter->cs_name=="SetMode") {
+            printf("1");
+        }
         const TypeReference &proptype_name = p_iprop->getter ? p_iprop->getter->source_type->return_type : setter->source_type->arguments.back().type;
         ctx.out.append_indented("public ");
         //TODO: handle static properties better
@@ -4537,7 +4568,42 @@ void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, St
     tgt->marshall = execute_pattern;
 
 }
+void CSTypeMapper::registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView execute_pattern) {
+    CSType* t = CSType::by_rd(ti);
+    assert(t != nullptr);
 
+    auto iter = from_c_name_to_mapping.find(ti->name);
+    Mapping* m;
+    if (iter != from_c_name_to_mapping.end()) {
+        m = iter->second;
+    }
+    else {
+        stored_mappings.emplace_back();
+        from_c_name_to_mapping[ti->name] = &stored_mappings.back();
+        if (ti->name.starts_with('_')) // allow using non-underscore names for type lookup
+            from_c_name_to_mapping[ti->name.substr(1)] = &stored_mappings.back();
+        from_cs_name_to_mapping[t->cs_name()] = &stored_mappings.back();
+        m = &stored_mappings.back();
+        m->underlying_type = t;
+    }
+    m->c_arg_input.type = pattern;
+    m->c_arg_input.marshall = execute_pattern;
+    m->c_arg_inout.type = pattern;
+    m->c_arg_inout.marshall = execute_pattern;
+    m->c_arg_output.type = pattern;
+    m->c_arg_output.marshall = execute_pattern;
+    m->c_return.type = pattern;
+    m->c_return.marshall = execute_pattern;
+    m->cs_input.type = pattern;
+    m->cs_input.marshall = execute_pattern;
+    m->cs_output.type = pattern;
+    m->cs_output.marshall = execute_pattern;
+    m->cs_inout.type = pattern;
+    m->cs_inout.marshall = execute_pattern;
+    m->cs_return.type = pattern;
+    m->cs_return.marshall = execute_pattern;
+
+}
 void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type) {
     String full_c_name = parent->relative_path(CPP_IMPL) +"::"+c_enum_name;
     String full_cs_name = parent->relative_path(CS_INTERFACE) + "." + cs_enum_name;
@@ -4554,7 +4620,7 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
 
     CSType *reg = CSType::register_type(ns,&enum_wrappers.back());
     reg->parent = parent;
-    reg->set_cs_name(CSEnum::convert_name("",c_enum_name));
+    reg->set_cs_name(String(cs_enum_name));
     reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m(*from_cs_name_to_mapping[mapIntTypeName(underlying_type)]);
     m.underlying_type = reg;
@@ -4695,7 +4761,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         registerTypeMap(&builtins.back(), C_INPUT, "%argtype%d %arg%d_in = MARSHALLED_IN(" #m_type ",%arg%d);", "GDMonoMarshal::M_" #m_type "*,%arg%d_in");\
         registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");\
         registerTypeMap(&builtins.back(), SC_OUTPUT, "ref %arg%d", "out %arg%d");\
-        registerTypeMap(&builtins.back(), SC_RETURN, "ref %arg%d", "out " #m_type " argRet");\
+        registerTypeMap(&builtins.back(), SC_RETURN, "out " #m_type " argRet", "%call; return argRet;");\
         registerTypeMap(&builtins.back(), C_OUTPUT, "*%outval%d = MARSHALLED_OUT(" #m_type ", %outval%d)", "GDMonoMarshal::M_" #m_type);\
         registerTypeMap(&builtins.back(), C_RETURN, "%method(%1, %3 argRet); return (%2)argRet;", "MonoBoolean");\
     } else\
@@ -4721,7 +4787,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
         registerTypeMap(&builtins.back(), SC_INPUT, "", "ref %arg%d");
-        registerTypeMap(&builtins.back(), SC_RETURN, "%rettype argRet; %method(%cargs, out argRet); return (%rettype)argRet;", "out float argRet");
+        registerTypeMap(&builtins.back(), SC_RETURN, "out float argRet", "%call; return argRet; return (%rettype)argRet");
 
         builtins.emplace_back("double");
         reg = CSType::register_type(nullptr, &builtins.back());
@@ -4807,6 +4873,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg = CSType::register_type(tgt_ns, &builtins.back());
     reg->set_cs_name("Variant"); //TODO: original was using 'object' as cs name but that broke many codegen things around here.
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
     /*
     itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_VARIANT "(%1);\n";
     itype.c_out = "\treturn " C_METHOD_MANAGED_FROM_VARIANT "(%1);\n";
@@ -4823,14 +4890,14 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("VarArg");
     reg = CSType::register_type(nullptr, &builtins.back());
     reg->set_cs_name("params object[]");
-    registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMapAll(&builtins.back(), "IMPL THIS", "IMPL THIS");
 
 #define INSERT_ARRAY_FULL(m_name, m_type, m_proxy_t)                          \
     {                                                                         \
         builtins.emplace_back(#m_name);\
         reg = CSType::register_type(nullptr, &builtins.back());\
         reg->set_cs_name(#m_proxy_t "[]");\
-        registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");\
+        registerTypeMapAll(&builtins.back(), "IMPL THIS", "IMPL THIS");\
     }
 
 #define INSERT_ARRAY_NC_FULL(m_name, m_type, m_proxy_t)                          \
@@ -4886,6 +4953,7 @@ void CSTypeMapper::register_complex_type(CSType *cs) {
     assert(from_cs_name_to_mapping.end()==from_cs_name_to_mapping.find(cs->cs_name()));
 
     registerTypeMap(cs->source_type, C_INPUT, "%argtype%d %arg%d_in = FOO;", "BAR*,%arg%d_in");
+    registerTypeMap(cs->source_type, SC_INPUT, "", "Object.GetPtr(%arg%d)");
 
 }
 

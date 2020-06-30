@@ -11,8 +11,8 @@
 	<methods>
 		<method name="add_button">
 			<return type="Button">
-			</return>
 			<argument index="0" name="text" type="String">
+			</return>
 			</argument>
 			<argument index="1" name="right" type="bool" default="false">
 			</argument>
