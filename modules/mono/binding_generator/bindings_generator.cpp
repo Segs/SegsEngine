@@ -1050,6 +1050,7 @@ static String bbcode_to_xml(StringView p_bbcode, const CSTypeLike* p_itype, CSTy
                 }
                 else if (!target_itype && target_cname == "@GlobalScope") {
                     // Try to find as a global constant
+                    assert(false);
 
 //                    const ConstantInterface *target_iconst = rd.find_constant_by_name(target_cname, rd.global_constants);
 
@@ -1513,7 +1514,7 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
         im_call += im_icall->name;
 
 */
-        ;
+
         String im_call(get_internal_call_name(ctx.func));
         if(im_call.ends_with("godot_icall_AnimationNode_blend_node_add2e684")) {
             printf("1");
@@ -1897,24 +1898,34 @@ static StringView func_signature_hash(const CSFunction *imethod) {
     return buf;
 
 }
-void _generate_method_icalls(const TypeInterface& p_itype) {
-    for (const MethodInterface& imethod : p_itype.methods) {
+void _generate_csmethod_icalls(GeneratorContext &ctx,const CSTypeLike* p_itype) {
+    for (const CSTypeLike * nested_type : p_itype->m_children) {
+        _generate_csmethod_icalls(ctx,nested_type);
+    }
 
-        if (imethod.is_virtual)
+    for (const CSFunction * imethod : p_itype->m_functions) {
+
+        if (imethod->source_type->is_virtual)
             continue;
-#if 0
-
-        FixedVector<StringName,16,true> unique_parts;
-        String method_signature(p_itype.cname);
-        method_signature+="_"+imethod.cname+"_";
-        const TypeInterface *return_type = rd._get_type_or_placeholder(imethod.return_type);
-
+        ctx.out.append_indented("[MethodImpl(MethodImplOptions.InternalCall)]\n");
+        ctx.out.append_indented("internal static extern ");
+        // %ic_return_type %icall_name([%icall_arg_type %argname]+);
+        StringView im_unique_sig=get_internal_call_name(imethod);
         String im_sig;
-        String im_unique_sig = String(imethod.return_type.cname) + ",IntPtr,IntPtr";
-
-        im_sig += "IntPtr " CS_PARAM_INSTANCE;
+        im_sig += "IntPtr ptr";
         // Get arguments information
         int i = 0;
+        const MethodInterface *refl_interface=imethod->source_type;
+        for(auto arg : imethod->arg_names) {
+            const ArgumentInterface &arg_iface(refl_interface->arguments[i++]);
+            CSTypeWrapper wrap=ctx.mapper.map_type(CSTypeMapper::TypemapKind::SC_INPUT,arg_iface.type);
+
+        }
+
+#if 0
+
+        const TypeInterface *return_type = rd._get_type_or_placeholder(imethod.return_type);
+
         for (const ArgumentInterface &F : imethod.arguments) {
             const TypeInterface *arg_type = rd._get_type_or_placeholder(F.type);
 
@@ -3665,6 +3676,9 @@ struct CSProducer : FileProducer {
     HashMap<APIType, Vector<String>> distinct_files;
     CSTypeMapper type_mapper;
     DocData *docs;
+    StringBuilder m_icalls_target;
+    GeneratorContext *m_icalls_file_ctx=nullptr;
+
     CSProducer() {
 
     }
@@ -3730,7 +3744,8 @@ struct CSProducer : FileProducer {
         new_sln_file.write(new_contents);
         return true;
     }
-    bool generate_constant_files(const ReflectionData &rd,CSTypeMapper &mapper) {
+private:
+    bool create_and_cd_to_gen_dir() {
         if(!m_target_dir.cd("cs_gen")) {
             bool mk_ok = m_target_dir.mkpath("cs_gen");
             if(!mk_ok) {
@@ -3739,6 +3754,12 @@ struct CSProducer : FileProducer {
             }
             m_target_dir.cd("cs_gen");
         }
+        return true;
+    }
+public:
+    bool generate_constant_files(const ReflectionData &rd,CSTypeMapper &mapper) {
+        if(!create_and_cd_to_gen_dir())
+            return false;
         QString output_file = m_target_dir.path();
         // Generate source file for global scope constants and enums
         for(const auto &ns : CSNamespace::namespaces) {
@@ -3756,7 +3777,24 @@ struct CSProducer : FileProducer {
         m_target_dir.cdUp();
         return true;
     }
+    bool create_icall_files(CSTypeMapper &mapper) {
+        if(!create_and_cd_to_gen_dir())
+            return false;
+        if(m_icalls_file_ctx==nullptr) {
+            m_icalls_file_ctx = new GeneratorContext(m_icalls_target,mapper,nullptr);
+        }
+        QString output_file =QDir(m_target_dir).filePath("icalls.cs");
+        for(const auto &ns : CSNamespace::namespaces) {
+            m_icalls_file_ctx->p_type = ns.second;
 
+            _generate_csmethod_icalls(*m_icalls_file_ctx,ns.second);
+        }
+        auto save_err = _save_file(qPrintable(output_file), m_icalls_target);
+        if (save_err != OK)
+            return false;
+        m_target_dir.cdUp();
+        return true;
+    }
 
     bool enter_directory_or_create(StringView path) {
         QString path_str = QString::fromUtf8(path.data(), path.size());
@@ -4624,7 +4662,7 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
     reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m(*from_cs_name_to_mapping[mapIntTypeName(underlying_type)]);
     m.underlying_type = reg;
-    m.cs_return.marshall ="return (%rettype)%call";
+    m.cs_return.marshall ="return (%rettype)%call;";
     this->stored_mappings.emplace_back(m);
     from_cs_name_to_mapping[full_cs_name] = &stored_mappings.back();
     from_c_name_to_mapping[full_c_name] = &stored_mappings.back();
