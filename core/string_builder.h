@@ -85,7 +85,11 @@ public:
         return string_length;
     }
 
-    StringBuilder &append_indented(StringView p_string) {
+    StringBuilder &append_indented(const String &p_string) {
+        add_indent();
+        return append(p_string);
+    }
+    StringBuilder &append_indented(const char *p_string) {
         add_indent();
         return append(p_string);
     }
