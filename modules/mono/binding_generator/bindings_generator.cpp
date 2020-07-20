@@ -1468,7 +1468,7 @@ StringView get_internal_call_name(const CSFunction *func,bool external=true) {
         strcat(buffer,"NativeCalls.godot_icall_");
     else
         strcat(buffer,"godot_icall_");
-    strncat(buffer,func->enclosing_type->cs_name().c_str(),func->enclosing_type->cs_name().size());
+    strncat(buffer,func->enclosing_type->c_name().data(), func->enclosing_type->c_name().size());
     strncat(buffer,"_",1);
     strncat(buffer,func->source_type->name.c_str(),func->source_type->name.size());
     strncat(buffer,"_",1);
@@ -1903,7 +1903,31 @@ static StringView func_signature_hash(const CSFunction *imethod) {
 }
 QFile blorborb;
 static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * imethod) {
-    ctx.out.append("();\n");
+    ctx.out.append("(");
+    ctx.out.append("IntPtr ptr");
+    int argcount=imethod->arg_names.size();
+
+    for(int i=0; i< argcount; ++i) {
+        const ArgumentInterface &arg(imethod->source_type->arguments[i]);
+        auto wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT, arg.type);
+        if (arg.type.is_enum) {
+            auto asenum = dynamic_cast<const CSEnum*>(wrap.underlying_type);
+            wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
+        }
+
+        auto tp = wrap.underlying_type->cs_name();
+        String argtyped(*wrap.map_prepare);
+        if(!argtyped.empty()) {
+            argtyped.replace("%arg%d", String().sprintf("%s arg%d", tp.c_str(), i + 1));
+        }
+        else {
+            argtyped = String().sprintf("%s arg%d",tp.c_str(), i + 1);
+        }
+
+        ctx.out.append(", ");
+        ctx.out.append(argtyped);
+    }
+    ctx.out.append(");\n");
 }
 static void _generate_icalldef_preamble(GeneratorContext &ctx) {
     ctx.out.append_indented("[MethodImpl(MethodImplOptions.InternalCall)]\n");
@@ -1912,8 +1936,16 @@ static void _generate_icalldef_preamble(GeneratorContext &ctx) {
 static void _generate_icalldef_return(GeneratorContext &ctx,const CSFunction * imethod,bool constructor_or_singleton=false) {
     if(constructor_or_singleton)
         ctx.out.append("IntPtr");
-    else
-        ctx.out.append(imethod->source_type->return_type.cname.c_str());
+    else {
+        auto wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, imethod->source_type->return_type);
+        if(imethod->source_type->return_type.is_enum) {
+            auto asenum = dynamic_cast<const CSEnum *>(wrap.underlying_type);
+            wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
+        }
+        auto tp = wrap.underlying_type->cs_name();
+
+        ctx.out.append(tp);
+    }
 }
 
 void _generate_csmethod_icalls(GeneratorContext &ctx,const CSTypeLike* p_itype) {
@@ -3820,22 +3852,21 @@ public:
             for(const String &order : ns_i.obj_type_insert_order) {
                 const TypeInterface & ti(ns_i.obj_types.at(order));
                 CSType *t = CSType::by_rd(&ti);
+                
                 if ((t->source_type->is_instantiable && !t->source_type->base_name.empty()) || t->source_type->is_singleton) {
                     _generate_icalldef_preamble(*m_icalls_file_ctx);
                     _generate_icalldef_return(*m_icalls_file_ctx,nullptr,true);
+                    m_icalls_file_ctx->out.append(" godot_icall_");
+                    m_icalls_file_ctx->out.append(t->cs_name());
                     if(t->source_type->is_singleton) {
-                        m_icalls_file_ctx->out.append("godot_icall_");
-                        m_icalls_file_ctx->out.append(t->c_name());
-                        m_icalls_file_ctx->out.append("_get_singleton();\n");
+                        m_icalls_file_ctx->out.append("_get_singleton();\n\n");
                     }
                     else
                     {
-                        m_icalls_file_ctx->out.append("godot_icall_");
-                        m_icalls_file_ctx->out.append(t->c_name());
                         m_icalls_file_ctx->out.append("_Ctor");
                         m_icalls_file_ctx->out.append("(");
                         m_icalls_file_ctx->out.append(t->cs_name());
-                        m_icalls_file_ctx->out.append(" obj);\n");
+                        m_icalls_file_ctx->out.append(" obj);\n\n");
                     }
                 }
             }
