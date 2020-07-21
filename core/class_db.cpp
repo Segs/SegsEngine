@@ -508,6 +508,7 @@ void ClassDB::register_enum_type(const StringName &p_class, const StringName &p_
 
         ERR_FAIL();
     }
+    assert(!p_underlying_type.empty());
     type->enum_map[p_enum].underlying_type = p_underlying_type;
 }
 
@@ -538,6 +539,8 @@ void ClassDB::bind_integer_constant(
         const StringName interned_enum_name(enum_name);
 
         EnumDescriptor &constants_list = type->enum_map[interned_enum_name];
+        if(constants_list.underlying_type.empty())
+            constants_list.underlying_type = "int32_t";
         constants_list.enumerators.push_back(p_name);
     }
 

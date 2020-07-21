@@ -153,7 +153,7 @@ public:
  * %tgtarg name of target argument to be written with data marshalled out from %outval
  */
     struct Mapping {
-        const CSType* underlying_type;
+        const CSTypeLike* underlying_type;
         MappingEntry  c_return;
         MappingEntry  c_arg_input;
         MappingEntry  c_arg_output;
@@ -181,7 +181,7 @@ public:
 
     void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern);
     void registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView execute_pattern);
-    void register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type);
+    void register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, struct CSEnum *cs_enum, IntTypes underlying_type);
     //CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
 
@@ -578,6 +578,9 @@ struct CSEnum : public CSTypeLike {
         if(enclosing->enum_name_would_clash_with_property(cs_name)) {
             cs_name += "Enum";
         }
+        res->underlying_val_type.cname=src->underlying_type;
+        res->underlying_val_type.is_enum=false;
+
         res->set_cs_name(cs_name);
         enums.emplace(access_path+res->cs_name(),res);
         //assert(false);
@@ -1897,11 +1900,23 @@ static StringView func_signature_hash(const CSFunction *imethod) {
         hash_combine(arg_hash, StringUtils::hash(s));
     }
     static char buf[32];
-    sprintf(buf,"%08x",arg_hash);
+    sprintf(buf,"%x",arg_hash);
     return buf;
 
 }
-QFile blorborb;
+static bool inherits_from_Object(const CSTypeLike *tl) {
+    if(tl->kind()!=CSTypeLike::TypeKind::CLASS)
+        return false;
+
+    const CSTypeLike *iter=tl;
+    while(iter && iter->cs_name()!="Object") {
+        if(iter->kind()!=CSTypeLike::TypeKind::CLASS)
+            return false;
+        const CSType *iter_class=(const CSType *)iter;
+        iter=iter_class->base_type;
+    }
+    return iter!=nullptr;
+}
 static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * imethod) {
     ctx.out.append("(");
     ctx.out.append("IntPtr ptr");
@@ -1915,7 +1930,10 @@ static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * 
             wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
         }
 
-        auto tp = wrap.underlying_type->cs_name();
+        String tp = wrap.underlying_type->cs_name();
+        if(inherits_from_Object(wrap.underlying_type)) {
+            tp = "IntPtr";
+        }
         String argtyped(*wrap.map_prepare);
         if(!argtyped.empty()) {
             argtyped.replace("%arg%d", String().sprintf("%s arg%d", tp.c_str(), i + 1));
@@ -1927,11 +1945,19 @@ static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * 
         ctx.out.append(", ");
         ctx.out.append(argtyped);
     }
+    auto wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, imethod->source_type->return_type);
+    String rettyped(*wrap.map_prepare);
+    if(!rettyped.empty()) {
+        auto tp = wrap.underlying_type->cs_name();
+        ctx.out.append(", ");
+        ctx.out.append(rettyped);
+    }
+
     ctx.out.append(");\n");
 }
 static void _generate_icalldef_preamble(GeneratorContext &ctx) {
     ctx.out.append_indented("[MethodImpl(MethodImplOptions.InternalCall)]\n");
-    ctx.out.append_indented("internal static extern ");
+    ctx.out.append_indented("internal extern static ");
 }
 static void _generate_icalldef_return(GeneratorContext &ctx,const CSFunction * imethod,bool constructor_or_singleton=false) {
     if(constructor_or_singleton)
@@ -1942,9 +1968,14 @@ static void _generate_icalldef_return(GeneratorContext &ctx,const CSFunction * i
             auto asenum = dynamic_cast<const CSEnum *>(wrap.underlying_type);
             wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
         }
-        auto tp = wrap.underlying_type->cs_name();
+        String argtyped(*wrap.map_prepare);
+        if(argtyped.empty()) {
+            auto tp = wrap.underlying_type->cs_name();
+            ctx.out.append(tp);
+        }
+        else
+            ctx.out.append("void");
 
-        ctx.out.append(tp);
     }
 }
 
@@ -4026,7 +4057,7 @@ struct CSReflectionVisitor {
             }
         }
 
-        cs_producer.type_mapper.register_enum(m_namespace_stack.back(), parent, enum_c_name, en->cs_name(), CSTypeMapper::INT_32);
+        cs_producer.type_mapper.register_enum(m_namespace_stack.back(), parent, enum_c_name, en, CSTypeMapper::INT_32);
         m_current_enum = en;
         for(const ConstantInterface & ci : ei->constants)
         {
@@ -4735,9 +4766,9 @@ void CSTypeMapper::registerTypeMapAll(const TypeInterface* ti, StringView patter
     m->cs_return.marshall = execute_pattern;
 
 }
-void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, StringView cs_enum_name, IntTypes underlying_type) {
+void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, CSEnum *cs_enum, IntTypes underlying_type) {
     String full_c_name = parent->relative_path(CPP_IMPL) +"::"+c_enum_name;
-    String full_cs_name = parent->relative_path(CS_INTERFACE) + "." + cs_enum_name;
+    String full_cs_name = parent->relative_path(CS_INTERFACE) + "." + cs_enum->cs_name();
 
     if (from_c_name_to_mapping.contains(full_c_name)) {
         return;
@@ -4749,12 +4780,12 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
     enum_itype.name = c_enum_name;
     enum_wrappers.emplace_back(enum_itype);
 
-    CSType *reg = CSType::register_type(ns,&enum_wrappers.back());
+    CSTypeLike *reg = CSType::register_type(ns,&enum_wrappers.back());
     reg->parent = parent;
-    reg->set_cs_name(String(cs_enum_name));
-    reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
+    reg->set_cs_name(String(cs_enum->cs_name()));
+    //reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m(*from_cs_name_to_mapping[mapIntTypeName(underlying_type)]);
-    m.underlying_type = reg;
+    m.underlying_type = cs_enum;
     m.cs_return.marshall ="return (%rettype)%call;";
     this->stored_mappings.emplace_back(m);
     from_cs_name_to_mapping[full_cs_name] = &stored_mappings.back();
@@ -4933,6 +4964,8 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("Array");
     reg = CSType::register_type(nullptr, &builtins.back());
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), SC_RETURN, "IntPtr", "");
+
 
     // Array
     /*itype.c_out = "\t\n";
@@ -4971,6 +5004,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("NodePath");
     reg = CSType::register_type(tgt_ns, &builtins.back());
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), SC_INPUT, "IntPtr", "IntPtr");
 /*
     itype.c_out = "\treturn memnew(NodePath(%1));\n";
     itype.c_type = itype.name;
@@ -5076,8 +5110,16 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     INSERT_ARRAY(PoolVector3Array, Vector3);
 
 #undef INSERT_ARRAY
+    static EnumInterface axis_iface("Axis");
+    if(axis_iface.underlying_type.empty()) {
+        axis_iface.underlying_type="int32_t";
+        axis_iface.constants.emplace_back("X",0);
+        axis_iface.constants.emplace_back("Y",1);
+        axis_iface.constants.emplace_back("Z",2);
+    }
 
-    register_enum(tgt_ns, from_c_name_to_mapping["Vector3"]->underlying_type,"Axis", "Axis",INT_32);
+    CSEnum *axis_enum = CSEnum::get_instance_for(from_c_name_to_mapping["Vector3"]->underlying_type,"Vector3",&axis_iface);
+    register_enum(tgt_ns, from_c_name_to_mapping["Vector3"]->underlying_type,"Axis", axis_enum,INT_32);
 }
 
 void CSTypeMapper::register_complex_type(CSType *cs) {

@@ -137,6 +137,8 @@ void EnumInterface::fromJson(const QJsonObject& obj) {
     if(obj.contains("underlying_type")) {
         underlying_type = obj["cname"].toString().toUtf8().data();
     }
+    else
+        underlying_type = "int32_t";
     ::fromJson(obj, "constants", constants);
 }
 
