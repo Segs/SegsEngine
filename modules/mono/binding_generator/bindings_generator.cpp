@@ -108,7 +108,8 @@ enum TargetCode {
 struct CSTypeWrapper {
     const CSTypeLike *underlying_type=nullptr;
     const String *map_prepare; // a code block to prepare the value for transformation ( checks etc. )
-    const String* map_perform; // a code block
+    const String* marshall_to_icall; // a code block
+    const String* icall_perform; // a code block
 };
 struct CSTypeMapper {
 public:
@@ -141,7 +142,8 @@ public:
 
     struct MappingEntry {
         String type;
-        String marshall;
+        String marshall_from_icall;
+        String icall_type; //
     };
 /* Type mapping expression elements
  * %type
@@ -180,7 +182,7 @@ public:
     String mapMethodName(StringView method_name, StringView class_name = {}, StringView namespace_name = {}) ;
 
     void registerTypeMap(const TypeInterface *ti, TypemapKind, StringView pattern, StringView execute_pattern);
-    void registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView execute_pattern);
+    void registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView marshall_pattern, StringView icall_pattern);
     void register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, struct CSEnum *cs_enum, IntTypes underlying_type);
     //CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref, StringView instance_name);
     CSTypeWrapper map_type(TypemapKind kind, const TypeReference &ref);
@@ -1522,9 +1524,6 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
 */
 
         String im_call(get_internal_call_name(ctx.func));
-        if(im_call.ends_with("godot_icall_AnimationNode_blend_node_add2e684")) {
-            printf("1");
-        }
         FixedVector<String,8,true> args;
         if (!ctx.func->source_type->arguments.empty()) {
 #ifdef EXT_GEN
@@ -1534,7 +1533,7 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
             for(const ArgumentInterface &ai : ctx.func->source_type->arguments) {
                 CSTypeWrapper arg_wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT,ai.type);
 
-                args.emplace_back(ctx.formatTypeMapStanza(*arg_wrap.map_perform,idx++));
+                args.emplace_back(ctx.formatTypeMapStanza(*arg_wrap.marshall_to_icall,idx++));
 
             }
         }
@@ -1549,18 +1548,18 @@ void gen_cs_perform_internal_call(GeneratorContext& ctx) {
             ctx.out.append_indented(im_call + "(" + String::joined(args,", ") + ");\n");
         }
         else {
-            if(ctx.return_type.map_perform->empty()) {
+            if(ctx.return_type.marshall_to_icall->empty()) {
                 ctx.out.append_indented("return " + im_call + "(" + String::joined(args,", ") + ");\n");
             }
             else {
                 String call_inv= im_call + "(" + String::joined(args, ", ") + ")";
-                if(!ctx.return_type.map_perform->contains("call")) {
+                if(!ctx.return_type.marshall_to_icall->contains("call")) {
                     ctx.out.append_indented(call_inv);
                     ctx.out.append(";\n");
                     ctx.out.append_indented(String().sprintf("return (%s)argRet;\n", ctx.return_type.underlying_type->cs_name().c_str()));
                 }
                 else {
-                    String wrapped = *ctx.return_type.map_perform;
+                    String wrapped = *ctx.return_type.marshall_to_icall;
                     wrapped.replace("%call",call_inv);
                     wrapped.replace("%rettype", ctx.return_type.underlying_type->cs_name().c_str());
                     ctx.out.append_indented(wrapped);
@@ -1581,9 +1580,6 @@ bool _generate_cs_method(GeneratorContext &ctx) {
     String icall_params;
 
 
-    if(ctx.func->cs_name=="GetTrackingStatus") {
-        printf("1");
-    }
     // For every argument, we find the type mapping
     ctx.return_type = ctx.mapper.map_type(CSTypeMapper::SC_RETURN,ctx.func->source_type->return_type);
     // Retrieve information from the arguments
@@ -1927,7 +1923,7 @@ static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * 
         auto wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT, arg.type);
         if (arg.type.is_enum) {
             auto asenum = dynamic_cast<const CSEnum*>(wrap.underlying_type);
-            wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
+            wrap = ctx.mapper.map_type(CSTypeMapper::SC_INPUT, asenum->underlying_val_type);
         }
 
         String tp = wrap.underlying_type->cs_name();
@@ -1935,8 +1931,12 @@ static void _generate_icalldef_arglist(GeneratorContext &ctx,const CSFunction * 
             tp = "IntPtr";
         }
         String argtyped(*wrap.map_prepare);
+        if(tp=="VisibilityNotifier3D") {
+            printf("1");
+        }
         if(!argtyped.empty()) {
-            argtyped.replace("%arg%d", String().sprintf("%s arg%d", tp.c_str(), i + 1));
+            argtyped.replace("%type",tp.c_str());
+            argtyped.replace("%arg%d", String().sprintf("arg%d", i + 1));
         }
         else {
             argtyped = String().sprintf("%s arg%d",tp.c_str(), i + 1);
@@ -1968,13 +1968,18 @@ static void _generate_icalldef_return(GeneratorContext &ctx,const CSFunction * i
             auto asenum = dynamic_cast<const CSEnum *>(wrap.underlying_type);
             wrap = ctx.mapper.map_type(CSTypeMapper::SC_RETURN, asenum->underlying_val_type);
         }
-        String argtyped(*wrap.map_prepare);
-        if(argtyped.empty()) {
-            auto tp = wrap.underlying_type->cs_name();
-            ctx.out.append(tp);
+        String ret_typed(*wrap.icall_perform);
+        if(imethod->c_name()=="get_canvas") {
+            printf("1");
         }
-        else
+        if(ret_typed.empty()) {
             ctx.out.append("void");
+        }
+        else {
+            auto tp = wrap.underlying_type->cs_name();
+            ret_typed.replace("%type",tp.c_str());
+            ctx.out.append(ret_typed);
+        }
 
     }
 }
@@ -4727,10 +4732,10 @@ void CSTypeMapper::registerTypeMap(const TypeInterface *ti, TypemapKind kind, St
     }
     assert(tgt!=nullptr);
     tgt->type = pattern;
-    tgt->marshall = execute_pattern;
+    tgt->marshall_from_icall = execute_pattern;
 
 }
-void CSTypeMapper::registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView execute_pattern) {
+void CSTypeMapper::registerTypeMapAll(const TypeInterface* ti, StringView pattern, StringView marshall_pattern, StringView icall_pattern) {
     CSType* t = CSType::by_rd(ti);
     assert(t != nullptr);
 
@@ -4749,21 +4754,29 @@ void CSTypeMapper::registerTypeMapAll(const TypeInterface* ti, StringView patter
         m->underlying_type = t;
     }
     m->c_arg_input.type = pattern;
-    m->c_arg_input.marshall = execute_pattern;
+    m->c_arg_input.marshall_from_icall = marshall_pattern;
+    m->c_arg_input.icall_type = icall_pattern;
     m->c_arg_inout.type = pattern;
-    m->c_arg_inout.marshall = execute_pattern;
+    m->c_arg_inout.marshall_from_icall = marshall_pattern;
+    m->c_arg_inout.icall_type = icall_pattern;
     m->c_arg_output.type = pattern;
-    m->c_arg_output.marshall = execute_pattern;
+    m->c_arg_output.marshall_from_icall = marshall_pattern;
+    m->c_arg_output.icall_type = icall_pattern;
     m->c_return.type = pattern;
-    m->c_return.marshall = execute_pattern;
+    m->c_return.marshall_from_icall = marshall_pattern;
+    m->c_return.icall_type = icall_pattern;
     m->cs_input.type = pattern;
-    m->cs_input.marshall = execute_pattern;
+    m->cs_input.marshall_from_icall = marshall_pattern;
+    m->cs_input.icall_type = icall_pattern;
     m->cs_output.type = pattern;
-    m->cs_output.marshall = execute_pattern;
+    m->cs_output.marshall_from_icall = marshall_pattern;
+    m->cs_output.icall_type = icall_pattern;
     m->cs_inout.type = pattern;
-    m->cs_inout.marshall = execute_pattern;
+    m->cs_inout.marshall_from_icall = marshall_pattern;
+    m->cs_inout.icall_type = icall_pattern;
     m->cs_return.type = pattern;
-    m->cs_return.marshall = execute_pattern;
+    m->cs_return.marshall_from_icall = marshall_pattern;
+    m->cs_return.icall_type = icall_pattern;
 
 }
 void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent, StringView c_enum_name, CSEnum *cs_enum, IntTypes underlying_type) {
@@ -4786,7 +4799,7 @@ void CSTypeMapper::register_enum(const CSNamespace *ns, const CSTypeLike *parent
     //reg->base_type = from_cs_name_to_mapping[mapIntTypeName(underlying_type)]->underlying_type;
     Mapping m(*from_cs_name_to_mapping[mapIntTypeName(underlying_type)]);
     m.underlying_type = cs_enum;
-    m.cs_return.marshall ="return (%rettype)%call;";
+    m.cs_return.marshall_from_icall ="return (%rettype)%call;";
     this->stored_mappings.emplace_back(m);
     from_cs_name_to_mapping[full_cs_name] = &stored_mappings.back();
     from_c_name_to_mapping[full_c_name] = &stored_mappings.back();
@@ -4818,7 +4831,8 @@ CSTypeWrapper CSTypeMapper::map_type(CSTypeMapper::TypemapKind kind, const TypeR
     }
     assert(sel);
     res.map_prepare = &sel->type;
-    res.map_perform = &sel->marshall;
+    res.marshall_to_icall = &sel->marshall_from_icall;
+    res.icall_perform = &sel->icall_type;
     return res;
 }
 
@@ -4921,7 +4935,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         builtins.emplace_back(#m_type); \
         reg = CSType::register_type(tgt_ns, &builtins.back());\
         registerTypeMap(&builtins.back(), C_INPUT, "%argtype%d %arg%d_in = MARSHALLED_IN(" #m_type ",%arg%d);", "GDMonoMarshal::M_" #m_type "*,%arg%d_in");\
-        registerTypeMap(&builtins.back(), SC_INPUT, "ref %arg%d", "out %arg%d");\
+        registerTypeMap(&builtins.back(), SC_INPUT, "ref %type %arg%d", "out %arg%d");\
         registerTypeMap(&builtins.back(), SC_OUTPUT, "ref %arg%d", "out %arg%d");\
         registerTypeMap(&builtins.back(), SC_RETURN, "out " #m_type " argRet", "%call; return argRet;");\
         registerTypeMap(&builtins.back(), C_OUTPUT, "*%outval%d = MARSHALLED_OUT(" #m_type ", %outval%d)", "GDMonoMarshal::M_" #m_type);\
@@ -4948,7 +4962,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         reg->set_cs_name("float");
         registerTypeMap(&builtins.back(), C_INPUT, "auto %arg%d_in = static_cast<%type%d>(*%arg%d)", "float *,%arg%d_in");
         registerTypeMap(&builtins.back(), C_OUTPUT, "return static_cast<%type%d>(%monoarg%d)", "");
-        registerTypeMap(&builtins.back(), SC_INPUT, "", "ref %arg%d");
+        registerTypeMap(&builtins.back(), SC_INPUT, "ref float %arg%d", "ref %arg%d");
         registerTypeMap(&builtins.back(), SC_RETURN, "out float argRet", "%call; return argRet; return (%rettype)argRet");
 
         builtins.emplace_back("double");
@@ -4985,6 +4999,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     reg = CSType::register_type(tgt_ns, &builtins.back());
     reg->set_cs_name("Collections.Dictionary");
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), SC_RETURN, "IntPtr", "IntPtr");
 
     /*
     itype.name = "Dictionary";
@@ -5004,7 +5019,8 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("NodePath");
     reg = CSType::register_type(tgt_ns, &builtins.back());
     registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
-    registerTypeMap(&builtins.back(), SC_INPUT, "IntPtr", "IntPtr");
+    registerTypeMap(&builtins.back(), SC_INPUT, "IntPtr %arg%d", "IntPtr");
+    //registerTypeMap(&builtins.back(), SC_RETURN, "object", "IntPtr");
 /*
     itype.c_out = "\treturn memnew(NodePath(%1));\n";
     itype.c_type = itype.name;
@@ -5020,7 +5036,9 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
 // RID
     builtins.emplace_back("RID");
     reg = CSType::register_type(tgt_ns, &builtins.back());
-    registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), C_INPUT, "RID IMPL THIS", "RID IMPL THIS");
+    registerTypeMap(&builtins.back(), SC_INPUT, "IntPtr %arg%d", "IntPtr");
+    registerTypeMap(&builtins.back(), SC_RETURN, "IntPtr", "IntPtr");
 /*
     itype.c_out = "\treturn memnew(RID(%1));\n";
     itype.c_type = StringName(itype.name);
@@ -5037,7 +5055,7 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("Variant");
     reg = CSType::register_type(tgt_ns, &builtins.back());
     reg->set_cs_name("Variant"); //TODO: original was using 'object' as cs name but that broke many codegen things around here.
-    registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");
+    registerTypeMap(&builtins.back(), C_INPUT, "VARIANT IMPL THIS", "VARIANT IMPL THIS");
     registerTypeMap(&builtins.back(), SC_INPUT, "", "%arg%d");
     /*
     itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_VARIANT "(%1);\n";
@@ -5055,14 +5073,14 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
     builtins.emplace_back("VarArg");
     reg = CSType::register_type(nullptr, &builtins.back());
     reg->set_cs_name("params object[]");
-    registerTypeMapAll(&builtins.back(), "IMPL THIS", "IMPL THIS");
+    registerTypeMapAll(&builtins.back(), "VarArg IMPL THIS", "VarArg IMPL THIS", "VarArg IMPL THIS");
 
 #define INSERT_ARRAY_FULL(m_name, m_type, m_proxy_t)                          \
     {                                                                         \
         builtins.emplace_back(#m_name);\
         reg = CSType::register_type(nullptr, &builtins.back());\
         reg->set_cs_name(#m_proxy_t "[]");\
-        registerTypeMapAll(&builtins.back(), "IMPL THIS", "IMPL THIS");\
+        registerTypeMapAll(&builtins.back(), "IMPL THIS", "IMPL THIS", "IMPL THIS");\
     }
 
 #define INSERT_ARRAY_NC_FULL(m_name, m_type, m_proxy_t)                          \
@@ -5072,23 +5090,24 @@ void CSTypeMapper::register_default_types(const CSNamespace *tgt_ns) {
         reg->set_cs_name(#m_proxy_t "[]");\
         registerTypeMap(&builtins.back(), C_INPUT, "IMPL THIS", "IMPL THIS");\
     }
-#define INSERT_ARRAY_TPL_FULL(m_name, m_type, m_proxy_t)                      \
-    {                                                                         \
-        itype = TypeInterface();                                              \
-        itype.name = #m_name;                                                 \
-        itype.cname = StringName(itype.name);                                 \
-        itype.proxy_name = #m_proxy_t "[]";                                   \
-        itype.c_in = "\tauto %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n"; \
-        itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";  \
-        itype.c_arg_in = "%arg%d_in";                                             \
-        itype.c_type = #m_type;                                               \
-        itype.c_type_in = "MonoArray*";                                       \
-        itype.c_type_out = "MonoArray*";                                      \
-        itype.cs_type = itype.proxy_name;                                     \
-        itype.im_type_in = itype.proxy_name;                                  \
-        itype.im_type_out = itype.proxy_name;                                 \
-        rd.builtin_types.emplace(StringName(itype.name), itype);                 \
-    }
+//#define INSERT_ARRAY_TPL_FULL(m_name, m_type, m_proxy_t)
+//    {
+//        itype = TypeInterface();
+//        itype.name = #m_name;
+//        itype.cname = StringName(itype.name);
+//        itype.proxy_name = #m_proxy_t "[]";
+//        itype.c_in = "\tauto %1_in = " C_METHOD_MONOARRAY_TO_NC(m_type) "(%1);\n";
+//        itype.c_out = "\treturn " C_METHOD_MONOARRAY_FROM_NC(m_type) "(%1);\n";
+//        itype.c_arg_in = "%arg%d_in";
+//        itype.c_type = #m_type;
+//        itype.c_type_in = "MonoArray*";
+//        itype.c_type_out = "MonoArray*";
+//        itype.cs_type = itype.proxy_name;
+//        itype.im_type_in = itype.proxy_name;
+//        itype.im_type_out = itype.proxy_name;
+//        rd.builtin_types.emplace(StringName(itype.name), itype);
+//    }
+
 #define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
 
     INSERT_ARRAY(PoolIntArray, int);
