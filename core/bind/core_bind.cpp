@@ -319,6 +319,15 @@ int _OS::get_screen_dpi(int p_screen) const {
     return OS::get_singleton()->get_screen_dpi(p_screen);
 }
 
+float _OS::get_screen_scale(int p_screen) const {
+    return OS::get_singleton()->get_screen_scale(p_screen);
+}
+
+float _OS::get_screen_max_scale() const {
+    return OS::get_singleton()->get_screen_max_scale();
+}
+
+
 Point2 _OS::get_window_position() const {
     return OS::get_singleton()->get_window_position();
 }
@@ -824,7 +833,7 @@ Dictionary _OS::get_datetime_from_unix_time(int64_t unix_time_val) const {
     } else {
         dayno = (unix_time_val - SECS_DAY + 1) / SECS_DAY;
         dayclock = unix_time_val - dayno * SECS_DAY;
-        date.weekday = static_cast<OS::Weekday>((dayno - 3) % 7 + 7);
+        date.weekday = static_cast<OS::Weekday>(((dayno % 7) + 11) % 7);
         do {
             year--;
             dayno += YEARSIZE(year);
@@ -1179,6 +1188,9 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_screen_position", {"screen"}), &_OS::get_screen_position, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_size", {"screen"}), &_OS::get_screen_size, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_dpi", {"screen"}), &_OS::get_screen_dpi, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_screen_scale", {"screen"}), &_OS::get_screen_scale, DEFVAL(-1));
+    MethodBinder::bind_method(D_METHOD("get_screen_max_scale"), &_OS::get_screen_max_scale);
+
     MethodBinder::bind_method(D_METHOD("get_window_position"), &_OS::get_window_position);
     MethodBinder::bind_method(D_METHOD("set_window_position", {"position"}), &_OS::set_window_position);
     MethodBinder::bind_method(D_METHOD("get_window_size"), &_OS::get_window_size);

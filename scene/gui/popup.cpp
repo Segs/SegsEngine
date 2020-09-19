@@ -224,7 +224,7 @@ void Popup::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_exclusive"), &Popup::is_exclusive);
     ADD_SIGNAL(MethodInfo("about_to_show"));
     ADD_SIGNAL(MethodInfo("popup_hide"));
-    ADD_GROUP("Popup", "popup_");
+    ADD_GROUP("PopupMode", "popup_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "popup_exclusive"), "set_exclusive", "is_exclusive");
 
     BIND_CONSTANT(NOTIFICATION_POST_POPUP);

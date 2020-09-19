@@ -489,7 +489,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                         int idx = i * 10 + j;
                         CheckBox *c = checks20[idx];
                         c->set_text(ProjectSettings::get_singleton()->get(StringName(basename + "/layer_" + itos(idx + 1))));
-                        c->set_pressed(flgs & 1 << i * 10 + j);
+                        c->set_pressed(flgs & 1 << (i * 10 + j));
                         c->show();
                     }
                 }

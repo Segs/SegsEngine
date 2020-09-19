@@ -164,7 +164,7 @@ public:
     A cylinder
 */
 
-class CylinderMesh : public PrimitiveMesh {
+class GODOT_EXPORT CylinderMesh : public PrimitiveMesh {
 
     GDCLASS(CylinderMesh,PrimitiveMesh)
 
@@ -201,7 +201,7 @@ public:
 /**
     Similar to quadmesh but with tessellation support
 */
-class PlaneMesh : public PrimitiveMesh {
+class GODOT_EXPORT PlaneMesh : public PrimitiveMesh {
 
     GDCLASS(PlaneMesh,PrimitiveMesh)
 
@@ -230,7 +230,7 @@ public:
 /**
     A prism shapen, handy for ramps, triangles, etc.
 */
-class PrismMesh : public PrimitiveMesh {
+class GODOT_EXPORT PrismMesh : public PrimitiveMesh {
 
     GDCLASS(PrismMesh,PrimitiveMesh)
 
@@ -268,7 +268,7 @@ public:
     Our original quadmesh...
 */
 
-class QuadMesh : public PrimitiveMesh {
+class GODOT_EXPORT QuadMesh : public PrimitiveMesh {
 
     GDCLASS(QuadMesh,PrimitiveMesh)
 
@@ -289,7 +289,7 @@ public:
 /**
     A sphere..
 */
-class SphereMesh : public PrimitiveMesh {
+class GODOT_EXPORT SphereMesh : public PrimitiveMesh {
 
     GDCLASS(SphereMesh,PrimitiveMesh)
 

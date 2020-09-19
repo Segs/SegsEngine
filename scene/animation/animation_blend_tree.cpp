@@ -361,8 +361,8 @@ void AnimationNodeOneShot::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fadein_time", PropertyHint::Range, "0,60,0.01,or_greater"), "set_fadein_time", "get_fadein_time");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fadeout_time", PropertyHint::Range, "0,60,0.01,or_greater"), "set_fadeout_time", "get_fadeout_time");
 
-    ADD_GROUP("autorestart_", "Auto Restart");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autorestart"), "set_autorestart", "has_autorestart");
+    ADD_GROUP("Auto Restart","autorestart_");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autorestart_enabled"), "set_autorestart", "has_autorestart");
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "autorestart_delay", PropertyHint::Range, "0,60,0.01,or_greater"), "set_autorestart_delay", "get_autorestart_delay");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "autorestart_random_delay", PropertyHint::Range, "0,60,0.01,or_greater"), "set_autorestart_random_delay", "get_autorestart_random_delay");
@@ -849,6 +849,8 @@ void AnimationNodeTransition::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "input_count", PropertyHint::Range, "0,64,1", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_enabled_inputs", "get_enabled_inputs");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "xfade_time", PropertyHint::Range, "0,120,0.01"), "set_cross_fade_time", "get_cross_fade_time");
+
+    ADD_PROPERTY_ARRAY("Inputs",MAX_INPUTS,"input");
 
     for (int i = 0; i < MAX_INPUTS; i++) {
         ADD_PROPERTYI(PropertyInfo(VariantType::STRING, StringName("input/" + itos(i) + "/name"), PropertyHint::None, "",

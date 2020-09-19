@@ -191,7 +191,7 @@ public:
 
     void shader_add_custom_define(RID arg1, StringView arg2) override { BINDBASE->shader_add_custom_define(arg1, arg2); }
     void shader_get_custom_defines(RID arg1, Vector<StringView> * arg2) const override { BINDBASE->shader_get_custom_defines(arg1, arg2); }
-    void shader_clear_custom_defines(RID arg1) override { BINDBASE->shader_clear_custom_defines(arg1); }
+    void shader_remove_custom_define(RID arg1, StringView p_define) override { BINDBASE->shader_remove_custom_define(arg1,p_define); }
 
     /* COMMON MATERIAL API */
 

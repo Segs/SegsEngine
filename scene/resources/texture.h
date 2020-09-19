@@ -610,12 +610,12 @@ class GODOT_EXPORT AnimatedTexture : public Texture {
 
     //use readers writers lock for this, since its far more times read than written to
     RWLock *rw_lock;
-
-private:
+public:
     enum {
         MAX_FRAMES = 256
     };
 
+private:
     RID proxy;
 
     struct Frame {
@@ -684,7 +684,7 @@ public:
 };
 
 // External textures as defined by https://www.khronos.org/registry/OpenGL/extensions/OES/OES_EGL_image_external.txt
-class ExternalTexture : public Texture {
+class GODOT_EXPORT ExternalTexture : public Texture {
     GDCLASS(ExternalTexture, Texture);
 
 private:

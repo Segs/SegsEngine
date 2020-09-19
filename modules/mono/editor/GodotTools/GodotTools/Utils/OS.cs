@@ -47,36 +47,32 @@ namespace GodotTools.Utils
             return name.Equals(GetPlatformName(), StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool IsAnyOS(IEnumerable<string> names)
+        {
+            return names.Any(p => p.Equals(GetPlatformName(), StringComparison.OrdinalIgnoreCase));
+        }
+
         private static readonly Lazy<bool> _isWindows = new Lazy<bool>(() => IsOS(Names.Windows));
         private static readonly Lazy<bool> _isOSX = new Lazy<bool>(() => IsOS(Names.OSX));
         private static readonly Lazy<bool> _isX11 = new Lazy<bool>(() => IsOS(Names.X11));
         private static readonly Lazy<bool> _isServer = new Lazy<bool>(() => IsOS(Names.Server));
+        private static readonly Lazy<bool> _isUnixLike = new Lazy<bool>(() => IsAnyOS(UnixLikePlatforms));
 
         public static bool IsWindows => _isWindows.Value;
         public static bool IsOSX => _isOSX.Value;
         public static bool IsX11 => _isX11.Value;
         public static bool IsServer => _isServer.Value;
-        private static bool? _isUnixCache;
-        private static readonly string[] UnixLikePlatforms = { Names.OSX, Names.X11, Names.Server};
-
-        public static bool IsUnixLike()
-        {
-            if (_isUnixCache.HasValue)
-                return _isUnixCache.Value;
-
-            string osName = GetPlatformName();
-            _isUnixCache = UnixLikePlatforms.Any(p => p.Equals(osName, StringComparison.OrdinalIgnoreCase));
-            return _isUnixCache.Value;
-        }
+        private static readonly string[] UnixLikePlatforms = {Names.OSX, Names.X11, Names.Server};
+        public static bool IsUnixLike => _isUnixLike.Value;
 
         public static char PathSep => IsWindows ? ';' : ':';
 
-        public static string PathWhich([NotNull] string name)
+        public static string PathWhich([System.Diagnostics.CodeAnalysis.NotNull] string name)
         {
             return IsWindows ? PathWhichWindows(name) : PathWhichUnix(name);
         }
 
-        private static string PathWhichWindows([NotNull] string name)
+        private static string PathWhichWindows([System.Diagnostics.CodeAnalysis.NotNull] string name)
         {
             string[] windowsExts = Environment.GetEnvironmentVariable("PATHEXT")?.Split(PathSep) ?? new string[] { };
             string[] pathDirs = Environment.GetEnvironmentVariable("PATH")?.Split(PathSep);
@@ -101,7 +97,7 @@ namespace GodotTools.Utils
                     select path + ext).FirstOrDefault(File.Exists);
         }
 
-        private static string PathWhichUnix([NotNull] string name)
+        private static string PathWhichUnix([System.Diagnostics.CodeAnalysis.NotNull] string name)
         {
             string[] pathDirs = Environment.GetEnvironmentVariable("PATH")?.Split(PathSep);
 

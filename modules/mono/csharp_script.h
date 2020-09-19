@@ -65,7 +65,7 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 
 #define CAST_CSHARP_INSTANCE(m_inst) (cast_script_instance<CSharpInstance, CSharpLanguage>(m_inst))
 
-class CSharpScript : public Script {
+class GODOT_EXPORT CSharpScript : public Script {
 
     GDCLASS(CSharpScript, Script);
 
@@ -200,7 +200,7 @@ public:
     ~CSharpScript() override;
 };
 
-class CSharpInstance : public ScriptInstance {
+class GODOT_EXPORT CSharpInstance : public ScriptInstance {
 
     friend class CSharpScript;
     friend class CSharpLanguage;
@@ -290,7 +290,7 @@ struct CSharpScriptBinding {
     Object *owner;
 };
 
-class CSharpLanguage : public ScriptLanguage {
+class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
 
     friend class CSharpScript;
     friend class CSharpInstance;
@@ -391,7 +391,7 @@ public:
     String get_type() const override;
     String get_extension() const override;
     Error execute_file(StringView p_path) override;
-    void init() override;
+    bool init() override;
     void finish() override;
 
     /* EDITOR FUNCTIONS */

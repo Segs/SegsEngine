@@ -36,7 +36,7 @@
 #include "scene/3d/baked_lightmap.h"
 #include "scene/resources/material.h"
 
-class BakedLightmapEditorPlugin : public EditorPlugin {
+class GODOT_EXPORT BakedLightmapEditorPlugin : public EditorPlugin {
 
     GDCLASS(BakedLightmapEditorPlugin,EditorPlugin)
 

@@ -20,7 +20,7 @@ String CppProject::generate_cmake_contents() {
                 LIBRARY DESTINATION bin/plugins/
                 RUNTIME DESTINATION bin/plugins
                 )
-                set_target_properties(%1_%3_mono PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugin)
+                set_target_properties(%1_%3_mono PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/plugin)
 
                 )raw");
     contents.replace("%1",m_name.to_lower());

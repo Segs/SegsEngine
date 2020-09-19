@@ -389,17 +389,26 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (!profile_allow_editing) {
                 break;
             }
-            StringName preferred;
+
+            // Prefer nodes that inherit from the current scene root.
             Node *current_edited_scene_root = EditorNode::get_singleton()->get_edited_scene();
-
             if (current_edited_scene_root) {
+                StringName root_class = current_edited_scene_root->get_class_name();
+                static Vector<StringName> preferred_types;
+                if (preferred_types.empty()) {
+                    preferred_types.emplace_back("Control");
+                    preferred_types.emplace_back("Node2D");
+                    preferred_types.emplace_back("Node3D");
+                }
 
-                if (ClassDB::is_parent_class(current_edited_scene_root->get_class_name(), "Node2D"))
-                    preferred = "Node2D";
-                else if (ClassDB::is_parent_class(current_edited_scene_root->get_class_name(), "Node3D"))
-                    preferred = "Node3D";
+                for (int i = 0; i < preferred_types.size(); i++) {
+                    if (ClassDB::is_parent_class(root_class, preferred_types[i])) {
+                        create_dialog->set_preferred_search_result_type(preferred_types[i]);
+                        break;
+                    }
+                }
             }
-            create_dialog->set_preferred_search_result_type(preferred);
+
             create_dialog->popup_create(true);
         } break;
         case TOOL_INSTANCE: {
@@ -757,16 +766,27 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 _delete_confirm();
 
             } else {
-                if (remove_list.size() >= 2) {
-                    delete_dialog->set_text(FormatSN(TTR("Delete %d nodes?").asCString(), remove_list.size()));
-                } else if (remove_list.size() == 1 && remove_list[0] == editor_data->get_edited_scene_root()) {
-                    delete_dialog->set_text(FormatSN(TTR("Delete the root node \"%s\"?").asCString(), remove_list[0]->get_name().asCString()));
-                } else if (remove_list.size() == 1 && remove_list[0]->get_filename().empty() && remove_list[0]->get_child_count() >= 1) {
-                    // Display this message only for non-instanced scenes
-                    delete_dialog->set_text(FormatSN(TTR("Delete node \"%s\" and its children?").asCString(), remove_list[0]->get_name().asCString()));
+                String msg;
+                if (remove_list.size() > 1) {
+                    bool any_children = false;
+                    for (int i = 0; !any_children && i < remove_list.size(); i++) {
+                        any_children = remove_list[i]->get_child_count() > 0;
+                    }
+
+                    msg = vformat(any_children ? TTR("Delete %d nodes and any children?") : TTR("Delete %d nodes?"), remove_list.size());
                 } else {
-                    delete_dialog->set_text(FormatSN(TTR("Delete node \"%s\"?").asCString(), remove_list[0]->get_name().asCString()));
+                    Node *node = remove_list[0];
+                    if (node == editor_data->get_edited_scene_root()) {
+                        msg = vformat(TTR("Delete the root node \"%s\"?"), node->get_name());
+                    } else if (node->get_filename() == "" && node->get_child_count() > 0) {
+                        // Display this message only for non-instanced scenes
+                        msg = vformat(TTR("Delete node \"%s\" and its children?"), node->get_name());
+                    } else {
+                        msg = vformat(TTR("Delete node \"%s\"?"), node->get_name());
+                    }
                 }
+
+                delete_dialog->set_text_utf8(msg);
 
                 // Resize the dialog to its minimum size.
                 // This prevents the dialog from being too wide after displaying

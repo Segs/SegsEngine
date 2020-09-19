@@ -182,7 +182,7 @@ static inline double decode_double(const uint8_t *p_arr) {
 	return md.d;
 }
 
-class EncodedObjectAsID : public RefCounted {
+class GODOT_EXPORT EncodedObjectAsID : public RefCounted {
     GDCLASS(EncodedObjectAsID, RefCounted)
 
 	ObjectID id {0};
@@ -197,5 +197,5 @@ public:
 	EncodedObjectAsID() = default;
 };
 
-Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int *r_len = nullptr, bool p_allow_objects = false);
-Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bool p_full_objects = false);
+GODOT_EXPORT Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int *r_len = nullptr, bool p_allow_objects = false);
+GODOT_EXPORT Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bool p_full_objects = false);

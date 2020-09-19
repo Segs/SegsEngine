@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/main/viewport.h"
 
-class Camera2D : public Node2D {
+class GODOT_EXPORT Camera2D : public Node2D {
 
     GDCLASS(Camera2D,Node2D)
 

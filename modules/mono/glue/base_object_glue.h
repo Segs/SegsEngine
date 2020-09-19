@@ -31,8 +31,6 @@
 #ifndef BASE_OBJECT_GLUE_H
 #define BASE_OBJECT_GLUE_H
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/class_db.h"
 #include "core/object.h"
 
@@ -65,7 +63,5 @@ MonoString *godot_icall_Object_ToString(Object *p_ptr);
 // Register internal calls
 
 void godot_register_object_icalls();
-
-#endif // MONO_GLUE_ENABLED
 
 #endif // BASE_OBJECT_GLUE_H

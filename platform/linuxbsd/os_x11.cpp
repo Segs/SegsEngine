@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "os_x11.h"
-#include "detect_prime.h"
 
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
@@ -37,10 +36,11 @@
 #include "core/string_formatter.h"
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
+#include "detect_prime.h"
 
 #include "drivers/gles3/rasterizer_gles3.h"
-#include <cerrno>
 #include "key_mapping_x11.h"
+#include "main/main.h"
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering/rendering_server_wrap_mt.h"
 
@@ -48,14 +48,15 @@
 #include <mntent.h>
 #endif
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-#include "X11/Xutil.h"
+#include <X11/Xatom.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/Xinerama.h>
 
-#include "X11/Xatom.h"
-#include "X11/extensions/Xinerama.h"
 // ICCCM
 #define WM_NormalState 1L // window normal state
 #define WM_IconicState 3L // window minimized
@@ -63,8 +64,6 @@
 #define _NET_WM_STATE_REMOVE 0L // remove/unset property
 #define _NET_WM_STATE_ADD 1L // add/set property
 #define _NET_WM_STATE_TOGGLE 2L // toggle property
-
-#include "main/main.h"
 
 #include <dlfcn.h>
 #include <fcntl.h>
@@ -1447,6 +1446,7 @@ bool OS_X11::is_window_minimized() const {
     unsigned long len;
     unsigned long remaining;
     unsigned char *data = nullptr;
+    bool retval = false;
 
     int result = XGetWindowProperty(
             x11_display,
@@ -1464,11 +1464,15 @@ bool OS_X11::is_window_minimized() const {
 
     if (result == Success) {
         long *state = (long *)data;
-        if (state[0] == WM_IconicState)
-            return true;
+        if (state[0] == WM_IconicState) {
+            retval = true;
+        }
+        XFree(data);
     }
-    return false;
+
+    return retval;
 }
+
 
 void OS_X11::set_window_maximized(bool p_enabled) {
     if (is_window_maximized() == p_enabled)
@@ -1503,13 +1507,16 @@ void OS_X11::set_window_maximized(bool p_enabled) {
     maximized = p_enabled;
 }
 
-bool OS_X11::is_window_maximize_allowed() {
-    Atom property = XInternAtom(x11_display, "_NET_WM_ALLOWED_ACTIONS", False);
+// Just a helper to reduce code duplication in `is_window_maximize_allowed`
+// and `is_window_maximized`.
+bool OS_X11::window_maximize_check(const char *p_atom_name) const {
+    Atom property = XInternAtom(x11_display, p_atom_name, False);
     Atom type;
     int format;
     unsigned long len;
     unsigned long remaining;
-    unsigned char *data = nullptr;
+    unsigned char *data = NULL;
+    bool retval = false;
 
     int result = XGetWindowProperty(
             x11_display,
@@ -1538,61 +1545,25 @@ bool OS_X11::is_window_maximize_allowed() {
             if (atoms[i] == wm_act_max_vert)
                 found_wm_act_max_vert = true;
 
-            if (found_wm_act_max_horz || found_wm_act_max_vert)
-                return true;
-        }
-        XFree(atoms);
-    }
-
-    return false;
-}
-
-bool OS_X11::is_window_maximized() const {
-    // Using EWMH -- Extended Window Manager Hints
-    Atom property = XInternAtom(x11_display, "_NET_WM_STATE", False);
-    Atom type;
-    int format;
-    unsigned long len;
-    unsigned long remaining;
-    unsigned char *data = nullptr;
-    bool retval = false;
-
-    int result = XGetWindowProperty(
-            x11_display,
-            x11_window,
-            property,
-            0,
-            1024,
-            False,
-            XA_ATOM,
-            &type,
-            &format,
-            &len,
-            &remaining,
-            &data);
-
-    if (result == Success) {
-        Atom *atoms = (Atom *)data;
-        Atom wm_max_horz = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-        Atom wm_max_vert = XInternAtom(x11_display, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-        bool found_wm_max_horz = false;
-        bool found_wm_max_vert = false;
-
-        for (uint64_t i = 0; i < len; i++) {
-            if (atoms[i] == wm_max_horz)
-                found_wm_max_horz = true;
-            if (atoms[i] == wm_max_vert)
-                found_wm_max_vert = true;
-
-            if (found_wm_max_horz && found_wm_max_vert) {
+            if (found_wm_act_max_horz || found_wm_act_max_vert) {
                 retval = true;
                 break;
             }
         }
+
+        XFree(data);
     }
 
-    XFree(data);
     return retval;
+}
+
+bool OS_X11::is_window_maximize_allowed() const {
+    return window_maximize_check("_NET_WM_ALLOWED_ACTIONS");
+}
+
+bool OS_X11::is_window_maximized() const {
+    // Using EWMH -- Extended Window Manager Hints
+    return window_maximize_check("_NET_WM_STATE");
 }
 
 void OS_X11::set_window_always_on_top(bool p_enabled) {

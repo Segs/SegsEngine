@@ -38,7 +38,7 @@ class Resource;
 using RES = Ref<Resource>;
 class InputEventMouseMotion;
 
-class Input : public Object {
+class GODOT_EXPORT Input : public Object {
 
     GDCLASS(Input,Object)
 

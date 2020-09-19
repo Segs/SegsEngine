@@ -49,7 +49,7 @@
 #include "scene/gui/texture_button.h"
 #include "scene/main/http_request.h"
 
-class EditorAssetLibraryItem : public PanelContainer {
+class GODOT_EXPORT EditorAssetLibraryItem : public PanelContainer {
 
     GDCLASS(EditorAssetLibraryItem,PanelContainer)
 
@@ -80,7 +80,7 @@ public:
     EditorAssetLibraryItem();
 };
 
-class EditorAssetLibraryItemDescription : public ConfirmationDialog {
+class GODOT_EXPORT EditorAssetLibraryItemDescription : public ConfirmationDialog {
 
     GDCLASS(EditorAssetLibraryItemDescription,ConfirmationDialog)
 
@@ -128,7 +128,7 @@ public:
     EditorAssetLibraryItemDescription();
 };
 
-class EditorAssetLibraryItemDownload : public PanelContainer {
+class GODOT_EXPORT EditorAssetLibraryItemDownload : public PanelContainer {
 
     GDCLASS(EditorAssetLibraryItemDownload,PanelContainer)
 
@@ -169,7 +169,7 @@ public:
     EditorAssetLibraryItemDownload();
 };
 
-class EditorAssetLibrary : public PanelContainer {
+class GODOT_EXPORT EditorAssetLibrary : public PanelContainer {
     GDCLASS(EditorAssetLibrary,PanelContainer)
 
     String host;

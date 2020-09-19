@@ -36,7 +36,7 @@
 #include "core/io/stream_peer.h"
 #include "core/method_enum_caster.h"
 
-class StreamPeerTCP : public StreamPeer {
+class GODOT_EXPORT StreamPeerTCP : public StreamPeer {
 
     GDCLASS(StreamPeerTCP,StreamPeer)
     OBJ_CATEGORY("Networking")

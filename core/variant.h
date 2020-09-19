@@ -73,6 +73,9 @@ template <class T>
 class PoolVector;
 template <class T> struct Hasher;
 
+template <class T>
+T *object_cast(Object *p_object);
+
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
 using PoolRealArray = PoolVector<real_t>;
@@ -229,6 +232,24 @@ public:
     template <typename T>
     [[nodiscard]] T as() const {
         return (T)*this;
+    }
+    template<class T>
+    struct asHelper {
+        T convertIt(const Variant &v)  {
+            return v.as<T>();
+        }
+    };
+    template<class T>
+    struct asHelper<T *> {
+        T *convertIt(const Variant &v)  {
+            static_assert (eastl::is_base_of<Object,T>::value);
+            return object_cast<T>((Object *)v);
+        }
+    };
+
+    template<class T>
+    [[nodiscard]] T asT() const {
+        return asHelper<T>().convertIt(*this);
     }
     template <typename T>
     [[nodiscard]] Vector<T> asVector() const;

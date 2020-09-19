@@ -52,10 +52,6 @@
 #include "editor/node_dock.h"
 #endif
 
-#ifdef DEBUG_METHODS_ENABLED
-#include "class_db_api_json.h"
-#endif
-
 #include "editor/editor_internal_calls.h"
 #include "godotsharp_dirs.h"
 #include "mono_gd/gd_mono_cache.h"
@@ -69,8 +65,6 @@
 #include "EASTL/sort.h"
 
 
-#include <core/reflection_support/reflection_generator.h>
-#include <editor/editor_help.h>
 
 
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
@@ -117,45 +111,23 @@ Error CSharpLanguage::execute_file(StringView p_path) {
     return OK;
 }
 
-void CSharpLanguage::init() {
-
-#ifdef DEBUG_METHODS_ENABLED
-    if (OS::get_singleton()->get_cmdline_args().contains("--class-db-json")) {
-        class_db_api_to_json("user://class_db_api.json", ClassDB::API_CORE);
-#ifdef TOOLS_ENABLED
-        class_db_api_to_json("user://class_db_api_editor.json", ClassDB::API_EDITOR);
-#endif
-    }
-#endif
+bool CSharpLanguage::init() {
 
     gdmono = memnew(GDMono);
     gdmono->initialize();
 
-#if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
-    // Generate bindings here, before loading assemblies. 'initialize_load_assemblies' aborts
-    // the applications if the api assemblies or the main tools assembly is missing, but this
-    // is not a problem for BindingsGenerator as it only needs the tools project editor assembly.
-    EditorHelp::generate_doc();
-    ReflectionData rd;
-    _initialize_reflection_data(rd, EditorHelp::get_doc_data());
-    if(!rd.save_to_file("test.json")) {
-        print_error("Failed to save reflection data json file.");
+    if(!gdmono->is_runtime_initialized()) {
+        ERR_PRINT("Cannot initialize CSharpLanguage: runtime is not initialized");
+        return false;
     }
-
-//    const Vector<String> &cmdline_args = OS::get_singleton()->get_cmdline_args();
-//    BindingsGenerator::handle_cmdline_args(cmdline_args);
-#endif
-
-#ifndef MONO_GLUE_ENABLED
-    print_line("Run this binary with '--generate-mono-glue path/to/modules/mono/glue'");
-#endif
-
-    if (gdmono->is_runtime_initialized())
-        gdmono->initialize_load_assemblies();
+    if(!gdmono->initialize_load_assemblies()) {
+        return false;
+    }
 
 #ifdef TOOLS_ENABLED
     EditorNode::add_init_callback(&_editor_init_callback);
 #endif
+    return true;
 }
 
 void CSharpLanguage::finish() {
@@ -578,7 +550,7 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info()
     // Printing an error here will result in endless recursion, so we must be careful
     static thread_local bool _recursion_flag_ = false;
     if (_recursion_flag_)
-        return Vector<StackInfo>();
+        return {};
     _recursion_flag_ = true;
     SCOPE_EXIT { _recursion_flag_ = false; };
 
@@ -594,12 +566,11 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::debug_get_current_stack_info()
 
     CACHED_METHOD(System_Diagnostics_StackTrace, ctor_bool)->invoke_raw(stack_trace, ctor_args);
 
-    Vector<StackInfo> si;
-    si = stack_trace_get_info(stack_trace);
+    Vector<StackInfo> si(stack_trace_get_info(stack_trace));
 
     return si;
 #else
-    return Vector<StackInfo>();
+    return {};
 #endif
 }
 
@@ -621,13 +592,13 @@ Vector<ScriptLanguage::StackInfo> CSharpLanguage::stack_trace_get_info(MonoObjec
 
     if (exc) {
         GDMonoUtils::debug_print_unhandled_exception(exc);
-        return Vector<StackInfo>();
+        return {};
     }
 
     int frame_count = mono_array_length(frames);
 
     if (frame_count <= 0)
-        return Vector<StackInfo>();
+        return {};
 
     Vector<StackInfo> si;
     si.resize(frame_count);
@@ -680,20 +651,22 @@ void CSharpLanguage::pre_unsafe_unreference(Object *p_obj) {
 
 void CSharpLanguage::frame() {
 
-    if (gdmono && gdmono->is_runtime_initialized() && gdmono->get_core_api_assembly() != nullptr) {
-        const Ref<MonoGCHandle> &task_scheduler_handle = GDMonoCache::cached_data.task_scheduler_handle;
+    if (!gdmono || !gdmono->is_runtime_initialized() || gdmono->get_core_api_assembly() == nullptr)
+        return;
 
-        if (task_scheduler_handle) {
-            MonoObject *task_scheduler = task_scheduler_handle->get_target();
+    const Ref<MonoGCHandle> &task_scheduler_handle = GDMonoCache::cached_data.task_scheduler_handle;
 
-            if (task_scheduler) {
-                MonoException *exc = nullptr;
-                CACHED_METHOD_THUNK(GodotTaskScheduler, Activate).invoke(task_scheduler, &exc);
+    if (!task_scheduler_handle)
+        return;
 
-                if (exc) {
-                    GDMonoUtils::debug_unhandled_exception(exc);
-                }
-            }
+    MonoObject *task_scheduler = task_scheduler_handle->get_target();
+
+    if (task_scheduler) {
+        MonoException *exc = nullptr;
+        CACHED_METHOD_THUNK(GodotTaskScheduler, Activate).invoke(task_scheduler, &exc);
+
+        if (exc) {
+            GDMonoUtils::debug_unhandled_exception(exc);
         }
     }
 }
@@ -1191,16 +1164,19 @@ void CSharpLanguage::_editor_init_callback() {
     register_editor_internal_calls();
 
     // Initialize GodotSharpEditor
+    GDMonoAssembly *toolsassembly= GDMono::get_singleton()->get_tools_assembly();
+    CRASH_COND(toolsassembly == nullptr);
 
-    GDMonoClass *editor_klass = GDMono::get_singleton()->get_tools_assembly()->get_class("GodotTools", "GodotSharpEditor");
+    GDMonoClass *editor_klass = toolsassembly->get_class("GodotTools", "GodotSharpEditor");
     CRASH_COND(editor_klass == nullptr);
-
+    auto zaz = editor_klass->get_all_methods();
     MonoObject *mono_object = mono_object_new(mono_domain_get(), editor_klass->get_mono_ptr());
     CRASH_COND(mono_object == nullptr);
 
     MonoException *exc = nullptr;
     GDMonoUtils::runtime_object_init(mono_object, editor_klass, &exc);
     UNHANDLED_EXCEPTION(exc)
+
 
     EditorPlugin *godotsharp_editor = object_cast<EditorPlugin>(GDMonoMarshal::mono_object_to_variant(mono_object));
     CRASH_COND(godotsharp_editor == nullptr);
@@ -1879,7 +1855,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
         bool die = _unreference_owner_unsafe();
         // Not ok for the owner to die here. If there is a situation where this can happen, it will be considered a bug.
-        CRASH_COND(die == true);
+        CRASH_COND(die);
 
         owner = nullptr;
 
@@ -2210,7 +2186,7 @@ CSharpInstance::~CSharpInstance() {
         // Unreference the owner here, before the new "instance binding" references it.
         // Otherwise, the unsafe reference debug checks will incorrectly detect a bug.
         bool die = _unreference_owner_unsafe();
-        CRASH_COND(die == true); // `owner_keep_alive` holds a reference, so it can't die
+        CRASH_COND(die); // `owner_keep_alive` holds a reference, so it can't die
 
 
         void *data = owner->get_script_instance_binding(CSharpLanguage::get_singleton()->get_language_index());
@@ -3012,7 +2988,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
 
         bool die = instance->_unreference_owner_unsafe();
         // Not ok for the owner to die here. If there is a situation where this can happen, it will be considered a bug.
-        CRASH_COND(die == true);
+        CRASH_COND(die);
 
         p_owner->set_script_instance(nullptr);
         r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;

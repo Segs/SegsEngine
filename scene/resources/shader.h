@@ -32,13 +32,14 @@
 
 #include "core/hash_map.h"
 #include "core/resource.h"
+#include "core/string.h"
 #include "scene/resources/texture.h"
 
 namespace RenderingServerEnums {
 enum class ShaderMode : int8_t;
 }
 
-class Shader : public Resource {
+class GODOT_EXPORT Shader : public Resource {
 
     GDCLASS(Shader,Resource)
 
@@ -47,6 +48,7 @@ class Shader : public Resource {
 private:
     RID shader;
     RenderingServerEnums::ShaderMode mode;
+    String shader_custom_defines;
 
     // hack the name of performance
     // shaders keep a list of ShaderMaterial -> RenderingServer name translations, to make
@@ -75,7 +77,7 @@ public:
     void get_default_texture_param_list(List<StringName> *r_textures) const;
 
     void set_custom_defines(StringView p_defines);
-    String get_custom_defines();
+    String get_custom_defines() const;
 
     virtual bool is_text_shader() const;
 

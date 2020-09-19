@@ -600,11 +600,15 @@ void ScriptEditor::_close_tab(int p_idx, bool p_save, bool p_history_back) {
 
     ScriptEditorBase *current = object_cast<ScriptEditorBase>(tab_container->get_child(selected));
     if (current) {
+        Ref<Script> script = dynamic_ref_cast<Script>(current->get_edited_resource());
+
         if (p_save) {
-            apply_scripts();
+            // Do not try to save internal scripts
+            if (!script || !(script->get_path().empty() || script->get_path().contains("local://") || script->get_path().contains("::"))) {
+                _menu_option(FILE_SAVE);
+            }
         }
 
-        Ref<Script> script = dynamic_ref_cast<Script>(current->get_edited_resource());
         if (script != nullptr) {
             previous_scripts.push_back(script->get_path());
             notify_script_close(script);
@@ -1586,7 +1590,9 @@ void ScriptEditor::get_breakpoints(Vector<String> *p_breakpoints) {
         se->get_breakpoints(&bpoints);
         String base = script->get_path();
         //TODO replace below with PathUtils::is_internal_path ?
-        ERR_CONTINUE(StringUtils::begins_with(base,"local://") || base.empty());
+        if (base.starts_with("local://") || base.empty()) {
+            continue;
+        }
 
         for (int E : bpoints) {
 
@@ -1915,6 +1921,24 @@ void ScriptEditor::_update_script_names() {
             sedata.emplace_back(eastl::move(sd));
         }
 
+        Vector<String> disambiguated_script_names;
+        Vector<String> full_script_paths;
+        for (int j = 0; j < sedata.size(); j++) {
+            disambiguated_script_names.push_back(sedata[j].name.replaced("(*)", ""));
+            full_script_paths.push_back(sedata[j].tooltip);
+        }
+
+        EditorNode::disambiguate_filenames(full_script_paths, disambiguated_script_names);
+
+        for (int j = 0; j < sedata.size(); j++) {
+            if (sedata[j].name.ends_with("(*)")) {
+                sedata[j].name = disambiguated_script_names[j] + "(*)";
+            } else {
+                sedata[j].name = disambiguated_script_names[j];
+            }
+        }
+
+
         EditorHelp *eh = object_cast<EditorHelp>(tab_container->get_child(i));
         if (eh) {
 
@@ -2069,16 +2093,20 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         return false;
 
     Ref<Script> script = dynamic_ref_cast<Script>(p_resource);
+    // Don't open dominant script if using an external editor.
+    const bool use_external_editor =
+            EditorSettings::get_singleton()->get("text_editor/external/use_external_editor") ||
+            (script && script->get_language()->overrides_external_editor());
+    const bool open_dominant = EditorSettings::get_singleton()->get("text_editor/files/open_dominant_script_on_scene_change");
+
+    const bool should_open = (open_dominant && !use_external_editor) || !EditorNode::get_singleton()->is_changing_scene();
+
 
     // refuse to open built-in if scene is not loaded
 
     // see if already has it
 
-    bool open_dominant = EditorSettings::get_singleton()->get("text_editor/files/open_dominant_script_on_scene_change");
-
-    const bool should_open = open_dominant || !EditorNode::get_singleton()->is_changing_scene();
-
-    if (script != nullptr && script->get_language()->overrides_external_editor()) {
+    if (script && script->get_language()->overrides_external_editor()) {
         if (should_open) {
             Error err = script->get_language()->open_in_external_editor(script, p_line >= 0 ? p_line : 0, p_col);
             if (err != OK) {
@@ -2088,10 +2116,10 @@ bool ScriptEditor::edit(const RES &p_resource, int p_line, int p_col, bool p_gra
         return false;
     }
 
-    if ((debugger->get_dump_stack_script() != script || debugger->get_debug_with_external_editor()) &&
+    if (use_external_editor &&
+            (debugger->get_dump_stack_script() != p_resource || debugger->get_debug_with_external_editor()) &&
             PathUtils::is_resource_file(p_resource->get_path()) &&
-            p_resource->get_class_name() != StringName("VisualScript") &&
-            bool(EditorSettings::get_singleton()->get("text_editor/external/use_external_editor"))) {
+            p_resource->get_class_name() != StringName("VisualScript")) {
 
         String path = EditorSettings::get_singleton()->get("text_editor/external/exec_path");
         String flags = EditorSettings::get_singleton()->get("text_editor/external/exec_flags");
@@ -2987,13 +3015,13 @@ Vector<Ref<Script>> ScriptEditor::get_open_scripts() const {
 }
 
 void ScriptEditor::set_scene_root_script(const Ref<Script>& p_script) {
+    // Don't open dominant script if using an external editor.
+    const bool use_external_editor =
+            EditorSettings::get_singleton()->get("text_editor/external/use_external_editor") ||
+            (p_script && p_script->get_language()->overrides_external_editor());
+    const bool open_dominant = EditorSettings::get_singleton()->get("text_editor/files/open_dominant_script_on_scene_change");
 
-    bool open_dominant = EditorSettings::get_singleton()->get("text_editor/files/open_dominant_script_on_scene_change");
-
-    if (bool(EditorSettings::get_singleton()->get("text_editor/external/use_external_editor")))
-        return;
-
-    if (open_dominant && p_script) {
+    if (open_dominant && !use_external_editor && p_script) {
         edit(p_script);
     }
 }

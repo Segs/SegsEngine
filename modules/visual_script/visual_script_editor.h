@@ -42,7 +42,7 @@ class VisualScriptEditorVariableEdit;
 
 #ifdef TOOLS_ENABLED
 
-class VisualScriptEditor : public ScriptEditorBase {
+class GODOT_EXPORT VisualScriptEditor : public ScriptEditorBase {
     GDCLASS(VisualScriptEditor,ScriptEditorBase)
 
     enum {
@@ -329,7 +329,7 @@ public:
 };
 
 // Singleton
-class _VisualScriptEditor : public Object {
+class GODOT_EXPORT _VisualScriptEditor : public Object {
     GDCLASS(_VisualScriptEditor,Object)
 
     friend class VisualScriptLanguage;

@@ -130,6 +130,13 @@ struct ClassDoc {
         return nullptr;
 
     }
+    const PropertyDoc * property_by_func_name(StringView c_name) const {
+        for (const PropertyDoc& property_doc : properties)
+            if ((property_doc.getter == c_name)||(property_doc.setter == c_name))
+                return &property_doc;
+        return nullptr;
+
+    }
 };
 
 }

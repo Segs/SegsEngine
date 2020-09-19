@@ -47,37 +47,35 @@ enum Type {
 };
 
 struct Version {
-    uint64_t godot_api_hash;
-    uint32_t bindings_version;
-    uint32_t cs_glue_version;
+    String api_hash;
+    String api_version;
+    String version;
 
     bool operator==(const Version &p_other) const {
-        return godot_api_hash == p_other.godot_api_hash &&
-               bindings_version == p_other.bindings_version &&
-               cs_glue_version == p_other.cs_glue_version;
+        return api_hash == p_other.api_hash &&
+               api_version == p_other.api_version &&
+               version == p_other.version;
     }
 
-    Version() :
-            godot_api_hash(0),
-            bindings_version(0),
-            cs_glue_version(0) {
+    Version()  = default;
+
+    Version(String p_api_hash,
+            String p_api_version,
+            String p_version) :
+            api_hash(p_api_hash),
+            api_version(p_api_version),
+            version(p_version) {
     }
 
-    Version(uint64_t p_godot_api_hash,
-            uint32_t p_bindings_version,
-            uint32_t p_cs_glue_version) :
-            godot_api_hash(p_godot_api_hash),
-            bindings_version(p_bindings_version),
-            cs_glue_version(p_cs_glue_version) {
-    }
-
-    static Version get_from_loaded_assembly(GDMonoAssembly *p_api_assembly, Type p_api_type);
+    static Version get_from_loaded_assembly(GDMonoAssembly *p_api_assembly, const char *ns, const char *nativecalls_name);
 };
 
 String to_string(Type p_type);
 } // namespace ApiAssemblyInfo
 
-class GDMono {
+struct MonoPluginResolver;
+
+class GODOT_EXPORT GDMono {
 
 public:
     enum UnhandledExceptionPolicy {
@@ -90,7 +88,7 @@ public:
         bool out_of_sync;
 
         LoadedApiAssembly() :
-                assembly(NULL),
+                assembly(nullptr),
                 out_of_sync(false) {
         }
     };
@@ -115,12 +113,14 @@ private:
 
     LoadedApiAssembly core_api_assembly;
     LoadedApiAssembly editor_api_assembly;
+    MonoPluginResolver *module_resolver;
 
     typedef bool (*CoreApiAssemblyLoadedCallback)();
 
     bool _are_api_assemblies_out_of_sync();
     bool _temp_domain_load_are_assemblies_out_of_sync(StringView p_config);
 
+    String select_assembly_dir(StringView p_config);
     bool _load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
 #ifdef TOOLS_ENABLED
     bool _load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly);
@@ -137,11 +137,9 @@ private:
     bool _try_load_api_assemblies(LoadedApiAssembly &r_core_api_assembly, LoadedApiAssembly &r_editor_api_assembly,
             StringView p_config, bool p_refonly, CoreApiAssemblyLoadedCallback p_callback);
     bool _try_load_api_assemblies_preset();
-    void _load_api_assemblies();
+    bool _load_api_assemblies();
 
     void _install_trace_listener();
-
-    void _register_internal_calls();
 
 #ifndef GD_MONO_SINGLE_APPDOMAIN
     Error _load_scripts_domain();
@@ -154,7 +152,7 @@ private:
 #ifdef TOOLS_ENABLED
     uint64_t api_editor_hash;
 #endif
-    void _init_godot_api_hashes();
+    void _check_known_glue_api_hashes();
     void _init_exception_policy();
 
     GDMonoLog *gdmono_log;
@@ -232,12 +230,13 @@ public:
 
     bool load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bool p_refonly = false);
     bool load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly = false);
+    bool load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly, const Vector<String> &p_search_dirs);
     bool load_assembly_from(StringView p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly = false);
 
     Error finalize_and_unload_domain(MonoDomain *p_domain);
 
     void initialize();
-    void initialize_load_assemblies();
+    bool initialize_load_assemblies();
 
     GDMono();
     ~GDMono();
@@ -290,7 +289,7 @@ public:
     gdmono::ScopeExitDomainUnload __gdmono__scope__exit__domain__unload__(m_mono_domain); \
     (void)__gdmono__scope__exit__domain__unload__;
 
-class _GodotSharp : public Object {
+class GODOT_EXPORT _GodotSharp : public Object {
     GDCLASS(_GodotSharp, Object);
 
     friend class GDMono;

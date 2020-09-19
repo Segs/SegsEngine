@@ -89,7 +89,7 @@ namespace GodotTools.Export
 
                 if (platform == OS.Platforms.OSX)
                 {
-                    exporter.AddSharedObject(tempOutputFilePath,  null);
+                    exporter.AddSharedObject(tempOutputFilePath, tags: null);
                 }
                 else
                 {

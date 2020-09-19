@@ -37,7 +37,7 @@
 // FIXME: left for reference but will be removed when portals are reimplemented using Area
 #if 0
 
-class RoomBounds : public Resource {
+class GODOT_EXPORT RoomBounds : public Resource {
 
 	GDCLASS(RoomBounds,Resource)
 IMPL_GDCLASS(RoomBounds)

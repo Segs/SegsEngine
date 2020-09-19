@@ -34,7 +34,7 @@
 #include "core/hash_map.h"
 class Resource;
 
-class ResourcePreloader : public Node {
+class GODOT_EXPORT ResourcePreloader : public Node {
 
     GDCLASS(ResourcePreloader,Node)
 

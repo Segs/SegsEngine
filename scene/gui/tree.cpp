@@ -846,7 +846,7 @@ void TreeItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_next_visible", {"wrap"}), &TreeItem::get_next_visible, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_prev_visible", {"wrap"}), &TreeItem::get_prev_visible, {DEFVAL(false)});
 
-    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), (void (TreeItem::*)(Object *))&TreeItem::remove_child);
+    MethodBinder::bind_method(D_METHOD("remove_child", {"child"}), &TreeItem::remove_child);
 
     MethodBinder::bind_method(D_METHOD("set_selectable", {"column", "selectable"}), &TreeItem::set_selectable);
     MethodBinder::bind_method(D_METHOD("is_selectable", {"column"}), &TreeItem::is_selectable);
@@ -2522,6 +2522,9 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
                 if (v_scroll->is_visible_in_tree())
                     mpos.y += v_scroll->get_value();
 
+                TreeItem *old_it = cache.hover_item;
+                int old_col = cache.hover_cell;
+
                 int col, h, section;
                 TreeItem *it = _find_item_at_pos(root, mpos, col, h, section);
 
@@ -2536,14 +2539,21 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
                     }
                 }
 
-                if (it != cache.hover_item) {
-                    cache.hover_item = it;
-                    update();
-                }
+                cache.hover_item = it;
+                cache.hover_cell = col;
 
-                if (it && col != cache.hover_cell) {
-                    cache.hover_cell = col;
-                    update();
+                if (it != old_it || col != old_col) {
+                    if (old_it && old_col >= old_it->cells.size()) {
+                        // Columns may have changed since last update().
+                        update();
+                    } else {
+                        // Only need to update if mouse enters/exits a button
+                        bool was_over_button = old_it && old_it->cells[old_col].custom_button;
+                        bool is_over_button = it && it->cells[col].custom_button;
+                        if (was_over_button || is_over_button) {
+                            update();
+                        }
+                    }
                 }
             }
         }
@@ -3614,7 +3624,7 @@ void Tree::scroll_to_item(TreeItem *p_item) {
 
     const Rect2 r = get_item_rect(p_item);
 
-    if (r.position.y < v_scroll->get_value()) {
+    if (r.position.y <= v_scroll->get_value()) {
         v_scroll->set_value(r.position.y);
     } else if (r.position.y + r.size.y + 2 * cache.vseparation > v_scroll->get_value() + get_size().y) {
         v_scroll->set_value(r.position.y + r.size.y + 2 * cache.vseparation - get_size().y);
@@ -3624,6 +3634,8 @@ void Tree::scroll_to_item(TreeItem *p_item) {
 TreeItem *Tree::_search_item_text(TreeItem *p_at, StringView p_find, int *r_col, bool p_selectable, bool p_backwards) {
 
     TreeItem *from = p_at;
+    TreeItem *loop = nullptr; // Safe-guard against infinite loop.
+
     while (p_at) {
 
         for (int i = 0; i < columns.size(); i++) {
@@ -3641,6 +3653,12 @@ TreeItem *Tree::_search_item_text(TreeItem *p_at, StringView p_find, int *r_col,
 
         if ((p_at) == from)
             break;
+
+        if (!loop) {
+            loop = p_at;
+        } else if (loop == p_at) {
+            break;
+        }
     }
 
     return nullptr;
@@ -3822,6 +3840,47 @@ TreeItem *Tree::get_item_at_position(const Point2 &p_pos) const {
     }
 
     return nullptr;
+}
+
+int Tree::get_button_id_at_position(const Point2 &p_pos) const {
+    if (root) {
+        Point2 pos = p_pos;
+        pos -= cache.bg->get_offset();
+        pos.y -= _get_title_button_height();
+        if (pos.y < 0) {
+            return -1;
+        }
+
+        if (h_scroll->is_visible_in_tree()) {
+            pos.x += h_scroll->get_value();
+        }
+        if (v_scroll->is_visible_in_tree()) {
+            pos.y += v_scroll->get_value();
+        }
+
+        int col, h, section;
+        TreeItem *it = _find_item_at_pos(root, pos, col, h, section);
+
+        if (it) {
+            const TreeItem::Cell &c = it->cells[col];
+            int col_width = get_column_width(col);
+
+            for (int i = 0; i < col; i++) {
+                pos.x -= get_column_width(i);
+            }
+
+            for (int j = c.buttons.size() - 1; j >= 0; j--) {
+                Ref<Texture> b = c.buttons[j].texture;
+                Size2 size = b->get_size() + cache.button_pressed->get_minimum_size();
+                if (pos.x > col_width - size.width) {
+                    return c.buttons[j].id;
+                }
+                col_width -= size.width;
+            }
+        }
+    }
+
+    return -1;
 }
 
 StringName Tree::get_tooltip(const Point2 &p_pos) const {

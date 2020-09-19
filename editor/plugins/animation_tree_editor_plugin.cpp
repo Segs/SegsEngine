@@ -46,6 +46,7 @@
 #include "scene/animation/animation_player.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/panel.h"
+#include "scene/gui/margin_container.h"
 #include "scene/main/viewport.h"
 #include "scene/scene_string_names.h"
 
@@ -250,7 +251,7 @@ AnimationTreeEditor::AnimationTreeEditor() {
 
     current_root = 0;
     singleton = this;
-    editor_base = memnew(PanelContainer);
+    editor_base = memnew(MarginContainer);
     editor_base->set_v_size_flags(SIZE_EXPAND_FILL);
     add_child(editor_base);
 

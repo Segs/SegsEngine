@@ -34,7 +34,7 @@
 #include "scene/main/node.h"
 #include "servers/audio/audio_stream.h"
 
-class AudioStreamPlayer : public Node {
+class GODOT_EXPORT AudioStreamPlayer : public Node {
 
     GDCLASS(AudioStreamPlayer,Node)
 

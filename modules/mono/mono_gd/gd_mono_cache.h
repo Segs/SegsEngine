@@ -36,7 +36,7 @@
 
 namespace GDMonoCache {
 
-struct CachedData {
+struct GODOT_EXPORT CachedData {
 
     // -----------------------------------------------
     // corlib classes
@@ -161,7 +161,7 @@ struct CachedData {
     }
 };
 
-extern CachedData cached_data;
+GODOT_EXPORT extern CachedData cached_data;
 
 void update_corlib_cache();
 void update_godot_api_cache();

@@ -32,7 +32,7 @@
 
 #include "core/io/packet_peer.h"
 
-class NetworkedMultiplayerPeer : public PacketPeer {
+class GODOT_EXPORT NetworkedMultiplayerPeer : public PacketPeer {
 
     GDCLASS(NetworkedMultiplayerPeer, PacketPeer)
 

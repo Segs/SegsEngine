@@ -78,6 +78,10 @@
 #include "servers/register_server_types.h"
 
 
+// Reflection generation command
+#include "core/reflection_support/reflection_data.h"
+#include "core/reflection_support/reflection_generator.h"
+
 #ifdef TOOLS_ENABLED
 #include "core/doc_support/doc_data.h"
 #include "editor/doc_data_class_path.gen.h"
@@ -89,6 +93,7 @@
 #endif
 
 #include <QCoreApplication>
+#include <QDir>
 /* Static members */
 
 // Singletons
@@ -342,7 +347,8 @@ struct ArchivePluginResolver : public ResolverInterface
     PackedData *pack_data;
     ArchivePluginResolver(PackedData *pd) : pack_data(pd) {}
 
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
+
         bool res=false;
         auto interface = qobject_cast<PackSourceInterface *>(ob);
         if(interface) {
@@ -362,7 +368,8 @@ struct ArchivePluginResolver : public ResolverInterface
 };
 struct ResourcePluginResolver : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
+
         bool res=false;
         auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
         if(interface) {
@@ -382,7 +389,8 @@ struct ResourcePluginResolver : public ResolverInterface
 };
 struct ModulePluginResolver : public ResolverInterface {
 
-    bool new_plugin_detected(QObject *ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
+
         bool res = false;
         auto interface = qobject_cast<ModuleInterface*>(ob);
         if (interface) {
@@ -425,7 +433,6 @@ struct ModulePluginResolver : public ResolverInterface {
  *   start() does it own argument parsing for a subset of the command line arguments described
  *   in help, it's a bit messy and should be globalized with the setup() parsing somehow.
  */
-#include <QDir>
 Error Main::setup(bool p_second_phase) {
     RID_OwnerBase::init_rid();
 
@@ -857,6 +864,7 @@ Error Main::setup(bool p_second_phase) {
 
         } else if (*I == "-d" || *I == "--debug") {
             debug_mode = "local";
+            OS::get_singleton()->_debug_stdout = true;
 #if defined(DEBUG_ENABLED) && !defined(SERVER_ENABLED)
         } else if (*I == "--debug-collisions") {
             debug_collisions = true;
@@ -1307,7 +1315,8 @@ error:
 
 Error Main::setup2(Thread::ID p_main_tid_override) {
 
-    load_all_plugins("plugins");
+    String plugins_dir = String(PathUtils::path(OS::get_singleton()->get_executable_path())) + "/plugins";
+    load_all_plugins(plugins_dir.c_str());
 
     // Print engine name and version
     print_line(String(VERSION_NAME) + " v" + get_full_version_string() + " - " + String(VERSION_WEBSITE));
@@ -1487,6 +1496,26 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     // This loads global classes, so it must happen before custom loaders and savers are registered
     ScriptServer::init_languages();
+#ifdef DEBUG_METHODS_ENABLED
+    const Vector<String> & args(OS::get_singleton()->get_cmdline_args());
+    int refl_idx = args.index_of("--gen-reflection");
+    if ((refl_idx+1)<args.size()) {
+        String tgt_dir = (refl_idx+1)<args.size() ? args[refl_idx+1] : ".";
+        ReflectionData core_rd;
+        _initialize_reflection_data(core_rd,ReflectionSource::Core);
+        if(!core_rd.save_to_file(PathUtils::plus_file(tgt_dir,"GodotCore.json"))) {
+            print_error("Failed to save reflection data json file.");
+        }
+#ifdef TOOLS_ENABLED
+        ReflectionData editor_rd;
+        _initialize_reflection_data(editor_rd,ReflectionSource::Editor);
+        if(!editor_rd.save_to_file(PathUtils::plus_file(tgt_dir,"GodotEditor.json"))) {
+            print_error("Failed to save reflection data json file.");
+        }
+#endif
+        exit(0);
+    }
+#endif
 
     MAIN_PRINT("Main: Load Translations");
 
@@ -2070,7 +2099,6 @@ bool Main::start() {
  * The OS implementation can impact its draw step with the Main::force_redraw() method.
  */
 uint64_t Main::last_ticks = 0;
-uint64_t Main::target_ticks = 0;
 uint32_t Main::frames = 0;
 uint32_t Main::frame = 0;
 bool Main::force_redraw_requested = false;
@@ -2225,23 +2253,7 @@ bool Main::iteration() {
     if (fixed_fps != -1)
         return exit;
 
-    if (OS::get_singleton()->is_in_low_processor_usage_mode() || !OS::get_singleton()->can_draw())
-        OS::get_singleton()->delay_usec(OS::get_singleton()->get_low_processor_usage_mode_sleep_usec()); //apply some delay to force idle time
-    else {
-        uint32_t frame_delay = Engine::get_singleton()->get_frame_delay();
-        if (frame_delay)
-            OS::get_singleton()->delay_usec(Engine::get_singleton()->get_frame_delay() * 1000);
-    }
-
-    int target_fps = Engine::get_singleton()->get_target_fps();
-    if (target_fps > 0 && !Engine::get_singleton()->is_editor_hint()) {
-        uint64_t time_step = 1000000L / target_fps;
-        target_ticks += time_step;
-        uint64_t current_ticks = OS::get_singleton()->get_ticks_usec();
-        if (current_ticks < target_ticks) OS::get_singleton()->delay_usec(target_ticks - current_ticks);
-        current_ticks = OS::get_singleton()->get_ticks_usec();
-        target_ticks = MIN(M_MAX(target_ticks, current_ticks - time_step), current_ticks + time_step);
-    }
+    OS::get_singleton()->add_frame_delay(OS::get_singleton()->can_draw());
 
 #ifdef TOOLS_ENABLED
     if (auto_build_solutions) {

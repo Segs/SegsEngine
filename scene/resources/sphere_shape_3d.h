@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape.h"
 
-class SphereShape3D : public Shape {
+class GODOT_EXPORT SphereShape3D : public Shape {
 
     GDCLASS(SphereShape3D,Shape)
 

@@ -392,6 +392,7 @@ Error JSON::_parse_array(Array &array, const CharType *p_str, int &index, int p_
         need_comma = true;
     }
 
+    r_err_str = "Expected ']'";
     return ERR_PARSE_ERROR;
 }
 
@@ -459,6 +460,7 @@ Error JSON::_parse_object(Dictionary &object, const CharType *p_str, int &index,
         }
     }
 
+    r_err_str = "Expected '}'";
     return ERR_PARSE_ERROR;
 }
 

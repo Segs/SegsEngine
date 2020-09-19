@@ -28,14 +28,13 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef PACKET_PEER_H
-#define PACKET_PEER_H
+#pragma once
 
 #include "core/io/stream_peer.h"
 #include "core/object.h"
 #include "core/ring_buffer.h"
 
-class PacketPeer : public RefCounted {
+class GODOT_EXPORT PacketPeer : public RefCounted {
 
     GDCLASS(PacketPeer, RefCounted)
 
@@ -78,7 +77,7 @@ public:
     ~PacketPeer() override = default;
 };
 
-class PacketPeerStream : public PacketPeer {
+class GODOT_EXPORT PacketPeerStream : public PacketPeer {
 
     GDCLASS(PacketPeerStream, PacketPeer)
 
@@ -110,5 +109,3 @@ public:
     int get_output_buffer_max_size() const;
     PacketPeerStream();
 };
-
-#endif // PACKET_STREAM_H

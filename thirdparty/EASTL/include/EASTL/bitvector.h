@@ -13,9 +13,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_BITVECTOR_H
-#define EASTL_BITVECTOR_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/vector.h>
@@ -27,7 +25,6 @@
 	#pragma warning(disable: 4480)  // nonstandard extension used: specifying underlying type for enum
 #endif
 
-	#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -764,7 +761,7 @@ namespace eastl
 	typename bitvector<Allocator, Element, Container>::iterator
 	bitvector<Allocator, Element, Container>::begin() EA_NOEXCEPT
 	{
-		return iterator(&mContainer[0], 0);
+		return iterator(mContainer.begin(), 0);
 	}
 
 
@@ -772,7 +769,7 @@ namespace eastl
 	typename bitvector<Allocator, Element, Container>::const_iterator
 	bitvector<Allocator, Element, Container>::begin() const EA_NOEXCEPT
 	{
-		return const_iterator(&mContainer[0], 0);
+		return const_iterator(mContainer.begin(), 0);
 	}
 
 
@@ -780,7 +777,7 @@ namespace eastl
 	typename bitvector<Allocator, Element, Container>::const_iterator
 	bitvector<Allocator, Element, Container>::cbegin() const EA_NOEXCEPT
 	{
-		return const_iterator(&mContainer[0], 0);
+		return const_iterator(mContainer.begin(), 0);
 	}
 
 
@@ -1473,18 +1470,3 @@ namespace eastl
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
-
-
-
-
-
-
-
-
-
-

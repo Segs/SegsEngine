@@ -2,7 +2,7 @@
 # Copyright (C) Electronic Arts Inc.  All rights reserved.
 #-------------------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.1)
-project(EASTL)
+project(EASTL CXX)
 
 #-------------------------------------------------------------------------------------------
 # Options
@@ -64,7 +64,7 @@ endif()
 target_include_directories(EASTL PUBLIC include)
 
 #-------------------------------------------------------------------------------------------
-# Libraries
+# Dependencies
 #-------------------------------------------------------------------------------------------
 target_link_libraries(EASTL EABase)
 

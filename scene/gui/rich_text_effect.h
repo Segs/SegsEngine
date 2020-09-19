@@ -37,7 +37,7 @@
 #include <QChar>
 using CharType = class QChar;
 
-class RichTextEffect : public Resource {
+class GODOT_EXPORT RichTextEffect : public Resource {
     GDCLASS(RichTextEffect, Resource)
     OBJ_SAVE_TYPE(RichTextEffect)
 
@@ -51,7 +51,7 @@ public:
     RichTextEffect();
 };
 
-class CharFXTransform : public RefCounted {
+class GODOT_EXPORT CharFXTransform : public RefCounted {
     GDCLASS(CharFXTransform, RefCounted)
 
 protected:

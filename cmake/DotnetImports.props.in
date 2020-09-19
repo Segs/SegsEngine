@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <!-- The following 2 settings are here to match original layout: adding Debug/Release to OutputPath and removing framework from path -->
+        <OutputPath>${_DN_OUTPUT_PATH}/$(Configuration)/</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <XPLAT_LIB_DIR>${_DN_XPLAT_LIB_DIR}/</XPLAT_LIB_DIR>
+        <DOTNET_PACKAGE_VERSION>${_DN_VERSION}</DOTNET_PACKAGE_VERSION>
+        ${_DN_CUSTOM_BUILDPROPS}
+    </PropertyGroup>
+</Project>

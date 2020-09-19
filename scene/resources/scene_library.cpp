@@ -67,7 +67,7 @@ void SceneLibrary::_get_property_list(Vector<PropertyInfo> *p_list) const {
         String name = "item/" + itos(E.first) + "/";
         p_list->push_back(PropertyInfo(VariantType::STRING, StringName(name + "name")));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "scene"), PropertyHint::ResourceType, "PackedScene"));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PropertyHint::ResourceType, "Texture")); //, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER
     }
 }
 

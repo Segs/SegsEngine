@@ -43,7 +43,6 @@
 #include "servers/audio_server.h"
 #include "servers/rendering/rasterizer.h"
 #include "servers/rendering_server.h"
-//#include "servers/rendering/rendering_server_wrap_mt.h"
 
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/Xlib.h>
@@ -220,8 +219,8 @@ protected:
 
     void _window_changed(XEvent *event);
 
-    bool is_window_maximize_allowed();
-
+    bool window_maximize_check(const char *p_atom_name) const;
+    bool is_window_maximize_allowed() const;
 public:
     String get_name() const override;
 

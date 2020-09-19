@@ -33,7 +33,7 @@
 #include "core/io/stream_peer_ssl.h"
 #include "ssl_context_mbedtls.h"
 
-class StreamPeerMbedTLS : public StreamPeerSSL {
+class GODOT_EXPORT StreamPeerMbedTLS : public StreamPeerSSL {
 private:
     Status status;
     String hostname;

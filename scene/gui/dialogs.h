@@ -38,7 +38,7 @@
 #include "scene/gui/popup.h"
 #include "scene/gui/texture_button.h"
 
-class WindowDialog : public Popup {
+class GODOT_EXPORT WindowDialog : public Popup {
 
     GDCLASS(WindowDialog,Popup)
 
@@ -101,7 +101,7 @@ public:
 
 class LineEdit;
 
-class AcceptDialog : public WindowDialog {
+class GODOT_EXPORT AcceptDialog : public WindowDialog {
 
     GDCLASS(AcceptDialog,WindowDialog)
 
@@ -153,7 +153,7 @@ public:
     ~AcceptDialog() override;
 };
 
-class ConfirmationDialog : public AcceptDialog {
+class GODOT_EXPORT ConfirmationDialog : public AcceptDialog {
 
     GDCLASS(ConfirmationDialog,AcceptDialog)
 

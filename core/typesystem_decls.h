@@ -40,10 +40,8 @@ enum class PropertyHint : int8_t {
     ExpRange, ///< hint_text = "min,max,step", exponential edit
     Enum, ///< hint_text= "val1,val2,val3,etc"
     ExpEasing, /// exponential easing function (Math::ease) use "attenuation" hint string to revert (flip h), "full" to also include in/out. (ie: "attenuation,inout")
-    Length, ///< hint_text= "length" (as integer)
-    SpriteFrame, // FIXME: Obsolete: drop whenever we can break compat. Keeping now for GDNative compat.
-    KeyAccel, ///< hint_text= "length" (as integer)
-    Flags, ///< hint_text= "flag1,flag2,etc" (as bit flags)
+    //KeyAccel, ///< hint_text= "length" (as integer)
+    Flags=7, ///< hint_text= "flag1,flag2,etc" (as bit flags)
     Layers2DRenderer,
     Layers2DPhysics,
     Layers3DRenderer,
@@ -78,25 +76,20 @@ enum class PropertyHint : int8_t {
 
 enum PropertyUsageFlags {
 
-    PROPERTY_USAGE_STORAGE = 1,
-    PROPERTY_USAGE_EDITOR = 2,
-    PROPERTY_USAGE_NETWORK = 4,
-    PROPERTY_USAGE_EDITOR_HELPER = 8,
-    PROPERTY_USAGE_CHECKABLE = 16, //used for editing global variables
-    PROPERTY_USAGE_CHECKED = 32, //used for editing global variables
-    PROPERTY_USAGE_INTERNATIONALIZED = 64, //hint for internationalized strings
-    PROPERTY_USAGE_GROUP = 128, //used for grouping props in the editor
-    PROPERTY_USAGE_CATEGORY = 256,
-    // FIXME: Drop in 4.0, possibly reorder other flags?
-    // Those below are deprecated thanks to ClassDB's now class value cache
-    //PROPERTY_USAGE_STORE_IF_NONZERO = 512, //only store if nonzero
-    //PROPERTY_USAGE_STORE_IF_NONONE = 1024, //only store if false
-    PROPERTY_USAGE_NO_INSTANCE_STATE = 2048,
-    PROPERTY_USAGE_RESTART_IF_CHANGED = 4096,
-    PROPERTY_USAGE_SCRIPT_VARIABLE = 8192,
-    PROPERTY_USAGE_STORE_IF_NULL = 16384,
-    PROPERTY_USAGE_ANIMATE_AS_TRIGGER = 32768,
-    PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED = 65536,
+    PROPERTY_USAGE_STORAGE = 1 << 0,
+    PROPERTY_USAGE_EDITOR = 1 << 1,
+
+    PROPERTY_USAGE_CHECKABLE = 1 << 4, //used for editing global variables
+    PROPERTY_USAGE_CHECKED = 1 << 5, //used for editing global variables
+    PROPERTY_USAGE_INTERNATIONALIZED = 1 << 6, //hint for internationalized strings
+    PROPERTY_USAGE_GROUP = 1 << 7, //used for grouping props in the editor
+    PROPERTY_USAGE_CATEGORY = 1 << 8,
+    PROPERTY_USAGE_NO_INSTANCE_STATE = 1 << 11,
+    PROPERTY_USAGE_RESTART_IF_CHANGED = 1 << 12,
+    PROPERTY_USAGE_SCRIPT_VARIABLE = 1 << 13,
+    PROPERTY_USAGE_STORE_IF_NULL = 1 << 14,
+    PROPERTY_USAGE_ANIMATE_AS_TRIGGER = 1 << 15,
+    PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED = 1 << 16,
     PROPERTY_USAGE_SCRIPT_DEFAULT_VALUE = 1 << 17,
     PROPERTY_USAGE_CLASS_IS_ENUM = 1 << 18,
     PROPERTY_USAGE_NIL_IS_VARIANT = 1 << 19,
@@ -106,20 +99,22 @@ enum PropertyUsageFlags {
     PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT = 1 << 23,
     PROPERTY_USAGE_RESOURCE_NOT_PERSISTENT = 1 << 24,
     PROPERTY_USAGE_KEYING_INCREMENTS = 1 << 25, // Used in inspector to increment property when keyed in animation player
+    PROPERTY_USAGE_ARRAY = 1 << 26, // A special marker for start of property array
 
-    PROPERTY_USAGE_DEFAULT = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_NETWORK,
-    PROPERTY_USAGE_DEFAULT_INTL = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_NETWORK | PROPERTY_USAGE_INTERNATIONALIZED,
-    PROPERTY_USAGE_NOEDITOR = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_NETWORK,
+    PROPERTY_USAGE_DEFAULT = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR,
+    PROPERTY_USAGE_DEFAULT_INTL = PROPERTY_USAGE_STORAGE | PROPERTY_USAGE_EDITOR |PROPERTY_USAGE_INTERNATIONALIZED,
+    PROPERTY_USAGE_NOEDITOR = PROPERTY_USAGE_STORAGE,
 };
 
 enum class TypePassBy : int8_t {
-    Value, // T
+    Value=0, // T
     Reference, // T &
     ConstReference, // const T &
     RefValue, // Ref<T>
     ConstRefReference, // const Ref<T> &
     Move, // T &&
     Pointer,
+    MAX_PASS_BY
 };
 
 /* This is a skeleton version of actual property info, used to reduce the include hell and allow constexpr construction.*/

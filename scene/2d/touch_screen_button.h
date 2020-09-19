@@ -36,7 +36,7 @@
 #include "scene/resources/rectangle_shape_2d.h"
 #include "scene/resources/texture.h"
 
-class TouchScreenButton : public Node2D {
+class GODOT_EXPORT TouchScreenButton : public Node2D {
 
     GDCLASS(TouchScreenButton,Node2D)
 

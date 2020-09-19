@@ -149,8 +149,8 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
     if (have_device(instance->guidInstance) || num == -1)
         return false;
 
-    d_joypads[joypad_count] = dinput_gamepad();
-    dinput_gamepad *joy = &d_joypads[joypad_count];
+    d_joypads[num] = dinput_gamepad();
+    dinput_gamepad *joy = &d_joypads[num];
 
     const DWORD devtype = (instance->dwDevType & 0xFF);
 
@@ -171,7 +171,7 @@ bool JoypadWindows::setup_dinput_joypad(const DIDEVICEINSTANCE *instance) {
             guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
             guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
 
-    id_to_change = joypad_count;
+    id_to_change = num;
 
     joy->di_joy->SetDataFormat(&c_dfDIJoystick2);
     joy->di_joy->SetCooperativeLevel(*hWnd, DISCL_FOREGROUND);

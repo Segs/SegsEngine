@@ -136,7 +136,7 @@ void AnimationPlayerEditor::_notification(int p_what) {
             stop->set_button_icon(get_icon("Stop", "EditorIcons"));
 
             onion_toggle->set_button_icon(get_icon("Onion", "EditorIcons"));
-            onion_skinning->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
+            onion_skinning->set_button_icon(get_icon("GuiTabMenuHl", "EditorIcons"));
 
             pin->set_button_icon(get_icon("Pin", "EditorIcons"));
 
@@ -748,8 +748,8 @@ void AnimationPlayerEditor::_dialog_action(StringView p_file) {
             ERR_FAIL_COND(!player);
 
             Ref<Resource> res = gResourceManager().load(p_file, "Animation");
-            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'."); 
-            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation."); 
+            ERR_FAIL_COND_MSG(not res, "Cannot load Animation from file '" + String(p_file) + "'.");
+            ERR_FAIL_COND_MSG(!res->is_class("Animation"), "Loaded resource from file '" + String(p_file) + "' is not Animation.");
             if (StringUtils::contains(p_file,'/')) {
 
                 p_file = StringUtils::substr(p_file,StringUtils::find_last(p_file,'/') + 1, p_file.length());

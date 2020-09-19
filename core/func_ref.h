@@ -32,7 +32,7 @@
 
 #include "core/reference.h"
 
-class FuncRef : public RefCounted {
+class GODOT_EXPORT FuncRef : public RefCounted {
 
     GDCLASS(FuncRef, RefCounted)
     ObjectID id{0};

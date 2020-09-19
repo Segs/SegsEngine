@@ -46,7 +46,7 @@ class FileAccess;
 struct EditorProgressBG;
 struct EditorProgress;
 
-class EditorFileSystemDirectory : public Object {
+class GODOT_EXPORT EditorFileSystemDirectory : public Object {
 
     GDCLASS(EditorFileSystemDirectory,Object)
 
@@ -111,7 +111,7 @@ public:
     ~EditorFileSystemDirectory() override;
 };
 
-class EditorFileSystem : public Node {
+class GODOT_EXPORT EditorFileSystem : public Node {
 
     GDCLASS(EditorFileSystem,Node)
 

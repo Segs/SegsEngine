@@ -44,7 +44,7 @@
 // FIXME: this will be removed, left for reference
 #if 0
 
-class Room : public VisualInstance3D {
+class GODOT_EXPORT Room : public VisualInstance3D {
 
 	GDCLASS(Room,VisualInstance3D)
 IMPL_GDCLASS(Room)

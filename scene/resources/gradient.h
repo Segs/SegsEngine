@@ -33,7 +33,7 @@
 #include "core/resource.h"
 #include "core/color.h"
 
-class Gradient : public Resource {
+class GODOT_EXPORT Gradient : public Resource {
     GDCLASS(Gradient,Resource)
     OBJ_SAVE_TYPE(Gradient)
 

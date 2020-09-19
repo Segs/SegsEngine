@@ -916,7 +916,7 @@ bool SceneTree::idle(float p_time) {
 
     //go through timers
 
-    auto L = &timers.back(); //last element
+    auto L = timers.empty() ? nullptr : &timers.back(); //last element
     //break on last, so if new timers were added during list traversal, ignore them.
     for (auto E = timers.begin(); E!=timers.end() && (&(*E) == L);) {
 

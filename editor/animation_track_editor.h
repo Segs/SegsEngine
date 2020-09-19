@@ -41,7 +41,7 @@
 
 #include "EASTL/deque.h"
 
-class AnimationTimelineEdit : public Range {
+class GODOT_EXPORT AnimationTimelineEdit : public Range {
     GDCLASS(AnimationTimelineEdit,Range)
 
     Ref<Animation> animation;
@@ -113,7 +113,7 @@ public:
 
 class AnimationTrackEditor;
 
-class AnimationTrackEdit : public Control {
+class GODOT_EXPORT AnimationTrackEdit : public Control {
 
     GDCLASS(AnimationTrackEdit,Control)
 
@@ -242,7 +242,7 @@ class AnimationTrackKeyEdit;
 class AnimationMultiTrackKeyEdit;
 class AnimationBezierTrackEdit;
 
-class AnimationTrackEditGroup : public Control {
+class GODOT_EXPORT AnimationTrackEditGroup : public Control {
     GDCLASS(AnimationTrackEditGroup,Control)
 
     Ref<Texture> icon;
@@ -266,7 +266,7 @@ public:
     AnimationTrackEditGroup();
 };
 
-class AnimationTrackEditor : public VBoxContainer {
+class GODOT_EXPORT AnimationTrackEditor : public VBoxContainer {
     GDCLASS(AnimationTrackEditor,VBoxContainer)
 
     enum {

@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "core/node_path.h"
 
-class Polygon2D : public Node2D {
+class GODOT_EXPORT Polygon2D : public Node2D {
 
     GDCLASS(Polygon2D,Node2D)
 

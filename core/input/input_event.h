@@ -58,6 +58,7 @@ enum ButtonList {
 };
 
 enum JoystickList {
+    JOY_INVALID_OPTION = -1,
 
     JOY_BUTTON_0 = 0,
     JOY_BUTTON_1 = 1,
@@ -312,7 +313,7 @@ public:
     InputEventMouse();
 };
 
-class InputEventMouseButton : public InputEventMouse {
+class GODOT_EXPORT InputEventMouseButton : public InputEventMouse {
 
     GDCLASS(InputEventMouseButton,InputEventMouse)
 
@@ -533,7 +534,7 @@ public:
     Vector2 get_position() const;
 };
 
-class InputEventMagnifyGesture : public InputEventGesture {
+class GODOT_EXPORT InputEventMagnifyGesture : public InputEventGesture {
 
     GDCLASS(InputEventMagnifyGesture,InputEventGesture)
     real_t factor;
@@ -551,7 +552,7 @@ public:
     InputEventMagnifyGesture();
 };
 
-class InputEventPanGesture : public InputEventGesture {
+class GODOT_EXPORT InputEventPanGesture : public InputEventGesture {
 
     GDCLASS(InputEventPanGesture,InputEventGesture)
     Vector2 delta;

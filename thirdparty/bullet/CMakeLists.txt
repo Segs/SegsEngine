@@ -189,5 +189,7 @@ set(bullet2_src
 )
 add_library(bullet STATIC ${bullet2_src})
 target_include_directories(bullet PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-set_property(TARGET bullet PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(bullet)
+
+
+target_compile_definitions(bullet PRIVATE BT_USE_OLD_DAMPING_METHOD)
+

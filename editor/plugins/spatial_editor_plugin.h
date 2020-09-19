@@ -56,7 +56,7 @@ class HSplitContainer;
 class TextureRect;
 class SpatialEditorViewport;
 
-class EditorSpatialGizmo : public Node3DGizmo {
+class GODOT_EXPORT EditorSpatialGizmo : public Node3DGizmo {
 
     GDCLASS(EditorSpatialGizmo,Node3DGizmo)
 
@@ -124,7 +124,6 @@ public:
     virtual void set_handle(int p_idx, Camera3D *p_camera, const Point2 &p_point);
     virtual void commit_handle(int p_idx, const Variant &p_restore, bool p_cancel = false);
 
-    void set_spatial_node(Node *p_node) { set_spatial_node(object_cast<Node3D>(p_node)); }
     void set_spatial_node(Node3D *p_node);
     Node3D *get_spatial_node() const { return spatial_node; }
     Ref<EditorSpatialGizmoPlugin> get_plugin() const { return Ref<EditorSpatialGizmoPlugin>(gizmo_plugin); }
@@ -147,7 +146,7 @@ public:
     ~EditorSpatialGizmo() override;
 };
 
-class ViewportRotationControl : public Control {
+class GODOT_EXPORT ViewportRotationControl : public Control {
     GDCLASS(ViewportRotationControl, Control);
 
     struct Axis2D {
@@ -186,7 +185,7 @@ public:
     void set_viewport(SpatialEditorViewport *p_viewport);
 };
 
-class SpatialEditorViewport : public Control {
+class GODOT_EXPORT SpatialEditorViewport : public Control {
 
     GDCLASS(SpatialEditorViewport,Control)
 
@@ -503,7 +502,7 @@ public:
     ~SpatialEditorSelectedItem() override;
 };
 
-class SpatialEditorViewportContainer : public Container {
+class GODOT_EXPORT SpatialEditorViewportContainer : public Container {
 
     GDCLASS(SpatialEditorViewportContainer,Container)
 
@@ -544,7 +543,7 @@ public:
     SpatialEditorViewportContainer();
 };
 
-class SpatialEditor : public VBoxContainer {
+class GODOT_EXPORT SpatialEditor : public VBoxContainer {
 
     GDCLASS(SpatialEditor,VBoxContainer)
 
@@ -732,7 +731,7 @@ private:
 
     void _register_all_gizmos();
 
-    SpatialEditor();
+    SpatialEditor()=delete;
 
     bool is_any_freelook_active() const;
 
@@ -813,7 +812,7 @@ public:
     ~SpatialEditor() override;
 };
 
-class SpatialEditorPlugin : public EditorPlugin {
+class GODOT_EXPORT SpatialEditorPlugin : public EditorPlugin {
 
     GDCLASS(SpatialEditorPlugin,EditorPlugin)
 
@@ -843,7 +842,7 @@ public:
     ~SpatialEditorPlugin() override;
 };
 
-class EditorSpatialGizmoPlugin : public Resource {
+class GODOT_EXPORT EditorSpatialGizmoPlugin : public Resource {
 
     GDCLASS(EditorSpatialGizmoPlugin,Resource)
 

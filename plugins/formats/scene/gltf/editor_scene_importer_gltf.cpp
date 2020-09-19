@@ -1563,10 +1563,11 @@ namespace {
                 }
             }
 
+            mesh.blend_weights.resize(mesh.mesh->get_blend_shape_count(),0.0f);
+
             if (d.has("weights")) {
-                const Array& weights = d["weights"];
-                ERR_FAIL_COND_V(mesh.mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR);
-                mesh.blend_weights.resize(weights.size());
+                const Array &weights = d["weights"];
+                ERR_FAIL_COND_V(mesh.blend_weights.size() != weights.size(), ERR_PARSE_ERROR);
                 for (int j = 0; j < weights.size(); j++) {
                     mesh.blend_weights[j] = weights[j];
                 }

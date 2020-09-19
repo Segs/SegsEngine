@@ -33,7 +33,7 @@
 #include "scene/main/node.h"
 #include "core/list.h"
 
-class Tween : public Node {
+class GODOT_EXPORT Tween : public Node {
 
     GDCLASS(Tween,Node)
 

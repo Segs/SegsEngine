@@ -76,7 +76,7 @@ public:
     virtual HashMap<Node *, HashMap<ObjectID, Node *>> &get_live_edit_remove_list() = 0;
 };
 
-class SceneTreeTimer : public RefCounted {
+class GODOT_EXPORT SceneTreeTimer : public RefCounted {
     GDCLASS(SceneTreeTimer,RefCounted)
 
     float time_left;
@@ -103,7 +103,7 @@ struct SceneTreeGroup
     bool changed=false;
 };
 
-class SceneTree : public MainLoop {
+class GODOT_EXPORT SceneTree : public MainLoop {
 
     _THREAD_SAFE_CLASS_
 

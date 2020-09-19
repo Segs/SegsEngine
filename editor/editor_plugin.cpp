@@ -194,6 +194,30 @@ void EditorInterface::reload_scene_from_path(StringView scene_path) {
     EditorNode::get_singleton()->reload_scene(scene_path);
 }
 
+void EditorInterface::play_main_scene() {
+    EditorNode::get_singleton()->run_play();
+}
+
+void EditorInterface::play_current_scene() {
+    EditorNode::get_singleton()->run_play_current();
+}
+
+void EditorInterface::play_custom_scene(const String &scene_path) {
+    EditorNode::get_singleton()->run_play_custom(scene_path);
+}
+
+void EditorInterface::stop_playing_scene() {
+    EditorNode::get_singleton()->run_stop();
+}
+
+bool EditorInterface::is_playing_scene() const {
+    return EditorNode::get_singleton()->is_run_playing();
+}
+
+String EditorInterface::get_playing_scene() const {
+    return EditorNode::get_singleton()->get_run_playing_scene();
+}
+
 Node *EditorInterface::get_edited_scene_root() {
     return EditorNode::get_singleton()->get_edited_scene();
 }
@@ -301,6 +325,12 @@ void EditorInterface::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("edit_resource", {"resource"}), &EditorInterface::edit_resource);
     MethodBinder::bind_method(D_METHOD("open_scene_from_path", {"scene_filepath"}), &EditorInterface::open_scene_from_path);
     MethodBinder::bind_method(D_METHOD("reload_scene_from_path", {"scene_filepath"}), &EditorInterface::reload_scene_from_path);
+    MethodBinder::bind_method(D_METHOD("play_main_scene"), &EditorInterface::play_main_scene);
+    MethodBinder::bind_method(D_METHOD("play_current_scene"), &EditorInterface::play_current_scene);
+    MethodBinder::bind_method(D_METHOD("play_custom_scene", {"scene_filepath"}), &EditorInterface::play_custom_scene);
+    MethodBinder::bind_method(D_METHOD("stop_playing_scene"), &EditorInterface::stop_playing_scene);
+    MethodBinder::bind_method(D_METHOD("is_playing_scene"), &EditorInterface::is_playing_scene);
+    MethodBinder::bind_method(D_METHOD("get_playing_scene"), &EditorInterface::get_playing_scene);
     MethodBinder::bind_method(D_METHOD("get_open_scenes"), &EditorInterface::get_open_scenes);
     MethodBinder::bind_method(D_METHOD("get_edited_scene_root"), &EditorInterface::get_edited_scene_root);
     MethodBinder::bind_method(D_METHOD("get_resource_previewer"), &EditorInterface::get_resource_previewer);

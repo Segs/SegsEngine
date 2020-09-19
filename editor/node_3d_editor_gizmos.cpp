@@ -772,7 +772,7 @@ void EditorSpatialGizmo::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_collision_triangles", {"triangles"}), &EditorSpatialGizmo::add_collision_triangles);
     MethodBinder::bind_method(D_METHOD("add_unscaled_billboard", {"material", "default_scale","modulate"}), &EditorSpatialGizmo::add_unscaled_billboard, {DEFVAL(1),DEFVAL(Color(1, 1, 1))});
     MethodBinder::bind_method(D_METHOD("add_handles", {"handles", "material", "billboard", "secondary"}), &EditorSpatialGizmo::add_handles, {DEFVAL(false), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("set_spatial_node", {"node"}), (void (EditorSpatialGizmo::*)(Node *))&EditorSpatialGizmo::set_spatial_node);
+    MethodBinder::bind_method(D_METHOD("set_spatial_node", {"node"}), &EditorSpatialGizmo::set_spatial_node);
     MethodBinder::bind_method(D_METHOD("get_spatial_node"), &EditorSpatialGizmo::get_spatial_node);
     MethodBinder::bind_method(D_METHOD("get_plugin"), &EditorSpatialGizmo::get_plugin);
     MethodBinder::bind_method(D_METHOD("clear"), &EditorSpatialGizmo::clear);

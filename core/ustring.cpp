@@ -527,7 +527,7 @@ Vector<UIString> StringUtils::split(const UIString &str,const UIString &p_splitt
 }
 Vector<UIString> StringUtils::split(const UIString &str,const CharType p_splitter, bool p_allow_empty) {
     Vector<UIString> ret;
-    auto val = str.splitRef(p_splitter,p_allow_empty ? QString::KeepEmptyParts : QString::SkipEmptyParts);
+    auto val = str.splitRef(p_splitter,p_allow_empty ? Qt::KeepEmptyParts : Qt::SkipEmptyParts);
     ret.resize(val.size());
     for(int i=0,fin=val.size(); i<fin; ++i)
         ret[i] = val[i].toString();

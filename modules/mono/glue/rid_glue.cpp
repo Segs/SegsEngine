@@ -30,8 +30,6 @@
 
 #include "rid_glue.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/resource.h"
 
 RID *godot_icall_RID_Ctor(Object *p_from) {
@@ -57,5 +55,3 @@ void godot_register_rid_icalls() {
 	mono_add_internal_call("Godot.RID::godot_icall_RID_Dtor", (void *)godot_icall_RID_Dtor);
 	mono_add_internal_call("Godot.RID::godot_icall_RID_get_id", (void *)godot_icall_RID_get_id);
 }
-
-#endif // MONO_GLUE_ENABLED

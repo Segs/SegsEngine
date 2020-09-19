@@ -1,21 +1,21 @@
 #.rst
 # FindDotnet
 # ----------
-# 
+#
 # Find DotNet executable, and initialize functions for adding dotnet projects.
-# 
+#
 # Results are reported in the following variables::
-# 
+#
 #   DOTNET_FOUND          - True if dotnet executable is found
 #   DOTNET_EXE            - Dotnet executable
 #   DOTNET_VERSION        - Dotnet version as reported by dotnet executable
 #   NUGET_EXE             - Nuget executable (WIN32 only)
 #   NUGET_CACHE_PATH      - Nuget package cache path
-# 
+#
 # The following functions are defined to add dotnet/msbuild projects:
-# 
+#
 # ADD_DOTNET -- add a project to be built by dotnet.
-# 
+#
 # ```
 # ADD_DOTNET(<project_file> [RELEASE|DEBUG] [X86|X64|ANYCPU] [NETCOREAPP]
 #            [CONFIG configuration]
@@ -29,10 +29,10 @@
 #            [ARGUMENTS additional_build_args...]
 #            [PACK_ARGUMENTS additional_pack_args...])
 # ```
-# 
-# RUN_DOTNET -- Run a project with `dotnet run`. The `OUTPUT` argument represents artifacts 
+#
+# RUN_DOTNET -- Run a project with `dotnet run`. The `OUTPUT` argument represents artifacts
 #               produced by running the .NET program, and can be consumed from other build steps.
-# 
+#
 # ```
 # RUN_DOTNET(<project_file> [RELEASE|DEBUG] [X86|X64|ANYCPU] [NETCOREAPP]
 #            [ARGUMENTS program_args...]
@@ -44,9 +44,9 @@
 #            [CUSTOM_BUILDPROPS <CustomProp>value</CustomProp>....]
 #            [SOURCES additional_file_dependencies... ])
 # ```
-# 
+#
 # ADD_MSBUILD -- add a project to be built by msbuild. Windows-only. When building in Unix systems, msbuild targets are skipped.
-# 
+#
 # ```
 # ADD_MSBUILD(<project_file> [RELEASE|DEBUG] [X86|X64|ANYCPU] [NETCOREAPP]
 #            [CONFIG configuration]
@@ -71,14 +71,14 @@
 #                 [OUTPUT_PATH output_path relative to cmake binary output dir]
 #                 [CUSTOM_BUILDPROPS <CustomProp>value</CustomProp>....]
 #                 [SOURCES additional_file_dependencies... ])
-# 
+#
 # For all the above functions, `RELEASE|DEBUG` overrides `CONFIG`, `X86|X64|ANYCPU` overrides PLATFORM.
 # For Unix systems, the target framework defaults to `netstandard2.0`, unless `NETCOREAPP` is specified.
 # For Windows, the project is built as-is, allowing multi-targeting.
 #
 #
 # DOTNET_REGISTER_LOCAL_REPOSITORY -- register a local NuGet package repository.
-# 
+#
 # ```
 # DOTNET_REGISTER_LOCAL_REPOSITORY(repo_name repo_path)
 # ```
@@ -94,7 +94,7 @@
 #             [ARGUMENTS additional_dotnet_test_args...]
 #             [OUTPUT_PATH output_path relative to cmake binary output dir])
 # ```
-# 
+#
 # GEN_DOTNET_PROPS -- Generates a Directory.Build.props file. The created file is populated with MSBuild properties:
 #  - DOTNET_PACKAGE_VERSION: a version string that can be referenced in the actual project file as $(DOTNET_PACKAGE_VERSION).
 #    The version string value can be set with PACKAGE_VERSION argument, and defaults to '1.0.0'.
@@ -108,10 +108,10 @@
 #                  [PACKAGE_VERSION version]
 #                  [XML_INJECT xml_injection])
 # ```
-# 
+#
 # Require 3.5 for batch copy multiple files
 
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.8.0)
 
 IF(DOTNET_FOUND)
     RETURN()
@@ -158,11 +158,11 @@ ENDFUNCTION()
 FUNCTION(DOTNET_GET_DEPS _DN_PROJECT arguments)
     CMAKE_PARSE_ARGUMENTS(
         # prefix
-        _DN 
+        _DN
         # options (flags)
-        "RELEASE;DEBUG;X86;X64;ANYCPU;NETCOREAPP" 
+        "RELEASE;DEBUG;X86;X64;ANYCPU;NETCOREAPP"
         # oneValueArgs
-        "CONFIG;PLATFORM;VERSION;OUTPUT_PATH" 
+        "CONFIG;PLATFORM;VERSION;OUTPUT_PATH;DEPLOY_PATH"
         # multiValueArgs
         "PACKAGE;DEPENDS;ARGUMENTS;PACK_ARGUMENTS;OUTPUT;SOURCES;CUSTOM_BUILDPROPS"
         # the input arguments
@@ -173,7 +173,8 @@ FUNCTION(DOTNET_GET_DEPS _DN_PROJECT arguments)
     GET_FILENAME_COMPONENT(_DN_projname "${_DN_PROJECT}" NAME)
     STRING(REGEX REPLACE "\\.[^.]*$" "" _DN_projname_noext ${_DN_projname})
 
-    FILE(GLOB_RECURSE DOTNET_deps 
+
+    FILE(GLOB_RECURSE DOTNET_deps
         ${_DN_proj_dir}/*.cs
         ${_DN_proj_dir}/*.fs
         ${_DN_proj_dir}/*.vb
@@ -230,7 +231,7 @@ FUNCTION(DOTNET_GET_DEPS _DN_PROJECT arguments)
         SET(_DN_OUTPUT_PATH ${_DN_projname_noext})
     ENDIF()
 
-    GET_FILENAME_COMPONENT(_DN_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${_DN_OUTPUT_PATH} ABSOLUTE)
+    #GET_FILENAME_COMPONENT(_DN_OUTPUT_PATH ${CMAKE_BINARY_DIR}/${_DN_OUTPUT_PATH} ABSOLUTE)
 
     # In a cmake build, the XPLAT libraries are always copied over.
     # Set the proper directory for .NET projects.
@@ -247,20 +248,16 @@ FUNCTION(DOTNET_GET_DEPS _DN_PROJECT arguments)
     SET(DOTNET_RUN_OUTPUT ${_DN_OUTPUT} PARENT_SCOPE)
     SET(DOTNET_PACKAGE_VERSION ${_DN_VERSION} PARENT_SCOPE)
     SET(DOTNET_OUTPUT_PATH ${_DN_OUTPUT_PATH} PARENT_SCOPE)
+	SET(DOTNET_DEPLOY_PATH  ${_DN_DEPLOY_PATH} PARENT_SCOPE)
     SET(DOTNET_deps ${_DN_deps} PARENT_SCOPE)
+    #SET(DOTNET_framework "netcoreapp3.1" PARENT_SCOPE)
 
     IF(_DN_PLATFORM)
         SET(_DN_PLATFORM_PROP "/p:Platform=${_DN_PLATFORM}")
     ENDIF()
 
-    IF(_DN_NETCOREAPP)
-        SET(_DN_BUILD_OPTIONS -f netcoreapp2.0)
-        SET(_DN_PACK_OPTIONS /p:TargetFrameworks=netcoreapp2.0)
-    ELSEIF(UNIX)
-        # Unix builds default to netstandard2.0
-        SET(_DN_BUILD_OPTIONS -f netstandard2.0)
-        SET(_DN_PACK_OPTIONS /p:TargetFrameworks=netstandard2.0)
-    ENDIF()
+    SET(_DN_BUILD_OPTIONS -f netcoreapp3.1)
+    SET(_DN_PACK_OPTIONS /p:TargetFrameworks=netcoreapp3.1)
 
     SET(_DN_IMPORT_PROP ${CMAKE_CURRENT_BINARY_DIR}/${_DN_projname}.imports.props)
     CONFIGURE_FILE(${DOTNET_MODULE_DIR}/DotnetImports.props.in ${_DN_IMPORT_PROP})
@@ -307,7 +304,10 @@ MACRO(DOTNET_BUILD_COMMANDS)
         COMMAND ${CMAKE_COMMAND} -E echo "======= Building .NET project ${DOTNET_PROJNAME} [${DOTNET_CONFIG} ${DOTNET_PLATFORM}]"
         COMMAND ${DOTNET_EXE} restore ${DOTNET_PROJPATH} ${DOTNET_IMPORT_PROPERTIES}
         COMMAND ${DOTNET_EXE} clean ${DOTNET_PROJPATH} ${DOTNET_BUILD_PROPERTIES}
-        COMMAND ${DOTNET_EXE} build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_BUILD_OPTIONS} ${DOTNET_ARGUMENTS})
+        COMMAND ${DOTNET_EXE} build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_BUILD_OPTIONS} ${DOTNET_ARGUMENTS}
+		#COMMAND ${DOTNET_EXE} publish --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_BUILD_OPTIONS} ${DOTNET_ARGUMENTS}  -o ${DOTNET_DEPLOY_PATH}/${DOTNET_CONFIG}
+	)
+		
     SET(build_dotnet_type "dotnet")
 
     # DOTNET_OUTPUTS refer to artifacts produced, that the BUILD_proj_name target depends on.
@@ -320,7 +320,8 @@ MACRO(DOTNET_BUILD_COMMANDS)
             LIST(APPEND build_dotnet_cmds COMMAND ${CMAKE_COMMAND} -E remove ${DOTNET_OUTPUT_PATH}/${pkg}.${DOTNET_PACKAGE_VERSION}.nupkg)
             LIST(APPEND build_dotnet_cmds COMMAND ${CMAKE_COMMAND} -E remove ${DOTNET_OUTPUT_PATH}/${pkg}.${DOTNET_PACKAGE_VERSION}.symbols.nupkg)
         ENDFOREACH()
-        LIST(APPEND build_dotnet_cmds COMMAND ${DOTNET_EXE} pack --no-build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_PACK_OPTIONS})
+		message("-----------------------------------  ${DOTNET_DEPLOY_PATH} ")
+        LIST(APPEND build_dotnet_cmds COMMAND ${DOTNET_EXE} pack --no-build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_PACK_OPTIONS} -o ${DOTNET_DEPLOY_PATH}/${DOTNET_CONFIG})
         LIST(APPEND build_dotnet_cmds COMMAND ${CMAKE_COMMAND} -E copy ${DOTNET_OUTPUTS} ${CMAKE_BINARY_DIR})
     ELSE()
         MESSAGE("-- Adding ${build_dotnet_type} project ${DOTNET_PROJPATH} (no nupkg)")
@@ -356,11 +357,11 @@ FUNCTION(RUN_DOTNET DOTNET_PROJECT)
         COMMAND ${DOTNET_EXE} clean ${DOTNET_PROJPATH} ${DOTNET_BUILD_PROPERTIES}
         COMMAND ${DOTNET_EXE} build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_BUILD_OPTIONS}
         # XXX tfm
-        COMMAND ${DOTNET_EXE} ${DOTNET_OUTPUT_PATH}/netcoreapp2.0/${DOTNET_PROJNAME}.dll ${DOTNET_ARGUMENTS}
+        COMMAND ${DOTNET_EXE} ${DOTNET_OUTPUT_PATH}/netcoreapp3.1/${DOTNET_PROJNAME}.dll ${DOTNET_ARGUMENTS}
         COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${DOTNET_PROJNAME}.runtimestamp
         WORKING_DIRECTORY ${DOTNET_OUTPUT_PATH})
     ADD_CUSTOM_TARGET(
-        RUN_${DOTNET_PROJNAME} 
+        RUN_${DOTNET_PROJNAME}
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${DOTNET_PROJNAME}.runtimestamp ${DOTNET_RUN_OUTPUT})
     ADD_DOTNET_DEPENDENCY_TARGETS(RUN)
 ENDFUNCTION()
@@ -371,7 +372,7 @@ FUNCTION(TEST_DOTNET DOTNET_PROJECT)
     IF(WIN32)
         SET(test_framework_args "")
     ELSE()
-        SET(test_framework_args -f netcoreapp2.0)
+        SET(test_framework_args -f netcoreapp3.1)
     ENDIF()
 
     ADD_TEST(NAME              ${DOTNET_PROJNAME}
@@ -413,9 +414,9 @@ FUNCTION(GEN_DOTNET_PROPS target_props_file)
         # prefix
         _DNP
         # options (flags)
-        "" 
+        ""
         # oneValueArgs
-        "PACKAGE_VERSION;XML_INJECT" 
+        "PACKAGE_VERSION;XML_INJECT"
         # multiValueArgs
         ""
         # the input arguments

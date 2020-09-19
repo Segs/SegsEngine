@@ -333,6 +333,9 @@ void FabrikInverseKinematic::solve(Task *p_task, real_t blending_delta, bool ove
             else
                 new_bone_pose.basis = new_bone_pose.basis * p_task->chain.tips[0].end_effector->goal_transform.basis;
         }
+        // IK should not affect scale, so undo any scaling
+        new_bone_pose.basis.orthonormalize();
+        new_bone_pose.basis.scale(p_task->skeleton->get_bone_global_pose(ci->bone).basis.get_scale());
 
         p_task->skeleton->set_bone_global_pose_override(ci->bone, new_bone_pose, 1.0,true);
 
@@ -537,6 +540,10 @@ bool SkeletonIK3D::is_running() {
 void SkeletonIK3D::start(bool p_one_time) {
     if (p_one_time) {
         set_process_internal(false);
+        if (target_node_override) {
+            reload_goal();
+        }
+
         _solve_chain();
     } else {
         set_process_internal(true);

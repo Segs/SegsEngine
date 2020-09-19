@@ -46,16 +46,39 @@ enum class APIType {
     Client,
     Server,
 };
+
+enum class TypeRefKind : int8_t {
+    Simple, //
+    Enum,
+    Array,
+};
+
+struct TypeReference {
+    String cname;
+    TypeRefKind is_enum = TypeRefKind::Simple;
+    TypePassBy pass_by = TypePassBy::Value;
+
+    void toJson(QJsonObject& obj) const;
+
+    void fromJson(const QJsonObject& obj);
+};
+
 struct ConstantInterface {
     String name;
-    //QString proxy_name;
+    TypeReference const_type = {"int"};
     int value;
+    String str_value;
 
     ConstantInterface() {}
 
     ConstantInterface(const String& p_name, int p_value) {
         name = p_name;
         value = p_value;
+    }
+    ConstantInterface(const String& p_name, StringView p_value) {
+        name = p_name;
+        const_type = {"String"};
+        str_value = p_value;
     }
     void toJson(QJsonObject& obj) const;
     void fromJson(const QJsonObject& obj);
@@ -79,17 +102,12 @@ struct EnumInterface {
     void toJson(QJsonObject& obj) const;
     void fromJson(const QJsonObject& obj);
 };
-struct TypeReference {
-    String cname;
-    bool is_enum = false;
-    TypePassBy pass_by = TypePassBy::Value;
 
-    void toJson(QJsonObject& obj) const;
 
-    void fromJson(const QJsonObject& obj);
-};
+
 struct PropertyInterface {
     String cname;
+    String hint_str;
     int max_property_index; // -1 for plain properties, -2 for indexed properties, >0 for arrays of multiple properties it's the maximum number.
     struct TypedEntry {
         String subfield_name;
@@ -168,6 +186,7 @@ struct MethodInterface {
     Vector<ArgumentInterface> arguments;
 
     bool is_deprecated = false;
+    bool implements_property = false; // Set true on functions implementing a property.
     String deprecation_message;
 
     void add_argument(const ArgumentInterface& argument) {
@@ -184,15 +203,15 @@ struct TypeInterface {
      * Also used to format [c_out].
      */
     String name;
-    String base_name; //!< Identifier name of the base class.
-    String header_path; //!<Relative path to header defining this type.
+    String base_name;   //!< Identifier name of the base class.
+    String header_path; //!< Relative path to header defining this type.
 
     APIType api_type;
 
-    bool is_enum;
-    bool is_object_type;
-    bool is_singleton;
-    bool is_reference;
+    bool is_enum = false;
+    bool is_object_type = false;
+    bool is_singleton = false;
+    bool is_reference = false;
     bool is_namespace = false;
 
     /**
@@ -216,114 +235,11 @@ struct TypeInterface {
      * The Mono IL interpreter icall trampolines don't support passing structs bigger than 32-bits by value (at least not on WASM).
      */
     bool ret_as_byref_arg;
-
-    // !! The comments of the following fields make reference to other fields via square brackets, e.g.: [field_name]
-    // !! When renaming those fields, make sure to rename their references in the comments
-
-    // --- C INTERFACE ---
-
-    static constexpr const char* DEFAULT_VARARG_C_IN = "\t%0 %1_in = Variant::from(%1);\n";
-
     /**
-     * One or more statements that manipulate the parameter before being passed as argument of a ptrcall.
-     * If the statement adds a local that must be passed as the argument instead of the parameter,
-     * the name of that local must be specified with [c_arg_in].
-     * For variadic methods, this field is required and, if empty, [DEFAULT_VARARG_C_IN] is used instead.
-     * Formatting elements:
-     * %0: [c_type] of the parameter
-     * %1: name of the parameter
+     * Marks this type as an opaque one, for Godot those are classes like Variant,NodePath,RID etc.
+     * Some of the opaque types can contain helpers for the script side ( additional enums, constants etc. )
      */
-    //QString c_in;
-
-    /**
-     * Determines the expression that will be passed as argument to ptrcall.
-     * By default the value equals the name of the parameter,
-     * this varies for types that require special manipulation via [c_in].
-     * Formatting elements:
-     * %0 or %s: name of the parameter
-     */
-    //QString c_arg_in;
-
-    /**
-     * One or more statements that determine how a variable of this type is returned from a function.
-     * It must contain the return statement(s).
-     * Formatting elements:
-     * %0: [c_type_out] of the return type
-     * %1: name of the variable to be returned
-     * %2: [name] of the return type
-     * ---------------------------------------
-     * If [ret_as_byref_arg] is true, the format is different. Instead of using a return statement,
-     * the value must be assigned to a parameter. This type of this parameter is a pointer to [c_type_out].
-     * Formatting elements:
-     * %0: [c_type_out] of the return type
-     * %1: name of the variable to be returned
-     * %2: [name] of the return type
-     * %3: name of the parameter that must be assigned the return value
-     */
-    //QString c_out;
-
-    /**
-     * The actual expected type, as seen (in most cases) in Variant copy constructors
-     * Used for the type of the return variable and to format [c_in].
-     * The value must be the following depending of the type:
-     * Object-derived types: Object*
-     * Other types: [name]
-     * -- Exceptions --
-     * VarArg (fictitious type to represent variable arguments): Array
-     * float: double (because ptrcall only supports double)
-     * int: int64_t (because ptrcall only supports int64_t and uint64_t)
-     * Reference types override this for the type of the return variable: Ref<RefCounted>
-     */
-    //QString c_type;
-
-    /**
-     * Determines the type used for parameters in function signatures.
-     */
-    //QString c_type_in;
-
-    /**
-     * Determines the return type used for function signatures.
-     * Also used to construct a default value to return in case of errors,
-     * and to format [c_out].
-     */
-    //QString c_type_out;
-
-    // --- C# INTERFACE ---
-
-    /**
-     * An expression that overrides the way the parameter is passed to the internal call.
-     * If empty, the parameter is passed as is.
-     * Formatting elements:
-     * %0 or %s: name of the parameter
-     */
-    //QString cs_in;
-
-    /**
-     * One or more statements that determine how a variable of this type is returned from a method.
-     * It must contain the return statement(s).
-     * Formatting elements:
-     * %0: internal method name
-     * %1: internal method call arguments without surrounding parenthesis
-     * %2: [cs_type] of the return type
-     * %3: [im_type_out] of the return type
-     */
-    //QString cs_out;
-
-    /**
-     * Type used for method signatures, both for parameters and the return type.
-     * Same as [proxy_name] except for variable arguments (VarArg) and collections (which include the namespace).
-     */
-    //QString cs_type;
-
-    /**
-     * Type used for parameters of internal call methods.
-     */
-    //QString im_type_in;
-
-    /**
-     * Type used for the return type of internal call methods.
-     */
-    //QString im_type_out;
+    bool is_opaque_type = false;
 
     Vector<ConstantInterface> constants;
     Vector<EnumInterface> enums;
@@ -353,10 +269,6 @@ public:
 
     static TypeInterface create_object_type(const String&p_cname, APIType p_api_type);
 
-    static void create_placeholder_type(TypeInterface &r_itype, const String &p_cname);
-
-    static void postsetup_enum_type(TypeInterface &r_enum_itype);
-
     TypeInterface();
     TypeInterface(String n) : TypeInterface() { name = n; }
 
@@ -369,42 +281,36 @@ struct NamespaceInterface {
     String required_header;
 
     HashMap<String, TypeInterface> obj_types;
-    Vector<String> obj_type_insert_order;
     Vector<EnumInterface> global_enums;
     Vector<ConstantInterface> global_constants;
     Vector<MethodInterface> global_functions; // functions exposed directly by this namespace
 
     HashMap<String, TypeInterface> placeholder_types;
-    HashMap<String, TypeInterface> builtin_types;
     HashMap<String, TypeInterface> enum_types;
 
     const TypeInterface* _get_type_or_null(const TypeReference& p_typeref) const;
-    const TypeInterface* _get_type_or_placeholder(const TypeReference& p_typeref);
 
     void toJson(QJsonObject& obj) const;
     void fromJson(const QJsonObject& obj);
 };
 struct ReflectionData {
     //TODO: doc class is for a singular namespace!
-    class DocData* doc;
-
-    struct ClassLookupHelper {
-        HashMap<String, const DocContents::MethodDoc*> methods;
-        HashMap<String, const DocContents::MethodDoc*> defined_signals;
-        HashMap<String, const DocContents::PropertyDoc*> properties;
-        HashMap<String, const DocContents::PropertyDoc*> theme_properties;
-
-        HashMap<String, const DocContents::ConstantDoc*> constants;
+    class DocData* doc=nullptr;
+    String module_name;
+    //! full reflection data version, should be >= api_version
+    String version;
+    //! supported api version.
+    String api_version;
+    //! Hash of the sourced reflection data.
+    String api_hash;
+    struct ImportedData {
+        String module_name;
+        String api_version;
+        ReflectionData *resolved=nullptr;
     };
-    HashMap<String, ClassLookupHelper> doc_lookup_helpers;
-    void build_doc_lookup_helper();
-
+    // Contains imports required to process this ReflectionData.
+    Vector<ImportedData> imports;
     Vector<NamespaceInterface> namespaces;
-    const DocContents::ConstantDoc* constant_doc(const String &classname, String const_name) const {
-        return doc_lookup_helpers.at( classname).constants.at(const_name, nullptr);
-    }
-
-    const TypeInterface *_get_type_or_null(const NamespaceInterface *ns,const TypeReference &p_typeref) const;
 
     const ConstantInterface* find_constant_by_name(const String &p_name, const Vector<ConstantInterface>& p_constants) const {
         for (const ConstantInterface& E : p_constants) {

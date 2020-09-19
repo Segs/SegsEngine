@@ -53,7 +53,7 @@ public:
 	AudioEffectReverbInstance();
 };
 
-class AudioEffectReverb : public AudioEffect {
+class GODOT_EXPORT AudioEffectReverb : public AudioEffect {
 	GDCLASS(AudioEffectReverb,AudioEffect)
 
 	friend class AudioEffectReverbInstance;

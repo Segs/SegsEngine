@@ -389,24 +389,64 @@ SpriteBase3D::SpriteBase3D() {
     modulate = Color(1, 1, 1, 1);
     pending_update = false;
     opacity = 1.0;
-    immediate = RenderingServer::get_singleton()->immediate_create();
-    set_base(immediate);
+    auto ren_server = RenderingServer::get_singleton();
+    material = RenderingServer::get_singleton()->material_create();
+    // Set defaults for material, names need to match up those in SpatialMaterial
+    ren_server->material_set_param(material, "albedo", Color(1, 1, 1, 1));
+    ren_server->material_set_param(material, "specular", 0.5);
+    ren_server->material_set_param(material, "metallic", 0.0);
+    ren_server->material_set_param(material, "roughness", 1.0);
+    ren_server->material_set_param(material, "uv1_offset", Vector3(0, 0, 0));
+    ren_server->material_set_param(material, "uv1_scale", Vector3(1, 1, 1));
+    ren_server->material_set_param(material, "uv2_offset", Vector3(0, 0, 0));
+    ren_server->material_set_param(material, "uv2_scale", Vector3(1, 1, 1));
+
+    mesh = ren_server->mesh_create();
+
+    Vector<Vector3> mesh_vertices;
+    Vector<Vector3> mesh_normals;
+    Vector<float> mesh_tangents;
+    Vector<Color> mesh_colors;
+    Vector<Vector2> mesh_uvs;
+
+    // create basic mesh and store format information
+    mesh_vertices.resize(4,Vector3(0.0f, 0.0f, 0.0f));
+    mesh_normals.resize(4,Vector3(0.0, 0.0, 0.0));
+    mesh_tangents.resize(16,0.0f);
+    mesh_colors.resize(4,Color(1.0, 1.0, 1.0, 1.0));
+    mesh_uvs.resize(4,Vector2(0.0, 0.0));
+
+    SurfaceArrays mesh_array(eastl::move(mesh_vertices));
+
+    mesh_array.m_normals = eastl::move(mesh_normals);
+    mesh_array.m_tangents = eastl::move(mesh_tangents);
+    mesh_array.m_colors = eastl::move(mesh_colors);
+    mesh_array.m_uv_1 = eastl::move(mesh_uvs);
+
+    ren_server->mesh_add_surface_from_arrays(mesh, RS::PRIMITIVE_TRIANGLE_FAN, mesh_array);
+    const int surface_vertex_len = ren_server->mesh_surface_get_array_len(mesh, 0);
+    const int surface_index_len = ren_server->mesh_surface_get_array_index_len(mesh, 0);
+
+    mesh_surface_format = ren_server->mesh_surface_get_format(mesh, 0);
+    mesh_buffer = ren_server->mesh_surface_get_array(mesh, 0);
+    mesh_stride = ren_server->mesh_surface_make_offsets_from_format(mesh_surface_format, surface_vertex_len, surface_index_len, mesh_surface_offsets);
 }
 
 SpriteBase3D::~SpriteBase3D() {
 
-    RenderingServer::get_singleton()->free_rid(immediate);
+    RenderingServer::get_singleton()->free_rid(mesh);
+    RenderingServer::get_singleton()->free_rid(material);
 }
 
 ///////////////////////////////////////////
 
 void Sprite3D::_draw() {
 
-    RID immediate = get_immediate();
+    set_base(RID());
 
-    RenderingServer::get_singleton()->immediate_clear(immediate);
     if (not texture)
         return;
+
     Vector2 tsize = texture->get_size();
     if (tsize.x == 0.0f || tsize.y == 0.0f)
         return;
@@ -486,11 +526,6 @@ void Sprite3D::_draw() {
         tangent = Plane(1, 0, 0, 1);
     }
 
-    RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
-    RenderingServer::get_singleton()->immediate_set_material(immediate, mat);
-
-    RenderingServer::get_singleton()->immediate_begin(immediate, RS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
-
     int x_axis = ((axis + 1) % 3);
     int y_axis = ((axis + 2) % 3);
 
@@ -510,25 +545,69 @@ void Sprite3D::_draw() {
 
     AABB aabb;
 
-    for (int i = 0; i < 4; i++) {
-        RenderingServer::get_singleton()->immediate_normal(immediate, normal);
-        RenderingServer::get_singleton()->immediate_tangent(immediate, tangent);
-        RenderingServer::get_singleton()->immediate_color(immediate, color);
-        RenderingServer::get_singleton()->immediate_uv(immediate, uvs[i]);
+    // Buffer is using default compression, so everything except position is compressed
+    PoolVector<uint8_t>::Write write_buffer = mesh_buffer.write();
 
+    int8_t v_normal[4] = {
+        (int8_t)CLAMP(normal.x * 127, -128, 127),
+        (int8_t)CLAMP(normal.y * 127, -128, 127),
+        (int8_t)CLAMP(normal.z * 127, -128, 127),
+        0,
+    };
+
+    int8_t v_tangent[4] = {
+        (int8_t)CLAMP(tangent.normal.x * 127, -128, 127),
+        (int8_t)CLAMP(tangent.normal.y * 127, -128, 127),
+        (int8_t)CLAMP(tangent.normal.z * 127, -128, 127),
+        (int8_t)CLAMP(tangent.d * 127, -128, 127)
+    };
+
+    uint8_t v_color[4] = {
+        (uint8_t)CLAMP(int(color.r * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.g * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.b * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.a * 255.0), 0, 255)
+    };
+
+    for (int i = 0; i < 4; i++) {
         Vector3 vtx;
         vtx[x_axis] = vertices[i][0];
         vtx[y_axis] = vertices[i][1];
-        RenderingServer::get_singleton()->immediate_vertex(immediate, vtx);
         if (i == 0) {
             aabb.position = vtx;
             aabb.size = Vector3();
         } else {
             aabb.expand_to(vtx);
         }
+        if (mesh_surface_format & RS::ARRAY_COMPRESS_TEX_UV) {
+            uint16_t v_uv[2] = { Math::make_half_float(uvs[i].x), Math::make_half_float(uvs[i].y) };
+            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 4);
+        } else {
+            float v_uv[2] = { uvs[i].x, uvs[i].y };
+            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
+        }
+        float v_vertex[3] = { vtx.x, vtx.y, vtx.z };
+
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_VERTEX]], &v_vertex, sizeof(float) * 3);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_NORMAL]], v_normal, 4);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TANGENT]], v_tangent, 4);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_COLOR]], v_color, 4);
     }
+
+    write_buffer.release();
+
+    RID mesh = get_mesh();
+    RenderingServer::get_singleton()->mesh_surface_update_region(mesh, 0, 0, mesh_buffer);
+
+    RenderingServer::get_singleton()->mesh_set_custom_aabb(mesh, aabb);
     set_aabb(aabb);
-    RenderingServer::get_singleton()->immediate_end(immediate);
+
+    set_base(mesh);
+
+    RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
+    RenderingServer::get_singleton()->material_set_shader(get_material(), RenderingServer::get_singleton()->material_get_shader(mat));
+    RenderingServer::get_singleton()->material_set_param(get_material(), "texture_albedo", texture->get_rid());
+    RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), 0, get_material());
 }
 
 void Sprite3D::set_texture(const Ref<Texture> &p_texture) {
@@ -719,8 +798,7 @@ Sprite3D::Sprite3D() {
 
 void AnimatedSprite3D::_draw() {
 
-    RID immediate = get_immediate();
-    RenderingServer::get_singleton()->immediate_clear(immediate);
+    set_base(RID());
 
     if (not frames) {
         return;
@@ -811,12 +889,6 @@ void AnimatedSprite3D::_draw() {
         tangent = Plane(1, 0, 0, -1);
     }
 
-    RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
-
-    RenderingServer::get_singleton()->immediate_set_material(immediate, mat);
-
-    RenderingServer::get_singleton()->immediate_begin(immediate, RS::PRIMITIVE_TRIANGLE_FAN, texture->get_rid());
-
     int x_axis = ((axis + 1) % 3);
     int y_axis = ((axis + 2) % 3);
 
@@ -836,25 +908,70 @@ void AnimatedSprite3D::_draw() {
 
     AABB aabb;
 
-    for (int i = 0; i < 4; i++) {
-        RenderingServer::get_singleton()->immediate_normal(immediate, normal);
-        RenderingServer::get_singleton()->immediate_tangent(immediate, tangent);
-        RenderingServer::get_singleton()->immediate_color(immediate, color);
-        RenderingServer::get_singleton()->immediate_uv(immediate, uvs[i]);
+    // Buffer is using default compression, so everything except position is compressed
+    PoolVector<uint8_t>::Write write_buffer = mesh_buffer.write();
 
+    int8_t v_normal[4] = {
+        (int8_t)CLAMP(normal.x * 127, -128, 127),
+        (int8_t)CLAMP(normal.y * 127, -128, 127),
+        (int8_t)CLAMP(normal.z * 127, -128, 127),
+        0,
+    };
+
+    int8_t v_tangent[4] = {
+        (int8_t)CLAMP(tangent.normal.x * 127, -128, 127),
+        (int8_t)CLAMP(tangent.normal.y * 127, -128, 127),
+        (int8_t)CLAMP(tangent.normal.z * 127, -128, 127),
+        (int8_t)CLAMP(tangent.d * 127, -128, 127)
+    };
+
+    uint8_t v_color[4] = {
+        (uint8_t)CLAMP(int(color.r * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.g * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.b * 255.0), 0, 255),
+        (uint8_t)CLAMP(int(color.a * 255.0), 0, 255)
+    };
+
+    for (int i = 0; i < 4; i++) {
         Vector3 vtx;
         vtx[x_axis] = vertices[i][0];
         vtx[y_axis] = vertices[i][1];
-        RenderingServer::get_singleton()->immediate_vertex(immediate, vtx);
         if (i == 0) {
             aabb.position = vtx;
             aabb.size = Vector3();
         } else {
             aabb.expand_to(vtx);
         }
+
+        if (mesh_surface_format & RS::ARRAY_COMPRESS_TEX_UV) {
+            uint16_t v_uv[2] = { Math::make_half_float(uvs[i].x), Math::make_half_float(uvs[i].y) };
+            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 4);
+        } else {
+            float v_uv[2] = { uvs[i].x, uvs[i].y };
+            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
+        }
+        float v_vertex[3] = { vtx.x, vtx.y, vtx.z };
+
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_VERTEX]], &v_vertex, sizeof(float) * 3);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_NORMAL]], v_normal, 4);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TANGENT]], v_tangent, 4);
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_COLOR]], v_color, 4);
     }
+
+    write_buffer.release();
+
+    RID mesh = get_mesh();
+    RenderingServer::get_singleton()->mesh_surface_update_region(mesh, 0, 0, mesh_buffer);
+
+    RenderingServer::get_singleton()->mesh_set_custom_aabb(mesh, aabb);
     set_aabb(aabb);
-    RenderingServer::get_singleton()->immediate_end(immediate);
+
+    set_base(mesh);
+
+    RID mat = SpatialMaterial::get_material_rid_for_2d(get_draw_flag(FLAG_SHADED), get_draw_flag(FLAG_TRANSPARENT), get_draw_flag(FLAG_DOUBLE_SIDED), get_alpha_cut_mode() == ALPHA_CUT_DISCARD, get_alpha_cut_mode() == ALPHA_CUT_OPAQUE_PREPASS, get_billboard_mode() == SpatialMaterial::BILLBOARD_ENABLED, get_billboard_mode() == SpatialMaterial::BILLBOARD_FIXED_Y);
+    RenderingServer::get_singleton()->material_set_shader(get_material(), RenderingServer::get_singleton()->material_get_shader(mat));
+    RenderingServer::get_singleton()->material_set_param(get_material(), "texture_albedo", texture->get_rid());
+    RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), 0, get_material());
 }
 
 void AnimatedSprite3D::_validate_property(PropertyInfo &property) const {

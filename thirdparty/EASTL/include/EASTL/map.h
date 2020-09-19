@@ -687,7 +687,5 @@ namespace eastl
         }
     }
 
-
-
 } // namespace eastl
 

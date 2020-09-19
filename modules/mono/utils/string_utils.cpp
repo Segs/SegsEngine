@@ -160,7 +160,8 @@ bool is_csharp_keyword(StringView p_name) {
             "struct" ,"switch" ,"this" ,"throw" ,
             "true" ,"try" ,"typeof" ,"uint" ,"ulong" ,
             "unchecked" ,"unsafe" ,"ushort" ,"using" ,
-            "virtual" ,"volatile" ,"void" ,"while"
+            "value", // contextual kw
+            "virtual" ,"volatile" ,"void" ,"while",
         };
         for(const char *c : kwords)
             keywords.emplace(c);

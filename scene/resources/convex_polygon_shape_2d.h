@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape_2d.h"
 
-class ConvexPolygonShape2D : public Shape2D {
+class GODOT_EXPORT ConvexPolygonShape2D : public Shape2D {
     GDCLASS(ConvexPolygonShape2D,Shape2D)
 
     Vector<Vector2> points;

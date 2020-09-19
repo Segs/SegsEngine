@@ -38,7 +38,7 @@
 
 namespace GDMonoCache {
 
-CachedData cached_data;
+GODOT_EXPORT CachedData cached_data;
 
 #define CACHE_AND_CHECK(m_var, m_val)                                               \
     {                                                                               \

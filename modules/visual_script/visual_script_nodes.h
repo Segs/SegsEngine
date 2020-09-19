@@ -104,7 +104,7 @@ public:
     VisualScriptFunction();
 };
 
-class VisualScriptLists : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptLists : public VisualScriptNode {
 
     GDCLASS(VisualScriptLists, VisualScriptNode)
 
@@ -200,7 +200,7 @@ public:
 
     VisualScriptComposeArray();
 };
-class VisualScriptOperator : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptOperator : public VisualScriptNode {
 
     GDCLASS(VisualScriptOperator,VisualScriptNode)
 
@@ -237,7 +237,7 @@ public:
     VisualScriptOperator();
 };
 
-class VisualScriptSelect : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSelect : public VisualScriptNode {
 
     GDCLASS(VisualScriptSelect,VisualScriptNode)
 
@@ -271,7 +271,7 @@ public:
     VisualScriptSelect();
 };
 
-class VisualScriptVariableGet : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptVariableGet : public VisualScriptNode {
 
     GDCLASS(VisualScriptVariableGet,VisualScriptNode)
 
@@ -305,7 +305,7 @@ public:
     VisualScriptVariableGet();
 };
 
-class VisualScriptVariableSet : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptVariableSet : public VisualScriptNode {
 
     GDCLASS(VisualScriptVariableSet,VisualScriptNode)
 
@@ -339,7 +339,7 @@ public:
     VisualScriptVariableSet();
 };
 
-class VisualScriptConstant : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptConstant : public VisualScriptNode {
 
     GDCLASS(VisualScriptConstant,VisualScriptNode)
 
@@ -377,7 +377,7 @@ public:
     VisualScriptConstant();
 };
 
-class VisualScriptPreload : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptPreload : public VisualScriptNode {
 
     GDCLASS(VisualScriptPreload,VisualScriptNode)
 
@@ -460,7 +460,7 @@ public:
     VisualScriptIndexSet();
 };
 
-class VisualScriptGlobalConstant : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptGlobalConstant : public VisualScriptNode {
 
     GDCLASS(VisualScriptGlobalConstant,VisualScriptNode)
 
@@ -492,7 +492,7 @@ public:
     VisualScriptGlobalConstant();
 };
 
-class VisualScriptClassConstant : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptClassConstant : public VisualScriptNode {
 
     GDCLASS(VisualScriptClassConstant,VisualScriptNode)
 
@@ -530,7 +530,7 @@ public:
     VisualScriptClassConstant();
 };
 
-class VisualScriptBasicTypeConstant : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptBasicTypeConstant : public VisualScriptNode {
 
     GDCLASS(VisualScriptBasicTypeConstant,VisualScriptNode)
 
@@ -569,7 +569,7 @@ public:
     VisualScriptBasicTypeConstant();
 };
 
-class VisualScriptMathConstant : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptMathConstant : public VisualScriptNode {
 
     GDCLASS(VisualScriptMathConstant,VisualScriptNode)
 
@@ -619,7 +619,7 @@ public:
 };
 
 
-class VisualScriptEngineSingleton : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptEngineSingleton : public VisualScriptNode {
 
     GDCLASS(VisualScriptEngineSingleton,VisualScriptNode)
 
@@ -653,7 +653,7 @@ public:
     VisualScriptEngineSingleton();
 };
 
-class VisualScriptSceneNode : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSceneNode : public VisualScriptNode {
 
     GDCLASS(VisualScriptSceneNode,VisualScriptNode)
 
@@ -689,7 +689,7 @@ public:
     VisualScriptSceneNode();
 };
 
-class VisualScriptSceneTree : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSceneTree : public VisualScriptNode {
 
     GDCLASS(VisualScriptSceneTree,VisualScriptNode)
 
@@ -720,7 +720,7 @@ public:
     VisualScriptSceneTree();
 };
 
-class VisualScriptResourcePath : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptResourcePath : public VisualScriptNode {
 
     GDCLASS(VisualScriptResourcePath,VisualScriptNode)
 
@@ -753,7 +753,7 @@ public:
     VisualScriptResourcePath();
 };
 
-class VisualScriptSelf : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSelf : public VisualScriptNode {
 
     GDCLASS(VisualScriptSelf,VisualScriptNode)
 
@@ -783,7 +783,7 @@ public:
     VisualScriptSelf();
 };
 
-class VisualScriptCustomNode : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptCustomNode : public VisualScriptNode {
 
     GDCLASS(VisualScriptCustomNode,VisualScriptNode)
 
@@ -831,7 +831,7 @@ public:
 };
 
 
-class VisualScriptSubCall : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSubCall : public VisualScriptNode {
 
     GDCLASS(VisualScriptSubCall,VisualScriptNode)
 
@@ -860,7 +860,7 @@ public:
     VisualScriptSubCall();
 };
 
-class VisualScriptComment : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptComment : public VisualScriptNode {
 
     GDCLASS(VisualScriptComment,VisualScriptNode)
 
@@ -902,7 +902,7 @@ public:
     VisualScriptComment();
 };
 
-class VisualScriptConstructor : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptConstructor : public VisualScriptNode {
 
     GDCLASS(VisualScriptConstructor,VisualScriptNode)
 
@@ -939,7 +939,7 @@ public:
     VisualScriptConstructor();
 };
 
-class VisualScriptLocalVar : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptLocalVar : public VisualScriptNode {
 
     GDCLASS(VisualScriptLocalVar,VisualScriptNode)
 
@@ -976,7 +976,7 @@ public:
     VisualScriptLocalVar();
 };
 
-class VisualScriptLocalVarSet : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptLocalVarSet : public VisualScriptNode {
 
     GDCLASS(VisualScriptLocalVarSet,VisualScriptNode)
 
@@ -1014,7 +1014,7 @@ public:
     VisualScriptLocalVarSet();
 };
 
-class VisualScriptInputAction : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptInputAction : public VisualScriptNode {
 
     GDCLASS(VisualScriptInputAction,VisualScriptNode)
 
@@ -1062,7 +1062,7 @@ public:
 };
 
 
-class VisualScriptDeconstruct : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptDeconstruct : public VisualScriptNode {
 
     GDCLASS(VisualScriptDeconstruct,VisualScriptNode)
 

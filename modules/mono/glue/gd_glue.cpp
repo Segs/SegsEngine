@@ -30,8 +30,6 @@
 
 #include "gd_glue.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/array.h"
 #include "core/class_db.h"
 #include "core/io/marshalls.h"
@@ -50,7 +48,7 @@
 
 MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_objects) {
     Variant ret;
-    PoolByteArray varr = GDMonoMarshal::mono_array_to_PoolByteArray(p_bytes);
+    PoolByteArray varr = GDMonoMarshal::mono_array_to_pool_vec<uint8_t>(p_bytes);
     PoolByteArray::Read r = varr.read();
     Error err = decode_variant(ret, r.ptr(), varr.size(), nullptr, p_allow_objects);
     if (err != OK) {
@@ -273,7 +271,7 @@ MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_object
         encode_variant(var, w.ptr(), len, p_full_objects);
     }
 
-    return GDMonoMarshal::PoolByteArray_to_mono_array(barr);
+    return GDMonoMarshal::container_to_mono_array(barr);
 }
 
 MonoString *godot_icall_GD_var2str(MonoObject *p_var) {
@@ -313,5 +311,3 @@ void godot_register_gd_icalls() {
     // Dispatcher
     mono_add_internal_call("Godot.Dispatcher::godot_icall_DefaultGodotTaskScheduler", (void *)godot_icall_DefaultGodotTaskScheduler);
 }
-
-#endif // MONO_GLUE_ENABLED

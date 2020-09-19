@@ -34,7 +34,7 @@
 
 class AudioEffectSpectrumAnalyzer;
 
-class AudioEffectSpectrumAnalyzerInstance : public AudioEffectInstance {
+class GODOT_EXPORT AudioEffectSpectrumAnalyzerInstance : public AudioEffectInstance {
     GDCLASS(AudioEffectSpectrumAnalyzerInstance,AudioEffectInstance)
 
 public:
@@ -65,7 +65,7 @@ public:
 };
 
 
-class AudioEffectSpectrumAnalyzer : public AudioEffect {
+class GODOT_EXPORT AudioEffectSpectrumAnalyzer : public AudioEffect {
     GDCLASS(AudioEffectSpectrumAnalyzer,AudioEffect)
 
 public:

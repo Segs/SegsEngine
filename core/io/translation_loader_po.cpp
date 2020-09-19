@@ -37,7 +37,7 @@
 
 using namespace eastl;
 
-RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringView p_path) {
+RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error) {
 
     enum Status {
 
@@ -60,6 +60,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
     bool skip_this = false;
     bool skip_next = false;
     bool is_eof = false;
+    const String path = f->get_path();
 
     while (!is_eof) {
 
@@ -71,7 +72,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
 
             if (status == STATUS_READING_ID) {
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), String(p_path) + ":" + ::to_string(line) + " Unexpected EOF while reading 'msgid' at file: ");
+                ERR_FAIL_V_MSG(RES(), path + ":" + ::to_string(line) + " Unexpected EOF while reading 'msgid' at file: ");
             } else {
                 break;
             }
@@ -82,7 +83,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
             if (status == STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), String(p_path) + ":" + ::to_string(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ");
+                ERR_FAIL_V_MSG(RES(), path + ":" + ::to_string(line) + " Unexpected 'msgid', was expecting 'msgstr' while parsing: ");
             }
 
             if (!msg_id.empty()) {
@@ -104,7 +105,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
             if (status != STATUS_READING_ID) {
 
                 memdelete(f);
-                ERR_FAIL_V_MSG(RES(), String(p_path) + ":" + ::to_string(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ");
+                ERR_FAIL_V_MSG(RES(), path + ":" + ::to_string(line) + " Unexpected 'msgstr', was expecting 'msgid' while parsing: ");
             }
 
             l = StringUtils::strip_edges(StringUtils::substr(l,6, l.length()));
@@ -119,7 +120,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
             continue; //nothing to read or comment
         }
 
-        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), String(p_path) + ":" + ::to_string(line) + " Invalid line '" + l + "' while parsing: ");
+        ERR_FAIL_COND_V_MSG(!StringUtils::begins_with(l,"\"") || status == STATUS_NONE, RES(), String(path) + ":" + ::to_string(line) + " Invalid line '" + l + "' while parsing: ");
 
         l = StringUtils::substr(l,1, l.length());
         //find final quote
@@ -132,7 +133,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
             }
         }
 
-        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), String(p_path) + ":" + ::to_string(line) + " Expected '\"' at end of message while parsing file: ");
+        ERR_FAIL_COND_V_MSG(end_pos == -1, RES(), path + ":" + ::to_string(line) + " Expected '\"' at end of message while parsing file: ");
 
         l = StringUtils::substr(l,0, end_pos);
         l = StringUtils::c_unescape(l);
@@ -145,7 +146,6 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
         line++;
     }
 
-    f->close();
     memdelete(f);
 
     if (status == STATUS_READING_STRING) {
@@ -157,7 +157,7 @@ RES TranslationLoaderPO::load_translation(FileAccess *f, Error *r_error, StringV
             config = msg_str;
     }
 
-    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + String(p_path) + ".");
+    ERR_FAIL_COND_V_MSG(config.empty(), RES(), "No config found in file: " + path + ".");
 
     Vector<StringView> configs = StringUtils::split(config,'\n');
     for (StringView cf : configs) {
@@ -194,7 +194,6 @@ RES TranslationLoaderPO::load(StringView p_path, StringView p_original_path, Err
 void TranslationLoaderPO::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     p_extensions.push_back("po");
-    //p_extensions->push_back("mo"); //mo in the future...
 }
 bool TranslationLoaderPO::handles_type(StringView p_type) const {
 

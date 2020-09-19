@@ -33,7 +33,7 @@
 
 #include "scene/gui/range.h"
 
-class ProgressBar : public Range {
+class GODOT_EXPORT ProgressBar : public Range {
 
 	GDCLASS(ProgressBar,Range)
 

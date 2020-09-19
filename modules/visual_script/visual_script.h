@@ -46,7 +46,7 @@ class recursive_mutex;
 }
 using Mutex = std::recursive_mutex;
 
-class VisualScriptNode : public Resource {
+class GODOT_EXPORT VisualScriptNode : public Resource {
     GDCLASS(VisualScriptNode,Resource)
 
     friend class VisualScript;
@@ -172,7 +172,7 @@ public:
     virtual ~VisualScriptNodeInstance();
 };
 
-class VisualScript : public Script {
+class GODOT_EXPORT VisualScript : public Script {
 
     GDCLASS(VisualScript,Script)
 
@@ -465,7 +465,7 @@ public:
     ~VisualScriptInstance() override;
 };
 
-class VisualScriptFunctionState : public RefCounted {
+class GODOT_EXPORT VisualScriptFunctionState : public RefCounted {
 
     GDCLASS(VisualScriptFunctionState,RefCounted)
 
@@ -577,7 +577,7 @@ public:
     StringName get_name() const override;
 
     /* LANGUAGE FUNCTIONS */
-    void init() override;
+    bool init() override;
     String get_type() const override;
     String get_extension() const override;
     Error execute_file(StringView p_path) override;

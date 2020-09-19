@@ -36,7 +36,7 @@
 
 #define WRTC_IN_BUF "network/limits/webrtc/max_channel_in_buffer_kb"
 
-class WebRTCDataChannel : public PacketPeer {
+class GODOT_EXPORT WebRTCDataChannel : public PacketPeer {
     GDCLASS(WebRTCDataChannel,PacketPeer)
 
 public:

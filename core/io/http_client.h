@@ -38,7 +38,7 @@
 class StreamPeer;
 class StreamPeerTCP;
 
-class HTTPClient : public RefCounted {
+class GODOT_EXPORT HTTPClient : public RefCounted {
 
     GDCLASS(HTTPClient, RefCounted);
 

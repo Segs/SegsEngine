@@ -34,7 +34,7 @@
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
-class UPNPDevice : public RefCounted {
+class GODOT_EXPORT UPNPDevice : public RefCounted {
 
     GDCLASS(UPNPDevice,RefCounted)
 

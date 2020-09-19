@@ -36,7 +36,7 @@
 class Script;
 class InputEvent;
 
-class MainLoop : public Object {
+class GODOT_EXPORT MainLoop : public Object {
 
 	GDCLASS(MainLoop,Object)
     OBJ_CATEGORY("Main Loop")

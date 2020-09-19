@@ -34,7 +34,7 @@
 
 #include "webrtc_data_channel.h"
 
-class WebRTCDataChannelJS : public WebRTCDataChannel {
+class GODOT_EXPORT WebRTCDataChannelJS : public WebRTCDataChannel {
 	GDCLASS(WebRTCDataChannelJS,WebRTCDataChannel)
 IMPL_GDCLASS(WebRTCDataChannelJS)
 

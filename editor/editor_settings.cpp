@@ -234,7 +234,7 @@ void EditorSettings::_get_property_list(Vector<PropertyInfo> *p_list) const {
         p_list->push_back(pi);
     }
 
-    p_list->push_back(PropertyInfo(VariantType::ARRAY, "shortcuts", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL)); //do not edit
+    p_list->emplace_back(VariantType::ARRAY, "shortcuts", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL); //do not edit
 }
 
 void EditorSettings::_add_property_info_bind(const Dictionary &p_info) {
@@ -533,6 +533,8 @@ void EditorSettings::_load_defaults(const Ref<ConfigFile> &p_extra_config) {
     // 3D: Navigation
     _initial_set("editors/3d/navigation/navigation_scheme", 0);
     _initial_set("editors/3d/navigation/invert_y_axis", false);
+    _initial_set("editors/3d/navigation/invert_x_axis", false);
+
     hints["editors/3d/navigation/navigation_scheme"] = PropertyInfo(VariantType::INT, "editors/3d/navigation/navigation_scheme", PropertyHint::Enum, "Godot,Maya,Modo");
     _initial_set("editors/3d/navigation/zoom_style", 0);
     hints["editors/3d/navigation/zoom_style"] = PropertyInfo(VariantType::INT, "editors/3d/navigation/zoom_style", PropertyHint::Enum, "Vertical, Horizontal");
@@ -846,13 +848,12 @@ void EditorSettings::create() {
 
         // Validate/create data dir and subdirectories
 
-        DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+        DirAccessRef dir {DirAccess::create(DirAccess::ACCESS_FILESYSTEM)};
 
         if (dir->change_dir(data_dir) != OK) {
             dir->make_dir_recursive(data_dir);
             if (dir->change_dir(data_dir) != OK) {
                 ERR_PRINT("Cannot create data directory!");
-                memdelete(dir);
                 goto fail;
             }
         }
@@ -870,7 +871,6 @@ void EditorSettings::create() {
             dir->make_dir_recursive(cache_dir);
             if (dir->change_dir(cache_dir) != OK) {
                 ERR_PRINT("Cannot create cache directory!");
-                memdelete(dir);
                 goto fail;
             }
         }
@@ -882,7 +882,6 @@ void EditorSettings::create() {
             dir->make_dir_recursive(config_dir);
             if (dir->change_dir(config_dir) != OK) {
                 ERR_PRINT("Cannot create config directory!");
-                memdelete(dir);
                 goto fail;
             }
         }
@@ -933,8 +932,6 @@ void EditorSettings::create() {
         if (!dir->file_exists(config_file_name)) {
             goto fail;
         }
-
-        memdelete(dir);
 
         singleton = dynamic_ref_cast<EditorSettings>(gResourceManager().load(config_file_path, "EditorSettings"));
 
@@ -1004,7 +1001,7 @@ void EditorSettings::setup_language() {
             FileAccessMemory *fa = memnew(FileAccessMemory);
             fa->open_custom(data.data(), data.size());
 
-            Ref<Translation> tr = dynamic_ref_cast<Translation>(TranslationLoaderPO::load_translation(fa, nullptr, "translation_" + String(etl->lang)));
+            Ref<Translation> tr = dynamic_ref_cast<Translation>(TranslationLoaderPO::load_translation(fa, nullptr));
 
             if (tr) {
                 tr->set_locale(etl->lang);

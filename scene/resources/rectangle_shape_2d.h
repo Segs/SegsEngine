@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape_2d.h"
 
-class RectangleShape2D : public Shape2D {
+class GODOT_EXPORT RectangleShape2D : public Shape2D {
     GDCLASS(RectangleShape2D,Shape2D)
 
     Vector2 extents;

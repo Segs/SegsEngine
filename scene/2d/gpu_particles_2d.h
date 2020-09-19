@@ -34,7 +34,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
-class GPUParticles2D : public Node2D {
+class GODOT_EXPORT GPUParticles2D : public Node2D {
 private:
     GDCLASS(GPUParticles2D,Node2D)
 

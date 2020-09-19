@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 
 class Viewport;
-class VisibilityNotifier2D : public Node2D {
+class GODOT_EXPORT VisibilityNotifier2D : public Node2D {
 
     GDCLASS(VisibilityNotifier2D,Node2D)
 
@@ -66,7 +66,7 @@ public:
     VisibilityNotifier2D();
 };
 
-class VisibilityEnabler2D : public VisibilityNotifier2D {
+class GODOT_EXPORT VisibilityEnabler2D : public VisibilityNotifier2D {
 
     GDCLASS(VisibilityEnabler2D,VisibilityNotifier2D)
 

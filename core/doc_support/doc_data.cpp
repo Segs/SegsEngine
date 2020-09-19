@@ -245,7 +245,9 @@ Error DocData::load_classes(QByteArray p_dir, bool recursively) {
     }
 
     QDirIterator fl(p_dir,{"*.xml"},QDir::NoFilter,recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
-
+    QDebug inst(qDebug());
+    inst.setAutoInsertSpaces(false);
+    inst << "Lading docs:";
     while(fl.hasNext()) {
         QString name=fl.next();
         auto fi(fl.fileInfo());
@@ -254,6 +256,7 @@ Error DocData::load_classes(QByteArray p_dir, bool recursively) {
             continue;
 
         if(fi.isFile()) {
+            inst.noquote() << ".";
             QFile src_file(name);
             if(!src_file.open(QFile::ReadOnly)) {
                 qCritical() << "Failed to load doc source file"<<name;

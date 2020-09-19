@@ -80,7 +80,7 @@ public:
     AudioStreamPlaybackSample();
 };
 
-class AudioStreamSample : public AudioStream {
+class GODOT_EXPORT AudioStreamSample : public AudioStream {
     GDCLASS(AudioStreamSample,AudioStream)
 
     RES_BASE_EXTENSION("sample")

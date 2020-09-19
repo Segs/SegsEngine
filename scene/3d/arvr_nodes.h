@@ -68,7 +68,7 @@ public:
 	It must be a child node of our ARVROrigin node
 */
 
-class ARVRController : public Node3D {
+class GODOT_EXPORT ARVRController : public Node3D {
 
 	GDCLASS(ARVRController,Node3D)
 
@@ -110,7 +110,7 @@ public:
 	It must be a child node of our ARVROrigin node
 */
 
-class ARVRAnchor : public Node3D {
+class GODOT_EXPORT ARVRAnchor : public Node3D {
 	GDCLASS(ARVRAnchor,Node3D)
 
 private:
@@ -149,7 +149,7 @@ public:
 	Our camera and controllers will always be child nodes and thus place relative to this origin point.
 	This node will automatically locate any camera child nodes and update its position while our ARVRController node will handle tracked controllers.
 */
-class ARVROrigin : public Node3D {
+class GODOT_EXPORT ARVROrigin : public Node3D {
 
 	GDCLASS(ARVROrigin,Node3D)
 

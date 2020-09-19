@@ -180,7 +180,12 @@ Error NetworkedMultiplayerENet::create_server(int p_port, int p_max_clients, int
             p_out_bandwidth /* limit outgoing bandwidth if > 0 */);
 
     ERR_FAIL_COND_V_MSG(!D()->host, ERR_CANT_CREATE, "Couldn't create an ENet multiplayer server.");
-
+#ifdef GODOT_ENET
+    if (dtls_enabled) {
+        enet_host_dtls_server_setup(host, dtls_key.ptr(), dtls_cert.ptr());
+    }
+    enet_host_refuse_new_connections(host, refuse_connections);
+#endif
     D()->_setup_compressor();
     active = true;
     server = true;

@@ -278,7 +278,7 @@ Ref<T> dynamic_ref_cast(Ref<U>& intrusivePtr)
 
 using REF = Ref<RefCounted>;
 
-class WeakRef : public RefCounted {
+class GODOT_EXPORT WeakRef : public RefCounted {
 
     GDCLASS(WeakRef,RefCounted)
 

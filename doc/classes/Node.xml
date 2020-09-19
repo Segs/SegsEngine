@@ -55,6 +55,7 @@
                 It is only called if input processing is enabled, which is done automatically if this method is overridden, and can be toggled with [method set_process_input].
                 To consume the input event and stop it propagating further to other nodes, [method SceneTree.set_input_as_handled] can be called.
                 For gameplay input, [method _unhandled_input] and [method _unhandled_key_input] are usually a better fit as they allow the GUI to intercept the events first.
+                [b]Note:[/b] This method is only called if the node is present in the scene tree (i.e. if it's not orphan).
             </description>
         </method>
         <method name="_physics_process" qualifiers="virtual">
@@ -66,6 +67,7 @@
                 Called during the physics processing step of the main loop. Physics processing means that the frame rate is synced to the physics, i.e. the [code]delta[/code] variable should be constant.
                 It is only called if physics processing is enabled, which is done automatically if this method is overridden, and can be toggled with [method set_physics_process].
                 Corresponds to the [constant NOTIFICATION_PHYSICS_PROCESS] notification in [method Object._notification].
+                [b]Note:[/b] This method is only called if the node is present in the scene tree (i.e. if it's not orphan).
             </description>
         </method>
         <method name="_process" qualifiers="virtual">
@@ -77,6 +79,7 @@
                 Called during the processing step of the main loop. Processing happens at every frame and as fast as possible, so the [code]delta[/code] time since the previous frame is not constant.
                 It is only called if processing is enabled, which is done automatically if this method is overridden, and can be toggled with [method set_process].
                 Corresponds to the [constant NOTIFICATION_PROCESS] notification in [method Object._notification].
+                [b]Note:[/b] This method is only called if the node is present in the scene tree (i.e. if it's not orphan).
             </description>
         </method>
         <method name="_ready" qualifiers="virtual">
@@ -99,6 +102,7 @@
                 It is only called if unhandled input processing is enabled, which is done automatically if this method is overridden, and can be toggled with [method set_process_unhandled_input].
                 To consume the input event and stop it propagating further to other nodes, [method SceneTree.set_input_as_handled] can be called.
                 For gameplay input, this and [method _unhandled_key_input] are usually a better fit than [method _input] as they allow the GUI to intercept the events first.
+                [b]Note:[/b] This method is only called if the node is present in the scene tree (i.e. if it's not orphan).
             </description>
         </method>
         <method name="_unhandled_key_input" qualifiers="virtual">
@@ -111,6 +115,7 @@
                 It is only called if unhandled key input processing is enabled, which is done automatically if this method is overridden, and can be toggled with [method set_process_unhandled_key_input].
                 To consume the input event and stop it propagating further to other nodes, [method SceneTree.set_input_as_handled] can be called.
                 For gameplay input, this and [method _unhandled_input] are usually a better fit than [method _input] as they allow the GUI to intercept the events first.
+                [b]Note:[/b] This method is only called if the node is present in the scene tree (i.e. if it's not orphan).
             </description>
         </method>
         <method name="add_child">
@@ -142,7 +147,7 @@
             <argument index="2" name="legible_unique_name" type="bool" default="false">
             </argument>
             <description>
-                Adds a child node. The child is placed below the given node in the list of children.
+                Adds [code]child_node[/code] as a child. The child is placed below the given [code]node[/code] in the list of children.
                 If [code]legible_unique_name[/code] is [code]true[/code], the child node will have an human-readable name based on the name of the node being instanced instead of its type.
             </description>
         </method>
@@ -189,6 +194,7 @@
                 Finds a descendant of this node whose name matches [code]mask[/code] as in [method String.match] (i.e. case-sensitive, but [code]"*"[/code] matches zero or more characters and [code]"?"[/code] matches any single character except [code]"."[/code]).
                 [b]Note:[/b] It does not match against the full path, just against individual node names.
                 If [code]owned[/code] is [code]true[/code], this method only finds nodes whose owner is this node. This is especially important for scenes instantiated through a script, because those scenes don't have an owner.
+                [b]Note:[/b] As this method walks through all the descendants of the node, it is the slowest way to get a reference to another node. Whenever possible, consider using [method get_node] instead. To avoid using [method find_node] too often, consider caching the node reference into a variable.
             </description>
         </method>
         <method name="find_parent" qualifiers="const">
@@ -199,6 +205,7 @@
             <description>
                 Finds the first parent of the current node whose name matches [code]mask[/code] as in [method String.match] (i.e. case-sensitive, but [code]"*"[/code] matches zero or more characters and [code]"?"[/code] matches any single character except [code]"."[/code]).
                 [b]Note:[/b] It does not match against the full path, just against individual node names.
+                [b]Note:[/b] As this method walks upwards in the scene tree, it can be slow in large, deeply nested scene trees. Whenever possible, consider using [method get_node] instead. To avoid using [method find_parent] too often, consider caching the node reference into a variable.
             </description>
         </method>
         <method name="get_child" qualifiers="const">
@@ -303,7 +310,7 @@
             <return type="Node">
             </return>
             <description>
-                Returns the parent node of the current node, or an empty [Node] if the node lacks a parent.
+                Returns the parent node of the current node, or a [code]null instance[/code] if the node lacks a parent.
             </description>
         </method>
         <method name="get_path" qualifiers="const">
@@ -520,12 +527,12 @@
                 Similar to [method print_tree], this prints the tree to stdout. This version displays a more graphical representation similar to what is displayed in the scene inspector. It is useful for inspecting larger trees.
                 [b]Example output:[/b]
                 [codeblock]
-                 ┖╴TheGame
-                    � ╴Menu
-                    ┃  � ╴Label
-                    ┃  ┖╴Camera2D
-                    ┖-SplashScreen
-                       ┖╴Camera2D
+                ┖╴TheGame
+                   ┠╴Menu
+                   ┃  ┠╴Label
+                   ┃  ┖╴Camera2D
+                   ┖╴SplashScreen
+                      ┖╴Camera2D
                 [/codeblock]
             </description>
         </method>
@@ -919,6 +926,9 @@
         </constant>
         <constant name="NOTIFICATION_INTERNAL_PHYSICS_PROCESS" value="26">
             Notification received every frame when the internal physics process flag is set (see [method set_physics_process_internal]).
+        </constant>
+        <constant name="NOTIFICATION_POST_ENTER_TREE" value="27">
+            Notification received when the node is ready, just before [constant NOTIFICATION_READY] is received. Unlike the latter, it's sent every time the node enters tree, instead of only once.
         </constant>
         <constant name="NOTIFICATION_WM_MOUSE_ENTER" value="1002">
             Notification received from the OS when the mouse enters the game window.

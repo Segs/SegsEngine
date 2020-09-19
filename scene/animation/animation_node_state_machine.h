@@ -33,7 +33,7 @@
 #include "core/forward_decls.h"
 #include "scene/animation/animation_tree.h"
 
-class AnimationNodeStateMachineTransition : public Resource {
+class GODOT_EXPORT AnimationNodeStateMachineTransition : public Resource {
     GDCLASS(AnimationNodeStateMachineTransition,Resource)
 
 public:
@@ -82,7 +82,7 @@ public:
 
 class AnimationNodeStateMachine;
 
-class AnimationNodeStateMachinePlayback : public Resource {
+class GODOT_EXPORT AnimationNodeStateMachinePlayback : public Resource {
     GDCLASS(AnimationNodeStateMachinePlayback,Resource)
 
     friend class AnimationNodeStateMachine;
@@ -132,7 +132,7 @@ public:
     AnimationNodeStateMachinePlayback();
 };
 
-class AnimationNodeStateMachine : public AnimationRootNode {
+class GODOT_EXPORT AnimationNodeStateMachine : public AnimationRootNode {
 
     GDCLASS(AnimationNodeStateMachine,AnimationRootNode)
 

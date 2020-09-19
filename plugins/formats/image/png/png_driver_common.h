@@ -49,7 +49,7 @@ struct ImageData;
 namespace PNGDriverCommon {
 
 // Attempt to load png from buffer (p_source, p_size) into p_image
-Error png_to_image(const uint8_t *p_source, size_t p_size, ImageData &p_image);
+Error png_to_image(const uint8_t *p_source, size_t p_size,bool p_force_linear, ImageData &p_image);
 
 // Append p_image, as a png, to p_buffer.
 // Contents of p_buffer is unspecified if error returned.

@@ -38,7 +38,7 @@ class Texture;
 class Image;
 class Thread;
 
-class Sky : public Resource {
+class GODOT_EXPORT Sky : public Resource {
     GDCLASS(Sky,Resource)
 
 public:
@@ -68,7 +68,7 @@ public:
 
 
 
-class PanoramaSky : public Sky {
+class GODOT_EXPORT PanoramaSky : public Sky {
     GDCLASS(PanoramaSky,Sky)
 
 private:
@@ -89,7 +89,7 @@ public:
     ~PanoramaSky() override;
 };
 
-class ProceduralSky : public Sky {
+class GODOT_EXPORT ProceduralSky : public Sky {
     GDCLASS(ProceduralSky,Sky)
 
 public:

@@ -32,7 +32,7 @@
 
 #include "scene/gui/control.h"
 
-class Range : public Control {
+class GODOT_EXPORT Range : public Control {
 
     GDCLASS(Range,Control)
 

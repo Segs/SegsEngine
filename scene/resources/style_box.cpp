@@ -948,7 +948,7 @@ void StyleBoxFlat::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "shadow_offset"), "set_shadow_offset", "get_shadow_offset");
 
     ADD_GROUP("Anti Aliasing", "anti_aliasing_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "anti_aliasing"), "set_anti_aliased", "is_anti_aliased");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "anti_aliasing_enabled"), "set_anti_aliased", "is_anti_aliased");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "anti_aliasing_size", PropertyHint::Range, "1,5,1"), "set_aa_size", "get_aa_size");
 }
 

@@ -588,6 +588,7 @@ bool EditorFileSystem::_update_scan_actions() {
                 if (_test_for_reimport(full_path, false)) {
                     //must reimport
                     reimports.push_back(full_path);
+                    reimports.push_back(_get_dependencies(full_path));
                 } else {
                     //must not reimport, all was good
                     //update modified times, to avoid reimport

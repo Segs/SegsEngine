@@ -39,7 +39,7 @@
 
 class PhysicsDirectSpaceState3D;
 
-class PhysicsDirectBodyState3D : public Object {
+class GODOT_EXPORT PhysicsDirectBodyState3D : public Object {
 
     GDCLASS(PhysicsDirectBodyState3D,Object)
 
@@ -100,7 +100,7 @@ public:
 
 class PhysicsShapeQueryResult3D;
 
-class PhysicsShapeQueryParameters3D : public RefCounted {
+class GODOT_EXPORT PhysicsShapeQueryParameters3D : public RefCounted {
 
     GDCLASS(PhysicsShapeQueryParameters3D,RefCounted)
 
@@ -144,7 +144,7 @@ public:
     PhysicsShapeQueryParameters3D();
 };
 
-class PhysicsDirectSpaceState3D : public Object {
+class GODOT_EXPORT PhysicsDirectSpaceState3D : public Object {
 
     GDCLASS(PhysicsDirectSpaceState3D,Object)
 
@@ -204,7 +204,7 @@ public:
     PhysicsDirectSpaceState3D();
 };
 
-class PhysicsShapeQueryResult3D : public RefCounted {
+class GODOT_EXPORT PhysicsShapeQueryResult3D : public RefCounted {
 
     GDCLASS(PhysicsShapeQueryResult3D,RefCounted)
 
@@ -225,7 +225,7 @@ public:
     PhysicsShapeQueryResult3D();
 };
 
-class PhysicsServer3D : public Object {
+class GODOT_EXPORT PhysicsServer3D : public Object {
 
     GDCLASS(PhysicsServer3D,Object)
 

@@ -33,7 +33,7 @@
 
 #include "scene/gui/container.h"
 
-class SplitContainer : public Container {
+class GODOT_EXPORT SplitContainer : public Container {
 
 	GDCLASS(SplitContainer,Container)
 

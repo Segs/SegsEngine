@@ -31,8 +31,6 @@
 #ifndef NODEPATH_GLUE_H
 #define NODEPATH_GLUE_H
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/node_path.h"
 
 #include "../mono_gd/gd_mono_marshal.h"
@@ -62,7 +60,5 @@ MonoBoolean godot_icall_NodePath_is_empty(NodePath *p_ptr);
 // Register internal calls
 
 void godot_register_nodepath_icalls();
-
-#endif // MONO_GLUE_ENABLED
 
 #endif // NODEPATH_GLUE_H

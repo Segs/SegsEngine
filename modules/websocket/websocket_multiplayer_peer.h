@@ -37,7 +37,7 @@
 #include "core/map.h"
 #include "websocket_peer.h"
 
-class WebSocketMultiplayerPeer : public NetworkedMultiplayerPeer {
+class GODOT_EXPORT WebSocketMultiplayerPeer : public NetworkedMultiplayerPeer {
 
     GDCLASS(WebSocketMultiplayerPeer,NetworkedMultiplayerPeer)
 

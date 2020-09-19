@@ -264,7 +264,7 @@ public:
 
     void shader_add_custom_define(RID p_shader, StringView p_define) {}
     void shader_get_custom_defines(RID p_shader, Span<const StringView> p_defines) const {}
-    void shader_clear_custom_defines(RID p_shader) {}
+    void shader_remove_custom_define(RID p_shader, StringView p_define) {}
 
     /* COMMON MATERIAL API */
 
@@ -719,8 +719,9 @@ public:
     RS::InstanceType get_base_type(RID p_rid) const {
         if (mesh_owner.owns(p_rid)) {
             return RS::INSTANCE_MESH;
+        } else if (lightmap_capture_data_owner.owns(p_rid)) {
+            return RS::INSTANCE_LIGHTMAP_CAPTURE;
         }
-
         return RS::INSTANCE_NONE;
     }
 

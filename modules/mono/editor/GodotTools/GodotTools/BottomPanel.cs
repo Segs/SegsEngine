@@ -24,20 +24,9 @@ namespace GodotTools
         private ToolButton errorsBtn;
         private Button viewLogBtn;
 
-        private void _UpdateBuildTabsList()
+        private void _UpdateBuildTab(int index, int? currentTab)
         {
-            buildTabsList.Clear();
-
-            int currentTab = buildTabs.CurrentTab;
-
-            bool noCurrentTab = currentTab < 0 || currentTab >= buildTabs.GetTabCount();
-
-            for (int i = 0; i < buildTabs.GetChildCount(); i++)
-            {
-                var tab = (BuildTab)buildTabs.GetChild(i);
-
-                if (tab == null)
-                    continue;
+            var tab = (BuildTab)buildTabs.GetChild(index);
 
                 string itemName = Path.GetFileNameWithoutExtension(tab.BuildInfo.Solution);
                 itemName += " [" + tab.BuildInfo.Configuration + "]";
@@ -58,14 +47,26 @@ namespace GodotTools
 
                 itemTooltip += $"\nWarnings: {tab.WarningCount}";
 
-                buildTabsList.SetItemTooltip(i, itemTooltip);
+            buildTabsList.SetItemTooltip(index, itemTooltip);
 
-                if (noCurrentTab || currentTab == i)
+            // If this tab was already selected before the changes or if no tab was selected
+            if (currentTab == null || currentTab == index)
                 {
-                    buildTabsList.Select(i);
-                    _BuildTabsItemSelected(i);
+                buildTabsList.Select(index);
+                _BuildTabsItemSelected(index);
                 }
             }
+        private void _UpdateBuildTabsList()
+        {
+            buildTabsList.Clear();
+
+            int? currentTab = buildTabs.CurrentTab;
+
+            if (currentTab < 0 || currentTab >= buildTabs.GetTabCount())
+                currentTab = null;
+
+            for (int i = 0; i < buildTabs.GetChildCount(); i++)
+                _UpdateBuildTab(i, currentTab);
         }
 
         public BuildTab GetBuildTabFor(BuildInfo buildInfo)
@@ -88,12 +89,12 @@ namespace GodotTools
                 throw new IndexOutOfRangeException();
 
             buildTabs.CurrentTab = idx;
-            if (!buildTabs.Visible)
-                buildTabs.Visible = true;
+            if (!buildTabs.Visibility.Visible)
+                buildTabs.Visibility.Visible = true;
 
-            warningsBtn.Visible = true;
-            errorsBtn.Visible = true;
-            viewLogBtn.Visible = true;
+            warningsBtn.Visibility.Visible = true;
+            errorsBtn.Visibility.Visible = true;
+            viewLogBtn.Visibility.Visible = true;
         }
 
         private void _BuildTabsNothingSelected()
@@ -101,16 +102,16 @@ namespace GodotTools
             if (buildTabs.GetTabCount() != 0)
             {
                 // just in case
-                buildTabs.Visible = false;
+                buildTabs.Visibility.Visible = false;
 
                 // This callback is called when clicking on the empty space of the list.
                 // ItemList won't deselect the items automatically, so we must do it ourselves.
                 buildTabsList.UnselectAll();
             }
 
-            warningsBtn.Visible = false;
-            errorsBtn.Visible = false;
-            viewLogBtn.Visible = false;
+            warningsBtn.Visibility.Visible = false;
+            errorsBtn.Visibility.Visible = false;
+            viewLogBtn.Visibility.Visible = false;
         }
 
         private void _WarningsToggled(bool pressed)
@@ -160,13 +161,7 @@ namespace GodotTools
                 }
             }
 
-            var godotDefines = new[]
-            {
-                OS.GetName(),
-                Internal.GodotIs32Bits() ? "32" : "64"
-            };
-
-            bool buildSuccess = BuildManager.BuildProjectBlocking("Debug", godotDefines);
+            bool buildSuccess = BuildManager.BuildProjectBlocking("Debug");
 
             if (!buildSuccess)
                 return;
@@ -249,14 +244,14 @@ namespace GodotTools
 
             var editorBaseControl = editorInterface.GetBaseControl();
 
-            SizeFlagsVertical = (int)SizeFlags.ExpandFill;
+            SizeFlags.Vertical = (int)SizeFlagsEnum.ExpandFill;
             SetAnchorsAndMarginsPreset(LayoutPreset.Wide);
 
             panelTabs = new TabContainer
             {
                 TabAlign = TabContainer.TabAlignEnum.Left,
-                RectMinSize = new Vector2(0, 228) * EditorScale,
-                SizeFlagsVertical = (int)SizeFlags.ExpandFill
+                Rect = {MinSize = new Vector2(0, 228) * EditorScale},
+                SizeFlags = {Vertical=(int)SizeFlagsEnum.ExpandFill}
             };
             panelTabs.AddStyleOverride("panel", editorBaseControl.GetStylebox("DebuggerPanel", "EditorStyles"));
             panelTabs.AddStyleOverride("tab_fg", editorBaseControl.GetStylebox("DebuggerTabFG", "EditorStyles"));
@@ -268,30 +263,30 @@ namespace GodotTools
                 panelBuildsTab = new VBoxContainer
                 {
                     Name = "Builds".TTR(),
-                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill
+                    SizeFlags = {Horizontal= (int)SizeFlagsEnum.ExpandFill}
                 };
                 panelTabs.AddChild(panelBuildsTab);
 
-                var toolBarHBox = new HBoxContainer { SizeFlagsHorizontal = (int)SizeFlags.ExpandFill };
+                var toolBarHBox = new HBoxContainer { SizeFlags = {Horizontal = (int)SizeFlagsEnum.ExpandFill} };
                 panelBuildsTab.AddChild(toolBarHBox);
 
                 var buildProjectBtn = new Button
                 {
                     Text = "Build Project".TTR(),
-                    FocusMode = FocusModeEnum.None
+                    Focus= {Mode = FocusMode.None},
                 };
                 buildProjectBtn.Connect("pressed", this, nameof(BuildProjectPressed));
                 toolBarHBox.AddChild(buildProjectBtn);
 
-                toolBarHBox.AddSpacer( false);
+                toolBarHBox.AddSpacer(begin: false);
 
                 warningsBtn = new ToolButton
                 {
                     Text = "Warnings".TTR(),
                     ToggleMode = true,
                     Pressed = true,
-                    Visible = false,
-                    FocusMode = FocusModeEnum.None
+                    Visibility = { Visible = false },
+                    Focus= {Mode = FocusMode.None},
                 };
                 warningsBtn.Connect("toggled", this, nameof(_WarningsToggled));
                 toolBarHBox.AddChild(warningsBtn);
@@ -301,31 +296,34 @@ namespace GodotTools
                     Text = "Errors".TTR(),
                     ToggleMode = true,
                     Pressed = true,
-                    Visible = false,
-                    FocusMode = FocusModeEnum.None
+                    Visibility = { Visible = false },
+                    Focus= {Mode = FocusMode.None},
                 };
                 errorsBtn.Connect("toggled", this, nameof(_ErrorsToggled));
                 toolBarHBox.AddChild(errorsBtn);
 
-                toolBarHBox.AddSpacer(false);
+                toolBarHBox.AddSpacer(begin: false);
 
                 viewLogBtn = new Button
                 {
                     Text = "View log".TTR(),
-                    FocusMode = FocusModeEnum.None,
-                    Visible = false
+                    Focus= {Mode = FocusMode.None},
+                    Visibility = { Visible = false }
                 };
                 viewLogBtn.Connect("pressed", this, nameof(_ViewLogPressed));
                 toolBarHBox.AddChild(viewLogBtn);
 
                 var hsc = new HSplitContainer
                 {
-                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
-                    SizeFlagsVertical = (int)SizeFlags.ExpandFill
+                    SizeFlags =
+                    {
+                        Horizontal= (int)SizeFlagsEnum.ExpandFill,
+                        Vertical = (int)SizeFlagsEnum.ExpandFill
+                    },
                 };
                 panelBuildsTab.AddChild(hsc);
 
-                buildTabsList = new ItemList { SizeFlagsHorizontal = (int)SizeFlags.ExpandFill };
+                buildTabsList = new ItemList { SizeFlags = {Horizontal = (int)SizeFlagsEnum.ExpandFill} };
                 buildTabsList.Connect("item_selected", this, nameof(_BuildTabsItemSelected));
                 buildTabsList.Connect("nothing_selected", this, nameof(_BuildTabsNothingSelected));
                 hsc.AddChild(buildTabsList);
@@ -333,7 +331,7 @@ namespace GodotTools
                 buildTabs = new TabContainer
                 {
                     TabAlign = TabContainer.TabAlignEnum.Left,
-                    SizeFlagsHorizontal = (int)SizeFlags.ExpandFill,
+                    SizeFlags = {Horizontal= (int)SizeFlagsEnum.ExpandFill},
                     TabsVisible = false
                 };
                 hsc.AddChild(buildTabs);

@@ -35,7 +35,7 @@
 #include "servers/audio/audio_stream.h"
 #include "servers/audio_server.h"
 
-class AudioStreamPlayer2D : public Node2D {
+class GODOT_EXPORT AudioStreamPlayer2D : public Node2D {
 
 	GDCLASS(AudioStreamPlayer2D,Node2D)
 

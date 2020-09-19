@@ -96,8 +96,9 @@ struct ResourceManagerPriv {
 
             return res;
         }
+        ERR_FAIL_COND_V_MSG(found, RES(),
+                    String("Failed loading resource: %s") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
 
-        ERR_FAIL_COND_V_MSG(found, RES(), "Failed loading resource: " + String(p_path) + ".");
     #ifdef TOOLS_ENABLED
         FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
         ERR_FAIL_COND_V_MSG(!file_check->file_exists(p_path), RES(), "Resource file not found: " + p_path + ".");
@@ -938,6 +939,7 @@ void ResourceRemapper::load_translation_remaps() {
 
 void ResourceRemapper::clear_translation_remaps() {
     translation_remaps.clear();
+    remapped_list.clear();
 }
 
 void ResourceRemapper::load_path_remaps() {

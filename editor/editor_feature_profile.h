@@ -39,7 +39,7 @@
 #include "scene/gui/split_container.h"
 #include "scene/gui/tree.h"
 
-class EditorFeatureProfile : public RefCounted {
+class GODOT_EXPORT EditorFeatureProfile : public RefCounted {
     GDCLASS(EditorFeatureProfile,RefCounted)
 
 public:

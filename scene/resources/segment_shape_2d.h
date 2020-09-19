@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape_2d.h"
 
-class SegmentShape2D : public Shape2D {
+class GODOT_EXPORT SegmentShape2D : public Shape2D {
     GDCLASS(SegmentShape2D,Shape2D)
 
     Vector2 a;
@@ -62,7 +62,7 @@ public:
     SegmentShape2D();
 };
 
-class RayShape2D : public Shape2D {
+class GODOT_EXPORT RayShape2D : public Shape2D {
     GDCLASS(RayShape2D,Shape2D)
 
     real_t length;

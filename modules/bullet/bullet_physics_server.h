@@ -45,7 +45,7 @@ class JointBullet;
 class CollisionObjectBullet;
 class RigidCollisionObjectBullet;
 
-class BulletPhysicsServer : public PhysicsServer3D {
+class GODOT_EXPORT BulletPhysicsServer : public PhysicsServer3D {
     GDCLASS(BulletPhysicsServer,PhysicsServer3D)
 
     friend class BulletPhysicsDirectSpaceState;

@@ -34,7 +34,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/3d/node_3d.h"
 
-class Joint3D : public Node3D {
+class GODOT_EXPORT Joint3D : public Node3D {
 
     GDCLASS(Joint3D,Node3D)
 
@@ -76,7 +76,7 @@ public:
 
 ///////////////////////////////////////////
 
-class PinJoint3D : public Joint3D {
+class GODOT_EXPORT PinJoint3D : public Joint3D {
 
     GDCLASS(PinJoint3D,Joint3D)
 
@@ -100,7 +100,7 @@ public:
 };
 
 
-class HingeJoint3D : public Joint3D {
+class GODOT_EXPORT HingeJoint3D : public Joint3D {
 
     GDCLASS(HingeJoint3D,Joint3D)
 
@@ -146,7 +146,7 @@ public:
 };
 
 
-class SliderJoint3D : public Joint3D {
+class GODOT_EXPORT SliderJoint3D : public Joint3D {
 
     GDCLASS(SliderJoint3D,Joint3D)
 
@@ -198,7 +198,7 @@ public:
 };
 
 
-class ConeTwistJoint3D : public Joint3D {
+class GODOT_EXPORT ConeTwistJoint3D : public Joint3D {
 
     GDCLASS(ConeTwistJoint3D,Joint3D)
 
@@ -231,7 +231,7 @@ public:
     ConeTwistJoint3D();
 };
 
-class Generic6DOFJoint3D : public Joint3D {
+class GODOT_EXPORT Generic6DOFJoint3D : public Joint3D {
 
     GDCLASS(Generic6DOFJoint3D,Joint3D)
 

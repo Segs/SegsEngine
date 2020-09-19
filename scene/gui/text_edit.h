@@ -47,7 +47,7 @@ struct TextColorRegionInfo {
     int region=0;
     bool end=false;
 };
-class TextEdit : public Control {
+class GODOT_EXPORT TextEdit : public Control {
 
     GDCLASS(TextEdit,Control)
 

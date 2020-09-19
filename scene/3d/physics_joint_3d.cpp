@@ -186,10 +186,10 @@ void PinJoint3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &PinJoint3D::set_param);
     MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &PinJoint3D::get_param);
-
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/bias", PropertyHint::Range, "0.01,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/damping", PropertyHint::Range, "0.01,8.0,0.01"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/impulse_clamp", PropertyHint::Range, "0.0,64.0,0.01"), "set_param", "get_param", PARAM_IMPULSE_CLAMP);
+    ADD_GROUP("Params","param_");
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_bias", PropertyHint::Range, "0.01,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_damping", PropertyHint::Range, "0.01,8.0,0.01"), "set_param", "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_impulse_clamp", PropertyHint::Range, "0.0,64.0,0.01"), "set_param", "get_param", PARAM_IMPULSE_CLAMP);
 
     BIND_ENUM_CONSTANT(PARAM_BIAS)
     BIND_ENUM_CONSTANT(PARAM_DAMPING)
@@ -724,7 +724,7 @@ void Generic6DOFJoint3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_precision", {"precision"}), &Generic6DOFJoint3D::set_precision);
     MethodBinder::bind_method(D_METHOD("get_precision"), &Generic6DOFJoint3D::get_precision);
-    
+
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_limit_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/upper_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_UPPER_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/lower_distance"), "set_param_x", "get_param_x", PARAM_LINEAR_LOWER_LIMIT);

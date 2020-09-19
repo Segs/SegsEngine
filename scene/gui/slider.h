@@ -33,7 +33,7 @@
 
 #include "scene/gui/range.h"
 
-class Slider : public Range {
+class GODOT_EXPORT Slider : public Range {
 
 	GDCLASS(Slider,Range)
 

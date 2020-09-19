@@ -36,7 +36,7 @@
 
 class Mesh;
 
-class GPUParticles3D : public GeometryInstance {
+class GODOT_EXPORT GPUParticles3D : public GeometryInstance {
 private:
     GDCLASS(GPUParticles3D,GeometryInstance)
 

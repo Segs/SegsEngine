@@ -52,7 +52,7 @@ enum ARVREyes : int8_t {
     EYE_LEFT,
     EYE_RIGHT
 };
-class ARVRInterface : public RefCounted {
+class GODOT_EXPORT ARVRInterface : public RefCounted {
 	GDCLASS(ARVRInterface,RefCounted)
 
 

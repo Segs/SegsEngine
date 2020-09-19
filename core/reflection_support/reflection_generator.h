@@ -2,4 +2,8 @@
 
 class ReflectionData;
 class DocData;
-void _initialize_reflection_data(ReflectionData& rd, DocData* docs);
+enum class ReflectionSource {
+    Core,
+    Editor
+};
+void _initialize_reflection_data(ReflectionData& rd,ReflectionSource src);

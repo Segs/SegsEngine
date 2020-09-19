@@ -309,8 +309,9 @@ Size2 Label::get_minimum_size() const {
     Size2 min_style = get_stylebox("normal")->get_minimum_size();
 
     // don't want to mutable everything
-    if (word_cache_dirty)
+	if (word_cache_dirty) {
         const_cast<Label *>(this)->regenerate_word_cache();
+	}
 
     if (autowrap)
         return Size2(1, clip ? 1 : minsize.height) + min_style;
@@ -684,15 +685,15 @@ void Label::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_max_lines_visible", {"lines_visible"}), &Label::set_max_lines_visible);
     MethodBinder::bind_method(D_METHOD("get_max_lines_visible"), &Label::get_max_lines_visible);
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT)
-    BIND_ENUM_CONSTANT(ALIGN_CENTER)
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
-    BIND_ENUM_CONSTANT(ALIGN_FILL)
+    BIND_ENUM_CONSTANT(ALIGN_LEFT);
+    BIND_ENUM_CONSTANT(ALIGN_CENTER);
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
+    BIND_ENUM_CONSTANT(ALIGN_FILL);
 
-    BIND_ENUM_CONSTANT(VALIGN_TOP)
-    BIND_ENUM_CONSTANT(VALIGN_CENTER)
-    BIND_ENUM_CONSTANT(VALIGN_BOTTOM)
-    BIND_ENUM_CONSTANT(VALIGN_FILL)
+    BIND_ENUM_CONSTANT(VALIGN_TOP);
+    BIND_ENUM_CONSTANT(VALIGN_CENTER);
+    BIND_ENUM_CONSTANT(VALIGN_BOTTOM);
+    BIND_ENUM_CONSTANT(VALIGN_FILL);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");

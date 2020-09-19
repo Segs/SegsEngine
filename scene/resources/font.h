@@ -44,7 +44,7 @@
 
 class Texture;
 
-class Font : public Resource {
+class GODOT_EXPORT Font : public Resource {
 
     GDCLASS(Font,Resource)
 
@@ -115,7 +115,7 @@ public:
     }
 };
 
-class BitmapFont : public Font {
+class GODOT_EXPORT BitmapFont : public Font {
 
     GDCLASS(BitmapFont,Font)
 

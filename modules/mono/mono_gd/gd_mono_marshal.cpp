@@ -38,6 +38,403 @@
 #include "core/math/face3.h"
 
 namespace GDMonoMarshal {
+namespace {
+template<class T>
+static MonoClass *cached_class();
+
+template<>
+MonoClass *cached_class<uint8_t>() {
+    return CACHED_CLASS_RAW(uint8_t);
+}
+template<>
+MonoClass *cached_class<int32_t>() {
+    return CACHED_CLASS_RAW(int32_t);
+}
+template<>
+MonoClass *cached_class<float>() {
+    return CACHED_CLASS_RAW(float);
+}
+template<>
+MonoClass *cached_class<String>() {
+    return CACHED_CLASS_RAW(String);
+}
+
+template<typename T>
+MonoArray *impl_container_to_mono_array(const PoolVector<T> &p_array) {
+    auto r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), cached_class<T>(), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        mono_array_set(ret, T, i, r[i]);
+    }
+
+    return ret;
+}
+template<typename T>
+PoolVector<T> impl_mono_array_to_pool_vec(MonoArray *p_array) {
+    PoolVector<T> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.resize(length);
+    auto w = ret.write();
+
+    for (int i = 0; i < length; i++) {
+        w[i] = mono_array_get(p_array, T, i);
+    }
+    return ret;
+}
+template<typename T>
+Vector<T> impl_mono_array_to_vector(MonoArray *p_array) {
+    Vector<T> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(mono_array_get(p_array, T, i));
+    }
+    return ret;
+}
+
+template<typename T>
+GODOT_EXPORT MonoArray *impl_container_to_mono_array(Span<const T> p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), cached_class<T>(), p_array.size());
+
+    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
+        mono_array_set(ret, T, i, p_array[i]);
+    }
+
+    return ret;
+}
+
+} // end of contained anonymous namespace
+// TODO: Use memcpy where possible
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<int>(const PoolVector<int> &p_array)
+{
+    return impl_container_to_mono_array<int>(p_array);
+}
+template<>
+GODOT_EXPORT PoolVector<int> mono_array_to_pool_vec<int>(MonoArray *p_array) {
+    return impl_mono_array_to_pool_vec<int>(p_array);
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<int>(Span<const int> p_array)
+{
+    return impl_container_to_mono_array<int>(p_array);
+}
+template<>
+GODOT_EXPORT Vector<int> mono_array_to_vector<int>(MonoArray *p_array) {
+    return impl_mono_array_to_vector<int>(p_array);
+}
+
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<uint8_t>(const PoolVector<uint8_t> &p_array) {
+    return impl_container_to_mono_array<uint8_t>(p_array);
+}
+template<>
+GODOT_EXPORT PoolVector<uint8_t> mono_array_to_pool_vec<uint8_t>(MonoArray *p_array) {
+    return impl_mono_array_to_pool_vec<uint8_t>(p_array);
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<uint8_t>(Span<const uint8_t> p_array) {
+    return impl_container_to_mono_array<uint8_t>(p_array);
+}
+template<>
+GODOT_EXPORT Vector<uint8_t> mono_array_to_vector<uint8_t>(MonoArray *p_array) {
+    return impl_mono_array_to_vector<uint8_t>(p_array);
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<float>(const PoolVector<float> &p_array) {
+    return impl_container_to_mono_array<float>(p_array);
+}
+template<>
+GODOT_EXPORT PoolVector<float> mono_array_to_pool_vec<float>(MonoArray *p_array) {
+    return impl_mono_array_to_pool_vec<float>(p_array);
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<float>(Span<const float> p_array) {
+    return impl_container_to_mono_array<float>(p_array);
+}
+template<>
+GODOT_EXPORT Vector<float> mono_array_to_vector<float>(MonoArray *p_array) {
+    return impl_mono_array_to_vector<float>(p_array);
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<String>(const PoolVector<String> &p_array) {
+    PoolStringArray::Read r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), cached_class<String>(), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        MonoString *boxed = mono_string_from_godot(r[i]);
+        mono_array_setref(ret, i, boxed);
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<StringName>(Span<const StringName> p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), cached_class<String>(), p_array.size());
+
+    for (size_t i = 0; i < p_array.size(); i++) {
+        MonoString *boxed = mono_string_from_godot(p_array[i]);
+        mono_array_setref(ret, i, boxed);
+    }
+    return ret;
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<String>(Span<const String> p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), cached_class<String>(), p_array.size());
+
+    for (size_t i = 0; i < p_array.size(); i++) {
+        MonoString *boxed = mono_string_from_godot(p_array[i]);
+        mono_array_setref(ret, i, boxed);
+    }
+    return ret;
+}
+template<>
+GODOT_EXPORT PoolVector<String> mono_array_to_pool_vec<String>(MonoArray *p_array) {
+    PoolVector<String> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.resize(length);
+    auto w = ret.write();
+
+    for (int i = 0; i < length; i++) {
+        MonoString *elem = mono_array_get(p_array, MonoString *, i);
+        w[i] = mono_string_to_godot(elem);
+    }
+
+    return ret;
+}
+template<>
+GODOT_EXPORT Vector<String> mono_array_to_vector<String>(MonoArray *p_array) {
+    Vector<String> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        MonoString *elem = mono_array_get(p_array, MonoString *, i);
+        ret.emplace_back(mono_string_to_godot(elem));
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Color>(const PoolVector<Color> &p_array) {
+    PoolColorArray::Read r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Color *raw = (M_Color *)mono_array_addr_with_size(ret, sizeof(M_Color), i);
+        *raw = MARSHALLED_OUT(Color, r[i]);
+    }
+
+    return ret;
+}
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Color>(Span<const Color> p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Color *raw = (M_Color *)mono_array_addr_with_size(ret, sizeof(M_Color), i);
+        *raw = MARSHALLED_OUT(Color, p_array[i]);
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT PoolVector<Color> mono_array_to_pool_vec<Color>(MonoArray *p_array) {
+    PoolColorArray ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.resize(length);
+    PoolColorArray::Write w = ret.write();
+
+    for (int i = 0; i < length; i++) {
+        w[i] = MARSHALLED_IN(Color, (M_Color *)mono_array_addr_with_size(p_array, sizeof(M_Color), i));
+    }
+    return ret;
+}
+template<>
+GODOT_EXPORT Vector<Color> mono_array_to_vector<Color>(MonoArray *p_array) {
+    Vector<Color> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Color, (M_Color *)mono_array_addr_with_size(p_array, sizeof(M_Color), i)));
+    }
+
+    return ret;
+}
+
+
+template<>
+GODOT_EXPORT MonoArray * container_to_mono_array<Vector2>(const PoolVector<Vector2> &p_array) {
+    PoolVector2Array::Read r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector2 *raw = (M_Vector2 *)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
+        *raw = MARSHALLED_OUT(Vector2, r[i]);
+    }
+
+    return ret;
+}
+template<>
+GODOT_EXPORT MonoArray* container_to_mono_array<Vector2>(Span<const Vector2> p_array) {
+    MonoArray* ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
+
+    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
+        M_Vector2* raw = (M_Vector2*)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
+        *raw = MARSHALLED_OUT(Vector2, p_array[i]);
+    }
+    return ret;
+}
+
+template<>
+GODOT_EXPORT PoolVector<Vector2> mono_array_to_pool_vec<Vector2>(MonoArray *p_array) {
+    PoolVector<Vector2> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.resize(length);
+    PoolVector2Array::Write w = ret.write();
+
+    for (int i = 0; i < length; i++) {
+        w[i] = MARSHALLED_IN(Vector2, (M_Vector2 *)mono_array_addr_with_size(p_array, sizeof(M_Vector2), i));
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT Vector<Vector2> mono_array_to_vector<Vector2>(MonoArray* p_array) {
+    Vector<Vector2> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Vector2, (M_Vector2*)mono_array_addr_with_size(p_array, sizeof(M_Vector2), i)));
+    }
+
+    return ret;
+}
+
+
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Vector3>(const PoolVector<Vector3> &p_array) {
+    PoolVector3Array::Read r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
+        *raw = MARSHALLED_OUT(Vector3, r[i]);
+    }
+    return ret;
+}
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Vector3>(Span<const Vector3> p_array) {
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
+
+    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i]);
+    }
+    return ret;
+}
+
+template<>
+GODOT_EXPORT Vector<Vector3> mono_array_to_vector<Vector3>(MonoArray *p_array) {
+    Vector<Vector3> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.reserve(length);
+
+    for (int i = 0; i < length; i++) {
+        ret.emplace_back(MARSHALLED_IN(Vector3, (M_Vector3 *)mono_array_addr_with_size(p_array, sizeof(M_Vector3), i)));
+    }
+
+    return ret;
+}
+template<>
+GODOT_EXPORT PoolVector<Vector3> mono_array_to_pool_vec<Vector3>(MonoArray *p_array) {
+    PoolVector<Vector3> ret;
+    if (!p_array)
+        return ret;
+    int length = mono_array_length(p_array);
+    ret.resize(length);
+    PoolVector3Array::Write w = ret.write();
+
+    for (int i = 0; i < length; i++) {
+        w[i] = MARSHALLED_IN(Vector3, (M_Vector3 *)mono_array_addr_with_size(p_array, sizeof(M_Vector3), i));
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Face3>(const PoolVector<Face3>& p_array)
+{
+    auto r = p_array.read();
+
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[0]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[1]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
+        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[2]);
+    }
+
+    return ret;
+}
+
+template<>
+GODOT_EXPORT MonoArray *container_to_mono_array<Face3>(Span<const Face3> p_array)
+{
+    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
+
+    for (int i = 0; i < p_array.size(); i++) {
+        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[0]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[1]);
+        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
+        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[2]);
+    }
+
+    return ret;
+}
+
+// Fast path for mono_array_to_span
 
 VariantType managed_to_variant_type(const ManagedType &p_type) {
     switch (p_type.type_encoding) {
@@ -486,32 +883,32 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             MonoArrayType *array_type = mono_type_get_array_type(p_type.type_class->get_mono_type());
 
             if (array_type->eklass == CACHED_CLASS_RAW(MonoObject))
-                return (MonoObject *)Array_to_mono_array(p_var->operator Array());
+                return (MonoObject *)container_to_mono_array(p_var->operator Array());
 
             if (array_type->eklass == CACHED_CLASS_RAW(uint8_t))
-                return (MonoObject *)PoolByteArray_to_mono_array(p_var->operator PoolByteArray());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolByteArray());
 
             if (array_type->eklass == CACHED_CLASS_RAW(int32_t))
-                return (MonoObject *)PoolIntArray_to_mono_array(p_var->operator PoolIntArray());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolIntArray());
 
             if (array_type->eklass == REAL_T_MONOCLASS)
-                return (MonoObject *)PoolRealArray_to_mono_array(p_var->operator PoolRealArray());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolRealArray());
 
             if (array_type->eklass == CACHED_CLASS_RAW(String))
-                return (MonoObject *)PoolStringArray_to_mono_array(p_var->as<PoolStringArray>());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolStringArray>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector2))
-                return (MonoObject *)PoolVector2Array_to_mono_array(p_var->operator PoolVector2Array());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolVector2Array());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector3))
-                return (MonoObject *)PoolVector3Array_to_mono_array(p_var->operator PoolVector3Array());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolVector3Array());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Color))
-                return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
+                return (MonoObject *)container_to_mono_array(p_var->operator PoolColorArray());
 
             GDMonoClass *array_type_class = GDMono::get_singleton()->get_class(array_type->eklass);
             if (CACHED_CLASS(GodotObject)->is_assignable_from(array_type_class))
-                return (MonoObject *)Array_to_mono_array(p_var->operator Array(), array_type_class);
+                return (MonoObject *)container_to_mono_array(p_var->operator Array(), array_type_class);
 
             ERR_FAIL_V_MSG(nullptr, "Attempted to convert Variant to a managed array of unmarshallable element type.");
             break;
@@ -618,19 +1015,19 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                 case VariantType::ARRAY:
                     return GDMonoUtils::create_managed_from(p_var->operator Array(), CACHED_CLASS(Array));
                 case VariantType::POOL_BYTE_ARRAY:
-                    return (MonoObject *)PoolByteArray_to_mono_array(p_var->operator PoolByteArray());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolByteArray());
                 case VariantType::POOL_INT_ARRAY:
-                    return (MonoObject *)PoolIntArray_to_mono_array(p_var->operator PoolIntArray());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolIntArray());
                 case VariantType::POOL_REAL_ARRAY:
-                    return (MonoObject *)PoolRealArray_to_mono_array(p_var->operator PoolRealArray());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolRealArray());
                 case VariantType::POOL_STRING_ARRAY:
-                    return (MonoObject *)PoolStringArray_to_mono_array(p_var->as<PoolStringArray>());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolStringArray>());
                 case VariantType::POOL_VECTOR2_ARRAY:
-                    return (MonoObject *)PoolVector2Array_to_mono_array(p_var->operator PoolVector2Array());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolVector2Array());
                 case VariantType::POOL_VECTOR3_ARRAY:
-                    return (MonoObject *)PoolVector3Array_to_mono_array(p_var->operator PoolVector3Array());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolVector3Array());
                 case VariantType::POOL_COLOR_ARRAY:
-                    return (MonoObject *)PoolColorArray_to_mono_array(p_var->operator PoolColorArray());
+                    return (MonoObject *)container_to_mono_array(p_var->operator PoolColorArray());
                 default:
                     return nullptr;
             }
@@ -774,25 +1171,25 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
                 return mono_array_to_Array((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(uint8_t))
-                return mono_array_to_PoolByteArray((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<uint8_t>((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(int32_t))
-                return mono_array_to_PoolIntArray((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<int32_t>((MonoArray *)p_obj);
 
             if (array_type->eklass == REAL_T_MONOCLASS)
-                return mono_array_to_PoolRealArray((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<float>((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(String))
-                return mono_array_to_PoolStringArray((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<String>((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector2))
-                return Variant::from(mono_array_to_PoolVector2Array((MonoArray *)p_obj));
+                return Variant::from(mono_array_to_pool_vec<Vector2>((MonoArray *)p_obj));
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector3))
-                return mono_array_to_PoolVector3Array((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<Vector3>((MonoArray *)p_obj);
 
             if (array_type->eklass == CACHED_CLASS_RAW(Color))
-                return mono_array_to_PoolColorArray((MonoArray *)p_obj);
+                return mono_array_to_pool_vec<Color>((MonoArray *)p_obj);
 
             GDMonoClass *array_type_class = GDMono::get_singleton()->get_class(array_type->eklass);
             if (CACHED_CLASS(GodotObject)->is_assignable_from(array_type_class))
@@ -890,7 +1287,7 @@ Variant mono_object_to_variant_impl(MonoObject *p_obj, const ManagedType &p_type
     }
 }
 
-Variant mono_object_to_variant(MonoObject *p_obj) {
+GODOT_EXPORT Variant mono_object_to_variant(MonoObject *p_obj) {
     if (!p_obj)
         return Variant();
 
@@ -899,7 +1296,7 @@ Variant mono_object_to_variant(MonoObject *p_obj) {
     return mono_object_to_variant_impl(p_obj, type);
 }
 
-Variant mono_object_to_variant(MonoObject *p_obj, const ManagedType &p_type) {
+GODOT_EXPORT Variant mono_object_to_variant(MonoObject *p_obj, const ManagedType &p_type) {
     if (!p_obj)
         return Variant();
 
@@ -914,6 +1311,10 @@ Variant mono_object_to_variant_no_err(MonoObject *p_obj, const ManagedType &p_ty
 }
 
 String mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc) {
+    if (p_obj == nullptr) {
+        return "null";
+    }
+
     ManagedType type = ManagedType::from_class(mono_object_get_class(p_obj));
     Variant var = GDMonoMarshal::mono_object_to_variant_no_err(p_obj, type);
 
@@ -988,7 +1389,7 @@ MonoObject *Array_to_system_generic_list(const Array &p_array, GDMonoClass *p_cl
     MonoObject *mono_object = mono_object_new(mono_domain_get(), p_class->get_mono_ptr());
     ERR_FAIL_NULL_V(mono_object, nullptr);
 
-    void *ctor_args[1] = { Array_to_mono_array(p_array, elem_class) };
+    void *ctor_args[1] = { container_to_mono_array(p_array, elem_class) };
 
     MonoException *exc = nullptr;
     ctor->invoke_raw(mono_object, ctor_args, &exc);
@@ -1008,7 +1409,7 @@ Array system_generic_list_to_Array(MonoObject *p_obj, GDMonoClass *p_class, [[ma
     return mono_array_to_Array(mono_array);
 }
 
-MonoArray *Array_to_mono_array(const Array &p_array) {
+MonoArray *container_to_mono_array(const Array &p_array) {
     MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(MonoObject), p_array.size());
 
     for (int i = 0; i < p_array.size(); i++) {
@@ -1019,7 +1420,7 @@ MonoArray *Array_to_mono_array(const Array &p_array) {
     return ret;
 }
 
-MonoArray *Array_to_mono_array(const Array &p_array, GDMonoClass *p_array_type_class) {
+MonoArray *container_to_mono_array(const Array &p_array, GDMonoClass *p_array_type_class) {
     int length = p_array.size();
     MonoArray *ret = mono_array_new(mono_domain_get(), p_array_type_class->get_mono_ptr(), length);
 
@@ -1046,400 +1447,8 @@ Array mono_array_to_Array(MonoArray *p_array) {
     return ret;
 }
 
-// TODO: Use memcpy where possible
 
-MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array) {
-    PoolIntArray::Read r = p_array.read();
 
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        mono_array_set(ret, int32_t, i, r[i]);
-    }
-
-    return ret;
-}
-
-MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array) {
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(int32_t), p_array.size());
-
-    for (size_t i = 0; i < p_array.size(); i++) {
-        mono_array_set(ret, int32_t, i, p_array[i]);
-    }
-
-    return ret;
-}
-PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array) {
-    PoolIntArray ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolIntArray::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = mono_array_get(p_array, int32_t, i);
-    }
-
-    return ret;
-}
-Vector<int> mono_array_to_NC_VecInt(MonoArray* p_array) {
-    Vector<int> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-    for (int i = 0; i < length; i++) {
-        ret.push_back(mono_array_get(p_array, int32_t, i));
-    }
-    return ret;
-}
-
-MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array) {
-    PoolByteArray::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(uint8_t), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        mono_array_set(ret, uint8_t, i, r[i]);
-    }
-
-    return ret;
-}
-MonoArray *PoolByteArray_to_mono_array(const Vector<uint8_t> &p_array) {
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(uint8_t), p_array.size());
-
-    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
-        mono_array_set(ret, uint8_t, i, p_array[i]);
-    }
-
-    return ret;
-}
-PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array) {
-    PoolByteArray ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolByteArray::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = mono_array_get(p_array, uint8_t, i);
-    }
-
-    return ret;
-}
-Vector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array) {
-    Vector<uint8_t> ret;
-    if (!p_array)
-        return ret;
-    ret.reserve(mono_array_length(p_array));
-
-    for (int i = 0; i < mono_array_length(p_array); i++) {
-        ret.emplace_back(mono_array_get(p_array, uint8_t, i));
-    }
-
-    return ret;
-}
-MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array) {
-    PoolRealArray::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), REAL_T_MONOCLASS, p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        mono_array_set(ret, real_t, i, r[i]);
-    }
-
-    return ret;
-}
-MonoArray *PoolRealArray_to_mono_array(const Vector<float> &p_array)
-{
-    MonoArray *ret = mono_array_new(mono_domain_get(), REAL_T_MONOCLASS, p_array.size());
-
-    for (int i = 0,fin=p_array.size(); i<fin; i++) {
-        mono_array_set(ret, real_t, i, p_array[i]);
-    }
-
-    return ret;
-}
-PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array) {
-    PoolRealArray ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolRealArray::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = mono_array_get(p_array, real_t, i);
-    }
-
-    return ret;
-}
-Vector<float> mono_array_to_NC_VecFloat(MonoArray *p_array) {
-    Vector<float> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-    for (int i = 0; i < length; i++) {
-        ret.emplace_back(mono_array_get(p_array, real_t, i));
-    }
-
-    return ret;
-}
-MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array) {
-    PoolStringArray::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        MonoString *boxed = mono_string_from_godot(r[i]);
-        mono_array_setref(ret, i, boxed);
-    }
-
-    return ret;
-}
-MonoArray *PoolStringArray_to_mono_array(const Vector<StringName> &p_array) {
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
-
-    for (size_t i = 0; i < p_array.size(); i++) {
-        MonoString *boxed = mono_string_from_godot(p_array[i]);
-        mono_array_setref(ret, i, boxed);
-    }
-    return ret;
-}
-MonoArray *PoolStringArray_to_mono_array(const Vector<String> &p_array) {
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(String), p_array.size());
-
-    for (size_t i = 0; i < p_array.size(); i++) {
-        MonoString *boxed = mono_string_from_godot(p_array[i]);
-        mono_array_setref(ret, i, boxed);
-    }
-    return ret;
-}
-PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array) {
-    PoolStringArray ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolStringArray::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        MonoString *elem = mono_array_get(p_array, MonoString *, i);
-        w[i] = mono_string_to_godot(elem);
-    }
-
-    return ret;
-}
-Vector<String> mono_array_to_NC_VecString(MonoArray *p_array) {
-    Vector<String> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-    for (int i = 0; i < length; i++) {
-        MonoString *elem = mono_array_get(p_array, MonoString *, i);
-        ret.emplace_back(mono_string_to_godot(elem));
-    }
-
-    return ret;
-}
-MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array) {
-    PoolColorArray::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Color *raw = (M_Color *)mono_array_addr_with_size(ret, sizeof(M_Color), i);
-        *raw = MARSHALLED_OUT(Color, r[i]);
-    }
-
-    return ret;
-}
-MonoArray *PoolColorArray_to_mono_array(const Vector<Color> &p_array) {
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Color), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Color *raw = (M_Color *)mono_array_addr_with_size(ret, sizeof(M_Color), i);
-        *raw = MARSHALLED_OUT(Color, p_array[i]);
-    }
-
-    return ret;
-}
-PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array) {
-    PoolColorArray ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolColorArray::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = MARSHALLED_IN(Color, (M_Color *)mono_array_addr_with_size(p_array, sizeof(M_Color), i));
-    }
-
-    return ret;
-}
-Vector<Color> mono_array_to_NC_VecColor(MonoArray* p_array) {
-    Vector<Color> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-    for (int i = 0; i < length; i++) {
-        ret.emplace_back(MARSHALLED_IN(Color, (M_Color *)mono_array_addr_with_size(p_array, sizeof(M_Color), i)));
-    }
-
-    return ret;
-}
-MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array) {
-    PoolVector2Array::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector2 *raw = (M_Vector2 *)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
-        *raw = MARSHALLED_OUT(Vector2, r[i]);
-    }
-
-    return ret;
-}
-MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array) {
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector2 *raw = (M_Vector2 *)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
-        *raw = MARSHALLED_OUT(Vector2, p_array[i]);
-    }
-
-    return ret;
-}
-MonoArray *PoolVector2Array_to_mono_array(Span<const Vector2> p_array) {
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector2), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector2 *raw = (M_Vector2 *)mono_array_addr_with_size(ret, sizeof(M_Vector2), i);
-        *raw = MARSHALLED_OUT(Vector2, p_array[i]);
-    }
-
-    return ret;
-}
-
-PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array) {
-    PoolVector2Array ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolVector2Array::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = MARSHALLED_IN(Vector2, (M_Vector2 *)mono_array_addr_with_size(p_array, sizeof(M_Vector2), i));
-    }
-
-    return ret;
-}
-Vector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array) {
-    Vector<Vector2> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-
-    for (int i = 0; i < length; i++) {
-        ret.emplace_back(MARSHALLED_IN(Vector2, (M_Vector2*)mono_array_addr_with_size(p_array, sizeof(M_Vector2), i)));
-    }
-
-    return ret;
-}
-
-MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array) {
-    PoolVector3Array::Read r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
-        *raw = MARSHALLED_OUT(Vector3, r[i]);
-    }
-    return ret;
-}
-
-MonoArray *PoolVector3Array_to_mono_array(const Vector<Vector3> &p_array) {
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size());
-
-    for (int i = 0, fin = p_array.size(); i < fin; ++i) {
-        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), i);
-        *raw = MARSHALLED_OUT(Vector3, p_array[i]);
-    }
-    return ret;
-}
-
-Vector<Vector3> mono_array_to_NC_VecVector3(MonoArray *p_array) {
-    Vector<Vector3> ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.reserve(length);
-
-    for (int i = 0; i < length; i++) {
-        ret.emplace_back(MARSHALLED_IN(Vector3, (M_Vector3 *)mono_array_addr_with_size(p_array, sizeof(M_Vector3), i)));
-    }
-
-    return ret;
-}
-PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array) {
-    PoolVector3Array ret;
-    if (!p_array)
-        return ret;
-    int length = mono_array_length(p_array);
-    ret.resize(length);
-    PoolVector3Array::Write w = ret.write();
-
-    for (int i = 0; i < length; i++) {
-        w[i] = MARSHALLED_IN(Vector3, (M_Vector3 *)mono_array_addr_with_size(p_array, sizeof(M_Vector3), i));
-    }
-
-    return ret;
-}
-
-MonoArray * PoolVector3Array_to_mono_array(const PoolVector<Face3>& p_array)
-{
-    auto r = p_array.read();
-
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
-        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[0]);
-        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
-        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[1]);
-        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
-        *raw = MARSHALLED_OUT(Vector3, r[i].vertex[2]);
-    }
-
-    return ret;
-}
-MonoArray * PoolVector3Array_to_mono_array(const Vector<Face3>& p_array)
-{
-    MonoArray *ret = mono_array_new(mono_domain_get(), CACHED_CLASS_RAW(Vector3), p_array.size()*3);
-
-    for (int i = 0; i < p_array.size(); i++) {
-        M_Vector3 *raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3*i+0);
-        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[0]);
-        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 1);
-        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[1]);
-        raw = (M_Vector3 *)mono_array_addr_with_size(ret, sizeof(M_Vector3), 3 * i + 2);
-        *raw = MARSHALLED_OUT(Vector3, p_array[i].vertex[2]);
-    }
-
-    return ret;
-}
 
 
 } // namespace GDMonoMarshal

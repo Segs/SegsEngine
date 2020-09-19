@@ -33,7 +33,7 @@
 
 #include "scene/gui/control.h"
 
-class TextureRect : public Control {
+class GODOT_EXPORT TextureRect : public Control {
 
 	GDCLASS(TextureRect,Control)
 

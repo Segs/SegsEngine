@@ -34,7 +34,7 @@
 #include "core/ring_buffer.h"
 #include "servers/audio/audio_stream.h"
 
-class AudioStreamGenerator : public AudioStream {
+class GODOT_EXPORT AudioStreamGenerator : public AudioStream {
     GDCLASS(AudioStreamGenerator,AudioStream)
 
     float mix_rate;
@@ -57,7 +57,7 @@ public:
     AudioStreamGenerator();
 };
 
-class AudioStreamGeneratorPlayback : public AudioStreamPlaybackResampled {
+class GODOT_EXPORT AudioStreamGeneratorPlayback : public AudioStreamPlaybackResampled {
 
     GDCLASS(AudioStreamGeneratorPlayback,AudioStreamPlaybackResampled)
 

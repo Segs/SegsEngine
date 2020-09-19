@@ -599,7 +599,7 @@
         #elif (defined(EA_COMPILER_CLANG) || defined(EA_COMPILER_GNUC) || defined(EA_COMPILER_INTEL) || defined(EA_COMPILER_RVCT)) && !defined(__EXCEPTIONS) // GCC and most EDG-based compilers define __EXCEPTIONS when exception handling is enabled.
             #define EA_COMPILER_NO_EXCEPTIONS 1
 
-        #elif (defined(EA_COMPILER_BORLAND) || defined(EA_COMPILER_MSVC)) && !defined(_CPPUNWIND)
+		#elif (defined(EA_COMPILER_MSVC)) && !defined(_CPPUNWIND)
             #define EA_COMPILER_NO_UNWIND 1
 
         #endif // EA_COMPILER_NO_EXCEPTIONS / EA_COMPILER_NO_UNWIND
@@ -697,7 +697,7 @@
             #define EA_THROW_SPEC_DELETE_NONE() throw()
 
         #else
-			#if defined(EA_PLATFORM_PS4)
+			#if defined(EA_PLATFORM_SONY)
 				#define EA_THROW_SPEC_NEW(X)        _THROWS(X)
 			#elif defined(_MSC_VER)
                 // Disabled warning "nonstandard extension used: 'throw (...)'" as this warning is a W4 warning which is usually off by default
@@ -1753,6 +1753,8 @@
     // that it also supports non-trivial classes (e.g. with ctors). EA_COMPILER_NO_THREAD_LOCAL refers
     // specifically to full C++11 thread_local support. The EAThread package provides a wrapper for
     // __thread via EA_THREAD_LOCAL (which unfortunately sounds like C++ thread_local).
+	//
+	// https://en.cppreference.com/w/cpp/keyword/thread_local
     //
     #if !defined(EA_COMPILER_NO_THREAD_LOCAL)
 		#if defined(EA_COMPILER_CPP11_ENABLED) && defined(__clang__) && EA_COMPILER_HAS_FEATURE(cxx_thread_local)

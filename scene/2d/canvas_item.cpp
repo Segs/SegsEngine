@@ -333,15 +333,15 @@ void CanvasItemMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_v_frames", PropertyHint::Range, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "particles_anim_loop"), "set_particles_anim_loop", "get_particles_anim_loop");
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
 
-    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL)
-    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED)
-    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY)
+    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL);
+    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED);
+    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY);
 }
 
 CanvasItemMaterial::CanvasItemMaterial() {
@@ -567,7 +567,7 @@ void CanvasItem::_enter_canvas() {
         snprintf(group,31,"root_canvas%d",canvas.get_id());
         group[31]=0;
 
-        StringName gname(group);
+        StringName gname {StringView(group)};
         add_to_group(gname);
         if (canvas_layer)
             canvas_layer->reset_sort_index();
@@ -1299,17 +1299,17 @@ void CanvasItem::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_draw"));
 
-    ADD_GROUP("Visibility", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "self_modulate"), "set_self_modulate", "get_self_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
+    ADD_GROUP("Visibility", "vis_");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_visible"), "set_visible", "is_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_modulate"), "set_modulate", "get_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_self_modulate"), "set_self_modulate", "get_self_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vis_light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
 
-    ADD_GROUP("Material", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_parent_material"), "set_use_parent_material", "get_use_parent_material");
+    ADD_GROUP("Material", "mat_");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mat_material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mat_use_parent_material"), "set_use_parent_material", "get_use_parent_material");
     //exporting these things doesn't really make much sense i think
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
@@ -1319,18 +1319,18 @@ void CanvasItem::_bind_methods() {
     ADD_SIGNAL(MethodInfo("hide"));
     ADD_SIGNAL(MethodInfo("item_rect_changed"));
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED);
 
-    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED)
-    BIND_CONSTANT(NOTIFICATION_DRAW)
-    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED)
-    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS)
-    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS)
+    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
+    BIND_CONSTANT(NOTIFICATION_DRAW);
+    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
+    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS);
+    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS);
 }
 
 Transform2D CanvasItem::get_canvas_transform() const {

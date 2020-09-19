@@ -33,7 +33,7 @@
 #include "core/io/net_socket.h"
 #include "core/io/packet_peer.h"
 
-class PacketPeerUDP : public PacketPeer {
+class GODOT_EXPORT PacketPeerUDP : public PacketPeer {
     GDCLASS(PacketPeerUDP, PacketPeer)
 
 protected:

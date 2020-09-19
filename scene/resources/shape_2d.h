@@ -34,7 +34,7 @@
 #include "core/resource.h"
 #include "core/rid.h"
 
-class Shape2D : public Resource {
+class GODOT_EXPORT Shape2D : public Resource {
     GDCLASS(Shape2D,Resource)
 
     OBJ_SAVE_TYPE(Shape2D);

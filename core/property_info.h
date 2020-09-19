@@ -13,6 +13,8 @@ public:
     String hint_string;
     StringName class_name; // for classes
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
+    int16_t element_count = 0; // used by array property 'header' to mark the number of array entries
+    //TODO: consider negative PropertyInfo::element_count for dynamic arrays ?
     VariantType type = VariantType(0);
     PropertyHint hint = PropertyHint::None;
 
@@ -58,7 +60,13 @@ public:
             class_name = p_class_name;
         }
     }
-
+    // For property array 'head' entry
+    PropertyInfo(StringName p_name,int count, const StringName &p_array_prefix = StringName()) :
+            name(eastl::move(p_name)),
+            hint_string(p_array_prefix),
+            usage(PROPERTY_USAGE_ARRAY),
+            element_count(count) {
+    }
 
     PropertyInfo(StringName p_class_name, VariantType t) : class_name(eastl::move(p_class_name)), type(t) {}
     PropertyInfo(const RawPropertyInfo &rp) :

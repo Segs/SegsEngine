@@ -283,10 +283,10 @@ void VehicleWheel3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_steering", {"steering"}), &VehicleWheel3D::set_steering);
     MethodBinder::bind_method(D_METHOD("get_steering"), &VehicleWheel3D::get_steering);
 
-    ADD_GROUP("Per-Wheel Motion", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
+    ADD_GROUP("Per-Wheel Motion", "pwm_");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pwm_engine_force", PropertyHint::Range, "0.00,1024.0,0.01,or_greater"), "set_engine_force", "get_engine_force");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pwm_brake", PropertyHint::Range, "0.0,1.0,0.01"), "set_brake", "get_brake");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "pwm_steering", PropertyHint::Range, "-180,180.0,0.01"), "set_steering", "get_steering");
     ADD_GROUP("VehicleBody3D Motion", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_traction"), "set_use_as_traction", "is_used_as_traction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_as_steering"), "set_use_as_steering", "is_used_as_steering");

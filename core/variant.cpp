@@ -1059,9 +1059,9 @@ void Variant::clear() {
         case VariantType::OBJECT: {
 
 #ifdef DEBUG_ENABLED
-            if (_get_obj().rc) {
-                if (_get_obj().rc->decrement()) {
-                    memfree(_get_obj().rc);
+            if (likely(_get_obj().rc)) {
+                if (unlikely(_get_obj().rc->decrement())) {
+                    memdelete(_get_obj().rc);
                 }
             } else {
                 _get_obj().ref.unref();
@@ -2550,10 +2550,16 @@ Variant &Variant::operator=(const Variant &p_variant) {
             *reinterpret_cast<RID *>(_data._mem) = *reinterpret_cast<const RID *>(p_variant._data._mem);
         } break;
         case VariantType::OBJECT: {
-
+#ifdef DEBUG_ENABLED
+            if (likely(_get_obj().rc)) {
+                if (unlikely(_get_obj().rc->decrement())) {
+                    memdelete(_get_obj().rc);
+                }
+            }
+#endif
             *reinterpret_cast<ObjData *>(_data._mem) = p_variant._get_obj();
 #ifdef DEBUG_ENABLED
-            if (_get_obj().rc) {
+            if (likely(_get_obj().rc)) {
                 _get_obj().rc->increment();
             }
 #endif

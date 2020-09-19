@@ -35,7 +35,7 @@
 #include "scene/3d/node_3d.h"
 
 class Camera3D;
-class VisibilityNotifier3D : public Node3D {
+class GODOT_EXPORT VisibilityNotifier3D : public Node3D {
 
     GDCLASS(VisibilityNotifier3D,Node3D)
 
@@ -49,7 +49,7 @@ protected:
 
 	void _notification(int p_what);
 	static void _bind_methods();
-	friend struct SpatialIndexer;
+	friend struct SpatialIndexer;	
 
 	void _enter_camera(Camera3D *p_camera);
 	void _exit_camera(Camera3D *p_camera);
@@ -62,7 +62,7 @@ public:
     VisibilityNotifier3D();
 };
 
-class VisibilityEnabler3D : public VisibilityNotifier3D {
+class GODOT_EXPORT VisibilityEnabler3D : public VisibilityNotifier3D {
 
     GDCLASS(VisibilityEnabler3D,VisibilityNotifier3D)
 

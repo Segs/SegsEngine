@@ -39,7 +39,7 @@
 #include "editor/editor_plugin.h"
 #include "editor/property_editor.h"
 
-class NoiseTexture : public Texture {
+class GODOT_EXPORT NoiseTexture : public Texture {
 	GDCLASS(NoiseTexture,Texture)
 
 private:

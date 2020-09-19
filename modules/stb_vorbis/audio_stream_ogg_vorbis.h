@@ -70,7 +70,7 @@ public:
     ~AudioStreamPlaybackOGGVorbis() override;
 };
 
-class AudioStreamOGGVorbis : public AudioStream {
+class GODOT_EXPORT AudioStreamOGGVorbis : public AudioStream {
 
     GDCLASS(AudioStreamOGGVorbis,AudioStream)
 

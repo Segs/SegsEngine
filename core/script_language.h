@@ -254,7 +254,7 @@ public:
     virtual StringName get_name() const = 0;
 
     /* LANGUAGE FUNCTIONS */
-    virtual void init() = 0;
+    virtual bool init() = 0;
     virtual String get_type() const = 0;
     virtual String get_extension() const = 0;
     virtual Error execute_file(StringView p_path) = 0;

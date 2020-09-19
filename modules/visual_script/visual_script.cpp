@@ -2405,7 +2405,8 @@ StringName VisualScriptLanguage::get_name() const {
 }
 
 /* LANGUAGE FUNCTIONS */
-void VisualScriptLanguage::init() {
+bool VisualScriptLanguage::init() {
+    return true;
 }
 String VisualScriptLanguage::get_type() const {
 

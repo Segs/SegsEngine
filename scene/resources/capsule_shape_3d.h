@@ -32,7 +32,7 @@
 
 #include "scene/resources/shape.h"
 
-class CapsuleShape3D : public Shape {
+class GODOT_EXPORT CapsuleShape3D : public Shape {
 
     GDCLASS(CapsuleShape3D,Shape)
 

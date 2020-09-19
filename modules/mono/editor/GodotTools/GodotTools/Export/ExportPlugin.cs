@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using GodotTools.Core;
 using GodotTools.Internals;
+using JetBrains.Annotations;
 using static GodotTools.Internals.Globals;
 using Directory = GodotTools.Utils.Directory;
 using File = GodotTools.Utils.File;
@@ -110,7 +111,7 @@ namespace GodotTools.Export
 
                 // Sadly, Godot prints errors when adding an empty file (nothing goes wrong, it's just noise).
                 // Because of this, we add a file which contains a line break.
-                AddFile(path, "\n", remap: false);
+                AddFile(path, System.Text.Encoding.UTF8.GetBytes("\n"), remap: false);
 
                 // Tell the Godot exporter that we already took care of the file
                 Skip();
@@ -145,9 +146,7 @@ namespace GodotTools.Export
             if (!File.Exists(GodotSharpDirs.ProjectSlnPath))
                 return;
 
-            string platform = DeterminePlatformFromFeatures(features);
-
-            if (platform == null)
+            if (!DeterminePlatformFromFeatures(features, out string platform))
                 throw new NotSupportedException("Target platform not supported");
 
             string outputDir = new FileInfo(path).Directory?.FullName ??
@@ -160,10 +159,7 @@ namespace GodotTools.Export
 
             AddFile(scriptsMetadataPath, scriptsMetadataPath);
 
-            // Turn export features into defines
-            var godotDefines = features;
-
-            if (!BuildManager.BuildProjectBlocking(buildConfig, godotDefines))
+            if (!BuildManager.BuildProjectBlocking(buildConfig, platform))
                 throw new Exception("Failed to build project");
 
             // Add dependency assemblies
@@ -272,6 +268,7 @@ namespace GodotTools.Export
             }
         }
 
+        [NotNull]
         private static string ExportDataDirectory(string[] features, string platform, bool isDebug, string outputDir)
         {
             string target = isDebug ? "release_debug" : "release";
@@ -329,15 +326,16 @@ namespace GodotTools.Export
             return !new[] { OS.Platforms.OSX }.Contains(platform);
         }
 
-        private static string DeterminePlatformFromFeatures(IEnumerable<string> features)
+        private static bool DeterminePlatformFromFeatures(IEnumerable<string> features, out string platform)
         {
             foreach (var feature in features)
             {
-                if (OS.PlatformNameMap.TryGetValue(feature, out string platform))
-                    return platform;
+                if (OS.PlatformNameMap.TryGetValue(feature, out platform))
+                    return true;
             }
 
-            return null;
+            platform = null;
+            return false;
         }
 
         private static string GetBclProfileDir(string profile)
@@ -403,7 +401,7 @@ namespace GodotTools.Export
         private static string DetermineDataDirNameForProject()
         {
             var appName = (string)ProjectSettings.GetSetting("application/config/name");
-            string appNameSafe = appName.ToSafeDirName(allowDirSeparator: false);
+            string appNameSafe = appName.ToSafeDirName();
             return $"data_{appNameSafe}";
         }
 

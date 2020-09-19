@@ -23,7 +23,7 @@ function(WRAP_STRING)
 
     string(LENGTH ${${WRAP_STRING_VARIABLE}} stringLength)
     math(EXPR offset "0")
-
+    set(lines "")
     while(stringLength GREATER 0)
 
         if(stringLength GREATER ${WRAP_STRING_AT_COLUMN})

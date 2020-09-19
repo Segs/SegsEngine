@@ -446,12 +446,12 @@ namespace eastl
             inline value_type* HeapCapacityPtr() EA_NOEXCEPT             { return heap.mpBegin + GetHeapCapacity(); }
             inline const value_type* HeapCapacityPtr() const EA_NOEXCEPT { return heap.mpBegin + GetHeapCapacity(); }
 
-            inline value_type* SSOCapcityPtr() EA_NOEXCEPT               { return sso.mData + SSOLayout::SSO_CAPACITY; }
-            inline const value_type* SSOCapcityPtr() const EA_NOEXCEPT   { return sso.mData + SSOLayout::SSO_CAPACITY; }
+            inline value_type* SSOCapacityPtr() EA_NOEXCEPT               { return sso.mData + SSOLayout::SSO_CAPACITY; }
+            inline const value_type* SSOCapacityPtr() const EA_NOEXCEPT   { return sso.mData + SSOLayout::SSO_CAPACITY; }
 
             // Points to end of the buffer at the terminating '0', *ptr == '0' <- only true when size() == capacity()
-            inline value_type* CapacityPtr() EA_NOEXCEPT                 { return IsHeap() ? HeapCapacityPtr() : SSOCapcityPtr(); }
-            inline const value_type* CapacityPtr() const EA_NOEXCEPT     { return IsHeap() ? HeapCapacityPtr() : SSOCapcityPtr(); }
+            inline value_type* CapacityPtr() EA_NOEXCEPT                 { return IsHeap() ? HeapCapacityPtr() : SSOCapacityPtr(); }
+            inline const value_type* CapacityPtr() const EA_NOEXCEPT     { return IsHeap() ? HeapCapacityPtr() : SSOCapacityPtr(); }
 
             inline void SetHeapBeginPtr(value_type* pBegin) EA_NOEXCEPT  { heap.mpBegin = pBegin; }
 
@@ -1814,11 +1814,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::reference
     basic_string<T, Allocator>::front()
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference the trailing 0 char without asserting.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::front -- empty string");
+		#else
+			// We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *internalLayout().BeginPtr();
@@ -1829,11 +1829,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::const_reference
     basic_string<T, Allocator>::front() const
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference the trailing 0 char without asserting.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::front -- empty string");
+		#else
+			// We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *internalLayout().BeginPtr();
@@ -1844,11 +1844,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::reference
     basic_string<T, Allocator>::back()
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference the trailing 0 char without asserting.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::back -- empty string");
+		#else
+			// We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *(internalLayout().EndPtr() - 1);
@@ -1859,11 +1859,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::const_reference
     basic_string<T, Allocator>::back() const
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference the trailing 0 char without asserting.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::back -- empty string");
+		#else
+			// We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *(internalLayout().EndPtr() - 1);
@@ -1938,7 +1938,7 @@ namespace eastl
     template <typename OtherStringType>
     basic_string<T, Allocator>& basic_string<T, Allocator>::append_convert(const OtherStringType& x)
     {
-        return append_convert(x, x.length());
+		return append_convert(x.c_str(), x.length());
     }
 
 

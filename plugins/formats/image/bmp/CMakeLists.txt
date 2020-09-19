@@ -7,4 +7,4 @@ set_plugin_options(
     CLASSPROP ImageLoaderBMP
     TYPE image
     SOURCES ${source_files} ${header_files} ${thirdparty_sources}
-    )
+)

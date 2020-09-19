@@ -40,7 +40,7 @@
 // FIXME: This will be redone and replaced by area portals, left for reference
 // since a new class with this name will have to exist and want to reuse the gizmos
 #if 0
-class Portal : public VisualInstance3D {
+class GODOT_EXPORT Portal : public VisualInstance3D {
 
 	GDCLASS(Portal,VisualInstance3D)
 IMPL_GDCLASS(Portal)

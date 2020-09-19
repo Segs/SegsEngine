@@ -33,7 +33,7 @@
 #include "core/resource.h"
 #include "core/pool_vector.h"
 
-class PackedDataContainer : public Resource {
+class GODOT_EXPORT PackedDataContainer : public Resource {
 
     GDCLASS(PackedDataContainer,Resource)
 
@@ -81,7 +81,7 @@ public:
     PackedDataContainer();
 };
 
-class PackedDataContainerRef : public RefCounted {
+class GODOT_EXPORT PackedDataContainerRef : public RefCounted {
     GDCLASS(PackedDataContainerRef,RefCounted)
 
     friend class PackedDataContainer;

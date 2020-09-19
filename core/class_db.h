@@ -281,6 +281,7 @@ public:
     static void get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
     static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
+    static void add_property_array(StringName p_class, const char *p_name, int elem_count, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
     static void get_property_list(StringName p_class, Vector<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);

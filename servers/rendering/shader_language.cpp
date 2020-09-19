@@ -57,6 +57,18 @@ static bool _is_hex(CharType c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
+static String _get_qualifier_str(ShaderLanguage::ArgumentQualifier p_qualifier) {
+    switch (p_qualifier) {
+        case ShaderLanguage::ArgumentQualifier::ARGUMENT_QUALIFIER_IN:
+            return "in";
+        case ShaderLanguage::ArgumentQualifier::ARGUMENT_QUALIFIER_OUT:
+            return "out";
+        case ShaderLanguage::ArgumentQualifier::ARGUMENT_QUALIFIER_INOUT:
+            return "inout";
+    }
+    return "";
+}
+
 const char *ShaderLanguage::get_operator_text(Operator p_op) {
 
     static const char *op_names[OP_MAX] = { "==", "!=", "<", "<=", ">", ">=", "&&", "||", "!", "-", "+", "-", "*", "/",
@@ -1050,13 +1062,13 @@ bool ShaderLanguage::_validate_operator(OperatorNode *p_op, DataType *r_ret_type
             } else if (na == TYPE_FLOAT && nb == TYPE_VEC4) {
                 valid = true;
                 ret_type = TYPE_VEC4;
-            } else if (p_op->op == OP_MUL && na == TYPE_FLOAT && nb == TYPE_MAT2) {
+            } else if (na == TYPE_FLOAT && nb == TYPE_MAT2) {
                 valid = true;
                 ret_type = TYPE_MAT2;
-            } else if (p_op->op == OP_MUL && na == TYPE_FLOAT && nb == TYPE_MAT3) {
+            } else if (na == TYPE_FLOAT && nb == TYPE_MAT3) {
                 valid = true;
                 ret_type = TYPE_MAT3;
-            } else if (p_op->op == OP_MUL && na == TYPE_FLOAT && nb == TYPE_MAT4) {
+            } else if (na == TYPE_FLOAT && nb == TYPE_MAT4) {
                 valid = true;
                 ret_type = TYPE_MAT4;
             } else if (p_op->op == OP_MUL && na == TYPE_VEC2 && nb == TYPE_MAT2) {
@@ -1224,13 +1236,13 @@ bool ShaderLanguage::_validate_operator(OperatorNode *p_op, DataType *r_ret_type
             } else if (na == TYPE_VEC4 && nb == TYPE_FLOAT) {
                 valid = true;
                 ret_type = TYPE_VEC4;
-            } else if (p_op->op == OP_ASSIGN_MUL && na == TYPE_MAT2 && nb == TYPE_VEC2) {
+            } else if (na == TYPE_MAT2 && nb == TYPE_FLOAT) {
                 valid = true;
                 ret_type = TYPE_MAT2;
-            } else if (p_op->op == OP_ASSIGN_MUL && na == TYPE_MAT3 && nb == TYPE_VEC3) {
+            } else if (na == TYPE_MAT3 && nb == TYPE_FLOAT) {
                 valid = true;
                 ret_type = TYPE_MAT3;
-            } else if (p_op->op == OP_ASSIGN_MUL && na == TYPE_MAT4 && nb == TYPE_VEC4) {
+            } else if (na == TYPE_MAT4 && nb == TYPE_FLOAT) {
                 valid = true;
                 ret_type = TYPE_MAT4;
             } else if (p_op->op == OP_ASSIGN_MUL && na == TYPE_VEC2 && nb == TYPE_MAT2) {
@@ -1432,6 +1444,11 @@ const ShaderLanguage::BuiltinFuncDef ShaderLanguage::builtin_func_defs[] = {
     { "bool", TYPE_BOOL, { TYPE_FLOAT, TYPE_VOID }, TAG_GLOBAL, false },
 
     //conversion vectors
+
+    { "ivec2", TYPE_IVEC2, { TYPE_BVEC2, TYPE_VOID }, TAG_GLOBAL, false },
+    { "ivec2", TYPE_IVEC2, { TYPE_IVEC2, TYPE_VOID }, TAG_GLOBAL, false },
+    { "ivec2", TYPE_IVEC2, { TYPE_UVEC2, TYPE_VOID }, TAG_GLOBAL, false },
+    { "ivec2", TYPE_IVEC2, { TYPE_VEC2, TYPE_VOID }, TAG_GLOBAL, false },
 
     { "vec2", TYPE_VEC2, { TYPE_BVEC2, TYPE_VOID }, TAG_GLOBAL, false },
     { "vec2", TYPE_VEC2, { TYPE_IVEC2, TYPE_VOID }, TAG_GLOBAL, false },
@@ -2932,16 +2949,18 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     }
                     bnode = bnode->parent_block;
                 }
+                int function_index = -1;
                 //test if function was parsed first
-                for (const ShaderNode::Function &ifunc : shader->functions) {
-                    if (ifunc.name == name) {
+                for (int i = 0; i < shader->functions.size(); i++) {
+                    if (shader->functions[i].name == name) {
                         //add to current function as dependency
-                        for (ShaderNode::Function &jfunc : shader->functions) {
-                            if (jfunc.name == current_function) {
-                                jfunc.uses_function.insert(name);
+                        for (int j = 0; j < shader->functions.size(); j++) {
+                            if (shader->functions[j].name == current_function) {
+                                shader->functions[j].uses_function.insert(name);
                                 break;
                             }
                         }
+                        function_index = i;
                         break;
                     }
                 }
@@ -2962,6 +2981,53 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                     return nullptr;
                 }
                 completion_class = TAG_GLOBAL; // reset sub-class
+                if (function_index >= 0) {
+                    FunctionNode *call_function = shader->functions[function_index].function;
+                    if (call_function) {
+                        for (int i = 0; i < call_function->arguments.size(); i++) {
+                            int argidx = i + 1;
+                            if (argidx < func->arguments.size()) {
+                                if (call_function->arguments[i].qualifier == ArgumentQualifier::ARGUMENT_QUALIFIER_OUT || call_function->arguments[i].qualifier == ArgumentQualifier::ARGUMENT_QUALIFIER_INOUT) {
+                                    bool error = false;
+                                    Node *n = func->arguments[argidx];
+                                    if (n->type == Node::TYPE_CONSTANT || n->type == Node::TYPE_OPERATOR) {
+                                        error = true;
+                                    } else if (n->type == Node::TYPE_ARRAY) {
+                                        ArrayNode *an = static_cast<ArrayNode *>(n);
+                                        if (an->call_expression != nullptr || an->is_const) {
+                                            error = true;
+                                        }
+                                    } else if (n->type == Node::TYPE_VARIABLE) {
+                                        VariableNode *vn = static_cast<VariableNode *>(n);
+                                        if (vn->is_const) {
+                                            error = true;
+                                        } else {
+                                            StringName varname = vn->name;
+                                            if (shader->constants.contains(varname)) {
+                                                error = true;
+                                            } else if (shader->uniforms.contains(varname)) {
+                                                error = true;
+                                            } else {
+                                                if (p_builtin_types.contains(varname)) {
+                                                    BuiltInInfo info = p_builtin_types.at(varname);
+                                                    if (info.constant) {
+                                                        error = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (error) {
+                                        _set_error(vformat("Constant value cannot be passed for '%s' parameter!", _get_qualifier_str(call_function->arguments[i].qualifier)));
+                                        return nullptr;
+                                    }
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 expr = func;
 
@@ -4485,6 +4551,12 @@ Error ShaderLanguage::_parse_block(BlockNode *p_block, const HashMap<StringName,
 
             //check return type
             BlockNode *b = p_block;
+
+            if (b && b->parent_function && (b->parent_function->name == "vertex" || b->parent_function->name == "fragment" || b->parent_function->name == "light")) {
+                _set_error(FormatVE("Using 'return' in '%s' processor function results in undefined behavior!", b->parent_function->name.asCString()));
+                return ERR_PARSE_ERROR;
+            }
+
             while (b && !b->parent_function) {
                 b = b->parent_block;
             }
@@ -4974,7 +5046,6 @@ Error ShaderLanguage::_parse_shader(const HashMap<StringName, FunctionInfo> &p_f
                     varying.type = type;
                     varying.precision = precision;
                     varying.interpolation = interpolation;
-                    shader->varyings[name] = varying;
 
                     tk = _get_token();
 

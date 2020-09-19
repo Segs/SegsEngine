@@ -1,17 +1,20 @@
+using System;
 using GodotTools.Core;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using DotNet.Globbing;
+using System.Xml;
+using System.Xml.Linq;
+using JetBrains.Annotations;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Globbing;
 
 namespace GodotTools.ProjectEditor
 {
     public sealed class MSBuildProject
     {
-        public ProjectRootElement Root { get; }
+        internal ProjectRootElement Root { get; set; }
 
         public bool HasUnsavedChanges { get; set; }
 
@@ -31,12 +34,19 @@ namespace GodotTools.ProjectEditor
             return root != null ? new MSBuildProject(root) : null;
         }
 
+        [PublicAPI]
         public static void AddItemToProjectChecked(string projectPath, string itemType, string include)
         {
             var dir = Directory.GetParent(projectPath).FullName;
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
 
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                // No need to add. It's already included automatically by the MSBuild Sdk.
+                // This assumes the source file is inside the project directory and not manually excluded in the csproj
+                return;
+            }
             var normalizedInclude = include.RelativeToPath(dir).Replace("/", "\\");
 
             if (root.AddItemChecked(itemType, normalizedInclude))
@@ -48,6 +58,12 @@ namespace GodotTools.ProjectEditor
             var dir = Directory.GetParent(projectPath).FullName;
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                // No need to add. It's already included automatically by the MSBuild Sdk.
+                // This assumes the source file is inside the project directory and not manually excluded in the csproj
+                return;
+            }
 
             var normalizedOldInclude = oldInclude.NormalizePath();
             var normalizedNewInclude = newInclude.NormalizePath();
@@ -65,6 +81,12 @@ namespace GodotTools.ProjectEditor
         {
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                // No need to add. It's already included automatically by the MSBuild Sdk.
+                // This assumes the source file is inside the project directory and not manually excluded in the csproj
+                return;
+            }
 
             var normalizedInclude = include.NormalizePath();
 
@@ -77,6 +99,12 @@ namespace GodotTools.ProjectEditor
             var dir = Directory.GetParent(projectPath).FullName;
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                // No need to add. It's already included automatically by the MSBuild Sdk.
+                // This assumes the source file is inside the project directory and not manually excluded in the csproj
+                return;
+            }
 
             bool dirty = false;
 
@@ -101,6 +129,12 @@ namespace GodotTools.ProjectEditor
         {
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                // No need to add. It's already included automatically by the MSBuild Sdk.
+                // This assumes the source file is inside the project directory and not manually excluded in the csproj
+                return;
+            }
 
             var folderNormalized = folder.NormalizePath();
 
@@ -133,11 +167,32 @@ namespace GodotTools.ProjectEditor
             var result = new List<string>();
             var existingFiles = GetAllFilesRecursive(Path.GetDirectoryName(projectPath), "*.cs");
 
-            var globOptions = new GlobOptions();
-            globOptions.Evaluation.CaseInsensitive = false;
 
             var root = ProjectRootElement.Open(projectPath);
             Debug.Assert(root != null);
+            if (root.AreDefaultCompileItemsEnabled())
+            {
+                var excluded = new List<string>();
+                result.AddRange(existingFiles);
+
+                foreach (var item in root.Items)
+                {
+                    if (string.IsNullOrEmpty(item.Condition))
+                        continue;
+
+                    if (item.ItemType != itemType)
+                        continue;
+
+
+                    string normalizedRemove= item.Remove.NormalizePath();
+
+                    var glob = MSBuildGlob.Parse(normalizedRemove);
+
+                    excluded.AddRange(result.Where(includedFile => glob.IsMatch(includedFile)));
+                }
+
+                result.RemoveAll(f => excluded.Contains(f));
+            }
 
             foreach (var itemGroup in root.ItemGroups)
             {
@@ -151,9 +206,7 @@ namespace GodotTools.ProjectEditor
 
                     string normalizedInclude = item.Include.NormalizePath();
 
-                    var glob = Glob.Parse(normalizedInclude, globOptions);
-
-                    // TODO Check somehow if path has no blob to avoid the following loop...
+                    var glob = MSBuildGlob.Parse(normalizedInclude);
 
                     foreach (var existingFile in existingFiles)
                     {
@@ -168,206 +221,194 @@ namespace GodotTools.ProjectEditor
             return result.ToArray();
         }
 
-        ///  Simple function to make sure the Api assembly references are configured correctly
-        public static void FixApiHintPath(MSBuildProject project)
+        public static void MigrateToProjectSdksStyle(MSBuildProject project, string projectName)
         {
             var root = project.Root;
 
-            void AddPropertyIfNotPresent(string name, string condition, string value)
-            {
-                if (root.PropertyGroups
-                    .Any(g => (string.IsNullOrEmpty(g.Condition) || g.Condition.Trim() == condition) &&
-                              g.Properties
-                                  .Any(p => p.Name == name &&
-                                            p.Value == value &&
-                                            (p.Condition.Trim() == condition || g.Condition.Trim() == condition))))
-                {
+            if (!string.IsNullOrEmpty(root.Sdk))
                     return;
-                }
 
-                root.AddProperty(name, value).Condition = " " + condition + " ";
-                project.HasUnsavedChanges = true;
-            }
+            root.Sdk = ProjectGenerator.GodotSdkAttrValue;
 
-            AddPropertyIfNotPresent(name: "ApiConfiguration",
-                condition: "'$(Configuration)' != 'ExportRelease'",
-                value: "Debug");
-            AddPropertyIfNotPresent(name: "ApiConfiguration",
-                condition: "'$(Configuration)' == 'ExportRelease'",
-                value: "Release");
+            root.ToolsVersion = null;
+            root.DefaultTargets = null;
 
-            void SetReferenceHintPath(string referenceName, string condition, string hintPath)
-            {
-                foreach (var itemGroup in root.ItemGroups.Where(g =>
-                    g.Condition.Trim() == string.Empty || g.Condition.Trim() == condition))
-                {
-                    var references = itemGroup.Items.Where(item =>
-                        item.ItemType == "Reference" &&
-                        item.Include == referenceName &&
-                        (item.Condition.Trim() == condition || itemGroup.Condition.Trim() == condition));
+            root.AddProperty("TargetFramework", "net472");
 
-                    var referencesWithHintPath = references.Where(reference =>
-                        reference.Metadata.Any(m => m.Name == "HintPath"));
+            // Remove obsolete properties, items and elements. We're going to be conservative
+            // here to minimize the chances of introducing breaking changes. As such we will
+            // only remove elements that could potentially cause issues with the Godot.NET.Sdk.
 
-                    if (referencesWithHintPath.Any(reference => reference.Metadata
-                        .Any(m => m.Name == "HintPath" && m.Value == hintPath)))
+            void RemoveElements(IEnumerable<ProjectElement> elements)
                     {
-                        // Found a Reference item with the right HintPath
-                        return;
+                foreach (var element in elements)
+                    element.Parent.RemoveChild(element);
                     }
 
-                    var referenceWithHintPath = referencesWithHintPath.FirstOrDefault();
-                    if (referenceWithHintPath != null)
+            // Default Configuration
+
+            RemoveElements(root.PropertyGroups.SelectMany(g => g.Properties)
+                .Where(p => p.Name == "Configuration" && p.Condition.Trim() == "'$(Configuration)' == ''" && p.Value == "Debug"));
+
+            // Default Platform
+
+            RemoveElements(root.PropertyGroups.SelectMany(g => g.Properties)
+                .Where(p => p.Name == "Platform" && p.Condition.Trim() == "'$(Platform)' == ''" && p.Value == "AnyCPU"));
+
+            // Simple properties
+
+            var yabaiProperties = new[]
                     {
-                        // Found a Reference item with a wrong HintPath
-                        foreach (var metadata in referenceWithHintPath.Metadata.ToList()
-                            .Where(m => m.Name == "HintPath"))
+                "OutputPath",
+                "BaseIntermediateOutputPath",
+                "IntermediateOutputPath",
+                "TargetFrameworkVersion",
+                "ProjectTypeGuids",
+                "ApiConfiguration"
+            };
+
+            RemoveElements(root.PropertyGroups.SelectMany(g => g.Properties)
+                .Where(p => yabaiProperties.Contains(p.Name)));
+
+            // Configuration dependent properties
+
+            var yabaiPropertiesForConfigs = new[]
                         {
-                            // Safe to remove as we duplicate with ToList() to loop
-                            referenceWithHintPath.RemoveChild(metadata);
-                        }
+                "DebugSymbols",
+                "DebugType",
+                "Optimize",
+                "DefineConstants",
+                "ErrorReport",
+                "WarningLevel",
+                "ConsolePause"
+            };
 
-                        referenceWithHintPath.AddMetadata("HintPath", hintPath);
-                        project.HasUnsavedChanges = true;
-                        return;
-                    }
+            var configNames = new[]
+            {
+                "ExportDebug", "ExportRelease", "Debug",
+                "Tools", "Release" // Include old config names as well in case it's upgrading from 3.2.1 or older
+            };
 
-                    var referenceWithoutHintPath = references.FirstOrDefault();
-                    if (referenceWithoutHintPath != null)
+            foreach (var config in configNames)
+            {
+                var group = root.PropertyGroups
+                    .FirstOrDefault(g => g.Condition.Trim() == $"'$(Configuration)|$(Platform)' == '{config}|AnyCPU'");
+
+                if (group == null)
+                    continue;
+
+                RemoveElements(group.Properties.Where(p => yabaiPropertiesForConfigs.Contains(p.Name)));
+
+                if (group.Count == 0)
                     {
-                        // Found a Reference item without a HintPath
-                        referenceWithoutHintPath.AddMetadata("HintPath", hintPath);
-                        project.HasUnsavedChanges = true;
-                        return;
+                    // No more children, safe to delete the group
+                    group.Parent.RemoveChild(group);
                     }
                 }
 
-                // Found no Reference item at all. Add it.
-                root.AddItem("Reference", referenceName).Condition = " " + condition + " ";
-                project.HasUnsavedChanges = true;
-            }
+            // Godot API References
 
-            const string coreProjectName = "GodotSharp";
-            const string editorProjectName = "GodotSharpEditor";
+            var apiAssemblies = new[] {ApiAssemblyNames.Core, ApiAssemblyNames.Editor};
 
-            const string coreCondition = "";
-            const string editorCondition = "'$(Configuration)' == 'Debug'";
+            RemoveElements(root.ItemGroups.SelectMany(g => g.Items)
+                .Where(i => i.ItemType == "Reference" && apiAssemblies.Contains(i.Include)));
 
-            var coreHintPath = $"$(ProjectDir)/.mono/assemblies/$(ApiConfiguration)/{coreProjectName}.dll";
-            var editorHintPath = $"$(ProjectDir)/.mono/assemblies/$(ApiConfiguration)/{editorProjectName}.dll";
+            // Microsoft.NETFramework.ReferenceAssemblies PackageReference
 
-            SetReferenceHintPath(coreProjectName, coreCondition, coreHintPath);
-            SetReferenceHintPath(editorProjectName, editorCondition, editorHintPath);
-        }
+            RemoveElements(root.ItemGroups.SelectMany(g => g.Items).Where(i =>
+                i.ItemType == "PackageReference" &&
+                i.Include.Equals("Microsoft.NETFramework.ReferenceAssemblies", StringComparison.OrdinalIgnoreCase)));
 
-        public static void MigrateFromOldConfigNames(MSBuildProject project)
+            // Imports
+
+            var yabaiImports = new[]
         {
-            var root = project.Root;
+                "$(MSBuildBinPath)/Microsoft.CSharp.targets",
+                "$(MSBuildBinPath)Microsoft.CSharp.targets"
+            };
 
-            bool hasGodotProjectGeneratorVersion = false;
-            bool foundOldConfiguration = false;
+            RemoveElements(root.Imports.Where(import => yabaiImports.Contains(
+                import.Project.Replace("\\", "/").Replace("//", "/"))));
 
-            foreach (var propertyGroup in root.PropertyGroups.Where(g => string.IsNullOrEmpty(g.Condition)))
-            {
-                if (!hasGodotProjectGeneratorVersion && propertyGroup.Properties.Any(p => p.Name == "GodotProjectGeneratorVersion"))
-                    hasGodotProjectGeneratorVersion = true;
+            // 'EnableDefaultCompileItems' and 'GenerateAssemblyInfo' are kept enabled by default
+            // on new projects, but when migrating old projects we disable them to avoid errors.
+            root.AddProperty("EnableDefaultCompileItems", "false");
+            root.AddProperty("GenerateAssemblyInfo", "false");
 
-                foreach (var configItem in propertyGroup.Properties
-                    .Where(p => p.Condition.Trim() == "'$(Configuration)' == ''" && p.Value == "Tools"))
-                {
-                    configItem.Value = "Debug";
-                    foundOldConfiguration = true;
-                    project.HasUnsavedChanges = true;
-                }
-            }
+            // Older AssemblyInfo.cs cause the following error:
+            // 'Properties/AssemblyInfo.cs(19,28): error CS8357:
+            // The specified version string contains wildcards, which are not compatible with determinism.
+            // Either remove wildcards from the version string, or disable determinism for this compilation.'
+            // We disable deterministic builds to prevent this. The user can then fix this manually when desired
+            // by fixing 'AssemblyVersion("1.0.*")' to not use wildcards.
+            root.AddProperty("Deterministic", "false");
 
-            if (!hasGodotProjectGeneratorVersion)
-            {
-                root.PropertyGroups.First(g => string.IsNullOrEmpty(g.Condition))?
-                    .AddProperty("GodotProjectGeneratorVersion", Assembly.GetExecutingAssembly().GetName().Version.ToString());
                 project.HasUnsavedChanges = true;
-            }
 
-            if (!foundOldConfiguration)
+            var xDoc = XDocument.Parse(root.RawXml);
+
+            if (xDoc.Root == null)
+                return; // Too bad, we will have to keep the xmlns/namespace and xml declaration
+
+            XElement GetElement(XDocument doc, string name, string value, string parentName)
             {
-                var toolsConditions = new[]
+                foreach (var node in doc.DescendantNodes())
                 {
-                    "'$(Configuration)|$(Platform)' == 'Tools|AnyCPU'",
-                    "'$(Configuration)|$(Platform)' != 'Tools|AnyCPU'",
-                    "'$(Configuration)' == 'Tools'",
-                    "'$(Configuration)' != 'Tools'"
-                };
-
-                foundOldConfiguration = root.PropertyGroups
-                    .Any(g => toolsConditions.Any(c => c == g.Condition.Trim()));
-            }
-
-            if (foundOldConfiguration)
-            {
-                void MigrateConfigurationConditions(string oldConfiguration, string newConfiguration)
-                {
-                    void MigrateConditions(string oldCondition, string newCondition)
+                    if (!(node is XElement element))
+                        continue;
+                    if (element.Name.LocalName.Equals(name) && element.Value == value &&
+                        element.Parent != null && element.Parent.Name.LocalName.Equals(parentName))
                     {
-                        foreach (var propertyGroup in root.PropertyGroups.Where(g => g.Condition.Trim() == oldCondition))
-                        {
-                            propertyGroup.Condition = " " + newCondition + " ";
-                            project.HasUnsavedChanges = true;
+                        return element;
+                    }
+                            }
+                return null;
                         }
 
-                        foreach (var propertyGroup in root.PropertyGroups)
+            // Add comment about Microsoft.NET.Sdk properties disabled during migration
+
+            GetElement(xDoc, name: "EnableDefaultCompileItems", value: "false", parentName: "PropertyGroup")
+                .AddBeforeSelf(new XComment("The following properties were overriden during migration to prevent errors.\n" +
+                                            "    Enabling them may require other manual changes to the project and its files."));
+
+            void RemoveNamespace(XElement element)
                         {
-                            foreach (var prop in propertyGroup.Properties.Where(p => p.Condition.Trim() == oldCondition))
+                element.Attributes().Where(x => x.IsNamespaceDeclaration).Remove();
+                element.Name = element.Name.LocalName;
+
+                foreach (var node in element.DescendantNodes())
+                        {
+                    if (node is XElement xElement)
                             {
-                                prop.Condition = " " + newCondition + " ";
-                                project.HasUnsavedChanges = true;
+                        // Need to do the same for all children recursively as it adds it to them for some reason...
+                        RemoveNamespace(xElement);
                             }
                         }
-
-                        foreach (var itemGroup in root.ItemGroups.Where(g => g.Condition.Trim() == oldCondition))
-                        {
-                            itemGroup.Condition = " " + newCondition + " ";
-                            project.HasUnsavedChanges = true;
-                        }
-
-                        foreach (var itemGroup in root.ItemGroups)
-                        {
-                            foreach (var item in itemGroup.Items.Where(item => item.Condition.Trim() == oldCondition))
-                            {
-                                item.Condition = " " + newCondition + " ";
-                                project.HasUnsavedChanges = true;
-                            }
-                        }
                     }
 
-                    foreach (var op in new[] {"==", "!="})
-                    {
-                        MigrateConditions($"'$(Configuration)|$(Platform)' {op} '{oldConfiguration}|AnyCPU'", $"'$(Configuration)|$(Platform)' {op} '{newConfiguration}|AnyCPU'");
-                        MigrateConditions($"'$(Configuration)' {op} '{oldConfiguration}'", $"'$(Configuration)' {op} '{newConfiguration}'");
-                    }
-                }
+            // Remove xmlns/namespace
+            RemoveNamespace(xDoc.Root);
 
-                MigrateConfigurationConditions("Debug", "ExportDebug");
-                MigrateConfigurationConditions("Release", "ExportRelease");
-                MigrateConfigurationConditions("Tools", "Debug"); // Must be last
-            }
+            // Remove xml declaration
+            xDoc.Nodes().FirstOrDefault(node => node.NodeType == XmlNodeType.XmlDeclaration)?.Remove();
+
+            string projectFullPath = root.FullPath;
+
+            root = ProjectRootElement.Create(xDoc.CreateReader());
+            root.FullPath = projectFullPath;
+
+            project.Root = root;
         }
 
-        public static void EnsureHasNugetNetFrameworkRefAssemblies(MSBuildProject project)
+        public static void EnsureGodotSdkIsUpToDate(MSBuildProject project)
         {
             var root = project.Root;
+            string godotSdkAttrValue = ProjectGenerator.GodotSdkAttrValue;
 
-            bool found = root.ItemGroups.Any(g => string.IsNullOrEmpty(g.Condition) && g.Items.Any(
-                item => item.ItemType == "PackageReference" && item.Include == "Microsoft.NETFramework.ReferenceAssemblies"));
-
-            if (found)
+            if (!string.IsNullOrEmpty(root.Sdk) && root.Sdk.Trim().Equals(godotSdkAttrValue, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            var frameworkRefAssembliesItem = root.AddItem("PackageReference", "Microsoft.NETFramework.ReferenceAssemblies");
-
-            // Use metadata (child nodes) instead of attributes for the PackageReference.
-            // This is for compatibility with 3.2, where GodotTools uses an old Microsoft.Build.
-            frameworkRefAssembliesItem.AddMetadata("Version", "1.0.0");
-            frameworkRefAssembliesItem.AddMetadata("PrivateAssets", "All");
+            root.Sdk = godotSdkAttrValue;
 
             project.HasUnsavedChanges = true;
         }

@@ -34,7 +34,7 @@
 
 class Curve;
 
-class Line2D : public Node2D {
+class GODOT_EXPORT Line2D : public Node2D {
 
     GDCLASS(Line2D,Node2D)
 

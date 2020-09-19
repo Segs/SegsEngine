@@ -34,7 +34,7 @@
 #include "scene/resources/shape.h"
 #include "core/map.h"
 
-class CollisionObject3D : public Node3D {
+class GODOT_EXPORT CollisionObject3D : public Node3D {
 
     GDCLASS(CollisionObject3D,Node3D)
 

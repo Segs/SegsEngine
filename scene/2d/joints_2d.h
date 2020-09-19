@@ -35,7 +35,7 @@
 
 class PhysicsBody2D;
 
-class Joint2D : public Node2D {
+class GODOT_EXPORT Joint2D : public Node2D {
 
 	GDCLASS(Joint2D,Node2D)
 
@@ -73,7 +73,7 @@ public:
 	Joint2D();
 };
 
-class PinJoint2D : public Joint2D {
+class GODOT_EXPORT PinJoint2D : public Joint2D {
 
 	GDCLASS(PinJoint2D,Joint2D)
 
@@ -91,7 +91,7 @@ public:
 	PinJoint2D();
 };
 
-class GrooveJoint2D : public Joint2D {
+class GODOT_EXPORT GrooveJoint2D : public Joint2D {
 
 	GDCLASS(GrooveJoint2D,Joint2D)
 
@@ -113,7 +113,7 @@ public:
 	GrooveJoint2D();
 };
 
-class DampedSpringJoint2D : public Joint2D {
+class GODOT_EXPORT DampedSpringJoint2D : public Joint2D {
 
 	GDCLASS(DampedSpringJoint2D,Joint2D)
 

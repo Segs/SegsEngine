@@ -34,7 +34,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/multimesh.h"
 
-class MultiMeshInstance2D : public Node2D {
+class GODOT_EXPORT MultiMeshInstance2D : public Node2D {
     GDCLASS(MultiMeshInstance2D,Node2D)
 
     Ref<MultiMesh> multimesh;

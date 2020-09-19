@@ -34,7 +34,7 @@
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/mesh.h"
 
-class ImmediateGeometry3D : public GeometryInstance {
+class GODOT_EXPORT ImmediateGeometry3D : public GeometryInstance {
 
     GDCLASS(ImmediateGeometry3D,GeometryInstance)
 

@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/pool_vector.h"
 
-class ConvexPolygonShape3D : public Shape {
+class GODOT_EXPORT ConvexPolygonShape3D : public Shape {
 
     GDCLASS(ConvexPolygonShape3D,Shape)
 

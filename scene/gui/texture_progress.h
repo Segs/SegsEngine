@@ -33,7 +33,7 @@
 
 #include "scene/gui/range.h"
 
-class TextureProgress : public Range {
+class GODOT_EXPORT TextureProgress : public Range {
 
 	GDCLASS(TextureProgress,Range)
 

@@ -749,8 +749,18 @@ void ClassDB::add_property_group(StringName p_class, const char *p_name, const c
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ERR_FAIL_COND(!type);
 
-    type->property_list.push_back(
-            PropertyInfo(VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP));
+    type->property_list.emplace_back(
+            VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP);
+}
+
+void ClassDB::add_property_array(StringName p_class, const char *p_name, int elem_count,const char *p_prefix) {
+
+    OBJTYPE_WLOCK
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
+    ERR_FAIL_COND(!type);
+
+    type->property_list.emplace_back(StringName(p_name),elem_count, StringName(p_prefix));
 }
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,

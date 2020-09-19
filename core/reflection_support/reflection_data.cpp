@@ -43,16 +43,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDebug>
+#include <QCryptographicHash>
 
 namespace  {
 
 template<class T>
 T valFromJson(const QJsonValue& v);
 
-template<>
-QString valFromJson<QString>(const QJsonValue& v) {
-    return v.toString();
-}
 template<>
 String valFromJson<String>(const QJsonValue& v) {
     return v.toString().toUtf8().data();
@@ -61,7 +58,10 @@ template<>
 bool valFromJson<bool>(const QJsonValue& v) {
     return v.toBool();
 }
-
+template<>
+TypeRefKind valFromJson<TypeRefKind>(const QJsonValue& v) {
+    return TypeRefKind(v.toInt());
+}
 template<class T>
 static void setJsonIfNonDefault(QJsonObject& obj, const char* field, const T& v) {
     if (v != T())
@@ -92,6 +92,8 @@ void getJsonOrDefault<String>(const QJsonObject& obj, const char* field, String&
 
 template<class T>
 void toJson(QJsonObject& tgt, const char* name, const Vector<T>& src) {
+    if(src.empty())
+        return;
     QJsonArray entries;
     for (const T& c : src) {
         QJsonObject field;
@@ -103,6 +105,10 @@ void toJson(QJsonObject& tgt, const char* name, const Vector<T>& src) {
 }
 template<class T>
 void fromJson(const QJsonObject& src, const char* name, Vector<T>& tgt) {
+    if(!src.contains(name)) {
+        tgt.clear();
+        return;
+    }
     assert(src[name].isArray());
     QJsonArray arr = src[name].toArray();
     tgt.reserve(arr.size());
@@ -135,7 +141,7 @@ void EnumInterface::fromJson(const QJsonObject& obj) {
 
     cname = obj["cname"].toString().toUtf8().data();
     if(obj.contains("underlying_type")) {
-        underlying_type = obj["cname"].toString().toUtf8().data();
+        underlying_type = obj["underlying_type"].toString().toUtf8().data();
     }
     else
         underlying_type = "int32_t";
@@ -145,6 +151,8 @@ void EnumInterface::fromJson(const QJsonObject& obj) {
 
 void PropertyInterface::toJson(QJsonObject &obj) const {
     obj["cname"] = cname.c_str();
+    if(!hint_str.empty())
+        obj["hint_string"] = hint_str.c_str();
     obj["max_property_index"] = max_property_index;
     QJsonArray prop_infos;
     if(max_property_index!=-1) {
@@ -153,7 +161,8 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
             entry_enc["name"] = entry.subfield_name.c_str();
             if(max_property_index==-2) // enum based properties -> BlendMode(val) ->  set((PropKind)1,val)
             {
-                entry_enc["index"] = entry.index;
+                if(entry.index!=-1)
+                    entry_enc["index"] = entry.index;
             }
             QJsonObject enc_type;
             entry.entry_type.toJson(enc_type);
@@ -179,6 +188,7 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
 
 void PropertyInterface::fromJson(const QJsonObject &obj) {
     cname = obj["cname"].toString().toUtf8().data();
+    hint_str = obj["hint_string"].toString("").toUtf8().data();
     max_property_index = -1;
 
     max_property_index = obj["max_property_index"].toInt();
@@ -189,12 +199,12 @@ void PropertyInterface::fromJson(const QJsonObject &obj) {
     for (auto& entry : indexed_entries) {
         QJsonObject entry_enc = subfields[idx++].toObject();
         entry.subfield_name = entry_enc["name"].toString().toUtf8().data();
+        entry.index = -1;
         if (max_property_index == -2) // enum based properties -> BlendMode(val) ->  set((PropKind)1,val)
         {
-            entry.index = entry_enc["index"].toInt();
+            if(entry_enc.contains("index"))
+                entry.index = entry_enc["index"].toInt();
         }
-        else
-            entry.index = -1;
 
         entry.entry_type.fromJson(entry_enc["type"].toObject());
 
@@ -205,7 +215,7 @@ void PropertyInterface::fromJson(const QJsonObject &obj) {
 
 void TypeReference::toJson(QJsonObject &obj) const {
     obj["cname"] = cname.c_str();
-    setJsonIfNonDefault(obj, "is_enum", is_enum);
+    setJsonIfNonDefault(obj, "is_enum", (int8_t)is_enum);
     if (pass_by != TypePassBy::Value)
         obj["pass_by"] = (int8_t)pass_by;
 }
@@ -262,6 +272,7 @@ void MethodInterface::toJson(QJsonObject &obj) const {
     ::toJson(obj, "arguments", arguments);
 
     setJsonIfNonDefault(obj, "is_deprecated", is_deprecated);
+    setJsonIfNonDefault(obj, "implements_property", implements_property);
     setJsonIfNonDefault(obj, "deprecation_message", deprecation_message);
 
 }
@@ -280,6 +291,7 @@ void MethodInterface::fromJson(const QJsonObject &obj) {
     ::fromJson(obj, "arguments", arguments);
 
     getJsonOrDefault(obj, "is_deprecated", is_deprecated);
+    getJsonOrDefault(obj, "implements_property", implements_property);
     getJsonOrDefault(obj, "deprecation_message", deprecation_message);
 
 }
@@ -305,42 +317,6 @@ TypeInterface TypeInterface::create_object_type(const String&p_cname, APIType p_
     return itype;
 }
 
-void TypeInterface::create_placeholder_type(TypeInterface &r_itype, const String &p_cname) {
-    r_itype.name = p_cname;
-    //r_itype.cname = p_cname;
-    //r_itype.proxy_name = p_cname;
-
-    //r_itype.c_type = r_itype.name;
-    //r_itype.c_type_in = "MonoObject*";
-    //r_itype.c_type_out = "MonoObject*";
-    //r_itype.cs_type = r_itype.proxy_name;
-    //r_itype.im_type_in = r_itype.proxy_name;
-    //r_itype.im_type_out = r_itype.proxy_name;
-}
-
-void TypeInterface::postsetup_enum_type(TypeInterface &r_enum_itype) {
-    // C interface for enums is the same as that of 'uint32_t'. Remember to apply
-    // any of the changes done here to the 'uint32_t' type interface as well.
-    //assert(false);
-    /*
-    r_enum_itype.c_arg_in = "%s_in";
-    {
-        // The expected types for parameters and return value in ptrcall are 'int64_t' or 'uint64_t'.
-        r_enum_itype.c_in = "\t%0 %1_in = (%0)%1;\n";
-        r_enum_itype.c_out = "\treturn (%0)%1;\n";
-        r_enum_itype.c_type = "int64_t";
-    }
-    r_enum_itype.c_type_in = "int32_t";
-    r_enum_itype.c_type_out = r_enum_itype.c_type_in;
-
-    r_enum_itype.cs_type = r_enum_itype.proxy_name;
-    r_enum_itype.cs_in = "(int)%s";
-    r_enum_itype.cs_out = "return (%2)%0(%1);";
-    r_enum_itype.im_type_in = "int";
-    r_enum_itype.im_type_out = "int";
-    */
-}
-
 TypeInterface::TypeInterface() {
 
     api_type = APIType::Common;
@@ -363,14 +339,24 @@ void TypeInterface::toJson(QJsonObject &obj) const {
     obj["base_name"] = base_name.c_str();
     obj["header_path"] = header_path.c_str();
     obj["api_type"] = (int)api_type;
-    obj["is_enum"] = is_enum;
-    obj["is_object_type"] = is_object_type;
-    obj["is_singleton"] = is_singleton;
-    obj["is_reference"] = is_reference;
-    obj["is_namespace"] = is_namespace;
-    obj["is_instantiable"] = is_instantiable;
-    obj["memory_own"] = memory_own;
-    obj["ret_as_byref_arg"] = ret_as_byref_arg;
+    if(is_enum)
+        obj["is_enum"] = is_enum;
+    if(is_object_type)
+        obj["is_object_type"] = is_object_type;
+    if(is_singleton)
+        obj["is_singleton"] = is_singleton;
+    if(is_reference)
+        obj["is_reference"] = is_reference;
+    if(is_namespace)
+        obj["is_namespace"] = true;
+    if(is_opaque_type)
+        obj["is_opaque_type"] = true;
+    if(is_instantiable)
+        obj["is_instantiable"] = is_instantiable;
+    if(memory_own)
+        obj["memory_own"] = memory_own;
+    if(ret_as_byref_arg)
+        obj["ret_as_byref_arg"] = ret_as_byref_arg;
 
     ::toJson(obj, "constants", constants);
     ::toJson(obj, "enums", enums);
@@ -385,14 +371,15 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
     header_path = obj["header_path"].toString().toUtf8().data();
 
     api_type = (APIType)obj["api_type"].toInt();
-    is_enum = obj["is_enum"].toBool();
-    is_object_type = obj["is_object_type"].toBool();
-    is_singleton = obj["is_singleton"].toBool();
-    is_reference = obj["is_reference"].toBool();
+    is_enum = obj["is_enum"].toBool(false);
+    is_object_type = obj["is_object_type"].toBool(false);
+    is_singleton = obj["is_singleton"].toBool(false);
+    is_reference = obj["is_reference"].toBool(false);
     is_namespace = obj["is_namespace"].toBool(false);
-    is_instantiable = obj["is_instantiable"].toBool();
-    memory_own = obj["memory_own"].toBool();
-    ret_as_byref_arg = obj["ret_as_byref_arg"].toBool();
+    is_instantiable = obj["is_instantiable"].toBool(false);
+    is_opaque_type = obj["is_opaque_type"].toBool(false);
+    memory_own = obj["memory_own"].toBool(false);
+    ret_as_byref_arg = obj["ret_as_byref_arg"].toBool(false);
 
     ::fromJson(obj,"constants",constants);
     ::fromJson(obj, "enums", enums);
@@ -400,48 +387,16 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
     ::fromJson(obj, "methods", methods);
 }
 
-void ReflectionData::build_doc_lookup_helper() {
-    for (auto iter = doc->class_list.begin(); iter!=doc->class_list.end(); ++iter) {
-        auto &tgt = doc_lookup_helpers[iter->first];
-        for (const auto &mthd : iter->second.methods) {
-            tgt.methods[mthd.name] = &mthd;
-        }
-        for (const auto &mthd : iter->second.defined_signals) {
-            tgt.defined_signals[mthd.name] = &mthd;
-        }
-        for (const auto &mthd : iter->second.constants) {
-            if(!mthd.enumeration.empty())
-                tgt.constants[mthd.enumeration + "::" + mthd.name] = &mthd;
-            else
-                tgt.constants[mthd.name] = &mthd;
-        }
-        for (const auto &mthd : iter->second.properties) {
-            tgt.properties[mthd.name] = &mthd;
-        }
-        for (const auto &mthd : iter->second.theme_properties) {
-            tgt.theme_properties[mthd.name] = &mthd;
-        }
-    }
-}
-
-const TypeInterface * ReflectionData::_get_type_or_null(const NamespaceInterface *ns,const TypeReference &p_typeref) const {
-    assert(false);
-    return nullptr;
-}
-
 const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) const {
 
-    const auto builtin_type_match = builtin_types.find(p_typeref.cname);
-
-    if (builtin_type_match != builtin_types.end())
-        return &builtin_type_match->second;
-
+    if(p_typeref.cname.empty())
+        return nullptr;
     const auto obj_type_match = obj_types.find(p_typeref.cname);
 
     if (obj_type_match != obj_types.end())
         return &obj_type_match->second;
 
-    if (p_typeref.is_enum) {
+    if (p_typeref.is_enum==TypeRefKind::Enum) {
         auto enum_match = enum_types.find(p_typeref.cname);
 
         if (enum_match != enum_types.end())
@@ -450,44 +405,15 @@ const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference 
 
         if (enum_match != enum_types.end())
             return &enum_match->second;
-
-        // Enum not found. Most likely because none of its constants were bound, so it's empty. That's fine. Use int instead.
-        const auto int_match = builtin_types.find("int");
-        ERR_FAIL_COND_V(int_match == builtin_types.end(), nullptr);
-        return &int_match->second;
     }
 
+    assert(false);
     return nullptr;
-}
-
-const TypeInterface * NamespaceInterface::_get_type_or_placeholder(const TypeReference &p_typeref) {
-
-    const TypeInterface *found = _get_type_or_null(p_typeref);
-
-    if (found)
-        return found;
-
-    ERR_PRINT(String() + "Type not found. Creating placeholder: '" + p_typeref.cname + "'.");
-
-    const auto match = placeholder_types.find(p_typeref.cname);
-
-    if (match != placeholder_types.end())
-        return &match->second;
-
-    TypeInterface placeholder;
-    TypeInterface::create_placeholder_type(placeholder, p_typeref.cname);
-
-    return &placeholder_types.emplace(placeholder.name, placeholder).first->second;
 }
 
 void NamespaceInterface::toJson(QJsonObject &obj) const {
 
     QJsonObject root_obj;
-
-    QJsonArray insert_order_j;
-    for (const auto& v : obj_type_insert_order)
-        insert_order_j.push_back(v.c_str());
-    root_obj["insert_order"] = insert_order_j;
 
     QJsonArray enum_arr;
     for (const auto& v : global_enums) {
@@ -514,10 +440,10 @@ void NamespaceInterface::toJson(QJsonObject &obj) const {
     root_obj["global_functions"] = global_funcs_arr;
 
     QJsonArray types_arr;
-    for (const auto& type : obj_type_insert_order) {
+    for (const auto& type : obj_types) {
 
         QJsonObject entry;
-        obj_types.at(type).toJson(entry);
+        type.second.toJson(entry);
         types_arr.push_back(entry);
     }
     root_obj["obj_types"] = types_arr;
@@ -534,9 +460,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
     QJsonObject root_obj = obj["namespace_contents"].toObject();
 
     QJsonArray insert_order_j = root_obj["insert_order"].toArray();
-    obj_type_insert_order.reserve(insert_order_j.size());
-    for (const auto& v : insert_order_j)
-        obj_type_insert_order.emplace_back(v.toString().toUtf8().data());
 
     QJsonArray enum_arr = root_obj["global_enums"].toArray();
     global_enums.reserve(enum_arr.size());
@@ -579,19 +502,43 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
 
 bool ReflectionData::load_from_file(StringView os_path) {
     QJsonDocument src_doc;
+    QString aa=QDir::currentPath();
     QFile inFile(QLatin1String(os_path.data(), os_path.size()));
-    inFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    if(!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
     QByteArray data = inFile.readAll();
     inFile.close();
 
     QJsonParseError parse_error;
     QJsonDocument doc = QJsonDocument::fromJson(data, &parse_error);
-    if (doc.isNull() || !doc.isArray()) {
+    if (doc.isNull() || !doc.isObject()) {
         return false;
     }
+    QJsonObject root = doc.object();
+    module_name = qPrintable(root.value("module_name").toString());
+    api_version = qPrintable(root.value("api_version").toString());
+    version = qPrintable(root.value("version").toString());
+    if(version.empty())
+        version = api_version;
 
-    QJsonArray namespaces_arr = doc.array();
-    for(const auto & v : namespaces_arr) {
+    QByteArray normalized(data);
+    normalized.replace('\r',"");
+    normalized.replace('\n',"");
+    api_hash = qPrintable(root.value("api_hash").toString());
+    //api_hash = QCryptographicHash::hash(normalized, QCryptographicHash::Sha256).toHex().data();
+
+    QJsonArray dependencies_arr(root["dependencies"].toArray());
+    for (const auto &v : dependencies_arr) {
+        QJsonObject val(v.toObject());
+        ImportedData id;
+        id.module_name = qPrintable(val.value("name").toString());
+        id.api_version = qPrintable(val.value("api_version").toString());
+        imports.emplace_back(eastl::move(id));
+    }
+
+    QJsonArray namespaces_arr(root["namespaces"].toArray());
+    for (const auto &v : namespaces_arr) {
         NamespaceInterface ni;
         ni.fromJson(v.toObject());
         namespaces.emplace_back(eastl::move(ni));
@@ -605,17 +552,30 @@ bool ReflectionData::save_to_file(StringView os_path) {
     if(!inFile.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
 
-    QJsonDocument tgt_doc;
+    QJsonObject root;
+    root["module_name"] = module_name.c_str();
+    root["api_version"] = api_version.c_str();
+    root["api_hash"] = api_hash.c_str();
+    root["version"] = version.c_str();
+
+    QJsonArray dependencies;
+    for(const auto & v : imports) {
+        QJsonObject dependency;
+        dependency["name"] = v.module_name.c_str();
+        dependency["api_version"] = v.api_version.c_str();
+        dependencies.push_back(dependency);
+    }
+    root["dependencies"] = dependencies;
 
     QJsonArray j_namespaces;
-
     for(const auto & v : namespaces) {
         QJsonObject ns_data;
         v.toJson(ns_data);
         j_namespaces.push_back(ns_data);
     }
-    tgt_doc.setArray(j_namespaces);
-    QByteArray content=tgt_doc.toJson();
+    root["namespaces"] = j_namespaces;
+
+    QByteArray content=QJsonDocument(root).toJson();
     inFile.write(content);
     return true;
 }

@@ -41,7 +41,7 @@
 
 class btGhostObject;
 
-class AreaBullet : public RigidCollisionObjectBullet {
+class GODOT_EXPORT AreaBullet : public RigidCollisionObjectBullet {
     friend void SpaceBullet::check_ghost_overlaps();
 
 public:

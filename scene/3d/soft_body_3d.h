@@ -63,7 +63,7 @@ public:
     void set_aabb(const AABB &p_aabb);
 };
 
-class SoftBody3D : public MeshInstance3D {
+class GODOT_EXPORT SoftBody3D : public MeshInstance3D {
     GDCLASS(SoftBody3D,MeshInstance3D)
 
 public:

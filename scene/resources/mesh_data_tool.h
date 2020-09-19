@@ -32,7 +32,7 @@
 
 #include "scene/resources/mesh.h"
 #include "core/color.h"
-class MeshDataTool : public RefCounted {
+class GODOT_EXPORT MeshDataTool : public RefCounted {
 
 	GDCLASS(MeshDataTool,RefCounted)
 

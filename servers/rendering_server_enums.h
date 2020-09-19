@@ -9,8 +9,6 @@ enum {
     CANVAS_ITEM_Z_MIN = -4096,
     CANVAS_ITEM_Z_MAX = 4096,
     MAX_GLOW_LEVELS = 7,
-
-    MAX_CURSORS = 8,
 };
 
 /* TEXTURE API */

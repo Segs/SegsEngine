@@ -992,11 +992,11 @@ namespace eastl
     inline typename list<T, Allocator>::reference
     list<T, Allocator>::front()
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference an empty container.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(static_cast<node_type*>(internalNode().mpNext) == &internalNode()))
                 EASTL_FAIL_MSG("list::front -- empty container");
+		#else
+			// We allow the user to reference an empty container.
         #endif
 
         return static_cast<node_type*>(internalNode().mpNext)->mValue;
@@ -1007,11 +1007,11 @@ namespace eastl
     inline typename list<T, Allocator>::const_reference
     list<T, Allocator>::front() const
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference an empty container.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(static_cast<node_type*>(internalNode().mpNext) == &internalNode()))
                 EASTL_FAIL_MSG("list::front -- empty container");
+		#else
+			// We allow the user to reference an empty container.
         #endif
 
         return static_cast<node_type*>(internalNode().mpNext)->mValue;
@@ -1022,11 +1022,11 @@ namespace eastl
     inline typename list<T, Allocator>::reference
     list<T, Allocator>::back()
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference an empty container.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(static_cast<node_type*>(internalNode().mpNext) == &internalNode()))
                 EASTL_FAIL_MSG("list::back -- empty container");
+		#else
+			// We allow the user to reference an empty container.
         #endif
 
         return static_cast<node_type*>(internalNode().mpPrev)->mValue;
@@ -1037,11 +1037,11 @@ namespace eastl
     inline typename list<T, Allocator>::const_reference
     list<T, Allocator>::back() const
     {
-        #if EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-            // We allow the user to reference an empty container.
-        #elif EASTL_ASSERT_ENABLED
+		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(static_cast<node_type*>(internalNode().mpNext) == &internalNode()))
                 EASTL_FAIL_MSG("list::back -- empty container");
+		#else
+			// We allow the user to reference an empty container.
         #endif
 
         return static_cast<node_type*>(internalNode().mpPrev)->mValue;

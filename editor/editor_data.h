@@ -30,8 +30,7 @@
 
 #pragma once
 
-#include "core/list.h"
-#include "core/pair.h"
+#include "core/deque.h"
 #include "core/undo_redo.h"
 #include "editor/editor_plugin.h"
 #include "editor/plugins/script_editor_plugin.h"
@@ -231,7 +230,7 @@ public:
     EditorData();
 };
 
-class EditorSelection : public Object {
+class GODOT_EXPORT EditorSelection : public Object {
 
     GDCLASS(EditorSelection,Object)
 
@@ -244,7 +243,7 @@ private:
 
     void _node_removed(Node *p_node);
 
-    List<Object *> editor_plugins;
+    Dequeue<Object *> editor_plugins;
     Vector<Node *> selected_node_list;
 
     void _update_nl();

@@ -505,8 +505,10 @@ bool make_authors_header(const QStringList &source)
 }
 bool make_donors_header(QStringList source)
 {
-    QStringList sections = {"Platinum sponsors", "Gold sponsors", "Mini sponsors", "Gold donors", "Silver donors", "Bronze donors"};
-    QStringList sections_id = {"DONORS_SPONSOR_PLAT", "DONORS_SPONSOR_GOLD", "DONORS_SPONSOR_MINI", "DONORS_GOLD", "DONORS_SILVER", "DONORS_BRONZE"};
+    QStringList sections = { "Platinum sponsors", "Gold sponsors", "Silver sponsors", "Bronze sponsors", "Mini sponsors",
+                             "Gold donors", "Silver donors", "Bronze donors" };
+    QStringList sections_id = { "DONORS_SPONSOR_PLATINUM", "DONORS_SPONSOR_GOLD", "DONORS_SPONSOR_SILVER",
+                                "DONORS_SPONSOR_BRONZE", "DONORS_SPONSOR_MINI", "DONORS_GOLD", "DONORS_SILVER", "DONORS_BRONZE" };
 
     QString src_donors = QFileInfo(source[0]).absoluteFilePath();
     QString dst = QFileInfo(source[1]).absoluteFilePath();

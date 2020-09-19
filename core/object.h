@@ -98,6 +98,7 @@ private:
 #define ADD_PROPERTYI(m_property, m_setter, m_getter, m_index) ClassDB::add_property(get_class_static_name(), m_property, m_setter, m_getter, m_index)
 #define ADD_PROPERTY_DEFAULT(m_property, m_default) ClassDB::set_property_default_value(get_class_static_name(), m_property, m_default)
 #define ADD_GROUP(m_name, m_prefix) ClassDB::add_property_group(get_class_static_name(), m_name, m_prefix)
+#define ADD_PROPERTY_ARRAY(m_name, count,m_prefix) ClassDB::add_property_array(get_class_static_name(), m_name, count,m_prefix)
 
 Array convert_property_list(const List<PropertyInfo> *p_list);
 Array convert_property_vector(Span<const PropertyInfo> p_list);

@@ -38,7 +38,7 @@
 #include "scene/main/node.h"
 #include "scene/resources/texture.h"
 
-class EditorResourcePreviewGenerator : public RefCounted {
+class GODOT_EXPORT EditorResourcePreviewGenerator : public RefCounted {
 
     GDCLASS(EditorResourcePreviewGenerator,RefCounted)
 
@@ -56,7 +56,7 @@ public:
     EditorResourcePreviewGenerator();
 };
 
-class EditorResourcePreview : public Node {
+class GODOT_EXPORT EditorResourcePreview : public Node {
 
     GDCLASS(EditorResourcePreview,Node)
 

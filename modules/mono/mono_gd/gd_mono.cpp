@@ -30,23 +30,20 @@
 
 #include "gd_mono.h"
 
-#include <mono/metadata/environment.h>
-#include <mono/metadata/exception.h>
-#include <mono/metadata/mono-config.h>
-#include <mono/metadata/mono-debug.h>
-#include <mono/metadata/mono-gc.h>
-#include <mono/metadata/profiler.h>
 
-#include "core/os/dir_access.h"
-#include "core/os/file_access.h"
+#include "core/deque.h"
+#include "core/debugger/script_debugger.h"
 #include "core/method_bind.h"
 #include "core/method_bind_interface.h"
+#include "core/os/dir_access.h"
+#include "core/os/file_access.h"
 #include "core/os/os.h"
-#include "core/print_string.h"
 #include "core/os/thread.h"
+#include "core/plugin_interfaces/PluginDeclarations.h"
+#include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
-#include "core/debugger/script_debugger.h"
+#include "plugins/plugin_registry_interface.h"
 
 #include "../csharp_script.h"
 #include "../godotsharp_dirs.h"
@@ -56,14 +53,24 @@
 #include "gd_mono_marshal.h"
 #include "gd_mono_utils.h"
 
+#include "EASTL/vector_set.h"
 #ifdef TOOLS_ENABLED
 #include "main/main.h"
+
+#include <mono/metadata/environment.h>
+#include <mono/metadata/exception.h>
+#include <mono/metadata/mono-config.h>
+#include <mono/metadata/mono-debug.h>
+#include <mono/metadata/mono-gc.h>
+#include <mono/metadata/profiler.h>
 #endif
 
-#ifdef ANDROID_ENABLED
-#include "android_mono_config.h"
-#include "gd_mono_android.h"
-#endif
+#include <QObject>
+#include <QFileInfo>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QVersionNumber>
+#include <QDirIterator>
 
 #if defined(TOOL_ENABLED) && defined(GD_MONO_SINGLE_APPDOMAIN)
 // This will no longer be the case if we replace appdomains with AssemblyLoadContext
@@ -83,14 +90,23 @@ GDMono *GDMono::singleton = nullptr;
 IMPL_GDCLASS(_GodotSharp)
 
 namespace {
+static bool impl_load_assembly_from(StringView p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly) {
 
-#if defined(JAVASCRIPT_ENABLED)
-extern "C" {
-void mono_wasm_load_runtime(const char *managed_path, int enable_debugging);
+    CRASH_COND(!r_assembly);
+
+    print_verbose("Mono: Loading assembly " + p_name + (p_refonly ? " (refonly)" : "") + "...");
+
+    GDMonoAssembly *assembly = GDMonoAssembly::load_from(p_name, p_path, p_refonly);
+
+    if (!assembly)
+        return false;
+
+    *r_assembly = assembly;
+
+    print_verbose("Mono: Assembly " + p_name + (p_refonly ? " (refonly)" : "") + " loaded from path: " + (*r_assembly)->get_path());
+
+    return true;
 }
-#endif
-
-#if !defined(JAVASCRIPT_ENABLED)
 
 void gd_mono_setup_runtime_main_args() {
     String execpath = OS::get_singleton()->get_executable_path();
@@ -171,8 +187,6 @@ void gd_mono_debug_init() {
     };
     mono_jit_parse_options(2, (char **)options);
 }
-
-#endif // !defined(JAVASCRIPT_ENABLED)
 
 MonoDomain *gd_initialize_mono_runtime() {
     gd_mono_debug_init();
@@ -290,6 +304,262 @@ void GDMono::determine_mono_dirs(String &r_assembly_rootdir, String &r_config_di
     r_config_dir = bundled_config_dir;
 #endif
 }
+namespace  {
+struct DependencyEntry {
+    String name; // plugin name
+    QVersionNumber version;
+    operator size_t() { // for eastl hash
+        return eastl::hash<String>()(name) ^ qHash(version);
+    }
+};
+
+struct PluginInfo {
+    enum Invalidated {};
+    PluginInfo() = default;
+    explicit PluginInfo(Invalidated): valid(false) {}
+    String name;
+    String api_hash;
+    QVersionNumber version;
+    QVersionNumber api_version;
+    Vector<DependencyEntry> depends_on;
+    String path;
+    String assembly_path;
+    ScriptingGlueInterface *iface=nullptr;
+    bool can_load=true; // set to false if some pre-load verification fails.
+    bool valid=true;
+
+    String api_version_str() const { return qPrintable(api_version.toString()); }
+    String version_str() const { return qPrintable(version.toString()); }
+};
+
+}
+struct MonoPluginResolver : ResolverInterface {
+
+
+
+    Dequeue<PluginInfo> known_plugins; // using deque so that we have stable PluginInfo pointers
+
+    Map<ScriptingGlueInterface *,PluginInfo *> available_modules;
+    Map<String,Vector<PluginInfo *>> name_to_module;
+    eastl::vector_set<PluginInfo *> registered_modules;
+
+    static void fill_info(PluginInfo &tgt,const QJsonObject &metadata) {
+        QVersionNumber plug_vers;
+        QVersionNumber plugin_api_version; // minimum compatible plugin api
+        tgt.version=QVersionNumber::fromString(metadata.value("Version").toString());
+        tgt.api_version=QVersionNumber::fromString(metadata.value("ApiVersion").toString());
+        tgt.api_hash=StringUtils::to_utf8(metadata.value("ApiHash").toString());
+        tgt.name = StringUtils::to_utf8(metadata.value("Name").toString());
+
+        QJsonArray arr(metadata.value("Dependecies").toArray());
+        for(int i=0,fin=arr.size(); i<fin; ++i) {
+            QJsonObject entry(arr[i].toObject());
+            DependencyEntry dep;
+            dep.name = StringUtils::to_utf8(entry["Name"].toString());
+            dep.version = QVersionNumber::fromString(entry["ApiVersion"].toString());
+            tgt.depends_on.emplace_back(eastl::move(dep));
+        }
+    }
+    // ResolverInterface interface
+public:
+    bool new_plugin_detected(QObject *ob,const QJsonObject &metadata,const char *path=nullptr) override {
+        //NOTE: this assumes that the assembly is located at our_path/../assemblies/our_name.dll
+        auto mono_interface = qobject_cast<ScriptingGlueInterface *>(ob);
+        if(!mono_interface || !metadata.contains("MetaData")) {
+            return false;
+        }
+        QJsonObject glue_metadata(metadata["MetaData"].toObject());
+        if(!glue_metadata.contains("Name")) {
+            glue_metadata["Name"] = QFileInfo(path).baseName();
+        }
+
+        PluginInfo &info(known_plugins.push_back());
+        fill_info(info,glue_metadata);
+
+        // Check if we have our assembly
+        QString possible_assembly_path(QFileInfo(QFileInfo(path).path()+"/../../csharp/assemblies").canonicalFilePath());
+
+        possible_assembly_path += "/"+glue_metadata["Mode"].toString("Debug");
+        QDirIterator visit_all(possible_assembly_path,QDir::NoDotAndDotDot|QDir::Files,QDirIterator::Subdirectories);
+        QString assembly_path;
+        while(visit_all.hasNext()) {
+            QString entry=visit_all.next();
+            if(entry.endsWith(StringUtils::from_utf8(info.name)+"Assembly.dll")) {
+                assembly_path = entry;
+                break;
+            }
+        }
+        if(assembly_path.isEmpty() || !QFileInfo(assembly_path).isReadable()) {
+            ERR_PRINTF("Assembly missing for module %s",info.name.c_str());
+            return false; // no assembly - we can't use this.
+        }
+
+        info.path = path;
+        info.iface = mono_interface;
+        info.assembly_path = qPrintable(assembly_path);
+        auto iter = name_to_module.find(info.name);
+        if(iter!=name_to_module.end()) {
+            ERR_PRINT("Multiple versions of a glue module ");
+            iter->second.emplace_back(&info);
+        }
+        else {
+            name_to_module[info.name].emplace_back(&info);
+        }
+        print_line(String("Adding mono glue plugin:")+ob->metaObject()->className());
+        available_modules[mono_interface]=&info;
+        return true;
+    }
+    void plugin_removed(QObject *ob) override {
+        print_verbose("MonoPluginResolver::plugin_removed");
+        auto mono_interface = qobject_cast<ScriptingGlueInterface *>(ob);
+
+        if(!mono_interface)
+            return;
+
+        auto iter = available_modules.find(mono_interface);
+        PluginInfo *to_remove = iter->second;
+
+        if(!to_remove)
+            return;
+
+        // erase from name_to_module
+        auto map_iter = name_to_module.find(to_remove->name);
+        for(auto ver_iter=map_iter->second.begin(),ver_iter_fin=map_iter->second.end(); ver_iter!=ver_iter_fin; ++ver_iter) {
+            if(*ver_iter==to_remove) {
+                map_iter->second.erase(ver_iter);
+                if(map_iter->second.empty()) {
+                    name_to_module.erase(map_iter);
+                }
+                break;
+            }
+        }
+        auto er_iter = eastl::find_if(known_plugins.begin(),known_plugins.end(),[to_remove](const PluginInfo &ifo)->bool {
+                           return &ifo==to_remove;
+                       });
+        *er_iter = PluginInfo(PluginInfo::Invalidated()); // clean up deque entry, but don't erase it to prevent iterator invalidation.
+        available_modules.erase(iter);
+    }
+    struct UpdateAction {
+        String source_path;
+        String target_path;
+        const PluginInfo *info;
+    };
+
+    //! Given truth and target directories builds a list of plugins to copy to target directory to keep it up-to-date with truth
+    //! In case where target_directory contains a newer version of the module, error is reported and it's not added to the list.
+    void get_module_update_list(StringView truth_base_directory,StringView target_base_directory,Vector<UpdateAction> &actions) {
+        HashMap<String,const PluginInfo *> truth_modules;
+        HashMap<String,const PluginInfo *> target_modules;
+        const bool is_assembly=truth_base_directory.contains("assemblies/");
+
+        for(PluginInfo &pi : known_plugins) {
+            if(!pi.valid)
+                continue;
+            const auto &to_check (is_assembly ? pi.assembly_path : pi.path);
+            if(to_check.starts_with(truth_base_directory)) {
+                truth_modules.emplace(pi.name,&pi);
+            }
+            if(to_check.starts_with(target_base_directory)) {
+                target_modules.emplace(pi.name,&pi);
+            }
+        }
+        for(const auto &truth_entry : truth_modules) {
+            auto target_iter=target_modules.find(truth_entry.first);
+            if(target_iter!=target_modules.end()) {
+                if(target_iter->second->version>truth_entry.second->version) {
+                    ERR_PRINTF("Module %s in target directory (%.*s) is newer.", truth_entry.first.c_str(), target_base_directory.size(),
+                            target_base_directory.data());
+                    continue;
+                }
+                if(target_iter->second->version==truth_entry.second->version) {
+                    continue; // version is current, nothing to do.
+                }
+                    actions.emplace_back(UpdateAction{ is_assembly ? truth_entry.second->assembly_path : truth_entry.second->path,
+                            is_assembly ? target_iter->second->assembly_path : target_iter->second->path, truth_entry.second });
+            } else { // we don't have this module in target, copy it.
+                String target_relative_path=PathUtils::path_to_file(truth_base_directory,is_assembly ? truth_entry.second->assembly_path : truth_entry.second->path);
+                actions.emplace_back(UpdateAction{ is_assembly ? truth_entry.second->assembly_path : truth_entry.second->path,
+                        String(target_base_directory) + "/" + target_relative_path, truth_entry.second });
+            }
+        }
+    }
+    bool register_module(PluginInfo *ifo) {
+        if(registered_modules.find(ifo)!=registered_modules.end())
+            return true;
+
+        for(const auto &e  : ifo->depends_on) {
+            for(PluginInfo *vers : name_to_module[e.name]){
+                if(vers->api_version==e.version) {
+                    if(!register_module(vers))
+                        return false;
+                    break;
+                }
+            }
+        }
+        if(!ifo->iface)
+            return false;
+        bool ok=ifo->iface->register_methods();
+        if(!ok)
+            return false;
+
+        registered_modules.insert(ifo);
+        return true;
+    }
+    bool register_in_dependency_order() {
+        //TODO: this could use topological sort over plugin dependency graph
+
+
+
+
+        for(auto &entry : known_plugins) {
+            if(entry.name.empty()) {
+                ERR_PRINT("Cannot add a mono glue plugin that has no defined 'Name'");
+                continue;
+            }
+            if(!register_module(&entry))
+                return false;
+        }
+        return true;
+    }
+    // Returns plugin info for given glue/assembly path
+    PluginInfo *by_path(StringView sv) {
+        const bool is_assembly=sv.contains("assemblies/");
+
+        for(auto &entry : known_plugins) {
+            if(is_assembly) {
+                if(sv==entry.assembly_path)
+                    return &entry;
+            } else {
+                if(sv==entry.path)
+                    return &entry;
+            }
+        }
+        return nullptr;
+    }
+    PluginInfo* from_assembly_path(StringView sv) {
+        StringView base_name = PathUtils::get_file(sv);
+        for (auto& entry : known_plugins) {
+            if (base_name == PathUtils::get_file(entry.assembly_path)) // we had this assembly, so we know it's PluginInfo.
+                return &entry;
+        }
+        return nullptr;
+    }
+    //! \note this returns first loadable version
+    PluginInfo *by_name(StringView sv) {
+        for (auto &entry : known_plugins) {
+            if (entry.can_load && sv == entry.name)
+                return &entry;
+        }
+        return nullptr;
+    }
+};
+
+void report_mono_version()
+{
+    char *runtime_build_info = mono_get_runtime_build_info();
+    print_verbose("Mono JIT compiler version " + String(runtime_build_info));
+    mono_free(runtime_build_info);
+}
 
 void GDMono::initialize() {
 
@@ -297,11 +567,22 @@ void GDMono::initialize() {
 
     print_verbose("Mono: Initializing module...");
 
-    char *runtime_build_info = mono_get_runtime_build_info();
-    print_verbose("Mono JIT compiler version " + String(runtime_build_info));
-    mono_free(runtime_build_info);
+    module_resolver=new MonoPluginResolver();
+    add_plugin_resolver(module_resolver);
 
-    _init_godot_api_hashes();
+    if(!module_resolver->name_to_module.contains("GodotCore")) {
+        ERR_FAIL_MSG("Mono: Failed to locate GodotCore module.");
+    }
+
+#ifdef TOOLS_ENABLED
+    if(!module_resolver->name_to_module.contains("GodotEditor")) {
+        ERR_FAIL_MSG("Mono: Failed to locate GodotEditor module.");
+    }
+#endif
+
+    report_mono_version();
+
+    _check_known_glue_api_hashes();
     _init_exception_policy();
 
     GDMonoLog::get_singleton()->initialize();
@@ -313,8 +594,8 @@ void GDMono::initialize() {
     String path="Setting assembly root dir to:"+assembly_rootdir;
     print_line(path);
     // Leak if we call mono_set_dirs more than once
-    mono_set_dirs(assembly_rootdir.length() ? assembly_rootdir.data() : nullptr,
-            config_dir.length() ? config_dir.data() : nullptr);
+    mono_set_dirs(!assembly_rootdir.empty() ? assembly_rootdir.c_str() : nullptr,
+            !config_dir.empty() ? config_dir.c_str() : nullptr);
 
     add_mono_shared_libs_dir_to_path();
 
@@ -322,9 +603,7 @@ void GDMono::initialize() {
 
     GDMonoAssembly::initialize();
 
-#if !defined(JAVASCRIPT_ENABLED)
     gd_mono_profiler_init();
-#endif
 
     mono_install_unhandled_exception_hook(&unhandled_exception_hook, nullptr);
 
@@ -353,17 +632,11 @@ void GDMono::initialize() {
 
     GDMonoUtils::set_main_thread(GDMonoUtils::get_current_thread());
 
-#if !defined(JAVASCRIPT_ENABLED)
     gd_mono_setup_runtime_main_args(); // Required for System.Environment.GetCommandLineArgs
-#endif
 
     runtime_initialized = true;
 
     print_verbose("Mono: Runtime initialized");
-
-#if defined(ANDROID_ENABLED)
-    GDMonoAndroid::register_internal_calls();
-#endif
 
     // mscorlib assembly MUST be present at initialization
     bool corlib_loaded = _load_corlib_assembly();
@@ -375,22 +648,20 @@ void GDMono::initialize() {
 #else
     scripts_domain = root_domain;
 #endif
-
-    _register_internal_calls();
+    // we assume that all mono glue plugins have registered at once ( no support for adding internal calls later on )
+    module_resolver->register_in_dependency_order();
+    //_register_internal_calls();
 
     print_verbose("Mono: INITIALIZED");
 }
 
-void GDMono::initialize_load_assemblies() {
-
-#ifndef MONO_GLUE_ENABLED
-    CRASH_NOW_MSG("Mono: This binary was built with 'mono_glue=no'; cannot load assemblies.");
-#endif
+bool GDMono::initialize_load_assemblies() {
 
     // Load assemblies. The API and tools assemblies are required,
     // the application is aborted if these assemblies cannot be loaded.
 
-    _load_api_assemblies();
+    if(!_load_api_assemblies())
+        return false;
 
 #if defined(TOOLS_ENABLED)
     bool tool_assemblies_loaded = _load_tools_assemblies();
@@ -404,6 +675,7 @@ void GDMono::initialize_load_assemblies() {
         if (OS::get_singleton()->is_stdout_verbose())
             print_error("Mono: Failed to load project assembly");
     }
+    return true;
 }
 
 bool GDMono::_are_api_assemblies_out_of_sync() {
@@ -415,58 +687,32 @@ bool GDMono::_are_api_assemblies_out_of_sync() {
     return out_of_sync;
 }
 
-namespace GodotSharpBindings {
-#ifdef MONO_GLUE_ENABLED
+//void GDMono::_register_internal_calls() {
+//    GodotSharpBindings::register_generated_icalls();
+//}
 
-uint64_t get_core_api_hash();
-#ifdef TOOLS_ENABLED
-uint64_t get_editor_api_hash();
-#endif
-uint32_t get_bindings_version();
-uint32_t get_cs_glue_version();
-
-void register_generated_icalls();
-
-#else
-
-uint64_t get_core_api_hash() {
-    GD_UNREACHABLE();
-}
-#ifdef TOOLS_ENABLED
-uint64_t get_editor_api_hash() {
-    GD_UNREACHABLE();
-}
-#endif
-uint32_t get_bindings_version() {
-    GD_UNREACHABLE();
-}
-uint32_t get_cs_glue_version() {
-    GD_UNREACHABLE();
-}
-
-void register_generated_icalls() {
-    /* Fine, just do nothing */
-}
-
-#endif // MONO_GLUE_ENABLED
-} // namespace GodotSharpBindings
-
-void GDMono::_register_internal_calls() {
-    GodotSharpBindings::register_generated_icalls();
-}
-
-void GDMono::_init_godot_api_hashes() {
-#if defined(MONO_GLUE_ENABLED) && defined(DEBUG_METHODS_ENABLED)
-    if (get_api_core_hash() != GodotSharpBindings::get_core_api_hash()) {
-        ERR_PRINT("Mono: Core API hash mismatch.");
+void GDMono::_check_known_glue_api_hashes() {
+#if defined(DEBUG_METHODS_ENABLED)
+    auto core_hash=StringUtils::num_uint64(get_api_core_hash(),16);
+    auto editor_hash=StringUtils::num_uint64(get_api_editor_hash(),16);
+    const auto &core_versions=module_resolver->name_to_module["GodotCore"];
+    const auto &editor_versions=module_resolver->name_to_module["GodotEditor"];
+    for(const auto &ver : core_versions) {
+        if(ver->api_hash!=core_hash) {
+            ERR_PRINT("Mono: Core API hash mismatch.");
+            ver->can_load=false;
+        }
     }
 
 #ifdef TOOLS_ENABLED
-    if (get_api_editor_hash() != GodotSharpBindings::get_editor_api_hash()) {
-        ERR_PRINT("Mono: Editor API hash mismatch.");
+    for(const auto &ver : editor_versions) {
+        if(ver->api_hash!=editor_hash) {
+            ERR_PRINT("Mono: Editor API hash mismatch.");
+            ver->can_load=false;
+        }
     }
 #endif // TOOLS_ENABLED
-#endif // MONO_GLUE_ENABLED && DEBUG_METHODS_ENABLED
+#endif // DEBUG_METHODS_ENABLED
 }
 
 void GDMono::_init_exception_policy() {
@@ -488,8 +734,8 @@ void GDMono::add_assembly(uint32_t p_domain_id, GDMonoAssembly *p_assembly) {
 
 GDMonoAssembly *GDMono::get_loaded_assembly(StringView  p_name) {
 
-    if (p_name == "mscorlib")
-        return get_corlib_assembly();
+    if (p_name == "mscorlib" && corlib_assembly)
+        return corlib_assembly;
 
     MonoDomain *domain = mono_domain_get();
     int32_t domain_id = domain ? mono_domain_get_id(domain) : 0;
@@ -513,39 +759,22 @@ bool GDMono::load_assembly(const String &p_name, GDMonoAssembly **r_assembly, bo
 
 bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly) {
 
+#ifdef DEBUG_ENABLED
     CRASH_COND(!r_assembly);
+#endif
 
-    print_verbose("Mono: Loading assembly " + p_name + (p_refonly ? " (refonly)" : "") + "...");
-
-    MonoImageOpenStatus status = MONO_IMAGE_OK;
-    MonoAssembly *assembly = mono_assembly_load_full(p_aname, nullptr, &status, p_refonly);
-
-    if (!assembly)
-        return false;
-
-    ERR_FAIL_COND_V(status != MONO_IMAGE_OK, false);
-
-    uint32_t domain_id = mono_domain_get_id(mono_domain_get());
-
-    GDMonoAssembly **stored_assembly = &assemblies[domain_id][p_name];
-
-    ERR_FAIL_COND_V(stored_assembly == nullptr, false);
-    ERR_FAIL_COND_V((*stored_assembly)->get_assembly() != assembly, false);
-
-    *r_assembly = *stored_assembly;
-
-    print_verbose("Mono: Assembly " + p_name + (p_refonly ? " (refonly)" : "") + " loaded from path: " + (*r_assembly)->get_path());
-
-    return true;
+    return load_assembly(p_name, p_aname, r_assembly, p_refonly, GDMonoAssembly::get_default_search_dirs());
 }
 
-bool GDMono::load_assembly_from(StringView p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly) {
+bool GDMono::load_assembly(const String &p_name, MonoAssemblyName *p_aname, GDMonoAssembly **r_assembly, bool p_refonly, const Vector<String> &p_search_dirs) {
 
+#ifdef DEBUG_ENABLED
     CRASH_COND(!r_assembly);
+#endif
 
     print_verbose("Mono: Loading assembly " + p_name + (p_refonly ? " (refonly)" : "") + "...");
 
-    GDMonoAssembly *assembly = GDMonoAssembly::load_from(p_name, p_path, p_refonly);
+    GDMonoAssembly *assembly = GDMonoAssembly::load(p_name, p_aname, p_refonly, p_search_dirs);
 
     if (!assembly)
         return false;
@@ -557,27 +786,27 @@ bool GDMono::load_assembly_from(StringView p_name, const String &p_path, GDMonoA
     return true;
 }
 
-ApiAssemblyInfo::Version ApiAssemblyInfo::Version::get_from_loaded_assembly(GDMonoAssembly *p_api_assembly, ApiAssemblyInfo::Type p_api_type) {
+bool GDMono::load_assembly_from(StringView p_name, const String &p_path, GDMonoAssembly **r_assembly, bool p_refonly) {
+    return impl_load_assembly_from(p_name, p_path, r_assembly, p_refonly);
+}
+
+ApiAssemblyInfo::Version ApiAssemblyInfo::Version::get_from_loaded_assembly(GDMonoAssembly *p_api_assembly,const char *ns, const char *nativecalls_name) {
     ApiAssemblyInfo::Version api_assembly_version;
 
-    const char *nativecalls_name = p_api_type == ApiAssemblyInfo::API_CORE ?
-                                           BINDINGS_CLASS_NATIVECALLS :
-                                           BINDINGS_CLASS_NATIVECALLS_EDITOR;
-
-    GDMonoClass *nativecalls_klass = p_api_assembly->get_class(StringName(BINDINGS_NAMESPACE), StringName(nativecalls_name));
+    GDMonoClass *nativecalls_klass = p_api_assembly->get_class(StringName(ns), StringName(nativecalls_name));
 
     if (nativecalls_klass) {
-        GDMonoField *api_hash_field = nativecalls_klass->get_field("godot_api_hash");
+        GDMonoField *api_hash_field = nativecalls_klass->get_field("api_hash");
         if (api_hash_field)
-            api_assembly_version.godot_api_hash = GDMonoMarshal::unbox<uint64_t>(api_hash_field->get_value(nullptr));
+            api_assembly_version.api_hash = api_hash_field->get_string_value(nullptr);
 
-        GDMonoField *binds_ver_field = nativecalls_klass->get_field("bindings_version");
+        GDMonoField *binds_ver_field = nativecalls_klass->get_field("api_version");
         if (binds_ver_field)
-            api_assembly_version.bindings_version = GDMonoMarshal::unbox<uint32_t>(binds_ver_field->get_value(nullptr));
+            api_assembly_version.api_version = binds_ver_field->get_string_value(nullptr);
 
-        GDMonoField *cs_glue_ver_field = nativecalls_klass->get_field("cs_glue_version");
+        GDMonoField *cs_glue_ver_field = nativecalls_klass->get_field("version");
         if (cs_glue_ver_field)
-            api_assembly_version.cs_glue_version = GDMonoMarshal::unbox<uint32_t>(cs_glue_ver_field->get_value(nullptr));
+            api_assembly_version.version = cs_glue_ver_field->get_string_value(nullptr);
     }
 
     return api_assembly_version;
@@ -641,11 +870,13 @@ bool GDMono::copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, String
     return true;
 }
 
-static bool try_get_cached_api_hash_for(StringView p_api_assemblies_dir, bool &r_out_of_sync) {
+static bool try_get_cached_api_hash_for(MonoPluginResolver *rs,StringView p_api_assemblies_dir, bool &r_out_of_sync) {
     String core_api_assembly_path = PathUtils::plus_file(p_api_assemblies_dir,CORE_API_ASSEMBLY_NAME ".dll");
     String editor_api_assembly_path = PathUtils::plus_file(p_api_assemblies_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
+    PluginInfo *core_info = rs->by_path(core_api_assembly_path);
+    PluginInfo *editor_info = rs->by_path(editor_api_assembly_path);
 
-    if (!FileAccess::exists(core_api_assembly_path) || !FileAccess::exists(editor_api_assembly_path))
+    if (!core_info || !editor_info)
         return false;
 
     String cached_api_hash_path = PathUtils::plus_file(p_api_assemblies_dir,"api_hash_cache.cfg");
@@ -664,35 +895,39 @@ static bool try_get_cached_api_hash_for(StringView p_api_assemblies_dir, bool &r
         return false;
     }
 
-    r_out_of_sync = GodotSharpBindings::get_bindings_version() != (uint32_t)cfg->get_value("core", "bindings_version") ||
-                    GodotSharpBindings::get_cs_glue_version() != (uint32_t)cfg->get_value("core", "cs_glue_version") ||
-                    GodotSharpBindings::get_bindings_version() != (uint32_t)cfg->get_value("editor", "bindings_version") ||
-                    GodotSharpBindings::get_cs_glue_version() != (uint32_t)cfg->get_value("editor", "cs_glue_version") ||
-                    GodotSharpBindings::get_core_api_hash() != (uint64_t)cfg->get_value("core", "api_hash") ||
-                    GodotSharpBindings::get_editor_api_hash() != (uint64_t)cfg->get_value("editor", "api_hash");
+    r_out_of_sync = core_info->version_str() != (String)cfg->get_value("core", "bindings_version") ||
+                    core_info->api_version_str() != (String)cfg->get_value("core", "cs_glue_version") ||
+                    editor_info->version_str() != (String)cfg->get_value("editor", "bindings_version") ||
+                    editor_info->api_version_str() != (String)cfg->get_value("editor", "cs_glue_version") ||
+                    core_info->api_hash != (String)cfg->get_value("core", "api_hash") ||
+                    editor_info->api_hash != (String)cfg->get_value("editor", "api_hash");
 
     return true;
 }
 
-static void create_cached_api_hash_for(StringView p_api_assemblies_dir) {
+static void create_cached_api_hash_for(MonoPluginResolver *rs,StringView p_api_assemblies_dir) {
 
     String core_api_assembly_path = PathUtils::plus_file(p_api_assemblies_dir,CORE_API_ASSEMBLY_NAME ".dll");
     String editor_api_assembly_path = PathUtils::plus_file(p_api_assemblies_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
     String cached_api_hash_path = PathUtils::plus_file(p_api_assemblies_dir,"api_hash_cache.cfg");
+
+    PluginInfo *core_info = rs->from_assembly_path(core_api_assembly_path);
+    PluginInfo *editor_info = rs->from_assembly_path(editor_api_assembly_path);
+    ERR_FAIL_COND(core_info==nullptr||editor_info==nullptr);
 
     Ref<ConfigFile> cfg(make_ref_counted<ConfigFile>());
 
     cfg->set_value("core", "modified_time", FileAccess::get_modified_time(core_api_assembly_path));
     cfg->set_value("editor", "modified_time", FileAccess::get_modified_time(editor_api_assembly_path));
 
-    cfg->set_value("core", "bindings_version", GodotSharpBindings::get_bindings_version());
-    cfg->set_value("core", "cs_glue_version", GodotSharpBindings::get_cs_glue_version());
-    cfg->set_value("editor", "bindings_version", GodotSharpBindings::get_bindings_version());
-    cfg->set_value("editor", "cs_glue_version", GodotSharpBindings::get_cs_glue_version());
+    cfg->set_value("core", "bindings_version", core_info->version_str());
+    cfg->set_value("core", "cs_glue_version", core_info->api_version_str());
+    cfg->set_value("editor", "bindings_version", editor_info->version_str());
+    cfg->set_value("editor", "cs_glue_version", editor_info->api_version_str());
 
     // This assumes the prebuilt api assemblies we copied to the project are not out of sync
-    cfg->set_value("core", "api_hash", GodotSharpBindings::get_core_api_hash());
-    cfg->set_value("editor", "api_hash", GodotSharpBindings::get_editor_api_hash());
+    cfg->set_value("core", "api_hash", core_info->api_hash);
+    cfg->set_value("editor", "api_hash", editor_info->api_hash);
 
     Error err = cfg->save(cached_api_hash_path);
     ERR_FAIL_COND(err != OK);
@@ -717,7 +952,6 @@ bool GDMono::_temp_domain_load_are_assemblies_out_of_sync(StringView p_config) {
 }
 
 String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bool *p_core_api_out_of_sync, const bool *p_editor_api_out_of_sync) {
-
 #define FAIL_REASON(m_out_of_sync, m_prebuilt_exists)                            \
     (                                                                            \
             (m_out_of_sync ?                                                     \
@@ -727,7 +961,11 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
                             String("and the prebuilt assemblies are missing.") : \
                             String("and we failed to copy the prebuilt assemblies.")))
 
-    String dst_assemblies_dir = PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config);
+    String dst_assemblies_dir = ProjectSettings::get_singleton()->globalize_path(PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config));
+    String prebuilt_api_dir = PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
+
+    Vector<MonoPluginResolver::UpdateAction>  actions;
+    module_resolver->get_module_update_list(prebuilt_api_dir,dst_assemblies_dir,actions);
 
     String core_assembly_path = PathUtils::plus_file(dst_assemblies_dir,CORE_API_ASSEMBLY_NAME ".dll");
     String editor_assembly_path = PathUtils::plus_file(dst_assemblies_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
@@ -738,7 +976,7 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
         api_assemblies_out_of_sync = p_core_api_out_of_sync || p_editor_api_out_of_sync;
     } else if (FileAccess::exists(core_assembly_path) && FileAccess::exists(editor_assembly_path)) {
         // Determine if they're out of sync
-        if (!try_get_cached_api_hash_for(dst_assemblies_dir, api_assemblies_out_of_sync)) {
+        if (!try_get_cached_api_hash_for(module_resolver,dst_assemblies_dir, api_assemblies_out_of_sync)) {
             api_assemblies_out_of_sync = _temp_domain_load_are_assemblies_out_of_sync(p_config);
         }
     }
@@ -750,7 +988,6 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
 
     print_verbose("Updating '" + p_config + "' API assemblies");
 
-    String prebuilt_api_dir = PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
     String prebuilt_core_dll_path = PathUtils::plus_file(prebuilt_api_dir,CORE_API_ASSEMBLY_NAME ".dll");
     String prebuilt_editor_dll_path = PathUtils::plus_file(prebuilt_api_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
 
@@ -765,7 +1002,7 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
     }
 
     // Cache the api hash of the assemblies we just copied
-    create_cached_api_hash_for(dst_assemblies_dir);
+    create_cached_api_hash_for(module_resolver,dst_assemblies_dir);
 
     return String(); // Updated successfully
 
@@ -773,34 +1010,24 @@ String GDMono::update_api_assemblies_from_prebuilt(StringView p_config, const bo
 }
 #endif
 
-bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly) {
-
+bool load_glue_assembly(PluginInfo *plug, GDMono::LoadedApiAssembly &r_loaded_api_assembly, bool p_refonly) {
     if (r_loaded_api_assembly.assembly)
         return true;
-
+    if(!plug)
+        return false;
 #ifdef TOOLS_ENABLED
     // For the editor and the editor player we want to load it from a specific path to make sure we can keep it up to date
-
-    // If running the project manager, load it from the prebuilt API directory
-    String assembly_dir = !Main::is_project_manager() ?
-                                  PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config) :
-                                  PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
-
-    String assembly_path = PathUtils::plus_file(assembly_dir,CORE_API_ASSEMBLY_NAME ".dll");
-    if (OS::get_singleton()->is_stdout_verbose())
-        OS::get_singleton()->print(FormatVE("Mono: Searching for assembly %s\n",assembly_path.c_str()));
-
-    bool success = FileAccess::exists(assembly_path) &&
-                   load_assembly_from(CORE_API_ASSEMBLY_NAME, assembly_path, &r_loaded_api_assembly.assembly, p_refonly);
+    bool success = FileAccess::exists(plug->assembly_path) &&
+                   impl_load_assembly_from(plug->name+"Assembly", plug->assembly_path, &r_loaded_api_assembly.assembly, p_refonly);
 #else
-    bool success = load_assembly(CORE_API_ASSEMBLY_NAME, &r_loaded_api_assembly.assembly, p_refonly);
+    bool success = load_assembly(plug->name, &r_loaded_api_assembly.assembly, p_refonly);
 #endif
-
     if (success) {
-        ApiAssemblyInfo::Version api_assembly_ver = ApiAssemblyInfo::Version::get_from_loaded_assembly(r_loaded_api_assembly.assembly, ApiAssemblyInfo::API_CORE);
-        r_loaded_api_assembly.out_of_sync = GodotSharpBindings::get_core_api_hash() != api_assembly_ver.godot_api_hash ||
-                                            GodotSharpBindings::get_bindings_version() != api_assembly_ver.bindings_version ||
-                                            GodotSharpBindings::get_cs_glue_version() != api_assembly_ver.cs_glue_version;
+        ApiAssemblyInfo::Version api_assembly_ver = ApiAssemblyInfo::Version::get_from_loaded_assembly(r_loaded_api_assembly.assembly, (plug->name+"MetaData").c_str(),"Constants");
+        r_loaded_api_assembly.out_of_sync = plug->api_hash != api_assembly_ver.api_hash ||
+                                            plug->api_version_str() != api_assembly_ver.api_version ||
+                                            plug->version_str() != api_assembly_ver.version
+                ;
     } else {
         r_loaded_api_assembly.out_of_sync = false;
     }
@@ -808,36 +1035,49 @@ bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, S
     return success;
 }
 
-#ifdef TOOLS_ENABLED
-bool GDMono::_load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly) {
+String GDMono::select_assembly_dir(StringView p_config) {
+    // If running the project manager, load it from the prebuilt API directory
+    return !Main::is_project_manager() ?
+                   PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config) :
+                   PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
+}
 
+bool GDMono::_load_core_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly) {
+    PluginInfo *ifo;
     if (r_loaded_api_assembly.assembly)
         return true;
 
+#ifdef TOOLS_ENABLED
     // For the editor and the editor player we want to load it from a specific path to make sure we can keep it up to date
 
-    // If running the project manager, load it from the prebuilt API directory
-    String assembly_dir = !Main::is_project_manager() ?
-                                  PathUtils::plus_file(GodotSharpDirs::get_res_assemblies_base_dir(),p_config) :
-                                  PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),p_config);
+    String assembly_dir(select_assembly_dir(p_config));
 
-    String assembly_path = PathUtils::plus_file(assembly_dir,EDITOR_API_ASSEMBLY_NAME ".dll");
-    if (OS::get_singleton()->is_stdout_verbose())
-        OS::get_singleton()->print(FormatVE("Mono: Searching for assembly %s\n",assembly_path.c_str()));
+    String assembly_path = PathUtils::plus_file(assembly_dir,CORE_API_ASSEMBLY_NAME ".dll");
+    ifo = module_resolver->from_assembly_path(assembly_path);
+#else
+    ifo = module_resolver->by_name(CORE_API_ASSEMBLY_NAME);
+#endif
+    if(!ifo)
+        return false;
+    PluginInfo modified =*ifo;
+    modified.assembly_path = assembly_path;
+    return load_glue_assembly(&modified,r_loaded_api_assembly,p_refonly);
+}
 
-    bool success = FileAccess::exists(assembly_path) &&
-                   load_assembly_from(EDITOR_API_ASSEMBLY_NAME, assembly_path, &r_loaded_api_assembly.assembly, p_refonly);
+#ifdef TOOLS_ENABLED
+bool GDMono::_load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly, StringView p_config, bool p_refonly) {
+    if (r_loaded_api_assembly.assembly)
+        return true;
 
-    if (success) {
-        ApiAssemblyInfo::Version api_assembly_ver = ApiAssemblyInfo::Version::get_from_loaded_assembly(r_loaded_api_assembly.assembly, ApiAssemblyInfo::API_EDITOR);
-        r_loaded_api_assembly.out_of_sync = GodotSharpBindings::get_editor_api_hash() != api_assembly_ver.godot_api_hash ||
-                                            GodotSharpBindings::get_bindings_version() != api_assembly_ver.bindings_version ||
-                                            GodotSharpBindings::get_cs_glue_version() != api_assembly_ver.cs_glue_version;
-    } else {
-        r_loaded_api_assembly.out_of_sync = false;
-    }
+    String assembly_dir(select_assembly_dir(p_config));
 
-    return success;
+    String assembly_path = PathUtils::plus_file(assembly_dir, EDITOR_API_ASSEMBLY_NAME ".dll");
+    PluginInfo* ifo = module_resolver->from_assembly_path(assembly_path);
+    if (!ifo)
+        return false;
+    PluginInfo modified = *ifo;
+    modified.assembly_path = assembly_path;
+    return load_glue_assembly(&modified, r_loaded_api_assembly, p_refonly);
 }
 #endif
 
@@ -888,7 +1128,7 @@ bool GDMono::_try_load_api_assemblies_preset() {
             get_expected_api_build_config(), /* refonly: */ false, _on_core_api_assembly_loaded);
 }
 
-void GDMono::_load_api_assemblies() {
+bool GDMono::_load_api_assemblies() {
 
     bool api_assemblies_loaded = _try_load_api_assemblies_preset();
 
@@ -904,15 +1144,18 @@ void GDMono::_load_api_assemblies() {
         Error domain_unload_err = _unload_scripts_domain();
         CRASH_COND_MSG(domain_unload_err != OK, "Mono: Failed to unload scripts domain.");
 
-        // 2. Update the API assemblies
+        // 2. Add prebuilt modules to active plugins.
+        load_all_plugins(PathUtils::plus_file(GodotSharpDirs::get_data_editor_prebuilt_api_dir(),"Debug").c_str());
+
+        // 3. Update the API assemblies
         String update_error = update_api_assemblies_from_prebuilt("Debug", &core_api_assembly.out_of_sync, &editor_api_assembly.out_of_sync);
         CRASH_COND_MSG(!update_error.empty(), update_error);
 
-        // 3. Load the scripts domain again
+        // 4. Load the scripts domain again
         Error domain_load_err = _load_scripts_domain();
         CRASH_COND_MSG(domain_load_err != OK, "Mono: Failed to load scripts domain.");
 
-        // 4. Try loading the updated assemblies
+        // 5. Try loading the updated assemblies
         api_assemblies_loaded = _try_load_api_assemblies_preset();
     }
 #endif
@@ -933,11 +1176,14 @@ void GDMono::_load_api_assemblies() {
             }
 #endif
 
-            CRASH_NOW();
+            ERR_PRINT("API assemblies are out of sync, cannot use c#.");
+            return false;
         } else {
-            CRASH_NOW_MSG("Failed to load one of the API assemblies.");
+            ERR_PRINT("Failed to load one of the API assemblies.");
+            return false;
         }
     }
+    return true;
 }
 
 #ifdef TOOLS_ENABLED
@@ -1075,7 +1321,8 @@ Error GDMono::reload_scripts_domain() {
     // Load assemblies. The API and tools assemblies are required,
     // the application is aborted if these assemblies cannot be loaded.
 
-    _load_api_assemblies();
+    if(!_load_api_assemblies())
+        return ERR_CANT_OPEN;
 
 #if defined(TOOLS_ENABLED)
     bool tools_assemblies_loaded = _load_tools_assemblies();

@@ -489,7 +489,7 @@ public:
 
     void shader_add_custom_define(RID p_shader, StringView p_define) override;
     void shader_get_custom_defines(RID p_shader, Vector<StringView> *p_defines) const override;
-    void shader_clear_custom_defines(RID p_shader) override;
+    void shader_remove_custom_define(RID p_shader, StringView p_define) override;
 
 
     void _update_shader(Shader *p_shader) const;

@@ -36,7 +36,7 @@
 
 class CollisionObject2D;
 
-class CollisionPolygon2D : public Node2D {
+class GODOT_EXPORT CollisionPolygon2D : public Node2D {
 
     GDCLASS(CollisionPolygon2D,Node2D)
 

@@ -33,7 +33,7 @@
 #include "visual_script.h"
 #include "core/method_info.h"
 
-class VisualScriptFunctionCall : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptFunctionCall : public VisualScriptNode {
 
     GDCLASS(VisualScriptFunctionCall,VisualScriptNode)
 
@@ -133,7 +133,7 @@ public:
     VisualScriptFunctionCall();
 };
 
-class VisualScriptPropertySet : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptPropertySet : public VisualScriptNode {
 
     GDCLASS(VisualScriptPropertySet,VisualScriptNode)
 
@@ -237,7 +237,7 @@ public:
 };
 
 
-class VisualScriptPropertyGet : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptPropertyGet : public VisualScriptNode {
 
     GDCLASS(VisualScriptPropertyGet,VisualScriptNode)
 
@@ -319,7 +319,7 @@ public:
 };
 
 
-class VisualScriptEmitSignal : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptEmitSignal : public VisualScriptNode {
 
     GDCLASS(VisualScriptEmitSignal,VisualScriptNode)
 

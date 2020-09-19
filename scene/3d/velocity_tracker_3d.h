@@ -33,7 +33,7 @@
 #include "core/reference.h"
 #include "core/math/vector3.h"
 
-class VelocityTracker3D : public RefCounted {
+class GODOT_EXPORT VelocityTracker3D : public RefCounted {
     GDCLASS(VelocityTracker3D,RefCounted)
 
 	struct PositionHistory {

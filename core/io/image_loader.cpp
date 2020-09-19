@@ -40,7 +40,7 @@ namespace
 {
 struct ImageLoadPluginResolver : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
         bool res=false;
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if (image_loader_interface) {

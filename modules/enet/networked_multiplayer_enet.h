@@ -36,7 +36,7 @@
 #include "core/map.h"
 #include "core/list.h"
 
-class NetworkedMultiplayerENet : public NetworkedMultiplayerPeer {
+class GODOT_EXPORT NetworkedMultiplayerENet : public NetworkedMultiplayerPeer {
 
     GDCLASS(NetworkedMultiplayerENet,NetworkedMultiplayerPeer)
 

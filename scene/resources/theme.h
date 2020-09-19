@@ -39,7 +39,7 @@
 
 class Font;
 
-class Theme : public Resource {
+class GODOT_EXPORT Theme : public Resource {
 
     GDCLASS(Theme,Resource)
 

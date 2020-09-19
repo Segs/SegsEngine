@@ -42,7 +42,7 @@
 
 class EditorPlugin;
 
-class EditorSettings : public Resource {
+class GODOT_EXPORT EditorSettings : public Resource {
 
     GDCLASS(EditorSettings,Resource)
 

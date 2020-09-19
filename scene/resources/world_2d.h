@@ -38,7 +38,7 @@ class VisibilityNotifier2D;
 class Viewport;
 struct SpatialIndexer2D;
 
-class World2D : public Resource {
+class GODOT_EXPORT World2D : public Resource {
 
 	GDCLASS(World2D,Resource)
 

@@ -52,7 +52,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
 #define SET_FROM_ARRAY(m_type)                                                                   \
     {                                                                                            \
-        MonoArray *managed = GDMonoMarshal::m_type##_to_mono_array(p_value.as<::m_type>()); \
+        MonoArray *managed = GDMonoMarshal::container_to_mono_array(p_value.as<::m_type>()); \
         mono_field_set_value(p_object, mono_field, managed);                                     \
     }
 
@@ -285,7 +285,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
             GDMonoClass *array_type_class = GDMono::get_singleton()->get_class(array_type->eklass);
             if (CACHED_CLASS(GodotObject)->is_assignable_from(array_type_class)) {
-                MonoArray *managed = GDMonoMarshal::Array_to_mono_array(p_value.as<::Array>(), array_type_class);
+                MonoArray *managed = GDMonoMarshal::container_to_mono_array(p_value.as<::Array>(), array_type_class);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }

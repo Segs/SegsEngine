@@ -667,7 +667,11 @@ void CPUParticles2D::_particles_process(float p_delta) {
                     p.transform[2] = emission_points.get(random_idx);
 
                     if (emission_shape == EMISSION_SHAPE_DIRECTED_POINTS && emission_normals.size() == pc) {
-                        p.velocity = emission_normals.get(random_idx);
+                        Vector2 normal = emission_normals.get(random_idx);
+                        Transform2D m2;
+                        m2.set_axis(0, normal);
+                        m2.set_axis(1, normal.tangent());
+                        p.velocity = m2.basis_xform(p.velocity);
                     }
 
                     if (emission_colors.size() == pc) {
@@ -1221,22 +1225,22 @@ void CPUParticles2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emitting"), "set_emitting", "is_emitting");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "amount", PropertyHint::ExpRange, "1,1000000,1"), "set_amount", "get_amount");
-    ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "preprocess", PropertyHint::Range, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "fract_delta"), "set_fractional_delta", "get_fractional_delta");
-    ADD_GROUP("Drawing", "");
+    ADD_GROUP("Time", "tm_");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime", PropertyHint::Range, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tm_one_shot"), "set_one_shot", "get_one_shot");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_preprocess", PropertyHint::Range, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_speed_scale", PropertyHint::Range, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_explosiveness", PropertyHint::Range, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_randomness", PropertyHint::Range, "0,1,0.01"), "set_randomness_ratio", "get_randomness_ratio");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "tm_fixed_fps", PropertyHint::Range, "0,1000,1"), "set_fixed_fps", "get_fixed_fps");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "tm_fract_delta"), "set_fractional_delta", "get_fractional_delta");
+    ADD_GROUP("Drawing", "drw_");
     // No visibility_rect property contrarily to GPUParticles2D, it's updated automatically.
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normalmap", PropertyHint::ResourceType, "Texture"), "set_normalmap", "get_normalmap");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "drw_local_coords"), "set_use_local_coordinates", "get_use_local_coordinates");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "drw_draw_order", PropertyHint::Enum, "Index,Lifetime"), "set_draw_order", "get_draw_order");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "drw_normalmap", PropertyHint::ResourceType, "Texture"), "set_normalmap", "get_normalmap");
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
     BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
@@ -1302,9 +1306,9 @@ void CPUParticles2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_COLOR_ARRAY, "emission_colors"), "set_emission_colors", "get_emission_colors");
     ADD_GROUP("Flags", "flag_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_align_y"), "set_particle_flag", "get_particle_flag", FLAG_ALIGN_Y_TO_VELOCITY);
-    ADD_GROUP("Direction", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "direction"), "set_direction", "get_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
+    ADD_GROUP("Direction", "dir_");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "dir_direction"), "set_direction", "get_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dir_spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
     ADD_GROUP("Gravity", "");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");

@@ -44,7 +44,7 @@ class Font;
 class World2D;
 class StyleBox;
 
-class CanvasItemMaterial : public Material {
+class GODOT_EXPORT CanvasItemMaterial : public Material {
 
     GDCLASS(CanvasItemMaterial,Material)
 

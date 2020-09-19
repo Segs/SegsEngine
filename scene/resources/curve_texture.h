@@ -32,7 +32,7 @@
 #include "scene/resources/curve.h"
 #include "scene/resources/texture.h"
 
-class CurveTexture : public Texture {
+class GODOT_EXPORT CurveTexture : public Texture {
 
     GDCLASS(CurveTexture,Texture)
     RES_BASE_EXTENSION("curvetex")

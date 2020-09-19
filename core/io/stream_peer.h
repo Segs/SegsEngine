@@ -33,7 +33,7 @@
 #include "core/reference.h"
 #include "core/pool_vector.h"
 
-class StreamPeer : public RefCounted {
+class GODOT_EXPORT StreamPeer : public RefCounted {
     GDCLASS(StreamPeer, RefCounted)
     OBJ_CATEGORY("Networking")
 
@@ -91,7 +91,7 @@ public:
     StreamPeer() { big_endian = false; }
 };
 
-class StreamPeerBuffer : public StreamPeer {
+class GODOT_EXPORT StreamPeerBuffer : public StreamPeer {
 
     GDCLASS(StreamPeerBuffer, StreamPeer)
 

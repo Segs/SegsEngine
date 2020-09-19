@@ -188,21 +188,24 @@ void Area2DSW::call_queries() {
             monitor_callback_id = 0;
             return;
         }
+        for (auto iter=monitored_bodies.begin(); iter!=monitored_bodies.end(); ) {
 
-        for (eastl::pair<const BodyKey,BodyState> &E : monitored_bodies) {
-
-            if (E.second.state == 0)
+            if (iter->second.state == 0) {
+                ++iter;
                 continue; //nothing happened
+            }
 
-            res[0] = E.second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
-            res[1] = E.first.rid;
-            res[2] = E.first.instance_id;
-            res[3] = E.first.body_shape;
-            res[4] = E.first.area_shape;
+            res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
+            res[1] = iter->first.rid;
+            res[2] = iter->first.instance_id;
+            res[3] = iter->first.body_shape;
+            res[4] = iter->first.area_shape;
 
+            iter = monitored_bodies.erase(iter);
             Callable::CallError ce;
             obj->call(monitor_callback_method, (const Variant **)resptr, 5, ce);
         }
+
     }
 
     monitored_bodies.clear();
@@ -220,26 +223,23 @@ void Area2DSW::call_queries() {
             area_monitor_callback_id = 0;
             return;
         }
+        for (auto iter=monitored_areas.begin(); iter!=monitored_areas.end(); ) {
 
-        for (eastl::pair<const BodyKey,BodyState> &E : monitored_areas) {
-
-            if (E.second.state == 0)
+            if (iter->second.state == 0) {
+                ++iter;
                 continue; //nothing happened
+            }
+            res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
+            res[1] = iter->first.rid;
+            res[2] = iter->first.instance_id;
+            res[3] = iter->first.body_shape;
+            res[4] = iter->first.area_shape;
 
-            res[0] = E.second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
-            res[1] = E.first.rid;
-            res[2] = E.first.instance_id;
-            res[3] = E.first.body_shape;
-            res[4] = E.first.area_shape;
-
+            iter = monitored_bodies.erase(iter);
             Callable::CallError ce;
             obj->call(area_monitor_callback_method, (const Variant **)resptr, 5, ce);
         }
     }
-
-    monitored_areas.clear();
-
-    //get_space()->area_remove_from_monitor_query_list(&monitor_query_list);
 }
 
 Area2DSW::Area2DSW() :

@@ -40,7 +40,7 @@
 #include "scene/gui/popup.h"
 #include "scene/gui/tree.h"
 
-class AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
+class GODOT_EXPORT AnimationNodeStateMachineEditor : public AnimationTreeNodeEditorPlugin {
 
     GDCLASS(AnimationNodeStateMachineEditor,AnimationTreeNodeEditorPlugin)
 

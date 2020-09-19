@@ -33,7 +33,7 @@
 #include "core/math/random_pcg.h"
 #include "core/reference.h"
 
-class RandomNumberGenerator : public RefCounted {
+class GODOT_EXPORT RandomNumberGenerator : public RefCounted {
 	GDCLASS(RandomNumberGenerator,RefCounted)
 
 	RandomPCG randbase;

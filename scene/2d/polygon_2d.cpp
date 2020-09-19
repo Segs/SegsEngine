@@ -649,9 +649,8 @@ void Polygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "offset"), "set_offset", "get_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "get_antialiased");
-    ADD_GROUP("Texture", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Texture", "texture_");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture_data", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_offset"), "set_texture_offset", "get_texture_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "texture_scale"), "set_texture_scale", "get_texture_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "texture_rotation_degrees", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_texture_rotation_degrees", "get_texture_rotation_degrees");

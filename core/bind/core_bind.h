@@ -52,7 +52,7 @@ class recursive_mutex;
 }
 using Mutex = std::recursive_mutex;
 
-class _ResourceManager : public Object {
+class GODOT_EXPORT _ResourceManager : public Object {
     GDCLASS(_ResourceManager, Object)
     HAS_BINDS
 protected:
@@ -87,7 +87,7 @@ public:
 
 class MainLoop;
 
-class _OS : public Object {
+class GODOT_EXPORT _OS : public Object {
     GDCLASS(_OS, Object)
     HAS_BINDS
 
@@ -162,6 +162,8 @@ public:
     virtual Point2 get_screen_position(int p_screen = -1) const;
     virtual Size2 get_screen_size(int p_screen = -1) const;
     virtual int get_screen_dpi(int p_screen = -1) const;
+    virtual float get_screen_scale(int p_screen) const;
+    virtual float get_screen_max_scale() const;
     virtual Point2 get_window_position() const;
     virtual void set_window_position(const Point2 &p_position);
     virtual Size2 get_max_window_size() const;
@@ -343,7 +345,7 @@ public:
     _OS();
 };
 
-class _Geometry : public Object {
+class GODOT_EXPORT _Geometry : public Object {
 
     GDCLASS(_Geometry, Object)
 
@@ -421,7 +423,7 @@ public:
 };
 
 
-class _File : public RefCounted {
+class GODOT_EXPORT _File : public RefCounted {
 
     GDCLASS(_File, RefCounted)
     FileAccess *f;
@@ -521,7 +523,7 @@ public:
 };
 
 
-class _Directory : public RefCounted {
+class GODOT_EXPORT _Directory : public RefCounted {
 
     GDCLASS(_Directory, RefCounted)
     DirAccess *d;
@@ -565,7 +567,7 @@ private:
     bool _list_skip_hidden;
 };
 
-class _Marshalls : public RefCounted {
+class GODOT_EXPORT _Marshalls : public RefCounted {
 
     GDCLASS(_Marshalls, RefCounted)
 
@@ -590,7 +592,7 @@ public:
     ~_Marshalls() override { singleton = nullptr; }
 };
 
-class _Mutex : public RefCounted {
+class GODOT_EXPORT _Mutex : public RefCounted {
 
     GDCLASS(_Mutex, RefCounted);
     Mutex *mutex;
@@ -606,7 +608,7 @@ public:
     ~_Mutex() override;
 };
 
-class _Semaphore : public RefCounted {
+class GODOT_EXPORT _Semaphore : public RefCounted {
 
     GDCLASS(_Semaphore, RefCounted);
     Semaphore *semaphore;
@@ -621,7 +623,7 @@ public:
     ~_Semaphore() override;
 };
 
-class _Thread : public RefCounted {
+class GODOT_EXPORT _Thread : public RefCounted {
 
     GDCLASS(_Thread, RefCounted);
 
@@ -654,7 +656,7 @@ public:
 };
 
 
-class _ClassDB : public Object {
+class GODOT_EXPORT _ClassDB : public Object {
 
     GDCLASS(_ClassDB, Object);
 
@@ -693,7 +695,7 @@ public:
     ~_ClassDB() override;
 };
 
-class _Engine : public Object {
+class GODOT_EXPORT _Engine : public Object {
     GDCLASS(_Engine, Object);
 
 protected:
@@ -744,7 +746,7 @@ public:
 
 class _JSON;
 
-class JSONParseResult : public RefCounted {
+class GODOT_EXPORT JSONParseResult : public RefCounted {
     GDCLASS(JSONParseResult, RefCounted);
 
     friend class _JSON;
@@ -773,7 +775,7 @@ public:
 
 };
 
-class _JSON : public Object {
+class GODOT_EXPORT _JSON : public Object {
     GDCLASS(_JSON, Object)
 
 protected:

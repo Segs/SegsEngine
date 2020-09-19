@@ -33,7 +33,7 @@
 #include "scene/3d/visual_instance_3d.h"
 #include "core/node_path.h"
 
-class RootMotionView : public VisualInstance3D {
+class GODOT_EXPORT RootMotionView : public VisualInstance3D {
     GDCLASS(RootMotionView,VisualInstance3D)
 
 public:

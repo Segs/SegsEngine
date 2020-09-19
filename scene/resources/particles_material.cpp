@@ -1213,8 +1213,8 @@ void ParticlesMaterial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_lifetime_randomness", {"randomness"}), &ParticlesMaterial::set_lifetime_randomness);
     MethodBinder::bind_method(D_METHOD("get_lifetime_randomness"), &ParticlesMaterial::get_lifetime_randomness);
 
-    ADD_GROUP("Time", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
+    ADD_GROUP("Time", "tm_");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "tm_lifetime_randomness", PropertyHint::Range, "0,1,0.01"), "set_lifetime_randomness", "get_lifetime_randomness");
     ADD_GROUP("Trail", "trail_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "trail_divisor", PropertyHint::Range, "1,1000000,1"), "set_trail_divisor", "get_trail_divisor");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "trail_size_modifier", PropertyHint::ResourceType, "CurveTexture"), "set_trail_size_modifier", "get_trail_size_modifier");
@@ -1231,12 +1231,12 @@ void ParticlesMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_align_y"), "set_flag", "get_flag", FLAG_ALIGN_Y_TO_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_rotate_y"), "set_flag", "get_flag", FLAG_ROTATE_Y);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "flag_disable_z"), "set_flag", "get_flag", FLAG_DISABLE_Z);
-    ADD_GROUP("Direction", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "direction"), "set_direction", "get_direction");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "flatness", PropertyHint::Range, "0,1,0.01"), "set_flatness", "get_flatness");
-    ADD_GROUP("Gravity", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "gravity"), "set_gravity", "get_gravity");
+    ADD_GROUP("Direction", "dir_");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "dir_direction"), "set_direction", "get_direction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dir_spread", PropertyHint::Range, "0,180,0.01"), "set_spread", "get_spread");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "dir_flatness", PropertyHint::Range, "0,1,0.01"), "set_flatness", "get_flatness");
+    ADD_GROUP("Gravity", "grv_");
+    ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "grv_gravity"), "set_gravity", "get_gravity");
     ADD_GROUP("Initial Velocity", "initial_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity", PropertyHint::Range, "0,1000,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_INITIAL_LINEAR_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "initial_velocity_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_INITIAL_LINEAR_VELOCITY);
@@ -1260,21 +1260,21 @@ void ParticlesMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel", PropertyHint::Range, "-100,100,0.01,or_lesser,or_greater"), "set_param", "get_param", PARAM_TANGENTIAL_ACCEL);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "tangential_accel_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_TANGENTIAL_ACCEL);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "tangential_accel_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_TANGENTIAL_ACCEL);
-    ADD_GROUP("Damping", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping", PropertyHint::Range, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "damping_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "damping_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_DAMPING);
-    ADD_GROUP("Angle", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "angle_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "angle_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGLE);
-    ADD_GROUP("Scale", "");
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scale_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
-    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scale_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_SCALE);
-    ADD_GROUP("Color", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_color", "get_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "color_ramp", PropertyHint::ResourceType, "GradientTexture"), "set_color_ramp", "get_color_ramp");
+    ADD_GROUP("Damping", "dmp_");
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "dmp_damping", PropertyHint::Range, "0,100,0.01,or_greater"), "set_param", "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "dmp_damping_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "dmp_damping_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_DAMPING);
+    ADD_GROUP("Angle", "ang_");
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "ang_angle", PropertyHint::Range, "-720,720,0.1,or_lesser,or_greater"), "set_param", "get_param", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "ang_angle_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANGLE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "ang_angle_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANGLE);
+    ADD_GROUP("Scale", "scl_");
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scl_scale", PropertyHint::Range, "0,1000,0.01,or_greater"), "set_param", "get_param", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "scl_scale_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_SCALE);
+    ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "scl_scale_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_SCALE);
+    ADD_GROUP("Color", "clr_");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "clr_color"), "set_color", "get_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "clr_color_ramp", PropertyHint::ResourceType, "GradientTexture"), "set_color_ramp", "get_color_ramp");
 
     ADD_GROUP("Hue Variation", "hue_");
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "hue_variation", PropertyHint::Range, "-1,1,0.01"), "set_param", "get_param", PARAM_HUE_VARIATION);
@@ -1288,6 +1288,7 @@ void ParticlesMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "anim_offset_random", PropertyHint::Range, "0,1,0.01"), "set_param_randomness", "get_param_randomness", PARAM_ANIM_OFFSET);
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anim_offset_curve", PropertyHint::ResourceType, "CurveTexture"), "set_param_texture", "get_param_texture", PARAM_ANIM_OFFSET);
 
+    REGISTER_ENUM(Parameter,uint8_t)
     BIND_ENUM_CONSTANT(PARAM_INITIAL_LINEAR_VELOCITY)
     BIND_ENUM_CONSTANT(PARAM_ANGULAR_VELOCITY)
     BIND_ENUM_CONSTANT(PARAM_ORBIT_VELOCITY)

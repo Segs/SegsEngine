@@ -34,7 +34,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/curve.h"
 
-class Path2D : public Node2D {
+class GODOT_EXPORT Path2D : public Node2D {
 
     GDCLASS(Path2D,Node2D)
 
@@ -58,7 +58,7 @@ public:
     Path2D();
 };
 
-class PathFollow2D : public Node2D {
+class GODOT_EXPORT PathFollow2D : public Node2D {
 
     GDCLASS(PathFollow2D,Node2D)
 

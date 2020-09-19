@@ -38,7 +38,7 @@
 class CryptoKey;
 class X509Certificate;
 
-class WebSocketServer : public WebSocketMultiplayerPeer {
+class GODOT_EXPORT WebSocketServer : public WebSocketMultiplayerPeer {
 
     GDCLASS(WebSocketServer,WebSocketMultiplayerPeer)
     GDCICLASS(WebSocketServer);

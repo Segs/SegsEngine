@@ -101,7 +101,7 @@ private:
     bool inside_tree;
     bool parent_owned;
     struct PrivData;
-    PrivData *data;
+    PrivData *priv_data;
 
     enum NameCasing : int8_t {
         NAME_CASING_PASCAL_CASE,

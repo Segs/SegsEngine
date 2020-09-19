@@ -36,7 +36,7 @@
 
 #include "servers/rendering_server.h"
 
-class Environment : public Resource {
+class GODOT_EXPORT Environment : public Resource {
 
 	GDCLASS(Environment,Resource)
 

@@ -11,6 +11,8 @@
 #include "core/os/os.h"
 #include "core/method_bind.h"
 #include "core/script_language.h"
+#include "core/version.h"
+#include "core/class_db.h"
 
 #include "EASTL/sort.h"
 #include <QString>
@@ -49,12 +51,14 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         r_iarg.default_argument = "null";
         break;
         // Atomic types
-    case VariantType::BOOL: r_iarg.default_argument = bool(p_val) ? "true" : "false";
+    case VariantType::BOOL:
+        r_iarg.default_argument = bool(p_val) ? "true" : "false";
         break;
-    case VariantType::INT: if (r_iarg.type.cname != "int") {
-        r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
-    }
-                         break;
+    case VariantType::INT:
+        if (r_iarg.type.cname != "int32_t") {
+            r_iarg.default_argument = "(%s)" + r_iarg.default_argument;
+        }
+        break;
     case VariantType::FLOAT:
 #ifndef REAL_T_IS_DOUBLE
         r_iarg.default_argument += "f";
@@ -107,7 +111,8 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
     case VariantType::POOL_STRING_ARRAY:
     case VariantType::POOL_VECTOR2_ARRAY:
     case VariantType::POOL_VECTOR3_ARRAY:
-    case VariantType::POOL_COLOR_ARRAY: r_iarg.default_argument = "new %s {}";
+    case VariantType::POOL_COLOR_ARRAY:
+        r_iarg.default_argument = "new %s {}";
         r_iarg.def_param_mode = ArgumentInterface::NULLABLE_REF;
         break;
     case VariantType::TRANSFORM2D:
@@ -216,16 +221,20 @@ static StringView _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo
 }
 static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
     if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
-        tgt.cname = arginfo.class_name.asCString();
-        tgt.is_enum = true;
+        tgt.cname = arginfo.class_name;
+        tgt.is_enum = TypeRefKind::Enum;
         tgt.pass_by = TypePassBy::Value;
     }
-    else if (!arginfo.class_name.empty()) {
-        tgt.cname = arginfo.class_name.asCString();
+    else if (arginfo.hint == PropertyHint::ResourceType) {
+        if(arginfo.type==VariantType::ARRAY || arginfo.hint_string.contains(","))
+            tgt.cname = "PH:"+arginfo.hint_string;
+        else
+            tgt.cname = arginfo.hint_string;
+        tgt.is_enum = arginfo.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
         tgt.pass_by = TypePassBy::Reference;
     }
-    else if (arginfo.hint == PropertyHint::ResourceType) {
-        tgt.cname = arginfo.hint_string.c_str();
+    else if (!arginfo.class_name.empty()) {
+        tgt.cname = arginfo.class_name;
         tgt.pass_by = TypePassBy::Reference;
     }
     else if (arginfo.type == VariantType::NIL) {
@@ -270,29 +279,101 @@ enum GroupPropStatus {
     CONTINUE_GROUP,
     FINISHED_GROUP,
 };
-static int new_group_prop_status(int curr_idx,int prev_idx) {
-    if (prev_idx == -1 && curr_idx == -1)
-        return NO_GROUP;
+//static int new_group_prop_status(int curr_idx,int prev_idx) {
+//    if (prev_idx == -1 && curr_idx == -1)
+//        return NO_GROUP;
 
-    if(prev_idx==-1 && curr_idx!=-1)
-        return STARTED_GROUP;
+//    if(prev_idx==-1 && curr_idx!=-1)
+//        return STARTED_GROUP;
 
-    if(curr_idx>=prev_idx) {
-        return CONTINUE_GROUP;
+//    if(curr_idx>=prev_idx) {
+//        return CONTINUE_GROUP;
+//    }
+//    if(curr_idx==-1 && prev_idx!=-1)
+//        return FINISHED_GROUP;
+//    // else (curr_idx<prev_idx)
+//    return STARTED_GROUP;
+//}
+static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
+    if(src!=ReflectionSource::Core)
+        return;
+    NamespaceInterface *core_ns=nullptr;
+    for(auto & ns : rd.namespaces) {
+        if(ns.namespace_name=="Godot") {
+            core_ns = &ns;
+            break;
+        }
     }
-    if(curr_idx==-1 && prev_idx!=-1)
-        return FINISHED_GROUP;
-    // else (curr_idx<prev_idx)
-    return STARTED_GROUP;
+    struct {
+        const char *name;
+        const char *header;
+    } entries[] = {
+        {"Variant","core/variant.h"},
+        {"String","core/string.h"},
+        {"StringView","core/string.h"},
+        {"StringName","core/string_name.h"},
+        {"NodePath","core/node_path.h"},
+        {"RID","core/rid.h"},
+        {"VarArg",""}, // synthetic type
+        {"Dictionary",""},
+        {"Array",""},
+
+        {"Vector2","core/math/vector2.h"},
+        {"Vector3","core/math/vector3.h"},
+        {"Rect2","core/math/rect2.h"},
+        {"Transform2D","core/math/transform_2d.h"},
+        {"Basis","core/math/basis.h"},
+        {"Quat","core/math/quat.h"},
+        {"Transform","core/math/transform.h"},
+        {"AABB","core/math/aabb.h"},
+        {"Color","core/color.h"},
+        {"Plane","core/math/plane.h"},
+        {"PoolIntArray","core/vector.h"},
+        {"VecInt","core/vector.h"},
+        {"VecByte","core/vector.h"},
+        {"VecFloat","core/vector.h"},
+        {"VecString","core/vector.h"},
+        {"VecVector2","core/vector.h"},
+        {"VecVector3","core/vector.h"},
+        {"VecColor","core/vector.h"},
+        {"PoolByteArray","core/pool_vector.h"},
+        {"PoolRealArray","core/vector.h"},
+        {"PoolStringArray","core/vector.h"},
+        {"PoolColorArray","core/pool_vector.h"},
+        {"PoolVector2Array","core/pool_vector.h"},
+        {"PoolVector3Array","core/pool_vector.h"},
+
+    };
+    for(const auto &v : entries) {
+        auto ti = TypeInterface::create_object_type(v.name, APIType::Common);
+        ti.header_path = v.header;
+        ti.is_opaque_type = true;
+        core_ns->obj_types[ti.name] = eastl::move(ti);
+    }
+    // Force-add Vector3 axis enum.
+    auto &tgt_vec(core_ns->obj_types["Vector3"]);
+    static EnumInterface axis_iface("Axis");
+    axis_iface.underlying_type="int32_t";
+    axis_iface.constants.emplace_back("X",0);
+    axis_iface.constants.emplace_back("Y",1);
+    axis_iface.constants.emplace_back("Z",2);
+    tgt_vec.enums.emplace_back(eastl::move(axis_iface));
 }
 
-static bool _populate_object_type_interfaces(ReflectionData &rd) {
+static String fixup_group_name(String grp) {
+    // group names are used as grouped property names but contain spaces, this function fixes that.
+    if(!grp.contains(' '))
+        return grp;
+    return grp.replaced(" ","").replaced("-","");
+}
+static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource src) {
     auto& current_namespace = rd.namespaces.back();
     current_namespace.obj_types.clear();
-    current_namespace.obj_type_insert_order.clear();
     Vector<StringName> class_list;
     ClassDB::get_class_list(&class_list);
     eastl::sort(class_list.begin(), class_list.end(), WrapAlphaCompare());
+    if(src==ReflectionSource::Core)
+        add_opaque_types(rd,src);
 
     while (!class_list.empty()) {
         StringName type_cname = class_list.front();
@@ -303,6 +384,15 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         ClassDB::APIType api_type = ClassDB::get_api_type(type_cname);
 
         if (api_type == ClassDB::API_NONE) {
+            class_list.pop_front();
+            continue;
+        }
+        bool editor_only = src==ReflectionSource::Editor;
+        if(editor_only && api_type != ClassDB::API_EDITOR) {
+            class_list.pop_front();
+            continue;
+        }
+        if(!editor_only && api_type==ClassDB::API_EDITOR) {
             class_list.pop_front();
             continue;
         }
@@ -332,19 +422,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
 
         itype.is_namespace = class_iter->second.is_namespace;
 
-        //itype.c_out = "\treturn ";
-        //itype.c_out += C_METHOD_UNMANAGED_GET_MANAGED;
-        //itype.c_out += itype.is_reference ? "((Object *)%1.get());\n" : "((Object *)%1);\n";
-
-        //itype.cs_in = itype.is_singleton ? BINDINGS_PTR_FIELD : "Object." CS_SMETHOD_GETINSTANCE "(%0)";
-
-        //itype.c_type = "Object";
-        //itype.c_type_in = "Object *";
-        //itype.c_type_out = "MonoObject*";
-        //itype.cs_type = itype.proxy_name;
-        //itype.im_type_in = "IntPtr";
-        //itype.im_type_out = itype.proxy_name;
-
         // Populate properties
         Vector<PropertyInfo> property_list;
         ClassDB::get_property_list(type_cname, &property_list, true);
@@ -352,92 +429,154 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
         Map<String, String> accessor_methods;
         int last_prop_idx = -1;
         int this_prop_idx = -1;
-        String indexed_group_prefix;
+        //String indexed_group_prefix;
         PropertyInterface indexed_property;
-        bool in_array = false;
+        String current_array_prefix;
+        int current_array_max_size=0;
+        String current_group;
+        String current_group_prefix;
+        String current_category;
         for (const PropertyInfo& property : property_list) {
+            if (property.usage & PROPERTY_USAGE_GROUP || property.usage & PROPERTY_USAGE_CATEGORY) {
+                if(property.usage & PROPERTY_USAGE_GROUP) {
+                    current_group = property.name;
 
-            if (property.usage & PROPERTY_USAGE_GROUP || property.usage & PROPERTY_USAGE_CATEGORY)
+                    StringView new_prefix = property.hint_string;
+                    if(!indexed_property.cname.empty()) {
+                        current_group_prefix.clear();
+                        current_array_prefix.clear();
+                        if(current_array_max_size!=0)
+                            indexed_property.max_property_index = current_array_max_size;
+                        else
+                            indexed_property.max_property_index = -2;
+                        itype.properties.emplace_back(eastl::move(indexed_property));
+                        indexed_property = {};
+                        current_array_max_size = 0;
+                        current_array_prefix.clear();
+                    }
+                    current_group_prefix = property.hint_string;
+                    indexed_property.cname = fixup_group_name(current_group);
+                }
+                if (property.usage & PROPERTY_USAGE_CATEGORY) {
+                    current_category = property.name;
+                }
                 continue;
+            }
+            if(property.usage & PROPERTY_USAGE_ARRAY) {
+                if(!indexed_property.cname.empty()) {
+                    current_group_prefix.clear();
+                    current_array_prefix.clear();
+                    if(current_array_max_size!=0)
+                        indexed_property.max_property_index = current_array_max_size;
+                    else
+                        indexed_property.max_property_index = -2;
+                    itype.properties.emplace_back(eastl::move(indexed_property));
+                    indexed_property = {};
+                    current_array_max_size = 0;
+                    current_array_prefix.clear();
+                }
+
+               current_array_prefix = property.hint_string;
+               current_array_max_size = property.element_count;
+               //FIXME: Close previous array/group here??
+               continue;
+            }
 
             bool valid = false;
-            if(last_prop_idx>250)
-                printf("1");
+            this_prop_idx = ClassDB::get_property_index(type_cname, property.name, &valid);
+            ERR_FAIL_COND_V(!valid, false);
+
+            if(!current_array_prefix.empty()) { // we are in an array definition block.
+                if(StringUtils::begins_with(property.name,current_array_prefix)) {
+                    // a new field or indexed field.
+                    Vector<StringView> parts;
+                    String::split_ref(parts,property.name,"/");
+                    if(this_prop_idx==0) { // build the array description only from index 0 property definitions.
+                        if(indexed_property.cname.empty())
+                           indexed_property.cname = fixup_group_name(String(parts[0]));
+
+                        PropertyInterface::TypedEntry e;
+                        e.index = -2;
+                        e.subfield_name = parts[2];
+                        fill_type_info(property, e.entry_type);
+                        e.setter = ClassDB::get_property_setter(type_cname, property.name);
+                        e.getter = ClassDB::get_property_getter(type_cname, property.name);
+                        accessor_methods[e.setter] = property.name;
+                        accessor_methods[e.getter] = property.name;
+                        indexed_property.indexed_entries.emplace_back(eastl::move(e));
+                    }
+                    continue;
+                } else {
+                    indexed_property.max_property_index = current_array_max_size;
+                    itype.properties.emplace_back(eastl::move(indexed_property));
+                    indexed_property = {};
+                    current_array_max_size = 0;
+                    current_array_prefix.clear();
+                }
+            }
+            const bool auto_group=StringView(property.name).contains('/');
+            if(auto_group) { // automatic group?
+                StringView new_prefix = StringView(property.name).substr(0,StringView(property.name).find('/'));
+                if(!indexed_property.cname.empty() && new_prefix!=StringView(current_group_prefix)) {
+                    current_group_prefix.clear();
+                    indexed_property.max_property_index = -2;
+                    itype.properties.emplace_back(eastl::move(indexed_property));
+                    indexed_property = {};
+                }
+                current_group_prefix = new_prefix;
+                indexed_property.cname = fixup_group_name(String(new_prefix));
+
+            }
+
+            if(!indexed_property.cname.empty()) {
+                if(StringUtils::begins_with(property.name,current_group_prefix)) {
+                    // 2 cases ->
+                    //      true group, defined by ADD_GROUP macro
+                    //      automatic group, defined by common_name/field_name
+
+                    // a new field or indexed field.
+//                    Vector<StringView> parts;
+//                    String::split_ref(parts,property.name,"/");
+
+                    StringView field_name = StringView(property.name).substr(current_group_prefix.size());
+                    if(auto_group) {
+                        field_name = field_name.substr(1); // skip the leading '/'
+                    }
+                    PropertyInterface::TypedEntry e;
+                    e.index = this_prop_idx;
+                    e.subfield_name = field_name;
+                    fill_type_info(property, e.entry_type);
+                    e.setter = ClassDB::get_property_setter(type_cname, property.name);
+                    e.getter = ClassDB::get_property_getter(type_cname, property.name);
+                    accessor_methods[e.setter] = property.name;
+                    accessor_methods[e.getter] = property.name;
+                    indexed_property.indexed_entries.emplace_back(eastl::move(e));
+
+                    continue;
+                } else {
+                    current_group_prefix.clear();
+                    indexed_property.max_property_index = -2;
+                    itype.properties.emplace_back(eastl::move(indexed_property));
+                    indexed_property = {};
+                }
+            }
+
             last_prop_idx = this_prop_idx;
             this_prop_idx = ClassDB::get_property_index(type_cname, property.name, &valid);
             ERR_FAIL_COND_V(!valid, false);
-            auto status = new_group_prop_status(this_prop_idx,last_prop_idx);
-            if(status!=NO_GROUP && status!=FINISHED_GROUP) {
-                Vector<StringView> parts;
-                String::split_ref(parts,property.name,"/");
-                if(status==STARTED_GROUP || (parts.size()>1 && indexed_property.cname != String(parts[0]).c_str())) {
-                    in_array = _is_array_path(property.name);
-                    indexed_property = {};
-                    PropertyInterface::TypedEntry e;
-                    if (in_array) { //
-                        indexed_property.cname = String(parts[0]).c_str();
-                        e.subfield_name = String(parts[2]).c_str();
-                        e.index = -2;
-                    }
-                    else {
-                        if(parts.size()>1) {
-                            indexed_property.cname = String(parts.front()).c_str();
-                            parts.pop_front();
-                        }
-                        e.subfield_name = String(parts.front()).c_str();
-                        e.index = this_prop_idx;
-                    }
 
-                    fill_type_info(property, e.entry_type);
-                    e.setter = ClassDB::get_property_setter(type_cname, property.name).asCString();
-                    e.getter = ClassDB::get_property_getter(type_cname, property.name).asCString();
-                    indexed_property.indexed_entries.push_back(e);
-
-                }
-                else {
-                    PropertyInterface::TypedEntry e;
-                    if (in_array) {
-                        if(this_prop_idx == 0) { // array like, scanning fields only at index 0
-                            e.subfield_name = String(parts[2]).c_str();
-                            e.index = -2;
-                            e.setter = ClassDB::get_property_setter(type_cname, property.name).asCString();
-                            e.getter = ClassDB::get_property_getter(type_cname, property.name).asCString();
-                            fill_type_info(property, e.entry_type);
-                            indexed_property.indexed_entries.push_back(e);
-                        }
-                    }
-                    else {
-                        if (parts.size() > 1) {
-                            assert(indexed_property.cname == String(parts.front()).c_str());
-                            parts.pop_front();
-                        }
-                        e.subfield_name = String(parts.front()).c_str();
-                        e.index = this_prop_idx;
-                        e.setter = ClassDB::get_property_setter(type_cname, property.name).asCString();
-                        e.getter = ClassDB::get_property_getter(type_cname, property.name).asCString();
-                        fill_type_info(property, e.entry_type);
-                        indexed_property.indexed_entries.push_back(e);
-                    }
-                }
-                continue;
-            }
-            else {
-                if(last_prop_idx != -1) {
-                    indexed_property.max_property_index = last_prop_idx;
-                    itype.properties.push_back(indexed_property);
-                }
-                else {
-                }
-            }
-            in_array = false;
             PropertyInterface iprop;
             iprop.cname = property.name.asCString();
-            PropertyInterface::TypedEntry e;
-            e.setter = ClassDB::get_property_setter(type_cname, property.name).asCString();
-            e.getter = ClassDB::get_property_getter(type_cname, property.name).asCString();
-            fill_type_info(property, e.entry_type);
-            iprop.indexed_entries.push_back(e);
-            iprop.max_property_index = -1;
+            iprop.hint_str = property.hint_string;
+            {
+                PropertyInterface::TypedEntry e;
+                e.setter = ClassDB::get_property_setter(type_cname, property.name);
+                e.getter = ClassDB::get_property_getter(type_cname, property.name);
+                e.index = this_prop_idx;
+                fill_type_info(property, e.entry_type);
+                iprop.indexed_entries.emplace_back(eastl::move(e));
+            }
+            iprop.max_property_index = this_prop_idx==-1 ? -1 : -2;
 
             if (!iprop.indexed_entries.back().setter.empty())
                 accessor_methods[iprop.indexed_entries.back().setter] = iprop.cname;
@@ -447,9 +586,18 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             //iprop.proxy_name.replace("/", "__"); // Some members have a slash...
             itype.properties.push_back(iprop);
         }
-        if (in_array) {
-            indexed_property.max_property_index = last_prop_idx;
-            itype.properties.push_back(indexed_property);
+        if(!current_array_prefix.empty()) { // we are in an array definition block. close it.
+            indexed_property.max_property_index = current_array_max_size;
+            itype.properties.emplace_back(eastl::move(indexed_property));
+            indexed_property = {};
+            current_array_max_size = 0;
+            current_array_prefix.clear();
+        }
+        else if(!indexed_property.cname.empty()) { // we are in group definition block. close it.
+            current_group_prefix.clear();
+            indexed_property.max_property_index = -2;
+            itype.properties.emplace_back(eastl::move(indexed_property));
+            indexed_property = {};
         }
         // Populate methods
 
@@ -506,7 +654,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             }
             else if (return_info.type == VariantType::INT && return_info.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                 imethod.return_type.cname = return_info.class_name.asCString();
-                imethod.return_type.is_enum = true;
+                imethod.return_type.is_enum = TypeRefKind::Enum;
             }
             else if (!return_info.class_name.empty()) {
                 imethod.return_type.cname = return_info.class_name;
@@ -521,7 +669,8 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 }
             }
             else if (return_info.hint == PropertyHint::ResourceType) {
-                imethod.return_type.cname = return_info.hint_string.c_str();
+                imethod.return_type.is_enum = return_info.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
+                imethod.return_type.cname = "PH:"+return_info.hint_string;
             }
             else if (return_info.type == VariantType::NIL && return_info.usage & PROPERTY_USAGE_NIL_IS_VARIANT) {
                 imethod.return_type.cname = "Variant";
@@ -547,11 +696,11 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                 StringName orig_arg_name = arginfo.name;
 
                 ArgumentInterface iarg;
-                iarg.name = orig_arg_name.asCString();
+                iarg.name = orig_arg_name;
 
                 if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
                     iarg.type.cname = arginfo.class_name.asCString();
-                    iarg.type.is_enum = true;
+                    iarg.type.is_enum = TypeRefKind::Enum;
                     iarg.type.pass_by = TypePassBy::Value;
                 }
                 else if (!arginfo.class_name.empty()) {
@@ -559,7 +708,8 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Reference;
                 }
                 else if (arginfo.hint == PropertyHint::ResourceType) {
-                    iarg.type.cname = arginfo.hint_string.c_str();
+                    iarg.type.cname = "PH:"+arginfo.hint_string;
+                    iarg.type.is_enum = arginfo.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
                     iarg.type.pass_by = TypePassBy::Reference;
                 }
                 else if (arginfo.type == VariantType::NIL) {
@@ -600,7 +750,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             if (imethod.is_vararg) {
                 ArgumentInterface ivararg;
                 ivararg.type.cname = "VarArg";
-                ivararg.name = "@args";
+                ivararg.name = "var_args";
                 imethod.add_argument(ivararg);
             }
 
@@ -612,8 +762,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
 
                 // We only deprecate an accessor method if it's in the same class as the property. It's easier this way, but also
                 // we don't know if an accessor method in a different class could have other purposes, so better leave those untouched.
-                imethod.is_deprecated = true;
-                imethod.deprecation_message = imethod.name + " is deprecated. Use the " + accessor_property->cname + " property instead.";
+                imethod.implements_property = true;
             }
 
             if (!imethod.is_virtual && imethod.name[0] == '_') {
@@ -649,12 +798,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             }
             String enum_proxy_cname(parts.front().data(), parts.front().size());
             String enum_proxy_name(enum_proxy_cname);
-            /*if (itype.find_property_by_proxy_name(enum_proxy_name)) {
-                // We have several conflicts between enums and PascalCase properties,
-                // so we append 'Enum' to the enum name in those cases.
-                enum_proxy_name += "Enum";
-                enum_proxy_cname = enum_proxy_name;
-            }*/
+
             EnumInterface ienum(enum_proxy_cname);
             ienum.underlying_type = F.second.underlying_type;
             const Vector<StringName>& enum_constants = F.second.enumerators;
@@ -676,7 +820,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             enum_itype.name = itype.name + "." + enum_proxy_cname;
             //enum_itype.cname = enum_itype.name;
             //enum_itype.proxy_name = itype.proxy_name + "." + enum_proxy_name;
-            TypeInterface::postsetup_enum_type(enum_itype);
             current_namespace.enum_types.emplace(enum_itype.name, enum_itype);
         }
 
@@ -689,190 +832,14 @@ static bool _populate_object_type_interfaces(ReflectionData &rd) {
             itype.constants.push_back(iconstant);
         }
 
-        auto insert_res = current_namespace.obj_types.emplace(itype.name, itype);
-        if (insert_res.second) //was inserted, record it in order container
-            current_namespace.obj_type_insert_order.emplace_back(itype.name);
+        current_namespace.obj_types.emplace(itype.name, itype);
 
         class_list.pop_front();
     }
 
     return true;
 }
-void _populate_builtin_type_interfaces(ReflectionData &rd) {
-    auto& current_namespace = rd.namespaces.back();
 
-    current_namespace.builtin_types.clear();
-
-    TypeInterface itype;
-
-#define INSERT_STRUCT_TYPE(m_type)                             \
-    {                                                          \
-        itype = TypeInterface::create_value_type(#m_type);     \
-        itype.ret_as_byref_arg = true;                         \
-        current_namespace.builtin_types.emplace(itype.name, itype);           \
-    }
-
-    INSERT_STRUCT_TYPE(Vector2)
-    INSERT_STRUCT_TYPE(Rect2)
-    INSERT_STRUCT_TYPE(Transform2D)
-    INSERT_STRUCT_TYPE(Vector3)
-    INSERT_STRUCT_TYPE(Basis)
-    INSERT_STRUCT_TYPE(Quat)
-    INSERT_STRUCT_TYPE(Transform)
-    INSERT_STRUCT_TYPE(AABB)
-    INSERT_STRUCT_TYPE(Color)
-    INSERT_STRUCT_TYPE(Plane)
-
-#undef INSERT_STRUCT_TYPE
-
-    // bool
-    itype = TypeInterface::create_value_type("bool");
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // Integer types
-    {
-        // C interface for 'uint32_t' is the same as that of enums. Remember to apply
-        // any of the changes done here to 'TypeInterface::postsetup_enum_type' as well.
-#define INSERT_INT_TYPE(m_name, m_c_type_in_out, m_c_type)        \
-    {                                                             \
-        itype = TypeInterface::create_value_type(m_name); \
-        current_namespace.builtin_types.emplace(itype.name, itype);                 \
-    }
-
-        INSERT_INT_TYPE("sbyte", int8_t, int8_t)
-        INSERT_INT_TYPE("short", int16_t, int16_t)
-        INSERT_INT_TYPE("int", int32_t, int32_t)
-        INSERT_INT_TYPE("byte", uint8_t, uint8_t)
-        INSERT_INT_TYPE("ushort", uint16_t, uint16_t)
-        INSERT_INT_TYPE("uint", uint32_t, uint32_t)
-
-        itype = TypeInterface::create_value_type("int64_t");
-        itype.ret_as_byref_arg = true;
-        current_namespace.builtin_types.emplace(itype.name, itype);
-
-        itype = TypeInterface::create_value_type("uint64_t");
-        itype.ret_as_byref_arg = true;
-        current_namespace.builtin_types.emplace(itype.name, itype);
-    }
-
-    // Floating point types
-    {
-        // float
-        itype = TypeInterface();
-        itype.name = "float";
-        itype.ret_as_byref_arg = true;
-        current_namespace.builtin_types.emplace(itype.name, itype);
-
-        // double
-        itype = TypeInterface();
-        itype.name = "double";
-        itype.ret_as_byref_arg = true;
-        current_namespace.builtin_types.emplace(itype.name, itype);
-    }
-
-    // String
-    itype = TypeInterface();
-    itype.name = "String";
-    itype.header_path = "core/string.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // StringView
-    itype = TypeInterface();
-    itype.name = "StringView";
-    itype.header_path = "core/string.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-    // StringName
-    itype = TypeInterface();
-    itype.name = "StringName";
-    itype.header_path = "core/string_name.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // NodePath
-    itype = TypeInterface();
-    itype.name = "NodePath";
-    itype.header_path = "core/node_path.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // RID
-    itype = TypeInterface();
-    itype.name = "RID";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // Variant
-    itype = TypeInterface();
-    itype.name = "Variant";
-    itype.header_path = "core/variant.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // VarArg (fictitious type to represent variable arguments)
-    itype = TypeInterface();
-    itype.name = "VarArg";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-#define INSERT_ARRAY_FULL(m_name, m_type, m_proxy_t)                          \
-    {                                                                         \
-        itype = TypeInterface();                                              \
-        itype.name = #m_name;                                                 \
-        current_namespace.builtin_types.emplace(itype.name, itype);                 \
-    }
-
-#define INSERT_ARRAY_NC_FULL(m_name, m_type, m_proxy_t)                          \
-    {                                                                         \
-        itype = TypeInterface();                                              \
-        itype.name = #m_name;                                                 \
-        current_namespace.builtin_types.emplace(itype.name, itype);                 \
-    }
-#define INSERT_ARRAY_TPL_FULL(m_name, m_type, m_proxy_t)                      \
-    {                                                                         \
-        itype = TypeInterface();                                              \
-        itype.name = #m_name;                                                 \
-        current_namespace.builtin_types.emplace(StringName(itype.name), itype);                 \
-    }
-#define INSERT_ARRAY(m_type, m_proxy_t) INSERT_ARRAY_FULL(m_type, m_type, m_proxy_t)
-
-    INSERT_ARRAY(PoolIntArray, int)
-        INSERT_ARRAY_NC_FULL(VecInt, VecInt, int)
-        INSERT_ARRAY_NC_FULL(VecByte, VecByte, byte)
-        INSERT_ARRAY_NC_FULL(VecFloat, VecFloat, float)
-        INSERT_ARRAY_NC_FULL(VecString, VecString, string)
-        INSERT_ARRAY_NC_FULL(VecVector2, VecVector2, Vector2)
-        INSERT_ARRAY_NC_FULL(VecVector3, VecVector3, Vector3)
-        INSERT_ARRAY_NC_FULL(VecColor, VecColor, Color)
-
-        INSERT_ARRAY_FULL(PoolByteArray, PoolByteArray, byte)
-
-
-#ifdef REAL_T_IS_DOUBLE
-        INSERT_ARRAY(PoolRealArray, double)
-#else
-        INSERT_ARRAY(PoolRealArray, float)
-#endif
-
-        INSERT_ARRAY(PoolStringArray, string)
-
-        INSERT_ARRAY(PoolColorArray, Color)
-        INSERT_ARRAY(PoolVector2Array, Vector2)
-        INSERT_ARRAY(PoolVector3Array, Vector3)
-
-#undef INSERT_ARRAY
-
-        // Array
-        itype = TypeInterface();
-    itype.name = "Array";
-    itype.header_path = "core/array.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // Dictionary
-    itype = TypeInterface();
-    itype.name = "Dictionary";
-    itype.header_path = "core/dictionary.h";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-
-    // void (fictitious type to represent the return type of methods that do not return anything)
-    itype = TypeInterface();
-    itype.name = "void";
-    current_namespace.builtin_types.emplace(itype.name, itype);
-}
 static bool allUpperCase(StringView s) {
     for (char c : s) {
         if (StringUtils::char_uppercase(c) != c)
@@ -880,7 +847,8 @@ static bool allUpperCase(StringView s) {
     }
     return true;
 }
-void _populate_global_constants(ReflectionData &rd) {
+
+void _populate_global_constants(ReflectionData &rd,ReflectionSource src) {
     auto& current_namespace = rd.namespaces.back();
 
     int global_constants_count = GlobalConstants::get_global_constant_count();
@@ -898,12 +866,6 @@ void _populate_global_constants(ReflectionData &rd) {
         }
     }
     if (global_constants_count > 0) {
-        auto match = rd.doc->class_list.find("@GlobalScope");
-
-        CRASH_COND_MSG(match == rd.doc->class_list.end(), "Could not find '@GlobalScope' in DocData.");
-
-        const DocContents::ClassDoc& global_scope_doc = match->second;
-
         for (int i = 0; i < global_constants_count; i++) {
 
             String constant_name = GlobalConstants::get_global_constant_name(i);
@@ -934,22 +896,8 @@ void _populate_global_constants(ReflectionData &rd) {
             TypeInterface enum_itype;
             enum_itype.is_enum = true;
             enum_itype.name = ienum.cname;
-            TypeInterface::postsetup_enum_type(enum_itype);
 
             current_namespace.enum_types.emplace(enum_itype.name, enum_itype);
-
-            /*int prefix_length = _determine_enum_prefix(ienum);
-
-            // HARDCODED: The Error enum have the prefix 'ERR_' for everything except 'OK' and 'FAILED'.
-            if (ienum.cname == name_cache->enum_Error) {
-                if (prefix_length > 0) { // Just in case it ever changes
-                    ERR_PRINT("Prefix for enum 'Error' is not empty.");
-                }
-
-                prefix_length = 1; // 'ERR_'
-            }
-
-            _apply_prefix_to_enum_constants(ienum, prefix_length);*/
         }
     }
 
@@ -962,40 +910,32 @@ void _populate_global_constants(ReflectionData &rd) {
         TypeInterface enum_itype;
         enum_itype.is_enum = true;
         enum_itype.name = E.asCString();
-        TypeInterface::postsetup_enum_type(enum_itype);
         //assert(!StringView(enum_itype.name).contains("::"));
         current_namespace.enum_types.emplace(enum_itype.name, enum_itype);
     }
 }
-void _initialize_reflection_data(ReflectionData &rd,DocData* docs) {
-
-    rd.doc = docs;
+void _initialize_reflection_data(ReflectionData &rd, ReflectionSource src) {
+    rd.doc = nullptr;
 
     rd.namespaces.clear();
     rd.namespaces.emplace_back();
 
     auto& current_namespace = rd.namespaces.back();
     current_namespace.namespace_name = "Godot";
-
-    rd.build_doc_lookup_helper();
-
-//    _initialize_blacklisted_methods();
-
-    bool obj_type_ok = _populate_object_type_interfaces(rd);
+    if(src==ReflectionSource::Editor) {
+        rd.imports.emplace_back(ReflectionData::ImportedData {"GodotCore",VERSION_NUMBER});
+        rd.module_name = "GodotEditor";
+    }
+    else
+        rd.module_name = "GodotCore";
+    rd.api_version = VERSION_NUMBER;
+    rd.version = VERSION_NUMBER;
+    ClassDB::APIType api_kind = src == ReflectionSource::Editor ? ClassDB::APIType::API_EDITOR : ClassDB::APIType::API_CORE;
+    rd.api_hash = StringUtils::num_uint64(ClassDB::get_api_hash(api_kind),16);
+    bool obj_type_ok = _populate_object_type_interfaces(rd,src);
     ERR_FAIL_COND_MSG(!obj_type_ok, "Failed to generate object type interfaces");
 
-    _populate_builtin_type_interfaces(rd);
+    if(src==ReflectionSource::Core) // Only core registers the constants?
+        _populate_global_constants(rd,src);
 
-    _populate_global_constants(rd);
-
-    // Generate internal calls (after populating type interfaces and global constants)
-
-    //core_custom_icalls.clear();
-    //editor_custom_icalls.clear();
-
-
-    for (const auto & E : current_namespace.obj_type_insert_order) {
-        const TypeInterface& itype = current_namespace.obj_types[E];
-        //_generate_method_icalls(itype);
-    }
 }

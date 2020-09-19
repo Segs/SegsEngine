@@ -39,7 +39,7 @@
 
 namespace GDMonoInternals {
 
-void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged);
+GODOT_EXPORT void tie_managed_to_unmanaged(MonoObject *managed, Object *unmanaged);
 
 /**
  * Do not call this function directly.

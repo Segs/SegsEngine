@@ -36,7 +36,7 @@
 
 class TriangleMesh;
 
-class SpriteBase3D : public GeometryInstance {
+class GODOT_EXPORT SpriteBase3D : public GeometryInstance {
 
     GDCLASS(SpriteBase3D,GeometryInstance)
 
@@ -77,7 +77,8 @@ private:
     float pixel_size;
     AABB aabb;
 
-    RID immediate;
+    RID mesh;
+    RID material;
 
     bool flags[FLAG_MAX];
     AlphaCutMode alpha_cut;
@@ -93,7 +94,14 @@ protected:
     static void _bind_methods();
     virtual void _draw() = 0;
     _FORCE_INLINE_ void set_aabb(const AABB &p_aabb) { aabb = p_aabb; }
-    _FORCE_INLINE_ RID &get_immediate() { return immediate; }
+    _FORCE_INLINE_ RID &get_mesh() { return mesh; }
+    _FORCE_INLINE_ RID &get_material() { return material; }
+
+    uint32_t mesh_surface_offsets[RS::ARRAY_MAX];
+    PoolByteArray mesh_buffer;
+    uint32_t mesh_stride;
+    uint32_t mesh_surface_format;
+
     void _queue_update();
 
 public:
@@ -145,7 +153,7 @@ public:
     ~SpriteBase3D() override;
 };
 
-class Sprite3D : public SpriteBase3D {
+class GODOT_EXPORT Sprite3D : public SpriteBase3D {
 
     GDCLASS(Sprite3D,SpriteBase3D)
 
@@ -193,7 +201,7 @@ public:
     //~Sprite3D();
 };
 
-class AnimatedSprite3D : public SpriteBase3D {
+class GODOT_EXPORT AnimatedSprite3D : public SpriteBase3D {
 
     GDCLASS(AnimatedSprite3D,SpriteBase3D)
 

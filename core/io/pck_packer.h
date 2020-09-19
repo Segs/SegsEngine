@@ -35,7 +35,7 @@
 
 class FileAccess;
 
-class PCKPacker : public RefCounted {
+class GODOT_EXPORT PCKPacker : public RefCounted {
 
     GDCLASS(PCKPacker, RefCounted);
 

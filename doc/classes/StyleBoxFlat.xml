@@ -150,7 +150,7 @@
 		</method>
 	</methods>
 	<members>
-		<member name="anti_aliasing" type="bool" setter="set_anti_aliased" getter="is_anti_aliased" default="true">
+		<member name="anti_aliasing_enabled" type="bool" setter="set_anti_aliased" getter="is_anti_aliased" default="true">
 			Antialiasing draws a small ring around the edges, which fades to transparency. As a result, edges look much smoother. This is only noticeable when using rounded corners.
 		</member>
 		<member name="anti_aliasing_size" type="int" setter="set_aa_size" getter="get_aa_size" default="1">

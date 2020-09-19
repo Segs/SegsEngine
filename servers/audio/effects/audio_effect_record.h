@@ -77,7 +77,7 @@ public:
     ~AudioEffectRecordInstance() override;
 };
 
-class AudioEffectRecord : public AudioEffect {
+class GODOT_EXPORT AudioEffectRecord : public AudioEffect {
     GDCLASS(AudioEffectRecord,AudioEffect)
 
     friend class AudioEffectRecordInstance;

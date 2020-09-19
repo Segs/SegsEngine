@@ -36,7 +36,7 @@
 #include "servers/audio/audio_rb_resampler.h"
 #include "servers/audio_server.h"
 
-class VideoPlayer : public Control {
+class GODOT_EXPORT VideoPlayer : public Control {
 
     GDCLASS(VideoPlayer,Control)
 

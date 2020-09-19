@@ -33,7 +33,7 @@
 #include "scene/main/node.h"
 #include "core/string.h"
 
-class ArrayPropertyEdit : public RefCounted {
+class GODOT_EXPORT ArrayPropertyEdit : public RefCounted {
 
     GDCLASS(ArrayPropertyEdit,RefCounted)
 

@@ -36,7 +36,7 @@
 #include "modules/gdnative/include/net/godot_net.h"
 #include "webrtc_data_channel.h"
 
-class WebRTCDataChannelGDNative : public WebRTCDataChannel {
+class GODOT_EXPORT WebRTCDataChannelGDNative : public WebRTCDataChannel {
 	GDCLASS(WebRTCDataChannelGDNative,WebRTCDataChannel)
 IMPL_GDCLASS(WebRTCDataChannelGDNative)
 

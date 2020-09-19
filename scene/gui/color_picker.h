@@ -43,7 +43,7 @@
 #include "scene/gui/texture_rect.h"
 #include "scene/gui/tool_button.h"
 
-class ColorPicker : public BoxContainer {
+class GODOT_EXPORT ColorPicker : public BoxContainer {
 
     GDCLASS(ColorPicker,BoxContainer)
 
@@ -138,7 +138,7 @@ public:
     ColorPicker();
 };
 
-class ColorPickerButton : public Button {
+class GODOT_EXPORT ColorPickerButton : public Button {
 
     GDCLASS(ColorPickerButton,Button)
 

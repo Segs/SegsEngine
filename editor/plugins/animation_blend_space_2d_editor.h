@@ -40,7 +40,7 @@
 #include "scene/gui/popup.h"
 #include "scene/gui/tree.h"
 
-class AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
+class GODOT_EXPORT AnimationNodeBlendSpace2DEditor : public AnimationTreeNodeEditorPlugin {
 
 	GDCLASS(AnimationNodeBlendSpace2DEditor,AnimationTreeNodeEditorPlugin)
 

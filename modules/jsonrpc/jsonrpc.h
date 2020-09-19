@@ -35,7 +35,7 @@
 #include "core/hash_map.h"
 #include "core/string.h"
 
-class JSONRPC : public Object {
+class GODOT_EXPORT JSONRPC : public Object {
     GDCLASS(JSONRPC,Object)
 
     HashMap<String, Object *> method_scopes;

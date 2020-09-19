@@ -36,7 +36,11 @@ class Quat;
 
 class GODOT_EXPORT Basis {
 public:
-    Vector3 elements[3];
+    Vector3 elements[3] = {
+        Vector3(1, 0, 0),
+        Vector3(0, 1, 0),
+        Vector3(0, 0, 1)
+    };
 
     constexpr const Vector3 &operator[](int axis) const {
 
@@ -241,8 +245,7 @@ public:
         elements[2] = row2;
     }
 
-    constexpr _FORCE_INLINE_ Basis() : elements{ {1,0,0},{0,1,0},{0,0,1} } {
-    }
+    constexpr _FORCE_INLINE_ Basis() = default;
 };
 
 _FORCE_INLINE_ void Basis::operator*=(const Basis &p_matrix) {

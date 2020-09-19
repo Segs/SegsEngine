@@ -34,7 +34,7 @@
 #include "core/forward_decls.h"
 #include "EASTL/string_view.h"
 
-struct IP_Address {
+struct GODOT_EXPORT IP_Address {
 
 private:
     union {

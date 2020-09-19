@@ -430,7 +430,10 @@ void FileDialog::update_file_list() {
 
     TreeItem *root = tree->create_item();
     Ref<Texture> folder = get_icon("folder");
+	Ref<Texture> file_icon = get_icon("file");
     const Color folder_color = get_color("folder_icon_modulate");
+	const Color file_color = get_color("file_icon_modulate");
+
     Vector<String> files;
     Vector<String> dirs;
 
@@ -521,7 +524,10 @@ void FileDialog::update_file_list() {
 
                 Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,filename));
                 ti->set_icon(0, icon);
+			} else {
+				ti->set_icon(0, file_icon);
             }
+			ti->set_icon_modulate(0, file_color);
 
             if (mode == MODE_OPEN_DIR) {
                 ti->set_custom_color(0, get_color("files_disabled"));
@@ -863,15 +869,15 @@ void FileDialog::_bind_methods() {
     ADD_SIGNAL(MethodInfo("files_selected", PropertyInfo(VariantType::POOL_STRING_ARRAY, "paths")));
     ADD_SIGNAL(MethodInfo("dir_selected", PropertyInfo(VariantType::STRING, "dir")));
 
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILE)
-    BIND_ENUM_CONSTANT(MODE_OPEN_FILES)
-    BIND_ENUM_CONSTANT(MODE_OPEN_DIR)
-    BIND_ENUM_CONSTANT(MODE_OPEN_ANY)
-    BIND_ENUM_CONSTANT(MODE_SAVE_FILE)
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILE);
+    BIND_ENUM_CONSTANT(MODE_OPEN_FILES);
+    BIND_ENUM_CONSTANT(MODE_OPEN_DIR);
+    BIND_ENUM_CONSTANT(MODE_OPEN_ANY);
+    BIND_ENUM_CONSTANT(MODE_SAVE_FILE);
 
-    BIND_ENUM_CONSTANT(ACCESS_RESOURCES)
-    BIND_ENUM_CONSTANT(ACCESS_USERDATA)
-    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM)
+    BIND_ENUM_CONSTANT(ACCESS_RESOURCES);
+    BIND_ENUM_CONSTANT(ACCESS_USERDATA);
+    BIND_ENUM_CONSTANT(ACCESS_FILESYSTEM);
 }
 
 void FileDialog::set_show_hidden_files(bool p_show) {

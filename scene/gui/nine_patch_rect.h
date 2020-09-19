@@ -33,7 +33,7 @@
 
 #include "scene/gui/control.h"
 
-class NinePatchRect : public Control {
+class GODOT_EXPORT NinePatchRect : public Control {
 
     GDCLASS(NinePatchRect,Control)
 

@@ -1969,16 +1969,18 @@ void RenderingServer::_bind_methods() {
     BIND_NS_CONSTANT(RenderingServerEnums,CANVAS_ITEM_Z_MIN);
     BIND_NS_CONSTANT(RenderingServerEnums,CANVAS_ITEM_Z_MAX);
     BIND_NS_CONSTANT(RenderingServerEnums,MAX_GLOW_LEVELS);
-    BIND_NS_CONSTANT(RenderingServerEnums,MAX_CURSORS);
     BIND_NS_CONSTANT(RenderingServerEnums,MATERIAL_RENDER_PRIORITY_MIN);
     BIND_NS_CONSTANT(RenderingServerEnums,MATERIAL_RENDER_PRIORITY_MAX);
 
+
+    ClassDB::register_enum_type("RenderingServerEnums","RenderingServerEnums::CubeMapSide", "uint8_t");
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_LEFT);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_RIGHT);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_BOTTOM);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_TOP);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_FRONT);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,CUBEMAP_BACK);
+    //TODO: use ClassDB::register_enum_type to properly set underlying enum type in all following registrations.
 
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,TEXTURE_TYPE_2D);
     BIND_NS_ENUM_CONSTANT(RenderingServerEnums,TEXTURE_TYPE_CUBEMAP);

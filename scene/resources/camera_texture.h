@@ -2,7 +2,7 @@
 #include "scene/resources/texture.h"
 #include "servers/camera_server.h"
 
-class CameraTexture : public Texture {
+class GODOT_EXPORT CameraTexture : public Texture {
     GDCLASS(CameraTexture,Texture)
 private:
     int camera_feed_id;

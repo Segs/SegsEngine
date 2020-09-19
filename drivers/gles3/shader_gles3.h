@@ -383,9 +383,14 @@ public:
             p_defines->push_back(custom_defines[i]);
         }
     }
-
-    void clear_custom_defines() {
-        custom_defines.clear();
+    //NOTE: If remove_custom_define is called frequently, consider changing custom_defines type to vector_map?
+    void remove_custom_define(StringView p_define) {
+        for(auto iter=custom_defines.begin(),fin=custom_defines.end();iter!=fin; ++iter) {
+            if(*iter==p_define) {
+                custom_defines.erase(iter);
+                return;
+            }
+        }
     }
     virtual ~ShaderGLES3();
 };

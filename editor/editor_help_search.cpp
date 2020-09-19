@@ -419,6 +419,15 @@ bool EditorHelpSearch::Runner::_phase_match_classes() {
         if (term.length() > 1) {
             if (search_flags & SEARCH_METHODS)
                 for (int i = 0; i < class_doc.methods.size(); i++) {
+                    String method_name = (search_flags & SEARCH_CASE_SENSITIVE) ? class_doc.methods[i].name : class_doc.methods[i].name.to_lower();
+                    if (method_name.contains(term) > -1 ||
+                            (term.starts_with(".") && method_name.starts_with(term.right(1))) ||
+                            (term.ends_with("(") && method_name.ends_with(strip_edges(term.left(term.length() - 1)))) ||
+                            (term.starts_with(".") && term.ends_with("(") && method_name == strip_edges(term.substr(1, term.length() - 2)))) {
+                        match.methods.push_back(const_cast<DocContents::MethodDoc *>(&class_doc.methods[i]));
+                    }
+                }
+                for (int i = 0; i < class_doc.methods.size(); i++) {
                     String method_name = search_flags & SEARCH_CASE_SENSITIVE ? class_doc.methods[i].name : StringUtils::to_lower(class_doc.methods[i].name);
                     String aux_term = search_flags & SEARCH_CASE_SENSITIVE ? term : StringUtils::to_lower(term);
 
@@ -517,8 +526,7 @@ bool EditorHelpSearch::Runner::_phase_select_match() {
 
 bool EditorHelpSearch::Runner::_match_string(const String &p_term, const String &p_string) const {
 
-    return StringUtils::is_subsequence_of(p_term, p_string,
-            search_flags & SEARCH_CASE_SENSITIVE ? StringUtils::CaseSensitive : StringUtils::CaseInsensitive);
+    return p_string.contains(p_term,search_flags & SEARCH_CASE_SENSITIVE);
 }
 
 void EditorHelpSearch::Runner::_match_item(TreeItem *p_item, StringView p_text) {

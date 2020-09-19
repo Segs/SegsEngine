@@ -42,7 +42,7 @@
 // to avoid freezing the editor for long periods of time.
 #define MAX_OCTAVES 9
 
-class OpenSimplexNoise : public Resource {
+class GODOT_EXPORT OpenSimplexNoise : public Resource {
     GDCLASS(OpenSimplexNoise,Resource)
 
     OBJ_SAVE_TYPE(OpenSimplexNoise)

@@ -284,7 +284,7 @@ struct ArchivePluginResolver : public ResolverInterface
     PackedData *pack_data;
     ArchivePluginResolver(PackedData *pd) : pack_data(pd) {}
 
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject * ob,const QJsonObject &/*metadata*/,const char *) override {
         bool res=false;
         auto interface = qobject_cast<PackSourceInterface *>(ob);
         if(interface) {
@@ -304,7 +304,7 @@ struct ArchivePluginResolver : public ResolverInterface
 };
 struct ResourcePluginResolver : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject * ob,const QJsonObject &/*metadata*/,const char *) override {
         bool res=false;
         auto interface = qobject_cast<ResourceLoaderInterface *>(ob);
         if(interface) {

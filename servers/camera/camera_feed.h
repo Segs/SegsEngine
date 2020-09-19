@@ -43,7 +43,7 @@
     camera feeds that can be used as the background for our environment.
 **/
 
-class CameraFeed : public RefCounted {
+class GODOT_EXPORT CameraFeed : public RefCounted {
     GDCLASS(CameraFeed,RefCounted)
 
 

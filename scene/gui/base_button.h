@@ -35,7 +35,7 @@
 
 class ButtonGroup;
 
-class BaseButton : public Control {
+class GODOT_EXPORT BaseButton : public Control {
 
     GDCLASS(BaseButton,Control)
 
@@ -133,7 +133,7 @@ public:
 };
 
 
-class ButtonGroup : public Resource {
+class GODOT_EXPORT ButtonGroup : public Resource {
 
     GDCLASS(ButtonGroup,Resource)
 

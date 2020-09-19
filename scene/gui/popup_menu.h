@@ -34,7 +34,7 @@
 #include "scene/gui/shortcut.h"
 #include "core/string.h"
 
-class PopupMenu : public Popup {
+class GODOT_EXPORT PopupMenu : public Popup {
 
     GDCLASS(PopupMenu,Popup)
 

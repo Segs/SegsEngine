@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/math/vector3.h"
 
-class BoxShape3D : public Shape {
+class GODOT_EXPORT BoxShape3D : public Shape {
 
     GDCLASS(BoxShape3D,Shape)
 

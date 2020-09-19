@@ -34,7 +34,7 @@
 #include "scene/gui/range.h"
 #include "scene/main/timer.h"
 
-class SpinBox : public Range {
+class GODOT_EXPORT SpinBox : public Range {
 
     GDCLASS(SpinBox,Range)
 

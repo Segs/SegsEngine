@@ -34,7 +34,7 @@
 #include "core/rid.h"
 class ArrayMesh;
 
-class Shape : public Resource {
+class GODOT_EXPORT Shape : public Resource {
 
     GDCLASS(Shape,Resource)
 

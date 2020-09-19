@@ -887,6 +887,7 @@ struct _VariantCall {
 #define VCALL_PTR5R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3], *p_args[4]); }
 
+    VCALL_PTR0R(AABB, abs)
     VCALL_PTR0R(AABB, get_area)
     VCALL_PTR0R(AABB, has_no_area)
     VCALL_PTR0R(AABB, has_no_surface)
@@ -1829,6 +1830,7 @@ void register_variant_methods() {
     ADDFUNC1R(VECTOR2, VECTOR2, Vector2, clamped, FLOAT, "length")
     ADDFUNC0R(VECTOR2, VECTOR2, Vector2, sign)
 
+    ADDFUNC0R(AABB, AABB, AABB, abs);
     ADDFUNC0R(RECT2, FLOAT, Rect2, get_area)
     ADDFUNC2R(RECT2, BOOL, Rect2, intersects, RECT2, "b", BOOL,"include_borders", false)
     ADDFUNC1R(RECT2, BOOL, Rect2, encloses, RECT2, "b")

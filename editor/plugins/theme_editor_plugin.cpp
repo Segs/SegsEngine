@@ -202,7 +202,7 @@ void ThemeEditor::_save_template_cbk(StringView fname) {
 
     FileAccess *file = FileAccess::open(filename, FileAccess::WRITE);
 
-    ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'."); 
+    ERR_FAIL_COND_MSG(!file, "Can't save theme to file '" + filename + "'.");
 
     file->store_line("; ******************* ");
     file->store_line("; Template Theme File ");
@@ -638,7 +638,7 @@ ThemeEditor::ThemeEditor() {
     ScrollContainer *scroll = memnew(ScrollContainer);
     add_child(scroll);
     scroll->set_enable_v_scroll(true);
-    scroll->set_enable_h_scroll(false);
+    scroll->set_enable_h_scroll(true);
     scroll->set_v_size_flags(SIZE_EXPAND_FILL);
 
     MarginContainer *root_container = memnew(MarginContainer);

@@ -436,7 +436,6 @@ void CollisionObject2D::_bind_methods() {
 
     ADD_GROUP("Pickable", "input_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "input_pickable"), "set_pickable", "is_pickable");
-    ADD_GROUP("", "");
 }
 
 CollisionObject2D::CollisionObject2D(RID p_rid, bool p_area) {

@@ -10,7 +10,7 @@ struct VariantCaster {
 
     static _FORCE_INLINE_ T cast(const Variant &p_variant) {
 
-        return p_variant.as<T>();
+        return p_variant.asT<T>();
     }
 };
 
@@ -19,7 +19,7 @@ struct VariantCaster<T &> {
 
     static _FORCE_INLINE_ T cast(const Variant &p_variant) {
 
-        return p_variant.as<T>();
+        return p_variant.asT<T>();
     }
 };
 
@@ -28,7 +28,7 @@ struct VariantCaster<const T &> {
 
     static _FORCE_INLINE_ T cast(const Variant &p_variant) {
 
-        return p_variant.as<T>();
+        return p_variant.asT<T>();
     }
 };
 

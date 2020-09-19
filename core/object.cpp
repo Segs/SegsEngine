@@ -585,7 +585,7 @@ Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Call
 
     StringName method = p_args[0]->as<StringName>();
 
-    MessageQueue::get_singleton()->push_call(get_instance_id(), method, &p_args[1], p_argcount - 1);
+    MessageQueue::get_singleton()->push_call(get_instance_id(), method, &p_args[1], p_argcount - 1, true);
 
     return Variant();
 }
@@ -1830,7 +1830,7 @@ Object::~Object() {
     ObjectRC *rc = _rc.load(std::memory_order_acquire);
     if (rc) {
         if (rc->invalidate()) {
-            memfree(rc);
+            memdelete(rc);
         }
     }
 #endif

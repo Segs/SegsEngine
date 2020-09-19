@@ -41,7 +41,7 @@ struct AnimationTreeNodeBase;
 struct AnimationTreeNodeOut;
 struct AnimationTreeNode;
 
-class AnimationTreePlayer : public Node {
+class GODOT_EXPORT AnimationTreePlayer : public Node {
 
     GDCLASS(AnimationTreePlayer,Node)
 

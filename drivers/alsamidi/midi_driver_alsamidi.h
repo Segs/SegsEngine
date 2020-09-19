@@ -28,10 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifdef ALSAMIDI_ENABLED
+#pragma once
 
-#ifndef MIDI_DRIVER_ALSAMIDI_H
-#define MIDI_DRIVER_ALSAMIDI_H
+#ifdef ALSAMIDI_ENABLED
 
 #include "core/os/midi_driver.h"
 #include "core/os/mutex.h"
@@ -43,27 +42,26 @@
 
 class MIDIDriverALSAMidi : public MIDIDriver {
 
-	Thread *thread;
-	Mutex *mutex;
+    Thread *thread;
+    Mutex *mutex;
 
-	Vector<snd_rawmidi_t *> connected_inputs;
+    Vector<snd_rawmidi_t *> connected_inputs;
 
-	bool exit_thread;
+    bool exit_thread;
 
-	static void thread_func(void *p_udata);
+    static void thread_func(void *p_udata);
 
-	void lock() const;
-	void unlock() const;
+    void lock() const;
+    void unlock() const;
 
 public:
-	virtual Error open();
-	virtual void close();
+    virtual Error open();
+    virtual void close();
 
-	virtual PoolStringArray get_connected_inputs();
+    virtual PoolStringArray get_connected_inputs();
 
-	MIDIDriverALSAMidi();
-	virtual ~MIDIDriverALSAMidi();
+    MIDIDriverALSAMidi();
+    virtual ~MIDIDriverALSAMidi();
 };
 
-#endif // MIDI_DRIVER_ALSAMIDI_H
 #endif // ALSAMIDI_ENABLED
