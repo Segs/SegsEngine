@@ -970,7 +970,7 @@ String DynamicFont::get_available_chars() const {
     for (int i = 0; i < fallback_data_at_size.size(); i++) {
         UIString fallback_chars = fallback_data_at_size[i]->get_available_chars();
         for (int j = 0; j < fallback_chars.length(); j++) {
-            if (chars.contains(fallback_chars[j]) == -1) {
+            if (chars.contains(fallback_chars[j])) {
                 chars += fallback_chars[j];
             }
         }

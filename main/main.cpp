@@ -317,6 +317,8 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("\n");
 
     OS::get_singleton()->print("Standalone tools:\n");
+    OS::get_singleton()->print("  --gen-reflection <path>          Generate reflection data.\n");
+    
     OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
     OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
 #ifdef TOOLS_ENABLED

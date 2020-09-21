@@ -1,14 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net472</TargetFramework>
+		<LangVersion>7.2</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\GodotTools.Core\GodotTools.Core.csproj" />
     </ItemGroup>
-
+    <!--
+    The Microsoft.Build.Runtime package is too problematic so we create a MSBuild.exe stub. The workaround described
+    here doesn't work with Microsoft.NETFramework.ReferenceAssemblies: https://github.com/microsoft/msbuild/issues/3486
+    We need a MSBuild.exe file as there's an issue in Microsoft.Build where it executes platform dependent code when
+    searching for MSBuild.exe before the fallback to not using it. A stub is fine as it should never be executed.
+    -->
     <ItemGroup>
+        <None Include="MSBuild.exe" CopyToOutputDirectory="Always" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Microsoft.Build" />
       <PackageReference Include="DotNet.Glob" Version="3.1.0" />
       <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
       <PackageReference Include="Microsoft.Build" Version="16.6.0" />

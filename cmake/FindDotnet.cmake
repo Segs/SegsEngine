@@ -256,8 +256,8 @@ FUNCTION(DOTNET_GET_DEPS _DN_PROJECT arguments)
         SET(_DN_PLATFORM_PROP "/p:Platform=${_DN_PLATFORM}")
     ENDIF()
 
-    SET(_DN_BUILD_OPTIONS -f netcoreapp3.1)
-    SET(_DN_PACK_OPTIONS /p:TargetFrameworks=netcoreapp3.1)
+    # SET(_DN_BUILD_OPTIONS -f net472) #netcoreapp3.1
+    # SET(_DN_PACK_OPTIONS /p:TargetFrameworks=net472) #netcoreapp3.1
 
     SET(_DN_IMPORT_PROP ${CMAKE_CURRENT_BINARY_DIR}/${_DN_projname}.imports.props)
     CONFIGURE_FILE(${DOTNET_MODULE_DIR}/DotnetImports.props.in ${_DN_IMPORT_PROP})
@@ -357,7 +357,7 @@ FUNCTION(RUN_DOTNET DOTNET_PROJECT)
         COMMAND ${DOTNET_EXE} clean ${DOTNET_PROJPATH} ${DOTNET_BUILD_PROPERTIES}
         COMMAND ${DOTNET_EXE} build --no-restore ${DOTNET_PROJPATH} -c ${DOTNET_CONFIG} ${DOTNET_BUILD_PROPERTIES} ${DOTNET_BUILD_OPTIONS}
         # XXX tfm
-        COMMAND ${DOTNET_EXE} ${DOTNET_OUTPUT_PATH}/netcoreapp3.1/${DOTNET_PROJNAME}.dll ${DOTNET_ARGUMENTS}
+        COMMAND ${DOTNET_EXE} ${DOTNET_OUTPUT_PATH}/net472/${DOTNET_PROJNAME}.dll ${DOTNET_ARGUMENTS} #netcoreapp3.1
         COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${DOTNET_PROJNAME}.runtimestamp
         WORKING_DIRECTORY ${DOTNET_OUTPUT_PATH})
     ADD_CUSTOM_TARGET(
@@ -372,7 +372,7 @@ FUNCTION(TEST_DOTNET DOTNET_PROJECT)
     IF(WIN32)
         SET(test_framework_args "")
     ELSE()
-        SET(test_framework_args -f netcoreapp3.1)
+        SET(test_framework_args -f net472) #netcoreapp3.1
     ENDIF()
 
     ADD_TEST(NAME              ${DOTNET_PROJNAME}
@@ -443,3 +443,4 @@ add_library(nethost INTERFACE)
 
 MESSAGE("-- Found .NET toolchain: ${DOTNET_EXE} (version ${DOTNET_VERSION})")
 SET(DOTNET_FOUND TRUE)
+ 

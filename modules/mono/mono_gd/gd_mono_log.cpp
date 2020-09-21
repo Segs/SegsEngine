@@ -67,7 +67,10 @@ static int get_log_level_id(const char *p_log_level) {
 static String make_text(const char *log_domain, const char *log_level, const char *message) {
     String text(message);
     text += " (in domain ";
-    text += log_domain;
+    if(log_domain)
+      text += log_domain;
+    else
+        text+= "NO_DOMAIN";
     if (log_level) {
         text += ", ";
         text += log_level;

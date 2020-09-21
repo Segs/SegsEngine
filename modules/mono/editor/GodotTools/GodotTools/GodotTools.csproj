@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>7.2</LangVersion>
+        <GodotSourceRootPath>$(SolutionDir)/../../../../</GodotSourceRootPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -10,24 +12,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Reference Include="GodotCoreAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\..\..\bin\csharp\assemblies\Debug\GodotCoreAssembly.dll</HintPath>
-      </Reference>
-      <Reference Include="GodotEditorAssembly, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\..\..\..\..\bin\csharp\assemblies\Debug\GodotEditorAssembly.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\GodotTools.BuildLogger\GodotTools.BuildLogger.csproj" />
-      <ProjectReference Include="..\GodotTools.Core\GodotTools.Core.csproj" />
-      <ProjectReference Include="..\GodotTools.IdeMessaging\GodotTools.IdeMessaging.csproj" />
-      <ProjectReference Include="..\GodotTools.ProjectEditor\GodotTools.ProjectEditor.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <Reference Include="GodotCoreAssembly">
+        <HintPath>$(GodotSourceRootPath)/bin/csharp/assemblies/Debug/GodotCoreAssembly.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="GodotEditorAssembly">
+        <HintPath>$(GodotSourceRootPath)/bin/csharp/assemblies/Debug/GodotEditorAssembly.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\GodotTools.BuildLogger\GodotTools.BuildLogger.csproj" />
+      <ProjectReference Include="..\GodotTools.ProjectEditor\GodotTools.ProjectEditor.csproj" />
+      <ProjectReference Include="..\GodotTools.Core\GodotTools.Core.csproj" />
+      <ProjectReference Include="..\GodotTools.IdeMessaging\GodotTools.IdeMessaging.csproj" />
     </ItemGroup>
 
 </Project>

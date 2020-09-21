@@ -281,33 +281,20 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
                 target_cname = StringName(link_target_parts[0]);
             }
             if (link_tag == "method"_sv) {
-                if (!target_itype) { // || !target_itype->source_type->is_object_type
-                    if (verbose) {
-                        if (target_itype) {
-                            qDebug("Cannot resolve method reference for non-Godot.Object type in documentation: %.*s", (int)link_target.size(), link_target.data());
-                        }
-                        else {
-                            qDebug("Cannot resolve type from method reference in documentation: %.*s", (int)link_target.size(), link_target.data());
-                        }
+                if(!target_itype)
+                    target_itype = p_itype;
+                const TS_Function* target_imethod = target_itype->find_method_by_name(CS_INTERFACE, TS_Function::mapMethodName(target_cname, target_itype->cs_name()), true);
+                if (target_imethod) {
+                    xml_output.writeEmptyElement("see");
+                    String full_path;
+                    if(target_imethod->source_type->implements_property) {
+                        const TS_Type *enc=(const TS_Type *)target_imethod->enclosing_type;
+                        full_path = enc->get_property_path_by_func(target_imethod);
                     }
-
-                    // TODO Map what we can
-                    xml_output.writeTextElement("c", QString::fromUtf8(link_target.data(), link_target.size()));
-                }
-                else {
-                    const TS_Function* target_imethod = target_itype->find_method_by_name(CS_INTERFACE, TS_Function::mapMethodName(target_cname, target_itype->cs_name()), true);
-                    if (target_imethod) {
-                        xml_output.writeEmptyElement("see");
-                        String full_path;
-                        if(target_imethod->source_type->implements_property) {
-                            const TS_Type *enc=(const TS_Type *)target_imethod->enclosing_type;
-                            full_path = enc->get_property_path_by_func(target_imethod);
-                        }
-                        else {
-                            full_path = target_imethod->cs_name;
-                        }
-                        xml_output.writeAttribute("cref", QString::fromUtf8((target_imethod->enclosing_type->relative_path(CS_INTERFACE) + "." +full_path).c_str()));
+                    else {
+                        full_path = target_imethod->cs_name;
                     }
+                    xml_output.writeAttribute("cref", QString::fromUtf8((target_imethod->enclosing_type->relative_path(CS_INTERFACE) + "." +full_path).c_str()));
                 }
             }
             else if (link_tag == "member"_sv) {

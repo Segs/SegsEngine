@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.Build.Construction;
@@ -9,7 +10,7 @@ namespace GodotTools.ProjectEditor
     public static class ProjectGenerator
     {
         public const string GodotSdkVersionToUse = "3.2.3";
-
+    
         public static string GodotSdkAttrValue => $"Godot.NET.Sdk/{GodotSdkVersionToUse}";
 
         public static ProjectRootElement GenGameProject(string name)
@@ -30,6 +31,18 @@ namespace GodotTools.ProjectEditor
             if (sanitizedName != name)
                 mainGroup.AddProperty("RootNamespace", sanitizedName);
 
+            var importGroup = root.AddItemGroup();
+            var entries = new Dictionary<string, string>();
+            entries["HintPath"] = "$(GodotProjectDir).csharp/assemblies/$(GodotApiConfiguration)/GodotCoreAssembly.dll";
+            entries["Private"] = "false";
+            var item_info=importGroup.AddItem("Reference","GodotCoreAssembly", entries);
+            
+            var edit_entries = new Dictionary<string, string>();
+            edit_entries["HintPath"] = "$(GodotProjectDir).csharp/assemblies/$(GodotApiConfiguration)/GodotEditorAssembly.dll";
+            edit_entries["Private"] = "false";
+            var item_editor_info=importGroup.AddItem("Reference","GodotEditorAssembly", edit_entries);
+            item_editor_info.Condition = " '$(Configuration)' == 'Debug' ";
+                
             return root;
         }
 
