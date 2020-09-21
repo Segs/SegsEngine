@@ -10,7 +10,6 @@
 #include "EASTL/type_traits.h"
 #include "../config/config.h"
 #include "sparse_set.hpp"
-#include "entity.hpp"
 #include "fwd.hpp"
 
 
@@ -50,7 +49,7 @@ namespace entt {
  * have a valid reference and won't be updated accordingly).
  *
  * @warning
- * Lifetime of a view must overcome the one of the registry that generated it.
+ * Lifetime of a view must not overcome that of the registry that generated it.
  * In any other case, attempting to use a view results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
@@ -60,70 +59,79 @@ class basic_runtime_view {
     /*! @brief A registry is allowed to create views. */
     friend class basic_registry<Entity,Allocator>;
 
-    using underlying_iterator_type = typename sparse_set<Entity>::iterator_type;
+    using underlying_iterator = typename sparse_set<Entity, Allocator>::iterator;
 
-    class iterator {
+    class view_iterator final {
         friend class basic_runtime_view<Entity>;
 
-        iterator(underlying_iterator_type first, underlying_iterator_type last, const sparse_set<Entity> * const *others, const sparse_set<Entity> * const *length) ENTT_NOEXCEPT
-            : begin{first},
-              end{last},
-              from{others},
-              to{length}
+        using direct_type = eastl::vector<const sparse_set<Entity,Allocator> *,Allocator>;
+
+        view_iterator(const direct_type &all, underlying_iterator curr) ENTT_NOEXCEPT
+            : pools{&all},
+              it{curr}
         {
-            if(begin != end && !valid()) {
+            if(it != (*pools)[0]->end() && !valid()) {
                 ++(*this);
             }
         }
 
-        bool valid() const ENTT_NOEXCEPT {
-            return eastl::all_of(from, to, [entt = *begin](const auto *view) {
-                return view->has(entt);
+        bool valid() const {
+            return eastl::all_of(pools->begin()++, pools->end(), [entt = *it](const auto *curr) {
+                return curr->contains(entt);
             });
         }
 
     public:
-        using difference_type = typename underlying_iterator_type::difference_type;
-        using value_type = typename underlying_iterator_type::value_type;
-        using pointer = typename underlying_iterator_type::pointer;
-        using reference = typename underlying_iterator_type::reference;
-        using iterator_category = eastl::forward_iterator_tag;
+        using difference_type = typename underlying_iterator::difference_type;
+        using value_type = typename underlying_iterator::value_type;
+        using pointer = typename underlying_iterator::pointer;
+        using reference = typename underlying_iterator::reference;
+        using iterator_category = eastl::bidirectional_iterator_tag;
 
-        iterator() ENTT_NOEXCEPT = default;
+        view_iterator() ENTT_NOEXCEPT = default;
 
-        iterator & operator++() ENTT_NOEXCEPT {
-            return (++begin != end && !valid()) ? ++(*this) : *this;
+        view_iterator & operator++() {
+            while(++it != (*pools)[0]->end() && !valid());
+            return *this;
         }
 
-        iterator operator++(int) ENTT_NOEXCEPT {
-            iterator orig = *this;
-            return ++(*this), orig;
+        view_iterator operator++(int) {
+            view_iterator orig = *this;
+            return operator++(), orig;
         }
 
-        bool operator==(const iterator &other) const ENTT_NOEXCEPT {
-            return other.begin == begin;
+        view_iterator & operator--() ENTT_NOEXCEPT {
+            while(--it != (*pools)[0]->begin() && !valid());
+            return *this;
         }
 
-        bool operator!=(const iterator &other) const ENTT_NOEXCEPT {
+        view_iterator operator--(int) ENTT_NOEXCEPT {
+            view_iterator orig = *this;
+            return operator--(), orig;
+        }
+
+        bool operator==(const view_iterator &other) const ENTT_NOEXCEPT {
+            return other.it == it;
+        }
+
+        bool operator!=(const view_iterator &other) const ENTT_NOEXCEPT {
             return !(*this == other);
         }
 
-        pointer operator->() const ENTT_NOEXCEPT {
-            return begin.operator->();
+        pointer operator->() const {
+            return it.operator->();
         }
 
-        reference operator*() const ENTT_NOEXCEPT {
+        reference operator*() const {
             return *operator->();
         }
 
     private:
-        underlying_iterator_type begin;
-        underlying_iterator_type end;
-        const sparse_set<Entity> * const *from;
-        const sparse_set<Entity> * const *to;
+        const direct_type *pools;
+        underlying_iterator it;
     };
 
-    basic_runtime_view(eastl::vector<const sparse_set<Entity> *,Allocator> others) ENTT_NOEXCEPT
+    basic_runtime_view(eastl::vector<const sparse_set<Entity,Allocator> *,Allocator> others) ENTT_NOEXCEPT
         : pools{eastl::move(others)}
     {
         const auto it = eastl::min_element(pools.begin(), pools.end(), [](const auto *lhs, const auto *rhs) {
@@ -134,7 +142,7 @@ class basic_runtime_view {
         eastl::rotate(pools.begin(), it, pools.end());
     }
 
-    bool valid() const ENTT_NOEXCEPT {
+    bool valid() const {
         return !pools.empty() && pools.front();
     }
 
@@ -144,13 +152,13 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Input iterator type. */
-    using iterator_type = iterator;
+    using iterator = view_iterator;
 
     /**
      * @brief Estimates the number of entities that have the given components.
      * @return Estimated number of entities that have the given components.
      */
-    size_type size() const ENTT_NOEXCEPT {
+    size_type size() const {
         return valid() ? pools.front()->size() : size_type{};
     }
 
@@ -158,7 +166,7 @@ public:
      * @brief Checks if the view is definitely empty.
      * @return True if the view is definitely empty, false otherwise.
      */
-    bool empty() const ENTT_NOEXCEPT {
+    bool empty() const {
         return !valid() || pools.front()->empty();
     }
 
@@ -176,13 +184,11 @@ public:
      *
      * @return An iterator to the first entity that has the given components.
      */
-    iterator_type begin() const ENTT_NOEXCEPT {
-        iterator_type it{};
+    iterator begin() const {
+        iterator it{};
 
         if(valid()) {
-            const auto &pool = *pools.front();
-            const auto * const *data = pools.data();
-            it = { pool.begin(), pool.end(), data + 1, data + pools.size() };
+            it = { pools, pools[0]->begin() };
         }
 
         return it;
@@ -203,12 +209,11 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    iterator_type end() const ENTT_NOEXCEPT {
-        iterator_type it{};
+    iterator end() const {
+        iterator it{};
 
         if(valid()) {
-            const auto &pool = *pools.front();
-            it = { pool.end(), pool.end(), nullptr, nullptr };
+            it = { pools, pools[0]->end() };
         }
 
         return it;
@@ -219,7 +224,7 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the view contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const ENTT_NOEXCEPT {
+    bool contains(const entity_type entt) const {
         return valid() && eastl::all_of(pools.cbegin(), pools.cend(), [entt](const auto *view) {
             return view->find(entt) != view->end();
         });
@@ -242,15 +247,17 @@ public:
      */
     template<typename Func>
     void each(Func func) const {
-        eastl::for_each(begin(), end(), func);
+        for(const auto entity: *this) {
+            func(entity);
+        }
     }
 
 private:
-    eastl::vector<const sparse_set<Entity> *,Allocator> pools;
+    eastl::vector<const sparse_set<Entity,Allocator> *,Allocator> pools;
 };
 
 
 }
 
 
-#endif // ENTT_ENTITY_RUNTIME_VIEW_HPP
+#endif

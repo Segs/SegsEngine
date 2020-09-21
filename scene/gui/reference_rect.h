@@ -33,7 +33,7 @@
 
 #include "scene/gui/control.h"
 
-class ReferenceRect : public Control {
+class GODOT_EXPORT ReferenceRect : public Control {
 
 	GDCLASS(ReferenceRect,Control)
 

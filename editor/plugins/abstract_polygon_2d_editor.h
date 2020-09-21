@@ -36,7 +36,7 @@
 class CanvasItemEditor;
 class ConfirmationDialog;
 
-class AbstractPolygon2DEditor : public HBoxContainer {
+class GODOT_EXPORT AbstractPolygon2DEditor : public HBoxContainer {
 
     GDCLASS(AbstractPolygon2DEditor,HBoxContainer)
 

@@ -9,6 +9,7 @@ using Directory = GodotTools.Utils.Directory;
 using File = GodotTools.Utils.File;
 using OS = GodotTools.Utils.OS;
 using Path = System.IO.Path;
+#pragma warning disable 1591
 
 namespace GodotTools.Export
 {
@@ -89,7 +90,7 @@ namespace GodotTools.Export
 
                 if (platform == OS.Platforms.OSX)
                 {
-                    exporter.AddSharedObject(tempOutputFilePath,  null);
+                    exporter.AddSharedObject(tempOutputFilePath, tags: null);
                 }
                 else
                 {

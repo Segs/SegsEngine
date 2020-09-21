@@ -34,7 +34,7 @@
 #include "core/resource.h"
 #include "servers/physics_server_3d.h"
 
-class PhysicsMaterial : public Resource {
+class GODOT_EXPORT PhysicsMaterial : public Resource {
 
 	GDCLASS(PhysicsMaterial,Resource)
 

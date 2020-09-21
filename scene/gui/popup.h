@@ -32,7 +32,7 @@
 
 #include "scene/gui/control.h"
 
-class Popup : public Control {
+class GODOT_EXPORT Popup : public Control {
 
     GDCLASS(Popup,Control)
 

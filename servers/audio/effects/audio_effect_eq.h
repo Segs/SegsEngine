@@ -48,7 +48,7 @@ public:
     void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
-class AudioEffectEQ : public AudioEffect {
+class GODOT_EXPORT AudioEffectEQ : public AudioEffect {
     GDCLASS(AudioEffectEQ,AudioEffect)
 
     friend class AudioEffectEQInstance;

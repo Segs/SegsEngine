@@ -33,7 +33,7 @@
 
 #include "visual_script.h"
 
-class VisualScriptBuiltinFunc : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptBuiltinFunc : public VisualScriptNode {
 
     GDCLASS(VisualScriptBuiltinFunc,VisualScriptNode)
 

@@ -36,6 +36,7 @@
 #include "core/error_macros.h"
 #include "entt/fwd.hpp"
 #include "entt/entity/entity.hpp"
+
 class RID_OwnerBase;
 
 class GODOT_EXPORT RID_Data {
@@ -93,7 +94,7 @@ namespace eastl {
 template<>
 struct hash<RID> {
     size_t operator()(const RID &np) const {
-        size_t val1 = eastl::hash<ENTT_ID_TYPE>()(to_integer(np.eid));
+        size_t val1 = eastl::hash<ENTT_ID_TYPE>()(to_integral(np.eid));
         size_t val2 = intptr_t(np.get_data())/next_power_of_2(sizeof(RID_Data));
         return val1 ^ (val2 <<16);
     }

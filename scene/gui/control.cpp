@@ -1598,6 +1598,8 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
 }
 
 void Control::set_margins_preset(LayoutPreset p_preset, LayoutPresetMode p_resize_mode, int p_margin) {
+	ERR_FAIL_INDEX((int)p_preset, 16);
+	ERR_FAIL_INDEX((int)p_resize_mode, 4);
     // Calculate the size if the node is not resized
     Size2 min_size = get_minimum_size();
     Size2 new_size = get_size();
@@ -1731,6 +1733,7 @@ void Control::set_anchors_and_margins_preset(LayoutPreset p_preset, LayoutPreset
 }
 
 float Control::get_anchor(Margin p_margin) const {
+    ERR_FAIL_INDEX_V(int(p_margin), 4, 0.0);
 
     return data.anchor[(int)p_margin];
 }
@@ -1747,6 +1750,7 @@ void Control::_change_notify_margins() {
 }
 
 void Control::set_margin(Margin p_margin, float p_value) {
+    ERR_FAIL_INDEX((int)p_margin, 4);
 
     data.margin[(int)p_margin] = p_value;
     _size_changed();
@@ -1767,6 +1771,7 @@ void Control::set_end(const Size2 &p_point) {
 }
 
 float Control::get_margin(Margin p_margin) const {
+    ERR_FAIL_INDEX_V((int)p_margin, 4, 0);
 
     return data.margin[(int)p_margin];
 }
@@ -2331,6 +2336,8 @@ Control *Control::make_custom_tooltip(StringView p_text) const {
 
 void Control::set_default_cursor_shape(CursorShape p_shape) {
 
+    ERR_FAIL_INDEX(int(p_shape), CURSOR_MAX);
+
     data.default_cursor = p_shape;
 }
 
@@ -2390,6 +2397,8 @@ NodePath Control::get_focus_previous() const {
 #define MAX_NEIGHBOUR_SEARCH_COUNT 512
 
 Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
+
+    ERR_FAIL_INDEX_V((int)p_margin, 4, NULL);
 
     if (p_count >= MAX_NEIGHBOUR_SEARCH_COUNT)
         return nullptr;
@@ -2799,6 +2808,8 @@ bool Control::is_clipping_contents() {
 
 void Control::set_h_grow_direction(GrowDirection p_direction) {
 
+    ERR_FAIL_INDEX((int)p_direction, 3);
+
     data.h_grow = p_direction;
     _size_changed();
 }
@@ -2809,6 +2820,7 @@ Control::GrowDirection Control::get_h_grow_direction() const {
 }
 
 void Control::set_v_grow_direction(GrowDirection p_direction) {
+    ERR_FAIL_INDEX((int)p_direction, 3);
 
     data.v_grow = p_direction;
     _size_changed();
@@ -2956,6 +2968,7 @@ void Control::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_get_minimum_size"));
+
     MethodInfo get_drag_data = MethodInfo("get_drag_data", PropertyInfo(VariantType::VECTOR2, "position"));
     get_drag_data.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
     BIND_VMETHOD(get_drag_data);
@@ -2986,7 +2999,6 @@ void Control::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_size", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rect_rotation", PropertyHint::Range, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
-
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_scale"), "set_scale", "get_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");
@@ -3015,9 +3027,9 @@ void Control::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "theme", PropertyHint::ResourceType, "Theme"), "set_theme", "get_theme");
     ADD_GROUP("", "");
 
-    BIND_ENUM_CONSTANT(FOCUS_NONE)
-    BIND_ENUM_CONSTANT(FOCUS_CLICK)
-    BIND_ENUM_CONSTANT(FOCUS_ALL)
+    BIND_ENUM_CONSTANT(FOCUS_NONE);
+    BIND_ENUM_CONSTANT(FOCUS_CLICK);
+    BIND_ENUM_CONSTANT(FOCUS_ALL);
 
     BIND_CONSTANT(NOTIFICATION_RESIZED);
     BIND_CONSTANT(NOTIFICATION_MOUSE_ENTER);
@@ -3029,62 +3041,62 @@ void Control::_bind_methods() {
     BIND_CONSTANT(NOTIFICATION_SCROLL_BEGIN);
     BIND_CONSTANT(NOTIFICATION_SCROLL_END);
 
-    BIND_ENUM_CONSTANT(CURSOR_ARROW)
-    BIND_ENUM_CONSTANT(CURSOR_IBEAM)
-    BIND_ENUM_CONSTANT(CURSOR_POINTING_HAND)
-    BIND_ENUM_CONSTANT(CURSOR_CROSS)
-    BIND_ENUM_CONSTANT(CURSOR_WAIT)
-    BIND_ENUM_CONSTANT(CURSOR_BUSY)
-    BIND_ENUM_CONSTANT(CURSOR_DRAG)
-    BIND_ENUM_CONSTANT(CURSOR_CAN_DROP)
-    BIND_ENUM_CONSTANT(CURSOR_FORBIDDEN)
-    BIND_ENUM_CONSTANT(CURSOR_VSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_HSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_BDIAGSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_FDIAGSIZE)
-    BIND_ENUM_CONSTANT(CURSOR_MOVE)
-    BIND_ENUM_CONSTANT(CURSOR_VSPLIT)
-    BIND_ENUM_CONSTANT(CURSOR_HSPLIT)
-    BIND_ENUM_CONSTANT(CURSOR_HELP)
+    BIND_ENUM_CONSTANT(CURSOR_ARROW);
+    BIND_ENUM_CONSTANT(CURSOR_IBEAM);
+    BIND_ENUM_CONSTANT(CURSOR_POINTING_HAND);
+    BIND_ENUM_CONSTANT(CURSOR_CROSS);
+    BIND_ENUM_CONSTANT(CURSOR_WAIT);
+    BIND_ENUM_CONSTANT(CURSOR_BUSY);
+    BIND_ENUM_CONSTANT(CURSOR_DRAG);
+    BIND_ENUM_CONSTANT(CURSOR_CAN_DROP);
+    BIND_ENUM_CONSTANT(CURSOR_FORBIDDEN);
+    BIND_ENUM_CONSTANT(CURSOR_VSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_HSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_BDIAGSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_FDIAGSIZE);
+    BIND_ENUM_CONSTANT(CURSOR_MOVE);
+    BIND_ENUM_CONSTANT(CURSOR_VSPLIT);
+    BIND_ENUM_CONSTANT(CURSOR_HSPLIT);
+    BIND_ENUM_CONSTANT(CURSOR_HELP);
 
-    BIND_ENUM_CONSTANT(PRESET_TOP_LEFT)
-    BIND_ENUM_CONSTANT(PRESET_TOP_RIGHT)
-    BIND_ENUM_CONSTANT(PRESET_BOTTOM_LEFT)
-    BIND_ENUM_CONSTANT(PRESET_BOTTOM_RIGHT)
-    BIND_ENUM_CONSTANT(PRESET_CENTER_LEFT)
-    BIND_ENUM_CONSTANT(PRESET_CENTER_TOP)
-    BIND_ENUM_CONSTANT(PRESET_CENTER_RIGHT)
-    BIND_ENUM_CONSTANT(PRESET_CENTER_BOTTOM)
-    BIND_ENUM_CONSTANT(PRESET_CENTER)
-    BIND_ENUM_CONSTANT(PRESET_LEFT_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_TOP_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_RIGHT_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_BOTTOM_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_VCENTER_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_HCENTER_WIDE)
-    BIND_ENUM_CONSTANT(PRESET_WIDE)
+    BIND_ENUM_CONSTANT(PRESET_TOP_LEFT);
+    BIND_ENUM_CONSTANT(PRESET_TOP_RIGHT);
+    BIND_ENUM_CONSTANT(PRESET_BOTTOM_LEFT);
+    BIND_ENUM_CONSTANT(PRESET_BOTTOM_RIGHT);
+    BIND_ENUM_CONSTANT(PRESET_CENTER_LEFT);
+    BIND_ENUM_CONSTANT(PRESET_CENTER_TOP);
+    BIND_ENUM_CONSTANT(PRESET_CENTER_RIGHT);
+    BIND_ENUM_CONSTANT(PRESET_CENTER_BOTTOM);
+    BIND_ENUM_CONSTANT(PRESET_CENTER);
+    BIND_ENUM_CONSTANT(PRESET_LEFT_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_TOP_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_RIGHT_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_BOTTOM_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_VCENTER_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_HCENTER_WIDE);
+    BIND_ENUM_CONSTANT(PRESET_WIDE);
 
-    BIND_ENUM_CONSTANT(PRESET_MODE_MINSIZE)
-    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_WIDTH)
-    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_HEIGHT)
-    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_SIZE)
+    BIND_ENUM_CONSTANT(PRESET_MODE_MINSIZE);
+    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_WIDTH);
+    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_HEIGHT);
+    BIND_ENUM_CONSTANT(PRESET_MODE_KEEP_SIZE);
 
-    BIND_ENUM_CONSTANT(SIZE_FILL)
-    BIND_ENUM_CONSTANT(SIZE_EXPAND)
-    BIND_ENUM_CONSTANT(SIZE_EXPAND_FILL)
-    BIND_ENUM_CONSTANT(SIZE_SHRINK_CENTER)
-    BIND_ENUM_CONSTANT(SIZE_SHRINK_END)
+    BIND_ENUM_CONSTANT(SIZE_FILL);
+    BIND_ENUM_CONSTANT(SIZE_EXPAND);
+    BIND_ENUM_CONSTANT(SIZE_EXPAND_FILL);
+    BIND_ENUM_CONSTANT(SIZE_SHRINK_CENTER);
+    BIND_ENUM_CONSTANT(SIZE_SHRINK_END);
 
-    BIND_ENUM_CONSTANT(MOUSE_FILTER_STOP)
-    BIND_ENUM_CONSTANT(MOUSE_FILTER_PASS)
-    BIND_ENUM_CONSTANT(MOUSE_FILTER_IGNORE)
+    BIND_ENUM_CONSTANT(MOUSE_FILTER_STOP);
+    BIND_ENUM_CONSTANT(MOUSE_FILTER_PASS);
+    BIND_ENUM_CONSTANT(MOUSE_FILTER_IGNORE);
 
-    BIND_ENUM_CONSTANT(GROW_DIRECTION_BEGIN)
-    BIND_ENUM_CONSTANT(GROW_DIRECTION_END)
-    BIND_ENUM_CONSTANT(GROW_DIRECTION_BOTH)
+    BIND_ENUM_CONSTANT(GROW_DIRECTION_BEGIN);
+    BIND_ENUM_CONSTANT(GROW_DIRECTION_END);
+    BIND_ENUM_CONSTANT(GROW_DIRECTION_BOTH);
 
-    BIND_ENUM_CONSTANT(ANCHOR_BEGIN)
-    BIND_ENUM_CONSTANT(ANCHOR_END)
+    BIND_ENUM_CONSTANT(ANCHOR_BEGIN);
+    BIND_ENUM_CONSTANT(ANCHOR_END);
 
     ADD_SIGNAL(MethodInfo("resized"));
     ADD_SIGNAL(MethodInfo("gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));

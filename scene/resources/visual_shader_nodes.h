@@ -37,7 +37,7 @@
 /// CONSTANTS
 ///////////////////////////////////////
 
-class VisualShaderNodeScalarConstant : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeScalarConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarConstant,VisualShaderNode)
     float constant;
 
@@ -67,7 +67,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeBooleanConstant : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeBooleanConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeBooleanConstant,VisualShaderNode)
 
     bool constant;
@@ -98,7 +98,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeColorConstant : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeColorConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeColorConstant,VisualShaderNode)
 
     Color constant;
@@ -129,7 +129,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeVec3Constant : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeVec3Constant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeVec3Constant,VisualShaderNode)
 
     Vector3 constant;
@@ -160,7 +160,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeTransformConstant : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeTransformConstant : public VisualShaderNode {
     GDCLASS(VisualShaderNodeTransformConstant,VisualShaderNode)
 
     Transform constant;
@@ -193,7 +193,7 @@ public:
 /// TEXTURES
 ///////////////////////////////////////
 
-class VisualShaderNodeTexture : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeTexture : public VisualShaderNode {
     GDCLASS(VisualShaderNodeTexture,VisualShaderNode)
 
     Ref<Texture> texture;
@@ -257,7 +257,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeCubeMap : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeCubeMap : public VisualShaderNode {
     GDCLASS(VisualShaderNodeCubeMap,VisualShaderNode)
 
     Ref<CubeMap> cube_map;
@@ -316,7 +316,7 @@ public:
 /// OPS
 ///////////////////////////////////////
 
-class VisualShaderNodeScalarOp : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeScalarOp : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarOp,VisualShaderNode)
 
 
@@ -361,7 +361,7 @@ public:
 };
 
 
-class VisualShaderNodeVectorOp : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeVectorOp : public VisualShaderNode {
     GDCLASS(VisualShaderNodeVectorOp,VisualShaderNode)
 
 
@@ -410,7 +410,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeColorOp : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeColorOp : public VisualShaderNode {
     GDCLASS(VisualShaderNodeColorOp,VisualShaderNode)
 
 
@@ -458,7 +458,7 @@ public:
 /// TRANSFORM-TRANSFORM MULTIPLICATION
 ///////////////////////////////////////
 
-class VisualShaderNodeTransformMult : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeTransformMult : public VisualShaderNode {
     GDCLASS(VisualShaderNodeTransformMult,VisualShaderNode)
 
 
@@ -501,7 +501,7 @@ public:
 /// TRANSFORM-VECTOR MULTIPLICATION
 ///////////////////////////////////////
 
-class VisualShaderNodeTransformVecMult : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeTransformVecMult : public VisualShaderNode {
     GDCLASS(VisualShaderNodeTransformVecMult,VisualShaderNode)
 
 public:
@@ -543,7 +543,7 @@ public:
 /// SCALAR FUNC
 ///////////////////////////////////////
 
-class VisualShaderNodeScalarFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeScalarFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarFunc,VisualShaderNode)
 
 public:
@@ -613,7 +613,7 @@ public:
 /// VECTOR FUNC
 ///////////////////////////////////////
 
-class VisualShaderNodeVectorFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeVectorFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeVectorFunc,VisualShaderNode)
 
 public:
@@ -685,7 +685,7 @@ public:
 /// COLOR FUNC
 ///////////////////////////////////////
 
-class VisualShaderNodeColorFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeColorFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeColorFunc,VisualShaderNode)
 
 public:
@@ -725,7 +725,7 @@ public:
 /// TRANSFORM FUNC
 ///////////////////////////////////////
 
-class VisualShaderNodeTransformFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeTransformFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeTransformFunc,VisualShaderNode)
 
 public:
@@ -840,7 +840,6 @@ public:
 class VisualShaderNodeScalarClamp : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarClamp,VisualShaderNode)
 
-
 public:
     StringView get_caption() const override;
 
@@ -883,7 +882,7 @@ public:
 /// DERIVATIVE FUNCTIONS
 ///////////////////////////////////////
 
-class VisualShaderNodeScalarDerivativeFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeScalarDerivativeFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeScalarDerivativeFunc,VisualShaderNode)
 
 
@@ -922,7 +921,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeVectorDerivativeFunc : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeVectorDerivativeFunc : public VisualShaderNode {
     GDCLASS(VisualShaderNodeVectorDerivativeFunc,VisualShaderNode)
 
 
@@ -1312,7 +1311,7 @@ public:
 /// UNIFORMS
 ///////////////////////////////////////
 
-class VisualShaderNodeScalarUniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT VisualShaderNodeScalarUniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeScalarUniform,VisualShaderNodeUniform)
 
 
@@ -1456,7 +1455,7 @@ public:
 
 ///////////////////////////////////////
 
-class VisualShaderNodeTextureUniform : public VisualShaderNodeUniform {
+class GODOT_EXPORT VisualShaderNodeTextureUniform : public VisualShaderNodeUniform {
     GDCLASS(VisualShaderNodeTextureUniform,VisualShaderNodeUniform)
 
 
@@ -1641,7 +1640,7 @@ public:
 /// Is
 ///////////////////////////////////////
 
-class VisualShaderNodeIs : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeIs : public VisualShaderNode {
     GDCLASS(VisualShaderNodeIs,VisualShaderNode)
 
 
@@ -1682,7 +1681,7 @@ public:
 /// Compare
 ///////////////////////////////////////
 
-class VisualShaderNodeCompare : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeCompare : public VisualShaderNode {
     GDCLASS(VisualShaderNodeCompare,VisualShaderNode)
 
 

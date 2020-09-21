@@ -40,6 +40,7 @@
 #include "core/project_settings.h"
 #include "core/string_formatter.h"
 #include "core/ustring.h"
+#include "editor/editor_log.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
 #include "editor/plugins/spatial_editor_plugin.h"
 #include "editor/editor_scale.h"
@@ -50,6 +51,7 @@
 #include "editor_settings.h"
 #include "main/performance.h"
 #include "property_editor.h"
+#include "scene/debugger/script_debugger_remote.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/gui/dialogs.h"
 #include "scene/gui/label.h"
@@ -831,9 +833,28 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         //OUT
         for (int i = 0; i < p_data.size(); i++) {
+            Array output = p_data[i];
+            ERR_FAIL_COND_MSG(output.size() < 2, "Malformed output message from script debugger.");
 
-            UIString t = p_data[i];
+            String str = output[0];
+            ScriptDebuggerRemote::MessageType type = (ScriptDebuggerRemote::MessageType)(int)(output[1]);
+
+            EditorLog::MessageType msg_type;
+            switch (type) {
+                case ScriptDebuggerRemote::MESSAGE_TYPE_LOG: {
+                    msg_type = EditorLog::MSG_TYPE_STD;
+                } break;
+                case ScriptDebuggerRemote::MESSAGE_TYPE_ERROR: {
+                    msg_type = EditorLog::MSG_TYPE_ERROR;
+                } break;
+                default: {
+                    WARN_PRINT("Unhandled script debugger message type: " + itos(type));
+                    msg_type = EditorLog::MSG_TYPE_STD;
+                } break;
+            }
+
             //LOG
+
             if (!EditorNode::get_log()->is_visible()) {
                 if (EditorNode::get_singleton()->are_bottom_panels_hidden()) {
                     if (EDITOR_GET("run/output/always_open_output_on_play")) {
@@ -841,7 +862,8 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     }
                 }
             }
-            EditorNode::get_log()->add_message(t);
+
+            EditorNode::get_log()->add_message_utf8(str, msg_type);
         }
 
     } else if (p_msg == "performance") {

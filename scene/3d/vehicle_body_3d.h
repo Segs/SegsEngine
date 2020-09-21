@@ -1,3 +1,4 @@
+
 /*************************************************************************/
 /*  vehicle_body_3d.h                                                    */
 /*************************************************************************/
@@ -34,7 +35,7 @@
 
 class VehicleBody3D;
 
-class VehicleWheel3D : public Node3D {
+class GODOT_EXPORT VehicleWheel3D : public Node3D {
 
     GDCLASS(VehicleWheel3D,Node3D)
 
@@ -150,7 +151,7 @@ public:
     VehicleWheel3D();
 };
 
-class VehicleBody3D : public RigidBody {
+class GODOT_EXPORT VehicleBody3D : public RigidBody {
 
     GDCLASS(VehicleBody3D,RigidBody)
 

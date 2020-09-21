@@ -40,11 +40,10 @@ namespace
 {
 struct ImageLoadPluginResolver : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
         bool res=false;
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if (image_loader_interface) {
-            print_line(String("Adding image loader:")+ob->metaObject()->className());
             ImageLoader::add_image_format_loader(image_loader_interface);
             res=true;
         }
@@ -53,7 +52,6 @@ struct ImageLoadPluginResolver : public ResolverInterface
     void plugin_removed(QObject * ob)  override  {
         auto image_loader_interface = qobject_cast<ImageFormatLoader *>(ob);
         if(image_loader_interface) {
-            print_line(String("Removing image loader:")+ob->metaObject()->className());
             ImageLoader::remove_image_format_loader(image_loader_interface);
         }
     }

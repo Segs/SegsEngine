@@ -54,7 +54,7 @@ public:
     AudioEffectFilterInstance();
 };
 
-class AudioEffectFilter : public AudioEffect {
+class GODOT_EXPORT AudioEffectFilter : public AudioEffect {
     GDCLASS(AudioEffectFilter,AudioEffect)
 
 public:

@@ -39,7 +39,7 @@
 #include "scene/gui/popup.h"
 #include "scene/gui/tree.h"
 
-class AnimationTreePlayerEditor : public Control {
+class GODOT_EXPORT AnimationTreePlayerEditor : public Control {
 
     GDCLASS(AnimationTreePlayerEditor,Control)
 

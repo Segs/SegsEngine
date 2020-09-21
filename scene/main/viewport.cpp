@@ -3236,14 +3236,14 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "world_2d", PropertyHint::ResourceType, "World2D", 0), "set_world_2d", "get_world_2d");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "transparent_bg"), "set_transparent_background", "has_transparent_background");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "handle_input_locally"), "set_handle_input_locally", "is_handling_input_locally");
-    ADD_GROUP("Rendering", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "hdr"), "set_hdr", "get_hdr");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_3d"), "set_disable_3d", "is_3d_disabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keep_3d_linear"), "set_keep_3d_linear", "get_keep_3d_linear");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "usage", PropertyHint::Enum, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_direct_to_screen"), "set_use_render_direct_to_screen", "is_using_render_direct_to_screen");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "debug_draw", PropertyHint::Enum, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
+    ADD_GROUP("Rendering", "rnd_");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rnd_msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"), "set_msaa", "get_msaa");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rnd_hdr"), "set_hdr", "get_hdr");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rnd_disable_3d"), "set_disable_3d", "is_3d_disabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rnd_keep_3d_linear"), "set_keep_3d_linear", "get_keep_3d_linear");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rnd_usage", PropertyHint::Enum, "2D,2D No-Sampling,3D,3D No-Effects"), "set_usage", "get_usage");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rnd_render_direct_to_screen"), "set_use_render_direct_to_screen", "is_using_render_direct_to_screen");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "rnd_debug_draw", PropertyHint::Enum, "Disabled,Unshaded,Overdraw,Wireframe"), "set_debug_draw", "get_debug_draw");
     ADD_GROUP("Render Target", "render_target_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "render_target_v_flip"), "set_vflip", "get_vflip");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "render_target_clear_mode", PropertyHint::Enum, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
@@ -3258,10 +3258,14 @@ void Viewport::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "gui_snap_controls_to_pixels"), "set_snap_controls_to_pixels", "is_snap_controls_to_pixels_enabled");
     ADD_GROUP("Shadow Atlas", "shadow_atlas_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_atlas_size"), "set_shadow_atlas_size", "get_shadow_atlas_size");
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_0", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 0);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_1", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 1);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_2", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 2);
-    ADD_PROPERTYI(PropertyInfo(VariantType::INT, "shadow_atlas_quad_3", PropertyHint::Enum, "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"), "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", 3);
+    ADD_PROPERTY_ARRAY("Shadow Atlas Quads",4,"shadow_atlas_quad");
+    for (int i = 0; i < 4; ++i)
+        ADD_PROPERTYI(
+                PropertyInfo(VariantType::INT, StringName("shadow_atlas_quad/" + itos(i) + "/subdiv"),
+                             PropertyHint::Enum,
+                             "Disabled,1 Shadow,4 Shadows,16 Shadows,64 Shadows,256 Shadows,1024 Shadows"),
+                             "set_shadow_atlas_quadrant_subdiv", "get_shadow_atlas_quadrant_subdiv", i);
+
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "canvas_transform", PropertyHint::None, "", 0), "set_canvas_transform", "get_canvas_transform");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM2D, "global_canvas_transform", PropertyHint::None, "", 0), "set_global_canvas_transform", "get_global_canvas_transform");
 

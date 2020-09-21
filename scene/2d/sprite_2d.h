@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
-class Sprite2D : public Node2D {
+class GODOT_EXPORT Sprite2D : public Node2D {
 
     GDCLASS(Sprite2D,Node2D)
 

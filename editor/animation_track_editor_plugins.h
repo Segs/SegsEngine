@@ -57,7 +57,7 @@ public:
     void draw_key_link(int p_index, float p_pixels_sec, int p_x, int p_next_x, int p_clip_left, int p_clip_right) override;
 };
 
-class AnimationTrackEditAudio : public AnimationTrackEdit {
+class GODOT_EXPORT AnimationTrackEditAudio : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditAudio,AnimationTrackEdit)
 
     ObjectID id;
@@ -110,7 +110,7 @@ public:
     void set_node(Object *p_object);
 };
 
-class AnimationTrackEditTypeAudio : public AnimationTrackEdit {
+class GODOT_EXPORT AnimationTrackEditTypeAudio : public AnimationTrackEdit {
     GDCLASS(AnimationTrackEditTypeAudio,AnimationTrackEdit)
 
     void _preview_changed(ObjectID p_which);

@@ -42,7 +42,7 @@
 class AnimationTrackEditor;
 class AnimationPlayerEditorPlugin;
 
-class AnimationPlayerEditor : public VBoxContainer {
+class GODOT_EXPORT AnimationPlayerEditor : public VBoxContainer {
 
     GDCLASS(AnimationPlayerEditor,VBoxContainer)
 
@@ -244,7 +244,7 @@ public:
     AnimationPlayerEditor(EditorNode *p_editor, AnimationPlayerEditorPlugin *p_plugin);
 };
 
-class AnimationPlayerEditorPlugin : public EditorPlugin {
+class GODOT_EXPORT AnimationPlayerEditorPlugin : public EditorPlugin {
 
     GDCLASS(AnimationPlayerEditorPlugin,EditorPlugin)
 

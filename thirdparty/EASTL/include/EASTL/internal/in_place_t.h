@@ -13,7 +13,10 @@ namespace eastl
 	namespace Internal
 	{
 		struct in_place_tag {};
-		template <class> struct in_place_type_tag {};
+		template <class> struct in_place_type_tag
+		{
+		    constexpr in_place_type_tag() noexcept = default;
+		};
 		template <size_t> struct in_place_index_tag {};
 	}
 
@@ -28,11 +31,11 @@ namespace eastl
 
 	private:
         constexpr explicit in_place_tag(Internal::in_place_tag) {}
-		friend inline in_place_tag Internal_ConstructInPlaceTag();
+		friend constexpr inline in_place_tag Internal_ConstructInPlaceTag();
 	};
 
 	// internal factory function for in_place_tag
-	inline in_place_tag Internal_ConstructInPlaceTag() { return in_place_tag(Internal::in_place_tag{}); }
+    constexpr inline in_place_tag Internal_ConstructInPlaceTag() { return in_place_tag(Internal::in_place_tag{}); }
 
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -43,17 +46,17 @@ namespace eastl
 	/// 
 	/// http://en.cppreference.com/w/cpp/utility/optional/in_place_t
 	///
-	using in_place_t = in_place_tag(&)(Internal::in_place_tag);
+	using in_place_t = in_place_tag(*)(Internal::in_place_tag);
 
 	template <class T>
-	using in_place_type_t = in_place_tag(&)(Internal::in_place_type_tag<T>);
+	using in_place_type_t = in_place_tag(*)(Internal::in_place_type_tag<T>);
 #if EASTL_LF3D_EXTENSIONS
     template<class T>
-    inline constexpr in_place_type_t<T> in_place_type{};
+    inline constexpr in_place_type_t<T> in_place_type = nullptr;
 #endif
 
 	template <size_t N>
-	using in_place_index_t = in_place_tag(&)(Internal::in_place_index_tag<N>);
+	using in_place_index_t = in_place_tag(*)(Internal::in_place_index_tag<N>);
 
 
 	///////////////////////////////////////////////////////////////////////////////

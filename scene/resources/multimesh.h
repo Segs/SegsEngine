@@ -36,7 +36,7 @@
 
 class Mesh;
 
-class MultiMesh : public Resource {
+class GODOT_EXPORT MultiMesh : public Resource {
 
     GDCLASS(MultiMesh,Resource)
 

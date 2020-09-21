@@ -30,8 +30,6 @@
 
 #include "collections_glue.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include <mono/metadata/exception.h>
 
 #include "../mono_gd/gd_mono_cache.h"
@@ -321,5 +319,3 @@ void godot_register_collections_icalls() {
 	mono_add_internal_call("Godot.Collections.Dictionary::godot_icall_Dictionary_Generic_GetValueTypeInfo", (void *)godot_icall_Dictionary_Generic_GetValueTypeInfo);
 	mono_add_internal_call("Godot.Collections.Dictionary::godot_icall_Dictionary_ToString", (void *)godot_icall_Dictionary_ToString);
 }
-
-#endif // MONO_GLUE_ENABLED

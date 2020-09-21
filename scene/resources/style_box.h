@@ -36,7 +36,7 @@
 
 class CanvasItem;
 
-class StyleBox : public Resource {
+class GODOT_EXPORT StyleBox : public Resource {
 
     GDCLASS(StyleBox,Resource)
 
@@ -78,7 +78,7 @@ public:
     StyleBoxEmpty() {}
 };
 
-class StyleBoxTexture : public StyleBox {
+class GODOT_EXPORT StyleBoxTexture : public StyleBox {
 
     GDCLASS(StyleBoxTexture,StyleBox)
 
@@ -143,7 +143,7 @@ public:
 };
 
 
-class StyleBoxFlat : public StyleBox {
+class GODOT_EXPORT StyleBoxFlat : public StyleBox {
 
     GDCLASS(StyleBoxFlat,StyleBox)
 
@@ -237,7 +237,7 @@ public:
 };
 
 // just used to draw lines.
-class StyleBoxLine : public StyleBox {
+class GODOT_EXPORT StyleBoxLine : public StyleBox {
 
     GDCLASS(StyleBoxLine,StyleBox)
 

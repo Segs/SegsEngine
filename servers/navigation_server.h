@@ -44,7 +44,7 @@
 ///
 /// Note: All the `set` functions are commands executed during the `sync` phase,
 /// don't expect that a change is immediately propagated.
-class NavigationServer : public Object {
+class GODOT_EXPORT NavigationServer : public Object {
     GDCLASS(NavigationServer, Object);
 
     static NavigationServer *singleton;

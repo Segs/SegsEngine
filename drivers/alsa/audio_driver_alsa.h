@@ -28,10 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
+#pragma once
+
 #include "servers/audio_server.h"
 
 #ifdef ALSA_ENABLED
-
 #include "core/os/thread.h"
 
 #include <alsa/asoundlib.h>

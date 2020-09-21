@@ -48,7 +48,7 @@ struct VariantParserStream {
     virtual ~VariantParserStream() {}
 };
 
-class VariantParser {
+class GODOT_EXPORT VariantParser {
 public:
 
 
@@ -125,7 +125,7 @@ public:
     static void release_stream(VariantParserStream *s);
 };
 
-class VariantWriter {
+class GODOT_EXPORT VariantWriter {
 public:
     using StoreStringFunc = Error (*)(void *, const String &);
     using EncodeResourceFunc = String (*)(void *, const RES &);

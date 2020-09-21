@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GD_MONO_ASSEMBLY_H
-#define GD_MONO_ASSEMBLY_H
+#pragma once
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -101,8 +100,8 @@ class GDMonoAssembly {
     static MonoAssembly *_search_hook(MonoAssemblyName *aname, void *user_data, bool refonly);
     static MonoAssembly *_preload_hook(MonoAssemblyName *aname, char **assemblies_path, void *user_data, bool refonly);
 
-    static MonoAssembly *_real_load_assembly_from(StringView p_path, bool p_refonly);
-    static MonoAssembly *_load_assembly_search(StringView p_name, const Vector<String> &p_search_dirs, bool p_refonly);
+    static MonoAssembly *_real_load_assembly_from(StringView p_path, bool p_refonly, MonoAssemblyName *p_aname = nullptr);
+    static MonoAssembly *_load_assembly_search(StringView p_name, MonoAssemblyName *p_aname, bool p_refonly, const Vector<String> &p_search_dirs);
 
     friend class GDMono;
     static void initialize();
@@ -126,11 +125,11 @@ public:
     static String find_assembly(const String &p_name);
 
     static void fill_search_dirs(Vector<String> &r_search_dirs, StringView p_custom_config = StringView(), StringView p_custom_bcl_dir = StringView());
+    static const Vector<String> &get_default_search_dirs() { return search_dirs; }
 
+    static GDMonoAssembly *load(StringView p_name, MonoAssemblyName *p_aname, bool p_refonly, const Vector<String> &p_search_dirs);
     static GDMonoAssembly *load_from(StringView p_name, StringView p_path, bool p_refonly);
 
     GDMonoAssembly(StringView p_name, MonoImage *p_image, MonoAssembly *p_assembly);
     ~GDMonoAssembly();
 };
-
-#endif // GD_MONO_ASSEMBLY_H

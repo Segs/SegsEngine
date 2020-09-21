@@ -1821,28 +1821,9 @@ void TextEdit::_update_scrollbars() {
         total_width += m_priv->cache.minimap_width;
     }
 
-    bool use_hscroll = true;
-    bool use_vscroll = true;
-
-    // Thanks yessopie for this clever bit of logic.
-    if (total_rows <= visible_rows && total_width <= visible_width) {
-
-        use_hscroll = false;
-        use_vscroll = false;
-    } else {
-
-        if (total_rows > visible_rows && total_width <= visible_width) {
-            use_hscroll = false;
-        }
-
-        if (total_rows <= visible_rows && total_width > visible_width) {
-            use_vscroll = false;
-        }
-    }
-
     updating_scrolls = true;
 
-    if (use_vscroll) {
+    if (total_rows > visible_rows) {
 
         v_scroll->show();
         v_scroll->set_max(total_rows + get_visible_rows_offset());
@@ -1862,7 +1843,7 @@ void TextEdit::_update_scrollbars() {
         v_scroll->hide();
     }
 
-    if (use_hscroll && !is_wrap_enabled()) {
+    if (total_width > visible_width && !is_wrap_enabled()) {
 
         h_scroll->show();
         h_scroll->set_max(total_width);
@@ -3294,6 +3275,10 @@ void TextEdit::indent_right() {
 
     for (int i = start_line; i <= end_line; i++) {
         UIString line_text = StringUtils::from_utf8(get_line(i));
+        if (line_text.isEmpty() && is_selection_active()) {
+            continue;
+        }
+
         if (indent_using_spaces) {
             // We don't really care where selection is - we just need to know indentation level at the beginning of the line.
             int left = _find_first_non_whitespace_column_of_line(line_text);

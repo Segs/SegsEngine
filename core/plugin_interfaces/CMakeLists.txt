@@ -2,6 +2,7 @@ set(src
     ImageLoaderInterface.h
     ResourceImporterInterface.h
     ModuleInterface.h
+    ScriptingGlueInterface.h
     PluginDeclarations.h
     load_params.h
 )

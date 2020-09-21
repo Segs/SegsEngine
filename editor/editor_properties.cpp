@@ -1924,7 +1924,10 @@ EditorPropertyTransform::EditorPropertyTransform() {
 ////////////// COLOR PICKER //////////////////////
 
 void EditorPropertyColor::_color_changed(const Color &p_color) {
-
+    // Cancel the color change if the current color is identical to the new one.
+    if (get_edited_object()->get(get_edited_property()) == p_color) {
+        return;
+    }
     emit_changed(get_edited_property(), p_color, "", true);
 }
 
@@ -2844,8 +2847,16 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
     StringName allowed_type = base_type;
 
     Dictionary drag_data = p_drag_data;
-    if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
-        RES res(drag_data["resource"]);
+
+    Ref<Resource> res;
+    if (drag_data.has("type") && String(drag_data["type"]) == "script_list_element") {
+        ScriptEditorBase *se = object_cast<ScriptEditorBase>(drag_data["script_list_element"]);
+        res = se->get_edited_resource();
+    } else if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        res = refFromVariant<Resource>(drag_data["resource"]);
+    }
+
+    if (res) {
         for (int i = 0; i <StringUtils::get_slice_count( allowed_type,','); i++) {
             StringName at(StringUtils::strip_edges(StringUtils::get_slice(allowed_type,',', i)));
             if (res && ClassDB::is_parent_class(res->get_class_name(), at)) {
@@ -2886,13 +2897,17 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
     ERR_FAIL_COND(!_is_drop_valid(p_data));
 
     Dictionary drag_data = p_data;
-    if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
-        RES res(drag_data["resource"]);
-        if (res) {
-            emit_changed(get_edited_property(), res);
-            update_property();
-            return;
-        }
+    Ref<Resource> res;
+    if (drag_data.has("type") && String(drag_data["type"]) == "script_list_element") {
+        ScriptEditorBase *se = object_cast<ScriptEditorBase>(drag_data["script_list_element"]);
+        res = se->get_edited_resource();
+    } else if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+        res = refFromVariant<Resource>(drag_data["resource"]);
+    }
+    if (res) {
+        emit_changed(get_edited_property(), res);
+        update_property();
+        return;
     }
 
     if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
@@ -2901,9 +2916,9 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
 
         if (files.size() == 1) {
             String file = files[0];
-            RES res(gResourceManager().load(file));
-            if (res) {
-                emit_changed(get_edited_property(), res);
+            RES file_res(gResourceManager().load(file));
+            if (file_res) {
+                emit_changed(get_edited_property(), file_res);
                 update_property();
                 return;
             }
@@ -3390,8 +3405,10 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
 
             if (p_hint == PropertyHint::ResourceType) {
                 String open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
-                for (int i = 0; i < StringUtils::get_slice_count(open_in_new,','); i++) {
-                    StringName type(StringUtils::strip_edges(StringUtils::get_slice(open_in_new,',', i)));
+                Vector<StringView> allowed_types;
+                String::split_ref(allowed_types,open_in_new,",");
+                for (StringView entry : allowed_types) {
+                    StringName type(StringUtils::strip_edges(entry));
                     for (int j = 0; j < StringUtils::get_slice_count(p_hint_text,','); j++) {
                         StringView inherits = StringUtils::get_slice(p_hint_text,',', j);
                         if (ClassDB::is_parent_class(StringName(inherits), type)) {

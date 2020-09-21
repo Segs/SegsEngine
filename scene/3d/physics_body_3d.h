@@ -36,7 +36,7 @@
 #include "servers/physics_server_3d.h"
 #include "skeleton_3d.h"
 
-class PhysicsBody3D : public CollisionObject3D {
+class GODOT_EXPORT PhysicsBody3D : public CollisionObject3D {
 
     GDCLASS(PhysicsBody3D,CollisionObject3D)
 
@@ -75,7 +75,7 @@ public:
     PhysicsBody3D();
 };
 
-class StaticBody3D : public PhysicsBody3D {
+class GODOT_EXPORT StaticBody3D : public PhysicsBody3D {
 
     GDCLASS(StaticBody3D,PhysicsBody3D)
 
@@ -105,7 +105,7 @@ private:
     void _reload_physics_characteristics();
 };
 
-class RigidBody : public PhysicsBody3D {
+class GODOT_EXPORT RigidBody : public PhysicsBody3D {
 
     GDCLASS(RigidBody,PhysicsBody3D)
 
@@ -127,6 +127,7 @@ protected:
 
     Vector3 linear_velocity;
     Vector3 angular_velocity;
+    Basis inverse_inertia_tensor;
     real_t gravity_scale;
     real_t linear_damp;
     real_t angular_damp;
@@ -208,6 +209,8 @@ public:
     void set_angular_velocity(const Vector3 &p_velocity);
     Vector3 get_angular_velocity() const override;
 
+    Basis get_inverse_inertia_tensor();
+
     void set_gravity_scale(real_t p_gravity_scale);
     real_t get_gravity_scale() const;
 
@@ -260,7 +263,7 @@ private:
 
 class KinematicCollision;
 
-class KinematicBody3D : public PhysicsBody3D {
+class GODOT_EXPORT KinematicBody3D : public PhysicsBody3D {
 
     GDCLASS(KinematicBody3D,PhysicsBody3D)
 
@@ -329,7 +332,7 @@ public:
     ~KinematicBody3D() override;
 };
 
-class KinematicCollision : public RefCounted {
+class GODOT_EXPORT KinematicCollision : public RefCounted {
 
     GDCLASS(KinematicCollision,RefCounted)
 
@@ -356,7 +359,7 @@ public:
     KinematicCollision();
 };
 
-class PhysicalBone3D : public PhysicsBody3D {
+class GODOT_EXPORT PhysicalBone3D : public PhysicsBody3D {
 
     GDCLASS(PhysicalBone3D,PhysicsBody3D)
 

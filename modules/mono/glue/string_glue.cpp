@@ -30,16 +30,13 @@
 
 #include "string_glue.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/ustring.h"
 #include "core/variant.h"
-#include "core/vector.h"
 
 MonoArray *godot_icall_String_md5_buffer(MonoString *p_str) {
     Vector<uint8_t> ret = StringUtils::md5_buffer(GDMonoMarshal::mono_string_to_godot(p_str));
 	// TODO Check possible Array/Vector<uint8_t> problem?
-	return GDMonoMarshal::Array_to_mono_array(Variant(ret));
+	return GDMonoMarshal::container_to_mono_array(Variant(ret));
 }
 
 MonoString *godot_icall_String_md5_text(MonoString *p_str) {
@@ -59,7 +56,7 @@ int godot_icall_String_rfindn(MonoString *p_str, MonoString *p_what, int p_from)
 
 MonoArray *godot_icall_String_sha256_buffer(MonoString *p_str) {
     Vector<uint8_t> ret = StringUtils::sha256_buffer(GDMonoMarshal::mono_string_to_godot(p_str));
-	return GDMonoMarshal::Array_to_mono_array(Variant(ret));
+	return GDMonoMarshal::container_to_mono_array(Variant(ret));
 }
 
 MonoString *godot_icall_String_sha256_text(MonoString *p_str) {
@@ -75,5 +72,3 @@ void godot_register_string_icalls() {
 	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_buffer", (void *)godot_icall_String_sha256_buffer);
 	mono_add_internal_call("Godot.StringExtensions::godot_icall_String_sha256_text", (void *)godot_icall_String_sha256_text);
 }
-
-#endif // MONO_GLUE_ENABLED

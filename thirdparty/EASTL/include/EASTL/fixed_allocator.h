@@ -9,9 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef EASTL_FIXED_ALLOCATOR_H
-#define EASTL_FIXED_ALLOCATOR_H
-
+#pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 #include <EASTL/internal/config.h>
 #include <EASTL/internal/fixed_pool.h>
@@ -33,7 +31,6 @@
     #pragma warning(disable: 4275) // non dll-interface class used as base for DLL-interface classkey 'identifier'
 #endif
 
-    #pragma once // Some compilers (e.g. VC++) benefit significantly from using this. We've measured 3-4% build speed improvements in apps as a result.
 
 
 
@@ -456,9 +453,4 @@ namespace eastl
 #if defined(_MSC_VER)
     #pragma warning(pop)
 #endif
-
-
-#endif // Header include guard
-
-
 

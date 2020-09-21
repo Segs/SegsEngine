@@ -387,6 +387,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                     emit_signal("text_entered", StringUtils::to_utf8(m_priv->text));
                     if (OS::get_singleton()->has_virtual_keyboard())
                         OS::get_singleton()->hide_virtual_keyboard();
+
                 } break;
 
                 case KEY_BACKSPACE: {

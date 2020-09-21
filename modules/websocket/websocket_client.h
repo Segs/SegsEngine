@@ -34,7 +34,7 @@
 #include "websocket_multiplayer_peer.h"
 #include "websocket_peer.h"
 
-class WebSocketClient : public WebSocketMultiplayerPeer {
+class GODOT_EXPORT WebSocketClient : public WebSocketMultiplayerPeer {
 
     GDCLASS(WebSocketClient,WebSocketMultiplayerPeer)
 

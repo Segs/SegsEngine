@@ -33,7 +33,7 @@
 #include "scene/3d/node_3d.h"
 #include "scene/main/viewport.h"
 
-class Listener3D : public Node3D {
+class GODOT_EXPORT Listener3D : public Node3D {
 
     GDCLASS(Listener3D,Node3D)
 

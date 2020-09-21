@@ -1,12 +1,16 @@
 language: cpp
 
+cache:
+  - ccache: true
 os:
   - linux
   - osx
+  - windows
 
 compiler:
   - gcc
   - clang
+  - msvc
 
 env:
   - EASTL_CONFIG=Debug
@@ -17,31 +21,50 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
       - george-edison55-precise-backports
-      - llvm-toolchain-trusty-5.0
+      - llvm-toolchain-trusty-7
     packages:
       - cmake
       - cmake-data
       - g++-7
-      - clang-5.0
+      - clang-7
 
 matrix:
     include:
         - compiler: clang "release build with clang to trigger MOJI check"
           env: EASTL_CONFIG=Release USE_MOJI_CHECK=yes
           os: linux
+        - compiler: msvc
+          env: EASTL_CONFIG=Release CXXFLAGS="/std:c++latest /Zc:char8_t"
+          os: windows 
 
     exclude:
       - os: osx
         compiler: gcc
+      - os: osx
+        compiler: msvc
+      - os: linux 
+        compiler: msvc
+      - os: windows
+        compiler: clang
+      - os: windows
+        compiler: gcc
+
+# Handle git submodules yourself
+git:
+    submodules: false
+
+before_install:
+  - git submodule update --init 
+  - if [[ "$CXX" == "g++" ]]; then export CC="gcc-7"                                                                    ;fi
+  - if [[ "$CXX" == "g++" ]]; then export CXX="g++-7"                                                                   ;fi
+  - if [[ "$CXX" == "clang++" && "${TRAVIS_OS_NAME}" != "osx" ]]; then export CC="clang-7"                              ;fi
+  - if [[ "$CXX" == "clang++" && "${TRAVIS_OS_NAME}" != "osx" ]]; then export CXX="clang++-7"                           ;fi
 
 install:
 # MOJI check; exit 1 if non-ascii characters detected in C++
   - if [[ -n "$USE_MOJI_CHECK" && -n `git grep -P "[^[:ascii:]]" source test` ]]; then echo "Moji Detected" && exit 1   ;fi
   - if [[ -n "$USE_MOJI_CHECK" ]]; then exit 0                                                                          ;fi
-  - if [[ "$CXX" == "g++" ]]; then export CC="gcc-7"                                                                    ;fi
-  - if [[ "$CXX" == "g++" ]]; then export CXX="g++-7"                                                                   ;fi
 
-# Universal Setup
 before_script:
   - mkdir build_$EASTL_CONFIG
   - cd build_$EASTL_CONFIG
@@ -57,6 +80,3 @@ script:
   - cd $TRAVIS_BUILD_DIR/build_$EASTL_CONFIG/benchmark
   - ctest -C $EASTL_CONFIG -V || exit 1
 
-branches:
-  except:
-    - gh-pages

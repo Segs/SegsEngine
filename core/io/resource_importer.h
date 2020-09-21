@@ -104,7 +104,7 @@ public:
 
 
 
-class ResourceImporter : public RefCounted,public ResourceImporterInterface {
+class GODOT_EXPORT ResourceImporter : public RefCounted,public ResourceImporterInterface {
 
     GDCLASS(ResourceImporter, RefCounted)
 

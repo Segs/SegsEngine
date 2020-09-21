@@ -38,6 +38,7 @@
 #include "editor_feature_profile.h"
 #include "editor_help.h"
 
+#include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/gui/rich_text_label.h"
@@ -45,6 +46,7 @@
 #include "scene/resources/font.h"
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/style_box.h"
+
 
 IMPL_GDCLASS(EditorProperty)
 IMPL_GDCLASS(EditorInspectorPlugin)
@@ -1549,7 +1551,7 @@ void EditorInspector::update_tree() {
 
                     String descr;
                     DocData *dd = EditorHelp::get_doc_data();
-                    auto E = dd->class_list.find(type2);
+                    auto E = dd->class_list.find(type2.asCString());
                     if (E!=dd->class_list.end()) {
                         descr = E->second.brief_description;
                     }
@@ -1703,7 +1705,7 @@ void EditorInspector::update_tree() {
 
             if (!found) {
                 DocData *dd = EditorHelp::get_doc_data();
-                auto F = dd->class_list.find(classname);
+                auto F = dd->class_list.find(classname.asCString());
                 while (F!=dd->class_list.end() && descr.empty()) {
                     for (size_t i = 0; i < F->second.properties.size(); i++) {
                         if (F->second.properties[i].name == propname.asCString()) {

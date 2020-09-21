@@ -4,6 +4,7 @@
 #include "core/plugin_interfaces/ResourceLoaderInterface.h"
 #include "core/plugin_interfaces/PackSourceInterface.h"
 #include "core/plugin_interfaces/ModuleInterface.h"
+#include "core/plugin_interfaces/ScriptingGlueInterface.h"
 #include <QtCore/QObject>
 
 #define ImageFormatLoader_iid "org.segs_engine.ImageFormatLoader"
@@ -33,3 +34,7 @@ Q_DECLARE_INTERFACE(PackSourceInterface, PackSourceInterface_iid)
 #define Module_iid "org.segs_engine.Module"
 
 Q_DECLARE_INTERFACE(ModuleInterface, Module_iid)
+
+#define ScriptingGlue_iid "org.segs_engine.ScriptingGlue"
+
+Q_DECLARE_INTERFACE(ScriptingGlueInterface, ScriptingGlue_iid)

@@ -34,7 +34,7 @@
 
 class Mesh;
 
-class NavigationMesh : public Resource {
+class GODOT_EXPORT NavigationMesh : public Resource {
 
     GDCLASS(NavigationMesh, Resource);
 

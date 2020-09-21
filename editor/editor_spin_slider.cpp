@@ -37,6 +37,7 @@
 #include "scene/resources/font.h"
 #include "core/string_utils.inl"
 #include "core/translation_helpers.h"
+#include "editor_node.h"
 #include "editor_scale.h"
 
 IMPL_GDCLASS(EditorSpinSlider)
@@ -207,6 +208,19 @@ void EditorSpinSlider::_notification(int p_what) {
             grabbing_spinner = false;
             grabbing_spinner_attempt = false;
         }
+    }
+
+    if (p_what == NOTIFICATION_READY) {
+        // Add a left margin to the stylebox to make the number align with the Label
+        // when it's edited. The LineEdit "focus" stylebox uses the "normal" stylebox's
+        // default margins.
+        Ref<StyleBoxFlat> stylebox = { dynamic_ref_cast<StyleBoxFlat>(
+                EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "LineEdit")->duplicate()) };
+        // EditorSpinSliders with a label have more space on the left, so add an
+        // higher margin to match the location where the text begins.
+        // The margin values below were determined by empirical testing.
+        stylebox->set_default_margin(Margin::Left, (!get_label().empty() ? 23 : 16) * EDSCALE);
+        value_input->add_style_override("normal", stylebox);
     }
 
     if (p_what == NOTIFICATION_DRAW) {

@@ -2,9 +2,16 @@
 set(ThirdParty_Install_Dir ${PROJECT_BINARY_DIR}/ThirdParty_Builds)
 include(ExternalProject_EASTL.cmake)
 
+macro(set_3rdparty_properties name)
+    set_property(TARGET ${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_common_target_properties(${name})
+    set_target_properties(${name} PROPERTIES FOLDER 3rd_party)
+endmacro()
+
 add_subdirectory(entt)
 add_subdirectory(bullet)
 add_subdirectory(zlib)
+
 
 
 add_library(thirdparty_misc STATIC
@@ -23,8 +30,7 @@ add_library(thirdparty_misc STATIC
 target_include_directories(thirdparty_misc PUBLIC misc/)
 target_link_libraries(thirdparty_misc PUBLIC zlib)
 target_link_libraries(thirdparty_misc PRIVATE EASTL_Import)
-set_property(TARGET thirdparty_misc PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(thirdparty_misc)
+set_3rdparty_properties(thirdparty_misc)
 
 if(OPTION_MINIZIP)
     set(minizip_headers
@@ -47,6 +53,7 @@ if(OPTION_MINIZIP)
     target_link_libraries(minizip PUBLIC zlib)
     target_link_libraries(minizip PRIVATE EASTL_Import)
     set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)
+    set_target_properties(minizip PROPERTIES FOLDER 3rd_party)
 
     add_library(minizip_interface INTERFACE)
     target_compile_definitions(minizip_interface INTERFACE ZLIB_DLL)
@@ -76,15 +83,13 @@ if(OPTION_BUILTIN_SQUISH)
     )
     add_library(squish STATIC ${thirdparty_sources})
     target_include_directories(squish PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/squish/)
-    set_property(TARGET squish PROPERTY POSITION_INDEPENDENT_CODE ON)
-    set_common_target_properties(squish)
+    set_3rdparty_properties(squish)
 
 endif()
 
 add_library(cvtt_lib OBJECT cvtt/ConvectionKernels.cpp)
 target_include_directories(cvtt_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/cvtt/)
-set_property(TARGET cvtt_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(cvtt_lib)
+set_3rdparty_properties(cvtt_lib)
 
 set(thirdparty_sources
 #    ${PROJECT_SOURCE_DIR}/thirdparty/enet/godot.cpp
@@ -99,8 +104,7 @@ set(thirdparty_sources
 )
 add_library(enet_lib STATIC ${thirdparty_sources})
 target_include_directories(enet_lib PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/enet/)
-set_property(TARGET enet_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(enet_lib)
+set_3rdparty_properties(enet_lib)
 
 # Thirdparty source files
 set(thirdparty_sources
@@ -112,8 +116,7 @@ set(thirdparty_sources
 )
 add_library(pvr_lib STATIC ${thirdparty_sources})
 target_include_directories(pvr_lib PUBLIC pvrtccompressor/)
-set_property(TARGET pvr_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(pvr_lib)
+set_3rdparty_properties(pvr_lib)
 
 macro(remove_flag_from_target _target _flag)
     get_target_property(_target_cxx_flags ${_target} COMPILE_OPTIONS)
@@ -143,8 +146,7 @@ set(source_files
 add_library(etc2comp OBJECT ${source_files})
 target_include_directories(etc2comp PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/etc2comp/)
 remove_flag_from_target(etc2comp -ffast-math)
-set_property(TARGET etc2comp PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(etc2comp)
+set_3rdparty_properties(etc2comp)
 
 set(thirdparty_sources
     ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/pcre2_auto_possess.c
@@ -180,8 +182,7 @@ set(thirdparty_sources
 add_library(regex STATIC ${thirdparty_sources})
 target_include_directories(regex PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/pcre2/src/)
 target_compile_definitions(regex PUBLIC PCRE2_CODE_UNIT_WIDTH=8 PCRE2_STATIC HAVE_CONFIG_H SUPPORT_JIT)
-set_property(TARGET regex PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(regex)
+set_3rdparty_properties(regex)
 
 if(OPTION_BUILTIN_MBEDTLS)
     set(thirdparty_sources
@@ -266,9 +267,8 @@ if(OPTION_BUILTIN_MBEDTLS)
         ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/library/xtea.c
     )
     add_library(mbedtls STATIC ${thirdparty_sources})
-    set_property(TARGET mbedtls PROPERTY POSITION_INDEPENDENT_CODE ON)
     target_include_directories(mbedtls PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/mbedtls/include)
-    set_common_target_properties(mbedtls)
+    set_3rdparty_properties(mbedtls)
 
 endif()
 
@@ -294,11 +294,10 @@ configure_file(${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/miniupnpc/miniupnpcstr
 set(MINIUPNPC_VERSION "2.1")
 set(SYSTEM_NAME "Godot Engine")
 add_library(miniupnpc STATIC ${thirdparty_sources})
-set_property(TARGET miniupnpc PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(miniupnpc PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/miniupnpc/)
 target_compile_definitions(miniupnpc PUBLIC MINIUPNP_STATICLIB)
 target_compile_definitions(miniupnpc PRIVATE MINIUPNPC_SET_SOCKET_TIMEOUT)
-set_common_target_properties(miniupnpc)
+set_3rdparty_properties(miniupnpc)
 
 
 set(thirdparty_sources
@@ -315,8 +314,7 @@ set(thirdparty_sources
 )
 add_library(vhacd OBJECT ${thirdparty_sources})
 target_include_directories(vhacd PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/vhacd/inc)
-set_property(TARGET vhacd PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(vhacd)
+set_3rdparty_properties(vhacd)
 
 set(thirdparty_sources
 
@@ -328,8 +326,7 @@ set(thirdparty_sources
 )
 add_library(wslay OBJECT ${thirdparty_sources})
 target_include_directories(wslay PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/wslay/includes)
-set_property(TARGET wslay PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(wslay)
+set_3rdparty_properties(wslay)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows") # Winsock
     target_compile_definitions(wslay PRIVATE HAVE_WINSOCK2_H)
@@ -346,7 +343,7 @@ if(OPTION_BUILTIN_LIBOGG)
     add_library(ogg STATIC ${thirdparty_sources})
     target_include_directories(ogg PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libogg/)
     set_property(TARGET ogg PROPERTY POSITION_INDEPENDENT_CODE ON)
-
+    set_target_properties(ogg PROPERTIES FOLDER 3rd_party)
 endif()
 
 set(thirdparty_sources
@@ -370,8 +367,7 @@ set(thirdparty_sources
 add_library(internal_png STATIC ${thirdparty_sources})
 target_include_directories(internal_png PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/libpng/)
 target_link_libraries(internal_png PUBLIC zlib)
-set_property(TARGET internal_png PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(internal_png)
+set_3rdparty_properties(internal_png)
 
 
 set(source_files
@@ -419,12 +415,11 @@ set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/freetype/src/sfnt/sfnt.c
 )
 add_library(freetype STATIC ${source_files})
-set_property(TARGET freetype PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_include_directories(freetype PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/freetype/include)
 target_compile_definitions(freetype PRIVATE FT2_BUILD_LIBRARY)
 target_compile_definitions(freetype PUBLIC FREETYPE_ENABLED FT_CONFIG_OPTION_USE_PNG)
 target_link_libraries(freetype PUBLIC internal_png)
-set_common_target_properties(freetype)
+set_3rdparty_properties(freetype)
 
 set(recast_source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Source/Recast.cpp
@@ -443,15 +438,14 @@ set(recast_source_files
 add_library(recast STATIC ${recast_source_files})
 target_include_directories(recast PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/recastnavigation/Recast/Include)
 set_property(TARGET recast PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(recast)
+set_3rdparty_properties(recast)
 
 set(source_files
     ${PROJECT_SOURCE_DIR}/thirdparty/glad/glad.c
 )
 add_library(glad STATIC ${source_files})
 target_include_directories(glad PUBLIC ${PROJECT_SOURCE_DIR}/thirdparty/glad/)
-set_property(TARGET glad PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(glad)
+set_3rdparty_properties(glad)
 
 if(USE_TRACY_PROFILER)
     add_subdirectory(glfw)
@@ -470,8 +464,7 @@ set(thirdparty_sources
 add_library(rvo2 OBJECT ${thirdparty_sources})
 target_include_directories(rvo2 PRIVATE ${PROJECT_SOURCE_DIR}/thirdparty/rvo2)
 target_include_directories(rvo2 INTERFACE ${PROJECT_SOURCE_DIR}/thirdparty)  # allow using rvo2 headers externally by rvo2/Header.h
-set_property(TARGET rvo2 PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(rvo2)
+set_3rdparty_properties(rvo2)
 
 
 set(concurrent_queue_SRC
@@ -489,3 +482,8 @@ install(FILES ${concurrent_queue_SRC} DESTINATION include/concurrentqueue)
 install(TARGETS concurrent_queue EXPORT SegsEngine
     INCLUDES DESTINATION include/concurrentqueue
 )
+
+set_3rdparty_properties(bullet)
+set_3rdparty_properties(assimp_lib)
+set_3rdparty_properties(zlib)
+set_target_properties(EASTL PROPERTIES FOLDER 3rd_party)

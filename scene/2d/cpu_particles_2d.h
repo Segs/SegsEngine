@@ -36,7 +36,7 @@
 #include "scene/resources/texture.h"
 
 class Curve;
-class CPUParticles2D : public Node2D {
+class GODOT_EXPORT CPUParticles2D : public Node2D {
 private:
     GDCLASS(CPUParticles2D,Node2D)
 

@@ -38,7 +38,7 @@
 
 class CollisionObject2D;
 
-class TileMap : public Node2D {
+class GODOT_EXPORT TileMap : public Node2D {
 
     GDCLASS(TileMap,Node2D)
 

@@ -35,7 +35,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/main/canvas_layer.h"
 
-class ParallaxBackground : public CanvasLayer {
+class GODOT_EXPORT ParallaxBackground : public CanvasLayer {
 
     GDCLASS(ParallaxBackground,CanvasLayer)
 

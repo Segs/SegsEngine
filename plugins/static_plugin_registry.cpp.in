@@ -5,7 +5,7 @@
 
 
 void get_static_plugins(PluginRegistry &reg) {
-    for (QObject *ob : QPluginLoader::staticInstances()) {
+    for (const QStaticPlugin &ob : QPluginLoader::staticPlugins()) {
         reg.add_static_plugin(ob);
     }
 }

@@ -30,6 +30,7 @@
 
 #include "editor_help.h"
 
+#include "core/doc_support/doc_data.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/resource/resource_manager.h"
@@ -57,6 +58,28 @@ IMPL_GDCLASS(EditorHelpBit)
 #define CONTRIBUTE_URL "https://docs.godotengine.org/en/latest/community/contributing/updating_the_class_reference.html"
 
 DocData *EditorHelp::doc = nullptr;
+class EditorHelpPrivate {
+public:
+    Vector<Pair<String, int> > section_line;
+    HashMap<String, int> method_line;
+    HashMap<String, int> signal_line;
+    HashMap<String, int> property_line;
+    HashMap<String, int> theme_property_line;
+    HashMap<String, int> constant_line;
+    HashMap<String, int> enum_line;
+    HashMap<String, HashMap<String, int> > enum_values_line;
+};
+class FindBarPrivate {
+public:
+    LineEdit *search_text;
+    ToolButton *find_prev;
+    ToolButton *find_next;
+    Label *matches_label;
+    TextureButton *hide_button;
+    UIString prev_search;
+
+    RichTextLabel *rich_text_label;
+};
 
 void EditorHelp::_init_colors() {
 
@@ -123,23 +146,23 @@ void EditorHelp::_class_desc_select(StringView p_select) {
         StringView link = StringUtils::lstrip(StringUtils::substr(p_select,tag_end + 1, p_select.length())," ");
 
         String topic;
-        Map<String, int> *table = nullptr;
+        HashMap<String, int> *table = nullptr;
 
         if (tag == "method"_sv) {
             topic = "class_method";
-            table = &this->method_line;
+            table = &m_private->method_line;
         } else if (tag == "member"_sv) {
             topic = "class_property";
-            table = &this->property_line;
+            table = &m_private->property_line;
         } else if (tag == "enum"_sv) {
             topic = "class_enum";
-            table = &this->enum_line;
+            table = &m_private->enum_line;
         } else if (tag == "signal"_sv) {
             topic = "class_signal";
-            table = &this->signal_line;
+            table = &m_private->signal_line;
         } else if (tag == "constant"_sv) {
             topic = "class_constant";
-            table = &this->constant_line;
+            table = &m_private->constant_line;
         } else {
             return;
         }
@@ -147,13 +170,14 @@ void EditorHelp::_class_desc_select(StringView p_select) {
         if (StringUtils::contains(link,".")) {
             emit_signal("go_to_help", topic + ":" + StringUtils::get_slice(link,".", 0) + ":" + StringUtils::get_slice(link,".", 1));
         } else {
-            if (table->contains_as(link)) {
+            auto iter = table->find_as(link);
+            if (iter!=table->end()) {
                 // Found in the current page
-                class_desc->scroll_to_line(table->at(String(link)));
+                class_desc->scroll_to_line(iter->second);
             } else {
                 if (topic == "class_enum") {
                     // Try to find the enum in @GlobalScope
-                    const DocData::ClassDoc &cd = doc->class_list[gscope];
+                    const DocContents::ClassDoc &cd = doc->class_list[String(gscope)];
 
                     for (int i = 0; i < cd.constants.size(); i++) {
                         if (cd.constants[i].enumeration == link) {
@@ -164,7 +188,7 @@ void EditorHelp::_class_desc_select(StringView p_select) {
                     }
                 } else if (topic == "class_constant") {
                     // Try to find the constant in @GlobalScope
-                    const DocData::ClassDoc &cd = doc->class_list[gscope];
+                    const DocContents::ClassDoc &cd = doc->class_list[String(gscope)];
 
                     for (int i = 0; i < cd.constants.size(); i++) {
                         if (cd.constants[i].name == link) {
@@ -202,7 +226,7 @@ void EditorHelp::_add_type(StringView p_type, StringView p_enum) {
     StringView t = p_type;
     if (t.empty())
         t = "void";
-    bool can_ref = (t != "void"_sv) || !p_enum.empty();
+    bool can_ref = t != "void"_sv || !p_enum.empty();
 
     if (!p_enum.empty()) {
         if (StringUtils::get_slice_count(p_enum,'.') > 1) {
@@ -244,11 +268,11 @@ StringView _fix_constant(StringView p_constant) {
     return p_constant;
 }
 
-void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview) {
+void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_overview) {
 
-    method_line[p_method.name] = class_desc->get_line_count() - 2; //gets overridden if description
+    m_private->method_line[String(p_method.name)] = class_desc->get_line_count() - 2; //gets overridden if description
 
-    const bool is_vararg = StringUtils::contains(p_method.qualifiers,"vararg");
+    const bool is_vararg = p_method.qualifiers.contains("vararg");
 
     if (p_overview) {
         class_desc->push_cell();
@@ -266,7 +290,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
     }
 
     if (p_overview && !p_method.description.empty()) {
-        class_desc->push_meta(String("@method " + p_method.name));
+        class_desc->push_meta(String("@method ") + p_method.name);
     }
 
     class_desc->push_color(headline_color);
@@ -327,7 +351,7 @@ void EditorHelp::_add_method(const DocData::MethodDoc &p_method, bool p_overview
 }
 Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class,eastl::hash<StringView>(),SNSVComparer()))
+    if (!doc->class_list.contains_as(p_class))
         return ERR_DOES_NOT_EXIST;
 
     select_locked = true;
@@ -347,18 +371,18 @@ Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 void EditorHelp::_update_doc() {
     using namespace StringUtils;
 
-    if (!doc->class_list.contains(edited_class))
+    if (!doc->class_list.contains_as(edited_class))
         return;
 
     scroll_locked = true;
 
     class_desc->clear();
-    method_line.clear();
-    section_line.clear();
+    m_private->method_line.clear();
+    m_private->section_line.clear();
 
     _init_colors();
 
-    DocData::ClassDoc cd = doc->class_list[edited_class]; //make a copy, so we can sort without worrying
+    DocContents::ClassDoc cd = doc->class_list[String(edited_class)]; //make a copy, so we can sort without worrying
 
     Ref<Font> doc_font = get_font("doc", "EditorFonts");
     Ref<Font> doc_bold_font = get_font("doc_bold", "EditorFonts");
@@ -367,7 +391,7 @@ void EditorHelp::_update_doc() {
     String link_color_text = title_color.to_html(false);
 
     // Class name
-    section_line.push_back(Pair<String, int>(TTR("Top").asCString(), 0));
+    m_private->section_line.push_back(Pair<String, int>(TTR("Top").asCString(), 0));
     class_desc->push_font(doc_title_font);
     class_desc->push_color(title_color);
     class_desc->add_text_uistring((TTR("Class:") + " ").asString());
@@ -388,7 +412,7 @@ void EditorHelp::_update_doc() {
         class_desc->add_text_uistring((TTR("Inherits:") + " ").asString());
         class_desc->pop();
 
-        StringName inherits(cd.inherits);
+        String inherits(cd.inherits);
 
         while (!inherits.empty()) {
             _add_type(inherits);
@@ -410,7 +434,7 @@ void EditorHelp::_update_doc() {
         bool found = false;
         bool prev = false;
 
-        for (eastl::pair<const StringName,DocData::ClassDoc> &E : doc->class_list) {
+        for (const eastl::pair<const String,DocContents::ClassDoc> &E : doc->class_list) {
 
             if (E.second.inherits == cd.name) {
 
@@ -459,7 +483,7 @@ void EditorHelp::_update_doc() {
     // Class description
     if (!cd.description.empty()) {
 
-        section_line.push_back(Pair<String, int>(String(TTR("Description")), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(String(TTR("Description")), class_desc->get_line_count() - 2));
         description_line = class_desc->get_line_count() - 2;
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
@@ -493,15 +517,15 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int i = 0; i < cd.tutorials.size(); i++) {
-            const String link = cd.tutorials[i];
+            const String &link = cd.tutorials[i];
             String linktxt = link;
-            const int seppos = linktxt.find("//");
-            if (seppos != -1) {
+            const auto seppos = linktxt.find("//");
+            if (seppos != String::npos) {
                 linktxt = link.right(seppos + 2);
             }
 
             class_desc->push_color(symbol_color);
-            class_desc->append_bbcode("[url=" + link + "]" + linktxt + "[/url]");
+            class_desc->append_bbcode(String("[url=") + link + "]" + linktxt + "[/url]");
             class_desc->pop();
             class_desc->add_newline();
         }
@@ -512,12 +536,12 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
     }
     // Properties overview
-    Set<String> skip_methods;
+    HashSet<String> skip_methods;
     bool property_descr = false;
 
     if (!cd.properties.empty()) {
 
-        section_line.push_back(Pair<String, int>(TTR("Properties").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Properties").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Properties").asCString());
@@ -531,7 +555,7 @@ void EditorHelp::_update_doc() {
         class_desc->set_table_column_expand(1, true);
 
         for (size_t i = 0; i < cd.properties.size(); i++) {
-            property_line[cd.properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
+            m_private->property_line[cd.properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
 
             class_desc->push_cell();
             class_desc->push_align(RichTextLabel::ALIGN_RIGHT);
@@ -565,7 +589,7 @@ void EditorHelp::_update_doc() {
             class_desc->push_color(headline_color);
 
             if (describe) {
-                class_desc->push_meta(String("@member " + cd.properties[i].name));
+                class_desc->push_meta(String("@member ") + cd.properties[i].name);
             }
 
             _add_text(cd.properties[i].name);
@@ -604,12 +628,12 @@ void EditorHelp::_update_doc() {
     bool method_descr = false;
     bool sort_methods = EditorSettings::get_singleton()->get("text_editor/help/sort_functions_alphabetically");
 
-    Vector<DocData::MethodDoc> methods;
+    Vector<DocContents::MethodDoc> methods;
 
     for (size_t i = 0; i < cd.methods.size(); i++) {
         if (skip_methods.contains_as(cd.methods[i].name)) {
             if (cd.methods[i].arguments.empty() /* getter */ ||
-                    (cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */)) {
+                    cd.methods[i].arguments.size() == 1 && cd.methods[i].return_type == "void" /* setter */) {
                 continue;
             }
         }
@@ -620,7 +644,7 @@ void EditorHelp::_update_doc() {
         if (sort_methods)
             eastl::sort(methods.begin(), methods.end());
 
-        section_line.push_back(Pair<String, int>(TTR("Methods").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Methods").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Methods").asCString());
@@ -635,11 +659,11 @@ void EditorHelp::_update_doc() {
 
         bool any_previous = false;
         for (int pass = 0; pass < 2; pass++) {
-            Vector<DocData::MethodDoc> m;
+            Vector<DocContents::MethodDoc> m;
 
-            for (const DocData::MethodDoc &dm : methods) {
+            for (const DocContents::MethodDoc &dm : methods) {
                 StringView q = dm.qualifiers;
-                if ((pass == 0 && StringUtils::find(q,"virtual") != String::npos) || (pass == 1 && StringUtils::find(q,"virtual") == String::npos)) {
+                if (pass == 0 && q.contains("virtual") || pass == 1 && !q.contains("virtual")) {
                     m.push_back(dm);
                 }
             }
@@ -653,7 +677,7 @@ void EditorHelp::_update_doc() {
 
             StringView group_prefix;
             for (size_t i = 0; i < m.size(); i++) {
-                const StringView new_prefix = StringUtils::substr(m[i].name,0, 3);
+                const StringView new_prefix = m[i].name.substr(0, 3);
                 bool is_new_group = false;
 
                 if (i < m.size() - 1 && new_prefix == StringUtils::substr(m[i + 1].name,0, 3) && new_prefix != group_prefix) {
@@ -661,7 +685,7 @@ void EditorHelp::_update_doc() {
                     group_prefix = new_prefix;
                 } else if (!group_prefix.empty() && new_prefix != group_prefix) {
                     is_new_group = true;
-                    group_prefix = "";
+                    group_prefix = {};
                 }
 
                 if (is_new_group && pass == 1) {
@@ -691,7 +715,7 @@ void EditorHelp::_update_doc() {
     // Theme properties
     if (!cd.theme_properties.empty()) {
 
-        section_line.push_back(Pair<String, int>(TTR("Theme Properties").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Theme Properties").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Theme Properties").asCString());
@@ -704,7 +728,7 @@ void EditorHelp::_update_doc() {
 
         for (size_t i = 0; i < cd.theme_properties.size(); i++) {
 
-            theme_property_line[cd.theme_properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
+            m_private->theme_property_line[cd.theme_properties[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
 
             class_desc->push_cell();
             class_desc->push_align(RichTextLabel::ALIGN_RIGHT);
@@ -758,7 +782,7 @@ void EditorHelp::_update_doc() {
             eastl::sort(cd.defined_signals.begin(),cd.defined_signals.end());
         }
 
-        section_line.push_back(Pair<String, int>(TTR("Signals").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Signals").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Signals").asCString());
@@ -772,7 +796,7 @@ void EditorHelp::_update_doc() {
 
         for (size_t i = 0; i < cd.defined_signals.size(); i++) {
 
-            signal_line[cd.defined_signals[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
+            m_private->signal_line[cd.defined_signals[i].name] = class_desc->get_line_count() - 2; //gets overridden if description
             class_desc->push_font(doc_code_font); // monofont
             class_desc->push_color(headline_color);
             _add_text(cd.defined_signals[i].name);
@@ -823,8 +847,8 @@ void EditorHelp::_update_doc() {
     // Constants and enums
     if (!cd.constants.empty()) {
 
-        Map<String, Vector<DocData::ConstantDoc> > enums;
-        Vector<DocData::ConstantDoc> constants;
+        Map<String, Vector<DocContents::ConstantDoc> > enums;
+        Vector<DocContents::ConstantDoc> constants;
 
         for (size_t i = 0; i < cd.constants.size(); i++) {
 
@@ -839,7 +863,7 @@ void EditorHelp::_update_doc() {
         // Enums
         if (!enums.empty()) {
 
-            section_line.push_back(Pair<String, int>(TTR("Enumerations").asCString(), class_desc->get_line_count() - 2));
+            m_private->section_line.push_back(Pair<String, int>(TTR("Enumerations").asCString(), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
             class_desc->add_text_uistring(TTR("Enumerations").asCString());
@@ -849,17 +873,18 @@ void EditorHelp::_update_doc() {
 
             class_desc->add_newline();
 
-            for (eastl::pair<const String, Vector<DocData::ConstantDoc> > &E : enums) {
+            for (auto E = enums.begin(); E!=enums.end(); ++E) {
 
-                enum_line[E.first] = class_desc->get_line_count() - 2;
+                m_private->enum_line[E->first] = class_desc->get_line_count() - 2;
 
                 class_desc->push_color(title_color);
                 class_desc->add_text_uistring("enum  ");
                 class_desc->pop();
                 class_desc->push_font(doc_code_font);
-                StringView e = E.first;
-                if (StringUtils::get_slice_count(e,'.')>1 && StringView(edited_class)==StringUtils::get_slice(E.first,'.', 0)) {
-                    e = StringUtils::get_slice(E.first,'.', 1);
+                auto e = E->first;
+                auto parts = E->first.split('.');
+                if (parts.size()>1 && edited_class.asCString()==parts[0]) {
+                    e = parts[1];
                 }
 
                 class_desc->push_color(headline_color);
@@ -872,17 +897,17 @@ void EditorHelp::_update_doc() {
                 class_desc->add_newline();
 
                 class_desc->push_indent(1);
-                Vector<DocData::ConstantDoc> enum_list = E.second;
+                Vector<DocContents::ConstantDoc> enum_list = E->second;
 
-                Map<String, int> enumValuesContainer;
-                int enumStartingLine = enum_line[E.first];
+                HashMap<String, int> enumValuesContainer;
+                int enumStartingLine = m_private->enum_line[E->first];
 
                 for (size_t i = 0; i < enum_list.size(); i++) {
                     if (cd.name == "@GlobalScope")
                         enumValuesContainer[enum_list[i].name] = enumStartingLine;
 
                     // Add the enum constant line to the constant_line map so we can locate it as a constant
-                    constant_line[enum_list[i].name] = class_desc->get_line_count() - 2;
+                    m_private->constant_line[enum_list[i].name] = class_desc->get_line_count() - 2;
 
                     class_desc->push_font(doc_code_font);
                     class_desc->push_color(headline_color);
@@ -911,7 +936,7 @@ void EditorHelp::_update_doc() {
                 }
 
                 if (cd.name == "@GlobalScope")
-                    enum_values_line[E.first] = enumValuesContainer;
+                    m_private->enum_values_line[E->first] = enumValuesContainer;
 
                 class_desc->pop();
 
@@ -925,7 +950,7 @@ void EditorHelp::_update_doc() {
         // Constants
         if (!constants.empty()) {
 
-            section_line.push_back(Pair<String, int>(TTR("Constants").asCString(), class_desc->get_line_count() - 2));
+            m_private->section_line.push_back(Pair<String, int>(TTR("Constants").asCString(), class_desc->get_line_count() - 2));
             class_desc->push_color(title_color);
             class_desc->push_font(doc_title_font);
             class_desc->add_text_uistring(TTR("Constants").asCString());
@@ -937,11 +962,12 @@ void EditorHelp::_update_doc() {
 
             for (int i = 0; i < constants.size(); i++) {
 
-                constant_line[constants[i].name] = class_desc->get_line_count() - 2;
+                m_private->constant_line[constants[i].name] = class_desc->get_line_count() - 2;
                 class_desc->push_font(doc_code_font);
-                StringView cval=constants[i].value;
+                auto cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
-                    String stripped = StringUtils::replace(StringUtils::replace(StringUtils::replace(cval," ", ""),"Color(", ""),")", "");
+                    
+                    String stripped = cval.replaced(" ", "").replaced("Color(", "").replaced(")", "");
                     Vector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
                         class_desc->push_color(Color(color[0], color[1], color[2]));
@@ -984,7 +1010,7 @@ void EditorHelp::_update_doc() {
     // Property descriptions
     if (property_descr) {
 
-        section_line.push_back(Pair<String, int>(TTR("Property Descriptions").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Property Descriptions").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Property Descriptions").asCString());
@@ -998,7 +1024,7 @@ void EditorHelp::_update_doc() {
             if (cd.properties[i].overridden)
                 continue;
 
-            property_line[cd.properties[i].name] = class_desc->get_line_count() - 2;
+            m_private->property_line[cd.properties[i].name] = class_desc->get_line_count() - 2;
 
             class_desc->push_table(2);
             class_desc->set_table_column_expand(1, true);
@@ -1048,7 +1074,7 @@ void EditorHelp::_update_doc() {
                 class_desc->pop(); // color
                 class_desc->pop(); // font
                 class_desc->pop(); // cell
-                method_line[cd.properties[i].setter] = property_line[cd.properties[i].name];
+                m_private->method_line[cd.properties[i].setter] = m_private->property_line[cd.properties[i].name];
             }
 
             if (!cd.properties[i].getter.empty()) {
@@ -1066,7 +1092,7 @@ void EditorHelp::_update_doc() {
                 class_desc->pop(); //color
                 class_desc->pop(); //font
                 class_desc->pop(); //cell
-                method_line[cd.properties[i].getter] = property_line[cd.properties[i].name];
+                m_private->method_line[cd.properties[i].getter] = m_private->property_line[cd.properties[i].name];
             }
 
             class_desc->pop(); // table
@@ -1101,7 +1127,7 @@ void EditorHelp::_update_doc() {
     // Method descriptions
     if (method_descr) {
 
-        section_line.push_back(Pair<String, int>(TTR("Method Descriptions").asCString(), class_desc->get_line_count() - 2));
+        m_private->section_line.push_back(Pair<String, int>(TTR("Method Descriptions").asCString(), class_desc->get_line_count() - 2));
         class_desc->push_color(title_color);
         class_desc->push_font(doc_title_font);
         class_desc->add_text_uistring(TTR("Method Descriptions").asCString());
@@ -1112,11 +1138,11 @@ void EditorHelp::_update_doc() {
         class_desc->add_newline();
 
         for (int pass = 0; pass < 2; pass++) {
-            Vector<DocData::MethodDoc> methods_filtered;
+            Vector<DocContents::MethodDoc> methods_filtered;
 
             for (size_t i = 0; i < methods.size(); i++) {
-                StringView q = methods[i].qualifiers;
-                if ((pass == 0 && contains(q, "virtual")) || (pass == 1 && not contains(q, "virtual"))) {
+                auto q = methods[i].qualifiers;
+                if (pass == 0 && q.contains("virtual") || pass == 1 && not q.contains("virtual")) {
                     methods_filtered.push_back(methods[i]);
                 }
             }
@@ -1180,28 +1206,28 @@ void EditorHelp::_help_callback(StringView p_topic) {
     if (what == "class_desc"_sv) {
         line = description_line;
     } else if (what == "class_signal"_sv) {
-        if (signal_line.contains(name))
-            line = signal_line[name];
+        if (m_private->signal_line.contains(name))
+            line = m_private->signal_line[name];
     } else if (what == "class_method"_sv || what == "class_method_desc"_sv) {
-        if (method_line.contains(name))
-            line = method_line[name];
+        if (m_private->method_line.contains(name))
+            line = m_private->method_line[name];
     } else if (what == "class_property"_sv) {
-        if (property_line.contains(name))
-            line = property_line[name];
+        if (m_private->property_line.contains(name))
+            line = m_private->property_line[name];
     } else if (what == "class_enum"_sv) {
-        if (enum_line.contains(name))
-            line = enum_line[name];
+        if (m_private->enum_line.contains(name))
+            line = m_private->enum_line[name];
     } else if (what == "class_theme_item"_sv) {
-        if (theme_property_line.contains(name))
-            line = theme_property_line[name];
+        if (m_private->theme_property_line.contains(name))
+            line = m_private->theme_property_line[name];
     } else if (what == "class_constant"_sv) {
-        if (constant_line.contains(name))
-            line = constant_line[name];
+        if (m_private->constant_line.contains(name))
+            line = m_private->constant_line[name];
     } else if (what == "class_global"_sv) {
-        if (constant_line.contains(name))
-            line = constant_line[name];
+        if (m_private->constant_line.contains(name))
+            line = m_private->constant_line[name];
         else {
-            for(const auto &e : enum_values_line) {
+            for(const auto &e : m_private->enum_values_line) {
                 if (e.second.contains(name)) {
                     line = e.second.at(name);
                     break;
@@ -1306,7 +1332,7 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
             p_rt->pop();
             pos = brk_end + 1;
 
-        } else if (doc->class_list.contains_as(tag,eastl::hash<StringView>(),SNSVComparer())) {
+        } else if (doc->class_list.contains_as(tag)) {
 
             p_rt->push_color(link_color);
             p_rt->push_meta(String("#") + tag);
@@ -1460,11 +1486,15 @@ void EditorHelp::_add_text(StringView p_bbcode) {
 
     _add_text_to_rt(p_bbcode, class_desc);
 }
+void EditorHelp::_add_text(const UIString &p_bbcode) {
+
+    _add_text_to_rt(qPrintable(p_bbcode), class_desc);
+}
 
 void EditorHelp::generate_doc() {
 
     doc = memnew(DocData);
-    doc->generate(true);
+    generate_docs_from_running_program(*doc,true);
     DocData compdoc;
     compdoc.load_compressed(_doc_data_compressed, _doc_data_compressed_size, _doc_data_uncompressed_size);
     doc->merge_from(compdoc); //ensure all is up to date
@@ -1500,14 +1530,14 @@ void EditorHelp::go_to_class(StringView p_class, int p_scroll) {
 Vector<Pair<String, int> > EditorHelp::get_sections() {
     Vector<Pair<String, int> > sections;
 
-    for (int i = 0; i < section_line.size(); i++) {
-        sections.emplace_back(section_line[i].first, i);
+    for (int i = 0; i < m_private->section_line.size(); i++) {
+        sections.emplace_back(m_private->section_line[i].first, i);
     }
     return sections;
 }
 
 void EditorHelp::scroll_to_section(int p_section_index) {
-    int line = section_line[p_section_index].second;
+    int line = m_private->section_line[p_section_index].second;
     class_desc->scroll_to_line(line);
 }
 
@@ -1552,7 +1582,7 @@ void EditorHelp::_bind_methods() {
 }
 
 EditorHelp::EditorHelp() {
-
+    m_private = memnew(EditorHelpPrivate);
     set_custom_minimum_size(Size2(150 * EDSCALE, 0));
 
     EDITOR_DEF("text_editor/help/sort_functions_alphabetically", true);
@@ -1580,6 +1610,7 @@ EditorHelp::EditorHelp() {
 }
 
 EditorHelp::~EditorHelp() {
+    memdelete(m_private);
 }
 
 void EditorHelpBit::_go_to_help(const StringName& p_what) {
@@ -1619,7 +1650,7 @@ void EditorHelpBit::_meta_clicked(StringView p_select) {
 void EditorHelpBit::_bind_methods() {
 
     MethodBinder::bind_method("_meta_clicked", &EditorHelpBit::_meta_clicked);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &EditorHelpBit::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), (void (EditorHelpBit::*)(StringView)) &EditorHelpBit::set_text);
     ADD_SIGNAL(MethodInfo("request_hide"));
 }
 
@@ -1633,11 +1664,16 @@ void EditorHelpBit::_notification(int p_what) {
         default: break;
     }
 }
-
 void EditorHelpBit::set_text(StringView p_text) {
 
     rich_text->clear();
     _add_text_to_rt(p_text, rich_text);
+}
+
+void EditorHelpBit::set_text_ui(const UIString &p_text) {
+
+    rich_text->clear();
+    _add_text_to_rt(qPrintable(p_text), rich_text);
 }
 
 EditorHelpBit::EditorHelpBit() {
@@ -1651,52 +1687,57 @@ EditorHelpBit::EditorHelpBit() {
 }
 
 FindBar::FindBar() {
+    m_private = memnew(FindBarPrivate);
+    m_private->search_text = memnew(LineEdit);
+    add_child(m_private->search_text);
+    m_private->search_text->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
+    m_private->search_text->set_h_size_flags(SIZE_EXPAND_FILL);
+    m_private->search_text->connect("text_changed", this, "_search_text_changed");
+    m_private->search_text->connect("text_entered", this, "_search_text_entered");
 
-    search_text = memnew(LineEdit);
-    add_child(search_text);
-    search_text->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
-    search_text->set_h_size_flags(SIZE_EXPAND_FILL);
-    search_text->connect("text_changed", this, "_search_text_changed");
-    search_text->connect("text_entered", this, "_search_text_entered");
+    m_private->matches_label = memnew(Label);
+    add_child(m_private->matches_label);
+    m_private->matches_label->hide();
 
-    matches_label = memnew(Label);
-    add_child(matches_label);
-    matches_label->hide();
+    m_private->find_prev = memnew(ToolButton);
+    add_child(m_private->find_prev);
+    m_private->find_prev->set_focus_mode(FOCUS_NONE);
+    m_private->find_prev->connect("pressed", this, "_search_prev");
 
-    find_prev = memnew(ToolButton);
-    add_child(find_prev);
-    find_prev->set_focus_mode(FOCUS_NONE);
-    find_prev->connect("pressed", this, "_search_prev");
-
-    find_next = memnew(ToolButton);
-    add_child(find_next);
-    find_next->set_focus_mode(FOCUS_NONE);
-    find_next->connect("pressed", this, "_search_next");
+    m_private->find_next = memnew(ToolButton);
+    add_child(m_private->find_next);
+    m_private->find_next->set_focus_mode(FOCUS_NONE);
+    m_private->find_next->connect("pressed", this, "_search_next");
 
     Control *space = memnew(Control);
     add_child(space);
     space->set_custom_minimum_size(Size2(4, 0) * EDSCALE);
 
-    hide_button = memnew(TextureButton);
-    add_child(hide_button);
-    hide_button->set_focus_mode(FOCUS_NONE);
-    hide_button->set_expand(true);
-    hide_button->set_stretch_mode(TextureButton::STRETCH_KEEP_CENTERED);
-    hide_button->connect("pressed", this, "_hide_pressed");
+    m_private->hide_button = memnew(TextureButton);
+    add_child(m_private->hide_button);
+    m_private->hide_button->set_focus_mode(FOCUS_NONE);
+    m_private->hide_button->set_expand(true);
+    m_private->hide_button->set_stretch_mode(TextureButton::STRETCH_KEEP_CENTERED);
+    m_private->hide_button->connect("pressed", this, "_hide_pressed");
+}
+
+FindBar::~FindBar()
+{
+    memdelete(m_private);
 }
 
 void FindBar::popup_search() {
 
     show();
     bool grabbed_focus = false;
-    if (!search_text->has_focus()) {
-        search_text->grab_focus();
+    if (!m_private->search_text->has_focus()) {
+        m_private->search_text->grab_focus();
         grabbed_focus = true;
     }
 
-    if (!search_text->get_text_ui().isEmpty()) {
-        search_text->select_all();
-        search_text->set_cursor_position(search_text->get_text_ui().length());
+    if (!m_private->search_text->get_text_ui().isEmpty()) {
+        m_private->search_text->select_all();
+        m_private->search_text->set_cursor_position(m_private->search_text->get_text_ui().length());
         if (grabbed_focus) {
             _search();
         }
@@ -1709,13 +1750,13 @@ void FindBar::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-            find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
-            hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
-            hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
-            hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
-            hide_button->set_custom_minimum_size(hide_button->get_normal_texture()->get_size());
-            matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+            m_private->find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
+            m_private->find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
+            m_private->hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
+            m_private->hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
+            m_private->hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
+            m_private->hide_button->set_custom_minimum_size(m_private->hide_button->get_normal_texture()->get_size());
+            m_private->matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -1739,7 +1780,7 @@ void FindBar::_bind_methods() {
 
 void FindBar::set_rich_text_label(RichTextLabel *p_rich_text_label) {
 
-    rich_text_label = p_rich_text_label;
+    m_private->rich_text_label = p_rich_text_label;
 }
 
 bool FindBar::search_next() {
@@ -1754,15 +1795,15 @@ bool FindBar::search_prev() {
 
 bool FindBar::_search(bool p_search_previous) {
 
-    UIString stext = search_text->get_text_ui();
-    bool keep = prev_search == stext;
+    UIString stext = m_private->search_text->get_text_ui();
+    bool keep = m_private->prev_search == stext;
 
-    bool ret = rich_text_label->search(stext, keep, p_search_previous);
+    bool ret = m_private->rich_text_label->search(stext, keep, p_search_previous);
     if (!ret) {
-        ret = rich_text_label->search(stext, false, p_search_previous);
+        ret = m_private->rich_text_label->search(stext, false, p_search_previous);
     }
 
-    prev_search = stext;
+    m_private->prev_search = stext;
 
     if (ret) {
         _update_results_count();
@@ -1778,10 +1819,10 @@ void FindBar::_update_results_count() {
 
     results_count = 0;
 
-    UIString searched = search_text->get_text_ui();
+    UIString searched = m_private->search_text->get_text_ui();
     if (searched.isEmpty()) return;
 
-    UIString full_text = StringUtils::from_utf8(rich_text_label->get_text());
+    UIString full_text = StringUtils::from_utf8(m_private->rich_text_label->get_text());
 
     int from_pos = 0;
 
@@ -1797,20 +1838,20 @@ void FindBar::_update_results_count() {
 
 void FindBar::_update_matches_label() {
 
-    if (search_text->get_text().empty() || results_count == -1) {
-        matches_label->hide();
+    if (m_private->search_text->get_text().empty() || results_count == -1) {
+        m_private->matches_label->hide();
     } else {
-        matches_label->show();
+        m_private->matches_label->show();
 
-        matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
-        matches_label->set_text(FormatSN((results_count == 1 ? TTR("%d match.") : TTR("%d matches.")).asCString(), results_count));
+        m_private->matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+        m_private->matches_label->set_text(FormatSN((results_count == 1 ? TTR("%d match.") : TTR("%d matches.")).asCString(), results_count));
     }
 }
 
 void FindBar::_hide_bar() {
 
-    if (search_text->has_focus())
-        rich_text_label->grab_focus();
+    if (m_private->search_text->has_focus())
+        m_private->rich_text_label->grab_focus();
 
     hide();
 }
@@ -1820,7 +1861,7 @@ void FindBar::_unhandled_input(const Ref<InputEvent> &p_event) {
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
     if (k) {
 
-        if (k->is_pressed() && (rich_text_label->has_focus() || is_a_parent_of(get_focus_owner()))) {
+        if (k->is_pressed() && (m_private->rich_text_label->has_focus() || is_a_parent_of(get_focus_owner()))) {
 
             bool accepted = true;
 

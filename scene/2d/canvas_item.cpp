@@ -50,6 +50,8 @@
 #include "servers/rendering/rendering_server_raster.h"
 #include "servers/rendering_server.h"
 
+#include <QDebug>
+
 IMPL_GDCLASS(CanvasItemMaterial)
 IMPL_GDCLASS(CanvasItem)
 
@@ -331,15 +333,15 @@ void CanvasItemMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "particles_anim_v_frames", PropertyHint::Range, "1,128,1"), "set_particles_anim_v_frames", "get_particles_anim_v_frames");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "particles_anim_loop"), "set_particles_anim_loop", "get_particles_anim_loop");
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
 
-    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL)
-    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED)
-    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY)
+    BIND_ENUM_CONSTANT(LIGHT_MODE_NORMAL);
+    BIND_ENUM_CONSTANT(LIGHT_MODE_UNSHADED);
+    BIND_ENUM_CONSTANT(LIGHT_MODE_LIGHT_ONLY);
 }
 
 CanvasItemMaterial::CanvasItemMaterial() {
@@ -565,7 +567,7 @@ void CanvasItem::_enter_canvas() {
         snprintf(group,31,"root_canvas%d",canvas.get_id());
         group[31]=0;
 
-        StringName gname(group);
+        StringName gname {StringView(group)};
         add_to_group(gname);
         if (canvas_layer)
             canvas_layer->reset_sort_index();
@@ -1153,27 +1155,67 @@ void CanvasItem::force_update_transform() {
     notification(NOTIFICATION_TRANSFORM_CHANGED);
 }
 
+#if 0
+#define ADD_TYPE(name,parent) entt::meta<name>().type(#name ## _hs)\
+    .base<parent>()
+#define ADD_METHOD(cl,name,...) .func<&cl::name>(#name ## _hs)
+#define ADD_METHOD_FLAGS(flags) .prop("flags"_hs,uint32_t(flags))
+#ifdef DEBUG_ENABLED
+#define ARG_NAMES(...) .prop("arg_names"_hs,eastl::array {__VA_ARGS__})
+
+#else
+#define ARG_NAMES(...)
+
+#endif
+
+#include "entt/entt.hpp"
+
+auto fac=ADD_TYPE(CanvasItem,Node)
+    ADD_METHOD(CanvasItem,_toplevel_raise_self)
+    ADD_METHOD(CanvasItem,_update_callback)
+#ifdef TOOLS_ENABLED
+    ADD_METHOD(CanvasItem,_edit_set_state)
+        ARG_NAMES("state")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_state)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_set_position)
+        ARG_NAMES("position")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_position)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_set_scale)
+        ARG_NAMES("scale")
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+    ADD_METHOD(CanvasItem,_edit_get_scale)
+        ADD_METHOD_FLAGS(METHOD_FLAG_EDITOR_ONLY)
+#endif
+    ADD_METHOD(CanvasItem,get_canvas_item)
+    ADD_METHOD(CanvasItem,set_visible)
+;
+#endif
+
 void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_toplevel_raise_self"), &CanvasItem::_toplevel_raise_self);
     MethodBinder::bind_method(D_METHOD("_update_callback"), &CanvasItem::_update_callback);
 #ifdef TOOLS_ENABLED
-    MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state);
-    MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state);
-    MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position);
-    MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position);
-    MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale);
-    MethodBinder::bind_method(D_METHOD("_edit_get_scale"), &CanvasItem::_edit_get_scale);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rect", {"rect"}), &CanvasItem::_edit_set_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_get_rect"), &CanvasItem::_edit_get_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_use_rect"), &CanvasItem::_edit_use_rect);
-    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", {"degrees"}), &CanvasItem::_edit_set_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_get_rotation"), &CanvasItem::_edit_get_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_use_rotation"), &CanvasItem::_edit_use_rotation);
-    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot);
-    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform);
+    MethodBinder::bind_method(D_METHOD("_edit_set_state", {"state"}), &CanvasItem::_edit_set_state,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_state"), &CanvasItem::_edit_get_state,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_position", {"position"}), &CanvasItem::_edit_set_position,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_position"), &CanvasItem::_edit_get_position,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_scale", {"scale"}), &CanvasItem::_edit_set_scale,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_scale"), &CanvasItem::_edit_get_scale,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rect", {"rect"}), &CanvasItem::_edit_set_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_rect"), &CanvasItem::_edit_get_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_rect"), &CanvasItem::_edit_use_rect,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_rotation", {"degrees"}), &CanvasItem::_edit_set_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_rotation"), &CanvasItem::_edit_get_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_rotation"), &CanvasItem::_edit_use_rotation,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_set_pivot", {"pivot"}), &CanvasItem::_edit_set_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_pivot"), &CanvasItem::_edit_get_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_use_pivot"), &CanvasItem::_edit_use_pivot,METHOD_FLAG_EDITOR_ONLY);
+    MethodBinder::bind_method(D_METHOD("_edit_get_transform"), &CanvasItem::_edit_get_transform,METHOD_FLAG_EDITOR_ONLY);
 #endif
 
     MethodBinder::bind_method(D_METHOD("get_canvas_item"), &CanvasItem::get_canvas_item);
@@ -1257,17 +1299,17 @@ void CanvasItem::_bind_methods() {
 
     BIND_VMETHOD(MethodInfo("_draw"));
 
-    ADD_GROUP("Visibility", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "visible"), "set_visible", "is_visible");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "modulate"), "set_modulate", "get_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "self_modulate"), "set_self_modulate", "get_self_modulate");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
+    ADD_GROUP("Visibility", "vis_");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_visible"), "set_visible", "is_visible");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_modulate"), "set_modulate", "get_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_self_modulate"), "set_self_modulate", "get_self_modulate");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vis_light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
 
-    ADD_GROUP("Material", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_parent_material"), "set_use_parent_material", "get_use_parent_material");
+    ADD_GROUP("Material", "mat_");
+    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mat_material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mat_use_parent_material"), "set_use_parent_material", "get_use_parent_material");
     //exporting these things doesn't really make much sense i think
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
@@ -1277,18 +1319,18 @@ void CanvasItem::_bind_methods() {
     ADD_SIGNAL(MethodInfo("hide"));
     ADD_SIGNAL(MethodInfo("item_rect_changed"));
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
-    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
+    BIND_ENUM_CONSTANT(BLEND_MODE_PREMULT_ALPHA);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISABLED);
 
-    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED)
-    BIND_CONSTANT(NOTIFICATION_DRAW)
-    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED)
-    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS)
-    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS)
+    BIND_CONSTANT(NOTIFICATION_TRANSFORM_CHANGED);
+    BIND_CONSTANT(NOTIFICATION_DRAW);
+    BIND_CONSTANT(NOTIFICATION_VISIBILITY_CHANGED);
+    BIND_CONSTANT(NOTIFICATION_ENTER_CANVAS);
+    BIND_CONSTANT(NOTIFICATION_EXIT_CANVAS);
 }
 
 Transform2D CanvasItem::get_canvas_transform() const {

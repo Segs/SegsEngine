@@ -143,10 +143,10 @@ bool GridMap::_get(const StringName &p_name, Variant &r_ret) const {
 void GridMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     if (!baked_meshes.empty()) {
-        p_list->push_back(PropertyInfo(VariantType::ARRAY, "baked_meshes", PropertyHint::None, "", PROPERTY_USAGE_STORAGE));
+        p_list->emplace_back(VariantType::ARRAY, "baked_meshes", PropertyHint::None, "", PROPERTY_USAGE_STORAGE);
     }
 
-    p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE));
+    p_list->emplace_back(VariantType::DICTIONARY, "data", PropertyHint::None, "", PROPERTY_USAGE_STORAGE);
 }
 
 void GridMap::set_collision_layer(uint32_t p_layer) {

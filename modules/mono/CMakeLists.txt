@@ -9,7 +9,6 @@ set(source_files
 
     editor/godotsharp_export.cpp
     editor/editor_internal_calls.cpp
-    editor/bindings_generator.cpp
     editor/code_completion.cpp
     editor/script_class_parser.cpp
     editor/csharp_project.cpp
@@ -17,12 +16,6 @@ set(source_files
     utils/mono_reg_utils.cpp
     utils/path_utils.cpp
     utils/string_utils.cpp
-    glue/collections_glue.cpp
-    glue/nodepath_glue.cpp
-    glue/string_glue.cpp
-    glue/gd_glue.cpp
-    glue/rid_glue.cpp
-    glue/base_object_glue.cpp
     mono_gd/gd_mono_internals.cpp
     mono_gd/gd_mono.cpp
     mono_gd/gd_mono_assembly.cpp
@@ -35,7 +28,6 @@ set(source_files
     mono_gd/gd_mono_method.cpp
     mono_gd/gd_mono_class.cpp
     mono_gd/gd_mono_marshal.cpp
-    class_db_api_json.cpp
     csharp_script.cpp
     godotsharp_dirs.cpp
     mono_gc_handle.cpp
@@ -47,9 +39,8 @@ set(header_files
     editor/godotsharp_export.h
     editor/editor_internal_calls.h
     editor/script_class_parser.h
-	editor/code_completion.h
+    editor/code_completion.h
     editor/csharp_project.h
-    editor/bindings_generator.h
     utils/osx_utils.h
     utils/macros.h
     utils/mono_reg_utils.h
@@ -84,23 +75,109 @@ set(header_files
     godotsharp_defs.h
     mono_gc_handle.h
     register_types.h
-    class_db_api_json.h
     godotsharp_dirs.h
 )
 
 file(GLOB qrc_files "*.qrc" )
 #find_package( Mono )
 find_package(Mono REQUIRED)
+find_package(Dotnet) # optional, used under windows to build things
+
 #include(FindPkgConfig)  # we don't need the pkg-config path on OS X, but we need other macros in this file
 #pkg_check_modules(MONO REQUIRED IMPORTED_TARGET mono-2)
 OPTION(MONO_GLUE_AVAILABLE "Use mono glue?" OFF)
 
+add_subdirectory(binding_generator)
+
+macro(add_glue_module name tgt)
+    add_custom_command(
+        COMMAND bindings_generator ${CMAKE_CURRENT_BINARY_DIR}/${name}.json ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/glue
+        OUTPUT
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}MetaData_icalls.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/Godot_icalls.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}.cpp
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}_plugin.json
+            #${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
+        DEPENDS bindings_generator ${tgt}_engine ${CMAKE_CURRENT_BINARY_DIR}/${name}.json
+        COMMENT "Generating mono glue for ${name}"
+    )
+    set(additional_sources)
+    if(${name} STREQUAL "GodotCore")
+        set(additional_sources
+            glue/collections_glue.cpp
+            glue/nodepath_glue.cpp
+            glue/string_glue.cpp
+            glue/gd_glue.cpp
+            glue/rid_glue.cpp
+            glue/base_object_glue.cpp
+            glue/opaque_glue.cpp
+        )
+    endif()
+    add_library(${name}_glue SHARED
+        ${additional_sources}
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}MetaData_icalls.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/dummy.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/Godot_icalls.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}_plugin.json
+    )
+    target_link_libraries(${name}_glue PRIVATE
+        ${tgt}_engine
+        Mono
+        EnTT
+    )
+    set_target_properties(${name}_glue PROPERTIES AUTOMOC ON)
+    if(MSVC)
+        target_compile_options(${name}_glue PRIVATE /bigobj)
+    elseif(MINGW)
+        target_compile_options(${name}_glue PRIVATE -Wa,-mbig-obj)
+    endif()
+    set_target_properties(${name}_glue PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/plugins/mono_glue)
+    set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/plugins/mono_glue)
+    set_target_properties(${name}_glue PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR}/plugins/mono_glue)
+    set_target_properties(${name}_glue PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins/mono_glue)
+    set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELASE ${OUTPUT_DIR}/plugins/mono_glue)
+    set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins/mono_glue)
+    # archive (on vs it's an import lib) not put in the output dir
+
+    if(DOTNET_FOUND)
+        ADD_DOTNET(
+            ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
+            OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+            ARGUMENTS -noWarn:CS1591
+        )
+        add_dependencies(BUILD_${name} ${name}_glue)
+    else()
+        message("Dotnet utility was not found assembly for ${name} will not be built automatically")
+    endif()
+endmacro()
+
+foreach(tgt ${global_targets})
+    # generate the reflection data.
+    set(reflection_files ${CMAKE_CURRENT_BINARY_DIR}/GodotCore.json)
+    if(${tgt} STREQUAL "editor")
+        set(reflection_files ${reflection_files};${CMAKE_CURRENT_BINARY_DIR}/GodotEditor.json)
+    endif()
+
+    add_custom_command(
+        COMMAND segs_${tgt} --gen-reflection ${CMAKE_CURRENT_BINARY_DIR}
+        OUTPUT
+            ${reflection_files}
+        DEPENDS ${tgt}_engine
+        COMMENT "Generating reflection data"
+    )
+    add_glue_module(GodotCore ${tgt})
+    if(${tgt} STREQUAL "editor")
+        add_glue_module(GodotEditor ${tgt})
+        # record the hidden fact that GodotEditor csproj requires GodotCore
+        add_dependencies(BUILD_GodotEditor BUILD_GodotCore)
+    endif()
+endforeach()
+
 foreach(tgt ${global_targets})
     add_library(${tgt}_module_mono STATIC)
-    if(MONO_GLUE_AVAILABLE)
-        target_sources(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/glue/mono_glue.gen.cpp)
-        target_compile_definitions(${tgt}_module_mono PRIVATE MONO_GLUE_ENABLED)
-    endif()
 #TODO: only set hot reload on non-release builds
     target_compile_definitions(${tgt}_module_mono PRIVATE GD_MONO_HOT_RELOAD)
     target_sources(${tgt}_module_mono PRIVATE ${source_files} ${header_files} ${qrc_files} ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h)
@@ -109,9 +186,16 @@ foreach(tgt ${global_targets})
     set_target_properties(${tgt}_module_mono PROPERTIES AUTORCC ON)
     target_link_libraries(${tgt}_module_mono PRIVATE Mono)
     set_common_target_properties(${tgt}_module_mono)
-    if(MSVC)
-        target_compile_options(${tgt}_module_mono PRIVATE /bigobj)
-    elseif(MINGW)
-        target_compile_options(${tgt}_module_mono PRIVATE -Wa,-mbig-obj)
-    endif()
 endforeach()
+
+if(DOTNET_FOUND)
+    ADD_DOTNET(
+        editor/GodotTools/GodotTools.sln
+        OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+        ARGUMENTS -noWarn:CS1591
+    )
+    add_dependencies(BUILD_GodotTools BUILD_GodotCore)
+    add_dependencies(BUILD_GodotTools BUILD_GodotEditor)
+endif()
+
+install(DIRECTORY ${OUTPUT_DIR}/csharp/ DESTINATION  bin/csharp)

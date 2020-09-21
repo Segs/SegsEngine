@@ -32,7 +32,7 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT int64_t to_int64(const UIString &str);
 [[nodiscard]] GODOT_EXPORT int64_t to_int64(StringView str);
 
-[[nodiscard]] GODOT_EXPORT String format(StringView str,const Variant &values);
+//[[nodiscard]] GODOT_EXPORT String format(StringView str,const Variant &values);
 
 [[nodiscard]] GODOT_EXPORT String num(double p_num, int p_decimals = -1);
 [[nodiscard]] GODOT_EXPORT String num_scientific(double p_num);

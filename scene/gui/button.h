@@ -33,7 +33,7 @@
 #include "scene/gui/base_button.h"
 #include "core/string.h"
 
-class Button : public BaseButton {
+class GODOT_EXPORT Button : public BaseButton {
 
     GDCLASS(Button,BaseButton)
 

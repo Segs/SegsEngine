@@ -35,7 +35,7 @@
 #include "core/math/vector2.h"
 
 class CollisionObject3D;
-class CollisionPolygon3D : public Node3D {
+class GODOT_EXPORT CollisionPolygon3D : public Node3D {
 
     GDCLASS(CollisionPolygon3D,Node3D)
 

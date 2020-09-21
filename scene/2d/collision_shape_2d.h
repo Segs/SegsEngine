@@ -36,7 +36,7 @@
 
 class CollisionObject2D;
 
-class CollisionShape2D : public Node2D {
+class GODOT_EXPORT CollisionShape2D : public Node2D {
 
 	GDCLASS(CollisionShape2D,Node2D)
 	Ref<Shape2D> shape;

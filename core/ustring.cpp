@@ -35,10 +35,7 @@
 #include "core/string_utils.inl"
 #include "core/color.h"
 #include "core/crypto/crypto_core.h"
-#include "core/math/math_funcs.h"
-#include "core/os/memory.h"
 #include "core/translation_helpers.h"
-#include "core/list.h"
 #include "core/vector.h"
 #include "core/variant.h"
 #include "core/dictionary.h"
@@ -530,7 +527,7 @@ Vector<UIString> StringUtils::split(const UIString &str,const UIString &p_splitt
 }
 Vector<UIString> StringUtils::split(const UIString &str,const CharType p_splitter, bool p_allow_empty) {
     Vector<UIString> ret;
-    auto val = str.splitRef(p_splitter,p_allow_empty ? QString::KeepEmptyParts : QString::SkipEmptyParts);
+    auto val = str.splitRef(p_splitter,p_allow_empty ? Qt::KeepEmptyParts : Qt::SkipEmptyParts);
     ret.resize(val.size());
     for(int i=0,fin=val.size(); i<fin; ++i)
         ret[i] = val[i].toString();
@@ -1867,71 +1864,71 @@ bool StringUtils::matchn(const UIString &s,const UIString &p_wildcard)  {
 bool StringUtils::matchn(StringView s,StringView p_wildcard)  {
     return match(s,p_wildcard,CaseInsensitive);
 }
-String StringUtils::format(StringView fmt, const Variant &values) {
+//String StringUtils::format(StringView fmt, const Variant &values) {
 
-    static const String quote_char("\"");
-    static const String underscore("_");
-    String new_string(fmt);
+//    static const String quote_char("\"");
+//    static const String underscore("_");
+//    String new_string(fmt);
 
-    if (values.get_type() == VariantType::ARRAY) {
-        Array values_arr = values;
-        for (int i = 0; i < values_arr.size(); i++) {
-            String i_as_str = num_int64(i);
+//    if (values.get_type() == VariantType::ARRAY) {
+//        Array values_arr = values;
+//        for (int i = 0; i < values_arr.size(); i++) {
+//            String i_as_str = num_int64(i);
 
-            if (values_arr[i].get_type() == VariantType::ARRAY) { //Array in Array structure [["name","RobotGuy"],[0,"godot"],["strength",9000.91]]
-                Array value_arr = values_arr[i];
+//            if (values_arr[i].get_type() == VariantType::ARRAY) { //Array in Array structure [["name","RobotGuy"],[0,"godot"],["strength",9000.91]]
+//                Array value_arr = values_arr[i];
 
-                if (value_arr.size() == 2) {
-                    Variant v_key = value_arr[0];
-                    String key = v_key.as<String>();
-                    if (quote_char == left(key,1) && quote_char == right(key,key.length() - 1)) {
-                        key = substr(key,1, key.length() - 2);
-                    }
+//                if (value_arr.size() == 2) {
+//                    Variant v_key = value_arr[0];
+//                    String key = v_key.as<String>();
+//                    if (quote_char == left(key,1) && quote_char == right(key,key.length() - 1)) {
+//                        key = substr(key,1, key.length() - 2);
+//                    }
 
-                    Variant v_val = value_arr[1];
-                    String val = v_val.as<String>();
-                    if (is_enclosed_in(val,'"')) {
-                        val = substr(val,1, val.length() - 2);
-                    }
-                    new_string.replace("{"+key+"}", val);
-                } else {
-                    ERR_PRINT("STRING.format Inner Array size != 2 ");
-                }
-            } else { //Array structure ["RobotGuy","Logis","rookie"]
-                Variant v_val = values_arr[i];
-                String val = v_val.as<String>();
+//                    Variant v_val = value_arr[1];
+//                    String val = v_val.as<String>();
+//                    if (is_enclosed_in(val,'"')) {
+//                        val = substr(val,1, val.length() - 2);
+//                    }
+//                    new_string.replace("{"+key+"}", val);
+//                } else {
+//                    ERR_PRINT("STRING.format Inner Array size != 2 ");
+//                }
+//            } else { //Array structure ["RobotGuy","Logis","rookie"]
+//                Variant v_val = values_arr[i];
+//                String val = v_val.as<String>();
 
-                if (is_enclosed_in(val,'"')) {
-                    val = substr(val,1, val.length() - 2);
-                }
+//                if (is_enclosed_in(val,'"')) {
+//                    val = substr(val,1, val.length() - 2);
+//                }
 
-                new_string.replace("{"+i_as_str+"}", val);
-            }
-        }
-    } else if (values.get_type() == VariantType::DICTIONARY) {
-        Dictionary d = values;
-        Vector<Variant> keys(d.get_key_list());
+//                new_string.replace("{"+i_as_str+"}", val);
+//            }
+//        }
+//    } else if (values.get_type() == VariantType::DICTIONARY) {
+//        Dictionary d = values;
+//        Vector<Variant> keys(d.get_key_list());
 
-        for (const Variant &E : keys) {
-            String key(E.as<String>());
-            String val(d[E].as<String>());
+//        for (const Variant &E : keys) {
+//            String key(E.as<String>());
+//            String val(d[E].as<String>());
 
-            if (is_enclosed_in(key,'"')) {
-                key = substr(key,1, key.length() - 2);
-            }
+//            if (is_enclosed_in(key,'"')) {
+//                key = substr(key,1, key.length() - 2);
+//            }
 
-            if (is_enclosed_in(val,'"')) {
-                val = substr(val,1, val.length() - 2);
-            }
+//            if (is_enclosed_in(val,'"')) {
+//                val = substr(val,1, val.length() - 2);
+//            }
 
-            new_string.replace("{"+key+"}", val);
-        }
-    } else {
-        ERR_PRINT("Invalid type: use Array or Dictionary.");
-    }
+//            new_string.replace("{"+key+"}", val);
+//        }
+//    } else {
+//        ERR_PRINT("Invalid type: use Array or Dictionary.");
+//    }
 
-    return new_string;
-}
+//    return new_string;
+//}
 
 UIString StringUtils::replace_first(const UIString &s,const UIString &p_key, const UIString &p_with)  {
 

@@ -761,7 +761,7 @@ void Camera2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smoothing_enabled"), "set_enable_follow_smoothing", "is_follow_smoothing_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "smoothing_speed"), "set_follow_smoothing", "get_follow_smoothing");
 
-    ADD_GROUP("Offset", "offset_");
+    ADD_GROUP("Drag Offset", "offset_");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_h", PropertyHint::Range, "-1,1,0.01"), "set_h_offset", "get_h_offset");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "offset_v", PropertyHint::Range, "-1,1,0.01"), "set_v_offset", "get_v_offset");
 

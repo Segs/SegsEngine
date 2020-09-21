@@ -36,7 +36,7 @@
 #include "core/io/resource_format_loader.h"
 #include "core/io/resource_saver.h"
 
-class CryptoKey : public Resource {
+class GODOT_EXPORT CryptoKey : public Resource {
     GDCLASS(CryptoKey, Resource)
 
 protected:
@@ -49,7 +49,7 @@ public:
     virtual Error save(StringView p_path) = 0;
 };
 
-class X509Certificate : public Resource {
+class GODOT_EXPORT X509Certificate : public Resource {
     GDCLASS(X509Certificate, Resource)
 
 protected:
@@ -63,7 +63,7 @@ public:
     virtual Error save(StringView p_path) = 0;
 };
 
-class Crypto : public RefCounted {
+class GODOT_EXPORT Crypto : public RefCounted {
     GDCLASS(Crypto, RefCounted)
 
 protected:

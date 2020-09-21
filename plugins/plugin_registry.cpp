@@ -19,18 +19,18 @@ void add_plugin_resolver(ResolverInterface *r) {
     s_common_plugins.add_resolver(r);
 }
 
-static void load_all_plugins() {
-
+void load_all_plugins(const char *plugin_paths)
+{
     print_line("Retrieving statically linked plugins");
     get_static_plugins(s_common_plugins);
     print_line("Finding dynamically loadable plugins");
 
-    auto base_path = QFileInfo(OS::get_singleton()->get_executable_path().c_str()).path();
+    QString base_path(plugin_paths); //auto base_path = QFileInfo(OS::get_singleton()->get_executable_path().c_str()).path();
 
-    QCoreApplication::addLibraryPath( base_path+"/plugins");
-    print_line(qPrintable(QString("Retrieving dynamically linked plugins from:")+base_path+"/plugins"));
+    QCoreApplication::addLibraryPath( base_path);
+    print_line(qPrintable(QString("Retrieving dynamically linked plugins from:")+base_path));
 
-    QDir plugins_dir(base_path+"/plugins");
+    QDir plugins_dir(base_path);
     QDirIterator iter(plugins_dir,QDirIterator::Subdirectories);
 
     while(iter.hasNext()) {
@@ -41,17 +41,12 @@ static void load_all_plugins() {
         if(!fi.isFile())
             continue;
 
-        if(fi.suffix()!="dll"&&fi.suffix()!="so")
+        if(fi.suffix()!="dll" && fi.suffix()!="so")
             continue;
 
         s_common_plugins.add_plugin(plugins_dir.absoluteFilePath(filename));
     }
     s_common_plugins.resolve_plugins();
-
-}
-void load_all_plugins(const char *plugin_paths)
-{
-    load_all_plugins();
 }
 void unload_plugins()
 {
@@ -89,6 +84,7 @@ bool PluginRegistry::add_plugin(const QString &path)
     plugin_loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
     plugin_loader->setFileName(path);
 
+
     QObject *ob = plugin_loader->instance();
     if(!ob)
     {
@@ -102,10 +98,11 @@ bool PluginRegistry::add_plugin(const QString &path)
     bool used=false;
     for(ResolverInterface *r : m_plugin_resolvers)
     {
-        used |= r->new_plugin_detected(ob);
+        used |= r->new_plugin_detected(ob,plugin_loader->metaData(),qPrintable(path));
     }
-    if(!used)
-        qDebug().noquote() << "Plugin loaded but no resolver can use it." << path;
+    // if(!used) {
+    //     qDebug().noquote() << "Plugin loaded but no resolver can use it." << path;
+    // }
     return true;
 }
 
@@ -113,26 +110,35 @@ void PluginRegistry::add_resolver(ResolverInterface *r)
 {
     m_plugin_resolvers.push_back(r);
 
-    resolve_plugins();
+    resolve_plugins(r);
 }
 
-void PluginRegistry::resolve_plugins()
+void PluginRegistry::resolve_plugins(ResolverInterface *specific)
 {
-    for(auto r : m_plugin_resolvers)
-    {
-        for(QObject *ob : static_plugins)
+    if(specific) {
+        ERR_FAIL_COND(!m_plugin_resolvers.contains(specific));
+        for(const QStaticPlugin &plug : static_plugins)
         {
-            if(m_loaded.contains({r,ob}))
+            QObject *ob=plug.instance();
+            if(m_loaded.contains({specific,ob}))
                 continue;
-            r->new_plugin_detected(ob);
-            m_loaded[{r,ob}]=true;
+            specific->new_plugin_detected(ob,plug.metaData());
+            m_loaded[{specific,ob}]=true;
         }
         for(QPluginLoader *ob : dynamic_plugin_loaders)
         {
-            if(m_loaded.contains({r,ob->instance()}))
+            if(m_loaded.contains({specific,ob->instance()}))
                 continue;
-            r->new_plugin_detected(ob->instance());
-            m_loaded[{r,ob->instance()}]=true;
+            specific->new_plugin_detected(ob->instance(),ob->metaData(),qPrintable(ob->fileName()));
+            m_loaded[{specific,ob->instance()}]=true;
         }
+        return;
+    }
+    else {
+        for(auto r : m_plugin_resolvers)
+        {
+            resolve_plugins(r); // we recursively call ourselves with specific resolver.
+        }
+
     }
 }

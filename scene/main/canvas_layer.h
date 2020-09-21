@@ -34,7 +34,7 @@
 #include "scene/resources/world_2d.h"
 
 class Viewport;
-class CanvasLayer : public Node {
+class GODOT_EXPORT CanvasLayer : public Node {
 
 	GDCLASS(CanvasLayer,Node)
 

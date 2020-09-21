@@ -1273,30 +1273,38 @@ void VisualShader::_update_shader() const {
     {
         //fill render mode enums
         int idx = 0;
-        while (render_mode_enums[idx].string) {
+        bool specular = false;
+        for(idx=0; render_mode_enums[idx].string!=nullptr; ++idx) {
 
-            if (shader_mode == render_mode_enums[idx].mode) {
-                auto iter = modes.find_as(render_mode_enums[idx].string);
+            if (shader_mode != render_mode_enums[idx].mode)
+                continue;
+            if (shader_mode == RenderingServerEnums::ShaderMode::SPATIAL) {
+                if (String(render_mode_enums[idx].string) == "specular") {
+                    specular = true;
+                }
+            }
+            auto iter = modes.find_as(render_mode_enums[idx].string);
+            if (modes.end()!=iter || specular) {
+
+                int which = 0;
                 if (modes.end()!=iter) {
-
-                    int which = iter->second;
-                    int count = 0;
-                    for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
-                        StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
-                        if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
-                            if (count == which) {
-                                if (!render_mode.empty()) {
-                                    render_mode += String(", ");
-                                }
-                                render_mode += mode;
-                                break;
+                    which = iter->second;
+                }
+                int count = 0;
+                for (int i = 0; i < ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode)).size(); i++) {
+                    StringName mode = ShaderTypes::get_singleton()->get_modes(RS::ShaderMode(shader_mode))[i];
+                    if (StringUtils::begins_with(mode,render_mode_enums[idx].string)) {
+                        if (count == which) {
+                            if (!render_mode.empty()) {
+                                render_mode += String(", ");
                             }
-                            count++;
+                            render_mode += mode;
+                            break;
                         }
+                        count++;
                     }
                 }
             }
-            idx++;
         }
 
         //fill render mode flags
@@ -1447,6 +1455,7 @@ void VisualShader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_input_type_changed"), &VisualShader::_input_type_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
+    ADD_PROPERTY_DEFAULT("code", ""); // Inherited from Shader, prevents showing default code as override in docs.
 
     BIND_ENUM_CONSTANT(TYPE_VERTEX)
     BIND_ENUM_CONSTANT(TYPE_FRAGMENT)

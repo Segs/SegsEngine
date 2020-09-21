@@ -34,7 +34,7 @@
 #include "scene/gui/range.h"
 #include "scene/gui/texture_rect.h"
 
-class EditorSpinSlider : public Range {
+class GODOT_EXPORT EditorSpinSlider : public Range {
     GDCLASS(EditorSpinSlider,Range)
 
     String label;

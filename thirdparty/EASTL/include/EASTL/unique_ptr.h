@@ -205,10 +205,8 @@ namespace eastl
 		{
 			if (pValue != mPair.first())
 			{
-				if (mPair.first())
-					get_deleter()(mPair.first());
-
-				mPair.first() = pValue;
+				if (auto first = eastl::exchange(mPair.first(), pValue))
+					get_deleter()(first);
 			}
 		}
 
@@ -428,8 +426,8 @@ namespace eastl
 		{
 			if(pArray != mPair.first())
 			{
-				get_deleter()(mPair.first());
-				mPair.first() = pArray;
+				if (auto first = eastl::exchange(mPair.first(), pArray))
+					get_deleter()(first);
 			}
 		}
 

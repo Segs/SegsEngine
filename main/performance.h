@@ -35,7 +35,7 @@
 #define PERF_WARN_OFFLINE_FUNCTION
 #define PERF_WARN_PROCESS_SYNC
 
-class Performance : public Object {
+class GODOT_EXPORT Performance : public Object {
 
     GDCLASS(Performance,Object)
 

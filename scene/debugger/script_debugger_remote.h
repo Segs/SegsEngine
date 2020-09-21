@@ -94,8 +94,12 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
         bool warning;
         Array callstack;
     };
+    struct OutputString {
+        String message;
+        int type;
+    };
 
-    List<String> output_strings;
+    List<OutputString> output_strings;
     List<Message> messages;
     int max_messages_per_frame;
     int n_messages_dropped;
@@ -153,6 +157,11 @@ class GODOT_EXPORT ScriptDebuggerRemote : public ScriptDebugger {
 
     bool skip_breakpoints;
 public:
+    enum MessageType {
+        MESSAGE_TYPE_LOG,
+        MESSAGE_TYPE_ERROR,
+    };
+
     struct ResourceUsage {
 
         String path;

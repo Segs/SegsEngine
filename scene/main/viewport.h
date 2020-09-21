@@ -50,7 +50,7 @@ class Timer;
 class Viewport;
 class CollisionObject3D;
 
-class ViewportTexture : public Texture {
+class GODOT_EXPORT ViewportTexture : public Texture {
 
     GDCLASS(ViewportTexture,Texture)
 
@@ -87,7 +87,7 @@ public:
     ~ViewportTexture() override;
 };
 
-class Viewport : public Node {
+class GODOT_EXPORT Viewport : public Node {
 
     GDCLASS(Viewport,Node)
 

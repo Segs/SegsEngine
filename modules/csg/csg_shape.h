@@ -40,7 +40,7 @@
 class Mesh;
 
 
-class CSGShape : public GeometryInstance {
+class GODOT_EXPORT CSGShape : public GeometryInstance {
     GDCLASS(CSGShape,GeometryInstance)
 
 public:
@@ -164,7 +164,7 @@ public:
     CSGCombiner();
 };
 
-class CSGPrimitive : public CSGShape {
+class GODOT_EXPORT CSGPrimitive : public CSGShape {
     GDCLASS(CSGPrimitive,CSGShape)
 
 private:
@@ -181,7 +181,7 @@ public:
     CSGPrimitive();
 };
 
-class CSGMesh : public CSGPrimitive {
+class GODOT_EXPORT CSGMesh : public CSGPrimitive {
     GDCLASS(CSGMesh,CSGPrimitive)
 
     CSGBrush *_build_brush() override;
@@ -202,7 +202,7 @@ public:
     Ref<Material> get_material() const;
 };
 
-class CSGSphere : public CSGPrimitive {
+class GODOT_EXPORT CSGSphere : public CSGPrimitive {
 
     GDCLASS(CSGSphere,CSGPrimitive)
     CSGBrush *_build_brush() override;
@@ -235,7 +235,7 @@ public:
     CSGSphere();
 };
 
-class CSGBox : public CSGPrimitive {
+class GODOT_EXPORT CSGBox : public CSGPrimitive {
 
     GDCLASS(CSGBox,CSGPrimitive)
     CSGBrush *_build_brush() override;
@@ -264,7 +264,7 @@ public:
     CSGBox();
 };
 
-class CSGCylinder : public CSGPrimitive {
+class GODOT_EXPORT CSGCylinder : public CSGPrimitive {
 
     GDCLASS(CSGCylinder,CSGPrimitive)
 
@@ -302,7 +302,7 @@ public:
     CSGCylinder();
 };
 
-class CSGTorus : public CSGPrimitive {
+class GODOT_EXPORT CSGTorus : public CSGPrimitive {
 
     GDCLASS(CSGTorus,CSGPrimitive)
     CSGBrush *_build_brush() override;
@@ -339,7 +339,7 @@ public:
     CSGTorus();
 };
 
-class CSGPolygon : public CSGPrimitive {
+class GODOT_EXPORT CSGPolygon : public CSGPrimitive {
 
     GDCLASS(CSGPolygon,CSGPrimitive)
 

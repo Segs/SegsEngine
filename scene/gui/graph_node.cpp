@@ -512,8 +512,7 @@ void GraphNode::_connpos_update() {
             }
         }
 
-        if (vofs > 0)
-            vofs += sep;
+        vofs += sep;
         vofs += size.y;
         idx++;
     }
@@ -601,7 +600,7 @@ void GraphNode::_gui_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     if (mb) {
 
-        ERR_FAIL_COND_MSG(get_parent_control() == nullptr, "GraphNode must be the child of a GraphEdit node."); 
+        ERR_FAIL_COND_MSG(get_parent_control() == nullptr, "GraphNode must be the child of a GraphEdit node.");
 
         if (mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 

@@ -32,7 +32,7 @@
 
 #include "scene/main/node.h"
 
-class Timer : public Node {
+class GODOT_EXPORT Timer : public Node {
 
     GDCLASS(Timer,Node)
 

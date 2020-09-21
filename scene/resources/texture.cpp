@@ -169,8 +169,8 @@ void Texture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("draw_rect_region", {"canvas_item", "rect", "src_rect", "modulate", "transpose", "normal_map", "clip_uv"}), &Texture::draw_rect_region, {DEFVAL(Color(1, 1, 1)), DEFVAL(false), DEFVAL(Variant()), DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("get_data"), &Texture::get_data);
 
-    ADD_GROUP("Flags", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
+    ADD_GROUP("Flags", "flg_");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "flg_flags", PropertyHint::Flags, "Mipmaps,Repeat,Filter,Anisotropic Linear,Convert to Linear,Mirrored Repeat,Video Surface"), "set_flags", "get_flags");
     ADD_GROUP("", "");
 
     BIND_ENUM_CONSTANT(FLAGS_DEFAULT)
@@ -2172,9 +2172,10 @@ void AnimatedTexture::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "fps", PropertyHint::Range, "0,1024,0.1"), "set_fps", "get_fps");
 
+    ADD_PROPERTY_ARRAY("Frames",MAX_FRAMES,"frame");
     for (int i = 0; i < MAX_FRAMES; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame_" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("frame_" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("frame/" + itos(i) + "/texture"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_texture", "get_frame_texture", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("frame/" + itos(i) + "/delay_sec"), PropertyHint::Range, "0.0,16.0,0.01", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_INTERNAL), "set_frame_delay", "get_frame_delay", i);
     }
 
     BIND_CONSTANT(MAX_FRAMES);

@@ -35,7 +35,7 @@
 
 class Skeleton2D;
 
-class Bone2D : public Node2D {
+class GODOT_EXPORT Bone2D : public Node2D {
 	GDCLASS(Bone2D,Node2D)
 
 	friend class Skeleton2D;
@@ -70,7 +70,7 @@ public:
 	Bone2D();
 };
 
-class Skeleton2D : public Node2D {
+class GODOT_EXPORT Skeleton2D : public Node2D {
 	GDCLASS(Skeleton2D,Node2D)
 
 	friend class Bone2D;

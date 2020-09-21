@@ -2,18 +2,21 @@
 #define ENTT_META_FACTORY_HPP
 
 
-#include "EASTL/tuple.h"
 #include "EASTL/array.h"
 #include "EASTL/utility.h"
 #include "EASTL/functional.h"
 #include "EASTL/type_traits.h"
 
+#include <utility>
 #include <cstddef>
 
 #include "../config/config.h"
+#include "../core/fwd.hpp"
+#include "../core/type_info.hpp"
 #include "../core/type_traits.hpp"
-#include "policy.hpp"
+#include "../core/utility.hpp"
 #include "meta.hpp"
+#include "policy.hpp"
 
 
 namespace entt {
@@ -88,7 +91,7 @@ meta_any construct(meta_any * const args, eastl::index_sequence<Indexes...>) {
 
 
 template<bool Const, typename Type, auto Data>
-bool setter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any index, [[maybe_unused]] meta_any value) {
+bool setter([[maybe_unused]] meta_any instance, [[maybe_unused]] meta_any index, [[maybe_unused]] meta_any value) {
     bool accepted = false;
 
     if constexpr(!Const) {
@@ -96,7 +99,7 @@ bool setter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any index
             using helper_type = meta_function_helper_t<decltype(Data)>;
             using data_type = eastl::tuple_element_t<!eastl::is_member_function_pointer_v<decltype(Data)>, typename helper_type::args_type>;
             static_assert(eastl::is_invocable_v<decltype(Data), Type &, data_type>);
-            auto * const clazz = meta_any{handle}.try_cast<Type>();
+            auto * const clazz = instance.try_cast<Type>();
             auto * const direct = value.try_cast<data_type>();
 
             if(clazz && (direct || value.convert<data_type>())) {
@@ -106,7 +109,7 @@ bool setter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any index
         } else if constexpr(eastl::is_member_object_pointer_v<decltype(Data)>) {
             using data_type = eastl::remove_cv_t<eastl::remove_reference_t<decltype(eastl::declval<Type>().*Data)>>;
             static_assert(eastl::is_invocable_v<decltype(Data), Type *>);
-            auto * const clazz = meta_any{handle}.try_cast<Type>();
+            auto * const clazz = instance.try_cast<Type>();
 
             if constexpr(eastl::is_array_v<data_type>) {
                 using underlying_type = eastl::remove_extent_t<data_type>;
@@ -154,11 +157,11 @@ bool setter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any index
 
 
 template<typename Type, auto Data, typename Policy>
-meta_any getter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any index) {
+meta_any getter([[maybe_unused]] meta_any instance, [[maybe_unused]] meta_any index) {
     auto dispatch = [](auto &&value) {
         if constexpr(eastl::is_same_v<Policy, as_void_t>) {
-            return meta_any{eastl::in_place_type<void>};
-        } else if constexpr(eastl::is_same_v<Policy, as_alias_t>) {
+            return meta_any{eastl::in_place_type<void>, eastl::forward<decltype(value)>(value)};
+        } else if constexpr(eastl::is_same_v<Policy, as_ref_t>) {
             return meta_any{eastl::ref(eastl::forward<decltype(value)>(value))};
         } else {
             static_assert(eastl::is_same_v<Policy, as_is_t>);
@@ -168,12 +171,12 @@ meta_any getter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any i
 
     if constexpr(eastl::is_function_v<eastl::remove_reference_t<eastl::remove_pointer_t<decltype(Data)>>> || eastl::is_member_function_pointer_v<decltype(Data)>) {
         static_assert(eastl::is_invocable_v<decltype(Data), Type &>);
-        auto * const clazz = meta_any{handle}.try_cast<Type>();
+        auto * const clazz = instance.try_cast<Type>();
         return clazz ? dispatch(eastl::invoke(Data, *clazz)) : meta_any{};
     } else if constexpr(eastl::is_member_object_pointer_v<decltype(Data)>) {
         using data_type = eastl::remove_cv_t<eastl::remove_reference_t<decltype(eastl::declval<Type>().*Data)>>;
         static_assert(eastl::is_invocable_v<decltype(Data), Type *>);
-        auto * const clazz = meta_any{handle}.try_cast<Type>();
+        auto * const clazz = instance.try_cast<Type>();
 
         if constexpr(eastl::is_array_v<data_type>) {
             auto * const idx = index.try_cast<std::size_t>();
@@ -195,14 +198,14 @@ meta_any getter([[maybe_unused]] meta_handle handle, [[maybe_unused]] meta_any i
 
 
 template<typename Type, auto Candidate, typename Policy, std::size_t... Indexes>
-meta_any invoke([[maybe_unused]] meta_handle handle, meta_any *args, eastl::index_sequence<Indexes...>) {
+meta_any invoke([[maybe_unused]] meta_any instance, meta_any *args, eastl::index_sequence<Indexes...>) {
     using helper_type = meta_function_helper_t<decltype(Candidate)>;
 
     auto dispatch = [](auto *... params) {
         if constexpr(eastl::is_void_v<typename helper_type::return_type> || eastl::is_same_v<Policy, as_void_t>) {
             eastl::invoke(Candidate, *params...);
             return meta_any{eastl::in_place_type<void>};
-        } else if constexpr(eastl::is_same_v<Policy, as_alias_t>) {
+        } else if constexpr(eastl::is_same_v<Policy, as_ref_t>) {
             return meta_any{eastl::ref(eastl::invoke(Candidate, *params...))};
         } else {
             static_assert(eastl::is_same_v<Policy, as_is_t>);
@@ -210,20 +213,20 @@ meta_any invoke([[maybe_unused]] meta_handle handle, meta_any *args, eastl::inde
         }
     };
 
-    [[maybe_unused]] const auto direct = eastl::make_tuple([](meta_any *any, auto *instance) {
-        using arg_type = eastl::remove_reference_t<decltype(*instance)>;
+    [[maybe_unused]] const auto direct = eastl::make_tuple([](meta_any *any, auto *value) {
+        using arg_type = eastl::remove_reference_t<decltype(*value)>;
 
-        if(!instance && any->convert<arg_type>()) {
-            instance = any->try_cast<arg_type>();
+        if(!value && any->convert<arg_type>()) {
+            value = any->try_cast<arg_type>();
         }
 
-        return instance;
+        return value;
     }(args+Indexes, (args+Indexes)->try_cast<eastl::tuple_element_t<Indexes, typename helper_type::args_type>>())...);
 
     if constexpr(eastl::is_function_v<eastl::remove_reference_t<eastl::remove_pointer_t<decltype(Candidate)>>>) {
         return (eastl::get<Indexes>(direct) && ...) ? dispatch(eastl::get<Indexes>(direct)...) : meta_any{};
     } else {
-        auto * const clazz = meta_any{handle}.try_cast<Type>();
+        auto * const clazz = instance.try_cast<Type>();
         return (clazz && (eastl::get<Indexes>(direct) && ...)) ? dispatch(clazz, eastl::get<Indexes>(direct)...) : meta_any{};
     }
 }
@@ -238,68 +241,173 @@ meta_any invoke([[maybe_unused]] meta_handle handle, meta_any *args, eastl::inde
  */
 
 
-template<typename, typename...>
-class extended_meta_factory;
+/**
+ * @brief Meta factory to be used for reflection purposes.
+ *
+ * The meta factory is an utility class used to reflect types, data members and
+ * functions of all sorts. This class ensures that the underlying web of types
+ * is built correctly and performs some checks in debug mode to ensure that
+ * there are no subtle errors at runtime.
+ */
+template<typename...>
+class meta_factory;
 
 
 /**
- * @brief A meta factory to be used for reflection purposes.
- *
- * A meta factory is an utility class used to reflect types, data and functions
- * of all sorts. This class ensures that the underlying web of types is built
- * correctly and performs some checks in debug mode to ensure that there are no
- * subtle errors at runtime.
- *
+ * @brief Extended meta factory to be used for reflection purposes.
  * @tparam Type Reflected type for which the factory was created.
+ * @tparam Spec Property specialization pack used to disambiguate overloads.
  */
-template<typename Type>
-class meta_factory {
-    template<typename Node>
-    bool duplicate(const Node *candidate, const Node *node) ENTT_NOEXCEPT {
-        return node && (node == candidate || duplicate(candidate, node->next));
+template<typename Type, typename... Spec>
+class meta_factory<Type, Spec...>: public meta_factory<Type> {
+    bool exists(const meta_any &key, const internal::meta_prop_node *node) ENTT_NOEXCEPT {
+        return node && (node->key() == key || exists(key, node->next));
     }
 
-    template<typename Node>
-    bool duplicate(const ENTT_ID_TYPE identifier, const Node *node) ENTT_NOEXCEPT {
-        return node && (node->identifier == identifier || duplicate(identifier, node->next));
+    template<std::size_t Step = 0, std::size_t... Index, typename... Property, typename... Other>
+    void unpack(eastl::index_sequence<Index...>, eastl::tuple<Property...> property, Other &&... other) {
+        unroll<Step>(choice<3>, eastl::move(eastl::get<Index>(property))..., eastl::forward<Other>(other)...);
     }
 
-    auto record(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
-        auto * const node = internal::meta_info<Type>::resolve();
+    template<std::size_t Step = 0, typename... Property, typename... Other>
+    void unroll(choice_t<3>, eastl::tuple<Property...> property, Other &&... other) {
+        unpack<Step>(eastl::index_sequence_for<Property...>{}, eastl::move(property), eastl::forward<Other>(other)...);
+    }
 
-        ENTT_ASSERT(!duplicate(identifier, *internal::meta_info<>::global));
-        ENTT_ASSERT(!duplicate(node, *internal::meta_info<>::global));
-        node->identifier = identifier;
-        node->next = *internal::meta_info<>::global;
-        *internal::meta_info<>::global = node;
+    template<std::size_t Step = 0, typename... Property, typename... Other>
+    void unroll(choice_t<2>, eastl::pair<Property...> property, Other &&... other) {
+        assign<Step>(eastl::move(property.first), eastl::move(property.second));
+        unroll<Step+1>(choice<3>, eastl::forward<Other>(other)...);
+    }
 
-        return extended_meta_factory<Type>{&node->prop};
+    template<std::size_t Step = 0, typename Property, typename... Other>
+    eastl::enable_if_t<!eastl::is_invocable_v<Property>>
+    unroll(choice_t<1>, Property &&property, Other &&... other) {
+        assign<Step>(eastl::forward<Property>(property));
+        unroll<Step+1>(choice<3>, eastl::forward<Other>(other)...);
+    }
+
+    template<std::size_t Step = 0, typename Func, typename... Other>
+    void unroll(choice_t<0>, Func &&invocable, Other &&... other) {
+        unroll<Step>(choice<3>, eastl::forward<Func>(invocable)(), eastl::forward<Other>(other)...);
+    }
+
+    template<std::size_t>
+    void unroll(choice_t<0>) {}
+
+    template<std::size_t = 0, typename Key, typename... Value>
+    void assign(Key &&key, Value &&... value) {
+        static const auto property{eastl::make_tuple(eastl::forward<Key>(key), eastl::forward<Value>(value)...)};
+
+        static internal::meta_prop_node node{
+            nullptr,
+            []() -> meta_any {
+                return eastl::get<0>(property);
+            },
+            []() -> meta_any {
+                if constexpr(sizeof...(Value) == 0) {
+                    return {};
+                } else {
+                    return eastl::get<1>(property);
+                }
+            }
+        };
+
+        ENTT_ASSERT(!exists(node.key(), *curr));
+        node.next = *curr;
+        *curr = &node;
     }
 
 public:
     /**
-     * @brief Extends a meta type by assigning it an identifier.
-     *
-     * This function is intended only for unnamed types.
-     *
-     * @param identifier Unique identifier.
-     * @return An extended meta factory for the parent type.
+     * @brief Constructs an extended factory from a given node.
+     * @param target The underlying node to which to assign the properties.
      */
-    auto type(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
-        static_assert(!is_named_type_v<Type>);
-        return record(identifier);
+    meta_factory(entt::internal::meta_prop_node **target) ENTT_NOEXCEPT
+        : curr{target}
+    {}
+
+    /**
+     * @brief Assigns a property to the last meta object created.
+     *
+     * Both the key and the value (if any) must be at least copy constructible.
+     *
+     * @tparam PropertyOrKey Type of the property or property key.
+     * @tparam Value Optional type of the property value.
+     * @param property_or_key Property or property key.
+     * @param value Optional property value.
+     * @return A meta factory for the parent type.
+     */
+    template<typename PropertyOrKey, typename... Value>
+    auto prop(PropertyOrKey &&property_or_key, Value &&... value) && {
+        if constexpr(sizeof...(Value) == 0) {
+            unroll(choice<3>, eastl::forward<PropertyOrKey>(property_or_key));
+        } else {
+            assign(eastl::forward<PropertyOrKey>(property_or_key), eastl::forward<Value>(value)...);
+        }
+
+        return meta_factory<Type, Spec..., PropertyOrKey, Value...>{curr};
     }
 
     /**
-     * @brief Extends a meta type by assigning it an identifier.
+     * @brief Assigns properties to the last meta object created.
      *
-     * This function is intended only for named types
+     * Both the keys and the values (if any) must be at least copy
+     * constructible.
      *
-     * @return An extended meta factory for the parent type.
+     * @tparam Property Types of the properties.
+     * @param property Properties to assign to the last meta object created.
+     * @return A meta factory for the parent type.
      */
-    auto type() ENTT_NOEXCEPT {
-        static_assert(is_named_type_v<Type>);
-        return record(named_type_traits_t<Type>::value);
+    template <typename... Property>
+    auto props(Property... property) && {
+        unroll(choice<3>, eastl::forward<Property>(property)...);
+        return meta_factory<Type, Spec..., Property...>{curr};
+    }
+
+private:
+    entt::internal::meta_prop_node **curr;
+};
+
+
+/**
+ * @brief Basic meta factory to be used for reflection purposes.
+ * @tparam Type Reflected type for which the factory was created.
+ */
+template<typename Type>
+class meta_factory<Type> {
+    template<typename Node>
+    bool exists(const Node *candidate, const Node *node) ENTT_NOEXCEPT {
+        return node && (node == candidate || exists(candidate, node->next));
+    }
+
+    template<typename Node>
+    bool exists(const id_type id, const Node *node) ENTT_NOEXCEPT {
+        return node && (node->id == id || exists(id, node->next));
+    }
+
+public:
+    /**
+     * @brief Makes a meta type _searchable_.
+     * @param id Optional unique identifier.
+     * @return An extended meta factory for the given type.
+     */
+    auto type(const id_type id = type_info<Type>::id()) {
+        auto * const node = internal::meta_info<Type>::resolve();
+
+        ENTT_ASSERT(!exists(id, *internal::meta_context::global));
+        ENTT_ASSERT(!exists(node, *internal::meta_context::global));
+        node->id = id;
+        node->next = *internal::meta_context::global;
+        *internal::meta_context::global = node;
+
+        return meta_factory<Type, Type>{&node->prop};
+    }
+
+    /*! @copydoc type */
+    [[deprecated("use ::type instead")]]
+    auto alias(const id_type id) ENTT_NOEXCEPT {
+        return type(id);
     }
 
     /**
@@ -324,7 +432,7 @@ public:
             }
         };
 
-        ENTT_ASSERT(!duplicate(&node, type->base));
+        ENTT_ASSERT(!exists(&node, type->base));
         node.next = type->base;
         type->base = &node;
 
@@ -354,7 +462,7 @@ public:
             }
         };
 
-        ENTT_ASSERT(!duplicate(&node, type->conv));
+        ENTT_ASSERT(!exists(&node, type->conv));
         node.next = type->conv;
         type->conv = &node;
 
@@ -387,7 +495,7 @@ public:
             }
         };
 
-        ENTT_ASSERT(!duplicate(&node, type->conv));
+        ENTT_ASSERT(!exists(&node, type->conv));
         node.next = type->conv;
         type->conv = &node;
 
@@ -424,11 +532,11 @@ public:
             }
         };
 
-        ENTT_ASSERT(!duplicate(&node, type->ctor));
+        ENTT_ASSERT(!exists(&node, type->ctor));
         node.next = type->ctor;
         type->ctor = &node;
 
-        return extended_meta_factory<Type, eastl::integral_constant<decltype(Func), Func>>{&node.prop};
+        return meta_factory<Type, eastl::integral_constant<decltype(Func), Func>>{&node.prop};
     }
 
     /**
@@ -457,11 +565,11 @@ public:
             }
         };
 
-        ENTT_ASSERT(!duplicate(&node, type->ctor));
+        ENTT_ASSERT(!exists(&node, type->ctor));
         node.next = type->ctor;
         type->ctor = &node;
 
-        return extended_meta_factory<Type, Type(Args...)>{&node.prop};
+        return meta_factory<Type, Type(Args...)>{&node.prop};
     }
 
     /**
@@ -487,14 +595,11 @@ public:
 
         static internal::meta_dtor_node node{
             type,
-            [](meta_handle handle) {
-                const auto valid = (handle.type() == internal::meta_info<Type>::resolve());
-
-                if(valid) {
-                    eastl::invoke(Func, *meta_any{handle}.try_cast<Type>());
+            [](void *instance) {
+                if(instance) {
+                    eastl::invoke(Func, *static_cast<Type *>(instance));
                 }
 
-                return valid;
             }
         };
 
@@ -514,11 +619,11 @@ public:
      *
      * @tparam Data The actual variable to attach to the meta type.
      * @tparam Policy Optional policy (no policy set by default).
-     * @param identifier Unique identifier.
+     * @param id Unique identifier.
      * @return An extended meta factory for the parent type.
      */
     template<auto Data, typename Policy = as_is_t>
-    auto data(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
+    auto data(const id_type id) ENTT_NOEXCEPT {
         auto * const type = internal::meta_info<Type>::resolve();
         internal::meta_data_node *curr = nullptr;
 
@@ -533,8 +638,8 @@ public:
                 true,
                 true,
                 &internal::meta_info<Type>::resolve,
-                [](meta_handle, meta_any, meta_any) { return false; },
-                [](meta_handle, meta_any) -> meta_any { return Data; }
+                [](meta_any, meta_any, meta_any) { return false; },
+                [](meta_any, meta_any) -> meta_any { return Data; }
             };
 
             curr = &node;
@@ -573,13 +678,13 @@ public:
             curr = &node;
         }
 
-        ENTT_ASSERT(!duplicate(identifier, type->data));
-        ENTT_ASSERT(!duplicate(curr, type->data));
-        curr->identifier = identifier;
+        ENTT_ASSERT(!exists(id, type->data));
+        ENTT_ASSERT(!exists(curr, type->data));
+        curr->id = id;
         curr->next = type->data;
         type->data = curr;
 
-        return extended_meta_factory<Type, eastl::integral_constant<decltype(Data), Data>>{&curr->prop};
+        return meta_factory<Type, eastl::integral_constant<decltype(Data), Data>>{&curr->prop};
     }
 
     /**
@@ -599,11 +704,11 @@ public:
      * @tparam Setter The actual function to use as a setter.
      * @tparam Getter The actual function to use as a getter.
      * @tparam Policy Optional policy (no policy set by default).
-     * @param identifier Unique identifier.
+     * @param id Unique identifier.
      * @return An extended meta factory for the parent type.
      */
     template<auto Setter, auto Getter, typename Policy = as_is_t>
-    auto data(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
+    auto data(const id_type id) ENTT_NOEXCEPT {
         using underlying_type = eastl::invoke_result_t<decltype(Getter), Type &>;
         static_assert(eastl::is_invocable_v<decltype(Setter), Type &, underlying_type>);
         auto * const type = internal::meta_info<Type>::resolve();
@@ -620,13 +725,13 @@ public:
             &internal::getter<Type, Getter, Policy>
         };
 
-        ENTT_ASSERT(!duplicate(identifier, type->data));
-        ENTT_ASSERT(!duplicate(&node, type->data));
-        node.identifier = identifier;
+        ENTT_ASSERT(!exists(id, type->data));
+        ENTT_ASSERT(!exists(&node, type->data));
+        node.id = id;
         node.next = type->data;
         type->data = &node;
 
-        return extended_meta_factory<Type, eastl::integral_constant<decltype(Setter), Setter>, eastl::integral_constant<decltype(Getter), Getter>>{&node.prop};
+        return meta_factory<Type, eastl::integral_constant<decltype(Setter), Setter>, eastl::integral_constant<decltype(Getter), Getter>>{&node.prop};
     }
 
     /**
@@ -639,11 +744,11 @@ public:
      *
      * @tparam Candidate The actual function to attach to the meta type.
      * @tparam Policy Optional policy (no policy set by default).
-     * @param identifier Unique identifier.
+     * @param id Unique identifier.
      * @return An extended meta factory for the parent type.
      */
     template<auto Candidate, typename Policy = as_is_t>
-    auto func(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
+    auto func(const id_type id) ENTT_NOEXCEPT {
         using helper_type = internal::meta_function_helper_t<decltype(Candidate)>;
         auto * const type = internal::meta_info<Type>::resolve();
 
@@ -657,18 +762,18 @@ public:
             !eastl::is_member_function_pointer_v<decltype(Candidate)>,
             &internal::meta_info<eastl::conditional_t<eastl::is_same_v<Policy, as_void_t>, void, typename helper_type::return_type>>::resolve,
             &helper_type::arg,
-            [](meta_handle handle, meta_any *any) {
-                return internal::invoke<Type, Candidate, Policy>(handle, any, helper_type::index_sequence);
+            [](meta_any instance, meta_any *args) {
+                return internal::invoke<Type, Candidate, Policy>(eastl::move(instance), args, helper_type::index_sequence);
             }
         };
 
-        ENTT_ASSERT(!duplicate(identifier, type->func));
-        ENTT_ASSERT(!duplicate(&node, type->func));
-        node.identifier = identifier;
+        ENTT_ASSERT(!exists(id, type->func));
+        ENTT_ASSERT(!exists(&node, type->func));
+        node.id = id;
         node.next = type->func;
         type->func = &node;
 
-        return extended_meta_factory<Type, eastl::integral_constant<decltype(Candidate), Candidate>>{&node.prop};
+        return meta_factory<Type, eastl::integral_constant<decltype(Candidate), Candidate>>{&node.prop};
     }
 
     /**
@@ -678,127 +783,39 @@ public:
      * functions and properties, as well as its constructors, destructors and
      * conversion functions if any.<br/>
      * Base classes aren't reset but the link between the two types is removed.
+     *
+     * @return An extended meta factory for the given type.
      */
-    void reset() ENTT_NOEXCEPT {
-        internal::meta_info<Type>::reset();
-    }
-};
+    auto reset() ENTT_NOEXCEPT {
+        auto * const node = internal::meta_info<Type>::resolve();
 
+        internal::meta_context::detach(node);
 
-/**
- * @brief Extended meta factory to be used for reflection purposes.
- * @tparam Type Reflected type for which the factory was created.
- * @tparam Spec Property specialization pack used to disambiguate overloads.
- */
-template<typename Type, typename... Spec>
-class extended_meta_factory: public meta_factory<Type> {
-    bool duplicate(const meta_any &key, const internal::meta_prop_node *node) ENTT_NOEXCEPT {
-        return node && (node->key() == key || duplicate(key, node->next));
-    }
-
-    template<std::size_t Step = 0, std::size_t... Index, typename... Property, typename... Other>
-    void unpack(eastl::index_sequence<Index...>, eastl::tuple<Property...> property, Other &&... other) {
-        unroll<Step>(choice<3>, eastl::move(eastl::get<Index>(property))..., eastl::forward<Other>(other)...);
-    }
-
-    template<std::size_t Step = 0, typename... Property, typename... Other>
-    void unroll(choice_t<3>, eastl::tuple<Property...> property, Other &&... other) {
-        unpack<Step>(eastl::index_sequence_for<Property...>{}, eastl::move(property), eastl::forward<Other>(other)...);
-    }
-
-    template<std::size_t Step = 0, typename... Property, typename... Other>
-    void unroll(choice_t<2>, eastl::pair<Property...> property, Other &&... other) {
-        assign<Step>(eastl::move(property.first), eastl::move(property.second));
-        unroll<Step+1>(choice<3>, eastl::forward<Other>(other)...);
-    }
-
-    template<std::size_t Step = 0, typename Property, typename... Other>
-    eastl::enable_if_t<!eastl::is_invocable_v<Property>>
-    unroll(choice_t<1>, Property &&property, Other &&... other) {
-        assign<Step>(eastl::forward<Property>(property));
-        unroll<Step+1>(choice<3>, eastl::forward<Other>(other)...);
-    }
-
-    template<std::size_t Step = 0, typename Func, typename... Other>
-    void unroll(choice_t<0>, Func &&invocable, Other &&... other) {
-        unroll<Step>(choice<3>, eastl::forward<Func>(invocable)(), eastl::forward<Other>(other)...);
-    }
-
-    template<std::size_t>
-    void unroll(choice_t<0>) {}
-
-    template<std::size_t = 0, typename Key, typename... Value>
-    void assign(Key &&key, Value &&... value) {
-        static auto property{eastl::make_tuple(eastl::forward<Key>(key), eastl::forward<Value>(value)...)};
-
-        static internal::meta_prop_node node{
-            nullptr,
-            []() -> meta_any {
-                return eastl::get<0>(property);
-            },
-            []() -> meta_any {
-                if constexpr(sizeof...(Value) == 0) {
-                    return {};
-                } else {
-                    return eastl::get<1>(property);
+        const auto unregister_all = y_combinator{
+            [](auto &&self, auto **curr, auto... member) {
+                while(*curr) {
+                    auto *prev = *curr;
+                    (self(&(prev->*member)), ...);
+                    *curr = prev->next;
+                    prev->next = nullptr;
                 }
             }
         };
 
-        ENTT_ASSERT(!duplicate(node.key(), *curr));
-        node.next = *curr;
-        *curr = &node;
-    }
+        unregister_all(&node->prop);
+        unregister_all(&node->base);
+        unregister_all(&node->conv);
+        unregister_all(&node->ctor, &internal::meta_ctor_node::prop);
+        unregister_all(&node->data, &internal::meta_data_node::prop);
+        unregister_all(&node->func, &internal::meta_func_node::prop);
 
-public:
-    /**
-     * @brief Constructs an extended factory from a given node.
-     * @param target The underlying node to which to assign the properties.
-     */
-    extended_meta_factory(entt::internal::meta_prop_node **target)
-        : curr{target}
-    {}
+        node->id = {};
+        node->next = nullptr;
+        node->dtor = nullptr;
 
-    /**
-     * @brief Assigns a property to the last meta object created.
-     *
-     * Both the key and the value (if any) must be at least copy constructible.
-     *
-     * @tparam PropertyOrKey Type of the property or property key.
-     * @tparam Value Optional type of the property value.
-     * @param property_or_key Property or property key.
-     * @param value Optional property value.
-     * @return A meta factory for the parent type.
-     */
-    template<typename PropertyOrKey, typename... Value>
-    auto prop(PropertyOrKey &&property_or_key, Value &&... value) && {
-        if constexpr(sizeof...(Value) == 0) {
-            unroll(choice<3>, eastl::forward<PropertyOrKey>(property_or_key));
-        } else {
-            assign(eastl::forward<PropertyOrKey>(property_or_key), eastl::forward<Value>(value)...);
+        return meta_factory<Type, Type>{&node->prop};
         }
 
-        return extended_meta_factory<Type, Spec..., PropertyOrKey, Value...>{curr};
-    }
-
-    /**
-     * @brief Assigns properties to the last meta object created.
-     *
-     * Both the keys and the values (if any) must be at least copy
-     * constructible.
-     *
-     * @tparam Property Types of the properties.
-     * @param property Properties to assign to the last meta object created.
-     * @return A meta factory for the parent type.
-     */
-    template <typename... Property>
-    auto props(Property... property) && {
-        unroll(choice<3>, eastl::forward<Property>(property)...);
-        return extended_meta_factory<Type, Spec..., Property...>{curr};
-    }
-
-private:
-    entt::internal::meta_prop_node **curr{nullptr};
 };
 
 
@@ -811,50 +828,17 @@ private:
  * dedicated factory.
  *
  * @tparam Type Type to reflect.
- * @return A meta factory for the given type.
+ * @return An meta factory for the given type.
  */
 template<typename Type>
 inline meta_factory<Type> meta() ENTT_NOEXCEPT {
-    return meta_factory<Type>{};
-}
-
-
-/**
- * @brief Returns the meta type associated with a given type.
- * @tparam Type Type to use to search for a meta type.
- * @return The meta type associated with the given type, if any.
- */
-template<typename Type>
-inline meta_type resolve() ENTT_NOEXCEPT {
-    return internal::meta_info<Type>::resolve();
-}
-
-
-/**
- * @brief Returns the meta type associated with a given identifier.
- * @param identifier Unique identifier.
- * @return The meta type associated with the given identifier, if any.
- */
-inline meta_type resolve(const ENTT_ID_TYPE identifier) ENTT_NOEXCEPT {
-    return internal::find_if([identifier](auto *node) {
-        return node->identifier == identifier;
-    }, *internal::meta_info<>::global);
-}
-
-
-/**
- * @brief Iterates all the reflected types.
- * @tparam Op Type of the function object to invoke.
- * @param op A valid function object.
- */
-template<typename Op>
-inline eastl::enable_if_t<eastl::is_invocable_v<Op, meta_type>, void>
-resolve(Op op) ENTT_NOEXCEPT {
-    internal::iterate<meta_type>(eastl::move(op), *internal::meta_info<>::global);
+    auto * const node = internal::meta_info<Type>::resolve();
+    // extended meta factory to allow assigning properties to opaque meta types
+    return meta_factory<Type, Type>{&node->prop};
 }
 
 
 }
 
 
-#endif // ENTT_META_FACTORY_HPP
+#endif

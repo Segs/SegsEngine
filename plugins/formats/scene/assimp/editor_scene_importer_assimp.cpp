@@ -511,7 +511,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
 
         Vector<Node3D *> cleanup_template_nodes;
 
-        for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
+        for (const eastl::pair<const aiNode *const, Node3D *> &key_value_pair : state.flat_node_map) {
             const aiNode *assimp_node = key_value_pair.first;
             Node3D *mesh_template = key_value_pair.second;
 
@@ -602,7 +602,7 @@ Node3D *EditorSceneImporterAssimp::_generate_scene(StringView p_path, aiScene *s
 }
 // I really do not like this but need to figure out a better way of removing it later.
 Node *EditorSceneImporterAssimp::get_node_by_name(ImportState &state, StringView name) {
-    for (const eastl::pair<const aiNode *, Node3D *> &key_value_pair : state.flat_node_map) {
+    for (const eastl::pair<const aiNode *const , Node3D *> &key_value_pair : state.flat_node_map) {
         const aiNode *assimp_node = key_value_pair.first;
         Node3D *node = key_value_pair.second;
 

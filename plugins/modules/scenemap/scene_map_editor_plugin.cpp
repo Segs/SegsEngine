@@ -102,7 +102,7 @@ void SceneMapEditor::_notification(int p_what) {
         }*/
     } break;
     default:
-        printf("SceneMapEditor disregarding notification:%d\n", p_what);
+        ; //printf("SceneMapEditor disregarding notification:%d\n", p_what);
 
     }
 }

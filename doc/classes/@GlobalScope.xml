@@ -327,16 +327,16 @@
             Right Direction key.
         </constant>
         <constant name="KEY_BACK" value="16777280" enum="KeyList">
-            Back key.
+            Media back key. Not to be confused with the Back button on an Android device.
         </constant>
         <constant name="KEY_FORWARD" value="16777281" enum="KeyList">
-            Forward key.
+            Media forward key.
         </constant>
         <constant name="KEY_STOP" value="16777282" enum="KeyList">
-            Stop key.
+            Media stop key.
         </constant>
         <constant name="KEY_REFRESH" value="16777283" enum="KeyList">
-            Refresh key.
+            Media refresh key.
         </constant>
         <constant name="KEY_VOLUMEDOWN" value="16777284" enum="KeyList">
             Volume down key.
@@ -923,6 +923,9 @@
         <constant name="BUTTON_MASK_XBUTTON2" value="256" enum="ButtonList">
             Extra mouse button 2 mask.
         </constant>
+        <constant name="JOY_INVALID_OPTION" value="-1" enum="JoystickList">
+            Invalid button or axis.
+        </constant>
         <constant name="JOY_BUTTON_0" value="0" enum="JoystickList">
             Gamepad button 0.
         </constant>
@@ -1424,20 +1427,11 @@
         <constant name="METHOD_FLAG_EDITOR" value="2" enum="MethodFlags">
             Flag for an editor method.
         </constant>
-        <constant name="METHOD_FLAG_NOSCRIPT" value="4" enum="MethodFlags">
-            Deprecated method flag, unused.
-        </constant>
         <constant name="METHOD_FLAG_CONST" value="8" enum="MethodFlags">
             Flag for a constant method.
         </constant>
-        <constant name="METHOD_FLAG_REVERSE" value="16" enum="MethodFlags">
-            Deprecated method flag, unused.
-        </constant>
         <constant name="METHOD_FLAG_VIRTUAL" value="32" enum="MethodFlags">
             Flag for a virtual method.
-        </constant>
-        <constant name="METHOD_FLAG_FROM_SCRIPT" value="64" enum="MethodFlags">
-            Deprecated method flag, unused.
         </constant>
         <constant name="METHOD_FLAGS_DEFAULT" value="1" enum="MethodFlags">
             Default method flags.
@@ -1658,6 +1652,15 @@
         </constant>
         <constant name="COMPRESS_ETC2" value="4" enum="ImageCompressMode">
             Use ETC2 compression.
+        </constant>
+        <constant name="COMPRESS_SOURCE_GENERIC" value="0" enum="ImageCompressSource">
+            Source texture (before compression) is a regular texture. Default for all textures.
+        </constant>
+        <constant name="COMPRESS_SOURCE_SRGB" value="1" enum="ImageCompressSource">
+            Source texture (before compression) is in sRGB space.
+        </constant>
+        <constant name="COMPRESS_SOURCE_NORMAL" value="2" enum="ImageCompressSource">
+            Source texture (before compression) is a normal texture (e.g. it can be compressed into two channels).
         </constant>
 
   </constants>

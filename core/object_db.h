@@ -35,7 +35,7 @@ class ObjectDB {
     friend void unregister_core_types();
     friend void register_core_types();
     friend GODOT_EXPORT ObjectDB &gObjectDB();
-    static ObjectDB *s_instance;
+    GODOT_EXPORT static ObjectDB *s_instance;
 protected:
     ObjectDB()=default;
     ~ObjectDB()=default;

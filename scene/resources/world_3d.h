@@ -39,7 +39,7 @@ class Camera3D;
 class VisibilityNotifier3D;
 struct SpatialIndexer;
 
-class World3D : public Resource {
+class GODOT_EXPORT World3D : public Resource {
     GDCLASS(World3D,Resource)
 
     RES_BASE_EXTENSION("world")

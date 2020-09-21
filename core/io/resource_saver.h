@@ -32,7 +32,7 @@
 
 #include "core/resource.h"
 
-class ResourceFormatSaver : public RefCounted {
+class GODOT_EXPORT ResourceFormatSaver : public RefCounted {
     GDCLASS(ResourceFormatSaver, RefCounted)
 
 protected:

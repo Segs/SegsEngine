@@ -42,7 +42,7 @@
 
 class ProgressBar;
 
-class AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
+class GODOT_EXPORT AnimationNodeBlendTreeEditor : public AnimationTreeNodeEditorPlugin {
 
     GDCLASS(AnimationNodeBlendTreeEditor,AnimationTreeNodeEditorPlugin)
     struct AddOption {

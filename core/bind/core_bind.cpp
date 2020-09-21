@@ -319,6 +319,15 @@ int _OS::get_screen_dpi(int p_screen) const {
     return OS::get_singleton()->get_screen_dpi(p_screen);
 }
 
+float _OS::get_screen_scale(int p_screen) const {
+    return OS::get_singleton()->get_screen_scale(p_screen);
+}
+
+float _OS::get_screen_max_scale() const {
+    return OS::get_singleton()->get_screen_max_scale();
+}
+
+
 Point2 _OS::get_window_position() const {
     return OS::get_singleton()->get_window_position();
 }
@@ -824,7 +833,7 @@ Dictionary _OS::get_datetime_from_unix_time(int64_t unix_time_val) const {
     } else {
         dayno = (unix_time_val - SECS_DAY + 1) / SECS_DAY;
         dayclock = unix_time_val - dayno * SECS_DAY;
-        date.weekday = static_cast<OS::Weekday>((dayno - 3) % 7 + 7);
+        date.weekday = static_cast<OS::Weekday>(((dayno % 7) + 11) % 7);
         do {
             year--;
             dayno += YEARSIZE(year);
@@ -1179,6 +1188,9 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_screen_position", {"screen"}), &_OS::get_screen_position, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_size", {"screen"}), &_OS::get_screen_size, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_dpi", {"screen"}), &_OS::get_screen_dpi, {DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("get_screen_scale", {"screen"}), &_OS::get_screen_scale, DEFVAL(-1));
+    MethodBinder::bind_method(D_METHOD("get_screen_max_scale"), &_OS::get_screen_max_scale);
+
     MethodBinder::bind_method(D_METHOD("get_window_position"), &_OS::get_window_position);
     MethodBinder::bind_method(D_METHOD("set_window_position", {"position"}), &_OS::set_window_position);
     MethodBinder::bind_method(D_METHOD("get_window_size"), &_OS::get_window_size);
@@ -1372,46 +1384,47 @@ void _OS::_bind_methods() {
     ADD_PROPERTY_DEFAULT("window_position", Vector2());
     ADD_PROPERTY_DEFAULT("window_size", Vector2());
 
-    BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES3)
-    BIND_ENUM_CONSTANT(VIDEO_DRIVER_VULKAN)
+    BIND_ENUM_CONSTANT(VIDEO_DRIVER_GLES3);
+    BIND_ENUM_CONSTANT(VIDEO_DRIVER_VULKAN);
 
-    BIND_ENUM_CONSTANT(DAY_SUNDAY)
-    BIND_ENUM_CONSTANT(DAY_MONDAY)
-    BIND_ENUM_CONSTANT(DAY_TUESDAY)
-    BIND_ENUM_CONSTANT(DAY_WEDNESDAY)
-    BIND_ENUM_CONSTANT(DAY_THURSDAY)
-    BIND_ENUM_CONSTANT(DAY_FRIDAY)
-    BIND_ENUM_CONSTANT(DAY_SATURDAY)
+    BIND_ENUM_CONSTANT(DAY_SUNDAY);
+    BIND_ENUM_CONSTANT(DAY_MONDAY);
+    BIND_ENUM_CONSTANT(DAY_TUESDAY);
+    BIND_ENUM_CONSTANT(DAY_WEDNESDAY);
+    BIND_ENUM_CONSTANT(DAY_THURSDAY);
+    BIND_ENUM_CONSTANT(DAY_FRIDAY);
+    BIND_ENUM_CONSTANT(DAY_SATURDAY);
 
-    BIND_ENUM_CONSTANT(MONTH_JANUARY)
-    BIND_ENUM_CONSTANT(MONTH_FEBRUARY)
-    BIND_ENUM_CONSTANT(MONTH_MARCH)
-    BIND_ENUM_CONSTANT(MONTH_APRIL)
-    BIND_ENUM_CONSTANT(MONTH_MAY)
-    BIND_ENUM_CONSTANT(MONTH_JUNE)
-    BIND_ENUM_CONSTANT(MONTH_JULY)
-    BIND_ENUM_CONSTANT(MONTH_AUGUST)
-    BIND_ENUM_CONSTANT(MONTH_SEPTEMBER)
-    BIND_ENUM_CONSTANT(MONTH_OCTOBER)
-    BIND_ENUM_CONSTANT(MONTH_NOVEMBER)
-    BIND_ENUM_CONSTANT(MONTH_DECEMBER)
+    REGISTER_ENUM(Month,uint8_t);
+    BIND_ENUM_CONSTANT(MONTH_JANUARY);
+    BIND_ENUM_CONSTANT(MONTH_FEBRUARY);
+    BIND_ENUM_CONSTANT(MONTH_MARCH);
+    BIND_ENUM_CONSTANT(MONTH_APRIL);
+    BIND_ENUM_CONSTANT(MONTH_MAY);
+    BIND_ENUM_CONSTANT(MONTH_JUNE);
+    BIND_ENUM_CONSTANT(MONTH_JULY);
+    BIND_ENUM_CONSTANT(MONTH_AUGUST);
+    BIND_ENUM_CONSTANT(MONTH_SEPTEMBER);
+    BIND_ENUM_CONSTANT(MONTH_OCTOBER);
+    BIND_ENUM_CONSTANT(MONTH_NOVEMBER);
+    BIND_ENUM_CONSTANT(MONTH_DECEMBER);
 
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_LANDSCAPE)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_PORTRAIT)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_REVERSE_PORTRAIT)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR_PORTRAIT)
-    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR)
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_LANDSCAPE);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_PORTRAIT);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+    BIND_ENUM_CONSTANT(SCREEN_ORIENTATION_SENSOR);
 
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_DESKTOP)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_DCIM)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_DOCUMENTS)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_DOWNLOADS)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_MOVIES)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_MUSIC)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_PICTURES)
-    BIND_ENUM_CONSTANT(SYSTEM_DIR_RINGTONES)
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_DESKTOP);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_DCIM);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_DOCUMENTS);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_DOWNLOADS);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_MOVIES);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_MUSIC);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_PICTURES);
+    BIND_ENUM_CONSTANT(SYSTEM_DIR_RINGTONES);
 
 }
 

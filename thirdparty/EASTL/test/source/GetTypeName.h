@@ -33,7 +33,7 @@
 	#include <cxxabi.h>
 #elif EA_WINAPI_FAMILY_PARTITION(EA_WINAPI_PARTITION_DESKTOP)
 	EA_DISABLE_ALL_VC_WARNINGS();
-	#include <Windows.h>
+	#include <windows.h>
 	#include <DbgHelp.h>
 	#pragma comment(lib, "dbghelp.lib")
 	EA_RESTORE_ALL_VC_WARNINGS();

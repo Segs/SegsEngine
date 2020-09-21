@@ -35,7 +35,7 @@
 #include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 
-class ReflectionProbe : public VisualInstance3D {
+class GODOT_EXPORT ReflectionProbe : public VisualInstance3D {
     GDCLASS(ReflectionProbe,VisualInstance3D)
 
 public:

@@ -33,7 +33,7 @@
 
 #include "scene/2d/node_2d.h"
 
-class ParallaxLayer : public Node2D {
+class GODOT_EXPORT ParallaxLayer : public Node2D {
 
 	GDCLASS(ParallaxLayer,Node2D)
 

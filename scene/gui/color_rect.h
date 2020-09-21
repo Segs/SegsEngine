@@ -33,7 +33,7 @@
 
 #include "scene/gui/control.h"
 
-class ColorRect : public Control {
+class GODOT_EXPORT ColorRect : public Control {
 	GDCLASS(ColorRect,Control)
 
 	Color color;

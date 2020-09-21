@@ -30,8 +30,6 @@
 
 #include "nodepath_glue.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/ustring.h"
 
 NodePath *godot_icall_NodePath_Ctor(MonoString *p_path) {
@@ -92,5 +90,3 @@ void godot_register_nodepath_icalls() {
 	mono_add_internal_call("Godot.NodePath::godot_icall_NodePath_is_absolute", (void *)godot_icall_NodePath_is_absolute);
 	mono_add_internal_call("Godot.NodePath::godot_icall_NodePath_is_empty", (void *)godot_icall_NodePath_is_empty);
 }
-
-#endif // MONO_GLUE_ENABLED

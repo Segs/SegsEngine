@@ -44,7 +44,7 @@ class Font;
 class World2D;
 class StyleBox;
 
-class CanvasItemMaterial : public Material {
+class GODOT_EXPORT CanvasItemMaterial : public Material {
 
     GDCLASS(CanvasItemMaterial,Material)
 
@@ -208,11 +208,11 @@ private:
     mutable Transform2D global_transform;
     mutable bool global_invalid;
     static CanvasItem *current_item_drawn;
-
+public:
     /*Q_INVOKABLE*/ void _toplevel_raise_self();
     /*Q_INVOKABLE*/ void _propagate_visibility_changed(bool p_visible);
     /*Q_INVOKABLE*/ void _update_callback();
-
+private:
     void _enter_canvas();
     void _exit_canvas();
 

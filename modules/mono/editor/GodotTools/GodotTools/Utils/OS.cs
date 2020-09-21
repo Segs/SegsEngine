@@ -47,27 +47,23 @@ namespace GodotTools.Utils
             return name.Equals(GetPlatformName(), StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool IsAnyOS(IEnumerable<string> names)
+        {
+            return names.Any(p => p.Equals(GetPlatformName(), StringComparison.OrdinalIgnoreCase));
+        }
+
         private static readonly Lazy<bool> _isWindows = new Lazy<bool>(() => IsOS(Names.Windows));
         private static readonly Lazy<bool> _isOSX = new Lazy<bool>(() => IsOS(Names.OSX));
         private static readonly Lazy<bool> _isX11 = new Lazy<bool>(() => IsOS(Names.X11));
         private static readonly Lazy<bool> _isServer = new Lazy<bool>(() => IsOS(Names.Server));
+        private static readonly Lazy<bool> _isUnixLike = new Lazy<bool>(() => IsAnyOS(UnixLikePlatforms));
 
         public static bool IsWindows => _isWindows.Value;
         public static bool IsOSX => _isOSX.Value;
         public static bool IsX11 => _isX11.Value;
         public static bool IsServer => _isServer.Value;
-        private static bool? _isUnixCache;
-        private static readonly string[] UnixLikePlatforms = { Names.OSX, Names.X11, Names.Server};
-
-        public static bool IsUnixLike()
-        {
-            if (_isUnixCache.HasValue)
-                return _isUnixCache.Value;
-
-            string osName = GetPlatformName();
-            _isUnixCache = UnixLikePlatforms.Any(p => p.Equals(osName, StringComparison.OrdinalIgnoreCase));
-            return _isUnixCache.Value;
-        }
+        private static readonly string[] UnixLikePlatforms = {Names.OSX, Names.X11, Names.Server};
+        public static bool IsUnixLike => _isUnixLike.Value;
 
         public static char PathSep => IsWindows ? ';' : ':';
 

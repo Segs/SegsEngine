@@ -5,7 +5,7 @@
     </brief_description>
     <description>
         Native image datatype. Contains image data, which can be converted to a [Texture], and several functions to interact with it. The maximum width and height for an [Image] are [constant MAX_WIDTH] and [constant MAX_HEIGHT].
-		[b]Note:[/b] The maximum image size is 16384×16384 pixels due to graphics hardware limitations. Larger images will fail to import.
+        [b]Note:[/b] The maximum image size is 16384Ã—16384 pixels due to graphics hardware limitations. Larger images will fail to import.
     </description>
     <tutorials>
     </tutorials>
@@ -220,7 +220,7 @@
             <return type="PoolByteArray">
             </return>
             <description>
-                Returns the image's raw data.
+            Returns a copy of the image's raw data.
             </description>
         </method>
         <method name="get_format" qualifiers="const">
@@ -330,7 +330,7 @@
             <argument index="0" name="path" type="String">
             </argument>
             <description>
-				Loads an image from file [code]path[/code]. See [url=https://docs.godotengine.org/en/latest/getting_started/workflow/assets/importing_images.html#supported-image-formats]Supported image formats[/url] for a list of supported image formats and limitations.
+                Loads an image from file [code]path[/code]. See [url=https://docs.godotengine.org/en/latest/getting_started/workflow/assets/importing_images.html#supported-image-formats]Supported image formats[/url] for a list of supported image formats and limitations.
             </description>
         </method>
         <method name="load_jpg_from_buffer">
@@ -655,15 +655,6 @@
         </constant>
         <constant name="ALPHA_BLEND" value="2" enum="AlphaMode">
             Image uses alpha.
-        </constant>
-        <constant name="COMPRESS_SOURCE_GENERIC" value="0" enum="ImageCompressSource">
-            Source texture (before compression) is a regular texture. Default for all textures.
-        </constant>
-        <constant name="COMPRESS_SOURCE_SRGB" value="1" enum="ImageCompressSource">
-            Source texture (before compression) is in sRGB space.
-        </constant>
-        <constant name="COMPRESS_SOURCE_NORMAL" value="2" enum="ImageCompressSource">
-            Source texture (before compression) is a normal texture (e.g. it can be compressed into two channels).
         </constant>
     </constants>
 </class>

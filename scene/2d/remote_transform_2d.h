@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "core/node_path.h"
 
-class RemoteTransform2D : public Node2D {
+class GODOT_EXPORT RemoteTransform2D : public Node2D {
 
 	GDCLASS(RemoteTransform2D,Node2D)
 

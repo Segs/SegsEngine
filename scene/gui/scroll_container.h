@@ -34,7 +34,7 @@
 
 #include "scene/gui/scroll_bar.h"
 
-class ScrollContainer : public Container {
+class GODOT_EXPORT ScrollContainer : public Container {
 
     GDCLASS(ScrollContainer,Container)
 

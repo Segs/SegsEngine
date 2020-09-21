@@ -34,7 +34,7 @@
 #include "scene/gui/button.h"
 #include "scene/gui/popup_menu.h"
 
-class OptionButton : public Button {
+class GODOT_EXPORT OptionButton : public Button {
 
     GDCLASS(OptionButton,Button)
 

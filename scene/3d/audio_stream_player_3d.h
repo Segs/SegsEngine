@@ -38,7 +38,7 @@
 #include "servers/audio_server.h"
 
 class Camera3D;
-class AudioStreamPlayer3D : public Node3D {
+class GODOT_EXPORT AudioStreamPlayer3D : public Node3D {
 
 	GDCLASS(AudioStreamPlayer3D,Node3D)
 

@@ -56,7 +56,7 @@
 
 class EditorNode;
 
-class FileSystemDock : public VBoxContainer {
+class GODOT_EXPORT FileSystemDock : public VBoxContainer {
     GDCLASS(FileSystemDock,VBoxContainer)
 
 public:

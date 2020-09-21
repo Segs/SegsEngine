@@ -37,7 +37,7 @@
 extern "C" {
 struct UPNPDev;
 }
-class UPNP : public RefCounted {
+class GODOT_EXPORT UPNP : public RefCounted {
 
     GDCLASS(UPNP,RefCounted)
 

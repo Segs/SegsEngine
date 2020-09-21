@@ -36,7 +36,7 @@
 #include "core/io/stream_peer.h"
 #include "core/io/stream_peer_tcp.h"
 
-class TCP_Server : public RefCounted {
+class GODOT_EXPORT TCP_Server : public RefCounted {
 
     GDCLASS(TCP_Server,RefCounted)
 

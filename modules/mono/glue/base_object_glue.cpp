@@ -32,8 +32,6 @@
 
 #include "core/debugger/script_debugger.h"
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/reference.h"
 #include "core/string_name.h"
 #include "core/object_db.h"
@@ -255,5 +253,3 @@ void godot_register_object_icalls() {
     mono_add_internal_call("Godot.DynamicGodotObject::godot_icall_DynamicGodotObject_GetMember", (void *)godot_icall_DynamicGodotObject_GetMember);
     mono_add_internal_call("Godot.DynamicGodotObject::godot_icall_DynamicGodotObject_SetMember", (void *)godot_icall_DynamicGodotObject_SetMember);
 }
-
-#endif // MONO_GLUE_ENABLED

@@ -33,7 +33,7 @@
 
 #include "visual_script.h"
 
-class VisualScriptYield : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptYield : public VisualScriptNode {
 
     GDCLASS(VisualScriptYield,VisualScriptNode)
 
@@ -82,7 +82,7 @@ public:
     VisualScriptYield();
 };
 
-class VisualScriptYieldSignal : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptYieldSignal : public VisualScriptNode {
 
     GDCLASS(VisualScriptYieldSignal,VisualScriptNode)
 

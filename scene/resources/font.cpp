@@ -523,7 +523,7 @@ Size2 Font::get_string_size(StringView p_string) const {
     Size2 res(0, get_height());
     QString a(QString::fromUtf8(p_string.data(),p_string.size()));
     a.push_back(QChar(0)); // sentinel 0
-    int l = p_string.length();
+    int l = a.length();
     for (int i = 0; i < l; i++) {
         CharType next_char = (i+1)<l ? a[i+1] : CharType(0);
         res.x += get_char_size(a[i], next_char).width;

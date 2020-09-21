@@ -35,7 +35,7 @@
 
 namespace SignalAwaiterUtils {
 
-Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter);
+GODOT_EXPORT Error connect_signal_awaiter(Object *p_source, const String &p_signal, Object *p_target, MonoObject *p_awaiter);
 }
 
 class GODOT_EXPORT SignalAwaiterHandle : public MonoGCHandle {

@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/math/vector3.h"
 
-class ConcavePolygonShape3D : public Shape {
+class GODOT_EXPORT ConcavePolygonShape3D : public Shape {
 
     GDCLASS(ConcavePolygonShape3D,Shape)
 

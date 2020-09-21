@@ -1013,6 +1013,9 @@ static void add_key_event(Array &tgt,KeyList entry) {
 
 }
 ProjectSettings::ProjectSettings() {
+    // Initialization of engine variables should be done in the setup() method,
+    // so that the values can be overridden from project.godot or project.binary.
+
     __thread__safe__.reset(new Mutex);
 
     singleton = this;

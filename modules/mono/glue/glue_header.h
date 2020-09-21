@@ -27,28 +27,13 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
-#ifdef MONO_GLUE_ENABLED
-
+#pragma once
 #include "base_object_glue.h"
 #include "collections_glue.h"
 #include "gd_glue.h"
 #include "nodepath_glue.h"
 #include "rid_glue.h"
 #include "string_glue.h"
-
-/**
- * Registers internal calls that were not generated. This function is called
- * from the generated GodotSharpBindings::register_generated_icalls() function.
- */
-void godot_register_glue_header_icalls() {
-	godot_register_collections_icalls();
-	godot_register_gd_icalls();
-	godot_register_nodepath_icalls();
-	godot_register_object_icalls();
-	godot_register_rid_icalls();
-	godot_register_string_icalls();
-}
 
 // Used by the generated glue
 
@@ -68,12 +53,10 @@ void godot_register_glue_header_icalls() {
 #include "../mono_gd/gd_mono_utils.h"
 
 #define GODOTSHARP_INSTANCE_OBJECT(m_instance, m_type) \
-	static ClassDB::ClassInfo *ci = NULL;              \
-	if (!ci) {                                         \
+    static ClassDB::ClassInfo *ci = NULL;              \
+    if (!ci) {                                         \
         ci = &ClassDB::classes.find(m_type)->second;    \
-	}                                                  \
-	Object *m_instance = ci->creation_func();
+    }                                                  \
+    Object *m_instance = ci->creation_func();
 
 #include "arguments_vector.h"
-
-#endif // MONO_GLUE_ENABLED

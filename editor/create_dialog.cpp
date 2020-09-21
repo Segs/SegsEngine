@@ -32,6 +32,7 @@
 #include "editor_feature_profile.h"
 
 #include "core/class_db.h"
+#include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/string_formatter.h"
@@ -259,7 +260,7 @@ void CreateDialog::add_type(
         item->set_collapsed(collapse);
     }
 
-    const String &description = EditorHelp::get_doc_data()->class_list[p_type].brief_description;
+    const String &description = EditorHelp::get_doc_data()->class_doc(p_type).brief_description;
     item->set_tooltip(0, StringName(description));
 
     item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_type, base_type));
@@ -559,9 +560,9 @@ void CreateDialog::_item_selected() {
     favorite->set_disabled(false);
     favorite->set_pressed(favorite_list.contains(String(name)));
 
-    if (!EditorHelp::get_doc_data()->class_list.contains(name)) return;
+    if (!EditorHelp::get_doc_data()->class_list.contains(name.asCString())) return;
 
-    help_bit->set_text(EditorHelp::get_doc_data()->class_list[name].brief_description);
+    help_bit->set_text(EditorHelp::get_doc_data()->class_list[name.asCString()].brief_description);
 
     get_ok()->set_disabled(false);
 }

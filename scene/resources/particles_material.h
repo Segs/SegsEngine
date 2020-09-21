@@ -36,12 +36,12 @@
 class CurveTexture;
 class GradientTexture;
 
-class ParticlesMaterial : public Material {
+class GODOT_EXPORT ParticlesMaterial : public Material {
 
     GDCLASS(ParticlesMaterial,Material)
 
 public:
-    enum Parameter {
+    enum Parameter : uint8_t {
 
         PARAM_INITIAL_LINEAR_VELOCITY=0,
         PARAM_ANGULAR_VELOCITY,

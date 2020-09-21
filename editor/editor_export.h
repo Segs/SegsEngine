@@ -246,7 +246,7 @@ public:
     EditorExportPlatform();
 };
 
-class EditorExportPlugin : public RefCounted {
+class GODOT_EXPORT EditorExportPlugin : public RefCounted {
     GDCLASS(EditorExportPlugin,RefCounted)
 
     friend class EditorExportPlatform;
@@ -294,7 +294,7 @@ public:
     EditorExportPlugin();
 };
 
-class EditorExport : public Node {
+class GODOT_EXPORT EditorExport : public Node {
     GDCLASS(EditorExport,Node)
 
     Vector<Ref<EditorExportPlatform> > export_platforms;

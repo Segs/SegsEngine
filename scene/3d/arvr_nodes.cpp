@@ -340,7 +340,7 @@ real_t ARVRController::get_rumble() const {
     return tracker->get_rumble();
 };
 
-void ARVRController::set_rumble(real_t p_rumble) {
+void ARVRController::set_rumble(float p_rumble) {
     // get our ARVRServer
     ARVRServer *arvr_server = ARVRServer::get_singleton();
     ERR_FAIL_NULL(arvr_server);

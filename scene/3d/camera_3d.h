@@ -176,7 +176,7 @@ public:
     ~Camera3D() override;
 };
 
-class ClippedCamera3D : public Camera3D {
+class GODOT_EXPORT ClippedCamera3D : public Camera3D {
 
     GDCLASS(ClippedCamera3D,Camera3D)
 

@@ -34,7 +34,7 @@
 #include "core/reference.h"
 #include "editor_plugin.h"
 class EditorNode;
-class EditorScript : public RefCounted {
+class GODOT_EXPORT EditorScript : public RefCounted {
 
 	GDCLASS(EditorScript,RefCounted)
 

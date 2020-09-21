@@ -38,7 +38,7 @@
 //heh heh, godotsphir!! this shares no code and the design is completely different with previous projects i've done..
 //should scale better with hardware that supports instancing
 
-class GridMap : public Node3D {
+class GODOT_EXPORT GridMap : public Node3D {
 
     GDCLASS(GridMap,Node3D)
 

@@ -876,8 +876,8 @@ void SpatialMaterial::_update_shader() {
     if (flags[FLAG_ALBEDO_FROM_VERTEX_COLOR]) {
         code += "\talbedo_tex *= COLOR;\n";
     }
-
     code += "\tALBEDO = albedo.rgb * albedo_tex.rgb;\n";
+
     if (textures[TEXTURE_METALLIC] != nullptr) {
         if (flags[FLAG_UV1_USE_TRIPLANAR]) {
             code += "\tfloat metallic_tex = dot(triplanar_texture(texture_metallic,uv1_power_normal,uv1_triplanar_pos),metallic_texture_channel);\n";
@@ -1908,6 +1908,8 @@ RID SpatialMaterial::get_material_rid_for_2d(bool p_shaded, bool p_transparent, 
     }
 
     materials_for_2d[version] = material;
+    // flush before using so we can access the shader right away
+    flush_changes();
 
     return materials_for_2d[version]->get_rid();
 }
@@ -2210,19 +2212,19 @@ void SpatialMaterial::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "albedo_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_ALBEDO);
 
     ADD_GROUP("Metallic", "metallic_");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "metallic", PropertyHint::Range, "0,1,0.01"), "set_metallic", "get_metallic");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "metallic_value", PropertyHint::Range, "0,1,0.01"), "set_metallic", "get_metallic");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "metallic_specular", PropertyHint::Range, "0,1,0.01"), "set_specular", "get_specular");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "metallic_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_METALLIC);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "metallic_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_metallic_texture_channel", "get_metallic_texture_channel");
 
     ADD_GROUP("Roughness", "roughness_");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "roughness", PropertyHint::Range, "0,1,0.01"), "set_roughness", "get_roughness");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "roughness_value", PropertyHint::Range, "0,1,0.01"), "set_roughness", "get_roughness");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "roughness_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_ROUGHNESS);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "roughness_texture_channel", PropertyHint::Enum, "Red,Green,Blue,Alpha,Gray"), "set_roughness_texture_channel", "get_roughness_texture_channel");
 
     ADD_GROUP("Emission", "emission_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "emission_enabled"), "set_feature", "get_feature", FEATURE_EMISSION);
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "emission", PropertyHint::ColorNoAlpha), "set_emission", "get_emission");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "emission_color", PropertyHint::ColorNoAlpha), "set_emission", "get_emission");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_energy", PropertyHint::Range, "0,16,0.01,or_greater"), "set_emission_energy", "get_emission_energy");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_operator", PropertyHint::Enum, "Add,Multiply"), "set_emission_operator", "get_emission_operator");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "emission_on_uv2"), "set_flag", "get_flag", FLAG_EMISSION_ON_UV2);
@@ -2235,19 +2237,19 @@ void SpatialMaterial::_bind_methods() {
 
     ADD_GROUP("Rim", "rim_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "rim_enabled"), "set_feature", "get_feature", FEATURE_RIM);
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rim", PropertyHint::Range, "0,1,0.01"), "set_rim", "get_rim");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rim_value", PropertyHint::Range, "0,1,0.01"), "set_rim", "get_rim");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "rim_tint", PropertyHint::Range, "0,1,0.01"), "set_rim_tint", "get_rim_tint");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "rim_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_RIM);
 
     ADD_GROUP("Clearcoat", "clearcoat_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "clearcoat_enabled"), "set_feature", "get_feature", FEATURE_CLEARCOAT);
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "clearcoat", PropertyHint::Range, "0,1,0.01"), "set_clearcoat", "get_clearcoat");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "clearcoat_value", PropertyHint::Range, "0,1,0.01"), "set_clearcoat", "get_clearcoat");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "clearcoat_gloss", PropertyHint::Range, "0,1,0.01"), "set_clearcoat_gloss", "get_clearcoat_gloss");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "clearcoat_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_CLEARCOAT);
 
     ADD_GROUP("Anisotropy", "anisotropy_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "anisotropy_enabled"), "set_feature", "get_feature", FEATURE_ANISOTROPY);
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "anisotropy", PropertyHint::Range, "-1,1,0.01"), "set_anisotropy", "get_anisotropy");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "anisotropy_value", PropertyHint::Range, "-1,1,0.01"), "set_anisotropy", "get_anisotropy");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "anisotropy_flowmap", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_FLOWMAP);
 
     ADD_GROUP("Ambient Occlusion", "ao_");
@@ -2274,7 +2276,7 @@ void SpatialMaterial::_bind_methods() {
 
     ADD_GROUP("Transmission", "transmission_");
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "transmission_enabled"), "set_feature", "get_feature", FEATURE_TRANSMISSION);
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "transmission", PropertyHint::ColorNoAlpha), "set_transmission", "get_transmission");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "transmission_color", PropertyHint::ColorNoAlpha), "set_transmission", "get_transmission");
     ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, "transmission_texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture", TEXTURE_TRANSMISSION);
 
     ADD_GROUP("Refraction", "refraction_");
@@ -2311,106 +2313,106 @@ void SpatialMaterial::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "distance_fade_min_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_min_distance", "get_distance_fade_min_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "distance_fade_max_distance", PropertyHint::Range, "0,4096,0.01"), "set_distance_fade_max_distance", "get_distance_fade_max_distance");
 
-    BIND_ENUM_CONSTANT(TEXTURE_ALBEDO)
-    BIND_ENUM_CONSTANT(TEXTURE_METALLIC)
-    BIND_ENUM_CONSTANT(TEXTURE_ROUGHNESS)
-    BIND_ENUM_CONSTANT(TEXTURE_EMISSION)
-    BIND_ENUM_CONSTANT(TEXTURE_NORMAL)
-    BIND_ENUM_CONSTANT(TEXTURE_RIM)
-    BIND_ENUM_CONSTANT(TEXTURE_CLEARCOAT)
-    BIND_ENUM_CONSTANT(TEXTURE_FLOWMAP)
-    BIND_ENUM_CONSTANT(TEXTURE_AMBIENT_OCCLUSION)
-    BIND_ENUM_CONSTANT(TEXTURE_DEPTH)
-    BIND_ENUM_CONSTANT(TEXTURE_SUBSURFACE_SCATTERING)
-    BIND_ENUM_CONSTANT(TEXTURE_TRANSMISSION)
-    BIND_ENUM_CONSTANT(TEXTURE_REFRACTION)
-    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_MASK)
-    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_ALBEDO)
-    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_NORMAL)
-    BIND_ENUM_CONSTANT(TEXTURE_MAX)
+    BIND_ENUM_CONSTANT(TEXTURE_ALBEDO);
+    BIND_ENUM_CONSTANT(TEXTURE_METALLIC);
+    BIND_ENUM_CONSTANT(TEXTURE_ROUGHNESS);
+    BIND_ENUM_CONSTANT(TEXTURE_EMISSION);
+    BIND_ENUM_CONSTANT(TEXTURE_NORMAL);
+    BIND_ENUM_CONSTANT(TEXTURE_RIM);
+    BIND_ENUM_CONSTANT(TEXTURE_CLEARCOAT);
+    BIND_ENUM_CONSTANT(TEXTURE_FLOWMAP);
+    BIND_ENUM_CONSTANT(TEXTURE_AMBIENT_OCCLUSION);
+    BIND_ENUM_CONSTANT(TEXTURE_DEPTH);
+    BIND_ENUM_CONSTANT(TEXTURE_SUBSURFACE_SCATTERING);
+    BIND_ENUM_CONSTANT(TEXTURE_TRANSMISSION);
+    BIND_ENUM_CONSTANT(TEXTURE_REFRACTION);
+    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_MASK);
+    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_ALBEDO);
+    BIND_ENUM_CONSTANT(TEXTURE_DETAIL_NORMAL);
+    BIND_ENUM_CONSTANT(TEXTURE_MAX);
 
-    BIND_ENUM_CONSTANT(DETAIL_UV_1)
-    BIND_ENUM_CONSTANT(DETAIL_UV_2)
+    BIND_ENUM_CONSTANT(DETAIL_UV_1);
+    BIND_ENUM_CONSTANT(DETAIL_UV_2);
 
-    BIND_ENUM_CONSTANT(FEATURE_TRANSPARENT)
-    BIND_ENUM_CONSTANT(FEATURE_EMISSION)
-    BIND_ENUM_CONSTANT(FEATURE_NORMAL_MAPPING)
-    BIND_ENUM_CONSTANT(FEATURE_RIM)
-    BIND_ENUM_CONSTANT(FEATURE_CLEARCOAT)
-    BIND_ENUM_CONSTANT(FEATURE_ANISOTROPY)
-    BIND_ENUM_CONSTANT(FEATURE_AMBIENT_OCCLUSION)
-    BIND_ENUM_CONSTANT(FEATURE_DEPTH_MAPPING)
-    BIND_ENUM_CONSTANT(FEATURE_SUBSURACE_SCATTERING)
-    BIND_ENUM_CONSTANT(FEATURE_TRANSMISSION)
-    BIND_ENUM_CONSTANT(FEATURE_REFRACTION)
-    BIND_ENUM_CONSTANT(FEATURE_DETAIL)
-    BIND_ENUM_CONSTANT(FEATURE_MAX)
+    BIND_ENUM_CONSTANT(FEATURE_TRANSPARENT);
+    BIND_ENUM_CONSTANT(FEATURE_EMISSION);
+    BIND_ENUM_CONSTANT(FEATURE_NORMAL_MAPPING);
+    BIND_ENUM_CONSTANT(FEATURE_RIM);
+    BIND_ENUM_CONSTANT(FEATURE_CLEARCOAT);
+    BIND_ENUM_CONSTANT(FEATURE_ANISOTROPY);
+    BIND_ENUM_CONSTANT(FEATURE_AMBIENT_OCCLUSION);
+    BIND_ENUM_CONSTANT(FEATURE_DEPTH_MAPPING);
+    BIND_ENUM_CONSTANT(FEATURE_SUBSURACE_SCATTERING);
+    BIND_ENUM_CONSTANT(FEATURE_TRANSMISSION);
+    BIND_ENUM_CONSTANT(FEATURE_REFRACTION);
+    BIND_ENUM_CONSTANT(FEATURE_DETAIL);
+    BIND_ENUM_CONSTANT(FEATURE_MAX);
 
-    BIND_ENUM_CONSTANT(BLEND_MODE_MIX)
-    BIND_ENUM_CONSTANT(BLEND_MODE_ADD)
-    BIND_ENUM_CONSTANT(BLEND_MODE_SUB)
-    BIND_ENUM_CONSTANT(BLEND_MODE_MUL)
+    BIND_ENUM_CONSTANT(BLEND_MODE_MIX);
+    BIND_ENUM_CONSTANT(BLEND_MODE_ADD);
+    BIND_ENUM_CONSTANT(BLEND_MODE_SUB);
+    BIND_ENUM_CONSTANT(BLEND_MODE_MUL);
 
-    BIND_ENUM_CONSTANT(DEPTH_DRAW_OPAQUE_ONLY)
-    BIND_ENUM_CONSTANT(DEPTH_DRAW_ALWAYS)
-    BIND_ENUM_CONSTANT(DEPTH_DRAW_DISABLED)
-    BIND_ENUM_CONSTANT(DEPTH_DRAW_ALPHA_OPAQUE_PREPASS)
+    BIND_ENUM_CONSTANT(DEPTH_DRAW_OPAQUE_ONLY);
+    BIND_ENUM_CONSTANT(DEPTH_DRAW_ALWAYS);
+    BIND_ENUM_CONSTANT(DEPTH_DRAW_DISABLED);
+    BIND_ENUM_CONSTANT(DEPTH_DRAW_ALPHA_OPAQUE_PREPASS);
 
-    BIND_ENUM_CONSTANT(CULL_BACK)
-    BIND_ENUM_CONSTANT(CULL_FRONT)
-    BIND_ENUM_CONSTANT(CULL_DISABLED)
+    BIND_ENUM_CONSTANT(CULL_BACK);
+    BIND_ENUM_CONSTANT(CULL_FRONT);
+    BIND_ENUM_CONSTANT(CULL_DISABLED);
 
-    BIND_ENUM_CONSTANT(FLAG_UNSHADED)
-    BIND_ENUM_CONSTANT(FLAG_USE_VERTEX_LIGHTING)
-    BIND_ENUM_CONSTANT(FLAG_DISABLE_DEPTH_TEST)
-    BIND_ENUM_CONSTANT(FLAG_ALBEDO_FROM_VERTEX_COLOR)
-    BIND_ENUM_CONSTANT(FLAG_SRGB_VERTEX_COLOR)
-    BIND_ENUM_CONSTANT(FLAG_USE_POINT_SIZE)
-    BIND_ENUM_CONSTANT(FLAG_FIXED_SIZE)
-    BIND_ENUM_CONSTANT(FLAG_BILLBOARD_KEEP_SCALE)
-    BIND_ENUM_CONSTANT(FLAG_UV1_USE_TRIPLANAR)
-    BIND_ENUM_CONSTANT(FLAG_UV2_USE_TRIPLANAR)
-    BIND_ENUM_CONSTANT(FLAG_AO_ON_UV2)
-    BIND_ENUM_CONSTANT(FLAG_EMISSION_ON_UV2)
-    BIND_ENUM_CONSTANT(FLAG_USE_ALPHA_SCISSOR)
-    BIND_ENUM_CONSTANT(FLAG_TRIPLANAR_USE_WORLD)
-    BIND_ENUM_CONSTANT(FLAG_ALBEDO_TEXTURE_FORCE_SRGB)
-    BIND_ENUM_CONSTANT(FLAG_DONT_RECEIVE_SHADOWS)
-    BIND_ENUM_CONSTANT(FLAG_DISABLE_AMBIENT_LIGHT)
-    BIND_ENUM_CONSTANT(FLAG_ENSURE_CORRECT_NORMALS)
-    BIND_ENUM_CONSTANT(FLAG_USE_SHADOW_TO_OPACITY)
-    BIND_ENUM_CONSTANT(FLAG_MAX)
+    BIND_ENUM_CONSTANT(FLAG_UNSHADED);
+    BIND_ENUM_CONSTANT(FLAG_USE_VERTEX_LIGHTING);
+    BIND_ENUM_CONSTANT(FLAG_DISABLE_DEPTH_TEST);
+    BIND_ENUM_CONSTANT(FLAG_ALBEDO_FROM_VERTEX_COLOR);
+    BIND_ENUM_CONSTANT(FLAG_SRGB_VERTEX_COLOR);
+    BIND_ENUM_CONSTANT(FLAG_USE_POINT_SIZE);
+    BIND_ENUM_CONSTANT(FLAG_FIXED_SIZE);
+    BIND_ENUM_CONSTANT(FLAG_BILLBOARD_KEEP_SCALE);
+    BIND_ENUM_CONSTANT(FLAG_UV1_USE_TRIPLANAR);
+    BIND_ENUM_CONSTANT(FLAG_UV2_USE_TRIPLANAR);
+    BIND_ENUM_CONSTANT(FLAG_AO_ON_UV2);
+    BIND_ENUM_CONSTANT(FLAG_EMISSION_ON_UV2);
+    BIND_ENUM_CONSTANT(FLAG_USE_ALPHA_SCISSOR);
+    BIND_ENUM_CONSTANT(FLAG_TRIPLANAR_USE_WORLD);
+    BIND_ENUM_CONSTANT(FLAG_ALBEDO_TEXTURE_FORCE_SRGB);
+    BIND_ENUM_CONSTANT(FLAG_DONT_RECEIVE_SHADOWS);
+    BIND_ENUM_CONSTANT(FLAG_DISABLE_AMBIENT_LIGHT);
+    BIND_ENUM_CONSTANT(FLAG_ENSURE_CORRECT_NORMALS);
+    BIND_ENUM_CONSTANT(FLAG_USE_SHADOW_TO_OPACITY);
+    BIND_ENUM_CONSTANT(FLAG_MAX);
 
-    BIND_ENUM_CONSTANT(DIFFUSE_BURLEY)
-    BIND_ENUM_CONSTANT(DIFFUSE_LAMBERT)
-    BIND_ENUM_CONSTANT(DIFFUSE_LAMBERT_WRAP)
-    BIND_ENUM_CONSTANT(DIFFUSE_OREN_NAYAR)
-    BIND_ENUM_CONSTANT(DIFFUSE_TOON)
+    BIND_ENUM_CONSTANT(DIFFUSE_BURLEY);
+    BIND_ENUM_CONSTANT(DIFFUSE_LAMBERT);
+    BIND_ENUM_CONSTANT(DIFFUSE_LAMBERT_WRAP);
+    BIND_ENUM_CONSTANT(DIFFUSE_OREN_NAYAR);
+    BIND_ENUM_CONSTANT(DIFFUSE_TOON);
 
-    BIND_ENUM_CONSTANT(SPECULAR_SCHLICK_GGX)
-    BIND_ENUM_CONSTANT(SPECULAR_BLINN)
-    BIND_ENUM_CONSTANT(SPECULAR_PHONG)
-    BIND_ENUM_CONSTANT(SPECULAR_TOON)
-    BIND_ENUM_CONSTANT(SPECULAR_DISABLED)
+    BIND_ENUM_CONSTANT(SPECULAR_SCHLICK_GGX);
+    BIND_ENUM_CONSTANT(SPECULAR_BLINN);
+    BIND_ENUM_CONSTANT(SPECULAR_PHONG);
+    BIND_ENUM_CONSTANT(SPECULAR_TOON);
+    BIND_ENUM_CONSTANT(SPECULAR_DISABLED);
 
-    BIND_ENUM_CONSTANT(BILLBOARD_DISABLED)
-    BIND_ENUM_CONSTANT(BILLBOARD_ENABLED)
-    BIND_ENUM_CONSTANT(BILLBOARD_FIXED_Y)
-    BIND_ENUM_CONSTANT(BILLBOARD_PARTICLES)
+    BIND_ENUM_CONSTANT(BILLBOARD_DISABLED);
+    BIND_ENUM_CONSTANT(BILLBOARD_ENABLED);
+    BIND_ENUM_CONSTANT(BILLBOARD_FIXED_Y);
+    BIND_ENUM_CONSTANT(BILLBOARD_PARTICLES);
 
-    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_RED)
-    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_GREEN)
-    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_BLUE)
-    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_ALPHA)
-    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_GRAYSCALE)
+    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_RED);
+    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_GREEN);
+    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_BLUE);
+    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_ALPHA);
+    BIND_ENUM_CONSTANT(TEXTURE_CHANNEL_GRAYSCALE);
 
-    BIND_ENUM_CONSTANT(EMISSION_OP_ADD)
-    BIND_ENUM_CONSTANT(EMISSION_OP_MULTIPLY)
+    BIND_ENUM_CONSTANT(EMISSION_OP_ADD);
+    BIND_ENUM_CONSTANT(EMISSION_OP_MULTIPLY);
 
-    BIND_ENUM_CONSTANT(DISTANCE_FADE_DISABLED)
-    BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_ALPHA)
-    BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_DITHER)
-    BIND_ENUM_CONSTANT(DISTANCE_FADE_OBJECT_DITHER)
+    BIND_ENUM_CONSTANT(DISTANCE_FADE_DISABLED);
+    BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_ALPHA);
+    BIND_ENUM_CONSTANT(DISTANCE_FADE_PIXEL_DITHER);
+    BIND_ENUM_CONSTANT(DISTANCE_FADE_OBJECT_DITHER);
 }
 
 SpatialMaterial::SpatialMaterial() {

@@ -404,11 +404,14 @@ void GPUParticles3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_order", PropertyHint::Enum, "Index,Lifetime,View Depth"), "set_draw_order", "get_draw_order");
     ADD_GROUP("Process Material", "");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "process_material", PropertyHint::ResourceType, "ShaderMaterial,ParticlesMaterial"), "set_process_material", "get_process_material");
+
     ADD_GROUP("Draw Passes", "draw_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "draw_passes", PropertyHint::Range, "0," + itos(MAX_DRAW_PASSES) + ",1"), "set_draw_passes", "get_draw_passes");
+    ADD_PROPERTY_ARRAY("Draw Passes",MAX_DRAW_PASSES,"draw_pass");
+
     for (int i = 0; i < MAX_DRAW_PASSES; i++) {
 
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass_" + itos(i + 1)), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass/" + itos(i + 1) + "/mesh"), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
     BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)

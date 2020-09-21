@@ -56,7 +56,7 @@ class ARVRPositionalTracker;
     or as a separate PR once this has been merged into the master branch.
 **/
 
-class ARVRServer : public Object {
+class GODOT_EXPORT ARVRServer : public Object {
     GDCLASS(ARVRServer,Object)
 
     _THREAD_SAFE_CLASS_

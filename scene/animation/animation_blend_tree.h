@@ -32,7 +32,7 @@
 #include "scene/animation/animation_tree.h"
 #include "core/deque.h"
 
-class AnimationNodeAnimation : public AnimationRootNode {
+class GODOT_EXPORT AnimationNodeAnimation : public AnimationRootNode {
 
     GDCLASS(AnimationNodeAnimation,AnimationRootNode)
 
@@ -61,7 +61,7 @@ public:
     AnimationNodeAnimation();
 };
 
-class AnimationNodeOneShot : public AnimationNode {
+class GODOT_EXPORT AnimationNodeOneShot : public AnimationNode {
     GDCLASS(AnimationNodeOneShot,AnimationNode)
 
 public:
@@ -128,7 +128,7 @@ public:
 };
 
 
-class AnimationNodeAdd2 : public AnimationNode {
+class GODOT_EXPORT AnimationNodeAdd2 : public AnimationNode {
     GDCLASS(AnimationNodeAdd2,AnimationNode)
 
     StringName add_amount;
@@ -152,7 +152,7 @@ public:
     AnimationNodeAdd2();
 };
 
-class AnimationNodeAdd3 : public AnimationNode {
+class GODOT_EXPORT AnimationNodeAdd3 : public AnimationNode {
     GDCLASS(AnimationNodeAdd3,AnimationNode)
 
     StringName add_amount;
@@ -176,7 +176,7 @@ public:
     AnimationNodeAdd3();
 };
 
-class AnimationNodeBlend2 : public AnimationNode {
+class GODOT_EXPORT AnimationNodeBlend2 : public AnimationNode {
     GDCLASS(AnimationNodeBlend2,AnimationNode)
 
     StringName blend_amount;
@@ -199,7 +199,7 @@ public:
     AnimationNodeBlend2();
 };
 
-class AnimationNodeBlend3 : public AnimationNode {
+class GODOT_EXPORT AnimationNodeBlend3 : public AnimationNode {
     GDCLASS(AnimationNodeBlend3,AnimationNode)
 
     StringName blend_amount;
@@ -221,7 +221,7 @@ public:
     AnimationNodeBlend3();
 };
 
-class AnimationNodeTimeScale : public AnimationNode {
+class GODOT_EXPORT AnimationNodeTimeScale : public AnimationNode {
     GDCLASS(AnimationNodeTimeScale,AnimationNode)
 
     StringName scale;
@@ -240,7 +240,7 @@ public:
     AnimationNodeTimeScale();
 };
 
-class AnimationNodeTimeSeek : public AnimationNode {
+class GODOT_EXPORT AnimationNodeTimeSeek : public AnimationNode {
     GDCLASS(AnimationNodeTimeSeek,AnimationNode)
 
     StringName seek_pos;
@@ -259,7 +259,7 @@ public:
     AnimationNodeTimeSeek();
 };
 
-class AnimationNodeTransition : public AnimationNode {
+class GODOT_EXPORT AnimationNodeTransition : public AnimationNode {
     GDCLASS(AnimationNodeTransition,AnimationNode)
 
     enum {
@@ -330,7 +330,7 @@ public:
 
 /////
 
-class AnimationNodeBlendTree : public AnimationRootNode {
+class GODOT_EXPORT AnimationNodeBlendTree : public AnimationRootNode {
     GDCLASS(AnimationNodeBlendTree,AnimationRootNode)
 
     struct Node {

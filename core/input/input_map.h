@@ -33,7 +33,6 @@
 #include "core/object.h"
 #include "core/input/input_event.h"
 #include "core/map.h"
-#include "core/list.h"
 
 class GODOT_EXPORT InputMap : public Object {
 

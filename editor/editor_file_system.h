@@ -36,6 +36,7 @@
 #include "core/list.h"
 #include "core/set.h"
 #include "core/hash_map.h"
+#include "core/map.h"
 
 #include "core/string.h"
 #include "core/translation_helpers.h"
@@ -45,7 +46,7 @@ class FileAccess;
 struct EditorProgressBG;
 struct EditorProgress;
 
-class EditorFileSystemDirectory : public Object {
+class GODOT_EXPORT EditorFileSystemDirectory : public Object {
 
     GDCLASS(EditorFileSystemDirectory,Object)
 
@@ -110,7 +111,7 @@ public:
     ~EditorFileSystemDirectory() override;
 };
 
-class EditorFileSystem : public Node {
+class GODOT_EXPORT EditorFileSystem : public Node {
 
     GDCLASS(EditorFileSystem,Node)
 
@@ -247,7 +248,7 @@ class EditorFileSystem : public Node {
 
     bool using_fat32_or_exfat; // Workaround for projects in FAT32 or exFAT filesystem (pendrives, most of the time)
 
-    void _find_group_files(EditorFileSystemDirectory *efd, DefMap<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
+    void _find_group_files(EditorFileSystemDirectory *efd, Map<String, Vector<String> > &group_files, Set<String> &groups_to_reimport);
     void ordered_reimport(EditorProgress &pr, Vector<ImportFile> &files);
 
     void _move_group_files(EditorFileSystemDirectory *efd, StringView p_group_file, StringView p_new_location);

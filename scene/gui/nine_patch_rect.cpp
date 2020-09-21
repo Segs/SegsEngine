@@ -84,6 +84,7 @@ void NinePatchRect::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_top", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Top);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_right", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Right);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "patch_margin_bottom", PropertyHint::Range, "0,16384,1"), "set_patch_margin", "get_patch_margin", (int)Margin::Bottom);
+
     ADD_GROUP("Axis Stretch", "axis_stretch_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_horizontal", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_h_axis_stretch_mode", "get_h_axis_stretch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "axis_stretch_vertical", PropertyHint::Enum, "Stretch,Tile,Tile Fit"), "set_v_axis_stretch_mode", "get_v_axis_stretch_mode");

@@ -40,7 +40,7 @@
 #include "core/object_rc.h"
 
 #include <cstdint>
-#include <type_traits>
+#include "EASTL/type_traits.h"
 
 
 class Object;
@@ -72,6 +72,9 @@ struct MethodInfo;
 template <class T>
 class PoolVector;
 template <class T> struct Hasher;
+
+template <class T>
+T *object_cast(Object *p_object);
 
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
@@ -230,6 +233,24 @@ public:
     [[nodiscard]] T as() const {
         return (T)*this;
     }
+    template<class T>
+    struct asHelper {
+        T convertIt(const Variant &v)  {
+            return v.as<T>();
+        }
+    };
+    template<class T>
+    struct asHelper<T *> {
+        T *convertIt(const Variant &v)  {
+            static_assert (eastl::is_base_of<Object,T>::value);
+            return object_cast<T>((Object *)v);
+        }
+    };
+
+    template<class T>
+    [[nodiscard]] T asT() const {
+        return asHelper<T>().convertIt(*this);
+    }
     template <typename T>
     [[nodiscard]] Vector<T> asVector() const;
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
@@ -277,14 +298,14 @@ public:
     operator IP_Address() const;
     //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
     template<class T ,
-               class = typename std::enable_if<std::is_same<bool,T>::value>::type >
+               class = typename eastl::enable_if<eastl::is_same<bool,T>::value>::type >
     Variant(T p_bool) {
         type = VariantType::BOOL;
         _data._bool = p_bool;
     }
     template<class T ,
-               class = typename std::enable_if<std::is_enum<T>::value>::type >
-    Variant(T p_bool,int=0) : Variant(std::underlying_type_t<T>(p_bool)){
+               class = typename eastl::enable_if<eastl::is_enum<T>::value>::type >
+    Variant(T p_bool,int=0) : Variant(eastl::underlying_type_t<T>(p_bool)){
     }
     Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
     constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }

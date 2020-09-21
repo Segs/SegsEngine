@@ -2009,19 +2009,16 @@ bool CanvasItemEditor::_gui_input_move(const Ref<InputEvent> &p_event) {
             if ((b->get_alt() && !b->get_control()) || tool == TOOL_MOVE) {
                 Vector<CanvasItem *> selection = _get_edited_canvas_items();
 
-                // Remove not movable nodes
-                //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                for (auto E = selection.begin(), fin = selection.end(); E != fin; ) {
-                    if (!_is_node_movable(*E, true))
-                        E = selection.erase_unsorted(E);
-                    else
-                        ++E;
+                drag_selection.clear();
+
+                for (CanvasItem * E : selection ) {
+                    if (_is_node_movable(E, true))
+                        drag_selection.emplace_back(E);
                 }
 
                 if (!selection.empty()) {
                     drag_type = DRAG_MOVE;
                     drag_from = transform.affine_inverse().xform(b->get_position());
-                    drag_selection = selection;
                     _save_canvas_item_state(drag_selection);
                 }
                 return true;
@@ -2310,18 +2307,14 @@ bool CanvasItemEditor::_gui_input_select(const Ref<InputEvent> &p_event) {
                     // Drag the node(s) if requested
                     Vector<CanvasItem *> selection2 = _get_edited_canvas_items();
 
-                    // Remove not movable nodes
-                    //TODO: SEGS: this is using fast erase idiom that does not preserve the order of entries .
-                    for (auto E = selection2.begin(); E != selection2.end(); ) {
-                        if (!_is_node_movable(*E, true))
-                            E = selection2.erase_unsorted(E);
-                        else
-                            ++E;
+                    drag_selection.clear();
+                    for (auto E : selection2) {
+                        if (_is_node_movable(E, true))
+                            drag_selection.emplace_back(E);
                     }
 
                     if (!selection2.empty()) {
                         drag_type = DRAG_MOVE;
-                        drag_selection = selection2;
                         drag_from = click;
                         _save_canvas_item_state(drag_selection);
                     }
@@ -3890,7 +3883,7 @@ void CanvasItemEditor::_notification(int p_what) {
         rotate_button->set_button_icon(get_icon("ToolRotate", "EditorIcons"));
         smart_snap_button->set_button_icon(get_icon("Snap", "EditorIcons"));
         grid_snap_button->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
-        snap_config_menu->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
+        snap_config_menu->set_button_icon(get_icon("GuiTabMenuHl", "EditorIcons"));
         skeleton_menu->set_button_icon(get_icon("Bone", "EditorIcons"));
         override_camera_button->set_button_icon(get_icon("Camera2D", "EditorIcons"));
         pan_button->set_button_icon(get_icon("ToolPan", "EditorIcons"));
@@ -3907,7 +3900,7 @@ void CanvasItemEditor::_notification(int p_what) {
         key_scale_button->set_button_icon(get_icon("KeyScale", "EditorIcons"));
         key_insert_button->set_button_icon(get_icon("Key", "EditorIcons"));
         key_auto_insert_button->set_button_icon(get_icon("AutoKey", "EditorIcons"));
-        animation_menu->set_button_icon(get_icon("GuiTabMenu", "EditorIcons"));
+        animation_menu->set_button_icon(get_icon("GuiTabMenuHl", "EditorIcons"));
 
         zoom_minus->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
         zoom_plus->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
@@ -6024,6 +6017,11 @@ bool CanvasItemEditorViewport::_create_instance(Node *parent, StringView path, c
         Vector2 target_pos = canvas_item_editor->get_canvas_transform().affine_inverse().xform(p_point);
         target_pos = canvas_item_editor->snap_point(target_pos);
         target_pos = parent_ci->get_global_transform_with_canvas().affine_inverse().xform(target_pos);
+        // Preserve instance position of the original scene.
+        CanvasItem *instance_ci = object_cast<CanvasItem>(instanced_scene);
+        if (instance_ci) {
+            target_pos += instance_ci->_edit_get_position();
+        }
         editor_data->get_undo_redo().add_do_method(instanced_scene, "set_position", target_pos);
     }
 
@@ -6271,7 +6269,7 @@ CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasIte
     selector->add_child(vbc);
     vbc->set_h_size_flags(SIZE_EXPAND_FILL);
     vbc->set_v_size_flags(SIZE_EXPAND_FILL);
-    vbc->set_custom_minimum_size(Size2(200, 260) * EDSCALE);
+    vbc->set_custom_minimum_size(Size2(240, 260) * EDSCALE);
 
     btn_group = memnew(VBoxContainer);
     vbc->add_child(btn_group);

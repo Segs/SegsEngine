@@ -34,7 +34,7 @@
 #include "core/string.h"
 #include "scene/gui/panel_container.h"
 
-class EditorVCSInterface : public Object {
+class GODOT_EXPORT EditorVCSInterface : public Object {
 
     GDCLASS(EditorVCSInterface, Object)
 

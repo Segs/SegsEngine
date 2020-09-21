@@ -75,7 +75,7 @@ _FORCE_INLINE_ void hash_combine(uint32_t &p_hash, const uint32_t &p_with_hash) 
  * Otherwise returns a newly constructed MonoObject* which is attached to the object
  * Returns NULL on error
  */
-MonoObject *unmanaged_get_managed(Object *unmanaged);
+GODOT_EXPORT MonoObject *unmanaged_get_managed(Object *unmanaged);
 
 void set_main_thread(MonoThread *p_thread);
 MonoThread *attach_current_thread();
@@ -88,7 +88,7 @@ _FORCE_INLINE_ bool is_main_thread() {
     return mono_domain_get() != NULL && mono_thread_get_main() == mono_thread_current();
 }
 
-void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc = NULL);
+GODOT_EXPORT void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc = NULL);
 
 GDMonoClass *get_object_class(MonoObject *p_object);
 GDMonoClass *type_get_proxy_class(const StringName &p_type);
@@ -119,7 +119,7 @@ void print_unhandled_exception(MonoException *p_exc);
  * If no managed method is being invoked by the runtime, the exception will be treated as
  * an unhandled exception and the method will not return.
  */
-void set_pending_exception(MonoException *p_exc);
+GODOT_EXPORT void set_pending_exception(MonoException *p_exc);
 
 extern thread_local int current_invoke_count;
 

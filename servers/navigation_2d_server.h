@@ -40,7 +40,7 @@
 #include "scene/2d/navigation_polygon.h"
 
 // This server exposes the 3D `NavigationServer` features in the 2D world.
-class Navigation2DServer : public Object {
+class GODOT_EXPORT Navigation2DServer : public Object {
     GDCLASS(Navigation2DServer, Object);
 
     static Navigation2DServer *singleton;

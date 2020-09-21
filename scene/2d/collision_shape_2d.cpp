@@ -192,7 +192,11 @@ StringName CollisionShape2D::get_configuration_warning() const {
     if (not shape) {
         return TTR("A shape must be provided for CollisionShape2D to function. Please create a shape resource for it!");
     }
-
+    Ref<ConvexPolygonShape2D> convex {dynamic_ref_cast<ConvexPolygonShape2D>(shape)};
+    Ref<ConcavePolygonShape2D> concave {dynamic_ref_cast<ConcavePolygonShape2D>(shape)};
+    if (convex || concave) {
+        return TTR("Polygon-based shapes are not meant be used nor edited directly through the CollisionShape2D node. Please use the CollisionPolygon2D node instead.");
+    }
     return StringName();
 }
 

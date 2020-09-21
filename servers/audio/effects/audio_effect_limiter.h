@@ -35,7 +35,7 @@
 
 class AudioEffectLimiter;
 
-class AudioEffectLimiterInstance : public AudioEffectInstance {
+class GODOT_EXPORT AudioEffectLimiterInstance : public AudioEffectInstance {
 	GDCLASS(AudioEffectLimiterInstance,AudioEffectInstance)
 	friend class AudioEffectLimiter;
 	Ref<AudioEffectLimiter> base;
@@ -46,7 +46,7 @@ public:
 	void process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) override;
 };
 
-class AudioEffectLimiter : public AudioEffect {
+class GODOT_EXPORT AudioEffectLimiter : public AudioEffect {
 	GDCLASS(AudioEffectLimiter,AudioEffect)
 
 	friend class AudioEffectLimiterInstance;

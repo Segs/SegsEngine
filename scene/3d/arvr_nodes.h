@@ -68,7 +68,7 @@ public:
 	It must be a child node of our ARVROrigin node
 */
 
-class ARVRController : public Node3D {
+class GODOT_EXPORT ARVRController : public Node3D {
 
 	GDCLASS(ARVRController,Node3D)
 
@@ -92,7 +92,7 @@ public:
 	float get_joystick_axis(int p_axis) const;
 
 	real_t get_rumble() const;
-	void set_rumble(real_t p_rumble);
+	void set_rumble(float p_rumble);
 
 	bool get_is_active() const;
 	ARVRPositionalTracker::TrackerHand get_hand() const;
@@ -110,7 +110,7 @@ public:
 	It must be a child node of our ARVROrigin node
 */
 
-class ARVRAnchor : public Node3D {
+class GODOT_EXPORT ARVRAnchor : public Node3D {
 	GDCLASS(ARVRAnchor,Node3D)
 
 private:
@@ -149,7 +149,7 @@ public:
 	Our camera and controllers will always be child nodes and thus place relative to this origin point.
 	This node will automatically locate any camera child nodes and update its position while our ARVRController node will handle tracked controllers.
 */
-class ARVROrigin : public Node3D {
+class GODOT_EXPORT ARVROrigin : public Node3D {
 
 	GDCLASS(ARVROrigin,Node3D)
 

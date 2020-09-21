@@ -116,7 +116,7 @@ public:
     using size_type = std::size_t;
 
     /*! @brief Default constructor. */
-    scheduler() ENTT_NOEXCEPT = default;
+    scheduler() = default;
 
     /*! @brief Default move constructor. */
     scheduler(scheduler &&) = default;
@@ -283,9 +283,9 @@ public:
         decltype(handlers) exec;
         exec.swap(handlers);
 
-        eastl::for_each(exec.begin(), exec.end(), [immediately](auto &handler) {
+        for(auto &&handler: exec) {
             handler.abort(handler, immediately);
-        });
+        }
 
         eastl::move(handlers.begin(), handlers.end(), eastl::back_inserter(exec));
         handlers.swap(exec);
@@ -299,4 +299,4 @@ private:
 }
 
 
-#endif // ENTT_PROCESS_SCHEDULER_HPP
+#endif

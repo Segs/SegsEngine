@@ -53,7 +53,7 @@ public:
 	AudioStreamPreview();
 };
 
-class AudioStreamPreviewGenerator : public Node {
+class GODOT_EXPORT AudioStreamPreviewGenerator : public Node {
 	GDCLASS(AudioStreamPreviewGenerator,Node)
 
 	static AudioStreamPreviewGenerator *singleton;

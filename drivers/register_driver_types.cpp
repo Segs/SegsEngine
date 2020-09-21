@@ -33,7 +33,7 @@
 #include "core/io/image_loader.h"
 
 #ifdef TOOLS_ENABLED
-#include "platform/windows/export/export.h"
+#include "platform/windows/export/windows_export.h"
 #endif
 
 void register_core_driver_types() {

@@ -38,7 +38,7 @@
 
 class NavigationMeshInstance;
 
-class NavigationMeshEditor : public Control {
+class GODOT_EXPORT NavigationMeshEditor : public Control {
     friend class NavigationMeshEditorPlugin;
 
     GDCLASS(NavigationMeshEditor, Control);

@@ -45,7 +45,7 @@
 class DependencyRemoveDialog;
 class ItemList;
 
-class EditorFileDialog : public ConfirmationDialog {
+class GODOT_EXPORT EditorFileDialog : public ConfirmationDialog {
 
     GDCLASS(EditorFileDialog,ConfirmationDialog)
 
@@ -246,7 +246,7 @@ public:
     ~EditorFileDialog() override;
 };
 
-class EditorLineEditFileChooser : public HBoxContainer {
+class GODOT_EXPORT EditorLineEditFileChooser : public HBoxContainer {
 
     GDCLASS(EditorLineEditFileChooser,HBoxContainer)
 

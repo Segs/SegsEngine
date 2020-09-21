@@ -34,7 +34,7 @@
 #include "scene/3d/skeleton_3d.h"
 //#include "scene/resources/animation.h"
 class Animation;
-class AnimationCache : public Object {
+class GODOT_EXPORT AnimationCache : public Object {
 
     GDCLASS(AnimationCache,Object)
 

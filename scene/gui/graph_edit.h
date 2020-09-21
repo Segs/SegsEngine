@@ -53,7 +53,7 @@ public:
     GraphEditFilter(GraphEdit *p_edit);
 };
 
-class GraphEdit : public Control {
+class GODOT_EXPORT GraphEdit : public Control {
 
     GDCLASS(GraphEdit,Control)
 

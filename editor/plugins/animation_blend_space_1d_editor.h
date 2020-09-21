@@ -41,7 +41,7 @@
 #include "scene/gui/popup.h"
 #include "scene/gui/tree.h"
 
-class AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEditorPlugin {
+class GODOT_EXPORT AnimationNodeBlendSpace1DEditor : public AnimationTreeNodeEditorPlugin {
 
 	GDCLASS(AnimationNodeBlendSpace1DEditor,AnimationTreeNodeEditorPlugin)
 

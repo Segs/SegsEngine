@@ -105,10 +105,10 @@ struct radix_sort {
             static constexpr auto buckets = 1 << Bit;
             static constexpr auto passes = N / Bit;
 
-            using value_type = typename std::iterator_traits<It>::value_type;
-            eastl::vector<value_type> aux(std::distance(first, last));
+            using value_type = typename eastl::iterator_traits<It>::value_type;
+            eastl::vector<value_type> aux(eastl::distance(first, last));
 
-            auto part = [getter = std::move(getter)](auto from, auto to, auto out, auto start) {
+            auto part = [getter = eastl::move(getter)](auto from, auto to, auto out, auto start) {
                 std::size_t index[buckets]{};
                 std::size_t count[buckets]{};
 
@@ -132,7 +132,7 @@ struct radix_sort {
 
             if constexpr(passes & 1) {
                 part(first, last, aux.begin(), (passes - 1) * Bit);
-                std::move(aux.begin(), aux.end(), first);
+                eastl::move(aux.begin(), aux.end(), first);
             }
         }
     }
@@ -142,4 +142,4 @@ struct radix_sort {
 }
 
 
-#endif // ENTT_CORE_ALGORITHM_HPP
+#endif

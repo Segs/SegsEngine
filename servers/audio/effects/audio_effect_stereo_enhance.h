@@ -56,7 +56,7 @@ public:
 	~AudioEffectStereoEnhanceInstance() override;
 };
 
-class AudioEffectStereoEnhance : public AudioEffect {
+class GODOT_EXPORT AudioEffectStereoEnhance : public AudioEffect {
 	GDCLASS(AudioEffectStereoEnhance,AudioEffect)
 
 	friend class AudioEffectStereoEnhanceInstance;

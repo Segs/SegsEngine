@@ -79,7 +79,7 @@ public:
     AudioStreamPlaybackResampled() { mix_offset = 0; }
 };
 
-class AudioStream : public Resource {
+class GODOT_EXPORT AudioStream : public Resource {
 
     GDCLASS(AudioStream,Resource)
 
@@ -99,7 +99,7 @@ public:
 
 class AudioStreamPlaybackMicrophone;
 
-class AudioStreamMicrophone : public AudioStream {
+class GODOT_EXPORT AudioStreamMicrophone : public AudioStream {
 
     GDCLASS(AudioStreamMicrophone,AudioStream)
 
@@ -154,7 +154,7 @@ public:
 
 class AudioStreamPlaybackRandomPitch;
 
-class AudioStreamRandomPitch : public AudioStream {
+class GODOT_EXPORT AudioStreamRandomPitch : public AudioStream {
 
     GDCLASS(AudioStreamRandomPitch,AudioStream)
 

@@ -34,7 +34,7 @@
 #include "scene/gui/control.h"
 #include "scene/gui/scroll_bar.h"
 #include "core/ustring.h"
-class ItemList : public Control {
+class GODOT_EXPORT ItemList : public Control {
 
     GDCLASS(ItemList,Control)
 

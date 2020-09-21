@@ -34,7 +34,7 @@
 #include "scene/main/node.h"
 
 class Timer;
-class HTTPRequest : public Node {
+class GODOT_EXPORT HTTPRequest : public Node {
 
     GDCLASS(HTTPRequest,Node)
 

@@ -40,7 +40,7 @@
 class VisualShaderNodeUniform;
 class VisualShaderNode;
 
-class VisualShader : public Shader {
+class GODOT_EXPORT VisualShader : public Shader {
     GDCLASS(VisualShader,Shader)
 
 public:
@@ -166,7 +166,7 @@ public:
 ///
 ///
 
-class VisualShaderNode : public Resource {
+class GODOT_EXPORT VisualShaderNode : public Resource {
     GDCLASS(VisualShaderNode,Resource)
 
     Map<int, Variant> default_input_values;
@@ -225,7 +225,7 @@ public:
     VisualShaderNode();
 };
 
-class VisualShaderNodeCustom : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeCustom : public VisualShaderNode {
     GDCLASS(VisualShaderNodeCustom,VisualShaderNode)
 
     struct Port {
@@ -262,7 +262,7 @@ public:
 
 /////
 
-class VisualShaderNodeInput : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeInput : public VisualShaderNode {
     GDCLASS(VisualShaderNodeInput,VisualShaderNode)
 
     friend class VisualShader;
@@ -353,7 +353,7 @@ public:
     VisualShaderNodeOutput();
 };
 
-class VisualShaderNodeUniform : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeUniform : public VisualShaderNode {
     GDCLASS(VisualShaderNodeUniform,VisualShaderNode)
 private:
     StringName uniform_name;
@@ -368,7 +368,7 @@ public:
     VisualShaderNodeUniform();
 };
 
-class VisualShaderNodeGroupBase : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeGroupBase : public VisualShaderNode {
     GDCLASS(VisualShaderNodeGroupBase,VisualShaderNode)
 
 private:
@@ -442,7 +442,7 @@ public:
     VisualShaderNodeGroupBase();
 };
 
-class VisualShaderNodeExpression : public VisualShaderNodeGroupBase {
+class GODOT_EXPORT VisualShaderNodeExpression : public VisualShaderNodeGroupBase {
     GDCLASS(VisualShaderNodeExpression,VisualShaderNodeGroupBase)
 
 protected:

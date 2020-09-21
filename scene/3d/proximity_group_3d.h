@@ -33,7 +33,7 @@
 #include "scene/3d/node_3d.h"
 #include "core/map.h"
 
-class ProximityGroup3D : public Node3D {
+class GODOT_EXPORT ProximityGroup3D : public Node3D {
 
     GDCLASS(ProximityGroup3D,Node3D)
 

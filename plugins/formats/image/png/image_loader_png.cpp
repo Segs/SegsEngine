@@ -53,12 +53,12 @@ Error ImageLoaderPNG::load_image(ImageData &p_image, FileAccess *f, LoadParams p
         f->close();
     }
     PoolVector<uint8_t>::Read reader = file_buffer.read();
-    return PNGDriverCommon::png_to_image(reader.ptr(), buffer_size, p_image);
+    return PNGDriverCommon::png_to_image(reader.ptr(), buffer_size,params.p_force_linear, p_image);
 }
 
 Error ImageLoaderPNG::load_image(ImageData &p_image,const uint8_t *p_png, int p_size,LoadParams params) {
 
-    Error err = PNGDriverCommon::png_to_image(p_png, p_size, p_image);
+    Error err = PNGDriverCommon::png_to_image(p_png, p_size,params.p_force_linear, p_image);
     ERR_FAIL_COND_V(err, ERR_CANT_OPEN);
 
     return OK;
@@ -70,7 +70,8 @@ void ImageLoaderPNG::get_recognized_extensions(Vector<String> &p_extensions) con
 
 ImageData ImageLoaderPNG::load_mem_png(const uint8_t *p_png, int p_size) {
     ImageData dat;
-    Error err = PNGDriverCommon::png_to_image(p_png, p_size, dat);
+    // the value of p_force_linear does not matter since it only applies to 16 bit
+    Error err = PNGDriverCommon::png_to_image(p_png, p_size,false, dat);
     ERR_FAIL_COND_V(err, ImageData());
     return dat;
 }

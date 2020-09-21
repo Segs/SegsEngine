@@ -33,7 +33,7 @@
 #include "scene/gui/container.h"
 #include "core/string.h"
 
-class GraphNode : public Container {
+class GODOT_EXPORT GraphNode : public Container {
 
     GDCLASS(GraphNode,Container)
 

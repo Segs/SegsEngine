@@ -1577,10 +1577,10 @@ void ItemList::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "allow_rmb_select"), "set_allow_rmb_select", "get_allow_rmb_select");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_text_lines", PropertyHint::Range, "1,10,1,or_greater"), "set_max_text_lines", "get_max_text_lines");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_height"), "set_auto_height", "has_auto_height");
-    ADD_GROUP("Columns", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "max_columns", PropertyHint::Range, "0,10,1,or_greater"), "set_max_columns", "get_max_columns");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "same_column_width"), "set_same_column_width", "is_same_column_width");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "fixed_column_width", PropertyHint::Range, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
+    ADD_GROUP("Columns", "clmn_");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "clmn_max_columns", PropertyHint::Range, "0,10,1,or_greater"), "set_max_columns", "get_max_columns");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clmn_same_column_width"), "set_same_column_width", "is_same_column_width");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "clmn_fixed_column_width", PropertyHint::Range, "0,100,1,or_greater"), "set_fixed_column_width", "get_fixed_column_width");
     ADD_GROUP("Icon", "");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "icon_mode", PropertyHint::Enum, "Top,Left"), "set_icon_mode", "get_icon_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "icon_scale"), "set_icon_scale", "get_icon_scale");

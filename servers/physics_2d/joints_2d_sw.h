@@ -55,7 +55,7 @@ public:
 			Constraint2DSW(p_body_ptr, p_body_count) {
 		bias = 0;
 		max_force = max_bias = 3.40282e+38;
-	};
+	}
 };
 
 class PinJoint2DSW : public Joint2DSW {

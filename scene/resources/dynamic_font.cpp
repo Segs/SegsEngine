@@ -648,6 +648,21 @@ Size2 DynamicFontAtSize::get_char_size(CharType p_char, CharType p_next, const V
     return ret;
 }
 
+UIString DynamicFontAtSize::get_available_chars() const {
+    UIString chars;
+
+    FT_UInt gindex;
+    FT_ULong charcode = FT_Get_First_Char(m_impl->face, &gindex);
+    while (gindex != 0) {
+        if (charcode != 0) {
+            chars += QChar((uint)charcode);
+        }
+        charcode = FT_Get_Next_Char(m_impl->face, charcode, &gindex);
+    }
+
+    return chars;
+}
+
 void DynamicFontAtSize::set_texture_flags(uint32_t p_flags) {
 
     m_impl->texture_flags = p_flags;
@@ -945,6 +960,25 @@ Size2 DynamicFont::get_char_size(CharType p_char, CharType p_next) const {
     return ret;
 }
 
+String DynamicFont::get_available_chars() const {
+
+    if (!data_at_size)
+        return "";
+
+    UIString chars = data_at_size->get_available_chars();
+
+    for (int i = 0; i < fallback_data_at_size.size(); i++) {
+        UIString fallback_chars = fallback_data_at_size[i]->get_available_chars();
+        for (int j = 0; j < fallback_chars.length(); j++) {
+            if (chars.contains(fallback_chars[j])) {
+                chars += fallback_chars[j];
+            }
+        }
+    }
+
+    return StringUtils::to_utf8(chars);
+}
+
 bool DynamicFont::is_distance_field_hint() const {
 
     return false;
@@ -1063,6 +1097,8 @@ void DynamicFont::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_font_data", {"data"}), &DynamicFont::set_font_data);
     MethodBinder::bind_method(D_METHOD("get_font_data"), &DynamicFont::get_font_data);
 
+    MethodBinder::bind_method(D_METHOD("get_available_chars"), &DynamicFont::get_available_chars);
+
     MethodBinder::bind_method(D_METHOD("set_size", {"data"}), &DynamicFont::set_size);
     MethodBinder::bind_method(D_METHOD("get_size"), &DynamicFont::get_size);
 
@@ -1085,18 +1121,18 @@ void DynamicFont::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("remove_fallback", {"idx"}), &DynamicFont::remove_fallback);
     MethodBinder::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
 
-    ADD_GROUP("Settings", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "size", PropertyHint::Range, "1,1024,1"), "set_size", "get_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "outline_size", PropertyHint::Range, "0,1024,1"), "set_outline_size", "get_outline_size");
-    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "outline_color"), "set_outline_color", "get_outline_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_mipmaps"), "set_use_mipmaps", "get_use_mipmaps");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_filter"), "set_use_filter", "get_use_filter");
-    ADD_GROUP("Extra Spacing", "extra_spacing");
+    ADD_GROUP("Settings", "stng_");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stng_size", PropertyHint::Range, "1,1024,1"), "set_size", "get_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "stng_outline_size", PropertyHint::Range, "0,1024,1"), "set_outline_size", "get_outline_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "stng_outline_color"), "set_outline_color", "get_outline_color");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stng_use_mipmaps"), "set_use_mipmaps", "get_use_mipmaps");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stng_use_filter"), "set_use_filter", "get_use_filter");
+    ADD_GROUP("Extra Spacing", "extra_spacing_");
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_top"), "set_spacing", "get_spacing", SPACING_TOP);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_bottom"), "set_spacing", "get_spacing", SPACING_BOTTOM);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_char"), "set_spacing", "get_spacing", SPACING_CHAR);
     ADD_PROPERTYI(PropertyInfo(VariantType::INT, "extra_spacing_space"), "set_spacing", "get_spacing", SPACING_SPACE);
-    ADD_GROUP("Font", "");
+    ADD_GROUP("Font", "font_");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "font_data", PropertyHint::ResourceType, "DynamicFontData"), "set_font_data", "get_font_data");
 
     BIND_ENUM_CONSTANT(SPACING_TOP)

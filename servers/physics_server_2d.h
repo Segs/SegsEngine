@@ -40,7 +40,7 @@
 
 class PhysicsDirectSpaceState2D;
 
-class PhysicsDirectBodyState2D : public Object {
+class GODOT_EXPORT PhysicsDirectBodyState2D : public Object {
 
     GDCLASS(PhysicsDirectBodyState2D,Object)
 
@@ -99,7 +99,7 @@ public:
 class PhysicsShapeQueryResult2D;
 
 //used for script
-class PhysicsShapeQueryParameters2D : public RefCounted {
+class GODOT_EXPORT PhysicsShapeQueryParameters2D : public RefCounted {
 
     GDCLASS(PhysicsShapeQueryParameters2D,RefCounted)
 
@@ -146,7 +146,7 @@ public:
     PhysicsShapeQueryParameters2D();
 };
 
-class PhysicsDirectSpaceState2D : public Object {
+class GODOT_EXPORT PhysicsDirectSpaceState2D : public Object {
 
     GDCLASS(PhysicsDirectSpaceState2D,Object)
 public:
@@ -210,7 +210,7 @@ public:
     PhysicsDirectSpaceState2D();
 };
 
-class PhysicsShapeQueryResult2D : public RefCounted {
+class GODOT_EXPORT PhysicsShapeQueryResult2D : public RefCounted {
 
     GDCLASS(PhysicsShapeQueryResult2D,RefCounted)
 
@@ -233,7 +233,7 @@ public:
 
 class Physics2DTestMotionResult;
 
-class PhysicsServer2D : public Object {
+class GODOT_EXPORT PhysicsServer2D : public Object {
 
     GDCLASS(PhysicsServer2D,Object)
 
@@ -610,7 +610,7 @@ public:
     ~PhysicsServer2D() override;
 };
 
-class Physics2DTestMotionResult : public RefCounted {
+class GODOT_EXPORT Physics2DTestMotionResult : public RefCounted {
 
     GDCLASS(Physics2DTestMotionResult,RefCounted)
 

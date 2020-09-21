@@ -181,7 +181,11 @@ void ScriptServer::init_languages() {
     }
 
     for (int i = 0; i < _language_count; i++) {
-        _languages[i]->init();
+        bool ok = _languages[i]->init();
+        if(!ok) { // failed to initialize the language.
+            _languages[i]->finish();
+            unregister_language(_languages[i]);
+        }
     }
 }
 
@@ -564,8 +568,6 @@ Variant PlaceHolderScriptInstance::property_get_fallback(const StringName &p_nam
 
     return Variant();
 }
-
-
 
 PlaceHolderScriptInstance::~PlaceHolderScriptInstance() {
 

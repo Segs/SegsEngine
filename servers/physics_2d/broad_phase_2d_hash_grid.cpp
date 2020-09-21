@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "broad_phase_2d_hash_grid.h"
+
+#include "collision_object_2d_sw.h"
 #include "core/project_settings.h"
 #include "core/property_info.h"
 
@@ -75,25 +77,24 @@ void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 
 void BroadPhase2DHashGrid::_check_motion(Element *p_elem) {
 
-    for (const eastl::pair<const Element *,PairData *> &E : p_elem->paired) {
+    for (const eastl::pair<Element * const,PairData *> &E : p_elem->paired) {
 
-        bool pairing = p_elem->aabb.intersects(E.first->aabb);
+        bool physical_collision = p_elem->aabb.intersects(E.first->aabb);
+        bool logical_collision = p_elem->owner->test_collision_mask(E.first->owner);
 
-        if (pairing != E.second->colliding) {
-
-            if (pairing) {
-
-                if (pair_callback) {
-                    E.second->ud = pair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, pair_userdata);
-                }
-            } else {
-
-                if (unpair_callback) {
-                    unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
-                }
+        if (physical_collision) {
+            if (!E.second->colliding || (logical_collision && !E.second->ud && pair_callback)) {
+                E.second->ud = pair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, pair_userdata);
+            } else if (E.second->colliding && !logical_collision && E.second->ud && unpair_callback) {
+                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
+                E.second->ud = nullptr;
             }
-
-            E.second->colliding = pairing;
+            E.second->colliding = true;
+        } else { // No physcial_collision
+            if (E.second->colliding && unpair_callback) {
+                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
+            }
+            E.second->colliding = false;
         }
     }
 }
@@ -341,24 +342,22 @@ void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
 
     Element &e = E->second;
 
-    if (p_aabb == e.aabb)
-        return;
+    if (p_aabb != e.aabb) {
 
-    if (p_aabb != Rect2()) {
+        if (p_aabb != Rect2()) {
 
-        _enter_grid(&e, p_aabb, e._static);
+            _enter_grid(&e, p_aabb, e._static);
+        }
+
+        if (e.aabb != Rect2()) {
+
+            _exit_grid(&e, e.aabb, e._static);
+        }
+
+        e.aabb = p_aabb;
     }
-
-    if (e.aabb != Rect2()) {
-
-        _exit_grid(&e, e.aabb, e._static);
-    }
-
-    e.aabb = p_aabb;
 
     _check_motion(&e);
-
-    e.aabb = p_aabb;
 }
 void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
 

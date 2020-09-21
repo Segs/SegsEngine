@@ -39,7 +39,7 @@
 #include "scene/gui/tool_button.h"
 #include "scene/gui/tree.h"
 
-class FileDialog : public ConfirmationDialog {
+class GODOT_EXPORT FileDialog : public ConfirmationDialog {
 
     GDCLASS(FileDialog,ConfirmationDialog)
 
@@ -176,7 +176,7 @@ public:
     ~FileDialog() override;
 };
 
-class LineEditFileChooser : public HBoxContainer {
+class GODOT_EXPORT LineEditFileChooser : public HBoxContainer {
 
     GDCLASS(LineEditFileChooser,HBoxContainer)
     Button *button;

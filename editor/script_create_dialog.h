@@ -41,7 +41,7 @@
 
 class CreateDialog;
 
-class ScriptCreateDialog : public ConfirmationDialog {
+class GODOT_EXPORT ScriptCreateDialog : public ConfirmationDialog {
     GDCLASS(ScriptCreateDialog,ConfirmationDialog)
 
     enum ScriptOrigin {

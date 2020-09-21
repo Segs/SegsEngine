@@ -33,7 +33,7 @@
 
 #include "visual_script.h"
 
-class VisualScriptReturn : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptReturn : public VisualScriptNode {
 
     GDCLASS(VisualScriptReturn,VisualScriptNode)
 
@@ -70,7 +70,7 @@ public:
     VisualScriptReturn();
 };
 
-class VisualScriptCondition : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptCondition : public VisualScriptNode {
 
     GDCLASS(VisualScriptCondition,VisualScriptNode)
 
@@ -99,7 +99,7 @@ public:
     VisualScriptCondition();
 };
 
-class VisualScriptWhile : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptWhile : public VisualScriptNode {
 
     GDCLASS(VisualScriptWhile,VisualScriptNode)
 
@@ -128,7 +128,7 @@ public:
     VisualScriptWhile();
 };
 
-class VisualScriptIterator : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptIterator : public VisualScriptNode {
 
     GDCLASS(VisualScriptIterator,VisualScriptNode)
 
@@ -157,7 +157,7 @@ public:
     VisualScriptIterator();
 };
 
-class VisualScriptSequence : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSequence : public VisualScriptNode {
 
     GDCLASS(VisualScriptSequence,VisualScriptNode)
 
@@ -191,7 +191,7 @@ public:
     VisualScriptSequence();
 };
 
-class VisualScriptSwitch : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptSwitch : public VisualScriptNode {
 
     GDCLASS(VisualScriptSwitch,VisualScriptNode)
 
@@ -234,7 +234,7 @@ public:
     VisualScriptSwitch();
 };
 
-class VisualScriptTypeCast : public VisualScriptNode {
+class GODOT_EXPORT VisualScriptTypeCast : public VisualScriptNode {
 
     GDCLASS(VisualScriptTypeCast,VisualScriptNode)
 

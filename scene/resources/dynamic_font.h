@@ -43,7 +43,7 @@ class DynamicFontAtSize;
 class DynamicFont;
 class ImageTexture;
 
-class DynamicFontData : public Resource {
+class GODOT_EXPORT DynamicFontData : public Resource {
 
     GDCLASS(DynamicFontData,Resource)
 
@@ -135,6 +135,7 @@ public:
     float get_descent() const;
 
     Size2 get_char_size(CharType p_char, CharType p_next, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks) const;
+    UIString get_available_chars() const;
 
     float draw_char(RID p_canvas_item, const Point2 &p_pos, CharType p_char, const Color &p_modulate, const Vector<Ref<DynamicFontAtSize> > &p_fallbacks, bool p_advance_only = false, bool p_outline=false) const;
 
@@ -147,7 +148,7 @@ public:
 
 ///////////////
 
-class DynamicFont : public Font {
+class GODOT_EXPORT DynamicFont : public Font {
 
     GDCLASS(DynamicFont,Font)
 
@@ -221,6 +222,7 @@ public:
     float get_descent() const override;
 
     Size2 get_char_size(CharType p_char, CharType p_next = 0) const override;
+    String get_available_chars() const;
 
     bool is_distance_field_hint() const override;
 

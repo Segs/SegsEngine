@@ -103,8 +103,11 @@ void register_custom_data_to_otdb() {
 class GODOT_EXPORT ClassDB {
 public:
     enum APIType {
+        API_INVALID=-1,
         API_CORE,
         API_EDITOR,
+        API_CLIENT,
+        API_SERVER, // server only APIs ?
         API_NONE
     };
 
@@ -117,6 +120,10 @@ public:
         int index;
         VariantType type;
     };
+    struct EnumDescriptor {
+        StringName underlying_type;
+        Vector<StringName> enumerators;
+    };
 
     struct ClassInfo {
         APIType api = API_NONE;
@@ -124,7 +131,7 @@ public:
         const void *class_ptr=nullptr;
         HashMap<StringName, MethodBind *> method_map;
         HashMap<StringName, int> constant_map;
-        HashMap<StringName, List<StringName> > enum_map;
+        HashMap<StringName, EnumDescriptor > enum_map;
         HashMap<StringName, MethodInfo> signal_map;
         Vector<PropertyInfo> property_list;
 #ifdef DEBUG_METHODS_ENABLED
@@ -133,9 +140,9 @@ public:
         HashSet<StringName> methods_in_properties;
         Vector<MethodInfo> virtual_methods;
         StringName category;
-        String usage_header;
 #endif
         HashMap<StringName, PropertySetGet> property_setget;
+        String usage_header;
 
         StringName inherits;
         StringName name;
@@ -149,12 +156,18 @@ public:
         ~ClassInfo();
     };
 
+    struct NamespaceInfo {
+        static HashMap<StringName, ClassInfo> classes;
+        Vector<NamespaceInfo *> nested_namespaces;
+    };
+
     template <class T>
     static Object *creator() {
         return memnew(T);
     }
 
     static RWLock *lock;
+    static HashMap<StringName, NamespaceInfo> namespaces;
     static HashMap<StringName, ClassInfo> classes;
     static HashMap<StringName, StringName> resource_base_extensions;
     static HashMap<StringName, StringName> compat_classes;
@@ -268,6 +281,7 @@ public:
     static void get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance = false);
 
     static void add_property_group(StringName p_class, const char *p_name, const char *p_prefix = nullptr);
+    static void add_property_array(StringName p_class, const char *p_name, int elem_count, const char *p_prefix = nullptr);
     static void add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
     static void set_property_default_value(StringName p_class, const StringName &p_name, const Variant &p_default);
     static void get_property_list(StringName p_class, Vector<PropertyInfo> *p_list, bool p_no_inheritance = false, const Object *p_validator = nullptr);
@@ -288,6 +302,7 @@ public:
     static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual = true);
     static void get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false);
 
+    static void register_enum_type(const StringName &p_class,const StringName &p_enum,const StringName &p_underlying_type);
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
     static void get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
@@ -325,6 +340,10 @@ public:
 #define BIND_NS_CONSTANT(ns,m_constant) \
     ClassDB::bind_integer_constant(#ns, StringName(), #m_constant, int(ns::m_constant));
 
+#define REGISTER_ENUM(name,type) \
+    ClassDB::register_enum_type(get_class_static_name(),get_class_static_name()+"::"+#name, #type);\
+    static_assert(eastl::is_same_v<eastl::underlying_type_t<name>,type>);
+
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), __constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant);
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
@@ -345,6 +364,13 @@ public:
 
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
+
+#define REGISTER_ENUM(name,type) \
+    ClassDB::register_enum_type(get_class_static_name(),#name, #type);
+
+#define BIND_GLOBAL_ENUM_CONSTANT(m_constant) \
+    ClassDB::bind_integer_constant("@", StringName(), #m_constant, int(m_constant))
+
 
 #endif
 

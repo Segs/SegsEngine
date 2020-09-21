@@ -62,7 +62,7 @@ IMPL_GDCLASS(AnimationTrackEditPlugin)
 IMPL_GDCLASS(AnimationTrackEditGroup)
 IMPL_GDCLASS(AnimationTrackEditor)
 
-class AnimationTrackKeyEdit : public Object {
+class GODOT_EXPORT AnimationTrackKeyEdit : public Object {
 
     GDCLASS(AnimationTrackKeyEdit,Object)
 
@@ -715,7 +715,7 @@ public:
 
 IMPL_GDCLASS(AnimationTrackKeyEdit)
 
-class AnimationMultiTrackKeyEdit : public Object {
+class GODOT_EXPORT AnimationMultiTrackKeyEdit : public Object {
 
     GDCLASS(AnimationMultiTrackKeyEdit,Object)
 

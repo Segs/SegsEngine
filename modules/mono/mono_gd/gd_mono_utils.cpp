@@ -161,7 +161,7 @@ bool is_thread_attached() {
     return mono_domain_get() != nullptr;
 }
 
-void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc) {
+GODOT_EXPORT void runtime_object_init(MonoObject *p_this_obj, GDMonoClass *p_class, MonoException **r_exc) {
     GDMonoMethod *ctor = p_class->get_method(".ctor", 0);
     ERR_FAIL_NULL(ctor);
     ctor->invoke_raw(p_this_obj, nullptr, r_exc);
@@ -527,7 +527,6 @@ void dispose(MonoObject *p_mono_object, MonoException **r_exc) {
 
 namespace Marshal {
 
-#ifdef MONO_GLUE_ENABLED
 #ifdef TOOLS_ENABLED
 #define NO_GLUE_RET(m_ret)                                                   \
     {                                                                        \
@@ -536,10 +535,6 @@ namespace Marshal {
 #else
 #define NO_GLUE_RET(m_ret) \
     {}
-#endif
-#else
-#define NO_GLUE_RET(m_ret) \
-    { return m_ret; }
 #endif
 
 bool type_is_generic_array(MonoReflectionType *p_reftype) {

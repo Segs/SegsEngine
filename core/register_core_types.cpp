@@ -73,6 +73,7 @@
 #include "core/script_language.h"
 #include "core/translation.h"
 #include "core/undo_redo.h"
+#include "os/os.h"
 #include "resource/resource_manager.h"
 
 static Ref<ResourceFormatSaverBinary> resource_saver_binary;
@@ -329,7 +330,7 @@ void unregister_core_types() {
     ClassDB::cleanup();
     ResourceCache::clear();
     CoreStringNames::free();
-    StringName::cleanup();
+    StringName::cleanup(OS::get_singleton()->is_stdout_verbose());
 
     if (_global_mutex) {
         memdelete(_global_mutex);

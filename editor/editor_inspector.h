@@ -47,7 +47,7 @@ public:
     static bool can_property_revert(Object *p_object, const StringName &p_property);
 };
 
-class EditorProperty : public Container {
+class GODOT_EXPORT EditorProperty : public Container {
 
     GDCLASS(EditorProperty,Container)
 
@@ -168,7 +168,7 @@ public:
     EditorProperty();
 };
 
-class EditorInspectorPlugin : public RefCounted {
+class GODOT_EXPORT EditorInspectorPlugin : public RefCounted {
     GDCLASS(EditorInspectorPlugin,RefCounted)
 
     friend class EditorInspector;
@@ -195,7 +195,7 @@ public:
     virtual void parse_end();
 };
 
-class EditorInspectorCategory : public Control {
+class GODOT_EXPORT EditorInspectorCategory : public Control {
     GDCLASS(EditorInspectorCategory,Control)
 
     friend class EditorInspector;
@@ -217,7 +217,7 @@ public:
     EditorInspectorCategory();
 };
 
-class EditorInspectorSection : public Container {
+class GODOT_EXPORT EditorInspectorSection : public Container {
     GDCLASS(EditorInspectorSection,Container)
 
     String label;
@@ -249,7 +249,7 @@ public:
     ~EditorInspectorSection() override;
 };
 
-class EditorInspector : public ScrollContainer {
+class GODOT_EXPORT EditorInspector : public ScrollContainer {
     GDCLASS(EditorInspector,ScrollContainer)
 
     UndoRedo *undo_redo;

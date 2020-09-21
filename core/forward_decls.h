@@ -54,15 +54,10 @@ using Span = eastl::span<T,size_t(-1)>;
 
 using BitVector = eastl::bitvector<wrap_allocator,size_t,Vector<size_t>>;
 
-template <class T>
-class ListOld;
-
 template<class T>
 using List = eastl::list<T,wrap_allocator>;
 template <class T>
 using Set = eastl::set<T, eastl::less<T>, wrap_allocator>;
-template <class K,class V>
-using DefMap = eastl::map<K,V, eastl::less<K>,wrap_allocator>;
 
 using String = eastl::basic_string<char, wrap_allocator>;
 using StringView = eastl::basic_string_view<char>;

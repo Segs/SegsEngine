@@ -33,7 +33,7 @@
 #include "scene/3d/visual_instance_3d.h"
 #include "scene/resources/multimesh.h"
 
-class MultiMeshInstance3D : public GeometryInstance {
+class GODOT_EXPORT MultiMeshInstance3D : public GeometryInstance {
     GDCLASS(MultiMeshInstance3D,GeometryInstance)
 
     Ref<MultiMesh> multimesh;

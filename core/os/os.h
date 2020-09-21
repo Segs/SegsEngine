@@ -53,26 +53,29 @@ class Ref;
 class GODOT_EXPORT OS {
 
     static OS *singleton;
+    static uint64_t target_ticks;
+
     String _execpath;
     Vector<String> _cmdline;
+    char *last_error;
+    void *_stack_bottom;
+    CompositeLogger *_logger;
+    String _local_clipboard;
+    uint64_t _msec_splash;
+
     bool _keep_screen_on;
     bool low_processor_usage_mode;
     int low_processor_usage_mode_sleep_usec;
-    bool _verbose_stdout;
-    String _local_clipboard;
-    uint64_t _msec_splash;
     bool _no_window;
     int _exit_code;
     int _orientation;
+    bool _verbose_stdout;
+    bool _debug_stdout;
     bool _allow_hidpi;
     bool _allow_layered;
     bool _use_vsync;
     bool _vsync_via_compositor;
 
-    char *last_error;
-    void *_stack_bottom;
-
-    CompositeLogger *_logger;
 
     bool restart_on_exit;
     Vector<String> restart_commandline;
@@ -203,6 +206,8 @@ public:
     virtual Point2 get_screen_position(int /*p_screen*/ = -1) const { return Point2(); }
     virtual Size2 get_screen_size(int /*p_screen*/ = -1) const { return get_window_size(); }
     virtual int get_screen_dpi(int /*p_screen*/ = -1) const { return 72; }
+    virtual float get_screen_scale(int p_screen = -1) const { return 1.0; }
+    virtual float get_screen_max_scale() const { return 1.0; };
     virtual Point2 get_window_position() const { return Vector2(); }
     virtual void set_window_position(const Point2 &/*p_position*/) {}
     virtual Size2 get_max_window_size() const { return Size2(); }
@@ -346,6 +351,7 @@ public:
     virtual uint64_t get_system_time_msecs() const;
 
     virtual void delay_usec(uint32_t p_usec) const = 0;
+    virtual void add_frame_delay(bool p_can_draw);
     virtual uint64_t get_ticks_usec() const = 0;
     uint32_t get_ticks_msec() const;
     uint64_t get_splash_tick_msec() const;
@@ -355,6 +361,7 @@ public:
     virtual bool is_userfs_persistent() const { return true; }
 
     bool is_stdout_verbose() const;
+    bool is_stdout_debug_enabled() const;
 
     virtual void disable_crash_handler() {}
     virtual bool is_disable_crash_handler() const { return false; }

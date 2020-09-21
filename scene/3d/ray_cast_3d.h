@@ -36,7 +36,7 @@
 
 class Material;
 
-class RayCast3D : public Node3D {
+class GODOT_EXPORT RayCast3D : public Node3D {
 
     GDCLASS(RayCast3D,Node3D)
 

@@ -8,6 +8,7 @@
 #include <memory> // Used here since we don't want to break the multithreadedness promise of std::shared_ptr
 
 #include "../config/config.h"
+#include "../core/fwd.hpp"
 #include "handle.hpp"
 #include "loader.hpp"
 #include "fwd.hpp"
@@ -32,8 +33,6 @@ struct cache {
     using size_type = std::size_t;
     /*! @brief Type of resources managed by a cache. */
     using resource_type = Resource;
-    /*! @brief Unique identifier type for resources. */
-    using id_type = ENTT_ID_TYPE;
 
     /*! @brief Default constructor. */
     cache() = default;
@@ -177,7 +176,7 @@ struct cache {
      * @param id Unique resource identifier.
      * @return True if the cache contains the resource, false otherwise.
      */
-    bool contains(const id_type id) const ENTT_NOEXCEPT {
+    bool contains(const id_type id) const {
         return (resources.find(id) != resources.cend());
     }
 
@@ -189,7 +188,7 @@ struct cache {
      *
      * @param id Unique resource identifier.
      */
-    void discard(const id_type id) ENTT_NOEXCEPT {
+    void discard(const id_type id) {
         if(auto it = resources.find(id); it != resources.end()) {
             resources.erase(it);
         }
@@ -238,4 +237,4 @@ private:
 }
 
 
-#endif // ENTT_RESOURCE_CACHE_HPP
+#endif

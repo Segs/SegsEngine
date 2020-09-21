@@ -47,7 +47,7 @@ public:
     virtual void edit(const Ref<AnimationNode> &p_node) = 0;
 };
 
-class AnimationTreeEditor : public VBoxContainer {
+class GODOT_EXPORT AnimationTreeEditor : public VBoxContainer {
 
     GDCLASS(AnimationTreeEditor,VBoxContainer)
 
@@ -55,7 +55,7 @@ class AnimationTreeEditor : public VBoxContainer {
     HBoxContainer *path_hb;
 
     AnimationTree *tree;
-    PanelContainer *editor_base;
+    MarginContainer *editor_base;
 
     Vector<String> button_path;
     Vector<String> edited_path;

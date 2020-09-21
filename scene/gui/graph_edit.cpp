@@ -280,6 +280,7 @@ void GraphEdit::remove_child_notify(Node *p_child) {
     if (gn) {
         gn->disconnect("offset_changed", this, "_graph_node_moved");
         gn->disconnect("raise_request", this, "_graph_node_raised");
+        gn->disconnect("item_rect_changed", connections_layer, "update");
     }
 }
 
@@ -852,10 +853,22 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
             r.size *= zoom;
             bool in_box = r.intersects(box_selecting_rect);
 
-            if (in_box)
+            if (in_box) {
+                if (!gn->is_selected() && box_selection_mode_additive) {
+                    emit_signal("node_selected", Variant::from(gn));
+                } else if (gn->is_selected() && !box_selection_mode_additive) {
+                    emit_signal("node_unselected", Variant::from(gn));
+                }
                 gn->set_selected(box_selection_mode_additive);
-            else
-                gn->set_selected(previus_selected.contains(gn));
+            } else {
+                bool select = (previus_selected.find(gn) != NULL);
+                if (gn->is_selected() && !select) {
+                    emit_signal("node_unselected", Variant::from(gn));
+                } else if (!gn->is_selected() && select) {
+                    emit_signal("node_selected", Variant::from(gn));
+                }
+                gn->set_selected(select);
+            }
         }
 
         top_layer->update();
@@ -873,7 +886,13 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     if (!gn)
                         continue;
 
-                    gn->set_selected(previus_selected.contains(gn));
+                    bool select = (previus_selected.find(gn) != NULL);
+                    if (gn->is_selected() && !select) {
+                        emit_signal("node_unselected", Variant::from(gn));
+                    } else if (!gn->is_selected() && select) {
+                        emit_signal("node_selected", Variant::from(gn));
+                    }
+                    gn->set_selected(select);
                 }
                 top_layer->update();
             } else {
@@ -895,8 +914,10 @@ void GraphEdit::_gui_input(const Ref<InputEvent> &p_ev) {
                     if (gn) {
                         Rect2 r = gn->get_rect();
                         r.size *= zoom;
-                        if (r.has_point(get_local_mouse_position()))
+                        if (r.has_point(get_local_mouse_position())) {
                             gn->set_selected(false);
+                            emit_signal("node_unselected", Variant::from(gn));
+                        }
                     }
                 }
             }

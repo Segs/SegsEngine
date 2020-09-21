@@ -68,12 +68,3 @@ namespace eastl
 	}; // enable_shared_from_this
 
 } // namespace eastl
-
-
-#endif // Header include guard
-
-
-
-
-
-

@@ -156,7 +156,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
     return true;
 }
 void Skeleton::_get_property_list(Vector<PropertyInfo> *p_list) const {
-
+    //BUG: this should be handled by dynamically sized property array!
     for (int i = 0; i < bones.size(); i++) {
 
         String prep = "bones/" + itos(i) + "/";

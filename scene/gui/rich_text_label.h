@@ -39,7 +39,7 @@ struct RichTextItemFrame;
 struct RichTextItemMeta;
 struct RichTextItemFX;
 
-class RichTextLabel : public Control {
+class GODOT_EXPORT RichTextLabel : public Control {
 
     GDCLASS(RichTextLabel,Control)
 

@@ -86,7 +86,7 @@ namespace eastl
 		{
 			typedef typename eastl::remove_const<T>::type value_type;
 
-			inline optional_storage() EA_NOEXCEPT : empty_val('\0') {}
+			optional_storage() EA_NOEXCEPT = default;
 
 			template<typename TT = T, typename = eastl::enable_if_t<eastl::is_copy_constructible_v<TT>>>
 			inline optional_storage(const optional_storage& other) : engaged(other.engaged) 
@@ -140,13 +140,7 @@ namespace eastl
 			inline void destruct_value() { (*(value_type*)eastl::addressof(val)).~value_type(); }
 
 
-			// This union exists to support trivial types that do not require constructors/destructors to be called.
-			// The eastl::optional<T> type will set the empty_val in this case to "initialize" its member data.
-			union
-			{
-				eastl::aligned_storage_t<sizeof(value_type), eastl::alignment_of_v<value_type>> val;
-				char empty_val;
-			};
+			eastl::aligned_storage_t<sizeof(value_type), eastl::alignment_of_v<value_type>> val;
 			bool engaged = false;
 		};
 
@@ -161,20 +155,16 @@ namespace eastl
 		{
 			typedef eastl::remove_const_t<T> value_type;
 
-			inline optional_storage() EA_NOEXCEPT : empty_val('\0') {}
+			optional_storage() EA_NOEXCEPT = default;
 
-			inline optional_storage(const optional_storage& other) : engaged(other.engaged)
-			{
-				auto* pOtherValue = reinterpret_cast<const T*>(eastl::addressof(other.val));
-				::new (eastl::addressof(val)) value_type(*pOtherValue);
-			}
-
-			inline optional_storage(const value_type& v) : engaged(true)
+			inline optional_storage(const value_type& v)
+				: engaged(true)
 			{
 				::new (eastl::addressof(val)) value_type(v);
 			}
 
-			inline optional_storage(value_type&& v) : engaged(true)
+			inline optional_storage(value_type&& v)
+				: engaged(true)
 			{
 				::new (eastl::addressof(val)) value_type(eastl::move(v));
 			}
@@ -187,18 +177,13 @@ namespace eastl
 			//         destruct_value();
 			// }
 
-			inline optional_storage& operator=(const optional_storage& other) 
-			{
-				auto* pOtherValue = reinterpret_cast<const T*>(eastl::addressof(other.val));
-				::new (eastl::addressof(val)) value_type(*pOtherValue);
-				return *this;
-			}
+			~optional_storage() EA_NOEXCEPT = default;
 
 			template <class... Args>
 			inline explicit optional_storage(in_place_t, Args&&... args)
 			    : engaged(true)
 			{
-				new (eastl::addressof(val)) value_type{eastl::forward<Args>(args)...};
+				::new (eastl::addressof(val)) value_type{eastl::forward<Args>(args)...};
 			}
 
 			template <typename U,
@@ -207,19 +192,13 @@ namespace eastl
 			inline explicit optional_storage(in_place_t, std::initializer_list<U> ilist, Args&&... args)
 			    : engaged(true)
 			{
-				new (eastl::addressof(val)) value_type{ilist, eastl::forward<Args>(args)...};
+				::new (eastl::addressof(val)) value_type{ilist, eastl::forward<Args>(args)...};
 			}
 
 			inline void destruct_value() {}  // no implementation necessary since T is trivially destructible.
 
 
-			// This union exists to support trivial types that do not require constructors/destructors to be called.
-			// The eastl::optional<T> type will set the empty_val in this case to "initialize" its member data. 
-			union
-			{
-				eastl::aligned_storage_t<sizeof(value_type), eastl::alignment_of_v<value_type>> val; 
-				char empty_val;
-			};
+			eastl::aligned_storage_t<sizeof(value_type), eastl::alignment_of_v<value_type>> val; 
 			bool engaged = false;
 		};
 	} // namespace Internal

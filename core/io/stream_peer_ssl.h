@@ -35,7 +35,7 @@
 #include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
-class StreamPeerSSL : public StreamPeer {
+class GODOT_EXPORT StreamPeerSSL : public StreamPeer {
     GDCLASS(StreamPeerSSL,StreamPeer)
 
 

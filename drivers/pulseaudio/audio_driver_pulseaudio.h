@@ -29,9 +29,6 @@
 /*************************************************************************/
 
 #pragma once
-#ifndef PULSEAUDIO_ENABLED
-#ewew
-#endif
 #ifdef PULSEAUDIO_ENABLED
 
 

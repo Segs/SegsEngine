@@ -76,7 +76,7 @@ private:
     bool loop;
     RotationMode rotation_mode;
 
-    void _update_transform();
+    void _update_transform(bool p_update_xyz_rot = true);
 
 protected:
     void _validate_property(PropertyInfo &property) const override;

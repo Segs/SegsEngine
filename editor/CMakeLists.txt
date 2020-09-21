@@ -14,8 +14,8 @@ target_link_libraries(edit_tools PUBLIC editor_interface)
 add_subdirectory(plugin_interfaces)
 
 list(APPEND editor_sources
-    doc/doc_data.cpp
-    doc/doc_data.h
+    doc/doc_builder.cpp
+    doc/doc_builder.h
 
     fileserver/editor_file_server.cpp
     fileserver/editor_file_server.h
@@ -34,7 +34,7 @@ foreach(e ${platform_exporters})
     source_group(exporters/${exporter_name} ${PROJECT_SOURCE_DIR}/${e})
 
     string(APPEND reg_exporters "    register_${exporter_name}_exporter();\n")
-    string(APPEND reg_exporters_inc "#include \"platform/${exporter_name}/export/export.h\"\n")
+    string(APPEND reg_exporters_inc "#include \"platform/${exporter_name}/export/${exporter_name}_export.h\"\n")
 endforeach()
 string(APPEND reg_exporters "}\n")
 configure_file(register_exporters.cpp.cmake ${CMAKE_CURRENT_BINARY_DIR}/register_exporters.gen.cpp)

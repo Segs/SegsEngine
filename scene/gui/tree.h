@@ -38,7 +38,7 @@
 
 class Tree;
 
-class TreeItem : public Object {
+class GODOT_EXPORT TreeItem : public Object {
 
     GDCLASS(TreeItem,Object)
 
@@ -168,9 +168,9 @@ public:
 
         return d;
     }
-    void remove_child(Object *p_child) {
-        remove_child(object_cast<TreeItem>(p_child));
-    }
+//    void remove_child(Object *p_child) {
+//        remove_child(object_cast<TreeItem>(p_child));
+//    }
 
     Variant _call_recursive_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
@@ -290,7 +290,7 @@ public:
 };
 
 
-class Tree : public Control {
+class GODOT_EXPORT Tree : public Control {
 
     GDCLASS(Tree,Control)
 
@@ -536,6 +536,7 @@ public:
     TreeItem *get_item_at_position(const Point2 &p_pos) const;
     int get_column_at_position(const Point2 &p_pos) const;
     int get_drop_section_at_position(const Point2 &p_pos) const;
+    int get_button_id_at_position(const Point2 &p_pos) const;
 
     void clear();
 

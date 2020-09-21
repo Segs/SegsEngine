@@ -32,7 +32,7 @@
 
 #include "scene/gui/container.h"
 #include "scene/gui/popup.h"
-class TabContainer : public Container {
+class GODOT_EXPORT TabContainer : public Container {
 
     GDCLASS(TabContainer,Container)
 

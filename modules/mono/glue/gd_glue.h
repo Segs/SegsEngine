@@ -31,8 +31,6 @@
 #ifndef GD_GLUE_H
 #define GD_GLUE_H
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "../mono_gd/gd_mono_marshal.h"
 
 MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_objects);
@@ -80,7 +78,5 @@ MonoObject *godot_icall_DefaultGodotTaskScheduler();
 // Register internal calls
 
 void godot_register_gd_icalls();
-
-#endif // MONO_GLUE_ENABLED
 
 #endif // GD_GLUE_H

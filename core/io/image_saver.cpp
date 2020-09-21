@@ -45,7 +45,7 @@ namespace {
 
 struct ImagePluginResolver : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) override {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &/*metadata*/,const char *) override {
         bool res=false;
         auto image_saver_interface = qobject_cast<ImageFormatSaver *>(ob);
         if(image_saver_interface) {

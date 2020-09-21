@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape_2d.h"
 
-class ConcavePolygonShape2D : public Shape2D {
+class GODOT_EXPORT ConcavePolygonShape2D : public Shape2D {
     GDCLASS(ConcavePolygonShape2D,Shape2D)
 
 protected:

@@ -30,6 +30,7 @@
 
 #include "property_selector.h"
 
+#include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/keyboard.h"
@@ -340,7 +341,7 @@ void PropertySelector::_item_selected() {
     TreeItem *item = search_options->get_selected();
     if (!item)
         return;
-    StringName name = item->get_metadata(0);
+    String name = item->get_metadata(0).as<String>();
 
     StringName class_type;
     if (type != VariantType::NIL) {
@@ -359,7 +360,7 @@ void PropertySelector::_item_selected() {
 
         while (!at_class.empty()) {
 
-            auto E = dd->class_list.find(at_class);
+            auto E = dd->class_list.find(at_class.asCString());
             if (E!=dd->class_list.end()) {
                 for (size_t i = 0; i < E->second.properties.size(); i++) {
                     if (E->second.properties[i].name == name) {
@@ -376,7 +377,7 @@ void PropertySelector::_item_selected() {
 
         while (!at_class.empty()) {
 
-            auto E = dd->class_list.find(at_class);
+            auto E = dd->class_list.find(at_class.asCString());
             if (E!=dd->class_list.end()) {
                 for (size_t i = 0; i < E->second.methods.size(); i++) {
                     if (E->second.methods[i].name == name) {

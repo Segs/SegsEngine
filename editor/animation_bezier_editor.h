@@ -35,7 +35,7 @@
 #include "core/set.h"
 #include "core/map.h"
 
-class AnimationBezierTrackEdit : public Control {
+class GODOT_EXPORT AnimationBezierTrackEdit : public Control {
 
 	GDCLASS(AnimationBezierTrackEdit,Control)
 

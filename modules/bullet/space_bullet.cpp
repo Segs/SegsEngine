@@ -178,6 +178,11 @@ bool BulletPhysicsDirectSpaceState::cast_motion(const RID &p_shape, const Transf
     btTransform bt_xform_to(bt_xform_from);
     bt_xform_to.getOrigin() += bt_motion;
 
+    if ((bt_xform_to.getOrigin() - bt_xform_from.getOrigin()).fuzzyZero()) {
+        bulletdelete(btShape);
+        return false;
+    }
+
     GodotClosestConvexResultCallback btResult(bt_xform_from.getOrigin(), bt_xform_to.getOrigin(), &p_exclude, p_collide_with_bodies, p_collide_with_areas);
     btResult.m_collisionFilterGroup = 0;
     btResult.m_collisionFilterMask = p_collision_mask;
@@ -348,6 +353,8 @@ SpaceBullet::SpaceBullet() :
         godotFilterCallback(nullptr),
         gravityDirection(0, -1, 0),
         gravityMagnitude(10),
+        linear_damp(0.0f),
+        angular_damp(0.0f),
         contactDebugCount(0),
         delta_time(0.) {
 
@@ -385,8 +392,11 @@ void SpaceBullet::set_param(PhysicsServer3D::AreaParameter p_param, const Varian
             update_gravity();
             break;
         case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
+            linear_damp = p_value;
+            break;
         case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
-            break; // No damp
+            angular_damp = p_value;
+            break;
         case PhysicsServer3D::AREA_PARAM_PRIORITY:
             // Priority is always 0, the lower
             break;
@@ -407,8 +417,9 @@ Variant SpaceBullet::get_param(PhysicsServer3D::AreaParameter p_param) {
         case PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR:
             return gravityDirection;
         case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
+            return linear_damp;
         case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
-            return 0; // No damp
+            return angular_damp;
         case PhysicsServer3D::AREA_PARAM_PRIORITY:
             return 0; // Priority is always 0, the lower
         case PhysicsServer3D::AREA_PARAM_GRAVITY_IS_POINT:
@@ -597,7 +608,7 @@ void SpaceBullet::create_empty_world(bool p_create_soft_world) {
         world_mem = malloc(sizeof(btDiscreteDynamicsWorld));
     }
 
-    ERR_FAIL_COND_MSG(!world_mem, "Out of memory."); 
+    ERR_FAIL_COND_MSG(!world_mem, "Out of memory.");
 
     if (p_create_soft_world) {
         collisionConfiguration = bulletnew(GodotSoftCollisionConfiguration(static_cast<btDiscreteDynamicsWorld *>(world_mem)));
@@ -957,17 +968,7 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
 
         const int shape_count(p_body->get_shape_count());
 
-#if debug_test_motion
-        Vector3 sup_line;
-        B_TO_G(body_safe_position.getOrigin(), sup_line);
-        motionVec->clear();
-        motionVec->begin(Mesh::PRIMITIVE_LINES, nullptr);
-        motionVec->add_vertex(sup_line);
-        motionVec->add_vertex(sup_line + p_motion * 10);
-        motionVec->end();
-#endif
-
-        for (int shIndex = 0; shIndex < shape_count && !motion.fuzzyZero(); ++shIndex) {
+        for (int shIndex = 0; shIndex < shape_count; ++shIndex) {
             if (p_body->is_shape_disabled(shIndex)) {
                 continue;
             }
@@ -988,6 +989,11 @@ bool SpaceBullet::test_body_motion(RigidBodyBullet *p_body, const Transform &p_f
 
             btTransform shape_world_to(shape_world_from);
             shape_world_to.getOrigin() += motion;
+
+            if ((shape_world_to.getOrigin() - shape_world_from.getOrigin()).fuzzyZero()) {
+                motion = btVector3(0, 0, 0);
+                break;
+            }
 
             GodotKinClosestConvexResultCallback btResult(shape_world_from.getOrigin(), shape_world_to.getOrigin(), p_body, p_infinite_inertia);
             btResult.m_collisionFilterGroup = p_body->get_collision_layer();

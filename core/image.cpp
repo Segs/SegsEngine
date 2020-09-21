@@ -153,7 +153,7 @@ static int _get_dst_image_size(int p_width, int p_height, Image::Format p_format
 }
 struct CodecPluginResolver final : public ResolverInterface
 {
-    bool new_plugin_detected(QObject * ob) final {
+    bool new_plugin_detected(QObject *ob,const QJsonObject &,const char *) final {
         bool res=false;
         auto interface = qobject_cast<ImageCodecInterface *>(ob);
         if(interface) {

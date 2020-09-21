@@ -3,7 +3,9 @@
 
 
 #include <cstddef>
+#include <cstdint>
 #include "../config/config.h"
+#include "fwd.hpp"
 
 
 namespace entt {
@@ -24,6 +26,7 @@ struct fnv1a_traits;
 
 template<>
 struct fnv1a_traits<std::uint32_t> {
+    using type = std::uint32_t;
     static constexpr std::uint32_t offset = 2166136261;
     static constexpr std::uint32_t prime = 16777619;
 };
@@ -31,6 +34,7 @@ struct fnv1a_traits<std::uint32_t> {
 
 template<>
 struct fnv1a_traits<std::uint64_t> {
+    using type = std::uint64_t;
     static constexpr std::uint64_t offset = 14695981039346656037ull;
     static constexpr std::uint64_t prime = 1099511628211ull;
 };
@@ -58,7 +62,7 @@ struct fnv1a_traits<std::uint64_t> {
  */
 template<typename Char>
 class basic_hashed_string {
-    using traits_type = internal::fnv1a_traits<ENTT_ID_TYPE>;
+    using traits_type = internal::fnv1a_traits<id_type>;
 
     struct const_wrapper {
         // non-explicit constructor on purpose
@@ -67,15 +71,21 @@ class basic_hashed_string {
     };
 
     // Fowler–Noll–Vo hash function v. 1a - the good
-    static constexpr ENTT_ID_TYPE helper(ENTT_ID_TYPE partial, const Char *curr) ENTT_NOEXCEPT {
-        return curr[0] == 0 ? partial : helper((partial^curr[0])*traits_type::prime, curr+1);
+    static constexpr id_type helper(const Char *curr) ENTT_NOEXCEPT {
+        auto value = traits_type::offset;
+
+        while(*curr != 0) {
+            value = (value ^ static_cast<traits_type::type>(*(curr++))) * traits_type::prime;
+        }
+
+        return value;
     }
 
 public:
     /*! @brief Character type. */
     using value_type = Char;
     /*! @brief Unsigned integer type. */
-    using hash_type = ENTT_ID_TYPE;
+    using hash_type = id_type;
 
     /**
      * @brief Returns directly the numeric representation of a string.
@@ -93,8 +103,8 @@ public:
      * @return The numeric representation of the string.
      */
     template<std::size_t N>
-    static constexpr hash_type to_value(const value_type (&str)[N]) ENTT_NOEXCEPT {
-        return helper(traits_type::offset, str);
+    static constexpr hash_type value(const value_type (&str)[N]) ENTT_NOEXCEPT {
+        return helper(str);
     }
 
     /**
@@ -102,8 +112,8 @@ public:
      * @param wrapper Helps achieving the purpose by relying on overloading.
      * @return The numeric representation of the string.
      */
-    static hash_type to_value(const_wrapper wrapper) ENTT_NOEXCEPT {
-        return helper(traits_type::offset, wrapper.str);
+    static hash_type value(const_wrapper wrapper) ENTT_NOEXCEPT {
+        return helper(wrapper.str);
     }
 
     /**
@@ -112,8 +122,8 @@ public:
      * @param size Length of the string to hash.
      * @return The numeric representation of the string.
      */
-    static hash_type to_value(const value_type *str, std::size_t size) ENTT_NOEXCEPT {
-        ENTT_ID_TYPE partial{traits_type::offset};
+    static hash_type value(const value_type *str, std::size_t size) ENTT_NOEXCEPT {
+        id_type partial{traits_type::offset};
         while(size--) { partial = (partial^(str++)[0])*traits_type::prime; }
         return partial;
     }
@@ -139,7 +149,7 @@ public:
      */
     template<std::size_t N>
     constexpr basic_hashed_string(const value_type (&curr)[N]) ENTT_NOEXCEPT
-        : str{curr}, hash{helper(traits_type::offset, curr)}
+        : str{curr}, hash{helper(curr)}
     {}
 
     /**
@@ -148,7 +158,7 @@ public:
      * @param wrapper Helps achieving the purpose by relying on overloading.
      */
     explicit constexpr basic_hashed_string(const_wrapper wrapper) ENTT_NOEXCEPT
-        : str{wrapper.str}, hash{helper(traits_type::offset, wrapper.str)}
+        : str{wrapper.str}, hash{helper(wrapper.str)}
     {}
 
     /**
@@ -166,15 +176,14 @@ public:
     constexpr hash_type value() const ENTT_NOEXCEPT {
         return hash;
     }
+    /*! @copydoc data */
+    constexpr operator const value_type *() const ENTT_NOEXCEPT { return data(); }
 
     /**
-     * @brief Returns the human-readable representation of a hashed string.
-     * @return The string used to initialize the instance.
+     * @brief Returns the numeric representation of a hashed string.
+     * @return The numeric representation of the instance.
      */
-    constexpr operator const value_type *() const ENTT_NOEXCEPT { return str; }
-
-    /*! @copydoc value */
-    constexpr operator hash_type() const ENTT_NOEXCEPT { return hash; }
+    constexpr operator hash_type() const ENTT_NOEXCEPT { return value(); }
 
     /**
      * @brief Compares two hashed strings.
@@ -250,4 +259,4 @@ constexpr entt::hashed_wstring operator"" ENTT_HWS_SUFFIX(const wchar_t *str, st
 }
 
 
-#endif // ENTT_CORE_HASHED_STRING_HPP
+#endif

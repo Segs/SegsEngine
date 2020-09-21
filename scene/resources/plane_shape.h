@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/math/plane.h"
 
-class PlaneShape : public Shape {
+class GODOT_EXPORT PlaneShape : public Shape {
 
     GDCLASS(PlaneShape,Shape)
 

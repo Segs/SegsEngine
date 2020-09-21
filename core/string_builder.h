@@ -33,18 +33,30 @@
 #include "core/string.h"
 
 #include "core/vector.h"
+#include <cassert>
 
-class StringBuilder {
+class GODOT_EXPORT StringBuilder {
 
     uint32_t string_length;
 
     Vector<String> strings;
-    Vector<const char *> c_strings;
+    Vector<StringView> c_strings;
 
     // -1 means it's a Godot String
     // a natural number means C string.
     Vector<int32_t> appended_strings;
 
+    int current_indent_level=0;
+    void add_indent() {
+        static const char *spaces = "                                                                ";
+        assert(current_indent_level<16);
+        int32_t len = 4*current_indent_level;
+
+        c_strings.push_back(StringView(spaces,current_indent_level*4));
+        appended_strings.push_back(len);
+
+        string_length += len;
+    }
 public:
     StringBuilder &append(StringView p_string);
     StringBuilder &append(const char *p_cstring);
@@ -72,6 +84,27 @@ public:
     _FORCE_INLINE_ uint32_t get_string_length() const {
         return string_length;
     }
+
+    StringBuilder &append_indented(const String &p_string) {
+        add_indent();
+        return append(p_string);
+    }
+    StringBuilder &append_indented(const char *p_string) {
+        add_indent();
+        return append(p_string);
+    }
+    StringBuilder& append_indented_multiline(StringView p_string) {
+        Vector<StringView> lines;
+        String::split_ref(lines,p_string,'\n');
+        for(StringView line : lines) {
+            add_indent();
+            append(line);
+            append("\n");
+        }
+        return *this;
+    }
+    void indent(int level=1) { current_indent_level += level; }
+    void dedent(int level=1) { current_indent_level -= level; if(current_indent_level<0) current_indent_level=0; }
 
     String as_string() const;
 

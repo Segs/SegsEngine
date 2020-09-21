@@ -33,7 +33,7 @@
 
 #include "scene/2d/canvas_item.h"
 
-class Node2D : public CanvasItem {
+class GODOT_EXPORT Node2D : public CanvasItem {
 
     GDCLASS(Node2D,CanvasItem)
     Transform2D _mat;

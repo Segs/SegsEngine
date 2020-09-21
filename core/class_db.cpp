@@ -102,7 +102,8 @@ bool ClassDB::is_parent_class(const StringName &p_class, const StringName &p_inh
 
     while (!inherits.empty()) {
 
-        if (inherits == p_inherits) return true;
+        if (inherits == p_inherits)
+            return true;
         inherits = get_parent_class(inherits);
     }
 
@@ -465,9 +466,9 @@ void ClassDB::get_method_list(
 
         const StringName *K = nullptr;
 
-        while ((K = type->method_map.next(K))) {
+        for(const auto &entry : type->method_map) {
 
-            MethodBind *m = type->method_map[*K];
+            MethodBind *m = type->method_map[entry.first];
             MethodInfo mi;
             mi.name = m->get_name();
             p_methods->push_back(mi);
@@ -497,6 +498,19 @@ MethodBind *ClassDB::get_method(StringName p_class, StringName p_name) {
     }
     return nullptr;
 }
+void ClassDB::register_enum_type(const StringName &p_class, const StringName &p_enum, const StringName &p_underlying_type)
+{
+    auto iter=classes.find(p_class);
+    ERR_FAIL_COND(iter==classes.end());
+    ClassInfo *type = &iter->second;
+
+    if (type->enum_map.contains(p_enum)) {
+
+        ERR_FAIL();
+    }
+    assert(!p_underlying_type.empty());
+    type->enum_map[p_enum].underlying_type = p_underlying_type;
+}
 
 void ClassDB::bind_integer_constant(
         const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant) {
@@ -524,9 +538,10 @@ void ClassDB::bind_integer_constant(
         }
         const StringName interned_enum_name(enum_name);
 
-        List<StringName> &constants_list = type->enum_map[interned_enum_name];
-
-        constants_list.push_back(p_name);
+        EnumDescriptor &constants_list = type->enum_map[interned_enum_name];
+        if(constants_list.underlying_type.empty())
+            constants_list.underlying_type = "int32_t";
+        constants_list.enumerators.push_back(p_name);
     }
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -548,10 +563,8 @@ void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> 
             p_constants->push_back(name.asCString());
         }
 #else
-        const StringName *K = nullptr;
-
-        while ((K = type->constant_map.next(K))) {
-            p_constants->push_back(*K);
+        for(const auto &e : type->constant_map) {
+            p_constants->emplace_back(e.first);
         }
 
 #endif
@@ -597,7 +610,7 @@ StringName ClassDB::get_integer_constant_enum(
     while (type) {
 
         for(const auto &entry : type->enum_map) {
-            if(entry.second.contains(p_name))
+            if(entry.second.enumerators.contains(p_name))
                 return entry.first;
         }
 
@@ -641,7 +654,7 @@ void ClassDB::get_enum_constants(
         auto enum_iter = type->enum_map.find(p_enum);
 
         if (enum_iter!=type->enum_map.end()) {
-            for (const StringName &name : enum_iter->second) {
+            for (const StringName &name : enum_iter->second.enumerators) {
                 p_constants->push_back(name);
             }
         }
@@ -736,8 +749,18 @@ void ClassDB::add_property_group(StringName p_class, const char *p_name, const c
     ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
     ERR_FAIL_COND(!type);
 
-    type->property_list.push_back(
-            PropertyInfo(VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP));
+    type->property_list.emplace_back(
+            VariantType::NIL, StringName(p_name), PropertyHint::None, p_prefix, PROPERTY_USAGE_GROUP);
+}
+
+void ClassDB::add_property_array(StringName p_class, const char *p_name, int elem_count,const char *p_prefix) {
+
+    OBJTYPE_WLOCK
+    auto iter=classes.find(p_class);
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
+    ERR_FAIL_COND(!type);
+
+    type->property_list.emplace_back(StringName(p_name),elem_count, StringName(p_prefix));
 }
 
 void ClassDB::add_property(StringName p_class, const PropertyInfo &p_pinfo, const StringName &p_setter,
@@ -1098,7 +1121,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
     p_bind->set_hint_flags(p_flags);
     return p_bind;
 }
-
+#ifdef DEBUG_METHODS_ENABLED
 void ClassDB::_set_class_header(const StringName &p_class, StringView header_file) {
     //TODO: SEGS: fragile piece of code, assumes this file is always at `core/class_db.cpp` path.
     StringView current_path = __FILE__;
@@ -1108,6 +1131,7 @@ void ClassDB::_set_class_header(const StringName &p_class, StringView header_fil
     String hdr(hdr_path.substr(prefix_len));
     classes[p_class].usage_header = hdr.replaced(".cpp", ".h");
 }
+#endif
 
 void ClassDB::add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual) {
     ERR_FAIL_COND(!classes.contains(p_class));
@@ -1310,3 +1334,4 @@ bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const Str
 #endif
     return true;
 }
+

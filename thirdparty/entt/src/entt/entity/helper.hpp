@@ -3,8 +3,10 @@
 
 #include "EASTL/type_traits.h"
 #include "../config/config.h"
-#include "../signal/sigh.hpp"
+#include "../core/type_traits.hpp"
+#include "../signal/delegate.hpp"
 #include "registry.hpp"
+#include "fwd.hpp"
 
 
 namespace entt {
@@ -15,10 +17,10 @@ namespace entt {
  * @tparam Const Constness of the accepted registry.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<bool Const, typename Entity>
+template<bool Const, typename Entity, typename Allocator>
 struct as_view {
     /*! @brief Type of registry to convert. */
-    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity>, entt::basic_registry<Entity>>;
+    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity,Allocator>, entt::basic_registry<Entity,Allocator>>;
 
     /**
      * @brief Constructs a converter for a given registry.
@@ -33,7 +35,7 @@ struct as_view {
      * @return A newly created view.
      */
     template<typename Exclude, typename... Component>
-    operator entt::basic_view<Entity, Exclude, Component...>() const {
+    operator entt::basic_view<Entity, Allocator, Exclude, Component...>() const {
         return reg.template view<Component...>(Exclude{});
     }
 
@@ -50,13 +52,13 @@ private:
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<typename Entity>
-as_view(basic_registry<Entity> &) ENTT_NOEXCEPT -> as_view<false, Entity>;
+template<typename Entity, typename Allocator>
+as_view(basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_view<false, Entity,Allocator>;
 
 
 /*! @copydoc as_view */
-template<typename Entity>
-as_view(const basic_registry<Entity> &) ENTT_NOEXCEPT -> as_view<true, Entity>;
+template<typename Entity, typename Allocator>
+as_view(const basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_view<true, Entity,Allocator>;
 
 
 /**
@@ -64,10 +66,10 @@ as_view(const basic_registry<Entity> &) ENTT_NOEXCEPT -> as_view<true, Entity>;
  * @tparam Const Constness of the accepted registry.
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<bool Const, typename Entity>
+template<bool Const, typename Entity, typename Allocator>
 struct as_group {
     /*! @brief Type of registry to convert. */
-    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity>, entt::basic_registry<Entity>>;
+    using registry_type = eastl::conditional_t<Const, const entt::basic_registry<Entity,Allocator>, entt::basic_registry<Entity,Allocator>>;
 
     /**
      * @brief Constructs a converter for a given registry.
@@ -83,7 +85,7 @@ struct as_group {
      * @return A newly created group.
      */
     template<typename Exclude, typename Get, typename... Owned>
-    operator entt::basic_group<Entity, Exclude, Get, Owned...>() const {
+    operator entt::basic_group<Entity,Allocator, Exclude, Get, Owned...>() const {
         return reg.template group<Owned...>(Get{}, Exclude{});
     }
 
@@ -100,39 +102,32 @@ private:
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
  */
-template<typename Entity>
-as_group(basic_registry<Entity> &) ENTT_NOEXCEPT -> as_group<false, Entity>;
+template<typename Entity,typename Allocator>
+as_group(basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_group<false, Entity,Allocator>;
 
 
 /*! @copydoc as_group */
-template<typename Entity>
-as_group(const basic_registry<Entity> &) ENTT_NOEXCEPT -> as_group<true, Entity>;
+template<typename Entity,typename Allocator>
+as_group(const basic_registry<Entity,Allocator> &) ENTT_NOEXCEPT -> as_group<true, Entity,Allocator>;
 
 
 /**
- * @brief Alias template to ease the assignment of tags to entities.
- *
- * If used in combination with hashed strings, it simplifies the assignment of
- * tags to entities and the use of tags in general where a type would be
- * required otherwise.<br/>
- * As an example and where the user defined literal for hashed strings hasn't
- * been changed:
- * @code{.cpp}
- * entt::registry registry;
- * registry.assign<entt::tag<"enemy"_hs>>(entity);
- * @endcode
- *
- * @note
- * Tags are empty components and therefore candidates for the empty component
- * optimization.
- *
- * @tparam Value The numeric representation of an instance of hashed string.
+ * @brief Helper to create a listener that directly invokes a member function.
+ * @tparam Member Member function to invoke on a component of the given type.
+ * @tparam Entity A valid entity type (see entt_traits for more details).
+ * @param reg A registry that contains the given entity and its components.
+ * @param entt Entity from which to get the component.
  */
-template<ENTT_ID_TYPE Value>
-using tag = eastl::integral_constant<ENTT_ID_TYPE, Value>;
+template<auto Member, typename Entity = entity>
+void invoke(basic_registry<Entity> &reg, const Entity entt) {
+    static_assert(eastl::is_member_function_pointer_v<decltype(Member)>);
+    delegate<void(basic_registry<Entity> &, const Entity)> func;
+    func.template connect<Member>(reg.template get<member_class_t<decltype(Member)>>(entt));
+    func(reg, entt);
+}
 
 
 }
 
 
-#endif // ENTT_ENTITY_HELPER_HPP
+#endif

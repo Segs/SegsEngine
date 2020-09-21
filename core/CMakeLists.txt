@@ -123,6 +123,7 @@ set(core_sources
     plugin_interfaces/ResourceImporterInterface.h
     plugin_interfaces/ResourceLoaderInterface.h
     plugin_interfaces/load_params.h
+    reflection_support/reflection_generator.cpp
     resource/manifest.cpp
     resource/manifest.h
     resource/resource_manager.h
@@ -344,6 +345,11 @@ set(generic_core_sources
     version.h
     version_generated.gen.h
     configuration.h
+
+    doc_support/doc_data.cpp
+    doc_support/doc_data.h
+    reflection_support/reflection_data.cpp
+    reflection_support/reflection_data.h
 )
 set(tool_core_sources
     math/math_fieldwise.cpp
@@ -398,7 +404,7 @@ endif()
 #zstd_internal is in public part of target_link_libraries to propagate it's flags to all users of se_core
 target_link_libraries(se_core PUBLIC core_service_interfaces Qt5::Core zstd_internal EnTT::EnTT)
 target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
-target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR})
+target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 set_common_target_properties(se_core)
 # TODO: this should use interface library common to all targets!
 target_link_libraries(se_core PUBLIC editor_interface)

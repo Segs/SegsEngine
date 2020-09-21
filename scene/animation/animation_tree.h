@@ -40,7 +40,7 @@ class AnimationNodeBlendTree;
 class AnimationPlayer;
 class AnimationTree;
 
-class AnimationNode : public Resource {
+class GODOT_EXPORT AnimationNode : public Resource {
     GDCLASS(AnimationNode,Resource)
 
 public:
@@ -153,14 +153,14 @@ public:
 
 
 //root node does not allow inputs
-class AnimationRootNode : public AnimationNode {
+class GODOT_EXPORT AnimationRootNode : public AnimationNode {
     GDCLASS(AnimationRootNode,AnimationNode)
 
 public:
     AnimationRootNode() {}
 };
 
-class AnimationTree : public Node {
+class GODOT_EXPORT AnimationTree : public Node {
     GDCLASS(AnimationTree,Node)
 
 public:

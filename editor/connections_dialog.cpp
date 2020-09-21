@@ -34,6 +34,7 @@
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "core/string_formatter.h"
+#include "core/doc_support/doc_data.h"
 #include "editor_node.h"
 #include "editor/editor_help.h"
 #include "editor/editor_scale.h"
@@ -469,11 +470,6 @@ ConnectDialog::ConnectDialog() {
     dstm_hb->add_child(advanced);
     advanced->set_text(TTR("Advanced"));
     advanced->connect("pressed", this, "_advanced_pressed");
-
-    // Add spacing so the tree and inspector are the same size.
-    Control *spacing = memnew(Control);
-    spacing->set_custom_minimum_size(Size2(0, 4) * EDSCALE);
-    vbc_right->add_child(spacing);
 
     deferred = memnew(CheckBox);
     deferred->set_h_size_flags(0);
@@ -1003,11 +999,11 @@ void ConnectionsDock::update_tree() {
 
                 if (!found) {
                     DocData *dd = EditorHelp::get_doc_data();
-                    auto F = dd->class_list.find(base);
+                    auto F = dd->class_list.find(base.asCString());
                     while (F!=dd->class_list.end() && descr.empty()) {
                         for (size_t i = 0; i < F->second.defined_signals.size(); i++) {
                             if (F->second.defined_signals[i].name == signal_name.asCString()) {
-                                descr = StringUtils::strip_edges(F->second.defined_signals[i].description);
+                                descr = F->second.defined_signals[i].description.trimmed();
                                 break;
                             }
                         }

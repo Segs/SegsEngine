@@ -32,7 +32,7 @@
 
 #include "scene/gui/range.h"
 
-class ScrollBar : public Range {
+class GODOT_EXPORT ScrollBar : public Range {
 
     GDCLASS(ScrollBar,Range)
 

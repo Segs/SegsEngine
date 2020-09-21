@@ -33,7 +33,7 @@
 #include "scene/gui/control.h"
 #include "scene/gui/popup_menu.h"
 
-class LineEdit : public Control {
+class GODOT_EXPORT LineEdit : public Control {
 
     GDCLASS(LineEdit,Control)
 

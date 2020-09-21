@@ -123,27 +123,26 @@ void FindReplaceBar::_notification(int p_what) {
 void FindReplaceBar::_unhandled_input(const Ref<InputEvent> &p_event) {
 
     Ref<InputEventKey> k = dynamic_ref_cast<InputEventKey>(p_event);
-    if (k) {
 
-        if (k->is_pressed() && (text_edit->has_focus() || vbc_lineedit->is_a_parent_of(get_focus_owner()))) {
+    if (!k || !k->is_pressed()) {
+        return;
+    }
 
-            bool accepted = true;
+    Control *focus_owner = get_focus_owner();
+    if (text_edit->has_focus() || (focus_owner && vbc_lineedit->is_a_parent_of(focus_owner))) {
+        bool accepted = true;
 
-            switch (k->get_keycode()) {
+        switch (k->get_keycode()) {
+            case KEY_ESCAPE: {
+                _hide_bar();
+            } break;
+            default: {
+                accepted = false;
+            } break;
+        }
 
-                case KEY_ESCAPE: {
-
-                    _hide_bar();
-                } break;
-                default: {
-
-                    accepted = false;
-                } break;
-            }
-
-            if (accepted) {
-                accept_event();
-            }
+        if (accepted) {
+            accept_event();
         }
     }
 }

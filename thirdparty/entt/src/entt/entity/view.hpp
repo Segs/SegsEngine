@@ -3,10 +3,10 @@
 
 #include "EASTL/algorithm.h"
 #include "EASTL/array.h"
-#include "EASTL/tuple.h"
 #include "EASTL/utility.h"
 #include "EASTL/algorithm.h"
 #include "EASTL/type_traits.h"
+#include <utility> // for tuple
 
 #include "../config/config.h"
 #include "../core/type_traits.hpp"
@@ -35,11 +35,8 @@ class basic_view;
  *
  * Multi component views iterate over those entities that have at least all the
  * given components in their bags. During initialization, a multi component view
- * looks at the number of entities available for each component and picks up a
- * reference to the smallest set of candidate entities in order to get a
- * performance boost when iterate.<br/>
- * Order of elements during iterations are highly dependent on the order of the
- * underlying data structures. See sparse_set for more details.
+ * looks at the number of entities available for each component and uses the
+ * smallest set in order to get a performance boost when iterate.
  *
  * @b Important
  *
@@ -50,9 +47,8 @@ class basic_view;
  *   given components is removed from the entity to which the iterator points).
  * * The entity currently pointed is destroyed.
  *
- * In all the other cases, modifying the pools of the given components in any
- * way invalidates all the iterators and using them results in undefined
- * behavior.
+ * In all other cases, modifying the pools iterated by the view in any way
+ * invalidates all the iterators and using them results in undefined behavior.
  *
  * @note
  * Views share references to the underlying data structures of the registry that
@@ -60,7 +56,7 @@ class basic_view;
  * made by means of the registry are immediately reflected by views.
  *
  * @warning
- * Lifetime of a view must overcome the one of the registry that generated it.
+ * Lifetime of a view must not overcome that of the registry that generated it.
  * In any other case, attempting to use a view results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
@@ -73,96 +69,106 @@ class basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> {
     friend class basic_registry<Entity,Allocator>;
 
     template<typename Comp>
-    using pool_type = eastl::conditional_t<eastl::is_const_v<Comp>, const storage<Entity, eastl::remove_const_t<Comp>>, storage<Entity, Comp>>;
+    using pool_type = eastl::conditional_t<eastl::is_const_v<Comp>, const storage<Entity, eastl::remove_const_t<Comp>,Allocator>, storage<Entity, Comp,Allocator>>;
 
     template<typename Comp>
-    using component_iterator_type = decltype(eastl::declval<pool_type<Comp>>().begin());
+    using component_iterator = decltype(eastl::declval<pool_type<Comp>>().begin());
 
-    using underlying_iterator_type = typename sparse_set<Entity>::iterator_type;
-    using unchecked_type = eastl::array<const sparse_set<Entity> *, (sizeof...(Component) - 1)>;
-    using filter_type = eastl::array<const sparse_set<Entity> *, sizeof...(Exclude)>;
+    using underlying_iterator = typename sparse_set<Entity,Allocator>::iterator;
+    using unchecked_type = eastl::array<const sparse_set<Entity,Allocator> *, (sizeof...(Component) - 1)>;
+    using filter_type = eastl::array<const sparse_set<Entity,Allocator> *, sizeof...(Exclude)>;
 
-    class iterator {
+    class view_iterator final {
         friend class basic_view<Entity,Allocator, exclude_t<Exclude...>, Component...>;
 
-        iterator(underlying_iterator_type first, underlying_iterator_type last, unchecked_type other, filter_type ignore) ENTT_NOEXCEPT
-            : begin{first},
-              end{last},
+        view_iterator(const sparse_set<Entity,Allocator> &candidate, unchecked_type other, filter_type ignore, underlying_iterator curr) ENTT_NOEXCEPT
+            : view{&candidate},
               unchecked{other},
-              filter{ignore}
+              filter{ignore},
+              it{curr}
         {
-            if(begin != end && !valid()) {
+            if(it != view->end() && !valid()) {
                 ++(*this);
             }
         }
 
-        bool valid() const ENTT_NOEXCEPT {
-            return eastl::all_of(unchecked.cbegin(), unchecked.cend(), [this](const sparse_set<Entity> *view) { return view->has(*begin); })
-                    && eastl::none_of(filter.cbegin(), filter.cend(), [this](const sparse_set<Entity> *view) { return view->has(*begin); });
+        bool valid() const {
+            return eastl::all_of(unchecked.cbegin(), unchecked.cend(), [entt = *it](const sparse_set<Entity,Allocator> *curr) { return curr->contains(entt); })
+                    && eastl::none_of(filter.cbegin(), filter.cend(), [entt = *it](const sparse_set<Entity,Allocator> *curr) { return curr->contains(entt); });
         }
 
     public:
-        using difference_type = typename underlying_iterator_type::difference_type;
-        using value_type = typename underlying_iterator_type::value_type;
-        using pointer = typename underlying_iterator_type::pointer;
-        using reference = typename underlying_iterator_type::reference;
-        using iterator_category = eastl::forward_iterator_tag;
+        using difference_type = typename underlying_iterator::difference_type;
+        using value_type = typename underlying_iterator::value_type;
+        using pointer = typename underlying_iterator::pointer;
+        using reference = typename underlying_iterator::reference;
+        using iterator_category = eastl::bidirectional_iterator_tag;
 
-        iterator() ENTT_NOEXCEPT = default;
+        view_iterator() ENTT_NOEXCEPT = default;
 
-        iterator & operator++() ENTT_NOEXCEPT {
-            return (++begin != end && !valid()) ? ++(*this) : *this;
+        view_iterator & operator++() {
+            while(++it != view->end() && !valid());
+            return *this;
         }
 
-        iterator operator++(int) ENTT_NOEXCEPT {
-            iterator orig = *this;
-            return ++(*this), orig;
+        view_iterator operator++(int) {
+            view_iterator orig = *this;
+            return operator++(), orig;
         }
 
-        bool operator==(const iterator &other) const ENTT_NOEXCEPT {
-            return other.begin == begin;
+        view_iterator & operator--() ENTT_NOEXCEPT {
+            while(--it != view->begin() && !valid());
+            return *this;
         }
 
-        bool operator!=(const iterator &other) const ENTT_NOEXCEPT {
+        view_iterator operator--(int) ENTT_NOEXCEPT {
+            view_iterator orig = *this;
+            return operator--(), orig;
+        }
+
+        bool operator==(const view_iterator &other) const ENTT_NOEXCEPT {
+            return other.it == it;
+        }
+
+        bool operator!=(const view_iterator &other) const ENTT_NOEXCEPT {
             return !(*this == other);
         }
 
-        pointer operator->() const ENTT_NOEXCEPT {
-            return begin.operator->();
+        pointer operator->() const {
+            return it.operator->();
         }
 
-        reference operator*() const ENTT_NOEXCEPT {
+        reference operator*() const {
             return *operator->();
         }
 
     private:
-        underlying_iterator_type begin;
-        underlying_iterator_type end;
+        const sparse_set<Entity,Allocator> *view;
         unchecked_type unchecked;
         filter_type filter;
+        underlying_iterator it;
     };
 
-    // we could use pool_type<Component> *..., but vs complains about it and refuses to compile for unknown reasons (likely a bug)
-    basic_view(Allocator a,storage<Entity, eastl::remove_const_t<Component>> *... component, storage<Entity, eastl::remove_const_t<Exclude>> *... epool) ENTT_NOEXCEPT
-        : pools{component...},
-          filter{epool...}
+    // we could use pool_type<Component> &..., but vs complains about it and refuses to compile for unknown reasons (likely a bug)
+    basic_view(storage<Entity, eastl::remove_const_t<Component>,Allocator> &... component, storage<Entity, eastl::remove_const_t<Exclude>,Allocator> &... epool) ENTT_NOEXCEPT
+        : pools{&component..., &epool...}
     {}
 
-    const sparse_set<Entity> * candidate() const ENTT_NOEXCEPT {
-        return eastl::min({ static_cast<const sparse_set<Entity> *>(eastl::get<pool_type<Component> *>(pools))... }, [](const auto *lhs, const auto *rhs) {
+    const sparse_set<Entity,Allocator> & candidate() const ENTT_NOEXCEPT {
+        return *eastl::min({ static_cast<const sparse_set<Entity,Allocator> *>(eastl::get<pool_type<Component> *>(pools))... }, [](const auto *lhs, const auto *rhs) {
             return lhs->size() < rhs->size();
         });
     }
 
-    unchecked_type unchecked(const sparse_set<Entity> *view) const ENTT_NOEXCEPT {
+    unchecked_type unchecked(const sparse_set<Entity,Allocator> &view) const {
         std::size_t pos{};
         unchecked_type other{};
-        ((eastl::get<pool_type<Component> *>(pools) == view ? nullptr : (other[pos++] = eastl::get<pool_type<Component> *>(pools))), ...);
+        ((eastl::get<pool_type<Component> *>(pools) == &view ? nullptr : (other[pos++] = eastl::get<pool_type<Component> *>(pools))), ...);
         return other;
     }
 
     template<typename Comp, typename Other>
-    decltype(auto) get([[maybe_unused]] component_iterator_type<Comp> it, [[maybe_unused]] pool_type<Other> *cpool, [[maybe_unused]] const Entity entt) const ENTT_NOEXCEPT {
+    decltype(auto) get([[maybe_unused]] component_iterator<Comp> it, [[maybe_unused]] pool_type<Other> *cpool, [[maybe_unused]] const Entity entt) const {
         if constexpr(eastl::is_same_v<Comp, Other>) {
             return *it;
         } else {
@@ -170,33 +176,33 @@ class basic_view<Entity, Allocator, exclude_t<Exclude...>, Component...> {
         }
     }
 
-    template<typename Comp, typename Func, typename... Other, typename... Type>
-    void traverse(Func func, type_list<Other...>, type_list<Type...>) const {
-        const auto end = eastl::get<pool_type<Comp> *>(pools)->sparse_set<Entity>::end();
-        auto begin = eastl::get<pool_type<Comp> *>(pools)->sparse_set<Entity>::begin();
+    template<typename Comp, typename Func, typename... Type>
+    void traverse(Func func, type_list<Type...>) const {
 
         if constexpr(eastl::disjunction_v<eastl::is_same<Comp, Type>...>) {
-            eastl::for_each(begin, end, [this, raw = eastl::get<pool_type<Comp> *>(pools)->begin(), &func](const auto entity) mutable {
-                auto curr = raw++;
+            auto it = eastl::get<pool_type<Comp> *>(pools)->begin();
 
-                if((eastl::get<pool_type<Other> *>(pools)->has(entity) && ...) && (!eastl::get<pool_type<Exclude> *>(filter)->has(entity) && ...)) {
+            for(const auto entt: static_cast<const sparse_set<entity_type> &>(*eastl::get<pool_type<Comp> *>(pools))) {
+                auto curr = it++;
+
+                if(((eastl::is_same_v<Comp, Component> || eastl::get<pool_type<Component> *>(pools)->contains(entt)) && ...) && (!eastl::get<pool_type<Exclude> *>(pools)->contains(entt) && ...)) {
                     if constexpr(eastl::is_invocable_v<Func, decltype(get<Type>({}))...>) {
-                        func(get<Comp, Type>(curr, eastl::get<pool_type<Type> *>(pools), entity)...);
+                        func(get<Comp, Type>(curr, eastl::get<pool_type<Type> *>(pools), entt)...);
                     } else {
-                        func(entity, get<Comp, Type>(curr, eastl::get<pool_type<Type> *>(pools), entity)...);
+                        func(entt, get<Comp, Type>(curr, eastl::get<pool_type<Type> *>(pools), entt)...);
                     }
                 }
-            });
+            }
         } else {
-            eastl::for_each(begin, end, [this, &func](const auto entity) {
-                if((eastl::get<pool_type<Other> *>(pools)->has(entity) && ...) && (!eastl::get<pool_type<Exclude> *>(filter)->has(entity) && ...)) {
+            for(const auto entt: static_cast<const sparse_set<entity_type> &>(*eastl::get<pool_type<Comp> *>(pools))) {
+                if(((eastl::is_same_v<Comp, Component> || eastl::get<pool_type<Component> *>(pools)->contains(entt)) && ...) && (!eastl::get<pool_type<Exclude> *>(pools)->contains(entt) && ...)) {
                     if constexpr(eastl::is_invocable_v<Func, decltype(get<Type>({}))...>) {
-                        func(eastl::get<pool_type<Type> *>(pools)->get(entity)...);
+                        func(eastl::get<pool_type<Type> *>(pools)->get(entt)...);
                     } else {
-                        func(entity, eastl::get<pool_type<Type> *>(pools)->get(entity)...);
+                        func(entt, eastl::get<pool_type<Type> *>(pools)->get(entt)...);
                     }
                 }
-            });
+            }
         }
     }
 
@@ -206,7 +212,7 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Input iterator type. */
-    using iterator_type = iterator;
+    using iterator = view_iterator;
 
     /**
      * @brief Returns the number of existing components of the given type.
@@ -230,16 +236,14 @@ public:
     }
 
     /**
-     * @brief Checks whether the view or the pools of the given components are
-     * empty.
+     * @brief Checks whether a view or some pools are empty.
      *
-     * The view is definitely empty if one of the pools of the given components
-     * is empty. In all other cases, the view may be empty and not return
-     * entities even if this function returns false.
+     * The view is definitely empty if one of the pools it uses is empty. In all
+     * other cases, the view may be empty and not return entities even if this
+     * function returns false.
      *
      * @tparam Comp Types of components in which one is interested.
-     * @return True if the view or the pools of the given components are empty,
-     * false otherwise.
+     * @return True if the view or the pools are empty, false otherwise.
      */
     template<typename... Comp>
     bool empty() const ENTT_NOEXCEPT {
@@ -302,10 +306,10 @@ public:
      *
      * @return An iterator to the first entity that has the given components.
      */
-    iterator_type begin() const ENTT_NOEXCEPT {
-        const auto *view = candidate();
-        const filter_type ignore{eastl::get<pool_type<Exclude> *>(filter)...};
-        return iterator_type{view->begin(), view->end(), unchecked(view), ignore};
+    iterator begin() const {
+        const auto &view = candidate();
+        const filter_type ignore{eastl::get<pool_type<Exclude> *>(pools)...};
+        return iterator{view, unchecked(view), ignore, view.begin()};
     }
 
     /**
@@ -323,10 +327,30 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    iterator_type end() const ENTT_NOEXCEPT {
-        const auto *view = candidate();
-        const filter_type ignore{eastl::get<pool_type<Exclude> *>(filter)...};
-        return iterator_type{view->end(), view->end(), unchecked(view), ignore};
+    iterator end() const {
+        const auto &view = candidate();
+        const filter_type ignore{eastl::get<pool_type<Exclude> *>(pools)...};
+        return iterator{view, unchecked(view), ignore, view.end()};
+    }
+
+    /**
+     * @brief Returns the first entity that has the given components, if any.
+     * @return The first entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type front() const {
+        const auto it = begin();
+        return it != end() ? *it : null;
+    }
+
+    /**
+     * @brief Returns the last entity that has the given components, if any.
+     * @return The last entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type back() const {
+        const auto it = eastl::make_reverse_iterator(end());
+        return it != eastl::make_reverse_iterator(begin()) ? *it : null;
     }
 
     /**
@@ -335,10 +359,10 @@ public:
      * @return An iterator to the given entity if it's found, past the end
      * iterator otherwise.
      */
-    iterator_type find(const entity_type entt) const ENTT_NOEXCEPT {
-        const auto *view = candidate();
-        const filter_type ignore{eastl::get<pool_type<Exclude> *>(filter)...};
-        iterator_type it{view->find(entt), view->end(), unchecked(view), ignore};
+    iterator find(const entity_type entt) const {
+        const auto &view = candidate();
+        const filter_type ignore{eastl::get<pool_type<Exclude> *>(pools)...};
+        iterator it{view, unchecked(view), ignore, view.find(entt)};
         return (it != end() && *it == entt) ? it : end();
     }
 
@@ -347,15 +371,16 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the view contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const ENTT_NOEXCEPT {
-        return find(entt) != end();
+    bool contains(const entity_type entt) const {
+        return (eastl::get<pool_type<Component> *>(pools)->contains(entt) && ...)
+                && (!eastl::get<pool_type<Exclude> *>(pools)->contains(entt) && ...);
     }
 
     /**
      * @brief Returns the components assigned to the given entity.
      *
      * Prefer this function instead of `registry::get` during iterations. It has
-     * far better performance than its companion function.
+     * far better performance than its counterpart.
      *
      * @warning
      * Attempting to use an invalid component type results in a compilation
@@ -369,7 +394,7 @@ public:
      * @return The components assigned to the entity.
      */
     template<typename... Comp>
-    decltype(auto) get([[maybe_unused]] const entity_type entt) const ENTT_NOEXCEPT {
+    decltype(auto) get([[maybe_unused]] const entity_type entt) const {
         ENTT_ASSERT(contains(entt));
 
         if constexpr(sizeof...(Comp) == 0) {
@@ -387,44 +412,32 @@ public:
      * object to them.
      *
      * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to all its components. The
+     * entity itself and a set of references to non-empty components. The
      * _constness_ of the components is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
      *
      * @code{.cpp}
-     * void(const entity_type, Component &...);
-     * void(Component &...);
+     * void(const entity_type, Type &...);
+     * void(Type &...);
      * @endcode
      *
      * @note
-     * Empty types aren't explicitly instantiated. Therefore, temporary objects
-     * are returned during iterations. They can be caught only by copy or with
-     * const references.
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Func>
     void each(Func func) const {
-        const auto *view = candidate();
-        ((eastl::get<pool_type<Component> *>(pools) == view ? each<Component>(eastl::move(func)) : void()), ...);
+        const auto &view = candidate();
+        ((eastl::get<pool_type<Component> *>(pools) == &view ? each<Component>(eastl::move(func)) : void()), ...);
     }
 
     /**
      * @brief Iterates entities and components and applies the given function
      * object to them.
-     *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to all its components. The
-     * _constness_ of the components is as requested.<br/>
-     * The signature of the function must be equivalent to one of the following
-     * forms:
-     *
-     * @code{.cpp}
-     * void(const entity_type, Component &...);
-     * void(Component &...);
-     * @endcode
      *
      * The pool of the suggested component is used to lead the iterations. The
      * returned entities will therefore respect the order of the pool associated
@@ -432,10 +445,7 @@ public:
      * It is no longer guaranteed that the performance is the best possible, but
      * there will be greater control over the order of iteration.
      *
-     * @note
-     * Empty types aren't explicitly instantiated. Therefore, temporary objects
-     * are returned during iterations. They can be caught only by copy or with
-     * const references.
+     * @sa each
      *
      * @tparam Comp Type of component to use to enforce the iteration order.
      * @tparam Func Type of the function object to invoke.
@@ -443,8 +453,8 @@ public:
      */
     template<typename Comp, typename Func>
     void each(Func func) const {
-        using other_type = type_list_cat_t<eastl::conditional_t<eastl::is_same_v<Comp, Component>, type_list<>, type_list<Component>>...>;
-        traverse<Comp>(eastl::move(func), other_type{}, type_list<Component...>{});
+        using non_empty_type = type_list_cat_t<eastl::conditional_t<ENTT_IS_EMPTY(Component), type_list<>, type_list<Component>>...>;
+        traverse<Comp>(eastl::move(func), non_empty_type{});
     }
 
     /**
@@ -462,31 +472,22 @@ public:
      * void(Type &...);
      * @endcode
      *
-     * @sa each
+     * @note
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Func>
+    [[deprecated("use ::each instead")]]
     void less(Func func) const {
-        const auto *view = candidate();
-        ((eastl::get<pool_type<Component> *>(pools) == view ? less<Component>(eastl::move(func)) : void()), ...);
+        each(eastl::move(func));
     }
 
     /**
      * @brief Iterates entities and components and applies the given function
      * object to them.
-     *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to non-empty components. The
-     * _constness_ of the components is as requested.<br/>
-     * The signature of the function must be equivalent to one of the following
-     * forms:
-     *
-     * @code{.cpp}
-     * void(const entity_type, Type &...);
-     * void(Type &...);
-     * @endcode
      *
      * The pool of the suggested component is used to lead the iterations. The
      * returned entities will therefore respect the order of the pool associated
@@ -494,22 +495,20 @@ public:
      * It is no longer guaranteed that the performance is the best possible, but
      * there will be greater control over the order of iteration.
      *
-     * @sa each
+     * @sa less
      *
      * @tparam Comp Type of component to use to enforce the iteration order.
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Comp, typename Func>
+    [[deprecated("use ::each instead")]]
     void less(Func func) const {
-        using other_type = type_list_cat_t<eastl::conditional_t<eastl::is_same_v<Comp, Component>, type_list<>, type_list<Component>>...>;
-        using non_empty_type = type_list_cat_t<eastl::conditional_t<ENTT_ENABLE_ETO(Component), type_list<>, type_list<Component>>...>;
-        traverse<Comp>(eastl::move(func), other_type{}, non_empty_type{});
+        each<Comp>(eastl::move(func));
     }
 
 private:
-    const eastl::tuple<pool_type<Component> *...> pools;
-    const eastl::tuple<pool_type<Exclude> *...> filter;
+    const eastl::tuple<pool_type<Component> *..., pool_type<Exclude> *...> pools;
 };
 
 
@@ -518,9 +517,7 @@ private:
  *
  * Single component views are specialized in order to get a boost in terms of
  * performance. This kind of views can access the underlying data structure
- * directly and avoid superfluous checks.<br/>
- * Order of elements during iterations are highly dependent on the order of the
- * underlying data structure. See sparse_set for more details.
+ * directly and avoid superfluous checks.
  *
  * @b Important
  *
@@ -531,7 +528,7 @@ private:
  *   component is removed from the entity to which the iterator points).
  * * The entity currently pointed is destroyed.
  *
- * In all the other cases, modifying the pool of the given component in any way
+ * In all other cases, modifying the pool iterated by the view in any way
  * invalidates all the iterators and using them results in undefined behavior.
  *
  * @note
@@ -540,7 +537,7 @@ private:
  * made by means of the registry are immediately reflected by views.
  *
  * @warning
- * Lifetime of a view must overcome the one of the registry that generated it.
+ * Lifetime of a view must not overcome that of the registry that generated it.
  * In any other case, attempting to use a view results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
@@ -551,10 +548,10 @@ class basic_view<Entity,Allocator, exclude_t<>, Component> {
     /*! @brief A registry is allowed to create views. */
     friend class basic_registry<Entity,Allocator>;
 
-    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>>, storage<Entity, Component>>;
+    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>,Allocator>, storage<Entity, Component, Allocator>>;
 
-    basic_view(pool_type *ref) ENTT_NOEXCEPT
-        : pool{ref}
+    basic_view(pool_type &ref) ENTT_NOEXCEPT
+        : pool{&ref}
     {}
 
 public:
@@ -565,7 +562,7 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Input iterator type. */
-    using iterator_type = typename sparse_set<Entity>::iterator_type;
+    using iterator = typename sparse_set<Entity>::iterator;
 
     /**
      * @brief Returns the number of entities that have the given component.
@@ -576,7 +573,7 @@ public:
     }
 
     /**
-     * @brief Checks whether the view is empty.
+     * @brief Checks whether a view is empty.
      * @return True if the view is empty, false otherwise.
      */
     bool empty() const ENTT_NOEXCEPT {
@@ -629,7 +626,7 @@ public:
      *
      * @return An iterator to the first entity that has the given component.
      */
-    iterator_type begin() const ENTT_NOEXCEPT {
+    iterator begin() const ENTT_NOEXCEPT {
         return pool->sparse_set<Entity>::begin();
     }
 
@@ -648,8 +645,28 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given component.
      */
-    iterator_type end() const ENTT_NOEXCEPT {
+    iterator end() const ENTT_NOEXCEPT {
         return pool->sparse_set<Entity>::end();
+    }
+
+    /**
+     * @brief Returns the first entity that has the given component, if any.
+     * @return The first entity that has the given component if one exists, the
+     * null entity otherwise.
+     */
+    entity_type front() const {
+        const auto it = begin();
+        return it != end() ? *it : null;
+    }
+
+    /**
+     * @brief Returns the last entity that has the given component, if any.
+     * @return The last entity that has the given component if one exists, the
+     * null entity otherwise.
+     */
+    entity_type back() const {
+        const auto it = eastl::make_reverse_iterator(end());
+        return it != eastl::make_reverse_iterator(begin()) ? *it : null;
     }
 
     /**
@@ -658,7 +675,7 @@ public:
      * @return An iterator to the given entity if it's found, past the end
      * iterator otherwise.
      */
-    iterator_type find(const entity_type entt) const ENTT_NOEXCEPT {
+    iterator find(const entity_type entt) const {
         const auto it = pool->find(entt);
         return it != end() && *it == entt ? it : end();
     }
@@ -668,7 +685,7 @@ public:
      * @param pos Position of the element to return.
      * @return The identifier that occupies the given position.
      */
-    entity_type operator[](const size_type pos) const ENTT_NOEXCEPT {
+    entity_type operator[](const size_type pos) const {
         return begin()[pos];
     }
 
@@ -677,15 +694,15 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the view contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const ENTT_NOEXCEPT {
-        return find(entt) != end();
+    bool contains(const entity_type entt) const {
+        return pool->contains(entt);
     }
 
     /**
      * @brief Returns the component assigned to the given entity.
      *
      * Prefer this function instead of `registry::get` during iterations. It has
-     * far better performance than its companion function.
+     * far better performance than its counterpart.
      *
      * @warning
      * Attempting to use an entity that doesn't belong to the view results in
@@ -697,7 +714,7 @@ public:
      * @return The component assigned to the entity.
      */
     template<typename Comp = Component>
-    decltype(auto) get(const entity_type entt) const ENTT_NOEXCEPT {
+    decltype(auto) get(const entity_type entt) const {
         static_assert(eastl::is_same_v<Comp, Component>);
         ENTT_ASSERT(contains(entt));
         return pool->get(entt);
@@ -708,8 +725,8 @@ public:
      * object to them.
      *
      * The function object is invoked for each entity. It is provided with the
-     * entity itself and a reference to its component. The _constness_ of the
-     * component is as requested.<br/>
+     * entity itself and a reference to the component if it's a non-empty one.
+     * The _constness_ of the component is as requested.<br/>
      * The signature of the function must be equivalent to one of the following
      * forms:
      *
@@ -719,65 +736,44 @@ public:
      * @endcode
      *
      * @note
-     * Empty types aren't explicitly instantiated. Therefore, temporary objects
-     * are returned during iterations. They can be caught only by copy or with
-     * const references.
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Func>
     void each(Func func) const {
-        if constexpr(eastl::is_invocable_v<Func, decltype(get({}))>) {
-            eastl::for_each(pool->begin(), pool->end(), eastl::move(func));
-        } else {
-            eastl::for_each(pool->sparse_set<Entity>::begin(), pool->sparse_set<Entity>::end(), [&func, raw = pool->begin()](const auto entt) mutable {
-                func(entt, *(raw++));
-            });
-        }
-    }
-
-    /**
-     * @brief Iterates entities and components and applies the given function
-     * object to them.
-     *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a reference to its component if it's a non-empty one.
-     * The _constness_ of the component is as requested.<br/>
-     * The signature of the function must be equivalent to one of the following
-     * forms in case the component isn't an empty one:
-     *
-     * @code{.cpp}
-     * void(const entity_type, Component &);
-     * void(Component &);
-     * @endcode
-     *
-     * In case the component is an empty one instead, the following forms are
-     * accepted:
-     *
-     * @code{.cpp}
-     * void(const entity_type);
-     * void();
-     * @endcode
-     *
-     * @sa each
-     *
-     * @tparam Func Type of the function object to invoke.
-     * @param func A valid function object.
-     */
-    template<typename Func>
-    void less(Func func) const {
-        if constexpr(ENTT_ENABLE_ETO(Component)) {
+        if constexpr(ENTT_IS_EMPTY(Component)) {
             if constexpr(eastl::is_invocable_v<Func>) {
                 for(auto pos = pool->size(); pos; --pos) {
                     func();
                 }
             } else {
-                eastl::for_each(pool->sparse_set<Entity>::begin(), pool->sparse_set<Entity>::end(), eastl::move(func));
+                for(const auto entt: *this) {
+                    func(entt);
+                }
             }
         } else {
-            each(eastl::move(func));
+            if constexpr(eastl::is_invocable_v<Func, decltype(get({}))>) {
+                for(auto &&component: *pool) {
+                    func(component);
         }
+            } else {
+                auto raw = pool->begin();
+
+                for(const auto entt: *this) {
+                    func(entt, *(raw++));
+                }
+            }
+        }
+    }
+
+    /*! @copydoc each */
+    template<typename Func>
+    [[deprecated("use ::each instead")]]
+    void less(Func func) const {
+        each(eastl::move(func));
     }
 
 private:
@@ -788,4 +784,4 @@ private:
 }
 
 
-#endif // ENTT_ENTITY_VIEW_HPP
+#endif

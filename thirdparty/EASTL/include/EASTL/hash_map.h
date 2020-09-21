@@ -287,6 +287,18 @@ namespace eastl
             }
             return it->second;
         }
+    	template<typename U>
+        const T& at_as(const U& k, const T& def) const
+        {
+            const_iterator it = base_type::find_as(k);
+
+            if (it == base_type::end())
+            {
+                return def;
+            }
+            return it->second;
+        }
+    	
         /// Populate the map using variadic template. This handles the base case.
         this_type& populate(const key_type& key, const mapped_type& value)
         {

@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/pool_vector.h"
 
-class HeightMapShape3D : public Shape {
+class GODOT_EXPORT HeightMapShape3D : public Shape {
     GDCLASS(HeightMapShape3D,Shape)
 
     int map_width;

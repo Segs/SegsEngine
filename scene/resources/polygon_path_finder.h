@@ -34,7 +34,7 @@
 #include "core/set.h"
 #include "core/math/rect2.h"
 
-class PolygonPathFinder : public Resource {
+class GODOT_EXPORT PolygonPathFinder : public Resource {
 
     GDCLASS(PolygonPathFinder,Resource)
 

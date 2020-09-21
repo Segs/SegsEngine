@@ -36,7 +36,7 @@
 #include "core/string_name.h"
 #include "core/typedefs.h"
 
-#include <type_traits>
+#include "EASTL/type_traits.h"
 
 using UIString = class QString;
 

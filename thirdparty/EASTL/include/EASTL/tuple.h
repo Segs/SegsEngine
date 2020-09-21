@@ -199,7 +199,7 @@ namespace Internal
 
         // We shouldn't need this explicit constructor as it should be handled by the template below but OSX clang
         // is_constructible type trait incorrectly gives false for is_constructible<T&&, T&&>::value
-        explicit TupleLeaf(ValueType&& v) : mValue(move(v)) {}
+        explicit TupleLeaf(ValueType&& v) : mValue(eastl::move(v)) {}
 
         template <typename T, typename = typename enable_if<is_constructible<ValueType, T&&>::value>::type>
         explicit TupleLeaf(T&& t)
@@ -381,13 +381,13 @@ namespace Internal
         //
         template <typename... Us, typename... ValueTypes>
         explicit TupleImpl(integer_sequence<size_t, Indices...>, TupleTypes<Us...>, ValueTypes&&... values)
-            : TupleLeaf<Indices, Ts>(forward<ValueTypes>(values))...
+            : TupleLeaf<Indices, Ts>(eastl::forward<ValueTypes>(values))...
         {
         }
 
         template <typename OtherTuple>
         TupleImpl(OtherTuple&& t)
-            : TupleLeaf<Indices, Ts>(forward<tuple_element_t<Indices, MakeTupleTypes_t<OtherTuple>>>(get<Indices>(t)))...
+            : TupleLeaf<Indices, Ts>(eastl::forward<tuple_element_t<Indices, MakeTupleTypes_t<OtherTuple>>>(get<Indices>(t)))...
         {
         }
 
@@ -755,7 +755,7 @@ public:
     template <typename U, typename... Us,
         Internal::TupleImplicitlyConvertible_t<tuple, U, Us...> = 0>
         EA_CONSTEXPR tuple(U&& u, Us&&... us)
-        : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, forward<U>(u),
+        : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, eastl::forward<U>(u),
             forward<Us>(us)...)
     {
     }
@@ -763,7 +763,7 @@ public:
     template <typename U, typename... Us,
         Internal::TupleExplicitlyConvertible_t<tuple, U, Us...> = 0>
         explicit EA_CONSTEXPR tuple(U&& u, Us&&... us)
-        : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, forward<U>(u),
+        : mImpl(make_index_sequence<sizeof...(Us) + 1>{}, Internal::MakeTupleTypes_t<tuple>{}, eastl::forward<U>(u),
             forward<Us>(us)...)
     {
     }
@@ -771,7 +771,7 @@ public:
     template <typename OtherTuple,
               typename enable_if<Internal::TupleConvertible<OtherTuple, tuple>::value, bool>::type = false>
     tuple(OtherTuple&& t)
-        : mImpl(forward<OtherTuple>(t))
+        : mImpl(eastl::forward<OtherTuple>(t))
     {
     }
 
@@ -896,7 +896,7 @@ inline typename Internal::TupleCat<Tuples...>::ResultType tuple_cat(Tuples&&... 
 template <typename... Ts>
 inline EA_CONSTEXPR tuple<Internal::MakeTupleReturn_t<Ts>...> make_tuple(Ts&&... values)
 {
-    return tuple<Internal::MakeTupleReturn_t<Ts>...>(forward<Ts>(values)...);
+    return tuple<Internal::MakeTupleReturn_t<Ts>...>(eastl::forward<Ts>(values)...);
 }
 
 

@@ -628,7 +628,7 @@ void Tabs::add_tab(const StringName &p_str, const Ref<Texture> &p_icon) {
 
     tabs.push_back(t);
     _update_cache();
-    call_deferred("_update_hover");
+    call_deferred([this]() { _update_hover(); });
     update();
     minimum_size_changed();
 }
@@ -636,7 +636,7 @@ void Tabs::add_tab(const StringName &p_str, const Ref<Texture> &p_icon) {
 void Tabs::clear_tabs() {
     tabs.clear();
     current = 0;
-    call_deferred("_update_hover");
+    call_deferred([this]() { _update_hover(); });
     update();
 }
 
@@ -647,7 +647,7 @@ void Tabs::remove_tab(int p_idx) {
     if (current >= p_idx)
         current--;
     _update_cache();
-    call_deferred("_update_hover");
+    call_deferred([this]() { _update_hover(); });
     update();
     minimum_size_changed();
 

@@ -32,7 +32,7 @@
 #define RAY_SHAPE_H
 #include "scene/resources/shape.h"
 
-class RayShape3D : public Shape {
+class GODOT_EXPORT RayShape3D : public Shape {
 
     GDCLASS(RayShape3D,Shape)
 

@@ -131,32 +131,29 @@ void Shader::get_default_texture_param_list(List<StringName> *r_textures) const 
     }
 }
 void Shader::set_custom_defines(StringView p_defines) {
-
-    RenderingServer::get_singleton()->shader_clear_custom_defines(shader);
-    RenderingServer::get_singleton()->shader_add_custom_define(shader, p_defines);
-}
-
-String Shader::get_custom_defines() {
-    Vector<StringView> custom_defines;
-    RenderingServer::get_singleton()->shader_get_custom_defines(shader, &custom_defines);
-
-    String concatenated_defines;
-    for (int i = 0; i < custom_defines.size(); i++) {
-        if (i != 0) {
-            concatenated_defines += "\n";
-        }
-        concatenated_defines += custom_defines[i];
+    if (shader_custom_defines == p_defines) {
+        return;
     }
 
-    return concatenated_defines;
+    if (!shader_custom_defines.empty()) {
+        RenderingServer::get_singleton()->shader_remove_custom_define(shader, shader_custom_defines);
+    }
+
+    shader_custom_defines = p_defines;
+    RenderingServer::get_singleton()->shader_add_custom_define(shader, shader_custom_defines);
 }
+
+String Shader::get_custom_defines() const {
+    return shader_custom_defines;
+}
+
 bool Shader::is_text_shader() const {
     return true;
 }
 
 bool Shader::has_param(const StringName &p_param) const {
 
-    return params_cache.contains(p_param);
+    return params_cache.contains_as(String("shader_param/")+p_param);
 }
 
 void Shader::_update_shader() const {
@@ -221,14 +218,14 @@ void ResourceFormatLoaderShader::get_recognized_extensions(Vector<String> &p_ext
 
 bool ResourceFormatLoaderShader::handles_type(StringView p_type) const {
 
-    return (p_type == StringView("Shader"));
+    return p_type == StringView("Shader");
 }
 
 String ResourceFormatLoaderShader::get_resource_type(StringView p_path) const {
 
     String el = StringUtils::to_lower(PathUtils::get_extension(p_path));
     if (el == "shader")
-        return ("Shader");
+        return "Shader";
     return String();
 }
 

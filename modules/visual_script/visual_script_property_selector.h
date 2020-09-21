@@ -34,7 +34,7 @@
 
 class EditorHelpBit;
 
-class VisualScriptPropertySelector : public ConfirmationDialog {
+class GODOT_EXPORT VisualScriptPropertySelector : public ConfirmationDialog {
     GDCLASS(VisualScriptPropertySelector,ConfirmationDialog)
 
     LineEdit *search_box;

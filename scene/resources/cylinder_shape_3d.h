@@ -33,7 +33,7 @@
 #include "scene/resources/shape.h"
 #include "core/math/math_funcs.h"
 
-class CylinderShape3D : public Shape {
+class GODOT_EXPORT CylinderShape3D : public Shape {
 
     GDCLASS(CylinderShape3D,Shape)
 

@@ -36,6 +36,21 @@ struct basic_actor {
     {}
 
     /**
+     * @brief Move constructor.
+     *
+     * After actor move construction, instances that have been moved from are
+     * placed in a valid but unspecified state. It's highly discouraged to
+     * continue using them.
+     *
+     * @param other The instance to move from.
+     */
+    basic_actor(basic_actor &&other) ENTT_NOEXCEPT
+        : entt{other.entt}, reg{other.reg}
+    {
+        other.entt = null;
+    }
+
+    /**
      * @brief Constructs an actor from a given registry.
      * @param ref An instance of the registry class.
      */
@@ -48,7 +63,7 @@ struct basic_actor {
      * @param entity A valid entity identifier.
      * @param ref An instance of the registry class.
      */
-    explicit basic_actor(entity_type entity, registry_type &ref)
+    explicit basic_actor(entity_type entity, registry_type &ref) ENTT_NOEXCEPT
         : entt{entity}, reg{&ref}
     {
         ENTT_ASSERT(ref.valid(entity));
@@ -62,21 +77,6 @@ struct basic_actor {
     }
 
     /**
-     * @brief Move constructor.
-     *
-     * After actor move construction, instances that have been moved from are
-     * placed in a valid but unspecified state. It's highly discouraged to
-     * continue using them.
-     *
-     * @param other The instance to move from.
-     */
-    basic_actor(basic_actor &&other)
-        : entt{other.entt}, reg{other.reg}
-    {
-        other.entt = null;
-    }
-
-    /**
      * @brief Move assignment operator.
      *
      * After actor move assignment, instances that have been moved from are
@@ -86,7 +86,7 @@ struct basic_actor {
      * @param other The instance to move from.
      * @return This actor.
      */
-    basic_actor & operator=(basic_actor &&other) {
+    basic_actor & operator=(basic_actor &&other) ENTT_NOEXCEPT {
         if(this != &other) {
             auto tmp{eastl::move(other)};
             eastl::swap(reg, tmp.reg);
@@ -112,7 +112,7 @@ struct basic_actor {
      */
     template<typename Component, typename... Args>
     decltype(auto) assign(Args &&... args) {
-        return reg->template assign_or_replace<Component>(entt, eastl::forward<Args>(args)...);
+        return reg->template emplace_or_replace<Component>(entt, eastl::forward<Args>(args)...);
     }
 
     /**
@@ -130,8 +130,8 @@ struct basic_actor {
      * @return True if the actor has all the components, false otherwise.
      */
     template<typename... Component>
-    bool has() const ENTT_NOEXCEPT {
-        return (reg->template has<Component>(entt) && ...);
+    bool has() const {
+        return reg->template has<Component...>(entt);
     }
 
     /**
@@ -140,13 +140,13 @@ struct basic_actor {
      * @return References to the components owned by the actor.
      */
     template<typename... Component>
-    decltype(auto) get() const ENTT_NOEXCEPT {
+    decltype(auto) get() const {
         return eastl::as_const(*reg).template get<Component...>(entt);
     }
 
     /*! @copydoc get */
     template<typename... Component>
-    decltype(auto) get() ENTT_NOEXCEPT {
+    decltype(auto) get() {
         return reg->template get<Component...>(entt);
     }
 
@@ -156,13 +156,13 @@ struct basic_actor {
      * @return Pointers to the components owned by the actor.
      */
     template<typename... Component>
-    auto try_get() const ENTT_NOEXCEPT {
+    auto try_get() const {
         return eastl::as_const(*reg).template try_get<Component...>(entt);
     }
 
     /*! @copydoc try_get */
     template<typename... Component>
-    auto try_get() ENTT_NOEXCEPT {
+    auto try_get() {
         return reg->template try_get<Component...>(entt);
     }
 
@@ -191,7 +191,7 @@ struct basic_actor {
      * @brief Checks if an actor refers to a valid entity or not.
      * @return True if the actor refers to a valid entity, false otherwise.
      */
-    explicit operator bool() const ENTT_NOEXCEPT {
+    explicit operator bool() const {
         return reg && reg->valid(entt);
     }
 
@@ -204,4 +204,4 @@ private:
 }
 
 
-#endif // ENTT_ENTITY_ACTOR_HPP
+#endif

@@ -34,7 +34,7 @@
 
 class Environment;
 
-class WorldEnvironment : public Node {
+class GODOT_EXPORT WorldEnvironment : public Node {
 
 	GDCLASS(WorldEnvironment,Node)
 

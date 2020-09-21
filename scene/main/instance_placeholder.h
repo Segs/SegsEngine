@@ -36,7 +36,7 @@
 
 class PackedScene;
 
-class InstancePlaceholder : public Node {
+class GODOT_EXPORT InstancePlaceholder : public Node {
 
     GDCLASS(InstancePlaceholder,Node)
 

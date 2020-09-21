@@ -145,7 +145,7 @@ public:
 
 class AudioBusLayout;
 struct AudioServerBus;
-class AudioServer : public Object {
+class GODOT_EXPORT AudioServer : public Object {
 
     GDCLASS(AudioServer,Object)
 

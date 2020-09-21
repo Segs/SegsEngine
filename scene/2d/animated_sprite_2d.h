@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/texture.h"
 
-class SpriteFrames : public Resource {
+class GODOT_EXPORT SpriteFrames : public Resource {
 
     GDCLASS(SpriteFrames,Resource)
 
@@ -136,7 +136,7 @@ public:
     SpriteFrames();
 };
 
-class AnimatedSprite2D : public Node2D {
+class GODOT_EXPORT AnimatedSprite2D : public Node2D {
 
     GDCLASS(AnimatedSprite2D,Node2D)
 

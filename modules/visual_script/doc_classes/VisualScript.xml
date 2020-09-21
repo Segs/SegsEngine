@@ -52,7 +52,7 @@
             </argument>
             <argument index="1" name="default_value" type="Variant" default="null">
             </argument>
-            <argument index="2" name="export" type="bool" default="false">
+            <argument index="2" name="mark_exported" type="bool" default="false">
             </argument>
             <description>
                 Add a variable to the VisualScript, optionally giving it a default value or marking it as exported.

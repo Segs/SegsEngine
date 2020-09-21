@@ -35,7 +35,7 @@
 #include "scene/3d/light_3d.h"
 #include "scene/3d/visual_instance_3d.h"
 
-class BakedLightmapData : public Resource {
+class GODOT_EXPORT BakedLightmapData : public Resource {
     GDCLASS(BakedLightmapData,Resource)
 
     RID baked_light;
@@ -87,7 +87,7 @@ public:
     ~BakedLightmapData() override;
 };
 
-class BakedLightmap : public VisualInstance3D {
+class GODOT_EXPORT BakedLightmap : public VisualInstance3D {
     GDCLASS(BakedLightmap,VisualInstance3D)
 
 public:

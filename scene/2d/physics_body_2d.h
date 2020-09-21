@@ -38,7 +38,7 @@
 
 class KinematicCollision2D;
 
-class PhysicsBody2D : public CollisionObject2D {
+class GODOT_EXPORT PhysicsBody2D : public CollisionObject2D {
 
     GDCLASS(PhysicsBody2D,CollisionObject2D)
 
@@ -74,7 +74,7 @@ public:
     PhysicsBody2D();
 };
 
-class StaticBody2D : public PhysicsBody2D {
+class GODOT_EXPORT StaticBody2D : public PhysicsBody2D {
 
     GDCLASS(StaticBody2D,PhysicsBody2D)
 
@@ -103,7 +103,7 @@ private:
     void _reload_physics_characteristics();
 };
 
-class RigidBody2D : public PhysicsBody2D {
+class GODOT_EXPORT RigidBody2D : public PhysicsBody2D {
 
     GDCLASS(RigidBody2D,PhysicsBody2D)
 
@@ -268,7 +268,7 @@ private:
 };
 
 
-class KinematicBody2D : public PhysicsBody2D {
+class GODOT_EXPORT KinematicBody2D : public PhysicsBody2D {
 
     GDCLASS(KinematicBody2D,PhysicsBody2D)
 
@@ -341,7 +341,7 @@ public:
     ~KinematicBody2D() override;
 };
 
-class KinematicCollision2D : public RefCounted {
+class GODOT_EXPORT KinematicCollision2D : public RefCounted {
 
     GDCLASS(KinematicCollision2D,RefCounted)
 

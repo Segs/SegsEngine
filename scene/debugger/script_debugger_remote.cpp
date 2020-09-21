@@ -366,8 +366,14 @@ void ScriptDebuggerRemote::_get_output() {
         packet_peer_stream->put_var(output_strings.size());
 
         while (!output_strings.empty()) {
+            const OutputString &output_string = output_strings.front();
 
-            packet_peer_stream->put_var(output_strings.front());
+            Array msg_data;
+            msg_data.push_back(output_string.message);
+            msg_data.push_back(output_string.type);
+
+            packet_peer_stream->put_var(msg_data);
+
             output_strings.pop_front();
         }
         locking = false;
@@ -1083,7 +1089,7 @@ void ScriptDebuggerRemote::send_error(StringView p_func, StringView p_file, int 
     mutex->unlock();
 }
 
-void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool /*p_error*/) {
+void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, bool p_error) {
 
     ScriptDebuggerRemote *sdr = (ScriptDebuggerRemote *)p_this;
 
@@ -1115,10 +1121,16 @@ void ScriptDebuggerRemote::_print_handler(void *p_this, const String &p_string, 
         if (overflowed)
             s += ("[...]");
 
-        sdr->output_strings.push_back(s);
+        OutputString output_string;
+        output_string.message = s;
+        output_string.type = p_error ? MESSAGE_TYPE_ERROR : MESSAGE_TYPE_LOG;
+        sdr->output_strings.emplace_back(eastl::move(output_string));
 
         if (overflowed) {
-            sdr->output_strings.push_back(("[output overflow, print less text!]"));
+            OutputString overflow_string;
+            overflow_string.message = "[output overflow, print less text!]";
+            overflow_string.type = MESSAGE_TYPE_ERROR;
+            sdr->output_strings.emplace_back(eastl::move(overflow_string));
         }
     }
     sdr->mutex->unlock();

@@ -33,7 +33,7 @@
     #ifndef WIN32_LEAN_AND_MEAN
         #define WIN32_LEAN_AND_MEAN
     #endif
-    #include <Windows.h>
+    #include <windows.h>
     extern "C" WINBASEAPI BOOL WINAPI IsDebuggerPresent();
 
     #if EA_WINAPI_FAMILY_PARTITION(EA_WINAPI_PARTITION_DESKTOP) && !defined(EA_COMPILER_CLANG)

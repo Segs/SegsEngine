@@ -38,7 +38,7 @@
 
 class Material;
 
-class EditorSceneImporter : public EditorSceneImporterInterface,public RefCounted {
+class GODOT_EXPORT EditorSceneImporter : public EditorSceneImporterInterface,public RefCounted {
 
     GDCLASS(EditorSceneImporter,RefCounted)
 
@@ -57,7 +57,7 @@ public:
     EditorSceneImporter() {}
 };
 
-class EditorScenePostImport : public RefCounted {
+class GODOT_EXPORT EditorScenePostImport : public RefCounted {
 
     GDCLASS(EditorScenePostImport,RefCounted)
 

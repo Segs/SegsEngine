@@ -37,7 +37,7 @@
 #include "scene/gui/color_rect.h"
 #include "scene/resources/texture.h"
 
-class AudioStreamEditor : public ColorRect {
+class GODOT_EXPORT AudioStreamEditor : public ColorRect {
 
     GDCLASS(AudioStreamEditor,ColorRect)
 

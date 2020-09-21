@@ -111,7 +111,7 @@ void MeshLibrary::_get_property_list(Vector<PropertyInfo> *p_list) const {
         p_list->push_back(PropertyInfo(VariantType::ARRAY, StringName(name + "shapes")));
         p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "navmesh"), PropertyHint::ResourceType, "NavigationMesh"));
         p_list->push_back(PropertyInfo(VariantType::TRANSFORM, StringName(name + "navmesh_transform")));
-        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PropertyHint::ResourceType, "Texture", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER));
+        p_list->push_back(PropertyInfo(VariantType::OBJECT, StringName(name + "preview"), PropertyHint::ResourceType, "Texture")); //, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_EDITOR_HELPER
     }
 }
 

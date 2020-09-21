@@ -502,7 +502,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
     //NOTE: at this point QHRetFaceConnect in ret_edges is no longer valid, since the underlying container's contents was moved-from
 
     r_mesh.edges.reserve(ret_edges.size());
-    int idx = 0;
+
     for (eastl::pair<const QHEdge,QHRetFaceConnect> &E : ret_edges) {
 
         Geometry::MeshData::Edge e;

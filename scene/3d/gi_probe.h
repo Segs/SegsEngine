@@ -34,7 +34,7 @@
 #include "multimesh_instance_3d.h"
 #include "scene/3d/visual_instance_3d.h"
 
-class GIProbeData : public Resource {
+class GODOT_EXPORT GIProbeData : public Resource {
 
     GDCLASS(GIProbeData,Resource)
 
@@ -83,7 +83,7 @@ public:
     ~GIProbeData() override;
 };
 
-class GIProbe : public VisualInstance3D {
+class GODOT_EXPORT GIProbe : public VisualInstance3D {
     GDCLASS(GIProbe,VisualInstance3D)
 
 public:

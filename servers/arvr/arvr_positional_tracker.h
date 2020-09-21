@@ -42,7 +42,7 @@
     This is where potentially additional AR/VR interfaces may be active as there are AR/VR SDKs that solely deal with positional tracking.
 */
 
-class ARVRPositionalTracker : public Object {
+class GODOT_EXPORT ARVRPositionalTracker : public Object {
     GDCLASS(ARVRPositionalTracker,Object)
 
     _THREAD_SAFE_CLASS_

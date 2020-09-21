@@ -105,11 +105,11 @@ static int mouse_y = 0;
 static int button_mask = 0;
 static bool mouse_down_control = false;
 
-static Vector2 get_mouse_pos(NSPoint locationInWindow, CGFloat backingScaleFactor) {
+static Vector2 get_mouse_pos(NSPoint locationInWindow) {
 
     const NSRect contentRect = [OS_OSX::singleton->window_view frame];
     const NSPoint p = locationInWindow;
-    const float s = OS_OSX::singleton->_mouse_scale(backingScaleFactor);
+    const float s = OS_OSX::singleton->get_screen_max_scale();
     mouse_x = p.x * s;
     mouse_y = (contentRect.size.height - p.y) * s;
     return Vector2(mouse_x, mouse_y);
@@ -329,11 +329,11 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     OS_OSX::singleton->zoomed = false;
 
     if (OS_OSX::singleton->min_size != Size2()) {
-        Size2 size = OS_OSX::singleton->min_size / OS_OSX::singleton->_display_scale();
+        Size2 size = OS_OSX::singleton->min_size / OS_OSX::singleton->get_screen_max_scale();
         [OS_OSX::singleton->window_object setContentMinSize:NSMakeSize(size.x, size.y)];
     }
     if (OS_OSX::singleton->max_size != Size2()) {
-        Size2 size = OS_OSX::singleton->max_size / OS_OSX::singleton->_display_scale();
+        Size2 size = OS_OSX::singleton->max_size / OS_OSX::singleton->get_screen_max_scale();
         [OS_OSX::singleton->window_object setContentMaxSize:NSMakeSize(size.x, size.y)];
     }
 
@@ -356,13 +356,21 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
     if (newBackingScaleFactor != oldBackingScaleFactor) {
         //Set new display scale and window size
-        float newDisplayScale = OS_OSX::singleton->is_hidpi_allowed() ? newBackingScaleFactor : 1.0;
+        float newDisplayScale = OS_OSX::singleton->get_screen_max_scale();
 
         const NSRect contentRect = [OS_OSX::singleton->window_view frame];
         const NSRect fbRect = contentRect;
 
         OS_OSX::singleton->window_size.width = fbRect.size.width * newDisplayScale;
         OS_OSX::singleton->window_size.height = fbRect.size.height * newDisplayScale;
+
+        if (OS_OSX::singleton->context) {
+            GLint dim[2];
+            dim[0] = OS_OSX::singleton->window_size.width;
+            dim[1] = OS_OSX::singleton->window_size.height;
+            CGLSetParameter((CGLContextObj)[OS_OSX::singleton->context CGLContextObj], kCGLCPSurfaceBackingSize, &dim[0]);
+            CGLEnable((CGLContextObj)[OS_OSX::singleton->context CGLContextObj], kCGLCESurfaceBackingSize);
+        }
 
         //Update context
         if (OS_OSX::singleton->main_loop) {
@@ -378,9 +386,17 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     const NSRect contentRect = [OS_OSX::singleton->window_view frame];
     const NSRect fbRect = contentRect;
 
-    float displayScale = OS_OSX::singleton->_display_scale();
+    float displayScale = OS_OSX::singleton->get_screen_max_scale();
     OS_OSX::singleton->window_size.width = fbRect.size.width * displayScale;
     OS_OSX::singleton->window_size.height = fbRect.size.height * displayScale;
+
+    if (OS_OSX::singleton->context) {
+        GLint dim[2];
+        dim[0] = OS_OSX::singleton->window_size.width;
+        dim[1] = OS_OSX::singleton->window_size.height;
+        CGLSetParameter((CGLContextObj)[OS_OSX::singleton->context CGLContextObj], kCGLCPSurfaceBackingSize, &dim[0]);
+        CGLEnable((CGLContextObj)[OS_OSX::singleton->context CGLContextObj], kCGLCESurfaceBackingSize);
+    }
 
     if (OS_OSX::singleton->main_loop) {
         Main::force_redraw();
@@ -419,15 +435,13 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
-
     if (OS_OSX::singleton->get_main_loop()) {
-        get_mouse_pos(
-                [OS_OSX::singleton->window_object mouseLocationOutsideOfEventStream],
-                [OS_OSX::singleton->window_view backingScaleFactor]);
+        get_mouse_pos([OS_OSX::singleton->window_object mouseLocationOutsideOfEventStream]);
         OS_OSX::singleton->input->set_mouse_position(Point2(mouse_x, mouse_y));
 
         OS_OSX::singleton->get_main_loop()->notification(MainLoop::NOTIFICATION_WM_FOCUS_IN);
     }
+
     OS_OSX::singleton->window_focused = true;
 }
 
@@ -454,7 +468,7 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 @end
 
-@interface GodotContentView : NSView <NSTextInputClient> {
+@interface GodotContentView : NSOpenGLView <NSTextInputClient> {
     NSTrackingArea *trackingArea;
     NSMutableAttributedString *markedText;
     bool imeInputEventInProgress;
@@ -485,7 +499,11 @@ static CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     trackingArea = nil;
     imeInputEventInProgress = false;
     [self updateTrackingAreas];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101400
+    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeFileURL]];
+#else
     [self registerForDraggedTypes:[NSArray arrayWithObject:NSFilenamesPboardType]];
+#endif
     markedText = [[NSMutableAttributedString alloc] init];
     return self;
 }

@@ -2032,9 +2032,10 @@ void RasterizerCanvasGLES3::draw_window_margins(int *black_margin, RID *black_im
     canvas_begin();
 
     if (black_image[(int8_t)Margin::Left].is_valid()) {
-        _bind_canvas_texture(black_image[(int8_t)Margin::Left], RID());
+        _bind_canvas_texture(black_image[(int8_t)Margin::Left], RID(),true);
         Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Left]), storage->texture_get_height(black_image[(int8_t)Margin::Left]));
-        draw_generic_textured_rect(Rect2(0, 0, black_margin[(int8_t)Margin::Left], window_h), Rect2(0, 0, sz.x, sz.y));
+        draw_generic_textured_rect(Rect2(0, 0, black_margin[(int8_t)Margin::Left], window_h),
+                Rect2(0, 0, (float)black_margin[(int8_t)Margin::Left] / sz.x, (float)(window_h) / sz.y));
     } else if (black_margin[(int8_t)Margin::Left]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
@@ -2043,9 +2044,11 @@ void RasterizerCanvasGLES3::draw_window_margins(int *black_margin, RID *black_im
     }
 
     if (black_image[(int8_t)Margin::Right].is_valid()) {
-        _bind_canvas_texture(black_image[(int8_t)Margin::Right], RID());
+        _bind_canvas_texture(black_image[(int8_t)Margin::Right], RID(),true);
         Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Right]), storage->texture_get_height(black_image[(int8_t)Margin::Right]));
-        draw_generic_textured_rect(Rect2(window_w - black_margin[(int8_t)Margin::Right], 0, black_margin[(int8_t)Margin::Right], window_h), Rect2(0, 0, sz.x, sz.y));
+        draw_generic_textured_rect(Rect2(window_w - black_margin[(int8_t)Margin::Right], 0, black_margin[(int8_t)Margin::Right], window_h),
+                Rect2(0, 0, (float)black_margin[(int8_t)Margin::Right] / sz.x, (float)window_h / sz.y));
+
     } else if (black_margin[(int8_t)Margin::Right]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
@@ -2054,24 +2057,26 @@ void RasterizerCanvasGLES3::draw_window_margins(int *black_margin, RID *black_im
     }
 
     if (black_image[(int8_t)Margin::Top].is_valid()) {
-        _bind_canvas_texture(black_image[(int8_t)Margin::Top], RID());
+        _bind_canvas_texture(black_image[(int8_t)Margin::Top], RID(),true);
 
         Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Top]), storage->texture_get_height(black_image[(int8_t)Margin::Top]));
-        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[(int8_t)Margin::Top]), Rect2(0, 0, sz.x, sz.y));
-
+        draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[(int8_t)Margin::Top]),
+                        Rect2(0, 0, (float)window_w / sz.x, (float)black_margin[(int8_t)Margin::Top] / sz.y));
     } else if (black_margin[(int8_t)Margin::Top]) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, storage->resources.black_tex);
 
         draw_generic_textured_rect(Rect2(0, 0, window_w, black_margin[(int8_t)Margin::Top]), Rect2(0, 0, 1, 1));
+
     }
 
     if (black_image[(int8_t)Margin::Bottom].is_valid()) {
 
-        _bind_canvas_texture(black_image[(int8_t)Margin::Bottom], RID());
+        _bind_canvas_texture(black_image[(int8_t)Margin::Bottom], RID(),true);
 
         Size2 sz(storage->texture_get_width(black_image[(int8_t)Margin::Bottom]), storage->texture_get_height(black_image[(int8_t)Margin::Bottom]));
-        draw_generic_textured_rect(Rect2(0, window_h - black_margin[(int8_t)Margin::Bottom], window_w, black_margin[(int8_t)Margin::Bottom]), Rect2(0, 0, sz.x, sz.y));
+        draw_generic_textured_rect(Rect2(0, window_h - black_margin[(int8_t)Margin::Bottom], window_w, black_margin[(int8_t)Margin::Bottom]),
+                Rect2(0, 0, (float)window_w / sz.x, (float)black_margin[(int8_t)Margin::Bottom] / sz.y));
 
     } else if (black_margin[(int8_t)Margin::Bottom]) {
 

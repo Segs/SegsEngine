@@ -138,7 +138,7 @@ public:
     static void solve(Task *p_task, real_t blending_delta, bool override_tip_basis, bool p_use_magnet, const Vector3 &p_magnet_position);
 };
 
-class SkeletonIK3D : public Node {
+class GODOT_EXPORT SkeletonIK3D : public Node {
     GDCLASS(SkeletonIK3D,Node)
 
     StringName root_bone;

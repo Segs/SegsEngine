@@ -36,7 +36,7 @@ public:
     ~ResourceInteractiveLoader() override;
 };
 
-class ResourceInteractiveLoaderDefault : public ResourceInteractiveLoader {
+class GODOT_EXPORT ResourceInteractiveLoaderDefault : public ResourceInteractiveLoader {
 
     GDCLASS(ResourceInteractiveLoaderDefault, ResourceInteractiveLoader)
 

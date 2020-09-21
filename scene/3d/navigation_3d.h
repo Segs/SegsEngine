@@ -34,7 +34,7 @@
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/node_3d.h"
 
-class Navigation3D : public Node3D {
+class GODOT_EXPORT Navigation3D : public Node3D {
 
     GDCLASS(Navigation3D, Node3D);
 

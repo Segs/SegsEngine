@@ -51,7 +51,7 @@ struct hash<Vector2> {
 
 }
 
-class TileSet : public Resource {
+class GODOT_EXPORT TileSet : public Resource {
 
     GDCLASS(TileSet,Resource)
 

@@ -36,7 +36,6 @@
 #include "core/typedefs.h"
 #include "core/error_macros.h"
 #include "core/forward_decls.h"
-#include <type_traits>
 
 class Basis;
 

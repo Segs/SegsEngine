@@ -7,7 +7,7 @@
         Every class which is not a built-in type inherits from this class.
         You can construct Objects from scripting languages, using [code]Object.new()[/code] in GDScript, [code]new Object[/code] in C#, or the "Construct Object" node in VisualScript.
         Objects do not manage memory. If a class inherits from Object, you will have to delete instances of it manually. To do so, call the [method free] method from your script or delete the instance from C++.
-        Some classes that extend Object add memory management. This is the case of [Reference], which counts references and deletes itself automatically when no longer referenced. [Node], another fundamental type, deletes all its children when freed from memory.
+        Some classes that extend Object add memory management. This is the case of [RefCounted], which counts references and deletes itself automatically when no longer referenced. [Node], another fundamental type, deletes all its children when freed from memory.
         Objects export properties, which are mainly useful for storage and editing, but not really so much in programming. Properties are exported in [method _get_property_list] and handled in [method _get] and [method _set]. However, scripting languages and C++ have simpler means to export them.
         Property membership can be tested directly in GDScript using [code]in[/code]:
         [codeblock]
@@ -15,9 +15,12 @@
         print("position" in n)  # Prints "True".
         print("other_property" in n)  # Prints "False".
         [/codeblock]
+        The [code]in[/code] operator will evaluate to [code]true[/code] as long as the key exists, even if the value is [code]null[/code].
         Objects also receive notifications. Notifications are a simple way to notify the object about different events, so they can all be handled together. See [method _notification].
+        [b]Note:[/b] Unlike references to a [RefCounted], references to an Object stored in a variable can become invalid without warning. Therefore, it's recommended to use [RefCounted] for data classes instead of [Object].
     </description>
     <tutorials>
+        <link title="When and how to avoid using nodes for everything">https://docs.godotengine.org/en/latest/getting_started/workflow/best_practices/node_alternatives.html</link>
     </tutorials>
     <methods>
         <method name="_get" qualifiers="virtual">
@@ -96,6 +99,7 @@
                 [codeblock]
                 call("set", "position", Vector2(42.0, 0.0))
                 [/codeblock]
+                [b]Note:[/b] In C#, the method name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined methods where you should use the same convention as in the C# source (typically PascalCase).
             </description>
         </method>
         <method name="call_deferred" qualifiers="vararg">
@@ -108,6 +112,7 @@
                 [codeblock]
                 call_deferred("set", "position", Vector2(42.0, 0.0))
                 [/codeblock]
+                [b]Note:[/b] In C#, the method name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined methods where you should use the same convention as in the C# source (typically PascalCase).
             </description>
         </method>
         <method name="callv">
@@ -204,6 +209,7 @@
             </argument>
             <description>
                 Returns the [Variant] value of the given [code]property[/code]. If the [code]property[/code] doesn't exist, this will return [code]null[/code].
+                [b]Note:[/b] In C#, the property name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined properties where you should use the same convention as in the C# source (typically PascalCase).
             </description>
         </method>
         <method name="get_class" qualifiers="const">
@@ -273,7 +279,7 @@
             </description>
         </method>
         <method name="get_script" qualifiers="const">
-            <return type="Reference">
+            <return type="RefCounted">
             </return>
             <description>
                 Returns the object's [Script] instance, or [code]null[/code] if none is assigned.
@@ -313,22 +319,22 @@
                 Returns [code]true[/code] if the object contains the given [code]method[/code].
             </description>
         </method>
-		<method name="has_signal" qualifiers="const">
-			<return type="bool">
-			</return>
-			<argument index="0" name="signal" type="String">
-			</argument>
-			<description>
-				Returns [code]true[/code] if the given [code]signal[/code] exists.
-			</description>
-		</method>
+        <method name="has_signal" qualifiers="const">
+            <return type="bool">
+            </return>
+            <argument index="0" name="signal" type="String">
+            </argument>
+            <description>
+                Returns [code]true[/code] if the given [code]signal[/code] exists.
+            </description>
+        </method>
         <method name="has_user_signal" qualifiers="const">
             <return type="bool">
             </return>
             <argument index="0" name="signal" type="String">
             </argument>
             <description>
-				Returns [code]true[/code] if the given user-defined [code]signal[/code] exists. Only signals added using [method add_user_signal] are taken into account.
+                Returns [code]true[/code] if the given user-defined [code]signal[/code] exists. Only signals added using [method add_user_signal] are taken into account.
             </description>
         </method>
         <method name="is_blocking_signals" qualifiers="const">
@@ -392,7 +398,7 @@
             <argument index="0" name="name" type="String">
             </argument>
             <description>
-                Removes a given entry from the object's metadata.
+                Removes a given entry from the object's metadata. See also [method set_meta].
             </description>
         </method>
         <method name="set">
@@ -404,6 +410,7 @@
             </argument>
             <description>
                 Assigns a new value to the given property. If the [code]property[/code] does not exist, nothing will happen.
+                [b]Note:[/b] In C#, the property name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined properties where you should use the same convention as in the C# source (typically PascalCase).
             </description>
         </method>
         <method name="set_block_signals">
@@ -424,6 +431,7 @@
             </argument>
             <description>
                 Assigns a new value to the given property, after the current frame's physics step. This is equivalent to calling [method set] via [method call_deferred], i.e. [code]call_deferred("set", property, value)[/code].
+                [b]Note:[/b] In C#, the property name must be specified as snake_case if it is defined by a built-in Godot node. This doesn't apply to user-defined properties where you should use the same convention as in the C# source (typically PascalCase).
             </description>
         </method>
         <method name="set_indexed">
@@ -459,13 +467,14 @@
             <argument index="1" name="value" type="Variant">
             </argument>
             <description>
-                Adds or changes a given entry in the object's metadata. Metadata are serialized, and can take any [Variant] value.
+                Adds, changes or removes a given entry in the object's metadata. Metadata are serialized and can take any [Variant] value.
+                To remove a given entry from the object's metadata, use [method remove_meta]. Metadata is also removed if its value is set to [code]null[/code]. This means you can also use [code]set_meta("name", null)[/code] to remove metadata for [code]"name"[/code].
             </description>
         </method>
         <method name="set_script">
             <return type="void">
             </return>
-            <argument index="0" name="script" type="Reference">
+            <argument index="0" name="script" type="RefCounted">
             </argument>
             <description>
                 Assigns a script to the object. Each object can have a single script assigned to it, which are used to extend its functionality.

@@ -31,5 +31,5 @@ StringName DTR(StringView);
 #endif
 
 // Runtime translate for the public node API.
-StringName RTR(const char *);
-String RTR_utf8(StringView sv);
+GODOT_EXPORT StringName RTR(const char *);
+GODOT_EXPORT String RTR_utf8(StringView sv);

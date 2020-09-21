@@ -38,7 +38,7 @@ class Curve;
 class Mesh;
 class Gradient;
 
-class CPUParticles3D : public GeometryInstance {
+class GODOT_EXPORT CPUParticles3D : public GeometryInstance {
 private:
     GDCLASS(CPUParticles3D,GeometryInstance)
 

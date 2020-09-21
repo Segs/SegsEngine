@@ -916,7 +916,7 @@ bool SceneTree::idle(float p_time) {
 
     //go through timers
 
-    auto L = &timers.back(); //last element
+    auto L = timers.empty() ? nullptr : &timers.back(); //last element
     //break on last, so if new timers were added during list traversal, ignore them.
     for (auto E = timers.begin(); E!=timers.end() && (&(*E) == L);) {
 
@@ -1614,7 +1614,7 @@ Node *SceneTree::get_edited_scene_root() const {
 #ifdef TOOLS_ENABLED
     return edited_scene_root;
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 
@@ -1665,7 +1665,7 @@ Error SceneTree::change_scene_to(const Ref<PackedScene> &p_scene) {
         ERR_FAIL_COND_V(!new_scene, ERR_CANT_CREATE);
     }
 
-    call_deferred("_change_scene", Variant(new_scene));
+    call_deferred([this,new_scene](){ _change_scene(new_scene); });
     return OK;
 }
 Error SceneTree::reload_current_scene() {

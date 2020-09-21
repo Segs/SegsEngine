@@ -33,7 +33,7 @@
 
 #include "scene/gui/container.h"
 
-class ViewportContainer : public Container {
+class GODOT_EXPORT ViewportContainer : public Container {
 
 	GDCLASS(ViewportContainer,Container)
 

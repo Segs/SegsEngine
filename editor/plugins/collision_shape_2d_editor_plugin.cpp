@@ -79,11 +79,11 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
         } break;
 
         case CONCAVE_POLYGON_SHAPE: {
-
+            // Cannot be edited directly, use CollisionPolygon2D instead.
         } break;
 
         case CONVEX_POLYGON_SHAPE: {
-
+            // Cannot be edited directly, use CollisionPolygon2D instead.
         } break;
 
         case LINE_SHAPE: {

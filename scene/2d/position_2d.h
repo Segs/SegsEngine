@@ -33,7 +33,7 @@
 
 #include "scene/2d/node_2d.h"
 
-class Position2D : public Node2D {
+class GODOT_EXPORT Position2D : public Node2D {
 
     GDCLASS(Position2D,Node2D)
 

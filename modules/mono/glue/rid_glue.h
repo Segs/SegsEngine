@@ -31,8 +31,6 @@
 #ifndef RID_GLUE_H
 #define RID_GLUE_H
 
-#ifdef MONO_GLUE_ENABLED
-
 #include "core/object.h"
 #include "core/rid.h"
 
@@ -47,7 +45,5 @@ uint32_t godot_icall_RID_get_id(RID *p_ptr);
 // Register internal calls
 
 void godot_register_rid_icalls();
-
-#endif // MONO_GLUE_ENABLED
 
 #endif // RID_GLUE_H

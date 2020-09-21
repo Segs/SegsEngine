@@ -10,6 +10,7 @@
 #include "sparse_set.hpp"
 #include "storage.hpp"
 #include "utility.hpp"
+#include "entity.hpp"
 #include "fwd.hpp"
 
 
@@ -29,11 +30,9 @@ class basic_group;
 /**
  * @brief Non-owning group.
  *
- * A non-owning group returns all the entities and only the entities that have
- * at least the given components. Moreover, it's guaranteed that the entity list
- * is tightly packed in memory for fast iterations.<br/>
- * In general, non-owning groups don't stay true to the order of any set of
- * components unless users explicitly sort them.
+ * A non-owning group returns all entities and only the entities that have at
+ * least the given components. Moreover, it's guaranteed that the entity list
+ * is tightly packed in memory for fast iterations.
  *
  * @b Important
  *
@@ -44,21 +43,20 @@ class basic_group;
  *   given components is removed from the entity to which the iterator points).
  * * The entity currently pointed is destroyed.
  *
- * In all the other cases, modifying the pools of the given components in any
- * way invalidates all the iterators and using them results in undefined
- * behavior.
+ * In all other cases, modifying the pools iterated by the group in any way
+ * invalidates all the iterators and using them results in undefined behavior.
  *
  * @note
  * Groups share references to the underlying data structures of the registry
  * that generated them. Therefore any change to the entities and to the
  * components made by means of the registry are immediately reflected by all the
  * groups.<br/>
- * Moreover, sorting a non-owning group affects all the instance of the same
+ * Moreover, sorting a non-owning group affects all the instances of the same
  * group (it means that users don't have to call `sort` on each instance to sort
- * all of them because they share the set of entities).
+ * all of them because they _share_ entities and components).
  *
  * @warning
- * Lifetime of a group must overcome the one of the registry that generated it.
+ * Lifetime of a group must not overcome that of the registry that generated it.
  * In any other case, attempting to use a group results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
@@ -71,12 +69,12 @@ class basic_group<Entity, Allocator, exclude_t<Exclude...>, get_t<Get...>> {
     friend class basic_registry<Entity, Allocator>;
 
     template<typename Component>
-    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>>, storage<Entity, Component>>;
+    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>,Allocator>, storage<Entity, Component,Allocator>>;
 
-    // we could use pool_type<Type> *..., but vs complains about it and refuses to compile for unknown reasons (most likely a bug)
-    basic_group(sparse_set<Entity> *ref, storage<Entity, eastl::remove_const_t<Get>> *... gpool) ENTT_NOEXCEPT
-        : handler{ref},
-          pools{gpool...}
+    // we could use pool_type<Type> &..., but vs complains about it and refuses to compile for unknown reasons (most likely a bug)
+    basic_group(sparse_set<Entity,Allocator> &ref, storage<Entity,eastl::remove_const_t<Get>,Allocator> &... gpool) ENTT_NOEXCEPT
+        : handler{&ref},
+          pools{&gpool...}
     {}
 
     template<typename Func, typename... Weak>
@@ -96,7 +94,7 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Input iterator type. */
-    using iterator_type = typename sparse_set<Entity>::iterator_type;
+    using iterator = typename sparse_set<Entity,Allocator>::iterator;
 
     /**
      * @brief Returns the number of existing components of the given type.
@@ -131,11 +129,9 @@ public:
     }
 
     /**
-     * @brief Checks whether the group or the pools of the given components are
-     * empty.
+     * @brief Checks whether a group or some pools are empty.
      * @tparam Component Types of components in which one is interested.
-     * @return True if the group or the pools of the given components are empty,
-     * false otherwise.
+     * @return True if the group or the pools are empty, false otherwise.
      */
     template<typename... Component>
     bool empty() const ENTT_NOEXCEPT {
@@ -214,7 +210,7 @@ public:
      *
      * @return An iterator to the first entity that has the given components.
      */
-    iterator_type begin() const ENTT_NOEXCEPT {
+    iterator begin() const ENTT_NOEXCEPT {
         return handler->begin();
     }
 
@@ -233,8 +229,28 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    iterator_type end() const ENTT_NOEXCEPT {
+    iterator end() const ENTT_NOEXCEPT {
         return handler->end();
+    }
+
+    /**
+     * @brief Returns the first entity that has the given components, if any.
+     * @return The first entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type front() const {
+        const auto it = begin();
+        return it != end() ? *it : null;
+    }
+
+    /**
+     * @brief Returns the last entity that has the given components, if any.
+     * @return The last entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type back() const {
+        const auto it = eastl::make_reverse_iterator(end());
+        return it != eastl::make_reverse_iterator(begin()) ? *it : null;
     }
 
     /**
@@ -243,7 +259,7 @@ public:
      * @return An iterator to the given entity if it's found, past the end
      * iterator otherwise.
      */
-    iterator_type find(const entity_type entt) const ENTT_NOEXCEPT {
+    iterator find(const entity_type entt) const {
         const auto it = handler->find(entt);
         return it != end() && *it == entt ? it : end();
     }
@@ -253,7 +269,7 @@ public:
      * @param pos Position of the element to return.
      * @return The identifier that occupies the given position.
      */
-    entity_type operator[](const size_type pos) const ENTT_NOEXCEPT {
+    entity_type operator[](const size_type pos) const {
         return begin()[pos];
     }
 
@@ -262,15 +278,15 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the group contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const ENTT_NOEXCEPT {
-        return find(entt) != end();
+    bool contains(const entity_type entt) const {
+        return handler->contains(entt);
     }
 
     /**
      * @brief Returns the components assigned to the given entity.
      *
      * Prefer this function instead of `registry::get` during iterations. It has
-     * far better performance than its companion function.
+     * far better performance than its counterpart.
      *
      * @warning
      * Attempting to use an invalid component type results in a compilation
@@ -284,7 +300,7 @@ public:
      * @return The components assigned to the entity.
      */
     template<typename... Component>
-    decltype(auto) get([[maybe_unused]] const entity_type entt) const ENTT_NOEXCEPT {
+    decltype(auto) get([[maybe_unused]] const entity_type entt) const {
         ENTT_ASSERT(contains(entt));
 
         if constexpr(sizeof...(Component) == 1) {
@@ -292,34 +308,6 @@ public:
         } else {
             return eastl::tuple<decltype(get<Component>({}))...>{get<Component>(entt)...};
         }
-    }
-
-    /**
-     * @brief Iterates entities and components and applies the given function
-     * object to them.
-     *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to all its components. The
-     * _constness_ of the components is as requested.<br/>
-     * The signature of the function must be equivalent to one of the following
-     * forms:
-     *
-     * @code{.cpp}
-     * void(const entity_type, Get &...);
-     * void(Get &...);
-     * @endcode
-     *
-     * @note
-     * Empty types aren't explicitly instantiated. Therefore, temporary objects
-     * are returned during iterations. They can be caught only by copy or with
-     * const references.
-     *
-     * @tparam Func Type of the function object to invoke.
-     * @param func A valid function object.
-     */
-    template<typename Func>
-    void each(Func func) const {
-        traverse(eastl::move(func), type_list<Get...>{});
     }
 
     /**
@@ -337,15 +325,45 @@ public:
      * void(Type &...);
      * @endcode
      *
-     * @sa each
+     * @note
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Func>
-    void less(Func func) const {
-        using get_type_list = type_list_cat_t<eastl::conditional_t<ENTT_ENABLE_ETO(Get), type_list<>, type_list<Get>>...>;
+    void each(Func func) const {
+        using get_type_list = type_list_cat_t<eastl::conditional_t<ENTT_IS_EMPTY(Get), type_list<>, type_list<Get>>...>;
         traverse(eastl::move(func), get_type_list{});
+    }
+
+    /**
+     * @brief Iterates entities and components and applies the given function
+     * object to them.
+     *
+     * The function object is invoked for each entity. It is provided with the
+     * entity itself and a set of references to non-empty components. The
+     * _constness_ of the components is as requested.<br/>
+     * The signature of the function must be equivalent to one of the following
+     * forms:
+     *
+     * @code{.cpp}
+     * void(const entity_type, Type &...);
+     * void(Type &...);
+     * @endcode
+     *
+     * @note
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
+     *
+     * @tparam Func Type of the function object to invoke.
+     * @param func A valid function object.
+     */
+    template<typename Func>
+    [[deprecated("use ::each instead")]]
+    void less(Func func) const {
+        each(eastl::move(func));
     }
 
     /**
@@ -427,7 +445,7 @@ public:
     }
 
 private:
-    sparse_set<entity_type> *handler;
+    sparse_set<entity_type,Allocator> *handler;
     const eastl::tuple<pool_type<Get> *...> pools;
 };
 
@@ -435,15 +453,15 @@ private:
 /**
  * @brief Owning group.
  *
- * Owning groups return all the entities and only the entities that have at
- * least the given components. Moreover:
+ * Owning groups return all entities and only the entities that have at least
+ * the given components. Moreover:
  *
  * * It's guaranteed that the entity list is tightly packed in memory for fast
  *   iterations.
  * * It's guaranteed that the lists of owned components are tightly packed in
  *   memory for even faster iterations and to allow direct access.
- * * They stay true to the order of the owned components and all the owned
- *   components have the same order in memory.
+ * * They stay true to the order of the owned components and all instances have
+ *   the same order in memory.
  *
  * The more types of components are owned by a group, the faster it is to
  * iterate them.
@@ -457,9 +475,8 @@ private:
  *   given components is removed from the entity to which the iterator points).
  * * The entity currently pointed is destroyed.
  *
- * In all the other cases, modifying the pools of the given components in any
- * way invalidates all the iterators and using them results in undefined
- * behavior.
+ * In all other cases, modifying the pools iterated by the group in any way
+ * invalidates all the iterators and using them results in undefined behavior.
  *
  * @note
  * Groups share references to the underlying data structures of the registry
@@ -471,7 +488,7 @@ private:
  * of them because they share the underlying data structure).
  *
  * @warning
- * Lifetime of a group must overcome the one of the registry that generated it.
+ * Lifetime of a group must not overcome that of the registry that generated it.
  * In any other case, attempting to use a group results in undefined behavior.
  *
  * @tparam Entity A valid entity type (see entt_traits for more details).
@@ -485,34 +502,36 @@ class basic_group<Entity, Allocator, exclude_t<Exclude...>, get_t<Get...>, Owned
     friend class basic_registry<Entity,Allocator>;
 
     template<typename Component>
-    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>>, storage<Entity, Component>>;
+    using pool_type = eastl::conditional_t<eastl::is_const_v<Component>, const storage<Entity, eastl::remove_const_t<Component>,Allocator>, storage<Entity, Component,Allocator>>;
 
     template<typename Component>
-    using component_iterator_type = decltype(eastl::declval<pool_type<Component>>().begin());
+    using component_iterator = decltype(eastl::declval<pool_type<Component>>().begin());
 
-    // we could use pool_type<Type> *..., but vs complains about it and refuses to compile for unknown reasons (most likely a bug)
-    basic_group(const std::size_t *ref, const std::size_t *extent, storage<Entity, eastl::remove_const_t<Owned>> *... opool, storage<Entity, eastl::remove_const_t<Get>> *... gpool) ENTT_NOEXCEPT
-        : pools{opool..., gpool...},
-          length{extent},
-          super{ref}
+    // we could use pool_type<Type> &..., but vs complains about it and refuses to compile for unknown reasons (most likely a bug)
+    basic_group(const std::size_t &ref, const std::size_t &extent,
+            storage<Entity, eastl::remove_const_t<Owned>, Allocator> &... opool,
+            storage<Entity, eastl::remove_const_t<Get>, Allocator> &... gpool) ENTT_NOEXCEPT
+        : pools{&opool..., &gpool...},
+          length{&extent},
+          super{&ref}
     {}
 
     template<typename Func, typename... Strong, typename... Weak>
     void traverse(Func func, type_list<Strong...>, type_list<Weak...>) const {
         [[maybe_unused]] auto it = eastl::make_tuple((eastl::get<pool_type<Strong> *>(pools)->end() - *length)...);
-        [[maybe_unused]] auto data = eastl::get<0>(pools)->sparse_set<entity_type>::end() - *length;
+        [[maybe_unused]] auto data = eastl::get<0>(pools)->sparse_set<entity_type,Allocator>::end() - *length;
 
         for(auto next = *length; next; --next) {
             if constexpr(eastl::is_invocable_v<Func, decltype(get<Strong>({}))..., decltype(get<Weak>({}))...>) {
                 if constexpr(sizeof...(Weak) == 0) {
-                    func(*(eastl::get<component_iterator_type<Strong>>(it)++)...);
+                    func(*(eastl::get<component_iterator<Strong>>(it)++)...);
                 } else {
                     const auto entt = *(data++);
-                    func(*(eastl::get<component_iterator_type<Strong>>(it)++)..., eastl::get<pool_type<Weak> *>(pools)->get(entt)...);
+                    func(*(eastl::get<component_iterator<Strong>>(it)++)..., eastl::get<pool_type<Weak> *>(pools)->get(entt)...);
                 }
             } else {
                 const auto entt = *(data++);
-                func(entt, *(eastl::get<component_iterator_type<Strong>>(it)++)..., eastl::get<pool_type<Weak> *>(pools)->get(entt)...);
+                func(entt, *(eastl::get<component_iterator<Strong>>(it)++)..., eastl::get<pool_type<Weak> *>(pools)->get(entt)...);
             }
         }
     }
@@ -523,7 +542,7 @@ public:
     /*! @brief Unsigned integer type. */
     using size_type = std::size_t;
     /*! @brief Input iterator type. */
-    using iterator_type = typename sparse_set<Entity>::iterator_type;
+    using iterator = typename sparse_set<Entity,Allocator>::iterator;
 
     /**
      * @brief Returns the number of existing components of the given type.
@@ -544,11 +563,9 @@ public:
     }
 
     /**
-     * @brief Checks whether the group or the pools of the given components are
-     * empty.
+     * @brief Checks whether a group or some pools are empty.
      * @tparam Component Types of components in which one is interested.
-     * @return True if the group or the pools of the given components are empty,
-     * false otherwise.
+     * @return True if the group or the pools are empty, false otherwise.
      */
     template<typename... Component>
     bool empty() const ENTT_NOEXCEPT {
@@ -633,8 +650,8 @@ public:
      *
      * @return An iterator to the first entity that has the given components.
      */
-    iterator_type begin() const ENTT_NOEXCEPT {
-        return eastl::get<0>(pools)->sparse_set<entity_type>::end() - *length;
+    iterator begin() const ENTT_NOEXCEPT {
+        return eastl::get<0>(pools)->sparse_set<entity_type,Allocator>::end() - *length;
     }
 
     /**
@@ -652,8 +669,28 @@ public:
      * @return An iterator to the entity following the last entity that has the
      * given components.
      */
-    iterator_type end() const ENTT_NOEXCEPT {
-        return eastl::get<0>(pools)->sparse_set<entity_type>::end();
+    iterator end() const ENTT_NOEXCEPT {
+        return eastl::get<0>(pools)->sparse_set<entity_type,Allocator>::end();
+    }
+
+    /**
+     * @brief Returns the first entity that has the given components, if any.
+     * @return The first entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type front() const {
+        const auto it = begin();
+        return it != end() ? *it : null;
+    }
+
+    /**
+     * @brief Returns the last entity that has the given components, if any.
+     * @return The last entity that has the given components if one exists, the
+     * null entity otherwise.
+     */
+    entity_type back() const {
+        const auto it = eastl::make_reverse_iterator(end());
+        return it != eastl::make_reverse_iterator(begin()) ? *it : null;
     }
 
     /**
@@ -662,7 +699,7 @@ public:
      * @return An iterator to the given entity if it's found, past the end
      * iterator otherwise.
      */
-    iterator_type find(const entity_type entt) const ENTT_NOEXCEPT {
+    iterator find(const entity_type entt) const {
         const auto it = eastl::get<0>(pools)->find(entt);
         return it != end() && it >= begin() && *it == entt ? it : end();
     }
@@ -672,7 +709,7 @@ public:
      * @param pos Position of the element to return.
      * @return The identifier that occupies the given position.
      */
-    entity_type operator[](const size_type pos) const ENTT_NOEXCEPT {
+    entity_type operator[](const size_type pos) const {
         return begin()[pos];
     }
 
@@ -681,15 +718,15 @@ public:
      * @param entt A valid entity identifier.
      * @return True if the group contains the given entity, false otherwise.
      */
-    bool contains(const entity_type entt) const ENTT_NOEXCEPT {
-        return find(entt) != end();
+    bool contains(const entity_type entt) const {
+        return eastl::get<0>(pools)->contains(entt) && (eastl::get<0>(pools)->index(entt) < (*length));
     }
 
     /**
      * @brief Returns the components assigned to the given entity.
      *
      * Prefer this function instead of `registry::get` during iterations. It has
-     * far better performance than its companion function.
+     * far better performance than its counterpart.
      *
      * @warning
      * Attempting to use an invalid component type results in a compilation
@@ -703,7 +740,7 @@ public:
      * @return The components assigned to the entity.
      */
     template<typename... Component>
-    decltype(auto) get([[maybe_unused]] const entity_type entt) const ENTT_NOEXCEPT {
+    decltype(auto) get([[maybe_unused]] const entity_type entt) const {
         ENTT_ASSERT(contains(entt));
 
         if constexpr(sizeof...(Component) == 1) {
@@ -711,34 +748,6 @@ public:
         } else {
             return eastl::tuple<decltype(get<Component>({}))...>{get<Component>(entt)...};
         }
-    }
-
-    /**
-     * @brief Iterates entities and components and applies the given function
-     * object to them.
-     *
-     * The function object is invoked for each entity. It is provided with the
-     * entity itself and a set of references to all its components. The
-     * _constness_ of the components is as requested.<br/>
-     * The signature of the function must be equivalent to one of the following
-     * forms:
-     *
-     * @code{.cpp}
-     * void(const entity_type, Owned &..., Get &...);
-     * void(Owned &..., Get &...);
-     * @endcode
-     *
-     * @note
-     * Empty types aren't explicitly instantiated. Therefore, temporary objects
-     * are returned during iterations. They can be caught only by copy or with
-     * const references.
-     *
-     * @tparam Func Type of the function object to invoke.
-     * @param func A valid function object.
-     */
-    template<typename Func>
-    void each(Func func) const {
-        traverse(eastl::move(func), type_list<Owned...>{}, type_list<Get...>{});
     }
 
     /**
@@ -756,16 +765,46 @@ public:
      * void(Type &...);
      * @endcode
      *
-     * @sa each
+     * @note
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
      *
      * @tparam Func Type of the function object to invoke.
      * @param func A valid function object.
      */
     template<typename Func>
-    void less(Func func) const {
-        using owned_type_list = type_list_cat_t<eastl::conditional_t<ENTT_ENABLE_ETO(Owned), type_list<>, type_list<Owned>>...>;
-        using get_type_list = type_list_cat_t<eastl::conditional_t<ENTT_ENABLE_ETO(Get), type_list<>, type_list<Get>>...>;
+    void each(Func func) const {
+        using owned_type_list = type_list_cat_t<eastl::conditional_t<ENTT_IS_EMPTY(Owned), type_list<>, type_list<Owned>>...>;
+        using get_type_list = type_list_cat_t<eastl::conditional_t<ENTT_IS_EMPTY(Get), type_list<>, type_list<Get>>...>;
         traverse(eastl::move(func), owned_type_list{}, get_type_list{});
+    }
+
+    /**
+     * @brief Iterates entities and components and applies the given function
+     * object to them.
+     *
+     * The function object is invoked for each entity. It is provided with the
+     * entity itself and a set of references to non-empty components. The
+     * _constness_ of the components is as requested.<br/>
+     * The signature of the function must be equivalent to one of the following
+     * forms:
+     *
+     * @code{.cpp}
+     * void(const entity_type, Type &...);
+     * void(Type &...);
+     * @endcode
+     *
+     * @note
+     * Empty types aren't explicitly instantiated and therefore they are never
+     * returned during iterations.
+     *
+     * @tparam Func Type of the function object to invoke.
+     * @param func A valid function object.
+     */
+    template<typename Func>
+    [[deprecated("use ::each instead")]]
+    void less(Func func) const {
+        each(eastl::move(func));
     }
 
     /**
@@ -856,4 +895,4 @@ private:
 }
 
 
-#endif // ENTT_ENTITY_GROUP_HPP
+#endif

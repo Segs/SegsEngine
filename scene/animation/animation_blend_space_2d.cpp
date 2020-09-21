@@ -651,9 +651,10 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");
 
+    ADD_PROPERTY_ARRAY("Blend Points",MAX_BLEND_POINTS,"blend_point");
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::VECTOR2, StringName("blend_point_" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point/" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::VECTOR2, StringName("blend_point/" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_INT_ARRAY, "triangles", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_triangles", "_get_triangles");

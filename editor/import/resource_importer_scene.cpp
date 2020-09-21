@@ -986,7 +986,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
 
                 if (!p_animations.contains(anim)) {
 
-                    // mark what comes from the file first, this helps eventually keep user data
+                    // Tracks from source file should be set as imported, anything else is a custom track.
                     for (int i = 0; i < anim->get_track_count(); i++) {
                         anim->track_set_imported(i, true);
                     }
@@ -998,11 +998,10 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                         ext_name = PathUtils::plus_file(p_base_path, _make_extname(E) + ".anim");
                     }
                     if (FileAccess::exists(ext_name) && p_keep_animations) {
-                        // try to keep custom animation tracks
+                        // Copy custom animation tracks from previously imported files.
                         Ref<Animation> old_anim = dynamic_ref_cast<Animation>(
                                 gResourceManager().load(ext_name, String("Animation"), true));
                         if (old_anim) {
-                            // meergeee
                             for (int i = 0; i < old_anim->get_track_count(); i++) {
                                 if (!old_anim->track_is_imported(i)) {
                                     old_anim->copy_track(i, anim);
@@ -1012,7 +1011,7 @@ void ResourceImporterScene::_make_external_resources(Node *p_node, StringView p_
                         }
                     }
 
-                    anim->set_path(ext_name, true); // if not set, then its never saved externally
+                    anim->set_path(ext_name, true);  // Set path to save externally.
                     gResourceManager().save(ext_name, anim, ResourceManager::FLAG_CHANGE_PATH);
                     p_animations[anim] = anim;
                 }

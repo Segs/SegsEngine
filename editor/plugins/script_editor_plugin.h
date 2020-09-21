@@ -46,7 +46,7 @@
 #include "scene/main/timer.h"
 #include "scene/resources/text_file.h"
 
-class ScriptEditorQuickOpen : public ConfirmationDialog {
+class GODOT_EXPORT ScriptEditorQuickOpen : public ConfirmationDialog {
 
     GDCLASS(ScriptEditorQuickOpen,ConfirmationDialog)
 
@@ -73,7 +73,7 @@ public:
 
 class ScriptEditorDebugger;
 
-class ScriptEditorBase : public VBoxContainer {
+class GODOT_EXPORT ScriptEditorBase : public VBoxContainer {
 
     GDCLASS(ScriptEditorBase,VBoxContainer)
 
@@ -128,7 +128,7 @@ class EditorScriptCodeCompletionCache;
 class FindInFilesDialog;
 class FindInFilesPanel;
 
-class ScriptEditor : public PanelContainer {
+class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     GDCLASS(ScriptEditor,PanelContainer)
 

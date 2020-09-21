@@ -10,6 +10,8 @@ project(SegsEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
+
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
       add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
@@ -22,6 +24,9 @@ if(MSVC)
       #add_compile_options (/sdl)
       #add_compile_options (/arch:AVX2)
     endif()
+else()
+    #TODO: the disabled warnings below should be re-enabled after EASTL no longers spews them.
+    add_compile_options(-Wno-deprecated-copy)
 endif()
 
 include(CMakeParseArguments)
@@ -75,7 +80,11 @@ function(define_target )
 endfunction()
 
 add_library(editor_interface INTERFACE)
-target_compile_definitions(editor_interface INTERFACE TOOLS_ENABLED)
+target_compile_definitions(editor_interface INTERFACE
+    TOOLS_ENABLED
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+)
 target_include_directories(editor_interface INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include/SegsEngine>
@@ -103,9 +112,13 @@ endmacro()
 
 define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OFF)
 # add global engine targets
+
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
-    target_compile_definitions(${tgt}_interface INTERFACE )
+    target_compile_definitions(${tgt}_interface INTERFACE
+        $<$<CONFIG:Debug>:DEBUG_ENABLED>
+        $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+    )
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import ${tgt}_interface)
     set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
 
@@ -120,12 +133,20 @@ foreach(tgt ${global_targets})
     endif()
 
     add_executable(segs_${tgt} ${PROJECT_SOURCE_DIR}/executable/main.cpp)
+
     if(UNIX AND NOT APPLE)
         target_link_options(segs_${tgt} PUBLIC -Wl,--exclude-libs,ALL)
     endif()
     target_link_libraries(segs_${tgt} ${tgt}_engine Qt5::Core EASTL_Import)
-    set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
-    set_target_properties(${tgt}_engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+    set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR})
+    set_target_properties(segs_${tgt} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR})
+    # add selected Qt path to environment on visual studio
+    set_target_properties(segs_${tgt} PROPERTIES VS_DEBUGGER_ENVIRONMENT "PATH=${CMAKE_MSVCIDE_RUN_PATH};%PATH%")
+
+    set_target_properties(${tgt}_engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+    set_target_properties(${tgt}_engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR})
+    set_target_properties(${tgt}_engine PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR})
 
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
@@ -203,7 +224,7 @@ OPTION(OPTION_NO_EDITOR_SPLASH "Don't use the custom splash screen for the edito
 OPTION(OPTION_PRECISE_MATH_CHECKS "Math checks use very precise epsilon (useful to debug the engine)" OFF)
 
 
-file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/export.cpp" )
+file(GLOB platform_exporters RELATIVE ${PROJECT_SOURCE_DIR} "platform/*/export/*_export.cpp" )
 file(GLOB platform_detectors RELATIVE ${PROJECT_SOURCE_DIR}/platform "platform/*/detect.cmake" )
 
 foreach(detector ${platform_detectors})
@@ -254,6 +275,8 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
     $<$<CONFIG:Debug>:DEBUG_ENABLED>
     $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
+#add_custom_target(genexdebug COMMAND ${CMAKE_COMMAND} -E echo "$<$<CONFIG:Debug>:DEBUG_ENABLED>")
+
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
 
 

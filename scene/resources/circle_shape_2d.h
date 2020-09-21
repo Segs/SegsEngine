@@ -33,7 +33,7 @@
 
 #include "scene/resources/shape_2d.h"
 
-class CircleShape2D : public Shape2D {
+class GODOT_EXPORT CircleShape2D : public Shape2D {
     GDCLASS(CircleShape2D,Shape2D)
 
     real_t radius;

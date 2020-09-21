@@ -33,7 +33,7 @@
 #include "scene/2d/node_2d.h"
 #include "scene/resources/navigation_mesh.h"
 
-class NavigationPolygon : public Resource {
+class GODOT_EXPORT NavigationPolygon : public Resource {
 
     GDCLASS(NavigationPolygon,Resource)
 
@@ -91,7 +91,7 @@ public:
 
 class Navigation2D;
 
-class NavigationPolygonInstance : public Node2D {
+class GODOT_EXPORT NavigationPolygonInstance : public Node2D {
 
     GDCLASS(NavigationPolygonInstance,Node2D)
 

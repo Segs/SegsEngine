@@ -34,9 +34,8 @@ StringName RTR(const char *p_text) {
         StringName rtr(TranslationServer::get_singleton()->tool_translate(StringName(p_text)));
         if (rtr.empty() || rtr == p_text) {
             return TranslationServer::get_singleton()->translate(StringName(p_text));
-        } else {
-            return rtr;
         }
+        return rtr;
     }
 
     return StringName(p_text);

@@ -152,8 +152,7 @@ void CollisionShape3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_shape"), &CollisionShape3D::get_shape);
     MethodBinder::bind_method(D_METHOD("set_disabled", {"enable"}), &CollisionShape3D::set_disabled);
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape3D::is_disabled);
-    MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers);
-    ClassDB::set_method_flags("CollisionShape3D", "make_convex_from_brothers", METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
+    MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
     MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape3D::_shape_changed);
     MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape3D::_update_debug_shape);

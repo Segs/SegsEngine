@@ -252,9 +252,9 @@ public:
     static _ALWAYS_INLINE_ double randd() { return (double)rand() / (double)Math::RANDOM_MAX; }
     static _ALWAYS_INLINE_ float randf() { return (float)rand() / (float)Math::RANDOM_MAX; }
 
-    static double random(double from, double to);
-    static float random(float from, float to);
-    static real_t random(int from, int to) { return (real_t)random((real_t)from, (real_t)to); }
+    GODOT_EXPORT static double random(double from, double to);
+    GODOT_EXPORT static float random(float from, float to);
+    GODOT_EXPORT static real_t random(int from, int to) { return (real_t)random((real_t)from, (real_t)to); }
 
     static _ALWAYS_INLINE_ bool is_equal_approx_ratio(real_t a, real_t b, real_t epsilon = CMP_EPSILON, real_t min_epsilon = CMP_EPSILON) {
         // this is an approximate way to check that numbers are close, as a ratio of their average size

@@ -33,6 +33,7 @@
 #include "core/variant.h"
 #include "core/string.h"
 #include "core/ustring.h"
+
 #include "core/math/vector2.h"
 #include "core/math/vector3.h"
 #include "core/math/transform_2d.h"
@@ -45,6 +46,120 @@
 #include "gd_mono_utils.h"
 
 namespace GDMonoMarshal {
+namespace InteropLayout {
+
+template<typename T>
+constexpr bool layoutMatches();
+
+template<>
+constexpr bool layoutMatches<uint8_t>() {
+    return true;
+}
+template<>
+constexpr bool layoutMatches<int8_t>() {
+    return true;
+}
+
+template<>
+constexpr bool layoutMatches<uint16_t>() {
+    return true;
+}
+template<>
+constexpr bool layoutMatches<int16_t>() {
+    return true;
+}
+template<>
+constexpr bool layoutMatches<int32_t>() {
+    return true;
+}
+template<>
+constexpr bool layoutMatches<uint32_t>() {
+    return true;
+}
+
+template<>
+constexpr bool layoutMatches<float>() {
+    return (sizeof(float) == sizeof(uint32_t));
+}
+template<>
+constexpr bool layoutMatches<double>() {
+    return (sizeof(double) == sizeof(uint64_t));
+}
+template<>
+constexpr bool layoutMatches<Vector2>() {
+    return (layoutMatches<real_t>() && (sizeof(Vector2) == (sizeof(real_t) * 2)) &&
+                           offsetof(Vector2, x) == (sizeof(real_t) * 0) &&
+                           offsetof(Vector2, y) == (sizeof(real_t) * 1));
+}
+template<>
+constexpr bool layoutMatches<Rect2>() {
+    return (layoutMatches<Vector2>() && (sizeof(Rect2) == (sizeof(Vector2) * 2)) &&
+            offsetof(Rect2, position) == (sizeof(Vector2) * 0) &&
+            offsetof(Rect2, size) == (sizeof(Vector2) * 1));
+}
+template<>
+constexpr bool layoutMatches<Transform2D>() {
+    // No field offset required, it stores an array
+    return (layoutMatches<Vector2>() && (sizeof(Transform2D) == (sizeof(Vector2) * 3)));
+}
+template<>
+constexpr bool layoutMatches<Vector3>() {
+    return (layoutMatches<real_t>() && (sizeof(Vector3) == (sizeof(real_t) * 3)) &&
+            offsetof(Vector3, x) == (sizeof(real_t) * 0) &&
+            offsetof(Vector3, y) == (sizeof(real_t) * 1) &&
+            offsetof(Vector3, z) == (sizeof(real_t) * 2));
+}
+template<>
+constexpr bool layoutMatches<Basis>() {
+    return (layoutMatches<Vector3>() && (sizeof(Basis) == (sizeof(Vector3) * 3))); // No field offset required, it stores an array
+}
+template<>
+constexpr bool layoutMatches<Quat>() {
+    return (layoutMatches<real_t>() && (sizeof(Quat) == (sizeof(real_t) * 4)) &&
+            offsetof(Quat, x) == (sizeof(real_t) * 0) &&
+            offsetof(Quat, y) == (sizeof(real_t) * 1) &&
+            offsetof(Quat, z) == (sizeof(real_t) * 2) &&
+            offsetof(Quat, w) == (sizeof(real_t) * 3));
+}
+template<>
+constexpr bool layoutMatches<Transform>() {
+    return (layoutMatches<Basis>() && layoutMatches<Vector3>() && (sizeof(Transform) == (sizeof(Basis) + sizeof(Vector3))) &&
+            offsetof(Transform, basis) == 0 &&
+            offsetof(Transform, origin) == sizeof(Basis));
+}
+template<>
+constexpr bool layoutMatches<AABB>() {
+    return (layoutMatches<Vector3>() && (sizeof(AABB) == (sizeof(Vector3) * 2)) &&
+            offsetof(AABB, position) == (sizeof(Vector3) * 0) &&
+            offsetof(AABB, size) == (sizeof(Vector3) * 1));
+}
+
+template<>
+constexpr bool layoutMatches<Color>() {
+    return (layoutMatches<float>() && (sizeof(Color) == (sizeof(float) * 4)) &&
+            offsetof(Color, r) == (sizeof(float) * 0) &&
+            offsetof(Color, g) == (sizeof(float) * 1) &&
+            offsetof(Color, b) == (sizeof(float) * 2) &&
+            offsetof(Color, a) == (sizeof(float) * 3));
+}
+
+template<>
+constexpr bool layoutMatches<Plane>() {
+    return (layoutMatches<Vector3>() && layoutMatches<real_t>() && (sizeof(Plane) == (sizeof(Vector3) + sizeof(real_t))) &&
+            offsetof(Plane, normal) == 0 &&
+            offsetof(Plane, d) == sizeof(Vector3));
+}
+
+// In the future we may force this if we want to ref return these structs
+#ifdef GD_MONO_FORCE_INTEROP_STRUCT_COPY
+/* clang-format off */
+GD_STATIC_ASSERT(layoutMatches<Vector2>() && layoutMatches<Rect2>() && layoutMatches<Transform2D>() && layoutMatches<Vector3>() &&
+                layoutMatches<Basis>() && layoutMatches<Quat>() && layoutMatches<Transform>() && layoutMatches<AABB>() && layoutMatches<Color>() &&layoutMatches<Plane>());
+/* clang-format on */
+#endif
+
+} // namespace InteropLayout
+
 
 template <typename T>
 T unbox(MonoObject *p_obj) {
@@ -77,8 +192,8 @@ bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, Ma
 
 // String
 
-String mono_to_utf8_string(MonoString *p_mono_string);
-UIString mono_to_utf16_string(MonoString *p_mono_string);
+GODOT_EXPORT String mono_to_utf8_string(MonoString *p_mono_string);
+GODOT_EXPORT UIString mono_to_utf16_string(MonoString *p_mono_string);
 
 _FORCE_INLINE_ String mono_string_to_godot_not_null(MonoString *p_mono_string) {
     return mono_to_utf8_string(p_mono_string);
@@ -112,8 +227,8 @@ _FORCE_INLINE_ MonoString* mono_string_from_godot(IP_Address p_string) {
 
 // Variant
 
-MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_type);
-MonoObject *variant_to_mono_object(const Variant *p_var);
+GODOT_EXPORT MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_type);
+GODOT_EXPORT MonoObject *variant_to_mono_object(const Variant *p_var);
 
 _FORCE_INLINE_ MonoObject *variant_to_mono_object(const Variant &p_var) {
     return variant_to_mono_object(&p_var);
@@ -123,13 +238,13 @@ _FORCE_INLINE_ MonoObject *variant_to_mono_object(const Variant &p_var, const Ma
     return variant_to_mono_object(&p_var, p_type);
 }
 
-Variant mono_object_to_variant(MonoObject *p_obj);
-Variant mono_object_to_variant(MonoObject *p_obj, const ManagedType &p_type);
+GODOT_EXPORT Variant mono_object_to_variant(MonoObject *p_obj);
+GODOT_EXPORT Variant mono_object_to_variant(MonoObject *p_obj, const ManagedType &p_type);
 Variant mono_object_to_variant_no_err(MonoObject *p_obj, const ManagedType &p_type);
 
 /// Tries to convert the MonoObject* to Variant and then convert the Variant to String.
 /// If the MonoObject* cannot be converted to Variant, then 'ToString()' is called instead.
-String mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc);
+GODOT_EXPORT String mono_object_to_variant_string(MonoObject *p_obj, MonoException **r_exc);
 
 // System.Collections.Generic
 
@@ -141,128 +256,36 @@ Array system_generic_list_to_Array(MonoObject *p_obj, GDMonoClass *p_class, Mono
 
 // Array
 
-MonoArray *Array_to_mono_array(const Array &p_array);
-MonoArray *Array_to_mono_array(const Array &p_array, GDMonoClass *p_array_type_class);
-Array mono_array_to_Array(MonoArray *p_array);
-
-// PoolIntArray
-
-MonoArray *PoolIntArray_to_mono_array(const PoolIntArray &p_array);
-MonoArray *PoolIntArray_to_mono_array(const Vector<int> &p_array);
-PoolIntArray mono_array_to_PoolIntArray(MonoArray *p_array);
-Vector<int> mono_array_to_NC_VecInt(MonoArray* p_array);
-
-// PoolByteArray
-
-MonoArray *PoolByteArray_to_mono_array(const PoolByteArray &p_array);
-MonoArray *PoolByteArray_to_mono_array(const Vector<uint8_t> &p_array);
-PoolByteArray mono_array_to_PoolByteArray(MonoArray *p_array);
-Vector<uint8_t> mono_array_to_NC_VecByte(MonoArray* p_array);
-
-// PoolRealArray
-
-MonoArray *PoolRealArray_to_mono_array(const PoolRealArray &p_array);
-MonoArray *PoolRealArray_to_mono_array(const Vector<float> &p_array);
-PoolRealArray mono_array_to_PoolRealArray(MonoArray *p_array);
-Vector<float> mono_array_to_NC_VecFloat(MonoArray *p_array);
-
-// PoolStringArray
-
-MonoArray *PoolStringArray_to_mono_array(const PoolStringArray &p_array);
-MonoArray *PoolStringArray_to_mono_array(const Vector<StringName> &p_array);
-MonoArray *PoolStringArray_to_mono_array(const Vector<String> &p_array);
-PoolStringArray mono_array_to_PoolStringArray(MonoArray *p_array);
-Vector<String> mono_array_to_NC_VecString(MonoArray *p_array);
-// PoolColorArray
-
-MonoArray *PoolColorArray_to_mono_array(const PoolColorArray &p_array);
-MonoArray *PoolColorArray_to_mono_array(const Vector<Color> &p_array);
-PoolColorArray mono_array_to_PoolColorArray(MonoArray *p_array);
-Vector<Color> mono_array_to_NC_VecColor(MonoArray* p_array);
+GODOT_EXPORT MonoArray *container_to_mono_array(const Array &p_array);
+GODOT_EXPORT MonoArray *container_to_mono_array(const Array &p_array, GDMonoClass *p_array_type_class);
+GODOT_EXPORT Array mono_array_to_Array(MonoArray *p_array);
+GODOT_EXPORT Array mono_array_to_Array(MonoArray *p_array, GDMonoClass *p_array_type_class);
 
 
-// PoolVector2Array
+// Array conversion operators, specific instantiatons done in cpp file.
+template<class T>
+MonoArray *container_to_mono_array(const PoolVector<T> &p_array);
+template<class T>
+PoolVector<T> mono_array_to_pool_vec(MonoArray *);
 
-MonoArray *PoolVector2Array_to_mono_array(const PoolVector2Array &p_array);
-//MonoArray *PoolVector2Array_to_mono_array(const Vector<Vector2> &p_array);
-MonoArray *PoolVector2Array_to_mono_array(Span< const Vector2> p_array);
-PoolVector2Array mono_array_to_PoolVector2Array(MonoArray *p_array);
-Vector<Vector2> mono_array_to_NC_VecVector2(MonoArray* p_array);
-// PoolVector3Array
 
-MonoArray *PoolVector3Array_to_mono_array(const PoolVector3Array &p_array);
-MonoArray *PoolVector3Array_to_mono_array(const Vector<Vector3> &p_array);
-MonoArray *PoolVector3Array_to_mono_array(const Vector<Face3> &p_array);
-Vector<Vector3> mono_array_to_NC_VecVector3(MonoArray* p_array);
-PoolVector3Array mono_array_to_PoolVector3Array(MonoArray *p_array);
-MonoArray *PoolVector3Array_to_mono_array(const PoolVector<Face3> &p_array);
+template<class T>
+MonoArray *container_to_mono_array(Span<const T> p_array);
+template<class T>
+Vector<T> mono_array_to_vector(MonoArray *);
+
+template<class T>
+Span<const T> mono_array_as_span(MonoArray *A) {
+    static_assert (InteropLayout::layoutMatches<T>(),"Layout must match for fast conversion");
+    return {(const T *)mono_array_addr_with_size(A,sizeof(T),0) , mono_array_length(A)};
+}
+
+template<class T>
+MonoArray *container_to_mono_array(const Vector<T> &p_array) {
+    return container_to_mono_array<T>(Span<const T>(p_array.data(),p_array.size()));
+}
 
 // Structures
-
-namespace InteropLayout {
-
-enum {
-    MATCHES_float = (sizeof(float) == sizeof(uint32_t)),
-
-    MATCHES_double = (sizeof(double) == sizeof(uint64_t)),
-
-#ifdef REAL_T_IS_DOUBLE
-    MATCHES_real_t = (sizeof(real_t) == sizeof(uint64_t)),
-#else
-    MATCHES_real_t = (sizeof(real_t) == sizeof(uint32_t)),
-#endif
-
-    MATCHES_Vector2 = (MATCHES_real_t && (sizeof(Vector2) == (sizeof(real_t) * 2)) &&
-                       offsetof(Vector2, x) == (sizeof(real_t) * 0) &&
-                       offsetof(Vector2, y) == (sizeof(real_t) * 1)),
-
-    MATCHES_Rect2 = (MATCHES_Vector2 && (sizeof(Rect2) == (sizeof(Vector2) * 2)) &&
-                     offsetof(Rect2, position) == (sizeof(Vector2) * 0) &&
-                     offsetof(Rect2, size) == (sizeof(Vector2) * 1)),
-
-    MATCHES_Transform2D = (MATCHES_Vector2 && (sizeof(Transform2D) == (sizeof(Vector2) * 3))), // No field offset required, it stores an array
-
-    MATCHES_Vector3 = (MATCHES_real_t && (sizeof(Vector3) == (sizeof(real_t) * 3)) &&
-                       offsetof(Vector3, x) == (sizeof(real_t) * 0) &&
-                       offsetof(Vector3, y) == (sizeof(real_t) * 1) &&
-                       offsetof(Vector3, z) == (sizeof(real_t) * 2)),
-
-    MATCHES_Basis = (MATCHES_Vector3 && (sizeof(Basis) == (sizeof(Vector3) * 3))), // No field offset required, it stores an array
-
-    MATCHES_Quat = (MATCHES_real_t && (sizeof(Quat) == (sizeof(real_t) * 4)) &&
-                    offsetof(Quat, x) == (sizeof(real_t) * 0) &&
-                    offsetof(Quat, y) == (sizeof(real_t) * 1) &&
-                    offsetof(Quat, z) == (sizeof(real_t) * 2) &&
-                    offsetof(Quat, w) == (sizeof(real_t) * 3)),
-
-    MATCHES_Transform = (MATCHES_Basis && MATCHES_Vector3 && (sizeof(Transform) == (sizeof(Basis) + sizeof(Vector3))) &&
-                         offsetof(Transform, basis) == 0 &&
-                         offsetof(Transform, origin) == sizeof(Basis)),
-
-    MATCHES_AABB = (MATCHES_Vector3 && (sizeof(AABB) == (sizeof(Vector3) * 2)) &&
-                    offsetof(AABB, position) == (sizeof(Vector3) * 0) &&
-                    offsetof(AABB, size) == (sizeof(Vector3) * 1)),
-
-    MATCHES_Color = (MATCHES_float && (sizeof(Color) == (sizeof(float) * 4)) &&
-                     offsetof(Color, r) == (sizeof(float) * 0) &&
-                     offsetof(Color, g) == (sizeof(float) * 1) &&
-                     offsetof(Color, b) == (sizeof(float) * 2) &&
-                     offsetof(Color, a) == (sizeof(float) * 3)),
-
-    MATCHES_Plane = (MATCHES_Vector3 && MATCHES_real_t && (sizeof(Plane) == (sizeof(Vector3) + sizeof(real_t))) &&
-                     offsetof(Plane, normal) == 0 &&
-                     offsetof(Plane, d) == sizeof(Vector3))
-};
-
-// In the future we may force this if we want to ref return these structs
-#ifdef GD_MONO_FORCE_INTEROP_STRUCT_COPY
-/* clang-format off */
-GD_STATIC_ASSERT(MATCHES_Vector2 && MATCHES_Rect2 && MATCHES_Transform2D && MATCHES_Vector3 &&
-                MATCHES_Basis && MATCHES_Quat && MATCHES_Transform && MATCHES_AABB && MATCHES_Color &&MATCHES_Plane);
-/* clang-format on */
-#endif
-
-} // namespace InteropLayout
 
 #pragma pack(push, 1)
 
@@ -430,7 +453,7 @@ struct M_Plane {
     }                                                                                   \
                                                                                         \
     _FORCE_INLINE_ m_type marshalled_in_##m_type(const M_##m_type *p_from) {            \
-        return marshalled_in_##m_type##_impl<InteropLayout::MATCHES_##m_type>(p_from);  \
+        return marshalled_in_##m_type##_impl<InteropLayout::layoutMatches<m_type>()>(p_from);  \
     }                                                                                   \
                                                                                         \
     template <int>                                                                      \
@@ -447,7 +470,7 @@ struct M_Plane {
     }                                                                                   \
                                                                                         \
     _FORCE_INLINE_ M_##m_type marshalled_out_##m_type(const m_type &p_from) {           \
-        return marshalled_out_##m_type##_impl<InteropLayout::MATCHES_##m_type>(p_from); \
+        return marshalled_out_##m_type##_impl<InteropLayout::layoutMatches<m_type>()>(p_from); \
     }
 
 DECL_TYPE_MARSHAL_TEMPLATES(Vector2)

@@ -48,7 +48,8 @@
 #include "../godotsharp_dirs.h"
 #include "../mono_gd/gd_mono_marshal.h"
 #include "../utils/osx_utils.h"
-#include "bindings_generator.h"
+#include "core/class_db.h"
+//#include "bindings_generator.h"
 #include "code_completion.h"
 #include "godotsharp_export.h"
 #include "script_class_parser.h"
@@ -174,34 +175,36 @@ MonoBoolean godot_icall_EditorProgress_Step(MonoString *p_task, MonoString *p_st
     return EditorNode::progress_task_step(task, state, p_step, (bool)p_force_refresh);
 }
 
-BindingsGenerator *godot_icall_BindingsGenerator_Ctor() {
-    return memnew(BindingsGenerator);
-}
+//BindingsGenerator *godot_icall_BindingsGenerator_Ctor() {
+//    return memnew(BindingsGenerator);
+//}
 
-void godot_icall_BindingsGenerator_Dtor(BindingsGenerator *p_handle) {
-    memdelete(p_handle);
-}
+//void godot_icall_BindingsGenerator_Dtor(BindingsGenerator *p_handle) {
+//    memdelete(p_handle);
+//}
 
-MonoBoolean godot_icall_BindingsGenerator_LogPrintEnabled(BindingsGenerator *p_handle) {
-    return p_handle->is_log_print_enabled();
-}
+//MonoBoolean godot_icall_BindingsGenerator_LogPrintEnabled(BindingsGenerator *p_handle) {
+//    return p_handle->is_log_print_enabled();
+//}
 
-void godot_icall_BindingsGenerator_SetLogPrintEnabled(BindingsGenerator p_handle, MonoBoolean p_enabled) {
-    p_handle.set_log_print_enabled(p_enabled);
-}
+//void godot_icall_BindingsGenerator_SetLogPrintEnabled(BindingsGenerator p_handle, MonoBoolean p_enabled) {
+//    p_handle.set_log_print_enabled(p_enabled);
+//}
 
-int32_t godot_icall_BindingsGenerator_GenerateCsApi(BindingsGenerator *p_handle, MonoString *p_output_dir) {
-    String output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
-    return p_handle->generate_cs_api(output_dir);
-}
+//int32_t godot_icall_BindingsGenerator_GenerateCsApi(BindingsGenerator *p_handle, MonoString *p_output_dir) {
+//    String output_dir = GDMonoMarshal::mono_string_to_godot(p_output_dir);
+//    assert(false);
+//    //p_handle->generate_cs_api(output_dir);
+//    return -1;
+//}
 
-uint32_t godot_icall_BindingsGenerator_Version() {
-    return BindingsGenerator::get_version();
-}
+//uint32_t godot_icall_BindingsGenerator_Version() {
+//    return BindingsGenerator::get_version();
+//}
 
-uint32_t godot_icall_BindingsGenerator_CsGlueVersion() {
-    return CS_GLUE_VERSION;
-}
+//uint32_t godot_icall_BindingsGenerator_CsGlueVersion() {
+//    return CS_GLUE_VERSION;
+//}
 
 int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObject *p_classes, MonoString **r_error_str) {
     *r_error_str = nullptr;
@@ -359,7 +362,7 @@ void godot_icall_Internal_ScriptEditorDebugger_ReloadScripts() {
 MonoArray *godot_icall_Internal_CodeCompletionRequest(int32_t p_kind, MonoString *p_script_file) {
     String script_file = GDMonoMarshal::mono_string_to_godot(p_script_file);
     PoolStringArray suggestions = gdmono::get_code_completion((gdmono::CompletionKind)p_kind, script_file);
-    return GDMonoMarshal::PoolStringArray_to_mono_array(suggestions);
+    return GDMonoMarshal::container_to_mono_array(suggestions);
 }
 
 float godot_icall_Globals_EditorScale() {
@@ -428,13 +431,13 @@ void register_editor_internal_calls() {
     mono_add_internal_call("GodotTools.Internals.EditorProgress::internal_Step", (void *)godot_icall_EditorProgress_Step);
 
     // BiningsGenerator
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Ctor", (void *)godot_icall_BindingsGenerator_Ctor);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Dtor", (void *)godot_icall_BindingsGenerator_Dtor);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_LogPrintEnabled", (void *)godot_icall_BindingsGenerator_LogPrintEnabled);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_SetLogPrintEnabled", (void *)godot_icall_BindingsGenerator_SetLogPrintEnabled);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_GenerateCsApi", (void *)godot_icall_BindingsGenerator_GenerateCsApi);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Version", (void *)godot_icall_BindingsGenerator_Version);
-    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_CsGlueVersion", (void *)godot_icall_BindingsGenerator_CsGlueVersion);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Ctor", (void *)godot_icall_BindingsGenerator_Ctor);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Dtor", (void *)godot_icall_BindingsGenerator_Dtor);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_LogPrintEnabled", (void *)godot_icall_BindingsGenerator_LogPrintEnabled);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_SetLogPrintEnabled", (void *)godot_icall_BindingsGenerator_SetLogPrintEnabled);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_GenerateCsApi", (void *)godot_icall_BindingsGenerator_GenerateCsApi);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_Version", (void *)godot_icall_BindingsGenerator_Version);
+//    mono_add_internal_call("GodotTools.Internals.BindingsGenerator::internal_CsGlueVersion", (void *)godot_icall_BindingsGenerator_CsGlueVersion);
 
     // ScriptClassParser
     mono_add_internal_call("GodotTools.Internals.ScriptClassParser::internal_ParseFile", (void *)godot_icall_ScriptClassParser_ParseFile);

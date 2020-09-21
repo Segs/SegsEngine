@@ -36,7 +36,7 @@
 #include "webrtc_peer_connection.h"
 #include "EASTL/deque.h"
 
-class WebRTCMultiplayer : public NetworkedMultiplayerPeer {
+class GODOT_EXPORT WebRTCMultiplayer : public NetworkedMultiplayerPeer {
 
     GDCLASS(WebRTCMultiplayer,NetworkedMultiplayerPeer)
 

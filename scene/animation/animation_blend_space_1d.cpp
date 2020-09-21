@@ -84,9 +84,10 @@ void AnimationNodeBlendSpace1D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace1D::_tree_changed);
 
+    ADD_PROPERTY_ARRAY("Blend Points",MAX_BLEND_POINTS,"blend_point");
     for (int i = 0; i < MAX_BLEND_POINTS; i++) {
-        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point_" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
-        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("blend_point_" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point/" + itos(i) + "/node"), PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_add_blend_point", "get_blend_point_node", i);
+        ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, StringName("blend_point/" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
     }
 
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "min_space", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_min_space", "get_min_space");

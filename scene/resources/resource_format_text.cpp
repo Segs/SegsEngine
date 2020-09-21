@@ -41,7 +41,8 @@
 #include "core/string_utils.inl"
 
 //version 2: changed names for basis, aabb, poolvectors, etc.
-#define FORMAT_VERSION 2
+//version 3: many material properties have been renamed to support proper group (metallic -> metallic_value)
+#define FORMAT_VERSION 3
 
 #include "core/os/dir_access.h"
 #include "core/resource/resource_manager.h"

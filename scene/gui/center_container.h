@@ -32,7 +32,7 @@
 
 #include "scene/gui/container.h"
 
-class CenterContainer : public Container {
+class GODOT_EXPORT CenterContainer : public Container {
 
 	GDCLASS(CenterContainer,Container)
 

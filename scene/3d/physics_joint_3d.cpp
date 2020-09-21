@@ -186,10 +186,10 @@ void PinJoint3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_param", {"param", "value"}), &PinJoint3D::set_param);
     MethodBinder::bind_method(D_METHOD("get_param", {"param"}), &PinJoint3D::get_param);
-
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/bias", PropertyHint::Range, "0.01,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/damping", PropertyHint::Range, "0.01,8.0,0.01"), "set_param", "get_param", PARAM_DAMPING);
-    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "params/impulse_clamp", PropertyHint::Range, "0.0,64.0,0.01"), "set_param", "get_param", PARAM_IMPULSE_CLAMP);
+    ADD_GROUP("Params","param_");
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_bias", PropertyHint::Range, "0.01,0.99,0.01"), "set_param", "get_param", PARAM_BIAS);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_damping", PropertyHint::Range, "0.01,8.0,0.01"), "set_param", "get_param", PARAM_DAMPING);
+    ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "param_impulse_clamp", PropertyHint::Range, "0.0,64.0,0.01"), "set_param", "get_param", PARAM_IMPULSE_CLAMP);
 
     BIND_ENUM_CONSTANT(PARAM_BIAS)
     BIND_ENUM_CONSTANT(PARAM_DAMPING)
@@ -731,10 +731,12 @@ void Generic6DOFJoint3D::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/softness", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_LIMIT_SOFTNESS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/restitution", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_RESTITUTION);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_limit_x/damping", PropertyHint::Range, "0.01,16,0.01"), "set_param_x", "get_param_x", PARAM_LINEAR_DAMPING);
+
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_motor_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_MOTOR);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_motor_x/target_velocity"), "set_param_x", "get_param_x", PARAM_LINEAR_MOTOR_TARGET_VELOCITY);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_motor_x/force_limit"), "set_param_x", "get_param_x", PARAM_LINEAR_MOTOR_FORCE_LIMIT);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "linear_spring_x/enabled"), "set_flag_x", "get_flag_x", FLAG_ENABLE_LINEAR_SPRING);
+
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/stiffness"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_STIFFNESS);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/damping"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_DAMPING);
     ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT, "linear_spring_x/equilibrium_point"), "set_param_x", "get_param_x", PARAM_LINEAR_SPRING_EQUILIBRIUM_POINT);

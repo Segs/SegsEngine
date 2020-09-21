@@ -47,8 +47,13 @@ macro(set_plugin_options )
         elseif(${${tgt_name}_mode} STREQUAL "Shared")
             #message("DYNAMIC LINKING OF ${tgt_name}")
             add_library(${tgt_name} SHARED)
-            set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
-            set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin/plugins)
+		    set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/plugins)
+			set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/plugins)
+			set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE ${OUTPUT_DIR}/plugins)
+			set_target_properties(${tgt_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins)
+			set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELASE ${OUTPUT_DIR}/plugins)
+			set_target_properties(${tgt_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins)
+
             target_link_libraries(${tgt_name} PRIVATE ${tgt}_engine)
             install(TARGETS ${tgt_name} EXPORT SegsEngine
                 LIBRARY DESTINATION bin/plugins

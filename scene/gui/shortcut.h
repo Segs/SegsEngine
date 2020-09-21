@@ -33,7 +33,7 @@
 #include "core/input/input_event.h"
 #include "core/resource.h"
 
-class ShortCut : public Resource {
+class GODOT_EXPORT ShortCut : public Resource {
 
 	GDCLASS(ShortCut,Resource)
 

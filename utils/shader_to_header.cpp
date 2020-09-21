@@ -18,7 +18,7 @@ struct LegacyGLHeaderStruct
 {
     QStringList vertex_lines;
     QStringList fragment_lines;
-    QSet<QString> uniforms;
+    QVector<QString> uniforms;
     QMap<QString,QString> attributes;
     QVector<QPair<QString,QString>> feedbacks;
     QStringList fbos;
@@ -186,7 +186,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
                 }
 
                 if (not header_data.uniforms.contains(x))
-                    header_data.uniforms.insert(x);
+                    header_data.uniforms.push_back(x);
             }
         }
         if (line.trimmed().startsWith("attribute ") and line.indexOf("attrib:") != -1)
@@ -514,7 +514,7 @@ void build_legacygl_header(const QString &filename, const char *include, bool ou
     fd << ")raw\";\n\n";
 
     fd<<"\t\tstatic const int _vertex_code_start=" << header_data.vertex_offset <<";\n";
-    
+
     fd<<"\t\tstatic const char *_fragment_code=R\"raw(\n";
     msvc_string_counter = 0;
     for (const QString &x : header_data.fragment_lines)

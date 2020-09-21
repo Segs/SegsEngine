@@ -1118,8 +1118,6 @@ elseif(${OPTION_PLATFORM} STREQUAL "osx") #
 else()
     target_compile_definitions(assimp_lib PRIVATE PLATFORM_LINUX PLATFORM=LINUX)
 endif()
-set_property(TARGET assimp_lib PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_common_target_properties(assimp_lib)
 
 TARGET_INCLUDE_DIRECTORIES ( assimp_lib PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>

@@ -33,7 +33,7 @@
 
 #include "scene/3d/camera_3d.h"
 
-class InterpolatedCamera : public Camera3D {
+class GODOT_EXPORT InterpolatedCamera : public Camera3D {
 
     GDCLASS(InterpolatedCamera,Camera3D)
 
@@ -59,6 +59,8 @@ public:
 
     void set_interpolation_enabled(bool p_enable);
     bool is_interpolation_enabled() const;
+
+    StringName get_configuration_warning() const override;
 
     InterpolatedCamera();
 };

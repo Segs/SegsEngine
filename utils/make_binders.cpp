@@ -244,7 +244,7 @@ struct BindDefInfo {
     QString methods;
 };
 
-BindDefInfo genClassBinders(const QString header_path,QVector<GD_Class> &src)
+BindDefInfo genClassBinders(const QString &header_path,QVector<GD_Class> &src)
 {
     BindDefInfo res;
     QTextStream ts(&res.methods);

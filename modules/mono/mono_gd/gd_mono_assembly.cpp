@@ -33,6 +33,7 @@
 #include <mono/metadata/mono-debug.h>
 #include <mono/metadata/tokentype.h>
 
+#include "core/io/file_access_pack.h"
 #include "core/list.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
@@ -102,7 +103,7 @@ void GDMonoAssembly::fill_search_dirs(Vector<String> &r_search_dirs,StringView p
 // - The 'load' hook is called after the assembly has been loaded. Its job is to add the
 //   assembly to the list of loaded assemblies so that the 'search' hook can look it up.
 
-void GDMonoAssembly::assembly_load_hook(MonoAssembly *assembly, void *user_data) {
+void GDMonoAssembly::assembly_load_hook(MonoAssembly *assembly, [[maybe_unused]] void *user_data) {
 
     StringView name = mono_assembly_name_get_name(mono_assembly_get_name(assembly));
 
@@ -111,6 +112,7 @@ void GDMonoAssembly::assembly_load_hook(MonoAssembly *assembly, void *user_data)
     GDMonoAssembly *gdassembly = memnew(GDMonoAssembly(name, image, assembly));
 
 #ifdef GD_MONO_HOT_RELOAD
+    //TODO: consider a case where mono_image_get_filename returns an unicode string?
     const char *path = mono_image_get_filename(image);
     if (FileAccess::exists(path))
         gdassembly->modified_time = FileAccess::get_modified_time(path);
@@ -136,9 +138,7 @@ MonoAssembly *GDMonoAssembly::assembly_refonly_preload_hook(MonoAssemblyName *an
     return GDMonoAssembly::_preload_hook(aname, assemblies_path, user_data, true);
 }
 
-MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, void *user_data, bool refonly) {
-
-    (void)user_data; // UNUSED
+MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, [[maybe_unused]] void *user_data, bool refonly) {
 
     StringView name = mono_assembly_name_get_name(aname);
     bool has_extension = name.ends_with(".dll") || name.ends_with(".exe");
@@ -150,15 +150,13 @@ MonoAssembly *GDMonoAssembly::_search_hook(MonoAssemblyName *aname, void *user_d
     return NULL;
 }
 
-MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, void *user_data, bool refonly) {
-
-    (void)user_data; // UNUSED
+MonoAssembly *GDMonoAssembly::_preload_hook(MonoAssemblyName *aname, char **, [[maybe_unused]] void *user_data, bool refonly) {
 
     StringView name = mono_assembly_name_get_name(aname);
-    return _load_assembly_search(name, search_dirs, refonly);
+    return _load_assembly_search(name, aname, refonly, search_dirs);
 }
 
-MonoAssembly *GDMonoAssembly::_load_assembly_search(StringView p_name, const Vector<String> &p_search_dirs, bool p_refonly) {
+MonoAssembly *GDMonoAssembly::_load_assembly_search(StringView p_name, MonoAssemblyName *p_aname, bool p_refonly, const Vector<String> &p_search_dirs) {
 
     MonoAssembly *res = nullptr;
     String path;
@@ -171,21 +169,21 @@ MonoAssembly *GDMonoAssembly::_load_assembly_search(StringView p_name, const Vec
         if (has_extension) {
             path = PathUtils::plus_file(search_dir,p_name);
             if (FileAccess::exists(path)) {
-                res = _real_load_assembly_from(path, p_refonly);
+                res = _real_load_assembly_from(path, p_refonly, p_aname);
                 if (res != nullptr)
                     return res;
             }
         } else {
             path = PathUtils::plus_file(search_dir,String(p_name) + ".dll");
             if (FileAccess::exists(path)) {
-                res = _real_load_assembly_from(path, p_refonly);
+                res = _real_load_assembly_from(path, p_refonly, p_aname);
                 if (res != nullptr)
                     return res;
             }
 
             path = PathUtils::plus_file(search_dir,String(p_name) + ".exe");
             if (FileAccess::exists(path)) {
-                res = _real_load_assembly_from(path, p_refonly);
+                res = _real_load_assembly_from(path, p_refonly, p_aname);
                 if (res != nullptr)
                     return res;
             }
@@ -233,7 +231,7 @@ void GDMonoAssembly::initialize() {
     mono_install_assembly_load_hook(&assembly_load_hook, nullptr);
 }
 
-MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p_refonly) {
+MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p_refonly, MonoAssemblyName *p_aname) {
 
     Vector<uint8_t> data = FileAccess::get_file_as_array(p_path);
     ERR_FAIL_COND_V_MSG(data.empty(), NULL, "Could read the assembly in the specified location");
@@ -250,14 +248,40 @@ MonoAssembly *GDMonoAssembly::_real_load_assembly_from(StringView p_path, bool p
             true, &status, p_refonly,
             image_filename.c_str());
 
-    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !image, NULL, "Failed to open assembly image from the loaded data");
+    ERR_FAIL_COND_V_MSG(status != MONO_IMAGE_OK || !image, NULL, "Failed to open assembly image from memory: '" + p_path + "'.");
+
+    if (p_aname != nullptr) {
+        // Check assembly version
+        const MonoTableInfo *table = mono_image_get_table_info(image, MONO_TABLE_ASSEMBLY);
+
+        ERR_FAIL_NULL_V(table, nullptr);
+
+        if (mono_table_info_get_rows(table)) {
+            uint32_t cols[MONO_ASSEMBLY_SIZE];
+            mono_metadata_decode_row(table, 0, cols, MONO_ASSEMBLY_SIZE);
+
+            // Not sure about .NET's policy. We will only ensure major and minor are equal, and ignore build and revision.
+            uint16_t major = cols[MONO_ASSEMBLY_MAJOR_VERSION];
+            uint16_t minor = cols[MONO_ASSEMBLY_MINOR_VERSION];
+
+            uint16_t required_minor;
+            uint16_t required_major = mono_assembly_name_get_version(p_aname, &required_minor, nullptr, nullptr);
+
+            if (required_major != 0) {
+                if (major != required_major && minor != required_minor) {
+                    mono_image_close(image);
+                    return nullptr;
+                }
+            }
+        }
+    }
 
 #ifdef DEBUG_ENABLED
     Vector<uint8_t> pdb_data;
     String pdb_path = String(p_path) + ".pdb";
 
     if (!FileAccess::exists(pdb_path)) {
-        pdb_path = String(PathUtils::get_basename(p_path)) + ".pdb"; // without .dll
+        pdb_path = PathUtils::get_base_dir(p_path) +"/"+ String(PathUtils::get_basename(p_path)) + ".pdb"; // without .dll
 
         if (!FileAccess::exists(pdb_path))
             goto no_pdb;
@@ -390,7 +414,7 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
 
             while (!nested_classes.empty()) {
                 GDMonoClass *current_nested = nested_classes.front();
-                nested_classes.pop_back();
+                nested_classes.pop_front();
 
                 void *iter = nullptr;
 
@@ -418,6 +442,28 @@ GDMonoClass *GDMonoAssembly::get_object_derived_class(const StringName &p_class)
     return match;
 }
 
+GDMonoAssembly *GDMonoAssembly::load(StringView p_name, MonoAssemblyName *p_aname, bool p_refonly, const Vector<String> &p_search_dirs) {
+
+    if (GDMono::get_singleton()->get_corlib_assembly() && (p_name == "mscorlib" || p_name == "mscorlib.dll"))
+        return GDMono::get_singleton()->get_corlib_assembly();
+
+    // We need to manually call the search hook in this case, as it won't be called in the next step
+    MonoAssembly *assembly = mono_assembly_invoke_search_hook(p_aname);
+
+    if (!assembly) {
+        assembly = _load_assembly_search(p_name, p_aname, p_refonly, p_search_dirs);
+        if (!assembly) {
+            return nullptr;
+        }
+    }
+
+    GDMonoAssembly *loaded_asm = GDMono::get_singleton()->get_loaded_assembly(p_name);
+    ERR_FAIL_NULL_V_MSG(loaded_asm, nullptr, "Loaded assembly missing from table. Did we not receive the load hook?");
+    ERR_FAIL_COND_V(loaded_asm->get_assembly() != assembly, nullptr);
+
+    return loaded_asm;
+}
+
 GDMonoAssembly *GDMonoAssembly::load_from(StringView p_name, StringView p_path, bool p_refonly) {
 
     if (p_name == "mscorlib" || p_name == "mscorlib.dll")
@@ -431,7 +477,9 @@ GDMonoAssembly *GDMonoAssembly::load_from(StringView p_name, StringView p_path, 
 
     if (!assembly) {
         assembly = _real_load_assembly_from(p_path, p_refonly);
-        ERR_FAIL_NULL_V(assembly, NULL);
+        if (!assembly) {
+            return nullptr;
+        }
     }
 
     GDMonoAssembly *loaded_asm = GDMono::get_singleton()->get_loaded_assembly(p_name);

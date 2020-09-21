@@ -4,53 +4,66 @@
 
 #ifndef ENTT_NOEXCEPT
 #define ENTT_NOEXCEPT noexcept
-#endif // ENTT_NOEXCEPT
+#endif
 
 
 #ifndef ENTT_HS_SUFFIX
 #define ENTT_HS_SUFFIX _hs
-#endif // ENTT_HS_SUFFIX
+#endif
 
 
 #ifndef ENTT_HWS_SUFFIX
 #define ENTT_HWS_SUFFIX _hws
-#endif // ENTT_HWS_SUFFIX
+#endif
 
 
-#ifndef ENTT_NO_ATOMIC
+#ifndef ENTT_USE_ATOMIC
+#   define ENTT_MAYBE_ATOMIC(Type) Type
+#else
 #include <atomic>
 #define ENTT_MAYBE_ATOMIC(Type) std::atomic<Type>
-#else // ENTT_NO_ATOMIC
-#define ENTT_MAYBE_ATOMIC(Type) Type
-#endif // ENTT_NO_ATOMIC
-
-
-#ifndef ENTT_DISABLE_ETO
-#include <type_traits>
-#define ENTT_ENABLE_ETO(Type) std::is_empty_v<Type>
-#else // ENTT_DISABLE_ETO
-// sfinae-friendly definition
-#define ENTT_ENABLE_ETO(Type) (false && std::is_empty_v<Type>)
-#endif // ENTT_DISABLE_ETO
+#endif
 
 
 #ifndef ENTT_ID_TYPE
 #include <cstdint>
 #define ENTT_ID_TYPE std::uint32_t
-#endif // ENTT_ID_TYPE
+#endif
 
 
 #ifndef ENTT_PAGE_SIZE
 #define ENTT_PAGE_SIZE 32768
-#endif // ENTT_PAGE_SIZE
+#endif
 
 
-#ifndef ENTT_DISABLE_ASSERT
+#ifndef ENTT_ASSERT
 #include <cassert>
 #define ENTT_ASSERT(condition) assert(condition)
-#else // ENTT_DISABLE_ASSERT
-#define ENTT_ASSERT(...) ((void)0)
-#endif // ENTT_DISABLE_ASSERT
+#endif
 
 
-#endif // ENTT_CONFIG_CONFIG_H
+#ifndef ENTT_NO_ETO
+#   include "EASTL/type_traits.h"
+#   define ENTT_IS_EMPTY(Type) std::is_empty_v<Type>
+#else
+#   include "EASTL/type_traits"
+#   // sfinae-friendly definition
+#   define ENTT_IS_EMPTY(Type) (false && std::is_empty_v<Type>)
+#endif
+
+
+#ifndef ENTT_STANDARD_CPP
+#   if defined _MSC_VER
+#      define ENTT_PRETTY_FUNCTION __FUNCSIG__
+#      define ENTT_PRETTY_FUNCTION_CONSTEXPR(...) constexpr
+#   elif defined __clang__ || (defined __GNUC__ && __GNUC__ > 8)
+#      define ENTT_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#      define ENTT_PRETTY_FUNCTION_CONSTEXPR(...) constexpr
+#   elif defined __GNUC__
+#      define ENTT_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#      define ENTT_PRETTY_FUNCTION_CONSTEXPR(...) __VA_ARGS__
+#   endif
+#endif
+
+
+#endif

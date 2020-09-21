@@ -35,7 +35,7 @@
 #include "core/rid.h"
 
 class Shape;
-class SpringArm3D : public Node3D {
+class GODOT_EXPORT SpringArm3D : public Node3D {
     GDCLASS(SpringArm3D,Node3D)
 
     Ref<Shape> shape;

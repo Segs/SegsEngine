@@ -37,7 +37,7 @@
 #include "core/string.h"
 #include "core/vector.h"
 
-class RegExMatch : public RefCounted {
+class GODOT_EXPORT RegExMatch : public RefCounted {
 
     GDCLASS(RegExMatch,RefCounted)
 
@@ -68,7 +68,7 @@ public:
     int get_end(const Variant &p_name) const;
 };
 
-class RegEx : public RefCounted {
+class GODOT_EXPORT RegEx : public RefCounted {
 
     GDCLASS(RegEx,RefCounted)
 
