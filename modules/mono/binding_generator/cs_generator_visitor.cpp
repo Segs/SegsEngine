@@ -203,6 +203,9 @@ void visitFunction(const TS_Function &finfo,GeneratorContext &ctx,const String &
 
     if(finfo.source_type->implements_property) // property icalls are made inside property implementations.
         return;
+
+    _generate_docs_for(&finfo,ctx);
+
     ctx.out.append_indented("[GodotMethod(\"");
     ctx.out.append(finfo.c_name());
     ctx.out.append("\")]\n");
@@ -474,7 +477,6 @@ void CsGeneratorVisitor::visitClassInternal(TS_Type *tp) {
 
     // methods
     for(const TS_Function *method : tp->m_functions) {
-        _generate_docs_for(method,ctx);
         visitFunction(*method,ctx,nativecalls_ns);
     }
 

@@ -152,7 +152,6 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
         return String();
 
     String bbcode(p_bbcode);
-
     xml_output.writeStartElement("para");
 
     Vector<String> tag_stack;
@@ -168,9 +167,7 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
         if (brk_pos > pos) {
             StringView text = StringView(bbcode).substr(pos, brk_pos - pos);
             if (code_tag || !tag_stack.empty()) {
-                xml_output.writeCharacters(" ");
-                xml_output.device()->write(text.data(), text.size());
-                //xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()).replace("&quot;","\""));
             }
             else {
                 Vector<StringView> lines;
@@ -178,9 +175,7 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
                 for (size_t i = 0; i < lines.size(); i++) {
                     if (i != 0)
                         xml_output.writeStartElement("para");
-                    xml_output.writeCharacters(" ");
-                    xml_output.device()->write(lines[i].data(), lines[i].size());
-                    //xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()));
+                    xml_output.writeCharacters(QString::fromUtf8(lines[i].data(), lines[i].size()).replace("&quot;","\""));
 
                     if (i != lines.size() - 1)
                         xml_output.writeEndElement();
@@ -196,8 +191,7 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
         if (brk_end == String::npos) {
             StringView text = StringView(bbcode).substr(brk_pos, bbcode.length() - brk_pos);
             if (code_tag || !tag_stack.empty()) {
-                xml_output.device()->write(text.data(), text.size());
-                //xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()));
+                xml_output.writeCharacters(QString::fromUtf8(text.data(), text.size()).replace("&quot;","\""));
             }
             else {
 
@@ -301,10 +295,10 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
                 if (!target_itype) { // || !target_itype->source_type->is_object_type
                     if (verbose) {
                         if (target_itype) {
-                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s", link_target.size(), link_target.data());
+                            qDebug("Cannot resolve member reference for non-Godot.Object type in documentation: %.*s", (int)link_target.size(), link_target.data());
                         }
                         else {
-                            qDebug("Cannot resolve type from member reference in documentation: %.*s", link_target.size(), link_target.data());
+                            qDebug("Cannot resolve type from member reference in documentation: %.*s", (int)link_target.size(), link_target.data());
                         }
                     }
 
@@ -333,8 +327,6 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
                 xml_output.writeTextElement("c", QString::fromUtf8(link_target.data(), link_target.size()));
             }
             else if (link_tag == "enum"_sv) {
-                if(link_tag.starts_with("Parameter"))
-                    printf("1");
                 String search_cname = target_cname.asCString();
                 if(target_itype==nullptr)
                     target_itype = p_itype;
@@ -372,7 +364,7 @@ static String bbcode_to_xml(StringView p_bbcode, const TS_TypeLike* p_itype, boo
                         xml_output.writeAttribute("cref", full_path.c_str()); // Includes nesting class if any
                     }
                     else {
-                        qDebug("Cannot resolve type from constant reference in documentation: %.*s", link_target.size(), link_target.data());
+                        qDebug("Cannot resolve type from constant reference in documentation: %.*s", (int)link_target.size(), link_target.data());
                     }
                 }
             }
@@ -600,3 +592,4 @@ void _generate_docs_for(const TS_Property *property, int subfield, GeneratorCont
 
     _add_doc_lines(ctx, xml_summary);
 }
+#include <list>

@@ -146,6 +146,7 @@ macro(add_glue_module name tgt)
         ADD_DOTNET(
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
             OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+            ARGUMENTS -noWarn:CS1591
         )
         add_dependencies(BUILD_${name} ${name}_glue)
     else()
@@ -191,6 +192,7 @@ if(DOTNET_FOUND)
     ADD_DOTNET(
         editor/GodotTools/GodotTools.sln
         OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+        ARGUMENTS -noWarn:CS1591
     )
     add_dependencies(BUILD_GodotTools BUILD_GodotCore)
     add_dependencies(BUILD_GodotTools BUILD_GodotEditor)

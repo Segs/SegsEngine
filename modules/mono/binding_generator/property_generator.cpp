@@ -285,3 +285,17 @@ void process_property(const String &icall_ns, const TS_Property &pinfo, Generato
     }
 
 }
+
+String get_property_typename(const TS_Property &pinfo)
+{
+    if(pinfo.source_type->max_property_index==-1) {
+        return pinfo.cs_name;
+    }
+    else if (pinfo.source_type->max_property_index==-2) {
+        return pinfo.cs_name+"Structifier";
+    }
+    else if(pinfo.source_type->max_property_index>0){
+        return pinfo.cs_name+"Holder.Propertifier";
+    }
+    return pinfo.cs_name;
+}

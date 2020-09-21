@@ -618,7 +618,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
             //if(mapper->shouldSkipMethod(qPrintable(itype.cname),cname))
             //    continue;
 
-            MethodInterface imethod{ method_info.name.asCString() ,cname.asCString() };
+            MethodInterface imethod { method_info.name.asCString() , {cname.asCString()} };
 
             if (method_info.flags & METHOD_FLAG_VIRTUAL)
                 imethod.is_virtual = true;
@@ -758,7 +758,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
 
             Map<String, String>::iterator accessor = accessor_methods.find(imethod.name);
             if (accessor != accessor_methods.end()) {
-                const PropertyInterface* accessor_property = itype.find_property_by_name(accessor->second);
+                //const PropertyInterface* accessor_property = itype.find_property_by_name(accessor->second);
 
                 // We only deprecate an accessor method if it's in the same class as the property. It's easier this way, but also
                 // we don't know if an accessor method in a different class could have other purposes, so better leave those untouched.
@@ -837,14 +837,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         class_list.pop_front();
     }
 
-    return true;
-}
-
-static bool allUpperCase(StringView s) {
-    for (char c : s) {
-        if (StringUtils::char_uppercase(c) != c)
-            return false;
-    }
     return true;
 }
 

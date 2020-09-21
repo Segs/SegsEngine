@@ -11,7 +11,7 @@ static constexpr const char* basic_csproj = R"raw(
     <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net472</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>%module%Assembly</AssemblyName>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
@@ -39,6 +39,7 @@ static constexpr const char* ref_entry = R"raw(
     <ProjectReference Include="..\%module%\%module%.csproj">
         <Private>false</Private>
     </ProjectReference>
+
 )raw";
 }
 

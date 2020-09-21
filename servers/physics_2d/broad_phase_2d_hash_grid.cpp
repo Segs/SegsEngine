@@ -77,7 +77,7 @@ void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 
 void BroadPhase2DHashGrid::_check_motion(Element *p_elem) {
 
-    for (const eastl::pair<const Element *,PairData *> &E : p_elem->paired) {
+    for (const eastl::pair<Element * const,PairData *> &E : p_elem->paired) {
 
         bool physical_collision = p_elem->aabb.intersects(E.first->aabb);
         bool logical_collision = p_elem->owner->test_collision_mask(E.first->owner);

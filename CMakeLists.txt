@@ -24,6 +24,9 @@ if(MSVC)
       #add_compile_options (/sdl)
       #add_compile_options (/arch:AVX2)
     endif()
+else()
+    #TODO: the disabled warnings below should be re-enabled after EASTL no longers spews them.
+    add_compile_options(-Wno-deprecated-copy)
 endif()
 
 include(CMakeParseArguments)

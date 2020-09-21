@@ -2,6 +2,7 @@
 
 #include "generator_helpers.h"
 #include "type_mapper.h"
+#include "property_generator.h"
 
 #include "core/string_utils.h"
 #include "core/string_utils.inl"
@@ -450,7 +451,7 @@ String TS_Type::get_property_path_by_func(const TS_Function *f) const
             //TODO: this might fail!
             // property name in docs might be prefixed by a groupname
             if(sub.getter==f || sub.setter==f) {
-                String res = prop->cs_name;
+                String res = get_property_typename(*prop);
                 if(!sub.subfield_name.empty())
                     res +=  "." + c_property_name_to_cs(sub.subfield_name);
                 return res;
