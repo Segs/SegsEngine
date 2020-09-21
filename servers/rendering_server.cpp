@@ -1073,20 +1073,20 @@ void RenderingServer::mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType
 
     Vector<PoolVector<uint8_t> > blend_shape_data;
 
-    for (int i = 0; i < p_blend_shapes.size(); i++) {
+    for (const SurfaceArrays & p_blend_shape : p_blend_shapes) {
 
         Vector<uint8_t> vertex_array_shape;
         vertex_array_shape.resize(array_size);
         Vector<uint8_t> noindex;
 
         AABB laabb;
-        Error err2 = _surface_set_data(p_blend_shapes[i], format & ~RS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
+        Error err2 = _surface_set_data(p_blend_shape, format & ~RS::ARRAY_FORMAT_INDEX, offsets, total_elem_size, vertex_array_shape, array_len, noindex, 0, laabb, bone_aabb);
         aabb.merge_with(laabb);
         ERR_FAIL_COND_MSG(err2 != OK, "Invalid blend shape array format for surface.");
         blend_shape_data.emplace_back(eastl::move(PoolVector<uint8_t>(vertex_array_shape)));
     }
-    //TODO: remove this message after inefficiency is removed.
-    printf("Inefficient surface arrays operation\n");
+    //TODO: The operations below are inefficient
+    //printf("Inefficient surface arrays operation\n");
 
 
     mesh_add_surface(p_mesh, format, p_primitive, PoolVector(vertex_array), array_len,

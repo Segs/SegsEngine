@@ -197,3 +197,5 @@ if(DOTNET_FOUND)
     add_dependencies(BUILD_GodotTools BUILD_GodotCore)
     add_dependencies(BUILD_GodotTools BUILD_GodotEditor)
 endif()
+
+install(DIRECTORY ${OUTPUT_DIR}/csharp/ DESTINATION  bin/csharp)

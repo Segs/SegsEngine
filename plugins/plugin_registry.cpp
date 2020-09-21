@@ -100,8 +100,9 @@ bool PluginRegistry::add_plugin(const QString &path)
     {
         used |= r->new_plugin_detected(ob,plugin_loader->metaData(),qPrintable(path));
     }
-    if(!used)
-        qDebug().noquote() << "Plugin loaded but no resolver can use it." << path;
+    // if(!used) {
+    //     qDebug().noquote() << "Plugin loaded but no resolver can use it." << path;
+    // }
     return true;
 }
 

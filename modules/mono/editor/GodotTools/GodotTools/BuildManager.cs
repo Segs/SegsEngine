@@ -236,10 +236,10 @@ namespace GodotTools
 
             if (OS.IsWindows)
             {
-                hintString = 
+                hintString = $"{PropNameDotnetCli}:{(int)BuildTool.DotnetCli}," +
                              $"{PropNameMSBuildVs}:{(int)BuildTool.MsBuildVs}," +
-                             $"{PropNameMSBuildJetBrains}:{(int)BuildTool.JetBrainsMsBuild}," +
-                             $"{PropNameDotnetCli}:{(int)BuildTool.DotnetCli}";
+                             $"{PropNameMSBuildJetBrains}:{(int)BuildTool.JetBrainsMsBuild}" +
+                             ;
             }
             else
             {

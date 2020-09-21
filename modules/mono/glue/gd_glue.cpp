@@ -62,7 +62,7 @@ MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type) {
     const Variant *args[1] = { &what };
     Callable::CallError ce;
     Variant ret = Variant::construct(VariantType(p_type), args, 1, ce);
-    ERR_FAIL_COND_V(ce.error != Callable::CallError::CALL_OK, NULL);
+    ERR_FAIL_COND_V(ce.error != Callable::CallError::CALL_OK, nullptr);
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
@@ -76,7 +76,7 @@ MonoObject *godot_icall_GD_instance_from_id(uint64_t p_instance_id) {
 
 void godot_icall_GD_print(MonoArray *p_what) {
     String str;
-    int length = mono_array_length(p_what);
+    const uintptr_t length = mono_array_length(p_what);
 
     for (int i = 0; i < length; i++) {
         MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
@@ -98,7 +98,7 @@ void godot_icall_GD_print(MonoArray *p_what) {
 void godot_icall_GD_printerr(MonoArray *p_what) {
 
     String str;
-    int length = mono_array_length(p_what);
+    const uintptr_t length = mono_array_length(p_what);
 
     for (int i = 0; i < length; i++) {
         MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
@@ -119,12 +119,12 @@ void godot_icall_GD_printerr(MonoArray *p_what) {
 
 void godot_icall_GD_printraw(MonoArray *p_what) {
     String str;
-    int length = mono_array_length(p_what);
+    const uintptr_t length = mono_array_length(p_what);
 
     for (int i = 0; i < length; i++) {
         MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
-        MonoException *exc = NULL;
+        MonoException *exc = nullptr;
         String elem_str = GDMonoMarshal::mono_object_to_variant_string(elem, &exc);
 
         if (exc) {
@@ -140,7 +140,7 @@ void godot_icall_GD_printraw(MonoArray *p_what) {
 
 void godot_icall_GD_prints(MonoArray *p_what) {
     String str;
-    int length = mono_array_length(p_what);
+    const uintptr_t length = mono_array_length(p_what);
 
     for (int i = 0; i < length; i++) {
         MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
@@ -164,9 +164,9 @@ void godot_icall_GD_prints(MonoArray *p_what) {
 
 void godot_icall_GD_printt(MonoArray *p_what) {
     String str;
-    int length = mono_array_length(p_what);
+    const uintptr_t length = mono_array_length(p_what);
 
-    for (int i = 0; i < length; i++) {
+    for (uintptr_t i = 0; i < length; i++) {
         MonoObject *elem = mono_array_get(p_what, MonoObject *, i);
 
         MonoException *exc = nullptr;
@@ -262,8 +262,8 @@ MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_object
 
     PoolByteArray barr;
     int len;
-    Error err = encode_variant(var, NULL, len, p_full_objects);
-    ERR_FAIL_COND_V_MSG(err != OK, NULL, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
+    Error err = encode_variant(var, nullptr, len, p_full_objects);
+    ERR_FAIL_COND_V_MSG(err != OK, nullptr, "Unexpected error encoding variable to bytes, likely unserializable type found (Object or RID).");
 
     barr.resize(len);
     {
