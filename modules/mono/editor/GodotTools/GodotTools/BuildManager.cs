@@ -16,7 +16,6 @@ namespace GodotTools
     {
         private static readonly List<BuildInfo> BuildsInProgress = new List<BuildInfo>();
 
-        public const string PropNameMSBuildMono = "MSBuild (Mono)";
         public const string PropNameMSBuildVs = "MSBuild (VS Build Tools)";
         public const string PropNameMSBuildJetBrains = "MSBuild (JetBrains Rider)";
         public const string PropNameDotnetCli = "dotnet CLI";
@@ -228,7 +227,7 @@ namespace GodotTools
             }
             else
             {
-                msbuildDefault = !string.IsNullOrEmpty(OS.PathWhich("dotnet")) ? BuildTool.DotnetCli : BuildTool.MsBuildMono;
+                msbuildDefault = BuildTool.DotnetCli;
             }
 
             EditorDef("mono/builds/build_tool", msbuildDefault);
@@ -237,14 +236,14 @@ namespace GodotTools
 
             if (OS.IsWindows)
             {
-                hintString = $"{PropNameMSBuildMono}:{(int)BuildTool.MsBuildMono}," +
+                hintString = 
                              $"{PropNameMSBuildVs}:{(int)BuildTool.MsBuildVs}," +
                              $"{PropNameMSBuildJetBrains}:{(int)BuildTool.JetBrainsMsBuild}," +
                              $"{PropNameDotnetCli}:{(int)BuildTool.DotnetCli}";
             }
             else
             {
-                hintString = $"{PropNameMSBuildMono}:{(int)BuildTool.MsBuildMono}," +
+                hintString = 
                              $"{PropNameDotnetCli}:{(int)BuildTool.DotnetCli}";
             }
 

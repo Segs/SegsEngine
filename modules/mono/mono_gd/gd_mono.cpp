@@ -665,7 +665,10 @@ bool GDMono::initialize_load_assemblies() {
 
 #if defined(TOOLS_ENABLED)
     bool tool_assemblies_loaded = _load_tools_assemblies();
-    CRASH_COND_MSG(!tool_assemblies_loaded, "Mono: Failed to load '" TOOLS_ASM_NAME "' assemblies.");
+    if(!tool_assemblies_loaded) {
+        print_error("Mono: Failed to load '" TOOLS_ASM_NAME "' assemblies.");
+        return false;
+    }
 #endif
 
     // Load the project's main assembly. This doesn't necessarily need to succeed.

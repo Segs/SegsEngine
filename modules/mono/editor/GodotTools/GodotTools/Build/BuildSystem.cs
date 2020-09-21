@@ -30,20 +30,6 @@ namespace GodotTools.Build
         private static Godot.EditorSettings EditorSettings =>
             GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
 
-        private static bool UsingMonoMsBuildOnWindows
-        {
-            get
-            {
-                if (OS.IsWindows)
-                {
-                    return (BuildTool)EditorSettings.GetSetting("mono/builds/build_tool")
-                           == BuildTool.MsBuildMono;
-                }
-
-                return false;
-            }
-        }
-
         private static bool PrintBuildOutput =>
             (bool)EditorSettings.GetSetting("mono/builds/print_build_output");
 
@@ -66,16 +52,6 @@ namespace GodotTools.Build
             startInfo.RedirectStandardOutput = redirectOutput;
             startInfo.RedirectStandardError = redirectOutput;
             startInfo.UseShellExecute = false;
-
-            if (UsingMonoMsBuildOnWindows)
-            {
-                // These environment variables are required for Mono's MSBuild to find the compilers.
-                // We use the batch files in Mono's bin directory to make sure the compilers are executed with mono.
-                string monoWinBinDir = MonoWindowsBinDir;
-                startInfo.EnvironmentVariables.Add("CscToolExe", Path.Combine(monoWinBinDir, "csc.bat"));
-                startInfo.EnvironmentVariables.Add("VbcToolExe", Path.Combine(monoWinBinDir, "vbc.bat"));
-                startInfo.EnvironmentVariables.Add("FscToolExe", Path.Combine(monoWinBinDir, "fsharpc.bat"));
-            }
 
             // Needed when running from Developer Command Prompt for VS
             RemovePlatformVariable(startInfo.EnvironmentVariables);

@@ -66,59 +66,59 @@ namespace GodotTools
 
                 string guid = CsProjOperations.GenerateGameProject(path, name);
 
-                if (guid.Length > 0)
-                {
-                    var solution = new DotNetSolution(name)
-                    {
-                        DirectoryPath = path
-                    };
-
-                    var projectInfo = new DotNetSolution.ProjectInfo
-                    {
-                        Guid = guid,
-                        PathRelativeToSolution = name + ".csproj",
-                        Configs = new List<string> { "Debug", "ExportDebug", "ExportRelease" }
-                    };
-
-                    solution.AddNewProject(name, projectInfo);
-
-                    try
-                    {
-                        solution.Save();
-                    }
-                    catch (IOException e)
-                    {
-                        ShowErrorDialog("Failed to save solution. Exception message: ".TTR() + e.Message);
-                        return false;
-                    }
-
-                    pr.Step("Updating Godot API assemblies...".TTR());
-
-                    string debugApiAssembliesError = Internal.UpdateApiAssembliesFromPrebuilt("Debug");
-
-                    if (!string.IsNullOrEmpty(debugApiAssembliesError))
-                    {
-                        ShowErrorDialog("Failed to update the Godot API assemblies: " + debugApiAssembliesError);
-                        return false;
-                    }
-
-                    string releaseApiAssembliesError = Internal.UpdateApiAssembliesFromPrebuilt("Release");
-
-                    if (!string.IsNullOrEmpty(releaseApiAssembliesError))
-                    {
-                        ShowErrorDialog("Failed to update the Godot API assemblies: " + releaseApiAssembliesError);
-                        return false;
-                    }
-
-                    pr.Step("Done".TTR());
-
-                    // Here, after all calls to progress_task_step
-                    CallDeferred(nameof(_RemoveCreateSlnMenuOption));
-                }
-                else
+                if (guid.Length <= 0)
                 {
                     ShowErrorDialog("Failed to create C# project.".TTR());
+                    return false;
                 }
+
+                var solution = new DotNetSolution(name)
+                {
+                    DirectoryPath = path
+                };
+
+                var projectInfo = new DotNetSolution.ProjectInfo
+                {
+                    Guid = guid,
+                    PathRelativeToSolution = name + ".csproj",
+                    Configs = new List<string> {"Debug", "ExportDebug", "ExportRelease"}
+                };
+
+                solution.AddNewProject(name, projectInfo);
+
+                try
+                {
+                    solution.Save();
+                }
+                catch (IOException e)
+                {
+                    ShowErrorDialog("Failed to save solution. Exception message: ".TTR() + e.Message);
+                    return false;
+                }
+
+                pr.Step("Updating Godot API assemblies...".TTR());
+
+                string debugApiAssembliesError = Internal.UpdateApiAssembliesFromPrebuilt("Debug");
+
+                if (!string.IsNullOrEmpty(debugApiAssembliesError))
+                {
+                    ShowErrorDialog("Failed to update the Godot API assemblies(Debug): " + debugApiAssembliesError);
+                    return false;
+                }
+
+                string releaseApiAssembliesError = Internal.UpdateApiAssembliesFromPrebuilt("Release");
+
+                if (!string.IsNullOrEmpty(releaseApiAssembliesError))
+                {
+                    ShowErrorDialog("Failed to update the Godot API assemblies(Release): " + releaseApiAssembliesError);
+                    // NOTE: SEGS: This is not a critical error, so we continue. 
+                    //return false;
+                }
+
+                pr.Step("Done".TTR());
+
+                // Here, after all calls to progress_task_step
+                CallDeferred(nameof(_RemoveCreateSlnMenuOption));
 
                 return true;
             }
@@ -418,8 +418,8 @@ namespace GodotTools
 
                 // NOTE: The order in which changes are made to the project is important
 
-                // Migrate to MSBuild project Sdks style if using the old style
-                ProjectUtils.MigrateToProjectSdksStyle(msbuildProject, ProjectAssemblyName);
+                // NOTE: SEGS: our projects are by-default new-style, no need for migration support
+                // ProjectUtils.MigrateToProjectSdksStyle(msbuildProject, ProjectAssemblyName);
 
                 ProjectUtils.EnsureGodotSdkIsUpToDate(msbuildProject);
 

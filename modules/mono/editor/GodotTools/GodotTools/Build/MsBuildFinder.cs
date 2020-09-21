@@ -50,15 +50,7 @@ namespace GodotTools.Build
 
                         return (Path.Combine(_msbuildToolsPath, "MSBuild.exe"), BuildTool.MsBuildVs);
                     }
-                    case BuildTool.MsBuildMono:
-                    {
-                        string msbuildPath = Path.Combine(Internal.MonoWindowsInstallRoot, "bin", "msbuild.bat");
 
-                        if (!File.Exists(msbuildPath))
-                            throw new FileNotFoundException($"Cannot find executable for '{BuildManager.PropNameMSBuildMono}'. Tried with path: {msbuildPath}");
-
-                        return (msbuildPath, BuildTool.MsBuildMono);
-                    }
                     case BuildTool.JetBrainsMsBuild:
                     {
                         var editorPath = (string)editorSettings.GetSetting(RiderPathManager.EditorPathSettingName);
@@ -89,20 +81,7 @@ namespace GodotTools.Build
                         if (!string.IsNullOrEmpty(dotnetCliPath))
                             return (dotnetCliPath, BuildTool.DotnetCli);
                         GD.PushError("Cannot find dotnet CLI executable. Fallback to MSBuild from Mono.");
-                        goto case BuildTool.MsBuildMono;
-                    }
-                    case BuildTool.MsBuildMono:
-                    {
-                        if (string.IsNullOrEmpty(_msbuildUnixPath) || !File.Exists(_msbuildUnixPath))
-                        {
-                            // Try to search it again if it wasn't found last time or if it was removed from its location
-                            _msbuildUnixPath = FindBuildEngineOnUnix("msbuild");
-                        }
-
-                        if (string.IsNullOrEmpty(_msbuildUnixPath))
-                            throw new FileNotFoundException($"Cannot find binary for '{BuildManager.PropNameMSBuildMono}'");
-
-                        return (_msbuildUnixPath, BuildTool.MsBuildMono);
+                        throw new FileNotFoundException($"Cannot find binary for '{BuildManager.PropNameDotnetCli}'");
                     }
                     default:
                         throw new IndexOutOfRangeException("Invalid build tool in editor settings");
