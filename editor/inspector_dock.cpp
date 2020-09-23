@@ -175,8 +175,8 @@ void InspectorDock::_resource_file_selected(StringView p_file) {
 }
 
 void InspectorDock::_save_resource(bool save_as) const {
-    uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
+    auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
+    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -189,8 +189,8 @@ void InspectorDock::_save_resource(bool save_as) const {
 }
 
 void InspectorDock::_unref_resource() const {
-    uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
+    auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
+    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);
@@ -200,8 +200,8 @@ void InspectorDock::_unref_resource() const {
 }
 
 void InspectorDock::_copy_resource() const {
-    uint32_t current = EditorNode::get_singleton()->get_editor_history()->get_current();
-    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
+    auto current = EditorNode::get_singleton()->get_editor_history()->get_current();
+    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
     RES current_res(object_cast<Resource>(current_obj));
 
     ERR_FAIL_COND(not current_res);

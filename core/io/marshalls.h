@@ -185,7 +185,7 @@ static inline double decode_double(const uint8_t *p_arr) {
 class GODOT_EXPORT EncodedObjectAsID : public RefCounted {
     GDCLASS(EncodedObjectAsID, RefCounted)
 
-	ObjectID id {0};
+	ObjectID id {0ULL};
 
 protected:
 	static void _bind_methods();

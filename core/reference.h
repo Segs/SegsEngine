@@ -282,7 +282,7 @@ class GODOT_EXPORT WeakRef : public RefCounted {
 
     GDCLASS(WeakRef,RefCounted)
 
-    ObjectID ref {0};
+    ObjectID ref {0ULL};
 
 protected:
     static void _bind_methods();

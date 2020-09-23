@@ -54,7 +54,7 @@ struct Object::Signal  {
 
     struct Target {
 
-        ObjectID _id=0;
+        ObjectID _id {0ULL};
         StringName method;
 
         _FORCE_INLINE_ bool operator<(const Target &p_target) const { return (_id == p_target._id) ? (method < p_target.method) : (_id < p_target._id); }
@@ -1441,7 +1441,7 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
     Signal::Target target(p_to_object->get_instance_id(), p_to_method);
 
     ERR_FAIL_COND_MSG(!s->second.slot_map.has(target),
-            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string(target._id) + ":" + target.method + ".");
+            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string((uint64_t)target._id) + ":" + target.method + ".");
 
     Signal::Slot *slot = &s->second.slot_map[target];
 
@@ -1811,7 +1811,7 @@ Object::Object() {
     _class_ptr = nullptr;
     _block_signals = false;
     _predelete_ok = 0;
-    _instance_id = 0;
+    _instance_id = ObjectID(0ULL);
     _instance_id = gObjectDB().add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;
@@ -1850,7 +1850,7 @@ Object::~Object() {
         memdelete(private_data);
 
     gObjectDB().remove_instance(this);
-    _instance_id = 0;
+    _instance_id = ObjectID(0ULL);
     _predelete_ok = 2;
 
     if (!ScriptServer::are_languages_finished()) {

@@ -36,6 +36,7 @@
 #include "core/ref_ptr.h"
 #include "core/vector.h"
 #include "core/array.h"
+#include "core/callable.h"
 #include "core/object_id.h"
 #include "core/object_rc.h"
 
@@ -141,23 +142,7 @@ enum class VariantType : int8_t {
     VARIANT_MAX
 
 };
-class GODOT_EXPORT Callable {
-public:
-    struct CallError {
-        enum Error : int8_t {
-            CALL_OK,
-            CALL_ERROR_INVALID_METHOD,
-            CALL_ERROR_INVALID_ARGUMENT,
-            CALL_ERROR_TOO_MANY_ARGUMENTS,
-            CALL_ERROR_TOO_FEW_ARGUMENTS,
-            CALL_ERROR_INSTANCE_IS_NULL,
-            };
-        int argument;
-        Error error;
-        VariantType expected;
-    };
 
-};
 class GODOT_EXPORT Variant {
 private:
     friend struct _VariantCall;
@@ -304,10 +289,12 @@ public:
         _data._bool = p_bool;
     }
     template<class T ,
-               class = typename eastl::enable_if<eastl::is_enum<T>::value>::type >
+               class = typename eastl::enable_if<eastl::is_enum_v<T>>::type >
     Variant(T p_bool,int=0) : Variant(eastl::underlying_type_t<T>(p_bool)){
     }
-    Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
+    //Variant(VariantType p_v) : type(p_v) {}
+    Variant(VariantType p_v,VariantUnion u) : type(p_v), _data(u) {}
+
     constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(uint8_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(int16_t p_int)  : type(VariantType::INT),_data(p_int) { }
@@ -560,6 +547,7 @@ template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
 template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
 template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
 template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
+template <> GODOT_EXPORT ObjectID Variant::as<ObjectID>() const;
 
 template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
 template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
@@ -577,6 +565,7 @@ template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() 
 template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
+template <> inline Variant Variant::from(const ObjectID &ob) { return {VariantType::INT,VariantUnion((uint64_t)ob)}; }
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<StringView> &);

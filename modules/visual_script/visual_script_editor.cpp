@@ -793,7 +793,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                             Ref<Resource> res = refFromVariant<Resource>(value);
                             Array arr;
-                            arr.push_back(button->get_instance_id());
+                            arr.push_back(Variant::from(button->get_instance_id()));
                             arr.push_back(value);
                             EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_button_resource_previewed", arr);
 
@@ -2376,7 +2376,7 @@ void VisualScriptEditor::_button_resource_previewed(StringView p_path, const Ref
     Array ud = p_ud;
     ERR_FAIL_COND(ud.size() != 2);
 
-    ObjectID id = ud[0];
+    ObjectID id = ud[0].as<ObjectID>();
     Object *obj = gObjectDB().get_instance(id);
 
     if (!obj)

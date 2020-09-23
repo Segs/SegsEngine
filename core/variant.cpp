@@ -1390,6 +1390,19 @@ Quat Variant::as<Quat>() const {
     return Quat();
 }
 
+template<>
+ObjectID Variant::as<ObjectID>() const {
+    if (type == VariantType::INT) {
+        return ObjectID(_data._int);
+    }
+    else if (type == VariantType::OBJECT) {
+        return _get_obj().rc->instance_id;
+    }
+    else {
+        return ObjectID();
+    }
+}
+
 struct _VariantStrPair {
 
     String key;
@@ -2317,6 +2330,7 @@ template<>
 Variant Variant::from(const Frustum &p_array) {
     return fromVector<Plane>(p_array);
 }
+
 template<>
 Variant Variant::from(const PoolVector<RID> &p_array) {
     return fromVector<RID>({p_array.read().ptr(),size_t(p_array.size())});
@@ -2326,10 +2340,12 @@ template<>
 Variant Variant::from(const Span<const Vector2> &p_array) {
     return fromVectorBuiltin<Vector2>(p_array);
 }
+
 template<>
 Variant Variant::from(const Span<const Vector3> &p_array) {
     return fromVectorBuiltin<Vector3>(p_array);
 }
+
 template<>
 Variant Variant::from(const Vector<String> &p_array) {
     return fromVectorBuiltin<String>(p_array);
@@ -2338,12 +2354,14 @@ template<>
 Variant Variant::move_from(Vector<Variant> &&p_array) {
     return Array(eastl::move(p_array));
 }
+
 template<>
 Variant Variant::from(const Vector<Variant> &p_array) {
     Array res;
     res.push_back(p_array.data(),p_array.size());
     return res;
 }
+
 template<>
 Variant Variant::from(const Vector<StringView> &p_array) {
     Variant res;

@@ -139,7 +139,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
     else if (what == StringView("bound_children")) {
         Array children;
 
-        for (uint32_t E : bones[which].nodes_bound) {
+        for (ObjectID E : bones[which].nodes_bound) {
 
             Object *obj = gObjectDB().get_instance(E);
             ERR_CONTINUE(!obj);
@@ -307,7 +307,7 @@ void Skeleton::_notification(int p_what) {
                     b.global_pose_override_amount = 0.0;
                 }
 
-                for (uint32_t E : b.nodes_bound) {
+                for (ObjectID E : b.nodes_bound) {
 
                     Object *obj = gObjectDB().get_instance(E);
                     ERR_CONTINUE(!obj);
@@ -538,7 +538,7 @@ void Skeleton::bind_child_node_to_bone(int p_bone, Node *p_node) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    uint32_t id = p_node->get_instance_id();
+    auto id = p_node->get_instance_id();
 
     if(bones[p_bone].nodes_bound.contains(id))
         return; // already here
@@ -550,14 +550,14 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    uint32_t id = p_node->get_instance_id();
+    auto id = p_node->get_instance_id();
     bones[p_bone].nodes_bound.erase_first(id);
 }
 void Skeleton::get_bound_child_nodes_to_bone(int p_bone, Vector<Node *> *p_bound) const {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    for (uint32_t E : bones[p_bone].nodes_bound) {
+    for (ObjectID E : bones[p_bone].nodes_bound) {
 
         Object *obj = gObjectDB().get_instance(E);
         ERR_CONTINUE(!obj);

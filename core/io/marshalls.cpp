@@ -396,11 +396,11 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
             if (type & ENCODE_FLAG_OBJECT_AS_ID) {
                 //this _is_ allowed
                 ERR_FAIL_COND_V(len < 8, ERR_INVALID_DATA);
-                ObjectID val = decode_uint64(buf);
+                ObjectID val {decode_uint64(buf)};
                 if (r_len)
                     (*r_len) += 8;
 
-                if (val == 0) {
+                if (val.is_null()) {
                     r_variant = Variant((Object *)nullptr);
                 } else {
                     Ref<EncodedObjectAsID> obj_as_id(make_ref_counted<EncodedObjectAsID>());
@@ -767,25 +767,6 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
     return OK;
 }
 
-static void _encode_string(const UIString &p_string, uint8_t *&buf, int &r_len) {
-
-    String utf8 = StringUtils::to_utf8(p_string);
-
-    if (buf) {
-        encode_uint32(utf8.length(), buf);
-        buf += 4;
-        memcpy(buf, utf8.data(), utf8.length());
-        buf += utf8.length();
-    }
-
-    r_len += 4 + utf8.length();
-    while (r_len % 4) {
-        r_len++; //pad
-        if (buf) {
-            *(buf++) = 0;
-        }
-    }
-}
 static void _encode_string(StringView p_string, uint8_t *&buf, int &r_len) {
 
     size_t len=p_string.size();
@@ -804,6 +785,7 @@ static void _encode_string(StringView p_string, uint8_t *&buf, int &r_len) {
         }
     }
 }
+
 Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bool p_full_objects) {
 
     uint8_t *buf = r_buffer;
@@ -1153,7 +1135,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
                 if (buf) {
 
                     Object *obj = p_variant;
-                    ObjectID id = 0;
+                    ObjectID id {0ULL};
                     if (obj && gObjectDB().instance_validate(obj)) {
                         id = obj->get_instance_id();
                     }

@@ -438,7 +438,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_method_from_instance(instance, current);
 
@@ -446,7 +446,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -475,7 +475,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_property_from_instance(instance, current);
 
@@ -483,7 +483,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -921,8 +921,8 @@ void EditorPropertyObjectID::update_property() {
     if (type.empty())
         type = "Object";
 
-    ObjectID id = get_edited_object()->get(get_edited_property());
-    if (id != 0) {
+    ObjectID id = get_edited_object()->get(get_edited_property()).as<ObjectID>();
+    if (id.is_valid()) {
         edit->set_text_utf8(String(type) + " ID: " + itos(id));
         edit->set_disabled(false);
         edit->set_button_icon(EditorNode::get_singleton()->get_class_icon(type));
@@ -2741,7 +2741,7 @@ void EditorPropertyResource::update_property() {
         }
 
         //preview will override the above, so called at the end
-        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_resource_preview", res->get_instance_id());
+        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_resource_preview", Variant::from(res->get_instance_id()));
     }
 }
 

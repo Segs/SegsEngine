@@ -2178,7 +2178,7 @@ void EditorInspector::_property_selected(const StringName &p_path, int p_focusab
 
 void EditorInspector::_object_id_selected(StringView p_path, ObjectID p_id) {
 
-    emit_signal("object_id_selected", p_id);
+    emit_signal("object_id_selected", Variant::from(p_id));
 }
 
 void EditorInspector::_resource_selected(StringView p_path, const RES& p_resource) {

@@ -1432,7 +1432,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 case TreeItem::CELL_MODE_CUSTOM: {
 
 
-                    if (p_item->cells[i].custom_draw_obj) {
+                    if (p_item->cells[i].custom_draw_obj.is_valid()) {
 
                         Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw_obj);
                         if (cdo)

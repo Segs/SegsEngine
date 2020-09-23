@@ -102,7 +102,7 @@ AudioStreamPreview::AudioStreamPreview() {
 ////
 
 void AudioStreamPreviewGenerator::_update_emit(ObjectID p_id) {
-    emit_signal("preview_updated", p_id);
+    emit_signal("preview_updated", Variant::from(p_id));
 }
 
 void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
@@ -158,7 +158,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
         }
 
         frames_todo -= to_read;
-        singleton->call_deferred("_update_emit", preview->id);
+        singleton->call_deferred("_update_emit", Variant::from(preview->id));
     }
 
     preview->playback->stop();

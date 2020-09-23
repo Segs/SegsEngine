@@ -70,6 +70,7 @@ enum class PropertyHint : int8_t {
     ObjectTooBig, ///< object is too big to send
     NodePathValidTypes,
     SaveFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,". This opens a save dialog
+    IntIsObjectID,
     Max
     // When updating PropertyHint, also sync the hardcoded list in VisualScriptEditorVariableEdit
 };

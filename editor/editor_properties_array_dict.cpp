@@ -64,7 +64,7 @@ bool EditorPropertyArrayObject::_get(const StringName &p_name, Variant &r_ret) c
         bool valid;
         r_ret = array.get(idx, &valid);
         if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+            r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
         }
 
         return valid;
@@ -130,7 +130,7 @@ bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_r
         Variant key = dict.get_key_at_index(idx);
         r_ret = dict[key];
         if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+            r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
         }
 
         return true;
@@ -217,7 +217,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
 }
 
 void EditorPropertyArray::_object_id_selected(StringView p_property, ObjectID p_id) {
-    emit_signal("object_id_selected", p_property, p_id);
+    emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
 void EditorPropertyArray::update_property() {
@@ -963,7 +963,7 @@ void EditorPropertyDictionary::update_property() {
 }
 
 void EditorPropertyDictionary::_object_id_selected(StringView p_property, ObjectID p_id) {
-    emit_signal("object_id_selected", p_property, p_id);
+    emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
 void EditorPropertyDictionary::_notification(int p_what) {

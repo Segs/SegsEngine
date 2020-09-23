@@ -265,7 +265,7 @@ public:
     class Write : public Access {
     public:
         T &operator[](int p_index) const { return this->mem[p_index]; }
-        T *ptr() const { return this->mem; }
+        [[nodiscard]] T *ptr() const { return this->mem; }
 
         Write &operator=(const Write &p_read) {
             if (this->alloc == p_read.alloc)
@@ -282,7 +282,7 @@ public:
         Write() = default;
     };
 
-    Read read() const {
+    [[nodiscard]] Read read() const {
 
         Read r;
         if (alloc) {
@@ -290,7 +290,7 @@ public:
         }
         return r;
     }
-    Write write() {
+    [[nodiscard]] Write write() {
 
         Write w;
         if (alloc) {
@@ -392,7 +392,7 @@ public:
 
     const T & operator[](int p_index) const;
 
-    eastl::span<const T> toSpan() const {
+    [[nodiscard]] eastl::span<const T> toSpan() const {
         return { read().ptr(),size_t(size())};
     }
 

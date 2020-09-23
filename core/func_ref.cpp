@@ -36,7 +36,7 @@ IMPL_GDCLASS(FuncRef)
 
 Variant FuncRef::call_func(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
-    if (id == 0) {
+    if (id.is_null()) {
         r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
         return Variant();
     }
@@ -52,7 +52,7 @@ Variant FuncRef::call_func(const Variant **p_args, int p_argcount, Callable::Cal
 
 Variant FuncRef::call_funcv(const Array &p_args) {
 
-    ERR_FAIL_COND_V(id == 0, Variant());
+    ERR_FAIL_COND_V(id.is_null(), Variant());
 
     Object *obj = gObjectDB().get_instance(id);
 
@@ -73,7 +73,7 @@ void FuncRef::set_function(const StringName &p_func) {
 }
 
 bool FuncRef::is_valid() const {
-    if (id == 0)
+    if (id.is_null())
         return false;
 
     Object *obj = gObjectDB().get_instance(id);

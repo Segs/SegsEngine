@@ -439,7 +439,7 @@ void Viewport::_notification(int p_what) {
 #ifndef _3D_DISABLED
                 Vector2 last_pos(1e20f, 1e20f);
                 CollisionObject3D *last_object = nullptr;
-                ObjectID last_id = 0;
+                ObjectID last_id = ObjectID(0ULL);
 #endif
                 PhysicsDirectSpaceState3D::RayResult result;
                 PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
@@ -566,7 +566,7 @@ void Viewport::_notification(int p_what) {
                             int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                             for (int i = 0; i < rc; i++) {
 
-                                if (res[i].collider_id && res[i].collider) {
+                                if (res[i].collider_id.is_valid() && res[i].collider) {
                                     CollisionObject2D *co = object_cast<CollisionObject2D>(res[i].collider);
                                     if (co) {
                                         bool send_event = true;
@@ -615,7 +615,7 @@ void Viewport::_notification(int p_what) {
 #ifndef _3D_DISABLED
                     bool captured = false;
 
-                    if (physics_object_capture != 0) {
+                    if (physics_object_capture.is_valid()) {
 
                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_capture));
                         if (co && camera) {
@@ -634,7 +634,7 @@ void Viewport::_notification(int p_what) {
                         //none
                     } else if (pos == last_pos) {
 
-                        if (last_id) {
+                        if (last_id.is_valid()) {
                             if (gObjectDB().get_instance(last_id) && last_object) {
                                 //good, exists
                                 _collision_object_input_event(last_object, camera, ev, result.position, result.normal, result.shape);
@@ -654,7 +654,7 @@ void Viewport::_notification(int p_what) {
                             if (space) {
 
                                 bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
-                                ObjectID new_collider = 0;
+                                ObjectID new_collider = ObjectID(0ULL);
                                 if (col) {
 
                                     CollisionObject3D *co = object_cast<CollisionObject3D>(result.collider);
@@ -672,7 +672,7 @@ void Viewport::_notification(int p_what) {
 
                                 if (is_mouse && new_collider != physics_object_over) {
 
-                                    if (physics_object_over) {
+                                    if (physics_object_over.is_valid()) {
 
                                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
                                         if (co) {
@@ -680,7 +680,7 @@ void Viewport::_notification(int p_what) {
                                         }
                                     }
 
-                                    if (new_collider) {
+                                    if (new_collider.is_valid()) {
 
                                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(new_collider));
                                         if (co) {
@@ -2526,7 +2526,7 @@ void Viewport::_gui_remove_from_modal_stack(Control* MI, ObjectID p_prev_focus_o
 
     auto next = gui.modal_stack.erase_first(MI);
 
-    if (p_prev_focus_owner) {
+    if (p_prev_focus_owner.is_valid()) {
 
         // for previous window in stack, pass the focus so it feels more
         // natural
@@ -2720,7 +2720,7 @@ void Viewport::_drop_physics_mouseover() {
     }
 
 #ifndef _3D_DISABLED
-    if (physics_object_over) {
+    if (physics_object_over.is_valid()) {
         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
@@ -2737,7 +2737,7 @@ void Viewport::_gui_show_modal(Control *p_control) {
     if (gui.key_focus)
         p_control->_modal_set_prev_focus_owner(gui.key_focus->get_instance_id());
     else
-        p_control->_modal_set_prev_focus_owner(0);
+        p_control->_modal_set_prev_focus_owner(ObjectID(0ULL));
 
     if (gui.mouse_focus && !p_control->is_a_parent_of(gui.mouse_focus) && !gui.mouse_click_grabber) {
 

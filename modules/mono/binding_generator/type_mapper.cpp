@@ -323,7 +323,12 @@ void TS_TypeMapper::register_godot_base_types() {
                          {SCRIPT_TO_WRAP_IN_ARG,"RID.GetPtr(%input%)"},
                          {SCRIPT_TO_WRAP_OUT,"return new RID(%val%)"},
     });
-
+    registerTypeMaps(getGodotOpaqueType("ObjectID","ulong"), {
+                         {CPP_TO_WRAP_TYPE,"uint64_t"},
+                         {WRAP_TO_CPP_IN_ARG,"ObjectID(%input%)"},
+                         {SCRIPT_TO_WRAP_TYPE,"ulong"},
+                         {WRAP_TO_CPP_OUT,"return uint64_t(%val%)"},
+    });
     // type used to pass variable number of arguments
     registerTypeMaps(getGodotOpaqueType("VarArg","params object[]"), {
                          {CPP_TO_WRAP_TYPE,"MonoArray *"},

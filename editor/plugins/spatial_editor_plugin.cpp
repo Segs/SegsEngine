@@ -475,7 +475,7 @@ void SpatialEditorViewport::_clear_selected() {
 
 void SpatialEditorViewport::_select_clicked(bool p_append, bool p_single, bool p_allow_locked) {
 
-    if (!clicked)
+    if (clicked.is_null())
         return;
 
     Node *node = object_cast<Node>(gObjectDB().get_instance(clicked));
@@ -529,7 +529,7 @@ ObjectID SpatialEditorViewport::_select_ray(const Point2 &p_pos, bool p_append, 
     Set<Ref<EditorSpatialGizmo> > found_gizmos;
 
     Node *edited_scene = get_tree()->get_edited_scene_root();
-    ObjectID closest = 0;
+    ObjectID closest  { 0ULL };
     Node *item = nullptr;
     float closest_dist = 1e20f;
     int selected_handle = -1;
@@ -1074,9 +1074,9 @@ void SpatialEditorViewport::_list_select(Ref<InputEventMouseButton> b) {
         clicked = selection_results[0].item->get_instance_id();
         selection_results.clear();
 
-        if (clicked) {
+        if (clicked.is_valid()) {
             _select_clicked(clicked_wants_append, true);
-            clicked = 0;
+            clicked = {0ULL};
         }
 
     } else if (!selection_results.empty()) {
@@ -1297,7 +1297,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                     if (_gizmo_select(_edit.mouse_pos))
                         break;
 
-                    clicked = 0;
+                    clicked = ObjectID(0ULL);
                     clicked_includes_current = false;
 
                     if ((spatial_editor->get_tool_mode() == SpatialEditor::TOOL_MODE_SELECT && b->get_control()) ||
@@ -1342,7 +1342,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
 
                     clicked_wants_append = b->get_shift();
 
-                    if (!clicked) {
+                    if (clicked.is_null()) {
 
                         if (!clicked_wants_append)
                             _clear_selected();
@@ -1353,7 +1353,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         cursor.region_end = b->get_position();
                     }
 
-                    if (clicked && gizmo_handle >= 0) {
+                    if (clicked.is_valid() && gizmo_handle >= 0) {
 
                         Node3D *spa = object_cast<Node3D>(gObjectDB().get_instance(clicked));
                         if (spa) {
@@ -1378,10 +1378,10 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                         _edit.gizmo = Ref<EditorSpatialGizmo>();
                         break;
                     }
-                    if (clicked) {
+                    if (clicked.is_valid()) {
                         _select_clicked(clicked_wants_append, true);
                         // Processing was deferred.
-                        clicked = 0;
+                        clicked = ObjectID(0ULL);
                     }
 
                     if (cursor.region_select) {
@@ -1482,7 +1482,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
             } else if (nav_scheme == NAVIGATION_MODO && m->get_alt()) {
                 nav_mode = NAVIGATION_ORBIT;
             } else {
-                if (clicked) {
+                if (clicked.is_valid()) {
 
                     if (!clicked_includes_current) {
 
@@ -1491,7 +1491,7 @@ void SpatialEditorViewport::_sinput(const Ref<InputEvent> &p_event) {
                     }
 
                     _compute_edit(_edit.mouse_pos);
-                    clicked = 0;
+                    clicked = ObjectID(0ULL);
 
                     _edit.mode = TRANSFORM_TRANSLATE;
                 }
@@ -3185,9 +3185,9 @@ void SpatialEditorViewport::_selection_result_pressed(int p_result) {
 
     clicked = selection_results[p_result].item->get_instance_id();
 
-    if (clicked) {
+    if (clicked.is_valid()) {
         _select_clicked(clicked_wants_append, true);
-        clicked = 0;
+        clicked = ObjectID(0ULL);
     }
 }
 
@@ -3846,7 +3846,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     editor_data = editor->get_scene_tree_dock()->get_editor_data();
     editor_selection = editor->get_editor_selection();
     undo_redo = editor->get_undo_redo();
-    clicked = 0;
+    clicked = ObjectID(0ULL);
     clicked_includes_current = false;
     orthogonal = false;
     auto_orthogonal = false;

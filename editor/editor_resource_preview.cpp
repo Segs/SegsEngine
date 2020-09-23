@@ -355,7 +355,7 @@ void EditorResourcePreview::_thread() {
 #endif
     exited = true;
 }
-
+//TODO: make this function take a eastl::function<void(Variant)>, would need to support c# delegate to eastl::function wrapping.
 void EditorResourcePreview::queue_edited_resource_preview(const Ref<Resource> &p_res, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata) {
 
     ERR_FAIL_NULL(p_receiver);

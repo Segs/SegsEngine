@@ -1874,8 +1874,8 @@ void SceneTreeDock::_delete_confirm() {
             editor_data->get_undo_redo().add_undo_reference(n);
 
             ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
-            editor_data->get_undo_redo().add_do_method(sed, "live_debug_remove_and_keep_node", edited_scene->get_path_to(n), n->get_instance_id());
-            editor_data->get_undo_redo().add_undo_method(sed, "live_debug_restore_node", n->get_instance_id(), edited_scene->get_path_to(n->get_parent()), n->get_index());
+            editor_data->get_undo_redo().add_do_method(sed, "live_debug_remove_and_keep_node", edited_scene->get_path_to(n), Variant::from(n->get_instance_id()));
+            editor_data->get_undo_redo().add_undo_method(sed, "live_debug_restore_node", Variant::from(n->get_instance_id()), edited_scene->get_path_to(n->get_parent()), n->get_index());
         }
     }
     editor_data->get_undo_redo().commit_action();

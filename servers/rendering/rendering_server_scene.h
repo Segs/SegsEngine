@@ -142,7 +142,7 @@ public:
 
         //aabb stuff
 
-        uint32_t object_id=0;
+        ObjectID object_id {0ULL};
 
         float lod_begin;
         float lod_end;

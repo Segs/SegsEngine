@@ -440,14 +440,14 @@ void BulletPhysicsServer::area_set_monitor_callback(RID p_area, Object *p_receiv
     AreaBullet *area = area_owner.get(p_area);
     ERR_FAIL_COND(!area);
 
-    area->set_event_callback(CollisionObjectBullet::TYPE_RIGID_BODY, p_receiver ? p_receiver->get_instance_id() : 0, p_method);
+    area->set_event_callback(CollisionObjectBullet::TYPE_RIGID_BODY, p_receiver ? p_receiver->get_instance_id() : ObjectID(), p_method);
 }
 
 void BulletPhysicsServer::area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) {
     AreaBullet *area = area_owner.get(p_area);
     ERR_FAIL_COND(!area);
 
-    area->set_event_callback(CollisionObjectBullet::TYPE_AREA, p_receiver ? p_receiver->get_instance_id() : 0, p_method);
+    area->set_event_callback(CollisionObjectBullet::TYPE_AREA, p_receiver ? p_receiver->get_instance_id() : ObjectID(), p_method);
 }
 
 void BulletPhysicsServer::area_set_ray_pickable(RID p_area, bool p_enable) {
@@ -856,7 +856,7 @@ bool BulletPhysicsServer::body_is_omitting_force_integration(RID p_body) const {
 void BulletPhysicsServer::body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata) {
     RigidBodyBullet *body = rigid_body_owner.get(p_body);
     ERR_FAIL_COND(!body);
-    body->set_force_integration_callback(p_receiver ? p_receiver->get_instance_id() : ObjectID(0), p_method, p_udata);
+    body->set_force_integration_callback(p_receiver ? p_receiver->get_instance_id() : ObjectID(0ULL), p_method, p_udata);
 }
 
 void BulletPhysicsServer::body_set_ray_pickable(RID p_body, bool p_enable) {

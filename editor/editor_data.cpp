@@ -161,8 +161,8 @@ bool EditorHistory::is_history_obj_inspector_only(int p_obj) const {
 }
 
 ObjectID EditorHistory::get_history_obj(int p_obj) const {
-    ERR_FAIL_INDEX_V(p_obj, history.size(), 0);
-    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), 0);
+    ERR_FAIL_INDEX_V(p_obj, history.size(), ObjectID(0ULL));
+    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), ObjectID(0ULL));
     return history[p_obj].path[history[p_obj].level].object;
 }
 
@@ -209,12 +209,12 @@ bool EditorHistory::is_current_inspector_only() const {
 ObjectID EditorHistory::get_current() {
 
     if (current < 0 || current >= history.size())
-        return 0;
+        return ObjectID(0ULL);
 
     History &h = history[current];
     Object *obj = gObjectDB().get_instance(h.path[h.level].object);
     if (!obj)
-        return 0;
+        return ObjectID(0ULL);
 
     return obj->get_instance_id();
 }
@@ -231,15 +231,15 @@ int EditorHistory::get_path_size() const {
 ObjectID EditorHistory::get_path_object(int p_index) const {
 
     if (current < 0 || current >= history.size())
-        return 0;
+        return ObjectID(0ULL);
 
     const History &h = history[current];
 
-    ERR_FAIL_INDEX_V(p_index, h.path.size(), 0);
+    ERR_FAIL_INDEX_V(p_index, h.path.size(), ObjectID(0ULL));
 
     Object *obj = gObjectDB().get_instance(h.path[p_index].object);
     if (!obj)
-        return 0;
+        return ObjectID(0ULL);
 
     return obj->get_instance_id();
 }

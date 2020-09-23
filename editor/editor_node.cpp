@@ -1667,7 +1667,7 @@ void EditorNode::_dialog_action(StringView p_file) {
             save_resource_in_path(saving_resource, p_file);
             saving_resource = Ref<Resource>();
             ObjectID current = editor_history.get_current();
-            Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
+            Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
             ERR_FAIL_COND(!current_obj);
             Object_change_notify(current_obj);
         } break;
@@ -1814,7 +1814,7 @@ void EditorNode::push_item(Object *p_object, StringView p_property, bool p_inspe
         return;
     }
 
-    uint32_t id = p_object->get_instance_id();
+    ObjectID id = p_object->get_instance_id();
     if (id != editor_history.get_current()) {
 
         if (p_inspector_only) {
@@ -1869,8 +1869,8 @@ static bool overrides_external_editor(Object *p_object) {
 
 void EditorNode::_edit_current() {
 
-    uint32_t current = editor_history.get_current();
-    Object *current_obj = current > 0 ? gObjectDB().get_instance(current) : nullptr;
+    ObjectID current = editor_history.get_current();
+    Object *current_obj = current.is_valid() ? gObjectDB().get_instance(current) : nullptr;
     bool inspector_only = editor_history.is_current_inspector_only();
 
     this->current = current_obj;
@@ -2873,7 +2873,7 @@ void EditorNode::_tool_menu_option(int p_idx) {
             if (tool_menu->get_item_submenu(p_idx).empty()) {
                 Array params = tool_menu->get_item_metadata(p_idx);
 
-                Object *handler = gObjectDB().get_instance(params[0]);
+                Object *handler = gObjectDB().get_instance(params[0].as<ObjectID>());
                 StringName callback = params[1];
                 Variant *ud = &params[2];
                 Callable::CallError ce;
@@ -5509,7 +5509,7 @@ void EditorNode::add_tool_menu_item(
     tool_menu->add_item(p_name, TOOLS_CUSTOM);
 
     Array parameters;
-    parameters.push_back(p_handler->get_instance_id());
+    parameters.push_back(Variant::from(p_handler->get_instance_id()));
     parameters.push_back(p_callback);
     parameters.push_back(p_ud);
 

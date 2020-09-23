@@ -402,7 +402,7 @@ static void _fill_array(Node *p_node, Array &array, int p_level) {
     array.push_back(p_node->get_child_count());
     array.push_back(p_node->get_name());
     array.push_back(p_node->get_class());
-    array.push_back(p_node->get_instance_id());
+    array.push_back(Variant::from(p_node->get_instance_id()));
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
         _fill_array(p_node->get_child(i), array, p_level + 1);

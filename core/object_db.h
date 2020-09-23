@@ -3,9 +3,9 @@
 #include "core/hash_map.h"
 #include "core/hashfuncs.h"
 #include "core/os/rw_lock.h"
+#include "core/object_id.h"
 
 class Object;
-using ObjectID = uint64_t;
 
 template<>
 struct Hasher<Object *> {
@@ -44,7 +44,7 @@ protected:
 public:
     using DebugFunc = void (*)(Object *);
 
-    GODOT_EXPORT Object *get_instance(ObjectID p_instance_id);
+    GODOT_EXPORT static Object *get_instance(ObjectID p_instance_id);
     GODOT_EXPORT void debug_objects(DebugFunc p_func);
     GODOT_EXPORT int get_object_count();
 

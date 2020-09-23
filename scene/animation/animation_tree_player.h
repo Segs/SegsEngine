@@ -87,7 +87,7 @@ private:
     struct TrackKey {
 
         StringName subpath_concatenated;
-        uint32_t id;
+        ObjectID id;
         int bone_idx;
 
         inline bool operator<(const TrackKey &p_right) const {
@@ -103,7 +103,7 @@ private:
     };
 protected:
     struct Track {
-        uint32_t id;
+        ObjectID id;
         Object *object;
         Node3D *spatial;
         Skeleton *skeleton;

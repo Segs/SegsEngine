@@ -1,6 +1,6 @@
 #pragma once
 
-class ReflectionData;
+struct ReflectionData;
 class DocData;
 enum class ReflectionSource {
     Core,

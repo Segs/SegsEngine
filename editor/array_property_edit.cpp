@@ -211,7 +211,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             r_ret = arr.get(idx, &valid);
 
             if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-                r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+                r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
             }
 
             return valid;

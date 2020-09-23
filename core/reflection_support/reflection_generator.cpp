@@ -262,17 +262,7 @@ static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
         tgt.pass_by = TypePassBy::Pointer;
     }
 }
-static bool _is_array_path(StringView prop_name) {
-    FixedVector<StringView,8> parts;
-    String::split_ref(parts,prop_name,'/');
-    if(parts.size()!=3)
-        return false;
-    FixedVector<StringView, 32, false> parts_2;
-    for(auto c : parts[1])
-        if(!isdigit(c))
-            return false;
-    return true;
-}
+
 enum GroupPropStatus {
     NO_GROUP,
     STARTED_GROUP,
@@ -313,6 +303,7 @@ static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
         {"StringView","core/string.h"},
         {"StringName","core/string_name.h"},
         {"NodePath","core/node_path.h"},
+        {"ObjectID","core/object_id.h"},
         {"RID","core/rid.h"},
         {"VarArg",""}, // synthetic type
         {"Dictionary",""},
@@ -608,11 +599,13 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         ClassDB::get_method_list(type_cname, &method_list, true);
         eastl::sort(method_list.begin(), method_list.end());
         for (const MethodInfo& method_info : method_list) {
-            int argc = method_info.arguments.size();
+            size_t argc = method_info.arguments.size();
 
             if (method_info.name.empty())
                 continue;
-
+            if(method_info.name=="get_contact_collider_id") {
+                printf("1");
+            }
             auto cname = method_info.name;
 
             //if(mapper->shouldSkipMethod(qPrintable(itype.cname),cname))
@@ -680,7 +673,11 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
             }
             else {
                 if (return_info.type == VariantType::INT) {
-                    imethod.return_type.cname = _get_int_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
+                    if(return_info.hint==PropertyHint::IntIsObjectID) {
+                        imethod.return_type.cname = "ObjectID";
+                    }
+                    else
+                        imethod.return_type.cname = _get_int_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
                 }
                 else if (return_info.type == VariantType::FLOAT) {
                     imethod.return_type.cname = _get_float_type_name_from_meta(arg_meta.size() > 0 ? arg_meta[0] : GodotTypeInfo::METADATA_NONE).data();
@@ -690,7 +687,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 }
             }
 
-            for (int i = 0; i < argc; i++) {
+            for (size_t i = 0; i < argc; i++) {
                 const PropertyInfo& arginfo = method_info.arguments[i];
 
                 StringName orig_arg_name = arginfo.name;
@@ -718,7 +715,11 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 }
                 else {
                     if (arginfo.type == VariantType::INT) {
-                        iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
+                        if(arginfo.hint==PropertyHint::IntIsObjectID) {
+                            iarg.type.cname = "ObjectID";
+                        }
+                        else
+                            iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
                     }
                     else if (arginfo.type == VariantType::FLOAT) {
                         iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();

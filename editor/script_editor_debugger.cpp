@@ -182,8 +182,8 @@ public:
     }
 
     String get_title() {
-        if (remote_object_id)
-            return StringUtils::to_utf8(TTR("Remote %1: %2").asString().arg(type_name).arg(remote_object_id));
+        if (remote_object_id.is_valid())
+            return StringUtils::to_utf8(TTR("Remote %1: %2").asString().arg(type_name).arg((uint64_t)remote_object_id));
         else
             return "<null>";
     }
@@ -207,7 +207,7 @@ public:
     }
 
     ScriptEditorDebuggerInspectedObject() {
-        remote_object_id = 0;
+        remote_object_id = {0ULL};
     }
 };
 IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)
@@ -294,7 +294,7 @@ void ScriptEditorDebugger::_scene_tree_folded(Object *obj) {
     if (!item)
         return;
 
-    ObjectID id = item->get_metadata(0);
+    ObjectID id = item->get_metadata(0).as<ObjectID>();
     if (unfold_cache.contains(id)) {
         unfold_cache.erase(id);
     } else {
@@ -314,11 +314,11 @@ void ScriptEditorDebugger::_scene_tree_selected() {
         return;
     }
 
-    inspected_object_id = item->get_metadata(0);
+    inspected_object_id = item->get_metadata(0).as<ObjectID>();
 
     Array msg;
     msg.push_back("inspect_object");
-    msg.push_back(inspected_object_id);
+    msg.push_back(Variant::from(inspected_object_id));
     ppeer->put_var(msg);
 }
 
@@ -342,7 +342,7 @@ void ScriptEditorDebugger::_file_selected(StringView p_file) {
         case SAVE_NODE: {
             Array msg;
             msg.push_back("save_node");
-            msg.push_back(inspected_object_id);
+            msg.push_back(Variant::from(inspected_object_id));
             msg.push_back(p_file);
             ppeer->put_var(msg);
         } break;
@@ -417,7 +417,7 @@ void ScriptEditorDebugger::_scene_tree_property_value_edited(StringView p_prop, 
 
     Array msg;
     msg.push_back("set_object_property");
-    msg.push_back(inspected_object_id);
+    msg.push_back(Variant::from(inspected_object_id));
     msg.push_back(p_prop);
     msg.push_back(p_value);
     ppeer->put_var(msg);
@@ -429,7 +429,7 @@ void ScriptEditorDebugger::_scene_tree_property_select_object(ObjectID p_object)
     inspected_object_id = p_object;
     Array msg;
     msg.push_back("inspect_object");
-    msg.push_back(inspected_object_id);
+    msg.push_back(Variant::from(inspected_object_id));
     ppeer->put_var(msg);
 }
 
@@ -473,12 +473,12 @@ int ScriptEditorDebugger::_update_scene_tree(TreeItem *parent, const Array &node
     TreeItem *item = inspect_scene_tree->create_item(parent);
     item->set_text(0, item_text);
     item->set_tooltip(0, TTR("Type:") + " " + item_type);
-    ObjectID id = ObjectID(nodes[current_index + 3]);
+    ObjectID id = nodes[current_index + 3].as<ObjectID>();
     Ref<Texture> icon = EditorNode::get_singleton()->get_class_icon(nodes[current_index + 2], StringName());
     if (icon) {
         item->set_icon(0, icon);
     }
-    item->set_metadata(0, id);
+    item->set_metadata(0, Variant::from(id));
 
     if (id == inspected_object_id) {
         TreeItem *cti = item->get_parent();
@@ -613,7 +613,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
 
         ScriptEditorDebuggerInspectedObject *debugObj = nullptr;
 
-        ObjectID id = p_data[0];
+        ObjectID id = p_data[0].as<ObjectID>();
         UIString type = p_data[1];
         Array properties = p_data[2];
 
@@ -676,7 +676,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                     }
                 } else if (var.get_type() == VariantType::OBJECT) {
                     if (((Object *)var)->is_class("EncodedObjectAsID")) {
-                        var = object_cast<EncodedObjectAsID>(var)->get_object_id();
+                        var = Variant::from(object_cast<EncodedObjectAsID>(var)->get_object_id());
                         pinfo.type = var.get_type();
                         pinfo.hint = PropertyHint::ObjectID;
                         pinfo.hint_string = "Object";
@@ -776,7 +776,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
+                v = Variant::from(object_cast<EncodedObjectAsID>(v)->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }
@@ -795,7 +795,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
+                v = Variant::from(object_cast<EncodedObjectAsID>(v)->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }
@@ -803,7 +803,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             variables->add_property(StringName("Members/" + n), v, h, hs);
 
             if (n == "self") {
-                _scene_tree_property_select_object(v);
+                _scene_tree_property_select_object(v.as<ObjectID>());
             }
         }
 
@@ -818,7 +818,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = object_cast<EncodedObjectAsID>(v)->get_object_id();
+                v = Variant::from(object_cast<EncodedObjectAsID>(v)->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }
@@ -1147,7 +1147,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         int frame_size = 6;
         for (int i = 0; i < p_data.size(); i += frame_size) {
             MultiplayerAPI::ProfilingInfo pi;
-            pi.node = p_data[i + 0];
+            pi.node = p_data[i + 0].as<ObjectID>();
             pi.node_path = p_data[i + 1].as<String>();
             pi.incoming_rpc = p_data[i + 2];
             pi.incoming_rset = p_data[i + 3];
@@ -1296,13 +1296,13 @@ void ScriptEditorDebugger::_notification(int p_what) {
                 inspect_edited_object_timeout -= get_process_delta_time();
                 if (inspect_edited_object_timeout < 0) {
                     inspect_edited_object_timeout = EditorSettings::get_singleton()->get("debugger/remote_inspect_refresh_interval");
-                    if (inspected_object_id) {
+                    if (inspected_object_id.is_valid()) {
                         if (ScriptEditorDebuggerInspectedObject *obj = object_cast<ScriptEditorDebuggerInspectedObject>(gObjectDB().get_instance(editor->get_editor_history()->get_current()))) {
                             if (obj->remote_object_id == inspected_object_id) {
                                 //take the chance and re-inspect selected object
                                 Array msg;
                                 msg.push_back("inspect_object");
-                                msg.push_back(inspected_object_id);
+                                msg.push_back(Variant::from(inspected_object_id));
                                 ppeer->put_var(msg);
                             }
                         }
@@ -1971,7 +1971,7 @@ void ScriptEditorDebugger::live_debug_remove_and_keep_node(const NodePath &p_at,
         Array msg;
         msg.push_back("live_remove_and_keep_node");
         msg.push_back(p_at);
-        msg.push_back(p_keep_id);
+        msg.push_back(Variant::from(p_keep_id));
         ppeer->put_var(msg);
     }
 }
@@ -1980,7 +1980,7 @@ void ScriptEditorDebugger::live_debug_restore_node(ObjectID p_id, const NodePath
     if (live_debug && connection) {
         Array msg;
         msg.push_back("live_restore_node");
-        msg.push_back(p_id);
+        msg.push_back(Variant::from(p_id));
         msg.push_back(p_at);
         msg.push_back(p_at_pos);
         ppeer->put_var(msg);
@@ -2507,7 +2507,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         auto_switch_remote_scene_tree = EDITOR_DEF("debugger/auto_switch_to_remote_scene_tree", false);
         inspect_scene_tree_timeout = EDITOR_DEF("debugger/remote_scene_tree_refresh_interval", 1.0);
         inspect_edited_object_timeout = EDITOR_DEF("debugger/remote_inspect_refresh_interval", 0.2);
-        inspected_object_id = 0;
+        inspected_object_id = ObjectID(0ULL);
         updating_scene_tree = false;
     }
 

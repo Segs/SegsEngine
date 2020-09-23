@@ -2558,8 +2558,9 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
 
     if (p_member->is_static()) {
 #ifdef TOOLS_ENABLED
-        if (p_member->has_attribute(CACHED_CLASS(ExportAttribute)))
+        if (p_member->has_attribute(CACHED_CLASS(ExportAttribute))) {
             ERR_PRINT("Cannot export member because it is static: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+        }
 #endif
         return false;
     }
@@ -2591,8 +2592,9 @@ bool CSharpScript::_get_member_export(IMonoClassMember *p_member, bool p_inspect
         }
         if (!property->has_setter()) {
 #ifdef TOOLS_ENABLED
-            if (exported)
+            if (exported) {
                 ERR_PRINT("Write-only property (without getter) cannot be exported: '" + MEMBER_FULL_QUALIFIED_NAME(p_member) + "'.");
+            }
 #endif
             return false;
         }

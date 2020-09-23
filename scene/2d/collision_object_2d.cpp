@@ -103,9 +103,9 @@ void CollisionObject2D::_notification(int p_what) {
         case NOTIFICATION_EXIT_CANVAS: {
 
             if (area)
-                PhysicsServer2D::get_singleton()->area_attach_canvas_instance_id(rid, 0);
+                PhysicsServer2D::get_singleton()->area_attach_canvas_instance_id(rid, ObjectID(0ULL));
             else
-                PhysicsServer2D::get_singleton()->body_attach_canvas_instance_id(rid, 0);
+                PhysicsServer2D::get_singleton()->body_attach_canvas_instance_id(rid, ObjectID(0ULL));
         } break;
     }
 }

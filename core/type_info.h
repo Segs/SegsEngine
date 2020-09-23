@@ -129,6 +129,17 @@ struct GetTypeInfo;
         }\
     };
 
+//objectID
+template <>
+struct GetTypeInfo<ObjectID> {
+    static const VariantType VARIANT_TYPE = VariantType::INT;
+    static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_INT_IS_UINT64;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value; 
+    static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VariantType::INT), PropertyHint::IntIsObjectID };
+    }
+};
+
 MAKE_TYPE_INFO(bool, VariantType::BOOL)
 MAKE_TYPE_INFO_WITH_META(uint8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_UINT8)
 MAKE_TYPE_INFO_WITH_META(int8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_INT8)

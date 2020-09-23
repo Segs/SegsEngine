@@ -112,7 +112,7 @@ void Polygon2D::_notification(int p_what) {
                 skeleton_node = object_cast<Skeleton2D>(get_node(skeleton));
             }
 
-            ObjectID new_skeleton_id = 0;
+            ObjectID new_skeleton_id {0ULL};
 
             if (skeleton_node) {
                 RenderingServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), skeleton_node->get_skeleton());

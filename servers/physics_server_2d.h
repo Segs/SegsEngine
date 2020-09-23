@@ -408,11 +408,11 @@ public:
     virtual void body_remove_shape(RID p_body, int p_shape_idx) = 0;
     virtual void body_clear_shapes(RID p_body) = 0;
 
-    virtual void body_attach_object_instance_id(RID p_body, uint32_t p_id) = 0;
-    virtual uint32_t body_get_object_instance_id(RID p_body) const = 0;
+    virtual void body_attach_object_instance_id(RID p_body, ObjectID p_id) = 0;
+    virtual ObjectID body_get_object_instance_id(RID p_body) const = 0;
 
-    virtual void body_attach_canvas_instance_id(RID p_body, uint32_t p_id) = 0;
-    virtual uint32_t body_get_canvas_instance_id(RID p_body) const = 0;
+    virtual void body_attach_canvas_instance_id(RID p_body, ObjectID p_id) = 0;
+    virtual ObjectID body_get_canvas_instance_id(RID p_body) const = 0;
 
     enum CCDMode {
         CCD_MODE_DISABLED,
@@ -513,7 +513,7 @@ public:
         MotionResult() {
             collision_local_shape = 0;
             collider_shape = 0;
-            collider_id = 0;
+            collider_id = ObjectID(0ULL);
         }
     };
 

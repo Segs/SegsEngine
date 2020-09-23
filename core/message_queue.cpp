@@ -54,7 +54,7 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
         String type;
         if (gObjectDB().get_instance(p_id))
             type = gObjectDB().get_instance(p_id)->get_class();
-        print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(p_id));
+        print_line(String("Failed ::function call: ") + type + ": target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
@@ -79,7 +79,7 @@ Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const V
         String type;
         if (gObjectDB().get_instance(p_id))
             type = gObjectDB().get_instance(p_id)->get_class();
-        print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(p_id));
+        print_line(String("Failed method: ") + type + ":" + p_method + " target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }
@@ -129,7 +129,7 @@ Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Vari
         String type;
         if (gObjectDB().get_instance(p_id))
             type = gObjectDB().get_instance(p_id)->get_class();
-        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(p_id));
+        print_line("Failed set: " + type + ":" + p_prop + " target ID: " + ::to_string(static_cast<uint64_t>(p_id)));
         statistics();
         ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
     }

@@ -800,8 +800,8 @@ void SceneTreeEditor::_renamed() {
     } else {
         undo_redo->create_action_ui(TTR("Rename Node"));
         emit_signal("node_prerename", Variant(n), new_name);
-        undo_redo->add_do_method(this, "_rename_node", n->get_instance_id(), new_name);
-        undo_redo->add_undo_method(this, "_rename_node", n->get_instance_id(), n->get_name());
+        undo_redo->add_do_method(this, "_rename_node", Variant::from(n->get_instance_id()), new_name);
+        undo_redo->add_undo_method(this, "_rename_node", Variant::from(n->get_instance_id()), n->get_name());
         undo_redo->commit_action();
     }
 }

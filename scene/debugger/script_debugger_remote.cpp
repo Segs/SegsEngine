@@ -280,11 +280,11 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                 _send_video_memory();
             } else if (command == "inspect_object") {
 
-                ObjectID id = cmd[1];
+                ObjectID id = cmd[1].as<ObjectID>();
                 _send_object_id(id);
             } else if (command == "set_object_property") {
 
-                _set_object_property(cmd[1], cmd[2], cmd[3]);
+                _set_object_property(cmd[1].as<ObjectID>(), cmd[2], cmd[3]);
 
             } else if (command == "override_camera_2D:set") {
                 bool enforce = cmd[1];
@@ -331,7 +331,7 @@ void ScriptDebuggerRemote::debug(ScriptLanguage *p_script, bool p_can_continue, 
                     remove_breakpoint(cmd[2], cmd[1].as<StringName>());
 
             } else if (command == "save_node") {
-                _save_node(cmd[1], cmd[2].as<StringName>().asCString());
+                _save_node(cmd[1].as<ObjectID>(), cmd[2].as<StringName>().asCString());
             } else {
                 _parse_live_edit(cmd);
             }
@@ -540,11 +540,11 @@ bool ScriptDebuggerRemote::_parse_live_edit(const Array &p_command) {
 
     } else if (cmdstr == "live_remove_and_keep_node") {
 
-        scene_tree->debug()->_live_edit_remove_and_keep_node_func(p_command[1], p_command[2]);
+        scene_tree->debug()->_live_edit_remove_and_keep_node_func(p_command[1], p_command[2].as<ObjectID>());
 
     } else if (cmdstr == "live_restore_node") {
 
-        scene_tree->debug()->_live_edit_restore_node_func(p_command[1], p_command[2], p_command[3]);
+        scene_tree->debug()->_live_edit_restore_node_func(p_command[1].as<ObjectID>(), p_command[2], p_command[3]);
 
     } else if (cmdstr == "live_duplicate_node") {
 
@@ -621,7 +621,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
                                              String() :
                                              String(PathUtils::get_file(sc.first->get_path())) + "/");
                 if (E.second.get_type() == VariantType::OBJECT) {
-                    Variant id = ((Object *)E.second)->get_instance_id();
+                    Variant id = Variant::from(((Object *)E.second)->get_instance_id());
                     PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
                     properties.push_back(PropertyDesc(pi, id));
                 } else {
@@ -651,7 +651,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
             s->get_constants(&constants);
             for (eastl::pair<const StringName,Variant> &E : constants) {
                 if (E.second.get_type() == VariantType::OBJECT) {
-                    Variant id = ((Object *)E.second)->get_instance_id();
+                    Variant id = Variant::from(((Object *)E.second)->get_instance_id());
                     PropertyInfo pi(id.get_type(), StringName("Constants/" + String(E.first)), PropertyHint::ObjectID, "Object");
                     properties.push_front(PropertyDesc(pi, E.second));
                 } else {
@@ -710,7 +710,7 @@ if (ScriptInstance *si = obj->get_script_instance()) {
 
     packet_peer_stream->put_var("message:inspect_object");
     packet_peer_stream->put_var(3);
-    packet_peer_stream->put_var(p_id);
+    packet_peer_stream->put_var(Variant::from(p_id));
     packet_peer_stream->put_var(obj->get_class());
     packet_peer_stream->put_var(send_props);
 }
@@ -769,11 +769,11 @@ void ScriptDebuggerRemote::_poll_events() {
             _send_video_memory();
         } else if (command == "inspect_object") {
 
-            ObjectID id = cmd[1];
+            ObjectID id = cmd[1].as<ObjectID>();
             _send_object_id(id);
         } else if (command == "set_object_property") {
 
-            _set_object_property(cmd[1], cmd[2], cmd[3]);
+            _set_object_property(cmd[1].as<ObjectID>(), cmd[2], cmd[3]);
 
         } else if (command == "start_profiling") {
 
@@ -986,7 +986,7 @@ void ScriptDebuggerRemote::_send_network_profiling_data() {
     packet_peer_stream->put_var("network_profile");
     packet_peer_stream->put_var(n_nodes * 6);
     for (int i = 0; i < n_nodes; ++i) {
-        packet_peer_stream->put_var(network_profile_info[i].node);
+        packet_peer_stream->put_var(Variant::from(network_profile_info[i].node));
         packet_peer_stream->put_var(network_profile_info[i].node_path);
         packet_peer_stream->put_var(network_profile_info[i].incoming_rpc);
         packet_peer_stream->put_var(network_profile_info[i].incoming_rset);

@@ -175,7 +175,7 @@ void Area2DSW::set_monitorable(bool p_monitorable) {
 
 void Area2DSW::call_queries() {
 
-    if (monitor_callback_id && !monitored_bodies.empty()) {
+    if (monitor_callback_id.is_valid() && !monitored_bodies.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
@@ -197,7 +197,7 @@ void Area2DSW::call_queries() {
 
             res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
             res[1] = iter->first.rid;
-            res[2] = iter->first.instance_id;
+            res[2] = Variant::from(iter->first.instance_id);
             res[3] = iter->first.body_shape;
             res[4] = iter->first.area_shape;
 
@@ -210,7 +210,7 @@ void Area2DSW::call_queries() {
 
     monitored_bodies.clear();
 
-    if (area_monitor_callback_id && !monitored_areas.empty()) {
+    if (area_monitor_callback_id.is_valid() && !monitored_areas.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
@@ -231,7 +231,7 @@ void Area2DSW::call_queries() {
             }
             res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
             res[1] = iter->first.rid;
-            res[2] = iter->first.instance_id;
+            res[2] = Variant::from(iter->first.instance_id);
             res[3] = iter->first.body_shape;
             res[4] = iter->first.area_shape;
 

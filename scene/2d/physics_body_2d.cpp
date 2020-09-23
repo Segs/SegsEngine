@@ -278,7 +278,7 @@ void RigidBody2D::_body_enter_tree(ObjectID p_id) {
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -301,7 +301,7 @@ void RigidBody2D::_body_exit_tree(ObjectID p_id) {
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -341,7 +341,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
             E->second.shapes.insert(ShapePair(p_body_shape, p_local_shape));
 
         if (E->second.in_scene) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, objid, Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
 
     } else {
@@ -365,7 +365,7 @@ void RigidBody2D::_body_inout(int p_status, ObjectID p_instance, int p_body_shap
             contact_monitor->body_map.erase(E);
         }
         if (node && in_scene) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, objid, Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
     }
 }
@@ -1429,7 +1429,7 @@ Object *KinematicCollision2D::get_local_shape() const {
 
 Object *KinematicCollision2D::get_collider() const {
 
-    if (collision.collider) {
+    if (collision.collider.is_valid()) {
         return gObjectDB().get_instance(collision.collider);
     }
 
