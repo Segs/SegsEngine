@@ -85,7 +85,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
             emit_signal("open_script", Variant(script));
 
     } else if (p_id == BUTTON_VISIBILITY) {
-        undo_redo->create_action_ui(TTR("Toggle Visible"));
+        undo_redo->create_action(TTR("Toggle Visible"));
         _toggle_visible(n);
         const Vector<Node *> &selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
@@ -99,7 +99,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         }
         undo_redo->commit_action();
     } else if (p_id == BUTTON_LOCK) {
-        undo_redo->create_action_ui(TTR("Unlock Node"));
+        undo_redo->create_action(TTR("Unlock Node"));
 
         if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
@@ -119,7 +119,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         }
 
     } else if (p_id == BUTTON_GROUP) {
-        undo_redo->create_action_ui(TTR("Button Group"));
+        undo_redo->create_action(TTR("Button Group"));
 
         if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
@@ -798,7 +798,7 @@ void SceneTreeEditor::_renamed() {
         which->set_metadata(0, n->get_path());
         emit_signal("node_renamed");
     } else {
-        undo_redo->create_action_ui(TTR("Rename Node"));
+        undo_redo->create_action(TTR("Rename Node"));
         emit_signal("node_prerename", Variant(n), new_name);
         undo_redo->add_do_method(this, "_rename_node", Variant::from(n->get_instance_id()), new_name);
         undo_redo->add_undo_method(this, "_rename_node", Variant::from(n->get_instance_id()), n->get_name());

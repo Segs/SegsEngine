@@ -441,16 +441,6 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             array.resize(len);
             PoolVector<int>::Write w = array.write();
             f->get_buffer((uint8_t *)w.ptr(), len * 4);
-#ifdef BIG_ENDIAN_ENABLED
-            {
-                uint32_t *ptr = (uint32_t *)w.ptr();
-                for (int i = 0; i < len; i++) {
-
-                    ptr[i] = BSWAP32(ptr[i]);
-                }
-            }
-
-#endif
             w.release();
             r_v = array;
         } break;
@@ -462,16 +452,6 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             array.resize(len);
             PoolVector<real_t>::Write w = array.write();
             f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t));
-#ifdef BIG_ENDIAN_ENABLED
-            {
-                uint32_t *ptr = (uint32_t *)w.ptr();
-                for (int i = 0; i < len; i++) {
-
-                    ptr[i] = BSWAP32(ptr[i]);
-                }
-            }
-
-#endif
 
             w.release();
             r_v = array;
@@ -495,18 +475,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Vector2> array;
             array.resize(len);
             PoolVector<Vector2>::Write w = array.write();
-            if (sizeof(Vector2) == 8) {
+            if constexpr (sizeof(Vector2) == 8) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 2);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 2; i++) {
-
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!");
@@ -522,18 +492,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Vector3> array;
             array.resize(len);
             PoolVector<Vector3>::Write w = array.write();
-            if (sizeof(Vector3) == 12) {
+            if constexpr (sizeof(Vector3) == 12) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 3);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 3; i++) {
-
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!");
@@ -549,18 +509,9 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Color> array;
             array.resize(len);
             PoolVector<Color>::Write w = array.write();
-            if (sizeof(Color) == 16) {
+            if constexpr (sizeof(Color) == 16) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 4);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 4; i++) {
 
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!");
@@ -815,11 +766,7 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     ver_format = f->get_32();
 
     print_bl("big endian: " + itos(big_endian));
-#ifdef BIG_ENDIAN_ENABLED
-    print_bl("endian swap: " + itos(!big_endian));
-#else
     print_bl("endian swap: " + itos(big_endian));
-#endif
     print_bl("real64: " + itos(use_real64));
     print_bl("major: " + itos(ver_major));
     print_bl("minor: " + itos(ver_minor));
@@ -1056,11 +1003,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(StringView _path, const Ha
     bool use_real64 = f->get_32();
 
     f->set_endian_swap(big_endian != 0); //read big endian if saved as big endian
-#ifdef BIG_ENDIAN_ENABLED
-    fw->store_32(!big_endian);
-#else
     fw->store_32(big_endian);
-#endif
     fw->set_endian_swap(big_endian != 0);
     fw->store_32(use_real64); //use real64
 

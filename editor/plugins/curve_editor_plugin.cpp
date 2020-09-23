@@ -147,7 +147,7 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 
                 UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
 
-                ur.create_action_ui(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
+                ur.create_action(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
                 ur.add_do_method(_curve_ref.get(), "_set_data", _curve_ref->get_data());
                 ur.add_undo_method(_curve_ref.get(), "_set_data", _undo_data);
                 // Note: this will trigger one more "changed" signal even if nothing changes,
@@ -305,7 +305,7 @@ void CurveEditor::on_preset_item_selected(int preset_id) {
     }
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Load Curve Preset"));
+    ur.create_action(TTR("Load Curve Preset"));
 
     ur.add_do_method(&curve, "_set_data", curve.get_data());
     ur.add_undo_method(&curve, "_set_data", previous_data);
@@ -435,7 +435,7 @@ void CurveEditor::add_point(Vector2 pos) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Remove Curve Point"));
+    ur.create_action(TTR("Remove Curve Point"));
 
     Vector2 point_pos = get_world_pos(pos);
     if (point_pos.y < 0.0)
@@ -457,7 +457,7 @@ void CurveEditor::remove_point(int index) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Remove Curve Point"));
+    ur.create_action(TTR("Remove Curve Point"));
 
     Curve::Point p = _curve_ref->get_point(index);
 
@@ -477,7 +477,7 @@ void CurveEditor::toggle_linear(TangentIndex tangent) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Toggle Curve Linear Tangent"));
+    ur.create_action(TTR("Toggle Curve Linear Tangent"));
 
     if (tangent == TANGENT_NONE)
         tangent = _selected_tangent;

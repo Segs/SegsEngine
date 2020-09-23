@@ -85,7 +85,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
             name = String(basename) + " " + itos(counter);
         }
 
-        undo_redo->create_action_ui(TTR("Add Resource"));
+        undo_redo->create_action(TTR("Add Resource"));
         undo_redo->add_do_method(preloader, "add_resource", name, resource);
         undo_redo->add_undo_method(preloader, "remove_resource", name);
         undo_redo->add_do_method(this, "_update_library");
@@ -130,7 +130,7 @@ void ResourcePreloaderEditor::_item_edited() {
         }
 
         RES samp(preloader->get_resource(StringName(old_name)));
-        undo_redo->create_action_ui(TTR("Rename Resource"));
+        undo_redo->create_action(TTR("Rename Resource"));
         undo_redo->add_do_method(preloader, "remove_resource", old_name);
         undo_redo->add_do_method(preloader, "add_resource", new_name, samp);
         undo_redo->add_undo_method(preloader, "remove_resource", new_name);
@@ -143,7 +143,7 @@ void ResourcePreloaderEditor::_item_edited() {
 
 void ResourcePreloaderEditor::_remove_resource(const StringName &p_to_remove) {
 
-    undo_redo->create_action_ui(TTR("Delete Resource"));
+    undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(preloader, "remove_resource", p_to_remove);
     undo_redo->add_undo_method(preloader, "add_resource", p_to_remove, preloader->get_resource(StringName(p_to_remove)));
     undo_redo->add_do_method(this, "_update_library");
@@ -175,7 +175,7 @@ void ResourcePreloaderEditor::_paste_pressed() {
         name = basename + " " + itos(counter);
     }
 
-    undo_redo->create_action_ui(TTR("Paste Resource"));
+    undo_redo->create_action(TTR("Paste Resource"));
     undo_redo->add_do_method(preloader, "add_resource", name, r);
     undo_redo->add_undo_method(preloader, "remove_resource", name);
     undo_redo->add_do_method(this, "_update_library");
@@ -330,7 +330,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
                 name = basename + "_" + itos(counter);
             }
 
-            undo_redo->create_action_ui(TTR("Add Resource"));
+            undo_redo->create_action(TTR("Add Resource"));
             undo_redo->add_do_method(preloader, "add_resource", name, r);
             undo_redo->add_undo_method(preloader, "remove_resource", name);
             undo_redo->add_do_method(this, "_update_library");

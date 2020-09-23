@@ -177,7 +177,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         int order = ProjectSettings::get_singleton()->get_order(StringName(selected_autoload));
         String path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
 
-        undo_redo->create_action_ui(TTR("Rename Autoload"));
+        undo_redo->create_action(TTR("Rename Autoload"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), name, path);
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -212,7 +212,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         if (checked)
             path = "*" + path;
 
-        undo_redo->create_action_ui(TTR("Toggle AutoLoad Globals"));
+        undo_redo->create_action(TTR("Toggle AutoLoad Globals"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), base, path);
         undo_redo->add_undo_property(ProjectSettings::get_singleton(), base, ProjectSettings::get_singleton()->get(base));
@@ -263,7 +263,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
             int order = ProjectSettings::get_singleton()->get_order(name);
             int swap_order = ProjectSettings::get_singleton()->get_order(swap_name);
 
-            undo_redo->create_action_ui(TTR("Move Autoload"));
+            undo_redo->create_action(TTR("Move Autoload"));
 
             undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, swap_order);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -283,7 +283,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
 
             int order = ProjectSettings::get_singleton()->get_order(name);
 
-            undo_redo->create_action_ui(TTR("Remove Autoload"));
+            undo_redo->create_action(TTR("Remove Autoload"));
 
             undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 
@@ -658,7 +658,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action_ui(TTR("Rearrange Autoloads"));
+    undo_redo->create_action(TTR("Rearrange Autoloads"));
 
     int i = 0;
 
@@ -703,7 +703,7 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, StringView p
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action_ui(TTR("Add AutoLoad"));
+    undo_redo->create_action(TTR("Add AutoLoad"));
     // Singleton autoloads are represented with a leading "*" in their path.
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, String("*") + path);
 
@@ -732,7 +732,7 @@ void EditorAutoloadSettings::autoload_remove(const StringName &p_name) {
 
     int order = ProjectSettings::get_singleton()->get_order(name);
 
-    undo_redo->create_action_ui(TTR("Remove Autoload"));
+    undo_redo->create_action(TTR("Remove Autoload"));
 
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 

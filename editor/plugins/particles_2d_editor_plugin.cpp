@@ -100,7 +100,7 @@ void Particles2DEditorPlugin::_menu_callback(int p_idx) {
             cpu_particles->set_z_index(particles->get_z_index());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Convert to CPUParticles"));
+            ur->create_action(TTR("Convert to CPUParticles"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(particles), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(particles), false, false);
@@ -149,7 +149,7 @@ void Particles2DEditorPlugin::_generate_visibility_rect() {
         particles->set_emitting(false);
     }
 
-    undo_redo->create_action_ui(TTR("Generate Visibility Rect"));
+    undo_redo->create_action(TTR("Generate Visibility Rect"));
     undo_redo->add_do_method(particles, "set_visibility_rect", rect);
     undo_redo->add_undo_method(particles, "set_visibility_rect", particles->get_visibility_rect());
     undo_redo->commit_action();

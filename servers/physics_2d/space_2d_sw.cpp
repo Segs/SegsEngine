@@ -1166,6 +1166,9 @@ void *Space2DSW::_broadphase_pair(CollisionObject2DSW *A, int p_subindex_A, Coll
 
 void Space2DSW::_broadphase_unpair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_data, void *p_self) {
 
+    if (!p_data) {
+        return;
+    }
     Space2DSW *self = (Space2DSW *)p_self;
     self->collision_pairs--;
     Constraint2DSW *c = (Constraint2DSW *)p_data;

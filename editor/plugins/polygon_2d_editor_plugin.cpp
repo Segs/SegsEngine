@@ -165,7 +165,7 @@ void Polygon2DEditor::_sync_bones() {
 
     Array new_bones = node->call_va("_get_bones");
 
-    undo_redo->create_action_ui(TTR("Sync Bones"));
+    undo_redo->create_action(TTR("Sync Bones"));
     undo_redo->add_do_method(node, "_set_bones", new_bones);
     undo_redo->add_undo_method(node, "_set_bones", prev_bones);
     undo_redo->add_do_method(this, "_update_bone_list");
@@ -310,7 +310,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             PoolVector<Vector2> points = node->get_polygon();
             PoolVector<Vector2> uvs = node->get_uv();
             if (uvs.size() != points.size()) {
-                undo_redo->create_action_ui(TTR("Create UV Map"));
+                undo_redo->create_action(TTR("Create UV Map"));
                 undo_redo->add_do_method(node, "set_uv", Variant(points));
                 undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
                 undo_redo->add_do_method(uv_edit_draw, "update");
@@ -330,7 +330,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             if (points.size() == 0)
                 break;
             PoolVector<Vector2> uvs = node->get_uv();
-            undo_redo->create_action_ui(TTR("Create UV Map"));
+            undo_redo->create_action(TTR("Create UV Map"));
             undo_redo->add_do_method(node, "set_uv", Variant(points));
             undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -344,7 +344,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             if (uvs.size() == 0)
                 break;
 
-            undo_redo->create_action_ui(TTR("Create Polygon"));
+            undo_redo->create_action(TTR("Create Polygon"));
             undo_redo->add_do_method(node, "set_polygon", Variant(uvs));
             undo_redo->add_undo_method(node, "set_polygon", Variant(points));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -356,7 +356,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             PoolVector<Vector2> uvs = node->get_uv();
             if (uvs.size() == 0)
                 break;
-            undo_redo->create_action_ui(TTR("Create UV Map"));
+            undo_redo->create_action(TTR("Create UV Map"));
             undo_redo->add_do_method(node, "set_uv", Variant(PoolVector<Vector2>()));
             undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -524,7 +524,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         Vector2 tuv = mtx.affine_inverse().xform(snap_point(Vector2(mb->get_position().x, mb->get_position().y)));
 
                         if (points_prev.size() > 2 && tuv.distance_to(points_prev[0]) < 8) {
-                            undo_redo->create_action_ui(TTR("Create Polygon & UV"));
+                            undo_redo->create_action(TTR("Create Polygon & UV"));
                             undo_redo->add_do_method(node, "set_uv", Variant(node->get_uv()));
                             undo_redo->add_undo_method(node, "set_uv", Variant(uv_create_uv_prev));
                             undo_redo->add_do_method(node, "set_polygon", Variant(node->get_polygon()));
@@ -573,7 +573,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         uv_create_colors_prev.push_back(Color(1, 1, 1));
                     }
 
-                    undo_redo->create_action_ui(TTR("Create Internal Vertex"));
+                    undo_redo->create_action(TTR("Create Internal Vertex"));
                     undo_redo->add_do_method(node, "set_uv", Variant(uv_create_uv_prev));
                     undo_redo->add_undo_method(node, "set_uv", Variant(node->get_uv()));
                     undo_redo->add_do_method(node, "set_polygon", Variant(uv_create_poly_prev));
@@ -628,7 +628,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         uv_create_colors_prev.remove(closest);
                     }
 
-                    undo_redo->create_action_ui(TTR("Remove Internal Vertex"));
+                    undo_redo->create_action(TTR("Remove Internal Vertex"));
                     undo_redo->add_do_method(node, "set_uv", Variant(uv_create_uv_prev));
                     undo_redo->add_undo_method(node, "set_uv", Variant(node->get_uv()));
                     undo_redo->add_do_method(node, "set_polygon", Variant(uv_create_poly_prev));
@@ -704,7 +704,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                                 //todo, could check whether it already exists?
                                 polygons.push_back(Variant::from(polygon_create));
-                                undo_redo->create_action_ui(TTR("Add Custom Polygon"));
+                                undo_redo->create_action(TTR("Add Custom Polygon"));
                                 undo_redo->add_do_method(node, "set_polygons", polygons);
                                 undo_redo->add_undo_method(node, "set_polygons", node->get_polygons());
                                 undo_redo->add_do_method(uv_edit_draw, "update");
@@ -744,7 +744,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     if (erase_index != -1) {
                         polygons.remove(erase_index);
-                        undo_redo->create_action_ui(TTR("Remove Custom Polygon"));
+                        undo_redo->create_action(TTR("Remove Custom Polygon"));
                         undo_redo->add_do_method(node, "set_polygons", polygons);
                         undo_redo->add_undo_method(node, "set_polygons", node->get_polygons());
                         undo_redo->add_do_method(uv_edit_draw, "update");
@@ -775,14 +775,14 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
             } else {
                 if (uv_drag && !uv_create) {
                     if (uv_edit_mode[0]->is_pressed()) { // Edit UV.
-                        undo_redo->create_action_ui(TTR("Transform UV Map"));
+                        undo_redo->create_action(TTR("Transform UV Map"));
                         undo_redo->add_do_method(node, "set_uv", Variant(node->get_uv()));
                         undo_redo->add_undo_method(node, "set_uv", Variant(points_prev));
                         undo_redo->add_do_method(uv_edit_draw, "update");
                         undo_redo->add_undo_method(uv_edit_draw, "update");
                         undo_redo->commit_action();
                     } else if (uv_edit_mode[1]->is_pressed() && uv_move_current == UV_MODE_EDIT_POINT) { // Edit polygon.
-                        undo_redo->create_action_ui(TTR("Transform Polygon"));
+                        undo_redo->create_action(TTR("Transform Polygon"));
                         undo_redo->add_do_method(node, "set_polygon", Variant(node->get_polygon()));
                         undo_redo->add_undo_method(node, "set_polygon", Variant(points_prev));
                         undo_redo->add_do_method(uv_edit_draw, "update");

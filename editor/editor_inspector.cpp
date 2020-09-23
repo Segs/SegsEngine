@@ -2027,7 +2027,7 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         emit_signal(_prop_edited, p_name);
     } else {
 
-        undo_redo->create_action_ui(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
+        undo_redo->create_action(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
         undo_redo->add_do_property(object, p_name, p_value);
         undo_redo->add_undo_property(object, p_name, object->get(StringName(p_name)));
 
@@ -2094,7 +2094,7 @@ void EditorInspector::_multiple_properties_changed(const Vector<String> &p_paths
 
     String names = String::joined(p_paths,",");
 
-    undo_redo->create_action_ui(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
+    undo_redo->create_action(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
     for (size_t i = 0; i < p_paths.size(); i++) {
         _edit_set(StringName(p_paths[i]), p_values[i], false, StringView());
         if (restart_request_props.contains(StringName(p_paths[i]))) {

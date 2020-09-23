@@ -31,6 +31,7 @@
 #pragma once
 
 #include "core/object.h"
+#include "core/object_id.h"
 #include "core/resource.h"
 
 class GODOT_EXPORT UndoRedo : public Object {
@@ -62,11 +63,13 @@ protected:
 
 public:
     void create_action(StringView p_name, MergeMode p_mode = MERGE_DISABLE);
-    void create_action_ui(const StringName &p_name, MergeMode p_mode = MERGE_DISABLE);
+    void create_action_pair(StringView p_name, ObjectID owner,eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode = MERGE_DISABLE);
 
     void add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
+    void add_do_method(eastl::function<void()> func,ObjectID owner = ObjectID(0ULL));
 
     void add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_LIST);
+    void add_undo_method(eastl::function<void()> func, ObjectID owner = ObjectID(0ULL));
 
     void add_do_property(Object *p_object, StringView p_property, const Variant &p_value);
     void add_undo_property(Object *p_object, StringView p_property, const Variant &p_value);

@@ -526,7 +526,7 @@ Error Main::setup(bool p_second_phase) {
         packed_data = memnew(PackedData);
 
     add_plugin_resolver(new ArchivePluginResolver(packed_data));
-    auto z = QDir::currentPath();
+
 
     I = args.begin();
     while (I!= args.end()) {
@@ -811,11 +811,11 @@ Error Main::setup(bool p_second_phase) {
 
             path = PathUtils::path(file);
 
-            //if (OS::get_singleton()->set_cwd(path) == OK) {
-                // path already specified, don't override
-            //} else {
+            if (OS::get_singleton()->set_cwd(path) == OK) {
+               // path already specified, don't override
+            } else {
                 project_path = path;
-            //}
+            }
 #ifdef TOOLS_ENABLED
             //editor = true;
 #endif
@@ -1091,7 +1091,7 @@ Error Main::setup(bool p_second_phase) {
 
     GLOBAL_DEF("rendering/quality/driver/driver_name", "GLES3");
     project_settings->set_custom_property_info("rendering/quality/driver/driver_name",
-            PropertyInfo(VariantType::STRING, "rendering/quality/driver/driver_name", PropertyHint::Enum, "GLES2,GLES3"));
+            PropertyInfo(VariantType::STRING, "rendering/quality/driver/driver_name", PropertyHint::Enum, "GLES3")); //GLES2,
     if (video_driver.empty()) {
         video_driver = GLOBAL_GET("rendering/quality/driver/driver_name");
     }
@@ -1590,7 +1590,7 @@ bool Main::start() {
         } else if (*i == "-p" || *i == "--project-manager") {
             project_manager = true;
 #endif
-        } else if (i->length() && i->at(0) != '-' && positional_arg == "") {
+        } else if (i->length() && i->at(0) != '-' && positional_arg.empty()) {
             positional_arg = *i;
 
             if (StringUtils::ends_with(positional_arg,".scn") ||

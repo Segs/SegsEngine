@@ -492,9 +492,10 @@ private:
                     if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3") {
                         initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
                     } else {
-                        initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
-                        initial_settings["rendering/vram_compression/import_etc2"] = false;
-                        initial_settings["rendering/vram_compression/import_etc"] = true;
+                        assert(false);
+                        //initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
+                        //initial_settings["rendering/vram_compression/import_etc2"] = false;
+                        //initial_settings["rendering/vram_compression/import_etc"] = true;
                     }
                     initial_settings["application/config/name"] = project_name->get_text();
                     initial_settings["application/config/icon"] = "res://icon.png";

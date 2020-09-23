@@ -58,7 +58,7 @@ void GradientEditor::_ramp_changed() {
 
     editing = true;
     UndoRedo *undo_redo = EditorNode::get_singleton()->get_undo_redo();
-    undo_redo->create_action_ui(TTR("Gradient Edited"));
+    undo_redo->create_action(TTR("Gradient Edited"));
     undo_redo->add_do_method(gradient.get(), "set_offsets", Variant::from(get_offsets()));
     undo_redo->add_do_method(gradient.get(), "set_colors", Variant::from(get_colors()));
     undo_redo->add_undo_method(gradient.get(), "set_offsets", Variant::from(gradient->get_offsets()));

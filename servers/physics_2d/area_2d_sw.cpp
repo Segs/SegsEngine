@@ -235,7 +235,7 @@ void Area2DSW::call_queries() {
             res[3] = iter->first.body_shape;
             res[4] = iter->first.area_shape;
 
-            iter = monitored_bodies.erase(iter);
+            iter = monitored_areas.erase(iter);
             Callable::CallError ce;
             obj->call(area_monitor_callback_method, (const Variant **)resptr, 5, ce);
         }

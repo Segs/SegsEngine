@@ -1223,10 +1223,8 @@ StringName EditorExportPlatform::test_etc2() const {
     bool driver_fallback = ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2");
     bool etc_supported = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc");
     bool etc2_supported = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2");
-
-    if (driver == "GLES2" && !etc_supported) {
-        return TTR("Target platform requires 'ETC' texture compression for GLES2. Enable 'Import Etc' in Project Settings.");
-    } else if (driver == "GLES3") {
+    assert(driver != "GLES2");
+    if (driver == "GLES3") {
         String err;
         if (!etc2_supported) {
             err += TTR("Target platform requires 'ETC2' texture compression for GLES3. Enable 'Import Etc 2' in Project Settings.");

@@ -612,7 +612,7 @@ void RenameDialog::rename() {
 
     if (undo_redo && !to_rename.empty()) {
 
-        undo_redo->create_action_ui(TTR("Batch Rename"));
+        undo_redo->create_action(TTR("Batch Rename"));
 
         // Make sure to iterate reversed so that child nodes will find parents.
         for (int i = to_rename.size() - 1; i >= 0; --i) {

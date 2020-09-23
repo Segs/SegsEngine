@@ -49,6 +49,7 @@ struct UndoRedo::PrivateData
     struct Operation {
         enum Type : int8_t {
             TYPE_METHOD,
+            TYPE_LAMBDA,
             TYPE_PROPERTY,
             TYPE_REFERENCE
         };
@@ -56,6 +57,7 @@ struct UndoRedo::PrivateData
         Ref<Resource> resref;
         ObjectID object;
         StringName name;
+        eastl::function<void()> m_func;
         Variant args[VARIANT_ARG_MAX];
         Type type;
     };
@@ -177,6 +179,13 @@ struct UndoRedo::PrivateData
                 case Operation::TYPE_REFERENCE: {
                     //do nothing
                 } break;
+                case Operation::TYPE_LAMBDA: {
+
+                    op.m_func();
+                    Object_set_edited(obj, true);
+                    if(method_callback)
+                      ERR_PRINT("Cannot pass lambda functions to method observer callback.");
+                }
             }
         }
     }
@@ -241,6 +250,26 @@ struct UndoRedo::PrivateData
             do_op.args[i] = *argptr[i];
         }
         actions[current_action + 1].do_ops.push_back(do_op);
+    }
+    void add_do_method(eastl::function<void()> f,ObjectID owner) {
+        Operation do_op;
+        do_op.type = Operation::TYPE_METHOD;
+        do_op.m_func = eastl::move(f);
+        do_op.object = owner;
+        actions[current_action + 1].do_ops.emplace_back(eastl::move(do_op));
+    }
+    void add_undo_method(eastl::function<void()> f, ObjectID owner) {
+
+        // No undo if the merge mode is MERGE_ENDS
+        if (merge_mode == MERGE_ENDS)
+            return;
+
+        Operation undo_op;
+        undo_op.type = Operation::TYPE_LAMBDA;
+        undo_op.m_func = eastl::move(f);
+        undo_op.object = owner;
+
+        actions[current_action + 1].undo_ops.emplace_back(eastl::move(undo_op));
     }
     void add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
@@ -326,7 +355,7 @@ struct UndoRedo::PrivateData
         redo(); // perform action
         committing--;
         if (callback && !actions.empty()) {
-            callback(callback_ud, actions[actions.size() - 1].name);
+            callback(callback_ud, actions.back().name);
         }
     }
     bool redo()
@@ -351,12 +380,20 @@ struct UndoRedo::PrivateData
     }
 };
 
-void UndoRedo::create_action_ui(const StringName &p_name, MergeMode p_mode) {
-    pimpl->create_action(p_name,p_mode);
-}
 void UndoRedo::create_action(StringView p_name, MergeMode p_mode) {
     pimpl->create_action(p_name,p_mode);
 }
+
+void UndoRedo::create_action_pair(StringView p_name, ObjectID owner, eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode) {
+    pimpl->create_action(p_name, p_mode);
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    pimpl->add_do_method(do_actions,owner);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    pimpl->add_undo_method(undo_actions,owner);
+
+}
+
 void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
     ERR_FAIL_COND(p_object == nullptr);
@@ -364,13 +401,13 @@ void UndoRedo::add_do_method(Object *p_object, const StringName &p_method, VARIA
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_do_method(p_object,p_method,VARIANT_ARG_PASS);
 }
-//void UndoRedo::add_do_method(Object *p_object, StringView p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND();
-//    ERR_FAIL_COND();
-//    ERR_FAIL_COND();
-//    pimpl->add_do_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
-//}
+void UndoRedo::add_do_method(eastl::function<void()> func,ObjectID owner) {
+
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    pimpl->add_do_method(func, owner);
+}
 
 void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VARIANT_ARG_DECLARE) {
 
@@ -379,13 +416,14 @@ void UndoRedo::add_undo_method(Object *p_object, const StringName &p_method, VAR
     ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
     pimpl->add_undo_method(p_object,p_method,VARIANT_ARG_PASS);
 }
-//void UndoRedo::add_undo_method(Object *p_object, StringView p_method, VARIANT_ARG_DECLARE) {
 
-//    ERR_FAIL_COND();
-//    ERR_FAIL_COND();
-//    ERR_FAIL_COND();
-//    pimpl->add_undo_method(p_object,StringName(p_method.data()),VARIANT_ARG_PASS);
-//}
+void UndoRedo::add_undo_method(eastl::function<void()> func, ObjectID owner) {
+
+    ERR_FAIL_COND(pimpl->action_level <= 0);
+    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    pimpl->add_undo_method(func,owner);
+}
+
 void UndoRedo::add_do_property(Object *p_object, StringView p_property, const Variant &p_value) {
 
     ERR_FAIL_COND(p_object == nullptr);

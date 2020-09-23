@@ -2846,7 +2846,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            undo_redo->create_action_ui(TTR("Align Transform with View"));
+            undo_redo->create_action(TTR("Align Transform with View"));
 
             for (Node *E : selection) {
 
@@ -2882,7 +2882,7 @@ void SpatialEditorViewport::_menu_option(int p_option) {
 
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
-            undo_redo->create_action_ui(TTR("Align Rotation with View"));
+            undo_redo->create_action(TTR("Align Rotation with View"));
             for (Node *E : selection) {
 
                 Node3D *sp = object_cast<Node3D>(E);
@@ -3696,7 +3696,7 @@ void SpatialEditorViewport::_perform_drop_data() {
 
     Vector<String> error_files;
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
+    editor_data->get_undo_redo().create_action(TTR("Create Node"));
 
     for (size_t i = 0; i < selected_files.size(); i++) {
         const String &path = selected_files[i];
@@ -3889,49 +3889,50 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     vbox->add_child(view_menu);
     view_menu->set_h_size_flags(0);
 
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/top_view"), VIEW_TOP);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/bottom_view"), VIEW_BOTTOM);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/left_view"), VIEW_LEFT);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/right_view"), VIEW_RIGHT);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/front_view"), VIEW_FRONT);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/rear_view"), VIEW_REAR);
-    view_menu->get_popup()->add_separator();
+    PopupMenu *view_popup = view_menu->get_popup();
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/top_view"), VIEW_TOP);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/bottom_view"), VIEW_BOTTOM);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/left_view"), VIEW_LEFT);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/right_view"), VIEW_RIGHT);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/front_view"), VIEW_FRONT);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/rear_view"), VIEW_REAR);
+    view_popup->add_separator();
     String switch_shortcut = " (" + ED_GET_SHORTCUT("spatial_editor/switch_perspective_orthogonal")->get_as_text() + ")";
-    view_menu->get_popup()->add_radio_check_item(TTR("Perspective") + switch_shortcut, VIEW_PERSPECTIVE);
-    view_menu->get_popup()->add_radio_check_item(TTR("Orthogonal") + switch_shortcut, VIEW_ORTHOGONAL);
-    view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_PERSPECTIVE), true);
-    view_menu->get_popup()->add_check_item(TTR("Auto Orthogonal Enabled"), VIEW_AUTO_ORTHOGONAL);
-    view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_AUTO_ORTHOGONAL), true);
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_lock_rotation", TTR("Lock View Rotation")), VIEW_LOCK_ROTATION);
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_normal", TTR("Display Normal")), VIEW_DISPLAY_NORMAL);
-    view_menu->get_popup()->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_wireframe", TTR("Display Wireframe")), VIEW_DISPLAY_WIREFRAME);
-    view_menu->get_popup()->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_overdraw", TTR("Display Overdraw")), VIEW_DISPLAY_OVERDRAW);
-    view_menu->get_popup()->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_unshaded", TTR("Display Unshaded")), VIEW_DISPLAY_SHADELESS);
-    view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_DISPLAY_NORMAL), true);
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_environment", TTR("View Environment")), VIEW_ENVIRONMENT);
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_gizmos", TTR("View Gizmos")), VIEW_GIZMOS);
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_information", TTR("View Information")), VIEW_INFORMATION);
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_fps", TTR("View FPS")), VIEW_FPS);
-    view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_ENVIRONMENT), true);
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_half_resolution", TTR("Half Resolution")), VIEW_HALF_RESOLUTION);
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_listener", TTR("Audio Listener3D")), VIEW_AUDIO_LISTENER);
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_doppler", TTR("Enable Doppler")), VIEW_AUDIO_DOPPLER);
-    view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_GIZMOS), true);
+    view_popup->add_radio_check_item(TTR("Perspective") + switch_shortcut, VIEW_PERSPECTIVE);
+    view_popup->add_radio_check_item(TTR("Orthogonal") + switch_shortcut, VIEW_ORTHOGONAL);
+    view_popup->set_item_checked(view_popup->get_item_index(VIEW_PERSPECTIVE), true);
+    view_popup->add_check_item(TTR("Auto Orthogonal Enabled"), VIEW_AUTO_ORTHOGONAL);
+    view_popup->set_item_checked(view_popup->get_item_index(VIEW_AUTO_ORTHOGONAL), true);
+    view_popup->add_separator();
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_lock_rotation", TTR("Lock View Rotation")), VIEW_LOCK_ROTATION);
+    view_popup->add_separator();
+    view_popup->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_normal", TTR("Display Normal")), VIEW_DISPLAY_NORMAL);
+    view_popup->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_wireframe", TTR("Display Wireframe")), VIEW_DISPLAY_WIREFRAME);
+    view_popup->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_overdraw", TTR("Display Overdraw")), VIEW_DISPLAY_OVERDRAW);
+    view_popup->add_radio_check_shortcut(ED_SHORTCUT("spatial_editor/view_display_unshaded", TTR("Display Unshaded")), VIEW_DISPLAY_SHADELESS);
+    view_popup->set_item_checked(view_popup->get_item_index(VIEW_DISPLAY_NORMAL), true);
+    view_popup->add_separator();
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_environment", TTR("View Environment")), VIEW_ENVIRONMENT);
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_gizmos", TTR("View Gizmos")), VIEW_GIZMOS);
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_information", TTR("View Information")), VIEW_INFORMATION);
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_fps", TTR("View FPS")), VIEW_FPS);
+    view_popup->set_item_checked(view_popup->get_item_index(VIEW_ENVIRONMENT), true);
+    view_popup->add_separator();
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_half_resolution", TTR("Half Resolution")), VIEW_HALF_RESOLUTION);
+    view_popup->add_separator();
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_listener", TTR("Audio Listener3D")), VIEW_AUDIO_LISTENER);
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_audio_doppler", TTR("Enable Doppler")), VIEW_AUDIO_DOPPLER);
+    view_popup->set_item_checked(view_popup->get_item_index(VIEW_GIZMOS), true);
 
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_cinematic_preview", TTR("Cinematic Preview")), VIEW_CINEMATIC_PREVIEW);
+    view_popup->add_separator();
+    view_popup->add_check_shortcut(ED_SHORTCUT("spatial_editor/view_cinematic_preview", TTR("Cinematic Preview")), VIEW_CINEMATIC_PREVIEW);
 
-    view_menu->get_popup()->add_separator();
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/focus_origin"), VIEW_CENTER_TO_ORIGIN);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/focus_selection"), VIEW_CENTER_TO_SELECTION);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/align_transform_with_view"), VIEW_ALIGN_TRANSFORM_WITH_VIEW);
-    view_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("spatial_editor/align_rotation_with_view"), VIEW_ALIGN_ROTATION_WITH_VIEW);
-    view_menu->get_popup()->connect("id_pressed", this, "_menu_option");
+    view_popup->add_separator();
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/focus_origin"), VIEW_CENTER_TO_ORIGIN);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/focus_selection"), VIEW_CENTER_TO_SELECTION);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/align_transform_with_view"), VIEW_ALIGN_TRANSFORM_WITH_VIEW);
+    view_popup->add_shortcut(ED_GET_SHORTCUT("spatial_editor/align_rotation_with_view"), VIEW_ALIGN_ROTATION_WITH_VIEW);
+    view_popup->connect("id_pressed", this, "_menu_option");
 
     view_menu->set_disable_shortcuts(true);
 
@@ -4018,7 +4019,7 @@ SpatialEditorViewport::SpatialEditorViewport(SpatialEditor *p_spatial_editor, Ed
     selection_menu->connect("popup_hide", this, "_selection_menu_hide");
 
     if (p_index == 0) {
-        view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_AUDIO_LISTENER), true);
+        view_popup->set_item_checked(view_popup->get_item_index(VIEW_AUDIO_LISTENER), true);
         viewport->set_as_audio_listener(true);
     }
 
@@ -4720,7 +4721,7 @@ void SpatialEditor::_xform_dialog_action() {
     t.basis.rotate(rotate);
     t.origin = translate;
 
-    undo_redo->create_action_ui(TTR("XForm Dialog"));
+    undo_redo->create_action(TTR("XForm Dialog"));
 
     const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -4974,7 +4975,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
             snap_selected_nodes_to_floor();
         } break;
         case MENU_LOCK_SELECTED: {
-            undo_redo->create_action_ui(TTR("Lock Selected"));
+            undo_redo->create_action(TTR("Lock Selected"));
 
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -4998,7 +4999,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
             undo_redo->commit_action();
         } break;
         case MENU_UNLOCK_SELECTED: {
-            undo_redo->create_action_ui(TTR("Unlock Selected"));
+            undo_redo->create_action(TTR("Unlock Selected"));
 
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -5022,7 +5023,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
             undo_redo->commit_action();
         } break;
         case MENU_GROUP_SELECTED: {
-            undo_redo->create_action_ui(TTR("Group Selected"));
+            undo_redo->create_action(TTR("Group Selected"));
 
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
@@ -5046,7 +5047,7 @@ void SpatialEditor::_menu_item_pressed(int p_option) {
             undo_redo->commit_action();
         } break;
         case MENU_UNGROUP_SELECTED: {
-            undo_redo->create_action_ui(TTR("Ungroup Selected"));
+            undo_redo->create_action(TTR("Ungroup Selected"));
             const Vector<Node *> &selection = editor_selection->get_selected_node_list();
 
             for (Node * E : selection) {
@@ -5649,7 +5650,7 @@ void SpatialEditor::snap_selected_nodes_to_floor() {
         }
 
         if (snapped_to_floor) {
-            undo_redo->create_action_ui(TTR("Snap Nodes To Floor"));
+            undo_redo->create_action(TTR("Snap Nodes To Floor"));
 
             // Perform snapping if at least one node can be snapped
             for (int i = 0; i < keys.size(); i++) {

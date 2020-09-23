@@ -105,7 +105,7 @@ void CollisionPolygon3DEditor::_menu_option(int p_option) {
 
 void CollisionPolygon3DEditor::_wip_close() {
 
-    undo_redo->create_action_ui(TTR("Create Polygon3D"));
+    undo_redo->create_action(TTR("Create Polygon3D"));
     undo_redo->add_undo_method(node, "set_polygon", node->call_va("get_polygon"));
     undo_redo->add_do_method(node, "set_polygon", Variant::from(wip));
     undo_redo->add_do_method(this, "_polygon_draw");
@@ -203,7 +203,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                             if (poly.size() < 3) {
 
-                                undo_redo->create_action_ui(TTR("Edit Poly"));
+                                undo_redo->create_action(TTR("Edit Poly"));
                                 undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                                 poly.push_back(cpoint);
                                 undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
@@ -287,7 +287,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                             ERR_FAIL_INDEX_V(edited_point, poly.size(), false);
                             poly[edited_point] = edited_point_pos;
-                            undo_redo->create_action_ui(TTR("Edit Poly"));
+                            undo_redo->create_action(TTR("Edit Poly"));
                             undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                             undo_redo->add_undo_method(node, "set_polygon", Variant::from(pre_move_edit));
                             undo_redo->add_do_method(this, "_polygon_draw");
@@ -318,7 +318,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                     if (closest_idx >= 0) {
 
-                        undo_redo->create_action_ui(TTR("Edit Poly (Remove Point)"));
+                        undo_redo->create_action(TTR("Edit Poly (Remove Point)"));
                         undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                         poly.erase_at(closest_idx);
                         undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));

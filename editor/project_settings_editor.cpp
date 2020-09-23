@@ -219,7 +219,7 @@ void ProjectSettingsEditor::_action_edited() {
         Dictionary action = ProjectSettings::get_singleton()->get(add_at);
 
         setting = true;
-        undo_redo->create_action_ui(TTR("Rename Input Action Event"));
+        undo_redo->create_action(TTR("Rename Input Action Event"));
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "clear", add_at);
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", action_prop, action);
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", action_prop, order);
@@ -241,7 +241,7 @@ void ProjectSettingsEditor::_action_edited() {
         Dictionary new_action = old_action.duplicate();
         new_action["deadzone"] = ti->get_range(1);
 
-        undo_redo->create_action_ui(TTR("Change Action deadzone"));
+        undo_redo->create_action(TTR("Change Action deadzone"));
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, new_action);
         undo_redo->add_do_method(this, "_settings_changed");
         undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", name, old_action);
@@ -331,7 +331,7 @@ void ProjectSettingsEditor::_device_input_add() {
     }
     action["events"] = events;
 
-    undo_redo->create_action_ui(TTR("Add Input Action Event"));
+    undo_redo->create_action(TTR("Add Input Action Event"));
     undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, action);
     undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", name, old_val);
     undo_redo->add_do_method(this, "_update_actions");
@@ -393,7 +393,7 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
     }
     action["events"] = events;
 
-    undo_redo->create_action_ui(TTR("Add Input Action Event"));
+    undo_redo->create_action(TTR("Add Input Action Event"));
     undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, action);
     undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", name, old_val);
     undo_redo->add_do_method(this, "_update_actions");
@@ -614,7 +614,7 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
             Dictionary old_val = ProjectSettings::get_singleton()->get(name);
             int order = ProjectSettings::get_singleton()->get_order(name);
 
-            undo_redo->create_action_ui(TTR("Erase Input Action"));
+            undo_redo->create_action(TTR("Erase Input Action"));
             undo_redo->add_do_method(ProjectSettings::get_singleton(), "clear", name);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", name, old_val);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -636,7 +636,7 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
             events.remove(idx);
             action["events"] = events;
 
-            undo_redo->create_action_ui(TTR("Erase Input Action Event"));
+            undo_redo->create_action(TTR("Erase Input Action Event"));
             undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, action);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set", name, old_val);
             undo_redo->add_do_method(this, "_update_actions");
@@ -851,7 +851,7 @@ void ProjectSettingsEditor::_item_add() {
 
     StringName name(catname + "/" + propname);
 
-    undo_redo->create_action_ui(TTR("Add Global Property"));
+    undo_redo->create_action(TTR("Add Global Property"));
 
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, value);
 
@@ -894,7 +894,7 @@ void ProjectSettingsEditor::_item_del() {
         return;
     }
 
-    undo_redo->create_action_ui(TTR("Delete Item"));
+    undo_redo->create_action(TTR("Delete Item"));
 
     Variant value = ProjectSettings::get_singleton()->get(property);
     int order = ProjectSettings::get_singleton()->get_order(property);
@@ -953,7 +953,7 @@ void ProjectSettingsEditor::_action_add() {
     action["events"] = Array();
     action["deadzone"] = 0.5f;
     String name = "input/" + action_name->get_text();
-    undo_redo->create_action_ui(TTR("Add Input Action"));
+    undo_redo->create_action(TTR("Add Input Action"));
     undo_redo->add_do_method(ProjectSettings::get_singleton(), "set", name, action);
     undo_redo->add_undo_method(ProjectSettings::get_singleton(), "clear", name);
     undo_redo->add_do_method(this, "_update_actions");
@@ -1107,7 +1107,7 @@ void ProjectSettingsEditor::drop_data_fw(const Point2 &p_point, const Variant &p
     bool is_below = target_order > old_order;
     TreeItem *iterator = is_below ? selected->get_next() : selected->get_prev();
 
-    undo_redo->create_action_ui(TTR("Moved Input Action Event"));
+    undo_redo->create_action(TTR("Moved Input Action Event"));
     while (iterator != target) {
 
         StringName iterator_name("input/" + iterator->get_text(0));
@@ -1139,7 +1139,7 @@ void ProjectSettingsEditor::_copy_to_platform(int p_which) {
 
     StringName property(PathUtils::plus_file(globals_editor->get_current_section(),path));
 
-    undo_redo->create_action_ui(TTR("Override for Feature"));
+    undo_redo->create_action(TTR("Override for Feature"));
 
     Variant value = ProjectSettings::get_singleton()->get(property);
     if (StringUtils::contains(property,'.') ) { //overwriting overwrite, keep overwrite
@@ -1181,7 +1181,7 @@ void ProjectSettingsEditor::_translation_add(StringView p_path) {
     }
 
     translations.push_back(String(p_path));
-    undo_redo->create_action_ui(TTR("Add Translation"));
+    undo_redo->create_action(TTR("Add Translation"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translations", translations);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translations", ProjectSettings::get_singleton()->get("locale/translations"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1209,7 +1209,7 @@ void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, in
 
     translations.remove(idx);
 
-    undo_redo->create_action_ui(TTR("Remove Translation"));
+    undo_redo->create_action(TTR("Remove Translation"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translations", translations);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translations", ProjectSettings::get_singleton()->get("locale/translations"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1239,7 +1239,7 @@ void ProjectSettingsEditor::_translation_res_add(StringView p_path) {
 
     remaps[p_path] = PoolStringArray();
 
-    undo_redo->create_action_ui(TTR("Add Remapped Path"));
+    undo_redo->create_action(TTR("Add Remapped Path"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translation_remaps", remaps);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translation_remaps", prev);
     undo_redo->add_do_method(this, "_update_translations");
@@ -1269,7 +1269,7 @@ void ProjectSettingsEditor::_translation_res_option_add(StringView p_path) {
     r.push_back(String(p_path) + ":" + "en");
     remaps[key] = r;
 
-    undo_redo->create_action_ui(TTR("Resource Remap Add Remap"));
+    undo_redo->create_action(TTR("Resource Remap Add Remap"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translation_remaps", remaps);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translation_remaps", ProjectSettings::get_singleton()->get("locale/translation_remaps"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1322,7 +1322,7 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     remaps[key] = r;
 
     updating_translations = true;
-    undo_redo->create_action_ui(TTR("Change Resource Remap Language"));
+    undo_redo->create_action(TTR("Change Resource Remap Language"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translation_remaps", remaps);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translation_remaps", ProjectSettings::get_singleton()->get("locale/translation_remaps"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1350,7 +1350,7 @@ void ProjectSettingsEditor::_translation_res_delete(Object *p_item, int p_column
 
     remaps.erase(key);
 
-    undo_redo->create_action_ui(TTR("Remove Resource Remap"));
+    undo_redo->create_action(TTR("Remove Resource Remap"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translation_remaps", remaps);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translation_remaps", ProjectSettings::get_singleton()->get("locale/translation_remaps"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1384,7 +1384,7 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
     r.remove(idx);
     remaps[key] = r;
 
-    undo_redo->create_action_ui(TTR("Remove Resource Remap Option"));
+    undo_redo->create_action(TTR("Remove Resource Remap Option"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/translation_remaps", remaps);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/translation_remaps", ProjectSettings::get_singleton()->get("locale/translation_remaps"));
     undo_redo->add_do_method(this, "_update_translations");
@@ -1433,7 +1433,7 @@ void ProjectSettingsEditor::_translation_filter_option_changed() {
 
     f_locales = f_locales.sort();
 
-    undo_redo->create_action_ui(TTR("Changed Locale Filter"));
+    undo_redo->create_action(TTR("Changed Locale Filter"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/locale_filter", f_locales_all);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/locale_filter", prev);
     undo_redo->add_do_method(this, "_update_translations");
@@ -1466,7 +1466,7 @@ void ProjectSettingsEditor::_translation_filter_mode_changed(int p_mode) {
         f_locales_all.append(Array());
     }
 
-    undo_redo->create_action_ui(TTR("Changed Locale Filter Mode"));
+    undo_redo->create_action(TTR("Changed Locale Filter Mode"));
     undo_redo->add_do_property(ProjectSettings::get_singleton(), "locale/locale_filter", f_locales_all);
     undo_redo->add_undo_property(ProjectSettings::get_singleton(), "locale/locale_filter", prev);
     undo_redo->add_do_method(this, "_update_translations");

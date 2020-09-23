@@ -97,7 +97,7 @@ struct ResourceManagerPriv {
             return res;
         }
         ERR_FAIL_COND_V_MSG(found, RES(),
-                    String("Failed loading resource: %s") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
+                    String("Failed loading resource: ") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
 
     #ifdef TOOLS_ENABLED
         FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);

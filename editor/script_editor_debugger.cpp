@@ -1781,23 +1781,22 @@ void ScriptEditorDebugger::_method_changed(Object *p_base, const StringName &p_n
 
     Resource *res = object_cast<Resource>(p_base);
 
-    if (res && !res->get_path().empty()) {
+    if (!res || res->get_path().empty())
+      return;
 
-        String respath = res->get_path();
-        int pathid = _get_res_path_cache(respath);
+    String respath = res->get_path();
+    int pathid = _get_res_path_cache(respath);
 
-        Array msg;
-        msg.push_back("live_res_call");
-        msg.push_back(pathid);
-        msg.push_back(p_name);
-        for (const Variant *i : argptr) {
-            //no pointers, sorry
-            msg.push_back(*i);
-        }
-        ppeer->put_var(msg);
-
-        return;
+    Array msg;
+    msg.push_back("live_res_call");
+    msg.push_back(pathid);
+    msg.push_back(p_name);
+    for (const Variant *i : argptr) {
+      //no pointers, sorry
+      msg.push_back(*i);
     }
+    ppeer->put_var(msg);
+
 }
 
 void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p_property, const Variant &p_value) {
@@ -1838,34 +1837,33 @@ void ScriptEditorDebugger::_property_changed(Object *p_base, const StringName &p
 
     Resource *res = object_cast<Resource>(p_base);
 
-    if (res && !res->get_path().empty()) {
+    if (!res || res->get_path().empty())
+      return;
 
-        String respath = res->get_path();
-        int pathid = _get_res_path_cache(respath);
+    const String respath = res->get_path();
+    int pathid = _get_res_path_cache(respath);
 
-        if (p_value.is_ref()) {
-            Ref<Resource> res2(p_value);
-            if (res2 && !res2->get_path().empty()) {
+    if (p_value.is_ref()) {
+      Ref<Resource> res2(p_value);
+      if (res2 && !res2->get_path().empty()) {
 
-                Array msg;
-                msg.push_back("live_res_prop_res");
-                msg.push_back(pathid);
-                msg.push_back(p_property);
-                msg.push_back(res2->get_path());
-                ppeer->put_var(msg);
-            }
-        } else {
+        Array msg;
+        msg.push_back("live_res_prop_res");
+        msg.push_back(pathid);
+        msg.push_back(p_property);
+        msg.push_back(res2->get_path());
+        ppeer->put_var(msg);
+      }
+    } else {
 
-            Array msg;
-            msg.push_back("live_res_prop");
-            msg.push_back(pathid);
-            msg.push_back(p_property);
-            msg.push_back(p_value);
-            ppeer->put_var(msg);
-        }
-
-        return;
+      Array msg;
+      msg.push_back("live_res_prop");
+      msg.push_back(pathid);
+      msg.push_back(p_property);
+      msg.push_back(p_value);
+      ppeer->put_var(msg);
     }
+
 }
 
 void ScriptEditorDebugger::_method_changeds(void *p_ud, Object *p_base, const StringName &p_name, VARIANT_ARG_DECLARE) {

@@ -180,7 +180,7 @@ void TileMapEditor::_menu_option(int p_option) {
         } break;
         case OPTION_FIX_INVALID: {
 
-            undo_redo->create_action_ui(TTR("Fix Invalid Tiles"));
+            undo_redo->create_action(TTR("Fix Invalid Tiles"));
             undo_redo->add_undo_method(node, "set", "tile_data", node->get("tile_data"));
             node->fix_invalid_tiles();
             undo_redo->add_do_method(node, "set", "tile_data", node->get("tile_data"));
@@ -1245,7 +1245,7 @@ bool TileMapEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     if (points.size() == 0)
                         return false;
 
-                    undo_redo->create_action_ui(TTR("Bucket Fill"));
+                    undo_redo->create_action(TTR("Bucket Fill"));
 
                     undo_redo->add_do_method(this, "_erase_points", Variant(points));
                     undo_redo->add_undo_method(this, "_fill_points", Variant(points), pop);

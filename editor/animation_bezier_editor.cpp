@@ -768,7 +768,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action_ui(TTR("Add Bezier Point"));
+            undo_redo->create_action(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -833,7 +833,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (moving_handle != 0 && mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        undo_redo->create_action_ui(TTR("Move Bezier Points"));
+        undo_redo->create_action(TTR("Move Bezier Points"));
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, moving_handle_left);
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_out_handle", track, moving_handle_key, moving_handle_right);
         undo_redo->add_undo_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, animation->bezier_track_get_key_in_handle(track, moving_handle_key));
@@ -849,7 +849,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
         if (moving_selection) {
             //combit it
 
-            undo_redo->create_action_ui(TTR("Move Bezier Points"));
+            undo_redo->create_action(TTR("Move Bezier Points"));
 
             Vector<AnimMoveRestore> to_restore;
             // 1-remove the keys
@@ -1055,7 +1055,7 @@ void AnimationBezierTrackEdit::_menu_selected(int p_index) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action_ui(TTR("Add Bezier Point"));
+            undo_redo->create_action(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -1083,7 +1083,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
             top_time = t;
     }
 
-    undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
+    undo_redo->create_action(TTR("Anim Duplicate Keys"));
 
     Vector<Pair<int, float> > new_selection_values;
     new_selection_values.reserve(selection.size());
@@ -1128,7 +1128,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
 void AnimationBezierTrackEdit::delete_selection() {
     if (!selection.empty()) {
-        undo_redo->create_action_ui(TTR("Anim Delete Keys"));
+        undo_redo->create_action(TTR("Anim Delete Keys"));
 
         for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 

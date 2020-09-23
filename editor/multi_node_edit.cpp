@@ -55,7 +55,7 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
 
     UndoRedo *ur = EditorNode::get_undo_redo();
 
-    ur->create_action_ui(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
+    ur->create_action(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
     for (const NodePath &E : nodes) {
 
         if (!es->has_node(E))

@@ -240,7 +240,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
         return;
     }
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Instance Scene(s)"));
+    editor_data->get_undo_redo().create_action(TTR("Instance Scene(s)"));
 
     for (int i = 0; i < instances.size(); i++) {
 
@@ -281,7 +281,7 @@ void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
     }
 
     UndoRedo *undo_redo = editor->get_undo_redo();
-    undo_redo->create_action_ui(TTR("Replace with Branch Scene"));
+    undo_redo->create_action(TTR("Replace with Branch Scene"));
     Node *parent = base->get_parent();
     int pos = base->get_index();
     undo_redo->add_do_method(parent, "remove_child", Variant(base));
@@ -476,7 +476,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (selection.empty())
                 return;
 
-            editor_data->get_undo_redo().create_action_ui(TTR("Detach Script"));
+            editor_data->get_undo_redo().create_action(TTR("Detach Script"));
             editor_data->get_undo_redo().add_do_method(editor, "push_item", Variant(Ref<Script>())); //TODO: SEGS: verify replacement of ((Script *)nullptr) here
 
             for (int i = 0; i < selection.size(); i++) {
@@ -540,8 +540,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (!common_parent || (MOVING_DOWN && highest_id >= common_parent->get_child_count() - MOVING_DOWN) || (MOVING_UP && lowest_id == 0))
                 break; // one or more nodes can not be moved
 
-            if (selection.size() == 1) editor_data->get_undo_redo().create_action_ui(TTR("Move Node In Parent"));
-            if (selection.size() > 1) editor_data->get_undo_redo().create_action_ui(TTR("Move Nodes In Parent"));
+            if (selection.size() == 1) editor_data->get_undo_redo().create_action(TTR("Move Node In Parent"));
+            if (selection.size() > 1) editor_data->get_undo_redo().create_action(TTR("Move Nodes In Parent"));
 
             for (int i = 0; i < selection.size(); i++) {
                 Node *top_node = selection[i];
@@ -584,7 +584,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             if (selection.empty())
                 break;
 
-            editor_data->get_undo_redo().create_action_ui(TTR("Duplicate Node(s)"));
+            editor_data->get_undo_redo().create_action(TTR("Duplicate Node(s)"));
             editor_data->get_undo_redo().add_do_method(editor_selection, "clear");
 
             Node *dupsingle = nullptr;
@@ -705,7 +705,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 return;
             }
 
-            editor_data->get_undo_redo().create_action_ui(TTR("Make node as Root"));
+            editor_data->get_undo_redo().create_action(TTR("Make node as Root"));
             editor_data->get_undo_redo().add_do_method(node->get_parent(), "remove_child", Variant(node));
             editor_data->get_undo_redo().add_do_method(editor, "set_edited_scene", Variant(node));
             editor_data->get_undo_redo().add_do_method(node, "add_child", Variant(root));
@@ -944,7 +944,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                         break;
 
                     ERR_FAIL_COND(node->get_filename().empty());
-                    undo_redo->create_action_ui(TTR("Make Local"));
+                    undo_redo->create_action(TTR("Make Local"));
                     undo_redo->add_do_method(node, "set_filename", "");
                     undo_redo->add_undo_method(node, "set_filename", node->get_filename());
                     _node_replace_owner(node, node, root);
@@ -1033,7 +1033,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                 }
             }
             UndoRedo &ur(editor_data->get_undo_redo());
-            ur.create_action_ui(TTR("New Scene Root"));
+            ur.create_action(TTR("New Scene Root"));
             ur.add_do_method(editor, "set_edited_scene", Variant(new_node));
             ur.add_do_method(scene_tree, "update_tree");
             ur.add_do_reference(new_node);
@@ -1582,7 +1582,7 @@ void SceneTreeDock::_do_reparent(Node *p_new_parent, int p_position_in_parent, V
     // Sort by tree order, so re-adding is easy.
     eastl::sort(p_nodes.begin(),p_nodes.end(),Node::Comparator());
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Reparent Node"));
+    editor_data->get_undo_redo().create_action(TTR("Reparent Node"));
 
     Vector<Pair<NodePath, NodePath> > path_renames;
     Vector<StringName> former_names;
@@ -1752,7 +1752,7 @@ void SceneTreeDock::_script_created(const Ref<Script>& p_script) {
     if (selected.empty())
         return;
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Attach Script"));
+    editor_data->get_undo_redo().create_action(TTR("Attach Script"));
     for (Node * E : selected) {
 
         Ref<Script> existing(refFromRefPtr<Script>(E->get_script()));
@@ -1818,7 +1818,7 @@ void SceneTreeDock::_delete_confirm() {
 
     editor->get_editor_plugins_over()->make_visible(false);
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Remove Node(s)"));
+    editor_data->get_undo_redo().create_action(TTR("Remove Node(s)"));
 
     bool entire_scene = false;
 
@@ -1962,7 +1962,7 @@ void SceneTreeDock::_do_create(Node *p_parent) {
     Node *child = object_cast<Node>(c);
     ERR_FAIL_COND(!child);
 
-    editor_data->get_undo_redo().create_action_ui(TTR("Create Node"));
+    editor_data->get_undo_redo().create_action(TTR("Create Node"));
 
     if (edited_scene) {
 
@@ -2028,7 +2028,7 @@ void SceneTreeDock::_create() {
         ERR_FAIL_COND(selection.empty());
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-        ur->create_action_ui(TTR("Change type of node(s)"));
+        ur->create_action(TTR("Change type of node(s)"));
 
         for (Node *n : selection) {
             ERR_FAIL_COND(!n);
@@ -2351,7 +2351,7 @@ void SceneTreeDock::_script_dropped(StringView p_file, const NodePath& p_to) {
     ERR_FAIL_COND(not scr);
     Node *n = get_node(p_to);
     if (n) {
-        editor_data->get_undo_redo().create_action_ui(TTR("Attach Script"));
+        editor_data->get_undo_redo().create_action(TTR("Attach Script"));
         editor_data->get_undo_redo().add_do_method(n, "set_script", scr);
         editor_data->get_undo_redo().add_undo_method(n, "set_script", Variant(n->get_script()));
         editor_data->get_undo_redo().add_do_method(this, "_update_script_button");

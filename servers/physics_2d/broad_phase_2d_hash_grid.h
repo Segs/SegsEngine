@@ -28,170 +28,164 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef BROAD_PHASE_2D_HASH_GRID_H
-#define BROAD_PHASE_2D_HASH_GRID_H
+#pragma once
 
 #include "broad_phase_2d_sw.h"
 #include "core/hash_map.h"
 
 class BroadPhase2DHashGrid : public BroadPhase2DSW {
+    struct PairData {
+        bool colliding;
+        int rc;
+        void *ud;
+        PairData() {
+            colliding = false;
+            rc = 1;
+            ud = nullptr;
+        }
+    };
 
-	struct PairData {
-
-		bool colliding;
-		int rc;
-		void *ud;
-		PairData() {
-			colliding = false;
-			rc = 1;
-			ud = nullptr;
-		}
-	};
-
-	struct Element {
-
-		ID self;
-		CollisionObject2DSW *owner;
-		bool _static;
-		Rect2 aabb;
-		int subindex;
-		uint64_t pass;
+    struct Element {
+        ID self;
+        CollisionObject2DSW *owner;
+        bool _static;
+        Rect2 aabb;
+        int subindex;
+        uint64_t pass;
         HashMap<Element *, PairData *> paired;
-	};
+    };
 
-	struct RC {
+    struct RC {
+        int ref;
 
-		int ref;
+        _FORCE_INLINE_ int inc() {
+            ref++;
+            return ref;
+        }
+        _FORCE_INLINE_ int dec() {
+            ref--;
+            return ref;
+        }
 
-		_FORCE_INLINE_ int inc() {
-			ref++;
-			return ref;
-		}
-		_FORCE_INLINE_ int dec() {
-			ref--;
-			return ref;
-		}
-
-		_FORCE_INLINE_ RC() {
-			ref = 0;
-		}
-	};
+        _FORCE_INLINE_ RC() {
+            ref = 0;
+        }
+    };
 
     HashMap<ID, Element> element_map;
     HashMap<Element *, RC> large_elements;
 
-	ID current;
+      ID current;
 
-	uint64_t pass;
+      uint64_t pass;
 
-	struct PairKey {
+      struct PairKey {
+          union {
+              struct {
+                  ID a;
+                  ID b;
+              };
+              uint64_t key;
+          };
 
-		union {
-			struct {
-				ID a;
-				ID b;
-			};
-			uint64_t key;
-		};
+      bool operator==(PairKey p_key) const {
+          return key == p_key.key;
+      }
+      bool operator<(PairKey p_key) const {
+          return key < p_key.key;
+      }
+      // for default eastl::hash impl
+      operator size_t() const { return eastl::hash<uint64_t>()(key); }
 
-        bool operator==(PairKey p_key) const {
-            return key == p_key.key;
-        }
-        // for default eastl::hash impl
-        operator size_t() const { return eastl::hash<uint64_t>()(key); }
+      constexpr PairKey() : key(0) { }
 
-        constexpr PairKey() : key(0) { }
+          PairKey(ID p_a, ID p_b) {
+              if (p_a > p_b) {
+                  a = p_b;
+                  b = p_a;
+              } else {
+                  a = p_a;
+                  b = p_b;
+              }
+          }
+      };
 
-		PairKey(ID p_a, ID p_b) {
-			if (p_a > p_b) {
-				a = p_b;
-				b = p_a;
-			} else {
-				a = p_a;
-				b = p_b;
-			}
-		}
-	};
+      HashMap<PairKey, PairData> pair_map;
 
-    HashMap<PairKey, PairData> pair_map;
+      int cell_size;
+      int large_object_min_surface;
 
-	int cell_size;
-	int large_object_min_surface;
+      PairCallback pair_callback;
+      void *pair_userdata;
+      UnpairCallback unpair_callback;
+      void *unpair_userdata;
 
-	PairCallback pair_callback;
-	void *pair_userdata;
-	UnpairCallback unpair_callback;
-	void *unpair_userdata;
+      void _enter_grid(Element *p_elem, const Rect2 &p_rect, bool p_static);
+      void _exit_grid(Element *p_elem, const Rect2 &p_rect, bool p_static);
+      template <bool use_aabb, bool use_segment>
+      _FORCE_INLINE_ void _cull(const Point2i p_cell, const Rect2 &p_aabb, const Point2 &p_from, const Point2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices, int &index);
 
-	void _enter_grid(Element *p_elem, const Rect2 &p_rect, bool p_static);
-	void _exit_grid(Element *p_elem, const Rect2 &p_rect, bool p_static);
-	template <bool use_aabb, bool use_segment>
-	_FORCE_INLINE_ void _cull(const Point2i p_cell, const Rect2 &p_aabb, const Point2 &p_from, const Point2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices, int &index);
+      struct PosKey {
+          union {
+              struct {
+                  int32_t x;
+                  int32_t y;
+              };
+              uint64_t key;
+          };
 
-	struct PosKey {
+          _FORCE_INLINE_ uint32_t hash() const {
+              uint64_t k = key;
+              k = (~k) + (k << 18); // k = (k << 18) - k - 1;
+              k = k ^ (k >> 31);
+              k = k * 21; // k = (k + (k << 2)) + (k << 4);
+              k = k ^ (k >> 11);
+              k = k + (k << 6);
+              k = k ^ (k >> 22);
+              return k;
+          }
 
-		union {
-			struct {
-				int32_t x;
-				int32_t y;
-			};
-			uint64_t key;
-		};
+          bool operator==(const PosKey &p_key) const { return key == p_key.key; }
+          _FORCE_INLINE_ bool operator<(const PosKey &p_key) const {
+              return key < p_key.key;
+          }
+      };
 
-		_FORCE_INLINE_ uint32_t hash() const {
-			uint64_t k = key;
-			k = (~k) + (k << 18); // k = (k << 18) - k - 1;
-			k = k ^ (k >> 31);
-			k = k * 21; // k = (k + (k << 2)) + (k << 4);
-			k = k ^ (k >> 11);
-			k = k + (k << 6);
-			k = k ^ (k >> 22);
-			return k;
-		}
+      struct PosBin {
+          PosKey key;
+              HashMap<Element *, RC> object_set;
+              HashMap<Element *, RC> static_object_set;
+          PosBin *next;
+      };
 
-		bool operator==(const PosKey &p_key) const { return key == p_key.key; }
-		_FORCE_INLINE_ bool operator<(const PosKey &p_key) const {
-			return key < p_key.key;
-		}
-	};
+      uint32_t hash_table_size;
+      PosBin **hash_table;
 
-	struct PosBin {
-
-		PosKey key;
-        HashMap<Element *, RC> object_set;
-        HashMap<Element *, RC> static_object_set;
-		PosBin *next;
-	};
-
-	uint32_t hash_table_size;
-	PosBin **hash_table;
-
-	void _pair_attempt(Element *p_elem, Element *p_with);
-	void _unpair_attempt(Element *p_elem, Element *p_with);
-	void _check_motion(Element *p_elem);
+      void _pair_attempt(Element *p_elem, Element *p_with);
+      void _unpair_attempt(Element *p_elem, Element *p_with);
+      void _check_motion(Element *p_elem);
 
 public:
-	ID create(CollisionObject2DSW *p_object, int p_subindex = 0) override;
-	void move(ID p_id, const Rect2 &p_aabb) override;
-	void set_static(ID p_id, bool p_static) override;
-	void remove(ID p_id) override;
+    ID create(CollisionObject2DSW *p_object, int p_subindex = 0) override;
+    void move(ID p_id, const Rect2 &p_aabb) override;
+    void set_static(ID p_id, bool p_static) override;
+    void remove(ID p_id) override;
 
-	CollisionObject2DSW *get_object(ID p_id) const override;
-	bool is_static(ID p_id) const override;
-	int get_subindex(ID p_id) const override;
+    CollisionObject2DSW *get_object(ID p_id) const override;
+    bool is_static(ID p_id) const override;
+    int get_subindex(ID p_id) const override;
 
-	int cull_segment(const Vector2 &p_from, const Vector2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices = nullptr) override;
-	int cull_aabb(const Rect2 &p_aabb, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices = nullptr) override;
+    int cull_segment(const Vector2 &p_from, const Vector2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices = nullptr) override;
+    int cull_aabb(const Rect2 &p_aabb, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices = nullptr) override;
 
-	void set_pair_callback(PairCallback p_pair_callback, void *p_userdata) override;
-	void set_unpair_callback(UnpairCallback p_unpair_callback, void *p_userdata) override;
+    void set_pair_callback(PairCallback p_pair_callback, void *p_userdata) override;
+    void set_unpair_callback(UnpairCallback p_unpair_callback, void *p_userdata) override;
 
-	void update() override;
+    void update() override;
 
-	static BroadPhase2DSW *_create();
+    static BroadPhase2DSW *_create();
 
-	BroadPhase2DHashGrid();
-	~BroadPhase2DHashGrid() override;
+    BroadPhase2DHashGrid();
+    ~BroadPhase2DHashGrid() override;
 };
 
-#endif // BROAD_PHASE_2D_HASH_GRID_H

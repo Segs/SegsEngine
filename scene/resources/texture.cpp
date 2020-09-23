@@ -2193,11 +2193,8 @@ AnimatedTexture::AnimatedTexture() {
     oneshot = false;
     RenderingServer::get_singleton()->connect("frame_pre_draw", this, "_update_proxy");
 
-#ifndef NO_THREADS
     rw_lock = RWLock::create();
-#else
-    rw_lock = nullptr;
-#endif
+
 }
 
 AnimatedTexture::~AnimatedTexture() {

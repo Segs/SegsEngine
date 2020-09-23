@@ -135,7 +135,7 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
             const Variant &key = keys[index];
             UndoRedo *ur = EditorNode::get_undo_redo();
 
-            ur->create_action_ui(TTR("Change Dictionary Key"));
+            ur->create_action(TTR("Change Dictionary Key"));
             ur->add_do_method(this, "_set_key", key, p_value);
             ur->add_undo_method(this, "_set_key", p_value, key);
             ur->add_do_method(this, "_notif_changev", p_name);
@@ -150,7 +150,7 @@ bool DictionaryPropertyEdit::_set(const StringName &p_name, const Variant &p_val
                 Variant value = dict[key];
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
-                ur->create_action_ui(TTR("Change Dictionary Value"));
+                ur->create_action(TTR("Change Dictionary Value"));
                 ur->add_do_method(this, "_set_value", key, p_value);
                 ur->add_undo_method(this, "_set_value", key, value);
                 ur->add_do_method(this, "_notif_changev", p_name);

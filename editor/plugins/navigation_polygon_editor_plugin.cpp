@@ -118,7 +118,7 @@ void NavigationPolygonEditor::_create_resource() {
     if (!node)
         return;
 
-    undo_redo->create_action_ui(TTR("Create Navigation Polygon"));
+    undo_redo->create_action(TTR("Create Navigation Polygon"));
     undo_redo->add_do_method(node, "set_navigation_polygon", make_ref_counted<NavigationPolygon>());
     undo_redo->add_undo_method(node, "set_navigation_polygon", Variant(REF()));
     undo_redo->commit_action();

@@ -225,7 +225,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action_ui(TTR("Change Sphere Shape Radius"));
+        ur->create_action(TTR("Change Sphere Shape Radius"));
         ur->add_do_method(s, ("set_radius"), s->get_radius());
         ur->add_undo_method(s, ("set_radius"), p_restore);
         ur->commit_action();
@@ -243,7 +243,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
         }
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
-        ur->create_action_ui(TTR("Change Box Shape Extents"));
+        ur->create_action(TTR("Change Box Shape Extents"));
         static const char *method[3] = { "set_width", "set_height", "set_depth" };
         float current = 0;
         switch (p_idx) {
@@ -269,11 +269,11 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action_ui(TTR("Change Cylinder Radius"));
+            ur->create_action(TTR("Change Cylinder Radius"));
             ur->add_do_method(s, ("set_radius"), s->get_radius());
             ur->add_undo_method(s, ("set_radius"), p_restore);
         } else {
-            ur->create_action_ui(TTR("Change Cylinder Height"));
+            ur->create_action(TTR("Change Cylinder Height"));
             ur->add_do_method(s, ("set_height"), s->get_height());
             ur->add_undo_method(s, ("set_height"), p_restore);
         }
@@ -293,11 +293,11 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
 
         UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
-            ur->create_action_ui(TTR("Change Torus Inner Radius"));
+            ur->create_action(TTR("Change Torus Inner Radius"));
             ur->add_do_method(s, ("set_inner_radius"), s->get_inner_radius());
             ur->add_undo_method(s, ("set_inner_radius"), p_restore);
         } else {
-            ur->create_action_ui(TTR("Change Torus Outer Radius"));
+            ur->create_action(TTR("Change Torus Outer Radius"));
             ur->add_do_method(s, ("set_outer_radius"), s->get_outer_radius());
             ur->add_undo_method(s, ("set_outer_radius"), p_restore);
         }

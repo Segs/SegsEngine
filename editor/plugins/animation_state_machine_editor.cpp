@@ -237,7 +237,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
             Ref<AnimationNode> an = state_machine->get_node(selected_node);
             updating = true;
-            undo_redo->create_action_ui(TTR("Move Node"));
+            undo_redo->create_action(TTR("Move Node"));
             undo_redo->add_do_method(state_machine.get(), "set_node_position", selected_node, state_machine->get_node_position(selected_node) + drag_ofs / EDSCALE);
             undo_redo->add_undo_method(state_machine.get(), "set_node_position", selected_node, state_machine->get_node_position(selected_node));
             undo_redo->add_do_method(this, "_update_graph");
@@ -282,7 +282,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
                 tr->set_switch_mode(AnimationNodeStateMachineTransition::SwitchMode(transition_mode->get_selected()));
 
                 updating = true;
-                undo_redo->create_action_ui(TTR("Add Transition"));
+                undo_redo->create_action(TTR("Add Transition"));
                 undo_redo->add_do_method(state_machine.get(), "add_transition", connecting_from, connecting_to_node, tr);
                 undo_redo->add_undo_method(state_machine.get(), "remove_transition", connecting_from, connecting_to_node);
                 undo_redo->add_do_method(this, "_update_graph");
@@ -474,7 +474,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Add Node"));
+    undo_redo->create_action(TTR("Add Node"));
     undo_redo->add_do_method(state_machine.get(), "add_node", name, node, add_node_pos);
     undo_redo->add_undo_method(state_machine.get(), "remove_node", name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -500,7 +500,7 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Add Node"));
+    undo_redo->create_action(TTR("Add Node"));
     undo_redo->add_do_method(state_machine.get(), "add_node", name, anim, add_node_pos);
     undo_redo->add_undo_method(state_machine.get(), "remove_node", name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -1127,7 +1127,7 @@ void AnimationNodeStateMachineEditor::_name_edited(StringView p_text) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Node Renamed"));
+    undo_redo->create_action(TTR("Node Renamed"));
     undo_redo->add_do_method(state_machine.get(), "rename_node", prev_name, name);
     undo_redo->add_undo_method(state_machine.get(), "rename_node", name, prev_name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -1159,7 +1159,7 @@ void AnimationNodeStateMachineEditor::_erase_selected() {
 
     if (selected_node != StringName() && state_machine->has_node(selected_node)) {
         updating = true;
-        undo_redo->create_action_ui(TTR("Node Removed"));
+        undo_redo->create_action(TTR("Node Removed"));
         undo_redo->add_do_method(state_machine.get(), "remove_node", selected_node);
         undo_redo->add_undo_method(state_machine.get(), "add_node", selected_node, state_machine->get_node(selected_node), state_machine->get_node_position(selected_node));
         for (int i = 0; i < state_machine->get_transition_count(); i++) {
@@ -1183,7 +1183,7 @@ void AnimationNodeStateMachineEditor::_erase_selected() {
 
         Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(state_machine->find_transition(selected_transition_from, selected_transition_to));
         updating = true;
-        undo_redo->create_action_ui(TTR("Transition Removed"));
+        undo_redo->create_action(TTR("Transition Removed"));
         undo_redo->add_do_method(state_machine.get(), "remove_transition", selected_transition_from, selected_transition_to);
         undo_redo->add_undo_method(state_machine.get(), "add_transition", selected_transition_from, selected_transition_to, tr);
         undo_redo->add_do_method(this, "_update_graph");
@@ -1209,7 +1209,7 @@ void AnimationNodeStateMachineEditor::_autoplay_selected() {
         }
 
         updating = true;
-        undo_redo->create_action_ui(TTR("Set Start Node (Autoplay)"));
+        undo_redo->create_action(TTR("Set Start Node (Autoplay)"));
         undo_redo->add_do_method(state_machine.get(), "set_start_node", new_start_node);
         undo_redo->add_undo_method(state_machine.get(), "set_start_node", state_machine->get_start_node());
         undo_redo->add_do_method(this, "_update_graph");
@@ -1232,7 +1232,7 @@ void AnimationNodeStateMachineEditor::_end_selected() {
         }
 
         updating = true;
-        undo_redo->create_action_ui(TTR("Set Start Node (Autoplay)"));
+        undo_redo->create_action(TTR("Set Start Node (Autoplay)"));
         undo_redo->add_do_method(state_machine.get(), "set_end_node", new_end_node);
         undo_redo->add_undo_method(state_machine.get(), "set_end_node", state_machine->get_end_node());
         undo_redo->add_do_method(this, "_update_graph");

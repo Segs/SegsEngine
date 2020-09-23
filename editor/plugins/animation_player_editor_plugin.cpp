@@ -169,7 +169,7 @@ void AnimationPlayerEditor::_autoplay_pressed() {
     String current(animation->get_item_text_utf8(animation->get_selected()));
     if (player->get_autoplay() == current) {
         //unset
-        undo_redo->create_action_ui(TTR("Toggle Autoplay"));
+        undo_redo->create_action(TTR("Toggle Autoplay"));
         undo_redo->add_do_method(player, "set_autoplay", "");
         undo_redo->add_undo_method(player, "set_autoplay", player->get_autoplay());
         undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
@@ -178,7 +178,7 @@ void AnimationPlayerEditor::_autoplay_pressed() {
 
     } else {
         //set
-        undo_redo->create_action_ui(TTR("Toggle Autoplay"));
+        undo_redo->create_action(TTR("Toggle Autoplay"));
         undo_redo->add_do_method(player, "set_autoplay", current);
         undo_redo->add_undo_method(player, "set_autoplay", player->get_autoplay());
         undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
@@ -454,7 +454,7 @@ void AnimationPlayerEditor::_animation_remove_confirmed() {
     StringName current(animation->get_item_text_utf8(animation->get_selected()));
     Ref<Animation> anim = player->get_animation(current);
 
-    undo_redo->create_action_ui(TTR("Remove Animation"));
+    undo_redo->create_action(TTR("Remove Animation"));
     if (player->get_autoplay() == current) {
         undo_redo->add_do_method(player, "set_autoplay", "");
         undo_redo->add_undo_method(player, "set_autoplay", current);
@@ -531,7 +531,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
         String current = animation->get_item_text_utf8(animation->get_selected());
         Ref<Animation> anim = player->get_animation(StringName(current));
 
-        undo_redo->create_action_ui(TTR("Rename Animation"));
+        undo_redo->create_action(TTR("Rename Animation"));
         undo_redo->add_do_method(player, "rename_animation", current, new_name);
         undo_redo->add_do_method(anim.get(), "set_name", new_name);
         undo_redo->add_undo_method(player, "rename_animation", new_name, current);
@@ -547,7 +547,7 @@ void AnimationPlayerEditor::_animation_name_edited() {
         Ref<Animation> new_anim(make_ref_counted<Animation>());
         new_anim->set_name(new_name);
 
-        undo_redo->create_action_ui(TTR("Add Animation"));
+        undo_redo->create_action(TTR("Add Animation"));
         undo_redo->add_do_method(player, "add_animation", new_name, new_anim);
         undo_redo->add_undo_method(player, "remove_animation", new_name);
         undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
@@ -571,7 +571,7 @@ void AnimationPlayerEditor::_blend_editor_next_changed(const int p_idx) {
 
     String current = animation->get_item_text_utf8(animation->get_selected());
 
-    undo_redo->create_action_ui(TTR("Blend Next Changed"));
+    undo_redo->create_action(TTR("Blend Next Changed"));
     undo_redo->add_do_method(player, "animation_set_next", current, blend_editor.next->get_item_text(p_idx));
     undo_redo->add_undo_method(player, "animation_set_next", current, player->animation_get_next(StringName(current)));
     undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
@@ -651,7 +651,7 @@ void AnimationPlayerEditor::_blend_edited() {
     float blend_time = selected->get_range(1);
     float prev_blend_time = player->get_blend_time(StringName(current), StringName(to));
 
-    undo_redo->create_action_ui(TTR("Change Blend Time"));
+    undo_redo->create_action(TTR("Change Blend Time"));
     undo_redo->add_do_method(player, "set_blend_time", current, to, blend_time);
     undo_redo->add_undo_method(player, "set_blend_time", current, to, prev_blend_time);
     undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));
@@ -762,7 +762,7 @@ void AnimationPlayerEditor::_dialog_action(StringView p_file) {
             if (StringUtils::contains(p_file,"."))
                 p_file = StringUtils::substr(p_file,0, StringUtils::find(p_file,"."));
 
-            undo_redo->create_action_ui(TTR("Load Animation"));
+            undo_redo->create_action(TTR("Load Animation"));
             undo_redo->add_do_method(player, "add_animation", p_file, res);
             undo_redo->add_undo_method(player, "remove_animation", p_file);
             if (player->has_animation(StringName(p_file))) {
@@ -1007,7 +1007,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
     }
     new_anim->set_name(new_name);
 
-    undo_redo->create_action_ui(TTR("Duplicate Animation"));
+    undo_redo->create_action(TTR("Duplicate Animation"));
     undo_redo->add_do_method(player, "add_animation", new_name, new_anim);
     undo_redo->add_undo_method(player, "remove_animation", new_name);
     undo_redo->add_do_method(player, "animation_set_next", new_name, player->animation_get_next(current));
@@ -1191,7 +1191,7 @@ void AnimationPlayerEditor::_animation_tool_menu(int p_option) {
                 name = base + " " + itos(idx);
             }
 
-            undo_redo->create_action_ui(TTR("Paste Animation"));
+            undo_redo->create_action(TTR("Paste Animation"));
             undo_redo->add_do_method(player, "add_animation", name, anim2);
             undo_redo->add_undo_method(player, "remove_animation", name);
             undo_redo->add_do_method(this, "_animation_player_changed", Variant(player));

@@ -265,7 +265,7 @@ void AbstractPolygon2DEditor::_wip_close() {
         _set_polygon(0, wip);
     } else if (wip.size() >= (_is_line() ? 2 : 3)) {
 
-        undo_redo->create_action_ui(TTR("Create Polygon"));
+        undo_redo->create_action(TTR("Create Polygon"));
         _action_add_polygon(Variant::from(wip));
         if (_has_uv()) {
             undo_redo->add_do_method(_get_node(), "set_uv", Variant(PoolVector<Vector2>()));
@@ -353,7 +353,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                         if (vertices.size() < (_is_line() ? 2 : 3)) {
 
                             vertices.push_back(cpoint);
-                            undo_redo->create_action_ui(TTR("Edit Polygon"));
+                            undo_redo->create_action(TTR("Edit Polygon"));
                             selected_point = Vertex(insert.polygon, vertices.size());
                             _action_set_polygon(insert.polygon, vertices);
                             _commit_action();
@@ -367,7 +367,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             selected_point = edited_point;
                             edge_point = PosVertex();
 
-                            undo_redo->create_action_ui(TTR("Insert Point"));
+                            undo_redo->create_action(TTR("Insert Point"));
                             _action_set_polygon(insert.polygon, Variant::from(vertices2));
                             _commit_action();
                             return true;
@@ -400,7 +400,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                         ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false);
                         vertices[edited_point.vertex] = edited_point.pos - _get_offset(edited_point.polygon);
 
-                        undo_redo->create_action_ui(TTR("Edit Polygon"));
+                        undo_redo->create_action(TTR("Edit Polygon"));
                         _action_set_polygon(edited_point.polygon, Variant::from(pre_move_edit), vertices);
                         _commit_action();
 
@@ -441,7 +441,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                     // for lines, we don't have a wip mode, and we can undo each single add point.
                     Vector<Vector2> vertices = _get_polygon(0).as<Vector<Vector2>>();
                     vertices.push_back(cpoint);
-                    undo_redo->create_action_ui(TTR("Insert Point"));
+                    undo_redo->create_action(TTR("Insert Point"));
                     _action_set_polygon(0, vertices);
                     _commit_action();
                     return true;
@@ -721,12 +721,12 @@ void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
 
         vertices.remove(p_vertex.vertex);
 
-        undo_redo->create_action_ui(TTR("Edit Polygon (Remove Point)"));
+        undo_redo->create_action(TTR("Edit Polygon (Remove Point)"));
         _action_set_polygon(p_vertex.polygon, Variant(vertices));
         _commit_action();
     } else {
 
-        undo_redo->create_action_ui(TTR("Remove Polygon And Point"));
+        undo_redo->create_action(TTR("Remove Polygon And Point"));
         _action_remove_polygon(p_vertex.polygon);
         _commit_action();
     }

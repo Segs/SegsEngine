@@ -327,7 +327,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                                 rect.expand_to(r.position);
                                 rect.expand_to(r.position + r.size);
                             }
-                            undo_redo->create_action_ui(TTR("Set Region Rect"));
+                            undo_redo->create_action(TTR("Set Region Rect"));
                             if (node_sprite) {
                                 undo_redo->add_do_method(node_sprite, "set_region_rect", rect);
                                 undo_redo->add_undo_method(node_sprite, "set_region_rect", node_sprite->get_region_rect());
@@ -385,7 +385,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
 
             } else if (drag) {
                 if (edited_margin >= 0) {
-                    undo_redo->create_action_ui(TTR("Set Margin"));
+                    undo_redo->create_action(TTR("Set Margin"));
                     static Margin m[4] = { Margin::Top, Margin::Bottom, Margin::Left, Margin::Right };
                     if (node_ninepatch) {
                         undo_redo->add_do_method(node_ninepatch, "set_patch_margin", m[edited_margin], node_ninepatch->get_patch_margin(m[edited_margin]));
@@ -397,7 +397,7 @@ void TextureRegionEditor::_region_input(const Ref<InputEvent> &p_input) {
                     }
                     edited_margin = -1;
                 } else {
-                    undo_redo->create_action_ui(TTR("Set Region Rect"));
+                    undo_redo->create_action(TTR("Set Region Rect"));
                     if (node_sprite) {
                         undo_redo->add_do_method(node_sprite, "set_region_rect", node_sprite->get_region_rect());
                         undo_redo->add_undo_method(node_sprite, "set_region_rect", rect_prev);
