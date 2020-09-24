@@ -459,8 +459,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
     required_header = obj["required_header"].toString().toUtf8().data();
     QJsonObject root_obj = obj["namespace_contents"].toObject();
 
-    QJsonArray insert_order_j = root_obj["insert_order"].toArray();
-
     QJsonArray enum_arr = root_obj["global_enums"].toArray();
     global_enums.reserve(enum_arr.size());
 
@@ -501,8 +499,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
 }
 
 bool ReflectionData::load_from_file(StringView os_path) {
-    QJsonDocument src_doc;
-    QString aa=QDir::currentPath();
     QFile inFile(QLatin1String(os_path.data(), os_path.size()));
     if(!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;

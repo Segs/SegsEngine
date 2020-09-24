@@ -124,6 +124,8 @@ public:
 #ifdef WINDOWS_ENABLED
     String data_mono_bin_dir;
 #endif
+    _GodotSharpDirs(const _GodotSharpDirs &) = delete;
+    _GodotSharpDirs &operator=(const _GodotSharpDirs &)=delete;
 
 private:
     _GodotSharpDirs() {
@@ -197,10 +199,6 @@ private:
         }
 #endif
     }
-
-    _GodotSharpDirs(const _GodotSharpDirs &);
-    _GodotSharpDirs &operator=(const _GodotSharpDirs &);
-
 public:
     static _GodotSharpDirs &get_singleton() {
         static _GodotSharpDirs singleton;

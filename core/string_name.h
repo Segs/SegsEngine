@@ -188,7 +188,7 @@ public:
             unref();
     }
 };
-GODOT_EXPORT StringName operator+(StringName v,StringView sv);
+GODOT_EXPORT StringName operator+(const StringName &v,StringView sv);
 extern const Vector<StringName> g_null_stringname_vec;
 
 struct WrapAlphaCompare

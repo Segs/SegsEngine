@@ -438,7 +438,7 @@ Callable::CallError vcall_error;
                          {CPP_TO_WRAP_TYPE,"Array *"},
                          {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries?
                          {WRAP_TO_CPP_IN_ARG,"ArrConverter(%input%)"},
-                         {WRAP_TO_CPP_OUT,"return ToArray(eastl::move(%val%))"},
+                         {WRAP_TO_CPP_OUT,"return ToArray(%val%)"},
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
                          {SCRIPT_TO_WRAP_IN_ARG,"%input%.GetPtr()"},
                          {SCRIPT_TO_WRAP_OUT,"return new Collections.Array(%val%)"},

@@ -275,7 +275,7 @@ const MethodInfo &GDMonoMethod::get_method_info() {
 }
 
 GDMonoMethod::GDMonoMethod(StringName p_name, MonoMethod *p_method) {
-    name = p_name;
+    name = eastl::move(p_name);
 
     mono_method = p_method;
 

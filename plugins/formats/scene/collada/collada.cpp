@@ -412,7 +412,7 @@ Vector<float> Collada::_read_float_array(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             array = StringUtils::split_floats_mk(str,StringView(splitters,4), false);
             //array=str.split_floats(" ",false);
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END)
@@ -434,7 +434,7 @@ Vector<String> Collada::_read_string_array(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse string data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             auto arrayv = StringUtils::split_spaces(str);
             for (auto entry : arrayv)
                 array.emplace_back(entry);
@@ -457,7 +457,7 @@ Transform Collada::_read_transform(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             auto arrayv = StringUtils::split_spaces(str);
             for (auto entry : arrayv)
                 array.emplace_back(entry);
@@ -651,7 +651,7 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                                     } else if (parser.get_node_name() == "texture") {
 
-                                        String sampler = parser.get_attribute_value("texture");
+                                        const String& sampler = parser.get_attribute_value("texture");
                                         if (!effect.params.contains(sampler)) {
                                             ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                                         } else {
@@ -714,7 +714,7 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                         if (parser.get_node_name() == "texture") {
 
-                            String sampler = parser.get_attribute_value("texture");
+                            const String& sampler = parser.get_attribute_value("texture");
                             if (!effect.params.contains(sampler)) {
                                 ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                             } else {

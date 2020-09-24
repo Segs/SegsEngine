@@ -536,19 +536,19 @@ bool GDMonoField::has_attribute(GDMonoClass *p_attr_class) {
 }
 
 MonoObject *GDMonoField::get_attribute(GDMonoClass *p_attr_class) {
-    ERR_FAIL_NULL_V(p_attr_class, NULL);
+    ERR_FAIL_NULL_V(p_attr_class, nullptr);
 
     if (!attrs_fetched)
         fetch_attributes();
 
     if (!attributes)
-        return NULL;
+        return nullptr;
 
     return mono_custom_attrs_get_attr(attributes, p_attr_class->get_mono_ptr());
 }
 
 void GDMonoField::fetch_attributes() {
-    ERR_FAIL_COND(attributes != NULL);
+    ERR_FAIL_COND(attributes != nullptr);
     attributes = mono_custom_attrs_from_field(owner->get_mono_ptr(), mono_field);
     attrs_fetched = true;
 }

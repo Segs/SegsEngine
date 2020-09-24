@@ -80,7 +80,7 @@ static bool _create_project_solution_if_needed() {
     if (!FileAccess::exists(sln_path) || !FileAccess::exists(csproj_path)) {
         // A solution does not yet exist, create a new one
 
-        CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == NULL);
+        CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == nullptr);
         return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call_va("CreateProjectSolution");
     }
 
@@ -1783,7 +1783,7 @@ bool CSharpInstance::_reference_owner_unsafe() {
 
 #ifdef DEBUG_ENABLED
     CRASH_COND(!base_ref);
-    CRASH_COND(owner == NULL);
+    CRASH_COND(owner == nullptr);
     CRASH_COND(unsafe_referenced); // already referenced
 #endif
 
@@ -1805,7 +1805,7 @@ bool CSharpInstance::_unreference_owner_unsafe() {
 
 #ifdef DEBUG_ENABLED
     CRASH_COND(!base_ref);
-    CRASH_COND(owner == NULL);
+    CRASH_COND(owner == nullptr);
 #endif
 
     if (!unsafe_referenced)
@@ -1850,7 +1850,7 @@ MonoObject *CSharpInstance::_internal_new_managed() {
 
         owner = nullptr;
 
-        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_MSG(nullptr, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged
@@ -2690,7 +2690,7 @@ int CSharpScript::_try_get_member_export_hint(IMonoClassMember *p_member, Manage
         }
     } else if (p_variant_type == VariantType::OBJECT && CACHED_CLASS(GodotResource)->is_assignable_from(p_type.type_class)) {
         GDMonoClass *field_native_class = GDMonoUtils::get_class_native_base(p_type.type_class);
-        CRASH_COND(field_native_class == NULL);
+        CRASH_COND(field_native_class == nullptr);
 
         r_hint = PropertyHint::ResourceType;
         r_hint_string = NATIVE_GDMONOCLASS_NAME(field_native_class);
@@ -2929,12 +2929,12 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
     // Search the constructor first, to fail with an error if it's not found before allocating anything else.
     GDMonoMethod *ctor = script_class->get_method(CACHED_STRING_NAME(dotctor), p_argcount);
     if (ctor == nullptr) {
-        ERR_FAIL_COND_V_MSG(p_argcount == 0, NULL,
+        ERR_FAIL_COND_V_MSG(p_argcount == 0, nullptr,
                 "Cannot create script instance. The class '" + script_class->get_full_name() +
                         "' does not define a parameterless constructor." +
                         (get_path().empty() ? String() : " Path: '" + get_path() + "'."));
 
-        ERR_FAIL_V_MSG(NULL, "Constructor not found.");
+        ERR_FAIL_V_MSG(nullptr, "Constructor not found.");
     }
 
     Ref<RefCounted> ref;
@@ -2985,7 +2985,7 @@ CSharpInstance *CSharpScript::_create_instance(const Variant **p_args, int p_arg
 
         p_owner->set_script_instance(nullptr);
         r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
-        ERR_FAIL_V_MSG(NULL, "Failed to allocate memory for the object.");
+        ERR_FAIL_V_MSG(nullptr, "Failed to allocate memory for the object.");
     }
 
     // Tie managed to unmanaged

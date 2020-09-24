@@ -582,16 +582,20 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 writer.writeAttribute("type",a.type.c_str());
                 writer.writeAttribute("setter",a.setter.c_str());
                 writer.writeAttribute("getter",a.getter.c_str());
-                if (c.properties[i].overridden)
+                if (c.properties[i].overridden) {
                     writer.writeAttribute("overridden","true");
+}
 
-                if (!c.properties[i].enumeration.empty())
+                if (!c.properties[i].enumeration.empty()) {
                     writer.writeAttribute("enum",a.enumeration.c_str());
+}
 
-                if (!c.properties[i].default_value.empty())
+                if (!c.properties[i].default_value.empty()) {
                     writer.writeAttribute("default",a.default_value.c_str());
-                if (!c.properties[i].overridden)
+}
+                if (!c.properties[i].overridden) {
                     writer.writeCharacters(a.description.c_str());
+}
 
                 writer.writeEndElement();
             }
@@ -631,8 +635,9 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
             writer.writeStartElement("constant");
                 writer.writeAttribute("name",k.name.c_str());
                 writer.writeAttribute("value",k.value.c_str());
-                if (!k.enumeration.empty())
+                if (!k.enumeration.empty()) {
                     writer.writeAttribute("enumeration",k.enumeration.c_str());
+}
                 writer.writeCharacters(k.description.trimmed().c_str());
             writer.writeEndElement();
         }
@@ -650,8 +655,9 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
                 writer.writeStartElement("theme_item");
                 writer.writeAttribute("name",p.name.c_str());
                 writer.writeAttribute("type",p.type.c_str());
-                if(!p.default_value.empty())
+                if(!p.default_value.empty()) {
                     writer.writeAttribute("default_value",p.default_value.c_str());
+}
 
                 writer.writeCharacters(p.description.c_str());
 
@@ -684,9 +690,9 @@ Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int
 
     class_list.clear();
     // convert it to valid xml!
-    if(data.count("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")>1) {
-        data.replace("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>","");
-        data.prepend("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><namespace name=\""+QByteArray::fromRawData(namespace_name.data(), namespace_name.size())+"\">");
+    if(data.count(R"(<?xml version="1.0" encoding="UTF-8" ?>)")>1) {
+        data.replace(R"(<?xml version="1.0" encoding="UTF-8" ?>)","");
+        data.prepend(R"(<?xml version="1.0" encoding="UTF-8" ?><namespace name=")"+QByteArray::fromRawData(namespace_name.data(), namespace_name.size())+"\">");
         data.append("</namespace>");
     }
     QXmlStreamReader xml_reader(QString::fromUtf8(data));

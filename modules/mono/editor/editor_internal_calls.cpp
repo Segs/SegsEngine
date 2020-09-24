@@ -154,7 +154,7 @@ MonoString *godot_icall_GodotSharpDirs_DataMonoBinDir() {
 #ifdef WINDOWS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_mono_bin_dir());
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 
@@ -217,9 +217,7 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
         Array classes = GDMonoMarshal::mono_object_to_variant(p_classes);
         const Vector<ScriptClassParser::ClassDecl> &class_decls = scp.get_classes();
 
-        for (int i = 0; i < class_decls.size(); i++) {
-            const ScriptClassParser::ClassDecl &classDecl = class_decls[i];
-
+        for (const ScriptClassParser::ClassDecl &classDecl : class_decls) {
             Dictionary classDeclDict;
             classDeclDict["name"] = classDecl.name;
             classDeclDict["namespace"] = classDecl.namespace_;
@@ -340,7 +338,7 @@ MonoString *godot_icall_Internal_MonoWindowsInstallRoot() {
     String install_root_dir = GDMono::get_singleton()->get_mono_reg_info().install_root_dir;
     return GDMonoMarshal::mono_string_from_godot(install_root_dir);
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 

@@ -52,8 +52,9 @@ _FORCE_INLINE_ String quoted(StringView p_str) {
 }
 
 void _add_nodes_suggestions(const Node *p_base, const Node *p_node, PoolStringArray &r_suggestions) {
-    if (p_node != p_base && !p_node->get_owner())
+    if (p_node != p_base && !p_node->get_owner()) {
         return;
+    }
 
     String path_relative_to_orig = p_base->get_path_to(p_node).asString();
 
@@ -65,18 +66,21 @@ void _add_nodes_suggestions(const Node *p_base, const Node *p_node, PoolStringAr
 }
 
 Node *_find_node_for_script(Node *p_base, Node *p_current, const Ref<Script> &p_script) {
-    if (p_current->get_owner() != p_base && p_base != p_current)
+    if (p_current->get_owner() != p_base && p_base != p_current) {
         return nullptr;
+    }
 
     Ref<Script> c(refFromRefPtr<Script>(p_current->get_script()));
 
-    if (c == p_script)
+    if (c == p_script) {
         return p_current;
+    }
 
     for (int i = 0; i < p_current->get_child_count(); i++) {
         Node *found = _find_node_for_script(p_base, p_current->get_child(i), p_script);
-        if (found)
+        if (found) {
             return found;
+        }
     }
 
     return nullptr;
@@ -94,8 +98,9 @@ void _get_directory_contents(EditorFileSystemDirectory *p_dir, PoolStringArray &
 
 Node *_try_find_owner_node_in_tree(const Ref<Script> &p_script) {
     SceneTree *tree = SceneTree::get_singleton();
-    if (!tree)
+    if (!tree) {
         return nullptr;
+    }
     Node *base = tree->get_edited_scene_root();
     if (base) {
         base = _find_node_for_script(base, base, p_script);
@@ -111,9 +116,10 @@ PoolStringArray get_code_completion(CompletionKind p_kind, const String &p_scrip
             Vector<PropertyInfo> project_props;
             ProjectSettings::get_singleton()->get_property_list(&project_props);
 
-            for (const PropertyInfo& prop : project_props) {
-                if (!StringUtils::begins_with(prop.name,"input/"))
+            for (const PropertyInfo &prop : project_props) {
+                if (!StringUtils::begins_with(prop.name, "input/")) {
                     continue;
+                }
 
                 StringView name = StringUtils::substr(prop.name, StringUtils::find(prop.name,"/") + 1);
                 suggestions.push_back(quoted(name));

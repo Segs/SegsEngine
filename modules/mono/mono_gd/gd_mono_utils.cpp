@@ -130,7 +130,7 @@ void set_main_thread(MonoThread *p_thread) {
 }
 
 MonoThread *attach_current_thread() {
-    ERR_FAIL_COND_V(!GDMono::get_singleton()->is_runtime_initialized(), NULL);
+    ERR_FAIL_COND_V(!GDMono::get_singleton()->is_runtime_initialized(), nullptr);
     MonoDomain *scripts_domain = GDMono::get_singleton()->get_scripts_domain();
 #ifndef GD_MONO_SINGLE_APPDOMAIN
     MonoThread *mono_thread = mono_thread_attach(scripts_domain ? scripts_domain : mono_get_root_domain());
@@ -138,7 +138,7 @@ MonoThread *attach_current_thread() {
     // The scripts domain is the root domain
     MonoThread *mono_thread = mono_thread_attach(scripts_domain);
 #endif
-    ERR_FAIL_NULL_V(mono_thread, NULL);
+    ERR_FAIL_NULL_V(mono_thread, nullptr);
     return mono_thread;
 }
 
@@ -227,7 +227,7 @@ MonoObject *create_managed_for_godot_object(GDMonoClass *p_class, const StringNa
 
 MonoObject *create_managed_from(const NodePath &p_from) {
     MonoObject *mono_object = mono_object_new(mono_domain_get(), CACHED_CLASS_RAW(NodePath));
-    ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
     // Construct
     GDMonoUtils::runtime_object_init(mono_object, CACHED_CLASS(NodePath));
@@ -239,7 +239,7 @@ MonoObject *create_managed_from(const NodePath &p_from) {
 
 MonoObject *create_managed_from(const RID &p_from) {
     MonoObject *mono_object = mono_object_new(mono_domain_get(), CACHED_CLASS_RAW(RID));
-    ERR_FAIL_NULL_V(mono_object, NULL);
+    ERR_FAIL_NULL_V(mono_object, nullptr);
 
     // Construct
     GDMonoUtils::runtime_object_init(mono_object, CACHED_CLASS(RID));
@@ -415,7 +415,7 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
 
         GDMonoClass *exc_class = GDMono::get_singleton()->get_class(mono_get_exception_class());
         GDMonoProperty *inner_exc_prop = exc_class->get_property("InnerException");
-        CRASH_COND(inner_exc_prop == NULL);
+        CRASH_COND(inner_exc_prop == nullptr);
 
         MonoObject *inner_exc = inner_exc_prop->get_value((MonoObject *)p_exc);
         if (inner_exc != nullptr)
@@ -424,9 +424,9 @@ void debug_send_unhandled_exception_error(MonoException *p_exc) {
         p_exc = (MonoException *)inner_exc;
     }
 
-    String file = si.size() ? si[0].file : __FILE__;
-    String func = si.size() ? si[0].func : FUNCTION_STR;
-    int line = si.size() ? si[0].line : __LINE__;
+    String file = !si.empty() ? si[0].file : __FILE__;
+    String func = !si.empty() ? si[0].func : FUNCTION_STR;
+    int line = !si.empty() ? si[0].line : __LINE__;
     String error_msg = "Unhandled exception";
 
     ScriptDebugger::get_singleton()->send_error(func, file, line, error_msg, exc_msg, ERR_HANDLER_ERROR, si);
@@ -555,7 +555,7 @@ bool type_is_generic_dictionary(MonoReflectionType *p_reftype) {
 
 bool type_is_system_generic_list(MonoReflectionType *p_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeIsSystemGenericList).invoke(p_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;
@@ -563,7 +563,7 @@ bool type_is_system_generic_list(MonoReflectionType *p_reftype) {
 
 bool type_is_system_generic_dictionary(MonoReflectionType *p_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeIsSystemGenericDictionary).invoke(p_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;
@@ -571,7 +571,7 @@ bool type_is_system_generic_dictionary(MonoReflectionType *p_reftype) {
 
 bool type_is_generic_ienumerable(MonoReflectionType *p_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeIsGenericIEnumerable).invoke(p_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;
@@ -579,7 +579,7 @@ bool type_is_generic_ienumerable(MonoReflectionType *p_reftype) {
 
 bool type_is_generic_icollection(MonoReflectionType *p_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeIsGenericICollection).invoke(p_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;
@@ -587,20 +587,20 @@ bool type_is_generic_icollection(MonoReflectionType *p_reftype) {
 
 bool type_is_generic_idictionary(MonoReflectionType *p_reftype) {
     NO_GLUE_RET(false);
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     MonoBoolean res = CACHED_METHOD_THUNK(MarshalUtils, TypeIsGenericIDictionary).invoke(p_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
     return (bool)res;
 }
 
 void array_get_element_type(MonoReflectionType *p_array_reftype, MonoReflectionType **r_elem_reftype) {
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     CACHED_METHOD_THUNK(MarshalUtils, ArrayGetElementType).invoke(p_array_reftype, r_elem_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
 }
 
 void dictionary_get_key_value_types(MonoReflectionType *p_dict_reftype, MonoReflectionType **r_key_reftype, MonoReflectionType **r_value_reftype) {
-    MonoException *exc = NULL;
+    MonoException *exc = nullptr;
     CACHED_METHOD_THUNK(MarshalUtils, DictionaryGetKeyValueTypes).invoke(p_dict_reftype, r_key_reftype, r_value_reftype, &exc);
     UNHANDLED_EXCEPTION(exc);
 }

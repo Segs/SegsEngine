@@ -436,6 +436,6 @@ bool StringName::AlphCompare(const StringName &l, const StringName &r) {
     return is_str_less(l_cname, r_cname);
 }
 
-StringName operator+(StringName v, StringView sv) {
+StringName operator+(const StringName &v, StringView sv) {
     return StringName(String(v)+sv);
 }

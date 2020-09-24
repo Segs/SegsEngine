@@ -29,10 +29,7 @@ protected:
     String prepareInstanceVariable(const TS_Function *finfo);
 
     void prepareArgumentLocals(const TS_Function *finfo, eastl::vector_map<String, String> &mapped_args);
-    String prepareReturnValue(const TS_Function *finfo,bool non_void_return);
-    void buildCallArgumentList(const TS_Function *finfo,eastl::vector_map<String,String> &mapped_args);
     String mapReturnType(const TS_Function *finfo);
-    void applyReturnMapping(const TS_Function *finfo);
     void visitFunction(const TS_Function *finfo);
     void fillPluginMetadata(QJsonObject &tgt);
 

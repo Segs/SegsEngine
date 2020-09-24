@@ -125,7 +125,7 @@ Array *ToArray(Array && v) {
    return memnew(Array(eastl::move(v)));
 }
 template<class T>
-Array *ToArray(Vector<T> && v) {
+Array *ToArray(const Vector<T> & v) {
    Array * res = memnew(Array());
    for(const T &val : v) {
        res->emplace_back(Variant::from(val));
@@ -133,7 +133,7 @@ Array *ToArray(Vector<T> && v) {
    return res;
 }
 template<>
-Array* ToArray(Vector<SurfaceArrays>&& v) {
+Array* ToArray(const Vector<SurfaceArrays> &v) {
    Array* res = memnew(Array());
    for (const auto& val : v) {
        res->emplace_back(Array(val));
@@ -433,6 +433,7 @@ void CppGeneratorVisitor::visitType(ProjectContext &ctx, const TS_TypeLike *ifac
         m_cpp_icalls.out.append(basens+c_special_func_name_to_icall(iface,SpecialFuncType::Singleton));
         m_cpp_icalls.out.append("\", (void *)+[]() -> Object * ");
         m_cpp_icalls.start_block();
+        m_cpp_icalls.out.indent();
         m_cpp_icalls.out.append_indented("return Engine::get_singleton()->get_named_singleton(\"");
         StringView type_name(classtype->c_name());
         if (type_name.starts_with('_')) // types starting with '_' are assumed to wrap the non-prefixed class for script acces.
@@ -440,6 +441,7 @@ void CppGeneratorVisitor::visitType(ProjectContext &ctx, const TS_TypeLike *ifac
         m_cpp_icalls.out.append(String(type_name));
         m_cpp_icalls.out.append("\");\n");
         m_cpp_icalls.end_block();
+        m_cpp_icalls.out.dedent();
         m_cpp_icalls.out.append(");\n");
 
     }
@@ -448,6 +450,7 @@ void CppGeneratorVisitor::visitType(ProjectContext &ctx, const TS_TypeLike *ifac
         m_cpp_icalls.out.append(basens + c_special_func_name_to_icall(iface,SpecialFuncType::Constructor));
         m_cpp_icalls.out.append("\", (void *)+[](MonoObject* obj) -> Object * ");
         m_cpp_icalls.start_block();
+        m_cpp_icalls.out.indent();
         m_cpp_icalls.out.append_indented("GODOTSHARP_INSTANCE_OBJECT(instance,\"");
         m_cpp_icalls.out.append(classtype->c_name());
         m_cpp_icalls.out.append("\");\n");
@@ -458,6 +461,7 @@ void CppGeneratorVisitor::visitType(ProjectContext &ctx, const TS_TypeLike *ifac
         m_cpp_icalls.append_line("GDMonoInternals::tie_managed_to_unmanaged(obj, instance);");
         m_cpp_icalls.append_line("return instance;");
         m_cpp_icalls.end_block();
+        m_cpp_icalls.out.dedent();
         m_cpp_icalls.out.append(");\n");
     }
 }
@@ -492,7 +496,14 @@ void CppGeneratorVisitor::mapFunctionArguments(const TS_Function *finfo) {
     }
     m_cpp_icalls.out.append(") ");
 }
-
+static constexpr const char *ptr_check_on_out_ptr = R"(
+if(ptr==nullptr) {
+    if(_out_val!=nullptr) {
+        *_out_val = {};
+    }
+    ERR_FAIL_MSG("Parameter 'ptr' is null.");
+}
+)";
 void CppGeneratorVisitor::verifyMethodSelfPtr(const TS_Function *finfo, bool non_void_return) {
     TS_TypeMapper &mapper(TS_TypeMapper::get());
     auto &m_cpp_icalls(m_namespace_files.back());
@@ -501,11 +512,7 @@ void CppGeneratorVisitor::verifyMethodSelfPtr(const TS_Function *finfo, bool non
         auto out_mapping = mapper.map_type(TS_TypeMapper::WRAP_TO_CPP_ARGOUT,finfo->return_type);
         // non void return but through out-arg:
         if(!out_mapping.empty()) {
-            m_cpp_icalls.append_line("if(_out_val==nullptr)");
-            m_cpp_icalls.start_block();
-            m_cpp_icalls.append_line("*_out_val = {};");
-            m_cpp_icalls.append_line("ERR_FAIL_MSG(\"out parameter '_out_val' is null.\");");
-            m_cpp_icalls.end_block();
+            m_cpp_icalls.append_multiline(ptr_check_on_out_ptr);
         }
         else
             m_cpp_icalls.append_line("ERR_FAIL_NULL_V(ptr, {});\n");
@@ -591,23 +598,24 @@ void CppGeneratorVisitor::prepareArgumentLocals(const TS_Function *finfo, eastl:
     }
 }
 
-String CppGeneratorVisitor::prepareReturnValue(const TS_Function *finfo, bool non_void_return) {
-    auto &m_cpp_icalls(m_namespace_files.back());
-    if(non_void_return) {
-        m_cpp_icalls.out.append_indented("auto ");
-        m_cpp_icalls.out.append("retval");
-        return "retval";
+static const TS_TypeLike *top_level_ns(const TS_TypeLike *base) {
+    while(base) {
+        if(base->parent) {
+            base = base->parent;
+        }
+        else
+            if(base->kind()==TS_TypeLike::NAMESPACE) {
+                return base;
+            }
     }
-    return "";
+    return nullptr;
 }
-
-void CppGeneratorVisitor::buildCallArgumentList(const TS_Function *finfo, eastl::vector_map<String, String> &mapped_args) {
+static void buildCallArgumentList(const TS_Function *finfo, eastl::vector_map<String, String> &mapped_args,StringBuilder &out) {
     TS_TypeMapper &mapper(TS_TypeMapper::get());
     int argc = finfo->arg_types.size();
     FixedVector<String,32,false> arg_parts;
-    auto &m_cpp_icalls(m_namespace_files.back());
 
-    m_cpp_icalls.out.append("(");
+    out.append("(");
     for(int i=0; i<argc; ++i) {
         auto mapping = mapper.map_type(TS_TypeMapper::WRAP_TO_CPP_IN_ARG,finfo->arg_types[i]);
         auto input_arg(finfo->arg_values[i]);
@@ -623,15 +631,14 @@ void CppGeneratorVisitor::buildCallArgumentList(const TS_Function *finfo, eastl:
             input_arg = eastl::move(mapping.replaced("%input%",input_arg));
         }
         else if(input_type.type->kind()==TS_TypeLike::ENUM) {
-            String enum_type=input_type.to_c_type(m_namespace_stack.back());
+            String enum_type=input_type.to_c_type(top_level_ns(input_type.type));
             input_arg = eastl::move(enum_type+"("+input_arg+")");
         }
         arg_parts.emplace_back(eastl::move(input_arg));
 
     }
-    m_cpp_icalls.out.append(String::joined(arg_parts," ,"));
-    m_cpp_icalls.out.append(")");
-
+    out.append(String::joined(arg_parts," ,"));
+    out.append(")");
 }
 
 String CppGeneratorVisitor::mapReturnType(const TS_Function *finfo) {
@@ -659,8 +666,8 @@ String CppGeneratorVisitor::mapReturnType(const TS_Function *finfo) {
     return mapping;
 }
 
-void CppGeneratorVisitor::applyReturnMapping(const TS_Function *finfo) {
-    auto &m_cpp_icalls(m_namespace_files.back());
+void applyReturnMapping(const TS_Function *finfo,StringBuilder &out,const String &value) {
+
     TS_TypeMapper &mapper(TS_TypeMapper::get());
 
     auto mapping = mapper.map_type(TS_TypeMapper::CPP_TO_WRAP_TYPE,finfo->return_type);
@@ -672,24 +679,25 @@ void CppGeneratorVisitor::applyReturnMapping(const TS_Function *finfo) {
         expr.replace("%type%",mapping);
         expr.replace("%result%","_out_val");
         if(finfo->return_type.type->kind()==TS_TypeLike::ENUM) {
-            expr.replace("%val%",mapping+String("(retval)")); // wrap enums in underlying type
+            expr.replace("%val%",mapping+String("("+value+")")); // wrap enums in underlying type
         }
         else
-            expr.replace("%val%","retval");
-        m_cpp_icalls.out.append_indented(expr);
-        m_cpp_icalls.out.append(";\n"); // out val assigned
+            expr.replace("%val%",value);
+        out.append_indented(expr);
+        out.append(";\n"); // out val assigned
         return;
     }
     if(mapping.empty()) {
-        m_cpp_icalls.out.append_indented("return ");
-        m_cpp_icalls.out.append("retval; /* no return/outval mapping defined*/\n");
+        out.append_indented("return ");
+        out.append(value);
+        out.append("; /* no return/outval mapping defined*/\n");
     }
     else {
         String result = mapping;
         result.replace("%type%",finfo->return_type.type->c_name());
-        m_cpp_icalls.out.append_indented("return ");
-        m_cpp_icalls.out.append(result);
-        m_cpp_icalls.out.append(";\n");
+        out.append_indented("return ");
+        out.append(result);
+        out.append(";\n");
 
     }
 }
@@ -725,7 +733,7 @@ void CppGeneratorVisitor::visitFunction(const TS_Function *finfo) {
         m_cpp_icalls.out.append(" ");
 
     m_cpp_icalls.out.append("{\n");
-    m_cpp_icalls.out.indent();
+    m_cpp_icalls.out.indent(2);
 
     verifyMethodSelfPtr(finfo,non_void_return);
 
@@ -735,30 +743,24 @@ void CppGeneratorVisitor::visitFunction(const TS_Function *finfo) {
     eastl::vector_map<String,String> arg_locals;
     prepareArgumentLocals(finfo,arg_locals);
 
-    String return_val=prepareReturnValue(finfo,non_void_return);
-
-    // opt. map cpp return type to mono object.
-    if(!return_val.empty()) {
-        m_cpp_icalls.out.append("(");
-    }
-    else
-        m_cpp_icalls.out.append_indented("");
-
+    StringBuilder func_call;
     if(!instance.empty()) {
-        m_cpp_icalls.out.append(instance);
-        m_cpp_icalls.out.append("->");
+        func_call.append(instance);
+        func_call.append("->");
     }
-    m_cpp_icalls.out.append(replaceFunctionName(finfo,m_namespace_stack.back()->c_name()=="Godot"));
-    buildCallArgumentList(finfo,arg_locals);
+    func_call.append(replaceFunctionName(finfo,m_namespace_stack.back()->c_name()=="Godot"));
 
-    if(!return_val.empty()) {
-        m_cpp_icalls.out.append(");\n");
-        applyReturnMapping(finfo);
+    buildCallArgumentList(finfo,arg_locals,func_call);
+
+    if(non_void_return) {
+        applyReturnMapping(finfo,m_cpp_icalls.out,func_call.as_string());
     }
     else {
+        m_cpp_icalls.out.append_indented(func_call.as_string());
         m_cpp_icalls.out.append(";\n");
     }
     m_cpp_icalls.end_block();
+    m_cpp_icalls.out.dedent();
     m_cpp_icalls.out.append_indented(");\n");
 }
 

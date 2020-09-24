@@ -52,7 +52,7 @@ Object *godot_icall_Object_Ctor(MonoObject *p_obj) {
 
 void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr) {
 #ifdef DEBUG_ENABLED
-    CRASH_COND(p_ptr == NULL);
+    CRASH_COND(p_ptr == nullptr);
 #endif
 
     if (p_ptr->get_script_instance()) {
@@ -60,7 +60,7 @@ void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr) {
         if (cs_instance) {
             if (!cs_instance->is_destructing_script_instance()) {
                 cs_instance->mono_object_disposed(p_obj);
-                p_ptr->set_script_instance(NULL);
+                p_ptr->set_script_instance(nullptr);
             }
             return;
         }
@@ -83,7 +83,7 @@ void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr) {
 
 void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolean p_is_finalizer) {
 #ifdef DEBUG_ENABLED
-    CRASH_COND(p_ptr == NULL);
+    CRASH_COND(p_ptr == nullptr);
     // This is only called with Reference derived classes
     CRASH_COND(!object_cast<RefCounted>(p_ptr));
 #endif
@@ -102,7 +102,7 @@ void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolea
                 if (delete_owner) {
                     memdelete(ref);
                 } else if (remove_script_instance) {
-                    ref->set_script_instance(NULL);
+                    ref->set_script_instance(nullptr);
                 }
             }
             return;
@@ -139,7 +139,7 @@ MethodBind *godot_icall_Object_ClassDB_get_method(MonoString *p_type, MonoString
 
 MonoObject *godot_icall_Object_weakref(Object *p_obj) {
     if (!p_obj)
-        return NULL;
+        return nullptr;
 
     Ref<WeakRef> wref;
     RefCounted  *ref = object_cast<RefCounted>(p_obj);
@@ -228,7 +228,7 @@ MonoBoolean godot_icall_DynamicGodotObject_SetMember(Object *p_ptr, MonoString *
 MonoString *godot_icall_Object_ToString(Object *p_ptr) {
 #ifdef DEBUG_ENABLED
     // Cannot happen in C#; would get an ObjectDisposedException instead.
-    CRASH_COND(p_ptr == NULL);
+    CRASH_COND(p_ptr == nullptr);
 
     if (ScriptDebugger::get_singleton() && !object_cast<RefCounted>(p_ptr)) { // Only if debugging!
         // Cannot happen either in C#; the handle is nullified when the object is destroyed

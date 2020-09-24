@@ -156,7 +156,7 @@ String join(StringView p_a, StringView p_b) {
 
     const char a_last = p_a[p_a.length() - 1];
     if ((a_last == '/' || a_last == '\\') ||
-            (p_b.size() > 0 && (p_b[0] == '/' || p_b[0] == '\\'))) {
+            (!p_b.empty() && (p_b[0] == '/' || p_b[0] == '\\'))) {
         return String(p_a) + p_b;
     }
 
