@@ -98,7 +98,7 @@ class CustomPropertyEditor : public Popup {
     ConfirmationDialog *error;
     UIString name;
     VariantType type;
-    Variant v;
+    Variant val_variant;
     Vector<StringView> field_names;
     PropertyHint hint;
     String hint_text;

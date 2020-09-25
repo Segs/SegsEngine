@@ -256,7 +256,7 @@ inline Ref<T> refFromVariant(const Variant &p_variant) {
 }
 template<class T>
 Ref<T>::Ref(const Variant &p_variant) {
-   RefPtr refptr = p_variant;
+   RefPtr refptr = p_variant.as<RefPtr>();
    reference = nullptr;
    *this = refFromRefPtr<T>(refptr);
 }

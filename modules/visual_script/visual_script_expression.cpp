@@ -77,12 +77,15 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
         return true;
     }
 
-    if (StringUtils::begins_with(p_name,"input_")) {
+    if (StringUtils::begins_with(p_name,"input/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+        ERR_FAIL_INDEX_V(2, parts.size(), false);
 
-        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
+        int idx = StringUtils::to_int(parts[1]);
         ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
-        StringView what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = parts[2];
 
         if (what == StringView("type")) {
 
@@ -124,12 +127,15 @@ bool VisualScriptExpression::_get(const StringName &p_name, Variant &r_ret) cons
         return true;
     }
 
-    if (StringUtils::begins_with(UIString(p_name),"input_")) {
+    if (StringUtils::begins_with(p_name,"input/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+        ERR_FAIL_INDEX_V(2, parts.size(), false);
 
-        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0));
+        int idx = StringUtils::to_int(parts[1]);
         ERR_FAIL_INDEX_V(idx, inputs.size(), false);
 
-        StringView what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = parts[2];
 
         if (what == StringView("type")) {
 
@@ -157,8 +163,8 @@ void VisualScriptExpression::_get_property_list(Vector<PropertyInfo> *p_list) co
 
     for (int i = 0; i < inputs.size(); i++) {
         String val=::to_string(i);
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + val + "/type"), PropertyHint::Enum, argt));
-        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + val + "/name")));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("input/" + val + "/type"), PropertyHint::Enum, argt));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input/" + val + "/name")));
     }
 }
 

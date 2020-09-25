@@ -74,8 +74,8 @@ String JSON::_print_var(const Variant &p_var, StringView p_indent, int p_cur_ind
     switch (p_var.get_type()) {
 
         case VariantType::NIL: return "null";
-        case VariantType::BOOL: return p_var.operator bool() ? "true" : "false";
-        case VariantType::INT: return itos(p_var);
+        case VariantType::BOOL: return p_var.as<bool>() ? "true" : "false";
+        case VariantType::INT: return itos(p_var.as<int>());
         case VariantType::FLOAT: return rtos(p_var.as<float>());
         case VariantType::POOL_INT_ARRAY:
         case VariantType::POOL_REAL_ARRAY:
@@ -84,7 +84,7 @@ String JSON::_print_var(const Variant &p_var, StringView p_indent, int p_cur_ind
 
             String s("[");
             s += end_statement;
-            Array a = p_var;
+            Array a = p_var.as<Array>();
             for (int i = 0; i < a.size(); i++) {
                 if (i > 0) {
                     s += ",";
@@ -99,7 +99,7 @@ String JSON::_print_var(const Variant &p_var, StringView p_indent, int p_cur_ind
 
             String s("{");
             s += end_statement;
-            Dictionary d = p_var;
+            Dictionary d = p_var.as<Dictionary>();
             Vector<Variant> keys(d.get_key_list());
 
             if (p_sort_keys)

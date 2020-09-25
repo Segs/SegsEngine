@@ -216,7 +216,7 @@ void ProjectSettingsEditor::_action_edited() {
         }
 
         int order = ProjectSettings::get_singleton()->get_order(add_at);
-        Dictionary action = ProjectSettings::get_singleton()->get(add_at);
+        Dictionary action = ProjectSettings::get_singleton()->get(add_at).as<Dictionary>();
 
         setting = true;
         undo_redo->create_action(TTR("Rename Input Action Event"));
@@ -237,7 +237,7 @@ void ProjectSettingsEditor::_action_edited() {
     } else if (input_editor->get_selected_column() == 1) {
 
         StringName name("input/" + ti->get_text(0));
-        Dictionary old_action = ProjectSettings::get_singleton()->get(name);
+        Dictionary old_action = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
         Dictionary new_action = old_action.duplicate();
         new_action["deadzone"] = ti->get_range(1);
 
@@ -255,9 +255,9 @@ void ProjectSettingsEditor::_device_input_add() {
     Ref<InputEvent> ie;
     StringName name(add_at);
     int idx = edit_idx;
-    Dictionary old_val = ProjectSettings::get_singleton()->get(name);
+    Dictionary old_val = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
     Dictionary action = old_val.duplicate();
-    Array events = action["events"];
+    Array events = action["events"].as<Array>();
 
     switch (add_type) {
 
@@ -372,9 +372,9 @@ void ProjectSettingsEditor::_press_a_key_confirm() {
     StringName name = add_at;
     int idx = edit_idx;
 
-    Dictionary old_val = ProjectSettings::get_singleton()->get(name);
+    Dictionary old_val = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
     Dictionary action = old_val.duplicate();
-    Array events = action["events"];
+    Array events = action["events"].as<Array>();
 
     for (int i = 0; i < events.size(); i++) {
 
@@ -424,7 +424,7 @@ void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, Str
         TreeItem *child = r->get_children();
         while (child) {
             Variant input = child->get_meta("__input");
-            if (p_event == refFromRefPtr<InputEvent>(input)) {
+            if (p_event == refFromRefPtr<InputEvent>(input.as<RefPtr>())) {
                 r->set_collapsed(false);
                 child->select(0);
                 found = true;
@@ -573,9 +573,9 @@ void ProjectSettingsEditor::_action_activated() {
         return;
 
     StringName name("input/" + ti->get_parent()->get_text(0));
-    int idx = ti->get_metadata(0);
-    Dictionary action = ProjectSettings::get_singleton()->get(name);
-    Array events = action["events"];
+    int idx = ti->get_metadata(0).as<int>();
+    Dictionary action = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
+    Array events = action["events"].as<Array>();
 
     ERR_FAIL_INDEX(idx, events.size());
     Ref<InputEvent> event(events[idx]);
@@ -611,7 +611,7 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
         if (ti->get_parent() == input_editor->get_root()) {
             // Remove action
             StringName name("input/" + ti->get_text(0));
-            Dictionary old_val = ProjectSettings::get_singleton()->get(name);
+            Dictionary old_val = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
             int order = ProjectSettings::get_singleton()->get_order(name);
 
             undo_redo->create_action(TTR("Erase Input Action"));
@@ -627,11 +627,11 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
         } else {
             // Remove action event
             StringName name("input/" + ti->get_parent()->get_text(0));
-            Dictionary old_val = ProjectSettings::get_singleton()->get(name);
+            Dictionary old_val = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
             Dictionary action = old_val.duplicate();
-            int idx = ti->get_metadata(0);
+            int idx = ti->get_metadata(0).as<int>();
 
-            Array events = action["events"];
+            Array events = action["events"].as<Array>();
             ERR_FAIL_INDEX(idx, events.size());
             events.remove(idx);
             action["events"] = events;
@@ -656,10 +656,10 @@ void ProjectSettingsEditor::_action_button_pressed(Object *p_obj, int p_column, 
         } else {
             // Edit action event
             StringName name("input/" + ti->get_parent()->get_text(0));
-            int idx = ti->get_metadata(0);
-            Dictionary action = ProjectSettings::get_singleton()->get(name);
+            int idx = ti->get_metadata(0).as<int>();
+            Dictionary action = ProjectSettings::get_singleton()->get(name).as<Dictionary>();
 
-            Array events = action["events"];
+            Array events = action["events"].as<Array>();
             ERR_FAIL_INDEX(idx, events.size());
 
             Ref<InputEvent> event(events[idx]);
@@ -704,8 +704,8 @@ void ProjectSettingsEditor::_update_actions() {
         if (name.empty())
             continue;
 
-        Dictionary action = ProjectSettings::get_singleton()->get(pi.name);
-        Array events = action["events"];
+        Dictionary action = ProjectSettings::get_singleton()->get(pi.name).as<Dictionary>();
+        Array events = action["events"].as<Array>();
 
         TreeItem *item = input_editor->create_item(root);
         item->set_text_utf8(0, name);
@@ -717,7 +717,7 @@ void ProjectSettingsEditor::_update_actions() {
         item->set_editable(1, true);
         item->set_cell_mode(1, TreeItem::CELL_MODE_RANGE);
         item->set_range_config(1, 0.0, 1.0, 0.01);
-        item->set_range(1, action["deadzone"]);
+        item->set_range(1, action["deadzone"].as<float>());
         item->set_custom_bg_color(1, get_color("prop_subsection", "Editor"));
 
         item->add_button(2, get_icon("Add", "EditorIcons"), 1, false, TTR("Add Event"));
@@ -799,7 +799,7 @@ void ProjectSettingsEditor::_update_actions() {
 void ProjectSettingsEditor::popup_project_settings() {
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "project_settings", Rect2());
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "project_settings", Rect2()).as<Rect2>();
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -1075,7 +1075,7 @@ Variant ProjectSettingsEditor::get_drag_data_fw(const Point2 &p_point, Control *
 
 bool ProjectSettingsEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type") || d["type"] != "nodes")
         return false;
 
@@ -1201,9 +1201,9 @@ void ProjectSettingsEditor::_translation_delete(Object *p_item, int p_column, in
     TreeItem *ti = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ti);
 
-    int idx = ti->get_metadata(0);
+    int idx = ti->get_metadata(0).as<int>();
 
-    PoolStringArray translations = ProjectSettings::get_singleton()->get("locale/translations");
+    PoolStringArray translations = ProjectSettings::get_singleton()->getT<PoolStringArray>("locale/translations");
 
     ERR_FAIL_INDEX(idx, translations.size());
 
@@ -1230,7 +1230,7 @@ void ProjectSettingsEditor::_translation_res_add(StringView p_path) {
     Dictionary remaps;
 
     if (ProjectSettings::get_singleton()->has_setting("locale/translation_remaps")) {
-        remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+        remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps").as<Dictionary>();
         prev = remaps;
     }
 
@@ -1257,12 +1257,12 @@ void ProjectSettingsEditor::_translation_res_option_add(StringView p_path) {
 
     ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"));
 
-    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps").as<Dictionary>();
 
     TreeItem *k = translation_remap->get_selected();
     ERR_FAIL_COND(!k);
 
-    String key = k->get_metadata(0);
+    String key = k->get_metadata(0).as<String>();
 
     ERR_FAIL_COND(!remaps.has(key));
     PoolVector<String> r(remaps[key].as<PoolVector<String>>());
@@ -1295,16 +1295,16 @@ void ProjectSettingsEditor::_translation_res_option_changed() {
     if (!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
         return;
 
-    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps").as<Dictionary>();
 
     TreeItem *k = translation_remap->get_selected();
     ERR_FAIL_COND(!k);
     TreeItem *ed = translation_remap_options->get_edited();
     ERR_FAIL_COND(!ed);
 
-    String key = k->get_metadata(0);
-    int idx = ed->get_metadata(0);
-    String path = ed->get_metadata(1);
+    String key = k->get_metadata(0).as<String>();
+    int idx = ed->get_metadata(0).as<int>();
+    String path = ed->get_metadata(1).as<String>();
     int which = ed->get_range(1);
 
     Vector<String> langs = TranslationServer::get_all_locales();
@@ -1341,11 +1341,11 @@ void ProjectSettingsEditor::_translation_res_delete(Object *p_item, int p_column
     if (!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
         return;
 
-    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps").as<Dictionary>();
 
     TreeItem *k = object_cast<TreeItem>(p_item);
 
-    String key = k->get_metadata(0);
+    String key = k->get_metadata(0).as<String>();
     ERR_FAIL_COND(!remaps.has(key));
 
     remaps.erase(key);
@@ -1368,18 +1368,18 @@ void ProjectSettingsEditor::_translation_res_option_delete(Object *p_item, int p
     if (!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
         return;
 
-    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps").as<Dictionary>();
 
     TreeItem *k = translation_remap->get_selected();
     ERR_FAIL_COND(!k);
     TreeItem *ed = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ed);
 
-    String key = k->get_metadata(0);
-    int idx = ed->get_metadata(0);
+    String key = k->get_metadata(0).as<String>();
+    int idx = ed->get_metadata(0).as<int>();
 
     ERR_FAIL_COND(!remaps.has(key));
-    PoolStringArray r = remaps[key];
+    PoolStringArray r = remaps[key].as<PoolStringArray>();
     ERR_FAIL_INDEX(idx, r.size());
     r.remove(idx);
     remaps[key] = r;
@@ -1405,7 +1405,7 @@ void ProjectSettingsEditor::_translation_filter_option_changed() {
     Array f_locales_all;
 
     if (ProjectSettings::get_singleton()->has_setting("locale/locale_filter")) {
-        f_locales_all = ProjectSettings::get_singleton()->get("locale/locale_filter");
+        f_locales_all = ProjectSettings::get_singleton()->getT<Array>("locale/locale_filter");
         prev = f_locales_all;
 
         if (f_locales_all.size() != 2) {
@@ -1418,7 +1418,7 @@ void ProjectSettingsEditor::_translation_filter_option_changed() {
         f_locales_all.append(Array());
     }
 
-    Array f_locales = f_locales_all[1];
+    Array f_locales = f_locales_all[1].as<Array>();
     int l_idx = f_locales.find(locale);
 
     if (checked) {
@@ -1451,7 +1451,7 @@ void ProjectSettingsEditor::_translation_filter_mode_changed(int p_mode) {
     Array f_locales_all;
 
     if (ProjectSettings::get_singleton()->has_setting("locale/locale_filter")) {
-        f_locales_all = ProjectSettings::get_singleton()->get("locale/locale_filter");
+        f_locales_all = ProjectSettings::get_singleton()->getT<Array>("locale/locale_filter");
         prev = f_locales_all;
 
         if (f_locales_all.size() != 2) {
@@ -1511,11 +1511,11 @@ void ProjectSettingsEditor::_update_translations() {
     bool is_arr_empty = true;
     if (ProjectSettings::get_singleton()->has_setting("locale/locale_filter")) {
 
-        l_filter_all = ProjectSettings::get_singleton()->get("locale/locale_filter");
+        l_filter_all = ProjectSettings::get_singleton()->getT<Array>("locale/locale_filter");
 
         if (l_filter_all.size() == 2) {
 
-            translation_locale_filter_mode->select(l_filter_all[0]);
+            translation_locale_filter_mode->select(l_filter_all[0].as<int>());
             is_arr_empty = false;
         }
     }
@@ -1526,8 +1526,8 @@ void ProjectSettingsEditor::_update_translations() {
         translation_locale_filter_mode->select(0);
     }
 
-    int filter_mode = l_filter_all[0];
-    Array l_filter = l_filter_all[1];
+    int filter_mode = l_filter_all[0].as<int>();
+    Array l_filter = l_filter_all[1].as<Array>();
 
     int s = names.size();
     bool is_short_list_when_show_all_selected = filter_mode == SHOW_ALL_LOCALES && translation_filter_treeitems.size() < s;
@@ -1606,7 +1606,7 @@ void ProjectSettingsEditor::_update_translations() {
 
     if (ProjectSettings::get_singleton()->has_setting("locale/translation_remaps")) {
 
-        Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+        Dictionary remaps = ProjectSettings::get_singleton()->getT<Dictionary>("locale/translation_remaps");
         Vector<Variant> rk(remaps.get_key_list());
 
         Vector<String> keys;

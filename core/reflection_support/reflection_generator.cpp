@@ -52,7 +52,7 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         break;
         // Atomic types
     case VariantType::BOOL:
-        r_iarg.default_argument = bool(p_val) ? "true" : "false";
+        r_iarg.default_argument = p_val.as<bool>() ? "true" : "false";
         break;
     case VariantType::INT:
         if (r_iarg.type.cname != "int32_t") {

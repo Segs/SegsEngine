@@ -352,7 +352,8 @@ void VisualServerViewport::draw_viewports() {
             vp->render_info[RS::VIEWPORT_RENDER_INFO_2D_ITEMS_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_2D_ITEMS_IN_FRAME);
             vp->render_info[RS::VIEWPORT_RENDER_INFO_2D_DRAW_CALLS_IN_FRAME] = VSG::storage->get_captured_render_info(RS::INFO_2D_DRAW_CALLS_IN_FRAME);
 
-            if (vp->viewport_to_screen_rect != Rect2() && (!vp->viewport_render_direct_to_screen || !VSG::rasterizer->is_low_end())) {
+            //if (vp->viewport_to_screen_rect != Rect2() && (!vp->viewport_render_direct_to_screen || !VSG::rasterizer->is_low_end())) {
+            if (vp->viewport_to_screen_rect != Rect2()) {
                 //copy to screen if set as such
                 VSG::rasterizer->set_current_render_target(RID());
                 VSG::rasterizer->blit_render_target_to_screen(vp->render_target, vp->viewport_to_screen_rect, vp->viewport_to_screen);
@@ -436,11 +437,11 @@ void VisualServerViewport::viewport_attach_to_screen(RID p_viewport, const Rect2
 
     // If using GLES2 we can optimize this operation by rendering directly to system_fbo
     // instead of rendering to fbo and copying to system_fbo after
-    if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
-
-        VSG::storage->render_target_set_size(viewport->render_target, p_rect.size.x, p_rect.size.y);
-        VSG::storage->render_target_set_position(viewport->render_target, p_rect.position.x, p_rect.position.y);
-    }
+    // if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
+    //
+    //     VSG::storage->render_target_set_size(viewport->render_target, p_rect.size.x, p_rect.size.y);
+    //     VSG::storage->render_target_set_position(viewport->render_target, p_rect.position.x, p_rect.position.y);
+    // }
 
     viewport->viewport_to_screen_rect = p_rect;
     viewport->viewport_to_screen = p_screen;
@@ -464,11 +465,11 @@ void VisualServerViewport::viewport_set_render_direct_to_screen(RID p_viewport, 
     viewport->viewport_render_direct_to_screen = p_enable;
 
     // if attached to screen already, setup screen size and position, this needs to happen after setting flag to avoid an unnecessary buffer allocation
-    if (VSG::rasterizer->is_low_end() && viewport->viewport_to_screen_rect != Rect2() && p_enable) {
-
-        VSG::storage->render_target_set_size(viewport->render_target, viewport->viewport_to_screen_rect.size.x, viewport->viewport_to_screen_rect.size.y);
-        VSG::storage->render_target_set_position(viewport->render_target, viewport->viewport_to_screen_rect.position.x, viewport->viewport_to_screen_rect.position.y);
-    }
+    // if (VSG::rasterizer->is_low_end() && viewport->viewport_to_screen_rect != Rect2() && p_enable) {
+    //
+    //     VSG::storage->render_target_set_size(viewport->render_target, viewport->viewport_to_screen_rect.size.x, viewport->viewport_to_screen_rect.size.y);
+    //     VSG::storage->render_target_set_position(viewport->render_target, viewport->viewport_to_screen_rect.position.x, viewport->viewport_to_screen_rect.position.y);
+    // }
 }
 
 void VisualServerViewport::viewport_detach(RID p_viewport) {
@@ -477,11 +478,11 @@ void VisualServerViewport::viewport_detach(RID p_viewport) {
     ERR_FAIL_COND(!viewport);
 
     // if render_direct_to_screen was used, reset size and position
-    if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
-
-        VSG::storage->render_target_set_position(viewport->render_target, 0, 0);
-        VSG::storage->render_target_set_size(viewport->render_target, viewport->size.x, viewport->size.y);
-    }
+    // if (VSG::rasterizer->is_low_end() && viewport->viewport_render_direct_to_screen) {
+    //
+    //     VSG::storage->render_target_set_position(viewport->render_target, 0, 0);
+    //     VSG::storage->render_target_set_size(viewport->render_target, viewport->size.x, viewport->size.y);
+    // }
 
     viewport->viewport_to_screen_rect = Rect2();
     viewport->viewport_to_screen = 0;

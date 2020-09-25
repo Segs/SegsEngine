@@ -579,10 +579,10 @@ bool CSGShape::is_calculating_tangents() const {
 
 void CSGShape::_validate_property(PropertyInfo &property) const {
     bool is_collision_prefixed = StringUtils::begins_with(property.name,"collision_");
-    if ((is_collision_prefixed || StringUtils::begins_with(property.name,"use_collision")) && is_inside_tree() && !is_root_shape()) {
+    if (is_collision_prefixed && is_inside_tree() && !is_root_shape()) {
         //hide collision if not root
         property.usage = PROPERTY_USAGE_NOEDITOR;
-    } else if (is_collision_prefixed && !bool(get("use_collision"))) {
+    } else if (is_collision_prefixed && !get("collision_use").as<bool>()) {
         property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
     }
 }
@@ -635,7 +635,7 @@ void CSGShape::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "calculate_tangents"), "set_calculate_tangents", "is_calculating_tangents");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_collision"), "set_use_collision", "is_using_collision");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use"), "set_use_collision", "is_using_collision");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 

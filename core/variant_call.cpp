@@ -65,6 +65,16 @@ using String = String;
 using VariantFunc = void (*)(Variant &, Variant &, const Variant **);
 using VariantConstructFunc = void (*)(Variant &, const Variant **);
 
+namespace {
+    struct VariantAutoCaster {
+        const Variant &from;
+        constexpr VariantAutoCaster(const Variant&src) : from(src) {}
+        template<class T>
+        operator T() const{
+          return from.as<T>();
+        }
+    };
+}
 struct _VariantCall {
     struct Arg {
         const char * name;
@@ -243,25 +253,25 @@ struct _VariantCall {
 #define VCALL_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(); }
 #define VCALL_LOCALMEM1(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0])); }
 #define VCALL_LOCALMEM1R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0])); }
 #define VCALL_LOCALMEM2(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1])); }
 #define VCALL_LOCALMEM2R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1])); }
 #define VCALL_LOCALMEM3(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])); }
 #define VCALL_LOCALMEM3R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])); }
 #define VCALL_LOCALMEM4(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3])); }
 #define VCALL_LOCALMEM4R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3])); }
 #define VCALL_LOCALMEM5(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3], *p_args[4]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]), VariantAutoCaster(*p_args[4])); }
 #define VCALL_LOCALMEM5R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3], *p_args[4]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._mem)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]), VariantAutoCaster(*p_args[4])); }
 
     // built-in functions of localmem based types
 #define VCALL_SU_LOCALMEM0R(m_type, m_method) \
@@ -269,26 +279,26 @@ struct _VariantCall {
     r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem))); }
 #define VCALL_SU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),VariantAutoCaster(*p_args[0]))); }
 #define VCALL_SU_LOCALMEM2R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0],*p_args[1])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<String *>(p_self._data._mem),VariantAutoCaster(*p_args[0]),VariantAutoCaster(*p_args[1]))); }
 #define VCALL_SU_LOCALMEM2(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1]); }
+    StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),VariantAutoCaster(*p_args[0]),VariantAutoCaster(*p_args[1])); }
 
 #define VCALL_SU_LOCALMEM3R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0],*p_args[1],*p_args[2])); }
+    r_ret = Variant::from(StringUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),VariantAutoCaster(*p_args[0]),VariantAutoCaster(*p_args[1]),VariantAutoCaster(*p_args[2]))); }
 #define VCALL_PU_LOCALMEM0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) { \
     r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem)); }
 #define VCALL_PU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),*p_args[0]); }
+    r_ret = PathUtils::m_method(*reinterpret_cast<m_type *>(p_self._data._mem),VariantAutoCaster(*p_args[0])); }
 #define VCALL_SPU_LOCALMEM1R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant ** p_args) { \
-    r_ret = PathUtils::m_method(*p_args[0]); }
+    r_ret = PathUtils::m_method(VariantAutoCaster(*p_args[0])); }
 
     static void _call_String_casecmp_to(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         r_ret = StringUtils::compare(*reinterpret_cast<String *>(p_self._data._mem),(*p_args[0]).as<String>());
@@ -299,27 +309,28 @@ struct _VariantCall {
     static void _call_String_length(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         r_ret = reinterpret_cast<String *>(p_self._data._mem)->length(); }
     static void _call_String_count(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::count(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1],*p_args[2]));
+        r_ret = Variant(StringUtils::count(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])));
     }
     static void _call_String_countn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::countn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1],*p_args[2]));
+        r_ret = Variant(StringUtils::countn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])));
     }
     VCALL_SU_LOCALMEM2R(String, substr)
     static void _call_String_find(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::find(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
+        r_ret = Variant(StringUtils::find(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), VariantAutoCaster(*p_args[1])));
     }
     static void _call_String_find_last(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
         r_ret = Variant(StringUtils::find_last(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
     static void _call_String_findn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::findn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
+        r_ret = Variant(StringUtils::findn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), VariantAutoCaster(*p_args[1])));
     }
     static void _call_String_rfind(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::rfind(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
+        r_ret = Variant(StringUtils::rfind(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), VariantAutoCaster(*p_args[1])));
     }
     static void _call_String_rfindn(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
-        r_ret = Variant(StringUtils::rfindn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),*p_args[1]));
+        r_ret = Variant(StringUtils::rfindn(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(),p_args[1]->as<int>()));
     }
+
     static void _call_String_match(Variant &r_ret, Variant &p_self, const Variant ** p_args) {
         r_ret = Variant(StringUtils::match(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>()));
     }
@@ -342,7 +353,7 @@ struct _VariantCall {
 //    VCALL_SU_LOCALMEM1R(String, similarity)
 
 //    static void _call_String_format(Variant &r_ret, Variant &p_self, const Variant **p_args) {
-//        r_ret = StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),*p_args[0]);
+//        r_ret = StringUtils::format(*reinterpret_cast<String *>(p_self._data._mem),VariantAutoCaster(*p_args[0]));
 //    }
     static void _call_String_replace(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         r_ret = StringUtils::replace(*reinterpret_cast<String *>(p_self._data._mem),p_args[0]->as<String>(), p_args[1]->as<String>());
@@ -570,7 +581,7 @@ struct _VariantCall {
     //return vector3 if intersected, nil if not
     static void _call_Plane_intersect_3(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Vector3 result;
-        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersect_3(*p_args[0], *p_args[1], &result))
+        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersect_3(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), &result))
             r_ret = result;
         else
             r_ret = Variant();
@@ -578,7 +589,7 @@ struct _VariantCall {
 
     static void _call_Plane_intersects_ray(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Vector3 result;
-        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersects_ray(*p_args[0], *p_args[1], &result))
+        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersects_ray(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), &result))
             r_ret = result;
         else
             r_ret = Variant();
@@ -586,7 +597,7 @@ struct _VariantCall {
 
     static void _call_Plane_intersects_segment(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         Vector3 result;
-        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersects_segment(*p_args[0], *p_args[1], &result))
+        if (reinterpret_cast<Plane *>(p_self._data._mem)->intersects_segment(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), &result))
             r_ret = result;
         else
             r_ret = Variant();
@@ -712,7 +723,7 @@ struct _VariantCall {
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         PoolByteArray compressed;
         if (ba->size() > 0) {
-            Compression::Mode mode = (Compression::Mode)(int)(*p_args[0]);
+            Compression::Mode mode = (Compression::Mode)(int)(VariantAutoCaster(*p_args[0]));
 
             compressed.resize(Compression::get_max_compressed_buffer_size(ba->size(), mode));
             int result = Compression::compress(compressed.write().ptr(), ba->read().ptr(), ba->size(), mode);
@@ -727,9 +738,9 @@ struct _VariantCall {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         PoolByteArray decompressed;
-        Compression::Mode mode = (Compression::Mode)(int)(*p_args[1]);
+        Compression::Mode mode = (Compression::Mode)(int)(VariantAutoCaster(*p_args[1]));
 
-        int buffer_size = (int)(*p_args[0]);
+        int buffer_size = (int)(VariantAutoCaster(*p_args[0]));
 
         if (buffer_size <= 0) {
             r_ret = decompressed;
@@ -812,7 +823,7 @@ struct _VariantCall {
 
     static void _call_PoolStringArray_join(Variant &r_ret, Variant &p_self, const Variant **p_args) {
         const PoolStringArray &lhs(*reinterpret_cast<PoolStringArray *>(p_self._data._mem));
-        String delimiter(*p_args[0]);
+        String delimiter(p_args[0]->as<String>());
         String rs;
         int s = lhs.size();
         auto r = lhs.read();
@@ -867,25 +878,25 @@ struct _VariantCall {
 #define VCALL_PTR0R(m_type, m_method) \
     static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(); }
 #define VCALL_PTR1(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0])); }
 #define VCALL_PTR1R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0])); }
 #define VCALL_PTR2(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1])); }
 #define VCALL_PTR2R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1])); }
 #define VCALL_PTR3(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])); }
 #define VCALL_PTR3R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2])); }
 #define VCALL_PTR4(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3])); }
 #define VCALL_PTR4R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3])); }
 #define VCALL_PTR5(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3], *p_args[4]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]), VariantAutoCaster(*p_args[4])); }
 #define VCALL_PTR5R(m_type, m_method) \
-    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(*p_args[0], *p_args[1], *p_args[2], *p_args[3], *p_args[4]); }
+    static void _call_##m_type##_##m_method(Variant &r_ret, Variant &p_self, const Variant **p_args) { r_ret = reinterpret_cast<m_type *>(p_self._data._ptr)->m_method(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]), VariantAutoCaster(*p_args[4])); }
 
     VCALL_PTR0R(AABB, abs)
     VCALL_PTR0R(AABB, get_area)
@@ -926,8 +937,8 @@ struct _VariantCall {
         Transform2D *trn = reinterpret_cast<Transform2D *>(p_self._data._ptr);
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR2: r_ret = trn->xform(p_args[0]->operator Vector2()); return;
-            case VariantType::RECT2: r_ret = trn->xform(p_args[0]->operator Rect2()); return;
+            case VariantType::VECTOR2: r_ret = trn->xform(p_args[0]->as<Vector2>()); return;
+            case VariantType::RECT2: r_ret = trn->xform(p_args[0]->as<Rect2>()); return;
             case VariantType::POOL_VECTOR2_ARRAY:
             {
                 PoolVector2Array v = p_args[0]->as<PoolVector2Array>();
@@ -944,8 +955,8 @@ struct _VariantCall {
         Transform2D *trn = reinterpret_cast<Transform2D *>(p_self._data._ptr);
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR2: r_ret = trn->xform_inv(p_args[0]->operator Vector2()); return;
-            case VariantType::RECT2: r_ret = trn->xform_inv(p_args[0]->operator Rect2()); return;
+            case VariantType::VECTOR2: r_ret = trn->xform_inv(p_args[0]->as<Vector2>()); return;
+            case VariantType::RECT2: r_ret = trn->xform_inv(p_args[0]->as<Rect2>()); return;
             case VariantType::POOL_VECTOR2_ARRAY:
             {
                 PoolVector2Array v = p_args[0]->as<PoolVector2Array>();
@@ -962,7 +973,7 @@ struct _VariantCall {
 
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR2: r_ret = reinterpret_cast<Transform2D *>(p_self._data._ptr)->basis_xform(p_args[0]->operator Vector2()); return;
+            case VariantType::VECTOR2: r_ret = reinterpret_cast<Transform2D *>(p_self._data._ptr)->basis_xform(p_args[0]->as<Vector2>()); return;
             default: r_ret = Variant();
         }
     }
@@ -971,7 +982,7 @@ struct _VariantCall {
 
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR2: r_ret = reinterpret_cast<Transform2D *>(p_self._data._ptr)->basis_xform_inv(p_args[0]->operator Vector2()); return;
+            case VariantType::VECTOR2: r_ret = reinterpret_cast<Transform2D *>(p_self._data._ptr)->basis_xform_inv(p_args[0]->as<Vector2>()); return;
             default: r_ret = Variant();
         }
     }
@@ -1007,9 +1018,9 @@ struct _VariantCall {
         Transform *trn = reinterpret_cast<Transform *>(p_self._data._ptr);
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR3: r_ret = trn->xform(p_args[0]->operator Vector3()); return;
-            case VariantType::PLANE: r_ret = trn->xform(p_args[0]->operator Plane()); return;
-            case VariantType::AABB: r_ret = trn->xform(p_args[0]->operator ::AABB()); return;
+            case VariantType::VECTOR3: r_ret = trn->xform(p_args[0]->as<Vector3>()); return;
+            case VariantType::PLANE: r_ret = trn->xform(p_args[0]->as<Plane>()); return;
+            case VariantType::AABB: r_ret = trn->xform(p_args[0]->as<::AABB>()); return;
             case VariantType::POOL_VECTOR3_ARRAY:
             {
                 PoolVector3Array v = p_args[0]->as<PoolVector3Array>();
@@ -1027,9 +1038,9 @@ struct _VariantCall {
 
         switch (p_args[0]->type) {
 
-            case VariantType::VECTOR3: r_ret = trn->xform_inv(p_args[0]->operator Vector3()); return;
-            case VariantType::PLANE: r_ret = trn->xform_inv(p_args[0]->operator Plane()); return;
-            case VariantType::AABB: r_ret = trn->xform_inv(p_args[0]->operator ::AABB()); return;
+            case VariantType::VECTOR3: r_ret = trn->xform_inv(p_args[0]->as<Vector3>()); return;
+            case VariantType::PLANE: r_ret = trn->xform_inv(p_args[0]->as<Plane>()); return;
+            case VariantType::AABB: r_ret = trn->xform_inv(p_args[0]->as<::AABB>()); return;
             case VariantType::POOL_VECTOR3_ARRAY:
             {
                 PoolVector3Array v = p_args[0]->as<PoolVector3Array>();
@@ -1067,81 +1078,81 @@ struct _VariantCall {
 
     static void Vector2_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Vector2(*p_args[0], *p_args[1]);
+        r_ret = Vector2(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]));
     }
 
     static void Rect2_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Rect2(*p_args[0], *p_args[1]);
+        r_ret = Rect2(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]));
     }
 
     static void Rect2_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Rect2(*p_args[0], *p_args[1], *p_args[2], *p_args[3]);
+        r_ret = Rect2(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]));
     }
 
     static void Transform2D_init2(Variant &r_ret, const Variant **p_args) {
 
-        Transform2D m(*p_args[0], *p_args[1]);
+        Transform2D m(p_args[0]->as<float>(), p_args[1]->as<Vector2>());
         r_ret = m;
     }
 
     static void Transform2D_init3(Variant &r_ret, const Variant **p_args) {
 
         Transform2D m;
-        m[0] = *p_args[0];
-        m[1] = *p_args[1];
-        m[2] = *p_args[2];
+        m[0] = p_args[0]->as<Vector2>();
+        m[1] = p_args[1]->as<Vector2>();
+        m[2] = p_args[2]->as<Vector2>();
         r_ret = m;
     }
 
     static void Vector3_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Vector3(*p_args[0], *p_args[1], *p_args[2]);
+        r_ret = Vector3(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]));
     }
 
     static void Plane_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Plane(*p_args[0], *p_args[1], *p_args[2], *p_args[3]);
+        r_ret = Plane(p_args[0]->as<float>(), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]));
     }
 
     static void Plane_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Plane(*p_args[0], *p_args[1], *p_args[2]);
+        r_ret = Plane(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]));
     }
 
     static void Plane_init3(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Plane(p_args[0]->operator Vector3(), p_args[1]->operator real_t());
+        r_ret = Plane(p_args[0]->as<Vector3>(), p_args[1]->as<real_t>());
     }
     static void Plane_init4(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Plane(p_args[0]->operator Vector3(), p_args[1]->operator Vector3());
+        r_ret = Plane(p_args[0]->as<Vector3>(), p_args[1]->as<Vector3>());
     }
 
     static void Quat_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Quat(*p_args[0], *p_args[1], *p_args[2], *p_args[3]);
+        r_ret = Quat(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]));
     }
 
     static void Quat_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Quat(((Vector3)(*p_args[0])), ((real_t)(*p_args[1])));
+        r_ret = Quat(p_args[0]->as<Vector3>(), p_args[1]->as<float>());
     }
 
     static void Quat_init3(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Quat(((Vector3)(*p_args[0])));
+        r_ret = Quat(p_args[0]->as<Vector3>());
     }
 
     static void Color_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Color(*p_args[0], *p_args[1], *p_args[2], *p_args[3]);
+        r_ret = Color(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]), VariantAutoCaster(*p_args[3]));
     }
 
     static void Color_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Color(*p_args[0], *p_args[1], *p_args[2]);
+        r_ret = Color(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]), VariantAutoCaster(*p_args[2]));
     }
 
     static void Color_init3(Variant &r_ret, const Variant **p_args) {
@@ -1151,41 +1162,41 @@ struct _VariantCall {
 
     static void Color_init4(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Color::hex(*p_args[0]);
+        r_ret = Color::hex(VariantAutoCaster(*p_args[0]));
     }
 
     static void AABB_init1(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = ::AABB(*p_args[0], *p_args[1]);
+        r_ret = ::AABB(VariantAutoCaster(*p_args[0]), VariantAutoCaster(*p_args[1]));
     }
 
     static void Basis_init1(Variant &r_ret, const Variant **p_args) {
 
         Basis m;
-        m.set_axis(0, *p_args[0]);
-        m.set_axis(1, *p_args[1]);
-        m.set_axis(2, *p_args[2]);
+        m.set_axis(0, VariantAutoCaster(*p_args[0]));
+        m.set_axis(1, VariantAutoCaster(*p_args[1]));
+        m.set_axis(2, VariantAutoCaster(*p_args[2]));
         r_ret = m;
     }
 
     static void Basis_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Basis(p_args[0]->operator Vector3(), p_args[1]->operator real_t());
+        r_ret = Basis(p_args[0]->as<Vector3>(), p_args[1]->as<real_t>());
     }
 
     static void Transform_init1(Variant &r_ret, const Variant **p_args) {
 
         Transform t;
-        t.basis.set_axis(0, *p_args[0]);
-        t.basis.set_axis(1, *p_args[1]);
-        t.basis.set_axis(2, *p_args[2]);
-        t.origin = *p_args[3];
+        t.basis.set_axis(0, VariantAutoCaster(*p_args[0]));
+        t.basis.set_axis(1, VariantAutoCaster(*p_args[1]));
+        t.basis.set_axis(2, VariantAutoCaster(*p_args[2]));
+        t.origin = p_args[3]->as<Vector3>();
         r_ret = t;
     }
 
     static void Transform_init2(Variant &r_ret, const Variant **p_args) {
 
-        r_ret = Transform(p_args[0]->operator Basis(), p_args[1]->operator Vector3());
+        r_ret = Transform(p_args[0]->as<Basis>(), p_args[1]->as<Vector3>());
     }
 
     static void add_constructor(VariantConstructFunc p_func, const VariantType p_type,
@@ -1368,52 +1379,52 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
                 return Variant();
             }
             case VariantType::BOOL: {
-                return Variant(bool(*p_args[0]));
+                return Variant(p_args[0]->as<bool>());
             }
             case VariantType::INT: {
-                return (int64_t(*p_args[0]));
+                return p_args[0]->as<int64_t>();
             }
             case VariantType::FLOAT: {
-                return real_t(*p_args[0]);
+                return p_args[0]->as<real_t>();
             }
             case VariantType::STRING: {
-                return String(*p_args[0]);
+                return p_args[0]->as<String>();
             }
             case VariantType::VECTOR2: {
-                return Vector2(*p_args[0]);
+                return p_args[0]->as<Vector2>();
             }
-            case VariantType::RECT2: return (Rect2(*p_args[0]));
-            case VariantType::VECTOR3: return (Vector3(*p_args[0]));
+            case VariantType::RECT2: return (p_args[0]->as<Rect2>());
+            case VariantType::VECTOR3: return (p_args[0]->as<Vector3>());
             case VariantType::TRANSFORM2D:
-                return (Transform2D(p_args[0]->operator Transform2D()));
+                return (Transform2D(p_args[0]->as<Transform2D>()));
 
-            case VariantType::PLANE: return (Plane(*p_args[0]));
-            case VariantType::QUAT: return (p_args[0]->operator Quat());
+            case VariantType::PLANE: return (p_args[0]->as<Plane>());
+            case VariantType::QUAT: return (p_args[0]->as<Quat>());
             case VariantType::AABB:
-                return (::AABB(*p_args[0])); // 10
-            case VariantType::BASIS: return (Basis(p_args[0]->operator Basis()));
+                return (p_args[0]->as<::AABB>()); // 10
+            case VariantType::BASIS: return (Basis(p_args[0]->as<Basis>()));
             case VariantType::TRANSFORM:
-                return (Transform(p_args[0]->operator Transform()));
+                return (Transform(p_args[0]->as<Transform>()));
 
             // misc types
-            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(p_args[0]->as<String>()) : Color::hex(*p_args[0]);
+            case VariantType::COLOR: return p_args[0]->type == VariantType::STRING ? Color::html(p_args[0]->as<String>()) : Color::hex(VariantAutoCaster(*p_args[0]));
             case VariantType::NODE_PATH:
-                return (NodePath(p_args[0]->operator NodePath())); // 15
-            case VariantType::_RID: return (RID(*p_args[0]));
-            case VariantType::OBJECT: return Variant((Object *)(p_args[0]->operator Object *()));
-            case VariantType::DICTIONARY: return p_args[0]->operator Dictionary();
+                return (NodePath(p_args[0]->as<NodePath>())); // 15
+            case VariantType::_RID: return (p_args[0]->as<RID>());
+            case VariantType::OBJECT: return Variant((Object *)(p_args[0]->as<Object *>()));
+            case VariantType::DICTIONARY: return p_args[0]->as<Dictionary>();
             case VariantType::ARRAY:
-                return p_args[0]->operator Array(); // 20
+                return p_args[0]->as<Array>(); // 20
 
             // arrays
-            case VariantType::POOL_BYTE_ARRAY: return (PoolByteArray(*p_args[0]));
-            case VariantType::POOL_INT_ARRAY: return (PoolIntArray(*p_args[0]));
-            case VariantType::POOL_REAL_ARRAY: return (PoolRealArray(*p_args[0]));
-            case VariantType::POOL_STRING_ARRAY: return (PoolStringArray(*p_args[0]));
+            case VariantType::POOL_BYTE_ARRAY: return (p_args[0]->as<PoolByteArray>());
+            case VariantType::POOL_INT_ARRAY: return (p_args[0]->as<PoolIntArray>());
+            case VariantType::POOL_REAL_ARRAY: return (p_args[0]->as<PoolRealArray>());
+            case VariantType::POOL_STRING_ARRAY: return (p_args[0]->as<PoolStringArray>());
             case VariantType::POOL_VECTOR2_ARRAY:
-                return Variant(PoolVector2Array(*p_args[0])); // 25
-            case VariantType::POOL_VECTOR3_ARRAY: return (PoolVector3Array(*p_args[0]));
-            case VariantType::POOL_COLOR_ARRAY: return (PoolColorArray(*p_args[0]));
+                return Variant(p_args[0]->as<PoolVector2Array>()); // 25
+            case VariantType::POOL_VECTOR3_ARRAY: return (p_args[0]->as<PoolVector3Array>());
+            case VariantType::POOL_COLOR_ARRAY: return (p_args[0]->as<PoolColorArray>());
             default: return Variant();
         }
     } else if (p_argcount >= 1) {

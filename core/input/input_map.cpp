@@ -231,9 +231,9 @@ void InputMap::load_from_globals() {
         String name(pi.name.asCString());
         name = substr(name,find(name,"/") + 1, name.length());
 
-        Dictionary action = ProjectSettings::get_singleton()->get(pi.name);
+        auto action {ProjectSettings::get_singleton()->getT<Dictionary>(pi.name)};
         float deadzone = action.has("deadzone") ? action["deadzone"].as<float>() : 0.5f;
-        Array events = action["events"];
+        auto events { action["events"].as<Array>()};
 
         add_action(StringName(name), deadzone);
         for (int i = 0; i < events.size(); i++) {

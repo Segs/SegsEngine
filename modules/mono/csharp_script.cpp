@@ -81,7 +81,7 @@ static bool _create_project_solution_if_needed() {
         // A solution does not yet exist, create a new one
 
         CRASH_COND(CSharpLanguage::get_singleton()->get_godotsharp_editor() == nullptr);
-        return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call_va("CreateProjectSolution");
+        return CSharpLanguage::get_singleton()->get_godotsharp_editor()->call_va("CreateProjectSolution").as<bool>();
     }
 
     return true;
@@ -490,10 +490,10 @@ String CSharpLanguage::make_function(const String &, const String &, const PoolS
 String CSharpLanguage::_get_indentation() const {
 #ifdef TOOLS_ENABLED
     if (Engine::get_singleton()->is_editor_hint()) {
-        bool use_space_indentation = EDITOR_DEF("text_editor/indent/type", 0);
+        bool use_space_indentation = EDITOR_DEF_T("text_editor/indent/type", false);
 
         if (use_space_indentation) {
-            int indent_size = EDITOR_DEF("text_editor/indent/size", 4);
+            int indent_size = EDITOR_DEF_T<int>("text_editor/indent/size", 4);
 
             String space_indent(indent_size,' ');
             return space_indent;
@@ -1076,7 +1076,7 @@ void CSharpLanguage::_load_scripts_metadata() {
             return;
         }
 
-        scripts_metadata = old_dict_var.operator Dictionary();
+        scripts_metadata = old_dict_var.as<Dictionary>();
         scripts_metadata_invalidated = false;
 
         print_verbose("Successfully loaded scripts metadata");
@@ -1095,12 +1095,12 @@ void CSharpLanguage::get_recognized_extensions(Vector<String> *p_extensions) con
 #ifdef TOOLS_ENABLED
 Error CSharpLanguage::open_in_external_editor(const Ref<Script> &p_script, int p_line, int p_col) {
 
-    return (Error)(int)get_godotsharp_editor()->call_va("OpenInExternalEditor", p_script, p_line, p_col);
+    return (Error)(int)get_godotsharp_editor()->call_va("OpenInExternalEditor", p_script, p_line, p_col).as<Error>();
 }
 
 bool CSharpLanguage::overrides_external_editor() {
 
-    return get_godotsharp_editor()->call_va("OverridesExternalEditor");
+    return get_godotsharp_editor()->call_va("OverridesExternalEditor").as<bool>();
 }
 #endif
 
@@ -1178,7 +1178,7 @@ void CSharpLanguage::_editor_init_callback() {
     UNHANDLED_EXCEPTION(exc)
 
 
-    EditorPlugin *godotsharp_editor = object_cast<EditorPlugin>(GDMonoMarshal::mono_object_to_variant(mono_object));
+    EditorPlugin *godotsharp_editor = GDMonoMarshal::mono_object_to_variant(mono_object).asT<EditorPlugin *>();
     CRASH_COND(godotsharp_editor == nullptr);
 
     // Enable it as a plugin
@@ -1656,9 +1656,9 @@ void CSharpInstance::get_property_list(Vector<PropertyInfo> *p_properties) const
             MonoObject *ret = method->invoke(mono_object);
 
             if (ret) {
-                Array array = Array(GDMonoMarshal::mono_object_to_variant(ret));
+                Array array = GDMonoMarshal::mono_object_to_variant(ret).as<Array>();
                 for (int i = 0, size = array.size(); i < size; i++)
-                    p_properties->push_back(PropertyInfo::from_dict(array.get(i)));
+                    p_properties->push_back(PropertyInfo::from_dict(array.get(i).as<Dictionary>()));
                 return;
             }
 
@@ -2793,7 +2793,7 @@ bool CSharpScript::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == CSharpLanguage::singleton->string_names._script_source) {
 
-        set_source_code(p_value);
+        set_source_code(p_value.as<String>());
         reload();
         return true;
     }
@@ -3173,7 +3173,7 @@ Error CSharpScript::reload(bool p_keep_state) {
 
     const Variant *script_metadata_var = CSharpLanguage::get_singleton()->get_scripts_metadata().getptr(get_path());
     if (script_metadata_var) {
-        Dictionary script_metadata = script_metadata_var->as<Dictionary>()["class"];
+        Dictionary script_metadata = script_metadata_var->as<Dictionary>()["class"].as<Dictionary>();
         const Variant *namespace_ = script_metadata.getptr("namespace");
         const Variant *class_name = script_metadata.getptr("class_name");
         ERR_FAIL_NULL_V(namespace_, ERR_BUG);

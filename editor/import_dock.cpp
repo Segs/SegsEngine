@@ -207,7 +207,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
             Variant value = config->get_value("params", E);
 
             if (value_frequency[E].has(value)) {
-                value_frequency[E][value] = int(value_frequency[E][value]) + 1;
+                value_frequency[E][value] = value_frequency[E][value].as<int>() + 1;
             } else {
                 value_frequency[E][value] = 1;
             }
@@ -235,7 +235,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
             Vector<Variant> v(d.get_key_list());
             Variant value;
             for (const Variant &F : v) {
-                int f = d[F];
+                int f = d[F].as<int>();
                 if (f > freq) {
                     value = F;
                 }
@@ -299,7 +299,7 @@ void ImportDock::_update_preset_menu() {
     }
 }
 void ImportDock::_importer_selected(int i_idx) {
-    String name = import_as->get_selected_metadata();
+    String name = import_as->get_selected_metadata().as<String>();
     ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
     ERR_FAIL_COND(importer==nullptr);
 
@@ -336,15 +336,15 @@ void ImportDock::_preset_selected(int p_idx) {
 
             ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults));
 
-            Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
+            Dictionary d = ProjectSettings::get_singleton()->getT<Dictionary>(importer_defaults);
             Vector<Variant> v(d.get_key_list());
             if (params->checking) {
                 params->checked.clear();
             }
             for (const Variant &E : v) {
-                params->values[E] = d[E];
+                params->values[E.as<StringName>()] = d[E];
                 if (params->checking) {
-                    params->checked.insert(E);
+                    params->checked.insert(E.as<StringName>());
                 }
             }
             params->update();
@@ -421,7 +421,7 @@ void ImportDock::_reimport_attempt() {
         Error err = config->load(params->paths[i] + ".import");
         ERR_CONTINUE(err != OK);
 
-        StringName imported_with(config->get_value("remap", "importer"));
+        StringName imported_with(config->get_value("remap", "importer").as<StringName>());
         if (imported_with != params->importer->get_importer_name()) {
             need_restart = true;
             if (_find_owners(EditorFileSystem::get_singleton()->get_filesystem(), params->paths[i])) {
@@ -481,7 +481,7 @@ void ImportDock::_reimport() {
         if (!group_file_property.empty()) {
             //can import from a group (as in, atlas)
             ERR_CONTINUE(!params->values.contains(group_file_property));
-            String group_file = params->values[group_file_property];
+            String group_file = params->values[group_file_property].as<String>();
             config->set_value("remap", "group_file", group_file);
         } else {
             config->set_value("remap", "group_file", Variant()); //clear group file if unused

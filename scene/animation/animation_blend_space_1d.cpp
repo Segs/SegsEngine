@@ -45,9 +45,10 @@ Ref<AnimationNode> AnimationNodeBlendSpace1D::get_child_by_name(const StringName
 }
 
 void AnimationNodeBlendSpace1D::_validate_property(PropertyInfo &property) const {
-    if (StringUtils::begins_with(property.name,"blend_point_")) {
-        StringView left = StringUtils::get_slice(property.name,'/', 0);
-        int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
+    if (StringUtils::begins_with(property.name,"blend_point/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, property.name, '/');
+        int idx = StringUtils::to_int(parts[1]);
         if (idx >= blend_points_used) {
             property.usage = 0;
         }
@@ -281,7 +282,7 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
         // we are on the right side, no other point to the right
         // we just play the previous point
 
-        weights[point_lower] = 1.0;
+        weights[point_lower] = 1.0f;
     } else {
 
         // we are between two points.

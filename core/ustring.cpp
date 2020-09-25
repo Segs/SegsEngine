@@ -3707,7 +3707,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                         return ("a number is required");
                     }
 
-                    int64_t value = values[value_index];
+                    int64_t value = values[value_index].as<int64_t>();
                     int base = 16;
                     bool capitalize = false;
                     switch (c) {
@@ -3803,7 +3803,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                     // Convert to character.
                     String str;
                     if (values[value_index].is_num()) {
-                        int value = values[value_index];
+                        int value = values[value_index].as<int>();
                         if (value < 0) {
                             return ("unsigned byte integer is lower than maximum");
                         } else if (value > 255) {
@@ -3881,7 +3881,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                         return ("* wants number");
                     }
 
-                    int size = values[value_index];
+                    int size = values[value_index].as<int>();
 
                     if (in_decimals) {
                         min_decimals = size;

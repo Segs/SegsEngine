@@ -204,14 +204,14 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
     Vector<String> * r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
     String p_save_path(_save_path);
-    int compress_mode = p_options.at("compress/mode");
-    int no_bptc_if_rgb = p_options.at("compress/no_bptc_if_rgb");
-    int repeat = p_options.at("flags/repeat");
+    int compress_mode= p_options.at("compress/mode").as<int>();
+    int no_bptc_if_rgb= p_options.at("compress/no_bptc_if_rgb").as<int>();
+    int repeat= p_options.at("flags/repeat").as<int>();
     bool filter = p_options.at("flags/filter").as<bool>();
     bool mipmaps = p_options.at("flags/mipmaps").as<bool>();
-    int srgb = p_options.at("flags/srgb");
-    int hslices = p_options.at("slices/horizontal");
-    int vslices = p_options.at("slices/vertical");
+    int srgb= p_options.at("flags/srgb").as<int>();
+    int hslices= p_options.at("slices/horizontal").as<int>();
+    int vslices= p_options.at("slices/vertical").as<int>();
 
     Ref<Image> image(make_ref_counted<Image>());
 
@@ -272,7 +272,7 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
         bool ok_on_pc = false;
         bool encode_bptc = false;
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc")) {
+        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_bptc")) {
 
             encode_bptc = true;
 
@@ -293,7 +293,7 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
             ok_on_pc = true;
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_s3tc")) {
+        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_s3tc")) {
 
             _save_tex(slices, p_save_path + ".s3tc." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC, mipmaps, tex_flags);
             r_platform_variants->push_back("s3tc");
@@ -301,20 +301,20 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
             formats_imported.push_back("s3tc");
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2")) {
+        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc2")) {
 
             _save_tex(slices, p_save_path + ".etc2." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags);
             r_platform_variants->push_back("etc2");
             formats_imported.push_back("etc2");
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc")) {
+        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc")) {
             _save_tex(slices, p_save_path + ".etc." + extension, compress_mode, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags);
             r_platform_variants->push_back("etc");
             formats_imported.push_back("etc");
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc")) {
+        if (ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_pvrtc")) {
 
             _save_tex(slices, p_save_path + ".pvrtc." + extension, compress_mode, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags);
             r_platform_variants->push_back("pvrtc");
@@ -361,7 +361,7 @@ String LayeredTextureImpl::get_import_settings_string() const {
 bool LayeredTextureImpl::are_import_settings_valid(StringView p_path) const {
 
     //will become invalid if formats are missing to import
-    Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
+    Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path).as<Dictionary>();
 
     if (!metadata.has("vram_texture")) {
         return false;

@@ -88,7 +88,7 @@ public:
 
     void _fix_node_path(Variant &value) {
 
-        NodePath np = value;
+        NodePath np= value.as<NodePath>();
 
         if (np == NodePath())
             return;
@@ -133,7 +133,7 @@ public:
         StringView name(p_name);
         if (name == "time"_sv || name == "frame"_sv) {
 
-            float new_time = p_value;
+            float new_time= p_value.as<float>();
 
             if (name == "frame"_sv) {
                 float fps = animation->get_step();
@@ -174,7 +174,7 @@ public:
 
         if (name == "easing"_sv) {
 
-            float val = p_value;
+            float val= p_value.as<float>();
             float prev_val = animation->track_get_key_transition(track, key);
             setting = true;
             undo_redo->create_action(TTR("Anim Change Transition"), UndoRedo::MERGE_ENDS);
@@ -192,7 +192,7 @@ public:
 
             case Animation::TYPE_TRANSFORM: {
 
-                Dictionary d_old = animation->track_get_key_value(track, key);
+                Dictionary d_old = animation->track_get_key_value(track, key).as<Dictionary>();
                 Dictionary d_new = d_old.duplicate();
                 d_new[p_name] = p_value;
                 setting = true;
@@ -231,7 +231,7 @@ public:
             } break;
             case Animation::TYPE_METHOD: {
 
-                Dictionary d_old = animation->track_get_key_value(track, key);
+                Dictionary d_old = animation->track_get_key_value(track, key).as<Dictionary>();
                 Dictionary d_new = d_old.duplicate();
 
                 bool change_notify_deserved = false;
@@ -243,7 +243,7 @@ public:
                 } else if (name == "arg_count"_sv) {
 
                     Array args = d_old["args"].as<Array>();
-                    args.resize(p_value);
+                    args.resize(p_value.as<int>());
                     d_new["args"] = Variant::from(args);
                     change_notify_deserved = true;
                 } else if (StringUtils::begins_with(name,"args/")) {
@@ -254,7 +254,7 @@ public:
 
                     StringView what = StringUtils::get_slice(name,"/", 2);
                     if (what == "type"_sv) {
-                        VariantType t = VariantType(int(p_value));
+                        VariantType t = p_value.as<VariantType>();
 
                         if (t != args[idx].get_type()) {
                             Callable::CallError err;
@@ -374,7 +374,7 @@ public:
 
                 if (name == "start_offset"_sv) {
 
-                    float value = p_value;
+                    float value= p_value.as<float>();
 
                     setting = true;
                     undo_redo->create_action(TTR("Anim Change Keyframe Value"), UndoRedo::MERGE_ENDS);
@@ -391,7 +391,7 @@ public:
 
                 if (name == "end_offset"_sv) {
 
-                    float value = p_value;
+                    float value= p_value.as<float>();
 
                     setting = true;
                     undo_redo->create_action(TTR("Anim Change Keyframe Value"), UndoRedo::MERGE_ENDS);
@@ -410,7 +410,7 @@ public:
 
                 if (name == "animation"_sv) {
 
-                    StringName anim_name = p_value;
+                    StringName anim_name= p_value.as<StringName>();
 
                     setting = true;
                     undo_redo->create_action(TTR("Anim Change Keyframe Value"), UndoRedo::MERGE_ENDS);
@@ -460,7 +460,7 @@ public:
         switch (animation->track_get_type(track)) {
             case Animation::TYPE_TRANSFORM: {
 
-                Dictionary d = animation->track_get_key_value(track, key);
+                Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has(name), false);
                 r_ret = d[p_name];
                 return true;
@@ -476,7 +476,7 @@ public:
             } break;
             case Animation::TYPE_METHOD: {
 
-                Dictionary d = animation->track_get_key_value(track, key);
+                Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
 
                 if (name == "name"_sv) {
 
@@ -619,7 +619,7 @@ public:
                 p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
                 p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
-                Dictionary d = animation->track_get_key_value(track, key);
+                Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
                 ERR_FAIL_COND(!d.has("args"));
                 Array args = d["args"].as<Array>();
                 String vtypes;
@@ -741,7 +741,7 @@ public:
 
     void _fix_node_path(Variant &value, NodePath &base) {
 
-        NodePath np = value;
+        NodePath np= value.as<NodePath>();
 
         if (np == NodePath())
             return;
@@ -808,7 +808,7 @@ public:
                 StringView name(p_name);
                 if (name == "time"_sv || name == "frame"_sv) {
 
-                    float new_time = p_value;
+                    float new_time= p_value.as<float>();
 
                     if (name == "frame"_sv) {
                         float fps = animation->get_step();
@@ -842,7 +842,7 @@ public:
                     }
                 } else if (name == "easing"_sv) {
 
-                    float val = p_value;
+                    float val= p_value.as<float>();
                     float prev_val = animation->track_get_key_transition(track, key);
 
                     if (!setting) {
@@ -858,7 +858,7 @@ public:
 
                     case Animation::TYPE_TRANSFORM: {
 
-                        Dictionary d_old = animation->track_get_key_value(track, key);
+                        Dictionary d_old = animation->track_get_key_value(track, key).as<Dictionary>();
                         Dictionary d_new = d_old.duplicate();
                         d_new[p_name] = p_value;
 
@@ -892,7 +892,7 @@ public:
                     } break;
                     case Animation::TYPE_METHOD: {
 
-                        Dictionary d_old = animation->track_get_key_value(track, key);
+                        Dictionary d_old = animation->track_get_key_value(track, key).as<Dictionary>();
                         Dictionary d_new = d_old.duplicate();
 
                         bool mergeable = false;
@@ -903,7 +903,7 @@ public:
                         } else if (name == "arg_count"_sv) {
 
                             Array args = d_old["args"].as<Array>();
-                            args.resize(p_value);
+                            args.resize(p_value.as<int>());
                             d_new["args"] = Variant::move_from(eastl::move(args));
                             change_notify_deserved = true;
                         } else if (StringUtils::begins_with(name,"args/")) {
@@ -914,7 +914,7 @@ public:
 
                             StringView what = StringUtils::get_slice(name,"/", 2);
                             if (what == "type"_sv) {
-                                VariantType t = VariantType(int(p_value));
+                                VariantType t = p_value.as<VariantType>();
 
                                 if (t != args[idx].get_type()) {
                                     Callable::CallError err;
@@ -1014,7 +1014,7 @@ public:
                             update_obj = true;
                         } else if (name == "start_offset"_sv) {
 
-                            float value = p_value;
+                            float value= p_value.as<float>();
 
                             if (!setting) {
                                 setting = true;
@@ -1026,7 +1026,7 @@ public:
                             update_obj = true;
                         } else if (name == "end_offset"_sv) {
 
-                            float value = p_value;
+                            float value= p_value.as<float>();
 
                             if (!setting) {
                                 setting = true;
@@ -1042,7 +1042,7 @@ public:
 
                         if (name == "animation"_sv) {
 
-                            StringName anim_name = p_value;
+                            StringName anim_name= p_value.as<StringName>();
 
                             if (!setting) {
                                 setting = true;
@@ -1113,7 +1113,7 @@ public:
 
                     case Animation::TYPE_TRANSFORM: {
 
-                        Dictionary d = animation->track_get_key_value(track, key);
+                        Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
                         ERR_FAIL_COND_V(!d.has(name), false);
                         r_ret = d[p_name];
                         return true;
@@ -1129,7 +1129,7 @@ public:
                     } break;
                     case Animation::TYPE_METHOD: {
 
-                        Dictionary d = animation->track_get_key_value(track, key);
+                        Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
 
                         if (name == "name"_sv) {
 
@@ -1315,7 +1315,7 @@ public:
                     p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
                     p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
-                    Dictionary d = animation->track_get_key_value(first_track, first_key);
+                    Dictionary d = animation->track_get_key_value(first_track, first_key).as<Dictionary>();
                     ERR_FAIL_COND(!d.has("args"));
                     Array args = d["args"].as<Array>();
                     String vtypes;
@@ -1666,7 +1666,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
                 int prev_sc = int(Math::floor(prev * SC_ADJ));
                 bool sub = sc % SC_ADJ;
 
-                if (sc / step != prev_sc / step || (prev_sc < 0 && sc >= 0)) {
+                if (sc / step != prev_sc / step || prev_sc < 0 && sc >= 0) {
 
                     int scd = sc < 0 ? prev_sc : sc;
                     draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
@@ -2303,7 +2303,7 @@ void AnimationTrackEdit::draw_key(int p_index, float p_pixels_sec, int p_x, bool
         Color color = get_color("font_color", "Label");
         color.a = 0.5;
 
-        Dictionary d = animation->track_get_key_value(track, p_index);
+        Dictionary d = animation->track_get_key_value(track, p_index).as<Dictionary>();
         String text;
 
         if (d.has("method"))
@@ -2582,13 +2582,13 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
                 case Animation::TYPE_TRANSFORM: {
 
-                    Dictionary d = animation->track_get_key_value(track, key_idx);
+                    Dictionary d = animation->track_get_key_value(track, key_idx).as<Dictionary>();
                     if (d.has("location"))
-                        text += "Pos: " + String(d["location"]) + "\n";
+                        text += "Pos: " + d["location"].as<String>() + "\n";
                     if (d.has("rotation"))
-                        text += "Rot: " + String(d["rotation"]) + "\n";
+                        text += "Rot: " + d["rotation"].as<String>() + "\n";
                     if (d.has("scale"))
-                        text += "Scale: " + String(d["scale"]) + "\n";
+                        text += "Scale: " + d["scale"].as<String>() + "\n";
                 } break;
                 case Animation::TYPE_VALUE: {
 
@@ -2596,18 +2596,18 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
                     text += String("Type: ") + Variant::get_type_name(v.get_type()) + "\n";
                     VariantType valid_type = VariantType::NIL;
                     if (!_is_value_key_valid(v, valid_type)) {
-                        text += "Value: " + String(v) + "  (Invalid, expected type: " + Variant::interned_type_name(valid_type) + ")\n";
+                        text += "Value: " + v.as<String>() + "  (Invalid, expected type: " + Variant::interned_type_name(valid_type) + ")\n";
                     } else {
-                        text += "Value: " + String(v) + "\n";
+                        text += "Value: " + v.as<String>() + "\n";
                     }
                     text += "Easing: " + rtos(animation->track_get_key_transition(track, key_idx));
 
                 } break;
                 case Animation::TYPE_METHOD: {
 
-                    Dictionary d = animation->track_get_key_value(track, key_idx);
+                    Dictionary d = animation->track_get_key_value(track, key_idx).as<Dictionary>();
                     if (d.has("method"))
-                        text += String(d["method"]);
+                        text += d["method"].as<String>();
                     text += '(';
                     Array args;
                     if (d.has("args"))
@@ -2616,7 +2616,7 @@ StringName AnimationTrackEdit::get_tooltip(const Point2 &p_pos) const {
 
                         if (i > 0)
                             text += ", ";
-                        text += String(args[i]);
+                        text += args[i].as<String>();
                     }
                     text += String(")\n");
 
@@ -2935,12 +2935,12 @@ Variant AnimationTrackEdit::get_drag_data(const Point2 &p_point) {
 
 bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type")) {
         return false;
     }
 
-    UIString type = d["type"];
+    UIString type= d["type"].as<UIString>();
     if (type != "animation_track") {
         return false;
     }
@@ -2949,7 +2949,7 @@ bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_d
     if (get_editor()->is_grouping_tracks()) {
         String base_path(animation->track_get_path(track));
         base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
-        if (String(d["group"]) != base_path) {
+        if (d["group"].as<String>() != base_path) {
             return false;
         }
     }
@@ -2967,12 +2967,12 @@ bool AnimationTrackEdit::can_drop_data(const Point2 &p_point, const Variant &p_d
 }
 void AnimationTrackEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type")) {
         return;
     }
 
-    UIString type = d["type"];
+    UIString type= d["type"].as<UIString>();
     if (type != "animation_track") {
         return;
     }
@@ -2981,12 +2981,12 @@ void AnimationTrackEdit::drop_data(const Point2 &p_point, const Variant &p_data)
     if (get_editor()->is_grouping_tracks()) {
         String base_path(animation->track_get_path(track));
         base_path = StringUtils::get_slice(base_path,":", 0); // Remove sub-path.
-        if (String(d["group"]) != base_path) {
+        if (d["group"].as<String>() != base_path) {
             return;
         }
     }
 
-    int from_track = d["index"];
+    int from_track= d["index"].as<int>();
 
     if (dropping_at < 0) {
         emit_signal("dropped", from_track, track);
@@ -3163,14 +3163,14 @@ AnimationTrackEdit *AnimationTrackEditPlugin::create_value_track_edit(Object *p_
 AnimationTrackEdit *AnimationTrackEditPlugin::create_audio_track_edit() {
 
     if (get_script_instance()) {
-        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_audio_track_edit").operator Object *());
+        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_audio_track_edit").as<Object *>());
     }
     return nullptr;
 }
 
 AnimationTrackEdit *AnimationTrackEditPlugin::create_animation_track_edit(Object *p_object) {
     if (get_script_instance()) {
-        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_animation_track_edit", Variant(p_object)).operator Object *());
+        return object_cast<AnimationTrackEdit>(get_script_instance()->call("create_animation_track_edit", Variant(p_object)).as<Object *>());
     }
     return nullptr;
 }
@@ -3367,7 +3367,7 @@ Dictionary AnimationTrackEditor::get_state() const {
 }
 void AnimationTrackEditor::set_state(const Dictionary &p_state) {
     if (p_state.has("fps_mode")) {
-        bool fps_mode = p_state["fps_mode"];
+        bool fps_mode = p_state["fps_mode"].as<bool>();
         if (fps_mode) {
             snap_mode->select(1);
         } else {
@@ -3379,17 +3379,17 @@ void AnimationTrackEditor::set_state(const Dictionary &p_state) {
         _snap_mode_changed(snap_mode->get_selected());
     }
     if (p_state.has("zoom")) {
-        zoom->set_value(p_state["zoom"]);
+        zoom->set_value(p_state["zoom"].as<float>());
     } else {
         zoom->set_value(1.0);
     }
     if (p_state.has("offset")) {
-        timeline->set_value(p_state["offset"]);
+        timeline->set_value(p_state["offset"].as<float>());
     } else {
         timeline->set_value(0);
     }
     if (p_state.has("v_scroll")) {
-        scroll->get_v_scrollbar()->set_value(p_state["v_scroll"]);
+        scroll->get_v_scrollbar()->set_value(p_state["v_scroll"].as<float>());
     } else {
         scroll->get_v_scrollbar()->set_value(0);
     }
@@ -3480,7 +3480,7 @@ void AnimationTrackEditor::_query_insert(const InsertData &p_id) {
     insert_data.push_back(p_id);
 
     if (p_id.track_idx == -1) {
-        if (bool(EDITOR_DEF("editors/animation/confirm_insert_track", true))) {
+        if (EDITOR_DEF_T("editors/animation/confirm_insert_track", true)) {
             //potential new key, does not exist
             int num_tracks = 0;
 
@@ -4048,7 +4048,7 @@ int AnimationTrackEditor::_confirm_insert(InsertData p_id, int p_last_track, boo
         } break;
         case Animation::TYPE_TRANSFORM: {
 
-            Transform tr = p_id.value;
+            Transform tr = p_id.value.as<Transform>();
             Dictionary d;
             d["location"] = tr.origin;
             d["scale"] = tr.basis.get_scale();
@@ -5185,7 +5185,7 @@ void AnimationTrackEditor::_bezier_edit(int p_for_track) {
 
 void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
     //duplicait!
-    if (!selection.empty() && animation && (!transpose || (_get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count()))) {
+    if (!selection.empty() && animation && (!transpose || _get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count())) {
 
         int top_track = 0x7FFFFFFF;
         float top_time = 1e10f;
@@ -5341,12 +5341,12 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
                 TreeItem *it = root->get_children();
                 while (it) {
-                    Dictionary md = it->get_metadata(0);
-                    int idx = md["track_idx"];
+                    Dictionary md = it->get_metadata(0).as<Dictionary>();
+                    int idx = md["track_idx"].as<int>();
                     if (it->is_checked(0) && idx >= 0 && idx < animation->get_track_count()) {
                         TrackClipboard tc;
                         tc.base_path = animation->track_get_path(idx);
-                        tc.full_path = md["path"];
+                        tc.full_path = md["path"].as<NodePath>();
                         tc.track_type = animation->track_get_type(idx);
                         tc.interp_type = animation->track_get_interpolation_type(idx);
                         if (tc.track_type == Animation::TYPE_VALUE) {

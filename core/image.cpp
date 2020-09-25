@@ -2721,11 +2721,11 @@ void Image::_set_data(const Dictionary &p_data) {
     ERR_FAIL_COND(!p_data.has("mipmaps"));
     ERR_FAIL_COND(!p_data.has("data"));
 
-    int dwidth = p_data["width"];
-    int dheight = p_data["height"];
+    int dwidth = p_data["width"].as<int>();
+    int dheight = p_data["height"].as<int>();
     String dformat = p_data["format"].as<String>();
     bool dmipmaps = p_data["mipmaps"].as<bool>();
-    PoolVector<uint8_t> ddata = p_data["data"];
+    PoolVector<uint8_t> ddata = p_data["data"].as<PoolVector<uint8_t>>();
     Format ddformat = FORMAT_MAX;
     for (int i = 0; i < FORMAT_MAX; i++) {
         if (dformat == get_format_name(Format(i))) {

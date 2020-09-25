@@ -147,7 +147,7 @@ void godot_icall_Array_Generic_GetElementTypeInfo(MonoReflectionType *refltype, 
 }
 
 MonoString *godot_icall_Array_ToString(Array *ptr) {
-	return GDMonoMarshal::mono_string_from_godot(Variant(*ptr).operator String());
+	return GDMonoMarshal::mono_string_from_godot(Variant(*ptr).as<String>());
 }
 
 Dictionary *godot_icall_Dictionary_Ctor() {
@@ -276,7 +276,7 @@ void godot_icall_Dictionary_Generic_GetValueTypeInfo(MonoReflectionType *refltyp
 }
 
 MonoString *godot_icall_Dictionary_ToString(Dictionary *ptr) {
-	return GDMonoMarshal::mono_string_from_godot(Variant(*ptr).operator String());
+	return GDMonoMarshal::mono_string_from_godot(Variant(*ptr).as<String>());
 }
 
 void godot_register_collections_icalls() {

@@ -572,7 +572,7 @@ EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
     download = memnew(HTTPRequest);
     add_child(download);
     download->connect("request_completed", this, "_http_download_completed");
-    download->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
+    download->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
 
     download_error = memnew(AcceptDialog);
     add_child(download_error);
@@ -694,7 +694,7 @@ void EditorAssetLibrary::_select_category(int p_id) {
 
         if (i == 0)
             continue;
-        int id = categories->get_item_metadata(i);
+        int id = categories->get_item_metadata(i).as<int>();
         if (id == p_id) {
             categories->select(i);
             _search();
@@ -888,7 +888,7 @@ void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, Imag
     iq.image_index = p_image_index;
     iq.image_type = p_type;
     iq.request = memnew(HTTPRequest);
-    iq.request->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
+    iq.request->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
 
     iq.target = p_for;
     iq.queue_id = ++last_queue_id;
@@ -948,7 +948,7 @@ void EditorAssetLibrary::_search(int p_page) {
 
     if (categories->get_selected() > 0) {
 
-        args += "&category=" + itos(categories->get_item_metadata(categories->get_selected()));
+        args += "&category=" + itos(categories->get_item_metadata(categories->get_selected()).as<int>());
     }
 
     // Sorting options with an odd index are always the reverse of the previous one
@@ -1126,7 +1126,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         String errs;
         int errl;
         JSON::parse(str, js, errs, errl);
-        d = js;
+        d = js.as<Dictionary>();
     }
 
     RequestType requested = requesting;
@@ -1139,13 +1139,13 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             categories->add_item(TTR("All"));
             categories->set_item_metadata(0, 0);
             if (d.has("categories")) {
-                Array clist = d["categories"];
+                Array clist = d["categories"].as<Array>();
                 for (int i = 0; i < clist.size(); i++) {
-                    Dictionary cat = clist[i];
+                    Dictionary cat = clist[i].as<Dictionary>();
                     if (!cat.has("name") || !cat.has("id"))
                         continue;
-                    StringName name = cat["name"];
-                    int id = cat["id"];
+                    StringName name = cat["name"].as<StringName>();
+                    int id = cat["id"].as<int>();
                     categories->add_item(name);
                     categories->set_item_metadata(categories->get_item_count() - 1, id);
                     category_map[cat["id"]] = name;
@@ -1182,19 +1182,19 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             Array result;
 
             if (d.has("page")) {
-                page = d["page"];
+                page = d["page"].as<int>();
             }
             if (d.has("pages")) {
-                pages = d["pages"];
+                pages = d["pages"].as<int>();
             }
             if (d.has("page_length")) {
-                page_len = d["page_length"];
+                page_len = d["page_length"].as<int>();
             }
             if (d.has("total")) {
-                total_items = d["total"];
+                total_items = d["total"].as<int>();
             }
             if (d.has("result")) {
-                result = d["result"];
+                result = d["result"].as<Array>();
             }
 
             asset_top_page = _make_pages(page, pages, page_len, total_items, result.size());
@@ -1216,7 +1216,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             }
             for (int i = 0; i < result.size(); i++) {
 
-                Dictionary r = result[i];
+                Dictionary r = result[i].as<Dictionary>();
 
                 ERR_CONTINUE(!r.has("title"));
                 ERR_CONTINUE(!r.has("asset_id"));
@@ -1228,13 +1228,13 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
                 asset_items->add_child(item);
-                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(), r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>());
+                item->configure(r["title"].as<StringName>(), r["asset_id"].as<int>(), category_map[r["category_id"].as<int>()].as<String>(), r["category_id"].as<int>(), r["author"].as<String>(), r["author_id"].as<int>(), r["cost"].as<String>());
                 item->connect("asset_selected", this, "_select_asset");
                 item->connect("author_selected", this, "_select_author");
                 item->connect("category_selected", this, "_select_category");
 
                 if (r.has("icon_url") && r["icon_url"] != "") {
-                    _request_image(item->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
+                    _request_image(item->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
                 }
             }
         } break;
@@ -1264,27 +1264,27 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             description->popup_centered_minsize();
             description->connect("confirmed", this, "_install_asset");
 
-            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(),
-                    r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>(), r["version"],
+            description->configure(r["title"].as<StringName>(), r["asset_id"].as<int>(), category_map[r["category_id"]].as<String>(),
+                    r["category_id"].as<int>(), r["author"].as<String>(), r["author_id"].as<int>(), r["cost"].as<String>(), r["version"].as<int>(),
                     r["version_string"].as<String>(), r["description"].as<String>(),
                     r["download_url"].as<String>(), r["browse_url"].as<String>(),
                     r["download_hash"].as<String>());
 
             if (r.has("icon_url") && r["icon_url"] != "") {
-                _request_image(description->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
+                _request_image(description->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
             }
 
             if (d.has("previews")) {
-                Array previews = d["previews"];
+                Array previews = d["previews"].as<Array>();
 
                 for (int i = 0; i < previews.size(); i++) {
 
-                    Dictionary p = previews[i];
+                    Dictionary p = previews[i].as<Dictionary>();
 
                     ERR_CONTINUE(!p.has("type"));
                     ERR_CONTINUE(!p.has("link"));
 
-                    bool is_video = p.has("type") && String(p["type"]) == "video";
+                    bool is_video = p.has("type") && p["type"].as<String>() == "video";
                     String video_url;
                     if (is_video && p.has("link")) {
                         video_url = p["link"].as<String>();
@@ -1293,11 +1293,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     description->add_preview(i, is_video, video_url);
 
                     if (p.has("thumbnail")) {
-                        _request_image(description->get_instance_id(), p["thumbnail"], IMAGE_QUEUE_THUMBNAIL, i);
+                        _request_image(description->get_instance_id(), p["thumbnail"].as<String>(), IMAGE_QUEUE_THUMBNAIL, i);
                     }
 
                     if (!is_video) {
-                        _request_image(description->get_instance_id(), p["link"], IMAGE_QUEUE_SCREENSHOT, i);
+                        _request_image(description->get_instance_id(), p["link"].as<String>(), IMAGE_QUEUE_SCREENSHOT, i);
                     }
                 }
             }
@@ -1502,7 +1502,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     request = memnew(HTTPRequest);
     add_child(request);
-    request->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
+    request->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
     request->connect("request_completed", this, "_http_request_completed");
 
     last_queue_id = 0;

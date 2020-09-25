@@ -298,31 +298,31 @@ public:
 
             if (tk == TK_BRACKET_OPEN) {
                 tk = get_token();
-                if (tk == TK_IDENTIFIER && String(value) == "ScriptClass") {
+                if (tk == TK_IDENTIFIER && value.as<String>() == "ScriptClass") {
                     if (get_token() == TK_BRACKET_CLOSE) {
                         use_next_class = true;
                     }
                 }
-            } else if (tk == TK_IDENTIFIER && String(value) == "class") {
+            } else if (tk == TK_IDENTIFIER && value.as<String>() == "class") {
                 tk = get_token();
                 if (tk == TK_IDENTIFIER) {
-                    String name = value;
+                    String name = value.as<String>();
                     if (use_next_class || p_known_class_name == name) {
                         for (eastl::pair<const int,String> &E : namespace_stack) {
                             class_name += E.second + ".";
                         }
-                        class_name += String(value);
+                        class_name += value.as<String>();
                         break;
                     }
                 }
 
-            } else if (tk == TK_IDENTIFIER && UIString(value) == "namespace") {
+            } else if (tk == TK_IDENTIFIER && value.as<String>() == "namespace") {
                 String name;
                 int at_level = curly_stack;
                 while (true) {
                     tk = get_token();
                     if (tk == TK_IDENTIFIER) {
-                        name += String(value);
+                        name += value.as<String>();
                     }
 
                     tk = get_token();

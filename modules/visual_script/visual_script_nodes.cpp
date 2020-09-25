@@ -104,10 +104,13 @@ bool VisualScriptFunction::_set(const StringName &p_name, const Variant &p_value
         Object_change_notify(this);
         return true;
     }
-    if (StringUtils::begins_with(p_name,"argument_")) {
-        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (StringUtils::begins_with(p_name,"argument/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+
+        int idx = StringUtils::to_int(parts[1]) - 1;
         ERR_FAIL_INDEX_V(idx, arguments.size(), false);
-        StringView what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
 
             VariantType new_type = VariantType(int(p_value));
@@ -155,10 +158,13 @@ bool VisualScriptFunction::_get(const StringName &p_name, Variant &r_ret) const 
         r_ret = arguments.size();
         return true;
     }
-    if (StringUtils::begins_with(p_name,"argument_")) {
-        int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (StringUtils::begins_with(p_name,"argument/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+
+        int idx = StringUtils::to_int(parts[1]) - 1;
         ERR_FAIL_INDEX_V(idx, arguments.size(), false);
-        StringView what = StringUtils::get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
             r_ret = arguments[idx].type;
             return true;
@@ -198,8 +204,8 @@ void VisualScriptFunction::_get_property_list(Vector<PropertyInfo> *p_list) cons
     fill_with_all_variant_types("Any",argt);
 
     for (int i = 0; i < arguments.size(); i++) {
-        p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument_" + itos(i + 1) + "/type"), PropertyHint::Enum, argt));
-        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("argument_" + itos(i + 1) + "/name")));
+        p_list->push_back(PropertyInfo(VariantType::INT, StringName("argument/" + itos(i + 1) + "/type"), PropertyHint::Enum, argt));
+        p_list->push_back(PropertyInfo(VariantType::STRING, StringName("argument/" + itos(i + 1) + "/name")));
     }
 
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced/sequenced"));
@@ -478,10 +484,13 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         Object_change_notify(this);
         return true;
     }
-    if (StringUtils::begins_with(p_name,"input_") && is_input_port_editable()) {
-        int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (StringUtils::begins_with(p_name,"input/") && is_input_port_editable()) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+
+        int idx = to_int(parts[1]) - 1;
         ERR_FAIL_INDEX_V(idx, inputports.size(), false);
-        StringView what = get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
 
             VariantType new_type = VariantType(int(p_value));
@@ -516,10 +525,12 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
         Object_change_notify(this);
         return true;
     }
-    if (begins_with(p_name,"output_") && is_output_port_editable()) {
-        int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (begins_with(p_name,"output/") && is_output_port_editable()) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+        int idx = to_int(parts[1]) - 1;
         ERR_FAIL_INDEX_V(idx, outputports.size(), false);
-        StringView what = get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
 
             VariantType new_type = VariantType(int(p_value));
@@ -545,6 +556,7 @@ bool VisualScriptLists::_set(const StringName &p_name, const Variant &p_value) {
 
     return false;
 }
+
 bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
     using namespace StringUtils;
 
@@ -552,11 +564,13 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
         r_ret = inputports.size();
         return true;
     }
-    if (begins_with(p_name,"input_") && is_input_port_editable()) {
-        int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (begins_with(p_name,"input/") && is_input_port_editable()) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+        int idx = to_int(parts[1]) - 1;
 
         ERR_FAIL_INDEX_V(idx, inputports.size(), false);
-        StringView what = get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
             r_ret = inputports[idx].type;
             return true;
@@ -571,10 +585,13 @@ bool VisualScriptLists::_get(const StringName &p_name, Variant &r_ret) const {
         r_ret = outputports.size();
         return true;
     }
-    if (begins_with(p_name,"output_") && is_output_port_editable()) {
-        int idx = to_int(get_slice(get_slice(p_name,'_', 1),'/', 0)) - 1;
+    if (begins_with(p_name,"output/") && is_output_port_editable()) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, p_name, '/');
+
+        int idx = to_int(parts[1]) - 1;
         ERR_FAIL_INDEX_V(idx, outputports.size(), false);
-        StringView what = get_slice(p_name,'/', 1);
+        StringView what = parts[2];
         if (what == StringView("type")) {
             r_ret = outputports[idx].type;
             return true;
@@ -602,8 +619,8 @@ void VisualScriptLists::_get_property_list(Vector<PropertyInfo> *p_list) const {
         }
 
         for (int i = 0; i < inputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("input_" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
-            p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input_" + itos(i + 1) + "/name")));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("input/" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::STRING, StringName("input/" + itos(i + 1) + "/name")));
         }
     }
 
@@ -615,8 +632,8 @@ void VisualScriptLists::_get_property_list(Vector<PropertyInfo> *p_list) const {
         }
 
         for (int i = 0; i < outputports.size(); i++) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("output_" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
-            p_list->push_back(PropertyInfo(VariantType::STRING, StringName("output_" + itos(i + 1) + "/name")));
+            p_list->push_back(PropertyInfo(VariantType::INT, StringName("output/" + itos(i + 1) + "/type"), PropertyHint::Enum, StringName(argt)));
+            p_list->push_back(PropertyInfo(VariantType::STRING, StringName("output/" + itos(i + 1) + "/name")));
         }
     }
     p_list->push_back(PropertyInfo(VariantType::BOOL, "sequenced/sequenced"));

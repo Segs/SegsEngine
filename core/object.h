@@ -404,7 +404,7 @@ public:
     Variant get(const StringName &p_name, bool *r_valid = nullptr) const;
     template<class TGT_TYPE>
     TGT_TYPE getT(const StringName &p_name, bool *r_valid = nullptr) const {
-        return (TGT_TYPE)get(p_name, r_valid);
+        return get(p_name, r_valid).as<TGT_TYPE>();
     }
     void set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_indexed(const Vector<StringName> &p_names, bool *r_valid = nullptr) const;

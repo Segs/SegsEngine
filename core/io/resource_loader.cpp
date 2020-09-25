@@ -200,7 +200,7 @@ Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap
             deps_dict[E.first] = E.second;
         }
 
-        int64_t res = get_script_instance()->call("rename_dependencies", deps_dict);
+        int64_t res = get_script_instance()->call("rename_dependencies", deps_dict).as<int64_t>();
         return (Error)res;
     }
 

@@ -470,18 +470,18 @@ BSP_Tree::BSP_Tree() = default;
 
 BSP_Tree::BSP_Tree(const Variant &p_variant) {
 
-    Dictionary d = p_variant;
+    Dictionary d = p_variant.as<Dictionary>();
     ERR_FAIL_COND(!d.has("nodes"));
     ERR_FAIL_COND(!d.has("planes"));
     ERR_FAIL_COND(!d.has("aabb"));
     ERR_FAIL_COND(!d.has("error_radius"));
 
-    PoolVector<int> src_nodes = d["nodes"];
+    PoolVector<int> src_nodes = d["nodes"].as<PoolVector<int>>();
     ERR_FAIL_COND(src_nodes.size() % 3);
 
     if (d["planes"].get_type() == VariantType::POOL_REAL_ARRAY) {
 
-        PoolVector<real_t> src_planes = d["planes"];
+        PoolVector<real_t> src_planes = d["planes"].as<PoolVector<real_t>>();
         size_t plane_count = src_planes.size();
         ERR_FAIL_COND(plane_count % 4);
         planes.reserve(plane_count / 4);
@@ -499,7 +499,7 @@ BSP_Tree::BSP_Tree(const Variant &p_variant) {
     }
 
     error_radius = d["error"].as<float>();
-    aabb = d["aabb"];
+    aabb = d["aabb"].as<::AABB>();
 
     // int node_count = src_nodes.size();
     nodes.resize(src_nodes.size() / 3);

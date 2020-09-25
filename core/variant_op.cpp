@@ -159,15 +159,6 @@
 #define CASE_TYPE(PREFIX, OP, TYPE) case VariantType::TYPE:
 #endif
 
-Variant::operator UIString() const { return as<UIString>(); }
-Variant::operator String() const { return as<String>(); }
-
-Variant::operator float() const { return as<float>(); }
-
-Variant::operator StringName() const {
-    return as<StringName>();
-}
-
 // We consider all uninitialized or empty types to be false based on the type's
 // zeroiness.
 bool Variant::booleanize() const {
@@ -1778,7 +1769,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
         skip_test;                                                                       \
                                                                                          \
         if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) { \
-            int index = p_index;                                                         \
+            int index = p_index.as<int>();                                                         \
             m_type *arr = reinterpret_cast<m_type *>(_data._mem);                        \
                                                                                          \
             if (index < 0)                                                               \
@@ -1791,7 +1782,7 @@ Variant Variant::get_named(const StringName &p_index, bool *r_valid) const {
     } break;
 
 #define DEFAULT_OP_DVECTOR_SET(m_name, dv_type, skip_cond) \
-    DEFAULT_OP_ARRAY_CMD(m_name, PoolVector<dv_type>, if (skip_cond) return;, arr->set(index, p_value); return )
+    DEFAULT_OP_ARRAY_CMD(m_name, PoolVector<dv_type>, if (skip_cond) return;, arr->set(index, p_value.as<dv_type>()); return )
 
 #define DEFAULT_OP_DVECTOR_GET(m_name, dv_type) \
     DEFAULT_OP_ARRAY_CMD(m_name, const PoolVector<dv_type>, ;, return arr->get(index))
@@ -1821,7 +1812,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
             if (p_index.type != VariantType::INT && p_index.type != VariantType::FLOAT)
                 return;
 
-            int idx = p_index;
+            int idx = p_index.as<int>();
             String *str = reinterpret_cast<String *>(_data._mem);
             int len = str->length();
             if (idx < 0)
@@ -1852,7 +1843,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 // scalar index
-                int idx = p_index;
+                int idx = p_index.as<int>();
 
                 if (idx < 0)
                     idx += 2;
@@ -1860,7 +1851,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
                     Vector2 *v = reinterpret_cast<Vector2 *>(_data._mem);
                     valid = true;
-                    (*v)[idx] = p_value;
+                    (*v)[idx] = p_value.as<float>();
                     return;
                 }
             } else if (p_index.get_type() == VariantType::STRING) {
@@ -1870,11 +1861,11 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Vector2 *v = reinterpret_cast<Vector2 *>(_data._mem);
                 if (*str == "x") {
                     valid = true;
-                    v->x = p_value;
+                    v->x = p_value.as<float>();
                     return;
                 } else if (*str == "y") {
                     valid = true;
-                    v->y = p_value;
+                    v->y = p_value.as<float>();
                     return;
                 }
             }
@@ -1892,15 +1883,15 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Rect2 *v = reinterpret_cast<Rect2 *>(_data._mem);
                 if (*str == "position") {
                     valid = true;
-                    v->position = p_value;
+                    v->position = p_value.as<Vector2>();
                     return;
                 } else if (*str == "size") {
                     valid = true;
-                    v->size = p_value;
+                    v->size = p_value.as<Vector2>();
                     return;
                 } else if (*str == "end") {
                     valid = true;
-                    v->size = Vector2(p_value) - v->position;
+                    v->size = p_value.as<Vector2>() - v->position;
                     return;
                 }
             }
@@ -1912,7 +1903,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
 
                 if (index < 0)
                     index += 3;
@@ -1920,7 +1911,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                     Transform2D *v = _data._transform2d;
 
                     valid = true;
-                    v->elements[index] = p_value;
+                    v->elements[index] = p_value.as<Vector2>();
                     return;
                 }
             } else if (p_index.get_type() == VariantType::STRING && p_value.get_type() == VariantType::VECTOR2) {
@@ -1930,15 +1921,15 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Transform2D *v = _data._transform2d;
                 if (*str == "x") {
                     valid = true;
-                    v->elements[0] = p_value;
+                    v->elements[0] = p_value.as<Vector2>();
                     return;
                 } else if (*str == "y") {
                     valid = true;
-                    v->elements[1] = p_value;
+                    v->elements[1] = p_value.as<Vector2>();
                     return;
                 } else if (*str == "origin") {
                     valid = true;
-                    v->elements[2] = p_value;
+                    v->elements[2] = p_value.as<Vector2>();
                     return;
                 }
             }
@@ -1951,14 +1942,14 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //scalar index
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 if (idx < 0)
                     idx += 3;
                 if (idx >= 0 && idx < 3) {
 
                     Vector3 *v = reinterpret_cast<Vector3 *>(_data._mem);
                     valid = true;
-                    (*v)[idx] = p_value;
+                    (*v)[idx] = p_value.as<float>();
                     return;
                 }
             } else if (p_index.get_type() == VariantType::STRING) {
@@ -1968,15 +1959,15 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Vector3 *v = reinterpret_cast<Vector3 *>(_data._mem);
                 if (*str == "x") {
                     valid = true;
-                    v->x = p_value;
+                    v->x = p_value.as<float>();
                     return;
                 } else if (*str == "y") {
                     valid = true;
-                    v->y = p_value;
+                    v->y = p_value.as<float>();
                     return;
                 } else if (*str == "z") {
                     valid = true;
-                    v->z = p_value;
+                    v->z = p_value.as<float>();
                     return;
                 }
             }
@@ -1993,32 +1984,32 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                         return;
 
                     valid = true;
-                    v->normal.x = p_value;
+                    v->normal.x = p_value.as<float>();
                     return;
                 } else if (*str == "y") {
                     if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                         return;
 
                     valid = true;
-                    v->normal.y = p_value;
+                    v->normal.y = p_value.as<float>();
                     return;
                 } else if (*str == "z") {
                     if (p_value.type != VariantType::INT && p_value.type != VariantType::FLOAT)
                         return;
 
                     valid = true;
-                    v->normal.z = p_value;
+                    v->normal.z = p_value.as<float>();
                     return;
                 } else if (*str == "normal") {
                     if (p_value.type != VariantType::VECTOR3)
                         return;
 
                     valid = true;
-                    v->normal = p_value;
+                    v->normal = p_value.as<Vector3>();
                     return;
                 } else if (*str == "d") {
                     valid = true;
-                    v->d = p_value;
+                    v->d = p_value.as<float>();
                     return;
                 }
             }
@@ -2035,19 +2026,19 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Quat *v = reinterpret_cast<Quat *>(_data._mem);
                 if (*str == "x") {
                     valid = true;
-                    v->x = p_value;
+                    v->x = p_value.as<float>();
                     return;
                 } else if (*str == "y") {
                     valid = true;
-                    v->y = p_value;
+                    v->y = p_value.as<float>();
                     return;
                 } else if (*str == "z") {
                     valid = true;
-                    v->z = p_value;
+                    v->z = p_value.as<float>();
                     return;
                 } else if (*str == "w") {
                     valid = true;
-                    v->w = p_value;
+                    v->w = p_value.as<float>();
                     return;
                 }
             }
@@ -2065,15 +2056,15 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 ::AABB *v = _data._aabb;
                 if (*str == "position") {
                     valid = true;
-                    v->position = p_value;
+                    v->position = p_value.as<Vector3>();
                     return;
                 } else if (*str == "size") {
                     valid = true;
-                    v->size = p_value;
+                    v->size = p_value.as<Vector3>();
                     return;
                 } else if (*str == "end") {
                     valid = true;
-                    v->size = Vector3(p_value) - v->position;
+                    v->size = p_value.as<Vector3>() - v->position;
                     return;
                 }
             }
@@ -2085,7 +2076,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
 
                 if (index < 0)
                     index += 3;
@@ -2093,7 +2084,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                     Basis *v = _data._basis;
 
                     valid = true;
-                    v->set_axis(index, p_value);
+                    v->set_axis(index, p_value.as<Vector3>());
                     return;
                 }
             } else if (p_index.get_type() == VariantType::STRING) {
@@ -2103,15 +2094,15 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
 
                 if (*str == "x") {
                     valid = true;
-                    v->set_axis(0, p_value);
+                    v->set_axis(0, p_value.as<Vector3>());
                     return;
                 } else if (*str == "y") {
                     valid = true;
-                    v->set_axis(1, p_value);
+                    v->set_axis(1, p_value.as<Vector3>());
                     return;
                 } else if (*str == "z") {
                     valid = true;
-                    v->set_axis(2, p_value);
+                    v->set_axis(2, p_value.as<Vector3>());
                     return;
                 }
             }
@@ -2124,7 +2115,7 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 if (p_value.type != VariantType::VECTOR3)
                     return;
 
-                int index = p_index;
+                int index = p_index.as<int>();
 
                 if (index < 0)
                     index += 4;
@@ -2132,9 +2123,9 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                     Transform *v = _data._transform;
                     valid = true;
                     if (index == 3)
-                        v->origin = p_value;
+                        v->origin = p_value.as<Vector3>();
                     else
-                        v->basis.set_axis(index, p_value);
+                        v->basis.set_axis(index, p_value.as<Vector3>());
                     return;
                 }
             } else if (p_index.get_type() == VariantType::STRING) {
@@ -2147,14 +2138,14 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                     if (p_value.type != VariantType::BASIS)
                         return;
                     valid = true;
-                    v->basis = p_value;
+                    v->basis = p_value.as<Basis>();
                     return;
                 }
                 if (*str == "origin") {
                     if (p_value.type != VariantType::VECTOR3)
                         return;
                     valid = true;
-                    v->origin = p_value;
+                    v->origin = p_value.as<Vector3>();
                     return;
                 }
             }
@@ -2171,57 +2162,57 @@ void Variant::set(const Variant &p_index, const Variant &p_value, bool *r_valid)
                 Color *v = reinterpret_cast<Color *>(_data._mem);
                 if (*str == "r") {
                     valid = true;
-                    v->r = p_value;
+                    v->r = p_value.as<float>();
                     return;
                 } else if (*str == "g") {
                     valid = true;
-                    v->g = p_value;
+                    v->g = p_value.as<float>();
                     return;
                 } else if (*str == "b") {
                     valid = true;
-                    v->b = p_value;
+                    v->b = p_value.as<float>();
                     return;
                 } else if (*str == "a") {
                     valid = true;
-                    v->a = p_value;
+                    v->a = p_value.as<float>();
                     return;
                 } else if (*str == "h") {
                     valid = true;
-                    v->set_hsv(p_value, v->get_s(), v->get_v(), v->a);
+                    v->set_hsv(p_value.as<float>(), v->get_s(), v->get_v(), v->a);
                     return;
                 } else if (*str == "s") {
                     valid = true;
-                    v->set_hsv(v->get_h(), p_value, v->get_v(), v->a);
+                    v->set_hsv(v->get_h(), p_value.as<float>(), v->get_v(), v->a);
                     return;
                 } else if (*str == "v") {
                     valid = true;
-                    v->set_hsv(v->get_h(), v->get_s(), p_value, v->a);
+                    v->set_hsv(v->get_h(), v->get_s(), p_value.as<float>(), v->a);
                     return;
                 } else if (*str == "r8") {
                     valid = true;
-                    v->r = float(p_value) / 255.0f;
+                    v->r = p_value.as<float>() / 255.0f;
                     return;
                 } else if (*str == "g8") {
                     valid = true;
-                    v->g = float(p_value) / 255.0f;
+                    v->g = p_value.as<float>() / 255.0f;
                     return;
                 } else if (*str == "b8") {
                     valid = true;
-                    v->b = float(p_value) / 255.0f;
+                    v->b = p_value.as<float>() / 255.0f;
                     return;
                 } else if (*str == "a8") {
                     valid = true;
-                    v->a = float(p_value) / 255.0;
+                    v->a = p_value.as<float>() / 255.0;
                     return;
                 }
             } else if (p_index.get_type() == VariantType::INT) {
 
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 if (idx < 0)
                     idx += 4;
                 if (idx >= 0 && idx < 4) {
                     Color *v = reinterpret_cast<Color *>(_data._mem);
-                    (*v)[idx] = p_value;
+                    (*v)[idx] = p_value.as<float>();
                     valid = true;
                 }
             }
@@ -2298,7 +2289,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //string index
 
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 const String *str = reinterpret_cast<const String *>(_data._mem);
                 if (idx < 0)
                     idx += str->length();
@@ -2314,7 +2305,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 // scalar index
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 if (idx < 0)
                     idx += 2;
                 if (idx >= 0 && idx < 2) {
@@ -2361,7 +2352,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
                 //scalar index
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 if (idx < 0)
                     idx += 3;
                 if (idx >= 0 && idx < 3) {
@@ -2392,7 +2383,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
 
                 if (index < 0)
                     index += 3;
@@ -2490,7 +2481,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
                 if (index < 0)
                     index += 3;
                 if (index >= 0 && index < 3) {
@@ -2521,7 +2512,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
                 if (index < 0)
                     index += 4;
                 if (index >= 0 && index < 4) {
@@ -2587,7 +2578,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
                 }
             } else if (p_index.get_type() == VariantType::INT) {
 
-                int idx = p_index;
+                int idx = p_index.as<int>();
                 if (idx < 0)
                     idx += 4;
                 if (idx >= 0 && idx < 4) {
@@ -2617,7 +2608,7 @@ Variant Variant::get(const Variant &p_index, bool *r_valid) const {
             if (p_index.get_type() != VariantType::STRING) {
                 return obj->getvar(p_index, r_valid);
             } else {
-                return obj->get(p_index, r_valid);
+                return obj->get(p_index.as<StringName>(), r_valid);
             }
 
         } break;
@@ -2656,7 +2647,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::STRING) {
                 //string index
-                String idx = p_index;
+                String idx = p_index.as<String>();
                 const String *str = reinterpret_cast<const String *>(_data._mem);
 
                 return StringUtils::contains(*str,idx);
@@ -2681,7 +2672,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
             if (p_index.get_type() != VariantType::STRING) {
                 obj->getvar(p_index, &result);
             } else {
-                obj->get(p_index, &result);
+                obj->get(p_index.as<StringName>(), &result);
             }
             return result;
         } break;
@@ -2699,7 +2690,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
             if (l) {
                 for (int i = 0; i < l; i++) {
 
-                    if (evaluate(OP_EQUAL, (*arr)[i], p_index))
+                    if (evaluate(OP_EQUAL, (*arr)[i], p_index).as<bool>())
                         return true;
                 }
             }
@@ -2710,7 +2701,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         case VariantType::POOL_BYTE_ARRAY: {
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
                 const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
                 int l = arr->size();
                 if (l) {
@@ -2728,7 +2719,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         case VariantType::POOL_INT_ARRAY: {
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                int index = p_index;
+                int index = p_index.as<int>();
                 const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
                 int l = arr->size();
                 if (l) {
@@ -2746,7 +2737,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::INT || p_index.get_type() == VariantType::FLOAT) {
 
-                real_t index = p_index;
+                real_t index = p_index.as<float>();
                 const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
                 int l = arr->size();
                 if (l) {
@@ -2764,7 +2755,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         case VariantType::POOL_STRING_ARRAY: {
             if (p_index.get_type() == VariantType::STRING) {
 
-                String index = p_index;
+                String index = p_index.as<String>();
                 const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
 
                 int l = arr->size();
@@ -2783,7 +2774,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         case VariantType::POOL_VECTOR2_ARRAY: {
             if (p_index.get_type() == VariantType::VECTOR2) {
 
-                Vector2 index = p_index;
+                Vector2 index = p_index.as<Vector2>();
                 const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
 
                 int l = arr->size();
@@ -2802,7 +2793,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
         case VariantType::POOL_VECTOR3_ARRAY: {
             if (p_index.get_type() == VariantType::VECTOR3) {
 
-                Vector3 index = p_index;
+                Vector3 index = p_index.as<Vector3>();
                 const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
 
                 int l = arr->size();
@@ -2822,7 +2813,7 @@ bool Variant::in(const Variant &p_index, bool *r_valid) const {
 
             if (p_index.get_type() == VariantType::COLOR) {
 
-                Color index = p_index;
+                Color index = p_index.as<Color>();
                 const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
 
                 int l = arr->size();
@@ -2949,7 +2940,7 @@ void Variant::get_property_list(Vector<PropertyInfo> *p_list) const {
             Vector<Variant> keys(dic->get_key_list());
             for(Variant &E : keys ) {
                 if (E.get_type() == VariantType::STRING) {
-                    p_list->push_back(PropertyInfo(VariantType::STRING, E));
+                    p_list->push_back(PropertyInfo(VariantType::STRING, E.as<StringName>()));
                 }
             }
         } break;
@@ -3031,7 +3022,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
             }
 
             r_iter = ref[0];
-            return ret;
+            return ret.as<bool>();
         } break;
 
         case VariantType::STRING: {
@@ -3063,7 +3054,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_BYTE_ARRAY: {
             const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3071,7 +3062,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_INT_ARRAY: {
             const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3079,7 +3070,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_REAL_ARRAY: {
             const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3087,7 +3078,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_STRING_ARRAY: {
             const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3095,7 +3086,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3103,7 +3094,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3111,7 +3102,7 @@ bool Variant::iter_init(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_COLOR_ARRAY: {
 
             const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            if (arr->size() == 0)
+            if (arr->empty())
                 return false;
             r_iter = 0;
             return true;
@@ -3129,7 +3120,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
     valid = true;
     switch (type) {
         case VariantType::INT: {
-            int64_t idx = r_iter;
+            int64_t idx = r_iter.as<int64_t>();
             idx++;
             if (idx >= _data._int)
                 return false;
@@ -3137,7 +3128,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
             return true;
         }
         case VariantType::FLOAT: {
-            int64_t idx = r_iter;
+            int64_t idx = r_iter.as<int64_t>();
             idx++;
             if (idx >= _data._real)
                 return false;
@@ -3147,7 +3138,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         case VariantType::VECTOR2: {
             int64_t to = reinterpret_cast<const Vector2 *>(_data._mem)->y;
 
-            int64_t idx = r_iter;
+            int64_t idx = r_iter.as<int64_t>();
             idx++;
 
             if (idx >= to)
@@ -3160,7 +3151,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
             int64_t to = reinterpret_cast<const Vector3 *>(_data._mem)->y;
             int64_t step = reinterpret_cast<const Vector3 *>(_data._mem)->z;
 
-            int64_t idx = r_iter;
+            int64_t idx = r_iter.as<int64_t>();
             idx += step;
 
             if (step < 0 && idx <= to)
@@ -3199,13 +3190,13 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
 
             r_iter = ref[0];
 
-            return ret;
+            return ret.as<bool>();
         } break;
 
         case VariantType::STRING: {
 
             const String *str = reinterpret_cast<const String *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= str->length())
                 return false;
@@ -3226,7 +3217,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         case VariantType::ARRAY: {
 
             const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3235,7 +3226,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_BYTE_ARRAY: {
             const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3245,7 +3236,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_INT_ARRAY: {
             const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3255,7 +3246,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_REAL_ARRAY: {
             const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3265,7 +3256,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         }
         case VariantType::POOL_STRING_ARRAY: {
             const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3275,7 +3266,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3285,7 +3276,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3295,7 +3286,7 @@ bool Variant::iter_next(Variant &r_iter, bool &valid) const {
         case VariantType::POOL_COLOR_ARRAY: {
 
             const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
             idx++;
             if (idx >= arr->size())
                 return false;
@@ -3360,7 +3351,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         case VariantType::STRING: {
 
             const String *str = reinterpret_cast<const String *>(_data._mem);
-            return StringUtils::substr(*str,r_iter, 1);
+            return StringUtils::substr(*str,r_iter.as<int>(), 1);
         }
         case VariantType::DICTIONARY: {
 
@@ -3370,7 +3361,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         case VariantType::ARRAY: {
 
             const Array *arr = reinterpret_cast<const Array *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3381,7 +3372,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         }
         case VariantType::POOL_BYTE_ARRAY: {
             const PoolVector<uint8_t> *arr = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3392,7 +3383,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         }
         case VariantType::POOL_INT_ARRAY: {
             const PoolVector<int> *arr = reinterpret_cast<const PoolVector<int> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3403,7 +3394,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         }
         case VariantType::POOL_REAL_ARRAY: {
             const PoolVector<real_t> *arr = reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3414,7 +3405,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         }
         case VariantType::POOL_STRING_ARRAY: {
             const PoolVector<String> *arr = reinterpret_cast<const PoolVector<String> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3426,7 +3417,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             const PoolVector<Vector2> *arr = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3438,7 +3429,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             const PoolVector<Vector3> *arr = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3450,7 +3441,7 @@ Variant Variant::iter_get(const Variant &r_iter, bool &r_valid) const {
         case VariantType::POOL_COLOR_ARRAY: {
 
             const PoolVector<Color> *arr = reinterpret_cast<const PoolVector<Color> *>(_data._mem);
-            int idx = r_iter;
+            int idx = r_iter.as<int>();
 #ifdef DEBUG_ENABLED
             if (idx < 0 || idx >= arr->size()) {
                 r_valid = false;
@@ -3481,9 +3472,9 @@ Variant Variant::duplicate(bool deep) const {
             return *this;
         }
         case VariantType::DICTIONARY:
-            return operator Dictionary().duplicate(deep);
+            return as<Dictionary>().duplicate(deep);
         case VariantType::ARRAY:
-            return operator Array().duplicate(deep);
+            return as<Array>().duplicate(deep);
         default:
             return *this;
     }
@@ -3492,8 +3483,8 @@ Variant Variant::duplicate(bool deep) const {
 void Variant::blend(const Variant &a, const Variant &b, float c, Variant &r_dst) {
     if (a.type != b.type) {
         if (a.is_num() && b.is_num()) {
-            real_t va = a;
-            real_t vb = b;
+            real_t va = a.as<real_t>();
+            real_t vb = b.as<real_t>();
             r_dst = va + vb * c;
         } else {
             r_dst = a;
@@ -3571,8 +3562,8 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
     if (a.type != b.type) {
         if (a.is_num() && b.is_num()) {
             //not as efficient but..
-            real_t va = a;
-            real_t vb = b;
+            real_t va = a.as<real_t>();;
+            real_t vb = b.as<real_t>();;
             r_dst = va + (vb - va) * c;
 
         } else {
@@ -3725,7 +3716,7 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
                     Variant va;
                     for (int i = 0; i < sz; i++) {
                         Variant::interpolate(ar[i], br[i], c, va);
-                        vw[i] = va;
+                        vw[i] = va.as<int>();
                     }
                 }
                 r_dst = v;
@@ -3751,7 +3742,7 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
                     Variant va;
                     for (int i = 0; i < sz; i++) {
                         Variant::interpolate(ar[i], br[i], c, va);
-                        vw[i] = va;
+                        vw[i] = va.as<real_t>();
                     }
                 }
                 r_dst = v;

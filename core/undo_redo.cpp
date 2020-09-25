@@ -572,8 +572,8 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
 
     r_error.error = Callable::CallError::CALL_OK;
 
-    Object *object = *p_args[0];
-    String method = *p_args[1];
+    Object *object = p_args[0]->as<Object *>();
+    StringName method = p_args[1]->as<StringName>();
 
     Variant v[VARIANT_ARG_MAX];
 
@@ -582,7 +582,7 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
         v[i] = *p_args[i + 2];
     }
 
-    add_do_method(object, StringName(method), v[0], v[1], v[2], v[3], v[4]);
+    add_do_method(object, method, v[0], v[1], v[2], v[3], v[4]);
     return Variant();
 }
 
@@ -610,8 +610,8 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Calla
 
     r_error.error = Callable::CallError::CALL_OK;
 
-    Object *object = *p_args[0];
-    String method = *p_args[1];
+    Object* object = p_args[0]->as<Object*>();
+    StringName method = p_args[1]->as<StringName>();
 
     Variant v[VARIANT_ARG_MAX];
 

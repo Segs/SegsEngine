@@ -151,7 +151,7 @@ PoolStringArray get_code_completion(CompletionKind p_kind, const String &p_scrip
             }
         } break;
         case CompletionKind::RESOURCE_PATHS: {
-            if (bool(EditorSettings::get_singleton()->get("text_editor/completion/complete_file_paths"))) {
+            if (EditorSettings::get_singleton()->get("text_editor/completion/complete_file_paths").as<bool>()) {
                 _get_directory_contents(EditorFileSystem::get_singleton()->get_filesystem(), suggestions);
             }
         } break;

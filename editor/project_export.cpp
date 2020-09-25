@@ -91,7 +91,7 @@ void ProjectExportDialog::popup_export() {
     }
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "export", Rect2());
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "export", Rect2()).as<Rect2>();
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -389,7 +389,7 @@ void ProjectExportDialog::_patch_button_pressed(Object *p_item, int p_column, in
 
     TreeItem *ti = (TreeItem *)p_item;
 
-    patch_index = ti->get_metadata(0);
+    patch_index = ti->get_metadata(0).as<int>();;
 
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current);
@@ -410,7 +410,7 @@ void ProjectExportDialog::_patch_edited() {
     TreeItem *item = patches->get_edited();
     if (!item)
         return;
-    int index = item->get_metadata(0);
+    int index = item->get_metadata(0).as<int>();
 
     Ref<EditorExportPreset> current = get_current_preset();
     ERR_FAIL_COND(not current);
@@ -671,7 +671,7 @@ Variant ProjectExportDialog::get_drag_data_fw(const Point2 &p_point, Control *p_
 
         if (item && item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK) {
 
-            int metadata = item->get_metadata(0);
+            int metadata = item->get_metadata(0).as<int>();;
             Dictionary d;
             d["type"] = "export_patch";
             d["patch"] = metadata;
@@ -690,16 +690,16 @@ Variant ProjectExportDialog::get_drag_data_fw(const Point2 &p_point, Control *p_
 bool ProjectExportDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     if (p_from == presets) {
-        Dictionary d = p_data;
-        if (!d.has("type") || UIString(d["type"]) != "export_preset")
+        Dictionary d = p_data.as<Dictionary>();
+        if (!d.has("type") || d["type"].as<String>() != "export_preset")
             return false;
 
         if (presets->get_item_at_position(p_point, true) < 0 && !presets->is_pos_at_end_of_items(p_point))
             return false;
     } else if (p_from == patches) {
 
-        Dictionary d = p_data;
-        if (!d.has("type") || UIString(d["type"]) != "export_patch")
+        Dictionary d = p_data.as<Dictionary>();
+        if (!d.has("type") || d["type"].as<String>() != "export_patch")
             return false;
 
         patches->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM);
@@ -718,8 +718,8 @@ bool ProjectExportDialog::can_drop_data_fw(const Point2 &p_point, const Variant 
 void ProjectExportDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
     if (p_from == presets) {
-        Dictionary d = p_data;
-        int from_pos = d["preset"];
+        Dictionary d = p_data.as<Dictionary>();
+        int from_pos = d["preset"].as<int>();
 
         int to_pos = -1;
 
@@ -747,17 +747,17 @@ void ProjectExportDialog::drop_data_fw(const Point2 &p_point, const Variant &p_d
             _edit_preset(presets->get_item_count() - 1);
     } else if (p_from == patches) {
 
-        Dictionary d = p_data;
-        if (!d.has("type") || UIString(d["type"]) != "export_patch")
+        Dictionary d = p_data.as<Dictionary>();
+        if (!d.has("type") || d["type"].as<String>() != "export_patch")
             return;
 
-        int from_pos = d["patch"];
+        int from_pos = d["patch"].as<int>();
 
         TreeItem *item = patches->get_item_at_position(p_point);
         if (!item)
             return;
 
-        int to_pos = item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK ? int(item->get_metadata(0)) : -1;
+        int to_pos = item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK ? item->get_metadata(0).as<int>() : -1;
 
         if (to_pos == from_pos)
             return;
@@ -878,7 +878,7 @@ void ProjectExportDialog::_tree_changed() {
     if (!item)
         return;
 
-    String path = item->get_metadata(0);
+    String path = item->get_metadata(0).as<String>();
     bool added = item->is_checked(0);
 
     if (added) {

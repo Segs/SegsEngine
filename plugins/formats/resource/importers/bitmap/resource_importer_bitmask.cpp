@@ -82,8 +82,8 @@ Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save
         r_gen_files,
         Variant *r_metadata) {
 
-    int create_from = p_options.at("create_from");
-    float threshold = p_options.at("threshold");
+    int create_from = p_options.at("create_from").as<int>();
+    float threshold = p_options.at("threshold").as<float>();
     Ref<Image> image(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(p_source_file, image);
     if (err != OK)

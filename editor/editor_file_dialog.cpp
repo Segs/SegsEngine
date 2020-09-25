@@ -101,10 +101,10 @@ void EditorFileDialog::_notification(int p_what) {
 
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        bool is_showing_hidden = EditorSettings::get_singleton()->get("filesystem/file_dialog/show_hidden_files");
+        bool is_showing_hidden = EditorSettings::get_singleton()->getT<bool>("filesystem/file_dialog/show_hidden_files");
         if (show_hidden_files != is_showing_hidden)
             set_show_hidden_files(is_showing_hidden);
-        set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").operator int());
+        set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").as<int>());
 
         // update icons
         mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
@@ -316,8 +316,8 @@ void EditorFileDialog::_thumbnail_result(StringView p_path, const Ref<Texture> &
         return;
 
     for (int i = 0; i < item_list->get_item_count(); i++) {
-        Dictionary d = item_list->get_item_metadata(i);
-        String pname = d["path"];
+        Dictionary d = item_list->get_item_metadata(i).as<Dictionary>();
+        String pname = d["path"].as<String>();
         if (pname == p_path) {
             item_list->set_item_icon(i, p_preview);
             item_list->set_item_tag_icon(i, Ref<Texture>());
@@ -391,8 +391,8 @@ void EditorFileDialog::_action_pressed() {
 
         for (int i = 0; i < item_list->get_item_count(); i++) {
             if (item_list->is_selected(i)) {
-                Dictionary d = item_list->get_item_metadata(i);
-                if (d["dir"]) {
+                Dictionary d = item_list->get_item_metadata(i).as<Dictionary>();
+                if (d["dir"].as<bool>()) {
                     path = PathUtils::plus_file(path,d["name"].as<String>());
 
                     break;
@@ -488,11 +488,11 @@ void EditorFileDialog::_item_selected(int p_item) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (!d["dir"]) {
+    if (!d["dir"].as<bool>()) {
 
-        file->set_text_uistring(d["name"]);
+        file->set_text(d["name"].as<String>());
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(TTR("Select This Folder"));
@@ -507,11 +507,11 @@ void EditorFileDialog::_multi_selected(int p_item, bool p_selected) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (!d["dir"] && p_selected) {
+    if (!d["dir"].as<bool>() && p_selected) {
 
-        file->set_text_uistring(d["name"]);
+        file->set_text(d["name"].as<String>());
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     }
 
@@ -560,9 +560,9 @@ void EditorFileDialog::_item_dc_selected(int p_item) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (d["dir"]) {
+    if (d["dir"].as<bool>()) {
 
         dir_access->change_dir(d["name"].as<String>());
         call_deferred("_update_file_list");
@@ -591,7 +591,7 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
         if (!item_list->is_selected(i)) {
             continue;
         }
-        Dictionary item_meta = item_list->get_item_metadata(i);
+        Dictionary item_meta = item_list->get_item_metadata(i).as<Dictionary>();
         if (item_meta["path"] == "res://.import") {
             allow_delete = false;
             break;
@@ -606,8 +606,8 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
     }
     if (single_item_selected) {
         item_menu->add_separator();
-        Dictionary item_meta = item_list->get_item_metadata(p_item);
-        StringName item_text = item_meta["dir"] ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        Dictionary item_meta = item_list->get_item_metadata(p_item).as<Dictionary>();
+        StringName item_text = item_meta["dir"].as<bool>() ? TTR("Open in File Manager") : TTR("Show in File Manager");
         item_menu->add_icon_item(get_icon("Filesystem", "EditorIcons"), item_text, ITEM_MENU_SHOW_IN_EXPLORER);
     }
 
@@ -643,7 +643,7 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
     switch (p_option) {
 
         case ITEM_MENU_COPY_PATH: {
-            Dictionary item_meta = item_list->get_item_metadata(item_list->get_current());
+            Dictionary item_meta = item_list->get_item_metadata(item_list->get_current()).as<Dictionary>();
             OS::get_singleton()->set_clipboard(item_meta["path"].as<String>());
         } break;
 
@@ -667,9 +667,9 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
                 path = ProjectSettings::get_singleton()->globalize_path(dir_access->get_current_dir());
             } else {
                 // Specific item was clicked. Open folders directly, or the folder containing a selected file.
-                Dictionary item_meta = item_list->get_item_metadata(idx);
+                Dictionary item_meta = item_list->get_item_metadata(idx).as<Dictionary>();
                 path = ProjectSettings::get_singleton()->globalize_path(item_meta["path"].as<String>());
-                if (!item_meta["dir"]) {
+                if (!item_meta["dir"].as<bool>()) {
                     path = PathUtils::get_base_dir(path);
                 }
             }
@@ -689,9 +689,9 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
     for (size_t i = 0; i < items.size(); i++) {
 
-        Dictionary d = item_list->get_item_metadata(items[i]);
+        Dictionary d = item_list->get_item_metadata(items[i]).as<Dictionary>();
 
-        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || (mode == MODE_OPEN_DIR && !d["dir"]))
+        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"].as<bool>()) || (mode == MODE_OPEN_DIR && !d["dir"].as<bool>()))
             return true;
     }
 
@@ -721,7 +721,7 @@ void EditorFileDialog::update_file_name() {
 // DO NOT USE THIS FUNCTION UNLESS NEEDED, CALL INVALIDATE() INSTEAD.
 void EditorFileDialog::update_file_list() {
 
-    int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
     Ref<Texture> folder_thumbnail;
     Ref<Texture> file_thumbnail;
@@ -896,7 +896,7 @@ void EditorFileDialog::update_file_list() {
     fav_down->set_disabled(true);
     get_ok()->set_disabled(_is_open_should_be_disabled());
     for (int i = 0; i < favorites->get_item_count(); i++) {
-        String md(favorites->get_item_metadata(i));
+        String md(favorites->get_item_metadata(i).as<String>());
         if (md == cdir || md == cdir + "/") {
             favorites->select(i);
             favorite->set_pressed(true);
@@ -1138,8 +1138,8 @@ void EditorFileDialog::_delete_items() {
         if (!item_list->is_selected(i)) {
             continue;
         }
-        Dictionary item_meta = item_list->get_item_metadata(i);
-        if (item_meta["dir"]) {
+        Dictionary item_meta = item_list->get_item_metadata(i).as<Dictionary>();
+        if (item_meta["dir"].as<bool>()) {
             folders.emplace_back(item_meta["path"]);
         } else {
             files.emplace_back(item_meta["path"]);
@@ -1201,8 +1201,8 @@ void EditorFileDialog::_favorite_move_up() {
     if (current > 0 && current < favorites->get_item_count()) {
         Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.index_of(favorites->get_item_metadata(current - 1));
-        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current - 1).as<String>());
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current).as<String>());
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1221,8 +1221,8 @@ void EditorFileDialog::_favorite_move_down() {
     if (current >= 0 && current < favorites->get_item_count() - 1) {
         Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.index_of(favorites->get_item_metadata(current + 1));
-        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current + 1).as<String>());
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current).as<String>());
 
         if (a_idx == -1 || b_idx == -1)
             return;

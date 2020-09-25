@@ -34,25 +34,26 @@
 IMPL_GDCLASS(BoneAttachment3D)
 void BoneAttachment3D::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "bone_name") {
-        Skeleton *parent = object_cast<Skeleton>(get_parent());
+    if (property.name != "bone_name")
+        return;
 
-        if (parent) {
+    Skeleton *parent = object_cast<Skeleton>(get_parent());
 
-            String names;
-            for (int i = 0; i < parent->get_bone_count(); i++) {
-                if (i > 0)
-                    names += ',';
-                names += parent->get_bone_name(i);
-            }
+    if (parent) {
 
-            property.hint = PropertyHint::Enum;
-            property.hint_string = names;
-        } else {
-
-            property.hint = PropertyHint::None;
-            property.hint_string = "";
+        String names;
+        for (int i = 0; i < parent->get_bone_count(); i++) {
+            if (i > 0)
+                names += ',';
+            names += parent->get_bone_name(i);
         }
+
+        property.hint = PropertyHint::Enum;
+        property.hint_string = names;
+    } else {
+
+        property.hint = PropertyHint::None;
+        property.hint_string = "";
     }
 }
 

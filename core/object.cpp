@@ -161,7 +161,7 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
     PropertyInfo pi;
 
     if (p_dict.has("type"))
-        pi.type = VariantType(int(p_dict["type"]));
+        pi.type = p_dict["type"].as<VariantType>();
 
     if (p_dict.has("name"))
         pi.name = p_dict["name"].as<StringName>();
@@ -170,14 +170,14 @@ PropertyInfo PropertyInfo::from_dict(const Dictionary &p_dict) {
         pi.class_name = p_dict["class_name"].as<StringName>();
 
     if (p_dict.has("hint"))
-        pi.hint = PropertyHint(int(p_dict["hint"]));
+        pi.hint = p_dict["hint"].as<PropertyHint>();
 
     if (p_dict.has("hint_string"))
 
         pi.hint_string = p_dict["hint_string"].as<String>();
 
     if (p_dict.has("usage"))
-        pi.usage = p_dict["usage"];
+        pi.usage = p_dict["usage"].as<uint32_t>();
 
     return pi;
 }
@@ -228,27 +228,27 @@ MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
         mi.name = p_dict["name"].as<StringName>();
     Array args;
     if (p_dict.has("args")) {
-        args = p_dict["args"];
+        args = p_dict["args"].as<Array>();
     }
 
     for (int i = 0; i < args.size(); i++) {
-        Dictionary d = args[i];
+        Dictionary d {args[i].as<Dictionary>()};
         mi.arguments.emplace_back(eastl::move(PropertyInfo::from_dict(d)));
     }
     Array defargs;
     if (p_dict.has("default_args")) {
-        defargs = p_dict["default_args"];
+        defargs = p_dict["default_args"].as<Array>();
     }
     for (int i = 0; i < defargs.size(); i++) {
         mi.default_arguments.push_back(defargs[i]);
     }
 
     if (p_dict.has("return")) {
-        mi.return_val = PropertyInfo::from_dict(p_dict["return"]);
+        mi.return_val = PropertyInfo::from_dict(p_dict["return"].as<Dictionary>());
     }
 
     if (p_dict.has("flags"))
-        mi.flags = p_dict["flags"];
+        mi.flags = p_dict["flags"].as<uint32_t>();
 
     return mi;
 }
@@ -282,17 +282,17 @@ bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
 }
 Object::Connection::Connection(const Variant &p_variant) {
 
-    Dictionary d = p_variant;
+    Dictionary d = p_variant.as<Dictionary>();
     if (d.has("source"))
-        source = d["source"];
+        source = d["source"].as<Object *>();
     if (d.has("signal"))
         signal = d["signal"].as<StringName>();
     if (d.has("target"))
-        target = d["target"];
+        target = d["target"].as<Object *>();
     if (d.has("method"))
         method = d["method"].as<StringName>();
     if (d.has("flags"))
-        flags = d["flags"];
+        flags = d["flags"].as<uint32_t>();
     if (d.has("binds"))
         binds = d["binds"].as<Vector<Variant>>();
 }
@@ -349,14 +349,14 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
     }
 
     if (p_name == CoreStringNames::get_singleton()->_script) {
-        set_script(p_value);
+        set_script(p_value.as<RefPtr>());
         if (r_valid)
             *r_valid = true;
         return;
 
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
         //set_meta(p_name,p_value);
-        metadata = p_value.duplicate();
+        metadata = p_value.duplicate_t<Dictionary>();
         if (r_valid)
             *r_valid = true;
         return;
@@ -1194,13 +1194,13 @@ void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
 
     for (int i = 0; i < p_args.size(); i++) {
 
-        Dictionary d = p_args[i];
+        Dictionary d = p_args[i].as<Dictionary>();
         PropertyInfo param;
 
         if (d.has("name"))
             param.name = d["name"].as<StringName>();
         if (d.has("type"))
-            param.type = (VariantType)(int)d["type"];
+            param.type = d["type"].as<VariantType>();
 
         mi.arguments.emplace_back(eastl::move(param));
     }
@@ -1514,7 +1514,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
             if (!StringUtils::begins_with(r->get_path(),"res://") || !StringUtils::contains(r->get_path(),"::"))
                 return; //not an internal resource
 
-            Object *object = p_var;
+            Object *object = p_var.as<Object *>();
             if (!object)
                 return;
 
@@ -1523,7 +1523,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
         } break;
         case VariantType::ARRAY: {
 
-            Array a = p_var;
+            Array a = p_var.as<Array>();
             for (int i = 0; i < a.size(); i++) {
                 _clear_internal_resource_paths(a[i]);
             }
@@ -1531,7 +1531,7 @@ void Object::_clear_internal_resource_paths(const Variant &p_var) {
         } break;
         case VariantType::DICTIONARY: {
 
-            Dictionary d = p_var;
+            Dictionary d = p_var.as<Dictionary>();
             Vector<Variant> keys(d.get_key_list());
 
             for(Variant &E : keys ) {

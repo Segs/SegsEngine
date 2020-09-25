@@ -46,7 +46,7 @@ bool SceneMap::_set(const StringName& p_name, const Variant& p_value) {
         if (what == "name"_sv)
             set_item_name(idx, p_value.as<String>());
         else if (what == "scene"_sv)
-            set_item_library(idx, refFromRefPtr<SceneLibrary>(p_value));
+            set_item_library(idx, refFromRefPtr<SceneLibrary>(p_value.as<RefPtr>()));
         else
             return false;
 

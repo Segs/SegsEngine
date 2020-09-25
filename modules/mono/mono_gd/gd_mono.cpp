@@ -128,8 +128,8 @@ void gd_mono_setup_runtime_main_args() {
 }
 
 void gd_mono_profiler_init() {
-    String profiler_args = GLOBAL_DEF("mono/profiler/args", "log:calls,alloc,sample,output=output.mlpd");
-    bool profiler_enabled = GLOBAL_DEF("mono/profiler/enabled", false);
+    String profiler_args = T_GLOBAL_DEF<String>("mono/profiler/args", "log:calls,alloc,sample,output=output.mlpd");
+    bool profiler_enabled = T_GLOBAL_DEF("mono/profiler/enabled", false);
     if (profiler_enabled) {
         mono_profiler_load(profiler_args.data());
         return;
@@ -156,9 +156,9 @@ void gd_mono_debug_init() {
     }
 
 #ifdef TOOLS_ENABLED
-    int da_port = GLOBAL_DEF("mono/debugger_agent/port", 23685);
-    bool da_suspend = GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);
-    int da_timeout = GLOBAL_DEF("mono/debugger_agent/wait_timeout", 3000);
+    int da_port = T_GLOBAL_DEF<int>("mono/debugger_agent/port", 23685);
+    bool da_suspend = T_GLOBAL_DEF("mono/debugger_agent/wait_for_debugger", false);
+    int da_timeout = T_GLOBAL_DEF<int>("mono/debugger_agent/wait_timeout", 3000);
 
     if (Engine::get_singleton()->is_editor_hint() ||
             ProjectSettings::get_singleton()->get_resource_path().empty() ||
@@ -721,7 +721,7 @@ void GDMono::_check_known_glue_api_hashes() {
 void GDMono::_init_exception_policy() {
     PropertyInfo exc_policy_prop = PropertyInfo(VariantType::INT, "mono/unhandled_exception_policy", PropertyHint::Enum,
             vformat("Terminate Application:%s,Log Error:%s", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
-    unhandled_exception_policy = (UnhandledExceptionPolicy)(int)GLOBAL_DEF(exc_policy_prop.name, (int)POLICY_TERMINATE_APP);
+    unhandled_exception_policy = T_GLOBAL_DEF<UnhandledExceptionPolicy>(exc_policy_prop.name, POLICY_TERMINATE_APP);
     ProjectSettings::get_singleton()->set_custom_property_info(exc_policy_prop.name, exc_policy_prop);
 
     if (Engine::get_singleton()->is_editor_hint()) {
@@ -893,17 +893,17 @@ static bool try_get_cached_api_hash_for(MonoPluginResolver *rs,StringView p_api_
     ERR_FAIL_COND_V(cfg_err != OK, false);
 
     // Checking the modified time is good enough
-    if (FileAccess::get_modified_time(core_api_assembly_path) != (uint64_t)cfg->get_value("core", "modified_time") ||
-            FileAccess::get_modified_time(editor_api_assembly_path) != (uint64_t)cfg->get_value("editor", "modified_time")) {
+    if (FileAccess::get_modified_time(core_api_assembly_path) != cfg->get_value("core", "modified_time").as<uint64_t>() ||
+            FileAccess::get_modified_time(editor_api_assembly_path) != cfg->get_value("editor", "modified_time").as<uint64_t>()) {
         return false;
     }
 
-    r_out_of_sync = core_info->version_str() != (String)cfg->get_value("core", "bindings_version") ||
-                    core_info->api_version_str() != (String)cfg->get_value("core", "cs_glue_version") ||
-                    editor_info->version_str() != (String)cfg->get_value("editor", "bindings_version") ||
-                    editor_info->api_version_str() != (String)cfg->get_value("editor", "cs_glue_version") ||
-                    core_info->api_hash != (String)cfg->get_value("core", "api_hash") ||
-                    editor_info->api_hash != (String)cfg->get_value("editor", "api_hash");
+    r_out_of_sync = core_info->version_str() != cfg->get_value("core", "bindings_version").as<String>() ||
+                    core_info->api_version_str() != cfg->get_value("core", "cs_glue_version").as<String>() ||
+                    editor_info->version_str() != cfg->get_value("editor", "bindings_version").as<String>() ||
+                    editor_info->api_version_str() != cfg->get_value("editor", "cs_glue_version").as<String>() ||
+                    core_info->api_hash != cfg->get_value("core", "api_hash").as<String>() ||
+                    editor_info->api_hash != cfg->get_value("editor", "api_hash").as<String>();
 
     return true;
 }
@@ -1207,7 +1207,7 @@ bool GDMono::_load_project_assembly() {
     if (project_assembly)
         return true;
 
-    String appname = ProjectSettings::get_singleton()->get("application/config/name");
+    String appname = ProjectSettings::get_singleton()->getT<String>("application/config/name"); 
     String appname_safe = OS::get_singleton()->get_safe_dir_name(appname);
     if (appname_safe.empty()) {
         appname_safe = "UnnamedProject";

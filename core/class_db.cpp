@@ -1249,8 +1249,8 @@ Variant ClassDB::class_get_default_property_value(
             c = Engine::get_singleton()->get_named_singleton(p_class);
             cleanup_c = false;
         } else if (ClassDB::can_instance(p_class)) {
-            //c = ClassDB::instance(p_class);
-            //cleanup_c = true;
+            c = ClassDB::instance(p_class);
+            cleanup_c = true;
         }
 
         if (c) {

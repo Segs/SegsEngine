@@ -209,43 +209,43 @@ private:
             case VariantType::BOOL:
             case VariantType::INT: {
 
-                int val = p_value;
+                int val = p_value.as<int>();
                 glUniform1i(p_uniform, val);
             } break;
             case VariantType::FLOAT: {
 
-                real_t val = p_value;
+                real_t val = p_value.as<real_t>();
                 glUniform1f(p_uniform, val);
             } break;
             case VariantType::COLOR: {
 
-                Color val = p_value;
+                Color val = p_value.as<Color>();
                 glUniform4f(p_uniform, val.r, val.g, val.b, val.a);
             } break;
             case VariantType::VECTOR2: {
 
-                Vector2 val = p_value;
+                Vector2 val = p_value.as<Vector2>();
                 glUniform2f(p_uniform, val.x, val.y);
             } break;
             case VariantType::VECTOR3: {
 
-                Vector3 val = p_value;
+                Vector3 val = p_value.as<Vector3>();
                 glUniform3f(p_uniform, val.x, val.y, val.z);
             } break;
             case VariantType::PLANE: {
 
-                Plane val = p_value;
+                Plane val = p_value.as<Plane>();
                 glUniform4f(p_uniform, val.normal.x, val.normal.y, val.normal.z, val.d);
             } break;
             case VariantType::QUAT: {
 
-                Quat val = p_value;
+                Quat val = p_value.as<Quat>();
                 glUniform4f(p_uniform, val.x, val.y, val.z, val.w);
             } break;
 
             case VariantType::TRANSFORM2D: {
 
-                Transform2D tr = p_value;
+                Transform2D tr = p_value.as<Transform2D>();
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
                     tr.elements[0][0],
                     tr.elements[0][1],
@@ -271,7 +271,7 @@ private:
             case VariantType::BASIS:
             case VariantType::TRANSFORM: {
 
-                Transform tr = p_value;
+                Transform tr = p_value.as<Transform>();
                 GLfloat matrix[16] = { /* build a 16x16 matrix */
                     tr.basis.elements[0][0],
                     tr.basis.elements[1][0],

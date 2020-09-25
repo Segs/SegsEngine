@@ -169,13 +169,13 @@ void ScriptServer::init_languages() {
         global_classes_clear();
         StringName gsc("_global_script_classes");
         if (ProjectSettings::get_singleton()->has_setting(gsc)) {
-            Array script_classes = ProjectSettings::get_singleton()->get(gsc);
+            Array script_classes = ProjectSettings::get_singleton()->getT<Array>(gsc);
 
             for (int i = 0; i < script_classes.size(); i++) {
-                Dictionary c = script_classes[i];
+                Dictionary c = script_classes[i].as<Dictionary>();
                 if (!c.has("class") || !c.has("language") || !c.has("path") || !c.has("base"))
                     continue;
-                add_global_class(c["class"], c["base"], c["language"], c["path"].as<String>());
+                add_global_class(c["class"].as<StringName>(), c["base"].as<StringName>(), c["language"].as<StringName>(), c["path"].as<String>());
             }
         }
     }

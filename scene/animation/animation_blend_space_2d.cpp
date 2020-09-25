@@ -566,9 +566,10 @@ void AnimationNodeBlendSpace2D::_validate_property(PropertyInfo &property) const
     if (auto_triangles && property.name == "triangles") {
         property.usage = 0;
     }
-    if (StringUtils::begins_with(property.name,"blend_point_")) {
-        StringView left = StringUtils::get_slice(property.name,'/', 0);
-        int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
+    if (StringUtils::begins_with(property.name,"blend_point/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, property.name, '/');
+        int idx = StringUtils::to_int(parts[1]);
         if (idx >= blend_points_used) {
             property.usage = 0;
         }

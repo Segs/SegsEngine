@@ -233,9 +233,9 @@ bool Light3D::is_editor_only() const {
 
 void Light3D::_validate_property(PropertyInfo &property) const {
 
-    if (RenderingServer::get_singleton()->is_low_end() && property.name == "shadow_contact") {
-        property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
-    }
+    //if (RenderingServer::get_singleton()->is_low_end() && property.name == "shadow_contact") {
+    //    property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
+    //}
 }
 
 void Light3D::_bind_methods() {

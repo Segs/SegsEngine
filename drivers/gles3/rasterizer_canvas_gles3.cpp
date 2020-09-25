@@ -2150,7 +2150,7 @@ void RasterizerCanvasGLES3::initialize() {
     }
     {
 
-        uint32_t poly_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128);
+        uint32_t poly_size = GLOBAL_DEF_T_RST("rendering/limits/buffers/canvas_polygon_buffer_size_kb", 128,uint32_t);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
         poly_size *= 1024; //kb
         poly_size = M_MAX(poly_size, (2 + 2 + 4) * 4 * sizeof(float));
@@ -2198,7 +2198,7 @@ void RasterizerCanvasGLES3::initialize() {
 
         glGenVertexArrays(1, &data.polygon_buffer_pointer_array);
 
-        uint32_t index_size = GLOBAL_DEF_RST("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", 128);
+        uint32_t index_size = GLOBAL_DEF_T_RST("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", 128,uint32_t);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/canvas_polygon_index_buffer_size_kb", PropertyHint::Range, "0,256,1,or_greater"));
         index_size *= 1024; //kb
         glGenBuffers(1, &data.polygon_index_buffer);
@@ -2224,7 +2224,7 @@ void RasterizerCanvasGLES3::initialize() {
     state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_RGBA_SHADOWS, storage->config.use_rgba_2d_shadows);
     state.canvas_shadow_shader.set_conditional(CanvasShadowShaderGLES3::USE_RGBA_SHADOWS, storage->config.use_rgba_2d_shadows);
 
-    state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PIXEL_SNAP, GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false));
+    state.canvas_shader.set_conditional(CanvasShaderGLES3::USE_PIXEL_SNAP, T_GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false));
 }
 
 void RasterizerCanvasGLES3::finalize() {

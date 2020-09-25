@@ -481,7 +481,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             for (int i = 0; i < selection.size(); i++) {
 
-                Node *n = object_cast<Node>(selection[i]);
+                Node *n = selection[i].asT<Node *>();
                 Ref<Script> existing(refFromRefPtr<Script>(n->get_script()));
                 Ref<Script> empty = EditorNode::get_singleton()->get_object_custom_type_base(n);
                 if (existing != empty) {
@@ -1119,7 +1119,7 @@ void SceneTreeDock::_notification(int p_what) {
             node_shortcuts_toggle->set_name("NodeShortcutsToggle");
             node_shortcuts_toggle->set_button_icon(get_icon("Favorites", "EditorIcons"));
             node_shortcuts_toggle->set_toggle_mode(true);
-            node_shortcuts_toggle->set_pressed(EDITOR_GET("_use_favorites_root_selection"));
+            node_shortcuts_toggle->set_pressed(EDITOR_GET_T<bool>("_use_favorites_root_selection"));
             node_shortcuts_toggle->set_anchors_and_margins_preset(Control::PRESET_CENTER_RIGHT);
             node_shortcuts_toggle->connect("pressed", this, "_update_create_root_dialog");
             top_row->add_child(node_shortcuts_toggle);
@@ -1184,7 +1184,7 @@ void SceneTreeDock::_notification(int p_what) {
         } break;
         case NOTIFICATION_PROCESS: {
 
-            bool show_create_root = bool(EDITOR_GET("interface/editors/show_scene_tree_root_selection")) && get_tree()->get_edited_scene_root() == nullptr;
+            bool show_create_root = EDITOR_GET_T<bool>("interface/editors/show_scene_tree_root_selection") && get_tree()->get_edited_scene_root() == nullptr;
 
             if (show_create_root != create_root_dialog->is_visible_in_tree() && !remote_tree->is_visible()) {
                 if (show_create_root) {
@@ -1262,7 +1262,7 @@ void SceneTreeDock::_set_owners(Node *p_owner, const Array &p_nodes) {
 
     for (int i = 0; i < p_nodes.size(); i++) {
 
-        Node *n = object_cast<Node>(p_nodes[i]);
+        Node *n = object_cast<Node>(p_nodes[i].as<Object *>());
         if (!n)
             continue;
         n->set_owner(p_owner);
@@ -1290,7 +1290,7 @@ void SceneTreeDock::_fill_path_renames(Vector<StringName> base_path, Vector<Stri
 
 void SceneTreeDock::fill_path_renames(Node *p_node, Node *p_new_parent, Vector<Pair<NodePath, NodePath> > &p_renames) {
 
-    if (!bool(EDITOR_DEF("editors/animation/autorename_animation_tracks", true)))
+    if (!EDITOR_DEF_T<bool>("editors/animation/autorename_animation_tracks", true))
         return;
 
     Vector<StringName> base_path;
@@ -1376,7 +1376,7 @@ void SceneTreeDock::perform_node_renames(Node *p_base, Vector<Pair<NodePath, Nod
         }
     }
 
-    bool autorename_animation_tracks = bool(EDITOR_DEF("editors/animation/autorename_animation_tracks", true));
+    bool autorename_animation_tracks = EDITOR_DEF_T<bool>("editors/animation/autorename_animation_tracks", true);
 
     if (autorename_animation_tracks && object_cast<AnimationPlayer>(p_base)) {
 
@@ -1914,7 +1914,7 @@ void SceneTreeDock::_update_script_button() {
         button_create_script->hide();
         Array selection = editor_selection->get_selected_nodes();
         for (int i = 0; i < selection.size(); i++) {
-            Node *n = object_cast<Node>(selection[i]);
+            Node *n = object_cast<Node>(selection[i].as<Object *>());
             if (!n->get_script().is_null()) {
                 button_detach_script->show();
                 return;
@@ -2112,11 +2112,11 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
                 continue;
             if (E.name == "__meta__") {
                 if (object_cast<CanvasItem>(newnode)) {
-                    Dictionary metadata = n->get(E.name);
-                    if (metadata.has("_edit_group_") && metadata["_edit_group_"]) {
+                    Dictionary metadata = n->getT<Dictionary>(E.name);
+                    if (metadata.has("_edit_group_") && metadata["_edit_group_"].as<bool>()) {
                         newnode->set_meta("_edit_group_", true);
                     }
-                    if (metadata.has("_edit_lock_") && metadata["_edit_lock_"]) {
+                    if (metadata.has("_edit_lock_") && metadata["_edit_lock_"].as<bool>()) {
                         newnode->set_meta("_edit_lock_", true);
                     }
                 }
@@ -2248,7 +2248,7 @@ void SceneTreeDock::_new_scene_from(StringView p_file) {
         }
 
         int flg = 0;
-        if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
+        if (EditorSettings::get_singleton()->getT<bool>("filesystem/on_save/compress_binary_resources"))
             flg |= ResourceManager::FLAG_COMPRESS;
 
         err = gResourceManager().save(p_file, sdata, flg);
@@ -2400,7 +2400,7 @@ void SceneTreeDock::_add_children_to_popup(Object *p_obj, int p_depth) {
         Variant value = p_obj->get(E.name);
         if (value.get_type() != VariantType::OBJECT)
             continue;
-        Object *obj = value;
+        Object *obj = value.as<Object *>();
         if (!obj)
             continue;
 
@@ -2639,7 +2639,7 @@ void SceneTreeDock::attach_script_to_selected(bool p_extend) {
             if (l->get_type() == existing->get_class()) {
                 StringName name = l->get_global_class_name(existing->get_path());
                 if (ScriptServer::is_global_class(name) &&
-                        EDITOR_GET("interface/editors/derive_script_globals_by_name").operator bool()) {
+                        EDITOR_GET_T<bool>("interface/editors/derive_script_globals_by_name")) {
                     inherits = name;
                 } else if (l->can_inherit_from_file()) {
                     inherits = StringName("\"" + existing->get_path() + "\"");

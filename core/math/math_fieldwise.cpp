@@ -38,8 +38,8 @@
 #include "transform_2d.h"
 
 #define SETUP_TYPE(m_type)    \
-    m_type source = p_source; \
-    m_type target = p_target;
+    m_type source = p_source.as<m_type>(); \
+    m_type target = p_target.as<m_type>();
 #define TRY_TRANSFER_FIELD(m_name, m_member) \
     if (p_field == StringView(m_name)) {                 \
         target.m_member = source.m_member;   \

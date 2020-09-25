@@ -76,8 +76,8 @@ struct VariantObjectClassChecker<Node *> {
 template <>
 struct VariantObjectClassChecker<Control *> {
     static bool check(const Variant &p_variant) {
-        Object *obj = p_variant;
-        Control *control = p_variant;
+        Object *obj = p_variant.as<Object*>();
+        Control *control = p_variant.as<Control *>();
         return control || !obj;
     }
 };
@@ -102,7 +102,7 @@ VARIANT_ENUM_CAST(Variant::Operator)
 template <>
 struct VariantCaster<char16_t> {
     static char16_t cast(const Variant &p_variant) {
-        return (char16_t)p_variant.operator int();
+        return (char16_t)p_variant.as<int>();
     }
 };
 

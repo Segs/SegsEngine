@@ -209,19 +209,19 @@ void ImageTexture::reload_from_file() {
 bool ImageTexture::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "image")
-        create_from_image(refFromRefPtr<Image>(p_value), flags);
+        create_from_image(refFromRefPtr<Image>(p_value.as<RefPtr>()), flags);
     else if (p_name == "flags")
         if (w * h == 0)
-            flags = p_value;
+            flags = p_value.as<uint32_t>();
         else
-            set_flags(p_value);
+            set_flags(p_value.as<uint32_t>());
     else if (p_name == "size") {
-        Size2 s = p_value;
+        Size2 s = p_value.as<Vector2>();
         w = s.width;
         h = s.height;
         RenderingServer::get_singleton()->texture_set_size_override(texture, w, h, 0);
     } else if (p_name == "_data") {
-        _set_data(p_value);
+        _set_data(p_value.as<Dictionary>());
     } else
         return false;
 
@@ -465,14 +465,14 @@ void ImageTexture::_set_data(Dictionary p_data) {
 
     Ref<Image> img(p_data["image"]);
     ERR_FAIL_COND(not img);
-    uint32_t flags = p_data["flags"];
+    uint32_t flags = p_data["flags"].as<uint32_t>();
 
     create_from_image(img, flags);
 
-    set_storage(Storage(p_data["storage"].operator int()));
-    set_lossy_storage_quality(p_data["lossy_quality"]);
+    set_storage(Storage(p_data["storage"].as<int>()));
+    set_lossy_storage_quality(p_data["lossy_quality"].as<float>());
 
-    set_size_override(p_data["size"]);
+    set_size_override(p_data["size"].as<Vector2>());
 };
 
 void ImageTexture::_bind_methods() {
@@ -1438,9 +1438,9 @@ void LargeTexture::_set_data(const Array &p_array) {
     ERR_FAIL_COND(!(p_array.size() & 1));
     clear();
     for (int i = 0; i < p_array.size() - 1; i += 2) {
-        add_piece(p_array[i], refFromRefPtr<Texture>(p_array[i + 1]));
+        add_piece(p_array[i].as<Vector2>(), refFromRefPtr<Texture>(p_array[i + 1].as<RefPtr>()));
     }
-    size = Size2(p_array[p_array.size() - 1]);
+    size = p_array[p_array.size() - 1].as<Vector2>();
 }
 
 int LargeTexture::get_piece_count() const {
@@ -1642,21 +1642,21 @@ void CubeMap::set_path(StringView p_path, bool p_take_over) {
 bool CubeMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "side/left") {
-        set_side(SIDE_LEFT, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_LEFT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "side/right") {
-        set_side(SIDE_RIGHT, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_RIGHT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "side/bottom") {
-        set_side(SIDE_BOTTOM, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_BOTTOM, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "side/top") {
-        set_side(SIDE_TOP, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_TOP, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "side/front") {
-        set_side(SIDE_FRONT, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_FRONT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "side/back") {
-        set_side(SIDE_BACK, refFromRefPtr<Image>(p_value));
+        set_side(SIDE_BACK, refFromRefPtr<Image>(p_value.as<RefPtr>()));
     } else if (p_name == "storage") {
-        storage = Storage(p_value.operator int());
+        storage = Storage(p_value.as<int>());
     } else if (p_name == "lossy_quality") {
-        lossy_storage_quality = p_value;
+        lossy_storage_quality = p_value.as<float>();
     } else
         return false;
 
@@ -2133,8 +2133,10 @@ uint32_t AnimatedTexture::get_flags() const {
 void AnimatedTexture::_validate_property(PropertyInfo &property) const {
 
     StringName prop = property.name;
-    if (StringUtils::begins_with(prop,"frame_")) {
-        int frame = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(prop,'/', 0),'_', 1));
+    if (StringUtils::begins_with(prop,"frame/")) {
+        FixedVector<StringView,3> parts;
+        String::split_ref(parts,prop,'/');
+        int frame = StringUtils::to_int(parts[1]);
         if (frame >= frame_count) {
             property.usage = 0;
         }
@@ -2240,12 +2242,12 @@ void TextureLayered::_set_data(const Dictionary &p_data) {
     ERR_FAIL_COND(!p_data.has("format"));
     ERR_FAIL_COND(!p_data.has("flags"));
     ERR_FAIL_COND(!p_data.has("layers"));
-    int w = p_data["width"];
-    int h = p_data["height"];
-    int d = p_data["depth"];
-    Image::Format format = Image::Format(int(p_data["format"]));
-    int flags = p_data["flags"];
-    Array layers = p_data["layers"];
+    int w = p_data["width"].as<int>();
+    int h = p_data["height"].as<int>();
+    int d = p_data["depth"].as<int>();
+    Image::Format format = p_data["format"].as<Image::Format>();
+    int flags = p_data["flags"].as<int>();
+    Array layers = p_data["layers"].as<Array>();
     ERR_FAIL_COND(layers.size() != d);
 
     create(w, h, d, format, flags);

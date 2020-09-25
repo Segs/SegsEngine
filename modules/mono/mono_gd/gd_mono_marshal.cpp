@@ -716,51 +716,51 @@ MonoObject *variant_to_mono_object(const Variant *p_var) {
 MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_type) {
     switch (p_type.type_encoding) {
         case MONO_TYPE_BOOLEAN: {
-            MonoBoolean val = p_var->operator bool();
+            MonoBoolean val = p_var->as<bool>();
             return BOX_BOOLEAN(val);
         }
 
         case MONO_TYPE_CHAR: {
-            uint16_t val = p_var->operator unsigned short();
+            uint16_t val = p_var->as<unsigned short>();
             return BOX_UINT16(val);
         }
 
         case MONO_TYPE_I1: {
-            int8_t val = p_var->operator signed char();
+            int8_t val = p_var->as<signed char>();
             return BOX_INT8(val);
         }
         case MONO_TYPE_I2: {
-            int16_t val = p_var->operator signed short();
+            int16_t val = p_var->as<signed short>();
             return BOX_INT16(val);
         }
         case MONO_TYPE_I4: {
-            int32_t val = p_var->operator signed int();
+            int32_t val = p_var->as<signed int>();
             return BOX_INT32(val);
         }
         case MONO_TYPE_I8: {
-            int64_t val = p_var->operator int64_t();
+            int64_t val = p_var->as<int64_t>();
             return BOX_INT64(val);
         }
 
         case MONO_TYPE_U1: {
-            uint8_t val = p_var->operator unsigned char();
+            uint8_t val = p_var->as<unsigned char>();
             return BOX_UINT8(val);
         }
         case MONO_TYPE_U2: {
-            uint16_t val = p_var->operator unsigned short();
+            uint16_t val = p_var->as<unsigned short>();
             return BOX_UINT16(val);
         }
         case MONO_TYPE_U4: {
-            uint32_t val = p_var->operator unsigned int();
+            uint32_t val = p_var->as<unsigned int>();
             return BOX_UINT32(val);
         }
         case MONO_TYPE_U8: {
-            uint64_t val = p_var->operator uint64_t();
+            uint64_t val = p_var->as<uint64_t>();
             return BOX_UINT64(val);
         }
 
         case MONO_TYPE_R4: {
-            float val = p_var->operator float();
+            float val = p_var->as<float>();
             return BOX_FLOAT(val);
         }
         case MONO_TYPE_R8: {
@@ -778,52 +778,52 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             GDMonoClass *vtclass = p_type.type_class;
 
             if (vtclass == CACHED_CLASS(Vector2)) {
-                GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->operator ::Vector2());
+                GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->as<::Vector2>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector2), &from);
             }
 
             if (vtclass == CACHED_CLASS(Rect2)) {
-                GDMonoMarshal::M_Rect2 from = MARSHALLED_OUT(Rect2, p_var->operator ::Rect2());
+                GDMonoMarshal::M_Rect2 from = MARSHALLED_OUT(Rect2, p_var->as<::Rect2>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Rect2), &from);
             }
 
             if (vtclass == CACHED_CLASS(Transform2D)) {
-                GDMonoMarshal::M_Transform2D from = MARSHALLED_OUT(Transform2D, p_var->operator ::Transform2D());
+                GDMonoMarshal::M_Transform2D from = MARSHALLED_OUT(Transform2D, p_var->as<::Transform2D>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Transform2D), &from);
             }
 
             if (vtclass == CACHED_CLASS(Vector3)) {
-                GDMonoMarshal::M_Vector3 from = MARSHALLED_OUT(Vector3, p_var->operator ::Vector3());
+                GDMonoMarshal::M_Vector3 from = MARSHALLED_OUT(Vector3, p_var->as<::Vector3>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector3), &from);
             }
 
             if (vtclass == CACHED_CLASS(Basis)) {
-                GDMonoMarshal::M_Basis from = MARSHALLED_OUT(Basis, p_var->operator ::Basis());
+                GDMonoMarshal::M_Basis from = MARSHALLED_OUT(Basis, p_var->as<::Basis>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Basis), &from);
             }
 
             if (vtclass == CACHED_CLASS(Quat)) {
-                GDMonoMarshal::M_Quat from = MARSHALLED_OUT(Quat, p_var->operator ::Quat());
+                GDMonoMarshal::M_Quat from = MARSHALLED_OUT(Quat, p_var->as<::Quat>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Quat), &from);
             }
 
             if (vtclass == CACHED_CLASS(Transform)) {
-                GDMonoMarshal::M_Transform from = MARSHALLED_OUT(Transform, p_var->operator ::Transform());
+                GDMonoMarshal::M_Transform from = MARSHALLED_OUT(Transform, p_var->as<::Transform>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Transform), &from);
             }
 
             if (vtclass == CACHED_CLASS(AABB)) {
-                GDMonoMarshal::M_AABB from = MARSHALLED_OUT(AABB, p_var->operator ::AABB());
+                GDMonoMarshal::M_AABB from = MARSHALLED_OUT(AABB, p_var->as<::AABB>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(AABB), &from);
             }
 
             if (vtclass == CACHED_CLASS(Color)) {
-                GDMonoMarshal::M_Color from = MARSHALLED_OUT(Color, p_var->operator ::Color());
+                GDMonoMarshal::M_Color from = MARSHALLED_OUT(Color, p_var->as<::Color>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Color), &from);
             }
 
             if (vtclass == CACHED_CLASS(Plane)) {
-                GDMonoMarshal::M_Plane from = MARSHALLED_OUT(Plane, p_var->operator ::Plane());
+                GDMonoMarshal::M_Plane from = MARSHALLED_OUT(Plane, p_var->as<::Plane>());
                 return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Plane), &from);
             }
 
@@ -832,43 +832,43 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                 MonoClass *enum_baseclass = mono_class_from_mono_type(enum_basetype);
                 switch (mono_type_get_type(enum_basetype)) {
                     case MONO_TYPE_BOOLEAN: {
-                        MonoBoolean val = p_var->operator bool();
+                        MonoBoolean val = p_var->as<bool>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_CHAR: {
-                        uint16_t val = p_var->operator unsigned short();
+                        uint16_t val = p_var->as<unsigned short>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_I1: {
-                        int8_t val = p_var->operator signed char();
+                        int8_t val = p_var->as<signed char>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_I2: {
-                        int16_t val = p_var->operator signed short();
+                        int16_t val = p_var->as<signed short>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_I4: {
-                        int32_t val = p_var->operator signed int();
+                        int32_t val = p_var->as<signed int>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_I8: {
-                        int64_t val = p_var->operator int64_t();
+                        int64_t val = p_var->as<int64_t>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_U1: {
-                        uint8_t val = p_var->operator unsigned char();
+                        uint8_t val = p_var->as<unsigned char>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_U2: {
-                        uint16_t val = p_var->operator unsigned short();
+                        uint16_t val = p_var->as<unsigned short>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_U4: {
-                        uint32_t val = p_var->operator unsigned int();
+                        uint32_t val = p_var->as<unsigned int>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     case MONO_TYPE_U8: {
-                        uint64_t val = p_var->operator uint64_t();
+                        uint64_t val = p_var->as<uint64_t>();
                         return BOX_ENUM(enum_baseclass, val);
                     }
                     default: {
@@ -883,32 +883,32 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             MonoArrayType *array_type = mono_type_get_array_type(p_type.type_class->get_mono_type());
 
             if (array_type->eklass == CACHED_CLASS_RAW(MonoObject))
-                return (MonoObject *)container_to_mono_array(p_var->operator Array());
+                return (MonoObject *)container_to_mono_array(p_var->as<Array>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(uint8_t))
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolByteArray());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolByteArray>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(int32_t))
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolIntArray());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolIntArray>());
 
             if (array_type->eklass == REAL_T_MONOCLASS)
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolRealArray());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolRealArray>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(String))
                 return (MonoObject *)container_to_mono_array(p_var->as<PoolStringArray>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector2))
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolVector2Array());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolVector2Array>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Vector3))
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolVector3Array());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolVector3Array>());
 
             if (array_type->eklass == CACHED_CLASS_RAW(Color))
-                return (MonoObject *)container_to_mono_array(p_var->operator PoolColorArray());
+                return (MonoObject *)container_to_mono_array(p_var->as<PoolColorArray>());
 
             GDMonoClass *array_type_class = GDMono::get_singleton()->get_class(array_type->eklass);
             if (CACHED_CLASS(GodotObject)->is_assignable_from(array_type_class))
-                return (MonoObject *)container_to_mono_array(p_var->operator Array(), array_type_class);
+                return (MonoObject *)container_to_mono_array(p_var->as<Array>(), array_type_class);
 
             ERR_FAIL_V_MSG(nullptr, "Attempted to convert Variant to a managed array of unmarshallable element type.");
             break;
@@ -919,11 +919,11 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 
             // GodotObject
             if (CACHED_CLASS(GodotObject)->is_assignable_from(type_class)) {
-                return GDMonoUtils::unmanaged_get_managed(p_var->operator Object *());
+                return GDMonoUtils::unmanaged_get_managed(p_var->as<Object *>());
             }
 
             if (CACHED_CLASS(NodePath) == type_class) {
-                return GDMonoUtils::create_managed_from(p_var->operator NodePath());
+                return GDMonoUtils::create_managed_from(p_var->as<NodePath>());
             }
 
             if (CACHED_CLASS(RID) == type_class) {
@@ -946,88 +946,88 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
             // Variant
             switch (p_var->get_type()) {
                 case VariantType::BOOL: {
-                    MonoBoolean val = p_var->operator bool();
+                    MonoBoolean val = p_var->as<bool>();
                     return BOX_BOOLEAN(val);
                 }
                 case VariantType::INT: {
-                    int32_t val = p_var->operator signed int();
+                    int32_t val = p_var->as<signed int>();
                     return BOX_INT32(val);
                 }
                 case VariantType::FLOAT: {
 #ifdef REAL_T_IS_DOUBLE
-                    double val = p_var->operator double();
+                    double val = p_var->as<double>();
                     return BOX_DOUBLE(val);
 #else
-                    float val = p_var->operator float();
+                    float val = p_var->as<float>();
                     return BOX_FLOAT(val);
 #endif
                 }
                 case VariantType::STRING:
                     return (MonoObject *)mono_string_from_godot(p_var->as<String>());
                 case VariantType::VECTOR2: {
-                    GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->operator ::Vector2());
+                    GDMonoMarshal::M_Vector2 from = MARSHALLED_OUT(Vector2, p_var->as<::Vector2>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector2), &from);
                 }
                 case VariantType::RECT2: {
-                    GDMonoMarshal::M_Rect2 from = MARSHALLED_OUT(Rect2, p_var->operator ::Rect2());
+                    GDMonoMarshal::M_Rect2 from = MARSHALLED_OUT(Rect2, p_var->as<::Rect2>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Rect2), &from);
                 }
                 case VariantType::VECTOR3: {
-                    GDMonoMarshal::M_Vector3 from = MARSHALLED_OUT(Vector3, p_var->operator ::Vector3());
+                    GDMonoMarshal::M_Vector3 from = MARSHALLED_OUT(Vector3, p_var->as<::Vector3>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Vector3), &from);
                 }
                 case VariantType::TRANSFORM2D: {
-                    GDMonoMarshal::M_Transform2D from = MARSHALLED_OUT(Transform2D, p_var->operator ::Transform2D());
+                    GDMonoMarshal::M_Transform2D from = MARSHALLED_OUT(Transform2D, p_var->as<::Transform2D>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Transform2D), &from);
                 }
                 case VariantType::PLANE: {
-                    GDMonoMarshal::M_Plane from = MARSHALLED_OUT(Plane, p_var->operator ::Plane());
+                    GDMonoMarshal::M_Plane from = MARSHALLED_OUT(Plane, p_var->as<::Plane>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Plane), &from);
                 }
                 case VariantType::QUAT: {
-                    GDMonoMarshal::M_Quat from = MARSHALLED_OUT(Quat, p_var->operator ::Quat());
+                    GDMonoMarshal::M_Quat from = MARSHALLED_OUT(Quat, p_var->as<::Quat>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Quat), &from);
                 }
                 case VariantType::AABB: {
-                    GDMonoMarshal::M_AABB from = MARSHALLED_OUT(AABB, p_var->operator ::AABB());
+                    GDMonoMarshal::M_AABB from = MARSHALLED_OUT(AABB, p_var->as<::AABB>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(AABB), &from);
                 }
                 case VariantType::BASIS: {
-                    GDMonoMarshal::M_Basis from = MARSHALLED_OUT(Basis, p_var->operator ::Basis());
+                    GDMonoMarshal::M_Basis from = MARSHALLED_OUT(Basis, p_var->as<::Basis>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Basis), &from);
                 }
                 case VariantType::TRANSFORM: {
-                    GDMonoMarshal::M_Transform from = MARSHALLED_OUT(Transform, p_var->operator ::Transform());
+                    GDMonoMarshal::M_Transform from = MARSHALLED_OUT(Transform, p_var->as<::Transform>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Transform), &from);
                 }
                 case VariantType::COLOR: {
-                    GDMonoMarshal::M_Color from = MARSHALLED_OUT(Color, p_var->operator ::Color());
+                    GDMonoMarshal::M_Color from = MARSHALLED_OUT(Color, p_var->as<::Color>());
                     return mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(Color), &from);
                 }
                 case VariantType::NODE_PATH:
-                    return GDMonoUtils::create_managed_from(p_var->operator NodePath());
+                    return GDMonoUtils::create_managed_from(p_var->as<NodePath>());
                 case VariantType::_RID:
-                    return GDMonoUtils::create_managed_from(p_var->operator RID());
+                    return GDMonoUtils::create_managed_from(p_var->as<RID>());
                 case VariantType::OBJECT:
-                    return GDMonoUtils::unmanaged_get_managed(p_var->operator Object *());
+                    return GDMonoUtils::unmanaged_get_managed(p_var->as<Object *>());
                 case VariantType::DICTIONARY:
-                    return GDMonoUtils::create_managed_from(p_var->operator Dictionary(), CACHED_CLASS(Dictionary));
+                    return GDMonoUtils::create_managed_from(p_var->as<Dictionary>(), CACHED_CLASS(Dictionary));
                 case VariantType::ARRAY:
-                    return GDMonoUtils::create_managed_from(p_var->operator Array(), CACHED_CLASS(Array));
+                    return GDMonoUtils::create_managed_from(p_var->as<Array>(), CACHED_CLASS(Array));
                 case VariantType::POOL_BYTE_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolByteArray());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolByteArray>());
                 case VariantType::POOL_INT_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolIntArray());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolIntArray>());
                 case VariantType::POOL_REAL_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolRealArray());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolRealArray>());
                 case VariantType::POOL_STRING_ARRAY:
                     return (MonoObject *)container_to_mono_array(p_var->as<PoolStringArray>());
                 case VariantType::POOL_VECTOR2_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolVector2Array());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolVector2Array>());
                 case VariantType::POOL_VECTOR3_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolVector3Array());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolVector3Array>());
                 case VariantType::POOL_COLOR_ARRAY:
-                    return (MonoObject *)container_to_mono_array(p_var->operator PoolColorArray());
+                    return (MonoObject *)container_to_mono_array(p_var->as<PoolColorArray>());
                 default:
                     return nullptr;
             }
@@ -1037,12 +1037,12 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
 
                 // Godot.Collections.Dictionary<TKey, TValue>
                 if (GDMonoUtils::Marshal::type_is_generic_dictionary(reftype)) {
-                    return GDMonoUtils::create_managed_from(p_var->operator Dictionary(), p_type.type_class);
+                    return GDMonoUtils::create_managed_from(p_var->as<Dictionary>(), p_type.type_class);
                 }
 
                 // Godot.Collections.Array<T>
                 if (GDMonoUtils::Marshal::type_is_generic_array(reftype)) {
-                    return GDMonoUtils::create_managed_from(p_var->operator Array(), p_type.type_class);
+                    return GDMonoUtils::create_managed_from(p_var->as<Array>(), p_type.type_class);
                 }
 
                 // System.Collections.Generic.Dictionary<TKey, TValue>
@@ -1050,14 +1050,14 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                     MonoReflectionType *key_reftype = nullptr;
                     MonoReflectionType *value_reftype = nullptr;
                     GDMonoUtils::Marshal::dictionary_get_key_value_types(reftype, &key_reftype, &value_reftype);
-                    return Dictionary_to_system_generic_dict(p_var->operator Dictionary(), p_type.type_class, key_reftype, value_reftype);
+                    return Dictionary_to_system_generic_dict(p_var->as<Dictionary>(), p_type.type_class, key_reftype, value_reftype);
                 }
 
                 // System.Collections.Generic.List<T>
                 if (GDMonoUtils::Marshal::type_is_system_generic_list(reftype)) {
                     MonoReflectionType *elem_reftype = nullptr;
                     GDMonoUtils::Marshal::array_get_element_type(reftype, &elem_reftype);
-                    return Array_to_system_generic_list(p_var->operator Array(), p_type.type_class, elem_reftype);
+                    return Array_to_system_generic_list(p_var->as<Array>(), p_type.type_class, elem_reftype);
                 }
 
                 // IDictionary<TKey, TValue>
@@ -1067,7 +1067,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                     GDMonoUtils::Marshal::dictionary_get_key_value_types(reftype, &key_reftype, &value_reftype);
                     GDMonoClass *godot_dict_class = GDMonoUtils::Marshal::make_generic_dictionary_type(key_reftype, value_reftype);
 
-                    return GDMonoUtils::create_managed_from(p_var->operator Dictionary(), godot_dict_class);
+                    return GDMonoUtils::create_managed_from(p_var->as<Dictionary>(), godot_dict_class);
                 }
 
                 // ICollection<T> or IEnumerable<T>
@@ -1076,7 +1076,7 @@ MonoObject *variant_to_mono_object(const Variant *p_var, const ManagedType &p_ty
                     GDMonoUtils::Marshal::array_get_element_type(reftype, &elem_reftype);
                     GDMonoClass *godot_array_class = GDMonoUtils::Marshal::make_generic_array_type(elem_reftype);
 
-                    return GDMonoUtils::create_managed_from(p_var->operator Array(), godot_array_class);
+                    return GDMonoUtils::create_managed_from(p_var->as<Array>(), godot_array_class);
                 }
             } break;
         } break;

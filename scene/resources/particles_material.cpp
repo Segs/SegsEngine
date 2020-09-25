@@ -1114,7 +1114,7 @@ RID ParticlesMaterial::get_shader_rid() const {
 
 void ParticlesMaterial::_validate_property(PropertyInfo &property) const {
 
-    if (property.name == "color" && color_ramp) {
+    if (property.name == "clr_color" && color_ramp) {
         property.usage = 0;
     }
 

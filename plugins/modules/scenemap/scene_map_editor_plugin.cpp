@@ -14,7 +14,7 @@ IMPL_GDCLASS(SceneMapEditorPlugin)
 
 
 SceneMapEditor::SceneMapEditor(EditorNode* p_editor) {
-    int mw = EDITOR_DEF(("editors/scene_map/palette_min_width"), 230);
+    int mw = EDITOR_DEF_T<int>(("editors/scene_map/palette_min_width"), 230);
 
     VBoxContainer* track_vbox = memnew(VBoxContainer);
     add_child(track_vbox);
@@ -113,7 +113,7 @@ SceneMapEditorPlugin::SceneMapEditorPlugin(EditorNode* editor) {
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/scene_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     scene_map_editor = memnew(SceneMapEditor(editor));
-    switch ((int)EditorSettings::get_singleton()->get("editors/scene_map/editor_side")) {
+    switch (EditorSettings::get_singleton()->getT<int>("editors/scene_map/editor_side")) {
     case 0: { // Left.
         add_control_to_container(CONTAINER_SPATIAL_EDITOR_SIDE_LEFT, scene_map_editor);
     } break;

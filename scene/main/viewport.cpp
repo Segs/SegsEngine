@@ -3098,9 +3098,9 @@ bool Viewport::is_handling_input_locally() const {
 
 void Viewport::_validate_property(PropertyInfo &property) const {
 
-    if (RenderingServer::get_singleton()->is_low_end() && property.name == "hdr") {
-        property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
-    }
+    //if (RenderingServer::get_singleton()->is_low_end() && property.name == "hdr") {
+    //    property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
+    //}
 }
 
 void Viewport::_bind_methods() {

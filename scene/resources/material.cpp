@@ -822,7 +822,7 @@ void SpatialMaterial::_update_shader() {
         code += "\tvec2 base_uv2 = UV2;\n";
     }
 
-    if (!RenderingServer::get_singleton()->is_low_end() && features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
+    if (/*!RenderingServer::get_singleton()->is_low_end() &&*/ features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
         code += "\t{\n";
         code += "\t\tvec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT*depth_flip.x,-BINORMAL*depth_flip.y,NORMAL));\n"; // binormal is negative due to mikktspace, flip 'unflips' it ;-)
 
@@ -963,7 +963,7 @@ void SpatialMaterial::_update_shader() {
     if (distance_fade != DISTANCE_FADE_DISABLED) {
         if ((distance_fade == DISTANCE_FADE_OBJECT_DITHER || distance_fade == DISTANCE_FADE_PIXEL_DITHER)) {
 
-            if (!RenderingServer::get_singleton()->is_low_end()) {
+            /*if (!RenderingServer::get_singleton()->is_low_end())*/ {
                 code += "\t{\n";
                 if (distance_fade == DISTANCE_FADE_OBJECT_DITHER) {
                     code += "\t\tfloat fade_distance = abs((INV_CAMERA_MATRIX * WORLD_MATRIX[3]).z);\n";

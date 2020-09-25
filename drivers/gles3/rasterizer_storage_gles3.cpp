@@ -1726,7 +1726,7 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sky->irradiance, 0);
 
-        int irradiance_size = GLOBAL_GET("rendering/quality/reflections/irradiance_max_size");
+        int irradiance_size = GLOBAL_GET("rendering/quality/reflections/irradiance_max_size").as<int>();
         int upscale_size = MIN(int(previous_power_of_2(irradiance_size)), p_radiance_size);
 
         GLuint tmp_fb2;
@@ -2603,14 +2603,14 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
     switch (type) {
         case ShaderLanguage::TYPE_BOOL: {
 
-            bool v = value;
+            bool v = value.as<bool>();
 
             GLuint *gui = (GLuint *)data;
             *gui = v ? GL_TRUE : GL_FALSE;
         } break;
         case ShaderLanguage::TYPE_BVEC2: {
 
-            int v = value;
+            int v = value.as<int>();
             GLuint *gui = (GLuint *)data;
             gui[0] = (v & 1) ? GL_TRUE : GL_FALSE;
             gui[1] = (v & 2) ? GL_TRUE : GL_FALSE;
@@ -2618,7 +2618,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_BVEC3: {
 
-            int v = value;
+            int v = value.as<int>();
             GLuint *gui = (GLuint *)data;
             gui[0] = (v & 1) ? GL_TRUE : GL_FALSE;
             gui[1] = (v & 2) ? GL_TRUE : GL_FALSE;
@@ -2627,7 +2627,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_BVEC4: {
 
-            int v = value;
+            int v = value.as<int>();
             GLuint *gui = (GLuint *)data;
             gui[0] = (v & 1) ? GL_TRUE : GL_FALSE;
             gui[1] = (v & 2) ? GL_TRUE : GL_FALSE;
@@ -2637,14 +2637,14 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_INT: {
 
-            int v = value;
+            int v = value.as<int>();
             GLint *gui = (GLint *)data;
             gui[0] = v;
 
         } break;
         case ShaderLanguage::TYPE_IVEC2: {
 
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLint *gui = (GLint *)data;
 
@@ -2660,7 +2660,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_IVEC3: {
 
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLint *gui = (GLint *)data;
 
@@ -2675,7 +2675,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_IVEC4: {
 
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLint *gui = (GLint *)data;
 
@@ -2690,14 +2690,14 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_UINT: {
 
-            int v = value;
+            int v = value.as<int>();
             GLuint *gui = (GLuint *)data;
             gui[0] = v;
 
         } break;
         case ShaderLanguage::TYPE_UVEC2: {
 
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLuint *gui = (GLuint *)data;
 
@@ -2711,7 +2711,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
             }
         } break;
         case ShaderLanguage::TYPE_UVEC3: {
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLuint *gui = (GLuint *)data;
 
@@ -2726,7 +2726,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
 
         } break;
         case ShaderLanguage::TYPE_UVEC4: {
-            PoolVector<int> iv = value;
+            PoolVector<int> iv = value.as<PoolVector<int>>();
             int s = iv.size();
             GLuint *gui = (GLuint *)data;
 
@@ -2740,20 +2740,20 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
             }
         } break;
         case ShaderLanguage::TYPE_FLOAT: {
-            float v = value;
+            float v = value.as<float>();
             GLfloat *gui = (GLfloat *)data;
             gui[0] = v;
 
         } break;
         case ShaderLanguage::TYPE_VEC2: {
-            Vector2 v = value;
+            Vector2 v = value.as<Vector2>();
             GLfloat *gui = (GLfloat *)data;
             gui[0] = v.x;
             gui[1] = v.y;
 
         } break;
         case ShaderLanguage::TYPE_VEC3: {
-            Vector3 v = value;
+            Vector3 v = value.as<Vector3>();
             GLfloat *gui = (GLfloat *)data;
             gui[0] = v.x;
             gui[1] = v.y;
@@ -2765,7 +2765,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
             GLfloat *gui = (GLfloat *)data;
 
             if (value.get_type() == VariantType::COLOR) {
-                Color v = value;
+                Color v = value.as<Color>();
 
                 if (p_linear_color) {
                     v = v.to_linear();
@@ -2776,21 +2776,21 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
                 gui[2] = v.b;
                 gui[3] = v.a;
             } else if (value.get_type() == VariantType::RECT2) {
-                Rect2 v = value;
+                Rect2 v = value.as<Rect2>();
 
                 gui[0] = v.position.x;
                 gui[1] = v.position.y;
                 gui[2] = v.size.x;
                 gui[3] = v.size.y;
             } else if (value.get_type() == VariantType::QUAT) {
-                Quat v = value;
+                Quat v = value.as<Quat>();
 
                 gui[0] = v.x;
                 gui[1] = v.y;
                 gui[2] = v.z;
                 gui[3] = v.w;
             } else {
-                Plane v = value;
+                Plane v = value.as<Plane>();
 
                 gui[0] = v.normal.x;
                 gui[1] = v.normal.y;
@@ -2799,7 +2799,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
             }
         } break;
         case ShaderLanguage::TYPE_MAT2: {
-            Transform2D v = value;
+            Transform2D v = value.as<Transform2D>();
             GLfloat *gui = (GLfloat *)data;
 
             //in std140 members of mat2 are treated as vec4s
@@ -2814,7 +2814,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_MAT3: {
 
-            Basis v = value;
+            Basis v = value.as<Basis>();
             GLfloat *gui = (GLfloat *)data;
 
             gui[0] = v.elements[0][0];
@@ -2832,7 +2832,7 @@ static void _fill_std140_variant_ubo_value(ShaderLanguage::DataType type, const 
         } break;
         case ShaderLanguage::TYPE_MAT4: {
 
-            Transform v = value;
+            Transform v = value.as<Transform>();
             GLfloat *gui = (GLfloat *)data;
 
             gui[0] = v.basis.elements[0][0];
@@ -3205,7 +3205,7 @@ void RasterizerStorageGLES3::_update_material(Material *material) {
 
             auto V = material->params.find(E.first);
             if (V!=material->params.end()) {
-                texture = V->second;
+                texture = V->second.as<RID>();
             }
 
             if (!texture.is_valid()) {
@@ -8068,7 +8068,7 @@ void RasterizerStorageGLES3::initialize() {
     }
 
     config.shrink_textures_x2 = false;
-    config.use_fast_texture_filter = int(ProjectSettings::get_singleton()->get("rendering/quality/filters/use_nearest_mipmap_filter"));
+    config.use_fast_texture_filter = ProjectSettings::get_singleton()->get("rendering/quality/filters/use_nearest_mipmap_filter").as<int>();
     config.use_anisotropic_filter = config.extensions.contains("rendering/quality/filters/anisotropic_filter_level");
 
     config.etc_supported = config.extensions.contains("GL_OES_compressed_ETC1_RGB8_texture");
@@ -8089,7 +8089,7 @@ void RasterizerStorageGLES3::initialize() {
     config.use_anisotropic_filter = config.extensions.contains("GL_EXT_texture_filter_anisotropic");
     if (config.use_anisotropic_filter) {
         glGetFloatv(_GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &config.anisotropic_level);
-        config.anisotropic_level = MIN(int(ProjectSettings::get_singleton()->get("rendering/quality/filters/anisotropic_filter_level")), config.anisotropic_level);
+        config.anisotropic_level = eastl::min(ProjectSettings::get_singleton()->getT<int>("rendering/quality/filters/anisotropic_filter_level"), config.anisotropic_level);
     }
 
     frame.clear_request = false;
@@ -8221,7 +8221,7 @@ void RasterizerStorageGLES3::initialize() {
 
     {
         //transform feedback buffers
-        uint32_t xf_feedback_size = GLOBAL_DEF_RST("rendering/limits/buffers/blend_shape_max_buffer_size_kb", 4096);
+        uint32_t xf_feedback_size = GLOBAL_DEF_T_RST("rendering/limits/buffers/blend_shape_max_buffer_size_kb", 4096,uint32_t);
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/limits/buffers/blend_shape_max_buffer_size_kb", PropertyInfo(VariantType::INT, "rendering/limits/buffers/blend_shape_max_buffer_size_kb", PropertyHint::Range, "0,8192,1,or_greater"));
 
         for (int i = 0; i < 2; i++) {
@@ -8237,7 +8237,7 @@ void RasterizerStorageGLES3::initialize() {
     }
 
     shaders.cubemap_filter.init();
-    bool ggx_hq = GLOBAL_GET("rendering/quality/reflections/high_quality_ggx");
+    bool ggx_hq = GLOBAL_GET("rendering/quality/reflections/high_quality_ggx").as<bool>();
     shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::LOW_QUALITY, !ggx_hq);
     shaders.particles.init();
 
@@ -8248,13 +8248,13 @@ void RasterizerStorageGLES3::initialize() {
     frame.current_rt = nullptr;
     config.keep_original_textures = false;
     config.generate_wireframes = false;
-    config.use_texture_array_environment = GLOBAL_GET("rendering/quality/reflections/texture_array_reflections");
+    config.use_texture_array_environment = GLOBAL_GET("rendering/quality/reflections/texture_array_reflections").as<bool>();
 
-    config.force_vertex_shading = GLOBAL_GET("rendering/quality/shading/force_vertex_shading");
+    config.force_vertex_shading = GLOBAL_GET("rendering/quality/shading/force_vertex_shading").as<bool>();
 
     String renderer = (const char *)glGetString(GL_RENDERER);
 
-    config.use_depth_prepass = bool(GLOBAL_GET("rendering/quality/depth_prepass/enable"));
+    config.use_depth_prepass = GLOBAL_GET("rendering/quality/depth_prepass/enable").as<bool>();
 //    if (config.use_depth_prepass) {
 
 //        String vendors = GLOBAL_GET("rendering/quality/depth_prepass/disable_for_vendors");

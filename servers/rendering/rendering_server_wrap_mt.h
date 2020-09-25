@@ -655,9 +655,9 @@ public:
 
     static void set_use_vsync_callback(bool p_enable);
 
-    bool is_low_end() const override {
-        return rendering_server->is_low_end();
-    }
+//    bool is_low_end() const override {
+//        return rendering_server->is_low_end();
+//    }
 
     GODOT_EXPORT VisualServerWrapMT(RenderingServer *p_contained, bool p_create_thread);
     ~VisualServerWrapMT() override;

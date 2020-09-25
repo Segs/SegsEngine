@@ -64,7 +64,7 @@ public:
     PropertyInfo(StringName p_name,int count, const StringName &p_array_prefix = StringName()) :
             name(eastl::move(p_name)),
             hint_string(p_array_prefix),
-            usage(PROPERTY_USAGE_ARRAY),
+            usage(PROPERTY_USAGE_ARRAY| PROPERTY_USAGE_INTERNAL),
             element_count(count) {
     }
 

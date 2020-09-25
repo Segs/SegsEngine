@@ -797,7 +797,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
     switch (p_variant.get_type()) {
 
         case VariantType::INT: {
-            int64_t val = p_variant;
+            int64_t val = p_variant.as<int64_t>();
             if (val > (int64_t)INT_MAX || val < (int64_t)INT_MIN) {
                 flags |= ENCODE_FLAG_64;
             }
@@ -813,7 +813,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::OBJECT: {
 #ifdef DEBUG_ENABLED
             // Test for potential wrong values sent by the debugger when it breaks.
-            Object *obj = p_variant;
+            Object *obj = p_variant.as<Object *>();
             if (!obj || !gObjectDB().instance_validate(obj)) {
                 // Object is invalid, send a NULL instead.
                 if (buf) {
@@ -846,7 +846,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::BOOL: {
 
             if (buf) {
-                encode_uint32(p_variant.operator bool(), buf);
+                encode_uint32(p_variant.as<bool>(), buf);
             }
 
             r_len += 4;
@@ -857,13 +857,13 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
             if (flags & ENCODE_FLAG_64) {
                 //64 bits
                 if (buf) {
-                    encode_uint64(p_variant.operator int64_t(), buf);
+                    encode_uint64(p_variant.as<int64_t>(), buf);
                 }
 
                 r_len += 8;
             } else {
                 if (buf) {
-                    encode_uint32(p_variant.operator int32_t(), buf);
+                    encode_uint32(p_variant.as<int32_t>(), buf);
                 }
 
                 r_len += 4;
@@ -890,7 +890,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::NODE_PATH: {
 
-            NodePath np = p_variant;
+            NodePath np = p_variant.as<NodePath>();
             if (buf) {
                 encode_uint32(uint32_t(np.get_name_count()) | 0x80000000, buf); //for compatibility with the old format
                 encode_uint32(np.get_subname_count(), buf + 4);
@@ -942,7 +942,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::VECTOR2: {
 
             if (buf) {
-                Vector2 v2 = p_variant;
+                Vector2 v2 = p_variant.as<Vector2>();
                 encode_float(v2.x, &buf[0]);
                 encode_float(v2.y, &buf[4]);
             }
@@ -953,7 +953,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::RECT2: {
 
             if (buf) {
-                Rect2 r2 = p_variant;
+                Rect2 r2 = p_variant.as<Rect2>();
                 encode_float(r2.position.x, &buf[0]);
                 encode_float(r2.position.y, &buf[4]);
                 encode_float(r2.size.x, &buf[8]);
@@ -965,7 +965,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::VECTOR3: {
 
             if (buf) {
-                Vector3 v3 = p_variant;
+                Vector3 v3 = p_variant.as<Vector3>();
                 encode_float(v3.x, &buf[0]);
                 encode_float(v3.y, &buf[4]);
                 encode_float(v3.z, &buf[8]);
@@ -977,7 +977,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::TRANSFORM2D: {
 
             if (buf) {
-                Transform2D val = p_variant;
+                Transform2D val = p_variant.as<Transform2D>();
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 2; j++) {
 
@@ -992,7 +992,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::PLANE: {
 
             if (buf) {
-                Plane p = p_variant;
+                Plane p = p_variant.as<Plane>();
                 encode_float(p.normal.x, &buf[0]);
                 encode_float(p.normal.y, &buf[4]);
                 encode_float(p.normal.z, &buf[8]);
@@ -1005,7 +1005,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::QUAT: {
 
             if (buf) {
-                Quat q = p_variant;
+                Quat q = p_variant.as<Quat>();
                 encode_float(q.x, &buf[0]);
                 encode_float(q.y, &buf[4]);
                 encode_float(q.z, &buf[8]);
@@ -1018,7 +1018,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::AABB: {
 
             if (buf) {
-                AABB aabb = p_variant;
+                AABB aabb = p_variant.as<AABB>();
                 encode_float(aabb.position.x, &buf[0]);
                 encode_float(aabb.position.y, &buf[4]);
                 encode_float(aabb.position.z, &buf[8]);
@@ -1033,7 +1033,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::BASIS: {
 
             if (buf) {
-                Basis val = p_variant;
+                Basis val = p_variant.as<Basis>();
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
 
@@ -1069,7 +1069,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         case VariantType::COLOR: {
 
             if (buf) {
-                Color c = p_variant;
+                Color c = p_variant.as<Color>();
                 encode_float(c.r, &buf[0]);
                 encode_float(c.g, &buf[4]);
                 encode_float(c.b, &buf[8]);
@@ -1086,7 +1086,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
 
             if (p_full_objects) {
 
-                Object *obj = p_variant;
+                Object *obj = p_variant.as<Object *>();
                 if (!obj) {
                     if (buf) {
                         encode_uint32(0, buf);
@@ -1134,7 +1134,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
             } else {
                 if (buf) {
 
-                    Object *obj = p_variant;
+                    Object *obj = p_variant.as<Object *>();
                     ObjectID id {0ULL};
                     if (obj && gObjectDB().instance_validate(obj)) {
                         id = obj->get_instance_id();
@@ -1149,7 +1149,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::DICTIONARY: {
 
-            Dictionary d = p_variant;
+            Dictionary d = p_variant.as<Dictionary>();
 
             if (buf) {
                 encode_uint32(uint32_t(d.size()), buf);
@@ -1193,7 +1193,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::ARRAY: {
 
-            Array v = p_variant;
+            Array v = p_variant.as<Array>();
 
             if (buf) {
                 encode_uint32(uint32_t(v.size()), buf);
@@ -1216,7 +1216,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         // arrays
         case VariantType::POOL_BYTE_ARRAY: {
 
-            PoolVector<uint8_t> data = p_variant;
+            PoolVector<uint8_t> data = p_variant.as<PoolVector<uint8_t>>();
             int datalen = data.size();
             int datasize = sizeof(uint8_t);
 
@@ -1238,7 +1238,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_INT_ARRAY: {
 
-            PoolVector<int> data = p_variant;
+            PoolVector<int> data = p_variant.as<PoolVector<int>>();
             int datalen = data.size();
             int datasize = sizeof(int32_t);
 
@@ -1255,7 +1255,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_REAL_ARRAY: {
 
-            PoolVector<real_t> data = p_variant;
+            PoolVector<real_t> data = p_variant.as<PoolVector<real_t>>();
             int datalen = data.size();
             int datasize = sizeof(real_t);
 
@@ -1272,7 +1272,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_STRING_ARRAY: {
 
-            PoolVector<String> data = p_variant;
+            PoolVector<String> data = p_variant.as<PoolVector<String>>();
             int len = data.size();
 
             if (buf) {
@@ -1304,7 +1304,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_VECTOR2_ARRAY: {
 
-            PoolVector<Vector2> data = p_variant;
+            PoolVector<Vector2> data = p_variant.as<PoolVector<Vector2>>();
             int len = data.size();
 
             if (buf) {
@@ -1331,7 +1331,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_VECTOR3_ARRAY: {
 
-            PoolVector<Vector3> data = p_variant;
+            PoolVector<Vector3> data = p_variant.as<PoolVector<Vector3>>();
             int len = data.size();
 
             if (buf) {
@@ -1359,7 +1359,7 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
         } break;
         case VariantType::POOL_COLOR_ARRAY: {
 
-            PoolVector<Color> data = p_variant;
+            PoolVector<Color> data = p_variant.as<PoolVector<Color>>();
             int len = data.size();
 
             if (buf) {

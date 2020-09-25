@@ -820,13 +820,13 @@ float AnimationNodeTransition::process(float p_time, bool p_seek) {
 
 void AnimationNodeTransition::_validate_property(PropertyInfo &property) const {
 
-    if (StringUtils::begins_with(property.name,"input_")) {
-        StringView n = StringUtils::get_slice(StringUtils::get_slice(property.name,'/', 0),'_', 1);
-        if (n != StringView("count")) {
-            int idx = StringUtils::to_int(n);
-            if (idx >= enabled_inputs) {
-                property.usage = 0;
-            }
+    if (StringUtils::begins_with(property.name,"input/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, property.name, '/');
+
+        int idx = StringUtils::to_int(parts[2]);
+        if (idx >= enabled_inputs) {
+            property.usage = 0;
         }
     }
 
