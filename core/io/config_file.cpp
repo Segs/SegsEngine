@@ -50,7 +50,7 @@ PoolStringArray ConfigFile::_get_section_keys(StringView p_section) const {
     int idx = 0;
     for (const String &E : s) {
 
-        arr.set(idx++, Variant(E));
+        arr.set(idx++, E);
     }
 
     return arr;

@@ -103,7 +103,7 @@ void EditorSettingsDialog::popup_edit_settings() {
     set_process_unhandled_input(true);
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "editor_settings", Rect2());
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "editor_settings", Rect2()).as<Rect2>();
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -274,7 +274,7 @@ void EditorSettingsDialog::_shortcut_button_pressed(Object *p_item, int p_column
     TreeItem *ti = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ti);
 
-    String item = ti->get_metadata(0);
+    String item = ti->get_metadata(0).as<String>();
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(item);
 
     if (p_idx == 0) {

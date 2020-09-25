@@ -81,8 +81,8 @@ void ResourceImporterOGGVorbis::get_import_options(Vector<ResourceImporterInterf
 Error ResourceImporterOGGVorbis::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
                                         Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
-    bool loop = p_options.at("loop");
-    float loop_offset = p_options.at("loop_offset");
+    bool loop = p_options.at("loop").as<bool>();
+    float loop_offset = p_options.at("loop_offset").as<float>();
 
     FileAccess *f = FileAccess::open(p_source_file, FileAccess::READ);
 

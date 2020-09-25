@@ -122,8 +122,8 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
     }
 
     for (const Variant *key = p_initial_assemblies.next(); key; key = p_initial_assemblies.next(key)) {
-        String assembly_name = *key;
-        String assembly_path = p_initial_assemblies[*key];
+        String assembly_name = key->as<String>();
+        String assembly_path = p_initial_assemblies[*key].as<String>();
 
         GDMonoAssembly *assembly = nullptr;
         bool load_success = GDMono::get_singleton()->load_assembly_from(assembly_name, assembly_path, &assembly, /* refonly: */ true);

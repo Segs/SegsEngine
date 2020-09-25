@@ -421,11 +421,11 @@ bool EditorFileSystem::_test_for_reimport(StringView p_path, bool p_only_importe
 
         if (!assign.empty()) {
             if (StringUtils::begins_with(assign,"path")) {
-                to_check.push_back(value);
+                to_check.push_back(value.as<String>());
             } else if (assign == "files") {
-                Array fa = value;
+                Array fa = value.as<Array>();
                 for (int i = 0; i < fa.size(); i++) {
-                    to_check.push_back(fa[i]);
+                    to_check.push_back(fa[i].as<String>());
                 }
             } else if (!p_only_imported_files) {
                 if (assign == "source_file") {
@@ -1588,7 +1588,7 @@ Error EditorFileSystem::_reimport_group(StringView p_group_file, const Vector<St
         Error err = config->load(p_files[i] + ".import");
         ERR_CONTINUE(err != OK);
         ERR_CONTINUE(!config->has_section_key("remap", "importer"));
-        String file_importer_name = config->get_value("remap", "importer");
+        String file_importer_name = config->get_value("remap", "importer").as<String>();
         ERR_CONTINUE(file_importer_name.empty());
 
         if (!importer_name.empty() && importer_name != file_importer_name) {
@@ -1795,11 +1795,11 @@ Error EditorFileSystem::_reimport_file(const String &p_file, Vector<String> &r_m
 
     if (load_default && ProjectSettings::get_singleton()->has_setting(StringName(String("importer_defaults/") + importer->get_importer_name()))) {
         //use defaults if exist
-        Dictionary d = ProjectSettings::get_singleton()->get(StringName(String("importer_defaults/") + importer->get_importer_name()));
+        Dictionary d = ProjectSettings::get_singleton()->get(StringName(String("importer_defaults/") + importer->get_importer_name())).as<Dictionary>();
         Vector<Variant> v(d.get_key_list());
 
         for (const Variant &E : v) {
-            params[E] = d[E];
+            params[E.as<StringName>()] = d[E];
         }
     }
 
@@ -2155,7 +2155,7 @@ void EditorFileSystem::_move_group_files(EditorFileSystemDirectory *efd, StringV
             Vector<String> sk = config->get_section_keys("params");
             for (const String & param : sk) {
                 //not very clean, but should work
-                String value = config->get_value("params", param);
+                String value = config->get_value("params", param).as<String>();
                 if (value == p_group_file) {
                     config->set_value("params", param, p_new_location);
                 }
@@ -2223,7 +2223,7 @@ void EditorFileSystem::_update_extensions() {
 EditorFileSystem::EditorFileSystem() {
     __thread__safe__.reset(new Mutex);
     g_import_func = _resource_import;
-    reimport_on_missing_imported_files = GLOBAL_DEF("editor/reimport_missing_imported_files", true);
+    reimport_on_missing_imported_files = T_GLOBAL_DEF("editor/reimport_missing_imported_files", true);
 
     singleton = this;
     filesystem = memnew(EditorFileSystemDirectory); //like, empty

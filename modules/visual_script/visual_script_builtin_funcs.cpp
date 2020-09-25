@@ -772,7 +772,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
-            *r_return = Math::posmod((int)*p_inputs[0], (int)*p_inputs[1]);
+            *r_return = Math::posmod(p_inputs[0]->as<int>(), p_inputs[1]->as<int>());
         } break;
         case VisualScriptBuiltinFunc::MATH_FLOOR: {
 
@@ -793,11 +793,11 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             if (p_inputs[0]->get_type() == VariantType::INT) {
 
-                int64_t i = *p_inputs[0];
+                int64_t i = p_inputs[0]->as<int64_t>();
                 *r_return = ABS(i);
             } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
-                real_t r = *p_inputs[0];
+                real_t r = p_inputs[0]->as<real_t>();
                 *r_return = Math::abs(r);
             } else {
 
@@ -810,11 +810,11 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             if (p_inputs[0]->get_type() == VariantType::INT) {
 
-                int64_t i = *p_inputs[0];
+                int64_t i = p_inputs[0]->as<int64_t>();
                 *r_return = i < 0 ? -1 : (i > 0 ? +1 : 0);
             } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
-                real_t r = *p_inputs[0];
+                real_t r = p_inputs[0]->as<real_t>();
                 *r_return = r < 0.0f ? -1.0 : (r > 0.0f ? +1.0 : 0.0);
             } else {
 
@@ -864,28 +864,28 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
-            *r_return = Math::stepify(p_inputs[0]->as<double>(), p_inputs[1]->as<double>());
+            *r_return = Math::stepify(p_inputs[0]->as<float>(), p_inputs[1]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_LERP: {
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), (double)*p_inputs[2]);
+            *r_return = Math::lerp(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_LERP_ANGLE: {
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::lerp_angle(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
+            *r_return = Math::lerp_angle(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_INVERSE_LERP: {
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::inverse_lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
+            *r_return = Math::inverse_lerp(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_RANGE_LERP: {
 
@@ -894,27 +894,27 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
             VALIDATE_ARG_NUM(2);
             VALIDATE_ARG_NUM(3);
             VALIDATE_ARG_NUM(4);
-            *r_return = Math::range_lerp(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>(), (double)*p_inputs[3], (double)*p_inputs[4]);
+            *r_return = Math::range_lerp(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>(), p_inputs[3]->as<float>(), p_inputs[4]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_SMOOTHSTEP: {
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::smoothstep(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
+            *r_return = Math::smoothstep(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_MOVE_TOWARD: {
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::move_toward(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
+            *r_return = Math::move_toward(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_DECTIME: {
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::dectime(p_inputs[0]->as<double>(), p_inputs[1]->as<double>(), p_inputs[2]->as<double>());
+            *r_return = Math::dectime(p_inputs[0]->as<float>(), p_inputs[1]->as<float>(), p_inputs[2]->as<float>());
         } break;
         case VisualScriptBuiltinFunc::MATH_RANDOMIZE: {
             Math::randomize();
@@ -935,14 +935,14 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         case VisualScriptBuiltinFunc::MATH_SEED: {
 
             VALIDATE_ARG_NUM(0);
-            uint64_t seed = *p_inputs[0];
+            uint64_t seed = p_inputs[0]->as<uint64_t>();
             Math::seed(seed);
 
         } break;
         case VisualScriptBuiltinFunc::MATH_RANDSEED: {
 
             VALIDATE_ARG_NUM(0);
-            uint64_t seed = *p_inputs[0];
+            uint64_t seed = p_inputs[0]->as<uint64_t>();
             int ret = Math::rand_from_seed(&seed);
             Array reta;
             reta.push_back(ret);
@@ -973,22 +973,22 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         case VisualScriptBuiltinFunc::MATH_POLAR2CARTESIAN: {
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
-            double r = *p_inputs[0];
-            double th = *p_inputs[1];
+            double r = p_inputs[0]->as<float>();
+            double th = p_inputs[1]->as<float>();
             *r_return = Vector2(r * Math::cos(th), r * Math::sin(th));
         } break;
         case VisualScriptBuiltinFunc::MATH_CARTESIAN2POLAR: {
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
-            double x = *p_inputs[0];
-            double y = *p_inputs[1];
+            double x = p_inputs[0]->as<float>();
+            double y = p_inputs[1]->as<float>();
             *r_return = Vector2(Math::sqrt(x * x + y * y), Math::atan2(y, x));
         } break;
         case VisualScriptBuiltinFunc::MATH_WRAP: {
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::wrapi((int64_t)*p_inputs[0], (int64_t)*p_inputs[1], (int64_t)*p_inputs[2]);
+            *r_return = Math::wrapi(p_inputs[0]->as<int64_t>(), p_inputs[1]->as<int64_t>(), p_inputs[2]->as<int64_t>());
         } break;
         case VisualScriptBuiltinFunc::MATH_WRAPF: {
             VALIDATE_ARG_NUM(0);
@@ -1000,15 +1000,15 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
                 *r_return = M_MAX(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
                 VALIDATE_ARG_NUM(1);
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
+                real_t a = p_inputs[0]->as<real_t>();
+                real_t b = p_inputs[1]->as<real_t>();
 
                 *r_return = M_MAX(a, b);
             }
@@ -1018,15 +1018,15 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
                 *r_return = MIN(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
                 VALIDATE_ARG_NUM(1);
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
+                real_t a = p_inputs[0]->as<real_t>();
+                real_t b = p_inputs[1]->as<real_t>();
 
                 *r_return = MIN(a, b);
             }
@@ -1035,18 +1035,18 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT && p_inputs[2]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
-                int64_t c = *p_inputs[2];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
+                int64_t c = p_inputs[2]->as<int64_t>();
                 *r_return = CLAMP(a, b, c);
             } else {
                 VALIDATE_ARG_NUM(0);
                 VALIDATE_ARG_NUM(1);
                 VALIDATE_ARG_NUM(2);
 
-                real_t a = *p_inputs[0];
-                real_t b = *p_inputs[1];
-                real_t c = *p_inputs[2];
+                real_t a = p_inputs[0]->as<real_t>();
+                real_t b = p_inputs[1]->as<real_t>();
+                real_t c = p_inputs[2]->as<real_t>();
 
                 *r_return = CLAMP(a, b, c);
             }
@@ -1054,7 +1054,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         case VisualScriptBuiltinFunc::LOGIC_NEAREST_PO2: {
 
             VALIDATE_ARG_NUM(0);
-            int64_t num = *p_inputs[0];
+            int64_t num = p_inputs[0]->as<int64_t>();
             *r_return = next_power_of_2(num);
         } break;
         case VisualScriptBuiltinFunc::OBJ_WEAKREF: {
@@ -1080,7 +1080,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 wref->set_ref(r);
                 *r_return = wref;
             } else {
-                Object *obj = *p_inputs[0];
+                Object *obj = p_inputs[0]->as<Object *>();
                 if (!obj) {
 
                     return;
@@ -1112,8 +1112,8 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
 
             Ref<FuncRef> fr(make_ref_counted<FuncRef>());
 
-            fr->set_instance(*p_inputs[0]);
-            fr->set_function(*p_inputs[1]);
+            fr->set_instance(p_inputs[0]->as<Object *>());
+            fr->set_function(p_inputs[1]->as<StringName>());
 
             *r_return = fr;
 
@@ -1121,7 +1121,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         case VisualScriptBuiltinFunc::TYPE_CONVERT: {
 
             VALIDATE_ARG_NUM(1);
-            int type = *p_inputs[1];
+            int type = p_inputs[1]->as<int>();
             if (type < 0 || type >= int(VariantType::VARIANT_MAX)) {
 
                 r_error_str = RTR_utf8("Invalid type argument to convert(), use TYPE_* constants.");
@@ -1142,7 +1142,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TYPE_EXISTS: {
 
-            *r_return = ClassDB::class_exists(*p_inputs[0]);
+            *r_return = ClassDB::class_exists(p_inputs[0]->as<StringName>());
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_CHAR: {
@@ -1176,27 +1176,27 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
         } break;
         case VisualScriptBuiltinFunc::TEXT_STR: {
 
-            String str = *p_inputs[0];
+            String str = p_inputs[0]->as<String>();
 
             *r_return = str;
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_PRINT: {
 
-            String str = *p_inputs[0];
+            String str = p_inputs[0]->as<String>();
             print_line(str);
 
         } break;
 
         case VisualScriptBuiltinFunc::TEXT_PRINTERR: {
 
-            String str = *p_inputs[0];
+            String str = p_inputs[0]->as<String>();
             print_error(str);
 
         } break;
         case VisualScriptBuiltinFunc::TEXT_PRINTRAW: {
 
-            UIString str = *p_inputs[0];
+            UIString str = p_inputs[0]->as<UIString>();
             OS::get_singleton()->print(StringUtils::to_utf8(str).data());
 
         } break;
@@ -1216,7 +1216,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 return;
             }
 
-            VariantParserStream *ss = VariantParser::get_string_stream(*p_inputs[0]);
+            VariantParserStream *ss = VariantParser::get_string_stream(p_inputs[0]->as<String>());
 
             String errs;
             int line;
@@ -1241,7 +1241,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
             }
             PoolByteArray barr;
             int len;
-            bool full_objects = *p_inputs[1];
+            bool full_objects = p_inputs[1]->as<bool>();
             Error err = encode_variant(*p_inputs[0], nullptr, len, full_objects);
             if (err) {
                 r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
@@ -1273,8 +1273,8 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
                 return;
             }
 
-            PoolByteArray varr = *p_inputs[0];
-            bool allow_objects = *p_inputs[1];
+            PoolByteArray varr = p_inputs[0]->as<PoolByteArray>();
+            bool allow_objects = p_inputs[1]->as<bool>();
             Variant ret;
             {
                 PoolByteArray::Read r = varr.read();
@@ -1296,7 +1296,7 @@ void VisualScriptBuiltinFunc::exec_func(BuiltinFunc p_func, const Variant **p_in
             VALIDATE_ARG_NUM(1);
 
             Color color = Color::named(p_inputs[0]->as<String>());
-            color.a = *p_inputs[1];
+            color.a = p_inputs[1]->as<float>();
 
             *r_return = String(color);
 

@@ -48,13 +48,13 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
     }
 
     if ((p_name) == "out_type") {
-        output_type = VariantType(int(p_value));
+        output_type = p_value.as<VariantType>();
         expression_dirty = true;
         ports_changed_notify();
         return true;
     }
     if ((p_name) == "sequenced") {
-        sequenced = p_value;
+        sequenced = p_value.as<bool>();
         ports_changed_notify();
         return true;
     }
@@ -62,7 +62,7 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
     if ((p_name) == "input_count") {
 
         int from = inputs.size();
-        inputs.resize(int(p_value));
+        inputs.resize(p_value.as<int>());
         for (int i = from; i < inputs.size(); i++) {
             inputs[i].name = ('a' + i);
             if (from == 0) {
@@ -89,10 +89,10 @@ bool VisualScriptExpression::_set(const StringName &p_name, const Variant &p_val
 
         if (what == StringView("type")) {
 
-            inputs[idx].type = VariantType(int(p_value));
+            inputs[idx].type = p_value.as<VariantType>();
         } else if (what == StringView("name")) {
 
-            inputs[idx].name = String(p_value);
+            inputs[idx].name = p_value.as<String>();
         } else {
             return false;
         }
@@ -768,7 +768,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             } break;
             case TK_IDENTIFIER: {
 
-                String what(tk.value);
+                String what(tk.value.as<String>());
                 int index = -1;
                 for (int i = 0; i < inputs.size(); i++) {
                     if (what == inputs[i].name) {
@@ -800,7 +800,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
             case TK_BASIC_TYPE: {
                 //constructor..
 
-                VariantType bt = VariantType(int(tk.value));
+                VariantType bt = tk.value.as<VariantType>();
                 _get_token(tk);
                 if (tk.type != TK_PARENTHESIS_OPEN) {
                     _set_error("Expected '('");
@@ -849,7 +849,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                 }
 
                 BuiltinFuncNode *bifunc = alloc_node<BuiltinFuncNode>();
-                bifunc->func = VisualScriptBuiltinFunc::BuiltinFunc(int(tk.value));
+                bifunc->func = tk.value.as<VisualScriptBuiltinFunc::BuiltinFunc>();
 
                 while (true) {
 
@@ -947,7 +947,7 @@ VisualScriptExpression::ENode *VisualScriptExpression::_parse_expression() {
                         return nullptr;
                     }
 
-                    StringName identifier = tk.value;
+                    StringName identifier = tk.value.as<StringName>();
 
                     int cofs = str_ofs;
                     _get_token(tk);

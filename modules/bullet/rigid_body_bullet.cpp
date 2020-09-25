@@ -596,19 +596,19 @@ void RigidBodyBullet::set_state(PhysicsServer3D::BodyState p_state, const Varian
 
     switch (p_state) {
         case PhysicsServer3D::BODY_STATE_TRANSFORM:
-            set_transform(p_variant);
+            set_transform(p_variant.as<Transform>());
             break;
         case PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY:
-            set_linear_velocity(p_variant);
+            set_linear_velocity(p_variant.as<Vector3>());
             break;
         case PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY:
-            set_angular_velocity(p_variant);
+            set_angular_velocity(p_variant.as<Vector3>());
             break;
         case PhysicsServer3D::BODY_STATE_SLEEPING:
-            set_activation_state(!bool(p_variant));
+            set_activation_state(!p_variant.as<bool>());
             break;
         case PhysicsServer3D::BODY_STATE_CAN_SLEEP:
-            can_sleep = bool(p_variant);
+            can_sleep = p_variant.as<bool>();
             if (!can_sleep) {
                 // Can't sleep
                 btBody->forceActivationState(DISABLE_DEACTIVATION);

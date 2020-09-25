@@ -202,11 +202,11 @@ Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool 
 Variant _EDITOR_GET(const StringName &p_setting);
 template<class T>
 T EDITOR_GET_T(const StringName &p_setting) {
-    return _EDITOR_GET(p_setting).as<T>();
+    return _EDITOR_GET(p_setting).template as<T>();
 }
 template<class T>
 T EDITOR_DEF_T(const StringName& p_setting, const T& p_default, bool p_restart_if_changed = false) {
-    return _EDITOR_DEF(p_setting, p_default,p_restart_if_changed).as<T>();
+    return _EDITOR_DEF(p_setting, p_default,p_restart_if_changed).template as<T>();
 }
 
 #define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val))

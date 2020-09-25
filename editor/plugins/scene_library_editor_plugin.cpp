@@ -64,7 +64,7 @@ void SceneLibraryEditor::_menu_confirm() {
             m_scene_library->remove_item(to_erase);
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
-            String existing = m_scene_library->get_meta("_editor_source_scene");
+            String existing = m_scene_library->get_meta("_editor_source_scene").as<String>();
             ERR_FAIL_COND(existing.empty());
             _import_scene_cbk(existing);
 
@@ -167,7 +167,7 @@ void SceneLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text(StringName(TTR("Update from existing scene?:\n") + String(m_scene_library->get_meta("_editor_source_scene"))));
+            cd->set_text(StringName(TTR("Update from existing scene?:\n") + m_scene_library->get_meta("_editor_source_scene").as<String>()));
             cd->popup_centered(Size2(500, 60));
         } break;
     }

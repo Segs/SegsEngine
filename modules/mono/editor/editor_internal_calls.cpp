@@ -214,7 +214,7 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
     ScriptClassParser scp;
     Error err = scp.parse_file(filepath);
     if (err == OK) {
-        Array classes = GDMonoMarshal::mono_object_to_variant(p_classes);
+        Array classes = GDMonoMarshal::mono_object_to_variant(p_classes).as<Array>();
         const Vector<ScriptClassParser::ClassDecl> &class_decls = scp.get_classes();
 
         for (const ScriptClassParser::ClassDecl &classDecl : class_decls) {
@@ -236,10 +236,10 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
 
 uint32_t godot_icall_ExportPlugin_GetExportedAssemblyDependencies(MonoObject *p_initial_assemblies,
         MonoString *p_build_config, MonoString *p_custom_bcl_dir, MonoObject *r_assembly_dependencies) {
-    Dictionary initial_dependencies = GDMonoMarshal::mono_object_to_variant(p_initial_assemblies);
+    Dictionary initial_dependencies = GDMonoMarshal::mono_object_to_variant(p_initial_assemblies).as<Dictionary>();
     String build_config = GDMonoMarshal::mono_string_to_godot(p_build_config);
     String custom_bcl_dir = GDMonoMarshal::mono_string_to_godot(p_custom_bcl_dir);
-    Dictionary assembly_dependencies = GDMonoMarshal::mono_object_to_variant(r_assembly_dependencies);
+    Dictionary assembly_dependencies = GDMonoMarshal::mono_object_to_variant(r_assembly_dependencies).as<Dictionary>();
 
     return GodotSharpExport::get_exported_assembly_dependencies(initial_dependencies, build_config, custom_bcl_dir, assembly_dependencies);
 }

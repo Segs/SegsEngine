@@ -287,17 +287,17 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const float default_contrast = 0.25f;
 
     //Theme settings
-    Color accent_color = EDITOR_GET("interface/theme/accent_color");
-    Color base_color = EDITOR_GET("interface/theme/base_color");
-    float contrast = EDITOR_GET("interface/theme/contrast");
-    float relationship_line_opacity = EDITOR_GET("interface/theme/relationship_line_opacity");
+    Color accent_color = EDITOR_GET_T<Color>("interface/theme/accent_color");
+    Color base_color = EDITOR_GET_T<Color>("interface/theme/base_color");
+    float contrast = EDITOR_GET_T<float>("interface/theme/contrast");
+    float relationship_line_opacity = EDITOR_GET_T<float>("interface/theme/relationship_line_opacity");
 
-    String preset = EDITOR_GET("interface/theme/preset");
+    String preset = EDITOR_GET_T<String>("interface/theme/preset");
 
-    bool highlight_tabs = EDITOR_GET("interface/theme/highlight_tabs");
-    int border_size = EDITOR_GET("interface/theme/border_size");
+    bool highlight_tabs = EDITOR_GET_T<bool>("interface/theme/highlight_tabs");
+    int border_size = EDITOR_GET_T<int>("interface/theme/border_size");
 
-    bool use_gn_headers = EDITOR_GET("interface/theme/use_graph_node_headers");
+    bool use_gn_headers = EDITOR_GET_T<bool>("interface/theme/use_graph_node_headers");
 
     Color preset_accent_color;
     Color preset_base_color;
@@ -310,9 +310,9 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
         preset_base_color = Color(0.2f, 0.23f, 0.31f);
             preset_contrast = default_contrast;
     } else if (preset == "Custom") {
-        accent_color = EDITOR_GET("interface/theme/accent_color");
-        base_color = EDITOR_GET("interface/theme/base_color");
-        contrast = EDITOR_GET("interface/theme/contrast");
+        accent_color = EDITOR_GET_T<Color>("interface/theme/accent_color");
+        base_color = EDITOR_GET_T<Color>("interface/theme/base_color");
+        contrast = EDITOR_GET_T<float>("interface/theme/contrast");
     } else if (preset == "Alien") {
         preset_accent_color = Color(0.11f, 1.0f, 0.6f);
         preset_base_color = Color(0.18f, 0.22f, 0.25f);
@@ -433,7 +433,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     theme->set_color("error_color", "Editor", error_color);
     theme->set_color("property_color", "Editor", property_color);
 
-    const int thumb_size = EDITOR_GET("filesystem/file_dialog/thumbnail_size");
+    const int thumb_size = EDITOR_GET_T<int>("filesystem/file_dialog/thumbnail_size");
     theme->set_constant("scale", "Editor", EDSCALE);
     theme->set_constant("thumb_size", "Editor", thumb_size);
     theme->set_constant("dark_theme", "Editor", dark_theme);
@@ -475,7 +475,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     style_default->set_draw_center(true);
 
     // Button and widgets
-    const float extra_spacing = EDITOR_GET("interface/theme/additional_spacing");
+    const float extra_spacing = EDITOR_GET_T<float>("interface/theme/additional_spacing");
 
     Ref<StyleBoxFlat> style_widget = dynamic_ref_cast<StyleBoxFlat>(style_default->duplicate());
     style_widget->set_default_margin(Margin::Left, (extra_spacing + 6) * EDSCALE);
@@ -1252,7 +1252,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
     const Color search_result_border_color = Color(0.41f, 0.61f, 0.91f, 0.38f);
 
     EditorSettings *setting = EditorSettings::get_singleton();
-    UIString text_editor_color_theme = setting->get("text_editor/theme/color_theme");
+    String text_editor_color_theme = setting->get("text_editor/theme/color_theme").as<String>();
     if (text_editor_color_theme == "Adaptive") {
         setting->set_initial_value("text_editor/highlighting/symbol_color", symbol_color, true);
         setting->set_initial_value("text_editor/highlighting/keyword_color", keyword_color, true);
@@ -1298,7 +1298,7 @@ Ref<Theme> create_editor_theme(const Ref<Theme>& p_theme) {
 Ref<Theme> create_custom_theme(const Ref<Theme>& p_theme) {
     Ref<Theme> theme;
 
-    String custom_theme = EditorSettings::get_singleton()->get("interface/theme/custom_theme");
+    String custom_theme = EditorSettings::get_singleton()->getT<String>("interface/theme/custom_theme");
     if (!custom_theme.empty()) {
         theme = dynamic_ref_cast<Theme>(gResourceManager().load(custom_theme));
     }

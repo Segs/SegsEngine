@@ -479,7 +479,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             DocContents::ConstantDoc constant;
             constant.name = E.asCString();
             Variant value = Variant::get_constant_value(VariantType(i), E);
-            constant.value = value.get_type() == VariantType::INT ? itos(value).c_str() : value.get_construct_string().c_str();
+            constant.value = value.get_type() == VariantType::INT ? itos(value.as<int>()).c_str() : value.get_construct_string().c_str();
             c.constants.push_back(constant);
         }
     }

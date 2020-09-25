@@ -58,7 +58,7 @@ void ScriptCreateDialog::_notification(int p_what) {
                     language_menu->set_item_icon(i, lang_icon);
                 }
             }
-            String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
+            String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "").as<String>();
             if (!last_lang.empty()) {
                 for (int i = 0; i < language_menu->get_item_count(); i++) {
                     if (language_menu->get_item_text_utf8(i) == last_lang) {
@@ -389,8 +389,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
     if (use_templates) {
         _update_script_templates(language->get_extension());
 
-        StringName last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-        StringName last_template = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_template", "");
+        StringName last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", StringName()).as<StringName>();
+        StringName last_template = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_template", StringName()).as<StringName>();
 
         template_menu->add_item(TTR("Default"));
         ScriptTemplateInfo *templates = template_list.data();

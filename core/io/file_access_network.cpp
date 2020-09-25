@@ -611,8 +611,8 @@ FileAccessNetwork::FileAccessNetwork() {
     pos = 0;
     FileAccessNetworkClient *nc = FileAccessNetworkClient::singleton;
     id = nc->record_access_source(this);
-    page_size = GLOBAL_GET("network/remote_fs/page_size");
-    read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead");
+    page_size = GLOBAL_GET("network/remote_fs/page_size").as<int>();
+    read_ahead = GLOBAL_GET("network/remote_fs/page_read_ahead").as<int>();
     D_PRIV()->last_activity_val = 0;
     D_PRIV()->waiting_on_page = -1;
     last_page = -1;

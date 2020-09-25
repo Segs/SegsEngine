@@ -168,7 +168,7 @@ void ScriptTextEditor::set_edited_resource(const RES &p_res) {
 void ScriptTextEditor::_update_member_keywords() {
     member_keywords.clear();
     code_editor->get_text_edit()->clear_member_keywords();
-    Color member_variable_color = EDITOR_GET("text_editor/highlighting/member_variable_color");
+    Color member_variable_color = EDITOR_GET_T<Color>("text_editor/highlighting/member_variable_color");
 
     StringName instance_base = script->get_instance_base_type();
 
@@ -202,40 +202,40 @@ void ScriptTextEditor::_load_theme_settings() {
 
     text_edit->clear_colors();
 
-    Color background_color = EDITOR_GET("text_editor/highlighting/background_color");
+    Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
     Color completion_background_color = EDITOR_GET("text_editor/highlighting/completion_background_color");
-    Color completion_selected_color = EDITOR_GET("text_editor/highlighting/completion_selected_color");
-    Color completion_existing_color = EDITOR_GET("text_editor/highlighting/completion_existing_color");
-    Color completion_scroll_color = EDITOR_GET("text_editor/highlighting/completion_scroll_color");
-    Color completion_font_color = EDITOR_GET("text_editor/highlighting/completion_font_color");
-    Color text_color = EDITOR_GET("text_editor/highlighting/text_color");
-    Color line_number_color = EDITOR_GET("text_editor/highlighting/line_number_color");
-    Color safe_line_number_color = EDITOR_GET("text_editor/highlighting/safe_line_number_color");
-    Color caret_color = EDITOR_GET("text_editor/highlighting/caret_color");
-    Color caret_background_color = EDITOR_GET("text_editor/highlighting/caret_background_color");
-    Color text_selected_color = EDITOR_GET("text_editor/highlighting/text_selected_color");
-    Color selection_color = EDITOR_GET("text_editor/highlighting/selection_color");
-    Color brace_mismatch_color = EDITOR_GET("text_editor/highlighting/brace_mismatch_color");
-    Color current_line_color = EDITOR_GET("text_editor/highlighting/current_line_color");
-    Color line_length_guideline_color = EDITOR_GET("text_editor/highlighting/line_length_guideline_color");
-    Color word_highlighted_color = EDITOR_GET("text_editor/highlighting/word_highlighted_color");
-    Color number_color = EDITOR_GET("text_editor/highlighting/number_color");
-    Color function_color = EDITOR_GET("text_editor/highlighting/function_color");
-    Color member_variable_color = EDITOR_GET("text_editor/highlighting/member_variable_color");
-    Color mark_color = EDITOR_GET("text_editor/highlighting/mark_color");
-    Color bookmark_color = EDITOR_GET("text_editor/highlighting/bookmark_color");
-    Color breakpoint_color = EDITOR_GET("text_editor/highlighting/breakpoint_color");
-    Color executing_line_color = EDITOR_GET("text_editor/highlighting/executing_line_color");
-    Color code_folding_color = EDITOR_GET("text_editor/highlighting/code_folding_color");
-    Color search_result_color = EDITOR_GET("text_editor/highlighting/search_result_color");
-    Color search_result_border_color = EDITOR_GET("text_editor/highlighting/search_result_border_color");
-    Color symbol_color = EDITOR_GET("text_editor/highlighting/symbol_color");
-    Color keyword_color = EDITOR_GET("text_editor/highlighting/keyword_color");
-    Color basetype_color = EDITOR_GET("text_editor/highlighting/base_type_color");
-    Color type_color = EDITOR_GET("text_editor/highlighting/engine_type_color");
-    Color usertype_color = EDITOR_GET("text_editor/highlighting/user_type_color");
-    Color comment_color = EDITOR_GET("text_editor/highlighting/comment_color");
-    Color string_color = EDITOR_GET("text_editor/highlighting/string_color");
+    Color completion_selected_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_selected_color");
+    Color completion_existing_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_existing_color");
+    Color completion_scroll_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_scroll_color");
+    Color completion_font_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_font_color");
+    Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
+    Color line_number_color = EDITOR_GET_T<Color>("text_editor/highlighting/line_number_color");
+    Color safe_line_number_color = EDITOR_GET_T<Color>("text_editor/highlighting/safe_line_number_color");
+    Color caret_color = EDITOR_GET_T<Color>("text_editor/highlighting/caret_color");
+    Color caret_background_color = EDITOR_GET_T<Color>("text_editor/highlighting/caret_background_color");
+    Color text_selected_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_selected_color");
+    Color selection_color = EDITOR_GET_T<Color>("text_editor/highlighting/selection_color");
+    Color brace_mismatch_color = EDITOR_GET_T<Color>("text_editor/highlighting/brace_mismatch_color");
+    Color current_line_color = EDITOR_GET_T<Color>("text_editor/highlighting/current_line_color");
+    Color line_length_guideline_color = EDITOR_GET_T<Color>("text_editor/highlighting/line_length_guideline_color");
+    Color word_highlighted_color = EDITOR_GET_T<Color>("text_editor/highlighting/word_highlighted_color");
+    Color number_color = EDITOR_GET_T<Color>("text_editor/highlighting/number_color");
+    Color function_color = EDITOR_GET_T<Color>("text_editor/highlighting/function_color");
+    Color member_variable_color = EDITOR_GET_T<Color>("text_editor/highlighting/member_variable_color");
+    Color mark_color = EDITOR_GET_T<Color>("text_editor/highlighting/mark_color");
+    Color bookmark_color = EDITOR_GET_T<Color>("text_editor/highlighting/bookmark_color");
+    Color breakpoint_color = EDITOR_GET_T<Color>("text_editor/highlighting/breakpoint_color");
+    Color executing_line_color = EDITOR_GET_T<Color>("text_editor/highlighting/executing_line_color");
+    Color code_folding_color = EDITOR_GET_T<Color>("text_editor/highlighting/code_folding_color");
+    Color search_result_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_color");
+    Color search_result_border_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_border_color");
+    Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
+    Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+    Color basetype_color = EDITOR_GET_T<Color>("text_editor/highlighting/base_type_color");
+    Color type_color = EDITOR_GET_T<Color>("text_editor/highlighting/engine_type_color");
+    Color usertype_color = EDITOR_GET_T<Color>("text_editor/highlighting/user_type_color");
+    Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
+    Color string_color = EDITOR_GET_T<Color>("text_editor/highlighting/string_color");
 
     text_edit->add_color_override("background_color", background_color);
     text_edit->add_color_override("completion_background_color", completion_background_color);
@@ -1804,7 +1804,7 @@ ScriptTextEditor::ScriptTextEditor() {
     color_picker->connect("color_changed", this, "_color_changed");
 
     // get default color picker mode from editor settings
-    int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
+    int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
     if (default_color_mode == 1)
         color_picker->set_hsv_mode(true);
     else if (default_color_mode == 2)

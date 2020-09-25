@@ -887,8 +887,8 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 if (newpos<0)
                     continue; //no add at the beginning
                 */
-                Array key = animation->track_get_key_value(track, *E);
-                float h = key[0];
+                Array key = animation->track_get_key_value(track, *E).as<Array>();
+                float h = key[0].as<float>();
                 h += moving_selection_offset.y;
                 key[0] = h;
                 undo_redo->add_do_method(animation.get(), "track_insert_key", track, newpos, key, 1);

@@ -100,7 +100,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
 
     // Create all items for the files in the subdirectory.
     if (display_mode == DISPLAY_MODE_TREE_ONLY) {
-        String main_scene = ProjectSettings::get_singleton()->get("application/run/main_scene");
+        String main_scene = ProjectSettings::get_singleton()->getT<String>("application/run/main_scene");
 
         for (int i = 0; i < p_dir->get_file_count(); i++) {
 
@@ -168,7 +168,7 @@ Vector<String> FileSystemDock::_compute_uncollapsed_paths() {
 
     TreeItem *favorites_item = root->get_children();
     if (!favorites_item->is_collapsed()) {
-        uncollapsed_paths.push_back(favorites_item->get_metadata(0));
+        uncollapsed_paths.push_back(favorites_item->get_metadata(0).as<String>());
     }
 
     TreeItem *resTree = root->get_children()->get_next();
@@ -178,7 +178,7 @@ Vector<String> FileSystemDock::_compute_uncollapsed_paths() {
 
         while (!needs_check.empty()) {
             if (!needs_check[0]->is_collapsed()) {
-                uncollapsed_paths.push_back(needs_check[0]->get_metadata(0));
+                uncollapsed_paths.push_back(needs_check[0]->get_metadata(0).as<String>());
                 TreeItem *child = needs_check[0]->get_children();
                 while (child) {
                     needs_check.push_back(child);
@@ -343,7 +343,7 @@ void FileSystemDock::_notification(int p_what) {
 
             current_path->connect("text_entered", this, "_navigate_to_path");
 
-            always_show_folders = bool(EditorSettings::get_singleton()->get("docks/filesystem/always_show_folders"));
+            always_show_folders = EditorSettings::get_singleton()->getT<bool>("docks/filesystem/always_show_folders");
 
             set_file_list_display_mode(FileSystemDock::FILE_LIST_DISPLAY_LIST);
 
@@ -364,13 +364,12 @@ void FileSystemDock::_notification(int p_what) {
 
         case NOTIFICATION_DRAG_BEGIN: {
 
-            Dictionary dd = get_viewport()->gui_get_drag_data();
-            String type(dd["type"]);
+            Dictionary dd = get_viewport()->gui_get_drag_data().as<Dictionary>();
+            String type(dd["type"].as<String>());
             if (tree->is_visible_in_tree() && dd.has("type")) {
                 if (dd.has("favorite")) {
-                    if (String(dd["favorite"]) == "all") tree->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
-                } else if (String(dd["type"]) == "files" || String(dd["type"]) == "files_and_dirs" ||
-                           String(dd["type"]) == "resource") {
+                    if (dd["favorite"].as<String>() == "all") tree->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
+                } else if (type == "files" || type == "files_and_dirs" || type == "resource") {
                     tree->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM | Tree::DROP_MODE_INBETWEEN);
                 }
             }
@@ -406,7 +405,7 @@ void FileSystemDock::_notification(int p_what) {
             file_list_search_box->set_clear_button_enabled(true);
 
             // Update always show folders.
-            bool new_always_show_folders = bool(EditorSettings::get_singleton()->get("docks/filesystem/always_show_folders"));
+            bool new_always_show_folders = EditorSettings::get_singleton()->getT<bool>("docks/filesystem/always_show_folders");
             if (new_always_show_folders != always_show_folders) {
                 always_show_folders = new_always_show_folders;
                 _update_file_list(true);
@@ -434,7 +433,7 @@ void FileSystemDock::_tree_multi_selected(Object *p_item, int p_column, bool p_s
         return;
 
     TreeItem *favorites_item = tree->get_root()->get_children();
-    if (selected->get_parent() == favorites_item && !StringUtils::ends_with(String(selected->get_metadata(0)),"/")) {
+    if (selected->get_parent() == favorites_item && !StringUtils::ends_with(selected->get_metadata(0).as<String>(),"/")) {
         // Go to the favorites if we click in the favorites and the path has changed.
         path = "Favorites";
     } else {
@@ -522,9 +521,9 @@ void FileSystemDock::navigate_to_path(StringView p_path) {
 void FileSystemDock::_file_list_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
 
     if ((file_list_vb->is_visible_in_tree() || path == PathUtils::get_base_dir(p_path)) && p_preview) {
-        Array uarr = p_udata;
-        int idx = uarr[0];
-        String file = uarr[1];
+        Array uarr = p_udata.as<Array>();
+        int idx = uarr[0].as<int>();
+        String file = uarr[1].as<String>();
         if (idx < files->get_item_count() && files->get_item_text(idx) == file && files->get_item_metadata(idx) == Variant(p_path)) {
             if (file_list_display_mode == FILE_LIST_DISPLAY_LIST) {
                 if (p_small_preview)

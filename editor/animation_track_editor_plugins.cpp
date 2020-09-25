@@ -73,7 +73,7 @@ bool AnimationTrackEditBool::is_key_selectable_by_distance() const {
 }
 void AnimationTrackEditBool::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    bool checked = get_animation()->track_get_key_value(get_track(), p_index);
+    bool checked = get_animation()->track_get_key_value(get_track(), p_index).as<bool>();
     Ref<Texture> icon = get_icon(checked ? StringName("checked") : StringName("unchecked"), "CheckBox");
 
     Vector2 ofs(p_x - icon->get_width() / 2, int(get_size().height - icon->get_height()) / 2);
@@ -123,8 +123,8 @@ void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int
     if (x_from > p_clip_right || x_to < p_clip_left)
         return;
 
-    Color color = get_animation()->track_get_key_value(get_track(), p_index);
-    Color color_next = get_animation()->track_get_key_value(get_track(), p_index + 1);
+    Color color = get_animation()->track_get_key_value(get_track(), p_index).as<Color>();
+    Color color_next = get_animation()->track_get_key_value(get_track(), p_index + 1).as<Color>();
 
     if (x_from < p_clip_left) {
         float c = float(p_clip_left - x_from) / (x_to - x_from);
@@ -160,7 +160,7 @@ void AnimationTrackEditColor::draw_key_link(int p_index, float p_pixels_sec, int
 
 void AnimationTrackEditColor::draw_key(int p_index, float p_pixels_sec, int p_x, bool p_selected, int p_clip_left, int p_clip_right) {
 
-    Color color = get_animation()->track_get_key_value(get_track(), p_index);
+    Color color = get_animation()->track_get_key_value(get_track(), p_index).as<Color>();
 
     Ref<Font> font = get_font("font", "Label");
     int fh = font->get_height() * 0.8;
@@ -218,7 +218,7 @@ Rect2 AnimationTrackEditAudio::get_key_rect(int p_index, float p_pixels_sec) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
     }
 
-    bool play = get_animation()->track_get_key_value(get_track(), p_index);
+    bool play = get_animation()->track_get_key_value(get_track(), p_index).as<bool>();
     if (play) {
         float len = stream->get_length();
 
@@ -260,7 +260,7 @@ void AnimationTrackEditAudio::draw_key(int p_index, float p_pixels_sec, int p_x,
         return;
     }
 
-    bool play = get_animation()->track_get_key_value(get_track(), p_index);
+    bool play = get_animation()->track_get_key_value(get_track(), p_index).as<bool>();
     if (play) {
         float len = stream->get_length();
 
@@ -382,12 +382,12 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 
         size = texture->get_size();
 
-        if (bool(object->call_va("is_region"))) {
-            size = Rect2(object->call_va("get_region_rect")).size;
+        if (object->call_va("is_region").as<bool>()) {
+            size = object->call_va("get_region_rect").as<Rect2>().size;
         }
 
-        int hframes = object->call_va("get_hframes");
-        int vframes = object->call_va("get_vframes");
+        int hframes = object->call_va("get_hframes").as<int>();
+        int vframes = object->call_va("get_vframes").as<int>();
 
         if (hframes > 1) {
             size.x /= hframes;
@@ -405,7 +405,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
         List<StringName> animations;
         sf->get_animation_list(&animations);
 
-        int frame = get_animation()->track_get_key_value(get_track(), p_index);
+        int frame = get_animation()->track_get_key_value(get_track(), p_index).as<int>();
         String animation;
         if (animations.size() == 1) {
             animation = animations.front();
@@ -460,14 +460,14 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
             return;
         }
 
-        int hframes = object->call_va("get_hframes");
-        int vframes = object->call_va("get_vframes");
+        int hframes = object->call_va("get_hframes").as<int>();
+        int vframes = object->call_va("get_vframes").as<int>();
 
         Vector2 coords;
         if (is_coords) {
-            coords = get_animation()->track_get_key_value(get_track(), p_index);
+            coords = get_animation()->track_get_key_value(get_track(), p_index).as<Vector2>();
         } else {
-            int frame = get_animation()->track_get_key_value(get_track(), p_index);
+            int frame = get_animation()->track_get_key_value(get_track(), p_index).as<int>();
             coords.x = frame % hframes;
             coords.y = frame / hframes;
         }

@@ -103,7 +103,7 @@ void EditorSubScene::_fill_tree(Node *p_node, TreeItem *p_parent) {
 void EditorSubScene::_selected_changed() {
     TreeItem *item = tree->get_selected();
     ERR_FAIL_COND(!item);
-    Node *n = item->get_metadata(0);
+    Node *n = item->get_metadata(0).as<Node *>();
 
     if (!n || !selection.contains(n)) {
         selection.clear();
@@ -118,7 +118,7 @@ void EditorSubScene::_item_multi_selected(Object *p_object, int p_cell, bool p_s
     TreeItem *item = object_cast<TreeItem>(p_object);
     ERR_FAIL_COND(!item);
 
-    Node *n = item->get_metadata(0);
+    Node *n = item->get_metadata(0).as<Node *>();
 
     if (!n)
         return;

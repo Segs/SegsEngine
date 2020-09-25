@@ -170,22 +170,22 @@ void EditorFolding::load_scene_folding(Node *p_scene, StringView p_path) {
 
     Array unfolds;
     if (config->has_section_key("folding", "node_unfolds")) {
-        unfolds = config->get_value("folding", "node_unfolds");
+        unfolds = config->get_value("folding", "node_unfolds").as<Array>();
     }
     Array res_unfolds;
     if (config->has_section_key("folding", "resource_unfolds")) {
-        res_unfolds = config->get_value("folding", "resource_unfolds");
+        res_unfolds = config->get_value("folding", "resource_unfolds").as<Array>();
     }
     Array nodes_folded;
     if (config->has_section_key("folding", "nodes_folded")) {
-        nodes_folded = config->get_value("folding", "nodes_folded");
+        nodes_folded = config->get_value("folding", "nodes_folded").as<Array>();
     }
 
     ERR_FAIL_COND(unfolds.size() & 1);
     ERR_FAIL_COND(res_unfolds.size() & 1);
 
     for (int i = 0; i < unfolds.size(); i += 2) {
-        NodePath path2 = unfolds[i];
+        NodePath path2 = unfolds[i].as<NodePath>();
         PoolVector<String> un = unfolds[i + 1].as<PoolVector<String>>();
         Node *node = p_scene->get_node_or_null(path2);
         if (!node) {

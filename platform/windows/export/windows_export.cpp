@@ -123,7 +123,7 @@ public:
 };
 
 Error EditorExportPlatformWindows::sign_shared_object(const Ref<EditorExportPreset> &p_preset, bool p_debug, StringView p_path) {
-    if (p_preset->get("codesign/enable")) {
+    if (p_preset->get("codesign/enable").as<bool>()) {
         return _code_sign(p_preset, p_path);
     } else {
         return OK;
@@ -139,7 +139,7 @@ Error EditorExportPlatformWindows::export_project(const Ref<EditorExportPreset> 
 
     _rcedit_add_data(p_preset, p_path);
 
-    if (p_preset->get("codesign/enable") && err == OK) {
+    if (p_preset->get("codesign/enable").as<bool>() && err == OK) {
         err = _code_sign(p_preset, p_path);
     }
 
@@ -172,7 +172,7 @@ void EditorExportPlatformWindows::get_export_options(Vector<EditorExportPlatform
 }
 
 void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset> &p_preset, StringView p_path) {
-    String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit");
+    String rcedit_path = EditorSettings::get_singleton()->get("export/windows/rcedit").as<String>();
 
     if (rcedit_path.empty()) {
         return;
@@ -185,7 +185,7 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 
 #ifndef WINDOWS_ENABLED
     // On non-Windows we need WINE to run rcedit
-    String wine_path = EditorSettings::get_singleton()->get("export/windows/wine");
+    String wine_path = EditorSettings::get_singleton()->get("export/windows/wine").as<String>();
 
     if (not wine_path.empty() && !FileAccess::exists(wine_path)) {
         ERR_PRINT("Could not find wine executable at " + wine_path + ", no icon or app information data will be included.");
@@ -198,14 +198,14 @@ void EditorExportPlatformWindows::_rcedit_add_data(const Ref<EditorExportPreset>
 #endif
 
     String icon_path = ProjectSettings::get_singleton()->globalize_path(p_preset->get("application/icon").as<String>());
-    String file_verion = p_preset->get("application/file_version");
-    String product_version = p_preset->get("application/product_version");
-    String company_name = p_preset->get("application/company_name");
-    String product_name = p_preset->get("application/product_name");
-    String file_description = p_preset->get("application/file_description");
-    String copyright = p_preset->get("application/copyright");
-    String trademarks = p_preset->get("application/trademarks");
-    String comments = p_preset->get("application/comments");
+    String file_verion = p_preset->get("application/file_version").as<String>();
+    String product_version = p_preset->get("application/product_version").as<String>();
+    String company_name = p_preset->get("application/company_name").as<String>();
+    String product_name = p_preset->get("application/product_name").as<String>();
+    String file_description = p_preset->get("application/file_description").as<String>();
+    String copyright = p_preset->get("application/copyright").as<String>();
+    String trademarks = p_preset->get("application/trademarks").as<String>();
+    String comments = p_preset->get("application/comments").as<String>();
 
     Vector<String> args;
     args.emplace_back(p_path);
@@ -269,7 +269,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
         signtool_path = "signtool"; // try to run signtool from PATH
     }
 #else
-    String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode");
+    String signtool_path = EditorSettings::get_singleton()->get("export/windows/osslsigncode").as<String>();
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
@@ -309,7 +309,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
     if (p_preset->get("codesign/identity") != "") {
         args.push_back(("-pkcs12"));
-        args.push_back(p_preset->get("codesign/identity"));
+        args.push_back(p_preset->get("codesign/identity").as<String>());
     } else {
         EditorNode::add_io_error(("codesign: no identity found"));
         return FAILED;
@@ -323,11 +323,11 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
         args.push_back(("-pass"));
 #endif
-        args.push_back(p_preset->get("codesign/password"));
+        args.push_back(p_preset->get("codesign/password").as<String>());
     }
 
     //timestamp
-    if (p_preset->get("codesign/timestamp")) {
+    if (p_preset->get("codesign/timestamp").as<bool>()) {
         if (p_preset->get("codesign/timestamp_server") != "") {
 #ifdef WINDOWS_ENABLED
             args.push_back("/tr");
@@ -367,7 +367,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
 #else
         args.push_back(("-n"));
 #endif
-        args.push_back(p_preset->get("codesign/description"));
+        args.push_back(p_preset->get("codesign/description").as<String>());
     }
 
     //user options

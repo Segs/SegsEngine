@@ -97,7 +97,7 @@ protected:
 
         if (p_name == "argument_count") {
 
-            int new_argc = p_value;
+            int new_argc = p_value.as<int>();
             int argc = script->custom_signal_get_argument_count(sig);
             if (argc == new_argc)
                 return true;
@@ -132,7 +132,7 @@ protected:
             if (what == StringView("type")) {
 
                 VariantType old_type = script->custom_signal_get_argument_type(sig, idx);
-                int new_type = p_value;
+                int new_type = p_value.as<int>();
                 undo_redo->create_action(TTR("Change Argument Type"));
                 undo_redo->add_do_method(script.get(), "custom_signal_set_argument_type", sig, idx, new_type);
                 undo_redo->add_undo_method(script.get(), "custom_signal_set_argument_type", sig, idx, old_type);
@@ -144,7 +144,7 @@ protected:
             if (what == StringView("name")) {
 
                 StringView old_name(script->custom_signal_get_argument_name(sig, idx));
-                String new_name = p_value;
+                String new_name = p_value.as<String>();
                 undo_redo->create_action(TTR("Change Argument name"));
                 undo_redo->add_do_method(script.get(), "custom_signal_set_argument_name", sig, idx, new_name);
                 undo_redo->add_undo_method(script.get(), "custom_signal_set_argument_name", sig, idx, old_name);
@@ -296,8 +296,8 @@ protected:
             return true;
         }
 
-        if (UIString(p_name) == "export") {
-            script->set_variable_export(var, p_value);
+        if (p_name == "export") {
+            script->set_variable_export(var, p_value.as<bool>());
             EditorNode::get_singleton()->get_inspector()->update_tree();
             return true;
         }
@@ -648,7 +648,7 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                 Color c = sbf->get_border_color();
                 c.a = 1;
-                if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
+                if (EditorSettings::get_singleton()->getT<bool>("interface/theme/use_graph_node_headers")) {
                     Color mono_color = ((c.r + c.g + c.b) / 3) < 0.7f ? Color(1.0f, 1.0f, 1.0f) : Color(0.0f, 0.0f, 0.0f);
                     mono_color.a = 0.85f;
                     c = mono_color;
@@ -799,10 +799,10 @@ void VisualScriptEditor::_update_graph(int p_only_id) {
 
                         } else if (pi.type == VariantType::INT && pi.hint == PropertyHint::Enum) {
 
-                            button->set_text_utf8(StringUtils::get_slice(pi.hint_string,',', value));
+                            button->set_text_utf8(StringUtils::get_slice(pi.hint_string,',', value.as<int>()));
                         } else {
 
-                            button->set_text(value);
+                            button->set_text_utf8(value.as<String>());
                         }
                         button->connect("pressed", this, "_default_value_edited", varray(Variant(button), E, i));
                         hbc2->add_child(button);
@@ -1019,7 +1019,7 @@ void VisualScriptEditor::_update_members() {
 
         ti->set_text_utf8(0, var_names[fi]);
         Variant var = script->get_variable_default_value(var_names[fi]);
-        ti->set_suffix(0, "= " + String(var));
+        ti->set_suffix(0, "= " + var.as<String>());
         ti->set_icon(0, type_icons[(int8_t)script->get_variable_info(var_names[fi]).type]);
 
         ti->set_selectable(0, true);
@@ -1067,7 +1067,7 @@ void VisualScriptEditor::_member_selected() {
     TreeItem *ti = members->get_selected();
     ERR_FAIL_COND(!ti);
 
-    selected = ti->get_metadata(0);
+    selected = ti->get_metadata(0).as<StringName>();
 
     if (ti->get_parent() == members->get_root()->get_children()) {
 
@@ -1091,7 +1091,7 @@ void VisualScriptEditor::_member_edited() {
     TreeItem *ti = members->get_edited();
     ERR_FAIL_COND(!ti);
 
-    String str_name = ti->get_metadata(0);
+    String str_name = ti->get_metadata(0).as<String>();
     String str_new_name = ti->get_text(0);
 
     if (str_name == str_new_name)
@@ -1780,8 +1780,10 @@ void VisualScriptEditor::_members_gui_input(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> btn(dynamic_ref_cast<InputEventMouseButton>(p_event));
     if (btn && btn->is_doubleclick()) {
         TreeItem *ti = members->get_selected();
-        if (ti && ti->get_parent() == members->get_root()->get_children()) // to check if it's a function
-            _center_on_node(ti->get_metadata(0), script->get_function_node_id(ti->get_metadata(0)));
+        if (ti && ti->get_parent() == members->get_root()->get_children()) { // to check if it's a function
+            StringName name(ti->get_metadata(0).as<StringName>());
+            _center_on_node(name, script->get_function_node_id(name));
+        }
     }
 }
 
@@ -1859,7 +1861,7 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         if (!it)
             return Variant();
 
-        String type = it->get_metadata(0);
+        String type = it->get_metadata(0).as<String>();
 
         if (type.empty())
             return Variant();
@@ -1894,48 +1896,52 @@ Variant VisualScriptEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
 
 bool VisualScriptEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    if (p_from == graph) {
+    if (p_from != graph)
+        return false;
 
-        Dictionary d = p_data;
-        if (d.has("type") &&
-                (UIString(d["type"]) == "visual_script_node_drag" ||
-                        UIString(d["type"]) == "visual_script_function_drag" ||
-                        UIString(d["type"]) == "visual_script_variable_drag" ||
-                        UIString(d["type"]) == "visual_script_signal_drag" ||
-                        UIString(d["type"]) == "obj_property" ||
-                        UIString(d["type"]) == "resource" ||
-                        UIString(d["type"]) == "files" ||
-                        UIString(d["type"]) == "nodes")) {
+    Dictionary d = p_data.as<Dictionary>();
+    if (!d.has("type"))
+        return false;
 
-            if (UIString(d["type"]) == "obj_property") {
+    String d_type(d["type"].as<String>());
 
-#ifdef OSX_ENABLED
-                const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Getter. Hold Shift to drop a generic signature."), find_keycode_name(KEY_META)));
-#else
-                const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a Getter. Hold Shift to drop a generic signature."));
-#endif
-            }
+    if (            d_type == "visual_script_node_drag" ||
+                    d_type == "visual_script_function_drag" ||
+                    d_type == "visual_script_variable_drag" ||
+                    d_type == "visual_script_signal_drag" ||
+                    d_type == "obj_property" ||
+                    d_type == "resource" ||
+                    d_type == "files" ||
+                    d_type == "nodes") {
 
-            if (UIString(d["type"]) == "nodes") {
+        if (d_type == "obj_property") {
 
 #ifdef OSX_ENABLED
-                const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a simple reference to the node."), find_keycode_name(KEY_META)));
+            const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Getter. Hold Shift to drop a generic signature."), find_keycode_name(KEY_META)));
 #else
-                const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a simple reference to the node."));
+            const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a Getter. Hold Shift to drop a generic signature."));
 #endif
-            }
-
-            if (UIString(d["type"]) == "visual_script_variable_drag") {
-
-#ifdef OSX_ENABLED
-                const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Variable Setter."), find_keycode_name(KEY_META)));
-#else
-                const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a Variable Setter."));
-#endif
-            }
-
-            return true;
         }
+
+        if (d_type == "nodes") {
+
+#ifdef OSX_ENABLED
+            const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a simple reference to the node."), find_keycode_name(KEY_META)));
+#else
+            const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a simple reference to the node."));
+#endif
+        }
+
+        if (d_type == "visual_script_variable_drag") {
+
+#ifdef OSX_ENABLED
+            const_cast<VisualScriptEditor *>(this)->_show_hint(vformat(TTR("Hold %s to drop a Variable Setter."), find_keycode_name(KEY_META)));
+#else
+            const_cast<VisualScriptEditor *>(this)->_show_hint(TTR("Hold Ctrl to drop a Variable Setter."));
+#endif
+        }
+
+        return true;
     }
 
     return false;
@@ -1947,14 +1953,14 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         return;
     }
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type")) {
         return;
     }
-
-    if (UIString(d["type"]) == "visual_script_node_drag") {
-        if (!d.has("node_type") || UIString(d["node_type"]) == "Null") {
+    String d_type(d["type"].as<String>());
+    if (d_type == "visual_script_node_drag") {
+        if (!d.has("node_type") || d["node_type"].as<String>() == "Null") {
             return;
         }
 
@@ -1967,7 +1973,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         ofs /= EDSCALE;
 
-        int new_id = _create_new_node_from_name(d["node_type"], ofs, default_func);
+        int new_id = _create_new_node_from_name(d["node_type"].as<String>(), ofs, default_func);
 
         Node *node = graph->get_node(NodePath(itos(new_id)));
         if (node) {
@@ -1976,7 +1982,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "visual_script_variable_drag") {
+    if (d_type == "visual_script_variable_drag") {
 
 #ifdef OSX_ENABLED
         bool use_set = Input::get_singleton()->is_key_pressed(KEY_META);
@@ -1994,12 +2000,12 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         Ref<VisualScriptNode> vnode;
         if (use_set) {
             Ref<VisualScriptVariableSet> vnodes(make_ref_counted<VisualScriptVariableSet>());
-            vnodes->set_variable(d["variable"]);
+            vnodes->set_variable(d["variable"].as<StringName>());
             vnode = vnodes;
         } else {
 
             Ref<VisualScriptVariableGet> vnodeg(make_ref_counted<VisualScriptVariableGet>());
-            vnodeg->set_variable(d["variable"]);
+            vnodeg->set_variable(d["variable"].as<StringName>());
             vnode = vnodeg;
         }
 
@@ -2019,7 +2025,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "visual_script_function_drag") {
+    if (d_type == "visual_script_function_drag") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2051,7 +2057,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "visual_script_signal_drag") {
+    if (d_type == "visual_script_signal_drag") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2063,7 +2069,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         Ref<VisualScriptEmitSignal> vnode(make_ref_counted<VisualScriptEmitSignal>());
 
-        vnode->set_signal(d["signal"]);
+        vnode->set_signal(d["signal"].as<StringName>());
 
         int new_id = script->get_available_id();
 
@@ -2081,7 +2087,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "resource") {
+    if (d_type == "resource") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2111,7 +2117,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (d_type == "files") {
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
         if (graph->is_using_snap()) {
@@ -2121,7 +2127,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         ofs /= EDSCALE;
 
-        Array files = d["files"];
+        Array files = d["files"].as<Array>();
 
         Vector<int> new_ids;
         int new_id = script->get_available_id();
@@ -2161,7 +2167,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "nodes") {
+    if (d_type == "nodes") {
 
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 
@@ -2176,7 +2182,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         bool use_node = Input::get_singleton()->is_key_pressed(KEY_CONTROL);
 #endif
 
-        Array nodes = d["nodes"];
+        Array nodes = d["nodes"].as<Array>();
 
         Vector2 ofs = graph->get_scroll_ofs() + p_point;
 
@@ -2195,7 +2201,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         for (int i = 0; i < nodes.size(); i++) {
 
-            NodePath np = nodes[i];
+            NodePath np = nodes[i].as<NodePath>();
             Node *node = get_node(np);
             if (!node) {
                 continue;
@@ -2231,7 +2237,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         undo_redo->commit_action();
     }
 
-    if (UIString(d["type"]) == "obj_property") {
+    if (d_type == "obj_property") {
 
         Node *sn = _find_script_node(get_tree()->get_edited_scene_root(), get_tree()->get_edited_scene_root(), script);
 
@@ -2240,7 +2246,7 @@ void VisualScriptEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
             return;
         }
 
-        Object *obj = d["object"];
+        Object *obj = d["object"].as<Object *>();
 
         if (!obj)
             return;
@@ -2373,7 +2379,7 @@ void VisualScriptEditor::_draw_color_over_button(Object *obj, Color p_color) {
 
 void VisualScriptEditor::_button_resource_previewed(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, Variant p_ud) {
 
-    Array ud = p_ud;
+    Array ud = p_ud.as<Array>();
     ERR_FAIL_COND(ud.size() != 2);
 
     ObjectID id = ud[0].as<ObjectID>();
@@ -2386,7 +2392,7 @@ void VisualScriptEditor::_button_resource_previewed(StringView p_path, const Ref
     ERR_FAIL_COND(!b);
 
     if (not p_preview) {
-        b->set_text(ud[1]);
+        b->set_text(ud[1].as<StringName>());
     } else {
 
         b->set_button_icon(p_preview);
@@ -2471,7 +2477,7 @@ Variant VisualScriptEditor::get_edit_state() {
 
 void VisualScriptEditor::set_edit_state(const Variant &p_state) {
 
-    Dictionary d = p_state;
+    Dictionary d = p_state.as<Dictionary>();
     if (d.has("function")) {
         selected = default_func;
     }
@@ -2480,16 +2486,16 @@ void VisualScriptEditor::set_edit_state(const Variant &p_state) {
     _update_members();
 
     if (d.has("scroll")) {
-        graph->set_scroll_ofs(d["scroll"]);
+        graph->set_scroll_ofs(d["scroll"].as<Vector2>());
     }
     if (d.has("zoom")) {
-        graph->set_zoom(d["zoom"]);
+        graph->set_zoom(d["zoom"].as<float>());
     }
     if (d.has("snap")) {
-        graph->set_snap(d["snap"]);
+        graph->set_snap(d["snap"].as<int>());
     }
     if (d.has("snap_enabled")) {
-        graph->set_use_snap(d["snap_enabled"]);
+        graph->set_use_snap(d["snap_enabled"].as<bool>());
     }
 }
 
@@ -2681,7 +2687,7 @@ void VisualScriptEditor::_change_base_type_callback() {
 
 void VisualScriptEditor::_node_selected(Node *p_node) {
 
-    Ref<VisualScriptNode> vnode(refFromRefPtr<VisualScriptNode>(p_node->get_meta("__vnode")));
+    Ref<VisualScriptNode> vnode(refFromRefPtr<VisualScriptNode>(p_node->get_meta("__vnode").as<RefPtr>()));
     if (not vnode)
         return;
 
@@ -3328,7 +3334,7 @@ VisualScriptNode::TypeGuess VisualScriptEditor::_guess_output_type(int p_port_ac
                 Variant defval = node->get_default_input_value(i);
                 if (defval.get_type() == VariantType::OBJECT) {
 
-                    Object *obj = defval;
+                    Object *obj = defval.as<Object *>();
 
                     if (obj) {
 

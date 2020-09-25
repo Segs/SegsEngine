@@ -163,7 +163,7 @@ public:
 GODOT_EXPORT Variant _GLOBAL_DEF(const StringName &p_var, const Variant &p_default, bool p_restart_if_changed = false);
 template<class T>
 T T_GLOBAL_DEF(const StringName& p_var, const T& p_default, bool p_restart_if_changed = false) {
-    return _GLOBAL_DEF(p_var,p_default,p_restart_if_changed).as<T>();
+    return _GLOBAL_DEF(p_var,p_default,p_restart_if_changed).template as<T>();
 }
 #define GLOBAL_DEF(m_var, m_value) _GLOBAL_DEF(m_var, m_value)
 #define GLOBAL_T_DEF(m_var, m_value,m_type) T_GLOBAL_DEF<m_type>(m_var, m_value)

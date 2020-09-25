@@ -724,7 +724,7 @@ public:
                 msg->show();
                 get_ok()->set_disabled(true);
             } else if (current->has_setting("application/config/name")) {
-                String proj = current->get("application/config/name");
+                String proj = current->get("application/config/name").as<String>();
                 project_name->set_text(proj);
                 _text_changed(proj);
             }
@@ -1169,7 +1169,7 @@ void ProjectList::load_project_icon(int p_index) {
 
 void ProjectList::load_project_data(const StringName & p_property_key, Item &p_item, bool p_favorite) {
 
-    String path = EditorSettings::get_singleton()->get(p_property_key);
+    String path = EditorSettings::get_singleton()->get(p_property_key).as<String>();
     String conf = PathUtils::plus_file(path,"project.godot");
     bool grayed = false;
     bool missing = false;
@@ -1180,10 +1180,10 @@ void ProjectList::load_project_data(const StringName & p_property_key, Item &p_i
     int config_version = 0;
     String project_name(TTR("Unnamed Project"));
     if (cf_err == OK) {
-        String cf_project_name = static_cast<String>(cf->get_value("application", "config/name", ""));
+        String cf_project_name = cf->get_value("application", "config/name", "").as<String>();
         if (!cf_project_name.empty())
             project_name = StringUtils::xml_unescape(cf_project_name);
-        config_version = (int)cf->get_value("", "config_version", 0);
+        config_version = cf->get_value("", "config_version", 0).as<int>();
     }
 
     if (config_version > ProjectSettings::CONFIG_VERSION) {
@@ -1191,9 +1191,9 @@ void ProjectList::load_project_data(const StringName & p_property_key, Item &p_i
         grayed = true;
     }
 
-    StringName description = cf->get_value("application", "config/description", "");
-    String icon = cf->get_value("application", "config/icon", "");
-    String main_scene = cf->get_value("application", "run/main_scene", "");
+    StringName description = cf->get_value("application", "config/description", "").as<StringName>();
+    String icon = cf->get_value("application", "config/icon", "").as<String>();
+    String main_scene = cf->get_value("application", "run/main_scene", "").as<String>();
 
     uint64_t last_modified = 0;
     if (FileAccess::exists(conf)) {
@@ -1999,7 +1999,7 @@ void ProjectManager::_confirm_update_settings() {
 
 void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_meta) {
 
-    int id = (int)p_id;
+    int id = p_id.as<int>();
     if (id == ProjectList::GLOBAL_NEW_WINDOW) {
         Vector<String> args {"-p"};
         String exec = OS::get_singleton()->get_executable_path();
@@ -2007,7 +2007,7 @@ void ProjectManager::_global_menu_action(const Variant &p_id, const Variant &p_m
         OS::ProcessID pid = 0;
         OS::get_singleton()->execute(exec, args, false, &pid);
     } else if (id == ProjectList::GLOBAL_OPEN_PROJECT) {
-        String conf = (String)p_meta;
+        String conf = p_meta.as<String>();
 
         if (!conf.empty()) {
             Vector<String> args {conf};
@@ -2024,7 +2024,7 @@ void ProjectManager::_open_selected_projects() {
     const HashSet<StringName> &selected_list = _project_list->get_selected_project_keys();
 
     for (const StringName &selected : selected_list) {
-        String path = EditorSettings::get_singleton()->get(StringName(String("projects/") + selected));
+        String path = EditorSettings::get_singleton()->get(StringName(String("projects/") + selected)).as<String>();
         String conf = PathUtils::plus_file(path,"project.godot");
 
         if (!FileAccess::exists(conf)) {
@@ -2135,7 +2135,7 @@ void ProjectManager::_run_project_confirm() {
         }
 
         String selected(selected_list[i].project_key);
-        String path = EditorSettings::get_singleton()->get(StringName("projects/" + selected));
+        String path = EditorSettings::get_singleton()->get(StringName("projects/" + selected)).as<String>();
 
         if (!DirAccess::exists(path + "/.import")) {
             run_error_diag->set_text(TTR("Can't run project: Assets need to be imported.\nPlease edit the project to trigger the initial import."));
@@ -2237,7 +2237,7 @@ void ProjectManager::_rename_project() {
     }
 
     for (const StringName &selected : selected_list) {
-        String path = EditorSettings::get_singleton()->get(StringName(String("projects/") + selected));
+        String path = EditorSettings::get_singleton()->get("projects/" + selected).as<String>();
         npdialog->set_project_path(path);
         npdialog->set_mode(ProjectDialog::MODE_RENAME);
         npdialog->show_dialog();
@@ -2280,7 +2280,7 @@ void ProjectManager::_erase_missing_projects() {
 
 void ProjectManager::_language_selected(int p_id) {
 
-    StringName lang = language_btn->get_item_metadata(p_id);
+    StringName lang = language_btn->get_item_metadata(p_id).as<StringName>();
     EditorSettings::get_singleton()->set("interface/editor/editor_language", lang);
     language_btn->set_text(lang);
     language_btn->set_button_icon(get_icon("Environment", "EditorIcons"));
@@ -2419,8 +2419,8 @@ ProjectManager::ProjectManager() {
     EditorSettings::get_singleton()->set_optimize_save(false); //just write settings as they came
 
     {
-        int display_scale = EditorSettings::get_singleton()->get("interface/editor/display_scale");
-        float custom_display_scale = EditorSettings::get_singleton()->get("interface/editor/custom_display_scale");
+        int display_scale = EditorSettings::get_singleton()->getT<int>("interface/editor/display_scale");
+        float custom_display_scale = EditorSettings::get_singleton()->getT<float>("interface/editor/custom_display_scale");
 
         switch (display_scale) {
             case 0: {
@@ -2633,7 +2633,7 @@ ProjectManager::ProjectManager() {
             editor_languages = StringUtils::split(pi.hint_string,',');
         }
     }
-    String current_lang = EditorSettings::get_singleton()->get("interface/editor/editor_language");
+    String current_lang = EditorSettings::get_singleton()->getT<String>("interface/editor/editor_language");
     for (size_t i = 0; i < editor_languages.size(); i++) {
         StringView lang = editor_languages[i];
         String lang_name = TranslationServer::get_singleton()->get_locale_name(lang);
@@ -2697,9 +2697,9 @@ ProjectManager::ProjectManager() {
     npdialog->connect("project_created", this, "_on_project_created");
 
     _load_recent_projects();
-
-    if (EditorSettings::get_singleton()->get("filesystem/directories/autoscan_project_path")) {
-        _scan_begin(EditorSettings::get_singleton()->get("filesystem/directories/autoscan_project_path").as<String>());
+    String autoscan_project_path = EditorSettings::get_singleton()->getT<String>("filesystem/directories/autoscan_project_path");
+    if (!autoscan_project_path.empty()) {
+        _scan_begin(autoscan_project_path);
     }
 
     SceneTree::get_singleton()->connect("files_dropped", this, "_files_dropped");

@@ -224,28 +224,28 @@ void AreaBullet::put_overlap_as_inside(int p_index) {
 void AreaBullet::set_param(PhysicsServer3D::AreaParameter p_param, const Variant &p_value) {
     switch (p_param) {
         case PhysicsServer3D::AREA_PARAM_GRAVITY:
-            set_spOv_gravityMag(p_value);
+            set_spOv_gravityMag(p_value.as<float>());
             break;
         case PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR:
-            set_spOv_gravityVec(p_value);
+            set_spOv_gravityVec(p_value.as<Vector3>());
             break;
         case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
-            set_spOv_linearDump(p_value);
+            set_spOv_linearDump(p_value.as<float>());
             break;
         case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
-            set_spOv_angularDump(p_value);
+            set_spOv_angularDump(p_value.as<float>());
             break;
         case PhysicsServer3D::AREA_PARAM_PRIORITY:
-            set_spOv_priority(p_value);
+            set_spOv_priority(p_value.as<int>());
             break;
         case PhysicsServer3D::AREA_PARAM_GRAVITY_IS_POINT:
-            set_spOv_gravityPoint(p_value);
+            set_spOv_gravityPoint(p_value.as<bool>());
             break;
         case PhysicsServer3D::AREA_PARAM_GRAVITY_DISTANCE_SCALE:
-            set_spOv_gravityPointDistanceScale(p_value);
+            set_spOv_gravityPointDistanceScale(p_value.as<float>());
             break;
         case PhysicsServer3D::AREA_PARAM_GRAVITY_POINT_ATTENUATION:
-            set_spOv_gravityPointAttenuation(p_value);
+            set_spOv_gravityPointAttenuation(p_value.as<float>());
             break;
         default:
             WARN_PRINT("Area doesn't support this parameter in the Bullet backend: " + itos(p_param));

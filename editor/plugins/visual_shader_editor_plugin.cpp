@@ -74,7 +74,7 @@ namespace eastl {
 Control *VisualShaderNodePlugin::create_editor(const Ref<Resource> &p_parent_resource, const Ref<VisualShaderNode> &p_node) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("create_editor", p_parent_resource, p_node);
+        return get_script_instance()->call("create_editor", p_parent_resource, p_node).as<Control *>();
     }
     return nullptr;
 }
@@ -253,24 +253,24 @@ void VisualShaderEditor::update_custom_nodes() {
 
             StringName name;
             if (ref->has_method("_get_name")) {
-                name = ref->call_va("_get_name");
+                name = ref->call_va("_get_name").as<StringName>();
             } else {
                 name = "Unnamed";
             }
 
             StringName description;
             if (ref->has_method("_get_description")) {
-                description = ref->call_va("_get_description");
+                description = ref->call_va("_get_description").as<StringName>();
             }
 
             int return_icon_type = -1;
             if (ref->has_method("_get_return_icon_type")) {
-                return_icon_type = (int)ref->call_va("_get_return_icon_type");
+                return_icon_type = ref->call_va("_get_return_icon_type").as<int>();
             }
 
             StringName category;
             if (ref->has_method("_get_category")) {
-                category = ref->call_va("_get_category");
+                category = ref->call_va("_get_category").as<StringName>();
             }
             if (category.empty()) {
                 category = "Custom";
@@ -278,7 +278,7 @@ void VisualShaderEditor::update_custom_nodes() {
 
             StringName subcategory;
             if (ref->has_method("_get_subcategory")) {
-                subcategory = ref->call_va("_get_subcategory");
+                subcategory = ref->call_va("_get_subcategory").as<StringName>();
             }
 
             AddInfo dict{ name, script, description, return_icon_type, category, subcategory };
@@ -471,7 +471,7 @@ static Ref<StyleBoxEmpty> make_empty_stylebox(float p_margin_left = -1, float p_
 
 void VisualShaderEditor::_update_created_node(GraphNode *node) {
 
-    if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
+    if (EditorSettings::get_singleton()->getT<bool>("interface/theme/use_graph_node_headers")) {
         Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
         Color c = sb->get_border_color();
         Color mono_color = (c.r + c.g + c.b) / 3 < 0.7f ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
@@ -690,14 +690,14 @@ void VisualShaderEditor::_update_graph() {
                         button->connect("draw", this, "_draw_color_over_button", varray(Variant(button), default_value));
                     } break;
                     case VariantType::BOOL: {
-                        button->set_text((bool)default_value ? StringName("true") : StringName("false"));
+                        button->set_text(default_value.as<bool>() ? StringName("true") : StringName("false"));
                     } break;
                     case VariantType::INT:
                     case VariantType::FLOAT: {
-                        button->set_text_utf8(StringUtils::num(default_value, 4));
+                        button->set_text_utf8(StringUtils::num(default_value.as<float>(), 4));
                     } break;
                     case VariantType::VECTOR3: {
-                        Vector3 v = default_value;
+                        Vector3 v = default_value.as<Vector3>();
                         button->set_text_utf8(StringUtils::num(v.x, 3) + "," + StringUtils::num(v.y, 3) + "," + StringUtils::num(v.z, 3));
                     } break;
                     default: {
@@ -854,11 +854,11 @@ void VisualShaderEditor::_update_graph() {
             expression_node->set_control(expression_box, 0);
             node->add_child(expression_box);
 
-            Color background_color = EDITOR_GET("text_editor/highlighting/background_color");
-            Color text_color = EDITOR_GET("text_editor/highlighting/text_color");
-            Color keyword_color = EDITOR_GET("text_editor/highlighting/keyword_color");
-            Color comment_color = EDITOR_GET("text_editor/highlighting/comment_color");
-            Color symbol_color = EDITOR_GET("text_editor/highlighting/symbol_color");
+            Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
+            Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
+            Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+            Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
+            Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
 
             expression_box->set_syntax_coloring(true);
             expression_box->add_color_override("background_color", background_color);
@@ -1686,7 +1686,7 @@ void VisualShaderEditor::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_DRAG_BEGIN) {
-        Dictionary dd = get_viewport()->gui_get_drag_data();
+        Dictionary dd = get_viewport()->gui_get_drag_data().as<Dictionary>();
         if (members->is_visible_in_tree() && dd.has("id")) {
             members->set_drop_mode_flags(Tree::DROP_MODE_ON_ITEM);
         }
@@ -1704,11 +1704,11 @@ void VisualShaderEditor::_notification(int p_what) {
         preview_shader->set_button_icon(Control::get_icon("Shader", "EditorIcons"));
 
         {
-            Color background_color = EDITOR_GET("text_editor/highlighting/background_color");
-            Color text_color = EDITOR_GET("text_editor/highlighting/text_color");
-            Color keyword_color = EDITOR_GET("text_editor/highlighting/keyword_color");
-            Color comment_color = EDITOR_GET("text_editor/highlighting/comment_color");
-            Color symbol_color = EDITOR_GET("text_editor/highlighting/symbol_color");
+            Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
+            Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
+            Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+            Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
+            Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
 
             preview_text->add_color_override("background_color", background_color);
 
@@ -2047,7 +2047,7 @@ void VisualShaderEditor::_member_selected() {
 
     if (item != nullptr && item->has_meta("id")) {
         members_dialog->get_ok()->set_disabled(false);
-        node_desc->set_text(_get_description(item->get_meta("id")));
+        node_desc->set_text(_get_description(item->get_meta("id").as<int>()));
     } else {
         members_dialog->get_ok()->set_disabled(true);
         node_desc->set_text(StringView());
@@ -2060,7 +2060,7 @@ void VisualShaderEditor::_member_unselected() {
 void VisualShaderEditor::_member_create() {
     TreeItem *item = members->get_selected();
     if (item != nullptr && item->has_meta("id")) {
-        int idx = members->get_selected()->get_meta("id");
+        int idx = members->get_selected()->get_meta("id").as<int>();
         _add_node(idx, add_options[idx].sub_func);
         members_dialog->hide();
     }
@@ -2119,7 +2119,7 @@ Variant VisualShaderEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
         if (!it->has_meta("id"))
             return Variant();
 
-        int id = it->get_meta("id");
+        int id = it->get_meta("id").as<int>();
         const AddOption &op = add_options[id];
 
         Dictionary d;
@@ -2142,7 +2142,7 @@ bool VisualShaderEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
 
     if (p_from == graph) {
 
-        Dictionary d = p_data;
+        Dictionary d = p_data.as<Dictionary>();
 
         if (d.has("id")) {
             return true;
@@ -2160,10 +2160,10 @@ void VisualShaderEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
     if (p_from != graph)
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (d.has("id")) {
-        int idx = d["id"];
+        int idx = d["id"].as<int>();
         saved_node_pos = p_point;
         saved_node_pos_dirty = true;
         _add_node(idx, add_options[idx].sub_func);
@@ -3189,7 +3189,7 @@ void EditorPropertyShaderMode::_option_selected(int p_which) {
 
 void EditorPropertyShaderMode::update_property() {
 
-    int which = get_edited_object()->get(get_edited_property());
+    int which = get_edited_object()->get(get_edited_property()).as<int>();
     options->select(which);
 }
 

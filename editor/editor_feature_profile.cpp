@@ -205,9 +205,9 @@ Error EditorFeatureProfile::load_from_file(StringView p_path) {
         return ERR_PARSE_ERROR;
     }
 
-    Dictionary json = v;
+    Dictionary json = v.as<Dictionary>();
 
-    if (!json.has("type") || String(json["type"]) != "feature_profile") {
+    if (!json.has("type") || json["type"].as<String>() != "feature_profile") {
         ERR_PRINT("Error parsing '" + String(p_path) + "', it's not a feature profile.");
         return ERR_PARSE_ERROR;
     }
@@ -215,28 +215,28 @@ Error EditorFeatureProfile::load_from_file(StringView p_path) {
     disabled_classes.clear();
 
     if (json.has("disabled_classes")) {
-        Array disabled_classes_arr = json["disabled_classes"];
+        Array disabled_classes_arr = json["disabled_classes"].as<Array>();
         for (int i = 0; i < disabled_classes_arr.size(); i++) {
-            disabled_classes.insert(disabled_classes_arr[i]);
+            disabled_classes.insert(disabled_classes_arr[i].as<StringName>());
         }
     }
 
     disabled_editors.clear();
 
     if (json.has("disabled_editors")) {
-        Array disabled_editors_arr = json["disabled_editors"];
+        Array disabled_editors_arr = json["disabled_editors"].as<Array>();
         for (int i = 0; i < disabled_editors_arr.size(); i++) {
-            disabled_editors.insert(disabled_editors_arr[i]);
+            disabled_editors.insert(disabled_editors_arr[i].as<StringName>());
         }
     }
 
     disabled_properties.clear();
 
     if (json.has("disabled_properties")) {
-        Array disabled_properties_arr = json["disabled_properties"];
+        Array disabled_properties_arr = json["disabled_properties"].as<Array>();
         FixedVector<StringView,4,true> parts;
         for (int i = 0; i < disabled_properties_arr.size(); i++) {
-            String s = disabled_properties_arr[i];
+            String s = disabled_properties_arr[i].as<String>();
             String::split_ref(parts,s,':');
 
             set_disable_class_property(StringName(parts[0]), StringName(parts[1]), true);
@@ -245,12 +245,12 @@ Error EditorFeatureProfile::load_from_file(StringView p_path) {
 
     if (json.has("disabled_features")) {
 
-        Array disabled_features_arr = json["disabled_features"];
+        Array disabled_features_arr = json["disabled_features"].as<Array>();
         for (int i = 0; i < FEATURE_MAX; i++) {
             bool found = false;
-            UIString f(feature_identifiers[i]);
+            const char * f(feature_identifiers[i]);
             for (int j = 0; j < disabled_features_arr.size(); j++) {
-                UIString fd = disabled_features_arr[j];
+                String fd = disabled_features_arr[j].as<String>();
                 if (fd == f) {
                     found = true;
                     break;
@@ -325,7 +325,7 @@ String EditorFeatureProfileManager::_get_selected_profile() {
         return String();
     }
 
-    return profile_list->get_item_metadata(idx);
+    return profile_list->get_item_metadata(idx).as<String>();
 }
 
 void EditorFeatureProfileManager::_update_profile_list(StringView p_select_profile) {
@@ -546,7 +546,7 @@ void EditorFeatureProfileManager::_class_list_item_selected() {
         return;
     }
 
-    StringName class_name(md);
+    StringName class_name(md.as<StringName>());
 
     if (edited->is_class_disabled(class_name)) {
         return;
@@ -607,12 +607,12 @@ void EditorFeatureProfileManager::_class_list_item_edited() {
 
     Variant md = item->get_metadata(0);
     if (md.get_type() == VariantType::STRING) {
-        StringName class_selected = md;
+        StringName class_selected = md.as<StringName>();
         edited->set_disable_class(class_selected, !checked);
         _save_and_update();
         _update_selected_profile();
     } else if (md.get_type() == VariantType::INT) {
-        int feature_selected = md;
+        int feature_selected = md.as<int>();
         edited->set_disable_feature(EditorFeatureProfile::Feature(feature_selected), !checked);
         _save_and_update();
     }
@@ -632,7 +632,7 @@ void EditorFeatureProfileManager::_property_item_edited() {
         return;
     }
 
-    StringName class_name = md;
+    StringName class_name = md.as<StringName>();
 
     TreeItem *item = property_list->get_edited();
     if (!item) {
@@ -642,12 +642,12 @@ void EditorFeatureProfileManager::_property_item_edited() {
 
     md = item->get_metadata(0);
     if (md.get_type() == VariantType::STRING) {
-        StringName property_selected = md;
+        StringName property_selected = md.as<StringName>();
         edited->set_disable_class_property(class_name, property_selected, !checked);
         _save_and_update();
         _update_selected_profile();
     } else if (md.get_type() == VariantType::INT) {
-        int feature_selected = md;
+        int feature_selected = md.as<int>();
         switch (feature_selected) {
             case CLASS_OPTION_DISABLE_EDITOR: {
                 edited->set_disable_class_editor(class_name, !checked);
@@ -666,9 +666,9 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     if (class_list->get_selected()) {
         Variant md = class_list->get_selected()->get_metadata(0);
         if (md.get_type() == VariantType::STRING) {
-            class_selected = md;
+            class_selected = md.as<StringName>();
         } else if (md.get_type() == VariantType::INT) {
-            feature_selected = md;
+            feature_selected = md.as<int>();
         }
     }
 

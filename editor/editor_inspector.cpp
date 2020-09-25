@@ -448,13 +448,13 @@ bool EditorPropertyRevert::is_node_property_different(Node *p_node, const Varian
     }
 
     if (p_current.get_type() == VariantType::FLOAT && p_orig.get_type() == VariantType::FLOAT) {
-        float a = p_current;
-        float b = p_orig;
+        float a = p_current.as<float>();
+        float b = p_orig.as<float>();
 
         return !Math::is_equal_approx(a, b); //this must be done because, as some scenes save as text, there might be a tiny difference in floats due to numerical error
     }
 
-    return bool(Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig));
+    return Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig).as<bool>();
 }
 
 bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringName &p_property) {
@@ -663,7 +663,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
 
             if (use_keying_next()) {
                 if (property == "frame_coords" && (object->is_class("Sprite2D") || object->is_class("Sprite3D"))) {
-                    Vector2 new_coords = object->get(property);
+                    Vector2 new_coords = object->get(property).as<Vector2>();
                     new_coords.x++;
                     if (new_coords.x >= object->get("hframes").as<int64_t>()) {
                         new_coords.x = 0;
@@ -691,7 +691,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
                 return;
             }
 
-            if (object->call_va("property_can_revert", property).operator bool()) {
+            if (object->call_va("property_can_revert", property).as<bool>()) {
                 Variant rev = object->call_va("property_get_revert", property);
                 emit_changed(property, rev);
                 update_property();
@@ -925,7 +925,7 @@ void EditorInspectorPlugin::add_property_editor_for_multiple_properties(StringVi
 bool EditorInspectorPlugin::can_handle(Object *p_object) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("can_handle", Variant(p_object));
+        return get_script_instance()->call("can_handle", Variant(p_object)).as<bool>();
     }
     return false;
 }
@@ -954,7 +954,7 @@ bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type,
         };
 
         Callable::CallError err;
-        return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err);
+        return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err).as<bool>();
     }
     return false;
 }
@@ -1574,7 +1574,7 @@ void EditorInspector::update_tree() {
         // if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && RenderingServer::get_singleton()->is_low_end())
         //     continue; //do not show this property in low end gfx
 
-        if (p.name == "script" && (hide_script || bool(object->call_va("_hide_script_from_inspector")))) {
+        if (p.name == "script" && (hide_script || object->call_va("_hide_script_from_inspector").as<bool>())) {
             continue;
         }
 
@@ -1849,7 +1849,7 @@ void EditorInspector::refresh() {
 
     if (refresh_countdown > 0 || changing)
         return;
-    refresh_countdown = EditorSettings::get_singleton()->get("docks/property_editor/auto_refresh_interval");
+    refresh_countdown = EditorSettings::get_singleton()->get("docks/property_editor/auto_refresh_interval").as<float>();
 }
 
 Object *EditorInspector::get_edited_object() {
@@ -2010,7 +2010,7 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         }
     }
 
-    if (!undo_redo || bool(object->call_va("_dont_undo_redo"))) {
+    if (!undo_redo || object->call_va("_dont_undo_redo").as<bool>()) {
 
         object->set(StringName(p_name), p_value);
         if (p_refresh_all)
@@ -2044,8 +2044,8 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         if (r) {
 
             if (p_name == StringView("resource_local_to_scene")) {
-                bool prev = object->get(StringName(p_name));
-                bool next = p_value;
+                bool prev = object->get(StringName(p_name)).as<bool>();
+                bool next = p_value.as<bool>();
                 if (next) {
                     undo_redo->add_do_method(r, "setup_local_to_scene");
                 }

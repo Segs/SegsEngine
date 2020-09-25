@@ -524,7 +524,7 @@ public:
                 } break;
                 case VisualScriptYieldSignal::CALL_MODE_INSTANCE: {
 
-                    object = *p_inputs[0];
+                    object = p_inputs[0]->as<Object *>();
                     if (!object) {
                         r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
                         r_error_str = "Supplied instance input is null.";

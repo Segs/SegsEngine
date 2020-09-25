@@ -46,7 +46,7 @@ void GDMonoField::set_value_raw(MonoObject *p_object, void *p_ptr) {
 void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_value) {
 #define SET_FROM_STRUCT(m_type)                                                               \
     {                                                                                         \
-        GDMonoMarshal::M_##m_type from = MARSHALLED_OUT(m_type, p_value.operator ::m_type()); \
+        GDMonoMarshal::M_##m_type from = MARSHALLED_OUT(m_type, p_value.as<::m_type>()); \
         mono_field_set_value(p_object, mono_field, &from);                                    \
     }
 
@@ -58,51 +58,51 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
     switch (type.type_encoding) {
         case MONO_TYPE_BOOLEAN: {
-            MonoBoolean val = p_value.operator bool();
+            MonoBoolean val = p_value.as<bool>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
         case MONO_TYPE_CHAR: {
-            int16_t val = p_value.operator unsigned short();
+            int16_t val = p_value.as<unsigned short>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
         case MONO_TYPE_I1: {
-            int8_t val = p_value.operator signed char();
+            int8_t val = p_value.as<signed char>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_I2: {
-            int16_t val = p_value.operator signed short();
+            int16_t val = p_value.as<signed short>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_I4: {
-            int32_t val = p_value.operator signed int();
+            int32_t val = p_value.as<signed int>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_I8: {
-            int64_t val = p_value.operator int64_t();
+            int64_t val = p_value.as<int64_t>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
         case MONO_TYPE_U1: {
-            uint8_t val = p_value.operator unsigned char();
+            uint8_t val = p_value.as<unsigned char>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_U2: {
-            uint16_t val = p_value.operator unsigned short();
+            uint16_t val = p_value.as<unsigned short>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_U4: {
-            uint32_t val = p_value.operator unsigned int();
+            uint32_t val = p_value.as<unsigned int>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
         case MONO_TYPE_U8: {
-            uint64_t val = p_value.operator uint64_t();
+            uint64_t val = p_value.as<uint64_t>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
         case MONO_TYPE_R4: {
-            float val = p_value.operator float();
+            float val = p_value.as<float>();
             mono_field_set_value(p_object, mono_field, &val);
         } break;
 
@@ -179,52 +179,52 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 MonoType *enum_basetype = mono_class_enum_basetype(tclass->get_mono_ptr());
                 switch (mono_type_get_type(enum_basetype)) {
                     case MONO_TYPE_BOOLEAN: {
-                        MonoBoolean val = p_value.operator bool();
+                        MonoBoolean val = p_value.as<bool>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_CHAR: {
-                        uint16_t val = p_value.operator unsigned short();
+                        uint16_t val = p_value.as<unsigned short>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_I1: {
-                        int8_t val = p_value.operator signed char();
+                        int8_t val = p_value.as<signed char>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_I2: {
-                        int16_t val = p_value.operator signed short();
+                        int16_t val = p_value.as<signed short>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_I4: {
-                        int32_t val = p_value.operator signed int();
+                        int32_t val = p_value.as<signed int>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_I8: {
-                        int64_t val = p_value.operator int64_t();
+                        int64_t val = p_value.as<int64_t>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_U1: {
-                        uint8_t val = p_value.operator unsigned char();
+                        uint8_t val = p_value.as<unsigned char>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_U2: {
-                        uint16_t val = p_value.operator unsigned short();
+                        uint16_t val = p_value.as<unsigned short>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_U4: {
-                        uint32_t val = p_value.operator unsigned int();
+                        uint32_t val = p_value.as<unsigned int>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
                     case MONO_TYPE_U8: {
-                        uint64_t val = p_value.operator uint64_t();
+                        uint64_t val = p_value.as<uint64_t>();
                         mono_field_set_value(p_object, mono_field, &val);
                         break;
                     }
@@ -298,13 +298,13 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
             // GodotObject
             if (CACHED_CLASS(GodotObject)->is_assignable_from(type_class)) {
-                MonoObject *managed = GDMonoUtils::unmanaged_get_managed(p_value.operator Object *());
+                MonoObject *managed = GDMonoUtils::unmanaged_get_managed(p_value.as<Object *>());
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
 
             if (CACHED_CLASS(NodePath) == type_class) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator NodePath());
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<NodePath>());
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
@@ -317,7 +317,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
             // Godot.Collections.Dictionary or IDictionary
             if (CACHED_CLASS(Dictionary) == type_class || type_class == CACHED_CLASS(System_Collections_IDictionary)) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Dictionary(), CACHED_CLASS(Dictionary));
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Dictionary>(), CACHED_CLASS(Dictionary));
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
@@ -326,7 +326,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             if (CACHED_CLASS(Array) == type_class ||
                     type_class == CACHED_CLASS(System_Collections_ICollection) ||
                     type_class == CACHED_CLASS(System_Collections_IEnumerable)) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Array(), CACHED_CLASS(Array));
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Array>(), CACHED_CLASS(Array));
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
@@ -338,19 +338,19 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             // Variant
             switch (p_value.get_type()) {
                 case VariantType::BOOL: {
-                    MonoBoolean val = p_value.operator bool();
+                    MonoBoolean val = p_value.as<bool>();
                     mono_field_set_value(p_object, mono_field, &val);
                 } break;
                 case VariantType::INT: {
-                    int32_t val = p_value.operator signed int();
+                    int32_t val = p_value.as<signed int>();
                     mono_field_set_value(p_object, mono_field, &val);
                 } break;
                 case VariantType::FLOAT: {
 #ifdef REAL_T_IS_DOUBLE
-                    double val = p_value.operator double();
+                    double val = p_value.as<double>();
                     mono_field_set_value(p_object, mono_field, &val);
 #else
-                    float val = p_value.operator float();
+                    float val = p_value.as<float>();
                     mono_field_set_value(p_object, mono_field, &val);
 #endif
                 } break;
@@ -389,24 +389,24 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                     SET_FROM_STRUCT(Color);
                 } break;
                 case VariantType::NODE_PATH: {
-                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator NodePath());
+                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<NodePath>());
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
                 case VariantType::_RID: {
-                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator RID());
+                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<RID>());
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
                 case VariantType::OBJECT: {
-                    MonoObject *managed = GDMonoUtils::unmanaged_get_managed(p_value.operator Object *());
+                    MonoObject *managed = GDMonoUtils::unmanaged_get_managed(p_value.as<Object *>());
                     mono_field_set_value(p_object, mono_field, managed);
                     break;
                 }
                 case VariantType::DICTIONARY: {
-                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Dictionary(), CACHED_CLASS(Dictionary));
+                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Dictionary>(), CACHED_CLASS(Dictionary));
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
                 case VariantType::ARRAY: {
-                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Array(), CACHED_CLASS(Array));
+                    MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Array>(), CACHED_CLASS(Array));
                     mono_field_set_value(p_object, mono_field, managed);
                 } break;
                 case VariantType::POOL_BYTE_ARRAY: {
@@ -439,14 +439,14 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
 
             // Godot.Collections.Dictionary<TKey, TValue>
             if (GDMonoUtils::Marshal::type_is_generic_dictionary(reftype)) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Dictionary(), type.type_class);
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Dictionary>(), type.type_class);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
 
             // Godot.Collections.Array<T>
             if (GDMonoUtils::Marshal::type_is_generic_array(reftype)) {
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Array(), type.type_class);
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Array>(), type.type_class);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
@@ -456,7 +456,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 MonoReflectionType *key_reftype = nullptr;
                 MonoReflectionType *value_reftype = nullptr;
                 GDMonoUtils::Marshal::dictionary_get_key_value_types(reftype, &key_reftype, &value_reftype);
-                MonoObject *managed = GDMonoMarshal::Dictionary_to_system_generic_dict(p_value.operator Dictionary(),
+                MonoObject *managed = GDMonoMarshal::Dictionary_to_system_generic_dict(p_value.as<Dictionary>(),
                         type.type_class, key_reftype, value_reftype);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
@@ -466,7 +466,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             if (GDMonoUtils::Marshal::type_is_system_generic_list(reftype)) {
                 MonoReflectionType *elem_reftype = nullptr;
                 GDMonoUtils::Marshal::array_get_element_type(reftype, &elem_reftype);
-                MonoObject *managed = GDMonoMarshal::Array_to_system_generic_list(p_value.operator Array(),
+                MonoObject *managed = GDMonoMarshal::Array_to_system_generic_list(p_value.as<Array>(),
                         type.type_class, elem_reftype);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
@@ -479,7 +479,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 GDMonoUtils::Marshal::dictionary_get_key_value_types(reftype, &key_reftype, &value_reftype);
                 GDMonoClass *godot_dict_class = GDMonoUtils::Marshal::make_generic_dictionary_type(key_reftype, value_reftype);
 
-                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.operator Dictionary(), godot_dict_class);
+                MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Dictionary>(), godot_dict_class);
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }

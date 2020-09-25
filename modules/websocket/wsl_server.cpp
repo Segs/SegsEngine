@@ -298,10 +298,10 @@ Error WSLServer::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer
 }
 
 WSLServer::WSLServer() {
-    _in_buf_size = nearest_shift((int)GLOBAL_GET(WSS_IN_BUF) - 1) + 10;
-    _in_pkt_size = nearest_shift((int)GLOBAL_GET(WSS_IN_PKT) - 1);
-    _out_buf_size = nearest_shift((int)GLOBAL_GET(WSS_OUT_BUF) - 1) + 10;
-    _out_pkt_size = nearest_shift((int)GLOBAL_GET(WSS_OUT_PKT) - 1);
+    _in_buf_size = nearest_shift(GLOBAL_GET(WSS_IN_BUF).as<int>() - 1) + 10;
+    _in_pkt_size = nearest_shift(GLOBAL_GET(WSS_IN_PKT).as<int>() - 1);
+    _out_buf_size = nearest_shift(GLOBAL_GET(WSS_OUT_BUF).as<int>() - 1) + 10;
+    _out_pkt_size = nearest_shift(GLOBAL_GET(WSS_OUT_PKT).as<int>() - 1);
     _server = make_ref_counted<TCP_Server>();
 }
 

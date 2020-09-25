@@ -389,7 +389,7 @@ void EditorSpinSlider::_evaluate_input_text() {
     Variant v = expr->execute(Array(), nullptr, false);
     if (v.get_type() == VariantType::NIL)
         return;
-    set_value(v);
+    set_value(v.as<float>());
 }
 
 //text_entered signal

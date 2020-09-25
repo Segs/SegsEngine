@@ -280,7 +280,7 @@ void EditorNode::disambiguate_filenames(const Vector<String> p_full_paths, Vecto
 
 void EditorNode::_update_scene_tabs() {
 
-    bool show_rb = EditorSettings::get_singleton()->get("interface/scene_tabs/show_script_button");
+    bool show_rb = EditorSettings::get_singleton()->getT<bool>("interface/scene_tabs/show_script_button");
 
     OS::get_singleton()->global_menu_clear("_dock");
 
@@ -360,7 +360,7 @@ void EditorNode::_version_control_menu_option(int p_idx) {
 
 void EditorNode::_update_title() {
 
-    String appname = ProjectSettings::get_singleton()->get("application/config/name");
+    String appname = ProjectSettings::get_singleton()->get("application/config/name").as<String>();
     String title = appname.empty() ? String(VERSION_FULL_NAME) : VERSION_NAME + String(" - ") + appname;
     String edited(
             editor_data.get_edited_scene_root() ? editor_data.get_edited_scene_root()->get_filename() : String());
@@ -454,7 +454,7 @@ void EditorNode::_notification(int p_what) {
                 update_spinner_step_frame = frame + 1;
 
                 // update the icon itself only when the spinner is visible
-                if (EditorSettings::get_singleton()->get("interface/editor/show_update_spinner")) {
+                if (EditorSettings::get_singleton()->get("interface/editor/show_update_spinner").as<bool>()) {
                     update_spinner->set_button_icon(
                             gui_base->get_icon(StringName("Progress" + itos(update_spinner_step + 1)), "EditorIcons"));
                 }
@@ -463,8 +463,8 @@ void EditorNode::_notification(int p_what) {
             editor_selection->update();
 
             scene_root->set_size_override(
-                    true, Size2(ProjectSettings::get_singleton()->get("display/window/size/width"),
-                                  ProjectSettings::get_singleton()->get("display/window/size/height")));
+                    true, Size2(ProjectSettings::get_singleton()->get("display/window/size/width").as<float>(),
+                                  ProjectSettings::get_singleton()->get("display/window/size/height").as<float>()));
             update_reconfigured_resources();
         } break;
 
@@ -472,7 +472,7 @@ void EditorNode::_notification(int p_what) {
             Engine::get_singleton()->set_editor_hint(true);
 
             OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(
-                    int(EDITOR_GET("interface/editor/low_processor_mode_sleep_usec")));
+                    EDITOR_GET_T<int>("interface/editor/low_processor_mode_sleep_usec"));
             get_tree()->get_root()->set_usage(Viewport::USAGE_2D_NO_SAMPLING); // reduce memory usage
             get_tree()->get_root()->set_disable_3d(true);
             get_tree()->get_root()->set_as_audio_listener(false);
@@ -525,7 +525,7 @@ void EditorNode::_notification(int p_what) {
 
             // Restore the original FPS cap after focusing back on the editor
             OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(
-                    int(EDITOR_GET("interface/editor/low_processor_mode_sleep_usec")));
+                    EDITOR_GET_T<int>("interface/editor/low_processor_mode_sleep_usec"));
 
             EditorFileSystem::get_singleton()->scan_changes();
         } break;
@@ -534,7 +534,7 @@ void EditorNode::_notification(int p_what) {
 
             // Set a low FPS cap to decrease CPU/GPU usage while the editor is unfocused
             OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(
-                    int(EDITOR_GET("interface/editor/unfocused_low_processor_mode_sleep_usec")));
+                    EDITOR_GET_T<int>("interface/editor/unfocused_low_processor_mode_sleep_usec"));
         } break;
 
         case MainLoop::NOTIFICATION_WM_ABOUT: {
@@ -549,7 +549,7 @@ void EditorNode::_notification(int p_what) {
 
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
             scene_tabs->set_tab_close_display_policy(
-                    bool(EDITOR_GET("interface/scene_tabs/always_show_close_button")) ?
+                    EDITOR_GET_T<bool>("interface/scene_tabs/always_show_close_button") ?
                         Tabs::CLOSE_BUTTON_SHOW_ALWAYS :
                         Tabs::CLOSE_BUTTON_SHOW_ACTIVE_ONLY);
             theme = create_editor_theme(theme_base->get_theme());

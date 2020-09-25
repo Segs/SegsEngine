@@ -118,7 +118,7 @@ void ResourcePreloaderEditor::_item_edited() {
 
     if (tree->get_selected_column() == 0) {
         // renamed
-        StringName old_name = s->get_metadata(0);
+        StringName old_name = s->get_metadata(0).as<StringName>();
         StringName new_name(s->get_text(0));
         if (old_name == new_name)
             return;
@@ -265,7 +265,7 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
     if (!ti)
         return Variant();
 
-    StringName name(ti->get_metadata(0));
+    StringName name(ti->get_metadata(0).as<StringName>());
 
     RES res(preloader->get_resource(name));
     if (not res)
@@ -276,12 +276,12 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
 
 bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return false;
 
-    if (d.has("from") && (Object *)d["from"] == tree)
+    if (d.has("from") && d["from"].as<Object *>() == tree)
         return false;
 
     if (d["type"].as<String>() == "resource" && d.has("resource")) {
@@ -304,7 +304,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return;

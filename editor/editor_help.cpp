@@ -626,7 +626,7 @@ void EditorHelp::_update_doc() {
 
     // Methods overview
     bool method_descr = false;
-    bool sort_methods = EditorSettings::get_singleton()->get("text_editor/help/sort_functions_alphabetically");
+    bool sort_methods = EditorSettings::get_singleton()->getT<bool>("text_editor/help/sort_functions_alphabetically");
 
     Vector<DocContents::MethodDoc> methods;
 

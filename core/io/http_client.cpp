@@ -761,7 +761,7 @@ String HTTPClient::query_string_from_dict(const Dictionary &p_dict) {
         switch (value.get_type()) {
             case VariantType::ARRAY: {
                 // Repeat the key with every values
-                Array values = value;
+                Array values = value.as<Array>();
                 for (int j = 0; j < values.size(); ++j) {
                     query += "&" + encoded_key + "=" + StringUtils::http_escape(values[j].as<String>());
                 }

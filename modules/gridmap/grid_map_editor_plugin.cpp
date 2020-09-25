@@ -673,7 +673,7 @@ bool GridMapEditor::forward_spatial_input_event(Camera3D *p_camera, const Ref<In
         }
 
         if (mb->is_pressed()) {
-            SpatialEditorViewport::NavigationScheme nav_scheme = (SpatialEditorViewport::NavigationScheme)EditorSettings::get_singleton()->get("editors/3d/navigation/navigation_scheme").operator int();
+            auto nav_scheme = EditorSettings::get_singleton()->getT<SpatialEditorViewport::NavigationScheme>("editors/3d/navigation/navigation_scheme");
             if ((nav_scheme == SpatialEditorViewport::NAVIGATION_MAYA || nav_scheme == SpatialEditorViewport::NAVIGATION_MODO) && mb->get_alt()) {
                 input_action = INPUT_NONE;
             } else if (mb->get_button_index() == BUTTON_LEFT) {
@@ -886,7 +886,7 @@ void GridMapEditor::_icon_size_changed(float p_value) {
 void GridMapEditor::update_palette() {
     int selected = mesh_library_palette->get_current();
 
-    float min_size = EDITOR_DEF(("editors/grid_map/preview_size"), 64);
+    float min_size = EDITOR_DEF_T(("editors/grid_map/preview_size"), float(64.0f));
     min_size *= EDSCALE;
 
     mesh_library_palette->clear();
@@ -992,7 +992,7 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
 
     set_process(true);
 
-    clip_mode = p_gridmap->has_meta("_editor_clip_") ? ClipMode(p_gridmap->get_meta("_editor_clip_").operator int()) : CLIP_DISABLED;
+    clip_mode = p_gridmap->has_meta("_editor_clip_") ? p_gridmap->get_meta("_editor_clip_").as<ClipMode>() : CLIP_DISABLED;
 
     _draw_grids(node->get_cell_size());
     update_grid();
@@ -1029,7 +1029,7 @@ void GridMapEditor::update_grid() {
 }
 
 void GridMapEditor::_draw_grids(const Vector3 &cell_size) {
-    Vector3 edited_floor = node->has_meta("_editor_floor_") ? node->get_meta("_editor_floor_") : Variant();
+    Vector3 edited_floor = node->has_meta("_editor_floor_") ? node->get_meta("_editor_floor_").as<Vector3>() : Vector3();
     auto RS = RenderingServer::get_singleton();
     for (int i = 0; i < 3; i++) {
         if (RS->mesh_get_surface_count(grid[i]) > 0)
@@ -1186,7 +1186,7 @@ void GridMapEditor::_update_cursor_instance() {
 }
 
 void GridMapEditor::_item_selected_cbk(int idx) {
-    selected_palette = mesh_library_palette->get_item_metadata(idx);
+    selected_palette = mesh_library_palette->get_item_metadata(idx).as<int>();
 
     _update_cursor_instance();
 }
@@ -1231,7 +1231,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     editor = p_editor;
     undo_redo = p_editor->get_undo_redo();
 
-    int mw = EDITOR_DEF(("editors/grid_map/palette_min_width"), 230);
+    int mw = EDITOR_DEF_T("editors/grid_map/palette_min_width", int(230));
     Control *ec = memnew(Control);
     ec->set_custom_minimum_size(Size2(mw, 0) * EDSCALE);
     add_child(ec);
@@ -1307,7 +1307,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     settings_pick_distance->set_max(10000.0f);
     settings_pick_distance->set_min(500.0f);
     settings_pick_distance->set_step(1.0f);
-    settings_pick_distance->set_value(EDITOR_DEF(("editors/grid_map/pick_distance"), 5000.0f));
+    settings_pick_distance->set_value(EDITOR_DEF_T("editors/grid_map/pick_distance", 5000.0f));
     settings_vbc->add_margin_child(TTR("Pick Distance:"), settings_pick_distance);
 
     clip_mode = CLIP_DISABLED;
@@ -1538,7 +1538,7 @@ void GridMapEditorPlugin::_notification(int p_what) {
 
     if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        switch ((int)EditorSettings::get_singleton()->get("editors/grid_map/editor_side")) {
+        switch (EditorSettings::get_singleton()->getT<int>("editors/grid_map/editor_side")) {
             case 0: { // Left.
                 SpatialEditor::get_singleton()->get_palette_split()->move_child(grid_map_editor, 0);
             } break;
@@ -1582,7 +1582,7 @@ GridMapEditorPlugin::GridMapEditorPlugin(EditorNode *p_node) {
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/grid_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     grid_map_editor = memnew(GridMapEditor(editor));
-    switch ((int)EditorSettings::get_singleton()->get("editors/grid_map/editor_side")) {
+    switch (EditorSettings::get_singleton()->getT<int>("editors/grid_map/editor_side")) {
         case 0: { // Left.
             add_control_to_container(CONTAINER_SPATIAL_EDITOR_SIDE_LEFT, grid_map_editor);
         } break;

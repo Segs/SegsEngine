@@ -148,12 +148,12 @@ void PluginConfigDialog::config(StringView p_config_path) {
         Error err = cf->load(p_config_path);
         ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'."); 
 
-        name_edit->set_text_uistring(cf->get_value("plugin", "name", ""));
+        name_edit->set_text(cf->get_value("plugin", "name", "").as<String>());
         subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
-        desc_edit->set_text_ui(cf->get_value("plugin", "description", ""));
-        author_edit->set_text_uistring(cf->get_value("plugin", "author", ""));
-        version_edit->set_text_uistring(cf->get_value("plugin", "version", ""));
-        script_edit->set_text_uistring(cf->get_value("plugin", "script", ""));
+        desc_edit->set_text(cf->get_value("plugin", "description", "").as<String>());
+        author_edit->set_text(cf->get_value("plugin", "author", "").as<String>());
+        version_edit->set_text(cf->get_value("plugin", "version", "").as<String>());
+        script_edit->set_text(cf->get_value("plugin", "script", "").as<String>());
 
         _edit_mode = true;
         active_edit->hide();

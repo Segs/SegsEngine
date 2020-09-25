@@ -383,11 +383,11 @@ void ExportTemplateManager::_http_download_mirror_completed(int p_status, int p_
 
     bool mirrors_found = false;
 
-    Dictionary d = r;
+    Dictionary d = r.as<Dictionary>();
     if (d.has("mirrors")) {
-        Array mirrors = d["mirrors"];
+        Array mirrors = d["mirrors"].as<Array>();
         for (int i = 0; i < mirrors.size(); i++) {
-            Dictionary m = mirrors[i];
+            Dictionary m = mirrors[i].as<Dictionary>();
             ERR_CONTINUE(!m.has("url") || !m.has("name"));
             LinkButton *lb = memnew(LinkButton);
             lb->set_text(m["name"].as<String>());

@@ -45,7 +45,7 @@ void EditorPropertyRootMotion::_confirmed() {
     if (!ti)
         return;
 
-    NodePath path = ti->get_metadata(0);
+    NodePath path = ti->get_metadata(0).as<NodePath>();
     emit_changed(get_edited_property(), path);
     update_property();
     filter_dialog->hide(); //may come from activated
@@ -53,7 +53,7 @@ void EditorPropertyRootMotion::_confirmed() {
 
 void EditorPropertyRootMotion::_node_assign() {
 
-    NodePath current = get_edited_object()->get(get_edited_property());
+    NodePath current = get_edited_object()->getT<NodePath>(get_edited_property());
 
     AnimationTree *atree = object_cast<AnimationTree>(get_edited_object());
     if (!atree->has_node(atree->get_animation_player())) {
@@ -208,7 +208,7 @@ void EditorPropertyRootMotion::_node_clear() {
 
 void EditorPropertyRootMotion::update_property() {
 
-    NodePath p = get_edited_object()->get(get_edited_property());
+    NodePath p = get_edited_object()->getT<NodePath>(get_edited_property());
 
     assign->set_tooltip_utf8((String)p);
     if (p == NodePath()) {

@@ -125,8 +125,8 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
     DirAccess *dir = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
     /* Custom font */
 
-    bool font_antialiased = (bool)EditorSettings::get_singleton()->get("interface/editor/font_antialiased");
-    int font_hinting_setting = (int)EditorSettings::get_singleton()->get("interface/editor/font_hinting");
+    bool font_antialiased = EditorSettings::get_singleton()->getT<bool>("interface/editor/font_antialiased");
+    int font_hinting_setting = EditorSettings::get_singleton()->getT<int>("interface/editor/font_hinting");
 
     DynamicFontData::Hinting font_hinting;
     switch (font_hinting_setting) {
@@ -152,7 +152,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
             break;
     }
 
-    String custom_font_path = EditorSettings::get_singleton()->get("interface/editor/main_font");
+    String custom_font_path = EditorSettings::get_singleton()->getT<String>("interface/editor/main_font");
     Ref<DynamicFontData> CustomFont;
     if (custom_font_path.length() > 0 && dir->file_exists(custom_font_path)) {
         CustomFont = make_ref_counted<DynamicFontData>();
@@ -166,7 +166,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
 
     /* Custom Bold font */
 
-    String custom_font_path_bold = EditorSettings::get_singleton()->get("interface/editor/main_font_bold");
+    String custom_font_path_bold = EditorSettings::get_singleton()->getT<String>("interface/editor/main_font_bold");
     Ref<DynamicFontData> CustomFontBold;
     if (custom_font_path_bold.length() > 0 && dir->file_exists(custom_font_path_bold)) {
         CustomFontBold = make_ref_counted<DynamicFontData>();
@@ -180,7 +180,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
 
     /* Custom source code font */
 
-    String custom_font_path_source = EditorSettings::get_singleton()->get("interface/editor/code_font");
+    String custom_font_path_source = EditorSettings::get_singleton()->getT<String>("interface/editor/code_font");
     Ref<DynamicFontData> CustomFontSource;
     if (custom_font_path_source.length() > 0 && dir->file_exists(custom_font_path_source)) {
         CustomFontSource = make_ref_counted<DynamicFontData>();
@@ -198,7 +198,7 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
     holder.init(font_antialiased,font_hinting);
 
 
-    int default_font_size = int(EDITOR_GET("interface/editor/main_font_size")) * EDSCALE;
+    int default_font_size = EDITOR_GET_T<int>("interface/editor/main_font_size") * EDSCALE;
 
     // Default font
     auto df = make_def_font(holder,default_font_size,FontHolder::DefaultFont,CustomFont);
@@ -214,10 +214,10 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
     p_theme->set_font("title", "EditorFonts", df_title);
 
     // Documentation fonts
-    MAKE_DEFAULT_FONT(df_doc, int(EDITOR_GET("text_editor/help/help_font_size")) * EDSCALE)
-    MAKE_BOLD_FONT(df_doc_bold, int(EDITOR_GET("text_editor/help/help_font_size")) * EDSCALE)
-    MAKE_BOLD_FONT(df_doc_title, int(EDITOR_GET("text_editor/help/help_title_font_size")) * EDSCALE)
-    MAKE_SOURCE_FONT(df_doc_code, int(EDITOR_GET("text_editor/help/help_source_font_size")) * EDSCALE)
+    MAKE_DEFAULT_FONT(df_doc, EDITOR_GET_T<int>("text_editor/help/help_font_size") * EDSCALE)
+    MAKE_BOLD_FONT(df_doc_bold, EDITOR_GET_T<int>("text_editor/help/help_font_size") * EDSCALE)
+    MAKE_BOLD_FONT(df_doc_title, EDITOR_GET_T<int>("text_editor/help/help_title_font_size") * EDSCALE)
+    MAKE_SOURCE_FONT(df_doc_code, EDITOR_GET_T<int>("text_editor/help/help_source_font_size") * EDSCALE)
 
     p_theme->set_font("doc", "EditorFonts", df_doc);
     p_theme->set_font("doc_bold", "EditorFonts", df_doc_bold);
@@ -234,13 +234,13 @@ void editor_register_fonts(const Ref<Theme>& p_theme) {
     p_theme->set_font("rotation_control", "EditorFonts", df_rotation_control);
 
     // Code font
-    MAKE_SOURCE_FONT(df_code, int(EDITOR_GET("interface/editor/code_font_size")) * EDSCALE)
+    MAKE_SOURCE_FONT(df_code, EDITOR_GET_T<int>("interface/editor/code_font_size") * EDSCALE)
     p_theme->set_font("source", "EditorFonts", df_code);
 
-    MAKE_SOURCE_FONT(df_expression, (int(EDITOR_GET("interface/editor/code_font_size")) - 1) * EDSCALE)
+    MAKE_SOURCE_FONT(df_expression, (EDITOR_GET_T<int>("interface/editor/code_font_size") - 1) * EDSCALE)
     p_theme->set_font("expression", "EditorFonts", df_expression);
 
-    MAKE_SOURCE_FONT(df_output_code, int(EDITOR_GET("run/output/font_size")) * EDSCALE)
+    MAKE_SOURCE_FONT(df_output_code, EDITOR_GET_T<int>("run/output/font_size") * EDSCALE)
     p_theme->set_font("output_source", "EditorFonts", df_output_code);
 
     MAKE_SOURCE_FONT(df_text_editor_status_code, default_font_size)

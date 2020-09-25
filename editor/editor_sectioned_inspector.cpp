@@ -104,7 +104,7 @@ class SectionedInspectorFilter : public Object {
 
     bool property_can_revert(const String &p_name) {
 
-        return edited->call_va("property_can_revert", section + "/" + p_name);
+        return edited->call_va("property_can_revert", section + "/" + p_name).as<bool>();
     }
 
     Variant property_get_revert(const String &p_name) {
@@ -166,7 +166,7 @@ void SectionedInspector::set_current_section(const String &p_section) {
 String SectionedInspector::get_current_section() const {
 
     if (sections->get_selected())
-        return sections->get_selected()->get_metadata(0);
+        return sections->get_selected()->get_metadata(0).as<String>();
     else
         return String();
 }

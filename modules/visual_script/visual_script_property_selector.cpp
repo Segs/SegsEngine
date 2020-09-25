@@ -433,7 +433,7 @@ void VisualScriptPropertySelector::_item_selected() {
     TreeItem *item = search_options->get_selected();
     if (!item)
         return;
-    String name(item->get_metadata(0));
+    String name(item->get_metadata(0).as<String>());
 
     StringName class_type;
     if (type != VariantType::NIL) {

@@ -751,12 +751,12 @@ int64_t _OS::get_unix_time_from_datetime(Dictionary datetime) const {
 
     // Get all time values from the dictionary, set to zero if it doesn't exist.
     //   Risk incorrect calculation over throwing errors
-    unsigned int second = ((datetime.has(SECOND_KEY)) ? static_cast<unsigned int>(datetime[SECOND_KEY]) : 0);
-    unsigned int minute = ((datetime.has(MINUTE_KEY)) ? static_cast<unsigned int>(datetime[MINUTE_KEY]) : 0);
-    unsigned int hour = ((datetime.has(HOUR_KEY)) ? static_cast<unsigned int>(datetime[HOUR_KEY]) : 0);
-    unsigned int day = ((datetime.has(DAY_KEY)) ? static_cast<unsigned int>(datetime[DAY_KEY]) : 1);
-    unsigned int month = ((datetime.has(MONTH_KEY)) ? static_cast<unsigned int>(datetime[MONTH_KEY]) : 1);
-    unsigned int year = ((datetime.has(YEAR_KEY)) ? static_cast<unsigned int>(datetime[YEAR_KEY]) : 0);
+    unsigned int second = ((datetime.has(SECOND_KEY)) ? datetime[SECOND_KEY].as<uint32_t>() : 0);
+    unsigned int minute = ((datetime.has(MINUTE_KEY)) ? datetime[MINUTE_KEY].as<uint32_t>() : 0);
+    unsigned int hour = ((datetime.has(HOUR_KEY)) ? datetime[HOUR_KEY].as<uint32_t>() : 0);
+    unsigned int day = ((datetime.has(DAY_KEY)) ? datetime[DAY_KEY].as<uint32_t>() : 1);
+    unsigned int month = ((datetime.has(MONTH_KEY)) ? datetime[MONTH_KEY].as<uint32_t>() : 1);
+    unsigned int year = ((datetime.has(YEAR_KEY)) ? datetime[YEAR_KEY].as<uint32_t>() : 0);
 
     /// How many days come before each month (0-12)
     static const unsigned short int DAYS_PAST_THIS_YEAR_TABLE[2][13] = {
@@ -968,8 +968,8 @@ void _OS::print_all_textures_by_size() {
         if (!E->is_class("ImageTexture"))
             continue;
 
-        Size2 size = E->call_va("get_size");
-        int fmt = E->call_va("get_format");
+        Size2 size = E->call_va("get_size").as<Vector2>();
+        int fmt = E->call_va("get_format").as<int>();
 
         _OSCoreBindImg img;
         img.size = size;
@@ -1188,7 +1188,7 @@ void _OS::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_screen_position", {"screen"}), &_OS::get_screen_position, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_size", {"screen"}), &_OS::get_screen_size, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_dpi", {"screen"}), &_OS::get_screen_dpi, {DEFVAL(-1)});
-    MethodBinder::bind_method(D_METHOD("get_screen_scale", {"screen"}), &_OS::get_screen_scale, DEFVAL(-1));
+    MethodBinder::bind_method(D_METHOD("get_screen_scale", {"screen"}), &_OS::get_screen_scale, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("get_screen_max_scale"), &_OS::get_screen_max_scale);
 
     MethodBinder::bind_method(D_METHOD("get_window_position"), &_OS::get_window_position);
@@ -2909,7 +2909,7 @@ PoolStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, b
     ret.resize(constants.size());
     int idx = 0;
     for (const String &E : constants) {
-        ret.set(idx++, Variant(E));
+        ret.set(idx++, E);
     }
 
     return ret;
