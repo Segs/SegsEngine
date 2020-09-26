@@ -805,9 +805,10 @@ ScriptCreateDialog::ScriptCreateDialog() {
             default_language = i;
         }
     }
-
+    if(ScriptServer::get_language_count()>0) {
         language_menu->select(default_language);
         current_language = default_language;
+    }
 
     language_menu->connect("item_selected", this, "_lang_changed");
 

@@ -76,6 +76,9 @@ template <class T> struct Hasher;
 template <class T>
 T *object_cast(Object *p_object);
 
+template<class T>
+inline Ref<T> refFromVariant(const Variant& p_variant);
+
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
 using PoolRealArray = PoolVector<real_t>;
@@ -513,11 +516,16 @@ public:
     [[nodiscard]] explicit operator Control *() const;
     [[nodiscard]] explicit operator Node *() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
-    [[nodiscard]] explicit operator E() { return (E)((eastl::underlying_type_t<E>)*this); }
-    template<typename E, eastl::enable_if_t< eastl::is_base_of_v<Object,E> &&
-                                            !eastl::is_same_v<E,Node> &&
-                                            !eastl::is_same_v<E,Control>>* = nullptr>
-    [[nodiscard]] explicit operator E() { return object_cast<E>((Object *)(this)); }
+    [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
+    template<typename E, eastl::enable_if_t< eastl::is_base_of_v<Object, eastl::remove_pointer_t<E>> &&
+                                            !eastl::is_same_v<eastl::remove_pointer_t<E>,Node> &&
+                                            !eastl::is_same_v<eastl::remove_pointer_t<E>,Control>>* = nullptr>
+    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
+
+    template<class T>
+    [[nodiscard]] explicit operator Ref<T> () const {
+        return refFromVariant<T>(*this);
+    }
 
 };
 static constexpr int longest_variant_type_name=16;

@@ -156,7 +156,7 @@ struct ArgumentWrapper {
     Result doit() const {
         if(IDX>=p_arg_count)
         {
-            size_t def_idx = default_args.size() - IDX - 1;
+            ssize_t def_idx = ssize_t(default_args.size()) - IDX - 1;
             if (def_idx < 0 || def_idx >= default_args.size())
                 return &Variant::null_variant;
             else
@@ -199,8 +199,7 @@ protected:
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
             return std::invoke(method, instance,
-                    VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
-                            *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
+                    (typename std::tuple_element<Is, Params>::type)*visit_at_ce<ArgumentWrapper, Args...>(Is, wrap)...);
         }
     }
     using Params = std::tuple<Args...>;

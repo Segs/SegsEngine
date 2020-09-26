@@ -702,7 +702,8 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
 
     Vector2 coord = tile_get_region(p_id).size / autotile_get_size(p_id);
 
-    Vector<Vector2> coords(size_t(int(coord.x)*int(coord.y)));
+    Vector<Vector2> coords;
+    coords.reserve(size_t(int(coord.x)*int(coord.y)));
     for (int x = 0; x < coord.x; x++) {
         for (int y = 0; y < coord.y; y++) {
             for (int i = 0; i < autotile_get_subtile_priority(p_id, Vector2(x, y)); i++) {

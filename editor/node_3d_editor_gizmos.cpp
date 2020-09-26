@@ -230,13 +230,13 @@ void EditorSpatialGizmo::add_mesh(const Ref<ArrayMesh> &p_mesh, bool p_billboard
 
     instances.push_back(ins);
 }
+#include "scene/gui/control.h"
 //TODO: SEGS: make EditorSpatialGizmo::add_lines take p_lines parameter by moveable reference
 void EditorSpatialGizmo::add_lines(const Vector<Vector3> &p_lines, const Ref<Material> &p_material, bool p_billboard, const Color &p_modulate) {
 
     if (p_lines.empty()) {
         return;
     }
-
     ERR_FAIL_COND(!spatial_node);
     Instance ins;
 

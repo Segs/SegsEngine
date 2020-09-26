@@ -197,13 +197,13 @@ void EditorNode::disambiguate_filenames(const Vector<String> p_full_paths, Vecto
                 String full_path = p_full_paths[set_idx];
 
                 // Get rid of file extensions and res:// prefixes
-                if (scene_name.rfind(".") >= 0) {
+                if (scene_name.contains('.')) {
                     scene_name = scene_name.substr(0, scene_name.rfind("."));
                 }
                 if (full_path.starts_with("res://")) {
                     full_path = full_path.substr(6);
                 }
-                if (full_path.rfind(".") >= 0) {
+                if (full_path.contains('.')) {
                     full_path = full_path.substr(0, full_path.rfind("."));
                 }
 
@@ -217,7 +217,7 @@ void EditorNode::disambiguate_filenames(const Vector<String> p_full_paths, Vecto
                 // append that to yield "folder/foo.tscn".
                 if (difference > 0) {
                     String parent = full_path.substr(0, difference);
-                    int slash_idx = parent.rfind("/");
+                    auto slash_idx = parent.rfind("/");
                     slash_idx = parent.rfind("/", slash_idx - 1);
                     parent = slash_idx >= 0 ? parent.substr(slash_idx + 1) : parent;
                     r_filenames[set_idx] = parent + r_filenames[set_idx];
@@ -250,10 +250,10 @@ void EditorNode::disambiguate_filenames(const Vector<String> p_full_paths, Vecto
                 if (path.starts_with("res://")) {
                     path = path.substr(6);
                 }
-                if (path.rfind(".") >= 0) {
+                if (path.contains('.')) {
                     path = path.substr(0, path.rfind("."));
                 }
-                if (scene_name.rfind(".") >= 0) {
+                if (scene_name.contains('.')) {
                     scene_name = scene_name.substr(0, scene_name.rfind("."));
                 }
 
