@@ -168,7 +168,7 @@ public:
     Variant get_project_metadata(StringView p_section, StringView p_key, const Variant& p_default) const;
     template<class T>
     T get_project_metadataT(StringView p_section, StringView p_key, const T& p_default) const {
-        return get_project_metadata(p_section,p_key,Variant::from(p_default)).as<T>();
+        return get_project_metadata(p_section,p_key,Variant::from(p_default)).template as<T>();
     }
 
     void set_favorites(const Vector<String> &p_favorites);

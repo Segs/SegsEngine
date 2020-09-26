@@ -919,7 +919,7 @@ void VisualScriptEditor::_update_node_size(int p_id) {
     if (object_cast<Control>(node))
         object_cast<Control>(node)->set_size(Vector2(1, 1)); //shrink if text is smaller
 }
-void VisualScriptEditor::_port_name_focus_out(const Node *p_name_box, int p_id, int p_port, bool is_input) {
+void VisualScriptEditor::_port_name_focus_out(Node *p_name_box, int p_id, int p_port, bool is_input) {
     StringName func = _get_function_of_node(p_id);
 
     Ref<VisualScriptLists> vsn(dynamic_ref_cast<VisualScriptLists>(script->get_node(func, p_id)));

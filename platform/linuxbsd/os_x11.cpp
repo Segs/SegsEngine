@@ -3130,7 +3130,7 @@ void OS_X11::set_context(int p_context) {
 
         String class_str;
         if (p_context == CONTEXT_ENGINE) {
-            String config_name = GLOBAL_GET("application/config/name");
+            String config_name = GLOBAL_GET("application/config/name").as<String>();
             if (config_name.empty()) {
                 class_str = "Godot_Engine";
             } else {

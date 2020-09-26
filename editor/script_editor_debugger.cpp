@@ -770,7 +770,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < mcount; i++) {
 
             String n = p_data[ofs + i * 2 + 0].as<String>();
-            Variant v = p_data[ofs + i * 2 + 1].as<Variant>();
+            Variant v = p_data[ofs + i * 2 + 1];
 
             PropertyHint h = PropertyHint::None;
             const char *hs = "";
@@ -790,7 +790,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < mcount; i++) {
 
             String n = p_data[ofs + i * 2 + 0].as<String>();
-            Variant v = p_data[ofs + i * 2 + 1].as<Variant>();
+            Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PropertyHint::None;
             const char *hs = "";
 
@@ -813,7 +813,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         for (int i = 0; i < mcount; i++) {
 
             String n = p_data[ofs + i * 2 + 0].as<String>();
-            Variant v = p_data[ofs + i * 2 + 1].as<Variant>();
+            Variant v = p_data[ofs + i * 2 + 1];
             PropertyHint h = PropertyHint::None;
             const char *hs = "";
 

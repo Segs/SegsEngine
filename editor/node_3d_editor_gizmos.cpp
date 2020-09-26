@@ -2234,7 +2234,7 @@ void VehicleWheelSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
     Ref<Material> material = get_material("shape_material", Ref<EditorSpatialGizmo>(p_gizmo));
 
-    Vector<Vector3> points(work_area,work_area+widx);
+    Vector<Vector3> points(eastl::begin(work_area),eastl::end(work_area));
     p_gizmo->add_lines(points, material);
     p_gizmo->add_collision_segments(points);
 }

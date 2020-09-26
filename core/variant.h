@@ -43,11 +43,10 @@
 #include <cstdint>
 #include "EASTL/type_traits.h"
 
-
+class Node;
+class Control;
 class Object;
 class ObjectRC;
-class Node; // helper
-class Control; // helper
 using UIString = class QString;
 class RID;
 class Array;
@@ -187,13 +186,19 @@ private:
     } _data GCC_ALIGNED_8;
     void reference(const Variant &p_variant);
     void clear();
-    template <typename T>
-    [[nodiscard]]
-    T as_impl() const;
-    template <>
-    constexpr const Variant &as_impl< const Variant& >() const {
-      return *this;
-    }
+    template<class T>
+    struct asHelper {
+        T convertIt(const Variant &v)  {
+            return (T)v;
+        }
+    };
+    template<class T>
+    struct asHelper<T *> {
+        T *convertIt(const Variant &v)  {
+            static_assert (eastl::is_base_of<Object,T>::value);
+            return object_cast<T>((Object *)v);
+        }
+    };
 public:
     static const Variant null_variant;
     _FORCE_INLINE_ VariantType get_type() const { return type; }
@@ -213,13 +218,14 @@ public:
     [[nodiscard]]
     typename eastl::decay<typename eastl::enable_if<!eastl::is_enum_v<T>, T>::type>::type
     as() const {
-      return as_impl<eastl::decay<T>::type>();
+      return (T)asHelper< typename eastl::decay<T>::type>().template convertIt(*this);
     }
 
     template<class T>
     [[nodiscard]]
     typename eastl::enable_if<eastl::is_enum_v<T>,T>::type as() const {
-        return (T)as_impl< eastl::underlying_type_t<T>>();
+        return (T)(eastl::underlying_type_t<T>)*this;
+
     }
 
     template<class T>
@@ -227,8 +233,8 @@ public:
         static_assert (eastl::is_base_of<Object, T>::value);
         return object_cast<T>(as<Object*>());
     }
-    operator Dictionary() const;
-    operator Array() const;
+
+
 
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
 
@@ -445,6 +451,75 @@ public:
     _FORCE_INLINE_ ~Variant() {
         if (type != VariantType::NIL) clear();
     }
+
+    [[nodiscard]] explicit operator ::AABB() const;
+    [[nodiscard]] explicit operator Array() const;
+    [[nodiscard]] explicit operator Basis() const;
+    [[nodiscard]] explicit operator Color() const;
+    [[nodiscard]] explicit operator Dictionary() const;
+    [[nodiscard]] explicit operator IP_Address() const;
+    [[nodiscard]] explicit operator NodePath() const;
+    [[nodiscard]] explicit operator Object *() const;
+    [[nodiscard]] explicit operator ObjectID() const;
+    [[nodiscard]] explicit operator Plane() const;
+    [[nodiscard]] explicit operator PoolVector<Color>() const;
+    [[nodiscard]] explicit operator PoolVector<Face3>() const;
+    [[nodiscard]] explicit operator PoolVector<Plane>() const;
+    [[nodiscard]] explicit operator PoolVector<RID>() const;
+    [[nodiscard]] explicit operator PoolVector<String>() const;
+    [[nodiscard]] explicit operator PoolVector<Vector2>() const;
+    [[nodiscard]] explicit operator PoolVector<Vector3>() const;
+    [[nodiscard]] explicit operator PoolVector<float>() const;
+    [[nodiscard]] explicit operator PoolVector<int>() const;
+    [[nodiscard]] explicit operator PoolVector<uint8_t>() const;
+    [[nodiscard]] explicit operator QChar() const;
+    [[nodiscard]] explicit operator Quat() const;
+    [[nodiscard]] explicit operator RID() const;
+    [[nodiscard]] explicit operator Rect2() const;
+    [[nodiscard]] explicit operator RefPtr() const;
+    [[nodiscard]] explicit operator Span<const Vector2>() const;
+    [[nodiscard]] explicit operator Span<const Vector3>() const;
+    [[nodiscard]] explicit operator Span<const float>() const;
+    [[nodiscard]] explicit operator Span<const int>() const;
+    [[nodiscard]] explicit operator Span<const uint8_t>() const;
+    [[nodiscard]] explicit operator String() const;
+    [[nodiscard]] explicit operator StringName() const;
+    [[nodiscard]] explicit operator StringView() const;
+    [[nodiscard]] explicit operator Transform() const;
+    [[nodiscard]] explicit operator Transform2D() const;
+    [[nodiscard]] explicit operator UIString() const;
+    [[nodiscard]] explicit operator Vector2() const;
+    [[nodiscard]] explicit operator Vector3() const;
+    [[nodiscard]] explicit operator Vector<Color>() const;
+    [[nodiscard]] explicit operator Vector<Plane>() const;
+    [[nodiscard]] explicit operator Vector<RID>() const;
+    [[nodiscard]] explicit operator Vector<String>() const;
+    [[nodiscard]] explicit operator Vector<Variant>() const;
+    [[nodiscard]] explicit operator Vector<Vector2>() const;
+    [[nodiscard]] explicit operator Vector<Vector3>() const;
+    [[nodiscard]] explicit operator Vector<float>() const;
+    [[nodiscard]] explicit operator Vector<int>() const;
+    [[nodiscard]] explicit operator Vector<uint8_t>() const;
+    [[nodiscard]] explicit operator double() const;
+    [[nodiscard]] explicit operator float() const;
+    [[nodiscard]] explicit operator int64_t() const;
+    [[nodiscard]] explicit operator signed char() const;
+    [[nodiscard]] explicit operator signed int() const;
+    [[nodiscard]] explicit operator signed short() const;
+    [[nodiscard]] explicit operator uint64_t() const;
+    [[nodiscard]] explicit operator unsigned char() const;
+    [[nodiscard]] explicit operator unsigned int() const; // this is the real one
+    [[nodiscard]] explicit operator unsigned short() const;
+    [[nodiscard]] explicit inline operator bool() const { return booleanize();  }
+    [[nodiscard]] explicit operator Control *() const;
+    [[nodiscard]] explicit operator Node *() const;
+    template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
+    [[nodiscard]] explicit operator E() { return (E)((eastl::underlying_type_t<E>)*this); }
+    template<typename E, eastl::enable_if_t< eastl::is_base_of_v<Object,E> &&
+                                            !eastl::is_same_v<E,Node> &&
+                                            !eastl::is_same_v<E,Control>>* = nullptr>
+    [[nodiscard]] explicit operator E() { return object_cast<E>((Object *)(this)); }
+
 };
 static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
@@ -492,71 +567,11 @@ GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), co
 
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 // some core type enums to convert to
-template <> GODOT_EXPORT ::AABB Variant::as_impl<::AABB>() const;
-template <> GODOT_EXPORT Array Variant::as_impl<Array>() const;
-template <> GODOT_EXPORT Basis Variant::as_impl<Basis>() const;
-template <> GODOT_EXPORT Color Variant::as_impl<Color>() const;
-template <> GODOT_EXPORT Control*  Variant::as_impl<Control* >() const;
-template <> GODOT_EXPORT Dictionary Variant::as_impl<Dictionary>() const;
-template <> GODOT_EXPORT double Variant::as_impl<double>() const;
-template <> GODOT_EXPORT float Variant::as_impl<float>() const;
-template <> GODOT_EXPORT int64_t Variant::as_impl<int64_t>() const;
-template <> GODOT_EXPORT IP_Address Variant::as_impl<IP_Address>() const;
-template <> GODOT_EXPORT Margin Variant::as_impl<Margin>() const;
-template <> GODOT_EXPORT Node*  Variant::as_impl<Node* >() const;
-template <> GODOT_EXPORT NodePath Variant::as_impl<NodePath>() const;
-template <> GODOT_EXPORT Object*  Variant::as_impl<Object* >() const;
-template <> GODOT_EXPORT ObjectID Variant::as_impl<ObjectID>() const;
-template <> GODOT_EXPORT Orientation Variant::as_impl<Orientation>() const;
-template <> GODOT_EXPORT Plane Variant::as_impl<Plane>() const;
-template <> GODOT_EXPORT PoolVector<uint8_t> Variant::as_impl<PoolVector<uint8_t>>() const;
-template <> GODOT_EXPORT PoolVector<int> Variant::as_impl<PoolVector<int>>() const;
-template <> GODOT_EXPORT PoolVector<float> Variant::as_impl<PoolVector<float>>() const;
-template <> GODOT_EXPORT PoolVector<Vector2> Variant::as_impl<PoolVector<Vector2>>() const;
-template <> GODOT_EXPORT PoolVector<Vector3> Variant::as_impl<PoolVector<Vector3>>() const;
-template <> GODOT_EXPORT PoolVector<Color> Variant::as_impl<PoolVector<Color>>() const;
-template <> GODOT_EXPORT PoolVector<String> Variant::as_impl<PoolVector<String>>() const;
-template <> GODOT_EXPORT PoolVector<Face3> Variant::as_impl<PoolVector<Face3>>() const;
-template <> GODOT_EXPORT PoolVector<Plane> Variant::as_impl<PoolVector<Plane>>() const;
-template <> GODOT_EXPORT PoolVector<RID> Variant::as_impl<PoolVector<RID>>() const;
-template <> GODOT_EXPORT QChar Variant::as_impl<QChar>() const;
-template <> GODOT_EXPORT Quat Variant::as_impl<Quat>() const;
-template <> GODOT_EXPORT Rect2 Variant::as_impl<Rect2>() const;
-template <> GODOT_EXPORT RefPtr Variant::as_impl<RefPtr>() const;
-template <> GODOT_EXPORT RID Variant::as_impl<RID>() const;
-template <> GODOT_EXPORT signed char Variant::as_impl<signed char>() const;
-template <> GODOT_EXPORT signed int Variant::as_impl<signed int>() const;
-template <> GODOT_EXPORT signed short Variant::as_impl<signed short>() const;
-template <> GODOT_EXPORT Span<const float> Variant::as_impl<Span<const float>>() const;
-template <> GODOT_EXPORT Span<const int> Variant::as_impl<Span<const int>>() const;
-template <> GODOT_EXPORT Span<const uint8_t> Variant::as_impl<Span<const uint8_t>>() const;
-template <> GODOT_EXPORT Span<const Vector2> Variant::as_impl<Span<const Vector2>>() const;
-template <> GODOT_EXPORT Span<const Vector3> Variant::as_impl<Span<const Vector3>>() const;
-template <> GODOT_EXPORT String Variant::as_impl<String>() const;
-template <> GODOT_EXPORT StringName Variant::as_impl<StringName>() const;
-template <> GODOT_EXPORT StringView Variant::as_impl<StringView>() const;
-template <> GODOT_EXPORT Transform Variant::as_impl<Transform>() const;
-template <> GODOT_EXPORT Transform2D Variant::as_impl<Transform2D>() const;
-template <> GODOT_EXPORT uint64_t Variant::as_impl<uint64_t>() const;
-template <> GODOT_EXPORT UIString Variant::as_impl<UIString>() const;
-template <> GODOT_EXPORT unsigned char Variant::as_impl<unsigned char>() const;
-template <> GODOT_EXPORT unsigned int Variant::as_impl<unsigned int>() const; // this is the real one
-template <> GODOT_EXPORT unsigned short Variant::as_impl<unsigned short>() const;
 
-template <> GODOT_EXPORT Vector<uint8_t> Variant::as_impl<Vector<uint8_t>>() const;
-template <> GODOT_EXPORT Vector<int> Variant::as_impl<Vector<int>>() const;
-template <> GODOT_EXPORT Vector<float> Variant::as_impl<Vector<float>>() const;
-template <> GODOT_EXPORT Vector<Vector2> Variant::as_impl<Vector<Vector2>>() const;
-template <> GODOT_EXPORT Vector<Vector3> Variant::as_impl<Vector<Vector3>>() const;
-template <> GODOT_EXPORT Vector<String> Variant::as_impl<Vector<String>>() const;
-template <> GODOT_EXPORT Vector<Plane> Variant::as_impl< Vector<Plane>>() const;
-template <> GODOT_EXPORT Vector<Color> Variant::as_impl<Vector<Color>>() const;
-template <> GODOT_EXPORT Vector<RID> Variant::as_impl< Vector<RID>>() const;
-template <> GODOT_EXPORT Vector<Variant> Variant::as_impl<Vector<Variant>>() const;
-
-template <> GODOT_EXPORT Vector2 Variant::as_impl<Vector2>() const;
-template <> GODOT_EXPORT Vector3 Variant::as_impl<Vector3>() const;
-template <> inline GODOT_EXPORT bool Variant::as_impl<bool>() const { return booleanize(); }
+template<class T>
+constexpr T variantAs(const Variant &f) {
+    return (T)f;
+}
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 template <> inline Variant Variant::from(const ObjectID &ob) { return {VariantType::INT,VariantUnion((uint64_t)ob)}; }
@@ -570,19 +585,3 @@ template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
 template <> GODOT_EXPORT Variant Variant::move_from(Vector<Variant> &&);
-
-template<class T>
-Vector<T> asVec(const Array &a) {
-    Vector<T> res;
-    res.reserve(a.size());
-    for(int i=0,fin=a.size(); i<fin; ++i)
-        res.emplace_back(a.get(i).as<T>());
-    return res;
-}
-template<class T>
-PoolVector<T> asPool(const Array &a) {
-    PoolVector<T> res;
-    for(int i=0,fin=a.size(); i<fin; ++i)
-        res.push_back(a.get(i).as<T>());
-    return res;
-}

@@ -134,12 +134,20 @@ template <>
 struct GetTypeInfo<ObjectID> {
     static const VariantType VARIANT_TYPE = VariantType::INT;
     static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_INT_IS_UINT64;
-    constexpr static const TypePassBy PASS_BY = TypePassBy::Value; 
-    static inline RawPropertyInfo get_class_info() {
-        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VariantType::INT), PropertyHint::IntIsObjectID };
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::IntIsObjectID };
     }
 };
-
+template <>
+struct GetTypeInfo<void> {
+    static const VariantType VARIANT_TYPE = VariantType::NIL;
+    static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::None };
+    }
+};
 MAKE_TYPE_INFO(bool, VariantType::BOOL)
 MAKE_TYPE_INFO_WITH_META(uint8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_UINT8)
 MAKE_TYPE_INFO_WITH_META(int8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_INT8)
@@ -389,7 +397,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;                        \
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;                                                     \
         constexpr static inline RawPropertyInfo get_class_info() {                                                     \
-            return RawPropertyInfo{ nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                   \
+            return RawPropertyInfo { nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                  \
                 PropertyHint::None, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
     };

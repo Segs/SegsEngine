@@ -69,6 +69,10 @@ namespace {
     struct VariantAutoCaster {
         const Variant &from;
         constexpr VariantAutoCaster(const Variant&src) : from(src) {}
+        operator Variant() const{
+          return from;
+        }
+
         template<class T>
         operator T() const{
           return from.as<T>();

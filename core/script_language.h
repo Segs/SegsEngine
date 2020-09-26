@@ -130,7 +130,7 @@ public:
     virtual StringName get_instance_base_type() const = 0; // this may not work in all scripts, will return empty if so
     virtual ScriptInstance *instance_create(Object *p_this) = 0;
     virtual PlaceHolderScriptInstance *placeholder_instance_create(Object * /*p_this*/) { return nullptr; }
-    virtual bool instance_has(const Object *p_this) const = 0;
+    virtual bool instance_has(Object *p_this) const = 0;
 
     virtual bool has_source_code() const = 0;
     virtual StringView get_source_code() const = 0;

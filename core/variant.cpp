@@ -1119,8 +1119,7 @@ void Variant::clear() {
     type = VariantType::NIL;
 }
 
-template <>
- signed int Variant::as_impl<signed int>() const {
+Variant::operator signed int() const {
 
     switch (type) {
 
@@ -1128,15 +1127,31 @@ template <>
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
+        case VariantType::STRING:
+            return StringUtils::to_int((String)*this);
+        default: {
+            return 0;
+        }
+    }
+}
+
+Variant::operator unsigned int() const {
+
+    switch (type) {
+
+        case VariantType::NIL: return 0;
+        case VariantType::BOOL: return _data._bool ? 1 : 0;
+        case VariantType::INT: return _data._int;
+        case VariantType::FLOAT: return _data._real;
+        case VariantType::STRING: return StringUtils::to_int((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template <>
-unsigned int Variant::as_impl<unsigned int>() const {
+
+Variant::operator int64_t() const {
 
     switch (type) {
 
@@ -1144,24 +1159,7 @@ unsigned int Variant::as_impl<unsigned int>() const {
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
-        default: {
-
-            return 0;
-        }
-    }
-}
-
-template <>
-int64_t Variant::as_impl<int64_t>() const {
-
-    switch (type) {
-
-        case VariantType::NIL: return 0;
-        case VariantType::BOOL: return _data._bool ? 1 : 0;
-        case VariantType::INT: return _data._int;
-        case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int64(as<String>());
+        case VariantType::STRING: return StringUtils::to_int64((String)*this);
         default: {
 
             return 0;
@@ -1171,7 +1169,7 @@ int64_t Variant::as_impl<int64_t>() const {
 
 /*
 template <>
-long unsigned int Variant::as_impl<long unsigned int>() const {
+Variant::operator long unsigned int() const {
 
     switch( type ) {
 
@@ -1190,16 +1188,16 @@ long unsigned int Variant::as_impl<long unsigned int>() const {
 };
 */
 
-template <>
-uint64_t Variant::as_impl<uint64_t>() const {
 
-    switch (type) {
+Variant::operator uint64_t() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int64(as<String>());
+        case VariantType::STRING: return StringUtils::to_int64((String)*this);
         default: {
 
             return 0;
@@ -1207,101 +1205,101 @@ uint64_t Variant::as_impl<uint64_t>() const {
     }
 }
 
-template <>
-signed short Variant::as_impl<signed short>() const {
 
-    switch (type) {
+Variant::operator signed short() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
+        case VariantType::STRING: return StringUtils::to_int((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template <>
-unsigned short Variant::as_impl<unsigned short>() const {
 
-    switch (type) {
+Variant::operator unsigned short() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
+        case VariantType::STRING: return StringUtils::to_int((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template <>
-signed char Variant::as_impl<signed char>() const {
 
-    switch (type) {
+Variant::operator signed char() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
+        case VariantType::STRING: return StringUtils::to_int((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template <>
-unsigned char Variant::as_impl<unsigned char>() const {
 
-    switch (type) {
+Variant::operator unsigned char() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1 : 0;
         case VariantType::INT: return _data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_int(as<String>());
+        case VariantType::STRING: return StringUtils::to_int((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template<>
-QChar Variant::as_impl<QChar>() const {
 
-    return as<unsigned int>();
+Variant::operator QChar() const {
+
+    return (uint32_t)*this;
 }
 
-template <>
-float Variant::as_impl<float>() const {
 
-    switch (type) {
+Variant::operator float() const {
+
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (float)_data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_double(as<String>());
+        case VariantType::STRING: return StringUtils::to_double((String)*this);
         default: {
 
             return 0;
         }
     }
 }
-template <> double Variant::as_impl<double>() const {
+ Variant::operator double() const {
 
-    switch (type) {
+    switch(type) {
 
         case VariantType::NIL: return 0;
         case VariantType::BOOL: return _data._bool ? 1.0 : 0.0;
         case VariantType::INT: return (double)_data._int;
         case VariantType::FLOAT: return _data._real;
-        case VariantType::STRING: return StringUtils::to_double( as<String>() );
+        case VariantType::STRING: return StringUtils::to_double( (String)*this );
         default: {
 
             return 0;
@@ -1309,53 +1307,52 @@ template <> double Variant::as_impl<double>() const {
     }
 }
 
-template<>
-UIString Variant::as_impl<UIString>() const {
+Variant::operator UIString() const {
     Vector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
 }
-template<>
-String Variant::as_impl<String>() const {
+
+Variant::operator String() const {
     Vector<const void *> stack;
 
     return stringify(stack);
 }
-template<>
-StringView Variant::as_impl<StringView>() const {
+
+Variant::operator StringView() const {
     if(type==VariantType::NIL)
         return "";
     assert(type==VariantType::STRING);
     return (*reinterpret_cast<const String *>(_data._mem));
 }
-template<>
-NodePath Variant::as_impl<NodePath>() const {
+
+Variant::operator NodePath() const {
     if (type == VariantType::NODE_PATH)
         return *reinterpret_cast<const NodePath *>(_data._mem);
     if (type == VariantType::STRING)
-        return NodePath(as<String>());
+        return NodePath((String)*this);
     return NodePath();
 }
-template<>
-StringName Variant::as_impl<StringName>() const {
 
-    return StringName(as<String>());
+Variant::operator StringName() const {
+
+    return StringName((String)*this);
 }
-template<>
-IP_Address Variant::as_impl<IP_Address>() const {
+
+Variant::operator IP_Address() const {
 
     if (type == VariantType::POOL_REAL_ARRAY || type == VariantType::POOL_INT_ARRAY || type == VariantType::POOL_BYTE_ARRAY) {
 
-        PoolVector<int> addr = as<PoolVector<int>>();
+        PoolVector<int> addr = (PoolVector<int>)*this;
         if (addr.size() == 4) {
             return IP_Address(addr.get(0), addr.get(1), addr.get(2), addr.get(3));
         }
     }
 
-    return IP_Address(as<String>());
+    return IP_Address((String)*this);
 }
-template<>
-Transform Variant::as_impl<Transform>() const {
+
+Variant::operator Transform() const {
     if (type == VariantType::TRANSFORM)
         return *_data._transform;
     if (type == VariantType::BASIS)
@@ -1375,8 +1372,8 @@ Transform Variant::as_impl<Transform>() const {
     }
     return Transform();
 }
-template<>
-Basis Variant::as_impl<Basis>() const {
+
+Variant::operator Basis() const {
     if (type == VariantType::BASIS)
         return *_data._basis;
     if (type == VariantType::QUAT)
@@ -1388,8 +1385,8 @@ Basis Variant::as_impl<Basis>() const {
         return _data._transform->basis;
     return Basis();
 }
-template<>
-Quat Variant::as_impl<Quat>() const {
+
+Variant::operator Quat() const {
     if (type == VariantType::QUAT)
         return *reinterpret_cast<const Quat *>(_data._mem);
     if (type == VariantType::BASIS)
@@ -1399,8 +1396,7 @@ Quat Variant::as_impl<Quat>() const {
     return Quat();
 }
 
-template<>
-ObjectID Variant::as_impl<ObjectID>() const {
+Variant::operator ObjectID() const {
     if (type == VariantType::INT) {
         return ObjectID(_data._int);
     }
@@ -1437,7 +1433,10 @@ String Variant::stringify(Vector<const void *> &stack) const {
         case VariantType::TRANSFORM2D: {
 
             Transform2D mat32 = as<Transform2D>();
-            return "(" + Variant(mat32.elements[0]).as<String>() + ", " + Variant(mat32.elements[1]).as<String>() + ", " + Variant(mat32.elements[2]).as<String>() + ")";
+            return "(" +
+                    Variant(mat32.elements[0]).as<String>() + ", " +
+                    Variant(mat32.elements[1]).as<String>() + ", " +
+                    Variant(mat32.elements[2]).as<String>() + ")";
         }
         case VariantType::VECTOR3: return "(" + (String)as<Vector3>() + ")";
         case VariantType::PLANE:
@@ -1616,8 +1615,8 @@ String Variant::stringify(Vector<const void *> &stack) const {
     return null_string;
 }
 
-template <>
-Vector2 Variant::as_impl<Vector2>() const {
+
+Variant::operator Vector2() const {
 
     if (type == VariantType::VECTOR2)
         return *reinterpret_cast<const Vector2 *>(_data._mem);
@@ -1625,16 +1624,16 @@ Vector2 Variant::as_impl<Vector2>() const {
         return Vector2(reinterpret_cast<const Vector3 *>(_data._mem)->x, reinterpret_cast<const Vector3 *>(_data._mem)->y);
     return Vector2();
 }
-template <>
-Rect2 Variant::as_impl<Rect2>() const {
+
+Variant::operator Rect2() const {
 
     if (type == VariantType::RECT2)
         return *reinterpret_cast<const Rect2 *>(_data._mem);
     return Rect2();
 }
 
-template <>
-Vector3 Variant::as_impl<Vector3>() const {
+
+Variant::operator Vector3() const {
 
     if (type == VariantType::VECTOR3)
         return *reinterpret_cast<const Vector3 *>(_data._mem);
@@ -1643,24 +1642,24 @@ Vector3 Variant::as_impl<Vector3>() const {
     return Vector3();
 }
 
-template <>
-Plane Variant::as_impl<Plane>() const {
+
+Variant::operator Plane() const {
 
     if (type == VariantType::PLANE)
         return *reinterpret_cast<const Plane *>(_data._mem);
     return Plane();
 }
 
-template <>
-::AABB Variant::as_impl<::AABB>() const {
+
+Variant::operator ::AABB() const {
 
     if (type == VariantType::AABB)
         return *_data._aabb;
     return ::AABB();
 }
 
-template <>
-Transform2D Variant::as_impl<Transform2D>() const {
+
+Variant::operator Transform2D() const {
 
     if (type == VariantType::TRANSFORM2D) {
         return *_data._transform2d;
@@ -1679,28 +1678,28 @@ Transform2D Variant::as_impl<Transform2D>() const {
     return Transform2D();
 }
 
-template <>
-Color Variant::as_impl<Color>() const {
+
+Variant::operator Color() const {
 
     if (type == VariantType::COLOR)
         return *reinterpret_cast<const Color *>(_data._mem);
     if (type == VariantType::STRING)
-        return Color::html(as<String>());
+        return Color::html((String)*this);
     if (type == VariantType::INT)
-        return Color::hex(as<int>());
+        return Color::hex(_data._int);
     return Color();
 }
 
-template <>
-RefPtr Variant::as_impl<RefPtr>() const {
+
+Variant::operator RefPtr() const {
 
     if (type == VariantType::OBJECT)
         return _get_obj().ref;
     return RefPtr();
 }
 
-template <>
-RID Variant::as_impl<RID>() const {
+
+Variant::operator RID() const {
 
     if (type == VariantType::_RID)
         return *reinterpret_cast<const RID *>(_data._mem);
@@ -1729,8 +1728,7 @@ RID Variant::as_impl<RID>() const {
     return RID();
 }
 
-template <>
-Node * Variant::as_impl<Node *>() const {
+Variant::operator Node *() const {
 
     if (type != VariantType::OBJECT)
         return nullptr;
@@ -1742,8 +1740,7 @@ Node * Variant::as_impl<Node *>() const {
     return object_cast<Node>(obj);
 }
 
-template <>
-Control * Variant::as_impl<Control *>() const {
+Variant::operator Control *() const {
     if (type != VariantType::OBJECT)
         return nullptr;
 #ifdef DEBUG_ENABLED
@@ -1754,16 +1751,15 @@ Control * Variant::as_impl<Control *>() const {
     return object_cast<Control>(obj);
 }
 
-template <>
-Object * Variant::as_impl<Object *>() const {
+Variant::operator Object *() const {
 
     if (type == VariantType::OBJECT)
         return _OBJ_PTR(*this);
     return nullptr;
 }
 
-template <>
-Dictionary Variant::as_impl<Dictionary>() const {
+
+Variant::operator Dictionary() const {
 
     if (type == VariantType::DICTIONARY)
         return *reinterpret_cast<const Dictionary *>(_data._mem);
@@ -1777,8 +1773,12 @@ DA _convert_array(const SA &p_array) {
     da.resize(p_array.size());
 
     for (int i = 0; i < p_array.size(); i++) {
-
-        da.set(i, Variant(p_array.get(i)).as<typename DA::ValueType>());
+        if constexpr(eastl::is_same_v<Variant,typename DA::ValueType>) {
+            da.set(i, p_array.get(i));
+        }
+        else {
+            da.set(i, Variant(p_array.get(i)).as<typename DA::ValueType>());
+        }
     }
 
     return da;
@@ -1819,38 +1819,39 @@ DA _convert_array_from_variant(const Variant &p_variant) {
     }
 }
 
-template <>
-Array Variant::as_impl<Array>() const {
+Variant::operator Vector<Variant>() const {
+    return ((Array)*this).vals();
+}
+
+Variant::operator Array() const {
 
     if (type == VariantType::ARRAY)
         return *reinterpret_cast<const Array *>(_data._mem);
     return _convert_array_from_variant<Array>(*this);
 }
 
-template <>
-PoolVector<uint8_t> Variant::as_impl<PoolVector<uint8_t>>() const {
+Variant::operator PoolVector<uint8_t>() const {
 
     if (type == VariantType::POOL_BYTE_ARRAY)
         return *reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<uint8_t> >(*this);
 }
-template <>
-PoolVector<int> Variant::as_impl<PoolVector<int>>() const {
+
+Variant::operator PoolVector<int>() const {
 
     if (type == VariantType::POOL_INT_ARRAY)
         return *reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<int> >(*this);
 }
-template <>
-PoolVector<real_t> Variant::as_impl<PoolVector<real_t>>() const {
+
+Variant::operator PoolVector<real_t>() const {
 
     if (type == VariantType::POOL_REAL_ARRAY)
         return *reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<real_t> >(*this);
 }
 
-template <>
-PoolVector<String> Variant::as_impl<PoolVector<String>>() const {
+Variant::operator PoolVector<String>() const {
 
     if (type == VariantType::POOL_STRING_ARRAY)
         return *reinterpret_cast<const PoolVector<String> *>(_data._mem);
@@ -1858,8 +1859,7 @@ PoolVector<String> Variant::as_impl<PoolVector<String>>() const {
 
 }
 
-template<>
-Vector<String> Variant::as_impl<Vector<String>>() const {
+Variant::operator Vector<String>() const {
 
     Vector<String> res;
     PoolVector<String> tmp;
@@ -1875,8 +1875,8 @@ Vector<String> Variant::as_impl<Vector<String>>() const {
     }
     return res;
 }
-template<>
-Vector<uint8_t> Variant::as_impl<Vector<uint8_t>>() const {
+
+Variant::operator Vector<uint8_t>() const {
 
     PoolVector<uint8_t> tmp;
     if (type == VariantType::POOL_BYTE_ARRAY) {
@@ -1888,8 +1888,8 @@ Vector<uint8_t> Variant::as_impl<Vector<uint8_t>>() const {
     return Vector<uint8_t>(rddata.ptr(), rddata.ptr()+tmp.size());
 }
 
-template<>
-Vector<int> Variant::as_impl<Vector<int>>() const {
+
+Variant::operator Vector<int>() const {
     PoolVector<int> tmp;
     if (type == VariantType::POOL_INT_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<int> *>(_data._mem);
@@ -1901,8 +1901,8 @@ Vector<int> Variant::as_impl<Vector<int>>() const {
     return Vector<int>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
 }
 
-template<>
-Vector<float> Variant::as_impl<Vector<float>>() const {
+
+Variant::operator Vector<float>() const {
     PoolVector<float> tmp;
     if (type == VariantType::POOL_REAL_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<float>*>(_data._mem);
@@ -1914,8 +1914,7 @@ Vector<float> Variant::as_impl<Vector<float>>() const {
     return Vector<float>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
 }
 
-template<>
-Vector<Color> Variant::as_impl<Vector<Color>>() const {
+Variant::operator Vector<Color>() const {
     PoolVector<Color> tmp;
     if (type == VariantType::POOL_COLOR_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<Color>*>(_data._mem);
@@ -1928,8 +1927,7 @@ Vector<Color> Variant::as_impl<Vector<Color>>() const {
 }
 
 
-template<>
-Vector<Vector2> Variant::as_impl<Vector<Vector2>>() const {
+Variant::operator Vector<Vector2>() const {
     PoolVector<Vector2> tmp;
     if (type == VariantType::POOL_VECTOR2_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<Vector2>*>(_data._mem);
@@ -1941,8 +1939,7 @@ Vector<Vector2> Variant::as_impl<Vector<Vector2>>() const {
     return Vector<Vector2>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
 }
 
-template<>
-Vector<Vector3> Variant::as_impl<Vector<Vector3>>() const {
+Variant::operator Vector<Vector3>() const {
     PoolVector<Vector3> tmp;
     if (type == VariantType::POOL_VECTOR3_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<Vector3>*>(_data._mem);
@@ -1954,60 +1951,56 @@ Vector<Vector3> Variant::as_impl<Vector<Vector3>>() const {
     return Vector<Vector3>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
 }
 
-
-template<>
-Span<const uint8_t> Variant::as_impl<Span<const uint8_t>>() const {
+Variant::operator Span<const uint8_t>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>());
 
     auto tmp = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return Span<const uint8_t>(tmp->read().ptr(),tmp->size());
 }
-template<>
-Span<const int> Variant::as_impl<Span<const int>>() const {
+
+Variant::operator Span<const int>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>());
 
     auto tmp = reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return Span<const int>(tmp->read().ptr(),tmp->size());
 }
-template<>
-Span<const float> Variant::as_impl<Span<const float>>() const {
+
+Variant::operator Span<const float>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>());
 
     auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
     return Span<const float>(tmp->read().ptr(), tmp->size());
 }
-template<>
-Span<const Vector2> Variant::as_impl<Span<const Vector2>>() const {
+
+Variant::operator Span<const Vector2>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
     return Span<const Vector2>(tmp->read().ptr(),tmp->size());
 }
-template<>
-Span<const Vector3> Variant::as_impl<Span<const Vector3>>() const {
+
+Variant::operator Span<const Vector3>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
     return Span<const Vector3>(tmp->read().ptr(),tmp->size());
 }
 
-template <>
-PoolVector<Vector3> Variant::as_impl<PoolVector<Vector3>>() const {
+Variant::operator PoolVector<Vector3>() const {
 
     if (type == VariantType::POOL_VECTOR3_ARRAY)
         return *reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<Vector3> >(*this);
 }
-template <>
-PoolVector<Vector2> Variant::as_impl<PoolVector<Vector2>>() const {
+
+Variant::operator PoolVector<Vector2>() const {
 
     if (type == VariantType::POOL_VECTOR2_ARRAY)
         return *reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<Vector2> >(*this);
 }
 
-template <>
-PoolVector<Color> Variant::as_impl<PoolVector<Color>>() const {
+Variant::operator PoolVector<Color>() const {
 
     if (type == VariantType::POOL_COLOR_ARRAY)
         return *reinterpret_cast<const PoolVector<Color> *>(_data._mem);
@@ -2016,10 +2009,9 @@ PoolVector<Color> Variant::as_impl<PoolVector<Color>>() const {
 
 /* helpers */
 
-template<>
-PoolVector<RID> Variant::as_impl<PoolVector<RID>>() const {
+Variant::operator PoolVector<RID>() const {
 
-    Array va = as<Array>();
+    Array va = (Array)*this;
     PoolVector<RID> rids;
     rids.resize(va.size());
     auto wr(rids.write());
@@ -2028,10 +2020,9 @@ PoolVector<RID> Variant::as_impl<PoolVector<RID>>() const {
     return rids;
 }
 
-template <>
-PoolVector<Plane> Variant::as_impl<PoolVector<Plane>>() const {
+Variant::operator PoolVector<Plane>() const {
 
-    Array va = as<Array>();
+    Array va = (Array)*this;
     PoolVector<Plane> planes;
     int va_size = va.size();
     if (va_size == 0)
@@ -2046,10 +2037,9 @@ PoolVector<Plane> Variant::as_impl<PoolVector<Plane>>() const {
     return planes;
 }
 
-template <>
-PoolVector<Face3> Variant::as_impl<PoolVector<Face3>>() const {
+Variant::operator PoolVector<Face3>() const {
 
-    PoolVector<Vector3> va = as<PoolVector<Vector3>>();
+    PoolVector<Vector3> va = (PoolVector<Vector3>)*this;
     PoolVector<Face3> faces;
     int va_size = va.size();
     if (va_size == 0)
@@ -2065,10 +2055,9 @@ PoolVector<Face3> Variant::as_impl<PoolVector<Face3>>() const {
     return faces;
 }
 
-template<>
-Vector<Plane> Variant::as_impl<Vector<Plane>>() const {
+Variant::operator Vector<Plane>() const {
 
-    Array va = as<Array>();
+    Array va = (Array)*this;
     Vector<Plane> planes;
     int va_size = va.size();
     if (va_size == 0)
@@ -2080,17 +2069,6 @@ Vector<Plane> Variant::as_impl<Vector<Plane>>() const {
         planes[i] = va[i].as<Plane>();
 
     return planes;
-}
-
-template <>
-Margin Variant::as_impl<Margin>() const {
-
-    return (Margin) as<int>();
-}
-template <>
-Orientation Variant::as_impl<Orientation>() const {
-
-    return (Orientation)as<int>();
 }
 
 Variant::Variant(QChar p_char) {

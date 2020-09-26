@@ -161,7 +161,7 @@ public:
     StringName get_instance_base_type() const override;
     ScriptInstance *instance_create(Object *p_this) override;
     PlaceHolderScriptInstance *placeholder_instance_create(Object *p_this) override;
-    bool instance_has(const Object *p_this) const override;
+    bool instance_has(Object *p_this) const override;
 
     virtual bool has_source_code() const override;
     StringView get_source_code() const override;

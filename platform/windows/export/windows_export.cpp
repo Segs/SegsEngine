@@ -269,7 +269,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
         signtool_path = "signtool"; // try to run signtool from PATH
     }
 #else
-    String signtool_path = EditorSettings::get_singleton()->getT<String>("export/windows/osslsigncode").as<String>();
+    String signtool_path = EditorSettings::get_singleton()->getT<String>("export/windows/osslsigncode");
     if (not signtool_path.empty() && !FileAccess::exists(signtool_path)) {
         ERR_PRINT("Could not find osslsigncode executable at " + signtool_path + ", aborting.");
         return ERR_FILE_NOT_FOUND;
@@ -340,7 +340,7 @@ Error EditorExportPlatformWindows::_code_sign(const Ref<EditorExportPreset> &p_p
             }
 #else
             args.push_back(("-ts"));
-            args.push_back(p_preset->get("codesign/timestamp_server_url"));
+            args.push_back(p_preset->getT<String>("codesign/timestamp_server_url"));
 #endif
         } else {
             EditorNode::add_io_error(("codesign: invalid timestamp server"));

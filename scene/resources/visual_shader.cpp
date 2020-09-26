@@ -139,15 +139,15 @@ namespace {
 
                 Variant defval = vsnode->get_input_port_default_value(i);
                 if (defval.get_type() == VariantType::FLOAT || defval.get_type() == VariantType::INT) {
-                    float val = defval.as<float>();
+                    float val = variantAs<float>(defval);
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";
                 } else if (defval.get_type() == VariantType::BOOL) {
-                    bool val = defval.as<bool>();
+                    bool val = variantAs<bool>(defval);
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tbool " + inputs[i] + " = " + (val ? "true" : "false") + ";\n";
                 } else if (defval.get_type() == VariantType::VECTOR3) {
-                    Vector3 val = defval.as<Vector3>();
+                    Vector3 val = variantAs<Vector3>(defval);
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tvec3 " + inputs[i] + " = " + FormatVE("vec3(%.5f,%.5f,%.5f);\n", val.x, val.y, val.z);
                 } else if (defval.get_type() == VariantType::TRANSFORM) {

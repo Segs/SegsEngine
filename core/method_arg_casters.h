@@ -10,44 +10,34 @@ struct PtrToArg ;
 
 template <class T>
 struct VariantCaster {
-    using ref = eastl::false_type;
     static _FORCE_INLINE_ T cast(const Variant &p_variant) {
-
-        return p_variant.as<T>();
+        return (T)p_variant;
+    }
+};
+template <class T>
+struct VariantCaster<T *> {
+    static _FORCE_INLINE_ T *cast(const Variant &p_variant) {
+        return p_variant.as<T *>();
     }
 };
 
 template <class T>
 struct VariantCaster<const Ref<T> &> {
-    using ref = eastl::true_type;
-
     static _FORCE_INLINE_ Ref<T> cast(const Variant &p_variant) {
         return refFromVariant<T>(p_variant);
     }
 };
 template <class T>
 struct VariantCaster<const Ref<T>> {
-    using ref = eastl::true_type;
-
     static _FORCE_INLINE_ Ref<T> cast(const Variant& p_variant) {
         return refFromVariant<T>(p_variant);
     }
 };
-
 template <class T>
-struct VariantCaster<const T &> {
-    using ref = eastl::false_type;
-    static _FORCE_INLINE_ T cast(const Variant& p_variant) {
-        return p_variant.as<eastl::decay<T>::type>();
-    }
-};
+struct VariantCaster<Ref<T>> {
 
-template <>
-struct VariantCaster<const Variant&> {
-
-    static _FORCE_INLINE_ const Variant& cast(const Variant& p_variant) {
-
-        return p_variant;
+    static _FORCE_INLINE_ Ref<T> cast(const Variant& p_variant) {
+        return refFromVariant<T>(p_variant);
     }
 };
 

@@ -62,17 +62,6 @@ VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 static Vector<CanvasItemMaterial *> s_dirty_materials;
 
 
-template <>
-struct PtrToArg<CharType> {
-    _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
-        return QChar(uint32_t(*reinterpret_cast<const int64_t *>(p_ptr)));
-    }
-    _FORCE_INLINE_ static void encode(CharType p_val, void *p_ptr) {
-        *((int64_t *)p_ptr) = static_cast<int64_t>(p_val.unicode());
-    }
-};
-
-
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
 
 HashMap<CanvasItemMaterial::MaterialKey, CanvasItemMaterial::ShaderData> CanvasItemMaterial::shader_map;

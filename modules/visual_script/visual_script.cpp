@@ -910,7 +910,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
     return instance;
 }
 
-bool VisualScript::instance_has(const Object *p_this) const {
+bool VisualScript::instance_has(Object *p_this) const {
 
     return instances.contains((Object *)p_this);
 }
