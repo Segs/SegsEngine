@@ -3288,8 +3288,8 @@ String PathUtils::path_to(StringView str,StringView p_path) {
     }
 
     //remove leading and trailing slash and split
-    auto src_dirs = StringUtils::split(src.substr(1, src.length() - 2),"/");
-    auto dst_dirs = StringUtils::split(dst.substr(1, dst.length() - 2),"/");
+    auto src_dirs = StringUtils::split(StringView(src).substr(1, src.length() - 2),"/");
+    auto dst_dirs = StringUtils::split(StringView(dst).substr(1, dst.length() - 2),"/");
 
     //find common parent
     size_t common_parent = 0;

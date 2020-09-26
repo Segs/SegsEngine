@@ -45,18 +45,6 @@ IMPL_GDCLASS(Font)
 IMPL_GDCLASS(BitmapFont)
 RES_BASE_EXTENSION_IMPL(BitmapFont,"font")
 
-
-template <>
-struct PtrToArg<CharType> {
-    _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
-        return QChar(uint32_t(*reinterpret_cast<const int64_t *>(p_ptr)));
-    }
-    _FORCE_INLINE_ static void encode(CharType p_val, void *p_ptr) {
-        *((int64_t *)p_ptr) = static_cast<int64_t>(p_val.unicode());
-    }
-};
-
-
 void Font::draw_halign(RID p_canvas_item, const Point2 &p_pos, HAlign p_align, float p_width, const UIString &p_text, const Color &p_modulate, const Color &p_outline_modulate) const {
     float length = get_ui_string_size(p_text).width;
     if (length >= p_width) {

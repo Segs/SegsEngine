@@ -517,9 +517,7 @@ public:
     [[nodiscard]] explicit operator Node *() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
     [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
-    template<typename E, eastl::enable_if_t< eastl::is_base_of_v<Object, eastl::remove_pointer_t<E>> &&
-                                            !eastl::is_same_v<eastl::remove_pointer_t<E>,Node> &&
-                                            !eastl::is_same_v<eastl::remove_pointer_t<E>,Control>>* = nullptr>
+    template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>
     [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
 
     template<class T>

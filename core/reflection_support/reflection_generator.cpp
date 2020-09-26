@@ -195,7 +195,7 @@ static StringView _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta
     }
 }
 
-static StringView _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo::Metadata p_meta) {
+static StringName _get_variant_type_name_from_meta(VariantType tp, GodotTypeInfo::Metadata p_meta) {
     if (GodotTypeInfo::METADATA_NON_COW_CONTAINER == p_meta) {
         switch (tp) {
 
@@ -253,7 +253,7 @@ static void fill_type_info(const PropertyInfo &arginfo,TypeReference &tgt) {
         }
         else {
 
-            tgt.cname = _get_variant_type_name_from_meta(arginfo.type, GodotTypeInfo::METADATA_NONE).data();
+            tgt.cname = _get_variant_type_name_from_meta(arginfo.type, GodotTypeInfo::METADATA_NONE).asCString();
         }
         tgt.pass_by = TypePassBy::Value;
     }
@@ -729,7 +729,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                     }
                     else {
 
-                        iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
+                        iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).asCString();
                     }
                     iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
                 }

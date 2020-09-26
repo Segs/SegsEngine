@@ -96,12 +96,12 @@ VARIANT_ENUM_CAST(VariantType)
 
 VARIANT_ENUM_CAST(Variant::Operator)
 
-template <>
-struct VariantCaster<char16_t> {
-    static char16_t cast(const Variant &p_variant) {
-        return (char16_t)p_variant.operator int();
-    }
-};
+//template <>
+//struct VariantCaster<char16_t> {
+//    static char16_t cast(const Variant &p_variant) {
+//        return (char16_t)p_variant.operator int();
+//    }
+//};
 
 
 template <class T>
@@ -167,13 +167,13 @@ struct ArgumentWrapper {
 };
 #ifdef DEBUG_METHODS_ENABLED
 
-struct GetPropertyType {
-    using Result = RawPropertyInfo;
-    template<class TS,int IDX>
-    static constexpr Result doit() noexcept {
-        return GetTypeInfo<TS>::get_class_info();
-    }
-};
+//struct GetPropertyType {
+//    using Result = RawPropertyInfo;
+//    template<class TS,int IDX>
+//    static constexpr Result doit() noexcept {
+//        return GetTypeInfo<TS>::get_class_info();
+//    }
+//};
 #endif
 template<class T, class RESULT,typename ...Args>
 class MethodBindVA final : public MethodBind {
