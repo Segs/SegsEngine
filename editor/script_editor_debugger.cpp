@@ -207,7 +207,7 @@ public:
     }
 
     ScriptEditorDebuggerInspectedObject() {
-        remote_object_id = {0ULL};
+        remote_object_id = ObjectID(0ULL);
     }
 };
 IMPL_GDCLASS(ScriptEditorDebuggerInspectedObject)

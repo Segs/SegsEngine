@@ -183,8 +183,9 @@ struct UndoRedo::PrivateData
 
                     op.m_func();
                     Object_set_edited(obj, true);
-                    if(method_callback)
-                      ERR_PRINT("Cannot pass lambda functions to method observer callback.");
+                    if(method_callback) {
+                        ERR_PRINT("Cannot pass lambda functions to method observer callback.");
+                    }
                 }
             }
         }

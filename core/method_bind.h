@@ -219,6 +219,11 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
     };
+    constexpr static RawPropertyInfo arg_infos[sizeof...(Args) + 1] = {
+        GetTypeInfo<RESULT>::get_class_info(),
+        GetTypeInfo<Args>::get_class_info() ...
+    };
+
     Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
@@ -226,16 +231,14 @@ public:
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
-        if(p_arg==-1) {
-            if constexpr (!eastl::is_same_v<void,RESULT>) {
-                return GetTypeInfo<RESULT>::get_class_info();
-            }
-            else
-                return {};
-        }
-        if(p_arg<0 || size_t(p_arg)>= sizeof...(Args))
-            return {};
-        return visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
+//        RawPropertyInfo res;
+//        if(p_arg<-1 || size_t(p_arg) >= sizeof...(Args)) {
+//            return res;
+//        }
+//        else if(p_arg>=0 && size_t(p_arg)< sizeof...(Args))
+//            res=visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
+//        assert(res==arg_infos[p_arg+1]);
+        return arg_infos[p_arg+1];
     }
 #endif
 

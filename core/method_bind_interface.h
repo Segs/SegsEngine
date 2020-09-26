@@ -129,9 +129,7 @@ public:
 protected:
     NativeCall call_method;
 #ifdef DEBUG_METHODS_ENABLED
-
     MethodInfo arguments;
-
 #endif
 public:
 #ifdef DEBUG_METHODS_ENABLED
@@ -143,9 +141,7 @@ public:
         } else if (p_arg < int(arguments.arguments.size())) {
             return arguments.arguments[p_arg];
         } else {
-            char buf[32];
-            snprintf(buf,31,"arg_%d",p_arg);
-            return PropertyInfo(VariantType::NIL, buf,
+            return PropertyInfo(VariantType::NIL, StringName(),
                     PropertyHint::None, nullptr, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NIL_IS_VARIANT);
         }
     }
@@ -168,16 +164,10 @@ public:
         at[0] = p_info.return_val.type;
         if (!p_info.arguments.empty()) {
 
-//            Vector<StringName> names;
-//            names.resize(p_info.arguments.size());
             int i=0;
             for (const PropertyInfo & pi : p_info.arguments) {
-
-//                names[i] = pi.name;
                 at[++i] = pi.type;
             }
-
-            //set_argument_names(names);
         }
         argument_types = at;
         arguments = eastl::move(p_info);

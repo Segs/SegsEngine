@@ -126,7 +126,4 @@ struct RawPropertyInfo {
     int8_t type = 0;
     PropertyHint hint = PropertyHint::None;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
-    constexpr RawPropertyInfo() = default;
-    constexpr RawPropertyInfo(const RawPropertyInfo &) = default;
-    constexpr RawPropertyInfo(RawPropertyInfo &&) = default;
 };
