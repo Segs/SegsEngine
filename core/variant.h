@@ -217,14 +217,14 @@ public:
     template <typename T>
     [[nodiscard]]
     typename eastl::decay<typename eastl::enable_if<!eastl::is_enum_v<T>, T>::type>::type
-    as() const {
-      return (T)asHelper< typename eastl::decay<T>::type>().template convertIt(*this);
+        as() const {
+      return (T)asHelper< typename eastl::decay<T>::type>().convertIt(*this);
     }
 
     template<class T>
     [[nodiscard]]
     typename eastl::enable_if<eastl::is_enum_v<T>,T>::type as() const {
-        return (T)(eastl::underlying_type_t<T>)*this;
+        return (T)static_cast<eastl::underlying_type_t<T>>(*this);
 
     }
 
@@ -429,7 +429,6 @@ public:
     bool booleanize() const;
     String stringify(Vector<const void *> &stack) const;
 
-    void static_assign(const Variant &p_variant);
     static void get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list);
     static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
@@ -510,7 +509,7 @@ public:
     [[nodiscard]] explicit operator unsigned char() const;
     [[nodiscard]] explicit operator unsigned int() const; // this is the real one
     [[nodiscard]] explicit operator unsigned short() const;
-    [[nodiscard]] explicit inline operator bool() const { return booleanize();  }
+    [[nodiscard]] explicit operator bool() const { return booleanize();  }
     [[nodiscard]] explicit operator Control *() const;
     [[nodiscard]] explicit operator Node *() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>

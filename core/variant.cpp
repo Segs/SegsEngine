@@ -1323,7 +1323,7 @@ Variant::operator StringView() const {
     if(type==VariantType::NIL)
         return "";
     assert(type==VariantType::STRING);
-    return (*reinterpret_cast<const String *>(_data._mem));
+    return StringView(*reinterpret_cast<const String *>(_data._mem));
 }
 
 Variant::operator NodePath() const {
@@ -3125,7 +3125,7 @@ bool Variant::hash_compare(const Variant &p_variant) const {
             bool v;
             Variant r;
             evaluate(OP_EQUAL, *this, p_variant, r, v);
-            return r.as<bool>();
+            return (bool)r;
     }
 
     return false;
@@ -3134,10 +3134,6 @@ bool Variant::hash_compare(const Variant &p_variant) const {
 bool Variant::is_ref() const {
 
     return type == VariantType::OBJECT && !_get_obj().ref.is_null();
-}
-
-
-void Variant::static_assign(const Variant &p_variant) {
 }
 
 bool Variant::is_shared() const {

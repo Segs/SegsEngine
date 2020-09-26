@@ -10,8 +10,8 @@ struct PtrToArg ;
 
 template <class T>
 struct VariantCaster {
-    static _FORCE_INLINE_ T cast(const Variant &p_variant) {
-        return (T)p_variant;
+    static _FORCE_INLINE_ decltype(auto) cast(const Variant &p_variant) {
+        return (eastl::decay_t<T>)p_variant;
     }
 };
 template <class T>

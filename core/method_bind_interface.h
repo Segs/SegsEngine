@@ -12,14 +12,12 @@ class MethodBind {
     int method_id;
     uint32_t hint_flags;
     StringName name;
+    Vector<Variant> default_arguments;
     int default_argument_count;
     int argument_count;
     template<class T, class RESULT,typename ...Args>
     friend class MethodBindVA;
 protected:
-#ifdef DEBUG_METHODS_ENABLED
-    MethodInfo arguments;
-#endif
     const char *instance_class_name=nullptr;
     bool _const;
     bool _returns;
@@ -58,24 +56,24 @@ protected:
     void set_argument_count(int p_count) noexcept { argument_count = p_count; }
     virtual Variant do_call(Object *p_object, const Variant **p_args, int p_arg_count, Callable::CallError &r_error)=0;
 public:
-    const Vector<Variant> &get_default_arguments() const { return arguments.default_arguments; }
+    const Vector<Variant> &get_default_arguments() const { return default_arguments; }
     _FORCE_INLINE_ int get_default_argument_count() const { return default_argument_count; }
 
     _FORCE_INLINE_ bool has_default_argument(int p_arg) const {
 
         int idx = argument_count - p_arg - 1;
 
-        return (idx >= 0 && idx < arguments.default_arguments.size());
+        return (idx >= 0 && idx < default_arguments.size());
     }
 
     _FORCE_INLINE_ Variant get_default_argument(int p_arg) const {
 
         int idx = argument_count - p_arg - 1;
 
-        if (idx < 0 || idx >= arguments.default_arguments.size())
+        if (idx < 0 || idx >= default_arguments.size())
             return Variant();
         else
-            return arguments.default_arguments[idx];
+            return default_arguments[idx];
     }
 
 #ifdef DEBUG_METHODS_ENABLED
@@ -130,6 +128,11 @@ public:
 
 protected:
     NativeCall call_method;
+#ifdef DEBUG_METHODS_ENABLED
+
+    MethodInfo arguments;
+
+#endif
 public:
 #ifdef DEBUG_METHODS_ENABLED
 
