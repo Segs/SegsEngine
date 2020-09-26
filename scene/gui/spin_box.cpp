@@ -65,7 +65,7 @@ void SpinBox::_text_entered(StringView p_string) {
 
     Variant value = expr->execute(Array(), nullptr, false);
     if (value.get_type() != VariantType::NIL) {
-        set_value(value);
+        set_value(value.as<float>());
     _value_changed(0);
     }
 }

@@ -198,7 +198,7 @@ public:
     virtual void forward_spatial_force_draw_over_viewport(Control *p_overlay);
 
     virtual StringView get_name() const;
-    virtual const Ref<Texture> get_icon() const;
+    virtual Ref<Texture> get_icon() const;
     virtual bool has_main_screen() const;
     virtual void make_visible(bool p_visible);
     virtual void selected_notify() {} //notify that it was raised by the user, not the editor

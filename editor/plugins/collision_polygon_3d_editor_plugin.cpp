@@ -154,7 +154,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
         Vector<Vector2> poly = node->call_va("get_polygon").as<Vector<Vector2>>();
 
         //first check if a point is to be added (segment split)
-        real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+        real_t grab_threshold = EDITOR_GET_T<float>("editors/poly_editor/point_grab_radius");
 
         switch (mode) {
 
@@ -372,10 +372,10 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
 float CollisionPolygon3DEditor::_get_depth() {
 
-    if (bool(node->call_va("_has_editable_3d_polygon_no_depth")))
+    if (node->call_va("_has_editable_3d_polygon_no_depth").as<bool>())
         return 0;
 
-    return float(node->call_va("get_depth"));
+    return node->call_va("get_depth").as<float>();
 }
 
 void CollisionPolygon3DEditor::_polygon_draw() {
@@ -592,7 +592,7 @@ void CollisionPolygon3DEditorPlugin::edit(Object *p_object) {
 
 bool CollisionPolygon3DEditorPlugin::handles(Object *p_object) const {
 
-    return object_cast<Node3D>(p_object) && bool(p_object->call_va("_is_editable_3d_polygon"));
+    return object_cast<Node3D>(p_object) && p_object->call_va("_is_editable_3d_polygon").as<bool>();
 }
 
 void CollisionPolygon3DEditorPlugin::make_visible(bool p_visible) {

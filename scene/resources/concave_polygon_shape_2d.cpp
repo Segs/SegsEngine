@@ -61,7 +61,7 @@ void ConcavePolygonShape2D::set_segments(const PoolVector<Vector2> &p_segments) 
 
 PoolVector<Vector2> ConcavePolygonShape2D::get_segments() const {
 
-    return PhysicsServer2D::get_singleton()->shape_get_data(get_rid());
+    return PhysicsServer2D::get_singleton()->shape_get_data(get_rid()).as<PoolVector<Vector2>>();
 }
 
 real_t ConcavePolygonShape2D::get_enclosing_radius() const {

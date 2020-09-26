@@ -140,7 +140,7 @@ void BakedLightmapData::_set_user_data(const Array &p_data) {
     ERR_FAIL_COND(p_data.size() % 3 != 0);
 
     for (int i = 0; i < p_data.size(); i += 3) {
-        add_user(p_data[i], refFromRefPtr<Texture>(p_data[i + 1]), p_data[i + 2]);
+        add_user(p_data[i].as<NodePath>(), refFromVariant<Texture>(p_data[i + 1]), p_data[i + 2].as<int>());
     }
 }
 
@@ -286,12 +286,12 @@ void BakedLightmap::_find_meshes_and_lights(Node *p_at_node, Vector<BakedLightma
     Node3D *s = object_cast<Node3D>(p_at_node);
 
     if (!mi && s) {
-        Array meshes = p_at_node->call_va("get_bake_meshes");
+        Array meshes = p_at_node->call_va("get_bake_meshes").as<Array>();
         if (!meshes.empty() && (meshes.size() & 1) == 0) {
             Transform xf = get_global_transform().affine_inverse() * s->get_global_transform();
             for (int i = 0; i < meshes.size(); i += 2) {
                 PlotMesh pm;
-                Transform mesh_xf = meshes[i + 1];
+                Transform mesh_xf = meshes[i + 1].as<Transform>();
                 pm.local_xform = xf * mesh_xf;
                 pm.mesh = refFromVariant<Mesh>(meshes[i]);
                 pm.instance_idx = i / 2;
@@ -698,7 +698,7 @@ void BakedLightmap::_assign_lightmaps() {
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);
         if (instance_idx >= 0) {
-            RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
+            RID instance = node->call_va("get_bake_mesh_instance", instance_idx).as<RID>();
             if (instance.is_valid()) {
                 RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), lightmap->get_rid());
             }
@@ -716,7 +716,7 @@ void BakedLightmap::_clear_lightmaps() {
         Node *node = get_node(light_data->get_user_path(i));
         int instance_idx = light_data->get_user_instance(i);
         if (instance_idx >= 0) {
-            RID instance = node->call_va("get_bake_mesh_instance", instance_idx);
+            RID instance = node->call_va("get_bake_mesh_instance", instance_idx).as<RID>();
             if (instance.is_valid()) {
                 RenderingServer::get_singleton()->instance_set_use_lightmap(instance, get_instance(), RID());
             }

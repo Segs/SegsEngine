@@ -61,101 +61,97 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     if (what == "name"_sv)
         tile_set_name(id, p_value.as<String>());
     else if (what == "texture"_sv)
-        tile_set_texture(id, refFromRefPtr<Texture>(p_value));
+        tile_set_texture(id, refFromVariant<Texture>(p_value));
     else if (what == "normal_map"_sv)
-        tile_set_normal_map(id, refFromRefPtr<Texture>(p_value));
+        tile_set_normal_map(id, refFromVariant<Texture>(p_value));
     else if (what == "tex_offset"_sv)
-        tile_set_texture_offset(id, p_value);
+        tile_set_texture_offset(id, p_value.as<Vector2>());
     else if (what == "material"_sv)
-        tile_set_material(id, refFromRefPtr<ShaderMaterial>(p_value));
+        tile_set_material(id, refFromVariant<ShaderMaterial>(p_value));
     else if (what == "modulate"_sv)
-        tile_set_modulate(id, p_value);
+        tile_set_modulate(id, p_value.as<Color>());
     else if (what == "region"_sv)
-        tile_set_region(id, p_value);
+        tile_set_region(id, p_value.as<Rect2>());
     else if (what == "tile_mode"_sv)
-        tile_set_tile_mode(id, (TileMode)((int)p_value));
+        tile_set_tile_mode(id, p_value.as<TileMode>());
     else if (what == "is_autotile"_sv) {
         // backward compatibility for Godot 3.0.x
         // autotile used to be a bool, it's now an enum
-        bool is_autotile = p_value;
+        bool is_autotile = p_value.as<bool>();
         if (is_autotile)
             tile_set_tile_mode(id, AUTO_TILE);
     } else if (StringUtils::left(what,9) == StringView("autotile/")) {
         what = StringName(StringUtils::right(what,9));
         if (what == "bitmask_mode"_sv)
-            autotile_set_bitmask_mode(id, (BitmaskMode)((int)p_value));
+            autotile_set_bitmask_mode(id, p_value.as< BitmaskMode>());
         else if (what == "icon_coordinate"_sv)
-            autotile_set_icon_coordinate(id, p_value);
+            autotile_set_icon_coordinate(id, p_value.as<Vector2>());
         else if (what == "tile_size"_sv)
-            autotile_set_size(id, p_value);
+            autotile_set_size(id, p_value.as<Vector2>());
         else if (what == "spacing"_sv)
-            autotile_set_spacing(id, p_value);
+            autotile_set_spacing(id, p_value.as<int>());
         else if (what == "bitmask_flags"_sv) {
             tile_map[id].autotile_data.flags.clear();
             if (p_value.is_array()) {
-                Array p = p_value;
+                Array p = p_value.as<Array>();
                 Vector2 last_coord;
-                while (!p.empty()) {
-                    if (p[0].get_type() == VariantType::VECTOR2) {
-                        last_coord = p[0];
-                    } else if (p[0].get_type() == VariantType::INT) {
-                        autotile_set_bitmask(id, last_coord, p[0]);
+                for(int i=0; i<p.size(); ++i) {
+                    if (p[i].get_type() == VariantType::VECTOR2) {
+                        last_coord = p[i].as<Vector2>();
                     }
-                    p.pop_front();
+                    else if (p[i].get_type() == VariantType::INT) {
+                        autotile_set_bitmask(id, last_coord, p[i].as<uint32_t>());
+                    }
                 }
             }
         } else if (what == "occluder_map"_sv) {
             tile_map[id].autotile_data.occluder_map.clear();
-            Array p = p_value;
+            Array p = p_value.as<Array>();
             Vector2 last_coord;
-            while (!p.empty()) {
-                if (p[0].get_type() == VariantType::VECTOR2) {
-                    last_coord = p[0];
-                } else if (p[0].get_type() == VariantType::OBJECT) {
-                    autotile_set_light_occluder(id, refFromRefPtr<OccluderPolygon2D>(p[0]), last_coord);
+            for (int i = 0; i < p.size(); ++i) {
+                if (p[i].get_type() == VariantType::VECTOR2) {
+                    last_coord = p[i].as<Vector2>();
                 }
-                p.pop_front();
+                else if (p[i].get_type() == VariantType::OBJECT) {
+                    autotile_set_light_occluder(id, refFromVariant<OccluderPolygon2D>(p[i]), last_coord);
+                }
             }
         } else if (what == "navpoly_map"_sv) {
             tile_map[id].autotile_data.navpoly_map.clear();
-            Array p = p_value;
+            Array p = p_value.as<Array>();
             Vector2 last_coord;
-            while (!p.empty()) {
-                if (p[0].get_type() == VariantType::VECTOR2) {
-                    last_coord = p[0];
-                } else if (p[0].get_type() == VariantType::OBJECT) {
-                    autotile_set_navigation_polygon(id, refFromRefPtr<NavigationPolygon>(p[0]), last_coord);
+            for (int i = 0; i < p.size(); ++i) {
+                if (p[i].get_type() == VariantType::VECTOR2) {
+                    last_coord = p[i].as<Vector2>();
                 }
-                p.pop_front();
+                else if (p[i].get_type() == VariantType::OBJECT) {
+                    autotile_set_navigation_polygon(id, refFromVariant<NavigationPolygon>(p[i]), last_coord);
+                }
             }
+
         } else if (what == "priority_map"_sv) {
             tile_map[id].autotile_data.priority_map.clear();
-            Array p = p_value;
-            Vector3 val;
+            Array p = p_value.as<Array>();
             Vector2 v;
-            int priority;
-            while (!p.empty()) {
-                val = p[0];
+            for (int i = 0; i < p.size(); ++i) {
+                Vector3 val = p[i].as<Vector3>();
                 if (val.z > 1) {
                     v.x = val.x;
                     v.y = val.y;
-                    priority = (int)val.z;
+                    int priority = (int)val.z;
                     tile_map[id].autotile_data.priority_map[v] = priority;
                 }
-                p.pop_front();
             }
         } else if (what == "z_index_map"_sv) {
             tile_map[id].autotile_data.z_index_map.clear();
-            Array p = p_value;
-            Vector3 val;
+            Array p = p_value.as<Array>();
             Vector2 v;
-            int z_index;
-            while (!p.empty()) {
-                val = p[0];
+            for (int i = 0; i < p.size(); ++i) {
+                Vector3 val = p[i].as<Vector3>();
                 if (val.z != 0.0f) {
                     v.x = val.x;
                     v.y = val.y;
-                    z_index = (int)val.z;
+                    int z_index = (int)val.z;
                     tile_map[id].autotile_data.z_index_map[v] = z_index;
                 }
                 p.pop_front();
@@ -164,60 +160,60 @@ bool TileSet::_set(const StringName &p_name, const Variant &p_value) {
     } else if (what == "shape"_sv) {
         if (tile_get_shape_count(id) > 0) {
             for (int i = 0; i < tile_get_shape_count(id); i++) {
-                tile_set_shape(id, i, refFromRefPtr<Shape2D>(p_value));
+                tile_set_shape(id, i, refFromVariant<Shape2D>(p_value));
             }
         } else {
-            tile_set_shape(id, 0, refFromRefPtr<Shape2D>(p_value));
+            tile_set_shape(id, 0, refFromVariant<Shape2D>(p_value));
         }
     }
     else if (what == "shape_offset"_sv) {
         if (tile_get_shape_count(id) > 0) {
             for (int i = 0; i < tile_get_shape_count(id); i++) {
-                tile_set_shape_offset(id, i, p_value);
+                tile_set_shape_offset(id, i, p_value.as<Vector2>());
             }
         } else {
-            tile_set_shape_offset(id, 0, p_value);
+            tile_set_shape_offset(id, 0, p_value.as<Vector2>());
         }
     }
     else if (what == "shape_transform"_sv) {
         if (tile_get_shape_count(id) > 0) {
             for (int i = 0; i < tile_get_shape_count(id); i++) {
-                tile_set_shape_transform(id, i, p_value);
+                tile_set_shape_transform(id, i, p_value.as<Transform2D>());
             }
         } else {
-            tile_set_shape_transform(id, 0, p_value);
+            tile_set_shape_transform(id, 0, p_value.as<Transform2D>());
         }
     }
     else if (what == "shape_one_way"_sv) {
         if (tile_get_shape_count(id) > 0) {
             for (int i = 0; i < tile_get_shape_count(id); i++) {
-                tile_set_shape_one_way(id, i, p_value);
+                tile_set_shape_one_way(id, i, p_value.as<bool>());
             }
         } else {
-            tile_set_shape_one_way(id, 0, p_value);
+            tile_set_shape_one_way(id, 0, p_value.as<bool>());
         }
     }
     else if (what == "shape_one_way_margin"_sv) {
         if (tile_get_shape_count(id) > 0) {
             for (int i = 0; i < tile_get_shape_count(id); i++) {
-                tile_set_shape_one_way_margin(id, i, p_value);
+                tile_set_shape_one_way_margin(id, i, p_value.as<float>());
             }
         } else {
-            tile_set_shape_one_way_margin(id, 0, p_value);
+            tile_set_shape_one_way_margin(id, 0, p_value.as<float>());
         }
     }
     else if (what == "shapes"_sv)
-        _tile_set_shapes(id, p_value);
+        _tile_set_shapes(id, p_value.as<Array>());
     else if (what == "occluder"_sv)
-        tile_set_light_occluder(id, refFromRefPtr<OccluderPolygon2D>(p_value));
+        tile_set_light_occluder(id, refFromVariant<OccluderPolygon2D>(p_value));
     else if (what == "occluder_offset"_sv)
-        tile_set_occluder_offset(id, p_value);
+        tile_set_occluder_offset(id, p_value.as<Vector2>());
     else if (what == "navigation"_sv)
-        tile_set_navigation_polygon(id, refFromRefPtr<NavigationPolygon>(p_value));
+        tile_set_navigation_polygon(id, refFromVariant<NavigationPolygon>(p_value));
     else if (what == "navigation_offset"_sv)
-        tile_set_navigation_polygon_offset(id, p_value);
+        tile_set_navigation_polygon_offset(id, p_value.as<Vector2>());
     else if (what == "z_index"_sv)
-        tile_set_z_index(id, p_value);
+        tile_set_z_index(id, p_value.as<int>());
     else
         return false;
 
@@ -642,7 +638,7 @@ Vector2 TileSet::autotile_get_subtile_for_bitmask(int p_id, uint16_t p_bitmask, 
             if (get_script_instance()->has_method("_forward_subtile_selection")) {
                 Variant ret = get_script_instance()->call("_forward_subtile_selection", p_id, p_bitmask, Variant(p_tilemap_node), p_tile_location);
                 if (ret.get_type() == VariantType::VECTOR2) {
-                    return ret;
+                    return ret.as<Vector2>();
                 }
             }
         }
@@ -699,7 +695,7 @@ Vector2 TileSet::atlastile_get_subtile_by_priority(int p_id, const Node *p_tilem
         if (get_script_instance()->has_method("_forward_atlas_subtile_selection")) {
             Variant ret = get_script_instance()->call("_forward_atlas_subtile_selection", p_id, Variant(p_tilemap_node), p_tile_location);
             if (ret.get_type() == VariantType::VECTOR2) {
-                return ret;
+                return ret.as<Vector2>();
             }
         }
     }
@@ -1014,7 +1010,7 @@ void TileSet::_tile_set_shapes(int p_id, const Array &p_shapes) {
             s.one_way_collision = default_one_way;
             s.autotile_coord = default_autotile_coord;
         } else if (p_shapes[i].get_type() == VariantType::DICTIONARY) {
-            Dictionary d = p_shapes[i];
+            Dictionary d = p_shapes[i].as<Dictionary>();
 
             if (d.has("shape") && d["shape"].get_type() == VariantType::OBJECT) {
                 s.shape = refFromVariant<Shape2D>(d["shape"]);
@@ -1023,24 +1019,24 @@ void TileSet::_tile_set_shapes(int p_id, const Array &p_shapes) {
                 continue;
 
             if (d.has("shape_transform") && d["shape_transform"].get_type() == VariantType::TRANSFORM2D)
-                s.shape_transform = d["shape_transform"];
+                s.shape_transform = d["shape_transform"].as<Transform2D>();
             else if (d.has("shape_offset") && d["shape_offset"].get_type() == VariantType::VECTOR2)
-                s.shape_transform = Transform2D(0, (Vector2)d["shape_offset"]);
+                s.shape_transform = Transform2D(0, d["shape_offset"].as<Vector2>());
             else
                 s.shape_transform = default_transform;
 
             if (d.has("one_way") && d["one_way"].get_type() == VariantType::BOOL)
-                s.one_way_collision = d["one_way"];
+                s.one_way_collision = d["one_way"].as<bool>();
             else
                 s.one_way_collision = default_one_way;
 
             if (d.has("one_way_margin") && d["one_way_margin"].is_num())
-                s.one_way_collision_margin = d["one_way_margin"];
+                s.one_way_collision_margin = d["one_way_margin"].as<float>();
             else
                 s.one_way_collision_margin = 1.0;
 
             if (d.has("autotile_coord") && d["autotile_coord"].get_type() == VariantType::VECTOR2)
-                s.autotile_coord = d["autotile_coord"];
+                s.autotile_coord = d["autotile_coord"].as<Vector2>();
             else
                 s.autotile_coord = default_autotile_coord;
 
@@ -1126,7 +1122,7 @@ bool TileSet::is_tile_bound(int p_drawn_id, int p_neighbor_id) {
         if (get_script_instance()->has_method("_is_tile_bound")) {
             Variant ret = get_script_instance()->call("_is_tile_bound", p_drawn_id, p_neighbor_id);
             if (ret.get_type() == VariantType::BOOL) {
-                return ret;
+                return ret.as<bool>();
             }
         }
     }

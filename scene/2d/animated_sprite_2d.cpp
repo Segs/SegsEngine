@@ -54,7 +54,7 @@ Dictionary AnimatedSprite2D::_edit_get_state() const {
 
 void AnimatedSprite2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
-    set_offset(p_state["offset"]);
+    set_offset(p_state["offset"].as<Vector2>());
 }
 
 void AnimatedSprite2D::_edit_set_pivot(const Point2 &p_pivot) {
@@ -285,7 +285,7 @@ void SpriteFrames::_set_animations(const Array &p_animations) {
     animations.clear();
     for (int i = 0; i < p_animations.size(); i++) {
 
-        Dictionary d = p_animations[i];
+        Dictionary d = p_animations[i].as<Dictionary>();
 
         ERR_CONTINUE(!d.has("name"));
         ERR_CONTINUE(!d.has("speed"));
@@ -293,16 +293,16 @@ void SpriteFrames::_set_animations(const Array &p_animations) {
         ERR_CONTINUE(!d.has("frames"));
 
         Anim anim;
-        anim.speed = d["speed"];
-        anim.loop = d["loop"];
-        Array frames = d["frames"];
+        anim.speed = d["speed"].as<float>();
+        anim.loop = d["loop"].as<bool>();
+        Array frames = d["frames"].as<Array>();
         for (int j = 0; j < frames.size(); j++) {
 
-            Ref<Texture> res(refFromRefPtr<Texture>(frames[j]));
+            Ref<Texture> res(refFromVariant<Texture>(frames[j]));
             anim.frames.push_back(res);
         }
 
-        animations[d["name"]] = anim;
+        animations[d["name"].as<StringName>()] = anim;
     }
 }
 

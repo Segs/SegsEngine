@@ -184,7 +184,7 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
             TreeItem *found = stage_files->search_item_text(file_path, nullptr, true);
             if (!found) {
 
-                ChangeType change_index = (ChangeType)(int)modified_file_paths.get_value_at_index(i);
+                ChangeType change_index = modified_file_paths.get_value_at_index(i).as<ChangeType>();
                 String change_text = file_path + " (" + change_type_to_strings[change_index] + ")";
                 Color &change_color = change_type_to_color[change_index];
                 TreeItem *new_item = stage_files->create_item(stage_files->get_root());
@@ -287,7 +287,7 @@ void VersionControlEditorPlugin::_display_file_diff(StringView p_file_path) {
     diff->push_font(EditorNode::get_singleton()->get_gui_base()->get_font("source", "EditorFonts"));
     for (int i = 0; i < diff_content.size(); i++) {
 
-        Dictionary line_result = diff_content[i];
+        Dictionary line_result = diff_content[i].as<Dictionary>();
 
         if (line_result["status"] == "+") {
 
@@ -300,7 +300,7 @@ void VersionControlEditorPlugin::_display_file_diff(StringView p_file_path) {
             diff->push_color(EditorNode::get_singleton()->get_gui_base()->get_color("font_color", "Label"));
         }
 
-        diff->add_text_uistring((UIString)line_result["content"]);
+        diff->add_text(line_result["content"].as<String>());
 
         diff->pop();
     }

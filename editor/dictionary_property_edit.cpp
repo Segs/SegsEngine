@@ -60,7 +60,7 @@ void DictionaryPropertyEdit::_set_value(const Variant &p_key, const Variant &p_v
     o->set(property, dict);
 }
 
-Variant DictionaryPropertyEdit::get_dictionary() const {
+Dictionary DictionaryPropertyEdit::get_dictionary() const {
 
     Object *o = gObjectDB().get_instance(obj);
     if (!o)
@@ -68,7 +68,7 @@ Variant DictionaryPropertyEdit::get_dictionary() const {
     Variant dict = o->get(property);
     if (dict.get_type() != VariantType::DICTIONARY)
         return Dictionary();
-    return dict;
+    return dict.as<Dictionary>();
 }
 
 void DictionaryPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {

@@ -1459,7 +1459,7 @@ Physics2DServerSW::Physics2DServerSW() {
     island_count = 0;
     active_objects = 0;
     collision_pairs = 0;
-    using_threads = int(ProjectSettings::get_singleton()->get("physics/2d/thread_model")) == 2;
+    using_threads = ProjectSettings::get_singleton()->getT<int>("physics/2d/thread_model") == 2;
     flushing_queries = false;
 };
 

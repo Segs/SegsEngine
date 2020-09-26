@@ -89,7 +89,7 @@ Node *EditorSceneImporter::import_scene(
 Ref<Animation> EditorSceneImporter::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
 
     if (get_script_instance()) {
-        return refFromRefPtr<Animation>(get_script_instance()->call("_import_animation", p_path, p_flags).as<RefPtr>());
+        return refFromVariant<Animation>(get_script_instance()->call("_import_animation", p_path, p_flags));
     }
 
     ERR_FAIL_V(Ref<Animation>());

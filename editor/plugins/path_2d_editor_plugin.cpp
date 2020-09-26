@@ -76,7 +76,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
     if (not node->get_curve())
         return false;
 
-    real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    real_t grab_threshold = EDITOR_GET_T<float>("editors/poly_editor/point_grab_radius");
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     if (mb) {

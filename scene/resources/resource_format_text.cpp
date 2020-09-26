@@ -115,7 +115,7 @@ Error ResourceInteractiveLoaderText::_parse_sub_resource_dummy(DummyReadData *p_
         return ERR_PARSE_ERROR;
     }
 
-    int index = token.value;
+    int index = token.value.as<int>();
 
     if (!p_data->resource_map.contains(index)) {
         Ref<DummyResource> dr(make_ref_counted<DummyResource>());
@@ -144,7 +144,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource_dummy(DummyReadData *p_
         return ERR_PARSE_ERROR;
     }
 
-    int id = token.value;
+    int id = token.value.as<int>();
 
     ERR_FAIL_COND_V(!p_data->rev_external_resources.contains(id), ERR_PARSE_ERROR);
 
@@ -168,7 +168,7 @@ Error ResourceInteractiveLoaderText::_parse_sub_resource(VariantParserStream *p_
         return ERR_PARSE_ERROR;
     }
 
-    int index = token.value;
+    int index = token.value.as<int>();
 
     String path = local_path + "::" + itos(index);
 
@@ -202,7 +202,7 @@ Error ResourceInteractiveLoaderText::_parse_ext_resource(VariantParserStream *p_
         return ERR_PARSE_ERROR;
     }
 
-    int id = token.value;
+    int id = token.value.as<int>();
 
     if (!ignore_resource_parsing) {
 
@@ -256,17 +256,17 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
             auto type_iter = next_tag.fields.find(("type"));
             auto instance_iter = next_tag.fields.find(("instance"));
             if (next_tag.fields.end()!=name_iter) {
-                name = packed_scene->get_state()->add_name(name_iter->second);
+                name = packed_scene->get_state()->add_name(name_iter->second.as<StringName>());
             }
 
             if (next_tag.fields.end()!=parent_iter) {
-                NodePath np = parent_iter->second;
+                NodePath np = parent_iter->second.as<NodePath>();
                 np.prepend_period(); //compatible to how it manages paths internally
                 parent = packed_scene->get_state()->add_node_path(np);
             }
 
             if (next_tag.fields.end()!=type_iter) {
-                type = packed_scene->get_state()->add_name(type_iter->second);
+                type = packed_scene->get_state()->add_name(type_iter->second.as<StringName>());
             } else {
                 type = SceneState::TYPE_INSTANCED; //no type? assume this was instanced
             }
@@ -283,7 +283,7 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
 
             if (next_tag.fields.contains("instance_placeholder")) {
 
-                String path = next_tag.fields["instance_placeholder"];
+                String path = next_tag.fields["instance_placeholder"].as<String>();
 
                 int path_v = packed_scene->get_state()->add_value(path);
 
@@ -298,23 +298,23 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
             }
 
             if (next_tag.fields.contains("owner")) {
-                owner = packed_scene->get_state()->add_node_path(next_tag.fields["owner"]);
+                owner = packed_scene->get_state()->add_node_path(next_tag.fields["owner"].as<NodePath>());
             } else {
                 if (parent != -1 && !(type == SceneState::TYPE_INSTANCED && instance == -1))
                     owner = 0; //if no owner, owner is root
             }
 
             if (next_tag.fields.contains("index")) {
-                index = next_tag.fields["index"];
+                index = next_tag.fields["index"].as<int>();
             }
 
             int node_id = packed_scene->get_state()->add_node(parent, owner, type, name, instance, index);
 
             if (next_tag.fields.contains("groups")) {
 
-                Array groups = next_tag.fields["groups"];
+                Array groups = next_tag.fields["groups"].as<Array>();
                 for (int i = 0; i < groups.size(); i++) {
-                    packed_scene->get_state()->add_node_group(node_id, packed_scene->get_state()->add_name(groups[i]));
+                    packed_scene->get_state()->add_node_group(node_id, packed_scene->get_state()->add_name(groups[i].as<StringName>()));
                 }
             }
 
@@ -369,19 +369,19 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                 return Ref<PackedScene>();
             }
 
-            NodePath from = next_tag.fields["from"];
-            NodePath to = next_tag.fields["to"];
-            StringName method = next_tag.fields["method"];
-            StringName signal = next_tag.fields["signal"];
+            NodePath from = next_tag.fields["from"].as<NodePath>();
+            NodePath to = next_tag.fields["to"].as<NodePath>();
+            StringName method = next_tag.fields["method"].as<StringName>();
+            StringName signal = next_tag.fields["signal"].as<StringName>();
             int flags = ObjectNS::CONNECT_PERSIST;
             Array binds;
 
             if (next_tag.fields.contains("flags")) {
-                flags = next_tag.fields["flags"];
+                flags = next_tag.fields["flags"].as<int>();
             }
 
             if (next_tag.fields.contains("binds")) {
-                binds = next_tag.fields["binds"];
+                binds = next_tag.fields["binds"].as<Array>();
             }
 
             Vector<int> bind_ints;
@@ -417,7 +417,7 @@ Ref<PackedScene> ResourceInteractiveLoaderText::_parse_node_tag(VariantParser::R
                 return Ref<PackedScene>();
             }
 
-            NodePath path = next_tag.fields["path"];
+            NodePath path = next_tag.fields["path"].as<NodePath>();
 
             packed_scene->get_state()->add_editable_instance(path.simplified());
 
@@ -470,9 +470,9 @@ Error ResourceInteractiveLoaderText::poll() {
             return error;
         }
 
-        String path = next_tag.fields["path"];
-        StringName type = next_tag.fields["type"];
-        int index = next_tag.fields["id"];
+        String path = next_tag.fields["path"].as<String>();
+        StringName type = next_tag.fields["type"].as<StringName>();
+        int index = next_tag.fields["id"].as<int>();
 
         if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
@@ -534,8 +534,8 @@ Error ResourceInteractiveLoaderText::poll() {
             return error;
         }
 
-        String type = next_tag.fields["type"];
-        int id = next_tag.fields["id"];
+        String type = next_tag.fields["type"].as<String>();
+        int id = next_tag.fields["id"].as<int>();
 
         String path = local_path + "::" + itos(id);
 
@@ -750,8 +750,8 @@ void ResourceInteractiveLoaderText::get_dependencies(FileAccess *p_f, Vector<Str
             return;
         }
 
-        String path = next_tag.fields["path"];
-        StringName  type = next_tag.fields["type"];
+        String path = next_tag.fields["path"].as<String>();
+        StringName  type = next_tag.fields["type"].as<StringName>();
 
         if (!StringUtils::contains(path,"://") && PathUtils::is_rel_path(path)) {
             // path is relative to file being loaded, so convert to a resource path
@@ -826,9 +826,9 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, String
                 ERR_FAIL_V(error);
             }
 
-            String path = next_tag.fields["path"];
-            int index = next_tag.fields["id"];
-            StringName type = next_tag.fields["type"];
+            String path = next_tag.fields["path"].as<String>();
+            int index = next_tag.fields["id"].as<int>();
+            StringName type = next_tag.fields["type"].as<StringName>();
 
             bool relative = false;
             if (!StringUtils::begins_with(path,"res://")) {
@@ -901,7 +901,7 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
     }
 
     if (tag.fields.contains("format")) {
-        int fmt = tag.fields["format"];
+        int fmt = tag.fields["format"].as<int>();
         if (fmt > FORMAT_VERSION) {
             error_text = "Saved with newer format version";
             _printerr();
@@ -921,7 +921,7 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
             return;
         }
 
-        res_type = tag.fields["type"];
+        res_type = tag.fields["type"].as<StringName>();
 
     } else {
         error_text = ("Unrecognized file type: " + tag.name);
@@ -931,7 +931,7 @@ void ResourceInteractiveLoaderText::open(FileAccess *p_f, bool p_skip_first_tag)
     }
 
     if (tag.fields.contains("load_steps")) {
-        resources_total = tag.fields["load_steps"];
+        resources_total = tag.fields["load_steps"].as<int>();
     } else {
         resources_total = 0;
     }
@@ -1034,9 +1034,9 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, StringView 
             return error;
         }
 
-        UIString path = next_tag.fields["path"];
-        UIString type = next_tag.fields["type"];
-        int index = next_tag.fields["id"];
+        String path = next_tag.fields["path"].as<String>();
+        String type = next_tag.fields["type"].as<String>();
+        int index = next_tag.fields["id"].as<int>();
 
         bs_save_unicode_string(wf.f, type);
         bs_save_unicode_string(wf.f, path);
@@ -1095,8 +1095,8 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, StringView 
                 return error;
             }
 
-            type = next_tag.fields["type"];
-            id = next_tag.fields["id"];
+            type = next_tag.fields["type"].as<StringName>();
+            id = next_tag.fields["id"].as<int>();
             main_res = false;
         } else {
             type = res_type;
@@ -1257,7 +1257,7 @@ String ResourceInteractiveLoaderText::recognize(FileAccess *p_f) {
     }
 
     if (tag.fields.contains("format")) {
-        int fmt = tag.fields["format"];
+        int fmt = tag.fields["format"].as<int>();
         if (fmt > FORMAT_VERSION) {
             error_text = "Saved with newer format version";
             _printerr()
@@ -1277,7 +1277,7 @@ String ResourceInteractiveLoaderText::recognize(FileAccess *p_f) {
         return "";
     }
 
-    return tag.fields["type"];
+    return tag.fields["type"].as<String>();
 }
 
 /////////////////////
@@ -1493,7 +1493,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
         } break;
         case VariantType::ARRAY: {
 
-            Array varray = p_variant;
+            Array varray = p_variant.as<Array>();
             int len = varray.size();
             for (int i = 0; i < len; i++) {
 
@@ -1504,7 +1504,7 @@ void ResourceFormatSaverTextInstance::_find_resources(const Variant &p_variant, 
         } break;
         case VariantType::DICTIONARY: {
 
-            Dictionary d = p_variant;
+            Dictionary d = p_variant.as<Dictionary>();
             Vector<Variant> keys(d.get_key_list());
             for (const Variant & E : keys) {
 
@@ -1707,7 +1707,7 @@ Error ResourceFormatSaverTextInstance::save(StringView p_path, const RES &p_reso
                 }
                 Variant default_value = ClassDB::class_get_default_property_value(res->get_class_name(), name);
 
-                if (default_value.get_type() != VariantType::NIL && bool(Variant::evaluate(Variant::OP_EQUAL, value, default_value))) {
+                if (default_value.get_type() != VariantType::NIL && Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>()) {
                     continue;
                 }
 

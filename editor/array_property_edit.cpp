@@ -93,9 +93,9 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
         if (pn == "array/size") {
 
             Variant arr = get_array();
-            int size = arr.call("size");
+            int size = arr.call("size").as<int>();
 
-            int newsize = p_value;
+            int newsize = p_value.as<int>();
             if (newsize == size)
                 return true;
 
@@ -128,7 +128,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             return true;
         }
         if (pn == "array/page") {
-            page = p_value;
+            page = p_value.as<int>();
             Object_change_notify(this);
             return true;
         }
@@ -139,7 +139,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             //type
             int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
 
-            int type = p_value;
+            int type = p_value.as<int>();;
 
             Variant arr = get_array();
 
@@ -210,8 +210,8 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             bool valid;
             r_ret = arr.get(idx, &valid);
 
-            if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-                r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
+            if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+                r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
             }
 
             return valid;
@@ -224,7 +224,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
 void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Variant arr = get_array();
-    int size = arr.call("size");
+    int size = arr.call("size").as<int>();
 
     p_list->push_back(PropertyInfo(VariantType::INT, "array/size", PropertyHint::Range, "0,100000,1"));
     int pages = size / ITEMS_PER_PAGE;
@@ -244,7 +244,7 @@ void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
             p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PropertyHint::Enum, vtypes));
         }
 
-        if (v.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(v)) {
+        if (v.get_type() == VariantType::OBJECT && v.asT<EncodedObjectAsID>()) {
             p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset)), PropertyHint::ObjectID, "Object"));
             continue;
         }

@@ -551,12 +551,12 @@ real_t RigidBody2D::get_inertia() const {
 
 void RigidBody2D::set_weight(real_t p_weight) {
 
-    set_mass(p_weight / (real_t(GLOBAL_DEF("physics/2d/default_gravity", 98)) / 10));
+    set_mass(p_weight / (T_GLOBAL_DEF<float>("physics/2d/default_gravity", 98) / 10));
 }
 
 real_t RigidBody2D::get_weight() const {
 
-    return mass * (real_t(GLOBAL_DEF("physics/2d/default_gravity", 98)) / 10);
+    return mass * (T_GLOBAL_DEF<float>("physics/2d/default_gravity", 98) / 10);
 }
 
 //WARN_DEPRECATED_MSG("The method set_friction has been deprecated and will be removed in the future, use physics material instead.");

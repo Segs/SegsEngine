@@ -93,19 +93,19 @@ void Skin::clear_binds() {
 bool Skin::_set(const StringName &p_name, const Variant &p_value) {
     using namespace StringUtils;
     if (p_name == "bind_count") {
-        set_bind_count(p_value);
+        set_bind_count(p_value.as<int>());
         return true;
     } else if (begins_with(p_name,"bind/")) {
         int index = to_int(get_slice(p_name,'/', 1));
         StringName what(get_slice(p_name,'/', 2));
         if (what == "bone") {
-            set_bind_bone(index, p_value);
+            set_bind_bone(index, p_value.as<int>());
             return true;
         } else if (what == "name") {
-            set_bind_name(index, p_value);
+            set_bind_name(index, p_value.as<StringName>());
             return true;
         } else if (what == "pose") {
-            set_bind_pose(index, p_value);
+            set_bind_pose(index, p_value.as<Transform>());
             return true;
         }
     }

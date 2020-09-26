@@ -800,7 +800,7 @@ Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const 
     Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97
-    int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
     Ref<Image> img_ref(make_ref_counted<Image>());
     Image &im = *img_ref;

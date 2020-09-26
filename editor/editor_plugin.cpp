@@ -57,13 +57,13 @@ Array EditorInterface::_make_mesh_previews(const Array &p_meshes, int p_preview_
     Vector<Ref<Mesh> > meshes;
 
     for (int i = 0; i < p_meshes.size(); i++) {
-        meshes.push_back(refFromRefPtr<Mesh>(p_meshes[i]));
+        meshes.push_back(refFromVariant<Mesh>(p_meshes[i]));
     }
 
     Vector<Ref<Texture> > textures = make_mesh_previews(meshes, nullptr, p_preview_size);
     Array ret;
     for (auto & texture : textures) {
-        ret.push_back(texture);
+        ret.emplace_back(texture);
     }
 
     return ret;
@@ -581,7 +581,7 @@ void EditorPlugin::notify_resource_saved(const Ref<Resource> &p_resource) {
 bool EditorPlugin::forward_canvas_gui_input(const Ref<InputEvent> &p_event) {
 
     if (get_script_instance() && get_script_instance()->has_method("forward_canvas_gui_input")) {
-        return get_script_instance()->call("forward_canvas_gui_input", p_event);
+        return get_script_instance()->call("forward_canvas_gui_input", p_event).as<bool>();
     }
     return false;
 }
@@ -623,7 +623,7 @@ int EditorPlugin::update_overlays() const {
 bool EditorPlugin::forward_spatial_gui_input(Camera3D *p_camera, const Ref<InputEvent> &p_event) {
 
     if (get_script_instance() && get_script_instance()->has_method("forward_spatial_gui_input")) {
-        return get_script_instance()->call("forward_spatial_gui_input", Variant(p_camera), p_event);
+        return get_script_instance()->call("forward_spatial_gui_input", Variant(p_camera), p_event).as<bool>();
     }
 
     return false;
@@ -652,10 +652,10 @@ StringView EditorPlugin::get_name() const {
 
     return StringView();
 }
-const Ref<Texture> EditorPlugin::get_icon() const {
+Ref<Texture> EditorPlugin::get_icon() const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_plugin_icon")) {
-        return refFromRefPtr<Texture>(get_script_instance()->call("get_plugin_icon"));
+        return refFromVariant<Texture>(get_script_instance()->call("get_plugin_icon"));
     }
 
     return Ref<Texture>();
@@ -663,7 +663,7 @@ const Ref<Texture> EditorPlugin::get_icon() const {
 bool EditorPlugin::has_main_screen() const {
 
     if (get_script_instance() && get_script_instance()->has_method("has_main_screen")) {
-        return get_script_instance()->call("has_main_screen");
+        return get_script_instance()->call("has_main_screen").as<bool>();
     }
 
     return false;
@@ -689,7 +689,7 @@ void EditorPlugin::edit(Object *p_object) {
 bool EditorPlugin::handles(Object *p_object) const {
 
     if (get_script_instance() && get_script_instance()->has_method("handles")) {
-        return get_script_instance()->call("handles", Variant(p_object));
+        return get_script_instance()->call("handles", Variant(p_object)).as<bool>();
     }
 
     return false;
@@ -697,7 +697,7 @@ bool EditorPlugin::handles(Object *p_object) const {
 Dictionary EditorPlugin::get_state() const {
 
     if (get_script_instance() && get_script_instance()->has_method("get_state")) {
-        return get_script_instance()->call("get_state");
+        return get_script_instance()->call("get_state").as<Dictionary>();
     }
 
     return Dictionary();
@@ -849,7 +849,7 @@ void EditorPlugin::get_window_layout(Ref<ConfigFile> p_layout) {
 bool EditorPlugin::build() {
 
     if (get_script_instance() && get_script_instance()->has_method("build")) {
-        return get_script_instance()->call("build");
+        return get_script_instance()->call("build").as<bool>();
     }
 
     return true;

@@ -294,7 +294,7 @@ void AnimationNodeBlendSpace1DEditor::_blend_space_draw() {
             color.a *= 0.5;
         }
 
-        float point = AnimationTreeEditor::get_singleton()->get_tree()->get(get_blend_position_path());
+        float point = AnimationTreeEditor::get_singleton()->get_tree()->getT<float>(get_blend_position_path());
 
         point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());
         point *= s.width;
@@ -394,7 +394,7 @@ void AnimationNodeBlendSpace1DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        String type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index).as<String>();
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj);

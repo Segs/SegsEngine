@@ -555,7 +555,7 @@ void SpriteFramesEditor::_animation_name_edited() {
 
     for (Node * E : nodes) {
 
-        UIString current = E->call_va("get_animation");
+        String current = E->call_va("get_animation").as<String>();
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", edited_anim);
     }
@@ -587,7 +587,7 @@ void SpriteFramesEditor::_animation_add() {
 
     for (Node *E : nodes) {
 
-        String current = E->call_va("get_animation");
+        String current = E->call_va("get_animation").as<String>();
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", current);
     }
@@ -768,16 +768,17 @@ Variant SpriteFramesEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
 
 bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return false;
 
     // reordering frames
-    if (d.has("from") && (Object *)d["from"] == tree)
+    if (d.has("from") && d["from"].as<Object *>() == tree)
         return true;
 
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+    String type = d["type"].as<String>();
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -788,7 +789,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
@@ -814,27 +815,27 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return;
 
     int at_pos = tree->get_item_at_position(p_point, true);
-
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+    String type = d["type"].as<String>();
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
 
         if (texture) {
             bool reorder = false;
-            if (d.has("from") && (Object *)d["from"] == tree)
+            if (d.has("from") && d["from"].as<Object *>() == tree)
                 reorder = true;
 
             if (reorder) { //drop is from reordering frames
                 int from_frame = -1;
                 if (d.has("frame"))
-                    from_frame = d["frame"];
+                    from_frame = d["frame"].as<int>();
 
                 undo_redo->create_action(TTR("Move Frame"));
                 undo_redo->add_do_method(frames, "remove_frame", edited_anim, from_frame == -1 ? frames->get_frame_count(edited_anim) : from_frame);
@@ -855,7 +856,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files(d["files"].as<PoolVector<String>>());
 

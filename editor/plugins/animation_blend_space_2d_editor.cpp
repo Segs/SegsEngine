@@ -328,7 +328,7 @@ void AnimationNodeBlendSpace2DEditor::_add_menu_type(int p_index) {
 
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
     } else {
-        String type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index).as<String>();
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj);
@@ -576,10 +576,10 @@ void AnimationNodeBlendSpace2DEditor::_blend_space_draw() {
             color = get_color("accent_color", "Editor");
         } else {
             color = linecolor;
-            color.a *= 0.5;
+            color.a *= 0.5f;
         }
 
-        Vector2 blend_pos = AnimationTreeEditor::get_singleton()->get_tree()->get(get_blend_position_path());
+        Vector2 blend_pos = AnimationTreeEditor::get_singleton()->get_tree()->getT<Vector2>(get_blend_position_path());
         Vector2 point = blend_pos;
 
         point = (point - blend_space->get_min_space()) / (blend_space->get_max_space() - blend_space->get_min_space());

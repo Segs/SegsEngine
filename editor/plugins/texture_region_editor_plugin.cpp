@@ -1090,29 +1090,29 @@ void TextureRegionEditorPlugin::set_state(const Dictionary &p_state) {
 
     Dictionary state = p_state;
     if (state.has("snap_step")) {
-        Vector2 s = state["snap_step"];
+        Vector2 s = state["snap_step"].as<Vector2>();
         region_editor->sb_step_x->set_value(s.x);
         region_editor->sb_step_y->set_value(s.y);
         region_editor->snap_step = s;
     }
 
     if (state.has("snap_offset")) {
-        Vector2 ofs = state["snap_offset"];
+        Vector2 ofs = state["snap_offset"].as<Vector2>();
         region_editor->sb_off_x->set_value(ofs.x);
         region_editor->sb_off_y->set_value(ofs.y);
         region_editor->snap_offset = ofs;
     }
 
     if (state.has("snap_separation")) {
-        Vector2 sep = state["snap_separation"];
+        Vector2 sep = state["snap_separation"].as<Vector2>();
         region_editor->sb_sep_x->set_value(sep.x);
         region_editor->sb_sep_y->set_value(sep.y);
         region_editor->snap_separation = sep;
     }
 
     if (state.has("snap_mode")) {
-        region_editor->_set_snap_mode(state["snap_mode"]);
-        region_editor->snap_mode_button->select(state["snap_mode"]);
+        region_editor->_set_snap_mode(state["snap_mode"].as<int>());
+        region_editor->snap_mode_button->select(state["snap_mode"].as<int>());
     }
 }
 

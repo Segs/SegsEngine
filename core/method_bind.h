@@ -201,6 +201,7 @@ protected:
             return std::invoke(method, instance);
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
+
             return std::invoke(method, instance,
                     VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
                             *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
@@ -222,13 +223,13 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
     };
-    Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
+    [[nodiscard]] Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
-    Span<const TypePassBy> do_get_argument_passby() const override {
+    [[nodiscard]] Span<const TypePassBy> do_get_argument_passby() const override {
         return s_pass_type;
     }
-    PropertyInfo _gen_argument_type_info(int p_arg) const override {
+    [[nodiscard]] PropertyInfo _gen_argument_type_info(int p_arg) const override {
         if(p_arg==-1) {
             if constexpr (!eastl::is_same_v<void,RESULT>) {
                 return GetTypeInfo<RESULT>::get_class_info();

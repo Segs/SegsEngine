@@ -2687,7 +2687,7 @@ void VisualScriptEditor::_change_base_type_callback() {
 
 void VisualScriptEditor::_node_selected(Node *p_node) {
 
-    Ref<VisualScriptNode> vnode(refFromRefPtr<VisualScriptNode>(p_node->get_meta("__vnode").as<RefPtr>()));
+    Ref<VisualScriptNode> vnode(refFromVariant<VisualScriptNode>(p_node->get_meta("__vnode")));
     if (not vnode)
         return;
 

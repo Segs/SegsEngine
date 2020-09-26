@@ -326,7 +326,7 @@ public:
     template <class T>
     static PhysicsServer2D *init_server() {
 
-        int tm = GLOBAL_DEF("physics/2d/thread_model", 1);
+        int tm = T_GLOBAL_DEF<int>("physics/2d/thread_model", 1);
         if (tm == 0) // single unsafe
             return memnew(T);
         else if (tm == 1) // single safe

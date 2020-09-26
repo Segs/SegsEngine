@@ -495,7 +495,7 @@ BSP_Tree::BSP_Tree(const Variant &p_variant) {
 
     } else {
 
-        planes = d["planes"].asVector<Plane>();
+        planes = d["planes"].as<Vector<Plane>>();
     }
 
     error_radius = d["error"].as<float>();

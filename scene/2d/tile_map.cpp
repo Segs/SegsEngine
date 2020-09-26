@@ -582,9 +582,9 @@ void TileMap::update_dirty_quadrants() {
                         }
 
                         if (shape->has_meta("decomposed")) {
-                            Array _shapes = shape->get_meta("decomposed");
+                            Array _shapes = shape->get_meta("decomposed").as<Array>();
                             for (int k = 0; k < _shapes.size(); k++) {
-                                Ref<ConvexPolygonShape2D> convex = refFromRefPtr<ConvexPolygonShape2D>(_shapes[k]);
+                                Ref<ConvexPolygonShape2D> convex = refFromVariant<ConvexPolygonShape2D>(_shapes[k]);
                                 if (convex) {
                                     _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
@@ -1556,12 +1556,12 @@ bool TileMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "format") {
         if (p_value.get_type() == VariantType::INT) {
-            format = (DataFormat)(p_value.operator int64_t()); // Set format used for loading
+            format = p_value.as<DataFormat>(); // Set format used for loading
             return true;
         }
     } else if (p_name == "tile_data") {
         if (p_value.is_array()) {
-            _set_tile_data(p_value);
+            _set_tile_data(p_value.as<PoolVector<int>>());
             return true;
         }
         return false;

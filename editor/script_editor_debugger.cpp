@@ -675,7 +675,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
                         }
                     }
                 } else if (var.get_type() == VariantType::OBJECT) {
-                    if (auto val = var.asT<EncodedObjectAsID*>()) {
+                    if (auto val = var.asT<EncodedObjectAsID>()) {
                         var = Variant::from(val->get_object_id());
                         pinfo.type = var.get_type();
                         pinfo.hint = PropertyHint::ObjectID;
@@ -776,7 +776,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Variant::from(v.asT<EncodedObjectAsID*>()->get_object_id());
+                v = Variant::from(v.asT<EncodedObjectAsID>()->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }
@@ -795,7 +795,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Variant::from(v.asT<EncodedObjectAsID*>()->get_object_id());
+                v = Variant::from(v.asT<EncodedObjectAsID>()->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }
@@ -818,7 +818,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             const char *hs = "";
 
             if (v.get_type() == VariantType::OBJECT) {
-                v = Variant::from(v.asT<EncodedObjectAsID *>()->get_object_id());
+                v = Variant::from(v.asT<EncodedObjectAsID>()->get_object_id());
                 h = PropertyHint::ObjectID;
                 hs = "Object";
             }

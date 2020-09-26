@@ -198,15 +198,17 @@ Variant TileSetEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from) 
 
 bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return false;
 
-    if (d.has("from") && (Object *)d["from"] == texture_list)
+    if (d.has("from") && d["from"].as<Object *>() == texture_list)
         return false;
 
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+    String type(d["type"].as<String>());
+
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -217,7 +219,7 @@ bool TileSetEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_dat
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         Vector<String> files(d["files"].as<Vector<String>>());
 
@@ -243,12 +245,14 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return;
+    String type(d["type"].as<String>());
 
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -263,7 +267,7 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
@@ -1560,7 +1564,7 @@ void TileSetEditor::_on_workspace_input(const Ref<InputEvent> &p_ie) {
                         shape_anchor.x *= size.x + spacing;
                         shape_anchor.y *= size.y + spacing;
                     }
-                    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+                    const real_t grab_threshold = EDITOR_GET_T<float>("editors/poly_editor/point_grab_radius");
                     shape_anchor += current_tile_region.position;
                     if (tools[TOOL_SELECT]->is_pressed()) {
                         if (mb) {
@@ -1779,7 +1783,7 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
             Ref<ConvexPolygonShape2D> convex = dynamic_ref_cast<ConvexPolygonShape2D>(edited_collision_shape);
             Ref<ConcavePolygonShape2D> concave = dynamic_ref_cast<ConcavePolygonShape2D>(edited_collision_shape);
             Ref<Shape2D> previous_shape = dynamic_ref_cast<Shape2D>(edited_collision_shape);
-            Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
+            Array sd = tileset->call_va("tile_get_shapes", get_current_tile()).as<Array>();
 
             if (convex) {
                 // Make concave.
@@ -1855,7 +1859,7 @@ void TileSetEditor::_on_tool_clicked(int p_tool) {
                 case EDITMODE_COLLISION: {
                     if (edited_collision_shape) {
                         // Necessary to get the version that returns a Array instead of a Vector.
-                        Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
+                        Array sd = tileset->call_va("tile_get_shapes", get_current_tile()).as<Array>();
                         for (int i = 0; i < sd.size(); i++) {
                             if (sd[i].get("shape") == edited_collision_shape) {
                                 undo_redo->create_action(TTR("Remove Collision Polygon"));
@@ -2045,15 +2049,15 @@ void TileSetEditor::_select_next_tile() {
     if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
-        set_current_tile(tiles[0]);
+        set_current_tile(tiles[0].as<int>());
     } else {
         int index = tiles.find(get_current_tile());
         if (index < 0) {
-            set_current_tile(tiles[0]);
+            set_current_tile(tiles[0].as<int>());
         } else if (index == tiles.size() - 1) {
-            set_current_tile(tiles[0]);
+            set_current_tile(tiles[0].as<int>());
         } else {
-            set_current_tile(tiles[index + 1]);
+            set_current_tile(tiles[index + 1].as<int>());
         }
     }
     if (get_current_tile() == -1) {
@@ -2081,13 +2085,13 @@ void TileSetEditor::_select_previous_tile() {
     if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
-        set_current_tile(tiles[tiles.size() - 1]);
+        set_current_tile(tiles.back().as<int>());
     } else {
         int index = tiles.find(get_current_tile());
         if (index <= 0) {
-            set_current_tile(tiles[tiles.size() - 1]);
+            set_current_tile(tiles.back().as<int>());
         } else {
-            set_current_tile(tiles[index - 1]);
+            set_current_tile(tiles[index - 1].as<int>());
         }
     }
     if (get_current_tile() == -1) {
@@ -2133,8 +2137,8 @@ Array TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
 }
 
 bool TileSetEditor::_sort_tiles(const Variant& p_a, const Variant& p_b) {
-    int a = p_a;
-    int b = p_b;
+    int a = p_a.as<int>();
+    int b = p_b.as<int>();
 
     Vector2 pos_a = tileset->tile_get_region(a).position;
     Vector2 pos_b = tileset->tile_get_region(b).position;
@@ -2216,11 +2220,11 @@ void TileSetEditor::_select_next_shape() {
         } else {
             int index = data.collisions.find(edited_collision_shape);
             if (index < 0) {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[0]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions[0]));
             } else if (index == data.collisions.size() - 1) {
                 _select_next_subtile();
             } else {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[index + 1]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions[index + 1]));
             }
         }
         current_shape.resize(0);
@@ -2251,7 +2255,7 @@ void TileSetEditor::_select_previous_shape() {
         if (get_current_tile() != -1 && edit_mode == EDITMODE_COLLISION) {
             SubtileData data = current_tile_data[Vector2i(edited_shape_coord)];
             if (data.collisions.size() > 1) {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[data.collisions.size() - 1]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions.back()));
             }
         } else {
             return;
@@ -2268,20 +2272,20 @@ void TileSetEditor::_select_previous_shape() {
             _select_previous_subtile();
             data = current_tile_data[Vector2i(edited_shape_coord)];
             if (data.collisions.size() > 1) {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[data.collisions.size() - 1]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions.back()));
             }
         } else {
             int index = data.collisions.find(edited_collision_shape);
             if (index < 0) {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[data.collisions.size() - 1]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions.back()));
             } else if (index == 0) {
                 _select_previous_subtile();
                 data = current_tile_data[Vector2i(edited_shape_coord)];
                 if (data.collisions.size() > 1) {
-                    _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[data.collisions.size() - 1]));
+                    _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions.back()));
                 }
             } else {
-                _set_edited_collision_shape(refFromRefPtr<Shape2D>(data.collisions[index - 1]));
+                _set_edited_collision_shape(refFromVariant<Shape2D>(data.collisions[index - 1]));
             }
         }
 
@@ -2881,7 +2885,7 @@ void TileSetEditor::close_shape(const Vector2 &shape_anchor) {
 
             undo_redo->create_action(TTR("Create Collision Polygon"));
             // Necessary to get the version that returns a Array instead of a Vector.
-            Array sd = tileset->call_va("tile_get_shapes", get_current_tile());
+            Array sd = tileset->call_va("tile_get_shapes", get_current_tile()).as<Array>();
             undo_redo->add_undo_method(tileset.get(), "tile_set_shapes", get_current_tile(), sd.duplicate());
             for (int i = 0; i < sd.size(); i++) {
                 if (sd[i].get("shape") == edited_collision_shape) {
@@ -3144,7 +3148,7 @@ void TileSetEditor::update_texture_list() {
 void TileSetEditor::update_texture_list_icon() {
 
     for (int current_idx = 0; current_idx < texture_list->get_item_count(); current_idx++) {
-        RID rid = texture_list->get_item_metadata(current_idx);
+        RID rid = texture_list->get_item_metadata(current_idx).as<RID>();
         texture_list->set_item_icon(current_idx, texture_map[rid]);
         Size2 texture_size = texture_map[rid]->get_size();
         texture_list->set_item_icon_region(current_idx, Rect2(0, 0, MIN(texture_size.x, 150), MIN(texture_size.y, 100)));
@@ -3275,8 +3279,7 @@ void TileSetEditor::update_workspace_minsize() {
 void TileSetEditor::update_edited_region(const Vector2 &end_point) {
     edited_region = Rect2(region_from, Size2());
     if (tools[TOOL_GRID_SNAP]->is_pressed()) {
-        Vector2 grid_coord;
-        grid_coord = ((region_from - snap_offset) / (snap_step + snap_separation)).floor();
+        Vector2 grid_coord = ((region_from - snap_offset) / (snap_step + snap_separation)).floor();
         grid_coord *= snap_step + snap_separation;
         grid_coord += snap_offset;
         edited_region.expand_to(grid_coord);
@@ -3316,7 +3319,7 @@ Ref<Texture> TileSetEditor::get_current_texture() {
     if (texture_list->get_selected_items().empty())
         return Ref<Texture>();
     else
-        return texture_map[texture_list->get_item_metadata(texture_list->get_selected_items()[0])];
+        return texture_map[texture_list->get_item_metadata(texture_list->get_selected_items()[0]).as<RID>()];
 }
 
 void TilesetEditorContext::set_tileset(const Ref<TileSet> &p_tileset) {
@@ -3334,15 +3337,15 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
     StringView name(p_name);
 
     if (name == "options_offset"_sv) {
-        Vector2 snap = p_value;
+        Vector2 snap = p_value.as<Vector2>();
         tileset_editor->_set_snap_off(snap + WORKSPACE_MARGIN);
         return true;
     } else if (name == "options_step"_sv) {
-        Vector2 snap = p_value;
+        Vector2 snap = p_value.as<Vector2>();
         tileset_editor->_set_snap_step(snap);
         return true;
     } else if (name == "options_separation"_sv) {
-        Vector2 snap = p_value;
+        Vector2 snap = p_value.as<Vector2>();
         tileset_editor->_set_snap_sep(snap);
         return true;
     } else if (StringUtils::begins_with(p_name,"tile_")) {
@@ -3368,13 +3371,13 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         }
         return v;
     } else if (name == "tileset_script"_sv) {
-        tileset->set_script(p_value);
+        tileset->set_script(p_value.as<RefPtr>());
         return true;
     } else if (name == "selected_collision_one_way"_sv) {
         const Vector<TileSet::ShapeData> &sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
-                tileset->tile_set_shape_one_way(tileset_editor->get_current_tile(), index, p_value);
+                tileset->tile_set_shape_one_way(tileset_editor->get_current_tile(), index, p_value.as<bool>());
                 return true;
             }
         }
@@ -3383,7 +3386,7 @@ bool TilesetEditorContext::_set(const StringName &p_name, const Variant &p_value
         const Vector<TileSet::ShapeData>& sd = tileset->tile_get_shapes(tileset_editor->get_current_tile());
         for (int index = 0; index < sd.size(); index++) {
             if (sd[index].shape == tileset_editor->edited_collision_shape) {
-                tileset->tile_set_shape_one_way_margin(tileset_editor->get_current_tile(), index, p_value);
+                tileset->tile_set_shape_one_way_margin(tileset_editor->get_current_tile(), index, p_value.as<float>());
                 return true;
             }
         }
@@ -3561,30 +3564,30 @@ void TileSetEditorPlugin::set_state(const Dictionary &p_state) {
 
     Dictionary state = p_state;
     if (state.has("snap_step")) {
-        tileset_editor->_set_snap_step(state["snap_step"]);
+        tileset_editor->_set_snap_step(state["snap_step"].as<Vector2>());
     }
 
     if (state.has("snap_offset")) {
-        tileset_editor->_set_snap_off(state["snap_offset"]);
+        tileset_editor->_set_snap_off(state["snap_offset"].as<Vector2>());
     }
 
     if (state.has("snap_separation")) {
-        tileset_editor->_set_snap_sep(state["snap_separation"]);
+        tileset_editor->_set_snap_sep(state["snap_separation"].as<Vector2>());
     }
 
     if (state.has("snap_enabled")) {
-        tileset_editor->tools[TileSetEditor::TOOL_GRID_SNAP]->set_pressed(state["snap_enabled"]);
+        tileset_editor->tools[TileSetEditor::TOOL_GRID_SNAP]->set_pressed(state["snap_enabled"].as<bool>());
         if (tileset_editor->helper) {
-            tileset_editor->_on_grid_snap_toggled(state["snap_enabled"]);
+            tileset_editor->_on_grid_snap_toggled(state["snap_enabled"].as<bool>());
         }
     }
 
     if (state.has("keep_inside_tile")) {
-        tileset_editor->tools[TileSetEditor::SHAPE_KEEP_INSIDE_TILE]->set_pressed(state["keep_inside_tile"]);
+        tileset_editor->tools[TileSetEditor::SHAPE_KEEP_INSIDE_TILE]->set_pressed(state["keep_inside_tile"].as<bool>());
     }
 
     if (state.has("show_information")) {
-        tileset_editor->tools[TileSetEditor::VISIBLE_INFO]->set_pressed(state["show_information"]);
+        tileset_editor->tools[TileSetEditor::VISIBLE_INFO]->set_pressed(state["show_information"].as<bool>());
     }
 }
 

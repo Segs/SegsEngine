@@ -493,7 +493,7 @@ void ScriptEditor::_add_recent_script(StringView p_path) {
         return;
     }
 
-    Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scripts", Array()).as<Array>();
+    Array rc = EditorSettings::get_singleton()->get_project_metadataT("recent_files", "scripts", Array());
     if (rc.find(p_path) != -1) {
         rc.erase(p_path);
     }
@@ -508,7 +508,7 @@ void ScriptEditor::_add_recent_script(StringView p_path) {
 
 void ScriptEditor::_update_recent_scripts() {
 
-    Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scripts", Array()).as<Array>();
+    Array rc = EditorSettings::get_singleton()->get_project_metadataT("recent_files", "scripts", Array());
     recent_scripts->clear();
 
     String path;
@@ -533,7 +533,7 @@ void ScriptEditor::_open_recent_script(int p_idx) {
         return;
     }
 
-    Array rc = EditorSettings::get_singleton()->get_project_metadata("recent_files", "scripts", Array()).as<Array>();
+    Array rc = EditorSettings::get_singleton()->get_project_metadataT("recent_files", "scripts", Array());
     ERR_FAIL_INDEX(p_idx, rc.size());
 
     String path = rc[p_idx].as<String>();

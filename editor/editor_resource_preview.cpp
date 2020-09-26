@@ -50,7 +50,7 @@ IMPL_GDCLASS(EditorResourcePreview)
 bool EditorResourcePreviewGenerator::handles(StringView p_type) const {
 
     if (get_script_instance() && get_script_instance()->has_method("handles")) {
-        return get_script_instance()->call("handles", p_type);
+        return get_script_instance()->call("handles", p_type).as<bool>();
     }
     ERR_FAIL_V_MSG(false, "EditorResourcePreviewGenerator::handles needs to be overridden.");
 }
@@ -58,7 +58,7 @@ bool EditorResourcePreviewGenerator::handles(StringView p_type) const {
 Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const Size2 &p_size) const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate")) {
-        return refFromRefPtr<Texture>(get_script_instance()->call("generate", p_from, p_size));
+        return refFromVariant<Texture>(get_script_instance()->call("generate", p_from, p_size));
     }
     ERR_FAIL_V_MSG(Ref<Texture>(), "EditorResourcePreviewGenerator::generate needs to be overridden.");
 }
@@ -66,7 +66,7 @@ Ref<Texture> EditorResourcePreviewGenerator::generate(const RES &p_from, const S
 Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(StringView p_path, const Size2 &p_size) const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate_from_path")) {
-        return refFromRefPtr<Texture>(get_script_instance()->call("generate_from_path", p_path, p_size));
+        return refFromVariant<Texture>(get_script_instance()->call("generate_from_path", p_path, p_size));
     }
 
     RES res(gResourceManager().load(p_path));
@@ -78,7 +78,7 @@ Ref<Texture> EditorResourcePreviewGenerator::generate_from_path(StringView p_pat
 bool EditorResourcePreviewGenerator::generate_small_preview_automatically() const {
 
     if (get_script_instance() && get_script_instance()->has_method("generate_small_preview_automatically")) {
-        return get_script_instance()->call("generate_small_preview_automatically");
+        return get_script_instance()->call("generate_small_preview_automatically").as<bool>();
     }
 
     return false;
@@ -87,7 +87,7 @@ bool EditorResourcePreviewGenerator::generate_small_preview_automatically() cons
 bool EditorResourcePreviewGenerator::can_generate_small_preview() const {
 
     if (get_script_instance() && get_script_instance()->has_method("can_generate_small_preview")) {
-        return get_script_instance()->call("can_generate_small_preview");
+        return get_script_instance()->call("can_generate_small_preview").as<bool>();
     }
 
     return false;
@@ -156,7 +156,7 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
         return; //could not guess type
     }
 
-    int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
 
     r_texture = Ref<ImageTexture>();
@@ -253,7 +253,7 @@ void EditorResourcePreview::_thread() {
             Ref<ImageTexture> texture;
             Ref<ImageTexture> small_texture;
 
-            int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+            int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
             thumbnail_size *= EDSCALE;
 
             if (item.resource) {

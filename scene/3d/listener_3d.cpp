@@ -46,7 +46,7 @@ void Listener3D::_request_listener_update() {
 bool Listener3D::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "current") {
-        if (p_value.operator bool()) {
+        if (p_value.as<bool>()) {
             make_current();
         } else {
             clear_current();

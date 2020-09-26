@@ -398,7 +398,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
         uint64_t now = OS::get_singleton()->get_ticks_msec();
         uint64_t diff = now - search_time_msec;
-        uint64_t max_interval = uint64_t(GLOBAL_DEF("gui/timers/incremental_search_max_interval_msec", 2000));
+        uint64_t max_interval = T_GLOBAL_DEF<uint64_t>("gui/timers/incremental_search_max_interval_msec", 2000);
         search_time_msec = now;
 
         if (diff > max_interval) {
@@ -1316,19 +1316,19 @@ void PopupMenu::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 10) {
 
-        StringName text = p_items[i + 0];
+        StringName text = p_items[i + 0].as<StringName>();
         Ref<Texture> icon(p_items[i + 1]);
         // For compatibility, use false/true for no/checkbox and integers for other values
-        bool checkable = p_items[i + 2];
-        bool radio_checkable = (int)p_items[i + 2] == Item::CHECKABLE_TYPE_RADIO_BUTTON;
-        bool checked = p_items[i + 3];
-        bool disabled = p_items[i + 4];
+        bool checkable = p_items[i + 2].as<bool>();
+        bool radio_checkable = p_items[i + 2].as<int>() == Item::CHECKABLE_TYPE_RADIO_BUTTON;
+        bool checked = p_items[i + 3].as<bool>();
+        bool disabled = p_items[i + 4].as<bool>();
 
-        int id = p_items[i + 5];
-        int accel = p_items[i + 6];
+        int id = p_items[i + 5].as<int>();
+        int accel = p_items[i + 6].as<int>();
         Variant meta = p_items[i + 7];
-        StringName subm = p_items[i + 8];
-        bool sep = p_items[i + 9];
+        StringName subm = p_items[i + 8].as<StringName>();
+        bool sep = p_items[i + 9].as<bool>();
 
         int idx = get_item_count();
         add_item(text, id);

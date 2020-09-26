@@ -631,7 +631,7 @@ ScrollContainer::ScrollContainer() {
     scroll_h = true;
     scroll_v = true;
 
-    deadzone = GLOBAL_GET("gui/common/default_scroll_deadzone");
+    deadzone = T_GLOBAL_GET<int>("gui/common/default_scroll_deadzone");
     follow_focus = false;
 
     set_clip_contents(true);

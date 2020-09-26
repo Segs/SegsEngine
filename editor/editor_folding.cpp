@@ -195,7 +195,7 @@ void EditorFolding::load_scene_folding(Node *p_scene, StringView p_path) {
     }
 
     for (int i = 0; i < res_unfolds.size(); i += 2) {
-        String path2 = res_unfolds[i];
+        String path2 = res_unfolds[i].as<String>();
         RES res;
         if (ResourceCache::has(path2)) {
             res = RES(ResourceCache::get(path2));
@@ -209,7 +209,7 @@ void EditorFolding::load_scene_folding(Node *p_scene, StringView p_path) {
     }
 
     for (int i = 0; i < nodes_folded.size(); i++) {
-        NodePath fold_path = nodes_folded[i];
+        NodePath fold_path = nodes_folded[i].as<NodePath>();
         if (p_scene->has_node(fold_path)) {
             Node *node = p_scene->get_node(fold_path);
             node->set_display_folded(true);

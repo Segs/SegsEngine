@@ -239,7 +239,7 @@ void EditorHelpSearch::popup_dialog() {
 void EditorHelpSearch::popup_dialog(StringView p_term) {
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "search_help", Rect2()).as<Rect2>();
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadataT("dialog_bounds", "search_help", Rect2());
     if (saved_size != Rect2())
         popup(saved_size);
     else

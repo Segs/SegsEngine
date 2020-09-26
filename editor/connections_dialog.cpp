@@ -654,9 +654,9 @@ void ConnectionsDock::_disconnect_all() {
         return;
 
     TreeItem *child = item->get_children();
-    String signalName = item->get_metadata(0).operator Dictionary()["name"];
+    StringName signalName = item->get_metadata(0).as<Dictionary>()["name"].as<StringName>();
     String translated_fmt(TTR("Disconnect all from signal: '%s'"));
-    undo_redo->create_action(FormatVE(translated_fmt.c_str(), signalName.c_str()));
+    undo_redo->create_action(FormatVE(translated_fmt.c_str(), signalName.asCString()));
 
     while (child) {
         Connection c = child->get_metadata(0);
@@ -712,8 +712,8 @@ Open connection dialog with TreeItem data to CREATE a brand-new connection.
 */
 void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 
-    String signal = item.get_metadata(0).operator Dictionary()["name"];
-    const String &signalname = signal;
+    StringName signal = item.get_metadata(0).as<Dictionary>()["name"].as<StringName>();
+    const StringName&signalname = signal;
     String midname(selectedNode->get_name());
     for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
@@ -799,7 +799,7 @@ void ConnectionsDock::_handle_signal_menu_option(int option) {
             _open_connection_dialog(*item);
         } break;
         case DISCONNECT_ALL: {
-            StringName signal_name = item->get_metadata(0).operator Dictionary()["name"];
+            StringName signal_name = item->get_metadata(0).as<Dictionary>()["name"].as<StringName>();
             disconnect_all_dialog->set_text(FormatSN(TTR("Are you sure you want to remove all connections from the \"%s\" signal?").asCString(), signal_name.asCString()));
             disconnect_all_dialog->popup_centered();
         } break;

@@ -440,14 +440,15 @@ void FindInFilesDialog::_notification(int p_what) {
             for (int i = 0; i < _filters_container->get_child_count(); i++) {
                 _filters_container->get_child(i)->queue_delete();
             }
-            Array exts = ProjectSettings::get_singleton()->get("editor/search_in_file_extensions");
+            Array exts = ProjectSettings::get_singleton()->getT<Array>("editor/search_in_file_extensions");
             for (int i = 0; i < exts.size(); ++i) {
                 CheckBox *cb = memnew(CheckBox);
-                cb->set_text(exts[i]);
-                if (!_filters_preferences.contains(exts[i])) {
-                    _filters_preferences[exts[i]] = true;
+                StringName entry(exts[i].as<StringName>());
+                cb->set_text(entry);
+                if (!_filters_preferences.contains(entry)) {
+                    _filters_preferences[entry] = true;
                 }
-                cb->set_pressed(_filters_preferences[exts[i]]);
+                cb->set_pressed(_filters_preferences[entry]);
                 _filters_container->add_child(cb);
             }
         }
@@ -768,7 +769,7 @@ void FindInFilesPanel::_on_result_selected() {
     Result r = E->second;
 
     TreeItem *file_item = item->get_parent();
-    String fpath = file_item->get_metadata(0);
+    String fpath = file_item->get_metadata(0).as<String>();
 
     emit_signal(StaticCString(SIGNAL_RESULT_SELECTED,true), fpath, r.line_number, r.begin, r.end);
 }
@@ -786,7 +787,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
     for (eastl::pair<const String,TreeItem *> &E : _file_items) {
 
         TreeItem *file_item = E.second;
-        String fpath = file_item->get_metadata(0);
+        String fpath = file_item->get_metadata(0).as<String>();
 
         Vector<Result> locations;
         for (TreeItem *item = file_item->get_children(); item; item = item->get_next()) {

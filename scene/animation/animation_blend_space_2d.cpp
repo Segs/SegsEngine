@@ -435,9 +435,9 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 
     _update_triangles();
 
-    Vector2 blend_pos = get_parameter(blend_position);
-    int closest = get_parameter(this->closest);
-    float length_internal = get_parameter(this->length_internal);
+    Vector2 blend_pos = get_parameter(blend_position).as<Vector2>();
+    int closest = get_parameter(this->closest).as<int>();
+    float length_internal = get_parameter(this->length_internal).as<float>();
     float mind = 0; //time of min distance point
 
     if (blend_mode == BLEND_MODE_INTERPOLATED) {

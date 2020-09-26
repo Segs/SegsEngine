@@ -207,7 +207,7 @@ MaterialEditor::MaterialEditor() {
 
     first_enter = true;
 
-    if (EditorSettings::get_singleton()->get_project_metadata("inspector_options", "material_preview_on_sphere", true)) {
+    if (EditorSettings::get_singleton()->get_project_metadataT("inspector_options", "material_preview_on_sphere", true)) {
         box_instance->hide();
     } else {
         box_instance->show();

@@ -71,29 +71,29 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringUtils::begins_with(name,"playback/play")) { // bw compatibility
 
-        set_current_animation(p_value);
+        set_current_animation(p_value.as<StringName>());
 
     } else if (StringUtils::begins_with(name,"anims/")) {
 
         StringView which = StringUtils::get_slice(name,'/', 1);
-        add_animation(StringName(which), refFromRefPtr<Animation>(p_value));
+        add_animation(StringName(which), refFromVariant<Animation>(p_value));
 
     } else if (StringUtils::begins_with(name,"next/")) {
 
         StringView which = StringUtils::get_slice(name,'/', 1);
-        animation_set_next(StringName(which), p_value);
+        animation_set_next(StringName(which), p_value.as<StringName>());
 
     } else if (p_name == SceneStringNames::get_singleton()->blend_times) {
 
-        Array array = p_value;
+        Array array = p_value.as<Array>();
         int len = array.size();
         ERR_FAIL_COND_V(len % 3, false);
 
         for (int i = 0; i < len / 3; i++) {
 
-            StringName from = array[i * 3 + 0];
-            StringName to = array[i * 3 + 1];
-            float time = array[i * 3 + 2];
+            StringName from = array[i * 3 + 0].as<StringName>();
+            StringName to = array[i * 3 + 1].as<StringName>();
+            float time = array[i * 3 + 2].as<float>();
 
             set_blend_time(from, to, time);
         }
@@ -503,7 +503,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                     ERR_PRINT("Position key at time " + rtos(p_time) + " in Animation Track '" + String(pa->owner->path) + "' not of type Vector2(). Animation '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
-                                static_cast<Node2D *>(pa->object)->set_position(value);
+                                static_cast<Node2D *>(pa->object)->set_position(value.as<Vector2>());
                             } break;
                             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
@@ -512,7 +512,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                 }
 #endif
 
-                                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad((double)value));
+                                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad(value.as<float>()));
                             } break;
                             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
@@ -521,7 +521,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                 }
 #endif
 
-                                static_cast<Node2D *>(pa->object)->set_scale(value);
+                                static_cast<Node2D *>(pa->object)->set_scale(value.as<Vector2>());
                             } break;
                         }
                     }
@@ -897,7 +897,7 @@ void AnimationPlayer::_animation_update_transforms() {
                     ERR_PRINT("Position key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "' not of type Vector2()");
                 }
 #endif
-                static_cast<Node2D *>(pa->object)->set_position(pa->value_accum);
+                static_cast<Node2D *>(pa->object)->set_position(pa->value_accum.as<Vector2>());
             } break;
             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
@@ -906,7 +906,7 @@ void AnimationPlayer::_animation_update_transforms() {
                 }
 #endif
 
-                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad((double)pa->value_accum));
+                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad(pa->value_accum.as<float>()));
             } break;
             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
@@ -915,7 +915,7 @@ void AnimationPlayer::_animation_update_transforms() {
                 }
 #endif
 
-                static_cast<Node2D *>(pa->object)->set_scale(pa->value_accum);
+                static_cast<Node2D *>(pa->object)->set_scale(pa->value_accum.as<Vector2>());
             } break;
         }
     }
@@ -1531,7 +1531,7 @@ NodePath AnimationPlayer::get_root() const {
 void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
-    const char *quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char *quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char *quote_style = "\"";
 #endif
@@ -1603,7 +1603,7 @@ void AnimationPlayer::restore_animated_values(const AnimatedValuesBackup &p_back
         if (entry.bone_idx == -1) {
             entry.object->set_indexed(entry.subpath, entry.value);
         } else {
-            object_cast<Skeleton>(entry.object)->set_bone_pose(entry.bone_idx, entry.value);
+            object_cast<Skeleton>(entry.object)->set_bone_pose(entry.bone_idx, entry.value.as<Transform>());
         }
     }
 }

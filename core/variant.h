@@ -187,7 +187,13 @@ private:
     } _data GCC_ALIGNED_8;
     void reference(const Variant &p_variant);
     void clear();
-
+    template <typename T>
+    [[nodiscard]]
+    T as_impl() const;
+    template <>
+    constexpr const Variant &as_impl< const Variant& >() const {
+      return *this;
+    }
 public:
     static const Variant null_variant;
     _FORCE_INLINE_ VariantType get_type() const { return type; }
@@ -204,34 +210,26 @@ public:
     [[nodiscard]] bool is_one() const;
 
     template <typename T>
-    [[nodiscard]] T as() const;
-    template<class T,
-    class = typename eastl::enable_if<eastl::is_enum_v<T>>::type >
-    T as()  {
-        return (T)as< eastl::underlying_type_t<T>>();
+    [[nodiscard]]
+    typename eastl::decay<typename eastl::enable_if<!eastl::is_enum_v<T>, T>::type>::type
+    as() const {
+      return as_impl<eastl::decay<T>::type>();
     }
 
-
     template<class T>
-    struct asHelper {
-        T convertIt(const Variant &v)  {
-            return v.as<T>();
-        }
-    };
-    template<class T>
-    struct asHelper<T *> {
-        T *convertIt(const Variant &v)  {
-            static_assert (eastl::is_base_of<Object,T>::value);
-            return object_cast<T>(v.as<Object *>());
-        }
-    };
-
-    template<class T>
-    [[nodiscard]] T asT() const {
-        return asHelper<T>().convertIt(*this);
+    [[nodiscard]]
+    typename eastl::enable_if<eastl::is_enum_v<T>,T>::type as() const {
+        return (T)as_impl< eastl::underlying_type_t<T>>();
     }
-    template <typename T>
-    [[nodiscard]] Vector<T> asVector() const;
+
+    template<class T>
+    [[nodiscard]] T *asT() const {
+        static_assert (eastl::is_base_of<Object, T>::value);
+        return object_cast<T>(as<Object*>());
+    }
+    operator Dictionary() const;
+    operator Array() const;
+
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
 
     //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
@@ -494,63 +492,71 @@ GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), co
 
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 // some core type enums to convert to
-template <> GODOT_EXPORT ::AABB Variant::as<::AABB>() const;
-template <> GODOT_EXPORT Array Variant::as<Array>() const;
-template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
-template <> GODOT_EXPORT Color Variant::as<Color>() const;
-template <> GODOT_EXPORT Control*  Variant::as<Control* >() const;
-template <> GODOT_EXPORT Dictionary Variant::as<Dictionary>() const;
-template <> GODOT_EXPORT double Variant::as<double>() const;
-template <> GODOT_EXPORT float Variant::as<float>() const;
-template <> GODOT_EXPORT int64_t Variant::as<int64_t>() const;
-template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
-template <> GODOT_EXPORT Margin Variant::as<Margin>() const;
-template <> GODOT_EXPORT Node*  Variant::as<Node* >() const;
-template <> GODOT_EXPORT NodePath Variant::as<NodePath>() const;
-template <> GODOT_EXPORT Object*  Variant::as<Object* >() const;
-template <> GODOT_EXPORT ObjectID Variant::as<ObjectID>() const;
-template <> GODOT_EXPORT Orientation Variant::as<Orientation>() const;
-template <> GODOT_EXPORT Plane Variant::as<Plane>() const;
-template <> GODOT_EXPORT PoolVector<Color> Variant::as<PoolVector<Color>>() const;
-template <> GODOT_EXPORT PoolVector<Face3> Variant::as<PoolVector<Face3>>() const;
-template <> GODOT_EXPORT PoolVector<int> Variant::as<PoolVector<int>>() const;
-template <> GODOT_EXPORT PoolVector<Plane> Variant::as<PoolVector<Plane>>() const;
-template <> GODOT_EXPORT PoolVector<real_t> Variant::as<PoolVector<real_t>>() const;
-template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
-template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
-template <> GODOT_EXPORT PoolVector<uint8_t> Variant::as<PoolVector<uint8_t>>() const;
-template <> GODOT_EXPORT PoolVector<Vector2> Variant::as<PoolVector<Vector2>>() const;
-template <> GODOT_EXPORT PoolVector<Vector3> Variant::as<PoolVector<Vector3>>() const;
-template <> GODOT_EXPORT QChar Variant::as<QChar>() const;
-template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
-template <> GODOT_EXPORT Rect2 Variant::as<Rect2>() const;
-template <> GODOT_EXPORT RefPtr Variant::as<RefPtr>() const;
-template <> GODOT_EXPORT RID Variant::as<RID>() const;
-template <> GODOT_EXPORT signed char Variant::as<signed char>() const;
-template <> GODOT_EXPORT signed int Variant::as<signed int>() const;
-template <> GODOT_EXPORT signed short Variant::as<signed short>() const;
-template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() const;
-template <> GODOT_EXPORT Span<const int> Variant::as<Span<const int>>() const;
-template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
-template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
-template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
-template <> GODOT_EXPORT String Variant::as<String>() const;
-template <> GODOT_EXPORT StringName Variant::as<StringName>() const;
-template <> GODOT_EXPORT StringView Variant::as<StringView>() const;
-template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
-template <> GODOT_EXPORT Transform2D Variant::as<Transform2D>() const;
-template <> GODOT_EXPORT uint64_t Variant::as<uint64_t>() const;
-template <> GODOT_EXPORT UIString Variant::as<UIString>() const;
-template <> GODOT_EXPORT unsigned char Variant::as<unsigned char>() const;
-template <> GODOT_EXPORT unsigned int Variant::as<unsigned int>() const; // this is the real one
-template <> GODOT_EXPORT unsigned short Variant::as<unsigned short>() const;
-template <> GODOT_EXPORT Vector<int> Variant::asVector<int>() const;
-template <> GODOT_EXPORT Vector<Plane> Variant::asVector<Plane>() const;
-template <> GODOT_EXPORT Vector<String> Variant::as<Vector<String>>() const;
-template <> GODOT_EXPORT Vector<uint8_t> Variant::as<Vector<uint8_t>>() const;
-template <> GODOT_EXPORT Vector2 Variant::as<Vector2>() const;
-template <> GODOT_EXPORT Vector3 Variant::as<Vector3>() const;
-template <> inline GODOT_EXPORT bool Variant::as<bool>() const { return booleanize(); }
+template <> GODOT_EXPORT ::AABB Variant::as_impl<::AABB>() const;
+template <> GODOT_EXPORT Array Variant::as_impl<Array>() const;
+template <> GODOT_EXPORT Basis Variant::as_impl<Basis>() const;
+template <> GODOT_EXPORT Color Variant::as_impl<Color>() const;
+template <> GODOT_EXPORT Control*  Variant::as_impl<Control* >() const;
+template <> GODOT_EXPORT Dictionary Variant::as_impl<Dictionary>() const;
+template <> GODOT_EXPORT double Variant::as_impl<double>() const;
+template <> GODOT_EXPORT float Variant::as_impl<float>() const;
+template <> GODOT_EXPORT int64_t Variant::as_impl<int64_t>() const;
+template <> GODOT_EXPORT IP_Address Variant::as_impl<IP_Address>() const;
+template <> GODOT_EXPORT Margin Variant::as_impl<Margin>() const;
+template <> GODOT_EXPORT Node*  Variant::as_impl<Node* >() const;
+template <> GODOT_EXPORT NodePath Variant::as_impl<NodePath>() const;
+template <> GODOT_EXPORT Object*  Variant::as_impl<Object* >() const;
+template <> GODOT_EXPORT ObjectID Variant::as_impl<ObjectID>() const;
+template <> GODOT_EXPORT Orientation Variant::as_impl<Orientation>() const;
+template <> GODOT_EXPORT Plane Variant::as_impl<Plane>() const;
+template <> GODOT_EXPORT PoolVector<uint8_t> Variant::as_impl<PoolVector<uint8_t>>() const;
+template <> GODOT_EXPORT PoolVector<int> Variant::as_impl<PoolVector<int>>() const;
+template <> GODOT_EXPORT PoolVector<float> Variant::as_impl<PoolVector<float>>() const;
+template <> GODOT_EXPORT PoolVector<Vector2> Variant::as_impl<PoolVector<Vector2>>() const;
+template <> GODOT_EXPORT PoolVector<Vector3> Variant::as_impl<PoolVector<Vector3>>() const;
+template <> GODOT_EXPORT PoolVector<Color> Variant::as_impl<PoolVector<Color>>() const;
+template <> GODOT_EXPORT PoolVector<String> Variant::as_impl<PoolVector<String>>() const;
+template <> GODOT_EXPORT PoolVector<Face3> Variant::as_impl<PoolVector<Face3>>() const;
+template <> GODOT_EXPORT PoolVector<Plane> Variant::as_impl<PoolVector<Plane>>() const;
+template <> GODOT_EXPORT PoolVector<RID> Variant::as_impl<PoolVector<RID>>() const;
+template <> GODOT_EXPORT QChar Variant::as_impl<QChar>() const;
+template <> GODOT_EXPORT Quat Variant::as_impl<Quat>() const;
+template <> GODOT_EXPORT Rect2 Variant::as_impl<Rect2>() const;
+template <> GODOT_EXPORT RefPtr Variant::as_impl<RefPtr>() const;
+template <> GODOT_EXPORT RID Variant::as_impl<RID>() const;
+template <> GODOT_EXPORT signed char Variant::as_impl<signed char>() const;
+template <> GODOT_EXPORT signed int Variant::as_impl<signed int>() const;
+template <> GODOT_EXPORT signed short Variant::as_impl<signed short>() const;
+template <> GODOT_EXPORT Span<const float> Variant::as_impl<Span<const float>>() const;
+template <> GODOT_EXPORT Span<const int> Variant::as_impl<Span<const int>>() const;
+template <> GODOT_EXPORT Span<const uint8_t> Variant::as_impl<Span<const uint8_t>>() const;
+template <> GODOT_EXPORT Span<const Vector2> Variant::as_impl<Span<const Vector2>>() const;
+template <> GODOT_EXPORT Span<const Vector3> Variant::as_impl<Span<const Vector3>>() const;
+template <> GODOT_EXPORT String Variant::as_impl<String>() const;
+template <> GODOT_EXPORT StringName Variant::as_impl<StringName>() const;
+template <> GODOT_EXPORT StringView Variant::as_impl<StringView>() const;
+template <> GODOT_EXPORT Transform Variant::as_impl<Transform>() const;
+template <> GODOT_EXPORT Transform2D Variant::as_impl<Transform2D>() const;
+template <> GODOT_EXPORT uint64_t Variant::as_impl<uint64_t>() const;
+template <> GODOT_EXPORT UIString Variant::as_impl<UIString>() const;
+template <> GODOT_EXPORT unsigned char Variant::as_impl<unsigned char>() const;
+template <> GODOT_EXPORT unsigned int Variant::as_impl<unsigned int>() const; // this is the real one
+template <> GODOT_EXPORT unsigned short Variant::as_impl<unsigned short>() const;
+
+template <> GODOT_EXPORT Vector<uint8_t> Variant::as_impl<Vector<uint8_t>>() const;
+template <> GODOT_EXPORT Vector<int> Variant::as_impl<Vector<int>>() const;
+template <> GODOT_EXPORT Vector<float> Variant::as_impl<Vector<float>>() const;
+template <> GODOT_EXPORT Vector<Vector2> Variant::as_impl<Vector<Vector2>>() const;
+template <> GODOT_EXPORT Vector<Vector3> Variant::as_impl<Vector<Vector3>>() const;
+template <> GODOT_EXPORT Vector<String> Variant::as_impl<Vector<String>>() const;
+template <> GODOT_EXPORT Vector<Plane> Variant::as_impl< Vector<Plane>>() const;
+template <> GODOT_EXPORT Vector<Color> Variant::as_impl<Vector<Color>>() const;
+template <> GODOT_EXPORT Vector<RID> Variant::as_impl< Vector<RID>>() const;
+template <> GODOT_EXPORT Vector<Variant> Variant::as_impl<Vector<Variant>>() const;
+
+template <> GODOT_EXPORT Vector2 Variant::as_impl<Vector2>() const;
+template <> GODOT_EXPORT Vector3 Variant::as_impl<Vector3>() const;
+template <> inline GODOT_EXPORT bool Variant::as_impl<bool>() const { return booleanize(); }
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
 template <> inline Variant Variant::from(const ObjectID &ob) { return {VariantType::INT,VariantUnion((uint64_t)ob)}; }

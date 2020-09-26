@@ -140,7 +140,7 @@ void GroupDialog::_add_pressed() {
     undo_redo->create_action(TTR("Add to Group"));
 
     while (selected) {
-        Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0));
+        Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0).as<NodePath>());
         undo_redo->add_do_method(node, "add_to_group", selected_group, true);
         undo_redo->add_undo_method(node, "remove_from_group", selected_group);
 
@@ -168,7 +168,7 @@ void GroupDialog::_removed_pressed() {
     undo_redo->create_action(TTR("Remove from Group"));
 
     while (selected) {
-        Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0));
+        Node *node = scene_tree->get_edited_scene_root()->get_node(selected->get_metadata(0).as<NodePath>());
         undo_redo->add_do_method(node, "remove_from_group", selected_group);
         undo_redo->add_undo_method(node, "add_to_group", selected_group, true);
 

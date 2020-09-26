@@ -2450,7 +2450,7 @@ ProjectManager::ProjectManager() {
         OS::get_singleton()->set_window_size(OS::get_singleton()->get_window_size() * M_MAX(1, EDSCALE));
     }
 
-    FileDialog::set_default_show_hidden_files(EditorSettings::get_singleton()->get("filesystem/file_dialog/show_hidden_files"));
+    FileDialog::set_default_show_hidden_files(EditorSettings::get_singleton()->getT<bool>("filesystem/file_dialog/show_hidden_files"));
 
     set_anchors_and_margins_preset(Control::PRESET_WIDE);
     set_theme(create_custom_theme());
@@ -2511,8 +2511,8 @@ ProjectManager::ProjectManager() {
     project_order_filter->connect("filter_changed", this, "_on_order_option_changed");
     project_order_filter->set_custom_minimum_size(Size2(180, 10) * EDSCALE);
 
-    int projects_sorting_order = (int)EditorSettings::get_singleton()->get("project_manager/sorting_order");
-    project_order_filter->set_filter_option((ProjectListFilter::FilterOption)projects_sorting_order);
+    ProjectListFilter::FilterOption projects_sorting_order = EditorSettings::get_singleton()->getT<ProjectListFilter::FilterOption>("project_manager/sorting_order");
+    project_order_filter->set_filter_option(projects_sorting_order);
 
     sort_filters->add_spacer(true);
 

@@ -209,7 +209,7 @@ void ImageTexture::reload_from_file() {
 bool ImageTexture::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "image")
-        create_from_image(refFromRefPtr<Image>(p_value.as<RefPtr>()), flags);
+        create_from_image(refFromVariant<Image>(p_value), flags);
     else if (p_name == "flags")
         if (w * h == 0)
             flags = p_value.as<uint32_t>();
@@ -1438,7 +1438,7 @@ void LargeTexture::_set_data(const Array &p_array) {
     ERR_FAIL_COND(!(p_array.size() & 1));
     clear();
     for (int i = 0; i < p_array.size() - 1; i += 2) {
-        add_piece(p_array[i].as<Vector2>(), refFromRefPtr<Texture>(p_array[i + 1].as<RefPtr>()));
+        add_piece(p_array[i].as<Vector2>(), refFromVariant<Texture>(p_array[i + 1]));
     }
     size = p_array[p_array.size() - 1].as<Vector2>();
 }
@@ -1642,17 +1642,17 @@ void CubeMap::set_path(StringView p_path, bool p_take_over) {
 bool CubeMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "side/left") {
-        set_side(SIDE_LEFT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_LEFT, refFromVariant<Image>(p_value));
     } else if (p_name == "side/right") {
-        set_side(SIDE_RIGHT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_RIGHT, refFromVariant<Image>(p_value));
     } else if (p_name == "side/bottom") {
-        set_side(SIDE_BOTTOM, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_BOTTOM, refFromVariant<Image>(p_value));
     } else if (p_name == "side/top") {
-        set_side(SIDE_TOP, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_TOP, refFromVariant<Image>(p_value));
     } else if (p_name == "side/front") {
-        set_side(SIDE_FRONT, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_FRONT, refFromVariant<Image>(p_value));
     } else if (p_name == "side/back") {
-        set_side(SIDE_BACK, refFromRefPtr<Image>(p_value.as<RefPtr>()));
+        set_side(SIDE_BACK, refFromVariant<Image>(p_value));
     } else if (p_name == "storage") {
         storage = Storage(p_value.as<int>());
     } else if (p_name == "lossy_quality") {

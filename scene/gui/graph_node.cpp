@@ -52,17 +52,17 @@ bool GraphNode::_set(const StringName &p_name, const Variant &p_value) {
         si = slot_info[idx];
 
     if (what == StringView("left_enabled"))
-        si.enable_left = p_value;
+        si.enable_left = p_value.as<bool>();
     else if (what == StringView("left_type"))
-        si.type_left = p_value;
+        si.type_left = p_value.as<int>();
     else if (what == StringView("left_color"))
-        si.color_left = p_value;
+        si.color_left = p_value.as<Color>();
     else if (what == StringView("right_enabled"))
-        si.enable_right = p_value;
+        si.enable_right = p_value.as<bool>();
     else if (what == StringView("right_type"))
-        si.type_right = p_value;
+        si.type_right = p_value.as<int>();
     else if (what == StringView("right_color"))
-        si.color_right = p_value;
+        si.color_right = p_value.as<Color>();
     else
         return false;
 

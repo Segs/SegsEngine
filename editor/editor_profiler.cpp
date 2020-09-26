@@ -86,7 +86,7 @@ void EditorProfiler::add_frame_metric(const Metric &p_metric, bool p_final) {
 
 void EditorProfiler::clear() {
 
-    int metric_size = EditorSettings::get_singleton()->get("debugger/profiler_frame_history_size");
+    int metric_size = EditorSettings::get_singleton()->getT<int>("debugger/profiler_frame_history_size");
     metric_size = CLAMP(metric_size, 60, 1024);
     frame_metrics.clear();
     frame_metrics.resize(metric_size);
@@ -150,7 +150,7 @@ void EditorProfiler::_item_edited() {
     TreeItem *item = variables->get_edited();
     if (!item)
         return;
-    StringName signature = item->get_metadata(0);
+    StringName signature = item->get_metadata(0).as<StringName>();
     bool checked = item->is_checked(0);
 
     if (checked)
@@ -765,7 +765,7 @@ EditorProfiler::EditorProfiler() {
     h_split->add_child(graph);
     graph->set_h_size_flags(SIZE_EXPAND_FILL);
 
-    int metric_size = CLAMP(int(EDITOR_DEF("debugger/profiler_frame_history_size", 600)), 60, 1024);
+    int metric_size = CLAMP(EDITOR_DEF_T<int>("debugger/profiler_frame_history_size", 600), 60, 1024);
     frame_metrics.resize(metric_size);
     last_metric = -1;
     hover_metric = -1;

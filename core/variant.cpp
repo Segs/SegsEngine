@@ -1120,7 +1120,7 @@ void Variant::clear() {
 }
 
 template <>
- signed int Variant::as<signed int>() const {
+ signed int Variant::as_impl<signed int>() const {
 
     switch (type) {
 
@@ -1136,7 +1136,7 @@ template <>
     }
 }
 template <>
-unsigned int Variant::as<unsigned int>() const {
+unsigned int Variant::as_impl<unsigned int>() const {
 
     switch (type) {
 
@@ -1153,7 +1153,7 @@ unsigned int Variant::as<unsigned int>() const {
 }
 
 template <>
-int64_t Variant::as<int64_t>() const {
+int64_t Variant::as_impl<int64_t>() const {
 
     switch (type) {
 
@@ -1171,7 +1171,7 @@ int64_t Variant::as<int64_t>() const {
 
 /*
 template <>
-long unsigned int Variant::as<long unsigned int>() const {
+long unsigned int Variant::as_impl<long unsigned int>() const {
 
     switch( type ) {
 
@@ -1191,7 +1191,7 @@ long unsigned int Variant::as<long unsigned int>() const {
 */
 
 template <>
-uint64_t Variant::as<uint64_t>() const {
+uint64_t Variant::as_impl<uint64_t>() const {
 
     switch (type) {
 
@@ -1208,7 +1208,7 @@ uint64_t Variant::as<uint64_t>() const {
 }
 
 template <>
-signed short Variant::as<signed short>() const {
+signed short Variant::as_impl<signed short>() const {
 
     switch (type) {
 
@@ -1224,7 +1224,7 @@ signed short Variant::as<signed short>() const {
     }
 }
 template <>
-unsigned short Variant::as<unsigned short>() const {
+unsigned short Variant::as_impl<unsigned short>() const {
 
     switch (type) {
 
@@ -1240,7 +1240,7 @@ unsigned short Variant::as<unsigned short>() const {
     }
 }
 template <>
-signed char Variant::as<signed char>() const {
+signed char Variant::as_impl<signed char>() const {
 
     switch (type) {
 
@@ -1256,7 +1256,7 @@ signed char Variant::as<signed char>() const {
     }
 }
 template <>
-unsigned char Variant::as<unsigned char>() const {
+unsigned char Variant::as_impl<unsigned char>() const {
 
     switch (type) {
 
@@ -1272,13 +1272,13 @@ unsigned char Variant::as<unsigned char>() const {
     }
 }
 template<>
-QChar Variant::as<QChar>() const {
+QChar Variant::as_impl<QChar>() const {
 
     return as<unsigned int>();
 }
 
 template <>
-float Variant::as<float>() const {
+float Variant::as_impl<float>() const {
 
     switch (type) {
 
@@ -1293,7 +1293,7 @@ float Variant::as<float>() const {
         }
     }
 }
-template <> double Variant::as<double>() const {
+template <> double Variant::as_impl<double>() const {
 
     switch (type) {
 
@@ -1310,26 +1310,26 @@ template <> double Variant::as<double>() const {
 }
 
 template<>
-UIString Variant::as<UIString>() const {
+UIString Variant::as_impl<UIString>() const {
     Vector<const void *> stack;
 
     return StringUtils::from_utf8(stringify(stack));
 }
 template<>
-String Variant::as<String>() const {
+String Variant::as_impl<String>() const {
     Vector<const void *> stack;
 
     return stringify(stack);
 }
 template<>
-StringView Variant::as<StringView>() const {
+StringView Variant::as_impl<StringView>() const {
     if(type==VariantType::NIL)
         return "";
     assert(type==VariantType::STRING);
     return (*reinterpret_cast<const String *>(_data._mem));
 }
 template<>
-NodePath Variant::as<NodePath>() const {
+NodePath Variant::as_impl<NodePath>() const {
     if (type == VariantType::NODE_PATH)
         return *reinterpret_cast<const NodePath *>(_data._mem);
     if (type == VariantType::STRING)
@@ -1337,12 +1337,12 @@ NodePath Variant::as<NodePath>() const {
     return NodePath();
 }
 template<>
-StringName Variant::as<StringName>() const {
+StringName Variant::as_impl<StringName>() const {
 
     return StringName(as<String>());
 }
 template<>
-IP_Address Variant::as<IP_Address>() const {
+IP_Address Variant::as_impl<IP_Address>() const {
 
     if (type == VariantType::POOL_REAL_ARRAY || type == VariantType::POOL_INT_ARRAY || type == VariantType::POOL_BYTE_ARRAY) {
 
@@ -1355,7 +1355,7 @@ IP_Address Variant::as<IP_Address>() const {
     return IP_Address(as<String>());
 }
 template<>
-Transform Variant::as<Transform>() const {
+Transform Variant::as_impl<Transform>() const {
     if (type == VariantType::TRANSFORM)
         return *_data._transform;
     if (type == VariantType::BASIS)
@@ -1376,7 +1376,7 @@ Transform Variant::as<Transform>() const {
     return Transform();
 }
 template<>
-Basis Variant::as<Basis>() const {
+Basis Variant::as_impl<Basis>() const {
     if (type == VariantType::BASIS)
         return *_data._basis;
     if (type == VariantType::QUAT)
@@ -1389,7 +1389,7 @@ Basis Variant::as<Basis>() const {
     return Basis();
 }
 template<>
-Quat Variant::as<Quat>() const {
+Quat Variant::as_impl<Quat>() const {
     if (type == VariantType::QUAT)
         return *reinterpret_cast<const Quat *>(_data._mem);
     if (type == VariantType::BASIS)
@@ -1400,7 +1400,7 @@ Quat Variant::as<Quat>() const {
 }
 
 template<>
-ObjectID Variant::as<ObjectID>() const {
+ObjectID Variant::as_impl<ObjectID>() const {
     if (type == VariantType::INT) {
         return ObjectID(_data._int);
     }
@@ -1617,7 +1617,7 @@ String Variant::stringify(Vector<const void *> &stack) const {
 }
 
 template <>
-Vector2 Variant::as<Vector2>() const {
+Vector2 Variant::as_impl<Vector2>() const {
 
     if (type == VariantType::VECTOR2)
         return *reinterpret_cast<const Vector2 *>(_data._mem);
@@ -1626,7 +1626,7 @@ Vector2 Variant::as<Vector2>() const {
     return Vector2();
 }
 template <>
-Rect2 Variant::as<Rect2>() const {
+Rect2 Variant::as_impl<Rect2>() const {
 
     if (type == VariantType::RECT2)
         return *reinterpret_cast<const Rect2 *>(_data._mem);
@@ -1634,7 +1634,7 @@ Rect2 Variant::as<Rect2>() const {
 }
 
 template <>
-Vector3 Variant::as<Vector3>() const {
+Vector3 Variant::as_impl<Vector3>() const {
 
     if (type == VariantType::VECTOR3)
         return *reinterpret_cast<const Vector3 *>(_data._mem);
@@ -1644,7 +1644,7 @@ Vector3 Variant::as<Vector3>() const {
 }
 
 template <>
-Plane Variant::as<Plane>() const {
+Plane Variant::as_impl<Plane>() const {
 
     if (type == VariantType::PLANE)
         return *reinterpret_cast<const Plane *>(_data._mem);
@@ -1652,7 +1652,7 @@ Plane Variant::as<Plane>() const {
 }
 
 template <>
-::AABB Variant::as<::AABB>() const {
+::AABB Variant::as_impl<::AABB>() const {
 
     if (type == VariantType::AABB)
         return *_data._aabb;
@@ -1660,7 +1660,7 @@ template <>
 }
 
 template <>
-Transform2D Variant::as<Transform2D>() const {
+Transform2D Variant::as_impl<Transform2D>() const {
 
     if (type == VariantType::TRANSFORM2D) {
         return *_data._transform2d;
@@ -1680,7 +1680,7 @@ Transform2D Variant::as<Transform2D>() const {
 }
 
 template <>
-Color Variant::as<Color>() const {
+Color Variant::as_impl<Color>() const {
 
     if (type == VariantType::COLOR)
         return *reinterpret_cast<const Color *>(_data._mem);
@@ -1692,7 +1692,7 @@ Color Variant::as<Color>() const {
 }
 
 template <>
-RefPtr Variant::as<RefPtr>() const {
+RefPtr Variant::as_impl<RefPtr>() const {
 
     if (type == VariantType::OBJECT)
         return _get_obj().ref;
@@ -1700,7 +1700,7 @@ RefPtr Variant::as<RefPtr>() const {
 }
 
 template <>
-RID Variant::as<RID>() const {
+RID Variant::as_impl<RID>() const {
 
     if (type == VariantType::_RID)
         return *reinterpret_cast<const RID *>(_data._mem);
@@ -1730,7 +1730,7 @@ RID Variant::as<RID>() const {
 }
 
 template <>
-Node * Variant::as<Node *>() const {
+Node * Variant::as_impl<Node *>() const {
 
     if (type != VariantType::OBJECT)
         return nullptr;
@@ -1743,7 +1743,7 @@ Node * Variant::as<Node *>() const {
 }
 
 template <>
-Control * Variant::as<Control *>() const {
+Control * Variant::as_impl<Control *>() const {
     if (type != VariantType::OBJECT)
         return nullptr;
 #ifdef DEBUG_ENABLED
@@ -1755,7 +1755,7 @@ Control * Variant::as<Control *>() const {
 }
 
 template <>
-Object * Variant::as<Object *>() const {
+Object * Variant::as_impl<Object *>() const {
 
     if (type == VariantType::OBJECT)
         return _OBJ_PTR(*this);
@@ -1763,7 +1763,7 @@ Object * Variant::as<Object *>() const {
 }
 
 template <>
-Dictionary Variant::as<Dictionary>() const {
+Dictionary Variant::as_impl<Dictionary>() const {
 
     if (type == VariantType::DICTIONARY)
         return *reinterpret_cast<const Dictionary *>(_data._mem);
@@ -1820,7 +1820,7 @@ DA _convert_array_from_variant(const Variant &p_variant) {
 }
 
 template <>
-Array Variant::as<Array>() const {
+Array Variant::as_impl<Array>() const {
 
     if (type == VariantType::ARRAY)
         return *reinterpret_cast<const Array *>(_data._mem);
@@ -1828,21 +1828,21 @@ Array Variant::as<Array>() const {
 }
 
 template <>
-PoolVector<uint8_t> Variant::as<PoolVector<uint8_t>>() const {
+PoolVector<uint8_t> Variant::as_impl<PoolVector<uint8_t>>() const {
 
     if (type == VariantType::POOL_BYTE_ARRAY)
         return *reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<uint8_t> >(*this);
 }
 template <>
-PoolVector<int> Variant::as<PoolVector<int>>() const {
+PoolVector<int> Variant::as_impl<PoolVector<int>>() const {
 
     if (type == VariantType::POOL_INT_ARRAY)
         return *reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<int> >(*this);
 }
 template <>
-PoolVector<real_t> Variant::as<PoolVector<real_t>>() const {
+PoolVector<real_t> Variant::as_impl<PoolVector<real_t>>() const {
 
     if (type == VariantType::POOL_REAL_ARRAY)
         return *reinterpret_cast<const PoolVector<real_t> *>(_data._mem);
@@ -1850,7 +1850,7 @@ PoolVector<real_t> Variant::as<PoolVector<real_t>>() const {
 }
 
 template <>
-PoolVector<String> Variant::as<PoolVector<String>>() const {
+PoolVector<String> Variant::as_impl<PoolVector<String>>() const {
 
     if (type == VariantType::POOL_STRING_ARRAY)
         return *reinterpret_cast<const PoolVector<String> *>(_data._mem);
@@ -1859,7 +1859,7 @@ PoolVector<String> Variant::as<PoolVector<String>>() const {
 }
 
 template<>
-Vector<String> Variant::as<Vector<String>>() const {
+Vector<String> Variant::as_impl<Vector<String>>() const {
 
     Vector<String> res;
     PoolVector<String> tmp;
@@ -1876,7 +1876,7 @@ Vector<String> Variant::as<Vector<String>>() const {
     return res;
 }
 template<>
-Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
+Vector<uint8_t> Variant::as_impl<Vector<uint8_t>>() const {
 
     PoolVector<uint8_t> tmp;
     if (type == VariantType::POOL_BYTE_ARRAY) {
@@ -1887,9 +1887,9 @@ Vector<uint8_t> Variant::as<Vector<uint8_t>>() const {
     auto rddata(tmp.read());
     return Vector<uint8_t>(rddata.ptr(), rddata.ptr()+tmp.size());
 }
-template<>
-Vector<int> Variant::asVector<int>() const {
 
+template<>
+Vector<int> Variant::as_impl<Vector<int>>() const {
     PoolVector<int> tmp;
     if (type == VariantType::POOL_INT_ARRAY) {
         tmp = *reinterpret_cast<const PoolVector<int> *>(_data._mem);
@@ -1902,35 +1902,89 @@ Vector<int> Variant::asVector<int>() const {
 }
 
 template<>
-Span<const uint8_t> Variant::as<Span<const uint8_t>>() const {
+Vector<float> Variant::as_impl<Vector<float>>() const {
+    PoolVector<float> tmp;
+    if (type == VariantType::POOL_REAL_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<float>*>(_data._mem);
+    }
+    else {
+        WARN_PRINT("Inefficient code, converting non int-array Variant to array");
+        tmp = _convert_array_from_variant<PoolVector<float> >(*this);
+    }
+    return Vector<float>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+}
+
+template<>
+Vector<Color> Variant::as_impl<Vector<Color>>() const {
+    PoolVector<Color> tmp;
+    if (type == VariantType::POOL_COLOR_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<Color>*>(_data._mem);
+    }
+    else {
+        WARN_PRINT("Inefficient code, converting non Color-array Variant to array");
+        tmp = _convert_array_from_variant<PoolVector<Color> >(*this);
+    }
+    return Vector<Color>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+}
+
+
+template<>
+Vector<Vector2> Variant::as_impl<Vector<Vector2>>() const {
+    PoolVector<Vector2> tmp;
+    if (type == VariantType::POOL_VECTOR2_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<Vector2>*>(_data._mem);
+    }
+    else {
+        WARN_PRINT("Inefficient code, converting non Vector2-array Variant to array");
+        tmp = _convert_array_from_variant<PoolVector<Vector2> >(*this);
+    }
+    return Vector<Vector2>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+}
+
+template<>
+Vector<Vector3> Variant::as_impl<Vector<Vector3>>() const {
+    PoolVector<Vector3> tmp;
+    if (type == VariantType::POOL_VECTOR3_ARRAY) {
+        tmp = *reinterpret_cast<const PoolVector<Vector3>*>(_data._mem);
+    }
+    else {
+        WARN_PRINT("Inefficient code, converting non Vector3-array Variant to array");
+        tmp = _convert_array_from_variant<PoolVector<Vector3> >(*this);
+    }
+    return Vector<Vector3>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+}
+
+
+template<>
+Span<const uint8_t> Variant::as_impl<Span<const uint8_t>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_BYTE_ARRAY, Span<const uint8_t>());
 
     auto tmp = reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem);
     return Span<const uint8_t>(tmp->read().ptr(),tmp->size());
 }
 template<>
-Span<const int> Variant::as<Span<const int>>() const {
+Span<const int> Variant::as_impl<Span<const int>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_INT_ARRAY, Span<const int>());
 
     auto tmp = reinterpret_cast<const PoolVector<int> *>(_data._mem);
     return Span<const int>(tmp->read().ptr(),tmp->size());
 }
 template<>
-Span<const float> Variant::as<Span<const float>>() const {
+Span<const float> Variant::as_impl<Span<const float>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_REAL_ARRAY, Span<const float>());
 
     auto tmp = reinterpret_cast<const PoolVector<float> *>(_data._mem);
     return Span<const float>(tmp->read().ptr(), tmp->size());
 }
 template<>
-Span<const Vector2> Variant::as<Span<const Vector2>>() const {
+Span<const Vector2> Variant::as_impl<Span<const Vector2>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR2_ARRAY, Span<const Vector2>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
     return Span<const Vector2>(tmp->read().ptr(),tmp->size());
 }
 template<>
-Span<const Vector3> Variant::as<Span<const Vector3>>() const {
+Span<const Vector3> Variant::as_impl<Span<const Vector3>>() const {
     ERR_FAIL_COND_V(type != VariantType::POOL_VECTOR3_ARRAY, Span<const Vector3>());
 
     auto tmp = reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
@@ -1938,14 +1992,14 @@ Span<const Vector3> Variant::as<Span<const Vector3>>() const {
 }
 
 template <>
-PoolVector<Vector3> Variant::as<PoolVector<Vector3>>() const {
+PoolVector<Vector3> Variant::as_impl<PoolVector<Vector3>>() const {
 
     if (type == VariantType::POOL_VECTOR3_ARRAY)
         return *reinterpret_cast<const PoolVector<Vector3> *>(_data._mem);
     return _convert_array_from_variant<PoolVector<Vector3> >(*this);
 }
 template <>
-PoolVector<Vector2> Variant::as<PoolVector<Vector2>>() const {
+PoolVector<Vector2> Variant::as_impl<PoolVector<Vector2>>() const {
 
     if (type == VariantType::POOL_VECTOR2_ARRAY)
         return *reinterpret_cast<const PoolVector<Vector2> *>(_data._mem);
@@ -1953,7 +2007,7 @@ PoolVector<Vector2> Variant::as<PoolVector<Vector2>>() const {
 }
 
 template <>
-PoolVector<Color> Variant::as<PoolVector<Color>>() const {
+PoolVector<Color> Variant::as_impl<PoolVector<Color>>() const {
 
     if (type == VariantType::POOL_COLOR_ARRAY)
         return *reinterpret_cast<const PoolVector<Color> *>(_data._mem);
@@ -1963,7 +2017,7 @@ PoolVector<Color> Variant::as<PoolVector<Color>>() const {
 /* helpers */
 
 template<>
-PoolVector<RID> Variant::as<PoolVector<RID>>() const {
+PoolVector<RID> Variant::as_impl<PoolVector<RID>>() const {
 
     Array va = as<Array>();
     PoolVector<RID> rids;
@@ -1975,7 +2029,7 @@ PoolVector<RID> Variant::as<PoolVector<RID>>() const {
 }
 
 template <>
-PoolVector<Plane> Variant::as<PoolVector<Plane>>() const {
+PoolVector<Plane> Variant::as_impl<PoolVector<Plane>>() const {
 
     Array va = as<Array>();
     PoolVector<Plane> planes;
@@ -1993,7 +2047,7 @@ PoolVector<Plane> Variant::as<PoolVector<Plane>>() const {
 }
 
 template <>
-PoolVector<Face3> Variant::as<PoolVector<Face3>>() const {
+PoolVector<Face3> Variant::as_impl<PoolVector<Face3>>() const {
 
     PoolVector<Vector3> va = as<PoolVector<Vector3>>();
     PoolVector<Face3> faces;
@@ -2012,7 +2066,7 @@ PoolVector<Face3> Variant::as<PoolVector<Face3>>() const {
 }
 
 template<>
-Vector<Plane> Variant::asVector<Plane>() const {
+Vector<Plane> Variant::as_impl<Vector<Plane>>() const {
 
     Array va = as<Array>();
     Vector<Plane> planes;
@@ -2029,12 +2083,12 @@ Vector<Plane> Variant::asVector<Plane>() const {
 }
 
 template <>
-Margin Variant::as<Margin>() const {
+Margin Variant::as_impl<Margin>() const {
 
     return (Margin) as<int>();
 }
 template <>
-Orientation Variant::as<Orientation>() const {
+Orientation Variant::as_impl<Orientation>() const {
 
     return (Orientation)as<int>();
 }

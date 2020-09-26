@@ -1419,7 +1419,7 @@ Transform2D Viewport::_get_input_pre_xform() const {
 Vector2 Viewport::_get_window_offset() const {
 
     if (get_parent() && get_parent()->has_method("get_global_position")) {
-        return get_parent()->call_va("get_global_position");
+        return get_parent()->call_va("get_global_position").as<Vector2>();
     }
     return Vector2();
 }
@@ -1626,7 +1626,7 @@ void Viewport::_gui_show_tooltip() {
     if (gui.tooltip) // Avoids crash when rapidly switching controls.
         gui.tooltip_popup->set_scale(gui.tooltip->get_global_transform().get_scale());
 
-    Point2 tooltip_offset = ProjectSettings::get_singleton()->get("display/mouse_cursor/tooltip_position_offset");
+    Point2 tooltip_offset = ProjectSettings::get_singleton()->getT<Vector2>("display/mouse_cursor/tooltip_position_offset");
     Rect2 r(gui.tooltip_pos + tooltip_offset, gui.tooltip_popup->get_minimum_size());
     Rect2 vr = gui.tooltip_popup->get_viewport_rect();
     if (r.size.x * gui.tooltip_popup->get_scale().x + r.position.x > vr.size.x)
@@ -2232,7 +2232,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == StringName(gui.tooltip_popup->call_va("get_tooltip_text"))) {
+                    } else if (tooltip == gui.tooltip_popup->call_va("get_tooltip_text").as<StringName>()) {
                         is_tooltip_shown = true;
                     }
                 } else
@@ -3389,7 +3389,7 @@ Viewport::Viewport() {
     gui.tooltip_timer = -1;
 
     //gui.tooltip_timer->force_parent_owned();
-    gui.tooltip_delay = GLOBAL_DEF("gui/timers/tooltip_delay_sec", 0.5);
+    gui.tooltip_delay = T_GLOBAL_DEF("gui/timers/tooltip_delay_sec", float(0.5f));
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
 
     gui.tooltip = nullptr;

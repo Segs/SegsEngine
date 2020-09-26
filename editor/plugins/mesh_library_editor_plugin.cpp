@@ -64,7 +64,7 @@ void MeshLibraryEditor::_menu_confirm() {
             mesh_library->remove_item(to_erase);
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
-            String existing = mesh_library->get_meta("_editor_source_scene");
+            String existing = mesh_library->get_meta("_editor_source_scene").as<String>();
             ERR_FAIL_COND(existing.empty());
             _import_scene_cbk(existing);
 
@@ -190,7 +190,7 @@ void MeshLibraryEditor::_import_scene(Node *p_scene,const Ref<MeshLibrary> &p_li
             }
         }
 
-        Vector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->get("editors/grid_map/preview_size"));
+        Vector<Ref<Texture> > textures = EditorInterface::get_singleton()->make_mesh_previews(meshes, &transforms, EditorSettings::get_singleton()->getT<int>("editors/grid_map/preview_size"));
         int j = 0;
         for (int i = 0; i < ids.size(); i++) {
 
@@ -249,7 +249,7 @@ void MeshLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text(StringName(TTR("Update from existing scene?:\n") + String(mesh_library->get_meta("_editor_source_scene"))));
+            cd->set_text(StringName(TTR("Update from existing scene?:\n") + mesh_library->get_meta("_editor_source_scene").as<String>()));
             cd->popup_centered(Size2(500, 60));
         } break;
     }

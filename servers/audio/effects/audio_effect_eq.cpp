@@ -101,7 +101,7 @@ bool AudioEffectEQ::_set(const StringName &p_name, const Variant &p_value) {
 
     const HashMap<StringName, int>::iterator E = prop_band_map.find(p_name);
     if (E!=prop_band_map.end()) {
-        set_band_gain_db(E->second, p_value);
+        set_band_gain_db(E->second, p_value.as<float>());
         return true;
     }
 

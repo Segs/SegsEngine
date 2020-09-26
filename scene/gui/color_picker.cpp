@@ -67,7 +67,7 @@ void ColorPicker::_notification(int p_what) {
 
 #ifdef TOOLS_ENABLED
             if (Engine::get_singleton()->is_editor_hint()) {
-                PoolColorArray saved_presets = EditorSettings::get_singleton()->get_project_metadata("color_picker", "presets", PoolColorArray());
+                PoolColorArray saved_presets = EditorSettings::get_singleton()->get_project_metadataT("color_picker", "presets", PoolColorArray());
 
                 for (int i = 0; i < saved_presets.size(); i++) {
                     add_preset(saved_presets[i]);

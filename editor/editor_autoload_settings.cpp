@@ -175,7 +175,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         name = "autoload/" + name;
 
         int order = ProjectSettings::get_singleton()->get_order(StringName(selected_autoload));
-        String path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
+        String path = ProjectSettings::get_singleton()->getT<String>(StringName(selected_autoload));
 
         undo_redo->create_action(TTR("Rename Autoload"));
 
@@ -203,7 +203,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         StringName base("autoload/" + ti->get_text(0));
 
         int order = ProjectSettings::get_singleton()->get_order(base);
-        String path = ProjectSettings::get_singleton()->get(base);
+        String path = ProjectSettings::get_singleton()->getT<String>(base);
 
         if (StringUtils::begins_with(path,"*"))
             path = StringUtils::substr(path,1, path.length());
@@ -405,7 +405,7 @@ void EditorAutoloadSettings::update_autoload() {
             continue;
 
         String name(StringUtils::get_slice(pi.name,"/", 1));
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        String path = ProjectSettings::get_singleton()->getT<String>(pi.name);
 
         if (name.empty())
             continue;
@@ -562,7 +562,7 @@ bool EditorAutoloadSettings::can_drop_data_fw(const Point2 &p_point, const Varia
     if (updating_autoload)
         return false;
 
-    Dictionary drop_data = p_data;
+    Dictionary drop_data = p_data.as<Dictionary>();
 
     if (!drop_data.has("type"))
         return false;
@@ -615,7 +615,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
         E = autoload_cache.find(aux);
     }
 
-    Dictionary drop_data = p_data;
+    Dictionary drop_data = p_data.as<Dictionary>();
     PoolVector<String> autoloads = drop_data["autoloads"].as<PoolVector<String>>();
 
     Vector<int> orders;
@@ -784,7 +784,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
             continue;
 
         String name(StringUtils::get_slice(pi.name,"/", 1));
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        String path = ProjectSettings::get_singleton()->getT<String>(pi.name);
 
         if (name.empty())
             continue;

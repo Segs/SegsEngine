@@ -944,7 +944,7 @@ bool SceneTree::idle(float p_time) {
 
     if (Engine::get_singleton()->is_editor_hint()) {
         //simple hack to reload fallback environment if it changed from editor
-        String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
+        String env_path = ProjectSettings::get_singleton()->getT<String>("rendering/environment/default_environment");
         env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
         StringView cpath;
         Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
@@ -1366,9 +1366,9 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Cal
     ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
     ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING, Variant());
 
-    int flags = *p_args[0];
-    StringName group = *p_args[1];
-    StringName method = *p_args[2];
+    int flags = p_args[0]->as<float>();
+    StringName group = p_args[1]->as<StringName>();
+    StringName method = p_args[2]->as<StringName>();
     Variant v[VARIANT_ARG_MAX];
 
     for (int i = 0; i < MIN(p_argcount - 3, 5); i++) {
@@ -1388,8 +1388,8 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable:
     ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
     ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
 
-    StringName group = *p_args[0];
-    StringName method = *p_args[1];
+    StringName group = p_args[0]->as<StringName>();
+    StringName method = p_args[1]->as<StringName>();
     Variant v[VARIANT_ARG_MAX];
 
     for (int i = 0; i < MIN(p_argcount - 2, 5); i++) {
@@ -2012,11 +2012,11 @@ SceneTree::SceneTree() {
     debug_collisions_hint = false;
     debug_navigation_hint = false;
 #endif
-    debug_collisions_color = GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
-    debug_collision_contact_color = GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
-    debug_navigation_color = GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
-    debug_navigation_disabled_color = GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
-    collision_debug_contacts = GLOBAL_DEF("debug/shapes/collision/max_contacts_displayed", 10000);
+    debug_collisions_color = T_GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
+    debug_collision_contact_color = T_GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
+    debug_navigation_color = T_GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
+    debug_navigation_disabled_color = T_GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
+    collision_debug_contacts = T_GLOBAL_DEF<int>("debug/shapes/collision/max_contacts_displayed", 10000);
     ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(VariantType::INT, "debug/shapes/collision/max_contacts_displayed", PropertyHint::Range, "0,20000,1")); // No negative
 
     tree_version = 1;
@@ -2055,18 +2055,18 @@ SceneTree::SceneTree() {
     root->set_as_audio_listener_2d(true);
     current_scene = nullptr;
 
-    int ref_atlas_size = GLOBAL_DEF("rendering/quality/reflections/atlas_size", 2048);
+    int ref_atlas_size = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_size", 2048);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PropertyHint::Range, "0,8192,or_greater")); //next_power_of_2 will return a 0 as min value
-    int ref_atlas_subdiv = GLOBAL_DEF("rendering/quality/reflections/atlas_subdiv", 8);
+    int ref_atlas_subdiv = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_subdiv", 8);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PropertyHint::Range, "0,32,or_greater")); //next_power_of_2 will return a 0 as min value
-    int msaa_mode = GLOBAL_DEF("rendering/quality/filters/msaa", 0);
+    Viewport::MSAA msaa_mode = T_GLOBAL_DEF< Viewport::MSAA>("rendering/quality/filters/msaa", Viewport::MSAA::MSAA_DISABLED);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"));
-    root->set_msaa(Viewport::MSAA(msaa_mode));
+    root->set_msaa(msaa_mode);
 
     GLOBAL_DEF("rendering/quality/depth/hdr", true);
     GLOBAL_DEF("rendering/quality/depth/hdr.mobile", false);
 
-    bool hdr = GLOBAL_GET("rendering/quality/depth/hdr");
+    bool hdr = GLOBAL_GET("rendering/quality/depth/hdr").as<bool>();
     root->set_hdr(hdr);
 
     RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
@@ -2082,7 +2082,7 @@ SceneTree::SceneTree() {
             ext_hint += "*." + E;
         }
         //get path
-        String env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
+        String env_path = GLOBAL_DEF("rendering/environment/default_environment", "").as<String>();
         //setup property
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/environment/default_environment",
                 PropertyInfo(VariantType::STRING, "rendering/viewport/default_environment", PropertyHint::File, ext_hint));
@@ -2119,7 +2119,7 @@ SceneTree::SceneTree() {
         ScriptDebugger::get_singleton()->set_multiplayer(multiplayer);
     }
 
-    root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true));
+    root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true).as<bool>());
 
 #ifdef TOOLS_ENABLED
     edited_scene_root = nullptr;

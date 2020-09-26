@@ -103,7 +103,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
 
     // Restore valid window bounds or pop up at default size.
     Rect2 saved_size =
-            EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "create_new_node", Rect2());
+            EditorSettings::get_singleton()->get_project_metadataT("dialog_bounds", "create_new_node", Rect2());
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -248,7 +248,7 @@ void CreateDialog::add_type(
         }
     }
 
-    if (bool(EditorSettings::get_singleton()->get("docks/scene_tree/start_create_dialog_fully_expanded"))) {
+    if ((EditorSettings::get_singleton()->getT<bool>("docks/scene_tree/start_create_dialog_fully_expanded"))) {
         item->set_collapsed(false);
     } else {
         // don't collapse search results
@@ -484,7 +484,8 @@ void CreateDialog::_notification(int p_what) {
             }
         } break;
         case NOTIFICATION_POPUP_HIDE: {
-            EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "create_new_node", get_rect());
+            //TODO: original code was calling get_project_metadata here!
+            EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "create_new_node", Rect2(get_position(), get_size()));
             search_loaded_scripts.clear();
         } break;
     }
@@ -532,7 +533,8 @@ Object *CreateDialog::instance_selected() {
         Variant md = selected->get_metadata(0);
 
         StringName custom;
-        if (md.get_type() != VariantType::NIL) custom = md;
+        if (md.get_type() != VariantType::NIL)
+            custom = md.as<StringName>();
 
         if (!custom.empty()) {
             if (ScriptServer::is_global_class(custom)) {
@@ -672,8 +674,8 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 
 bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
-    if (d.has("type") && UIString(d["type"]) == "create_favorite_drag") {
+    Dictionary d = p_data.as<Dictionary>();
+    if (d.has("type") && d["type"].as<String>() == "create_favorite_drag") {
         favorites->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
         return true;
     }
@@ -682,7 +684,7 @@ bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
 }
 void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     TreeItem *ti = favorites->get_item_at_position(p_point);
     if (!ti) return;
@@ -694,7 +696,7 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     if (drop_idx >= favorite_list.size())
         return;
 
-    String type = d["class"];
+    String type = d["class"].as<String>();
 
     auto from_idx = favorite_list.index_of(type);
     if (from_idx >= favorite_list.size())

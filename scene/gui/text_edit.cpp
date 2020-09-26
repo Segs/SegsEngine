@@ -390,7 +390,7 @@ struct TextEdit::PrivateData {
         text.set_color_regions(&color_regions);
         current_op.type = TextOperation::TYPE_NONE;
         current_op.version = 0;
-        undo_stack_max_size = GLOBAL_GET("gui/common/text_edit_undo_stack_max_size");
+        undo_stack_max_size = T_GLOBAL_GET<int>("gui/common/text_edit_undo_stack_max_size");
     }
     void _clear() {
         clear_undo_history();
@@ -7282,7 +7282,7 @@ StringName TextEdit::get_tooltip(const Point2 &p_pos) const {
         return Control::get_tooltip(p_pos);
     int beg, end;
     if (select_word(s, col, beg, end)) {
-        return tooltip_obj->call_va(tooltip_func, StringUtils::to_utf8(StringUtils::substr(s,beg, end - beg)), tooltip_ud);
+        return tooltip_obj->call_va(tooltip_func, StringUtils::to_utf8(StringUtils::substr(s,beg, end - beg)), tooltip_ud).as<StringName>();
     }
 
     return Control::get_tooltip(p_pos);
@@ -7757,7 +7757,7 @@ TextEdit::TextEdit() {
     idle_detect = memnew(Timer);
     add_child(idle_detect);
     idle_detect->set_one_shot(true);
-    idle_detect->set_wait_time(GLOBAL_GET("gui/timers/text_edit_idle_detect_sec"));
+    idle_detect->set_wait_time(T_GLOBAL_GET<float>("gui/timers/text_edit_idle_detect_sec"));
     idle_detect->connect("timeout", this, "_push_current_op");
 
     click_select_held = memnew(Timer);

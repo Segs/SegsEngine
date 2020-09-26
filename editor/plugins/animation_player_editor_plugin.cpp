@@ -377,7 +377,7 @@ void AnimationPlayerEditor::_animation_load() {
 void AnimationPlayerEditor::_animation_save_in_path(const Ref<Resource> &p_resource, StringView p_path) {
 
     int flg = 0;
-    if (EditorSettings::get_singleton()->get("filesystem/on_save/compress_binary_resources"))
+    if (EditorSettings::get_singleton()->getT<bool>("filesystem/on_save/compress_binary_resources"))
         flg |= ResourceManager::FLAG_COMPRESS;
 
     String path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -683,7 +683,7 @@ Dictionary AnimationPlayerEditor::get_state() const {
 }
 void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 
-    if (!p_state.has("visible") || !p_state["visible"]) {
+    if (!p_state.has("visible") || !p_state["visible"].as<bool>()) {
         return;
     }
     if (!EditorNode::get_singleton()->get_edited_scene()) {
@@ -692,7 +692,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 
     if (p_state.has("player")) {
 
-        Node *n = EditorNode::get_singleton()->get_edited_scene()->get_node(p_state["player"]);
+        Node *n = EditorNode::get_singleton()->get_edited_scene()->get_node(p_state["player"].as<NodePath>());
         if (object_cast<AnimationPlayer>(n) && EditorNode::get_singleton()->get_editor_selection()->is_selected(n)) {
             player = object_cast<AnimationPlayer>(n);
             _update_player();
@@ -701,7 +701,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
             ensure_visibility();
 
             if (p_state.has("animation")) {
-                String anim = p_state["animation"];
+                String anim = p_state["animation"].as<String>();
                 if (!anim.empty() && player->has_animation(StringName(anim))) {
                 _select_anim_by_name(StringName(anim));
                 _animation_edit();
@@ -711,7 +711,7 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
     }
 
     if (p_state.has("track_editor_state")) {
-        track_editor->set_state(p_state["track_editor_state"]);
+        track_editor->set_state(p_state["track_editor_state"].as<Dictionary>());
     }
 }
 
@@ -1397,11 +1397,12 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
         Dictionary new_state = spatial_edit_state.duplicate();
         new_state["show_grid"] = false;
         new_state["show_origin"] = false;
-        Array orig_vp = spatial_edit_state["viewports"];
+        Array orig_vp = spatial_edit_state["viewports"].as<Array>();
         Array vp;
         vp.resize(4);
         for (int i = 0; i < vp.size(); i++) {
-            Dictionary d = ((Dictionary)orig_vp[i]).duplicate();
+            //TODO: suspicious duplicate call on Dictionary?
+            Dictionary d = orig_vp[i].as<Dictionary>().duplicate();
             d["use_environment"] = false;
             d["doppler"] = false;
             d["gizmos"] = onion.include_gizmos ? d["gizmos"] : Variant(false);
@@ -1455,7 +1456,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
     int step_off_a = onion.past ? -onion.steps : 0;
     int step_off_b = onion.future ? onion.steps : 0;
     int cidx = 0;
-    onion.capture.material->set_shader_param("dir_color", onion.force_white_modulate ? Color(1, 1, 1) : Color(EDITOR_GET("editors/animation/onion_layers_past_color")));
+    onion.capture.material->set_shader_param("dir_color", onion.force_white_modulate ? Color(1, 1, 1) : EDITOR_GET_T<Color>("editors/animation/onion_layers_past_color"));
     for (int step_off = step_off_a; step_off <= step_off_b; step_off++) {
 
         if (step_off == 0) {

@@ -672,7 +672,7 @@ Variant Node::_rpc_bind(const Variant **p_args, int p_argcount, Callable::CallEr
         return Variant();
     }
 
-    StringName method = *p_args[0];
+    StringName method = p_args[0]->as<StringName>();
 
     rpcp(0, false, method, &p_args[1], p_argcount - 1);
 
@@ -702,8 +702,8 @@ Variant Node::_rpc_id_bind(const Variant **p_args, int p_argcount, Callable::Cal
         return Variant();
     }
 
-    int peer_id = *p_args[0];
-    StringName method = *p_args[1];
+    int peer_id = p_args[0]->as<int>();
+    StringName method = p_args[1]->as<StringName>();
 
     rpcp(peer_id, false, method, &p_args[2], p_argcount - 2);
 
@@ -726,7 +726,7 @@ Variant Node::_rpc_unreliable_bind(const Variant **p_args, int p_argcount, Calla
         return Variant();
     }
 
-    StringName method = *p_args[0];
+    StringName method = p_args[0]->as<StringName>();
 
     rpcp(0, true, method, &p_args[1], p_argcount - 1);
 
@@ -756,8 +756,8 @@ Variant Node::_rpc_unreliable_id_bind(const Variant **p_args, int p_argcount, Ca
         return Variant();
     }
 
-    int peer_id = *p_args[0];
-    StringName method = *p_args[1];
+    int peer_id = p_args[0]->as<int>();
+    StringName method = p_args[1]->as<StringName>();
 
     rpcp(peer_id, true, method, &p_args[2], p_argcount - 2);
 
@@ -1152,7 +1152,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
 
         name = p_child->get_class_name();
         // Adjust casing according to project setting. The current type name is expected to be in PascalCase.
-        switch (ProjectSettings::get_singleton()->get("node/name_casing").operator int()) {
+        switch (ProjectSettings::get_singleton()->get("node/name_casing").as<int>()) {
             case NAME_CASING_PASCAL_CASE:
                 break;
             case NAME_CASING_CAMEL_CASE: {
@@ -1976,7 +1976,7 @@ void Node::set_editor_description(StringView p_editor_description) {
 String Node::get_editor_description() const {
 
     if (has_meta("_editor_description_")) {
-        return get_meta("_editor_description_");
+        return get_meta("_editor_description_").as<String>();
     } else {
         return String();
     }
@@ -2147,7 +2147,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 
             if (E.usage & PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE) {
 
-                Resource *res = object_cast<Resource>(value);
+                Resource *res = value.asT<Resource>();
                 if (res) { // Duplicate only if it's a resource
                     current_node->set(name, res->duplicate());
                 }
@@ -2605,7 +2605,7 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
                 return nullptr;
             }
 
-            RES new_res(refFromRefPtr<Resource>(new_res_v));
+            RES new_res(refFromVariant<Resource>(new_res_v));
 
             if (not new_res) { // No longer a resource, assume property
                 break;
@@ -2728,7 +2728,7 @@ NodePath Node::get_import_path() const {
 static void _add_nodes_to_options(const Node *p_base, const Node *p_node, List<String> *r_options) {
 
 #ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char * quote_style = "\"";
 #endif
@@ -2764,7 +2764,7 @@ StringName Node::get_configuration_warning() const {
 
     if (get_script_instance() && get_script_instance()->get_script() &&
             get_script_instance()->has_method("_get_configuration_warning")) {
-        return get_script_instance()->call("_get_configuration_warning");
+        return get_script_instance()->call("_get_configuration_warning").as<StringName>();
     }
     return StringName();
 }

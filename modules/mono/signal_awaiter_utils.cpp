@@ -84,7 +84,7 @@ Variant SignalAwaiterHandle::_signal_callback(const Variant **p_args, int p_argc
         return Variant();
     }
 
-    Ref<SignalAwaiterHandle> self = refFromRefPtr<SignalAwaiterHandle>(p_args[p_argcount - 1]->as<RefPtr>());
+    Ref<SignalAwaiterHandle> self = refFromVariant<SignalAwaiterHandle>(*p_args[p_argcount - 1]);
 
     if (not self) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;

@@ -129,14 +129,14 @@ void Area2DSW::set_space_override_mode(PhysicsServer2D::AreaSpaceOverrideMode p_
 void Area2DSW::set_param(PhysicsServer2D::AreaParameter p_param, const Variant &p_value) {
 
     switch (p_param) {
-        case PhysicsServer2D::AREA_PARAM_GRAVITY: gravity = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_VECTOR: gravity_vector = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_IS_POINT: gravity_is_point = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_DISTANCE_SCALE: gravity_distance_scale = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_POINT_ATTENUATION: point_attenuation = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_LINEAR_DAMP: linear_damp = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_ANGULAR_DAMP: angular_damp = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_PRIORITY: priority = p_value; break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY: gravity = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_VECTOR: gravity_vector = p_value.as<Vector2>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_IS_POINT: gravity_is_point = p_value.as<bool>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_DISTANCE_SCALE: gravity_distance_scale = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_POINT_ATTENUATION: point_attenuation = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_LINEAR_DAMP: linear_damp = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_ANGULAR_DAMP: angular_damp = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_PRIORITY: priority = p_value.as<float>(); break;
     }
 }
 

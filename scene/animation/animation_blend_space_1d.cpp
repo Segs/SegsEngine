@@ -238,7 +238,7 @@ float AnimationNodeBlendSpace1D::process(float p_time, bool p_seek) {
         return blend_node(blend_points[0].name, blend_points[0].node, p_time, p_seek, 1.0, FILTER_IGNORE, false);
     }
 
-    float blend_pos = get_parameter(blend_position);
+    float blend_pos = get_parameter(blend_position).as<float>();
 
     float weights[MAX_BLEND_POINTS] = {};
 

@@ -107,7 +107,7 @@ bool EditorResourceConversionPlugin::handles(const Ref<Resource> &p_resource) co
 Ref<Resource> EditorResourceConversionPlugin::convert(const Ref<Resource> &p_resource) const {
 
     if (get_script_instance())
-        return refFromRefPtr<Resource>(get_script_instance()->call("_convert", p_resource).as<RefPtr>());
+        return refFromVariant<Resource>(get_script_instance()->call("_convert", p_resource));
 
     return Ref<Resource>();
 }
@@ -244,7 +244,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                 case OBJ_MENU_COPY: {
 
-                    EditorSettings::get_singleton()->set_resource_clipboard(refFromRefPtr<Resource>(val_variant.as<RefPtr>()));
+                    EditorSettings::get_singleton()->set_resource_clipboard(refFromVariant<Resource>(val_variant));
 
                 } break;
                 case OBJ_MENU_PASTE: {
@@ -283,7 +283,7 @@ void CustomPropertyEditor::_menu_option(int p_which) {
 
                         ERR_FAIL_INDEX(to_type, conversions.size());
 
-                        Ref<Resource> new_res = conversions[to_type]->convert(refFromRefPtr<Resource>(val_variant.as<RefPtr>()));
+                        Ref<Resource> new_res = conversions[to_type]->convert(refFromVariant<Resource>(val_variant));
 
                         val_variant = new_res;
                         emit_signal("variant_changed");

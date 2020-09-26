@@ -226,8 +226,8 @@ void FileDialog::_action_pressed() {
         path =StringUtils::replace(path,"\\", "/");
         TreeItem *item = tree->get_selected();
         if (item) {
-            Dictionary d = item->get_metadata(0);
-            if (d["dir"] && d["name"] != "..") {
+            Dictionary d = item->get_metadata(0).as<Dictionary>();
+            if (d["dir"].as<bool>() && d["name"].as<String>() != "..") {
                 path = PathUtils::plus_file(path,d["name"].as<String>());
             }
         }
@@ -326,11 +326,11 @@ bool FileDialog::_is_open_should_be_disabled() {
     if (!ti)
         return mode != MODE_OPEN_DIR; // In "Open folder" mode, having nothing selected picks the current folder.
 
-    Dictionary d = ti->get_metadata(0);
+    Dictionary d = ti->get_metadata(0).as<Dictionary>();
 
     // Opening a file, but selected a folder? Forbidden.
-    return ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || // Flipped case, also forbidden.
-           (mode == MODE_OPEN_DIR && !d["dir"]);
+    return ((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"].as<bool>()) || // Flipped case, also forbidden.
+           (mode == MODE_OPEN_DIR && !d["dir"].as<bool>());
 }
 
 void FileDialog::_go_up() {
@@ -375,9 +375,9 @@ void FileDialog::_tree_selected() {
     TreeItem *ti = tree->get_selected();
     if (!ti)
         return;
-    Dictionary d = ti->get_metadata(0);
+    Dictionary d = ti->get_metadata(0).as<Dictionary>();
 
-    if (!d["dir"]) {
+    if (!d["dir"].as<bool>()) {
 
         file->set_text(d["name"].as<String>());
     } else if (mode == MODE_OPEN_DIR) {
@@ -393,9 +393,9 @@ void FileDialog::_tree_item_activated() {
     if (!ti)
         return;
 
-    Dictionary d = ti->get_metadata(0);
+    Dictionary d = ti->get_metadata(0).as<Dictionary>();
 
-    if (d["dir"]) {
+    if (d["dir"].as<bool>()) {
 
         dir_access->change_dir(d["name"].as<String>());
         if (mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES || mode == MODE_OPEN_DIR || mode == MODE_OPEN_ANY)

@@ -1178,7 +1178,7 @@ void CSharpLanguage::_editor_init_callback() {
     UNHANDLED_EXCEPTION(exc)
 
 
-    EditorPlugin *godotsharp_editor = GDMonoMarshal::mono_object_to_variant(mono_object).asT<EditorPlugin *>();
+    EditorPlugin *godotsharp_editor = GDMonoMarshal::mono_object_to_variant(mono_object).asT<EditorPlugin>();
     CRASH_COND(godotsharp_editor == nullptr);
 
     // Enable it as a plugin

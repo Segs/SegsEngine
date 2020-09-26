@@ -139,19 +139,19 @@ namespace {
 
                 Variant defval = vsnode->get_input_port_default_value(i);
                 if (defval.get_type() == VariantType::FLOAT || defval.get_type() == VariantType::INT) {
-                    float val = defval;
+                    float val = defval.as<float>();
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tfloat " + inputs[i] + " = " + FormatVE("%.5f", val) + ";\n";
                 } else if (defval.get_type() == VariantType::BOOL) {
-                    bool val = defval;
+                    bool val = defval.as<bool>();
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tbool " + inputs[i] + " = " + (val ? "true" : "false") + ";\n";
                 } else if (defval.get_type() == VariantType::VECTOR3) {
-                    Vector3 val = defval;
+                    Vector3 val = defval.as<Vector3>();
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code += "\tvec3 " + inputs[i] + " = " + FormatVE("vec3(%.5f,%.5f,%.5f);\n", val.x, val.y, val.z);
                 } else if (defval.get_type() == VariantType::TRANSFORM) {
-                    Transform val = defval;
+                    Transform val = defval.as<Transform>();
                     val.basis.transpose();
                     inputs[i] = "n_in" + itos(node) + "p" + itos(i);
                     code+="\tmat4 " + inputs[i] + " = mat4( ";
@@ -294,7 +294,7 @@ void VisualShaderNode::_set_default_input_values(const Array &p_values) {
 
     if (p_values.size() % 2 == 0) {
         for (int i = 0; i < p_values.size(); i += 2) {
-            default_input_values[p_values[i + 0]] = p_values[i + 1];
+            default_input_values[p_values[i + 0].as<int>()] = p_values[i + 1];
         }
     }
 
@@ -346,18 +346,18 @@ void VisualShaderNodeCustom::update_ports() {
 
     input_ports.clear();
     if (get_script_instance()->has_method("_get_input_port_count")) {
-        int input_port_count = (int)get_script_instance()->call("_get_input_port_count");
+        int input_port_count = get_script_instance()->call("_get_input_port_count").as<int>();
         bool has_name = get_script_instance()->has_method("_get_input_port_name");
         bool has_type = get_script_instance()->has_method("_get_input_port_type");
         for (int i = 0; i < input_port_count; i++) {
             Port port;
             if (has_name) {
-                port.name = StringName(get_script_instance()->call("_get_input_port_name", i));
+                port.name = get_script_instance()->call("_get_input_port_name", i).as<StringName>();
             } else {
                 port.name = StringName("in" + itos(i));
             }
             if (has_type) {
-                port.type = (int)get_script_instance()->call("_get_input_port_type", i);
+                port.type = get_script_instance()->call("_get_input_port_type", i).as<int>();
             } else {
                 port.type = (int)PortType::PORT_TYPE_SCALAR;
             }
@@ -366,20 +366,20 @@ void VisualShaderNodeCustom::update_ports() {
     }
     output_ports.clear();
     if (get_script_instance()->has_method("_get_output_port_count")) {
-        int output_port_count = (int)get_script_instance()->call("_get_output_port_count");
+        int output_port_count = get_script_instance()->call("_get_output_port_count").as<int>();
         bool has_name = get_script_instance()->has_method("_get_output_port_name");
         bool has_type = get_script_instance()->has_method("_get_output_port_type");
         for (int i = 0; i < output_port_count; i++) {
             Port port;
             if (has_name) {
-                port.name = StringName(get_script_instance()->call("_get_output_port_name", i));
+                port.name = get_script_instance()->call("_get_output_port_name", i).as<StringName>();
             } else {
                 port.name = StringName("out" + itos(i));
             }
             if (has_type) {
-                port.type = (int)get_script_instance()->call("_get_output_port_type", i);
+                port.type = get_script_instance()->call("_get_output_port_type", i).as<PortType>();
             } else {
-                port.type = (int)PortType::PORT_TYPE_SCALAR;
+                port.type = PortType::PORT_TYPE_SCALAR;
             }
             output_ports.push_back(port);
         }
@@ -435,7 +435,7 @@ String VisualShaderNodeCustom::generate_code(RenderingServerEnums::ShaderMode p_
         output_vars.push_back(p_output_vars[i]);
     }
     String code("\t{\n");
-    String _code = (String)get_script_instance()->call("_get_code", input_vars, output_vars, (int)p_mode, (int)p_type);
+    String _code = get_script_instance()->call("_get_code", input_vars, output_vars, (int)p_mode, (int)p_type).as<String>();
     bool nend =StringUtils::ends_with( _code,"\n");
     _code = StringUtils::insert(_code,0, String("\t\t"));
     _code = StringUtils::replace(_code,"\n", "\n\t\t");
@@ -454,7 +454,7 @@ String VisualShaderNodeCustom::generate_global_per_node(RenderingServerEnums::Sh
     ERR_FAIL_COND_V(!get_script_instance(), String());
     if (get_script_instance()->has_method("_get_global_code")) {
         String code = String("// ") + get_caption() + "\n";
-        code += (String)get_script_instance()->call("_get_global_code", (int)p_mode);
+        code += get_script_instance()->call("_get_global_code", (int)p_mode).as<String>();
         code += '\n';
         return code;
     }
@@ -1045,11 +1045,11 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
 
     StringView name = p_name.asCString();
     if (name == "mode"_sv) {
-        set_mode(RenderingServerEnums::ShaderMode(int(p_value)));
+        set_mode(p_value.as<RenderingServerEnums::ShaderMode>());
         return true;
     } else if (StringUtils::begins_with(name,"flags/")) {
         StringName flag(StringUtils::get_slice(name,'/', 1));
-        bool enable = p_value;
+        bool enable = p_value.as<bool>();
         if (enable) {
             flags.insert(flag);
         } else {
@@ -1059,7 +1059,7 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         return true;
     } else if (StringUtils::begins_with(name,"modes/")) {
         String mode(StringUtils::get_slice(name,'/', 1));
-        int value = p_value;
+        int value = p_value.as<int>();
         if (value == 0) {
             modes.erase(mode); //means it's default anyway, so don't store it
         } else {
@@ -1093,22 +1093,22 @@ bool VisualShader::_set(const StringName &p_name, const Variant &p_value) {
         StringView what(StringUtils::get_slice(name,'/', 3));
 
         if (what == "node"_sv) {
-            add_node(type, refFromRefPtr<VisualShaderNode>(p_value), Vector2(), id);
+            add_node(type, refFromVariant<VisualShaderNode>(p_value), Vector2(), id);
             return true;
         } else if (what == "position"_sv) {
-            set_node_position(type, id, p_value);
+            set_node_position(type, id, p_value.as<Vector2>());
             return true;
         } else if (what == "size"_sv) {
-            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_size(p_value);
+            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_size(p_value.as<Vector2>());
             return true;
         } else if (what == "input_ports"_sv) {
-            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_inputs(p_value);
+            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_inputs(p_value.as<String>());
             return true;
         } else if (what == "output_ports"_sv) {
-            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_outputs(p_value);
+            ((VisualShaderNodeGroupBase *)get_node(type, id).get())->set_outputs(p_value.as<String>());
             return true;
         } else if (what == "expression"_sv) {
-            ((VisualShaderNodeExpression *)get_node(type, id).get())->set_expression(p_value);
+            ((VisualShaderNodeExpression *)get_node(type, id).get())->set_expression(p_value.as<String>());
             return true;
         }
     }

@@ -763,7 +763,7 @@ void OrphanResourcesDialog::_find_to_delete(TreeItem *p_item, Vector<String> &pa
     while (p_item) {
 
         if (p_item->get_cell_mode(0) == TreeItem::CELL_MODE_CHECK && p_item->is_checked(0)) {
-            paths.emplace_back(p_item->get_metadata(0));
+            paths.emplace_back(p_item->get_metadata(0).as<String>());
         }
 
         if (p_item->get_children()) {
@@ -790,7 +790,7 @@ void OrphanResourcesDialog::_button_pressed(Object *p_item, int p_column, int p_
 
     TreeItem *ti = object_cast<TreeItem>(p_item);
 
-    String path = ti->get_metadata(0);
+    String path = ti->get_metadata(0).as<String>();
     dep_edit->edit(path);
 }
 

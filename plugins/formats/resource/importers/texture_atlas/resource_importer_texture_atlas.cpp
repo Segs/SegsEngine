@@ -227,7 +227,7 @@ Error ResourceImporterTextureAtlas::import_group_file(StringView p_group_file, c
 
         pack_data.image = image;
 
-        int mode = options.at("import_mode");
+        ImportMode mode = options.at("import_mode").as<ImportMode>();
 
         if (mode == IMPORT_MODE_REGION) {
 

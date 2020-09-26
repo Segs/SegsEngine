@@ -481,7 +481,7 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
 
             for (int i = 0; i < selection.size(); i++) {
 
-                Node *n = selection[i].asT<Node *>();
+                Node *n = selection[i].as<Node *>();
                 Ref<Script> existing(refFromRefPtr<Script>(n->get_script()));
                 Ref<Script> empty = EditorNode::get_singleton()->get_object_custom_type_base(n);
                 if (existing != empty) {

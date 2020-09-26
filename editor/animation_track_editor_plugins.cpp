@@ -474,9 +474,9 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 
         region.size = texture->get_size();
 
-        if (bool(object->call_va("is_region"))) {
+        if (object->call_va("is_region").as<bool>()) {
 
-            region = Rect2(object->call_va("get_region_rect"));
+            region = object->call_va("get_region_rect").as<Rect2>();
         }
 
         if (hframes > 1) {
@@ -500,7 +500,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
         List<StringName> animations;
         sf->get_animation_list(&animations);
 
-        int frame = get_animation()->track_get_key_value(get_track(), p_index);
+        int frame = get_animation()->track_get_key_value(get_track(), p_index).as<int>();
         String animation;
         if (animations.size() == 1) {
             animation = animations.front();
@@ -582,7 +582,7 @@ Rect2 AnimationTrackEditSubAnim::get_key_rect(int p_index, float p_pixels_sec) {
         return AnimationTrackEdit::get_key_rect(p_index, p_pixels_sec);
     }
 
-    StringName anim = get_animation()->track_get_key_value(get_track(), p_index);
+    StringName anim = get_animation()->track_get_key_value(get_track(), p_index).as<StringName>();
 
     if (anim != StringName("[stop]") && ap->has_animation(anim)) {
 
@@ -620,7 +620,7 @@ void AnimationTrackEditSubAnim::draw_key(int p_index, float p_pixels_sec, int p_
         return;
     }
 
-    StringName anim = get_animation()->track_get_key_value(get_track(), p_index);
+    StringName anim = get_animation()->track_get_key_value(get_track(), p_index).as<StringName>();
 
     if (anim != StringName("[stop]") && ap->has_animation(anim)) {
 
@@ -754,8 +754,8 @@ void AnimationTrackEditVolumeDB::draw_key_link(int p_index, float p_pixels_sec, 
     if (p_x > p_clip_right || p_next_x < p_clip_left)
         return;
 
-    float db = get_animation()->track_get_key_value(get_track(), p_index);
-    float db_n = get_animation()->track_get_key_value(get_track(), p_index + 1);
+    float db = get_animation()->track_get_key_value(get_track(), p_index).as<float>();
+    float db_n = get_animation()->track_get_key_value(get_track(), p_index + 1).as<float>();
 
     db = CLAMP(db, -60, 24);
     db_n = CLAMP(db_n, -60, 24);
@@ -970,15 +970,15 @@ bool AnimationTrackEditTypeAudio::can_drop_data(const Point2 &p_point, const Var
 
     if (p_point.x > get_timeline()->get_name_limit() && p_point.x < get_size().width - get_timeline()->get_buttons_width()) {
 
-        Dictionary drag_data = p_data;
-        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
+        Dictionary drag_data = p_data.as<Dictionary>();
+        if (drag_data.has("type") && drag_data["type"].as<String>() == "resource") {
             Ref<AudioStream> res(drag_data["resource"]);
             if (res) {
                 return true;
             }
         }
 
-        if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
+        if (drag_data.has("type") && drag_data["type"].as<String>() == "files") {
 
             PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
@@ -999,10 +999,10 @@ void AnimationTrackEditTypeAudio::drop_data(const Point2 &p_point, const Variant
     if (p_point.x > get_timeline()->get_name_limit() && p_point.x < get_size().width - get_timeline()->get_buttons_width()) {
 
         Ref<AudioStream> stream;
-        Dictionary drag_data = p_data;
-        if (drag_data.has("type") && UIString(drag_data["type"]) == "resource") {
+        Dictionary drag_data = p_data.as<Dictionary>();
+        if (drag_data.has("type") && drag_data["type"].as<String>() == "resource") {
             stream = refFromVariant<AudioStream>(drag_data["resource"]);
-        } else if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
+        } else if (drag_data.has("type") && drag_data["type"].as<String>() == "files") {
 
             PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 

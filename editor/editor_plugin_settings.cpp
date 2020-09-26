@@ -131,11 +131,11 @@ void EditorPluginSettings::update_plugins() {
             continue;
 
         StringName d2(plugin);
-        StringName name = cf->get_value("plugin", "name");
-        StringName author = cf->get_value("plugin", "author");
-        StringName version = cf->get_value("plugin", "version");
-        StringName description = cf->get_value("plugin", "description");
-        StringName script = cf->get_value("plugin", "script");
+        StringName name = cf->get_value("plugin", "name").as<StringName>();
+        StringName author = cf->get_value("plugin", "author").as<StringName>();
+        StringName version = cf->get_value("plugin", "version").as<StringName>();
+        StringName description = cf->get_value("plugin", "description").as<StringName>();
+        StringName script = cf->get_value("plugin", "script").as<StringName>();
 
         TreeItem *item = plugin_list->create_item(root);
         item->set_text(0, name);
@@ -165,7 +165,7 @@ void EditorPluginSettings::_plugin_activity_changed() {
     TreeItem *ti = plugin_list->get_edited();
     ERR_FAIL_COND(!ti);
     bool active = ti->is_checked(3);
-    StringName name(ti->get_metadata(0));
+    StringName name(ti->get_metadata(0).as<StringName>());
 
     EditorNode::get_singleton()->set_addon_plugin_enabled(name, active, true);
 
@@ -189,7 +189,7 @@ void EditorPluginSettings::_cell_button_pressed(Object *p_item, int p_column, in
         return;
     if (p_id == BUTTON_PLUGIN_EDIT) {
         if (p_column == 4) {
-            String dir = item->get_metadata(0);
+            String dir = item->get_metadata(0).as<String>();
             plugin_config_dialog->config("res://addons/" + dir + "/plugin.cfg");
             plugin_config_dialog->popup_centered();
         }

@@ -50,9 +50,9 @@ VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
 void AnimationNode::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
-        Array parameters = get_script_instance()->call("get_parameter_list");
+        Array parameters = get_script_instance()->call("get_parameter_list").as<Array>();
         for (int i = 0; i < parameters.size(); i++) {
-            Dictionary d = parameters[i];
+            Dictionary d = parameters[i].as<Dictionary>();
             ERR_CONTINUE(d.empty());
             r_list->push_back(PropertyInfo::from_dict(d));
         }
@@ -87,12 +87,12 @@ Variant AnimationNode::get_parameter(const StringName &p_name) const {
 void AnimationNode::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
 
     if (get_script_instance()) {
-        Dictionary cn = get_script_instance()->call("get_child_nodes");
+        Dictionary cn = get_script_instance()->call("get_child_nodes").as<Dictionary>();
         Vector<Variant> keys(cn.get_key_list());
         for (const Variant &E :keys) {
             ChildNode child;
-            child.name = E;
-            child.node = refFromRefPtr<AnimationNode>(cn[E]);
+            child.name = E.as<StringName>();
+            child.node = refFromVariant<AnimationNode>(cn[E]);
             r_child_nodes->push_back(child);
         }
     }
@@ -357,7 +357,7 @@ void AnimationNode::remove_input(int p_index) {
 float AnimationNode::process(float p_time, bool p_seek) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("process", p_time, p_seek);
+        return get_script_instance()->call("process", p_time, p_seek).as<float>();
     }
 
     return 0;
@@ -401,7 +401,7 @@ Array AnimationNode::_get_filters() const {
 void AnimationNode::_set_filters(const Array &p_filters) {
     filter.clear();
     for (int i = 0; i < p_filters.size(); i++) {
-        set_filter_path(p_filters[i], true);
+        set_filter_path(p_filters[i].as<NodePath>(), true);
     }
 }
 
@@ -413,7 +413,7 @@ void AnimationNode::_validate_property(PropertyInfo &property) const {
 
 Ref<AnimationNode> AnimationNode::get_child_by_name(const StringName &p_name) {
     if (get_script_instance()) {
-        return refFromRefPtr<AnimationNode>(get_script_instance()->call("get_child_by_name",p_name));
+        return refFromVariant<AnimationNode>(get_script_instance()->call("get_child_by_name",p_name));
     }
     return Ref<AnimationNode>();
 }

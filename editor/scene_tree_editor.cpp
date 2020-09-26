@@ -1033,7 +1033,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     }
 
     if (d["type"].as<String>() == "script_list_element") {
-        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase *>();
+        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase>();
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {
@@ -1082,7 +1082,7 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
     }
 
     if (d["type"].as<String>() == "script_list_element") {
-        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase *>();
+        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase>();
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {

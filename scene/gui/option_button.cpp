@@ -294,10 +294,10 @@ void OptionButton::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 5) {
 
-        StringName text = p_items[i + 0];
-        Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
-        bool disabled = p_items[i + 2];
-        int id = p_items[i + 3];
+        StringName text = p_items[i + 0].as<StringName>();
+        Ref<Texture> icon = refFromVariant<Texture>(p_items[i + 1]);
+        bool disabled = p_items[i + 2].as<bool>();
+        int id = p_items[i + 3].as<int>();
         Variant meta = p_items[i + 4];
 
         int idx = get_item_count();

@@ -99,19 +99,19 @@ void Control::_edit_set_state(const Dictionary &p_state) {
 
     Dictionary state = p_state;
 
-    set_rotation(state["rotation"]);
-    set_scale(state["scale"]);
-    set_pivot_offset(state["pivot"]);
-    Array anchors = state["anchors"];
-    data.anchor[(int8_t)Margin::Left] = anchors[0];
-    data.anchor[(int8_t)Margin::Top] = anchors[1];
-    data.anchor[(int8_t)Margin::Right] = anchors[2];
-    data.anchor[(int8_t)Margin::Bottom] = anchors[3];
-    Array margins = state["margins"];
-    data.margin[(int8_t)Margin::Left] = margins[0];
-    data.margin[(int8_t)Margin::Top] = margins[1];
-    data.margin[(int8_t)Margin::Right] = margins[2];
-    data.margin[(int8_t)Margin::Bottom] = margins[3];
+    set_rotation(state["rotation"].as<float>());
+    set_scale(state["scale"].as<Vector2>());
+    set_pivot_offset(state["pivot"].as<Vector2>());
+    Array anchors = state["anchors"].as<Array>();
+    data.anchor[(int8_t)Margin::Left] = anchors[0].as<float>();
+    data.anchor[(int8_t)Margin::Top] = anchors[1].as<float>();
+    data.anchor[(int8_t)Margin::Right] = anchors[2].as<float>();
+    data.anchor[(int8_t)Margin::Bottom] = anchors[3].as<float>();
+    Array margins = state["margins"].as<Array>();
+    data.margin[(int8_t)Margin::Left] = margins[0].as<float>();
+    data.margin[(int8_t)Margin::Top] = margins[1].as<float>();
+    data.margin[(int8_t)Margin::Right] = margins[2].as<float>();
+    data.margin[(int8_t)Margin::Bottom] = margins[3].as<float>();
     _size_changed();
 }
 
@@ -280,17 +280,17 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
     } else {
         if (StringUtils::begins_with(name,"custom_icons/")) {
-            add_icon_override(dname, refFromRefPtr<Texture>(p_value));
+            add_icon_override(dname, refFromVariant<Texture>(p_value));
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
-            add_shader_override(dname, refFromRefPtr<Shader>(p_value));
+            add_shader_override(dname, refFromVariant<Shader>(p_value));
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            add_style_override(dname, refFromRefPtr<StyleBox>(p_value));
+            add_style_override(dname, refFromVariant<StyleBox>(p_value));
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
-            add_font_override(dname, refFromRefPtr<Font>(p_value));
+            add_font_override(dname, refFromVariant<Font>(p_value));
         } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            add_color_override(dname, p_value);
+            add_color_override(dname, p_value.as<Color>());
         } else if (StringUtils::begins_with(name,"custom_constants/")) {
-            add_constant_override(dname, p_value);
+            add_constant_override(dname, p_value.as<int>());
         } else
             return false;
     }
@@ -696,7 +696,7 @@ void Control::_notification(int p_notification) {
 bool Control::clips_input() const {
 
     if (get_script_instance()) {
-        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input);
+        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input).as<bool>();
     }
     return false;
 }
@@ -708,7 +708,7 @@ bool Control::has_point(const Point2 &p_point) const {
         Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK) {
-            return ret;
+            return ret.as<bool>();
         }
     }
     /*if (has_stylebox("mask")) {
@@ -754,7 +754,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
+            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this)).as<bool>();
         }
     }
 
@@ -764,10 +764,10 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
-            return ret;
+            return ret.as<bool>();
     }
 
-    return Variant();
+    return false;
 }
 void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
@@ -826,7 +826,7 @@ Size2 Control::get_minimum_size() const {
         Callable::CallError ce;
         Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
         if (ce.error == Callable::CallError::CALL_OK)
-            return s;
+            return s.as<Vector2>();
     }
     return Size2();
 }
@@ -2329,7 +2329,7 @@ StringName Control::get_tooltip(const Point2 &p_pos) const {
 }
 Control *Control::make_custom_tooltip(StringView p_text) const {
     if (get_script_instance()) {
-        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text);
+        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text).as<Control *>();
     }
     return nullptr;
 }
@@ -2756,7 +2756,7 @@ bool Control::is_visibility_clip_disabled() const {
 void Control::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace eastl;
 #ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char * quote_style = "\"";
 #endif

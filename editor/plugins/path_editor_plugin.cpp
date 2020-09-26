@@ -169,7 +169,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
 
         if (p_cancel) {
 
-            c->set_point_position(p_idx, p_restore);
+            c->set_point_position(p_idx, p_restore.as<Vector3>());
             return;
         }
         ur->create_action(TTR("Set Curve Point Position"));
@@ -187,7 +187,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
 
     if (t == 0) {
         if (p_cancel) {
-            c->set_point_in(p_idx, p_restore);
+            c->set_point_in(p_idx, p_restore.as<Vector3>());
             return;
         }
 
@@ -197,13 +197,13 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
             ur->add_do_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_in(idx) : -c->get_point_in(idx).normalized() * orig_out_length);
-            ur->add_undo_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : -static_cast<Vector3>(p_restore).normalized() * orig_out_length);
+            ur->add_undo_method(c.get(), "set_point_out", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -p_restore.as<Vector3>() : -p_restore.as<Vector3>().normalized() * orig_out_length);
         }
         ur->commit_action();
 
     } else {
         if (p_cancel) {
-            c->set_point_out(idx, p_restore);
+            c->set_point_out(idx, p_restore.as<Vector3>());
 
             return;
         }
@@ -214,7 +214,7 @@ void PathSpatialGizmo::commit_handle(int p_idx, const Variant &p_restore, bool p
 
         if (PathEditorPlugin::singleton->mirror_angle_enabled()) {
             ur->add_do_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -c->get_point_out(idx) : -c->get_point_out(idx).normalized() * orig_in_length);
-            ur->add_undo_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -static_cast<Vector3>(p_restore) : -static_cast<Vector3>(p_restore).normalized() * orig_in_length);
+            ur->add_undo_method(c.get(), "set_point_in", idx, PathEditorPlugin::singleton->mirror_length_enabled() ? -p_restore.as<Vector3>() : -p_restore.as<Vector3>().normalized() * orig_in_length);
         }
         ur->commit_action();
     }
@@ -659,7 +659,7 @@ int PathSpatialGizmoPlugin::get_priority() const {
 
 PathSpatialGizmoPlugin::PathSpatialGizmoPlugin() {
 
-    Color path_color = EDITOR_DEF("editors/3d_gizmos/gizmo_colors/path", Color(0.5f, 0.5f, 1.0f, 0.8f));
+    Color path_color = EDITOR_DEF_T("editors/3d_gizmos/gizmo_colors/path", Color(0.5f, 0.5f, 1.0f, 0.8f));
     create_material("path_material", path_color);
     create_material("path_thin_material", Color(0.5f, 0.5f, 0.5f));
     create_handle_material("handles");

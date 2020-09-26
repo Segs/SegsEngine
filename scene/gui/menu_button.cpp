@@ -82,7 +82,7 @@ void MenuButton::_set_items(const Array &p_items) {
 
 Array MenuButton::_get_items() const {
 
-    return popup->get("items");
+    return popup->get("items").as<Array>();
 }
 
 void MenuButton::set_switch_on_hover(bool p_enabled) {

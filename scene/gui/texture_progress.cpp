@@ -381,7 +381,7 @@ void TextureProgress::_notification(int p_what) {
                                 uvs.push_back(get_relative_center());
                                 points.emplace_back(s.x * get_relative_center().x, s.y * get_relative_center().y);
                                 for (int i = 0; i < pts.size(); i++) {
-                                    Point2 uv = unit_val_to_uv(pts[i]);
+                                    Point2 uv = unit_val_to_uv(pts[i].as<float>());
                                     if (uvs.contains(uv))
                                         continue;
                                     uvs.push_back(uv);

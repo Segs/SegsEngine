@@ -63,8 +63,8 @@ bool EditorPropertyArrayObject::_get(const StringName &p_name, Variant &r_ret) c
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         bool valid;
         r_ret = array.get(idx, &valid);
-        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
+        if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+            r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
         }
 
         return valid;
@@ -129,8 +129,8 @@ bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_r
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         Variant key = dict.get_key_at_index(idx);
         r_ret = dict[key];
-        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = Variant::from(object_cast<EncodedObjectAsID>(r_ret)->get_object_id());
+        if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+            r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
         }
 
         return true;
@@ -274,7 +274,7 @@ void EditorPropertyArray::update_property() {
         return;
     }
 
-    edit->set_text_utf8(String(arrtype) + " (size " + itos(array.call("size")) + ")");
+    edit->set_text_utf8(String(arrtype) + " (size " + itos(array.call("size").as<int>()) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -320,7 +320,7 @@ void EditorPropertyArray::update_property() {
             }
         }
 
-        int len = array.call("size");
+        int len = array.call("size").as<int>();
 
         length->set_value(len);
 
@@ -352,7 +352,7 @@ void EditorPropertyArray::update_property() {
                 value_type = subtype;
             }
 
-            if (value_type == VariantType::OBJECT && object_cast<EncodedObjectAsID>(value)) {
+            if (value_type == VariantType::OBJECT && value.asT<EncodedObjectAsID>()) {
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                 editor->setup("Object");
                 prop = editor;
@@ -444,13 +444,13 @@ void EditorPropertyArray::_length_changed(double p_page) {
         return;
 
     Variant array = object->get_array();
-    int previous_size = array.call("size");
+    int previous_size = array.call("size").as<int>();
 
     array.call("resize", int(p_page));
 
     if (array.get_type() == VariantType::ARRAY) {
         if (subtype != VariantType::NIL) {
-            int size = array.call("size");
+            int size = array.call("size").as<int>();
             for (int i = previous_size; i < size; i++) {
                 if (array.get(i).get_type() == VariantType::NIL) {
                     Callable::CallError ce;
@@ -460,7 +460,7 @@ void EditorPropertyArray::_length_changed(double p_page) {
         }
         array = array.call("duplicate"); //dupe, so undo/redo works better
     } else {
-        int size = array.call("size");
+        int size = array.call("size").as<int>();
         // Pool*Array don't initialize their elements, have to do it manually
         for (int i = previous_size; i < size; i++) {
             Callable::CallError ce;
@@ -643,7 +643,7 @@ void EditorPropertyDictionary::update_property() {
         return;
     }
 
-    Dictionary dict = updated_val;
+    Dictionary dict = updated_val.as<Dictionary>();
 
     edit->set_text_utf8(String("Dictionary (size ") + itos(dict.size()) + ")");
 
@@ -824,7 +824,7 @@ void EditorPropertyDictionary::update_property() {
                 } break;
                 case VariantType::OBJECT: {
 
-                    if (object_cast<EncodedObjectAsID>(value)) {
+                    if (value.asT<EncodedObjectAsID>()) {
 
                         EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                         editor->setup("Object");

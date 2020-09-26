@@ -372,7 +372,7 @@ void Environment::_validate_property(PropertyInfo &property) const {
         StringName prefix(StaticCString(prefix_val,true));
 
         StringName enabled = prefix + "enabled";
-        if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !bool(get(enabled))) {
+        if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !getT<bool>(enabled)) {
             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
             return;
         }

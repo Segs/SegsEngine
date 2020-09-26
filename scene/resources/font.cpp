@@ -209,7 +209,7 @@ void BitmapFont::_set_textures(const Vector<Variant> &p_textures) {
     textures.clear();
     textures.reserve(p_textures.size());
     for (int i = 0; i < p_textures.size(); i++) {
-        Ref<Texture> tex = refFromRefPtr<Texture>(p_textures[i]);
+        Ref<Texture> tex = refFromVariant<Texture>(p_textures[i]);
         ERR_CONTINUE(not tex);
         add_texture(tex);
     }

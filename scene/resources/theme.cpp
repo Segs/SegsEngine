@@ -115,19 +115,19 @@ bool Theme::_set(const StringName &p_name, const Variant &p_value) {
 
         if (type == "icons"_sv) {
 
-            set_icon(name, node_type, refFromRefPtr<Texture>(p_value));
+            set_icon(name, node_type, refFromVariant<Texture>(p_value));
         } else if (type == "styles"_sv) {
 
-            set_stylebox(name, node_type, refFromRefPtr<StyleBox>(p_value));
+            set_stylebox(name, node_type, refFromVariant<StyleBox>(p_value));
         } else if (type == "fonts"_sv) {
 
-            set_font(name, node_type, refFromRefPtr<Font>(p_value));
+            set_font(name, node_type, refFromVariant<Font>(p_value));
         } else if (type == "colors"_sv) {
 
-            set_color(name, node_type, p_value);
+            set_color(name, node_type, p_value.as<Color>());
         } else if (type == "constants"_sv) {
 
-            set_constant(name, node_type, p_value);
+            set_constant(name, node_type, p_value.as<int>());
         } else
             return false;
 

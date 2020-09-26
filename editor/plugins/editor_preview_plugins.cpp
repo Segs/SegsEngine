@@ -521,10 +521,10 @@ Ref<Texture> EditorScriptPreviewPlugin::generate(const RES &p_from, const Size2 
     int thumbnail_size = M_MAX(p_size.x, p_size.y);
     img->create(thumbnail_size, thumbnail_size, false, Image::FORMAT_RGBA8);
 
-    Color bg_color = EditorSettings::get_singleton()->get("text_editor/highlighting/background_color");
-    Color keyword_color = EditorSettings::get_singleton()->get("text_editor/highlighting/keyword_color");
-    Color text_color = EditorSettings::get_singleton()->get("text_editor/highlighting/text_color");
-    Color symbol_color = EditorSettings::get_singleton()->get("text_editor/highlighting/symbol_color");
+    Color bg_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/background_color");
+    Color keyword_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/keyword_color");
+    Color text_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/text_color");
+    Color symbol_color = EditorSettings::get_singleton()->getT<Color>("text_editor/highlighting/symbol_color");
 
     img->lock();
 

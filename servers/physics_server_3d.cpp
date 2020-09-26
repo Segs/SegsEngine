@@ -836,7 +836,7 @@ void PhysicsServerManager::cleanup()
     default_server_priority = -1;
 }
 PhysicsServer3D * initialize_3d_physics() {
-    PhysicsServer3D *physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
+    PhysicsServer3D *physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->getT<StringName>(PhysicsServerManager::setting_property_name));
     if (!physics_server_3d) {
         // Physics server not found, Use the default physics
         physics_server_3d = PhysicsServerManager::new_default_server();

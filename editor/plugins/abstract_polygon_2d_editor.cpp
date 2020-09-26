@@ -459,7 +459,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                     return true;
                 } else {
 
-                    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+                    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
 
                     if (!_is_line() && wip.size() > 1 && xform.xform(wip[0]).distance_to(xform.xform(cpoint)) < grab_threshold) {
                         //wip closed
@@ -601,17 +601,18 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
         if (wip_active && j == edited_point.polygon) {
 
-            points = Variant::from(wip);
+            points = wip;
             offset = Vector2(0, 0);
         } else {
 
             if (j == -1)
                 continue;
-            points = _get_polygon(j);
+            
+            points = _get_polygon(j).as<PoolVector<Vector2>>();
             offset = _get_offset(j);
         }
 
-        if (!wip_active && j == edited_point.polygon && EDITOR_GET("editors/poly_editor/show_previous_outline")) {
+        if (!wip_active && j == edited_point.polygon && EDITOR_GET_T<bool>("editors/poly_editor/show_previous_outline")) {
 
             const Color col = Color(0.5, 0.5, 0.5); // FIXME polygon->get_outline_color();
             const int n = pre_move_edit.size();
@@ -715,7 +716,7 @@ void AbstractPolygon2DEditor::_bind_methods() {
 
 void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
 
-    PoolVector<Vector2> vertices = _get_polygon(p_vertex.polygon);
+    PoolVector<Vector2> vertices = _get_polygon(p_vertex.polygon).as<PoolVector<Vector2>>();
 
     if (vertices.size() > (_is_line() ? 2 : 3)) {
 
@@ -746,7 +747,7 @@ AbstractPolygon2DEditor::Vertex AbstractPolygon2DEditor::get_active_point() cons
 
 AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const Vector2 &p_pos) const {
 
-    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
 
     const int n_polygons = _get_polygon_count();
     const Transform2D xform = canvas_item_editor->get_canvas_transform() * _get_node()->get_global_transform();
@@ -756,7 +757,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const 
 
     for (int j = 0; j < n_polygons; j++) {
 
-        PoolVector<Vector2> points = _get_polygon(j);
+        PoolVector<Vector2> points = _get_polygon(j).as<PoolVector<Vector2>>();
         const Vector2 offset = _get_offset(j);
         const int n_points = points.size();
 
@@ -777,7 +778,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const 
 
 AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_edge_point(const Vector2 &p_pos) const {
 
-    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
     const real_t eps = grab_threshold * 2;
     const real_t eps2 = eps * eps;
 
@@ -789,7 +790,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_edge_point(c
 
     for (int j = 0; j < n_polygons; j++) {
 
-        PoolVector<Vector2> points = _get_polygon(j);
+        PoolVector<Vector2> points = _get_polygon(j).as<PoolVector<Vector2>>();
         const Vector2 offset = _get_offset(j);
         const int n_points = points.size();
         const int n_segments = n_points - (_is_line() ? 1 : 0);

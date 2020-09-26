@@ -122,7 +122,7 @@ void NavigationPolygon::_set_outlines(const Array &p_array) {
 
     outlines.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        outlines[i] = p_array[i];
+        outlines[i] = p_array[i].as<PoolVector<Vector2>>();
     }
     rect_cache_dirty = true;
 }

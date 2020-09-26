@@ -902,7 +902,7 @@ void Physics2DServerManager::cleanup()
 
 }
 PhysicsServer2D *initialize_2d_physics() {
-    PhysicsServer2D *physics_server_2d = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
+    PhysicsServer2D *physics_server_2d = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->getT<StringName>(Physics2DServerManager::setting_property_name));
     if (!physics_server_2d) {
         // Physics server not found, Use the default physics
         physics_server_2d = Physics2DServerManager::new_default_server();

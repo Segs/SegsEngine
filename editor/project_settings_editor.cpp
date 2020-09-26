@@ -424,7 +424,7 @@ void ProjectSettingsEditor::_show_last_added(const Ref<InputEvent> &p_event, Str
         TreeItem *child = r->get_children();
         while (child) {
             Variant input = child->get_meta("__input");
-            if (p_event == refFromRefPtr<InputEvent>(input.as<RefPtr>())) {
+            if (p_event == refFromVariant<InputEvent>(input)) {
                 r->set_collapsed(false);
                 child->select(0);
                 found = true;
@@ -799,7 +799,7 @@ void ProjectSettingsEditor::_update_actions() {
 void ProjectSettingsEditor::popup_project_settings() {
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "project_settings", Rect2()).as<Rect2>();
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadataT("dialog_bounds", "project_settings", Rect2());
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {

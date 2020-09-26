@@ -1140,9 +1140,9 @@ void EditorFileDialog::_delete_items() {
         }
         Dictionary item_meta = item_list->get_item_metadata(i).as<Dictionary>();
         if (item_meta["dir"].as<bool>()) {
-            folders.emplace_back(item_meta["path"]);
+            folders.emplace_back(item_meta["path"].as<String>());
         } else {
-            files.emplace_back(item_meta["path"]);
+            files.emplace_back(item_meta["path"].as<String>());
         }
     }
     if (folders.size() + files.size() > 0) {

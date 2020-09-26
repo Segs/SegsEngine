@@ -724,8 +724,8 @@ void LineEdit::_notification(int p_what) {
 #ifdef TOOLS_ENABLED
         case NOTIFICATION_ENTER_TREE: {
             if (Engine::get_singleton()->is_editor_hint() && !get_tree()->is_node_being_edited(this)) {
-                cursor_set_blink_enabled(EDITOR_DEF("text_editor/cursor/caret_blink", false));
-                cursor_set_blink_speed(EDITOR_DEF("text_editor/cursor/caret_blink_speed", 0.65));
+                cursor_set_blink_enabled(EDITOR_DEF_T("text_editor/cursor/caret_blink", false));
+                cursor_set_blink_speed(EDITOR_DEF_T<float>("text_editor/cursor/caret_blink_speed", 0.65f));
 
                 if (!EditorSettings::get_singleton()->is_connected("settings_changed", this, "_editor_settings_changed")) {
                     EditorSettings::get_singleton()->connect("settings_changed", this, "_editor_settings_changed");
@@ -1679,8 +1679,8 @@ PopupMenu *LineEdit::get_menu() const {
 
 void LineEdit::_editor_settings_changed() {
 #ifdef TOOLS_ENABLED
-    cursor_set_blink_enabled(EDITOR_DEF("text_editor/cursor/caret_blink", false));
-    cursor_set_blink_speed(EDITOR_DEF("text_editor/cursor/caret_blink_speed", 0.65));
+    cursor_set_blink_enabled(EDITOR_DEF_T("text_editor/cursor/caret_blink", false));
+    cursor_set_blink_speed(EDITOR_DEF_T<float>("text_editor/cursor/caret_blink_speed", 0.65f));
 #endif
 }
 

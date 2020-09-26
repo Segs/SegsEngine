@@ -58,7 +58,7 @@ void ScriptCreateDialog::_notification(int p_what) {
                     language_menu->set_item_icon(i, lang_icon);
                 }
             }
-            String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "").as<String>();
+            String last_lang = EditorSettings::get_singleton()->get_project_metadataT<String>("script_setup", "last_selected_language", "");
             if (!last_lang.empty()) {
                 for (int i = 0; i < language_menu->get_item_count(); i++) {
                     if (language_menu->get_item_text_utf8(i) == last_lang) {

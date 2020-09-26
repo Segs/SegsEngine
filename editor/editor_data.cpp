@@ -363,7 +363,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
 
     for (const Variant & k : keys) {
 
-        String name = k;
+        String name = k.as<String>();
         int idx = -1;
         for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -375,7 +375,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
 
         if (idx == -1)
             continue;
-        editor_plugins[idx]->set_state(p_states[name]);
+        editor_plugins[idx]->set_state(p_states[name].as<Dictionary>());
     }
 }
 
@@ -773,7 +773,7 @@ StringName EditorData::get_scene_title(int p_idx) const {
         return TTR("[empty]");
     if (edited_scene[p_idx].root->get_filename().empty())
         return TTR("[unsaved]");
-    bool show_ext = EDITOR_DEF("interface/scene_tabs/show_extension", false);
+    bool show_ext = EDITOR_DEF_T("interface/scene_tabs/show_extension", false);
     String name(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
     if (!show_ext) {
         name = PathUtils::get_basename(name);
@@ -971,7 +971,7 @@ void EditorData::script_class_load_icon_paths() {
     script_class_clear_icon_paths();
 
     if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
-        Dictionary d = ProjectSettings::get_singleton()->get("_global_script_class_icons");
+        Dictionary d = ProjectSettings::get_singleton()->getT<Dictionary>("_global_script_class_icons");
         Vector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
@@ -1017,7 +1017,7 @@ void EditorSelection::add_node(Node *p_node) {
     Object *meta = nullptr;
     for (Object * E :editor_plugins) {
 
-        meta = E->call_va("_get_editor_data", Variant(p_node));
+        meta = E->call_va("_get_editor_data", Variant(p_node)).as<Object *>();
         if (meta) {
             break;
         }

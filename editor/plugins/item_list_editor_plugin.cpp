@@ -54,28 +54,28 @@ bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
     StringView what = StringUtils::get_slice(p_name,'/', 1);
 
     if (what == "text"_sv)
-        set_item_text(idx, p_value);
+        set_item_text(idx, p_value.as<StringName>());
     else if (what == "icon"_sv)
-        set_item_icon(idx, refFromRefPtr<Texture>(p_value));
+        set_item_icon(idx, refFromVariant<Texture>(p_value));
     else if (what == "checkable"_sv) {
         // This keeps compatibility to/from versions where this property was a boolean, before radio buttons
-        switch ((int)p_value) {
+        switch ((int)p_value.as<int>()) {
             case 0:
             case 1:
-                set_item_checkable(idx, p_value);
+                set_item_checkable(idx, p_value.as<bool>());
                 break;
             case 2:
                 set_item_radio_checkable(idx, true);
                 break;
         }
     } else if (what == "checked"_sv)
-        set_item_checked(idx, p_value);
+        set_item_checked(idx, p_value.as<bool>());
     else if (what == "id"_sv)
-        set_item_id(idx, p_value);
+        set_item_id(idx, p_value.as<int>());
     else if (what == "enabled"_sv)
-        set_item_enabled(idx, p_value);
+        set_item_enabled(idx, p_value.as<bool>());
     else if (what == "separator"_sv)
-        set_item_separator(idx, p_value);
+        set_item_separator(idx, p_value.as<bool>());
     else
         return false;
 

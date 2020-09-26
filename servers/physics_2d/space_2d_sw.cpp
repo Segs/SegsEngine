@@ -1351,9 +1351,9 @@ Space2DSW::Space2DSW() {
     test_motion_min_contact_depth = 0.005;
 
     constraint_bias = 0.2;
-    body_linear_velocity_sleep_threshold = GLOBAL_DEF("physics/2d/sleep_threshold_linear", 2.0);
-    body_angular_velocity_sleep_threshold = GLOBAL_DEF("physics/2d/sleep_threshold_angular", (8.0 / 180.0 * Math_PI));
-    body_time_to_sleep = GLOBAL_DEF("physics/2d/time_before_sleep", 0.5);
+    body_linear_velocity_sleep_threshold = T_GLOBAL_DEF<float>("physics/2d/sleep_threshold_linear", 2.0f);
+    body_angular_velocity_sleep_threshold = T_GLOBAL_DEF<float>("physics/2d/sleep_threshold_angular", (8.0f / 180.0f * Math_PI));
+    body_time_to_sleep = T_GLOBAL_DEF<float>("physics/2d/time_before_sleep", 0.5f);
     ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/time_before_sleep", PropertyInfo(VariantType::FLOAT, "physics/2d/time_before_sleep", PropertyHint::Range, "0,5,0.01,or_greater"));
 
     broadphase = BroadPhase2DSW::create_func();

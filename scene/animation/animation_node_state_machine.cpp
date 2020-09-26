@@ -433,7 +433,7 @@ float AnimationNodeStateMachinePlayback::process(AnimationNodeStateMachine *p_st
                 auto_advance = true;
             }
             StringName advance_condition_name = p_state_machine->transitions[i].transition->get_advance_condition_name();
-            if (advance_condition_name != StringName() && bool(p_state_machine->get_parameter(advance_condition_name))) {
+            if (advance_condition_name != StringName() && p_state_machine->get_parameter(advance_condition_name).as<bool>()) {
                 auto_advance = true;
             }
 
@@ -828,7 +828,7 @@ Vector2 AnimationNodeStateMachine::get_graph_offset() const {
 
 float AnimationNodeStateMachine::process(float p_time, bool p_seek) {
 
-    Ref<AnimationNodeStateMachinePlayback> playback = refFromRefPtr<AnimationNodeStateMachinePlayback>(get_parameter(this->playback));
+    Ref<AnimationNodeStateMachinePlayback> playback = refFromVariant<AnimationNodeStateMachinePlayback>(get_parameter(this->playback));
     ERR_FAIL_COND_V(not playback, 0.0);
 
     return playback->process(this, p_time, p_seek);
@@ -852,7 +852,7 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
         StringView what(StringUtils::get_slice(p_name,'/', 2));
 
         if (what == StringView("node")) {
-            Ref<AnimationNode> anode = refFromRefPtr<AnimationNode>(p_value);
+            Ref<AnimationNode> anode = refFromVariant<AnimationNode>(p_value);
             if (anode) {
                 add_node(node_name, anode);
             }
@@ -862,27 +862,27 @@ bool AnimationNodeStateMachine::_set(const StringName &p_name, const Variant &p_
         if (what == StringView("position")) {
 
             if (states.contains(node_name)) {
-                states[node_name].position = p_value;
+                states[node_name].position = p_value.as<Vector2>();
             }
             return true;
         }
     } else if (p_name == "transitions") {
 
-        Array trans = p_value;
+        Array trans = p_value.as<Array>();
         ERR_FAIL_COND_V(trans.size() % 3 != 0, false);
 
         for (int i = 0; i < trans.size(); i += 3) {
-            add_transition(trans[i], trans[i + 1], refFromRefPtr<AnimationNodeStateMachineTransition>(trans[i + 2]));
+            add_transition(trans[i].as<StringName>(), trans[i + 1].as<StringName>(), refFromVariant<AnimationNodeStateMachineTransition>(trans[i + 2]));
         }
         return true;
     } else if (p_name == "start_node") {
-        set_start_node(p_value);
+        set_start_node(p_value.as<StringName>());
         return true;
     } else if (p_name == "end_node") {
-        set_end_node(p_value);
+        set_end_node(p_value.as<StringName>());
         return true;
     } else if (p_name == "graph_offset") {
-        set_graph_offset(p_value);
+        set_graph_offset(p_value.as<Vector2>());
         return true;
     }
 

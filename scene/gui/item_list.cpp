@@ -619,7 +619,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
                 uint64_t now = OS::get_singleton()->get_ticks_msec();
                 uint64_t diff = now - search_time_msec;
 
-                if (diff < uint64_t(ProjectSettings::get_singleton()->get("gui/timers/incremental_search_max_interval_msec")) * 2) {
+                if (diff < ProjectSettings::get_singleton()->getT<uint64_t>("gui/timers/incremental_search_max_interval_msec") * 2) {
 
                     for (int i = current - 1; i >= 0; i--) {
 
@@ -654,7 +654,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
                 uint64_t now = OS::get_singleton()->get_ticks_msec();
                 uint64_t diff = now - search_time_msec;
 
-                if (diff < uint64_t(ProjectSettings::get_singleton()->get("gui/timers/incremental_search_max_interval_msec")) * 2) {
+                if (diff < ProjectSettings::get_singleton()->getT<uint64_t>("gui/timers/incremental_search_max_interval_msec") * 2) {
 
                     for (int i = current + 1; i < items.size(); i++) {
 
@@ -763,7 +763,7 @@ void ItemList::_gui_input(const Ref<InputEvent> &p_event) {
 
                 uint64_t now = OS::get_singleton()->get_ticks_msec();
                 uint64_t diff = now - search_time_msec;
-                uint64_t max_interval = uint64_t(GLOBAL_DEF("gui/timers/incremental_search_max_interval_msec", 2000));
+                uint64_t max_interval = T_GLOBAL_DEF<uint64_t>("gui/timers/incremental_search_max_interval_msec", 2000);
                 search_time_msec = now;
 
                 if (diff > max_interval) {
@@ -1419,9 +1419,9 @@ void ItemList::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 3) {
 
-        StringName text = p_items[i + 0];
-        Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
-        bool disabled = p_items[i + 2];
+        StringName text = p_items[i + 0].as<StringName>();
+        Ref<Texture> icon = refFromVariant<Texture>(p_items[i + 1]);
+        bool disabled = p_items[i + 2].as<bool>();
 
         int idx = get_item_count();
         add_item(text, icon);

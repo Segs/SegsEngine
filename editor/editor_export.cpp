@@ -305,15 +305,15 @@ EditorExportPreset::EditorExportPreset() :
 
 void EditorExportPlatform::gen_debug_flags(Vector<String> &r_flags, int p_flags) {
 
-    String host = EditorSettings::get_singleton()->get("network/debug/remote_host");
-    int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
+    String host = EditorSettings::get_singleton()->getT<String>("network/debug/remote_host");
+    int remote_port = (int)EditorSettings::get_singleton()->getT<int>("network/debug/remote_port");
 
     if (p_flags & DEBUG_FLAG_REMOTE_DEBUG_LOCALHOST)
         host = "localhost";
 
     if (p_flags & DEBUG_FLAG_DUMB_CLIENT) {
-        int port = EditorSettings::get_singleton()->get("filesystem/file_server/port");
-        String passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
+        int port = EditorSettings::get_singleton()->getT<int>("filesystem/file_server/port");
+        String passwd = EditorSettings::get_singleton()->getT<String>("filesystem/file_server/password");
         r_flags.emplace_back("--remote-fs");
         r_flags.emplace_back(host + ":" + itos(port));
         if (!passwd.empty()) {
@@ -758,14 +758,14 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
 
             for (const String & remap : remaps) {
                 if (remap == "path") {
-                    String remapped_path = config->get_value("remap", "path");
+                    String remapped_path = config->get_value("remap", "path").as<String>();
                     Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                     err = p_func(p_udata, remapped_path, array, idx, total);
                 } else if (StringUtils::begins_with(remap,"path.")) {
                     StringView feature = StringUtils::get_slice(remap,".", 1);
 
                     if (remap_features.contains_as(feature)) {
-                        String remapped_path = config->get_value("remap", remap);
+                        String remapped_path = config->get_value("remap", remap).as<String>();
                         Vector<uint8_t> array = FileAccess::get_file_as_array(remapped_path);
                         err = p_func(p_udata, remapped_path, array, idx, total);
                     }
@@ -864,8 +864,8 @@ Error EditorExportPlatform::export_project_files(const Ref<EditorExportPreset> &
     }
 
     // Store icon and splash images directly, they need to bypass the import system and be loaded as images
-    String icon = ProjectSettings::get_singleton()->get("application/config/icon");
-    String splash = ProjectSettings::get_singleton()->get("application/boot_splash/image");
+    String icon = ProjectSettings::get_singleton()->getT<String>("application/config/icon");
+    String splash = ProjectSettings::get_singleton()->getT<String>("application/boot_splash/image");
     if (!icon.empty() && FileAccess::exists(icon)) {
         Vector<uint8_t> array = FileAccess::get_file_as_array(icon);
         p_func(p_udata, icon, array, idx, total);
@@ -1078,15 +1078,15 @@ Error EditorExportPlatform::export_zip(const Ref<EditorExportPreset> &p_preset, 
 
 void EditorExportPlatform::gen_export_flags(Vector<String> &r_flags, int p_flags) {
 
-    String host = EditorSettings::get_singleton()->get("network/debug/remote_host");
-    int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
+    String host = EditorSettings::get_singleton()->getT<String>("network/debug/remote_host");
+    int remote_port = (int)EditorSettings::get_singleton()->getT<int>("network/debug/remote_port");
 
     if (p_flags & DEBUG_FLAG_REMOTE_DEBUG_LOCALHOST)
         host = "localhost";
 
     if (p_flags & DEBUG_FLAG_DUMB_CLIENT) {
-        int port = EditorSettings::get_singleton()->get("filesystem/file_server/port");
-        String passwd = EditorSettings::get_singleton()->get("filesystem/file_server/password");
+        int port = EditorSettings::get_singleton()->getT<int>("filesystem/file_server/port");
+        String passwd = EditorSettings::get_singleton()->getT<String>("filesystem/file_server/password");
         r_flags.push_back("--remote-fs");
         r_flags.push_back(host + ":" + itos(port));
         if (!passwd.empty()) {
@@ -1219,10 +1219,10 @@ void EditorExport::add_export_preset(const Ref<EditorExportPreset> &p_preset, in
 
 StringName EditorExportPlatform::test_etc2() const {
 
-    UIString driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
-    bool driver_fallback = ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2");
-    bool etc_supported = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc");
-    bool etc2_supported = ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2");
+    String driver = ProjectSettings::get_singleton()->getT<String>("rendering/quality/driver/driver_name");
+    bool driver_fallback = ProjectSettings::get_singleton()->getT<bool>("rendering/quality/driver/fallback_to_gles2");
+    bool etc_supported = ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc");
+    bool etc2_supported = ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_etc2");
     assert(driver != "GLES2");
     if (driver == "GLES3") {
         String err;
@@ -1301,7 +1301,7 @@ void EditorExport::load_config() {
         if (!config->has_section(section))
             break;
 
-        const String platform = config->get_value(section, "platform");
+        const String platform = config->get_value(section, "platform").as<String>();
 
         Ref<EditorExportPreset> preset;
 
@@ -1318,13 +1318,13 @@ void EditorExport::load_config() {
         }
 
         preset->set_name(config->get_value(section, "name").as<String>());
-        preset->set_runnable(config->get_value(section, "runnable"));
+        preset->set_runnable(config->get_value(section, "runnable").as<bool>());
 
         if (config->has_section_key(section, "custom_features")) {
             preset->set_custom_features(config->get_value(section, "custom_features").as<String>());
         }
 
-        UIString export_filter = config->get_value(section, "export_filter");
+        UIString export_filter = config->get_value(section, "export_filter").as<UIString>();
 
         bool get_files = false;
 
@@ -1358,10 +1358,10 @@ void EditorExport::load_config() {
         }
 
         if (config->has_section_key(section, "script_export_mode")) {
-            preset->set_script_export_mode(config->get_value(section, "script_export_mode"));
+            preset->set_script_export_mode(config->get_value(section, "script_export_mode").as<int>());
         }
         if (config->has_section_key(section, "script_encryption_key")) {
-            preset->set_script_encryption_key(config->get_value(section, "script_encryption_key"));
+            preset->set_script_encryption_key(config->get_value(section, "script_encryption_key").as<String>());
         }
 
         String option_section = "preset." + ::to_string(index) + ".options";
@@ -1457,17 +1457,17 @@ EditorExport::~EditorExport() {
 
 void EditorExportPlatformPC::get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) {
 
-    if (p_preset->get("texture_format/s3tc")) {
+    if (p_preset->get("texture_format/s3tc").as<bool>()) {
         r_features->push_back("s3tc");
     }
-    if (p_preset->get("texture_format/etc")) {
+    if (p_preset->get("texture_format/etc").as<bool>()) {
         r_features->push_back("etc");
     }
-    if (p_preset->get("texture_format/etc2")) {
+    if (p_preset->get("texture_format/etc2").as<bool>()) {
         r_features->push_back("etc2");
     }
 
-    if (p_preset->get("binary_format/64_bits")) {
+    if (p_preset->get("binary_format/64_bits").as<bool>()) {
         r_features->push_back("64");
     } else {
         r_features->push_back("32");
@@ -1508,7 +1508,7 @@ bool EditorExportPlatformPC::can_export(const Ref<EditorExportPreset> &p_preset,
 
     // Look for export templates (first official, and if defined custom templates).
 
-    bool use64 = p_preset->get("binary_format/64_bits");
+    bool use64 = p_preset->getT<bool>("binary_format/64_bits");
     bool dvalid = exists_export_template(use64 ? debug_file_64 : debug_file_32, &err);
     bool rvalid = exists_export_template(use64 ? release_file_64 : release_file_32, &err);
 
@@ -1536,7 +1536,7 @@ bool EditorExportPlatformPC::can_export(const Ref<EditorExportPreset> &p_preset,
 Vector<String> EditorExportPlatformPC::get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
     Vector<String> list;
     for (const eastl::pair<const String,String> &E : extensions) {
-        if (p_preset->get(StringName(E.first))) {
+        if (p_preset->getT<bool>(StringName(E.first))) {
             list.push_back(E.second);
             return list;
         }
@@ -1557,8 +1557,8 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
         return ERR_FILE_BAD_PATH;
     }
 
-    String custom_debug = p_preset->get("custom_template/debug");
-    String custom_release = p_preset->get("custom_template/release");
+    String custom_debug = p_preset->getT<String>("custom_template/debug");
+    String custom_release = p_preset->getT<String>("custom_template/release");
 
     String template_path = p_debug ? custom_debug : custom_release;
 
@@ -1566,7 +1566,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     if (template_path.empty()) {
 
-        if (p_preset->get("binary_format/64_bits")) {
+        if (p_preset->getT<bool>("binary_format/64_bits")) {
             if (p_debug) {
                 template_path = find_export_template(debug_file_64);
             } else {
@@ -1592,7 +1592,7 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
     if (err == OK) {
         String pck_path;
-        if (p_preset->get("binary_format/embed_pck")) {
+        if (p_preset->getT<bool>("binary_format/embed_pck")) {
             pck_path = p_path;
         } else {
             pck_path = String(PathUtils::get_basename(p_path)) + ".pck";
@@ -1602,10 +1602,10 @@ Error EditorExportPlatformPC::export_project(const Ref<EditorExportPreset> &p_pr
 
         int64_t embedded_pos;
         int64_t embedded_size;
-        err = save_pack(p_preset, pck_path, &so_files, p_preset->get("binary_format/embed_pck"), &embedded_pos, &embedded_size);
-        if (err == OK && p_preset->get("binary_format/embed_pck")) {
+        err = save_pack(p_preset, pck_path, &so_files, p_preset->getT<bool>("binary_format/embed_pck"), &embedded_pos, &embedded_size);
+        if (err == OK && p_preset->getT<bool>("binary_format/embed_pck")) {
 
-            if (embedded_size >= 0x100000000 && !p_preset->get("binary_format/64_bits")) {
+            if (embedded_size >= 0x100000000 && !p_preset->getT<bool>("binary_format/64_bits")) {
                 EditorNode::get_singleton()->show_warning(TTR("On 32-bit exports the embedded PCK cannot be bigger than 4 GiB."));
                 return ERR_INVALID_PARAMETER;
             }
@@ -1728,7 +1728,7 @@ void EditorExportTextSceneToBinaryPlugin::_export_file(StringView p_path, String
         return;
     }
 
-    bool convert = GLOBAL_GET("editor/convert_text_resources_to_binary_on_export");
+    bool convert = GLOBAL_GET("editor/convert_text_resources_to_binary_on_export").as<bool>();
     if (!convert)
         return;
     String tmp_path(PathUtils::plus_file(EditorSettings::get_singleton()->get_cache_dir(),"tmpfile.res"));

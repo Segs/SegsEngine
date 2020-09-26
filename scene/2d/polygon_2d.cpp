@@ -46,7 +46,7 @@ Dictionary Polygon2D::_edit_get_state() const {
 
 void Polygon2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
-    set_offset(p_state["offset"]);
+    set_offset(p_state["offset"].as<Vector2>());
 }
 
 void Polygon2D::_edit_set_pivot(const Point2 &p_pivot) {
@@ -316,7 +316,7 @@ void Polygon2D::_notification(int p_what) {
                 //draw individual polygons
                 Vector<int> total_indices;
                 for (int i = 0; i < polygons.size(); i++) {
-                    PoolVector<int> src_indices = polygons[i];
+                    PoolVector<int> src_indices = polygons[i].as<PoolVector<int>>();
                     int ic = src_indices.size();
                     if (ic < 3)
                         continue;
@@ -567,7 +567,7 @@ void Polygon2D::_set_bones(const Array &p_bones) {
     ERR_FAIL_COND(p_bones.size() & 1);
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
-        add_bone(p_bones[i], p_bones[i + 1]);
+        add_bone(p_bones[i].as<NodePath>(), p_bones[i + 1].as< PoolVector<float>>());
     }
 }
 

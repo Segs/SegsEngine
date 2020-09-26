@@ -80,7 +80,7 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
         for (int i = 0; i < meshes.size(); i++) {
             BakedMesh bm;
-            bm.mesh = refFromRefPtr<Mesh>(meshes[i].as<RefPtr>());
+            bm.mesh = refFromVariant<Mesh>(meshes[i]);
             ERR_CONTINUE(not bm.mesh);
             auto vserver=RenderingServer::get_singleton();
             bm.instance = vserver->instance_create();

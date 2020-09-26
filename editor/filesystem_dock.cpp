@@ -537,9 +537,9 @@ void FileSystemDock::_file_list_thumbnail_done(StringView p_path, const Ref<Text
 
 void FileSystemDock::_tree_thumbnail_done(StringView p_path, const Ref<Texture> &p_preview, const Ref<Texture> &p_small_preview, const Variant &p_udata) {
     if (p_small_preview) {
-        Array uarr = p_udata;
-        if (tree_update_id == (int)uarr[0]) {
-            TreeItem *file_item = object_cast<TreeItem>(uarr[1]);
+        Array uarr = p_udata.as<Array>();
+        if (tree_update_id == uarr[0].as<int>()) {
+            TreeItem *file_item = uarr[1].asT<TreeItem>();
             if (file_item) {
                 file_item->set_icon(0, p_small_preview);
             }
@@ -637,7 +637,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     String file;
 
     StringName ei("EditorIcons");
-    int thumbnail_size = EditorSettings::get_singleton()->get("docks/filesystem/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("docks/filesystem/thumbnail_size");
     thumbnail_size *= EDSCALE;
     Ref<Texture> folder_thumbnail;
     Ref<Texture> file_thumbnail;
@@ -783,7 +783,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
     }
 
     // Fills the ItemList control node from the FileInfos.
-    String main_scene = ProjectSettings::get_singleton()->get("application/run/main_scene");
+    String main_scene = ProjectSettings::get_singleton()->getT<String>("application/run/main_scene");
     StringName oi("Object");
     for (const FileInfo& finfo : filelist) {
 
@@ -869,7 +869,7 @@ void FileSystemDock::_select_file(StringView p_path, bool p_select_in_favorites)
 void FileSystemDock::_tree_activate_file() {
     TreeItem *selected = tree->get_selected();
     if (selected) {
-        String path = selected->get_metadata(0);
+        String path = selected->get_metadata(0).as<String>();
         TreeItem *parent = selected->get_parent();
         bool is_favorite = parent != nullptr && parent->get_metadata(0) == "Favorites";
 
@@ -1194,7 +1194,7 @@ void FileSystemDock::_update_project_settings_after_move(const HashMap<String, S
     const HashMap<StringName, PropertyInfo> &prop_info = ProjectSettings::get_singleton()->get_custom_property_info();
     for (const eastl::pair<const StringName,PropertyInfo> &E : prop_info) {
         if (E.second.hint == PropertyHint::File) {
-            String old_path = GLOBAL_GET(E.first);
+            String old_path = GLOBAL_GET(E.first).as<String>();
             if (p_renames.contains(old_path)) {
                 ProjectSettings::get_singleton()->set_setting(E.first, p_renames.at(old_path));
             }
@@ -1208,7 +1208,7 @@ void FileSystemDock::_update_project_settings_after_move(const HashMap<String, S
         if (StringUtils::begins_with(E.name,"autoload/")) {
             // If the autoload resource paths has a leading "*", it indicates that it is a Singleton,
             // so we have to handle both cases when updating.
-            String autoload = GLOBAL_GET(E.name);
+            String autoload = GLOBAL_GET(E.name).as<String>();
             String autoload_singleton(StringUtils::substr(autoload,1, autoload.length()));
             if (p_renames.contains(autoload)) {
                 ProjectSettings::get_singleton()->set_setting(E.name, p_renames.at(autoload));
@@ -1515,14 +1515,14 @@ Vector<String> FileSystemDock::_tree_get_selected(bool remove_self_inclusion) {
     TreeItem *favorites_item = tree->get_root()->get_children();
     TreeItem *active_selected = tree->get_selected();
     if (active_selected && active_selected != favorites_item) {
-        selected_strings.push_back(active_selected->get_metadata(0));
+        selected_strings.push_back(active_selected->get_metadata(0).as<String>());
     }
 
     TreeItem *selected = tree->get_root();
     selected = tree->get_next_selected(selected);
     while (selected) {
         if (selected != active_selected && selected != favorites_item) {
-            selected_strings.push_back(selected->get_metadata(0));
+            selected_strings.push_back(selected->get_metadata(0).as<String>());
         }
         selected = tree->get_next_selected(selected);
     }
@@ -1590,7 +1590,7 @@ void FileSystemDock::_file_list_rmb_option(int p_option) {
     Vector<String> selected;
     selected.reserve(selected_id.size());
     for (int i : selected_id) {
-        selected.emplace_back(files->get_item_metadata(i));
+        selected.emplace_back(files->get_item_metadata(i).as<String>());
     }
     _file_option(p_option, selected);
 }
@@ -1618,7 +1618,7 @@ void FileSystemDock::_file_option(int p_option, const Vector<String> &p_selected
             TreeItem *selected = tree->get_root();
             selected = tree->get_next_selected(selected);
             while (selected) {
-                if (p_selected.contains(selected->get_metadata(0))) {
+                if (p_selected.contains(selected->get_metadata(0).as<String>())) {
                     selected->set_collapsed(false);
                 }
                 selected = tree->get_next_selected(selected);
@@ -1933,7 +1933,7 @@ Variant FileSystemDock::get_drag_data_fw(const Point2 &p_point, Control *p_from)
     } else if (p_from == files) {
         for (int i = 0; i < files->get_item_count(); i++) {
             if (files->is_selected(i)) {
-                paths.push_back(files->get_item_metadata(i));
+                paths.push_back(files->get_item_metadata(i).as<String>());
             }
         }
         all_favorites = false;
@@ -1943,7 +1943,7 @@ Variant FileSystemDock::get_drag_data_fw(const Point2 &p_point, Control *p_from)
     if (paths.empty())
         return Variant();
 
-    Dictionary drag_data = EditorNode::get_singleton()->drag_files_and_dirs(paths, p_from);
+    Dictionary drag_data = EditorNode::get_singleton()->drag_files_and_dirs(paths, p_from).as<Dictionary>();
     if (!all_not_favorites) {
         drag_data["favorite"] = all_favorites ? "all" : "mixed";
     }
@@ -1952,11 +1952,11 @@ Variant FileSystemDock::get_drag_data_fw(const Point2 &p_point, Control *p_from)
 
 bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary drag_data = p_data;
+    Dictionary drag_data = p_data.as<Dictionary>();
 
     if (drag_data.has("favorite")) {
 
-        if (String(drag_data["favorite"]) != "all") {
+        if (drag_data["favorite"].as<String>() != "all") {
             return false;
         }
         // Moving favorite around.
@@ -1981,8 +1981,8 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
 
         return false;
     }
-
-    if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    String type(drag_data.has("type") ? drag_data["type"].as<String>() : "");
+    if (type == "resource") {
         // Move resources.
         String to_dir;
         bool favorite;
@@ -1990,7 +1990,7 @@ bool FileSystemDock::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
         return !to_dir.empty();
     }
 
-    if (drag_data.has("type") && (String(drag_data["type"]) == "files" || String(drag_data["type"]) == "files_and_dirs")) {
+    if (type == "files" || type == "files_and_dirs") {
         // Move files or dir.
         String to_dir;
         bool favorite;
@@ -2021,13 +2021,13 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
 
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
-    Dictionary drag_data = p_data;
+    Dictionary drag_data = p_data.as<Dictionary>();
 
     Vector<String> dirs = EditorSettings::get_singleton()->get_favorites();
 
     if (drag_data.has("favorite")) {
 
-        if (String(drag_data["favorite"]) != "all") {
+        if (drag_data["favorite"].as<String>() != "all") {
             return;
         }
         // Moving favorite around.
@@ -2049,7 +2049,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             drop_position = dirs.size();
         } else {
             // Drop in the list.
-            drop_position = dirs.index_of(ti->get_metadata(0));
+            drop_position = dirs.index_of(ti->get_metadata(0).as<String>());
             if (drop_section == 1) {
                 drop_position++;
             }
@@ -2085,8 +2085,9 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
             _update_file_list(true);
         return;
     }
+    String type(drag_data.has("type") ? drag_data["type"].as<String>() : "");
 
-    if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    if (type == "resource") {
         // Moving resource.
         Ref<Resource> res(drag_data["resource"]);
         String to_dir;
@@ -2098,7 +2099,7 @@ void FileSystemDock::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
         }
     }
 
-    if (drag_data.has("type") && (String(drag_data["type"]) == "files" || String(drag_data["type"]) == "files_and_dirs")) {
+    if (type == "files" || type == "files_and_dirs") {
         // Move files or add to favorites.
         String to_dir;
         bool favorite;
@@ -2140,7 +2141,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
             return;
         }
 
-        String ltarget = files->get_item_metadata(pos);
+        String ltarget = files->get_item_metadata(pos).as<String>();
         target = StringUtils::ends_with(ltarget,"/") ? ltarget : PathUtils::get_base_dir(path);
         return;
     }
@@ -2161,7 +2162,7 @@ void FileSystemDock::_get_drag_target_folder(String &target, bool &target_favori
         target_favorites = true;
         return;
     } else {
-        String fpath = ti->get_metadata(0);
+        String fpath = ti->get_metadata(0).as<String>();
         if (section == 0) {
             if (StringUtils::ends_with(fpath,"/")) {
                 // We drop on a folder.
@@ -2350,7 +2351,7 @@ void FileSystemDock::_file_list_rmb_select(int p_item, const Vector2 &p_pos) {
             files->unselect(i);
             continue;
         }
-        paths.push_back(files->get_item_metadata(i));
+        paths.push_back(files->get_item_metadata(i).as<String>());
     }
 
     // Popup.
@@ -2391,7 +2392,7 @@ void FileSystemDock::_file_multi_selected(int p_index, bool p_selected) {
     // Set the path to the current focused item.
     int current = files->get_current();
     if (current == p_index) {
-        String fpath = files->get_item_metadata(current);
+        String fpath = files->get_item_metadata(current).as<String>();
         if (!StringUtils::ends_with(fpath,"/")) {
             path = fpath;
             if (display_mode == DISPLAY_MODE_SPLIT) {
@@ -2460,7 +2461,7 @@ void FileSystemDock::_update_import_dock() {
             if (!files->is_selected(i))
                 continue;
 
-            selected.push_back(files->get_item_metadata(i));
+            selected.push_back(files->get_item_metadata(i).as<String>());
         }
     }
 
@@ -2484,7 +2485,7 @@ void FileSystemDock::_update_import_dock() {
             break;
         }
 
-        String type = cf->get_value("remap", "type");
+        String type = cf->get_value("remap", "type").as<String>();
         if (import_type.empty()) {
             import_type = type;
         } else if (import_type != type) {

@@ -908,33 +908,33 @@ bool CodeTextEditor::_add_font_size(int p_delta) {
 
 void CodeTextEditor::update_editor_settings() {
 
-    text_editor->set_syntax_coloring(EditorSettings::get_singleton()->get("text_editor/highlighting/syntax_highlighting"));
-    text_editor->set_highlight_all_occurrences(EditorSettings::get_singleton()->get("text_editor/highlighting/highlight_all_occurrences"));
-    text_editor->set_highlight_current_line(EditorSettings::get_singleton()->get("text_editor/highlighting/highlight_current_line"));
-    text_editor->set_indent_using_spaces(EditorSettings::get_singleton()->get("text_editor/indent/type"));
-    text_editor->set_indent_size(EditorSettings::get_singleton()->get("text_editor/indent/size"));
-    text_editor->set_auto_indent(EditorSettings::get_singleton()->get("text_editor/indent/auto_indent"));
-    text_editor->set_draw_tabs(EditorSettings::get_singleton()->get("text_editor/indent/draw_tabs"));
-    text_editor->set_draw_spaces(EditorSettings::get_singleton()->get("text_editor/indent/draw_spaces"));
-    text_editor->set_smooth_scroll_enabled(EditorSettings::get_singleton()->get("text_editor/navigation/smooth_scrolling"));
-    text_editor->set_v_scroll_speed(EditorSettings::get_singleton()->get("text_editor/navigation/v_scroll_speed"));
-    text_editor->set_draw_minimap(EditorSettings::get_singleton()->get("text_editor/navigation/show_minimap"));
-    text_editor->set_minimap_width((int)EditorSettings::get_singleton()->get("text_editor/navigation/minimap_width"));
-    text_editor->set_show_line_numbers(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_numbers"));
-    text_editor->set_line_numbers_zero_padded(EditorSettings::get_singleton()->get("text_editor/appearance/line_numbers_zero_padded"));
-    text_editor->set_bookmark_gutter_enabled(EditorSettings::get_singleton()->get("text_editor/appearance/show_bookmark_gutter"));
-    text_editor->set_breakpoint_gutter_enabled(EditorSettings::get_singleton()->get("text_editor/appearance/show_breakpoint_gutter"));
-    text_editor->set_draw_info_gutter(EditorSettings::get_singleton()->get("text_editor/appearance/show_info_gutter"));
-    text_editor->set_hiding_enabled(EditorSettings::get_singleton()->get("text_editor/appearance/code_folding"));
-    text_editor->set_draw_fold_gutter(EditorSettings::get_singleton()->get("text_editor/appearance/code_folding"));
-    text_editor->set_wrap_enabled(EditorSettings::get_singleton()->get("text_editor/appearance/word_wrap"));
-    text_editor->set_show_line_length_guideline(EditorSettings::get_singleton()->get("text_editor/appearance/show_line_length_guideline"));
-    text_editor->set_line_length_guideline_column(EditorSettings::get_singleton()->get("text_editor/appearance/line_length_guideline_column"));
-    text_editor->set_scroll_pass_end_of_file(EditorSettings::get_singleton()->get("text_editor/cursor/scroll_past_end_of_file"));
-    text_editor->cursor_set_block_mode(EditorSettings::get_singleton()->get("text_editor/cursor/block_caret"));
-    text_editor->cursor_set_blink_enabled(EditorSettings::get_singleton()->get("text_editor/cursor/caret_blink"));
-    text_editor->cursor_set_blink_speed(EditorSettings::get_singleton()->get("text_editor/cursor/caret_blink_speed"));
-    text_editor->set_auto_brace_completion(EditorSettings::get_singleton()->get("text_editor/completion/auto_brace_complete"));
+    text_editor->set_syntax_coloring(EditorSettings::get_singleton()->getT<bool>("text_editor/highlighting/syntax_highlighting"));
+    text_editor->set_highlight_all_occurrences(EditorSettings::get_singleton()->getT<bool>("text_editor/highlighting/highlight_all_occurrences"));
+    text_editor->set_highlight_current_line(EditorSettings::get_singleton()->getT<bool>("text_editor/highlighting/highlight_current_line"));
+    text_editor->set_indent_using_spaces(EditorSettings::get_singleton()->getT<bool>("text_editor/indent/type"));
+    text_editor->set_indent_size(EditorSettings::get_singleton()->getT<int>("text_editor/indent/size"));
+    text_editor->set_auto_indent(EditorSettings::get_singleton()->getT<bool>("text_editor/indent/auto_indent"));
+    text_editor->set_draw_tabs(EditorSettings::get_singleton()->getT<bool>("text_editor/indent/draw_tabs"));
+    text_editor->set_draw_spaces(EditorSettings::get_singleton()->getT<bool>("text_editor/indent/draw_spaces"));
+    text_editor->set_smooth_scroll_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/navigation/smooth_scrolling"));
+    text_editor->set_v_scroll_speed(EditorSettings::get_singleton()->getT<float>("text_editor/navigation/v_scroll_speed"));
+    text_editor->set_draw_minimap(EditorSettings::get_singleton()->getT<bool>("text_editor/navigation/show_minimap"));
+    text_editor->set_minimap_width(EditorSettings::get_singleton()->getT<int>("text_editor/navigation/minimap_width"));
+    text_editor->set_show_line_numbers(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_line_numbers"));
+    text_editor->set_line_numbers_zero_padded(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/line_numbers_zero_padded"));
+    text_editor->set_bookmark_gutter_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_bookmark_gutter"));
+    text_editor->set_breakpoint_gutter_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_breakpoint_gutter"));
+    text_editor->set_draw_info_gutter(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_info_gutter"));
+    text_editor->set_hiding_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/code_folding"));
+    text_editor->set_draw_fold_gutter(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/code_folding"));
+    text_editor->set_wrap_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/word_wrap"));
+    text_editor->set_show_line_length_guideline(EditorSettings::get_singleton()->getT<bool>("text_editor/appearance/show_line_length_guideline"));
+    text_editor->set_line_length_guideline_column(EditorSettings::get_singleton()->getT<int>("text_editor/appearance/line_length_guideline_column"));
+    text_editor->set_scroll_pass_end_of_file(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/scroll_past_end_of_file"));
+    text_editor->cursor_set_block_mode(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/block_caret"));
+    text_editor->cursor_set_blink_enabled(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/caret_blink"));
+    text_editor->cursor_set_blink_speed(EditorSettings::get_singleton()->getT<float>("text_editor/cursor/caret_blink_speed"));
+    text_editor->set_auto_brace_completion(EditorSettings::get_singleton()->getT<bool>("text_editor/completion/auto_brace_complete"));
 }
 
 void CodeTextEditor::trim_trailing_whitespace() {
@@ -984,7 +984,7 @@ void CodeTextEditor::insert_final_newline() {
 }
 
 void CodeTextEditor::convert_indent_to_spaces() {
-    int indent_size = EditorSettings::get_singleton()->get("text_editor/indent/size");
+    int indent_size = EditorSettings::get_singleton()->getT<int>("text_editor/indent/size");
     UIString indent;
 
     for (int i = 0; i < indent_size; i++) {
@@ -1028,7 +1028,7 @@ void CodeTextEditor::convert_indent_to_spaces() {
 }
 
 void CodeTextEditor::convert_indent_to_tabs() {
-    int indent_size = EditorSettings::get_singleton()->get("text_editor/indent/size");
+    int indent_size = EditorSettings::get_singleton()->getT<int>("text_editor/indent/size");
     indent_size -= 1;
 
     int cursor_line = text_editor->cursor_get_line();
@@ -1405,16 +1405,16 @@ Variant CodeTextEditor::get_edit_state() {
 }
 
 void CodeTextEditor::set_edit_state(const Variant &p_state) {
-    Dictionary state = p_state;
+    Dictionary state = p_state.as<Dictionary>();
 
     /* update the row first as it sets the column to 0 */
-    text_editor->cursor_set_line(state["row"]);
-    text_editor->cursor_set_column(state["column"]);
-    text_editor->set_v_scroll(state["scroll_position"]);
-    text_editor->set_h_scroll(state["h_scroll_position"]);
+    text_editor->cursor_set_line(state["row"].as<int>());
+    text_editor->cursor_set_column(state["column"].as<int>());
+    text_editor->set_v_scroll(state["scroll_position"].as<float>());
+    text_editor->set_h_scroll(state["h_scroll_position"].as<float>());
 
     if (state.has("selection")) {
-        text_editor->select(state["selection_from_line"], state["selection_from_column"], state["selection_to_line"], state["selection_to_column"]);
+        text_editor->select(state["selection_from_line"].as<int>(), state["selection_from_column"].as<int>(), state["selection_to_line"].as<int>(), state["selection_to_column"].as<int>());
     }
 
     if (state.has("folded_lines")) {
@@ -1425,16 +1425,16 @@ void CodeTextEditor::set_edit_state(const Variant &p_state) {
     }
 
     if (state.has("breakpoints")) {
-        Array breakpoints = state["breakpoints"];
+        Array breakpoints = state["breakpoints"].as<Array>();
         for (int i = 0; i < breakpoints.size(); i++) {
-            text_editor->set_line_as_breakpoint(breakpoints[i], true);
+            text_editor->set_line_as_breakpoint(breakpoints[i].as<int>(), true);
         }
     }
 
     if (state.has("bookmarks")) {
-        Array bookmarks = state["bookmarks"];
+        Array bookmarks = state["bookmarks"].as<Array>();
         for (int i = 0; i < bookmarks.size(); i++) {
-            text_editor->set_line_as_bookmark(bookmarks[i], true);
+            text_editor->set_line_as_bookmark(bookmarks[i].as<int>(), true);
         }
     }
 
@@ -1485,21 +1485,19 @@ void CodeTextEditor::_on_settings_change() {
 
     _update_font();
 
-    font_size = EditorSettings::get_singleton()->get("interface/editor/code_font_size");
+    font_size = EditorSettings::get_singleton()->getT<float>("interface/editor/code_font_size");
 
     // Auto brace completion.
-    text_editor->set_auto_brace_completion(
-            EDITOR_GET("text_editor/completion/auto_brace_complete"));
+    text_editor->set_auto_brace_completion(EDITOR_GET_T<bool>("text_editor/completion/auto_brace_complete"));
 
-    code_complete_timer->set_wait_time(
-            EDITOR_GET("text_editor/completion/code_complete_delay"));
+    code_complete_timer->set_wait_time(EDITOR_GET_T<float>("text_editor/completion/code_complete_delay"));
 
     // Call hint settings.
     text_editor->set_callhint_settings(
-            EDITOR_GET("text_editor/completion/put_callhint_tooltip_below_current_line"),
-            EDITOR_GET("text_editor/completion/callhint_tooltip_offset"));
+            EDITOR_GET_T<bool>("text_editor/completion/put_callhint_tooltip_below_current_line"),
+            EDITOR_GET_T<Vector2>("text_editor/completion/callhint_tooltip_offset"));
 
-    idle->set_wait_time(EDITOR_GET("text_editor/completion/idle_parse_delay"));
+    idle->set_wait_time(EDITOR_GET_T<float>("text_editor/completion/idle_parse_delay"));
 }
 
 void CodeTextEditor::_text_changed_idle_timeout() {
@@ -1704,12 +1702,12 @@ CodeTextEditor::CodeTextEditor() {
     idle = memnew(Timer);
     add_child(idle);
     idle->set_one_shot(true);
-    idle->set_wait_time(EDITOR_GET("text_editor/completion/idle_parse_delay"));
+    idle->set_wait_time(EDITOR_GET_T<float>("text_editor/completion/idle_parse_delay"));
 
     code_complete_timer = memnew(Timer);
     add_child(code_complete_timer);
     code_complete_timer->set_one_shot(true);
-    code_complete_timer->set_wait_time(EDITOR_GET("text_editor/completion/code_complete_delay"));
+    code_complete_timer->set_wait_time(EDITOR_GET_T<float>("text_editor/completion/code_complete_delay"));
 
     error_line = 0;
     error_column = 0;
@@ -1781,7 +1779,7 @@ CodeTextEditor::CodeTextEditor() {
     code_complete_timer->connect("timeout", this, "_code_complete_timer_timeout");
 
     font_resize_val = 0;
-    font_size = EditorSettings::get_singleton()->get("interface/editor/code_font_size");
+    font_size = EditorSettings::get_singleton()->getT<float>("interface/editor/code_font_size");
     font_resize_timer = memnew(Timer);
     add_child(font_resize_timer);
     font_resize_timer->set_one_shot(true);

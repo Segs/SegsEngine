@@ -91,7 +91,7 @@ void ProjectExportDialog::popup_export() {
     }
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "export", Rect2()).as<Rect2>();
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadataT("dialog_bounds", "export", Rect2());
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -1362,7 +1362,7 @@ ProjectExportDialog::ProjectExportDialog() {
 
     editor_icons = "EditorIcons";
 
-    default_filename = EditorSettings::get_singleton()->get_project_metadata("export_options", "default_filename", "").as<String>();
+    default_filename = EditorSettings::get_singleton()->get_project_metadataT<String>("export_options", "default_filename", "");
     // If no default set, use project name
     if (default_filename.empty()) {
         // If no project name defined, use a sane default

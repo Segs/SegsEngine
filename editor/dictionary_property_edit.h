@@ -44,7 +44,7 @@ class DictionaryPropertyEdit : public RefCounted {
 	void _set_key(const Variant &p_old_key, const Variant &p_new_key);
 	void _set_value(const Variant &p_key, const Variant &p_value);
 
-	Variant get_dictionary() const;
+	Dictionary get_dictionary() const;
 
 	bool _dont_undo_redo();
 

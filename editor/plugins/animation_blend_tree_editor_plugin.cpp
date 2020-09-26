@@ -246,7 +246,7 @@ void AnimationNodeBlendTreeEditor::_update_graph() {
             mb->get_popup()->connect("index_pressed", this, "_anim_selected", varray(options, E),ObjectNS::CONNECT_QUEUED);
         }
 
-        if (EditorSettings::get_singleton()->get("interface/theme/use_graph_node_headers")) {
+        if (EditorSettings::get_singleton()->getT<bool>("interface/theme/use_graph_node_headers")) {
             Ref<StyleBoxFlat> sb = dynamic_ref_cast<StyleBoxFlat>(node->get_stylebox("frame", "GraphNode"));
             Color c = sb->get_border_color();
             Color mono_color = (c.r + c.g + c.b) / 3 < 0.7 ? Color(1.0, 1.0, 1.0) : Color(0.0, 0.0, 0.0);
@@ -391,7 +391,7 @@ void AnimationNodeBlendTreeEditor::_disconnection_request(StringView p_from, int
 
 void AnimationNodeBlendTreeEditor::_anim_selected(int p_index, Array p_options, const StringName &p_node) {
 
-    String option = p_options[p_index];
+    String option = p_options[p_index].as<String>();
 
     Ref<AnimationNodeAnimation> anim = dynamic_ref_cast<AnimationNodeAnimation>(blend_tree->get_node(p_node));
     ERR_FAIL_COND(not anim);
@@ -494,7 +494,7 @@ void AnimationNodeBlendTreeEditor::_filter_edited() {
     TreeItem *edited = filters->get_edited();
     ERR_FAIL_COND(!edited);
 
-    NodePath edited_path = edited->get_metadata(0);
+    NodePath edited_path = edited->get_metadata(0).as<NodePath>();
     bool filtered = edited->is_checked(0);
 
     updating = true;
@@ -771,7 +771,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
                             E.second->set_max(anim->get_length());
                             //StringName path = AnimationTreeEditor::get_singleton()->get_base_path() + E->get().input_node;
                             StringName time_path(AnimationTreeEditor::get_singleton()->get_base_path() + E.first + "/time");
-                            E.second->set_value(AnimationTreeEditor::get_singleton()->get_tree()->get(time_path));
+                            E.second->set_value(AnimationTreeEditor::get_singleton()->get_tree()->getT<float>(time_path));
                         }
                     }
                 }

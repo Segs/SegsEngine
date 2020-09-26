@@ -112,7 +112,7 @@ public:
     };
 
     enum MSAA {
-        MSAA_DISABLED,
+        MSAA_DISABLED=0,
         MSAA_2X,
         MSAA_4X,
         MSAA_8X,

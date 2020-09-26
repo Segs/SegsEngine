@@ -114,7 +114,7 @@ void ConcavePolygonShape3D::set_faces(const PoolVector<Vector3> &p_faces) {
 
 PoolVector<Vector3> ConcavePolygonShape3D::get_faces() const {
 
-    return PhysicsServer3D::get_singleton()->shape_get_data(get_shape());
+    return PhysicsServer3D::get_singleton()->shape_get_data(get_shape()).as<PoolVector<Vector3>>();
 }
 
 void ConcavePolygonShape3D::_bind_methods() {

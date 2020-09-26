@@ -119,9 +119,9 @@ void EditorDirDialog::_item_collapsed(Object *p_item) {
         return;
 
     if (item->is_collapsed())
-        opened_paths.erase(item->get_metadata(0));
+        opened_paths.erase(item->get_metadata(0).as<String>());
     else
-        opened_paths.insert(item->get_metadata(0));
+        opened_paths.insert(item->get_metadata(0).as<String>());
 }
 
 void EditorDirDialog::ok_pressed() {
@@ -130,7 +130,7 @@ void EditorDirDialog::ok_pressed() {
     if (!ti)
         return;
 
-    String dir = ti->get_metadata(0);
+    String dir = ti->get_metadata(0).as<String>();
     emit_signal("dir_selected", dir);
     hide();
 }
@@ -154,7 +154,7 @@ void EditorDirDialog::_make_dir_confirm() {
     if (!ti)
         return;
 
-    String dir = ti->get_metadata(0);
+    String dir = ti->get_metadata(0).as<String>();
 
     DirAccessRef d = DirAccess::open(dir);
     ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'."); 

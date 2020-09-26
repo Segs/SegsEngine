@@ -338,7 +338,7 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
         {"$version", p_preset->get("application/version").as<String>()},
         {"$signature", p_preset->get("application/signature").as<String>()},
         {"$copyright", p_preset->get("application/copyright").as<String>()},
-        {"$highres", (p_preset->get("display/high_res").as<bool> ? "<true/>" : "<false/>")},
+        {"$highres", (p_preset->getT<bool>("display/high_res") ? "<true/>" : "<false/>")},
         {"$camera_usage_description",p_preset->get("privacy/camera_usage_description").as<String>()},
         {"$microphone_usage_description",p_preset->get("privacy/microphone_usage_description").as<String>()}
     };

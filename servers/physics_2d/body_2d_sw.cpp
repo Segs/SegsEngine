@@ -286,20 +286,20 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
 
             if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
 
-                new_transform = p_variant;
+                new_transform = p_variant.as<Transform2D>();
                 //wakeup_neighbours();
                 set_active(true);
                 if (first_time_kinematic) {
-                    _set_transform(p_variant);
+                    _set_transform(p_variant.as<Transform2D>());
                     _set_inv_transform(get_transform().affine_inverse());
                     first_time_kinematic = false;
                 }
             } else if (mode == PhysicsServer2D::BODY_MODE_STATIC) {
-                _set_transform(p_variant);
+                _set_transform(p_variant.as<Transform2D>());
                 _set_inv_transform(get_transform().affine_inverse());
                 wakeup_neighbours();
             } else {
-                Transform2D t = p_variant;
+                Transform2D t = p_variant.as<Transform2D>();
                 t.orthonormalize();
                 new_transform = get_transform(); //used as old to compute motion
                 if (t == new_transform)
@@ -316,7 +316,7 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
             if (mode==PhysicsServer2D::BODY_MODE_STATIC)
                 break;
             */
-            linear_velocity = p_variant;
+            linear_velocity = p_variant.as<Vector2>();
             wakeup();
 
         } break;
@@ -325,7 +325,7 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
             if (mode!=PhysicsServer2D::BODY_MODE_RIGID)
                 break;
             */
-            angular_velocity = p_variant;
+            angular_velocity = p_variant.as<float>();
             wakeup();
 
         } break;
@@ -333,7 +333,7 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
             //?
             if (mode == PhysicsServer2D::BODY_MODE_STATIC || mode == PhysicsServer2D::BODY_MODE_KINEMATIC)
                 break;
-            bool do_sleep = p_variant;
+            bool do_sleep = p_variant.as<bool>();
             if (do_sleep) {
                 linear_velocity = Vector2();
                 //biased_linear_velocity=Vector3();
@@ -346,7 +346,7 @@ void Body2DSW::set_state(PhysicsServer2D::BodyState p_state, const Variant &p_va
             }
         } break;
         case PhysicsServer2D::BODY_STATE_CAN_SLEEP: {
-            can_sleep = p_variant;
+            can_sleep = p_variant.as<bool>();
             if (mode == PhysicsServer2D::BODY_MODE_RIGID && !active && !can_sleep)
                 set_active(true);
 

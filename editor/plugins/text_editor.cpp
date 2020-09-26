@@ -78,38 +78,38 @@ void TextEditor::_load_theme_settings() {
     TextEdit *text_edit = code_editor->get_text_edit();
     text_edit->clear_colors();
 
-    Color background_color = EDITOR_GET("text_editor/highlighting/background_color");
-    Color completion_background_color = EDITOR_GET("text_editor/highlighting/completion_background_color");
-    Color completion_selected_color = EDITOR_GET("text_editor/highlighting/completion_selected_color");
-    Color completion_existing_color = EDITOR_GET("text_editor/highlighting/completion_existing_color");
-    Color completion_scroll_color = EDITOR_GET("text_editor/highlighting/completion_scroll_color");
-    Color completion_font_color = EDITOR_GET("text_editor/highlighting/completion_font_color");
-    Color text_color = EDITOR_GET("text_editor/highlighting/text_color");
-    Color line_number_color = EDITOR_GET("text_editor/highlighting/line_number_color");
-    Color caret_color = EDITOR_GET("text_editor/highlighting/caret_color");
-    Color caret_background_color = EDITOR_GET("text_editor/highlighting/caret_background_color");
-    Color text_selected_color = EDITOR_GET("text_editor/highlighting/text_selected_color");
-    Color selection_color = EDITOR_GET("text_editor/highlighting/selection_color");
-    Color brace_mismatch_color = EDITOR_GET("text_editor/highlighting/brace_mismatch_color");
-    Color current_line_color = EDITOR_GET("text_editor/highlighting/current_line_color");
-    Color line_length_guideline_color = EDITOR_GET("text_editor/highlighting/line_length_guideline_color");
-    Color word_highlighted_color = EDITOR_GET("text_editor/highlighting/word_highlighted_color");
-    Color number_color = EDITOR_GET("text_editor/highlighting/number_color");
-    Color function_color = EDITOR_GET("text_editor/highlighting/function_color");
-    Color member_variable_color = EDITOR_GET("text_editor/highlighting/member_variable_color");
-    Color mark_color = EDITOR_GET("text_editor/highlighting/mark_color");
-    Color bookmark_color = EDITOR_GET("text_editor/highlighting/bookmark_color");
-    Color breakpoint_color = EDITOR_GET("text_editor/highlighting/breakpoint_color");
-    Color executing_line_color = EDITOR_GET("text_editor/highlighting/executing_line_color");
-    Color code_folding_color = EDITOR_GET("text_editor/highlighting/code_folding_color");
-    Color search_result_color = EDITOR_GET("text_editor/highlighting/search_result_color");
-    Color search_result_border_color = EDITOR_GET("text_editor/highlighting/search_result_border_color");
-    Color symbol_color = EDITOR_GET("text_editor/highlighting/symbol_color");
-    Color keyword_color = EDITOR_GET("text_editor/highlighting/keyword_color");
-    Color basetype_color = EDITOR_GET("text_editor/highlighting/base_type_color");
-    Color type_color = EDITOR_GET("text_editor/highlighting/engine_type_color");
-    Color comment_color = EDITOR_GET("text_editor/highlighting/comment_color");
-    Color string_color = EDITOR_GET("text_editor/highlighting/string_color");
+    Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
+    Color completion_background_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_background_color");
+    Color completion_selected_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_selected_color");
+    Color completion_existing_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_existing_color");
+    Color completion_scroll_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_scroll_color");
+    Color completion_font_color = EDITOR_GET_T<Color>("text_editor/highlighting/completion_font_color");
+    Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
+    Color line_number_color = EDITOR_GET_T<Color>("text_editor/highlighting/line_number_color");
+    Color caret_color = EDITOR_GET_T<Color>("text_editor/highlighting/caret_color");
+    Color caret_background_color = EDITOR_GET_T<Color>("text_editor/highlighting/caret_background_color");
+    Color text_selected_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_selected_color");
+    Color selection_color = EDITOR_GET_T<Color>("text_editor/highlighting/selection_color");
+    Color brace_mismatch_color = EDITOR_GET_T<Color>("text_editor/highlighting/brace_mismatch_color");
+    Color current_line_color = EDITOR_GET_T<Color>("text_editor/highlighting/current_line_color");
+    Color line_length_guideline_color = EDITOR_GET_T<Color>("text_editor/highlighting/line_length_guideline_color");
+    Color word_highlighted_color = EDITOR_GET_T<Color>("text_editor/highlighting/word_highlighted_color");
+    Color number_color = EDITOR_GET_T<Color>("text_editor/highlighting/number_color");
+    Color function_color = EDITOR_GET_T<Color>("text_editor/highlighting/function_color");
+    Color member_variable_color = EDITOR_GET_T<Color>("text_editor/highlighting/member_variable_color");
+    Color mark_color = EDITOR_GET_T<Color>("text_editor/highlighting/mark_color");
+    Color bookmark_color = EDITOR_GET_T<Color>("text_editor/highlighting/bookmark_color");
+    Color breakpoint_color = EDITOR_GET_T<Color>("text_editor/highlighting/breakpoint_color");
+    Color executing_line_color = EDITOR_GET_T<Color>("text_editor/highlighting/executing_line_color");
+    Color code_folding_color = EDITOR_GET_T<Color>("text_editor/highlighting/code_folding_color");
+    Color search_result_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_color");
+    Color search_result_border_color = EDITOR_GET_T<Color>("text_editor/highlighting/search_result_border_color");
+    Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
+    Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+    Color basetype_color = EDITOR_GET_T<Color>("text_editor/highlighting/base_type_color");
+    Color type_color = EDITOR_GET_T<Color>("text_editor/highlighting/engine_type_color");
+    Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
+    Color string_color = EDITOR_GET_T<Color>("text_editor/highlighting/string_color");
 
     text_edit->add_color_override("background_color", background_color);
     text_edit->add_color_override("completion_background_color", completion_background_color);
@@ -139,7 +139,7 @@ void TextEditor::_load_theme_settings() {
     text_edit->add_color_override("search_result_border_color", search_result_border_color);
     text_edit->add_color_override("symbol_color", symbol_color);
 
-    text_edit->add_constant_override("line_spacing", EDITOR_DEF("text_editor/theme/line_spacing", 6));
+    text_edit->add_constant_override("line_spacing", EDITOR_DEF_T<int>("text_editor/theme/line_spacing", 6));
 
     colors_cache.font_color = text_color;
     colors_cache.symbol_color = symbol_color;
@@ -241,12 +241,12 @@ void TextEditor::_update_bookmark_list() {
     bookmarks_menu->add_separator();
 
     for (int i = 0; i < bookmark_list.size(); i++) {
-        String line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i])));
+        String line(StringUtils::strip_edges(code_editor->get_text_edit()->get_line(bookmark_list[i].as<int>())));
         // Limit the size of the line if too big.
         if (line.length() > 50) {
             line = StringUtils::substr(line,0, 50);
         }
-        bookmarks_menu->add_item(StringName(StringUtils::num((int)bookmark_list[i] + 1) + " - \"" + line + "\""));
+        bookmarks_menu->add_item(StringName(StringUtils::num((int)bookmark_list[i].as<int>() + 1) + " - \"" + line + "\""));
         bookmarks_menu->set_item_metadata(bookmarks_menu->get_item_count() - 1, bookmark_list[i]);
     }
 }
@@ -256,7 +256,7 @@ void TextEditor::_bookmark_item_pressed(int p_idx) {
     if (p_idx < 4) { // Any item before the separator.
         _edit_option(bookmarks_menu->get_item_id(p_idx));
     } else {
-        code_editor->goto_line(bookmarks_menu->get_item_metadata(p_idx));
+        code_editor->goto_line(bookmarks_menu->get_item_metadata(p_idx).as<int>());
     }
 }
 
@@ -278,9 +278,9 @@ void TextEditor::set_edit_state(const Variant &p_state) {
 
     code_editor->set_edit_state(p_state);
 
-    Dictionary state = p_state;
+    Dictionary state = p_state.as<Dictionary>();
     if (state.has("syntax_highlighter")) {
-        int idx = highlighter_menu->get_item_idx_from_text(state["syntax_highlighter"]);
+        int idx = highlighter_menu->get_item_idx_from_text(state["syntax_highlighter"].as<StringName>());
         if (idx >= 0) {
             _change_syntax_highlighter(idx);
         }
@@ -557,7 +557,7 @@ void TextEditor::_text_edit_gui_input(const Ref<InputEvent> &ev) {
             TextEdit *tx = code_editor->get_text_edit();
             tx->_get_mouse_pos(mb->get_global_position() - tx->get_global_position(), row, col);
 
-            tx->set_right_click_moves_caret(EditorSettings::get_singleton()->get("text_editor/cursor/right_click_moves_caret"));
+            tx->set_right_click_moves_caret(EditorSettings::get_singleton()->getT<bool>("text_editor/cursor/right_click_moves_caret"));
             bool can_fold = tx->can_fold(row);
             bool is_folded = tx->is_folded(row);
 

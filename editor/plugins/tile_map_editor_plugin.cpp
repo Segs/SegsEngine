@@ -237,7 +237,7 @@ Vector<int> TileMapEditor::get_selected_tiles() const {
     }
     //TODO: does reverse loop really makes sense here ?
     for (int i = items.size() - 1; i >= 0; i--) {
-        items[i] = palette->get_item_metadata(items[i]);
+        items[i] = palette->get_item_metadata(items[i]).as<int>();
     }
     return items;
 }
@@ -317,7 +317,7 @@ void TileMapEditor::_set_cell(const Point2i &p_pos, Span<const int> p_values, bo
     int current = manual_palette->get_current();
     if (current != -1) {
         if (tool != TOOL_PASTING) {
-            position = manual_palette->get_item_metadata(current);
+            position = manual_palette->get_item_metadata(current).as<Vector2>();
         } else {
             position = p_autotile_coord;
         }
@@ -437,12 +437,12 @@ void TileMapEditor::_update_palette() {
     if (tiles.empty())
         return;
 
-    float min_size = EDITOR_DEF("editors/tile_map/preview_size", 64);
+    float min_size = EDITOR_DEF_T<float>("editors/tile_map/preview_size", 64);
     min_size *= EDSCALE;
-    int hseparation = EDITOR_DEF("editors/tile_map/palette_item_hseparation", 8);
-    bool show_tile_names = bool(EDITOR_DEF("editors/tile_map/show_tile_names", true));
-    bool show_tile_ids = bool(EDITOR_DEF("editors/tile_map/show_tile_ids", false));
-    bool sort_by_name = bool(EDITOR_DEF("editors/tile_map/sort_tiles_by_name", true));
+    int hseparation = EDITOR_DEF_T<int>("editors/tile_map/palette_item_hseparation", 8);
+    bool show_tile_names = EDITOR_DEF_T("editors/tile_map/show_tile_names", true);
+    bool show_tile_ids = EDITOR_DEF_T("editors/tile_map/show_tile_ids", false);
+    bool sort_by_name = EDITOR_DEF_T("editors/tile_map/sort_tiles_by_name", true);
 
     palette->add_constant_override("hseparation", hseparation * EDSCALE);
 
@@ -731,10 +731,10 @@ void TileMapEditor::_fill_points(const PoolVector<Vector2> &p_points, const Dict
     int len = p_points.size();
     PoolVector<Vector2>::Read pr = p_points.read();
 
-    Vector<int> ids = p_op["id"].asVector<int>();
-    bool xf = p_op["flip_h"];
-    bool yf = p_op["flip_v"];
-    bool tr = p_op["transpose"];
+    Vector<int> ids = p_op["id"].as<Vector<int>>();
+    bool xf = p_op["flip_h"].as<bool>();
+    bool yf = p_op["flip_v"].as<bool>();
+    bool tr = p_op["transpose"].as<bool>();
 
     for (int i = 0; i < len; i++) {
         _set_cell(pr[i], ids, xf, yf, tr);
@@ -802,7 +802,7 @@ void TileMapEditor::_draw_cell(Control *p_viewport, int p_cell, const Point2i &p
         if (tool != TOOL_PASTING) {
             int selected = manual_palette->get_current();
             if (selected != -1 && (manual_autotile || (node->get_tileset()->tile_get_tile_mode(p_cell) == TileSet::ATLAS_TILE && !priority_atlastile))) {
-                offset = manual_palette->get_item_metadata(selected);
+                offset = manual_palette->get_item_metadata(selected).as<Vector2>();
             } else {
                 offset = node->get_tileset()->autotile_get_icon_coordinate(p_cell);
             }
@@ -1692,7 +1692,7 @@ void TileMapEditor::forward_canvas_draw_over_viewport(Control *p_overlay) {
         for (int i = 0; i < 4; i++)
             p_overlay->draw_line(endpoints[i], endpoints[(i + 1) % 4], col, 2);
 
-        bool bucket_preview = EditorSettings::get_singleton()->get("editors/tile_map/bucket_fill_preview");
+        bool bucket_preview = EditorSettings::get_singleton()->getT<bool>("editors/tile_map/bucket_fill_preview");
         if (tool == TOOL_SELECTING || tool == TOOL_PICKING || !bucket_preview) {
             return;
         }
@@ -1982,7 +1982,7 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     size_slider->connect("value_changed", this, "_icon_size_changed");
     add_child(size_slider);
 
-    int mw = EDITOR_DEF("editors/tile_map/palette_min_width", 80);
+    int mw = EDITOR_DEF_T<int>("editors/tile_map/palette_min_width", 80);
 
     VSplitContainer *palette_container = memnew(VSplitContainer);
     palette_container->set_v_size_flags(SIZE_EXPAND_FILL);
@@ -2139,7 +2139,7 @@ void TileMapEditorPlugin::_notification(int p_what) {
 
     if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        switch ((int)EditorSettings::get_singleton()->get("editors/tile_map/editor_side")) {
+        switch ((int)EditorSettings::get_singleton()->getT<int>("editors/tile_map/editor_side")) {
             case 0: { // Left.
                 CanvasItemEditor::get_singleton()->get_palette_split()->move_child(tile_map_editor, 0);
             } break;
@@ -2195,7 +2195,7 @@ TileMapEditorPlugin::TileMapEditorPlugin(EditorNode *p_node) {
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/tile_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     tile_map_editor = memnew(TileMapEditor(p_node));
-    switch ((int)EditorSettings::get_singleton()->get("editors/tile_map/editor_side")) {
+    switch (EditorSettings::get_singleton()->getT<int>("editors/tile_map/editor_side")) {
         case 0: { // Left.
             add_control_to_container(CONTAINER_CANVAS_EDITOR_SIDE_LEFT, tile_map_editor);
         } break;

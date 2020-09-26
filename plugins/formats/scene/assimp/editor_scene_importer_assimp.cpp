@@ -130,7 +130,7 @@ void EditorSceneImporterAssimp::_register_project_setting_import(StringView gene
     String use_generic = String("use_") + generic;
     StringName valname(String(import_setting_string) + use_generic);
     _GLOBAL_DEF(valname, p_enabled, true);
-    if (ProjectSettings::get_singleton()->get(valname)) {
+    if (ProjectSettings::get_singleton()->getT<bool>(valname)) {
         for (size_t i = 0; i < exts.size(); i++) {
             r_extensions.push_back(exts[i]);
         }

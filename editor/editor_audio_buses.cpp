@@ -494,7 +494,7 @@ void EditorAudioBus::_effect_selected() {
 
     if (effect->get_metadata(0) != Variant()) {
 
-        int index = effect->get_metadata(0);
+        int index = effect->get_metadata(0).as<int>();
         Ref<AudioEffect> effect2 = AudioServer::get_singleton()->get_bus_effect(get_index(), index);
         if (effect2) {
             EditorNode::get_singleton()->push_item(effect2.get());
@@ -520,7 +520,7 @@ void EditorAudioBus::_effect_edited() {
         effect_options->popup();
         //add effect
     } else {
-        int index = effect->get_metadata(0);
+        int index = effect->get_metadata(0).as<int>();
         updating_bus = true;
 
         UndoRedo *ur = EditorNode::get_undo_redo();
@@ -540,7 +540,7 @@ void EditorAudioBus::_effect_add(int p_which) {
     if (updating_bus)
         return;
 
-    StringName name = effect_options->get_item_metadata(p_which);
+    StringName name = effect_options->get_item_metadata(p_which).as<StringName>();
 
     Object *fx = ClassDB::instance(name);
     ERR_FAIL_COND(!fx);
@@ -620,8 +620,8 @@ bool EditorAudioBus::can_drop_data(const Point2 &p_point, const Variant &p_data)
         return false;
     }
 
-    Dictionary d = p_data;
-    if (d.has("type") && String(d["type"]) == "move_audio_bus" && (int)d["index"] != get_index()) {
+    Dictionary d = p_data.as<Dictionary>();
+    if (d.has("type") && d["type"].as<String>() == "move_audio_bus" && d["index"].as<int>() != get_index()) {
         hovering_drop = true;
         return true;
     }
@@ -631,7 +631,7 @@ bool EditorAudioBus::can_drop_data(const Point2 &p_point, const Variant &p_data)
 
 void EditorAudioBus::drop_data(const Point2 &p_point, const Variant &p_data) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     emit_signal("dropped", d["index"], get_index());
 }
 
@@ -661,8 +661,8 @@ Variant EditorAudioBus::get_drag_data_fw(const Point2 &p_point, Control *p_from)
 
 bool EditorAudioBus::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
-    if (!d.has("type") || String(d["type"]) != "audio_bus_effect")
+    Dictionary d = p_data.as<Dictionary>();
+    if (!d.has("type") || d["type"].as<String>() != "audio_bus_effect")
         return false;
 
     TreeItem *item = effects->get_item_at_position(p_point);
@@ -676,7 +676,7 @@ bool EditorAudioBus::can_drop_data_fw(const Point2 &p_point, const Variant &p_da
 
 void EditorAudioBus::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     TreeItem *item = effects->get_item_at_position(p_point);
     if (!item)
@@ -685,11 +685,11 @@ void EditorAudioBus::drop_data_fw(const Point2 &p_point, const Variant &p_data, 
     Variant md = item->get_metadata(0);
 
     int paste_at;
-    int bus = d["bus"];
-    int effect = d["effect"];
+    int bus = d["bus"].as<int>();
+    int effect = d["effect"].as<int>();
 
     if (md.get_type() == VariantType::INT) {
-        paste_at = md;
+        paste_at = md.as<int>();
         if (pos > 0)
             paste_at++;
 
@@ -741,7 +741,7 @@ void EditorAudioBus::_delete_effect_pressed(int p_option) {
     if (item->get_metadata(0).get_type() != VariantType::INT)
         return;
 
-    int index = item->get_metadata(0);
+    int index = item->get_metadata(0).as<int>();
 
     UndoRedo *ur = EditorNode::get_undo_redo();
     ur->create_action(TTR("Delete Bus Effect"));
@@ -1010,13 +1010,13 @@ void EditorAudioBusDrop::_notification(int p_what) {
 
 bool EditorAudioBusDrop::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
-    Dictionary d = p_data;
-    return d.has("type") && String(d["type"]) == "move_audio_bus";
+    Dictionary d = p_data.as<Dictionary>();
+    return d.has("type") && d["type"].as<String>() == "move_audio_bus";
 }
 
 void EditorAudioBusDrop::drop_data(const Point2 &p_point, const Variant &p_data) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     emit_signal("dropped", d["index"], AudioServer::get_singleton()->get_bus_count());
 }
 
@@ -1260,7 +1260,7 @@ void EditorAudioBuses::_load_layout() {
 
 void EditorAudioBuses::_load_default_layout() {
 
-    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->getT<String>("audio/default_bus_layout");
 
     Ref<AudioBusLayout> state = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(layout_path,"",true));
     if (not state) {
@@ -1342,7 +1342,7 @@ EditorAudioBuses::EditorAudioBuses() {
     add_child(top_hb);
 
     file = memnew(Label);
-    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->getT<String>("audio/default_bus_layout");
     file->set_text(TTR("Layout") + ": " + PathUtils::get_file(layout_path));
     file->set_clip_text(true);
     file->set_h_size_flags(SIZE_EXPAND_FILL);

@@ -276,7 +276,7 @@ void VisualServerViewport::draw_viewports() {
     }
 
     if (Engine::get_singleton()->is_editor_hint()) {
-        clear_color = GLOBAL_GET("rendering/environment/default_clear_color");
+        clear_color = T_GLOBAL_GET<Color>("rendering/environment/default_clear_color");
     }
 
     //sort viewports

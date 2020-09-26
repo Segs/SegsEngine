@@ -217,7 +217,7 @@ MonoString *godot_icall_GD_str(MonoArray *p_what) {
     Array what = GDMonoMarshal::mono_array_to_Array(p_what);
 
     for (int i = 0; i < what.size(); i++) {
-        String os = what[i].operator String();
+        String os = what[i].as<String>();
 
         if (i == 0)
             str = os;

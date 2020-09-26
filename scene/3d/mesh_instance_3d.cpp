@@ -54,7 +54,7 @@ bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
 
     HashMap<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
-        E->second.value = p_value;
+        E->second.value = p_value.as<float>();
         RenderingServer::get_singleton()->instance_set_blend_shape_weight(get_instance(), E->second.idx, E->second.value);
         return true;
     }
@@ -64,7 +64,7 @@ bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
         if (idx >= materials.size() || idx < 0)
             return false;
 
-        set_surface_material(idx, refFromRefPtr<Material>(p_value));
+        set_surface_material(idx, refFromVariant<Material>(p_value));
         return true;
     }
 

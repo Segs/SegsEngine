@@ -484,7 +484,7 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
         // If an image is passed, we have to convert it to a format Bullet supports.
         // this would be expensive to do with a script, so it's nice to have it here.
 
-        Ref<Image> l_image = refFromRefPtr<Image>(l_heights_v.as<RefPtr>());
+        Ref<Image> l_image = refFromVariant<Image>(l_heights_v);
         ERR_FAIL_COND(not l_image);
 
         // Float is the only common format between Godot and Bullet that can be used for decent collision.

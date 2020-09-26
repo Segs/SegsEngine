@@ -445,7 +445,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
 
     } else {
-        String type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index).as<String>();
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj);
@@ -757,7 +757,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         bool auto_advance = tl.auto_advance;
         StringName fullpath(AnimationTreeEditor::get_singleton()->get_base_path() + tl.advance_condition_name);
-        if (tl.advance_condition_name != StringName() && bool(AnimationTreeEditor::get_singleton()->get_tree()->get(fullpath))) {
+        if (!tl.advance_condition_name.empty() && AnimationTreeEditor::get_singleton()->get_tree()->getT<bool>(fullpath)) {
             tl.advance_condition_state = true;
             auto_advance = true;
         }
@@ -1012,9 +1012,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
             }
 
             bool acstate = !transition_lines[i].advance_condition_name.empty() &&
-                           bool(AnimationTreeEditor::get_singleton()->get_tree()->get(
+                           AnimationTreeEditor::get_singleton()->get_tree()->getT<bool>(
                                    StringName(AnimationTreeEditor::get_singleton()->get_base_path() +
-                                   transition_lines[i].advance_condition_name)));
+                                   transition_lines[i].advance_condition_name));
 
             if (transition_lines[i].advance_condition_state != acstate) {
                 state_machine_draw->update();
