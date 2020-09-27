@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "spin_box.h"
-#include "core/math/expression.h"
+//#include "core/math/expression.h"
 #include "core/os/input.h"
 #include "core/method_bind.h"
 
@@ -56,18 +56,17 @@ void SpinBox::_value_changed(double) {
 
 void SpinBox::_text_entered(StringView p_string) {
     using namespace StringUtils;
-    Ref<Expression> expr(make_ref_counted<Expression>());
     // Ignore the prefix and suffix in the expression
-    Error err = expr->parse(trim_suffix(trim_prefix(p_string,prefix + " ")," " + suffix));
-    if (err != OK) {
+    StringView text = trim_suffix(trim_prefix(p_string, prefix + " "), " " + suffix);
+    bool was_ok=false;
+    float val=StringUtils::to_float(text,&was_ok);
+    if(!was_ok)
+        val = StringUtils::to_int(text, &was_ok);
+    if(!was_ok)
         return;
-    }
 
-    Variant value = expr->execute(Array(), nullptr, false);
-    if (value.get_type() != VariantType::NIL) {
-        set_value(value.as<float>());
+    set_value(val);
     _value_changed(0);
-    }
 }
 
 LineEdit *SpinBox::get_line_edit() {

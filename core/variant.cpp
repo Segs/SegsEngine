@@ -750,37 +750,37 @@ bool Variant::is_zero() const {
         // arrays
         case VariantType::POOL_BYTE_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<uint8_t> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_INT_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<int> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<int> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_REAL_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<real_t> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<real_t> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_STRING_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<String> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<String> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_VECTOR2_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<Vector2> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<Vector2> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_VECTOR3_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<Vector3> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<Vector3> *>(_data._mem)->empty();
 
         }
         case VariantType::POOL_COLOR_ARRAY: {
 
-            return reinterpret_cast<const PoolVector<Color> *>(_data._mem)->size() == 0;
+            return reinterpret_cast<const PoolVector<Color> *>(_data._mem)->empty();
 
         }
         default: {
@@ -2393,6 +2393,7 @@ Variant Variant::move_from(Vector<Variant> &&p_array) {
     return Array(eastl::move(p_array));
 }
 
+
 template<>
 Variant Variant::from(const Vector<Variant> &p_array) {
     Array res;
@@ -3150,44 +3151,6 @@ bool Variant::is_shared() const {
     return false;
 }
 
-Variant Variant::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
-    VARIANT_ARGPTRS;
-    int argc = 0;
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == VariantType::NIL)
-            break;
-        argc++;
-    }
-
-    Callable::CallError error;
-
-    Variant ret = call(p_method, argptr, argc, error);
-
-    switch (error.error) {
-
-        case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
-
-            String err = "Invalid type for argument #" + itos(error.argument) + ", expected '" + Variant::get_type_name(error.expected) + "'.";
-            ERR_PRINT(err);
-
-        } break;
-        case Callable::CallError::CALL_ERROR_INVALID_METHOD: {
-
-            String err = "Invalid method '" + String(p_method) + "' for type '" + Variant::get_type_name(type) + "'.";
-            ERR_PRINT(err);
-        } break;
-        case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
-
-            String err = "Too many arguments for method '" + String(p_method) + "'";
-            ERR_PRINT(err);
-        } break;
-        default: {
-        }
-    }
-
-    return ret;
-}
-
 void Variant::construct_from_string(const UIString &p_string, Variant &r_value, ObjectConstruct p_obj_construct, void *p_construct_ud) {
 
     r_value = Variant();
@@ -3282,4 +3245,172 @@ void fill_with_all_variant_types(const char *nillname,char (&s)[7+(longest_varia
 
 Vector<Variant> varray(std::initializer_list<Variant> v) {
     return v;
+}
+
+void VariantOps::resize(Variant &arg, int new_size) {
+  switch (arg.get_type()) {
+
+  case VariantType::ARRAY: {
+    reinterpret_cast<Array *>(arg._data._mem)->resize(new_size);
+    break;
+  }
+  case VariantType::POOL_BYTE_ARRAY: {
+
+    reinterpret_cast<PoolVector<uint8_t> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_INT_ARRAY: {
+
+    reinterpret_cast<PoolVector<int> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_REAL_ARRAY: {
+
+    reinterpret_cast<PoolVector<real_t> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_STRING_ARRAY: {
+
+    reinterpret_cast<PoolVector<String> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_VECTOR2_ARRAY: {
+
+    reinterpret_cast<PoolVector<Vector2> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_VECTOR3_ARRAY: {
+
+    reinterpret_cast<PoolVector<Vector3> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  case VariantType::POOL_COLOR_ARRAY: {
+
+    reinterpret_cast<PoolVector<Color> *>(arg._data._mem)->resize(new_size);
+    break;
+
+  }
+  default:
+      ERR_PRINT("Unhandled variant operation");
+  }
+
+}
+
+int VariantOps::size(const Variant &arg) {
+    switch (arg.get_type()) {
+      //TODO: consider removing dictionary and string from handled `size` queries
+    case VariantType::DICTIONARY: {
+        return reinterpret_cast<const Dictionary*>(arg._data._mem)->size();
+    }
+    case VariantType::STRING: {
+        return reinterpret_cast<const String*>(arg._data._mem)->size();
+    }
+
+    case VariantType::ARRAY: {
+        return reinterpret_cast<const Array*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_BYTE_ARRAY: {
+        return reinterpret_cast<const PoolVector<uint8_t>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_INT_ARRAY: {
+        return reinterpret_cast<const PoolVector<int>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_REAL_ARRAY: {
+
+        return reinterpret_cast<const PoolVector<real_t>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_STRING_ARRAY: {
+
+        return reinterpret_cast<const PoolVector<String>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_VECTOR2_ARRAY: {
+
+        return reinterpret_cast<const PoolVector<Vector2>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_VECTOR3_ARRAY: {
+
+        return reinterpret_cast<const PoolVector<Vector3>*>(arg._data._mem)->size();
+    }
+    case VariantType::POOL_COLOR_ARRAY: {
+        return reinterpret_cast<const PoolVector<Color>*>(arg._data._mem)->size();
+    }
+      default:
+          ERR_PRINT("Unhandled variant operation");
+    }
+  return -1;
+}
+
+Variant VariantOps::duplicate(const Variant &arg,bool deep) {
+    switch (arg.get_type()) {
+        //TODO: consider removing dictionary and string from handled `size` queries
+    case VariantType::DICTIONARY: {
+        return reinterpret_cast<const Dictionary*>(arg._data._mem)->duplicate(deep);
+    }
+    case VariantType::ARRAY: {
+        return reinterpret_cast<const Array*>(arg._data._mem)->duplicate(deep);
+    }
+    default:
+        ERR_PRINT("Unhandled variant operation");
+    }
+    return -1;
+}
+
+void VariantOps::remove(Variant &arg, int idx) {
+    switch (arg.get_type()) {
+
+    case VariantType::ARRAY: {
+        reinterpret_cast<Array*>(arg._data._mem)->remove(idx);
+        break;
+    }
+    case VariantType::POOL_BYTE_ARRAY: {
+
+        reinterpret_cast<PoolVector<uint8_t>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_INT_ARRAY: {
+
+        reinterpret_cast<PoolVector<int>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_REAL_ARRAY: {
+
+        reinterpret_cast<PoolVector<real_t>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_STRING_ARRAY: {
+
+        reinterpret_cast<PoolVector<String>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_VECTOR2_ARRAY: {
+
+        reinterpret_cast<PoolVector<Vector2>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_VECTOR3_ARRAY: {
+
+        reinterpret_cast<PoolVector<Vector3>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    case VariantType::POOL_COLOR_ARRAY: {
+
+        reinterpret_cast<PoolVector<Color>*>(arg._data._mem)->remove(idx);
+        break;
+
+    }
+    default:
+        ERR_PRINT("Unhandled variant operation");
+    }
 }

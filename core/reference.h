@@ -99,7 +99,7 @@ public:
             reference->reference();
     }
 
-    explicit Ref(const Variant &p_variant);
+    Ref(const Variant &p_variant);
 
 
     ~Ref() {

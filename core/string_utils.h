@@ -21,13 +21,13 @@ enum Compare {
 };
 //! length in codepoints, not bytes
 [[nodiscard]] int char_length(const UIString &str);
-[[nodiscard]] GODOT_EXPORT double to_double(StringView p_str);
+[[nodiscard]] GODOT_EXPORT double to_double(StringView p_str, bool* ok = nullptr);
 [[nodiscard]] GODOT_EXPORT double to_double(const char *p_str, char ** r_end);
-[[nodiscard]] inline float to_float(StringView str) { return float(to_double(str)); }
+[[nodiscard]] inline float to_float(StringView str,bool *ok=nullptr) { return float(to_double(str, ok)); }
 [[nodiscard]] GODOT_EXPORT int hex_to_int(const UIString &str,bool p_with_prefix = true);
 [[nodiscard]] GODOT_EXPORT int hex_to_int(StringView s,bool p_with_prefix=true);
 [[nodiscard]] GODOT_EXPORT int to_int(const char *p_str, int p_len = -1);
-[[nodiscard]] GODOT_EXPORT int to_int(StringView p_str);
+[[nodiscard]] GODOT_EXPORT int to_int(StringView p_str,bool *ok=nullptr);
 [[nodiscard]] GODOT_EXPORT int64_t to_int(const CharType *p_str, int p_len = -1);
 [[nodiscard]] GODOT_EXPORT int64_t to_int64(const UIString &str);
 [[nodiscard]] GODOT_EXPORT int64_t to_int64(StringView str);

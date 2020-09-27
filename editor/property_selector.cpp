@@ -209,7 +209,7 @@ void PropertySelector::_update_search() {
             Variant v;
             Callable::CallError ce;
             v = Variant::construct(type, nullptr, 0, ce);
-            v.get_method_list(&methods);
+            //v.get_method_list(&methods);
         } else {
 
             Object *obj = gObjectDB().get_instance(script);

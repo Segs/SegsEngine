@@ -177,7 +177,7 @@ void EditorPropertyArray::_property_changed(const StringName &p_prop, const Vari
         emit_changed(get_edited_property(), array, "", true);
 
         if (array.get_type() == VariantType::ARRAY) {
-            array = array.call("duplicate"); //dupe, so undo/redo works better
+            array = VariantOps::duplicate(array); //dupe, so undo/redo works better
         }
         object->set_array(array);
     }
@@ -209,7 +209,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
     emit_changed(get_edited_property(), array, "", true);
 
     if (array.get_type() == VariantType::ARRAY) {
-        array = array.call("duplicate"); //dupe, so undo/redo works better
+        array = VariantOps::duplicate(array); //dupe, so undo/redo works better
     }
 
     object->set_array(array);
@@ -274,7 +274,7 @@ void EditorPropertyArray::update_property() {
         return;
     }
 
-    edit->set_text_utf8(String(arrtype) + " (size " + itos(array.call("size").as<int>()) + ")");
+    edit->set_text_utf8(String(arrtype) + " (size " + itos(VariantOps::size(array)) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -320,7 +320,7 @@ void EditorPropertyArray::update_property() {
             }
         }
 
-        int len = array.call("size").as<int>();
+        int len = VariantOps::size(array);
 
         length->set_value(len);
 
@@ -336,7 +336,7 @@ void EditorPropertyArray::update_property() {
         int amount = MIN(len - offset, page_len);
 
         if (array.get_type() == VariantType::ARRAY) {
-            array = array.call("duplicate");
+            array = VariantOps::duplicate(array);
         }
 
         object->set_array(array);
@@ -405,10 +405,11 @@ void EditorPropertyArray::update_property() {
 void EditorPropertyArray::_remove_pressed(int p_index) {
 
     Variant array = object->get_array();
-    array.call("remove", p_index);
+
+    VariantOps::remove(array,p_index);
 
     if (array.get_type() == VariantType::ARRAY) {
-        array = array.call("duplicate");
+        array = VariantOps::duplicate(array);
     }
 
     emit_changed(get_edited_property(), array, "", false);
@@ -444,13 +445,12 @@ void EditorPropertyArray::_length_changed(double p_page) {
         return;
 
     Variant array = object->get_array();
-    int previous_size = array.call("size").as<int>();
-
-    array.call("resize", int(p_page));
+    int previous_size = VariantOps::size(array);
+    VariantOps::resize(array,int(p_page));
 
     if (array.get_type() == VariantType::ARRAY) {
         if (subtype != VariantType::NIL) {
-            int size = array.call("size").as<int>();
+            int size = VariantOps::size(array);
             for (int i = previous_size; i < size; i++) {
                 if (array.get(i).get_type() == VariantType::NIL) {
                     Callable::CallError ce;
@@ -458,9 +458,9 @@ void EditorPropertyArray::_length_changed(double p_page) {
                 }
             }
         }
-        array = array.call("duplicate"); //dupe, so undo/redo works better
+        array = VariantOps::duplicate(array); //dupe, so undo/redo works better
     } else {
-        int size = array.call("size").as<int>();
+        int size = VariantOps::size(array);
         // Pool*Array don't initialize their elements, have to do it manually
         for (int i = previous_size; i < size; i++) {
             Callable::CallError ce;

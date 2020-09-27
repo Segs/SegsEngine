@@ -199,7 +199,7 @@ protected:
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
             return std::invoke(method, instance,
-                    (typename std::tuple_element<Is, Params>::type)*visit_at_ce<ArgumentWrapper, Args...>(Is, wrap)...);
+                    (eastl::decay_t<typename std::tuple_element<Is, Params>::type>)*visit_at_ce<ArgumentWrapper, Args...>(Is, wrap)...);
         }
     }
     using Params = std::tuple<Args...>;

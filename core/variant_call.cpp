@@ -650,7 +650,6 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(NodePath, get_as_property_path)
     VCALL_LOCALMEM0R(NodePath, is_empty)
 
-    VCALL_LOCALMEM0R(Dictionary, size)
     VCALL_LOCALMEM0R(Dictionary, empty)
     VCALL_LOCALMEM0(Dictionary, clear)
     VCALL_LOCALMEM1R(Dictionary, has)
@@ -659,12 +658,10 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Dictionary, hash)
     VCALL_LOCALMEM0R(Dictionary, keys)
     VCALL_LOCALMEM0R(Dictionary, values)
-    VCALL_LOCALMEM1R(Dictionary, duplicate)
     VCALL_LOCALMEM2R(Dictionary, get)
 
     VCALL_LOCALMEM2(Array, set)
     VCALL_LOCALMEM1R(Array, get)
-    VCALL_LOCALMEM0R(Array, size)
     VCALL_LOCALMEM0R(Array, empty)
     VCALL_LOCALMEM0(Array, clear)
     VCALL_LOCALMEM0R(Array, hash)
@@ -673,9 +670,7 @@ struct _VariantCall {
     VCALL_LOCALMEM0R(Array, pop_back)
     VCALL_LOCALMEM0R(Array, pop_front)
     VCALL_LOCALMEM1(Array, append)
-    VCALL_LOCALMEM1(Array, resize)
     VCALL_LOCALMEM2(Array, insert)
-    VCALL_LOCALMEM1(Array, remove)
     VCALL_LOCALMEM0R(Array, front)
     VCALL_LOCALMEM0R(Array, back)
     VCALL_LOCALMEM2R(Array, find)
@@ -689,7 +684,6 @@ struct _VariantCall {
     VCALL_LOCALMEM0(Array, shuffle)
     VCALL_LOCALMEM2R(Array, bsearch)
     VCALL_LOCALMEM4R(Array, bsearch_custom)
-    VCALL_LOCALMEM1R(Array, duplicate)
     VCALL_LOCALMEM4R(Array, slice)
     VCALL_LOCALMEM0(Array, invert)
     VCALL_LOCALMEM0R(Array, max)
@@ -699,7 +693,7 @@ struct _VariantCall {
 
         PoolByteArray *ba = reinterpret_cast<PoolByteArray *>(p_self._data._mem);
         String s;
-        if (ba->size() > 0) {
+        if (!ba->empty()) {
             PoolByteArray::Read r = ba->read();
             String cs;
             cs.resize(ba->size() + 1);
@@ -771,14 +765,11 @@ struct _VariantCall {
         r_ret = s;
     }
 
-    VCALL_LOCALMEM0R(PoolByteArray, size)
     VCALL_LOCALMEM0R(PoolByteArray, empty)
     VCALL_LOCALMEM2(PoolByteArray, set)
     VCALL_LOCALMEM1R(PoolByteArray, get)
     VCALL_LOCALMEM1(PoolByteArray, push_back)
-    VCALL_LOCALMEM1(PoolByteArray, resize)
     VCALL_LOCALMEM2R(PoolByteArray, insert)
-    VCALL_LOCALMEM1(PoolByteArray, remove)
     VCALL_LOCALMEM1(PoolByteArray, append)
     VCALL_LOCALMEM1(PoolByteArray, append_array)
     static void _call_PoolByteArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
@@ -786,40 +777,31 @@ struct _VariantCall {
 
     VCALL_LOCALMEM2R(PoolByteArray, subarray)
 
-    VCALL_LOCALMEM0R(PoolIntArray, size)
     VCALL_LOCALMEM0R(PoolIntArray, empty)
     VCALL_LOCALMEM2(PoolIntArray, set)
     VCALL_LOCALMEM1R(PoolIntArray, get)
     VCALL_LOCALMEM1(PoolIntArray, push_back)
-    VCALL_LOCALMEM1(PoolIntArray, resize)
     VCALL_LOCALMEM2R(PoolIntArray, insert)
-    VCALL_LOCALMEM1(PoolIntArray, remove)
     VCALL_LOCALMEM1(PoolIntArray, append)
     VCALL_LOCALMEM1(PoolIntArray, append_array)
     static void _call_PoolIntArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolIntArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolRealArray, size)
     VCALL_LOCALMEM0R(PoolRealArray, empty)
     VCALL_LOCALMEM2(PoolRealArray, set)
     VCALL_LOCALMEM1R(PoolRealArray, get)
     VCALL_LOCALMEM1(PoolRealArray, push_back)
-    VCALL_LOCALMEM1(PoolRealArray, resize)
     VCALL_LOCALMEM2R(PoolRealArray, insert)
-    VCALL_LOCALMEM1(PoolRealArray, remove)
     VCALL_LOCALMEM1(PoolRealArray, append)
     VCALL_LOCALMEM1(PoolRealArray, append_array)
     static void _call_PoolRealArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolRealArray *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolStringArray, size)
     VCALL_LOCALMEM0R(PoolStringArray, empty)
     VCALL_LOCALMEM2(PoolStringArray, set)
     VCALL_LOCALMEM1R(PoolStringArray, get)
     VCALL_LOCALMEM1(PoolStringArray, push_back)
-    VCALL_LOCALMEM1(PoolStringArray, resize)
     VCALL_LOCALMEM2R(PoolStringArray, insert)
-    VCALL_LOCALMEM1(PoolStringArray, remove)
     VCALL_LOCALMEM1(PoolStringArray, append)
     VCALL_LOCALMEM1(PoolStringArray, append_array)
     static void _call_PoolStringArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
@@ -838,40 +820,31 @@ struct _VariantCall {
         r_ret = rs;
     }
 
-    VCALL_LOCALMEM0R(PoolVector2Array, size)
     VCALL_LOCALMEM0R(PoolVector2Array, empty)
     VCALL_LOCALMEM2(PoolVector2Array, set)
     VCALL_LOCALMEM1R(PoolVector2Array, get)
     VCALL_LOCALMEM1(PoolVector2Array, push_back)
-    VCALL_LOCALMEM1(PoolVector2Array, resize)
     VCALL_LOCALMEM2R(PoolVector2Array, insert)
-    VCALL_LOCALMEM1(PoolVector2Array, remove)
     VCALL_LOCALMEM1(PoolVector2Array, append)
     VCALL_LOCALMEM1(PoolVector2Array, append_array)
     static void _call_PoolVector2Array_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolVector2Array *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolVector3Array, size)
     VCALL_LOCALMEM0R(PoolVector3Array, empty)
     VCALL_LOCALMEM2(PoolVector3Array, set)
     VCALL_LOCALMEM1R(PoolVector3Array, get)
     VCALL_LOCALMEM1(PoolVector3Array, push_back)
-    VCALL_LOCALMEM1(PoolVector3Array, resize)
     VCALL_LOCALMEM2R(PoolVector3Array, insert)
-    VCALL_LOCALMEM1(PoolVector3Array, remove)
     VCALL_LOCALMEM1(PoolVector3Array, append)
     VCALL_LOCALMEM1(PoolVector3Array, append_array)
     static void _call_PoolVector3Array_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
         invert(*reinterpret_cast<PoolVector3Array *>(p_self._data._mem)); }
 
-    VCALL_LOCALMEM0R(PoolColorArray, size)
     VCALL_LOCALMEM0R(PoolColorArray, empty)
     VCALL_LOCALMEM2(PoolColorArray, set)
     VCALL_LOCALMEM1R(PoolColorArray, get)
     VCALL_LOCALMEM1(PoolColorArray, push_back)
-    VCALL_LOCALMEM1(PoolColorArray, resize)
     VCALL_LOCALMEM2R(PoolColorArray, insert)
-    VCALL_LOCALMEM1(PoolColorArray, remove)
     VCALL_LOCALMEM1(PoolColorArray, append)
     VCALL_LOCALMEM1(PoolColorArray, append_array)
     static void _call_PoolColorArray_invert(Variant &r_ret, Variant &p_self, const Variant ** /*p_args*/) {
@@ -1271,19 +1244,12 @@ _VariantCall::TypeFunc *_VariantCall::type_funcs = nullptr;
 _VariantCall::ConstructFunc *_VariantCall::construct_funcs = nullptr;
 _VariantCall::ConstantData *_VariantCall::constant_data = nullptr;
 
-Variant Variant::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+/*Variant Variant::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
 
     Variant ret;
-    call_ptr(p_method, p_args, p_argcount, &ret, r_error);
-    return ret;
-}
-
-void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, Callable::CallError &r_error) {
-    Variant ret;
-
     if (type == VariantType::OBJECT) {
         //call object
-        Object *obj = _OBJ_PTR(*this);
+        Object* obj = _OBJ_PTR(*this);
         if (!obj) {
 #ifdef DEBUG_ENABLED
             if (ScriptDebugger::get_singleton() && _get_obj().rc && !gObjectDB().get_instance(_get_obj().rc->instance_id)) {
@@ -1291,31 +1257,33 @@ void Variant::call_ptr(const StringName &p_method, const Variant **p_args, int p
             }
 #endif
             r_error.error = Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL;
-            return;
+            return ret;
         }
 
         ret = obj->call(p_method, p_args, p_argcount, r_error);
 
         //else if (type==VariantType::METHOD) {
 
-    } else {
+    }
+    else {
 
         r_error.error = Callable::CallError::CALL_OK;
 
         auto E = _VariantCall::type_funcs[(int)type].functions.find(p_method);
 #ifdef DEBUG_ENABLED
-        if (E==_VariantCall::type_funcs[(int)type].functions.end()) {
+        if (E == _VariantCall::type_funcs[(int)type].functions.end()) {
             r_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
-            return;
+            return ret;
         }
 #endif
-        _VariantCall::FuncData &funcdata = E->second;
+        _VariantCall::FuncData& funcdata = E->second;
         funcdata.call(ret, *this, p_args, p_argcount, r_error);
     }
 
-    if (r_error.error == Callable::CallError::CALL_OK && r_ret)
-        *r_ret = ret;
-}
+    if (r_error.error != Callable::CallError::CALL_OK)
+        return Variant();
+  return ret;
+}*/
 
 #define VCALL(m_type, m_method) _VariantCall::_call_##m_type##_##m_method
 
@@ -1458,6 +1426,7 @@ Variant Variant::construct(const VariantType p_type, const Variant **p_args, int
     return Variant();
 }
 
+/*
 bool Variant::has_method(const StringName &p_method) const {
 
     if (type == VariantType::OBJECT) {
@@ -1498,7 +1467,9 @@ bool Variant::is_method_const(VariantType p_type, const StringName &p_method) {
 
     return E->second._const;
 }
+*/
 
+/*
 Span<const StringView> Variant::get_method_argument_names(VariantType p_type, const StringName &p_method) {
 
     const _VariantCall::TypeFunc &tf = _VariantCall::type_funcs[(int)p_type];
@@ -1572,6 +1543,7 @@ void Variant::get_method_list(Vector<MethodInfo> *p_list) const {
         p_list->push_back(mi);
     }
 }
+*/
 
 void Variant::get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list) {
 
@@ -1661,32 +1633,6 @@ Variant Variant::get_constant_value(VariantType p_type, const StringName &p_valu
 
     return E->second;
 }
-static const _VariantCall::VariantFuncDef StringFunctions[] = {
-    {VariantType::STRING,StaticCString("casecmp_to"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,casecmp_to),{},{ _VariantCall::Arg(VariantType::STRING, "to") } ) },
-    {VariantType::STRING,StaticCString("nocasecmp_to"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,nocasecmp_to),{},{ _VariantCall::Arg(VariantType::STRING, "to") }) },
-    {VariantType::STRING,StaticCString("length"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,length),{},{}) },
-    {VariantType::STRING,StaticCString("substr"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,substr),{-1},{ _VariantCall::Arg(VariantType::INT, "from"), _VariantCall::Arg(VariantType::INT, "len") }) },
-    {VariantType::STRING,StaticCString("find"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,find),{0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
-    {VariantType::STRING,StaticCString("findn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,findn),{0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
-    {VariantType::STRING,StaticCString("rfind"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,rfind),{-1},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
-    {VariantType::STRING,StaticCString("rfindn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,rfindn),{-1},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}}) },
-    {VariantType::STRING,StaticCString("count"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,count),{0,0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}, {VariantType::INT, "to"}}) },
-    {VariantType::STRING,StaticCString("countn"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,countn),{0,0},{ {VariantType::STRING, "what"}, {VariantType::INT, "from"}, {VariantType::INT, "to"}}) },
-    {VariantType::STRING,StaticCString("find_last"),_VariantCall::FuncData(true,VariantType::INT,true,VCALL(String,find_last),{},{ {VariantType::STRING, "what"}}) },
-
-    {VariantType::STRING,StaticCString("match"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,match),{},{ {VariantType::STRING, "expr"}}) },
-    {VariantType::STRING,StaticCString("matchn"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,matchn),{},{ {VariantType::STRING, "expr"}}) },
-    {VariantType::STRING,StaticCString("begins_with"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,begins_with),{},{ {VariantType::STRING, "text"}}) },
-    {VariantType::STRING,StaticCString("ends_with"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,ends_with),{},{ {VariantType::STRING, "text"}}) },
-    {VariantType::STRING,StaticCString("is_subsequence_of"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,is_subsequence_of),{},{ {VariantType::STRING, "text"}}) },
-    {VariantType::STRING,StaticCString("is_subsequence_ofi"),_VariantCall::FuncData(true,VariantType::BOOL,true,VCALL(String,is_subsequence_ofi),{},{ {VariantType::STRING, "text"}}) },
-
-
-    //{VariantType::STRING,StaticCString("format"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,format),{},{ {VariantType::NIL, "values"}}) },
-    {VariantType::STRING,StaticCString("replace"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replace),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
-    {VariantType::STRING,StaticCString("replacen"),_VariantCall::FuncData(true,VariantType::STRING,true,VCALL(String,replacen),{},{ {VariantType::STRING, "what"},{VariantType::STRING, "forwhat"}}) },
-
-};
 void register_variant_methods() {
 
     _VariantCall::type_funcs = memnew_arr(_VariantCall::TypeFunc, int(VariantType::VARIANT_MAX));
@@ -1742,406 +1688,12 @@ void register_variant_methods() {
     _VariantCall::addfunc(false, VariantType::m_vtype, VariantType::m_ret, false, StringName(#m_method), VCALL(m_class, m_method), {__VA_ARGS__}, _VariantCall::Arg(VariantType::m_arg1, (m_argname1)), _VariantCall::Arg(VariantType::m_arg2, (m_argname2)), _VariantCall::Arg(VariantType::m_arg3, (m_argname3)), _VariantCall::Arg(VariantType::m_arg4, (m_argname4)));
 
 
-    _VariantCall::addfunc_span(StringFunctions);
 
     /* STRING */
 
 //    ADDFUNC0R(STRING, POOL_STRING_ARRAY, String, bigrams)
 //    ADDFUNC1R(STRING, REAL, String, similarity, STRING, "text")
 
-    ADDFUNC1R(STRING, STRING, String, repeat, INT, "count")
-    ADDFUNC2R(STRING, STRING, String, insert, INT, "position", STRING, "what")
-    ADDFUNC0R(STRING, STRING, String, capitalize)
-    ADDFUNC3R(STRING, POOL_STRING_ARRAY, String, split, STRING, "delimiter", BOOL, "allow_empty", INT, "maxsplit", true, 0)
-    ADDFUNC3R(STRING, POOL_STRING_ARRAY, String, rsplit, STRING, "delimiter", BOOL, "allow_empty", INT, "maxsplit", true, 0)
-    ADDFUNC2R(STRING, POOL_REAL_ARRAY, String, split_floats, STRING, "delimiter", BOOL, "allow_empty", {true})
-
-    ADDFUNC0R(STRING, STRING, String, to_upper)
-    ADDFUNC0R(STRING, STRING, String, to_lower)
-
-    ADDFUNC1R(STRING, STRING, String, left, INT, "position")
-    ADDFUNC1R(STRING, STRING, String, right, INT, "position")
-    ADDFUNC2R(STRING, STRING, String, strip_edges, BOOL, "left", BOOL, "right", true, true)
-    ADDFUNC0R(STRING, STRING, String, strip_escapes)
-    ADDFUNC1R(STRING, STRING, String, lstrip, STRING, "chars")
-    ADDFUNC1R(STRING, STRING, String, rstrip, STRING, "chars")
-    ADDFUNC0R(STRING, STRING, String, get_extension)
-    ADDFUNC0R(STRING, STRING, String, get_basename)
-    ADDFUNC1R(STRING, STRING, String, plus_file, STRING, "file")
-    //ADDFUNC1R(STRING, INT, String, ord_at, INT, "at")
-    ADDFUNC0R(STRING, STRING, String, dedent)
-    ADDFUNC2(STRING, NIL, String, erase, INT, "position", INT, "chars")
-    ADDFUNC0R(STRING, INT, String, hash)
-    ADDFUNC0R(STRING, STRING, String, md5_text)
-    ADDFUNC0R(STRING, STRING, String, sha1_text)
-    ADDFUNC0R(STRING, STRING, String, sha256_text)
-    ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, md5_buffer)
-    ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, sha1_buffer)
-    ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, sha256_buffer)
-    ADDFUNC0R(STRING, BOOL, String, empty)
-    ADDFUNC1R(STRING, STRING, String, humanize_size, INT, "size")
-    ADDFUNC0R(STRING, BOOL, String, is_abs_path)
-    ADDFUNC0R(STRING, BOOL, String, is_rel_path)
-    ADDFUNC0R(STRING, STRING, String, get_base_dir)
-    ADDFUNC0R(STRING, STRING, String, get_file)
-    ADDFUNC0R(STRING, STRING, String, xml_escape)
-    ADDFUNC0R(STRING, STRING, String, xml_unescape)
-    ADDFUNC0R(STRING, STRING, String, http_escape)
-    ADDFUNC0R(STRING, STRING, String, http_unescape)
-    ADDFUNC0R(STRING, STRING, String, c_escape)
-    ADDFUNC0R(STRING, STRING, String, c_unescape)
-    ADDFUNC0R(STRING, STRING, String, json_escape)
-    ADDFUNC0R(STRING, STRING, String, percent_encode)
-    ADDFUNC0R(STRING, STRING, String, percent_decode)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_identifier)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_integer)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_float)
-    ADDFUNC1R(STRING, BOOL, String, is_valid_hex_number, BOOL, "with_prefix", false)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_html_color)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_ip_address)
-    ADDFUNC0R(STRING, BOOL, String, is_valid_filename)
-    ADDFUNC0R(STRING, INT, String, to_int)
-    ADDFUNC0R(STRING, FLOAT, String, to_float)
-    ADDFUNC0R(STRING, INT, String, hex_to_int)
-    ADDFUNC1R(STRING, STRING, String, pad_decimals, INT, "digits")
-    ADDFUNC1R(STRING, STRING, String, pad_zeros, INT, "digits")
-    ADDFUNC1R(STRING, STRING, String, trim_prefix, STRING, "prefix")
-    ADDFUNC1R(STRING, STRING, String, trim_suffix, STRING, "suffix")
-
-    ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, to_ascii)
-    ADDFUNC0R(STRING, POOL_BYTE_ARRAY, String, to_utf8)
-
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, normalized)
-    ADDFUNC0R(VECTOR2, FLOAT, Vector2, length)
-    ADDFUNC0R(VECTOR2, FLOAT, Vector2, angle)
-    ADDFUNC0R(VECTOR2, FLOAT, Vector2, length_squared)
-    ADDFUNC0R(VECTOR2, BOOL, Vector2, is_normalized)
-    ADDFUNC1R(VECTOR2, BOOL, Vector2, is_equal_approx, VECTOR2, "v");
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, direction_to, VECTOR2, "b")
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, distance_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, distance_squared_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, posmod, FLOAT, "mod")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, posmodv, VECTOR2, "modv")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, project, VECTOR2, "b")
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, angle_to, VECTOR2, "to")
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, angle_to_point, VECTOR2, "to")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, linear_interpolate, VECTOR2, "b", FLOAT, "t")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, slerp, VECTOR2, "b", FLOAT, "t")
-    ADDFUNC4R(VECTOR2, VECTOR2, Vector2, cubic_interpolate, VECTOR2, "b", VECTOR2, "pre_a", VECTOR2, "post_b", FLOAT, "t")
-    ADDFUNC2R(VECTOR2, VECTOR2, Vector2, move_toward, VECTOR2, "to", FLOAT, "delta")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, rotated, FLOAT, "phi")
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, tangent)
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, floor)
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, ceil)
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, round)
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, snapped, VECTOR2, "by")
-    ADDFUNC0R(VECTOR2, FLOAT, Vector2, aspect)
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, dot, VECTOR2, "with")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, slide, VECTOR2, "n")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, bounce, VECTOR2, "n")
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, reflect, VECTOR2, "n")
-    ADDFUNC1R(VECTOR2, FLOAT, Vector2, cross, VECTOR2, "with")
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, abs)
-    ADDFUNC1R(VECTOR2, VECTOR2, Vector2, clamped, FLOAT, "length")
-    ADDFUNC0R(VECTOR2, VECTOR2, Vector2, sign)
-
-    ADDFUNC0R(AABB, AABB, AABB, abs);
-    ADDFUNC0R(RECT2, FLOAT, Rect2, get_area)
-    ADDFUNC2R(RECT2, BOOL, Rect2, intersects, RECT2, "b", BOOL,"include_borders", false)
-    ADDFUNC1R(RECT2, BOOL, Rect2, encloses, RECT2, "b")
-    ADDFUNC0R(RECT2, BOOL, Rect2, has_no_area)
-    ADDFUNC1R(RECT2, RECT2, Rect2, clip, RECT2, "b")
-    ADDFUNC1R(RECT2, RECT2, Rect2, merge, RECT2, "b")
-    ADDFUNC1R(RECT2, BOOL, Rect2, has_point, VECTOR2, "point")
-    ADDFUNC1R(RECT2, BOOL, Rect2, is_equal_approx, RECT2, "rect")
-    ADDFUNC1R(RECT2, RECT2, Rect2, grow, FLOAT, "by")
-    ADDFUNC2R(RECT2, RECT2, Rect2, grow_margin, INT, "margin", FLOAT, "by")
-    ADDFUNC4R(RECT2, RECT2, Rect2, grow_individual, FLOAT, "left", FLOAT, "top", FLOAT, "right", FLOAT, " bottom")
-    ADDFUNC1R(RECT2, RECT2, Rect2, expand, VECTOR2, "to")
-    ADDFUNC0R(RECT2, RECT2, Rect2, abs)
-
-    ADDFUNC0R(VECTOR3, INT, Vector3, min_axis)
-    ADDFUNC0R(VECTOR3, INT, Vector3, max_axis)
-    ADDFUNC0R(VECTOR3, FLOAT, Vector3, length)
-    ADDFUNC0R(VECTOR3, FLOAT, Vector3, length_squared)
-    ADDFUNC0R(VECTOR3, BOOL, Vector3, is_normalized)
-    ADDFUNC1R(VECTOR3, BOOL, Vector3, is_equal_approx, VECTOR3, "v");
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, normalized)
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, inverse)
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, snapped, VECTOR3, "by")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, rotated, VECTOR3, "axis", FLOAT, "phi")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, linear_interpolate, VECTOR3, "b", FLOAT, "t")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, slerp, VECTOR3, "b", FLOAT, "t")
-    ADDFUNC4R(VECTOR3, VECTOR3, Vector3, cubic_interpolate, VECTOR3, "b", VECTOR3, "pre_a", VECTOR3, "post_b", FLOAT, "t")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, direction_to, VECTOR3, "b")
-    ADDFUNC2R(VECTOR3, VECTOR3, Vector3, move_toward, VECTOR3, "to", FLOAT, "delta")
-    ADDFUNC1R(VECTOR3, FLOAT, Vector3, dot, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, cross, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, BASIS, Vector3, outer, VECTOR3, "b")
-    ADDFUNC0R(VECTOR3, BASIS, Vector3, to_diagonal_matrix)
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, abs)
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, floor)
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, ceil)
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, round)
-    ADDFUNC1R(VECTOR3, FLOAT, Vector3, distance_to, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, FLOAT, Vector3, distance_squared_to, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, posmod, FLOAT, "mod")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, posmodv, VECTOR3, "modv")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, project, VECTOR3, "b")
-    ADDFUNC1R(VECTOR3, FLOAT, Vector3, angle_to, VECTOR3, "to")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, slide, VECTOR3, "n")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, bounce, VECTOR3, "n")
-    ADDFUNC1R(VECTOR3, VECTOR3, Vector3, reflect, VECTOR3, "n")
-    ADDFUNC0R(VECTOR3, VECTOR3, Vector3, sign)
-
-    ADDFUNC0R(PLANE, PLANE, Plane, normalized)
-    ADDFUNC0R(PLANE, VECTOR3, Plane, center)
-    ADDFUNC0R(PLANE, VECTOR3, Plane, get_any_point)
-    ADDFUNC1R(PLANE, BOOL, Plane, is_equal_approx, PLANE, "plane")
-    ADDFUNC1R(PLANE, BOOL, Plane, is_point_over, VECTOR3, "point")
-    ADDFUNC1R(PLANE, FLOAT, Plane, distance_to, VECTOR3, "point")
-    ADDFUNC2R(PLANE, BOOL, Plane, has_point, VECTOR3, "point", FLOAT, "epsilon", CMP_EPSILON)
-    ADDFUNC1R(PLANE, VECTOR3, Plane, project, VECTOR3, "point")
-    ADDFUNC2R(PLANE, VECTOR3, Plane, intersect_3, PLANE, "b", PLANE, "c")
-    ADDFUNC2R(PLANE, VECTOR3, Plane, intersects_ray, VECTOR3, "from", VECTOR3, "dir")
-    ADDFUNC2R(PLANE, VECTOR3, Plane, intersects_segment, VECTOR3, "begin", VECTOR3, "end")
-
-    ADDFUNC0R(QUAT, FLOAT, Quat, length)
-    ADDFUNC0R(QUAT, FLOAT, Quat, length_squared)
-    ADDFUNC0R(QUAT, QUAT, Quat, normalized)
-    ADDFUNC0R(QUAT, BOOL, Quat, is_normalized)
-    ADDFUNC1R(QUAT, BOOL, Quat, is_equal_approx, QUAT, "quat")
-    ADDFUNC0R(QUAT, QUAT, Quat, inverse)
-    ADDFUNC1R(QUAT, FLOAT, Quat, dot, QUAT, "b")
-    ADDFUNC1R(QUAT, VECTOR3, Quat, xform, VECTOR3, "v")
-    ADDFUNC2R(QUAT, QUAT, Quat, slerp, QUAT, "b", FLOAT, "t")
-    ADDFUNC2R(QUAT, QUAT, Quat, slerpni, QUAT, "b", FLOAT, "t")
-    ADDFUNC4R(QUAT, QUAT, Quat, cubic_slerp, QUAT, "b", QUAT, "pre_a", QUAT, "post_b", FLOAT, "t")
-    ADDFUNC0R(QUAT, VECTOR3, Quat, get_euler)
-    ADDFUNC1(QUAT, NIL, Quat, set_euler, VECTOR3, "euler")
-    ADDFUNC2(QUAT, NIL, Quat, set_axis_angle, VECTOR3, "axis", FLOAT, "angle")
-
-    ADDFUNC0R(COLOR, INT, Color, to_argb32)
-    ADDFUNC0R(COLOR, INT, Color, to_abgr32)
-    ADDFUNC0R(COLOR, INT, Color, to_rgba32)
-    ADDFUNC0R(COLOR, INT, Color, to_argb64)
-    ADDFUNC0R(COLOR, INT, Color, to_abgr64)
-    ADDFUNC0R(COLOR, INT, Color, to_rgba64)
-    ADDFUNC0R(COLOR, FLOAT, Color, get_v)
-    ADDFUNC0R(COLOR, COLOR, Color, inverted)
-    ADDFUNC0R(COLOR, COLOR, Color, contrasted)
-    ADDFUNC2R(COLOR, COLOR, Color, linear_interpolate, COLOR, "b", FLOAT, "t")
-    ADDFUNC1R(COLOR, COLOR, Color, blend, COLOR, "over")
-    ADDFUNC1R(COLOR, COLOR, Color, lightened, FLOAT, "amount")
-    ADDFUNC1R(COLOR, COLOR, Color, darkened, FLOAT, "amount")
-    ADDFUNC1R(COLOR, STRING, Color, to_html, BOOL, "with_alpha", {true})
-    ADDFUNC4R(COLOR, COLOR, Color, from_hsv, FLOAT, "h", FLOAT, "s", FLOAT, "v", FLOAT, "a", {1.0})
-
-    ADDFUNC0R(_RID, INT, RID, get_id)
-
-    ADDFUNC0R(NODE_PATH, BOOL, NodePath, is_absolute)
-    ADDFUNC0R(NODE_PATH, INT, NodePath, get_name_count)
-    ADDFUNC1R(NODE_PATH, STRING, NodePath, get_name, INT, "idx")
-    ADDFUNC0R(NODE_PATH, INT, NodePath, get_subname_count)
-    ADDFUNC1R(NODE_PATH, STRING, NodePath, get_subname, INT, "idx")
-    ADDFUNC0R(NODE_PATH, STRING, NodePath, get_concatenated_subnames)
-    ADDFUNC0R(NODE_PATH, NODE_PATH, NodePath, get_as_property_path)
-    ADDFUNC0R(NODE_PATH, BOOL, NodePath, is_empty)
-
-    ADDFUNC0R(DICTIONARY, INT, Dictionary, size)
-    ADDFUNC0R(DICTIONARY, BOOL, Dictionary, empty)
-    ADDFUNC0NC(DICTIONARY, NIL, Dictionary, clear)
-    ADDFUNC1R(DICTIONARY, BOOL, Dictionary, has, NIL, "key")
-    ADDFUNC1R(DICTIONARY, BOOL, Dictionary, has_all, ARRAY, "keys")
-    ADDFUNC1RNC(DICTIONARY, BOOL, Dictionary, erase, NIL, "key")
-    ADDFUNC0R(DICTIONARY, INT, Dictionary, hash)
-    ADDFUNC0R(DICTIONARY, ARRAY, Dictionary, keys)
-    ADDFUNC0R(DICTIONARY, ARRAY, Dictionary, values)
-    ADDFUNC1R(DICTIONARY, DICTIONARY, Dictionary, duplicate, BOOL, "deep", false)
-    ADDFUNC2R(DICTIONARY, NIL, Dictionary, get, NIL, "key", NIL, "default", Variant())
-
-    ADDFUNC0R(ARRAY, INT, Array, size)
-    ADDFUNC0R(ARRAY, BOOL, Array, empty)
-    ADDFUNC0NC(ARRAY, NIL, Array, clear)
-    ADDFUNC0R(ARRAY, INT, Array, hash)
-    ADDFUNC1NC(ARRAY, NIL, Array, push_back, NIL, "value")
-    ADDFUNC1NC(ARRAY, NIL, Array, push_front, NIL, "value")
-    ADDFUNC1NC(ARRAY, NIL, Array, append, NIL, "value")
-    ADDFUNC1NC(ARRAY, NIL, Array, resize, INT, "size")
-    ADDFUNC2NC(ARRAY, NIL, Array, insert, INT, "position", NIL, "value")
-    ADDFUNC1NC(ARRAY, NIL, Array, remove, INT, "position")
-    ADDFUNC1NC(ARRAY, NIL, Array, erase, NIL, "value")
-    ADDFUNC0R(ARRAY, NIL, Array, front)
-    ADDFUNC0R(ARRAY, NIL, Array, back)
-    ADDFUNC2R(ARRAY, INT, Array, find, NIL, "what", INT, "from", {0})
-    ADDFUNC2R(ARRAY, INT, Array, rfind, NIL, "what", INT, "from", {-1})
-    ADDFUNC1R(ARRAY, INT, Array, find_last, NIL, "value")
-    ADDFUNC1R(ARRAY, INT, Array, count, NIL, "value")
-    ADDFUNC1R(ARRAY, BOOL, Array, contains, NIL, "value")
-    ADDFUNC0RNC(ARRAY, NIL, Array, pop_back)
-    ADDFUNC0RNC(ARRAY, NIL, Array, pop_front)
-    ADDFUNC0NC(ARRAY, NIL, Array, sort)
-    ADDFUNC2NC(ARRAY, NIL, Array, sort_custom, OBJECT, "obj", STRING, "func")
-    ADDFUNC0NC(ARRAY, NIL, Array, shuffle)
-    ADDFUNC2R(ARRAY, INT, Array, bsearch, NIL, "value", BOOL, "before", true)
-    ADDFUNC4R(ARRAY, INT, Array, bsearch_custom, NIL, "value", OBJECT, "obj", STRING, "func", BOOL, "before", true)
-    ADDFUNC0NC(ARRAY, NIL, Array, invert)
-    ADDFUNC1R(ARRAY, ARRAY, Array, duplicate, BOOL, "deep", false)
-    ADDFUNC4R(ARRAY, ARRAY, Array, slice, INT, "begin", INT, "end", INT, "step", BOOL, "deep", 1, false)
-    ADDFUNC0R(ARRAY, NIL, Array, max)
-    ADDFUNC0R(ARRAY, NIL, Array, min)
-
-    ADDFUNC0R(POOL_BYTE_ARRAY, INT, PoolByteArray, size)
-    ADDFUNC0R(POOL_BYTE_ARRAY, INT, PoolByteArray, empty)
-    ADDFUNC2(POOL_BYTE_ARRAY, NIL, PoolByteArray, set, INT, "idx", INT, "byte")
-    ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, push_back, INT, "byte")
-    ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, append, INT, "byte")
-    ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, append_array, POOL_BYTE_ARRAY, "array")
-    ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_BYTE_ARRAY, INT, PoolByteArray, insert, INT, "idx", INT, "byte")
-    ADDFUNC1(POOL_BYTE_ARRAY, NIL, PoolByteArray, resize, INT, "idx")
-    ADDFUNC0(POOL_BYTE_ARRAY, NIL, PoolByteArray, invert)
-    ADDFUNC2R(POOL_BYTE_ARRAY, POOL_BYTE_ARRAY, PoolByteArray, subarray, INT, "from", INT, "to")
-
-    ADDFUNC0R(POOL_BYTE_ARRAY, STRING, PoolByteArray, get_string_from_ascii)
-    ADDFUNC0R(POOL_BYTE_ARRAY, STRING, PoolByteArray, get_string_from_utf8)
-    ADDFUNC0R(POOL_BYTE_ARRAY, STRING, PoolByteArray, hex_encode)
-    ADDFUNC1R(POOL_BYTE_ARRAY, POOL_BYTE_ARRAY, PoolByteArray, compress, INT, "compression_mode", {0})
-    ADDFUNC2R(POOL_BYTE_ARRAY, POOL_BYTE_ARRAY, PoolByteArray, decompress, INT, "buffer_size", INT, "compression_mode", {0})
-
-    ADDFUNC0R(POOL_INT_ARRAY, INT, PoolIntArray, size)
-    ADDFUNC0R(POOL_INT_ARRAY, INT, PoolIntArray, empty)
-    ADDFUNC2(POOL_INT_ARRAY, NIL, PoolIntArray, set, INT, "idx", INT, "integer")
-    ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, push_back, INT, "integer")
-    ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, append, INT, "integer")
-    ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, append_array, POOL_INT_ARRAY, "array")
-    ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_INT_ARRAY, INT, PoolIntArray, insert, INT, "idx", INT, "integer")
-    ADDFUNC1(POOL_INT_ARRAY, NIL, PoolIntArray, resize, INT, "idx")
-    ADDFUNC0(POOL_INT_ARRAY, NIL, PoolIntArray, invert)
-
-    ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, size)
-    ADDFUNC0R(POOL_REAL_ARRAY, INT, PoolRealArray, empty)
-    ADDFUNC2(POOL_REAL_ARRAY, NIL, PoolRealArray, set, INT, "idx", FLOAT, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, push_back, FLOAT, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append, FLOAT, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, append_array, POOL_REAL_ARRAY, "array")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_REAL_ARRAY, INT, PoolRealArray, insert, INT, "idx", FLOAT, "value")
-    ADDFUNC1(POOL_REAL_ARRAY, NIL, PoolRealArray, resize, INT, "idx")
-    ADDFUNC0(POOL_REAL_ARRAY, NIL, PoolRealArray, invert)
-
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, size)
-    ADDFUNC0R(POOL_STRING_ARRAY, INT, PoolStringArray, empty)
-    ADDFUNC2(POOL_STRING_ARRAY, NIL, PoolStringArray, set, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, push_back, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append, STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, append_array, POOL_STRING_ARRAY, "array")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_STRING_ARRAY, INT, PoolStringArray, insert, INT, "idx", STRING, "string")
-    ADDFUNC1(POOL_STRING_ARRAY, NIL, PoolStringArray, resize, INT, "idx")
-    ADDFUNC0(POOL_STRING_ARRAY, NIL, PoolStringArray, invert)
-    ADDFUNC1(POOL_STRING_ARRAY, STRING, PoolStringArray, join, STRING, "delimiter")
-
-    ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, size)
-    ADDFUNC0R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, empty)
-    ADDFUNC2(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, set, INT, "idx", VECTOR2, "vector2")
-    ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, push_back, VECTOR2, "vector2")
-    ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, append, VECTOR2, "vector2")
-    ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, append_array, POOL_VECTOR2_ARRAY, "array")
-    ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, remove, INT, "idx")
-    ADDFUNC2R(POOL_VECTOR2_ARRAY, INT, PoolVector2Array, insert, INT, "idx", VECTOR2, "vector2")
-    ADDFUNC1(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, resize, INT, "idx")
-    ADDFUNC0(POOL_VECTOR2_ARRAY, NIL, PoolVector2Array, invert)
-
-    ADDFUNC0R(POOL_VECTOR3_ARRAY, INT, PoolVector3Array, size)
-    ADDFUNC0R(POOL_VECTOR3_ARRAY, INT, PoolVector3Array, empty)
-    ADDFUNC2(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, set, INT, "idx", VECTOR3, "vector3")
-    ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, push_back, VECTOR3, "vector3")
-    ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, append, VECTOR3, "vector3")
-    ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, append_array, POOL_VECTOR3_ARRAY, "array")
-    ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, remove, INT, "idx")
-    ADDFUNC2R(POOL_VECTOR3_ARRAY, INT, PoolVector3Array, insert, INT, "idx", VECTOR3, "vector3")
-    ADDFUNC1(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, resize, INT, "idx")
-    ADDFUNC0(POOL_VECTOR3_ARRAY, NIL, PoolVector3Array, invert)
-
-    ADDFUNC0R(POOL_COLOR_ARRAY, INT, PoolColorArray, size)
-    ADDFUNC0R(POOL_COLOR_ARRAY, INT, PoolColorArray, empty)
-    ADDFUNC2(POOL_COLOR_ARRAY, NIL, PoolColorArray, set, INT, "idx", COLOR, "color")
-    ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, push_back, COLOR, "color")
-    ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, append, COLOR, "color")
-    ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, append_array, POOL_COLOR_ARRAY, "array")
-    ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, remove, INT, "idx")
-    ADDFUNC2R(POOL_COLOR_ARRAY, INT, PoolColorArray, insert, INT, "idx", COLOR, "color")
-    ADDFUNC1(POOL_COLOR_ARRAY, NIL, PoolColorArray, resize, INT, "idx")
-    ADDFUNC0(POOL_COLOR_ARRAY, NIL, PoolColorArray, invert)
-
-    //pointerbased
-
-    ADDFUNC0R(AABB, FLOAT, AABB, get_area)
-    ADDFUNC0R(AABB, BOOL, AABB, has_no_area)
-    ADDFUNC0R(AABB, BOOL, AABB, has_no_surface)
-    ADDFUNC1R(AABB, BOOL, AABB, intersects, AABB, "with")
-    ADDFUNC1R(AABB, BOOL, AABB, encloses, AABB, "with")
-    ADDFUNC1R(AABB, AABB, AABB, merge, AABB, "with")
-    ADDFUNC1R(AABB, AABB, AABB, intersection, AABB, "with")
-    ADDFUNC1R(AABB, BOOL, AABB, intersects_plane, PLANE, "plane")
-    ADDFUNC2R(AABB, BOOL, AABB, intersects_segment, VECTOR3, "from", VECTOR3, "to")
-    ADDFUNC1R(AABB, BOOL, AABB, has_point, VECTOR3, "point")
-    ADDFUNC1R(AABB, VECTOR3, AABB, get_support, VECTOR3, "dir")
-    ADDFUNC0R(AABB, VECTOR3, AABB, get_longest_axis)
-    ADDFUNC0R(AABB, INT, AABB, get_longest_axis_index)
-    ADDFUNC0R(AABB, FLOAT, AABB, get_longest_axis_size)
-    ADDFUNC0R(AABB, VECTOR3, AABB, get_shortest_axis)
-    ADDFUNC0R(AABB, INT, AABB, get_shortest_axis_index)
-    ADDFUNC0R(AABB, FLOAT, AABB, get_shortest_axis_size)
-    ADDFUNC1R(AABB, AABB, AABB, expand, VECTOR3, "to_point")
-    ADDFUNC1R(AABB, AABB, AABB, grow, FLOAT, "by")
-    ADDFUNC1R(AABB, VECTOR3, AABB, get_endpoint, INT, "idx")
-
-    ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, inverse)
-    ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, affine_inverse)
-    ADDFUNC0R(TRANSFORM2D, FLOAT, Transform2D, get_rotation)
-    ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_origin)
-    ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_scale)
-    ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, orthonormalized)
-    ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, rotated, FLOAT, "phi")
-    ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, scaled, VECTOR2, "scale")
-    ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, translated, VECTOR2, "offset")
-    ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, xform, NIL, "v")
-    ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, xform_inv, NIL, "v")
-    ADDFUNC1R(TRANSFORM2D, VECTOR2, Transform2D, basis_xform, VECTOR2, "v")
-    ADDFUNC1R(TRANSFORM2D, VECTOR2, Transform2D, basis_xform_inv, VECTOR2, "v")
-    ADDFUNC2R(TRANSFORM2D, TRANSFORM2D, Transform2D, interpolate_with, TRANSFORM2D, "transform", FLOAT, "weight")
-
-    ADDFUNC0R(BASIS, BASIS, Basis, inverse)
-    ADDFUNC0R(BASIS, BASIS, Basis, transposed)
-    ADDFUNC0R(BASIS, BASIS, Basis, orthonormalized)
-    ADDFUNC0R(BASIS, FLOAT, Basis, determinant)
-    ADDFUNC2R(BASIS, BASIS, Basis, rotated, VECTOR3, "axis", FLOAT, "phi")
-    ADDFUNC1R(BASIS, BASIS, Basis, scaled, VECTOR3, "scale")
-    ADDFUNC0R(BASIS, VECTOR3, Basis, get_scale)
-    ADDFUNC0R(BASIS, VECTOR3, Basis, get_euler)
-    ADDFUNC1R(BASIS, FLOAT, Basis, tdotx, VECTOR3, "with")
-    ADDFUNC1R(BASIS, FLOAT, Basis, tdoty, VECTOR3, "with")
-    ADDFUNC1R(BASIS, FLOAT, Basis, tdotz, VECTOR3, "with")
-    ADDFUNC1R(BASIS, VECTOR3, Basis, xform, VECTOR3, "v")
-    ADDFUNC1R(BASIS, VECTOR3, Basis, xform_inv, VECTOR3, "v")
-    ADDFUNC0R(BASIS, INT, Basis, get_orthogonal_index)
-    ADDFUNC2R(BASIS, BASIS, Basis, slerp, BASIS, "b", FLOAT, "t")
-    ADDFUNC2R(BASIS, BOOL, Basis, is_equal_approx, BASIS, "b", FLOAT, "epsilon", CMP_EPSILON)
-    ADDFUNC0R(BASIS, QUAT, Basis, get_rotation_quat)
-
-    ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, inverse)
-    ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, affine_inverse)
-    ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, orthonormalized)
-    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, rotated, VECTOR3, "axis", FLOAT, "phi")
-    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, scaled, VECTOR3, "scale")
-    ADDFUNC1R(TRANSFORM, TRANSFORM, Transform, translated, VECTOR3, "offset")
-    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, looking_at, VECTOR3, "target", VECTOR3, "up")
-    ADDFUNC2R(TRANSFORM, TRANSFORM, Transform, interpolate_with, TRANSFORM, "transform", FLOAT, "weight")
-    ADDFUNC1R(TRANSFORM, NIL, Transform, xform, NIL, "v")
-    ADDFUNC1R(TRANSFORM, NIL, Transform, xform_inv, NIL, "v")
 
     /* REGISTER CONSTRUCTORS */
 

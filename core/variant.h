@@ -148,6 +148,7 @@ enum class VariantType : int8_t {
 class GODOT_EXPORT Variant {
 private:
     friend struct _VariantCall;
+    friend GODOT_EXPORT struct VariantOps;
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
 
@@ -392,21 +393,19 @@ public:
     static void blend(const Variant &a, const Variant &b, float c, Variant &r_dst);
     static void interpolate(const Variant &a, const Variant &b, float c, Variant &r_dst);
 
-    void call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, Callable::CallError &r_error);
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
-    Variant call(const StringName &p_method, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant());
+    //Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
     static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce);
 
     static Variant construct(const VariantType, const Variant **p_args, int p_argcount, Callable::CallError &r_error, bool p_strict = true);
 
-    void get_method_list(Vector<MethodInfo> *p_list) const;
-    bool has_method(const StringName &p_method) const;
-    static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
-    static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
-    static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
-    static bool is_method_const(VariantType p_type, const StringName &p_method);
+    //void get_method_list(Vector<MethodInfo> *p_list) const;
+    //bool has_method(const StringName &p_method) const;
+    //static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
+    //static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
+    //static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
+    //static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
+    //static bool is_method_const(VariantType p_type, const StringName &p_method);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
@@ -520,11 +519,6 @@ public:
     template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>
     [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
 
-    template<class T>
-    [[nodiscard]] explicit operator Ref<T> () const {
-        return refFromVariant<T>(*this);
-    }
-
 };
 static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
@@ -590,3 +584,9 @@ template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
 template <> GODOT_EXPORT Variant Variant::move_from(Vector<Variant> &&);
+struct GODOT_EXPORT VariantOps {
+    static void resize(Variant& arg, int new_size);
+    static int size(const Variant& arg);
+    static Variant duplicate(const Variant& arg,bool deep=false);
+    static void remove(Variant& arg, int idx);
+};

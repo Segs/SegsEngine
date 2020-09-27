@@ -1157,8 +1157,8 @@ int64_t StringUtils::to_int64(StringView s) {
 int StringUtils::to_int(const char *p_str, int p_len) {
     return QByteArray::fromRawData(p_str,p_len).toInt();
 }
-int StringUtils::to_int(StringView p_str) {
-    return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt();
+int StringUtils::to_int(StringView p_str,bool *ok) {
+    return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt(ok);
 }
 
 bool StringUtils::is_numeric(const String &str) {
@@ -1397,8 +1397,8 @@ done:
     return fraction;
 }
 
-double StringUtils::to_double(StringView p_str) {
-    return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble();
+double StringUtils::to_double(StringView p_str, bool* ok) {
+    return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble(ok);
 }
 double StringUtils::to_double(const char *p_str, char ** r_end) {
     return strtod(p_str,r_end);

@@ -35,7 +35,7 @@
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
-#include "core/math/expression.h"
+//#include "core/math/expression.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
@@ -1557,16 +1557,12 @@ void CustomPropertyEditor::_modified(StringView p_string) {
     switch (type) {
         case VariantType::INT: {
             String text = value_editor[0]->get_text();
-            Ref<Expression> expr(make_ref_counted<Expression>());
-            Error err = expr->parse(text);
-            if (err != OK) {
-                val_variant = StringUtils::to_int(value_editor[0]->get_text());
-                return;
-            } else {
-                val_variant = expr->execute(Array(), nullptr, false);
-            }
-            emit_signal("variant_changed");
-
+            bool int_ok=false;
+            auto new_wal = StringUtils::to_int(value_editor[0]->get_text(),&int_ok);
+            if (int_ok) {
+                val_variant = new_wal;
+                emit_signal("variant_changed");
+            } 
         } break;
         case VariantType::FLOAT: {
 
@@ -1728,15 +1724,13 @@ void CustomPropertyEditor::_modified(StringView p_string) {
 }
 
 real_t CustomPropertyEditor::_parse_real_expression(StringView text) {
-    Ref<Expression> expr(make_ref_counted<Expression>());
-    Error err = expr->parse(text);
-    real_t out;
-    if (err != OK) {
-        out = value_editor[0]->get_text_ui().toFloat();
-    } else {
-        out = expr->execute(Array(), nullptr, false).as<real_t>();
+    bool float_ok=false;
+    real_t out = value_editor[0]->get_text_ui().toFloat(&float_ok);
+
+    if (float_ok) {
+      return out;
     }
-    return out;
+    return 0.0f;
 }
 
 void CustomPropertyEditor::_emit_changed_whole_or_field() {

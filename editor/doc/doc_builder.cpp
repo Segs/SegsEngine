@@ -422,8 +422,8 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
 
         Vector<MethodInfo> method_list;
-        v.get_method_list(&method_list);
-        eastl::sort(method_list.begin(),method_list.end());
+        //v.get_method_list(&method_list);
+        //eastl::sort(method_list.begin(),method_list.end());
         Variant::get_constructor_list(VariantType(i), &method_list);
 
         for (MethodInfo &mi : method_list) {

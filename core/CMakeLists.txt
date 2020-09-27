@@ -103,8 +103,8 @@ set(core_sources
     math/bsp_tree.h
     math/disjoint_set.cpp
     math/disjoint_set.h
-    math/expression.cpp
-    math/expression.h
+    #math/expression.cpp
+    #math/expression.h
     math/octree.h
     math/random_number_generator.cpp
     math/random_number_generator.h

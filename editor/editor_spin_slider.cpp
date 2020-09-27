@@ -30,7 +30,7 @@
 
 #include "editor_spin_slider.h"
 #include "core/method_bind.h"
-#include "core/math/expression.h"
+//#include "core/math/expression.h"
 #include "core/os/input.h"
 #include "core/string_formatter.h"
 #include "scene/resources/style_box.h"
@@ -380,16 +380,14 @@ const String &EditorSpinSlider::get_label() const {
 
 void EditorSpinSlider::_evaluate_input_text() {
     String text = value_input->get_text();
-    Ref<Expression> expr(make_ref_counted<Expression>());
-    Error err = expr->parse(text);
-    if (err != OK) {
+    bool was_ok= false;
+    float val=StringUtils::to_float(text, &was_ok);
+    if(!was_ok)
+      val=StringUtils::to_int(text,&was_ok);
+    if(!was_ok)
         return;
-    }
 
-    Variant v = expr->execute(Array(), nullptr, false);
-    if (v.get_type() == VariantType::NIL)
-        return;
-    set_value(v.as<float>());
+    set_value(val);
 }
 
 //text_entered signal
