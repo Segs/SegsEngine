@@ -259,12 +259,10 @@ public:
                         if (t != args[idx].get_type()) {
                             Callable::CallError err;
                             if (Variant::can_convert(args[idx].get_type(), t)) {
-                                Variant old = args[idx];
-                                Variant *ptrs[1] = { &old };
-                                args[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
+                                args[idx] = Variant::construct(t, args[idx], err);
                             } else {
 
-                                args[idx] = Variant::construct(t, nullptr, 0, err);
+                                args[idx] = Variant::construct_default(t);
                             }
                             change_notify_deserved = true;
                             d_new["args"] = Variant::from(args);
@@ -917,14 +915,12 @@ public:
                                 VariantType t = p_value.as<VariantType>();
 
                                 if (t != args[idx].get_type()) {
-                                    Callable::CallError err;
                                     if (Variant::can_convert(args[idx].get_type(), t)) {
-                                        Variant old = args[idx];
-                                        Variant *ptrs[1] = { &old };
-                                        args[idx] = Variant::construct(t, (const Variant **)ptrs, 1, err);
+                                        Callable::CallError err;
+                                        args[idx] = Variant::construct(t, args[idx], err);
                                     } else {
 
-                                        args[idx] = Variant::construct(t, nullptr, 0, err);
+                                        args[idx] = Variant::construct_default(t);
                                     }
                                     change_notify_deserved = true;
                                     d_new["args"] = Variant::from(args);
@@ -4767,8 +4763,7 @@ void AnimationTrackEditor::_add_method_key(const StringName &p_method) {
                     Variant arg = E.default_arguments[i - first_defarg];
                     params.push_back(arg);
                 } else {
-                    Callable::CallError ce;
-                    Variant arg = Variant::construct(E.arguments[i].type, nullptr, 0, ce);
+                    Variant arg = Variant::construct_default(E.arguments[i].type);
                     params.push_back(arg);
                 }
             }

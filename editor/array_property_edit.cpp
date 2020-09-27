@@ -48,8 +48,7 @@ Variant ArrayPropertyEdit::get_array() const {
         return Array();
     Variant arr = o->get(property);
     if (!arr.is_array()) {
-        Callable::CallError ce;
-        arr = Variant::construct(default_type, nullptr, 0, ce);
+        arr = Variant::construct_default(default_type);
     }
     return arr;
 }
@@ -117,7 +116,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
                     new_type = arr.get(size - 1).get_type();
                 }
                 if (new_type != VariantType::NIL) {
-                    init = Variant::construct(new_type, nullptr, 0, ce);
+                    init = Variant::construct_default(new_type);
                     for (int i = size; i < newsize; i++) {
                         ur->add_do_method(this, "_set_value", i, init);
                     }
@@ -146,8 +145,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
             Variant value = arr.get(idx);
             if ((int)value.get_type() != type && type >= 0 && type < (int)VariantType::VARIANT_MAX) {
-                Callable::CallError ce;
-                Variant new_value = Variant::construct(VariantType(type), nullptr, 0, ce);
+                Variant new_value = Variant::construct_default(VariantType(type));
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
                 ur->create_action(TTR("Change Array Value Type"));

@@ -101,9 +101,7 @@ void PropertySelector::_update_search() {
         if (instance) {
             instance->get_property_list(&props, true);
         } else if (type != VariantType::NIL) {
-            Variant v;
-            Callable::CallError ce;
-            v = Variant::construct(type, nullptr, 0, ce);
+            Variant v = Variant::construct_default(type);
 
             v.get_property_list(&props);
         } else {
@@ -206,9 +204,7 @@ void PropertySelector::_update_search() {
         Vector<MethodInfo> methods;
 
         if (type != VariantType::NIL) {
-            Variant v;
-            Callable::CallError ce;
-            v = Variant::construct(type, nullptr, 0, ce);
+            Variant v = Variant::construct_default(type);
             //v.get_method_list(&methods);
         } else {
 

@@ -397,7 +397,8 @@ public:
 
     static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce);
 
-    static Variant construct(const VariantType, const Variant **p_args, int p_argcount, Callable::CallError &r_error, bool p_strict = true);
+    static Variant construct_default(VariantType p_type);
+    static Variant construct(const VariantType, const Variant &p_arg, Callable::CallError &r_error);
 
     //void get_method_list(Vector<MethodInfo> *p_list) const;
     //bool has_method(const StringName &p_method) const;

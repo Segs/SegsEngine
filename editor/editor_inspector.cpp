@@ -2128,34 +2128,32 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
         return;
 
     //property checked
-    if (autoclear) {
-
-        if (!p_checked) {
-            object->set(p_path, Variant());
-        } else {
-
-            Variant to_create;
-            Vector<PropertyInfo> pinfo;
-            object->get_property_list(&pinfo);
-            for (const PropertyInfo &E : pinfo) {
-                if (E.name == p_path) {
-                    Callable::CallError ce;
-                    to_create = Variant::construct(E.type, nullptr, 0, ce);
-                    break;
-                }
-            }
-            object->set(p_path, to_create);
-        }
-
-        if (editor_property_map.contains(p_path)) {
-            for (EditorProperty *E : editor_property_map[p_path]) {
-                E->update_property();
-                E->update_reload_status();
-            }
-        }
-
-    } else {
+    if (!autoclear) {
         emit_signal("property_toggled", p_path, p_checked);
+        return;
+    }
+
+    if (!p_checked) {
+        object->set(p_path, Variant());
+    } else {
+
+        Variant to_create;
+        Vector<PropertyInfo> pinfo;
+        object->get_property_list(&pinfo);
+        for (const PropertyInfo &E : pinfo) {
+            if (E.name == p_path) {
+                to_create = Variant::construct_default(E.type);
+                break;
+            }
+        }
+        object->set(p_path, to_create);
+    }
+
+    if (editor_property_map.contains(p_path)) {
+        for (EditorProperty *E : editor_property_map[p_path]) {
+            E->update_property();
+            E->update_reload_status();
+        }
     }
 }
 

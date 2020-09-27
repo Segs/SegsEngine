@@ -418,8 +418,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         DocContents::ClassDoc &c = tgt.class_list[cname.asCString()];
         c.name = cname.asCString();
 
-        Callable::CallError cerror;
-        Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
+        Variant v = Variant::construct_default(VariantType(i));
 
         Vector<MethodInfo> method_list;
         //v.get_method_list(&method_list);
