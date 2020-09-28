@@ -438,7 +438,8 @@ void TabContainer::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
             minimum_size_changed();
-            call_deferred("_on_theme_changed"); // Wait until all changed theme.
+            // Wait until all changed theme.
+            call_deferred([this](){ _on_theme_changed();});
         } break;
     }
 }

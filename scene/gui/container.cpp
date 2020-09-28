@@ -144,7 +144,7 @@ void Container::queue_sort() {
     if (pending_sort)
         return;
 
-    MessageQueue::get_singleton()->push_call(this, "_sort_children");
+    MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() { _sort_children(); });
     pending_sort = true;
 }
 

@@ -5756,7 +5756,9 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     set_process_unhandled_key_input(true);
 
     // Update the menus' checkboxes
-    call_deferred("set_state", get_state());
+
+    call_deferred([this,state=get_state()]() { set_state(state); });
+    //call_deferred("set_state", get_state());
 }
 
 CanvasItemEditor *CanvasItemEditor::singleton = nullptr;

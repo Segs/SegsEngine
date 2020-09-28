@@ -138,7 +138,7 @@ void NoiseTexture::_queue_update() {
     }
 
     update_queued = true;
-    call_deferred("_update_texture");
+    call_deferred([this](){ _update_texture();});
 }
 
 Ref<Image> NoiseTexture::_generate_texture() {

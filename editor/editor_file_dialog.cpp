@@ -354,7 +354,7 @@ void EditorFileDialog::_request_single_thumbnail(StringView p_path) {
     set_process(true);
     preview_waiting = true;
     preview_wheel_timeout = 0;
-    EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, this, "_thumbnail_done", p_path);
+    EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, callable_mp(this, &EditorFileDialog::_thumbnail_done), p_path);
 }
 
 void EditorFileDialog::_action_pressed() {
@@ -878,7 +878,7 @@ void EditorFileDialog::update_file_list() {
             item_list->set_item_metadata(item_list->get_item_count() - 1, d);
 
             if (display_mode == DISPLAY_THUMBNAILS) {
-                EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, this, "_thumbnail_result", fullpath);
+                EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, callable_mp(this, &EditorFileDialog::_thumbnail_result), fullpath);
             }
 
             if (file->get_text() == files.front())

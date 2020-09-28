@@ -300,12 +300,12 @@ struct M_SignalInfo {
 
 #pragma pack(pop)
 // Callable
-Callable managed_to_callable(const M_Callable &p_managed_callable);
-M_Callable callable_to_managed(const Callable &p_callable);
+GODOT_EXPORT Callable managed_to_callable(const M_Callable &p_managed_callable);
+GODOT_EXPORT M_Callable callable_to_managed(const Callable &p_callable);
 
 // SignalInfo
-Signal managed_to_signal_info(const M_SignalInfo &p_managed_signal);
-M_SignalInfo signal_info_to_managed(const Signal &p_signal);
+GODOT_EXPORT Signal managed_to_signal_info(const M_SignalInfo &p_managed_signal);
+GODOT_EXPORT M_SignalInfo signal_info_to_managed(const Signal &p_signal);
 // Structures
 
 #pragma pack(push, 1)

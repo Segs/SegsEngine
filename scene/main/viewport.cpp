@@ -3117,6 +3117,8 @@ void Viewport::_validate_property(PropertyInfo &property) const {
 
 void Viewport::_bind_methods() {
 
+
+
     MethodBinder::bind_method(D_METHOD("set_use_arvr", {"use"}), &Viewport::set_use_arvr);
     MethodBinder::bind_method(D_METHOD("use_arvr"), &Viewport::use_arvr);
 
@@ -3139,6 +3141,10 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_visible_rect"), &Viewport::get_visible_rect);
     MethodBinder::bind_method(D_METHOD("set_transparent_background", {"enable"}), &Viewport::set_transparent_background);
     MethodBinder::bind_method(D_METHOD("has_transparent_background"), &Viewport::has_transparent_background);
+
+    MethodBinder::bind_method(D_METHOD("_vp_input"), &Viewport::_vp_input);
+    MethodBinder::bind_method(D_METHOD("_vp_input_text", {"text"}), &Viewport::_vp_input_text);
+    MethodBinder::bind_method(D_METHOD("_vp_unhandled_input"), &Viewport::_vp_unhandled_input);
 
     MethodBinder::bind_method(D_METHOD("set_size_override", {"enable", "size", "margin"}), &Viewport::set_size_override, {DEFVAL(Size2(-1, -1)), DEFVAL(Size2(0, 0))});
     MethodBinder::bind_method(D_METHOD("get_size_override"), &Viewport::get_size_override);

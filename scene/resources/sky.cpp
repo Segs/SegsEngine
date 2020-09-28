@@ -438,7 +438,8 @@ void ProceduralSky::_queue_update() {
         return;
 
     update_queued = true;
-    call_deferred("_update_sky");
+    call_deferred([this](){ _update_sky();});
+
 }
 
 void ProceduralSky::_thread_done(const Ref<Image> &p_image) {

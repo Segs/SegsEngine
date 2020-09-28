@@ -5099,7 +5099,7 @@ void EditorNode::_scene_tab_hover(int p_tab) {
     } else {
         String path = editor_data.get_scene_path(p_tab);
         if (!path.empty()) {
-            EditorResourcePreview::get_singleton()->queue_resource_preview(path, this, "_thumbnail_done", p_tab);
+            EditorResourcePreview::get_singleton()->queue_resource_preview(path, callable_mp(this, &EditorNode::_thumbnail_done), p_tab);
         }
     }
 }

@@ -38,63 +38,11 @@
 #include "core/object_db.h"
 #include "core/string_utils.h"
 #include "core/script_language.h"
+#include "core/callable_method_pointer.h"
 
 MessageQueue *MessageQueue::singleton = nullptr;
 
-struct CustomFuncCallable : CallableCustom
-{
-private:
-    uint32_t h;
 
-public:
-    ObjectID m_holder;
-    eastl::function<void()> m_func;
-
-    CustomFuncCallable(ObjectID holder, eastl::function<void()> f) : m_holder(holder), m_func(eastl::move(f))
-    {
-        // dangerous code
-        h = hash_djb2_buffer((const uint8_t *)&f,sizeof(eastl::function<void()>));
-    }
-
-    uint32_t hash() const override
-    {
-        return ((uint64_t)m_holder) ^ h;
-    }
-
-    String get_as_text() const override
-    {
-        return "EASTL::FUNC CALLABLE";
-    }
-
-    CompareEqualFunc get_compare_equal_func() const override
-    {
-        return +[](const CallableCustom *a, const CallableCustom *b)-> bool { return a == b; };
-    }
-
-    CompareLessFunc get_compare_less_func() const override
-    {
-        return +[](const CallableCustom *a, const CallableCustom *b)-> bool { return a < b; };
-    }
-
-    ObjectID get_object() const override
-    {
-        return m_holder;
-    }
-
-    void call(const Variant **p_arguments, int p_argcount,
-              Variant &r_return_value,
-              Callable::CallError &r_call_error) const override
-    {
-        assert(p_argcount==0);
-        r_call_error = {};
-        if (!m_func)
-        {
-            r_call_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
-        }
-        else
-            m_func();
-    }
-};
 
 MessageQueue *MessageQueue::get_singleton() {
 
@@ -105,7 +53,7 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
 
     _THREAD_SAFE_METHOD_
 
-    int room_needed = sizeof(Message) + sizeof(eastl::function<void()>);
+    int room_needed = sizeof(Message);
 
     if ((buffer_end + room_needed) >= buffer_size) {
         String type;
@@ -117,13 +65,11 @@ Error MessageQueue::push_call(ObjectID p_id, eastl::function<void()> p_method) {
     }
 
     Message *msg = memnew_placement(&buffer[buffer_end], Message);
-    msg->args = -1;
-    msg->callable = Callable(memnew_args(CustomFuncCallable,p_id,p_method));
+    msg->args = 0;
+    msg->callable = Callable(memnew_args(FunctorCallable,p_id,p_method));
     msg->type = TYPE_CALL;
 
     buffer_end += sizeof(Message);
-    new(&buffer[buffer_end]) eastl::function<void()>(eastl::move(p_method));
-    buffer_end += sizeof(eastl::function<void()>);
     return OK;
 }
 Error MessageQueue::push_call(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {

@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "version_control_editor_plugin.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"

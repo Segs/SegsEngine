@@ -2025,8 +2025,8 @@ void TextEdit::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible()) {
-                call_deferred("_update_scrollbars");
-                call_deferred("_update_wrap_at");
+                call_deferred([this]() {_update_scrollbars();});
+                call_deferred([this]() {_update_wrap_at();});
             }
         } break;
         case NOTIFICATION_THEME_CHANGED: {

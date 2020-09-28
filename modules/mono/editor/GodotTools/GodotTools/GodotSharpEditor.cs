@@ -30,8 +30,8 @@ namespace GodotTools
         private AcceptDialog aboutDialog;
         private CheckBox aboutDialogCheckBox;
 
-        private ToolButton bottomPanelBtn;
-        private ToolButton toolBarButton;
+        private Button bottomPanelBtn;
+        private Button toolBarBuildButton;
 
         public GodotIdeManager GodotIdeManager { get; private set; }
 
@@ -128,7 +128,7 @@ namespace GodotTools
         {
             menuPopup.RemoveItem(menuPopup.GetItemIndex((int)MenuOptions.CreateSln));
             bottomPanelBtn.Show();
-            toolBarButton.Show();
+            toolBarBuildButton.Show();
         }
 
         private void _ShowAboutDialog()
@@ -138,16 +138,9 @@ namespace GodotTools
             aboutDialog.PopupCenteredMinsize();
         }
 
-        private void _ToggleAboutDialogOnStart(bool enabled)
+        private void _MenuOptionPressed(int id)
         {
-            bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
-            if (showOnStart != enabled)
-                editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
-        }
-
-        private void _MenuOptionPressed(MenuOptions id)
-        {
-            switch (id)
+            switch ((MenuOptions)id)
             {
                 case MenuOptions.CreateSln:
                     CreateProjectSolution();
@@ -171,34 +164,6 @@ namespace GodotTools
             Instance.BottomPanel.BuildProjectPressed();
         }
 
-        private void _FileSystemDockFileMoved(string file, string newFile)
-        {
-            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension)
-            {
-                ProjectUtils.RenameItemInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                    ProjectSettings.GlobalizePath(file), ProjectSettings.GlobalizePath(newFile));
-            }
-        }
-
-        private void _FileSystemDockFileRemoved(string file)
-        {
-            if (Path.GetExtension(file) == Internal.CSharpLanguageExtension)
-                ProjectUtils.RemoveItemFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                    ProjectSettings.GlobalizePath(file));
-        }
-
-        private void _FileSystemDockFolderMoved(string oldFolder, string newFolder)
-        {
-            ProjectUtils.RenameItemsToNewFolderInProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                ProjectSettings.GlobalizePath(oldFolder), ProjectSettings.GlobalizePath(newFolder));
-        }
-
-        private void _FileSystemDockFolderRemoved(string oldFolder)
-        {
-            ProjectUtils.RemoveItemsInFolderFromProjectChecked(GodotSharpDirs.ProjectCsProjPath, "Compile",
-                ProjectSettings.GlobalizePath(oldFolder));
-        }
-
         public override void _Notification(int what)
         {
             base._Notification(what);
@@ -213,13 +178,6 @@ namespace GodotTools
                     // Once shown a first time, it can be seen again via the Mono menu - it doesn't have to be exclusive from that time on.
                     aboutDialog.PopupMode.Exclusive = false;
                 }
-
-                var fileSystemDock = GetEditorInterface().GetFileSystemDock();
-
-                fileSystemDock.Connect("files_moved", this, nameof(_FileSystemDockFileMoved));
-                fileSystemDock.Connect("file_removed", this, nameof(_FileSystemDockFileRemoved));
-                fileSystemDock.Connect("folder_moved", this, nameof(_FileSystemDockFolderMoved));
-                fileSystemDock.Connect("folder_removed", this, nameof(_FileSystemDockFolderRemoved));
             }
         }
 
@@ -490,6 +448,8 @@ namespace GodotTools
                 var aboutLabel = new Label();
                 aboutHBox.AddChild(aboutLabel);
 
+                aboutLabel.Rect.MinSize = new Vector2(600, 150) * EditorScale;
+                aboutLabel.SizeFlags.Vertical = (int) Control.SizeFlagsEnum.ExpandFill;
                 aboutLabel.Autowrap = true;
                 aboutLabel.Text = "C# support in Godot Engine is in late alpha stage and, while already usable, " +
                                   "it is not meant for use in production.\n\n" +
@@ -499,25 +459,28 @@ namespace GodotTools
                                   "If you experience issues with this Mono build, please report them on Godot's issue tracker with details about your system, MSBuild version, IDE, etc.:\n\n" +
                                   "        https://github.com/godotengine/godot/issues\n\n" +
                                   "Your critical feedback at this stage will play a great role in shaping the C# support in future releases, so thank you!";
-                aboutLabel.SizeFlags.Vertical = (int) Control.SizeFlagsEnum.ExpandFill;
-                aboutLabel.Rect.MinSize = new Vector2(600, 150) * EditorScale;
 
                 EditorDef("mono/editor/show_info_on_start", true);
 
                 // CheckBox in main container
                 aboutDialogCheckBox = new CheckBox {Text = "Show this warning when starting the editor"};
-                aboutDialogCheckBox.Connect("toggled", this, nameof(_ToggleAboutDialogOnStart));
+                aboutDialogCheckBox.Toggled += enabled =>
+                {
+                    bool showOnStart = (bool)editorSettings.GetSetting("mono/editor/show_info_on_start");
+                    if (showOnStart != enabled)
+                        editorSettings.SetSetting("mono/editor/show_info_on_start", enabled);
+                };
                 aboutVBox.AddChild(aboutDialogCheckBox);
             }
 
-            toolBarButton = new ToolButton
+            toolBarBuildButton = new Button
             {
                 Text = "Build",
                 Hint = { Tooltip = "Build solution" },
                 Focus = { Mode = Control.FocusMode.None }
             };
-            toolBarButton.Connect("pressed", this, nameof(_BuildSolutionPressed));
-            AddControlToContainer(CustomControlContainer.Toolbar, toolBarButton);
+            toolBarBuildButton.PressedSignal += _BuildSolutionPressed;
+            AddControlToContainer(CustomControlContainer.Toolbar, toolBarBuildButton);
             if (File.Exists(GodotSharpDirs.ProjectSlnPath) && File.Exists(GodotSharpDirs.ProjectCsProjPath))
             {
                 ApplyNecessaryChangesToSolution();
@@ -525,11 +488,11 @@ namespace GodotTools
             else
             {
                 bottomPanelBtn.Hide();
-                toolBarButton.Hide();
+                toolBarBuildButton.Hide();
                 menuPopup.AddItem("Create C# solution".TTR(), (int)MenuOptions.CreateSln);
             }
 
-            menuPopup.Connect("id_pressed", this, nameof(_MenuOptionPressed));
+            menuPopup.IdPressed += _MenuOptionPressed;
 
             // External editor settings
             EditorDef("mono/editor/external_editor", ExternalEditorId.None);

@@ -260,7 +260,10 @@ void GraphEdit::add_child_notify(Node *p_child) {
 
     Control::add_child_notify(p_child);
 
-    top_layer->call_deferred("raise"); //top layer always on top!
+    //top layer always on top!
+    GraphEditFilter *top_layer_copy=top_layer;
+    top_layer->call_deferred([top_layer_copy](){ top_layer_copy->raise();});
+
     GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {
         gn->set_scale(Vector2(zoom, zoom));

@@ -138,7 +138,7 @@ bool FileSystemDock::_create_tree(TreeItem *p_parent, EditorFileSystemDirectory 
             Array udata;
             udata.push_back(tree_update_id);
             udata.push_back(Variant(file_item));
-            EditorResourcePreview::get_singleton()->queue_resource_preview(file_metadata, this, "_tree_thumbnail_done", udata);
+            EditorResourcePreview::get_singleton()->queue_resource_preview(file_metadata, callable_mp(this, &FileSystemDock::_tree_thumbnail_done), udata);
         }
     } else if (display_mode == DISPLAY_MODE_SPLIT) {
         if (PathUtils::get_base_dir(lpath) == PathUtils::get_base_dir(path)) {
@@ -255,7 +255,7 @@ void FileSystemDock::_update_tree(const Vector<String> &p_uncollapsed_paths, boo
                 Array udata;
                 udata.push_back(tree_update_id);
                 udata.push_back(Variant(ti));
-                EditorResourcePreview::get_singleton()->queue_resource_preview(fave, this, "_tree_thumbnail_done", udata);
+                EditorResourcePreview::get_singleton()->queue_resource_preview(fave, callable_mp(this, &FileSystemDock::_tree_thumbnail_done), udata);
             }
         }
     }
@@ -829,7 +829,7 @@ void FileSystemDock::_update_file_list(bool p_keep_selection) {
             udata.resize(2);
             udata[0] = item_index;
             udata[1] = fname;
-            EditorResourcePreview::get_singleton()->queue_resource_preview(fpath, this, "_file_list_thumbnail_done", udata);
+            EditorResourcePreview::get_singleton()->queue_resource_preview(fpath, callable_mp(this, &FileSystemDock::_file_list_thumbnail_done), udata);
         }
 
         // Select the items.
@@ -899,7 +899,7 @@ void FileSystemDock::_preview_invalidated(StringView p_path) {
                 udata.resize(2);
                 udata[0] = i;
                 udata[1] = files->get_item_text(i);
-                EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, this, "_file_list_thumbnail_done", udata);
+                EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, callable_mp(this, &FileSystemDock::_file_list_thumbnail_done), udata);
                 break;
             }
         }

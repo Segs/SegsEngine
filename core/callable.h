@@ -48,7 +48,7 @@ enum class VariantType : int8_t;
 // is required. It is designed for the standard case (object and method)
 // but can be optimized or customized.
 
-class Callable {
+class GODOT_EXPORT Callable {
     //needs to be max 16 bytes in 64 bits
     StringName method;
     union {
@@ -111,14 +111,14 @@ public:
     ~Callable();
 };
 
-class CallableCustom {
+class GODOT_EXPORT CallableCustom {
     friend class Callable;
     SafeRefCount ref_count;
     bool referenced = false;
 
 public:
-    typedef bool (*CompareEqualFunc)(const CallableCustom *p_a, const CallableCustom *p_b);
-    typedef bool (*CompareLessFunc)(const CallableCustom *p_a, const CallableCustom *p_b);
+    using CompareEqualFunc = bool (*)(const CallableCustom *p_a, const CallableCustom *p_b);
+    using CompareLessFunc = bool (*)(const CallableCustom *p_a, const CallableCustom *p_b);
 
     //for every type that inherits, these must always be the same for this type
     virtual uint32_t hash() const = 0;
@@ -135,7 +135,7 @@ public:
 // allocated on demand by/for scripting languages so it can
 // be put inside a Variant, but it is not
 // used by the engine itself.
-class Signal {
+class GODOT_EXPORT Signal {
     StringName name;
     ObjectID object;
 

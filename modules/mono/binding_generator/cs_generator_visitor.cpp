@@ -443,13 +443,13 @@ void CsGeneratorVisitor::generateSpecialFunctions(TS_TypeLike *itype, GeneratorC
 
     const TS_Type *classtype((const TS_Type *)itype);
 
-    // TODO: nativeName should be StringName, once we support it in C#
+
     if (classtype->source_type->is_singleton) {
         // Add the type name and the singleton pointer as static fields
 
         ctx.append_multiline(String().sprintf(singleton_accessor, classtype->cs_name().c_str()));
 
-        ctx.append_line(String().sprintf("private const string nativeName = \"%s\";\n", classtype->source_type->name.c_str()));
+        ctx.append_line(String().sprintf("private readonly static StringName nativeName = \"%s\";\n", classtype->source_type->name.c_str()));
         ctx.append_line(String().sprintf("internal static IntPtr ptr = %s.%s();\n",
                                          nativecalls_ns.c_str(),c_special_func_name_to_icall(classtype,SpecialFuncType::Singleton).c_str()));
     }
@@ -457,7 +457,7 @@ void CsGeneratorVisitor::generateSpecialFunctions(TS_TypeLike *itype, GeneratorC
         String ctor_method("icall_");
         ctor_method += String(itype->c_name()) + "_Ctor"; // Used only for derived types
         // Add member fields
-        ctx.out.append_indented(String().sprintf("private const string nativeName = \"%s\";\n\n", classtype->source_type->name.c_str()));
+        ctx.out.append_indented(String().sprintf("private readonly static StringName nativeName = \"%s\";\n\n", classtype->source_type->name.c_str()));
         // Add default constructor
         if (classtype->source_type->is_instantiable) {
             ctx.out.append_indented(String().sprintf("public %s() : this(%s)\n",itype->cs_name().c_str(), classtype->source_type->memory_own ? "true" : "false"));

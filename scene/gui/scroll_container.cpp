@@ -271,8 +271,7 @@ void ScrollContainer::_ensure_focused_visible(Control *p_control) {
 void ScrollContainer::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-
-        call_deferred("_update_scrollbar_position");
+        call_deferred([this]() { _update_scrollbar_position(); });
     }
 
     if (p_what == NOTIFICATION_READY) {

@@ -1077,7 +1077,7 @@ void SpatialEditorViewport::_list_select(Ref<InputEventMouseButton> b) {
 
         if (clicked.is_valid()) {
             _select_clicked(clicked_wants_append, true);
-            clicked = {0ULL};
+            clicked = ObjectID(0ULL);
         }
 
     } else if (!selection_results.empty()) {

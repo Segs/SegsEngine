@@ -662,7 +662,7 @@ void CanvasItem::update() {
 
     pending_update = true;
 
-    MessageQueue::get_singleton()->push_call(this, "_update_callback");
+    MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() {this->_update_callback();});
 }
 
 void CanvasItem::set_modulate(const Color &p_modulate) {

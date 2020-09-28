@@ -20,8 +20,8 @@ namespace GodotTools
         private ItemList buildTabsList;
         private TabContainer buildTabs;
 
-        private ToolButton warningsBtn;
-        private ToolButton errorsBtn;
+        private Button warningsBtn;
+        private Button errorsBtn;
         private Button viewLogBtn;
 
         private void _UpdateBuildTab(int index, int? currentTab)
@@ -299,7 +299,7 @@ namespace GodotTools
                     Visibility = { Visible = false },
                     Focus= {Mode = FocusMode.None},
                 };
-                errorsBtn.Connect("toggled", this, nameof(_ErrorsToggled));
+                errorsBtn.Toggled += _ErrorsToggled;
                 toolBarHBox.AddChild(errorsBtn);
 
                 toolBarHBox.AddSpacer(begin: false);
@@ -310,7 +310,7 @@ namespace GodotTools
                     Focus= {Mode = FocusMode.None},
                     Visibility = { Visible = false }
                 };
-                viewLogBtn.Connect("pressed", this, nameof(_ViewLogPressed));
+                viewLogBtn.PressedSignal += _ViewLogPressed;
                 toolBarHBox.AddChild(viewLogBtn);
 
                 var hsc = new HSplitContainer
@@ -324,8 +324,8 @@ namespace GodotTools
                 panelBuildsTab.AddChild(hsc);
 
                 buildTabsList = new ItemList { SizeFlags = {Horizontal = (int)SizeFlagsEnum.ExpandFill} };
-                buildTabsList.Connect("item_selected", this, nameof(_BuildTabsItemSelected));
-                buildTabsList.Connect("nothing_selected", this, nameof(_BuildTabsNothingSelected));
+                buildTabsList.ItemSelected += _BuildTabsItemSelected;
+                buildTabsList.NothingSelected += _BuildTabsNothingSelected;
                 hsc.AddChild(buildTabsList);
 
                 buildTabs = new TabContainer

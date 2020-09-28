@@ -1814,7 +1814,7 @@ void GradientTexture::_queue_update() {
         return;
 
     update_pending = true;
-    call_deferred("_update");
+    call_deferred([this](){ this->_update();});
 }
 
 void GradientTexture::_update() {

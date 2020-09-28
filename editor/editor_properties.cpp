@@ -2754,7 +2754,8 @@ void EditorPropertyResource::update_property() {
         }
 
         //preview will override the above, so called at the end
-        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_resource_preview", Variant::from(res->get_instance_id()));
+        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(
+                res, callable_mp(this, &EditorPropertyResource::_resource_preview), Variant::from(res->get_instance_id()));
     }
 }
 
