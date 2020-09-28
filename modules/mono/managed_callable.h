@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  gd_mono_property.h                                                   */
+/*  managed_callable.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,53 +28,47 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GD_MONO_PROPERTY_H
-#define GD_MONO_PROPERTY_H
+#pragma once
 
-#include "gd_mono.h"
-#include "gd_mono_header.h"
-#include "i_mono_class_member.h"
+#include "core/callable.h"
+#include "core/os/mutex.h"
+#include "core/self_list.h"
 
-class GDMonoProperty : public IMonoClassMember {
+#include "mono_gc_handle.h"
+#include "mono_gd/gd_mono_method.h"
 
-	GDMonoClass *owner;
-	MonoProperty *mono_property;
+#include <mono/metadata/object.h>
 
-	StringName name;
-	ManagedType type;
+class ManagedCallable : public CallableCustom {
+    friend class CSharpLanguage;
+    MonoGCHandleData delegate_handle;
+    GDMonoMethod *delegate_invoke;
 
-	bool attrs_fetched;
-	MonoCustomAttrInfo *attributes;
+#ifdef GD_MONO_HOT_RELOAD
+    IntrusiveListNode<ManagedCallable> self_instance {this};
+    static IntrusiveList<ManagedCallable> instances;
+    static Map<ManagedCallable *, Array> instances_pending_reload;
+    static Mutex instances_mutex;
+#endif
 
 public:
-	virtual GDMonoClass *get_enclosing_class() const final { return owner; }
+    uint32_t hash() const override;
+    String get_as_text() const override;
+    CompareEqualFunc get_compare_equal_func() const override;
+    CompareLessFunc get_compare_less_func() const override;
+    ObjectID get_object() const override;
+    void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const override;
 
-	virtual MemberType get_member_type() const final { return MEMBER_TYPE_PROPERTY; }
+    _FORCE_INLINE_ MonoDelegate *get_delegate() { return (MonoDelegate *)delegate_handle.get_target(); }
 
-	virtual StringName get_name() const final { return name; }
+    void set_delegate(MonoDelegate *p_delegate);
 
-	virtual bool is_static() final;
-	virtual Visibility get_visibility() final;
+    static bool compare_equal(const CallableCustom *p_a, const CallableCustom *p_b);
+    static bool compare_less(const CallableCustom *p_a, const CallableCustom *p_b);
 
-	virtual bool has_attribute(GDMonoClass *p_attr_class) final;
-	virtual MonoObject *get_attribute(GDMonoClass *p_attr_class) final;
-	void fetch_attributes();
+    static constexpr CompareEqualFunc compare_equal_func_ptr = &ManagedCallable::compare_equal;
+    static constexpr CompareEqualFunc compare_less_func_ptr = &ManagedCallable::compare_less;
 
-	bool has_getter();
-	bool has_setter();
-
-	_FORCE_INLINE_ ManagedType get_type() const { return type; }
-
-	void set_value(MonoObject *p_object, MonoObject *p_value, MonoException **r_exc = NULL);
-	void set_value(MonoObject *p_object, void **p_params, MonoException **r_exc = NULL);
-	MonoObject *get_value(MonoObject *p_object, MonoException **r_exc = NULL);
-
-	bool get_bool_value(MonoObject *p_object);
-	int get_int_value(MonoObject *p_object);
-    String get_string_value(MonoObject *p_object);
-
-	GDMonoProperty(MonoProperty *p_mono_property, GDMonoClass *p_owner);
-	~GDMonoProperty();
+    ManagedCallable(MonoDelegate *p_delegate);
+    ~ManagedCallable();
 };
-
-#endif // GD_MONO_PROPERTY_H

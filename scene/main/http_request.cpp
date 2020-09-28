@@ -648,7 +648,7 @@ HTTPRequest::HTTPRequest() {
 
     timer = memnew(Timer);
     timer->set_one_shot(true);
-    timer->connect("timeout", this, "_timeout");
+    timer->connect("timeout",callable_mp(this, &ClassName::_timeout));
     add_child(timer);
 }
 

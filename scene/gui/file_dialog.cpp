@@ -910,7 +910,7 @@ FileDialog::FileDialog() {
     dir_up = memnew(ToolButton);
     dir_up->set_tooltip(RTR("Go to parent folder."));
     hbc->add_child(dir_up);
-    dir_up->connect("pressed", this, "_go_up");
+    dir_up->connect("pressed",callable_mp(this, &ClassName::_go_up));
 
     hbc->add_child(memnew(Label(RTR("Path:"))));
 
@@ -918,7 +918,7 @@ FileDialog::FileDialog() {
     hbc->add_child(drives_container);
 
     drives = memnew(OptionButton);
-    drives->connect("item_selected", this, "_select_drive");
+    drives->connect("item_selected",callable_mp(this, &ClassName::_select_drive));
     hbc->add_child(drives);
 
     dir = memnew(LineEdit);
@@ -927,14 +927,14 @@ FileDialog::FileDialog() {
 
     refresh = memnew(ToolButton);
     refresh->set_tooltip(RTR("Refresh files."));
-    refresh->connect("pressed", this, "_update_file_list");
+    refresh->connect("pressed",callable_mp(this, &ClassName::_update_file_list));
     hbc->add_child(refresh);
 
     show_hidden = memnew(ToolButton);
     show_hidden->set_toggle_mode(true);
     show_hidden->set_pressed(is_showing_hidden_files());
     show_hidden->set_tooltip(RTR("Toggle the visibility of hidden files."));
-    show_hidden->connect("toggled", this, "set_show_hidden_files");
+    show_hidden->connect("toggled",callable_mp(this, &ClassName::set_show_hidden_files));
     hbc->add_child(show_hidden);
 
     shortcuts_container = memnew(HBoxContainer);
@@ -942,7 +942,7 @@ FileDialog::FileDialog() {
 
     makedir = memnew(Button);
     makedir->set_text(RTR("Create Folder"));
-    makedir->connect("pressed", this, "_make_dir");
+    makedir->connect("pressed",callable_mp(this, &ClassName::_make_dir));
     hbc->add_child(makedir);
     vbc->add_child(hbc);
 
@@ -967,20 +967,20 @@ FileDialog::FileDialog() {
     access = ACCESS_RESOURCES;
     _update_drives();
 
-    connect("confirmed", this, "_action_pressed");
-    tree->connect("multi_selected", this, "_tree_multi_selected", varray(), ObjectNS::CONNECT_QUEUED);
-    tree->connect("cell_selected", this, "_tree_selected", varray(), ObjectNS::CONNECT_QUEUED);
-    tree->connect("item_activated", this, "_tree_item_activated", varray());
-    tree->connect("nothing_selected", this, "deselect_items");
-    dir->connect("text_entered", this, "_dir_entered");
-    file->connect("text_entered", this, "_file_entered");
-    filter->connect("item_selected", this, "_filter_selected");
+    connect("confirmed",callable_mp(this, &ClassName::_action_pressed));
+    tree->connect("multi_selected",callable_mp(this, &ClassName::_tree_multi_selected), varray(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("cell_selected",callable_mp(this, &ClassName::_tree_selected), varray(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("item_activated",callable_mp(this, &ClassName::_tree_item_activated), varray());
+    tree->connect("nothing_selected",callable_mp(this, &ClassName::deselect_items));
+    dir->connect("text_entered",callable_mp(this, &ClassName::_dir_entered));
+    file->connect("text_entered",callable_mp(this, &ClassName::_file_entered));
+    filter->connect("item_selected",callable_mp(this, &ClassName::_filter_selected));
 
     confirm_save = memnew(ConfirmationDialog);
     confirm_save->set_as_toplevel(true);
     add_child(confirm_save);
 
-    confirm_save->connect("confirmed", this, "_save_confirm_pressed");
+    confirm_save->connect("confirmed",callable_mp(this, &ClassName::_save_confirm_pressed));
 
     makedialog = memnew(ConfirmationDialog);
     makedialog->set_title(RTR("Create Folder"));
@@ -991,7 +991,7 @@ FileDialog::FileDialog() {
     makevb->add_margin_child(RTR("Name:"), makedirname);
     add_child(makedialog);
     makedialog->register_text_enter(makedirname);
-    makedialog->connect("confirmed", this, "_make_dir_confirm");
+    makedialog->connect("confirmed",callable_mp(this, &ClassName::_make_dir_confirm));
     mkdirerr = memnew(AcceptDialog);
     mkdirerr->set_text(RTR("Could not create folder."));
     add_child(mkdirerr);
@@ -1046,10 +1046,10 @@ LineEditFileChooser::LineEditFileChooser() {
     button = memnew(Button);
     button->set_text(" .. ");
     add_child(button);
-    button->connect("pressed", this, "_browse");
+    button->connect("pressed",callable_mp(this, &ClassName::_browse));
     dialog = memnew(FileDialog);
     add_child(dialog);
-    dialog->connect("file_selected", this, "_chosen");
-    dialog->connect("dir_selected", this, "_chosen");
-    dialog->connect("files_selected", this, "_chosen");
+    dialog->connect("file_selected",callable_mp(this, &ClassName::_chosen));
+    dialog->connect("dir_selected",callable_mp(this, &ClassName::_chosen));
+    dialog->connect("files_selected",callable_mp(this, &ClassName::_chosen));
 }

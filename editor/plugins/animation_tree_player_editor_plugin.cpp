@@ -1304,22 +1304,22 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     p->add_separator();
     p->add_item(TTR("Clear"), MENU_GRAPH_CLEAR);
 
-    p->connect("id_pressed", this, "_add_menu_item");
+    p->connect("id_pressed",callable_mp(this, &ClassName::_add_menu_item));
 
     play_button = memnew(Button);
     play_button->set_position(Point2(25, 0) * EDSCALE);
     play_button->set_size(Point2(25, 15));
     add_child(play_button);
     play_button->set_toggle_mode(true);
-    play_button->connect("pressed", this, "_play_toggled");
+    play_button->connect("pressed",callable_mp(this, &ClassName::_play_toggled));
 
     last_x = 50;
     last_y = 50;
 
     property_editor = memnew(CustomPropertyEditor);
     add_child(property_editor);
-    property_editor->connect("variant_changed", this, "_edit_dialog_animation_changed");
-    property_editor->connect("resource_edit_request", this, "_edit_dialog_edit_animation");
+    property_editor->connect("variant_changed",callable_mp(this, &ClassName::_edit_dialog_animation_changed));
+    property_editor->connect("resource_edit_request",callable_mp(this, &ClassName::_edit_dialog_edit_animation));
 
     h_scroll = memnew(HScrollBar);
     v_scroll = memnew(VScrollBar);
@@ -1327,8 +1327,8 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     add_child(h_scroll);
     add_child(v_scroll);
 
-    h_scroll->connect("value_changed", this, "_scroll_moved");
-    v_scroll->connect("value_changed", this, "_scroll_moved");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
 
     node_popup = memnew(PopupMenu);
     add_child(node_popup);
@@ -1336,9 +1336,9 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
 
     master_anim_popup = memnew(PopupMenu);
     add_child(master_anim_popup);
-    master_anim_popup->connect("id_pressed", this, "_master_anim_menu_item");
+    master_anim_popup->connect("id_pressed",callable_mp(this, &ClassName::_master_anim_menu_item));
 
-    node_popup->connect("id_pressed", this, "_node_menu_item");
+    node_popup->connect("id_pressed",callable_mp(this, &ClassName::_node_menu_item));
 
     updating_edit = false;
 
@@ -1351,7 +1351,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     edit_option->set_anchor(Margin::Right, ANCHOR_END);
     edit_option->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_option);
-    edit_option->connect("item_selected", this, "_edit_dialog_changedf");
+    edit_option->connect("item_selected",callable_mp(this, &ClassName::_edit_dialog_changedf));
     edit_option->hide();
 
     for (int i = 0; i < 2; i++) {
@@ -1360,7 +1360,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
         edit_scroll[i]->set_margin(Margin::Right, -10);
         edit_dialog->add_child(edit_scroll[i]);
         edit_scroll[i]->hide();
-        edit_scroll[i]->connect("value_changed", this, "_edit_dialog_changedf");
+        edit_scroll[i]->connect("value_changed",callable_mp(this, &ClassName::_edit_dialog_changedf));
     }
     for (int i = 0; i < 4; i++) {
         edit_line[i] = memnew(LineEdit);
@@ -1368,8 +1368,8 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
         edit_line[i]->set_margin(Margin::Right, -10);
         edit_dialog->add_child(edit_line[i]);
         edit_line[i]->hide();
-        edit_line[i]->connect("text_changed", this, "_edit_dialog_changeds");
-        edit_line[i]->connect("text_entered", this, "_edit_dialog_changede");
+        edit_line[i]->connect("text_changed",callable_mp(this, &ClassName::_edit_dialog_changeds));
+        edit_line[i]->connect("text_entered",callable_mp(this, &ClassName::_edit_dialog_changede));
         edit_label[i] = memnew(Label);
         edit_dialog->add_child(edit_label[i]);
         edit_label[i]->hide();
@@ -1380,20 +1380,20 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     edit_button->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_button);
     edit_button->hide();
-    edit_button->connect("pressed", this, "_edit_oneshot_start");
+    edit_button->connect("pressed",callable_mp(this, &ClassName::_edit_oneshot_start));
 
     edit_check = memnew(CheckButton);
     edit_check->set_anchor(Margin::Right, ANCHOR_END);
     edit_check->set_margin(Margin::Right, -10);
     edit_dialog->add_child(edit_check);
     edit_check->hide();
-    edit_check->connect("pressed", this, "_edit_dialog_changed");
+    edit_check->connect("pressed",callable_mp(this, &ClassName::_edit_dialog_changed));
 
     file_dialog = memnew(EditorFileDialog);
     file_dialog->set_enable_multiple_selection(true);
     file_dialog->set_current_dir(ProjectSettings::get_singleton()->get_resource_path());
     add_child(file_dialog);
-    file_dialog->connect("file_selected", this, "_file_dialog_selected");
+    file_dialog->connect("file_selected",callable_mp(this, &ClassName::_file_dialog_selected));
 
     filter_dialog = memnew(AcceptDialog);
     filter_dialog->set_title(TTR("Edit Node Filters"));
@@ -1402,7 +1402,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     filter = memnew(Tree);
     filter_dialog->add_child(filter);
     //filter_dialog->set_child_rect(filter);
-    filter->connect("item_edited", this, "_filter_edited");
+    filter->connect("item_edited",callable_mp(this, &ClassName::_filter_edited));
 
     filter_button = memnew(Button);
     filter_button->set_anchor(Margin::Right, ANCHOR_END);
@@ -1410,7 +1410,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
     edit_dialog->add_child(filter_button);
     filter_button->hide();
     filter_button->set_text(TTR("Filters..."));
-    filter_button->connect("pressed", this, "_edit_filters");
+    filter_button->connect("pressed",callable_mp(this, &ClassName::_edit_filters));
 
     set_clip_contents(true);
 }

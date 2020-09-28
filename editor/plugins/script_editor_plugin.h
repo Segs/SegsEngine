@@ -161,6 +161,7 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
         DEBUG_SHOW_KEEP_OPEN,
         DEBUG_WITH_EXTERNAL_EDITOR,
         SEARCH_IN_FILES,
+		REPLACE_IN_FILES,
         SEARCH_HELP,
         SEARCH_WEBSITE,
         HELP_SEARCH_FIND,
@@ -336,6 +337,8 @@ class GODOT_EXPORT ScriptEditor : public PanelContainer {
 
     void _save_layout();
     void _editor_settings_changed();
+	void _filesystem_changed();
+	void _file_removed(StringView p_file);
     void _autosave_scripts();
     void _update_autosave_timer();
 

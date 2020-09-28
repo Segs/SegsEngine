@@ -30,6 +30,7 @@
 
 #include "csg_shape.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -893,12 +894,12 @@ void CSGMesh::set_mesh(const Ref<Mesh> &p_mesh) {
     if (mesh == p_mesh)
         return;
     if (mesh) {
-        mesh->disconnect("changed", this, "_mesh_changed");
+        mesh->disconnect("changed",callable_mp(this, &ClassName::_mesh_changed));
     }
     mesh = p_mesh;
 
     if (mesh) {
-        mesh->connect("changed", this, "_mesh_changed");
+        mesh->connect("changed",callable_mp(this, &ClassName::_mesh_changed));
     }
 
     _make_dirty();
@@ -1807,15 +1808,15 @@ CSGBrush *CSGPolygon::_build_brush() {
 
         if (path != path_cache) {
             if (path_cache) {
-                path_cache->disconnect("tree_exited", this, "_path_exited");
-                path_cache->disconnect("curve_changed", this, "_path_changed");
+                path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+                path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
                 path_cache = nullptr;
             }
 
             path_cache = path;
 
-            path_cache->connect("tree_exited", this, "_path_exited");
-            path_cache->connect("curve_changed", this, "_path_changed");
+            path_cache->connect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+            path_cache->connect("curve_changed",callable_mp(this, &ClassName::_path_changed));
             path_cache = nullptr;
         }
         curve = path->get_curve();
@@ -2231,8 +2232,8 @@ CSGBrush *CSGPolygon::_build_brush() {
 void CSGPolygon::_notification(int p_what) {
     if (p_what == NOTIFICATION_EXIT_TREE) {
         if (path_cache) {
-            path_cache->disconnect("tree_exited", this, "_path_exited");
-            path_cache->disconnect("curve_changed", this, "_path_changed");
+            path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+            path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
             path_cache = nullptr;
         }
     }

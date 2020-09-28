@@ -1441,7 +1441,7 @@ EditorExport::EditorExport() {
     add_child(save_timer);
     save_timer->set_wait_time(0.8f);
     save_timer->set_one_shot(true);
-    save_timer->connect("timeout", this, "_save");
+    save_timer->connect("timeout",callable_mp(this, &ClassName::_save));
     block_save = false;
 
     _export_presets_updated = "export_presets_updated";

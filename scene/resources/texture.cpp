@@ -2193,7 +2193,7 @@ AnimatedTexture::AnimatedTexture() {
     current_frame = 0;
     pause = false;
     oneshot = false;
-    RenderingServer::get_singleton()->connect("frame_pre_draw", this, "_update_proxy");
+    RenderingServer::get_singleton()->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_proxy));
 
     rw_lock = RWLock::create();
 

@@ -1106,7 +1106,7 @@ void InputEventAction::_bind_methods() {
 
     //	MethodBinder::bind_method(D_METHOD("is_action", {"name"}), &InputEventAction::is_action);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "action"), "set_action", "get_action");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "action"), "set_action", "get_action");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "pressed"), "set_pressed", "is_pressed");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "strength", PropertyHint::Range, "0,1,0.01"), "set_strength", "get_strength");
 }

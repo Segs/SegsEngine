@@ -33,15 +33,11 @@
 #include "core/os/os.h"
 
 void CommandQueueMT::lock() {
-
-    if (mutex)
-        mutex->lock();
+    mutex.lock();
 }
 
 void CommandQueueMT::unlock() {
-
-    if (mutex)
-        mutex->unlock();
+    mutex.unlock();
 }
 
 void CommandQueueMT::wait_for_flush() {
@@ -103,31 +99,14 @@ tryagain:
 
 CommandQueueMT::CommandQueueMT(bool p_sync) {
 
-    read_ptr = 0;
-    write_ptr = 0;
-    dealloc_ptr = 0;
-    mutex = memnew(Mutex);
-    command_mem = (uint8_t *)memalloc(COMMAND_MEM_SIZE);
-
-    for (SyncSemaphore & sync_sem : sync_sems) {
-
-        sync_sem.sem = memnew(Semaphore);
-        sync_sem.in_use = false;
-    }
     if (p_sync)
         sync = memnew(Semaphore);
-    else
-        sync = nullptr;
 }
 
 CommandQueueMT::~CommandQueueMT() {
 
     if (sync)
         memdelete(sync);
-    memdelete(mutex);
-    for (auto & sync_sem : sync_sems) {
 
-        memdelete(sync_sem.sem);
-    }
     memfree(command_mem);
 }

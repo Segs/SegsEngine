@@ -52,8 +52,7 @@ void register_mono_types() {
 
     ClassDB::register_class<CSharpScript>();
     ClassDB::register_class<_GodotSharp>();
-    MonoGCHandle::initialize_class();
-    SignalAwaiterHandle::initialize_class();
+    MonoGCHandleRef::initialize_class();
 
     _godotsharp = memnew(_GodotSharp);
     Engine::get_singleton()->add_singleton(Engine::Singleton("GodotSharp", _GodotSharp::get_singleton()));
@@ -67,15 +66,14 @@ void register_mono_types() {
 
     resource_saver_cs=make_ref_counted<ResourceFormatSaverCSharpScript>();
     gResourceManager().add_resource_format_saver(resource_saver_cs);
-#if 0
-#endif
 }
 
 void unregister_mono_types() {
     ScriptServer::unregister_language(script_language_cs);
 
-    if (script_language_cs)
+    if (script_language_cs) {
         memdelete(script_language_cs);
+    }
 
     gResourceManager().remove_resource_format_loader(resource_loader_cs);
     resource_loader_cs.unref();
@@ -83,6 +81,7 @@ void unregister_mono_types() {
     gResourceManager().remove_resource_format_saver(resource_saver_cs);
     resource_saver_cs.unref();
 
-    if (_godotsharp)
+    if (_godotsharp) {
         memdelete(_godotsharp);
+    }
 }

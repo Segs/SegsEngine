@@ -137,7 +137,7 @@ bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
 void Skin::_get_property_list(Vector<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PropertyHint::Range, "0,16384,1,or_greater"));
     for (int i = 0; i < get_bind_count(); i++) {
-        p_list->emplace_back(VariantType::INT, StringName("bind/" + itos(i) + "/name"));
+        p_list->emplace_back(VariantType::STRING_NAME, StringName("bind/" + itos(i) + "/name"));
         auto bone_flag= !get_bind_name(i).empty() ? PROPERTY_USAGE_NOEDITOR : PROPERTY_USAGE_DEFAULT;
         p_list->emplace_back(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PropertyHint::Range, "0,16384,1,or_greater",bone_flag);
         p_list->emplace_back(VariantType::TRANSFORM, StringName("bind/" + itos(i) + "/pose"));

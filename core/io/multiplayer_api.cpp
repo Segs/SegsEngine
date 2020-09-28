@@ -31,6 +31,7 @@
 #include "multiplayer_api.h"
 
 #include "core/io/marshalls.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "scene/main/node.h"
 #include "core/script_language.h"
@@ -308,22 +309,22 @@ void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_pee
             "Supplied NetworkedMultiplayerPeer must be connecting or connected.");
 
     if (network_peer) {
-        network_peer->disconnect("peer_connected", this, "_add_peer");
-        network_peer->disconnect("peer_disconnected", this, "_del_peer");
-        network_peer->disconnect("connection_succeeded", this, "_connected_to_server");
-        network_peer->disconnect("connection_failed", this, "_connection_failed");
-        network_peer->disconnect("server_disconnected", this, "_server_disconnected");
+        network_peer->disconnect("peer_connected",callable_mp(this, &ClassName::_add_peer));
+        network_peer->disconnect("peer_disconnected",callable_mp(this, &ClassName::_del_peer));
+        network_peer->disconnect("connection_succeeded",callable_mp(this, &ClassName::_connected_to_server));
+        network_peer->disconnect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        network_peer->disconnect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
         clear();
     }
 
     network_peer = p_peer;
 
     if (network_peer) {
-        network_peer->connect("peer_connected", this, "_add_peer");
-        network_peer->connect("peer_disconnected", this, "_del_peer");
-        network_peer->connect("connection_succeeded", this, "_connected_to_server");
-        network_peer->connect("connection_failed", this, "_connection_failed");
-        network_peer->connect("server_disconnected", this, "_server_disconnected");
+        network_peer->connect("peer_connected",callable_mp(this, &ClassName::_add_peer));
+        network_peer->connect("peer_disconnected",callable_mp(this, &ClassName::_del_peer));
+        network_peer->connect("connection_succeeded",callable_mp(this, &ClassName::_connected_to_server));
+        network_peer->connect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        network_peer->connect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
     }
 }
 

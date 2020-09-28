@@ -80,10 +80,10 @@ class GDMonoAssembly {
     MonoAssembly *assembly;
 
 #ifdef GD_MONO_HOT_RELOAD
-    uint64_t modified_time;
+	uint64_t modified_time = 0;
 #endif
 
-    bool gdobject_class_cache_updated;
+    bool gdobject_class_cache_updated = false;
     HashMap<StringName, GDMonoClass *> gdobject_class_cache;
 
     HashMap<ClassKey, GDMonoClass *, ClassKey::Hasher> cached_classes;

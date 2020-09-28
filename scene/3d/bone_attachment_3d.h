@@ -35,25 +35,25 @@
 
 class GODOT_EXPORT BoneAttachment3D : public Node3D {
 
-	GDCLASS(BoneAttachment3D,Node3D)
+    GDCLASS(BoneAttachment3D,Node3D)
 
-	bool bound;
-    String bone_name;
+    bool bound;
+    StringName bone_name;
 
-	void _check_bind();
-	void _check_unbind();
+    void _check_bind();
+    void _check_unbind();
 
 protected:
-	void _validate_property(PropertyInfo &property) const override;
-	void _notification(int p_what);
+    void _validate_property(PropertyInfo &property) const override;
+    void _notification(int p_what);
 
-	static void _bind_methods();
+    static void _bind_methods();
 
 public:
-    void set_bone_name(const String &p_name);
-    const String &get_bone_name() const {
+    void set_bone_name(const StringName &p_name);
+    const StringName &get_bone_name() const {
         return bone_name;
     }
 
-	BoneAttachment3D();
+    BoneAttachment3D();
 };

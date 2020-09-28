@@ -229,21 +229,18 @@ class GODOT_EXPORT Object {
 
     static constexpr TypeInfo typeInfoStatic = TypeInfo( "Object", nullptr);
 public:
-
     struct Connection {
+        ::Signal signal;
+        Callable callable;
 
-        Vector<Variant> binds;
-        StringName signal;
-        StringName method;
-        Object *source = nullptr;
-        Object *target = nullptr;
         uint32_t flags = 0;
-
-        bool operator<(const Connection &p_conn) const noexcept;
+        Vector<Variant> binds;
+        bool operator<(const Connection& p_conn) const noexcept;
 
         operator Variant() const;
+
         Connection() = default;
-        Connection(const Variant &p_variant);
+        Connection(const Variant& p_variant);
     };
 
 private:
@@ -258,7 +255,7 @@ private:
     friend bool GODOT_EXPORT predelete_handler(Object *);
     friend void GODOT_EXPORT postinitialize_handler(Object *);
 
-    struct Signal;
+    struct SignalData;
     struct ObjectPrivate;
     Dictionary metadata;
     ObjectPrivate *private_data;
@@ -349,7 +346,7 @@ public:
     friend class ClassDB;
     virtual void _validate_property(PropertyInfo &property) const;
 
-    void _disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, bool p_force = false);
+    void _disconnect(const StringName& p_signal, const Callable& p_callable, bool p_force = false);
 
 public: //should be protected, but bug in clang++
     static bool initialize_class();
@@ -415,11 +412,7 @@ public:
     void get_method_list(Vector<MethodInfo> *p_list) const;
     Variant callv(const StringName &p_method, const Array &p_args);
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
-    virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
-    virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
-
     Variant call_va(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
-    void call_multilevel(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
     String to_string();
@@ -458,11 +451,13 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(List<Connection> *p_connections) const;
 
-    Error connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds =
-        null_variant_pvec, uint32_t p_flags = 0);
+    Error connect_compat2(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method, const Vector<Variant>& p_binds = null_variant_pvec, uint32_t p_flags = 0);
+    Error connect(const StringName &p_signal, const Callable &callable, const Vector<Variant> &p_binds = null_variant_pvec, uint32_t p_flags = 0);
     Error connectF(const StringName& p_signal, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);
-    void disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method);
-    bool is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const;
+    void disconnect_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method);
+    void disconnect(const StringName& p_signal, const Callable& p_callable);
+    bool is_connected_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) const;
+    bool is_connected(const StringName& p_signal, const Callable& p_callable) const;
 
     void call_deferred(const StringName &p_method, VARIANT_ARG_LIST);
     void call_deferred(eastl::function<void()> func);

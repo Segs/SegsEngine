@@ -42,8 +42,8 @@ class GODOT_EXPORT CommandQueueMT {
 
     struct SyncSemaphore {
 
-        Semaphore *sem;
-        bool in_use;
+        Semaphore sem;
+        bool in_use = false;
     };
 
     struct CommandBase {
@@ -54,7 +54,7 @@ class GODOT_EXPORT CommandQueueMT {
         }
         void post() {
             if(sync_sem)
-                sync_sem->sem->post();
+                sync_sem->sem.post();
         }
     };
 
@@ -64,13 +64,13 @@ class GODOT_EXPORT CommandQueueMT {
         SYNC_SEMAPHORES = 8
     };
 
-    uint8_t *command_mem;
-    uint32_t read_ptr;
-    uint32_t write_ptr;
-    uint32_t dealloc_ptr;
+    uint8_t *command_mem = (uint8_t*)memalloc(COMMAND_MEM_SIZE);
+    uint32_t read_ptr = 0;
+    uint32_t write_ptr = 0;
+    uint32_t dealloc_ptr = 0;
     SyncSemaphore sync_sems[SYNC_SEMAPHORES];
-    Mutex *mutex;
-    Semaphore *sync;
+    Mutex mutex;
+    Semaphore *sync = nullptr;
 
     CommandBase *allocate() {
 
@@ -204,7 +204,7 @@ public:
         unlock();
         if (sync)
             sync->post();
-        ss->sem->wait();
+        ss->sem.wait();
         ss->in_use = false;
     }
 

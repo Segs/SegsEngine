@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
+#include "core/callable_method_pointer.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/resource/resource_manager.h"
@@ -628,28 +629,28 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     top_hb->add_child(tool_blend);
     tool_blend->set_pressed(true);
     tool_blend->set_tooltip(TTR("Set the blending position within the space"));
-    tool_blend->connect("pressed", this, "_tool_switch", varray(3));
+    tool_blend->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(3));
 
     tool_select = memnew(ToolButton);
     tool_select->set_toggle_mode(true);
     tool_select->set_button_group(bg);
     top_hb->add_child(tool_select);
     tool_select->set_tooltip(TTR("Select and move points, create points with RMB."));
-    tool_select->connect("pressed", this, "_tool_switch", varray(0));
+    tool_select->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(0));
 
     tool_create = memnew(ToolButton);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     top_hb->add_child(tool_create);
     tool_create->set_tooltip(TTR("Create points."));
-    tool_create->connect("pressed", this, "_tool_switch", varray(1));
+    tool_create->connect("pressed",callable_mp(this, &ClassName::_tool_switch), varray(1));
 
     tool_erase_sep = memnew(VSeparator);
     top_hb->add_child(tool_erase_sep);
     tool_erase = memnew(ToolButton);
     top_hb->add_child(tool_erase);
     tool_erase->set_tooltip(TTR("Erase points."));
-    tool_erase->connect("pressed", this, "_erase_selected");
+    tool_erase->connect("pressed",callable_mp(this, &ClassName::_erase_selected));
 
     top_hb->add_child(memnew(VSeparator));
 
@@ -658,7 +659,7 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     top_hb->add_child(snap);
     snap->set_pressed(true);
     snap->set_tooltip(TTR("Enable snap and show grid."));
-    snap->connect("pressed", this, "_snap_toggled");
+    snap->connect("pressed",callable_mp(this, &ClassName::_snap_toggled));
 
     snap_value = memnew(SpinBox);
     top_hb->add_child(snap_value);
@@ -676,12 +677,12 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     edit_value->set_min(-1000);
     edit_value->set_max(1000);
     edit_value->set_step(0.01);
-    edit_value->connect("value_changed", this, "_edit_point_pos");
+    edit_value->connect("value_changed",callable_mp(this, &ClassName::_edit_point_pos));
 
     open_editor = memnew(Button);
     edit_hb->add_child(open_editor);
     open_editor->set_text(TTR("Open Editor"));
-    open_editor->connect("pressed", this, "_open_editor", varray(),ObjectNS::CONNECT_QUEUED);
+    open_editor->connect("pressed",callable_mp(this, &ClassName::_open_editor), varray(),ObjectNS::CONNECT_QUEUED);
 
     edit_hb->hide();
     open_editor->hide();
@@ -697,8 +698,8 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
     panel->set_v_size_flags(SIZE_EXPAND_FILL);
 
     blend_space_draw = memnew(Control);
-    blend_space_draw->connect("gui_input", this, "_blend_space_gui_input");
-    blend_space_draw->connect("draw", this, "_blend_space_draw");
+    blend_space_draw->connect("gui_input",callable_mp(this, &ClassName::_blend_space_gui_input));
+    blend_space_draw->connect("draw",callable_mp(this, &ClassName::_blend_space_draw));
     blend_space_draw->set_focus_mode(FOCUS_ALL);
 
     panel->add_child(blend_space_draw);
@@ -730,10 +731,10 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
         bottom_hb->add_child(max_value);
     }
 
-    snap_value->connect("value_changed", this, "_config_changed");
-    min_value->connect("value_changed", this, "_config_changed");
-    max_value->connect("value_changed", this, "_config_changed");
-    label_value->connect("text_changed", this, "_labels_changed");
+    snap_value->connect("value_changed",callable_mp(this, &ClassName::_config_changed));
+    min_value->connect("value_changed",callable_mp(this, &ClassName::_config_changed));
+    max_value->connect("value_changed",callable_mp(this, &ClassName::_config_changed));
+    label_value->connect("text_changed",callable_mp(this, &ClassName::_labels_changed));
 
     error_panel = memnew(PanelContainer);
     add_child(error_panel);
@@ -746,18 +747,18 @@ AnimationNodeBlendSpace1DEditor::AnimationNodeBlendSpace1DEditor() {
 
     menu = memnew(PopupMenu);
     add_child(menu);
-    menu->connect("id_pressed", this, "_add_menu_type");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_add_menu_type));
 
     animations_menu = memnew(PopupMenu);
     menu->add_child(animations_menu);
     animations_menu->set_name("animations");
-    animations_menu->connect("index_pressed", this, "_add_animation_type");
+    animations_menu->connect("index_pressed",callable_mp(this, &ClassName::_add_animation_type));
 
     open_file = memnew(EditorFileDialog);
     add_child(open_file);
     open_file->set_title(TTR("Open Animation Node"));
     open_file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-    open_file->connect("file_selected", this, "_file_opened");
+    open_file->connect("file_selected",callable_mp(this, &ClassName::_file_opened));
     undo_redo = EditorNode::get_undo_redo();
 
     selected_point = -1;

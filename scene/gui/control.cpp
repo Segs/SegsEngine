@@ -247,25 +247,25 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
         if (StringUtils::begins_with(name,"custom_icons/")) {
             if (data.icon_override.contains(dname)) {
-                data.icon_override[dname]->disconnect("changed", this, "_override_changed");
+                data.icon_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
             if (data.shader_override.contains(dname)) {
-                data.shader_override[dname]->disconnect("changed", this, "_override_changed");
+                data.shader_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
             if (data.style_override.contains(dname)) {
-                data.style_override[dname]->disconnect("changed", this, "_override_changed");
+                data.style_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
             if (data.font_override.contains(dname)) {
-                data.font_override[dname]->disconnect("changed", this, "_override_changed");
+                data.font_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
@@ -561,10 +561,10 @@ void Control::_notification(int p_notification) {
 
                 if (data.parent_canvas_item) {
 
-                    data.parent_canvas_item->connect("item_rect_changed", this, "_size_changed");
+                    data.parent_canvas_item->connect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 } else {
                     //connect viewport
-                    get_viewport()->connect("size_changed", this, "_size_changed");
+                    get_viewport()->connect("size_changed",callable_mp(this, &ClassName::_size_changed));
                 }
             }
 
@@ -580,11 +580,11 @@ void Control::_notification(int p_notification) {
 
             if (data.parent_canvas_item) {
 
-                data.parent_canvas_item->disconnect("item_rect_changed", this, "_size_changed");
+                data.parent_canvas_item->disconnect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 data.parent_canvas_item = nullptr;
             } else if (!is_set_as_toplevel()) {
                 //disconnect viewport
-                get_viewport()->disconnect("size_changed", this, "_size_changed");
+                get_viewport()->disconnect("size_changed",callable_mp(this, &ClassName::_size_changed));
             }
 
             if (data.MI != nullptr) {
@@ -1904,7 +1904,7 @@ Rect2 Control::get_anchorable_rect() const {
 void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_icon) {
 
     if (data.icon_override.contains(p_name)) {
-        data.icon_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.icon_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a icon
@@ -1913,7 +1913,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
     } else {
         data.icon_override[p_name] = p_icon;
         if (data.icon_override[p_name]) {
-            data.icon_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.icon_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1922,7 +1922,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
 void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p_shader) {
 
     if (data.shader_override.contains(p_name)) {
-        data.shader_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.shader_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a shader
@@ -1931,7 +1931,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     } else {
         data.shader_override[p_name] = p_shader;
         if (data.shader_override[p_name]) {
-            data.shader_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.shader_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1939,7 +1939,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
 void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
 
     if (data.style_override.contains(p_name)) {
-        data.style_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.style_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a style
@@ -1948,7 +1948,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
     } else {
         data.style_override[p_name] = p_style;
         if (data.style_override[p_name]) {
-            data.style_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.style_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1957,7 +1957,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
 void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_font) {
 
     if (data.font_override.contains(p_name)) {
-        data.font_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.font_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a font
@@ -1966,7 +1966,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     } else {
         data.font_override[p_name] = p_font;
         if (data.font_override[p_name]) {
-            data.font_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.font_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -2282,7 +2282,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
         return;
 
     if (data.theme) {
-        data.theme->disconnect("changed", this, "_theme_changed");
+        data.theme->disconnect("changed",callable_mp(this, &ClassName::_theme_changed));
     }
 
     data.theme = p_theme;
@@ -2302,7 +2302,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
     }
 
     if (data.theme) {
-        data.theme->connect("changed", this, "_theme_changed", varray(), ObjectNS::CONNECT_QUEUED);
+        data.theme->connect("changed",callable_mp(this, &ClassName::_theme_changed), varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 

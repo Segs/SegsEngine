@@ -2049,10 +2049,10 @@ void PhysicalBone3D::_get_property_list(Vector<PropertyInfo> *p_list) const {
             names += parent->get_bone_name(i);
         }
 
-        p_list->push_back(PropertyInfo(VariantType::STRING, "bone_name", PropertyHint::Enum, names));
+        p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "bone_name", PropertyHint::Enum, names));
     } else {
 
-        p_list->push_back(PropertyInfo(VariantType::STRING, "bone_name"));
+        p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "bone_name"));
     }
 
     if (joint_data) {

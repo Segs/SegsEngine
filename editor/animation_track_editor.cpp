@@ -56,6 +56,8 @@
 #include "scene/resources/style_box.h"
 #include "servers/audio/audio_stream.h"
 
+#include "core/callable_method_pointer.h"
+
 IMPL_GDCLASS(AnimationTimelineEdit)
 IMPL_GDCLASS(AnimationTrackEdit)
 IMPL_GDCLASS(AnimationTrackEditPlugin)
@@ -614,7 +616,7 @@ public:
             } break;
             case Animation::TYPE_METHOD: {
 
-                p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
+                p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "name"));
                 p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                 Dictionary d = animation->track_get_key_value(track, key).as<Dictionary>();
@@ -668,7 +670,7 @@ public:
                 }
                 animations += "[stop]";
 
-                p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PropertyHint::Enum, animations));
+                p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "animation", PropertyHint::Enum, animations));
 
             } break;
         }
@@ -1308,7 +1310,7 @@ public:
                 } break;
                 case Animation::TYPE_METHOD: {
 
-                    p_list->push_back(PropertyInfo(VariantType::STRING, "name"));
+                    p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "name"));
                     p_list->push_back(PropertyInfo(VariantType::INT, "arg_count", PropertyHint::Range, "0,5,1"));
 
                     Dictionary d = animation->track_get_key_value(first_track, first_key).as<Dictionary>();
@@ -1359,7 +1361,7 @@ public:
                     anims.emplace_back("[stop]");
                     animations = String::joined(anims,",");
 
-                    p_list->push_back(PropertyInfo(VariantType::STRING, "animation", PropertyHint::Enum, animations));
+                    p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "animation", PropertyHint::Enum, animations));
                 } break;
             }
         }
@@ -1707,7 +1709,7 @@ void AnimationTimelineEdit::set_undo_redo(UndoRedo *p_undo_redo) {
 
 void AnimationTimelineEdit::set_zoom(Range *p_zoom) {
     zoom = p_zoom;
-    zoom->connect("value_changed", this, "_zoom_changed");
+    zoom->connect("value_changed",callable_mp(this, &ClassName::_zoom_changed));
 }
 
 void AnimationTimelineEdit::set_play_position(float p_pos) {
@@ -1881,7 +1883,7 @@ AnimationTimelineEdit::AnimationTimelineEdit() {
     play_position->set_mouse_filter(MOUSE_FILTER_PASS);
     add_child(play_position);
     play_position->set_anchors_and_margins_preset(PRESET_WIDE);
-    play_position->connect("draw", this, "_play_position_draw");
+    play_position->connect("draw",callable_mp(this, &ClassName::_play_position_draw));
 
     add_track = memnew(MenuButton);
     add_track->set_position(Vector2(0, 0));
@@ -1905,17 +1907,17 @@ AnimationTimelineEdit::AnimationTimelineEdit() {
     length->set_custom_minimum_size(Vector2(70 * EDSCALE, 0));
     length->set_hide_slider(true);
     length->set_tooltip(TTR("Animation length (seconds)"));
-    length->connect("value_changed", this, "_anim_length_changed");
+    length->connect("value_changed",callable_mp(this, &ClassName::_anim_length_changed));
     len_hb->add_child(length);
     loop = memnew(ToolButton);
     loop->set_tooltip(TTR("Animation Looping"));
-    loop->connect("pressed", this, "_anim_loop_pressed");
+    loop->connect("pressed",callable_mp(this, &ClassName::_anim_loop_pressed));
     loop->set_toggle_mode(true);
     len_hb->add_child(loop);
     add_child(len_hb);
 
     add_track->hide();
-    add_track->get_popup()->connect("index_pressed", this, "_track_added");
+    add_track->get_popup()->connect("index_pressed",callable_mp(this, &ClassName::_track_added));
     len_hb->hide();
 
     panning_timeline = false;
@@ -2439,8 +2441,8 @@ void AnimationTrackEdit::set_undo_redo(UndoRedo *p_undo_redo) {
 
 void AnimationTrackEdit::set_timeline(AnimationTimelineEdit *p_timeline) {
     timeline = p_timeline;
-    timeline->connect("zoom_changed", this, "_zoom_changed");
-    timeline->connect("name_limit_changed", this, "_zoom_changed");
+    timeline->connect("zoom_changed",callable_mp(this, &ClassName::_zoom_changed));
+    timeline->connect("name_limit_changed",callable_mp(this, &ClassName::_zoom_changed));
 }
 void AnimationTrackEdit::set_editor(AnimationTrackEditor *p_editor) {
     editor = p_editor;
@@ -2700,7 +2702,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             if (!menu) {
                 menu = memnew(PopupMenu);
                 add_child(menu);
-                menu->connect("id_pressed", this, "_menu_selected");
+                menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_selected));
             }
             menu->clear();
             menu->add_icon_item(get_icon("TrackContinuous", "EditorIcons"), TTR("Continuous"), MENU_CALL_MODE_CONTINUOUS);
@@ -2719,7 +2721,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             if (!menu) {
                 menu = memnew(PopupMenu);
                 add_child(menu);
-                menu->connect("id_pressed", this, "_menu_selected");
+                menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_selected));
             }
             menu->clear();
             menu->add_icon_item(get_icon("InterpRaw", "EditorIcons"), TTR("Nearest"), MENU_INTERPOLATION_NEAREST);
@@ -2737,7 +2739,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             if (!menu) {
                 menu = memnew(PopupMenu);
                 add_child(menu);
-                menu->connect("id_pressed", this, "_menu_selected");
+                menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_selected));
             }
             menu->clear();
             menu->add_icon_item(get_icon("InterpWrapClamp", "EditorIcons"), TTR("Clamp Loop Interp"), MENU_LOOP_CLAMP);
@@ -2832,7 +2834,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             if (!menu) {
                 menu = memnew(PopupMenu);
                 add_child(menu);
-                menu->connect("id_pressed", this, "_menu_selected");
+                menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_selected));
             }
 
             menu->clear();
@@ -2860,7 +2862,7 @@ void AnimationTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
             path = memnew(LineEdit);
             add_child(path);
             path->set_as_toplevel(true);
-            path->connect("text_entered", this, "_path_entered");
+            path->connect("text_entered",callable_mp(this, &ClassName::_path_entered));
         }
 
         path->set_text((String)animation->track_get_path(track));
@@ -3123,7 +3125,7 @@ AnimationTrackEdit::AnimationTrackEdit() {
     play_position->set_mouse_filter(MOUSE_FILTER_PASS);
     add_child(play_position);
     play_position->set_anchors_and_margins_preset(PRESET_WIDE);
-    play_position->connect("draw", this, "_play_position_draw");
+    play_position->connect("draw",callable_mp(this, &ClassName::_play_position_draw));
     set_focus_mode(FOCUS_CLICK);
     set_mouse_filter(MOUSE_FILTER_PASS); //scroll has to work too for selection
 }
@@ -3229,8 +3231,8 @@ Size2 AnimationTrackEditGroup::get_minimum_size() const {
 
 void AnimationTrackEditGroup::set_timeline(AnimationTimelineEdit *p_timeline) {
     timeline = p_timeline;
-    timeline->connect("zoom_changed", this, "_zoom_changed");
-    timeline->connect("name_limit_changed", this, "_zoom_changed");
+    timeline->connect("zoom_changed",callable_mp(this, &ClassName::_zoom_changed));
+    timeline->connect("name_limit_changed",callable_mp(this, &ClassName::_zoom_changed));
 }
 
 void AnimationTrackEditGroup::set_root(Node *p_root) {
@@ -3270,7 +3272,7 @@ void AnimationTrackEditor::set_animation(const Ref<Animation> &p_anim) {
         track_edits[_get_track_selected()]->release_focus();
     }
     if (animation) {
-        animation->disconnect("changed", this, "_animation_changed");
+        animation->disconnect("changed",callable_mp(this, &ClassName::_animation_changed));
         _clear_selection();
     }
     animation = p_anim;
@@ -3280,7 +3282,7 @@ void AnimationTrackEditor::set_animation(const Ref<Animation> &p_anim) {
     _update_tracks();
 
     if (animation) {
-        animation->connect("changed", this, "_animation_changed");
+        animation->connect("changed",callable_mp(this, &ClassName::_animation_changed));
 
         hscroll->show();
         edit->set_disabled(false);
@@ -3322,13 +3324,13 @@ void AnimationTrackEditor::_root_removed(Node *p_root) {
 
 void AnimationTrackEditor::set_root(Node *p_root) {
     if (root) {
-        root->disconnect("tree_exiting", this, "_root_removed");
+        root->disconnect("tree_exiting",callable_mp(this, &ClassName::_root_removed));
     }
 
     root = p_root;
 
     if (root) {
-        root->connect("tree_exiting", this, "_root_removed", make_binds(), ObjectNS::CONNECT_ONESHOT);
+        root->connect("tree_exiting",callable_mp(this, &ClassName::_root_removed), make_binds(), ObjectNS::CONNECT_ONESHOT);
     }
 
     _update_tracks();
@@ -4266,21 +4268,21 @@ void AnimationTrackEditor::_update_tracks() {
             track_edit->grab_focus();
         }
 
-        track_edit->connect("timeline_changed", this, "_timeline_changed");
-        track_edit->connect("remove_request", this, "_track_remove_request", varray(), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("dropped", this, "_dropped_track", varray(), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("insert_key", this, "_insert_key_from_track", varray(i), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("select_key", this, "_key_selected", varray(i), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("deselect_key", this, "_key_deselected", varray(i), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("bezier_edit", this, "_bezier_edit", varray(i), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("move_selection_begin", this, "_move_selection_begin");
-        track_edit->connect("move_selection", this, "_move_selection");
-        track_edit->connect("move_selection_commit", this, "_move_selection_commit");
-        track_edit->connect("move_selection_cancel", this, "_move_selection_cancel");
+        track_edit->connect("timeline_changed",callable_mp(this, &ClassName::_timeline_changed));
+        track_edit->connect("remove_request",callable_mp(this, &ClassName::_track_remove_request), varray(), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("dropped",callable_mp(this, &ClassName::_dropped_track), varray(), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("insert_key",callable_mp(this, &ClassName::_insert_key_from_track), varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("select_key",callable_mp(this, &ClassName::_key_selected), varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("deselect_key",callable_mp(this, &ClassName::_key_deselected), varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("bezier_edit",callable_mp(this, &ClassName::_bezier_edit), varray(i), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("move_selection_begin",callable_mp(this, &ClassName::_move_selection_begin));
+        track_edit->connect("move_selection",callable_mp(this, &ClassName::_move_selection));
+        track_edit->connect("move_selection_commit",callable_mp(this, &ClassName::_move_selection_commit));
+        track_edit->connect("move_selection_cancel",callable_mp(this, &ClassName::_move_selection_cancel));
 
-        track_edit->connect("duplicate_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_SELECTION), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("duplicate_transpose_request", this, "_edit_menu_pressed", varray(EDIT_DUPLICATE_TRANSPOSED), ObjectNS::CONNECT_QUEUED);
-        track_edit->connect("delete_request", this, "_edit_menu_pressed", varray(EDIT_DELETE_SELECTION), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("duplicate_request",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_DUPLICATE_SELECTION), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("duplicate_transpose_request",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_DUPLICATE_TRANSPOSED), ObjectNS::CONNECT_QUEUED);
+        track_edit->connect("delete_request",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_DELETE_SELECTION), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -4393,7 +4395,7 @@ void AnimationTrackEditor::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_READY) {
-        EditorNode::get_singleton()->get_editor_selection()->connect("selection_changed", this, "_selection_changed");
+        EditorNode::get_singleton()->get_editor_selection()->connect("selection_changed",callable_mp(this, &ClassName::_selection_changed));
     }
 
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
@@ -5721,7 +5723,7 @@ float AnimationTrackEditor::snap_time(float p_value, bool p_relative) {
     return p_value;
 }
 
-void AnimationTrackEditor::_show_imported_anim_warning() const {
+void AnimationTrackEditor::_show_imported_anim_warning() {
 
     // It looks terrible on a single line but the TTR extractor doesn't support line breaks yet.
     EditorNode::get_singleton()->show_warning(TTR("This animation belongs to an imported scene, so changes to imported tracks will not be saved.\n\nTo enable the ability to add custom tracks, navigate to the scene's import settings and set\n\"Animation > Storage\" to \"Files\", enable \"Animation > Keep Custom Tracks\", then re-import.\nAlternatively, use an import preset that imports animations to separate files."),
@@ -5827,11 +5829,11 @@ AnimationTrackEditor::AnimationTrackEditor() {
     timeline = memnew(AnimationTimelineEdit);
     timeline->set_undo_redo(undo_redo);
     timeline_vbox->add_child(timeline);
-    timeline->connect("timeline_changed", this, "_timeline_changed");
-    timeline->connect("name_limit_changed", this, "_name_limit_changed");
-    timeline->connect("track_added", this, "_add_track");
-    timeline->connect("value_changed", this, "_timeline_value_changed");
-    timeline->connect("length_changed", this, "_update_length");
+    timeline->connect("timeline_changed",callable_mp(this, &ClassName::_timeline_changed));
+    timeline->connect("name_limit_changed",callable_mp(this, &ClassName::_name_limit_changed));
+    timeline->connect("track_added",callable_mp(this, &ClassName::_add_track));
+    timeline->connect("value_changed",callable_mp(this, &ClassName::_timeline_value_changed));
+    timeline->connect("length_changed",callable_mp(this, &ClassName::_update_length));
 
     scroll = memnew(ScrollContainer);
     timeline_vbox->add_child(scroll);
@@ -5839,7 +5841,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     VScrollBar *sb = scroll->get_v_scrollbar();
     scroll->remove_child(sb);
     timeline_scroll->add_child(sb); //move here so timeline and tracks are always aligned
-    scroll->connect("gui_input", this, "_scroll_input");
+    scroll->connect("gui_input",callable_mp(this, &ClassName::_scroll_input));
 
     bezier_edit = memnew(AnimationBezierTrackEdit);
     timeline_vbox->add_child(bezier_edit);
@@ -5848,14 +5850,14 @@ AnimationTrackEditor::AnimationTrackEditor() {
     bezier_edit->set_timeline(timeline);
     bezier_edit->hide();
     bezier_edit->set_v_size_flags(SIZE_EXPAND_FILL);
-    bezier_edit->connect("close_request", this, "_cancel_bezier_edit");
+    bezier_edit->connect("close_request",callable_mp(this, &ClassName::_cancel_bezier_edit));
 
     timeline_vbox->set_custom_minimum_size(Size2(0, 150) * EDSCALE);
 
     hscroll = memnew(HScrollBar);
     hscroll->share(timeline);
     hscroll->hide();
-    hscroll->connect("value_changed", this, "_update_scroll");
+    hscroll->connect("value_changed",callable_mp(this, &ClassName::_update_scroll));
     timeline_vbox->add_child(hscroll);
     timeline->set_hscroll(hscroll);
 
@@ -5872,20 +5874,20 @@ AnimationTrackEditor::AnimationTrackEditor() {
     imported_anim_warning = memnew(Button);
     imported_anim_warning->hide();
     imported_anim_warning->set_tooltip(TTR("Warning: Editing imported animation"));
-    imported_anim_warning->connect("pressed", this, "_show_imported_anim_warning");
+    imported_anim_warning->connect("pressed",callable_mp(this, &ClassName::_show_imported_anim_warning));
     bottom_hb->add_child(imported_anim_warning);
 
     bottom_hb->add_spacer();
 
     selected_filter = memnew(ToolButton);
-    selected_filter->connect("pressed", this, "_view_group_toggle"); //same function works the same
+    selected_filter->connect("pressed",callable_mp(this, &ClassName::_view_group_toggle)); //same function works the same
     selected_filter->set_toggle_mode(true);
     selected_filter->set_tooltip(TTR("Only show tracks from nodes selected in tree."));
 
     bottom_hb->add_child(selected_filter);
 
     view_group = memnew(ToolButton);
-    view_group->connect("pressed", this, "_view_group_toggle");
+    view_group->connect("pressed",callable_mp(this, &ClassName::_view_group_toggle));
     view_group->set_toggle_mode(true);
     view_group->set_tooltip(TTR("Group tracks by node or display them as plain list."));
 
@@ -5907,14 +5909,14 @@ AnimationTrackEditor::AnimationTrackEditor() {
     step->set_custom_minimum_size(Size2(100, 0) * EDSCALE);
     step->set_tooltip(TTR("Animation step value."));
     bottom_hb->add_child(step);
-    step->connect("value_changed", this, "_update_step");
+    step->connect("value_changed",callable_mp(this, &ClassName::_update_step));
     step->set_read_only(true);
 
     snap_mode = memnew(OptionButton);
     snap_mode->add_item(TTR("Seconds"));
     snap_mode->add_item(TTR("FPS"));
     bottom_hb->add_child(snap_mode);
-    snap_mode->connect("item_selected", this, "_snap_mode_changed");
+    snap_mode->connect("item_selected",callable_mp(this, &ClassName::_snap_mode_changed));
     snap_mode->set_disabled(true);
 
     bottom_hb->add_child(memnew(VSeparator));
@@ -5959,19 +5961,19 @@ AnimationTrackEditor::AnimationTrackEditor() {
     edit->get_popup()->add_item(TTR("Optimize Animation"), EDIT_OPTIMIZE_ANIMATION);
     edit->get_popup()->add_item(TTR("Clean-Up Animation"), EDIT_CLEAN_UP_ANIMATION);
 
-    edit->get_popup()->connect("id_pressed", this, "_edit_menu_pressed");
+    edit->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_edit_menu_pressed));
 
     pick_track = memnew(SceneTreeDialog);
     add_child(pick_track);
     pick_track->set_title(TTR("Pick the node that will be animated:"));
-    pick_track->connect("selected", this, "_new_track_node_selected");
+    pick_track->connect("selected",callable_mp(this, &ClassName::_new_track_node_selected));
     prop_selector = memnew(PropertySelector);
     add_child(prop_selector);
-    prop_selector->connect("selected", this, "_new_track_property_selected");
+    prop_selector->connect("selected",callable_mp(this, &ClassName::_new_track_property_selected));
 
     method_selector = memnew(PropertySelector);
     add_child(method_selector);
-    method_selector->connect("selected", this, "_add_method_key");
+    method_selector->connect("selected",callable_mp(this, &ClassName::_add_method_key));
 
     inserting = false;
     insert_query = false;
@@ -5980,7 +5982,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
 
     insert_confirm = memnew(ConfirmationDialog);
     add_child(insert_confirm);
-    insert_confirm->connect("confirmed", this, "_confirm_insert_list");
+    insert_confirm->connect("confirmed",callable_mp(this, &ClassName::_confirm_insert_list));
     VBoxContainer *icvb = memnew(VBoxContainer);
     insert_confirm->add_child(icvb);
     insert_confirm_text = memnew(Label);
@@ -5998,7 +6000,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     box_selection->set_as_toplevel(true);
     box_selection->set_mouse_filter(MOUSE_FILTER_IGNORE);
     box_selection->hide();
-    box_selection->connect("draw", this, "_box_selection_draw");
+    box_selection->connect("draw",callable_mp(this, &ClassName::_box_selection_draw));
     box_selecting = false;
 
     //default plugins
@@ -6035,7 +6037,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     optimize_max_angle->set_value(22);
 
     optimize_dialog->get_ok()->set_text(TTR("Optimize"));
-    optimize_dialog->connect("confirmed", this, "_edit_menu_pressed", varray(EDIT_CLEAN_UP_ANIMATION_CONFIRM));
+    optimize_dialog->connect("confirmed",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_CLEAN_UP_ANIMATION_CONFIRM));
 
     //
 
@@ -6061,7 +6063,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     cleanup_dialog->set_title(TTR("Clean-Up Animation(s) (NO UNDO!)"));
     cleanup_dialog->get_ok()->set_text(TTR("Clean-Up"));
 
-    cleanup_dialog->connect("confirmed", this, "_edit_menu_pressed", varray(EDIT_CLEAN_UP_ANIMATION_CONFIRM));
+    cleanup_dialog->connect("confirmed",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_CLEAN_UP_ANIMATION_CONFIRM));
 
     //
     scale_dialog = memnew(ConfirmationDialog);
@@ -6073,7 +6075,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     scale->set_max(99999);
     scale->set_step(0.001f);
     vbc->add_margin_child(TTR("Scale Ratio:"), scale);
-    scale_dialog->connect("confirmed", this, "_edit_menu_pressed", varray(EDIT_SCALE_CONFIRM));
+    scale_dialog->connect("confirmed",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_SCALE_CONFIRM));
     add_child(scale_dialog);
 
     track_copy_dialog = memnew(ConfirmationDialog);
@@ -6086,7 +6088,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
 
     Button *select_all_button = memnew(Button);
     select_all_button->set_text(TTR("Select All/None"));
-    select_all_button->connect("pressed", this, "_select_all_tracks_for_copy");
+    select_all_button->connect("pressed",callable_mp(this, &ClassName::_select_all_tracks_for_copy));
     track_vbox->add_child(select_all_button);
 
     track_copy_select = memnew(Tree);
@@ -6094,7 +6096,7 @@ AnimationTrackEditor::AnimationTrackEditor() {
     track_copy_select->set_v_size_flags(SIZE_EXPAND_FILL);
     track_copy_select->set_hide_root(true);
     track_vbox->add_child(track_copy_select);
-    track_copy_dialog->connect("confirmed", this, "_edit_menu_pressed", varray(EDIT_COPY_TRACKS_CONFIRM));
+    track_copy_dialog->connect("confirmed",callable_mp(this, &ClassName::_edit_menu_pressed), varray(EDIT_COPY_TRACKS_CONFIRM));
     animation_changing_awaiting_update = false;
 }
 

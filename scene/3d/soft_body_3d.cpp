@@ -471,12 +471,12 @@ void SoftBody3D::prepare_physics_server() {
 
         become_mesh_owner();
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        RS->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh));
     } else {
 
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        if(RS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
-            RS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh))) {
+            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh));
         }
     }
 }

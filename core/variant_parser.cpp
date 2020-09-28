@@ -124,6 +124,7 @@ const char *VariantParser::tk_name[TK_MAX] = {
     "')'",
     "identifier",
     "string",
+	"string_name",
     "number",
     "color",
     "':'",
@@ -135,6 +136,7 @@ const char *VariantParser::tk_name[TK_MAX] = {
 };
 
 Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, int &line, String &r_err_str) {
+    bool string_name = false;
     eastl::fixed_string<char, 128, true> tmp_str_buf; // static variable to prevent constat alloc/dealloc
 
     while (true) {
@@ -247,6 +249,17 @@ Error VariantParser::get_token(VariantParserStream *p_stream, Token &r_token, in
                 r_token.type = TK_COLOR;
                 return OK;
             }
+			case '@': {
+				cchar = p_stream->get_char();
+				if (cchar != '"') {
+					r_err_str = "Expected '\"' after '@'";
+					r_token.type = TK_ERROR;
+					return ERR_PARSE_ERROR;
+				}
+
+				string_name = true;
+				[[fallthrough]];
+			}
             case '"': {
 
                 String str;
@@ -505,16 +518,18 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
         Dictionary d;
         Error err = _parse_dictionary(d, p_stream, line, r_err_str, p_res_parser);
-        if (err)
+		if (err) {
             return err;
+		}
         value = d;
         return OK;
     } else if (token.type == TK_BRACKET_OPEN) {
 
         Array a;
         Error err = _parse_array(a, p_stream, line, r_err_str, p_res_parser);
-        if (err)
+		if (err) {
             return err;
+		}
         value = a;
         return OK;
 
@@ -535,11 +550,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 2) {
                 r_err_str = "Expected 2 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Vector2(args[0], args[1]);
@@ -548,11 +565,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 4) {
                 r_err_str = "Expected 4 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Rect2(args[0], args[1], args[2], args[3]);
@@ -574,11 +593,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 6) {
                 r_err_str = "Expected 6 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
             Transform2D m;
             m[0] = Vector2(args[0], args[1]);
@@ -590,11 +611,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 4) {
                 r_err_str = "Expected 4 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Plane(args[0], args[1], args[2], args[3]);
@@ -603,11 +626,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 4) {
                 r_err_str = "Expected 4 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Quat(args[0], args[1], args[2], args[3]);
@@ -617,11 +642,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 6) {
                 r_err_str = "Expected 6 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = AABB(Vector3(args[0], args[1], args[2]), Vector3(args[3], args[4], args[5]));
@@ -631,11 +658,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 9) {
                 r_err_str = "Expected 9 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Basis(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]);
@@ -644,11 +673,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 12) {
                 r_err_str = "Expected 12 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Transform(Basis(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8]), Vector3(args[9], args[10], args[11]));
@@ -658,11 +689,13 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<float> args;
             Error err = _parse_construct<float>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             if (args.size() != 4) {
                 r_err_str = "Expected 4 arguments for constructor";
+				return ERR_PARSE_ERROR;
             }
 
             value = Color(args[0], args[1], args[2], args[3]);
@@ -758,8 +791,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
                 if (at_key) {
 
                     Error err = get_token(p_stream, token2, line, r_err_str);
-                    if (err != OK)
+					if (err != OK) {
                         return err;
+					}
 
                     if (token2.type == TK_PARENTHESIS_CLOSE) {
                         RefCounted *reference = object_cast<RefCounted>(obj);
@@ -828,8 +862,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
                 RES res;
                 Error err = p_res_parser->func(p_res_parser->userdata, p_stream, res, line, r_err_str);
-                if (err)
+				if (err) {
                     return err;
+				}
 
                 value = res;
 
@@ -838,8 +873,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
                 RES res;
                 Error err = p_res_parser->ext_func(p_res_parser->userdata, p_stream, res, line, r_err_str);
-                if (err)
+				if (err) {
                     return err;
+				}
 
                 value = res;
 
@@ -848,8 +884,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
                 RES res;
                 Error err = p_res_parser->sub_func(p_res_parser->userdata, p_stream, res, line, r_err_str);
-                if (err)
+				if (err) {
                     return err;
+				}
 
                 value = res;
 
@@ -883,8 +920,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
 
             Vector<uint8_t> args;
             Error err = _parse_construct<uint8_t>(p_stream, args, line, r_err_str);
-            if (err)
+			if (err) {
                 return err;
+			}
 
             PoolVector<uint8_t> arr;
             {
@@ -1066,7 +1104,9 @@ Error VariantParser::parse_value(Token &token, Variant &value, VariantParserStre
         value = token.value;
         return OK;
     } else if (token.type == TK_STRING) {
-
+		value = token.value;
+		return OK;
+	} else if (token.type == TK_STRING_NAME) {
         value = token.value;
         return OK;
     } else if (token.type == TK_COLOR) {
@@ -1092,8 +1132,9 @@ Error VariantParser::_parse_array(Array &array, VariantParserStream *p_stream, i
         }
 
         Error err = get_token(p_stream, token, line, r_err_str);
-        if (err != OK)
+		if (err != OK) {
             return err;
+		}
 
         if (token.type == TK_BRACKET_CLOSE) {
 
@@ -1114,8 +1155,9 @@ Error VariantParser::_parse_array(Array &array, VariantParserStream *p_stream, i
 
         Variant v;
         err = parse_value(token, v, p_stream, line, r_err_str, p_res_parser);
-        if (err)
+		if (err) {
             return err;
+		}
 
         array.push_back(v);
         need_comma = true;
@@ -1139,8 +1181,9 @@ Error VariantParser::_parse_dictionary(Dictionary &object, VariantParserStream *
         if (at_key) {
 
             Error err = get_token(p_stream, token, line, r_err_str);
-            if (err != OK)
+			if (err != OK) {
                 return err;
+			}
 
             if (token.type == TK_CURLY_BRACKET_CLOSE) {
 
@@ -1161,13 +1204,15 @@ Error VariantParser::_parse_dictionary(Dictionary &object, VariantParserStream *
 
             err = parse_value(token, key, p_stream, line, r_err_str, p_res_parser);
 
-            if (err)
+			if (err) {
                 return err;
+			}
 
             err = get_token(p_stream, token, line, r_err_str);
 
-            if (err != OK)
+			if (err != OK) {
                 return err;
+			}
             if (token.type != TK_COLON) {
 
                 r_err_str = "Expected ':'";
@@ -1177,13 +1222,15 @@ Error VariantParser::_parse_dictionary(Dictionary &object, VariantParserStream *
         } else {
 
             Error err = get_token(p_stream, token, line, r_err_str);
-            if (err != OK)
+			if (err != OK) {
                 return err;
+			}
 
             Variant v;
             err = parse_value(token, v, p_stream, line, r_err_str, p_res_parser);
-            if (err)
+			if (err) {
                 return err;
+			}
             object[key] = v;
             need_comma = true;
             at_key = true;
@@ -1273,8 +1320,9 @@ Error VariantParser::_parse_tag(Token &token, VariantParserStream *p_stream, int
         get_token(p_stream, token, line, r_err_str);
         Variant value;
         Error err = parse_value(token, value, p_stream, line, r_err_str, p_res_parser);
-        if (err)
+		if (err) {
             return err;
+		}
 
         r_tag.fields[id] = value;
     }
@@ -1316,8 +1364,9 @@ Error VariantParser::parse_tag_assign_eof(VariantParserStream *p_stream, int &li
             c = p_stream->get_char();
         }
 
-        if (p_stream->is_eof())
+		if (p_stream->is_eof()) {
             return ERR_FILE_EOF;
+		}
 
         if (c == ';') { //comment
             while (true) {
@@ -1325,8 +1374,9 @@ Error VariantParser::parse_tag_assign_eof(VariantParserStream *p_stream, int &li
                 if (p_stream->is_eof()) {
                     return ERR_FILE_EOF;
                 }
-                if (ch == '\n')
+				if (ch == '\n') {
                     break;
+				}
             }
             continue;
         }
@@ -1345,8 +1395,9 @@ Error VariantParser::parse_tag_assign_eof(VariantParserStream *p_stream, int &li
                 p_stream->saved = '"';
                 Token tk;
                 Error err = get_token(p_stream, tk, line, r_err_str);
-                if (err)
+				if (err) {
                     return err;
+				}
                 if (tk.type != TK_STRING) {
                     r_err_str = "Error reading quoted string";
                     return ERR_INVALID_DATA;
@@ -1373,8 +1424,9 @@ Error VariantParser::parse(VariantParserStream *p_stream, Variant &r_ret, String
 
     Token token;
     Error err = get_token(p_stream, token, r_err_line, r_err_str);
-    if (err)
+	if (err) {
         return err;
+	}
 
     if (token.type == TK_EOF) {
         return ERR_FILE_EOF;
@@ -1530,8 +1582,9 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
 
-                    if (i != 0 || j != 0)
+					if (i != 0 || j != 0) {
                         s += ", ";
+					}
                     s += rtosfix(m3.elements[i][j]);
                 }
             }
@@ -1546,6 +1599,13 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 
             Color c = p_variant.as<Color>();
             p_store_string_func(p_store_string_ud, "Color( " + rtosfix(c.r) + ", " + rtosfix(c.g) + ", " + rtosfix(c.b) + ", " + rtosfix(c.a) + " )");
+
+        } break;
+        case VariantType::STRING_NAME: {
+            String str((StringName)p_variant);
+
+            str = "@\"" + StringUtils::c_escape(str) + "\"";
+            p_store_string_func(p_store_string_ud, str);
 
         } break;
         case VariantType::NODE_PATH: {

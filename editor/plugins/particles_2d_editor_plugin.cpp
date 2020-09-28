@@ -31,6 +31,7 @@
 #include "particles_2d_editor_plugin.h"
 
 #include "canvas_item_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
@@ -165,7 +166,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'."); 
+    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.");
 
     if (img->is_compressed()) {
         img->decompress();
@@ -273,7 +274,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image..."); 
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
 
     PoolVector<uint8_t> texdata;
 
@@ -353,9 +354,9 @@ void Particles2DEditorPlugin::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        menu->get_popup()->connect("id_pressed", this, "_menu_callback");
+        menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_callback));
         menu->set_button_icon(menu->get_popup()->get_icon("GPUParticles2D", "EditorIcons"));
-        file->connect("file_selected", this, "_file_selected");
+        file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
     }
 }
 
@@ -420,7 +421,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
 
     toolbar->add_child(generate_visibility_rect);
 
-    generate_visibility_rect->connect("confirmed", this, "_generate_visibility_rect");
+    generate_visibility_rect->connect("confirmed",callable_mp(this, &ClassName::_generate_visibility_rect));
 
     emission_mask = memnew(ConfirmationDialog);
     emission_mask->set_title(TTR("Load Emission Mask"));
@@ -437,7 +438,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
 
     toolbar->add_child(emission_mask);
 
-    emission_mask->connect("confirmed", this, "_generate_emission_mask");
+    emission_mask->connect("confirmed",callable_mp(this, &ClassName::_generate_emission_mask));
 }
 
 Particles2DEditorPlugin::~Particles2DEditorPlugin() = default;

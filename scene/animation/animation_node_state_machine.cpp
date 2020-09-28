@@ -127,7 +127,7 @@ void AnimationNodeStateMachineTransition::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "switch_mode", PropertyHint::Enum, "Immediate,Sync,AtEnd"), "set_switch_mode", "get_switch_mode");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_advance"), "set_auto_advance", "has_auto_advance");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "advance_condition"), "set_advance_condition", "get_advance_condition");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "advance_condition"), "set_advance_condition", "get_advance_condition");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "xfade_time", PropertyHint::Range, "0,240,0.01"), "set_xfade_time", "get_xfade_time");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PropertyHint::Range, "0,32,1"), "set_priority", "get_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
@@ -569,7 +569,7 @@ void AnimationNodeStateMachine::add_node(const StringName &p_name, Ref<Animation
     emit_changed();
     emit_signal("tree_changed");
 
-    p_node->connect("tree_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<AnimationNode> p_node) {
@@ -581,7 +581,7 @@ void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<Anima
     {
         Ref<AnimationNode> node = states[p_name].node;
         if (node) {
-            node->disconnect("tree_changed", this, "_tree_changed");
+            node->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
         }
     }
 
@@ -590,7 +590,7 @@ void AnimationNodeStateMachine::replace_node(const StringName &p_name, Ref<Anima
     emit_changed();
     emit_signal("tree_changed");
 
-    p_node->connect("tree_changed", this, "_tree_changed", {}, ObjectNS::CONNECT_REFERENCE_COUNTED);
+    p_node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), {}, ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 Ref<AnimationNode> AnimationNodeStateMachine::get_node(const StringName &p_name) const {
@@ -639,7 +639,7 @@ void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
         ERR_FAIL_COND(not node);
 
-        node->disconnect("tree_changed", this, "_tree_changed");
+        node->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
     }
 
     states.erase(p_name);
@@ -647,7 +647,7 @@ void AnimationNodeStateMachine::remove_node(const StringName &p_name) {
 
     for (int i = 0; i < transitions.size(); i++) {
         if (transitions[i].from == p_name || transitions[i].to == p_name) {
-            transitions[i].transition->disconnect("advance_condition_changed", this, "_tree_changed");
+            transitions[i].transition->disconnect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed));
             transitions.erase_at(i);
             i--;
         }
@@ -747,7 +747,7 @@ void AnimationNodeStateMachine::add_transition(const StringName &p_from, const S
     tr.to = p_to;
     tr.transition = p_transition;
 
-    tr.transition->connect("advance_condition_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    tr.transition->connect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 
     transitions.push_back(tr);
 }
@@ -775,7 +775,7 @@ void AnimationNodeStateMachine::remove_transition(const StringName &p_from, cons
 
     for (int i = 0; i < transitions.size(); i++) {
         if (transitions[i].from == p_from && transitions[i].to == p_to) {
-            transitions[i].transition->disconnect("advance_condition_changed", this, "_tree_changed");
+            transitions[i].transition->disconnect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed));
             transitions.erase_at(i);
             return;
         }
@@ -789,7 +789,7 @@ void AnimationNodeStateMachine::remove_transition(const StringName &p_from, cons
 void AnimationNodeStateMachine::remove_transition_by_index(int p_transition) {
 
     ERR_FAIL_INDEX(p_transition, transitions.size());
-    transitions[p_transition].transition->disconnect("advance_condition_changed", this, "_tree_changed");
+    transitions[p_transition].transition->disconnect("advance_condition_changed",callable_mp(this, &ClassName::_tree_changed));
     transitions.erase_at(p_transition);
     /*if (playing) {
         path.clear();
@@ -948,8 +948,8 @@ void AnimationNodeStateMachine::_get_property_list(Vector<PropertyInfo> *p_list)
     }
 
     p_list->push_back(PropertyInfo(VariantType::ARRAY, "transitions", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(VariantType::STRING, "start_node", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
-    p_list->push_back(PropertyInfo(VariantType::STRING, "end_node", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "start_node", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
+    p_list->push_back(PropertyInfo(VariantType::STRING_NAME, "end_node", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
     p_list->push_back(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR));
 }
 

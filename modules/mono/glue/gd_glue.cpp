@@ -152,8 +152,9 @@ void godot_icall_GD_prints(MonoArray *p_what) {
             return;
         }
 
-        if (i)
+		if (i) {
             str += " ";
+		}
 
         str += elem_str;
     }
@@ -176,8 +177,9 @@ void godot_icall_GD_printt(MonoArray *p_what) {
             return;
         }
 
-        if (i)
+		if (i) {
             str += "\t";
+		}
 
         str += elem_str;
     }
@@ -202,7 +204,7 @@ double godot_icall_GD_rand_range(double from, double to) {
 }
 
 uint32_t godot_icall_GD_rand_seed(uint64_t seed, uint64_t *newSeed) {
-    int ret = Math::rand_from_seed(&seed);
+	uint32_t ret = Math::rand_from_seed(&seed);
     *newSeed = seed;
     return ret;
 }
@@ -218,10 +220,11 @@ MonoString *godot_icall_GD_str(MonoArray *p_what) {
     for (int i = 0; i < what.size(); i++) {
         String os = what[i].as<String>();
 
-        if (i == 0)
+		if (i == 0) {
             str = os;
-        else
+		} else {
             str += os;
+		}
     }
 
     return GDMonoMarshal::mono_string_from_godot(str);
@@ -244,8 +247,9 @@ MonoObject *godot_icall_GD_str2var(MonoString *p_str) {
     return GDMonoMarshal::variant_to_mono_object(ret);
 }
 
-MonoBoolean godot_icall_GD_type_exists(MonoString *p_type) {
-    return ClassDB::class_exists(StringName(GDMonoMarshal::mono_string_to_godot(p_type)));
+MonoBoolean godot_icall_GD_type_exists(StringName *p_type) {
+	StringName type = p_type ? *p_type : StringName();
+	return ClassDB::class_exists(type);
 }
 
 void godot_icall_GD_pusherror(MonoString *p_str) {
@@ -279,6 +283,10 @@ MonoString *godot_icall_GD_var2str(MonoObject *p_var) {
     return GDMonoMarshal::mono_string_from_godot(vars);
 }
 
+uint32_t godot_icall_TypeToVariantType(MonoReflectionType *p_refl_type) {
+	return (uint32_t)GDMonoMarshal::managed_to_variant_type(ManagedType::from_reftype(p_refl_type));
+}
+
 MonoObject *godot_icall_DefaultGodotTaskScheduler() {
     return GDMonoCache::cached_data.task_scheduler_handle->get_target();
 }
@@ -306,6 +314,7 @@ void godot_register_gd_icalls() {
     mono_add_internal_call("Godot.GD::godot_icall_GD_type_exists", (void *)godot_icall_GD_type_exists);
     mono_add_internal_call("Godot.GD::godot_icall_GD_var2bytes", (void *)godot_icall_GD_var2bytes);
     mono_add_internal_call("Godot.GD::godot_icall_GD_var2str", (void *)godot_icall_GD_var2str);
+	mono_add_internal_call("Godot.GD::godot_icall_TypeToVariantType", (void *)godot_icall_TypeToVariantType);
 
     // Dispatcher
     mono_add_internal_call("Godot.Dispatcher::godot_icall_DefaultGodotTaskScheduler", (void *)godot_icall_DefaultGodotTaskScheduler);

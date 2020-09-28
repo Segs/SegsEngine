@@ -81,15 +81,17 @@ bool GDMonoClass::is_assignable_from(GDMonoClass *p_from) const {
 
 StringName GDMonoClass::get_namespace() const {
     GDMonoClass *nesting_class = get_nesting_class();
-    if (!nesting_class)
+    if (!nesting_class) {
         return namespace_name;
+    }
     return nesting_class->get_namespace();
 }
 
 String GDMonoClass::get_name_for_lookup() const {
     GDMonoClass *nesting_class = get_nesting_class();
-    if (!nesting_class)
+    if (!nesting_class) {
         return String(class_name);
+    }
     return nesting_class->get_name_for_lookup() + "/" + class_name;
 }
 
@@ -133,11 +135,13 @@ bool GDMonoClass::has_attribute(GDMonoClass *p_attr_class) {
     ERR_FAIL_NULL_V(p_attr_class, false);
 #endif
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return false;
+    }
 
     return mono_custom_attrs_has_attr(attributes, p_attr_class->get_mono_ptr());
 }
@@ -148,11 +152,13 @@ MonoObject *GDMonoClass::get_attribute(GDMonoClass *p_attr_class) {
     ERR_FAIL_NULL_V(p_attr_class, nullptr);
 #endif
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return nullptr;
+    }
 
     return mono_custom_attrs_get_attr(attributes, p_attr_class->get_mono_ptr());
 }
@@ -169,8 +175,9 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
     CRASH_COND(!CACHED_CLASS(GodotObject)->is_assignable_from(this));
 
-    if (methods_fetched)
+    if (methods_fetched) {
         return;
+    }
 
     void *iter = nullptr;
     MonoMethod *raw_method = nullptr;
@@ -209,8 +216,9 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
                     break;
                 }
 
-                if (native_top == CACHED_CLASS(GodotObject))
+                if (native_top == CACHED_CLASS(GodotObject)) {
                     break;
+                }
 
                 native_top = native_top->get_parent_class();
             }
@@ -219,8 +227,9 @@ void GDMonoClass::fetch_methods_with_godot_api_checks(GDMonoClass *p_native_base
 
         uint32_t flags = mono_method_get_flags(method->mono_method, nullptr);
 
-        if (!(flags & MONO_METHOD_ATTR_VIRTUAL))
+        if (!(flags & MONO_METHOD_ATTR_VIRTUAL)) {
             continue;
+        }
 
         // Virtual method of Godot Object derived type, let's try to find GodotMethod attribute
 
@@ -330,7 +339,7 @@ GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName
 
 GDMonoMethod *GDMonoClass::get_method(MonoMethod *p_raw_method, const StringName &p_name, int p_params_count) {
 
-    ERR_FAIL_NULL_V(p_raw_method, NULL);
+    ERR_FAIL_NULL_V(p_raw_method, nullptr);
 
     MethodKey key = MethodKey(p_name, p_params_count);
 
@@ -351,8 +360,9 @@ GDMonoMethod *GDMonoClass::get_method_with_desc(const String &p_description, boo
     MonoMethod *method = mono_method_desc_search_in_class(desc, mono_class);
     mono_method_desc_free(desc);
 
-    if (!method)
-        return NULL;
+    if (!method) {
+        return nullptr;
+    }
 
     ERR_FAIL_COND_V(mono_method_get_class(method) != mono_class, NULL);
 

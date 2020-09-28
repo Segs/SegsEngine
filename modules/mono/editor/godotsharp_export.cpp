@@ -85,8 +85,9 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, MonoAssemblyName *re
 
         const String &ref_name = ref_info.name;
 
-        if (r_assembly_dependencies.has(ref_name))
+		if (r_assembly_dependencies.has(ref_name)) {
             continue;
+		}
 
         mono_assembly_get_assemblyref(image, i, reusable_aname);
 
@@ -134,8 +135,9 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
         SCOPE_EXIT { mono_free(reusable_aname); };
 
         Error err = get_assembly_dependencies(assembly, reusable_aname, search_dirs, r_assembly_dependencies);
-        if (err != OK)
+		if (err != OK) {
             return err;
+		}
     }
 
     return OK;

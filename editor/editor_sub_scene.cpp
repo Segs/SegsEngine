@@ -30,6 +30,7 @@
 
 #include "editor_sub_scene.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
@@ -243,24 +244,24 @@ EditorSubScene::EditorSubScene() {
 
     HBoxContainer *hb = memnew(HBoxContainer);
     path = memnew(LineEdit);
-    path->connect("text_entered", this, "_path_changed");
+    path->connect("text_entered",callable_mp(this, &ClassName::_path_changed));
     hb->add_child(path);
     path->set_h_size_flags(SIZE_EXPAND_FILL);
     Button *b = memnew(Button);
     b->set_text(TTR("Browse"));
     hb->add_child(b);
-    b->connect("pressed", this, "_path_browse");
+    b->connect("pressed",callable_mp(this, &ClassName::_path_browse));
     vb->add_margin_child(TTR("Scene Path:"), hb);
 
     tree = memnew(Tree);
     tree->set_v_size_flags(SIZE_EXPAND_FILL);
     vb->add_margin_child(TTR("Import From Node:"), tree, true);
     tree->set_select_mode(Tree::SELECT_MULTI);
-    tree->connect("multi_selected", this, "_item_multi_selected");
-    //tree->connect("nothing_selected", this, "_deselect_items");
-    tree->connect("cell_selected", this, "_selected_changed");
+    tree->connect("multi_selected",callable_mp(this, &ClassName::_item_multi_selected));
+    //tree->connect("nothing_selected",callable_mp(this, &ClassName::_deselect_items));
+    tree->connect("cell_selected",callable_mp(this, &ClassName::_selected_changed));
 
-    tree->connect("item_activated", this, "_ok", make_binds(), ObjectNS::CONNECT_QUEUED);
+    tree->connect("item_activated",callable_mp((AcceptDialog *)this, &EditorSubScene::_ok_pressed), make_binds(), ObjectNS::CONNECT_QUEUED);
 
     file_dialog = memnew(EditorFileDialog);
     Vector<String> extensions;
@@ -273,5 +274,5 @@ EditorSubScene::EditorSubScene() {
 
     file_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_dialog);
-    file_dialog->connect("file_selected", this, "_path_selected");
+    file_dialog->connect("file_selected",callable_mp(this, &ClassName::_path_selected));
 }

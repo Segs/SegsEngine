@@ -297,12 +297,12 @@ SpinBox::SpinBox() {
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
     //connect("value_changed",this,"_value_changed");
-    line_edit->connect("text_entered", this, "_text_entered", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("gui_input", this, "_line_edit_input");
+    line_edit->connect("text_entered",callable_mp(this, &ClassName::_text_entered), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("focus_exited",callable_mp(this, &ClassName::_line_edit_focus_exit), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("gui_input",callable_mp(this, &ClassName::_line_edit_input));
     drag.enabled = false;
 
     range_click_timer = memnew(Timer);
-    range_click_timer->connect("timeout", this, "_range_click_timeout");
+    range_click_timer->connect("timeout",callable_mp(this, &ClassName::_range_click_timeout));
     add_child(range_click_timer);
 }

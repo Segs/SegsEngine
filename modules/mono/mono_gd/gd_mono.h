@@ -84,13 +84,8 @@ public:
     };
 
     struct LoadedApiAssembly {
-        GDMonoAssembly *assembly;
-        bool out_of_sync;
-
-        LoadedApiAssembly() :
-                assembly(nullptr),
-                out_of_sync(false) {
-        }
+        GDMonoAssembly *assembly = nullptr;
+        bool out_of_sync = false;
     };
 
 private:
@@ -189,12 +184,12 @@ public:
 
 #ifdef TOOLS_ENABLED
     bool copy_prebuilt_api_assembly(ApiAssemblyInfo::Type p_api_type, StringView p_config);
-    String update_api_assemblies_from_prebuilt(StringView p_config, const bool *p_core_api_out_of_sync = NULL, const bool *p_editor_api_out_of_sync = NULL);
+    String update_api_assemblies_from_prebuilt(StringView p_config, const bool *p_core_api_out_of_sync = nullptr, const bool *p_editor_api_out_of_sync = NULL);
 #endif
 
     static GDMono *get_singleton() { return singleton; }
 
-    GD_NORETURN static void unhandled_exception_hook(MonoObject *p_exc, void *p_user_data);
+    [[noreturn]] static void unhandled_exception_hook(MonoObject *p_exc, void *p_user_data);
 
     UnhandledExceptionPolicy get_unhandled_exception_policy() const { return unhandled_exception_policy; }
 
@@ -250,18 +245,18 @@ class ScopeDomain {
 
 public:
     ScopeDomain(MonoDomain *p_domain) {
-        MonoDomain *prev_domain = mono_domain_get();
+        prev_domain = mono_domain_get();
         if (prev_domain != p_domain) {
-            this->prev_domain = prev_domain;
             mono_domain_set(p_domain, false);
         } else {
-            this->prev_domain = NULL;
+            prev_domain = nullptr;
         }
     }
 
     ~ScopeDomain() {
-        if (prev_domain)
+        if (prev_domain) {
             mono_domain_set(prev_domain, false);
+        }
     }
 };
 
@@ -274,8 +269,9 @@ public:
     }
 
     ~ScopeExitDomainUnload() {
-        if (domain)
+        if (domain) {
             GDMono::get_singleton()->finalize_and_unload_domain(domain);
+        }
     }
 };
 
@@ -296,8 +292,6 @@ class GODOT_EXPORT _GodotSharp : public Object {
 
     bool _is_domain_finalizing_for_unload(int32_t p_domain_id);
 
-    Vector<NodePath *> np_delete_queue;
-    Vector<RID *> rid_delete_queue;
 
     void _reload_assemblies(bool p_soft_reload);
 
@@ -316,7 +310,6 @@ public:
 
     bool is_scripts_domain_loaded();
 
-    bool is_domain_finalizing_for_unload();
     bool is_domain_finalizing_for_unload(int32_t p_domain_id);
     bool is_domain_finalizing_for_unload(MonoDomain *p_domain);
 

@@ -1621,7 +1621,7 @@ ItemList::ItemList() {
     add_child(scroll_bar);
 
     shape_changed = true;
-    scroll_bar->connect("value_changed", this, "_scroll_changed");
+    scroll_bar->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
 
     set_focus_mode(FOCUS_ALL);
     current_columns = 1;

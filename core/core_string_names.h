@@ -88,4 +88,9 @@ public:
     const StringName g8;
     const StringName b8;
     const StringName a8;
+
+    const StringName call;
+    const StringName call_deferred;
+    const StringName emit;
+    const StringName notification;
 };

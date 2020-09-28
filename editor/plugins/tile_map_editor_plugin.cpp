@@ -70,7 +70,7 @@ void TileMapEditor::_notification(int p_what) {
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
              [[fallthrough]];
         }
 
@@ -101,7 +101,7 @@ void TileMapEditor::_notification(int p_what) {
 
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            get_tree()->disconnect("node_removed", this, "_node_removed");
+            get_tree()->disconnect("node_removed",callable_mp(this, &ClassName::_node_removed));
         } break;
     }
 }
@@ -1782,30 +1782,30 @@ void TileMapEditor::edit(Node *p_tile_map) {
     }
 
     if (node)
-        node->disconnect("settings_changed", this, "_tileset_settings_changed");
+        node->disconnect("settings_changed",callable_mp(this, &ClassName::_tileset_settings_changed));
     if (p_tile_map) {
 
         node = object_cast<TileMap>(p_tile_map);
-        if (!canvas_item_editor_viewport->is_connected("mouse_entered", this, "_canvas_mouse_enter"))
-            canvas_item_editor_viewport->connect("mouse_entered", this, "_canvas_mouse_enter");
-        if (!canvas_item_editor_viewport->is_connected("mouse_exited", this, "_canvas_mouse_exit"))
-            canvas_item_editor_viewport->connect("mouse_exited", this, "_canvas_mouse_exit");
+        if (!canvas_item_editor_viewport->is_connected("mouse_entered",callable_mp(this, &ClassName::_canvas_mouse_enter)))
+            canvas_item_editor_viewport->connect("mouse_entered",callable_mp(this, &ClassName::_canvas_mouse_enter));
+        if (!canvas_item_editor_viewport->is_connected("mouse_exited",callable_mp(this, &ClassName::_canvas_mouse_exit)))
+            canvas_item_editor_viewport->connect("mouse_exited",callable_mp(this, &ClassName::_canvas_mouse_exit));
 
         _update_palette();
 
     } else {
         node = nullptr;
 
-        if (canvas_item_editor_viewport->is_connected("mouse_entered", this, "_canvas_mouse_enter"))
-            canvas_item_editor_viewport->disconnect("mouse_entered", this, "_canvas_mouse_enter");
-        if (canvas_item_editor_viewport->is_connected("mouse_exited", this, "_canvas_mouse_exit"))
-            canvas_item_editor_viewport->disconnect("mouse_exited", this, "_canvas_mouse_exit");
+        if (canvas_item_editor_viewport->is_connected("mouse_entered",callable_mp(this, &ClassName::_canvas_mouse_enter)))
+            canvas_item_editor_viewport->disconnect("mouse_entered",callable_mp(this, &ClassName::_canvas_mouse_enter));
+        if (canvas_item_editor_viewport->is_connected("mouse_exited",callable_mp(this, &ClassName::_canvas_mouse_exit)))
+            canvas_item_editor_viewport->disconnect("mouse_exited",callable_mp(this, &ClassName::_canvas_mouse_exit));
 
         _update_palette();
     }
 
     if (node)
-        node->connect("settings_changed", this, "_tileset_settings_changed");
+        node->connect("settings_changed",callable_mp(this, &ClassName::_tileset_settings_changed));
 
     _clear_bucket_cache();
 }
@@ -1957,20 +1957,20 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
 
     manual_button = memnew(CheckBox);
     manual_button->set_text(TTR("Disable Autotile"));
-    manual_button->connect("toggled", this, "_manual_toggled");
+    manual_button->connect("toggled",callable_mp(this, &ClassName::_manual_toggled));
     add_child(manual_button);
 
     priority_button = memnew(CheckBox);
     priority_button->set_text(TTR("Enable Priority"));
-    priority_button->connect("toggled", this, "_priority_toggled");
+    priority_button->connect("toggled",callable_mp(this, &ClassName::_priority_toggled));
     add_child(priority_button);
 
     search_box = memnew(LineEdit);
     search_box->set_placeholder(TTR("Filter tiles"));
     search_box->set_h_size_flags(SIZE_EXPAND_FILL);
-    search_box->connect("text_entered", this, "_text_entered");
-    search_box->connect("text_changed", this, "_text_changed");
-    search_box->connect("gui_input", this, "_sbox_input");
+    search_box->connect("text_entered",callable_mp(this, &ClassName::_text_entered));
+    search_box->connect("text_changed",callable_mp(this, &ClassName::_text_changed));
+    search_box->connect("gui_input",callable_mp(this, &ClassName::_sbox_input));
     add_child(search_box);
 
     size_slider = memnew(HSlider);
@@ -1979,7 +1979,7 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     size_slider->set_max(4.0f);
     size_slider->set_step(0.1f);
     size_slider->set_value(1.0f);
-    size_slider->connect("value_changed", this, "_icon_size_changed");
+    size_slider->connect("value_changed",callable_mp(this, &ClassName::_icon_size_changed));
     add_child(size_slider);
 
     int mw = EDITOR_DEF_T<int>("editors/tile_map/palette_min_width", 80);
@@ -1998,8 +1998,8 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     palette->set_max_text_lines(2);
     palette->set_select_mode(ItemList::SELECT_MULTI);
     palette->add_constant_override("vseparation", 8 * EDSCALE);
-    palette->connect("item_selected", this, "_palette_selected");
-    palette->connect("multi_selected", this, "_palette_multi_selected");
+    palette->connect("item_selected",callable_mp(this, &ClassName::_palette_selected));
+    palette->connect("multi_selected",callable_mp(this, &ClassName::_palette_multi_selected));
     palette_container->add_child(palette);
 
     // Add message for when no texture is selected.
@@ -2033,25 +2033,25 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     paint_button = memnew(ToolButton);
     paint_button->set_shortcut(ED_SHORTCUT("tile_map_editor/paint_tile", TTR("Paint Tile"), KEY_P));
     paint_button->set_tooltip(TTR("Shift+LMB: Line Draw\nShift+Ctrl+LMB: Rectangle Paint"));
-    paint_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_NONE));
+    paint_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_NONE));
     paint_button->set_toggle_mode(true);
     toolbar->add_child(paint_button);
 
     bucket_fill_button = memnew(ToolButton);
     bucket_fill_button->set_shortcut(ED_SHORTCUT("tile_map_editor/bucket_fill", TTR("Bucket Fill"), KEY_G));
-    bucket_fill_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_BUCKET));
+    bucket_fill_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_BUCKET));
     bucket_fill_button->set_toggle_mode(true);
     toolbar->add_child(bucket_fill_button);
 
     picker_button = memnew(ToolButton);
     picker_button->set_shortcut(ED_SHORTCUT("tile_map_editor/pick_tile", TTR("Pick Tile"), KEY_I));
-    picker_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_PICKING));
+    picker_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_PICKING));
     picker_button->set_toggle_mode(true);
     toolbar->add_child(picker_button);
 
     select_button = memnew(ToolButton);
     select_button->set_shortcut(ED_SHORTCUT("tile_map_editor/select", TTR("Select"), KEY_M));
-    select_button->connect("pressed", this, "_button_tool_select", make_binds(TOOL_SELECTING));
+    select_button->connect("pressed",callable_mp(this, &ClassName::_button_tool_select), make_binds(TOOL_SELECTING));
     select_button->set_toggle_mode(true);
     toolbar->add_child(select_button);
 
@@ -2086,40 +2086,40 @@ TileMapEditor::TileMapEditor(EditorNode *p_editor) {
     p->add_shortcut(ED_GET_SHORTCUT("tile_map_editor/erase_selection"), OPTION_ERASE_SELECTION);
     p->add_separator();
     p->add_item(TTR("Fix Invalid Tiles"), OPTION_FIX_INVALID);
-    p->connect("id_pressed", this, "_menu_option");
+    p->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     rotate_left_button = memnew(ToolButton);
     rotate_left_button->set_tooltip(TTR("Rotate Left"));
     rotate_left_button->set_focus_mode(FOCUS_NONE);
-    rotate_left_button->connect("pressed", this, "_rotate", varray(-1));
+    rotate_left_button->connect("pressed",callable_mp(this, &ClassName::_rotate), varray(-1));
     rotate_left_button->set_shortcut(ED_SHORTCUT("tile_map_editor/rotate_left", TTR("Rotate Left"), KEY_A));
     tool_hb->add_child(rotate_left_button);
 
     rotate_right_button = memnew(ToolButton);
     rotate_right_button->set_tooltip(TTR("Rotate Right"));
     rotate_right_button->set_focus_mode(FOCUS_NONE);
-    rotate_right_button->connect("pressed", this, "_rotate", varray(1));
+    rotate_right_button->connect("pressed",callable_mp(this, &ClassName::_rotate), varray(1));
     rotate_right_button->set_shortcut(ED_SHORTCUT("tile_map_editor/rotate_right", TTR("Rotate Right"), KEY_S));
     tool_hb->add_child(rotate_right_button);
 
     flip_horizontal_button = memnew(ToolButton);
     flip_horizontal_button->set_tooltip(TTR("Flip Horizontally"));
     flip_horizontal_button->set_focus_mode(FOCUS_NONE);
-    flip_horizontal_button->connect("pressed", this, "_flip_horizontal");
+    flip_horizontal_button->connect("pressed",callable_mp(this, &ClassName::_flip_horizontal));
     flip_horizontal_button->set_shortcut(ED_SHORTCUT("tile_map_editor/flip_horizontal", TTR("Flip Horizontally"), KEY_X));
     tool_hb->add_child(flip_horizontal_button);
 
     flip_vertical_button = memnew(ToolButton);
     flip_vertical_button->set_tooltip(TTR("Flip Vertically"));
     flip_vertical_button->set_focus_mode(FOCUS_NONE);
-    flip_vertical_button->connect("pressed", this, "_flip_vertical");
+    flip_vertical_button->connect("pressed",callable_mp(this, &ClassName::_flip_vertical));
     flip_vertical_button->set_shortcut(ED_SHORTCUT("tile_map_editor/flip_vertical", TTR("Flip Vertically"), KEY_Z));
     tool_hb->add_child(flip_vertical_button);
 
     clear_transform_button = memnew(ToolButton);
     clear_transform_button->set_tooltip(TTR("Clear Transform"));
     clear_transform_button->set_focus_mode(FOCUS_NONE);
-    clear_transform_button->connect("pressed", this, "_clear_transform");
+    clear_transform_button->connect("pressed",callable_mp(this, &ClassName::_clear_transform));
     clear_transform_button->set_shortcut(ED_SHORTCUT("tile_map_editor/clear_transform", TTR("Clear Transform"), KEY_W));
     tool_hb->add_child(clear_transform_button);
 

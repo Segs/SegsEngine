@@ -30,6 +30,7 @@
 
 #include "particles_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/translation_helpers.h"
@@ -239,14 +240,14 @@ ParticlesEditorBase::ParticlesEditorBase() {
     emd_vb->add_margin_child(TTR("Emission Source: "), emission_fill);
 
     emission_dialog->get_ok()->set_text(TTR("Create"));
-    emission_dialog->connect("confirmed", this, "_generate_emission_points");
+    emission_dialog->connect("confirmed",callable_mp(this, &ClassName::_generate_emission_points));
 
     emission_file_dialog = memnew(EditorFileDialog);
     add_child(emission_file_dialog);
-    emission_file_dialog->connect("file_selected", this, "_resource_seleted");
+    emission_file_dialog->connect("file_selected",callable_mp(this, &ClassName::_resource_seleted));
     emission_tree_dialog = memnew(SceneTreeDialog);
     add_child(emission_tree_dialog);
-    emission_tree_dialog->connect("selected", this, "_node_selected");
+    emission_tree_dialog->connect("selected",callable_mp(this, &ClassName::_node_selected));
 
     Vector<String> extensions;
     gResourceManager().get_recognized_extensions_for_type("Mesh", extensions);
@@ -272,7 +273,7 @@ void ParticlesEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
         options->set_button_icon(options->get_popup()->get_icon("GPUParticles3D", "EditorIcons"));
-        get_tree()->connect("node_removed", this, "_node_removed");
+        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
 
@@ -484,7 +485,7 @@ ParticlesEditor::ParticlesEditor() {
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     generate_aabb = memnew(ConfirmationDialog);
     generate_aabb->set_title(TTR("Generate Visibility AABB"));
@@ -498,7 +499,7 @@ ParticlesEditor::ParticlesEditor() {
 
     add_child(generate_aabb);
 
-    generate_aabb->connect("confirmed", this, "_generate_aabb");
+    generate_aabb->connect("confirmed",callable_mp(this, &ClassName::_generate_aabb));
 }
 
 void ParticlesEditorPlugin::edit(Object *p_object) {

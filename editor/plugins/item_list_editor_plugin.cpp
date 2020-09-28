@@ -31,6 +31,7 @@
 #include "item_list_editor_plugin.h"
 
 #include "core/io/resource_loader.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
@@ -292,7 +293,7 @@ void ItemListEditor::_notification(int p_notification) {
         del_button->set_button_icon(get_icon("Remove", "EditorIcons"));
     } else if (p_notification == NOTIFICATION_READY) {
 
-        get_tree()->connect("node_removed", this, "_node_removed");
+        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
 
@@ -382,7 +383,7 @@ ItemListEditor::ItemListEditor() {
     toolbar_button = memnew(ToolButton);
     toolbar_button->set_text(TTR("Items"));
     add_child(toolbar_button);
-    toolbar_button->connect("pressed", this, "_edit_items");
+    toolbar_button->connect("pressed",callable_mp(this, &ClassName::_edit_items));
 
     dialog = memnew(AcceptDialog);
     dialog->set_title(TTR("Item List Editor"));
@@ -399,14 +400,14 @@ ItemListEditor::ItemListEditor() {
     add_button = memnew(Button);
     add_button->set_text(TTR("Add"));
     hbc->add_child(add_button);
-    add_button->connect("pressed", this, "_add_button");
+    add_button->connect("pressed",callable_mp(this, &ClassName::_add_button));
 
     hbc->add_spacer();
 
     del_button = memnew(Button);
     del_button->set_text(TTR("Delete"));
     hbc->add_child(del_button);
-    del_button->connect("pressed", this, "_delete_button");
+    del_button->connect("pressed",callable_mp(this, &ClassName::_delete_button));
 
     property_editor = memnew(EditorInspector);
     vbc->add_child(property_editor);

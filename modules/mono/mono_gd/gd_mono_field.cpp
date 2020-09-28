@@ -39,6 +39,9 @@
 #include "gd_mono_marshal.h"
 #include "gd_mono_utils.h"
 
+void GDMonoField::set_value(MonoObject *p_object, MonoObject *p_value) {
+	mono_field_set_value(p_object, mono_field, p_value);
+}
 void GDMonoField::set_value_raw(MonoObject *p_object, void *p_ptr) {
     mono_field_set_value(p_object, mono_field, &p_ptr);
 }
@@ -166,7 +169,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
             }
 
             if (tclass == CACHED_CLASS(Color)) {
-                SET_FROM_STRUCT(Color)
+                SET_FROM_STRUCT(Color);
                 break;
             }
 
@@ -174,7 +177,17 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 SET_FROM_STRUCT(Plane)
                 break;
             }
+            if (tclass == CACHED_CLASS(Callable)) {
+                GDMonoMarshal::M_Callable val = GDMonoMarshal::callable_to_managed(p_value.operator Callable());
+                mono_field_set_value(p_object, mono_field, &val);
+                break;
+            }
 
+            if (tclass == CACHED_CLASS(SignalInfo)) {
+                GDMonoMarshal::M_SignalInfo val = GDMonoMarshal::signal_info_to_managed(p_value.operator Signal());
+                mono_field_set_value(p_object, mono_field, &val);
+                break;
+            }
             if (mono_class_is_enum(tclass->get_mono_ptr())) {
                 MonoType *enum_basetype = mono_class_enum_basetype(tclass->get_mono_ptr());
                 switch (mono_type_get_type(enum_basetype)) {
@@ -258,7 +271,7 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 break;
             }
 
-            if (array_type->eklass == REAL_T_MONOCLASS) {
+            if (array_type->eklass == CACHED_CLASS_RAW(float)) {
                 SET_FROM_ARRAY(PoolRealArray);
                 break;
             }
@@ -302,7 +315,11 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 mono_field_set_value(p_object, mono_field, managed);
                 break;
             }
-
+			if (CACHED_CLASS(StringName) == type_class) {
+				MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<StringName>());
+				mono_field_set_value(p_object, mono_field, managed);
+				break;
+			}
             if (CACHED_CLASS(NodePath) == type_class) {
                 MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<NodePath>());
                 mono_field_set_value(p_object, mono_field, managed);
@@ -388,6 +405,10 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                 case VariantType::COLOR: {
                     SET_FROM_STRUCT(Color);
                 } break;
+                case VariantType::STRING_NAME: {
+                    MonoObject *managed = GDMonoUtils::create_managed_from((StringName)p_value);
+                    mono_field_set_value(p_object, mono_field, managed);
+                } break;
                 case VariantType::NODE_PATH: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<NodePath>());
                     mono_field_set_value(p_object, mono_field, managed);
@@ -401,6 +422,14 @@ void GDMonoField::set_value_from_variant(MonoObject *p_object, const Variant &p_
                     mono_field_set_value(p_object, mono_field, managed);
                     break;
                 }
+                case VariantType::CALLABLE: {
+                    GDMonoMarshal::M_Callable val = GDMonoMarshal::callable_to_managed((Callable)p_value);
+                    mono_field_set_value(p_object, mono_field, &val);
+                } break;
+                case VariantType::SIGNAL: {
+                    GDMonoMarshal::M_SignalInfo val = GDMonoMarshal::signal_info_to_managed((Signal)p_value);
+                    mono_field_set_value(p_object, mono_field, &val);
+                } break;
                 case VariantType::DICTIONARY: {
                     MonoObject *managed = GDMonoUtils::create_managed_from(p_value.as<Dictionary>(), CACHED_CLASS(Dictionary));
                     mono_field_set_value(p_object, mono_field, managed);
@@ -526,11 +555,13 @@ String GDMonoField::get_string_value(MonoObject *p_object) {
 bool GDMonoField::has_attribute(GDMonoClass *p_attr_class) {
     ERR_FAIL_NULL_V(p_attr_class, false);
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return false;
+    }
 
     return mono_custom_attrs_has_attr(attributes, p_attr_class->get_mono_ptr());
 }
@@ -538,11 +569,13 @@ bool GDMonoField::has_attribute(GDMonoClass *p_attr_class) {
 MonoObject *GDMonoField::get_attribute(GDMonoClass *p_attr_class) {
     ERR_FAIL_NULL_V(p_attr_class, nullptr);
 
-    if (!attrs_fetched)
+    if (!attrs_fetched) {
         fetch_attributes();
+    }
 
-    if (!attributes)
+    if (!attributes) {
         return nullptr;
+    }
 
     return mono_custom_attrs_get_attr(attributes, p_attr_class->get_mono_ptr());
 }

@@ -212,8 +212,8 @@ GDMonoLog::~GDMonoLog() {
 #else
 
 void GDMonoLog::initialize() {
-    const chr * log_level = get_default_log_level();
-    mono_trace_set_level_string(log_level.get_data());
+    const char * log_level = get_default_log_level();
+    mono_trace_set_level_string(log_level);
 }
 
 GDMonoLog::GDMonoLog() {

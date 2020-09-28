@@ -86,21 +86,22 @@ enum {
     VARIANT_DICTIONARY = 26,
     VARIANT_ARRAY = 30,
     VARIANT_RAW_ARRAY = 31,
-    VARIANT_INT_ARRAY = 32,
-    VARIANT_REAL_ARRAY = 33,
+    VARIANT_INT32_ARRAY = 32,
+    VARIANT_FLOAT32_ARRAY = 33,
     VARIANT_STRING_ARRAY = 34,
     VARIANT_VECTOR3_ARRAY = 35,
     VARIANT_COLOR_ARRAY = 36,
     VARIANT_VECTOR2_ARRAY = 37,
     VARIANT_INT64 = 40,
     VARIANT_DOUBLE = 41,
-//#ifndef DISABLE_DEPRECATED
-//    VARIANT_IMAGE = 21, // - no longer variant type
-//    IMAGE_ENCODING_EMPTY = 0,
-//    IMAGE_ENCODING_RAW = 1,
-//    IMAGE_ENCODING_LOSSLESS = 2,
-//    IMAGE_ENCODING_LOSSY = 3,
-//#endif
+    VARIANT_CALLABLE = 42,
+    VARIANT_SIGNAL = 43,
+    VARIANT_STRING_NAME = 44,
+    VARIANT_VECTOR2I = 45,
+    VARIANT_RECT2I = 46,
+    VARIANT_VECTOR3I = 47,
+    VARIANT_INT64_ARRAY = 48,
+    VARIANT_FLOAT64_ARRAY = 49,
     OBJECT_EMPTY = 0,
     OBJECT_EXTERNAL_RESOURCE = 1,
     OBJECT_INTERNAL_RESOURCE = 2,
@@ -111,7 +112,7 @@ enum {
     FORMAT_VERSION_CAN_RENAME_DEPS = 1,
     FORMAT_VERSION_NO_NODEPATH_PROPERTY = 3,
 
-};
+    };
 
 void ResourceInteractiveLoaderBinary::_advance_padding(uint32_t p_len) {
 
@@ -433,7 +434,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             r_v = array;
 
         } break;
-        case VARIANT_INT_ARRAY: {
+        case VARIANT_INT32_ARRAY: {
 
             uint32_t len = f->get_32();
 
@@ -444,7 +445,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             w.release();
             r_v = array;
         } break;
-        case VARIANT_REAL_ARRAY: {
+        case VARIANT_FLOAT32_ARRAY: {
 
             uint32_t len = f->get_32();
 
@@ -1346,7 +1347,11 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
             f->store_real(val.a);
 
         } break;
+        case VariantType::STRING_NAME: {
+            f->store_32(VARIANT_STRING_NAME);
+            save_unicode_string(f, (StringName)p_property);
 
+        } break;
         case VariantType::NODE_PATH: {
             f->store_32(VARIANT_NODE_PATH);
             NodePath np = p_property.as<NodePath>();
@@ -1447,7 +1452,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::POOL_INT_ARRAY: {
 
-            f->store_32(VARIANT_INT_ARRAY);
+            f->store_32(VARIANT_INT32_ARRAY);
             PoolVector<int> arr = p_property.as<PoolVector<int>>();
             int len = arr.size();
             f->store_32(len);
@@ -1458,7 +1463,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::POOL_REAL_ARRAY: {
 
-            f->store_32(VARIANT_REAL_ARRAY);
+            f->store_32(VARIANT_FLOAT32_ARRAY);
             PoolVector<real_t> arr = p_property.as<PoolVector<real_t>>();
             int len = arr.size();
             f->store_32(len);

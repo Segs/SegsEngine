@@ -310,8 +310,8 @@ void GradientEdit::_gui_input(const Ref<InputEvent> &p_event) {
 void GradientEdit::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        if (!picker->is_connected("color_changed", this, "_color_changed")) {
-            picker->connect("color_changed", this, "_color_changed");
+        if (!picker->is_connected("color_changed",callable_mp(this, &ClassName::_color_changed))) {
+            picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
         }
     }
     if (p_what == NOTIFICATION_DRAW) {

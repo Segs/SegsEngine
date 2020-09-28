@@ -31,6 +31,7 @@
 #include "curve_editor_plugin.h"
 
 #include "canvas_item_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
@@ -59,7 +60,7 @@ CurveEditor::CurveEditor() {
     set_clip_contents(true);
 
     _context_menu = memnew(PopupMenu);
-    _context_menu->connect("id_pressed", this, "_on_context_menu_item_selected");
+    _context_menu->connect("id_pressed",callable_mp(this, &ClassName::_on_context_menu_item_selected));
     add_child(_context_menu);
 
     _presets_menu = memnew(PopupMenu);
@@ -70,7 +71,7 @@ CurveEditor::CurveEditor() {
     _presets_menu->add_item(TTR("Ease In"), PRESET_EASE_IN);
     _presets_menu->add_item(TTR("Ease Out"), PRESET_EASE_OUT);
     _presets_menu->add_item(TTR("Smoothstep"), PRESET_SMOOTHSTEP);
-    _presets_menu->connect("id_pressed", this, "_on_preset_item_selected");
+    _presets_menu->connect("id_pressed",callable_mp(this, &ClassName::_on_preset_item_selected));
     _context_menu->add_child(_presets_menu);
 }
 
@@ -80,15 +81,15 @@ void CurveEditor::set_curve(Ref<Curve> && curve) {
         return;
 
     if (_curve_ref) {
-        _curve_ref->disconnect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
-        _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
+        _curve_ref->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &ClassName::_curve_changed));
+        _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), callable_mp(this, &ClassName::_curve_changed));
     }
 
     _curve_ref = eastl::move(curve);
 
     if (_curve_ref) {
-        _curve_ref->connect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
-        _curve_ref->connect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
+        _curve_ref->connect(CoreStringNames::get_singleton()->changed, this, callable_mp(this, &ClassName::_curve_changed));
+        _curve_ref->connect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), callable_mp(this, &ClassName::_curve_changed));
     }
 
     _selected_point = -1;

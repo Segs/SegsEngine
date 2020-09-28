@@ -30,6 +30,7 @@
 
 #include "plugin_config_dialog.h"
 #include "core/io/config_file.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
 #include "core/resource/resource_manager.h"
@@ -132,8 +133,8 @@ void PluginConfigDialog::_on_required_text_changed(StringView ) {
 void PluginConfigDialog::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_READY: {
-            connect("confirmed", this, "_on_confirmed");
-            get_cancel()->connect("pressed", this, "_on_cancelled");
+            connect("confirmed",callable_mp(this, &ClassName::_on_confirmed));
+            get_cancel()->connect("pressed",callable_mp(this, &ClassName::_on_cancelled));
         } break;
 
         case NOTIFICATION_POST_POPUP: {
@@ -146,7 +147,7 @@ void PluginConfigDialog::config(StringView p_config_path) {
     if (p_config_path.length()) {
         Ref<ConfigFile> cf(make_ref_counted<ConfigFile>());
         Error err = cf->load(p_config_path);
-        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'."); 
+        ERR_FAIL_COND_MSG(err != OK, "Cannot load config file from path '" + String(p_config_path) + "'.");
 
         name_edit->set_text(cf->get_value("plugin", "name", "").as<String>());
         subfolder_edit->set_text(PathUtils::get_file(PathUtils::get_basename(PathUtils::get_base_dir(p_config_path))));
@@ -194,7 +195,7 @@ PluginConfigDialog::PluginConfigDialog() {
     grid->add_child(name_lb);
 
     name_edit = memnew(LineEdit);
-    name_edit->connect("text_changed", this, "_on_required_text_changed");
+    name_edit->connect("text_changed",callable_mp(this, &ClassName::_on_required_text_changed));
     name_edit->set_placeholder("MyPlugin");
     grid->add_child(name_edit);
 
@@ -254,7 +255,7 @@ PluginConfigDialog::PluginConfigDialog() {
     grid->add_child(script_lb);
 
     script_edit = memnew(LineEdit);
-    script_edit->connect("text_changed", this, "_on_required_text_changed");
+    script_edit->connect("text_changed",callable_mp(this, &ClassName::_on_required_text_changed));
     script_edit->set_placeholder("\"plugin.gd\" -> res://addons/my_plugin/plugin.gd");
     grid->add_child(script_edit);
 

@@ -461,9 +461,10 @@ private:
     void _update_debug_options();
     void _update_file_menu_opened();
     void _update_file_menu_closed();
-
+public:
+    // made public so it can be used in signal connection.
     void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
-
+private:
     void _fs_changed();
     void _resources_reimported(const Vector<String> &p_resources);
     void _sources_changed(bool p_exist);

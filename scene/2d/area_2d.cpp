@@ -326,7 +326,7 @@ void Area2D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
 
 void Area2D::_clear_monitoring() {
 
-    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal."); 
+    ERR_FAIL_COND_MSG(locked, "This function can't be used during the in/out signal.");
 
     {
         HashMap<ObjectID, BodyState> bmcopy = body_map;
@@ -403,7 +403,7 @@ void Area2D::set_monitoring(bool p_enable) {
 
     if (p_enable == monitoring)
         return;
-    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false)."); 
+    ERR_FAIL_COND_MSG(locked, "Function blocked during in/out signal. Use set_deferred(\"monitoring\", true/false).");
 
     monitoring = p_enable;
 
@@ -426,7 +426,7 @@ bool Area2D::is_monitoring() const {
 
 void Area2D::set_monitorable(bool p_enable) {
 
-    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer2D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false)."); 
+    ERR_FAIL_COND_MSG(locked || (is_inside_tree() && PhysicsServer2D::get_singleton()->is_flushing_queries()), "Function blocked during in/out signal. Use set_deferred(\"monitorable\", true/false).");
 
     if (p_enable == monitorable)
         return;
@@ -679,7 +679,7 @@ void Area2D::_bind_methods() {
 
     ADD_GROUP("Audio Bus", "audio_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_bus_override"), "set_audio_bus_override", "is_overriding_audio_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus_name", "get_audio_bus_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus_name", "get_audio_bus_name");
 
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_DISABLED)
     BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE)

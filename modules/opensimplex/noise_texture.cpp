@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "servers/rendering_server.h"
 
@@ -132,8 +133,9 @@ void NoiseTexture::_thread_function(void *p_ud) {
 
 void NoiseTexture::_queue_update() {
 
-    if (update_queued)
+    if (update_queued) {
         return;
+    }
 
     update_queued = true;
     call_deferred("_update_texture");
@@ -192,11 +194,11 @@ void NoiseTexture::set_noise(Ref<OpenSimplexNoise> p_noise) {
     if (p_noise == noise)
         return;
     if (noise) {
-        noise->disconnect(CoreStringNames::get_singleton()->changed, this, "_queue_update");
+        noise->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &NoiseTexture::_queue_update));
     }
     noise = p_noise;
     if (noise) {
-        noise->connect(CoreStringNames::get_singleton()->changed, this, "_queue_update");
+        noise->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &NoiseTexture::_queue_update));
     }
     _queue_update();
 }
@@ -206,19 +208,25 @@ Ref<OpenSimplexNoise> NoiseTexture::get_noise() {
 }
 
 void NoiseTexture::set_width(int p_width) {
-    if (p_width == size.x) return;
+    if (p_width == size.x) {
+        return;
+    }
     size.x = p_width;
     _queue_update();
 }
 
 void NoiseTexture::set_height(int p_height) {
-    if (p_height == size.y) return;
+    if (p_height == size.y) {
+        return;
+    }
     size.y = p_height;
     _queue_update();
 }
 
 void NoiseTexture::set_seamless(bool p_seamless) {
-    if (p_seamless == seamless) return;
+    if (p_seamless == seamless) {
+        return;
+    }
     seamless = p_seamless;
     _queue_update();
 }

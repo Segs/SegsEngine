@@ -7738,10 +7738,10 @@ TextEdit::TextEdit() {
     updating_scrolls = false;
 
 
-    h_scroll->connect("value_changed", this, "_scroll_moved");
-    v_scroll->connect("value_changed", this, "_scroll_moved");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
 
-    v_scroll->connect("scrolling", this, "_v_scroll_input");
+    v_scroll->connect("scrolling",callable_mp(this, &ClassName::_v_scroll_input));
 
     syntax_coloring = false;
 
@@ -7750,7 +7750,7 @@ TextEdit::TextEdit() {
     caret_blink_timer = memnew(Timer);
     add_child(caret_blink_timer);
     caret_blink_timer->set_wait_time(0.65);
-    caret_blink_timer->connect("timeout", this, "_toggle_draw_caret");
+    caret_blink_timer->connect("timeout",callable_mp(this, &ClassName::_toggle_draw_caret));
     cursor_set_blink_enabled(false);
     right_click_moves_caret = true;
 
@@ -7758,12 +7758,12 @@ TextEdit::TextEdit() {
     add_child(idle_detect);
     idle_detect->set_one_shot(true);
     idle_detect->set_wait_time(T_GLOBAL_GET<float>("gui/timers/text_edit_idle_detect_sec"));
-    idle_detect->connect("timeout", this, "_push_current_op");
+    idle_detect->connect("timeout",callable_mp(this, &ClassName::_push_current_op));
 
     click_select_held = memnew(Timer);
     add_child(click_select_held);
     click_select_held->set_wait_time(0.05f);
-    click_select_held->connect("timeout", this, "_click_selection_held");
+    click_select_held->connect("timeout",callable_mp(this, &ClassName::_click_selection_held));
 
     last_dblclk = 0;
 
@@ -7807,7 +7807,7 @@ TextEdit::TextEdit() {
     add_child(menu);
     readonly = true; // Initialise to opposite first, so we get past the early-out in set_readonly.
     set_readonly(false);
-    menu->connect("id_pressed", this, "menu_option");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::menu_option));
     first_draw = true;
 
     executing_line = -1;

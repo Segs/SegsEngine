@@ -345,7 +345,7 @@ EditorAssetInstaller::EditorAssetInstaller() {
 
     tree = memnew(Tree);
     vb->add_margin_child(TTR("Package Contents:"), tree, true);
-    tree->connect("item_edited", this, "_item_edited");
+    tree->connect("item_edited",callable_mp(this, &ClassName::_item_edited));
 
     error = memnew(AcceptDialog);
     add_child(error);

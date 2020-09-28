@@ -941,13 +941,13 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
 #endif
     auto RS = RenderingServer::get_singleton();
     if (redraw) {
-        RS->connect("frame_pre_draw", this, "_update_render_thread");
+        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         RS->canvas_item_set_update_when_visible(get_canvas_item(), true);
 
         RS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        if(RS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
-            RS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread))) {
+            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         }
         RS->canvas_item_set_update_when_visible(get_canvas_item(), false);
 

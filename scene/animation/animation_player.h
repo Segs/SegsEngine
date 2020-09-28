@@ -325,7 +325,7 @@ public:
     float get_speed_scale() const;
     float get_playing_speed() const;
 
-    void set_autoplay(StringView p_name);
+    void set_autoplay(const StringName &p_name);
     StringName get_autoplay() const;
 
     void set_animation_process_mode(AnimationProcessMode p_mode);

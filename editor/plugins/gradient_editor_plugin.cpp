@@ -33,6 +33,7 @@
 #include "canvas_item_editor_plugin.h"
 #include "spatial_editor_plugin.h"
 #include "editor/editor_scale.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 
@@ -75,8 +76,8 @@ void GradientEditor::_bind_methods() {
 
 void GradientEditor::set_gradient(const Ref<Gradient> &p_gradient) {
     gradient = p_gradient;
-    connect("ramp_changed", this, "_ramp_changed");
-    gradient->connect("changed", this, "_gradient_changed");
+    connect("ramp_changed",callable_mp(this, &ClassName::_ramp_changed));
+    gradient->connect("changed",callable_mp(this, &ClassName::_gradient_changed));
     set_points(gradient->get_points());
 }
 

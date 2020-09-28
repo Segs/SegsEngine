@@ -202,8 +202,9 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                         tk_string += res;
 
                     } else {
-                        if (code[idx] == '\n')
+						if (code[idx] == '\n') {
                             line++;
+						}
                         tk_string += code[idx];
                     }
                     idx++;
@@ -295,15 +296,17 @@ Error ScriptClassParser::_skip_generic_type_params() {
 
                     tk = get_token();
 
-                    if (tk != TK_PERIOD)
+					if (tk != TK_PERIOD) {
                         break;
+					}
                 }
             }
 
             if (tk == TK_OP_LESS) {
                 Error err = _skip_generic_type_params();
-                if (err)
+				if (err) {
                     return err;
+				}
                 tk = get_token();
             }
 

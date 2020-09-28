@@ -187,7 +187,7 @@ void TileMap::_update_quadrant_transform() {
 void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
 
     if (tile_set) {
-        tile_set->disconnect("changed", this, "_recreate_quadrants");
+        tile_set->disconnect("changed",callable_mp(this, &ClassName::_recreate_quadrants));
         Object_remove_change_receptor(tile_set.get(),this);
     }
 
@@ -195,7 +195,7 @@ void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
     tile_set = p_tileset;
 
     if (tile_set) {
-        tile_set->connect("changed", this, "_recreate_quadrants");
+        tile_set->connect("changed",callable_mp(this, &ClassName::_recreate_quadrants));
         Object_add_change_receptor(tile_set.get(),this);
     } else {
         clear();

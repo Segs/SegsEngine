@@ -27,7 +27,7 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-
+#define QT_NO_META_MACROS
 #include "variant.h"
 
 #include "core/pool_vector.h"
@@ -70,9 +70,12 @@
     CASE_TYPE(PREFIX, OP, BASIS)              \
     CASE_TYPE(PREFIX, OP, TRANSFORM)          \
     CASE_TYPE(PREFIX, OP, COLOR)              \
+    CASE_TYPE(PREFIX, OP, STRING_NAME)        \
     CASE_TYPE(PREFIX, OP, NODE_PATH)          \
     CASE_TYPE(PREFIX, OP, _RID)               \
     CASE_TYPE(PREFIX, OP, OBJECT)             \
+    CASE_TYPE(PREFIX, OP, CALLABLE)           \
+    CASE_TYPE(PREFIX, OP, SIGNAL)             \
     CASE_TYPE(PREFIX, OP, DICTIONARY)         \
     CASE_TYPE(PREFIX, OP, ARRAY)              \
     CASE_TYPE(PREFIX, OP, POOL_BYTE_ARRAY)    \
@@ -99,13 +102,16 @@
         TYPE(PREFIX, OP, TRANSFORM2D),        \
         TYPE(PREFIX, OP, PLANE),              \
         TYPE(PREFIX, OP, QUAT),               \
-        TYPE(PREFIX, OP, AABB),              \
+        TYPE(PREFIX, OP, AABB),               \
         TYPE(PREFIX, OP, BASIS),              \
         TYPE(PREFIX, OP, TRANSFORM),          \
         TYPE(PREFIX, OP, COLOR),              \
+        TYPE(PREFIX, OP, STRING_NAME),        \
         TYPE(PREFIX, OP, NODE_PATH),          \
         TYPE(PREFIX, OP, _RID),               \
         TYPE(PREFIX, OP, OBJECT),             \
+        TYPE(PREFIX, OP, CALLABLE),           \
+        TYPE(PREFIX, OP, SIGNAL),             \
         TYPE(PREFIX, OP, DICTIONARY),         \
         TYPE(PREFIX, OP, ARRAY),              \
         TYPE(PREFIX, OP, POOL_BYTE_ARRAY),    \
@@ -118,7 +124,7 @@
 }
 /* clang-format on */
 
-#define CASES(PREFIX) static const void *switch_table_##PREFIX[25][27] = { \
+#define CASES(PREFIX) static const void *switch_table_##PREFIX[Variant::OP_MAX][VariantType::VARIANT_MAX] = { \
     TYPES(PREFIX, OP_EQUAL),                                               \
     TYPES(PREFIX, OP_NOT_EQUAL),                                           \
     TYPES(PREFIX, OP_LESS),                                                \
@@ -244,30 +250,65 @@ bool Variant::booleanize() const {
         _RETURN_FAIL                                                                                                \
     };
 
-#define DEFAULT_OP_STR_REV(m_prefix, m_op_name, m_name, m_op, m_type)                                                                                   \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                                            \
-        if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op *reinterpret_cast<const String *>(p_a._data._mem));      \
-        if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op *reinterpret_cast<const NodePath *>(p_a._data._mem)); \
-                                                                                                                                                        \
-        _RETURN_FAIL                                                                                                                                    \
-    };
+#define DEFAULT_OP_STR_REV(m_prefix, m_op_name, m_name, m_op, m_type)                                                              \
+    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
+        if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op *reinterpret_cast<const String *>(p_a._data._mem));     \
+        if (p_b.type == VariantType::STRING_NAME) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_a._data._mem)); \
+        if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_a._data._mem));   \
+        _RETURN_FAIL                                                                                                               \
+    }
 
-#define DEFAULT_OP_STR(m_prefix, m_op_name, m_name, m_op, m_type)                                                                                       \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                                            \
-        if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem)));  \
-        if (p_b.type == VariantType::NODE_PATH) _RETURN(String(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const NodePath *>(p_b._data._mem))); \
-                                                                                                                                                        \
-        _RETURN_FAIL                                                                                                                                    \
-    };
 
-#define DEFAULT_OP_STR_NULL(m_prefix, m_op_name, m_name, m_op, m_type)                                                                                  \
-    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                                            \
-        if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const m_type *>(p_a._data._mem)) m_op *reinterpret_cast<const String *>(p_b._data._mem));      \
-        if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const NodePath *>(p_b._data._mem)); \
-        if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                             \
-                                                                                                                                                        \
-        _RETURN_FAIL                                                                                                                                    \
-    };
+#define DEFAULT_OP_STR(m_prefix, m_op_name, m_name, m_op, m_type)                                                                  \
+    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
+        if (p_b.type == VariantType::STRING)                                                                                                    \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem));     \
+        if (p_b.type == VariantType::STRING_NAME)                                                                                               \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_b._data._mem)); \
+        if (p_b.type == VariantType::NODE_PATH)                                                                                                 \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));   \
+                                                                                                                                   \
+        _RETURN_FAIL                                                                                                               \
+    }
+
+#define DEFAULT_OP_STR_NULL(m_prefix, m_op_name, m_name, m_op, m_type)                                                             \
+    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
+        if (p_b.type == VariantType::STRING)                                                                                                    \
+            _RETURN((String)*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem));     \
+        if (p_b.type == VariantType::STRING_NAME)                                                                                               \
+            _RETURN((String)*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_b._data._mem)); \
+        if (p_b.type == VariantType::NODE_PATH)                                                                                                 \
+            _RETURN((String)*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));   \
+        if (p_b.type == VariantType::NIL)                                                                                                       \
+            _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                         \
+                                                                                                                                   \
+        _RETURN_FAIL                                                                                                               \
+    }
+
+#define DEFAULT_OP_STR_NULL_NP(m_prefix, m_op_name, m_name, m_op, m_type)                                                        \
+    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                     \
+        if (p_b.type == VariantType::STRING)                                                                                                  \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem));   \
+        if (p_b.type == VariantType::NODE_PATH)                                                                                               \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const NodePath *>(p_b._data._mem)); \
+        if (p_b.type == VariantType::NIL)                                                                                                     \
+            _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                       \
+                                                                                                                                 \
+        _RETURN_FAIL                                                                                                             \
+    }
+
+#define DEFAULT_OP_STR_NULL_SN(m_prefix, m_op_name, m_name, m_op, m_type)                                                          \
+    CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
+        if (p_b.type == VariantType::STRING)                                                                                                    \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const String *>(p_b._data._mem));     \
+        if (p_b.type == VariantType::STRING_NAME)                                                                                               \
+            _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op (String)*reinterpret_cast<const StringName *>(p_b._data._mem)); \
+        if (p_b.type == VariantType::NIL)                                                                                                       \
+            _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                         \
+                                                                                                                                   \
+        _RETURN_FAIL                                                                                                               \
+    }
+
 
 #define DEFAULT_OP_LOCALMEM_REV(m_prefix, m_op_name, m_name, m_op, m_type)                                                     \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                   \
@@ -433,6 +474,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
                 _RETURN_FAIL
             }
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, CALLABLE, == , Callable);
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, SIGNAL, == , Signal);
 
             CASE_TYPE(math, OP_EQUAL, DICTIONARY) {
                 if (p_b.type != VariantType::DICTIONARY) {
@@ -487,6 +530,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, BASIS, ==, _basis)
             DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, TRANSFORM, ==, _transform)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, COLOR, ==, Color)
+            DEFAULT_OP_STR_NULL_SN(math, OP_EQUAL, STRING_NAME, ==, StringName);
             DEFAULT_OP_STR_NULL(math, OP_EQUAL, NODE_PATH, ==, NodePath)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, _RID, ==, RID)
 
@@ -527,6 +571,9 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
                 _RETURN_FAIL
             }
+
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, CALLABLE, != , Callable);
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, SIGNAL, != , Signal);
 
             CASE_TYPE(math, OP_NOT_EQUAL, DICTIONARY) {
                 if (p_b.type != VariantType::DICTIONARY) {
@@ -584,6 +631,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, BASIS, !=, _basis)
             DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM, !=, _transform)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, COLOR, !=, Color)
+            DEFAULT_OP_STR_NULL_SN(math, OP_NOT_EQUAL, STRING_NAME, !=, StringName);
             DEFAULT_OP_STR_NULL(math, OP_NOT_EQUAL, NODE_PATH, !=, NodePath)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, _RID, !=, RID)
 
@@ -609,6 +657,9 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
                     _RETURN_FAIL
                 _RETURN((_OBJ_PTR(p_a) < _OBJ_PTR(p_b)))
             }
+
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_LESS, CALLABLE, < , Callable);
+            DEFAULT_OP_LOCALMEM_NULL(math, OP_LESS, SIGNAL, < , Signal);
 
             CASE_TYPE(math, OP_LESS, ARRAY) {
                 if (p_b.type != VariantType::ARRAY)
@@ -693,6 +744,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_LESS_EQUAL, TRANSFORM)
             CASE_TYPE(math, OP_LESS_EQUAL, COLOR)
             CASE_TYPE(math, OP_LESS_EQUAL, NODE_PATH)
+            CASE_TYPE(math, OP_LESS_EQUAL, CALLABLE)
+            CASE_TYPE(math, OP_LESS_EQUAL, SIGNAL)
             CASE_TYPE(math, OP_LESS_EQUAL, DICTIONARY)
             CASE_TYPE(math, OP_LESS_EQUAL, ARRAY)
             CASE_TYPE(math, OP_LESS_EQUAL, POOL_BYTE_ARRAY);
@@ -778,6 +831,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER, COLOR)
             CASE_TYPE(math, OP_GREATER, NODE_PATH)
             CASE_TYPE(math, OP_GREATER, DICTIONARY)
+            CASE_TYPE(math, OP_GREATER, CALLABLE)
+            CASE_TYPE(math, OP_GREATER, SIGNAL)
             _RETURN_FAIL;
         }
 
@@ -815,6 +870,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER_EQUAL, TRANSFORM)
             CASE_TYPE(math, OP_GREATER_EQUAL, COLOR)
             CASE_TYPE(math, OP_GREATER_EQUAL, NODE_PATH)
+            CASE_TYPE(math, OP_GREATER_EQUAL, CALLABLE)
+            CASE_TYPE(math, OP_GREATER_EQUAL, SIGNAL)
             CASE_TYPE(math, OP_GREATER_EQUAL, DICTIONARY)
             CASE_TYPE(math, OP_GREATER_EQUAL, ARRAY)
             CASE_TYPE(math, OP_GREATER_EQUAL, POOL_BYTE_ARRAY);
@@ -882,6 +939,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_ADD, _RID)
             CASE_TYPE(math, OP_ADD, OBJECT)
             CASE_TYPE(math, OP_ADD, DICTIONARY)
+            CASE_TYPE(math, OP_ADD, CALLABLE)
+            CASE_TYPE(math, OP_ADD, SIGNAL)
             _RETURN_FAIL
         }
 
@@ -905,6 +964,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_SUBTRACT, NODE_PATH)
             CASE_TYPE(math, OP_SUBTRACT, _RID)
             CASE_TYPE(math, OP_SUBTRACT, OBJECT)
+            CASE_TYPE(math, OP_SUBTRACT, CALLABLE)
+            CASE_TYPE(math, OP_SUBTRACT, SIGNAL)
             CASE_TYPE(math, OP_SUBTRACT, DICTIONARY)
             CASE_TYPE(math, OP_SUBTRACT, ARRAY)
             CASE_TYPE(math, OP_SUBTRACT, POOL_BYTE_ARRAY);
@@ -984,6 +1045,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_MULTIPLY, NODE_PATH)
             CASE_TYPE(math, OP_MULTIPLY, _RID)
             CASE_TYPE(math, OP_MULTIPLY, OBJECT)
+            CASE_TYPE(math, OP_MULTIPLY, CALLABLE)
+            CASE_TYPE(math, OP_MULTIPLY, SIGNAL)
             CASE_TYPE(math, OP_MULTIPLY, DICTIONARY)
             CASE_TYPE(math, OP_MULTIPLY, ARRAY)
             CASE_TYPE(math, OP_MULTIPLY, POOL_BYTE_ARRAY);
@@ -1027,6 +1090,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_DIVIDE, NODE_PATH)
             CASE_TYPE(math, OP_DIVIDE, _RID)
             CASE_TYPE(math, OP_DIVIDE, OBJECT)
+            CASE_TYPE(math, OP_DIVIDE, CALLABLE)
+            CASE_TYPE(math, OP_DIVIDE, SIGNAL)
             CASE_TYPE(math, OP_DIVIDE, DICTIONARY)
             CASE_TYPE(math, OP_DIVIDE, ARRAY)
             CASE_TYPE(math, OP_DIVIDE, POOL_BYTE_ARRAY);
@@ -1059,6 +1124,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_POSITIVE, NODE_PATH)
             CASE_TYPE(math, OP_POSITIVE, _RID)
             CASE_TYPE(math, OP_POSITIVE, OBJECT)
+            CASE_TYPE(math, OP_POSITIVE, CALLABLE)
+            CASE_TYPE(math, OP_POSITIVE, SIGNAL)
             CASE_TYPE(math, OP_POSITIVE, DICTIONARY)
             CASE_TYPE(math, OP_POSITIVE, ARRAY)
             CASE_TYPE(math, OP_POSITIVE, POOL_BYTE_ARRAY)
@@ -1092,6 +1159,8 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_NEGATE, NODE_PATH)
             CASE_TYPE(math, OP_NEGATE, _RID)
             CASE_TYPE(math, OP_NEGATE, OBJECT)
+            CASE_TYPE(math, OP_MODULE, CALLABLE)
+            CASE_TYPE(math, OP_MODULE, SIGNAL)
             CASE_TYPE(math, OP_NEGATE, DICTIONARY)
             CASE_TYPE(math, OP_NEGATE, ARRAY)
             CASE_TYPE(math, OP_NEGATE, POOL_BYTE_ARRAY)

@@ -119,7 +119,7 @@ namespace {
         int height;
 
         Transform xform;
-        String name;
+        StringName name;
 
         GLTFMeshIndex mesh;
         GLTFCameraIndex camera;
@@ -667,13 +667,13 @@ namespace {
         return xform;
     }
 
-    String _sanitize_scene_name(const String& name) {
+    String _sanitize_scene_name(StringView name) {
         QRegularExpression regex("([^a-zA-Z0-9_ -]+)");
-        UIString p_name = QString::fromUtf8(name.c_str()).replace(regex, "");
+        UIString p_name = QString::fromUtf8(name.data(),name.size()).replace(regex, "");
         return StringUtils::to_utf8(p_name);
     }
 
-    String _gen_unique_name(GLTFState& state, const String& p_name) {
+    String _gen_unique_name(GLTFState& state, StringView p_name) {
 
         const String s_name = _sanitize_scene_name(p_name);
 
@@ -696,11 +696,11 @@ namespace {
         return name;
     }
 
-    String _sanitize_bone_name(const String& name) {
+    String _sanitize_bone_name(const StringView name) {
         String p_name = StringUtils::camelcase_to_underscore(name, true);
 
         QRegularExpression pattern_del("([^a-zA-Z0-9_ ])+");
-        QString val(UIString::fromUtf8(name.c_str()));
+        QString val(UIString::fromUtf8(name.data(),name.size()));
         val.remove(pattern_del);
 
         QRegularExpression pattern_nospace(" +");
@@ -714,7 +714,7 @@ namespace {
 
         return StringUtils::to_utf8(val);
     }
-    String _gen_unique_bone_name(GLTFState& state, const GLTFSkeletonIndex skel_i, const String& p_name) {
+    String _gen_unique_bone_name(GLTFState& state, const GLTFSkeletonIndex skel_i, StringView p_name) {
 
         const String s_name = _sanitize_bone_name(p_name);
 
@@ -778,7 +778,7 @@ namespace {
             const Dictionary n = nodes[i].as<Dictionary>();
 
             if (n.has("name")) {
-                node->name = n["name"].as<String>();
+                node->name = n["name"].as<StringName>();
             }
             if (n.has("camera")) {
                 node->camera = n["camera"].as<int>();
@@ -2495,7 +2495,7 @@ namespace {
                     node->name = "bone";
                 }
 
-                node->name = _gen_unique_bone_name(state, skel_i, node->name);
+                node->name = StringName(_gen_unique_bone_name(state, skel_i, node->name));
 
                 skeleton->add_bone(node->name);
                 skeleton->set_bone_rest(bone_index, node->xform);
@@ -2836,7 +2836,7 @@ namespace {
                 }
             }
 
-            n->name = _gen_unique_name(state, n->name);
+            n->name = StringName(_gen_unique_name(state, n->name));
         }
     }
 
@@ -3033,8 +3033,8 @@ namespace {
                 const Skeleton* sk = object_cast<Skeleton>(state.scene_nodes.find(node_index)->second);
                 ERR_FAIL_COND(sk == nullptr);
 
-                    const String path = (String)ap->get_parent()->get_path_to(sk);
-                const String bone = node->name;
+                const String path = (String)ap->get_parent()->get_path_to(sk);
+                const StringName bone = node->name;
                 node_path = NodePath(path + ":" + bone);
             }
             else {

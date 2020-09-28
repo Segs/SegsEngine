@@ -179,6 +179,8 @@ MAKE_TYPE_INFO(Transform, VariantType::TRANSFORM)
 MAKE_TYPE_INFO(Color, VariantType::COLOR)
 MAKE_TYPE_INFO(NodePath, VariantType::NODE_PATH)
 MAKE_TYPE_INFO(RID, VariantType::_RID)
+MAKE_TYPE_INFO(Callable, VariantType::CALLABLE)
+MAKE_TYPE_INFO(Signal, VariantType::SIGNAL)
 MAKE_TYPE_INFO(Dictionary, VariantType::DICTIONARY)
 MAKE_TYPE_INFO(Array, VariantType::ARRAY)
 MAKE_TYPE_INFO(PoolByteArray, VariantType::POOL_BYTE_ARRAY)
@@ -235,8 +237,7 @@ MAKE_SPAN_INFO(float,VariantType::POOL_REAL_ARRAY)
 MAKE_SPAN_INFO(int,VariantType::POOL_INT_ARRAY)
 MAKE_SPAN_INFO(uint8_t,VariantType::POOL_BYTE_ARRAY)
 
-
-MAKE_TYPE_INFO_WITH_META(StringName, VariantType::STRING,GodotTypeInfo::METADATA_STRING_NAME)
+MAKE_TYPE_INFO(StringName, VariantType::STRING_NAME)
 MAKE_TYPE_INFO(IP_Address, VariantType::STRING)
 
 class BSP_Tree;

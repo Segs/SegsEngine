@@ -2497,7 +2497,7 @@ void Viewport::_gui_add_root_control(Control *p_control) {
 
 void Viewport::_gui_add_subwindow_control(Control *p_control) {
 
-    p_control->connect("visibility_changed", this, "_subwindow_visibility_changed");
+    p_control->connect("visibility_changed",callable_mp(this, &ClassName::_subwindow_visibility_changed));
 
     if (p_control->is_visible_in_tree()) {
         gui.subwindow_order_dirty = true;
@@ -2588,7 +2588,7 @@ void Viewport::_gui_remove_subwindow_control(Control* SI) {
 
     ERR_FAIL_COND(SI==nullptr);
 
-    SI->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
+    SI->disconnect("visibility_changed",callable_mp(this, &ClassName::_subwindow_visibility_changed));
 
     auto E = eastl::find(gui.subwindows.begin(), gui.subwindows.end(),SI);
     if (E!= gui.subwindows.end())

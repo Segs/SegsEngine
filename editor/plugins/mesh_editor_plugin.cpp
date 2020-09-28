@@ -33,6 +33,7 @@
 #include "editor/editor_scale.h"
 #include "scene/resources/world_3d.h"
 #include "core/method_bind.h"
+#include "core/callable_method_pointer.h"
 
 IMPL_GDCLASS(MeshEditor)
 IMPL_GDCLASS(EditorInspectorPluginMesh)
@@ -162,12 +163,12 @@ MeshEditor::MeshEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_1_switch)));
+    light_1_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_1_switch)));
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_2_switch)));
+    light_2_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_2_switch)));
 
     first_enter = true;
 

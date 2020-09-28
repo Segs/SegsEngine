@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,14 +35,17 @@
 #include "core/script_language.h"
 #include "core/self_list.h"
 #include "core/list.h"
+#include "core/set.h"
 
 #include "mono_gc_handle.h"
 #include "mono_gd/gd_mono.h"
 #include "mono_gd/gd_mono_header.h"
 #include "mono_gd/gd_mono_internals.h"
+#include "core/os/mutex.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_plugin.h"
+
 #endif
 
 class CSharpScript;
@@ -53,8 +56,8 @@ enum MultiplayerAPI_RPCMode : int8_t;
 template <typename TScriptInstance, typename TScriptLanguage>
 TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
     if (!p_inst)
-        return NULL;
-    return p_inst->get_language() == TScriptLanguage::get_singleton() ? static_cast<TScriptInstance *>(p_inst) : NULL;
+        return nullptr;
+    return p_inst->get_language() == TScriptLanguage::get_singleton() ? static_cast<TScriptInstance *>(p_inst) : nullptr;
 }
 #else
 template <typename TScriptInstance, typename TScriptLanguage>
@@ -68,23 +71,35 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 class GODOT_EXPORT CSharpScript : public Script {
 
     GDCLASS(CSharpScript, Script);
+public:
+    struct SignalParameter {
+        StringName name;
+        VariantType type;
+        bool nil_is_variant = false;
+    };
 
+    struct EventSignal {
+        GDMonoField *field = nullptr;
+        GDMonoMethod *invoke_method = nullptr;
+        Vector<SignalParameter> parameters;
+    };
+
+private:
     friend class CSharpInstance;
     friend class CSharpLanguage;
     friend struct CSharpScriptDepSort;
 
-    bool tool;
-    bool valid;
-
-    bool builtin;
-
-    GDMonoClass *base;
-    GDMonoClass *native;
-    GDMonoClass *script_class;
-
+    GDMonoClass *base = nullptr;
+    GDMonoClass *native = nullptr;
+    GDMonoClass *script_class = nullptr;
+    HashSet<Object *> instances;
     Ref<CSharpScript> base_cache; // TODO what's this for?
 
-    HashSet<Object *> instances;
+    bool tool = false;
+    bool valid = false;
+    bool builtin;
+
+
 
 #ifdef GD_MONO_HOT_RELOAD
     struct StateBackup {
@@ -92,6 +107,7 @@ class GODOT_EXPORT CSharpScript : public Script {
         // Replace with buffer containing the serialized state of managed scripts.
         // Keep variant state backup to use only with script instance placeholders.
         Vector<Pair<StringName, Variant> > properties;
+        Vector<Pair<StringName, Array>> event_signals;
     };
 
     HashSet<ObjectID> pending_reload_instances;
@@ -103,34 +119,37 @@ class GODOT_EXPORT CSharpScript : public Script {
     String source;
     StringName name;
 
-    IntrusiveListNode<CSharpScript> script_list;
+    //IntrusiveListNode<CSharpScript> script_list {this};
 
-    struct Argument {
-        StringName name;
-        VariantType type;
-    };
+    Map<StringName, Vector<SignalParameter>> _signals;
+    Map<StringName, EventSignal> event_signals;
+    bool signals_invalidated = true;
 
-    Map<StringName, Vector<Argument> > _signals;
-    bool signals_invalidated;
+    Vector<ScriptNetData> rpc_functions;
+    Vector<ScriptNetData> rpc_variables;
 
 #ifdef TOOLS_ENABLED
     List<PropertyInfo> exported_members_cache; // members_cache
     HashMap<StringName, Variant> exported_members_defval_cache; // member_default_values_cache
     HashSet<PlaceHolderScriptInstance *> placeholders;
-    bool source_changed_cache;
-    bool placeholder_fallback_enabled;
-    bool exports_invalidated;
+    bool source_changed_cache = false;
+    bool placeholder_fallback_enabled = false;
+    bool exports_invalidated = true;
+
     void _update_exports_values(HashMap<StringName, Variant> &values, Vector<PropertyInfo> &propnames);
     void _update_member_info_no_exports();
     void _placeholder_erased(PlaceHolderScriptInstance *p_placeholder) override;
 #endif
-
+#if defined(TOOLS_ENABLED) || defined(DEBUG_ENABLED)
+    HashSet<StringName> exported_members_names;
+#endif
     HashMap<StringName, PropertyInfo> member_info;
 
     void _clear();
+    void _update_name();
 
     void load_script_signals(GDMonoClass *p_class, GDMonoClass *p_native_class);
-    bool _get_signal(GDMonoClass *p_class, GDMonoClass *p_delegate, Vector<Argument> &params);
+    bool _get_signal(GDMonoClass *p_class, GDMonoMethod *p_delegate_invoke, Vector<SignalParameter> &params);
 
     bool _update_exports();
     bool _get_member_export(IMonoClassMember *p_member, bool p_inspect_export, PropertyInfo &r_prop_info, bool &r_exported);
@@ -146,7 +165,7 @@ private:
     friend void GDMonoInternals::tie_managed_to_unmanaged(MonoObject *, Object *);
     static Ref<CSharpScript> create_for_managed_type(GDMonoClass *p_class, GDMonoClass *p_native);
     static void initialize_for_managed_type(Ref<CSharpScript> p_script, GDMonoClass *p_class, GDMonoClass *p_native);
-
+    MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
 protected:
     static void _bind_methods();
 
@@ -163,7 +182,7 @@ public:
     PlaceHolderScriptInstance *placeholder_instance_create(Object *p_this) override;
     bool instance_has(Object *p_this) const override;
 
-    virtual bool has_source_code() const override;
+    bool has_source_code() const override;
     StringView get_source_code() const override;
     void set_source_code(String p_code) override;
 
@@ -176,8 +195,12 @@ public:
     void get_script_property_list(Vector<PropertyInfo> *p_list) const override;
     void update_exports() override;
 
+    void get_members(HashSet<StringName> *p_members) override;
+
     bool is_tool() const override { return tool; }
     bool is_valid() const override { return valid; }
+
+    bool inherits_script(const Ref<Script> &p_script) const override;
 
     Ref<Script> get_base_script() const override;
     ScriptLanguage *get_language() const override;
@@ -188,13 +211,23 @@ public:
 
     int get_member_line(const StringName &p_member) const override;
 
+    Vector<ScriptNetData> get_rpc_methods() const override;
+    uint16_t get_rpc_method_id(const StringName &p_method) const override;
+    StringName get_rpc_method(const uint16_t p_rpc_method_id) const override;
+    MultiplayerAPI_RPCMode get_rpc_mode_by_id(const uint16_t p_rpc_method_id) const override;
+    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
+
+    Vector<ScriptNetData> get_rset_properties() const override;
+    uint16_t get_rset_property_id(const StringName &p_variable) const override;
+    StringName get_rset_property(const uint16_t p_variable_id) const override;
+    MultiplayerAPI_RPCMode get_rset_mode_by_id(const uint16_t p_variable_id) const override;
+    MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;
+
 #ifdef TOOLS_ENABLED
     bool is_placeholder_fallback_enabled() const override { return placeholder_fallback_enabled; }
 #endif
 
     Error load_source_code(StringView p_path);
-
-    StringName get_script_name() const;
 
     CSharpScript();
     ~CSharpScript() override;
@@ -205,15 +238,15 @@ class GODOT_EXPORT CSharpInstance : public ScriptInstance {
     friend class CSharpScript;
     friend class CSharpLanguage;
 
-    Object *owner;
-    bool base_ref;
-    bool ref_dying;
-    bool unsafe_referenced;
-    bool predelete_notified;
-    bool destructing_script_instance;
+    Object *owner = nullptr;
+    bool base_ref = false;
+    bool ref_dying = false;
+    bool unsafe_referenced = false;
+    bool predelete_notified = false;
+    bool destructing_script_instance = false;
 
     Ref<CSharpScript> script;
-    Ref<MonoGCHandle> gchandle;
+    MonoGCHandleData gchandle;
 
     bool _reference_owner_unsafe();
 
@@ -223,20 +256,16 @@ class GODOT_EXPORT CSharpInstance : public ScriptInstance {
     bool _unreference_owner_unsafe();
 
     /*
-     * If NULL is returned, the caller must destroy the script instance by removing it from its owner.
+     * If nullptr is returned, the caller must destroy the script instance by removing it from its owner.
      */
     MonoObject *_internal_new_managed();
 
     // Do not use unless you know what you are doing
     friend void GDMonoInternals::tie_managed_to_unmanaged(MonoObject *, Object *);
-    static CSharpInstance *create_for_managed_type(Object *p_owner, CSharpScript *p_script, const Ref<MonoGCHandle> &p_gchandle);
-
-    void _call_multilevel(MonoObject *p_mono_object, const StringName &p_method, const Variant **p_args, int p_argcount);
-
-    MultiplayerAPI_RPCMode _member_get_rpc_mode(IMonoClassMember *p_member) const;
+    static CSharpInstance *create_for_managed_type(Object *p_owner, CSharpScript *p_script, const MonoGCHandleData &p_gchandle);
 
     void get_properties_state_for_reloading(Vector<Pair<StringName, Variant>> &r_state);
-
+    void get_event_signals_state_for_reloading(Vector<Pair<StringName, Array>> &r_state);
 public:
     MonoObject *get_mono_object() const;
 
@@ -252,24 +281,35 @@ public:
     /* TODO */ void get_method_list(Vector<MethodInfo> * /*p_list*/) const override {}
     bool has_method(const StringName &p_method) const override;
     Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) override;
-    void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) override;
-    void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount) override;
 
     void mono_object_disposed(MonoObject *p_obj);
 
     /*
-     * If 'r_delete_owner' is set to true, the caller must memdelete the script instance's owner. Otherwise, if
+     * If 'r_delete_owner' is set to true, the caller must memdelete the script instance's owner. Otherwise, if event_signal
      * 'r_remove_script_instance' is set to true, the caller must destroy the script instance by removing it from its owner.
      */
     void mono_object_disposed_baseref(MonoObject *p_obj, bool p_is_finalizer, bool &r_delete_owner, bool &r_remove_script_instance);
 
+    void connect_event_signals();
+    void disconnect_event_signals();
+
     void refcount_incremented() override;
     bool refcount_decremented() override;
 
+    Vector<ScriptNetData> get_rpc_methods() const override;
+    uint16_t get_rpc_method_id(const StringName &p_method) const override;
+    StringName get_rpc_method(const uint16_t p_rpc_method_id) const override;
+    MultiplayerAPI_RPCMode get_rpc_mode_by_id(const uint16_t p_rpc_method_id) const override;
     MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override;
+
+    Vector<ScriptNetData> get_rset_properties() const override;
+    uint16_t get_rset_property_id(const StringName &p_variable) const override;
+    StringName get_rset_property(const uint16_t p_variable_id) const override;
+    MultiplayerAPI_RPCMode get_rset_mode_by_id(const uint16_t p_variable_id) const override;
     MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override;
 
     void notification(int p_notification) override;
+
     void _call_notification(int p_notification);
 
     String to_string(bool *r_valid) override;
@@ -278,16 +318,20 @@ public:
 
     ScriptLanguage *get_language() override;
 
-    CSharpInstance();
+    CSharpInstance(const Ref<CSharpScript> &p_script);
     ~CSharpInstance() override;
 };
 
 struct CSharpScriptBinding {
-    bool inited;
+    bool inited = false;
     StringName type_name;
-    GDMonoClass *wrapper_class;
-    Ref<MonoGCHandle> gchandle;
-    Object *owner;
+    GDMonoClass *wrapper_class = nullptr;
+    MonoGCHandleData gchandle;
+    Object *owner = nullptr;
+};
+
+class ManagedCallableMiddleman : public Object {
+    GDCLASS(ManagedCallableMiddleman, Object);
 };
 
 class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
@@ -297,21 +341,25 @@ class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
 
     static CSharpLanguage *singleton;
 
-    bool finalizing;
+    bool finalizing = false;
+    bool finalized = false;
 
-    GDMono *gdmono;
+    GDMono *gdmono = nullptr;
     Vector<CSharpScript *> script_list;
 
-    Mutex *script_instances_mutex;
-    Mutex *script_gchandle_release_mutex;
-    Mutex *language_bind_mutex;
+    Mutex script_instances_mutex;
+    Mutex script_gchandle_release_mutex;
+    Mutex language_bind_mutex;
 
     Map<Object *, CSharpScriptBinding> script_bindings;
 #ifdef DEBUG_ENABLED
     // List of unsafe object references
     Map<ObjectID, int> unsafe_object_references;
-    Mutex *unsafe_object_references_lock;
+    Mutex unsafe_object_references_lock;
 #endif
+
+    ManagedCallableMiddleman *managed_callable_middleman = memnew(ManagedCallableMiddleman);
+
     struct StringNameCache {
 
         StringName _signal_callback;
@@ -323,17 +371,17 @@ class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
         StringName dotctor; // .ctor
         StringName on_before_serialize; // OnBeforeSerialize
         StringName on_after_deserialize; // OnAfterDeserialize
-
+        StringName delegate_invoke_method_name;
         StringNameCache();
     };
 
-    int lang_idx;
+    int lang_idx=-1;
 
     Dictionary scripts_metadata;
-    bool scripts_metadata_invalidated;
+    bool scripts_metadata_invalidated=true;
 
     // For debug_break and debug_break_parse
-    int _debug_parse_err_line;
+    int _debug_parse_err_line = -1;
     String _debug_parse_err_file;
     String _debug_error;
 
@@ -343,7 +391,7 @@ class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
     void _on_scripts_domain_unloaded();
 
 #ifdef TOOLS_ENABLED
-    EditorPlugin *godotsharp_editor;
+    EditorPlugin *godotsharp_editor = nullptr;
 
     static void _editor_init_callback();
 #endif
@@ -351,7 +399,7 @@ class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {
 public:
     StringNameCache string_names;
 
-    Mutex *get_language_bind_mutex() { return language_bind_mutex; }
+    Mutex &get_language_bind_mutex() { return language_bind_mutex; }
 
     _FORCE_INLINE_ int get_language_index() { return lang_idx; }
     void set_language_index(int p_idx);
@@ -364,8 +412,8 @@ public:
     EditorPlugin *get_godotsharp_editor() const { return godotsharp_editor; }
 #endif
 
-    static void release_script_gchandle(Ref<MonoGCHandle> &p_gchandle);
-    static void release_script_gchandle(MonoObject *p_expected_obj, Ref<MonoGCHandle> &p_gchandle);
+    static void release_script_gchandle(MonoGCHandleData &p_gchandle);
+    static void release_script_gchandle(MonoObject *p_expected_obj, MonoGCHandleData &p_gchandle);
 
     bool debug_break(const String &p_error, bool p_allow_continue = true);
     bool debug_break_parse(StringView p_file, int p_line, const String &p_error);
@@ -380,10 +428,12 @@ public:
     }
 
     _FORCE_INLINE_ const Dictionary &get_scripts_metadata() {
-        if (scripts_metadata_invalidated)
+        if (scripts_metadata_invalidated) {
             _load_scripts_metadata();
+        }
         return scripts_metadata;
     }
+    _FORCE_INLINE_ ManagedCallableMiddleman *get_managed_callable_middleman() const { return managed_callable_middleman; }
 
     StringName get_name() const override;
 
@@ -393,6 +443,8 @@ public:
     Error execute_file(StringView p_path) override;
     bool init() override;
     void finish() override;
+
+    void finalize();
 
     /* EDITOR FUNCTIONS */
     void get_reserved_words(Vector<String> *p_words) const override;

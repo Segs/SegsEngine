@@ -422,7 +422,7 @@ void AudioStreamPlayer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "autoplay"), "set_autoplay", "is_autoplay_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mix_target", PropertyHint::Enum, "Stereo,Surround,Center"), "set_mix_target", "get_mix_target");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
 
     ADD_SIGNAL(MethodInfo("finished"));
 
@@ -446,7 +446,7 @@ AudioStreamPlayer::AudioStreamPlayer() {
     setstop = false;
     use_fadeout = false;
 
-    AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
+    AudioServer::get_singleton()->connect("bus_layout_changed",callable_mp(this, &ClassName::_bus_layout_changed));
 }
 
 AudioStreamPlayer::~AudioStreamPlayer() {

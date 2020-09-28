@@ -68,5 +68,10 @@ CoreStringNames::CoreStringNames() :
         r8("r8"),
         g8("g8"),
         b8("b8"),
-        a8("a8") {
+        a8("a8"),
+        call("call"),
+        call_deferred("call_deferred"),
+        emit("emit"),
+        notification("notification")
+{
 }

@@ -1045,5 +1045,5 @@ Tabs::Tabs() {
     hover = -1;
     drag_to_rearrange_enabled = false;
     tabs_rearrange_group = -1;
-    connect("mouse_exited", this, "_on_mouse_exited");
+    connect("mouse_exited",callable_mp(this, &ClassName::_on_mouse_exited));
 }

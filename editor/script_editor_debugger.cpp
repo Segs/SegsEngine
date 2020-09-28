@@ -624,7 +624,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
             debugObj->remote_object_id = id;
             debugObj->type_name = type;
             remote_objects[id] = debugObj;
-            debugObj->connect("value_edited", this, "_scene_tree_property_value_edited");
+            debugObj->connect("value_edited",callable_mp(this, &ClassName::_scene_tree_property_value_edited));
         }
 
         int old_prop_size = debugObj->prop_list.size();
@@ -1271,10 +1271,10 @@ void ScriptEditorDebugger::_notification(int p_what) {
             forward->set_button_icon(get_icon("Forward", "EditorIcons"));
             dobreak->set_button_icon(get_icon("Pause", "EditorIcons"));
             docontinue->set_button_icon(get_icon("DebugContinue", "EditorIcons"));
-            le_set->connect("pressed", this, "_live_edit_set");
-            le_clear->connect("pressed", this, "_live_edit_clear");
-            error_tree->connect("item_selected", this, "_error_selected");
-            error_tree->connect("item_activated", this, "_error_activated");
+            le_set->connect("pressed",callable_mp(this, &ClassName::_live_edit_set));
+            le_clear->connect("pressed",callable_mp(this, &ClassName::_live_edit_clear));
+            error_tree->connect("item_selected",callable_mp(this, &ClassName::_error_selected));
+            error_tree->connect("item_activated",callable_mp(this, &ClassName::_error_activated));
             vmem_refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
             vmem_export->set_button_icon(get_icon("Save", "EditorIcons"));
 
@@ -2332,14 +2332,14 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
     ppeer = make_ref_counted<PacketPeerStream>();
     ppeer->set_input_buffer_max_size(1024 * 1024 * 8); //8mb should be enough
     editor = p_editor;
-    editor->get_inspector()->connect("object_id_selected", this, "_scene_tree_property_select_object");
+    editor->get_inspector()->connect("object_id_selected",callable_mp(this, &ClassName::_scene_tree_property_select_object));
 
     tabs = memnew(TabContainer);
     tabs->set_tab_align(TabContainer::ALIGN_LEFT);
     tabs->add_style_override("panel", editor->get_gui_base()->get_stylebox("DebuggerPanel", "EditorStyles"));
     tabs->add_style_override("tab_fg", editor->get_gui_base()->get_stylebox("DebuggerTabFG", "EditorStyles"));
     tabs->add_style_override("tab_bg", editor->get_gui_base()->get_stylebox("DebuggerTabBG", "EditorStyles"));
-    tabs->connect("tab_changed", this, "_tab_changed");
+    tabs->connect("tab_changed",callable_mp(this, &ClassName::_tab_changed));
 
     add_child(tabs);
 
@@ -2364,14 +2364,14 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         skip_breakpoints = memnew(ToolButton);
         hbc->add_child(skip_breakpoints);
         skip_breakpoints->set_tooltip(TTR("Skip Breakpoints"));
-        skip_breakpoints->connect("pressed", this, "debug_skip_breakpoints");
+        skip_breakpoints->connect("pressed",callable_mp(this, &ClassName::debug_skip_breakpoints));
 
         hbc->add_child(memnew(VSeparator));
 
         copy = memnew(ToolButton);
         hbc->add_child(copy);
         copy->set_tooltip(TTR("Copy Error"));
-        copy->connect("pressed", this, "debug_copy");
+        copy->connect("pressed",callable_mp(this, &ClassName::debug_copy));
 
         hbc->add_child(memnew(VSeparator));
 
@@ -2379,13 +2379,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         hbc->add_child(step);
         step->set_tooltip(TTR("Step Into"));
         step->set_shortcut(ED_GET_SHORTCUT("debugger/step_into"));
-        step->connect("pressed", this, "debug_step");
+        step->connect("pressed",callable_mp(this, &ClassName::debug_step));
 
         next = memnew(ToolButton);
         hbc->add_child(next);
         next->set_tooltip(TTR("Step Over"));
         next->set_shortcut(ED_GET_SHORTCUT("debugger/step_over"));
-        next->connect("pressed", this, "debug_next");
+        next->connect("pressed",callable_mp(this, &ClassName::debug_next));
 
         hbc->add_child(memnew(VSeparator));
 
@@ -2393,13 +2393,13 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         hbc->add_child(dobreak);
         dobreak->set_tooltip(TTR("Break"));
         dobreak->set_shortcut(ED_GET_SHORTCUT("debugger/break"));
-        dobreak->connect("pressed", this, "debug_break");
+        dobreak->connect("pressed",callable_mp(this, &ClassName::debug_break));
 
         docontinue = memnew(ToolButton);
         hbc->add_child(docontinue);
         docontinue->set_tooltip(TTR("Continue"));
         docontinue->set_shortcut(ED_GET_SHORTCUT("debugger/continue"));
-        docontinue->connect("pressed", this, "debug_continue");
+        docontinue->connect("pressed",callable_mp(this, &ClassName::debug_continue));
 
         back = memnew(Button);
         hbc->add_child(back);
@@ -2422,14 +2422,14 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         stack_dump->set_column_title(0, TTR("Stack Frames"));
         stack_dump->set_h_size_flags(SIZE_EXPAND_FILL);
         stack_dump->set_hide_root(true);
-        stack_dump->connect("cell_selected", this, "_stack_dump_frame_selected");
+        stack_dump->connect("cell_selected",callable_mp(this, &ClassName::_stack_dump_frame_selected));
         sc->add_child(stack_dump);
 
         inspector = memnew(EditorInspector);
         inspector->set_h_size_flags(SIZE_EXPAND_FILL);
         inspector->set_enable_capitalize_paths(false);
         inspector->set_read_only(true);
-        inspector->connect("object_id_selected", this, "_scene_tree_property_select_object");
+        inspector->connect("object_id_selected",callable_mp(this, &ClassName::_scene_tree_property_select_object));
         sc->add_child(inspector);
 
         server = make_ref_counted<TCP_Server>();
@@ -2452,12 +2452,12 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
         Button *expand_all = memnew(Button);
         expand_all->set_text(TTR("Expand All"));
-        expand_all->connect("pressed", this, "_expand_errors_list");
+        expand_all->connect("pressed",callable_mp(this, &ClassName::_expand_errors_list));
         errhb->add_child(expand_all);
 
         Button *collapse_all = memnew(Button);
         collapse_all->set_text(TTR("Collapse All"));
-        collapse_all->connect("pressed", this, "_collapse_errors_list");
+        collapse_all->connect("pressed",callable_mp(this, &ClassName::_collapse_errors_list));
         errhb->add_child(collapse_all);
 
         Control *space = memnew(Control);
@@ -2467,7 +2467,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         clearbutton = memnew(Button);
         clearbutton->set_text(TTR("Clear"));
         clearbutton->set_h_size_flags(0);
-        clearbutton->connect("pressed", this, "_clear_errors_list");
+        clearbutton->connect("pressed",callable_mp(this, &ClassName::_clear_errors_list));
         errhb->add_child(clearbutton);
 
         error_tree = memnew(Tree);
@@ -2482,11 +2482,11 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         error_tree->set_hide_root(true);
         error_tree->set_v_size_flags(SIZE_EXPAND_FILL);
         error_tree->set_allow_rmb_select(true);
-        error_tree->connect("item_rmb_selected", this, "_error_tree_item_rmb_selected");
+        error_tree->connect("item_rmb_selected",callable_mp(this, &ClassName::_error_tree_item_rmb_selected));
         errors_tab->add_child(error_tree);
 
         item_menu = memnew(PopupMenu);
-        item_menu->connect("id_pressed", this, "_item_menu_id_pressed");
+        item_menu->connect("id_pressed",callable_mp(this, &ClassName::_item_menu_id_pressed));
         error_tree->add_child(item_menu);
 
         tabs->add_child(errors_tab);
@@ -2496,12 +2496,12 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
         inspect_scene_tree = memnew(Tree);
         EditorNode::get_singleton()->get_scene_tree_dock()->add_remote_tree_editor(inspect_scene_tree);
-        EditorNode::get_singleton()->get_scene_tree_dock()->connect("remote_tree_selected", this, "_scene_tree_selected");
+        EditorNode::get_singleton()->get_scene_tree_dock()->connect("remote_tree_selected",callable_mp(this, &ClassName::_scene_tree_selected));
         inspect_scene_tree->set_v_size_flags(SIZE_EXPAND_FILL);
-        inspect_scene_tree->connect("cell_selected", this, "_scene_tree_selected");
-        inspect_scene_tree->connect("item_collapsed", this, "_scene_tree_folded");
+        inspect_scene_tree->connect("cell_selected",callable_mp(this, &ClassName::_scene_tree_selected));
+        inspect_scene_tree->connect("item_collapsed",callable_mp(this, &ClassName::_scene_tree_folded));
         inspect_scene_tree->set_allow_rmb_select(true);
-        inspect_scene_tree->connect("item_rmb_selected", this, "_scene_tree_rmb_selected");
+        inspect_scene_tree->connect("item_rmb_selected",callable_mp(this, &ClassName::_scene_tree_rmb_selected));
         auto_switch_remote_scene_tree = EDITOR_DEF_T<bool>("debugger/auto_switch_to_remote_scene_tree", false);
         inspect_scene_tree_timeout = EDITOR_DEF_T<float>("debugger/remote_scene_tree_refresh_interval", 1.0f);
         inspect_edited_object_timeout = EDITOR_DEF_T<float>("debugger/remote_inspect_refresh_interval", 0.2f);
@@ -2511,7 +2511,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
 
     { // File dialog
         file_dialog = memnew(EditorFileDialog);
-        file_dialog->connect("file_selected", this, "_file_selected");
+        file_dialog->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
         add_child(file_dialog);
     }
 
@@ -2519,15 +2519,15 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         profiler = memnew(EditorProfiler);
         profiler->set_name(TTR("Profiler"));
         tabs->add_child(profiler);
-        profiler->connect("enable_profiling", this, "_profiler_activate");
-        profiler->connect("break_request", this, "_profiler_seeked");
+        profiler->connect("enable_profiling",callable_mp(this, &ClassName::_profiler_activate));
+        profiler->connect("break_request",callable_mp(this, &ClassName::_profiler_seeked));
     }
 
     { //network profiler
         network_profiler = memnew(EditorNetworkProfiler);
         network_profiler->set_name(TTR("Network Profiler"));
         tabs->add_child(network_profiler);
-        network_profiler->connect("enable_profiling", this, "_network_profiler_activate");
+        network_profiler->connect("enable_profiling",callable_mp(this, &ClassName::_network_profiler_activate));
     }
 
     { //monitors
@@ -2539,12 +2539,12 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         perf_monitors->set_column_title(0, TTR("Monitor"));
         perf_monitors->set_column_title(1, TTR("Value"));
         perf_monitors->set_column_titles_visible(true);
-        perf_monitors->connect("item_edited", this, "_performance_select");
+        perf_monitors->connect("item_edited",callable_mp(this, &ClassName::_performance_select));
         hsp->add_child(perf_monitors);
 
         perf_draw = memnew(Control);
         perf_draw->set_clip_contents(true);
-        perf_draw->connect("draw", this, "_performance_draw");
+        perf_draw->connect("draw",callable_mp(this, &ClassName::_performance_draw));
         hsp->add_child(perf_draw);
         hsp->set_name(TTR("Monitors"));
         hsp->set_split_offset(340 * EDSCALE);
@@ -2609,8 +2609,8 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         vmem_export->set_tooltip(TTR("Export list to a CSV file"));
         vmem_hb->add_child(vmem_export);
         vmem_vb->add_child(vmem_hb);
-        vmem_refresh->connect("pressed", this, "_video_mem_request");
-        vmem_export->connect("pressed", this, "_video_mem_export");
+        vmem_refresh->connect("pressed",callable_mp(this, &ClassName::_video_mem_request));
+        vmem_export->connect("pressed",callable_mp(this, &ClassName::_video_mem_export));
 
         VBoxContainer *vmmc = memnew(VBoxContainer);
         vmem_tree = memnew(Tree);
@@ -2677,7 +2677,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
         HBoxContainer *buttons = memnew(HBoxContainer);
 
         export_csv = memnew(Button(TTR("Export measures as CSV")));
-        export_csv->connect("pressed", this, "_export_csv");
+        export_csv->connect("pressed",callable_mp(this, &ClassName::_export_csv));
         buttons->add_child(export_csv);
 
         misc->add_child(buttons);
@@ -2698,7 +2698,7 @@ ScriptEditorDebugger::ScriptEditorDebugger(EditorNode *p_editor) {
     last_error_count = 0;
     last_warning_count = 0;
 
-    EditorNode::get_singleton()->get_pause_button()->connect("pressed", this, "_paused");
+    EditorNode::get_singleton()->get_pause_button()->connect("pressed",callable_mp(this, &ClassName::_paused));
 }
 
 ScriptEditorDebugger::~ScriptEditorDebugger() {

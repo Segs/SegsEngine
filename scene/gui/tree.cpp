@@ -768,10 +768,10 @@ Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, C
         return Variant();
     }
 
-    if (p_args[0]->get_type() != VariantType::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING && p_args[0]->get_type() != VariantType::STRING_NAME) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = VariantType::STRING;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -893,7 +893,7 @@ void TreeItem::_bind_methods() {
     {
         MethodInfo mi;
         mi.name = "call_recursive";
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+        mi.arguments.push_back(PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("call_recursive", &TreeItem::_call_recursive_bind, eastl::move(mi));
     }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
@@ -4128,15 +4128,15 @@ Tree::Tree() {
     add_child(v_scroll);
 
     range_click_timer = memnew(Timer);
-    range_click_timer->connect("timeout", this, "_range_click_timeout");
+    range_click_timer->connect("timeout",callable_mp(this, &ClassName::_range_click_timeout));
     add_child(range_click_timer);
 
-    h_scroll->connect("value_changed", this, "_scroll_moved");
-    v_scroll->connect("value_changed", this, "_scroll_moved");
-    text_editor->connect("text_entered", this, "_text_editor_enter");
-    text_editor->connect("modal_closed", this, "_text_editor_modal_close");
-    popup_menu->connect("id_pressed", this, "_popup_select");
-    value_editor->connect("value_changed", this, "_value_editor_changed");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    text_editor->connect("text_entered",callable_mp(this, &ClassName::_text_editor_enter));
+    text_editor->connect("modal_closed",callable_mp(this, &ClassName::_text_editor_modal_close));
+    popup_menu->connect("id_pressed",callable_mp(this, &ClassName::_popup_select));
+    value_editor->connect("value_changed",callable_mp(this, &ClassName::_value_editor_changed));
 
     value_editor->set_as_toplevel(true);
     text_editor->set_as_toplevel(true);

@@ -262,8 +262,8 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         }
 
         {
-            if (!child->is_connected("tree_exiting", this, "_node_removed"))
-                child->connect("tree_exiting", this, "_node_removed", make_binds(Variant(child)), ObjectNS::CONNECT_ONESHOT);
+            if (!child->is_connected("tree_exiting",callable_mp(this, &ClassName::_node_removed)))
+                child->connect("tree_exiting",callable_mp(this, &ClassName::_node_removed), make_binds(Variant(child)), ObjectNS::CONNECT_ONESHOT);
         }
 
         TrackNodeCacheKey key;
@@ -1438,12 +1438,12 @@ StringName AnimationPlayer::find_animation(const Ref<Animation> &p_animation) co
     return "";
 }
 
-void AnimationPlayer::set_autoplay(StringView p_name) {
+void AnimationPlayer::set_autoplay(const StringName & p_name) {
     if (is_inside_tree() && !Engine::get_singleton()->is_editor_hint()) {
         WARN_PRINT("Setting autoplay after the node has been added to the scene has no effect.");
     }
 
-    autoplay = StringName(p_name);
+    autoplay = p_name;
 }
 
 StringName AnimationPlayer::get_autoplay() const {
@@ -1673,9 +1673,9 @@ void AnimationPlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("advance", {"delta"}), &AnimationPlayer::advance);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "root_node"), "set_root", "get_root");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "assigned_animation", PropertyHint::None, "", 0), "set_assigned_animation", "get_assigned_animation");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "autoplay", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_autoplay", "get_autoplay");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "assigned_animation", PropertyHint::None, "", 0), "set_assigned_animation", "get_assigned_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "autoplay", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_autoplay", "get_autoplay");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_length", PropertyHint::None, "", 0), "", "get_current_animation_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_position", PropertyHint::None, "", 0), "", "get_current_animation_position");
 

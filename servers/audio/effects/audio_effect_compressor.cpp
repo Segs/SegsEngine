@@ -240,7 +240,7 @@ void AudioEffectCompressor::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "attack_us", PropertyHint::Range, "20,2000,1"), "set_attack_us", "get_attack_us");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "release_ms", PropertyHint::Range, "20,2000,1"), "set_release_ms", "get_release_ms");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "mix", PropertyHint::Range, "0,1,0.01"), "set_mix", "get_mix");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "sidechain", PropertyHint::Enum), "set_sidechain", "get_sidechain");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "sidechain", PropertyHint::Enum), "set_sidechain", "get_sidechain");
 }
 
 AudioEffectCompressor::AudioEffectCompressor() {

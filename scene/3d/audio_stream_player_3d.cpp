@@ -1025,7 +1025,7 @@ void AudioStreamPlayer3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_distance", PropertyHint::ExpRange, "0,4096,1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "out_of_range_mode", PropertyHint::Enum, "Mix,Pause"), "set_out_of_range_mode", "get_out_of_range_mode");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "area_mask", PropertyHint::Layers2DPhysics), "set_area_mask", "get_area_mask");
     ADD_GROUP("Emission Angle", "emission_angle");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "emission_angle_enabled"), "set_emission_angle_enabled", "is_emission_angle_enabled");
@@ -1080,7 +1080,7 @@ AudioStreamPlayer3D::AudioStreamPlayer3D() {
     stream_paused_fade_out = false;
 
     velocity_tracker = make_ref_counted<VelocityTracker3D>();
-    AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
+    AudioServer::get_singleton()->connect("bus_layout_changed",callable_mp(this, &ClassName::_bus_layout_changed));
     set_disable_scale(true);
 }
 AudioStreamPlayer3D::~AudioStreamPlayer3D() {

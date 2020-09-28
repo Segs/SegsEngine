@@ -118,7 +118,7 @@ Skeleton2DEditor::Skeleton2DEditor() {
     options->get_popup()->add_item(TTR("Set Bones to Rest Pose"), MENU_OPTION_SET_REST);
     options->set_switch_on_hover(true);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     err_dialog = memnew(AcceptDialog);
     add_child(err_dialog);

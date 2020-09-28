@@ -50,35 +50,20 @@
 
 #include <EASTL/vector_map.h>
 
-struct Object::Signal  {
-
-    struct Target {
-
-        ObjectID _id {0ULL};
-        StringName method;
-
-        _FORCE_INLINE_ bool operator<(const Target &p_target) const { return (_id == p_target._id) ? (method < p_target.method) : (_id < p_target._id); }
-
-        Target(const ObjectID &p_id, const StringName &p_method) noexcept :
-                _id(p_id),
-                method(p_method) {
-        }
-        Target() noexcept = default;
-    };
-
+struct Object::SignalData  {
     struct Slot {
+        int reference_count = 0;
         Connection conn;
         List<Connection>::iterator cE;
-        int reference_count=0;
     };
 
     MethodInfo user;
-    VMap<Target, Slot> slot_map;
+    VMap<Callable, Slot> slot_map;
 };
 
 struct Object::ObjectPrivate {
     IObjectTooling *m_tooling;
-    HashMap<StringName, Signal> signal_map;
+    HashMap<StringName, SignalData> signal_map;
     List<Connection> connections;
 
 #ifdef DEBUG_ENABLED
@@ -95,24 +80,22 @@ struct Object::ObjectPrivate {
     ~ObjectPrivate() {
         //TODO: use range-based-for + signal_map.clear() afterwards ?
         while(!signal_map.empty()) {
-            Signal *s = &signal_map.begin()->second;
+            SignalData *s = &signal_map.begin()->second;
 
             //brute force disconnect for performance
-            const VMap<Signal::Target, Signal::Slot>::Pair *slot_list = s->slot_map.get_array();
-
-            for (int i = 0; i < s->slot_map.size(); i++) {
-                const VMap<Signal::Target, Signal::Slot>::Pair &entry(slot_list[i]);
-                if(entry.value.conn.target && entry.value.conn.target->private_data) {
-                    entry.value.conn.target->private_data->connections.erase(entry.value.cE);
-                }
+            const auto *slot_list = s->slot_map.get_array();
+            int slot_count = s->slot_map.size();
+            for (int i = 0; i < slot_count; i++) {
+                slot_list[i].value.conn.callable.get_object()->private_data->connections.erase(slot_list[i].value.cE);
             }
+
             signal_map.erase(signal_map.begin());
         }
 
         //signals from nodes that connect to this node
-        while (!connections.empty()) {
+        while (connections.size()) {
             Connection c = connections.front();
-            c.source->_disconnect(c.signal, c.target, c.method, true);
+            c.signal.get_object()->_disconnect(c.signal.get_name(), c.callable, true);
         }
         relase_tooling(m_tooling);
         m_tooling = nullptr;
@@ -255,12 +238,10 @@ MethodInfo MethodInfo::from_dict(const Dictionary &p_dict) {
 
 Object::Connection::operator Variant() const {
 
-    Dictionary d;
     //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are RefCounted types!
-    d["source"] = Variant(source);
-    d["signal"] = signal;
-    d["target"] = Variant(target);
-    d["method"] = method;
+    Dictionary d;
+    d["signal"] = (Variant)signal;
+    d["callable"] = (Variant)callable;
     d["flags"] = flags;
     d["binds"] = Variant::fromVector(Span<const Variant>(binds));
     return d;
@@ -268,33 +249,28 @@ Object::Connection::operator Variant() const {
 
 bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
 
-    if (source != p_conn.source) {
-        return source < p_conn.source;
-    }
     if (signal == p_conn.signal) {
-
-        if (target == p_conn.target) {
-            return method < p_conn.method;
-        }
-        return target < p_conn.target;
+        return callable < p_conn.callable;
     }
-    return signal < p_conn.signal;
+    else {
+        return signal < p_conn.signal;
+    }
 }
 Object::Connection::Connection(const Variant &p_variant) {
 
-    Dictionary d = p_variant.as<Dictionary>();
-    if (d.has("source"))
-        source = d["source"].as<Object *>();
-    if (d.has("signal"))
-        signal = d["signal"].as<StringName>();
-    if (d.has("target"))
-        target = d["target"].as<Object *>();
-    if (d.has("method"))
-        method = d["method"].as<StringName>();
-    if (d.has("flags"))
-        flags = d["flags"].as<uint32_t>();
-    if (d.has("binds"))
-        binds = d["binds"].as<Vector<Variant>>();
+    Dictionary d = (Dictionary)p_variant;
+    if (d.has("signal")) {
+        signal = (Signal)d["signal"];
+    }
+    if (d.has("callable")) {
+        callable = (Callable)d["callable"];
+    }
+    if (d.has("flags")) {
+        flags = (uint32_t)d["flags"];
+    }
+    if (d.has("binds")) {
+        binds = (Vector<Variant>)d["binds"];
+    }
 }
 
 bool Object::_predelete() {
@@ -365,8 +341,9 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
     //something inside the object... :|
     bool success = _setv(p_name, p_value);
     if (success) {
-        if (r_valid)
+        if (r_valid) {
             *r_valid = true;
+        }
         return;
     }
 
@@ -374,8 +351,9 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
         bool valid;
         setvar(p_name, p_value, &valid);
         if (valid) {
-            if (r_valid)
+            if (r_valid) {
                 *r_valid = true;
+            }
             return;
         }
     }
@@ -391,8 +369,9 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
     if (script_instance) {
 
         if (script_instance->get(p_name, ret)) {
-            if (r_valid)
+            if (r_valid) {
                 *r_valid = true;
+            }
             return ret;
         }
     }
@@ -400,26 +379,32 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
     //try built-in setgetter
     {
         if (ClassDB::get_property(const_cast<Object *>(this), p_name, ret)) {
-            if (r_valid)
+            if (r_valid) {
                 *r_valid = true;
+            }
             return ret;
         }
     }
 
     if (p_name == CoreStringNames::get_singleton()->_script) {
-        ret = Variant(get_script());
-        if (r_valid)
+        ret = refFromRefPtr<Script>(get_script());
+        if (r_valid) {
             *r_valid = true;
+        }
+        return ret;
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
         ret = metadata;
-        if (r_valid)
+        if (r_valid) {
             *r_valid = true;
+        }
+        return ret;
     } else {
         //something inside the object... :|
         bool success = _getv(p_name, ret);
         if (success) {
-            if (r_valid)
+            if (r_valid) {
                 *r_valid = true;
+            }
             return ret;
         }
 
@@ -428,8 +413,9 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
             bool valid;
             ret = getvar(p_name, &valid);
             if (valid) {
-                if (r_valid)
+                if (r_valid) {
                     *r_valid = true;
+                }
                 return ret;
             }
         }
@@ -443,8 +429,9 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
 
 void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_value, bool *r_valid) {
     if (p_names.empty()) {
-        if (r_valid)
+        if (r_valid) {
             *r_valid = false;
+        }
         return;
     }
     if (p_names.size() == 1) {
@@ -494,8 +481,9 @@ void Object::set_indexed(const Vector<StringName> &p_names, const Variant &p_val
 
 Variant Object::get_indexed(const Vector<StringName> &p_names, bool *r_valid) const {
     if (p_names.empty()) {
-        if (r_valid)
+        if (r_valid) {
             *r_valid = false;
+        }
         return Variant();
     }
     bool valid = false;
@@ -504,11 +492,13 @@ Variant Object::get_indexed(const Vector<StringName> &p_names, bool *r_valid) co
     for (size_t i = 1; i < p_names.size(); i++) {
         current_value = current_value.get_named(p_names[i], &valid);
 
-        if (!valid)
+        if (!valid) {
             break;
+        }
     }
-    if (r_valid)
+    if (r_valid) {
         *r_valid = valid;
+    }
 
     return current_value;
 }
@@ -554,10 +544,10 @@ Variant Object::_call_bind(const Variant **p_args, int p_argcount, Callable::Cal
         return Variant();
     }
 
-    if (p_args[0]->get_type() != VariantType::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = VariantType::STRING;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -574,10 +564,10 @@ Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Call
         return Variant();
     }
 
-    if (p_args[0]->get_type() != VariantType::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = VariantType::STRING;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -588,94 +578,6 @@ Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Call
     MessageQueue::get_singleton()->push_call(get_instance_id(), method, &p_args[1], p_argcount - 1, true);
 
     return Variant();
-}
-
-#ifdef DEBUG_ENABLED
-static void _test_call_error(const StringName &p_func, const Callable::CallError &error) {
-
-    switch (error.error) {
-
-        case Callable::CallError::CALL_OK:
-        case Callable::CallError::CALL_ERROR_INVALID_METHOD: break;
-        case Callable::CallError::CALL_ERROR_INVALID_ARGUMENT: {
-
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Invalid type for argument " +
-                         itos(error.argument) + ", expected " + Variant::get_type_name(error.expected) + ".");
-            break;
-        }
-        case Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS: {
-
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too many arguments, expected " +
-                         itos(error.argument) + ".");
-            break;
-        }
-        case Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS: {
-
-            ERR_FAIL_MSG("Error calling function: " + String(p_func) + " - Too few arguments, expected " +
-                         itos(error.argument) + ".");
-            break;
-        }
-        case Callable::CallError::CALL_ERROR_INSTANCE_IS_NULL: break;
-    }
-}
-#else
-
-#define _test_call_error(m_str, m_err)
-
-#endif
-
-void Object::call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) {
-
-    if (p_method == CoreStringNames::get_singleton()->_free) {
-#ifdef DEBUG_ENABLED
-        ERR_FAIL_COND_MSG(object_cast<RefCounted>(this), "Can't 'free' a reference.");
-
-        ERR_FAIL_COND_MSG(private_data->_lock_index.get() > 1, "Object is locked and can't be freed.");
-#endif
-
-        //must be here, must be before everything,
-        memdelete(this);
-        return;
-    }
-
-    //Variant ret;
-    OBJ_DEBUG_LOCK
-
-    Callable::CallError error;
-
-    if (script_instance) {
-        script_instance->call_multilevel(p_method, p_args, p_argcount);
-        //_test_call_error(p_method,error);
-    }
-
-    MethodBind *method = ClassDB::get_method(get_class_name(), p_method);
-
-    if (method) {
-
-        method->call(this, p_args, p_argcount, error);
-        _test_call_error(p_method, error);
-    }
-}
-
-void Object::call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount) {
-
-    MethodBind *method = ClassDB::get_method(get_class_name(), p_method);
-
-    Callable::CallError error;
-    OBJ_DEBUG_LOCK
-
-    if (method) {
-
-        method->call(this, p_args, p_argcount, error);
-        _test_call_error(p_method, error);
-    }
-
-    //Variant ret;
-
-    if (script_instance) {
-        script_instance->call_multilevel_reversed(p_method, p_args, p_argcount);
-        //_test_call_error(p_method,error);
-    }
 }
 
 bool Object::has_method(const StringName &p_method) const {
@@ -695,8 +597,9 @@ bool Object::has_method(const StringName &p_method) const {
 
 Variant Object::getvar(const Variant &p_key, bool *r_valid) const {
 
-    if (r_valid)
+    if (r_valid) {
         *r_valid = false;
+    }
     return Variant();
 }
 void Object::setvar(const Variant &p_key, const Variant &p_value, bool *r_valid) {
@@ -728,8 +631,9 @@ Variant Object::call_va(const StringName &p_name, VARIANT_ARG_DECLARE) {
 
     int argc = 0;
     for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == VariantType::NIL)
+        if (argptr[i]->get_type() == VariantType::NIL) {
             break;
+        }
         argc++;
     }
 
@@ -737,21 +641,6 @@ Variant Object::call_va(const StringName &p_name, VARIANT_ARG_DECLARE) {
 
     Variant ret = call(p_name, argptr, argc, error);
     return ret;
-}
-
-void Object::call_multilevel(const StringName &p_name, VARIANT_ARG_DECLARE) {
-
-    VARIANT_ARGPTRS
-
-    int argc = 0;
-    for (int i = 0; i < VARIANT_ARG_MAX; i++) {
-        if (argptr[i]->get_type() == VariantType::NIL)
-            break;
-        argc++;
-    }
-
-    //Callable::CallError error;
-    call_multilevel(p_name, argptr, argc);
 }
 
 Variant Object::call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
@@ -1020,7 +909,7 @@ void Object::add_user_signal(MethodInfo &&p_signal) {
     ERR_FAIL_COND_MSG(p_signal.name.empty(), "Signal name cannot be empty.");
     ERR_FAIL_COND_MSG(ClassDB::has_signal(get_class_name(), p_signal.name), "User signal's name conflicts with a built-in signal of '" + String(get_class_name()) + "'.");
     ERR_FAIL_COND_MSG(private_data->signal_map.contains(p_signal.name), "Trying to add already existing signal '" + String(p_signal.name) + "'.");
-    Signal s;
+    SignalData s;
     s.user = eastl::move(p_signal);
     private_data->signal_map[p_signal.name] = eastl::move(s);
 }
@@ -1035,27 +924,26 @@ bool Object::_has_user_signal(const StringName &p_name) const {
 struct _ObjectSignalDisconnectData {
 
     StringName signal;
-    Object *target;
-    StringName method;
+    Callable callable;
 };
 
-Variant Object::_emit_signal(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+Variant Object::_emit_signal(const Variant** p_args, int p_argcount, Callable::CallError& r_error) {
 
     r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
 
     ERR_FAIL_COND_V(p_argcount < 1, Variant());
-    if (p_args[0]->get_type() != VariantType::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = VariantType::STRING;
-        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
+        r_error.expected = VariantType::STRING_NAME;
+        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING, Variant());
     }
 
     r_error.error = Callable::CallError::CALL_OK;
 
-    StringName signal = p_args[0]->as<StringName>();
+    StringName signal = (StringName)*p_args[0];
 
-    const Variant **args = nullptr;
+    const Variant** args = nullptr;
 
     int argc = p_argcount - 1;
     if (argc) {
@@ -1069,8 +957,9 @@ Variant Object::_emit_signal(const Variant **p_args, int p_argcount, Callable::C
 
 Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount) {
 
-    if (_block_signals)
+    if (_block_signals) {
         return ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
+    }
 
     auto s = private_data->signal_map.find(p_name);
     if (s== private_data->signal_map.end()) {
@@ -1089,7 +978,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
     //awesome, isn't it?
-    VMap<Signal::Target, Signal::Slot> slot_map = s->second.slot_map;
+    VMap<Callable, SignalData::Slot> slot_map = s->second.slot_map;
 
     int ssize = slot_map.size();
 
@@ -1103,7 +992,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 
         const Connection &c = slot_map.getv(i).conn;
 
-        Object *target = gObjectDB().get_instance(slot_map.getk(i)._id);
+        Object* target = c.callable.get_object();
         if (!target) {
             // Target might have been deleted during signal callback, this is expected and OK.
             continue;
@@ -1112,7 +1001,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         const Variant **args = p_args;
         int argc = p_argcount;
 
-        if (c.binds.size()) {
+        if (!c.binds.empty()) {
             //handle binds
             bind_mem.resize(p_argcount + c.binds.size());
 
@@ -1128,11 +1017,12 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
         }
 
         if (c.flags & ObjectNS::CONNECT_QUEUED) {
-            MessageQueue::get_singleton()->push_call(target->get_instance_id(), c.method, args, argc, true);
+            MessageQueue::get_singleton()->push_callable(c.callable, args, argc, true);
         } else {
             Callable::CallError ce;
             _emitting = true;
-            target->call(c.method, args, argc, ce);
+            Variant ret;
+            c.callable.call(args, argc, ret, ce);
             _emitting = false;
 
             if (ce.error != Callable::CallError::CALL_OK) {
@@ -1143,8 +1033,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                 if (ce.error == Callable::CallError::CALL_ERROR_INVALID_METHOD && !ClassDB::class_exists(target->get_class_name())) {
                     // most likely object is not initialized yet, do not throw error.
                 } else {
-                    ERR_PRINT("Error calling method from signal '" + String(p_name) +
-                               "': " + Variant::get_call_error_text(target, c.method, args, argc, ce) + ".");
+                    ERR_PRINT("Error calling from signal '" + String(p_name) + "' to callable: " + Variant::get_callable_error_text(c.callable, args, argc, ce) + ".");
                     err = ERR_METHOD_NOT_FOUND;
                 }
             }
@@ -1156,13 +1045,12 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 
             _ObjectSignalDisconnectData dd;
             dd.signal = p_name;
-            dd.target = target;
-            dd.method = c.method;
+            dd.callable = c.callable;
             disconnect_data.emplace_back(eastl::move(dd));
         }
     }
     for(const _ObjectSignalDisconnectData & dd : disconnect_data) {
-        disconnect(dd.signal, dd.target, dd.method);
+        _disconnect(dd.signal, dd.callable);
     }
     return err;
 }
@@ -1229,17 +1117,10 @@ Array Object::_get_signal_connection_list(StringName p_signal) const {
     Array ret;
 
     for(Connection &c : conns ) {
-        //TODO: SEGS: unneeded string allocations.
-        if (c.signal == p_signal) {
+        if (c.signal.get_name() == p_signal) {
             Dictionary rc;
             //TODO: SEGS: note that this WILL NOT PRESERVE source and target if they are Reference counted types!
-            rc["signal"] = c.signal;
-            rc["method"] = c.method;
-            rc["source"] = Variant(c.source);
-            rc["target"] = Variant(c.target);
-            rc["binds"] = Variant::fromVector(Span<const Variant>(c.binds));
-            rc["flags"] = c.flags;
-            ret.push_back(rc);
+            ret.emplace_back(c);
         }
     }
 
@@ -1250,12 +1131,8 @@ Array Object::_get_incoming_connections() const {
 
     Array ret;
     for (const Connection &cn : private_data->connections) {
-        Dictionary conn_data;
         //TODO: SEGS: source will not be properly preserved if it inherits from Reference
-        conn_data["source"] = Variant(cn.source);
-        conn_data["signal_name"] = cn.signal;
-        conn_data["method_name"] = cn.method;
-        ret.push_back(conn_data);
+        ret.emplace_back(cn);
     }
 
     return ret;
@@ -1303,7 +1180,7 @@ void Object::get_all_signal_connections(List<Connection> *p_connections) const {
 
     for (const auto & signal : private_data->signal_map) {
 
-        const Signal *s = &signal.second;
+        const SignalData *s = &signal.second;
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1328,7 +1205,7 @@ int Object::get_persistent_signal_connection_count() const {
 
     for (const auto & signal : private_data->signal_map) {
 
-        const Signal *s = &signal.second;
+        const SignalData *s = &signal.second;
 
         for (int i = 0; i < s->slot_map.size(); i++) {
 
@@ -1346,57 +1223,63 @@ void Object::get_signals_connected_to_this(List<Connection> *p_connections) cons
     p_connections->insert(p_connections->end(), private_data->connections.begin(), private_data->connections.end());
 }
 
-Error Object::connect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, const Vector<Variant> &p_binds, uint32_t p_flags) {
+Error Object::connect_compat2(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method, const Vector<Variant>& p_binds, uint32_t p_flags) {
+    return connect(p_signal, Callable(p_to_object, p_to_method), p_binds, p_flags);
+}
 
-    ERR_FAIL_NULL_V(p_to_object, ERR_INVALID_PARAMETER);
+Error Object::connect(const StringName& p_signal, const Callable& p_callable, const Vector<Variant>& p_binds, uint32_t p_flags) {
+    ERR_FAIL_COND_V(p_callable.is_null(), ERR_INVALID_PARAMETER);
+
+    Object* target_object = p_callable.get_object();
+    ERR_FAIL_COND_V(!target_object, ERR_INVALID_PARAMETER);
 
     auto s = private_data->signal_map.find(p_signal);
 
-    if (s == private_data->signal_map.end()) {
-
+    if (s==private_data->signal_map.end()) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         //check in script
         if (!signal_is_valid && !script.is_null()) {
-
             if (refFromRefPtr<Script>(script)->has_script_signal(p_signal)) {
                 signal_is_valid = true;
             }
-            signal_is_valid |= Object_script_signal_validate(script);
-        }
-        {
-            if (unlikely(!signal_is_valid)) {
-                String msg("In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal +
-                            "' to method '" + p_to_object->get_class() + "." + p_to_method + "'.");
-                _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' !signal_is_valid ' is true. returned: " _STR(ERR_INVALID_PARAMETER),msg);
-                return ERR_INVALID_PARAMETER;
+#ifdef TOOLS_ENABLED
+            else {
+                //allow connecting signals anyway if script is invalid, see issue #17070
+                if (!refFromRefPtr<Script>(script)->is_valid()) {
+                    signal_is_valid = true;
+                }
             }
+#endif
         }
 
-        s = private_data->signal_map.emplace(eastl::make_pair(p_signal, Signal())).first;
+        ERR_FAIL_COND_V_MSG(!signal_is_valid, ERR_INVALID_PARAMETER, "In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal + "' to callable '" + (String)p_callable + "'.");
+
+        private_data->signal_map[p_signal] = SignalData();
+        s = private_data->signal_map.emplace(p_signal,SignalData()).first;
     }
 
-    Signal::Target target(p_to_object->get_instance_id(), p_to_method);
+    Callable target = p_callable;
+
     if (s->second.slot_map.has(target)) {
         if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
             s->second.slot_map[target].reference_count++;
             return OK;
-        } else {
-            ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER,
-                    "Signal '" + String(p_signal) + "' is already connected to given method '" + p_to_method + "' in that object.");
+        }
+        else {
+            ERR_FAIL_V_MSG(ERR_INVALID_PARAMETER, "Signal '" + p_signal + "' is already connected to given callable '" + (String)p_callable + "' in that object.");
         }
     }
 
-    Signal::Slot slot;
+    SignalData::Slot slot;
+
     Connection conn;
-    conn.source = this;
-    conn.target = p_to_object;
-    conn.method = p_to_method;
-    conn.signal = p_signal;
+    conn.callable = target;
+    conn.signal = ::Signal(this, p_signal);
     conn.flags = p_flags;
     conn.binds = p_binds;
     slot.conn = conn;
-    auto &conns(p_to_object->private_data->connections);
-    slot.cE = conns.emplace(conns.end(),conn);
+    auto &conns(target_object->private_data->connections);
+    slot.cE = conns.emplace(conns.end(), eastl::move(conn));
     if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
         slot.reference_count = 1;
     }
@@ -1406,44 +1289,54 @@ Error Object::connect(const StringName &p_signal, Object *p_to_object, const Str
     return OK;
 }
 
-bool Object::is_connected(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) const {
+bool Object::is_connected_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) const {
+    return is_connected(p_signal, Callable(p_to_object, p_to_method));
+}
 
-    ERR_FAIL_NULL_V(p_to_object, false);
+bool Object::is_connected(const StringName& p_signal, const Callable& p_callable) const {
+    ERR_FAIL_COND_V(p_callable.is_null(), false);
     auto s = private_data->signal_map.find(p_signal);
     if (s== private_data->signal_map.end()) {
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
-        if (signal_is_valid)
+        if (signal_is_valid) {
             return false;
+        }
 
-        if (!script.is_null() && refFromRefPtr<Script>(script)->has_script_signal(p_signal))
+        if (!script.is_null() && refFromRefPtr<Script>(script)->has_script_signal(p_signal)) {
             return false;
+        }
 
-        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + String(p_signal) + ".");
+        ERR_FAIL_V_MSG(false, "Nonexistent signal: " + p_signal + ".");
     }
 
-    Signal::Target target(p_to_object->get_instance_id(), p_to_method);
+    Callable target = p_callable;
 
     return s->second.slot_map.has(target);
     //const Map<Signal::Target,Signal::Slot>::Element *E = s->slot_map.find(target);
-    //return (E!=NULL);
+    //return (E!=nullptr );
 }
 
-void Object::disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method) {
 
-    _disconnect(p_signal, p_to_object, p_to_method);
+void Object::disconnect_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) {
+    _disconnect(p_signal, Callable(p_to_object, p_to_method));
 }
-void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const StringName &p_to_method, bool p_force) {
 
-    ERR_FAIL_NULL(p_to_object);
+void Object::disconnect(const StringName& p_signal, const Callable& p_callable) {
+    _disconnect(p_signal, p_callable);
+}
+
+void Object::_disconnect(const StringName& p_signal, const Callable& p_callable, bool p_force) {
+    ERR_FAIL_COND(p_callable.is_null());
+
+    Object* target_object = p_callable.get_object();
+    ERR_FAIL_COND(!target_object);
+
     auto s = private_data->signal_map.find(p_signal);
-    ERR_FAIL_COND_MSG(s== private_data->signal_map.end(), FormatVE("Nonexistent signal '%s' in %s.",p_signal.asCString(),to_string().c_str()));
+    ERR_FAIL_COND_MSG(s== private_data->signal_map.end(), vformat("Nonexistent signal '%s' in %s.", p_signal, to_string()));
 
-    Signal::Target target(p_to_object->get_instance_id(), p_to_method);
+    ERR_FAIL_COND_MSG(!s->second.slot_map.has(p_callable), "Disconnecting nonexistent signal '" + p_signal + "', callable: " + (String)p_callable + ".");
 
-    ERR_FAIL_COND_MSG(!s->second.slot_map.has(target),
-            "Disconnecting nonexistent signal '" + String(p_signal) + "', slot: " + ::to_string((uint64_t)target._id) + ":" + target.method + ".");
-
-    Signal::Slot *slot = &s->second.slot_map[target];
+    SignalData::Slot* slot = &s->second.slot_map[p_callable];
 
     if (!p_force) {
         slot->reference_count--; // by default is zero, if it was not referenced it will go below it
@@ -1452,8 +1345,8 @@ void Object::_disconnect(const StringName &p_signal, Object *p_to_object, const 
         }
     }
 
-    p_to_object->private_data->connections.erase(slot->cE);
-    s->second.slot_map.erase(target);
+    target_object->private_data->connections.erase(slot->cE);
+    s->second.slot_map.erase(p_callable);
 
     if (s->second.slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
         //not user signal, delete
@@ -1596,19 +1489,19 @@ void Object::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_user_signal", {"signal"}), &Object::_has_user_signal);
 
     {
-        MethodInfo mi("emit_signal",PropertyInfo(VariantType::STRING, "signal"));
+        MethodInfo mi("emit_signal",PropertyInfo(VariantType::STRING_NAME, "signal"));
 
         MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, eastl::move(mi), null_variant_pvec, false);
     }
 
     {
-        MethodInfo mi("call",PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("call",PropertyInfo(VariantType::STRING_NAME, "method"));
 
         MethodBinder::bind_vararg_method("call", &Object::_call_bind, eastl::move(mi));
     }
 
     {
-        MethodInfo mi("call_deferred",PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("call_deferred",PropertyInfo(VariantType::STRING_NAME, "method"));
 
         MethodBinder::bind_vararg_method("call_deferred", &Object::_call_deferred_bind, eastl::move(mi), null_variant_pvec, false);
     }
@@ -1624,9 +1517,9 @@ void Object::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_signal_connection_list", {"signal"}), &Object::_get_signal_connection_list);
     MethodBinder::bind_method(D_METHOD("get_incoming_connections"), &Object::_get_incoming_connections);
 
-    MethodBinder::bind_method(D_METHOD("connect", {"signal", "target", "method", "binds", "flags"}), &Object::connect, {DEFVAL(Array()), DEFVAL(0)});
-    MethodBinder::bind_method(D_METHOD("disconnect", {"signal", "target", "method"}), &Object::disconnect);
-    MethodBinder::bind_method(D_METHOD("is_connected", {"signal", "target", "method"}), &Object::is_connected);
+    MethodBinder::bind_method(D_METHOD("connect", {"signal", "callable", "binds", "flags"}), &Object::connect, {DEFVAL(Array()), DEFVAL(0)});
+    MethodBinder::bind_method(D_METHOD("disconnect", {"signal","callable" }), &Object::disconnect);
+    MethodBinder::bind_method(D_METHOD("is_connected", {"signal", "callable" }), &Object::is_connected);
 
     MethodBinder::bind_method(D_METHOD("set_block_signals", {"enable"}), &Object::set_block_signals);
     MethodBinder::bind_method(D_METHOD("is_blocking_signals"), &Object::is_blocking_signals);
@@ -1810,7 +1703,6 @@ Object::Object() {
     _class_ptr = nullptr;
     _block_signals = false;
     _predelete_ok = 0;
-    _instance_id = ObjectID(0ULL);
     _instance_id = gObjectDB().add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;

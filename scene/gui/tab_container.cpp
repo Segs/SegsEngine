@@ -543,7 +543,7 @@ void TabContainer::add_child_notify(Node *p_child) {
     c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
     update();
-    p_child->connect("renamed", this, "_child_renamed_callback");
+    p_child->connect("renamed",callable_mp(this, &ClassName::_child_renamed_callback));
     if (first)
         emit_signal("tab_changed", current);
 }
@@ -621,7 +621,7 @@ void TabContainer::remove_child_notify(Node *p_child) {
 
     call_deferred("_update_current_tab");
 
-    p_child->disconnect("renamed", this, "_child_renamed_callback");
+    p_child->disconnect("renamed",callable_mp(this, &ClassName::_child_renamed_callback));
 
     update();
 }
@@ -1042,5 +1042,5 @@ TabContainer::TabContainer() {
     tabs_rearrange_group = -1;
     use_hidden_tabs_for_min_size = false;
 
-    connect("mouse_exited", this, "_on_mouse_exited");
+    connect("mouse_exited",callable_mp(this, &ClassName::_on_mouse_exited));
 }

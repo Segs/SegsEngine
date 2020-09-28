@@ -126,19 +126,22 @@ enum class VariantType : int8_t {
 
     // misc types
     COLOR,
-    NODE_PATH, // 15
+    STRING_NAME, // 15
+    NODE_PATH,
     _RID,
     OBJECT,
+    CALLABLE,
+    SIGNAL, // 20
     DICTIONARY,
     ARRAY,
 
     // arrays
-    POOL_BYTE_ARRAY, // 20
+    POOL_BYTE_ARRAY,
     POOL_INT_ARRAY,
-    POOL_REAL_ARRAY,
+    POOL_REAL_ARRAY, //25
     POOL_STRING_ARRAY,
     POOL_VECTOR2_ARRAY,
-    POOL_VECTOR3_ARRAY, // 25
+    POOL_VECTOR3_ARRAY,
     POOL_COLOR_ARRAY,
 
     VARIANT_MAX
@@ -147,7 +150,6 @@ enum class VariantType : int8_t {
 
 class GODOT_EXPORT Variant {
 private:
-    friend struct _VariantCall;
     friend GODOT_EXPORT struct VariantOps;
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
@@ -287,6 +289,8 @@ public:
     explicit Variant(const RefPtr &p_resource);
     Variant(const RID &p_rid);
     explicit Variant(const Object *p_object);
+    explicit Variant(const Callable& p_callable);
+    explicit Variant(const Signal& p_signal);
     Variant(const Dictionary &p_dictionary);
     Variant(Dictionary&& p_dictionary) noexcept;
 
@@ -394,8 +398,8 @@ public:
     static void interpolate(const Variant &a, const Variant &b, float c, Variant &r_dst);
 
     //Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
-
-    static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce);
+    static String get_call_error_text(Object* p_base, const StringName& p_method, const Variant** p_argptrs, int p_argcount, const Callable::CallError& ce);
+    static String get_callable_error_text(const Callable& p_callable, const Variant** p_argptrs, int p_argcount, const Callable::CallError& ce);
 
     static Variant construct_default(VariantType p_type);
     static Variant construct(const VariantType, const Variant &p_arg, Callable::CallError &r_error);
@@ -515,6 +519,8 @@ public:
     [[nodiscard]] explicit operator bool() const { return booleanize();  }
     [[nodiscard]] explicit operator Control *() const;
     [[nodiscard]] explicit operator Node *() const;
+    [[nodiscard]] explicit operator Callable() const;
+    [[nodiscard]] explicit operator Signal() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
     [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
     template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>

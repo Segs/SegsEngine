@@ -360,7 +360,7 @@ WindowDialog::WindowDialog() {
     resizable = false;
     close_button = memnew(TextureButton);
     add_child(close_button);
-    close_button->connect("pressed", this, "_closed");
+    close_button->connect("pressed",callable_mp(this, &ClassName::_closed));
 #ifdef TOOLS_ENABLED
     was_editor_dimmed = false;
 #endif
@@ -386,6 +386,8 @@ PopupDialog::~PopupDialog() {
 }
 
 // AcceptDialog
+
+
 
 void AcceptDialog::_post_popup() {
 
@@ -419,6 +421,24 @@ void AcceptDialog::_ok_pressed() {
     ok_pressed();
     emit_signal("confirmed");
 }
+void AcceptDialog::_cancel_pressed() {
+//    Window *parent_window = parent_visible;
+//    if (parent_visible) {
+//        parent_visible->disconnect("focus_entered", callable_mp(this, &AcceptDialog::_parent_focused));
+//        parent_visible = nullptr;
+//    }
+
+    call_deferred("hide");
+
+    emit_signal("cancelled");
+
+    cancel_pressed();
+
+//    if (parent_window) {
+//        //parent_window->grab_focus();
+//    }
+}
+
 void AcceptDialog::_close_pressed() {
 
     cancel_pressed();
@@ -467,7 +487,7 @@ void AcceptDialog::register_text_enter(Node *p_line_edit) {
     ERR_FAIL_NULL(p_line_edit);
     LineEdit *line_edit = object_cast<LineEdit>(p_line_edit);
     if (line_edit)
-        line_edit->connect("text_entered", this, "_builtin_text_entered");
+        line_edit->connect("text_entered",callable_mp(this, &ClassName::_builtin_text_entered));
 }
 
 void AcceptDialog::_update_child_rects() {
@@ -531,7 +551,7 @@ Size2 AcceptDialog::get_minimum_size() const {
     return minsize;
 }
 
-void AcceptDialog::_custom_action(StringView p_action) {
+void AcceptDialog::_custom_action(const StringName &p_action) {
 
     emit_signal("custom_action", p_action);
     custom_action(p_action);
@@ -552,7 +572,7 @@ Button *AcceptDialog::add_button(const StringName &p_text, bool p_right, StringV
     }
 
     if (!p_action.empty()) {
-        button->connect("pressed", this, "_custom_action", varray(p_action));
+        button->connect("pressed",callable_mp(this, &ClassName::_custom_action), varray(p_action));
     }
 
     return button;
@@ -564,7 +584,7 @@ Button *AcceptDialog::add_cancel(const StringName &p_cancel) {
     if (p_cancel.empty())
         c = RTR("Cancel");
     Button *b = swap_ok_cancel ? add_button(c, true) : add_button(c);
-    b->connect("pressed", this, "_closed");
+    b->connect("pressed",callable_mp(this, &ClassName::_closed));
     return b;
 }
 
@@ -586,7 +606,7 @@ void AcceptDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("has_autowrap"), &AcceptDialog::has_autowrap);
 
     ADD_SIGNAL(MethodInfo("confirmed"));
-    ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(VariantType::STRING, "action")));
+    ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(VariantType::STRING_NAME, "action")));
 
     ADD_GROUP("Dialog", "dialog");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "dialog_text", PropertyHint::MultilineText, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
@@ -621,7 +641,7 @@ AcceptDialog::AcceptDialog() {
     hbc->add_child(ok);
     hbc->add_spacer();
 
-    ok->connect("pressed", this, "_ok");
+    ok->connect("pressed",callable_mp(this, &ClassName::_ok));
     set_as_toplevel(true);
 
     hide_on_ok = true;

@@ -4234,7 +4234,7 @@ JointSpatialGizmoPlugin::JointSpatialGizmoPlugin() {
     update_timer = memnew(Timer);
     update_timer->set_name("JointGizmoUpdateTimer");
     update_timer->set_wait_time(1.0 / 120.0);
-    update_timer->connect("timeout", this, "incremental_update_gizmos");
+    update_timer->connect("timeout",callable_mp(this, &ClassName::incremental_update_gizmos));
     update_timer->set_autostart(true);
 
     EditorNode::get_singleton()->call_deferred([this]() {

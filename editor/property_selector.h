@@ -64,6 +64,7 @@ class PropertySelector : public ConfirmationDialog {
 
 protected:
     void _notification(int p_what);
+    void _hide_requested();
     static void _bind_methods();
 
 public:

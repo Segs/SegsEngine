@@ -108,6 +108,7 @@ macro(add_glue_module name tgt)
             glue/collections_glue.cpp
             glue/nodepath_glue.cpp
             glue/string_glue.cpp
+            glue/string_name_glue.cpp
             glue/gd_glue.cpp
             glue/rid_glue.cpp
             glue/base_object_glue.cpp

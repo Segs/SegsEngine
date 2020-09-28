@@ -1363,8 +1363,8 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Cal
 
     ERR_FAIL_COND_V(p_argcount < 3, Variant());
     ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING && p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING && p_args[2]->get_type() != VariantType::STRING_NAME, Variant());
 
     int flags = p_args[0]->as<float>();
     StringName group = p_args[1]->as<StringName>();
@@ -1385,8 +1385,8 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable:
     r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 2, Variant());
-    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING && p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING && p_args[2]->get_type() != VariantType::STRING_NAME, Variant());
 
     StringName group = p_args[0]->as<StringName>();
     StringName method = p_args[1]->as<StringName>();
@@ -1743,21 +1743,21 @@ void SceneTree::set_multiplayer(const Ref<MultiplayerAPI>& p_multiplayer) {
     ERR_FAIL_COND(not p_multiplayer);
 
     if (multiplayer) {
-        multiplayer->disconnect("network_peer_connected", this, "_network_peer_connected");
-        multiplayer->disconnect("network_peer_disconnected", this, "_network_peer_disconnected");
-        multiplayer->disconnect("connected_to_server", this, "_connected_to_server");
-        multiplayer->disconnect("connection_failed", this, "_connection_failed");
-        multiplayer->disconnect("server_disconnected", this, "_server_disconnected");
+        multiplayer->disconnect("network_peer_connected",callable_mp(this, &ClassName::_network_peer_connected));
+        multiplayer->disconnect("network_peer_disconnected",callable_mp(this, &ClassName::_network_peer_disconnected));
+        multiplayer->disconnect("connected_to_server",callable_mp(this, &ClassName::_connected_to_server));
+        multiplayer->disconnect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        multiplayer->disconnect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
     }
 
     multiplayer = p_multiplayer;
     multiplayer->set_root_node(root);
 
-    multiplayer->connect("network_peer_connected", this, "_network_peer_connected");
-    multiplayer->connect("network_peer_disconnected", this, "_network_peer_disconnected");
-    multiplayer->connect("connected_to_server", this, "_connected_to_server");
-    multiplayer->connect("connection_failed", this, "_connection_failed");
-    multiplayer->connect("server_disconnected", this, "_server_disconnected");
+    multiplayer->connect("network_peer_connected",callable_mp(this, &ClassName::_network_peer_connected));
+    multiplayer->connect("network_peer_disconnected",callable_mp(this, &ClassName::_network_peer_disconnected));
+    multiplayer->connect("connected_to_server",callable_mp(this, &ClassName::_connected_to_server));
+    multiplayer->connect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+    multiplayer->connect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
 }
 
 void SceneTree::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_network_peer) {
@@ -1834,8 +1834,8 @@ void SceneTree::_bind_methods() {
 
     MethodInfo mi("call_group_flags",
                   PropertyInfo(VariantType::INT, "flags"),
-                  PropertyInfo(VariantType::STRING, "group"),
-                  PropertyInfo(VariantType::STRING, "method"));
+                  PropertyInfo(VariantType::STRING_NAME, "group"),
+                  PropertyInfo(VariantType::STRING_NAME, "method"));
 
     MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, eastl::move(mi));
 
@@ -1843,8 +1843,8 @@ void SceneTree::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_group_flags", {"call_flags", "group", "property", "value"}), &SceneTree::set_group_flags);
 
     MethodInfo mi2("call_group",
-                   PropertyInfo(VariantType::STRING, "group"),
-                   PropertyInfo(VariantType::STRING, "method"));
+                   PropertyInfo(VariantType::STRING_NAME, "group"),
+                   PropertyInfo(VariantType::STRING_NAME, "method"));
 
     MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, eastl::move(mi2));
 

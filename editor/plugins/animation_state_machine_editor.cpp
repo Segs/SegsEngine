@@ -1297,21 +1297,21 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_select->set_button_group(bg);
     tool_select->set_pressed(true);
     tool_select->set_tooltip(TTR("Select and move nodes.\nRMB to add new nodes.\nShift+LMB to create connections."));
-    tool_select->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_select->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_create = memnew(ToolButton);
     top_hb->add_child(tool_create);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     tool_create->set_tooltip(TTR("Create new nodes."));
-    tool_create->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_create->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_connect = memnew(ToolButton);
     top_hb->add_child(tool_connect);
     tool_connect->set_toggle_mode(true);
     tool_connect->set_button_group(bg);
     tool_connect->set_tooltip(TTR("Connect nodes."));
-    tool_connect->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_connect->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_erase_hb = memnew(HBoxContainer);
     top_hb->add_child(tool_erase_hb);
@@ -1319,7 +1319,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_erase = memnew(ToolButton);
     tool_erase->set_tooltip(TTR("Remove selected node or transition."));
     tool_erase_hb->add_child(tool_erase);
-    tool_erase->connect("pressed", this, "_erase_selected");
+    tool_erase->connect("pressed",callable_mp(this, &ClassName::_erase_selected));
     tool_erase->set_disabled(true);
 
     tool_erase_hb->add_child(memnew(VSeparator));
@@ -1327,13 +1327,13 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_autoplay = memnew(ToolButton);
     tool_autoplay->set_tooltip(TTR("Toggle autoplay this animation on start, restart or seek to zero."));
     tool_erase_hb->add_child(tool_autoplay);
-    tool_autoplay->connect("pressed", this, "_autoplay_selected");
+    tool_autoplay->connect("pressed",callable_mp(this, &ClassName::_autoplay_selected));
     tool_autoplay->set_disabled(true);
 
     tool_end = memnew(ToolButton);
     tool_end->set_tooltip(TTR("Set the end animation. This is useful for sub-transitions."));
     tool_erase_hb->add_child(tool_end);
-    tool_end->connect("pressed", this, "_end_selected");
+    tool_end->connect("pressed",callable_mp(this, &ClassName::_end_selected));
     tool_end->set_disabled(true);
 
     top_hb->add_child(memnew(VSeparator));
@@ -1354,26 +1354,26 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
     state_machine_draw = memnew(Control);
     panel->add_child(state_machine_draw);
-    state_machine_draw->connect("gui_input", this, "_state_machine_gui_input");
-    state_machine_draw->connect("draw", this, "_state_machine_draw");
+    state_machine_draw->connect("gui_input",callable_mp(this, &ClassName::_state_machine_gui_input));
+    state_machine_draw->connect("draw",callable_mp(this, &ClassName::_state_machine_draw));
     state_machine_draw->set_focus_mode(FOCUS_ALL);
 
     state_machine_play_pos = memnew(Control);
     state_machine_draw->add_child(state_machine_play_pos);
     state_machine_play_pos->set_mouse_filter(MOUSE_FILTER_PASS); //pass all to parent
     state_machine_play_pos->set_anchors_and_margins_preset(PRESET_WIDE);
-    state_machine_play_pos->connect("draw", this, "_state_machine_pos_draw");
+    state_machine_play_pos->connect("draw",callable_mp(this, &ClassName::_state_machine_pos_draw));
 
     v_scroll = memnew(VScrollBar);
     state_machine_draw->add_child(v_scroll);
     v_scroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
-    v_scroll->connect("value_changed", this, "_scroll_changed");
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
 
     h_scroll = memnew(HScrollBar);
     state_machine_draw->add_child(h_scroll);
     h_scroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
     h_scroll->set_margin(Margin::Right, -v_scroll->get_size().x * EDSCALE);
-    h_scroll->connect("value_changed", this, "_scroll_changed");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
 
     error_panel = memnew(PanelContainer);
     add_child(error_panel);
@@ -1387,25 +1387,25 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
     menu = memnew(PopupMenu);
     add_child(menu);
-    menu->connect("id_pressed", this, "_add_menu_type");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_add_menu_type));
 
     animations_menu = memnew(PopupMenu);
     menu->add_child(animations_menu);
     animations_menu->set_name("animations");
-    animations_menu->connect("index_pressed", this, "_add_animation_type");
+    animations_menu->connect("index_pressed",callable_mp(this, &ClassName::_add_animation_type));
 
     name_edit = memnew(LineEdit);
     state_machine_draw->add_child(name_edit);
     name_edit->hide();
-    name_edit->connect("text_entered", this, "_name_edited");
-    name_edit->connect("focus_exited", this, "_name_edited_focus_out");
+    name_edit->connect("text_entered",callable_mp(this, &ClassName::_name_edited));
+    name_edit->connect("focus_exited",callable_mp(this, &ClassName::_name_edited_focus_out));
     name_edit->set_as_toplevel(true);
 
     open_file = memnew(EditorFileDialog);
     add_child(open_file);
     open_file->set_title(TTR("Open Animation Node"));
     open_file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-    open_file->connect("file_selected", this, "_file_opened");
+    open_file->connect("file_selected",callable_mp(this, &ClassName::_file_opened));
     undo_redo = EditorNode::get_undo_redo();
 
     over_text = false;

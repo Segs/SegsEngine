@@ -602,7 +602,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 
                 if (!create_dialog) {
                     create_dialog = memnew(CreateDialog);
-                    create_dialog->connect("create", this, "_create_dialog_callback");
+                    create_dialog->connect("create",callable_mp(this, &ClassName::_create_dialog_callback));
                     add_child(create_dialog);
                 }
 
@@ -621,7 +621,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
 #define MAKE_PROPSELECT                                                          \
     if (!property_select) {                                                      \
         property_select = memnew(PropertySelector);                              \
-        property_select->connect("selected", this, "_create_selected_property"); \
+        property_select->connect("selected",callable_mp(this, &ClassName::_create_selected_property)); \
         add_child(property_select);                                              \
     }                                                                            \
     hide();
@@ -878,7 +878,7 @@ bool CustomPropertyEditor::edit(Object *p_owner, StringView p_name, VariantType 
                 color_picker->set_deferred_mode(true);
                 add_child(color_picker);
                 color_picker->hide();
-                color_picker->connect("color_changed", this, "_color_changed");
+                color_picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
 
                 // get default color picker mode from editor settings
                 int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
@@ -1929,9 +1929,9 @@ CustomPropertyEditor::CustomPropertyEditor() {
         add_child(value_label[i]);
         value_editor[i]->hide();
         value_label[i]->hide();
-        value_editor[i]->connect("text_entered", this, "_modified");
-        value_editor[i]->connect("focus_entered", this, "_focus_enter");
-        value_editor[i]->connect("focus_exited", this, "_focus_exit");
+        value_editor[i]->connect("text_entered",callable_mp(this, &ClassName::_modified));
+        value_editor[i]->connect("focus_entered",callable_mp(this, &ClassName::_focus_enter));
+        value_editor[i]->connect("focus_exited",callable_mp(this, &ClassName::_focus_exit));
     }
     focused_value_editor = -1;
 
@@ -1961,7 +1961,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
         checks20[i]->set_focus_mode(FOCUS_NONE);
         checks20gc->add_child(checks20[i]);
         checks20[i]->hide();
-        checks20[i]->connect("pressed", this, "_action_pressed", make_binds(i));
+        checks20[i]->connect("pressed",callable_mp(this, &ClassName::_action_pressed), make_binds(i));
         checks20[i]->set_tooltip(FormatSN(TTR("Bit %d, val %d.").asCString(), i, 1 << i));
     }
 
@@ -1971,14 +1971,14 @@ CustomPropertyEditor::CustomPropertyEditor() {
     text_edit->set_margin(Margin::Bottom, -30);
 
     text_edit->hide();
-    text_edit->connect("text_changed", this, "_text_edit_changed");
+    text_edit->connect("text_changed",callable_mp(this, &ClassName::_text_edit_changed));
 
     for (int i = 0; i < MAX_ACTION_BUTTONS; i++) {
 
         action_buttons[i] = memnew(Button);
         action_buttons[i]->hide();
         add_child(action_buttons[i]);
-        action_buttons[i]->connect("pressed", this, "_action_pressed", {i});
+        action_buttons[i]->connect("pressed",callable_mp(this, &ClassName::_action_pressed), {i});
         action_buttons[i]->set_flat(true);
     }
 
@@ -1989,8 +1989,8 @@ CustomPropertyEditor::CustomPropertyEditor() {
     add_child(file);
     file->hide();
 
-    file->connect("file_selected", this, "_file_selected");
-    file->connect("dir_selected", this, "_file_selected");
+    file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
+    file->connect("dir_selected",callable_mp(this, &ClassName::_file_selected));
 
     error = memnew(ConfirmationDialog);
     error->set_title(TTR("Error!"));
@@ -1998,7 +1998,7 @@ CustomPropertyEditor::CustomPropertyEditor() {
 
     scene_tree = memnew(SceneTreeDialog);
     add_child(scene_tree);
-    scene_tree->connect("selected", this, "_node_path_selected");
+    scene_tree->connect("selected",callable_mp(this, &ClassName::_node_path_selected));
     scene_tree->get_scene_tree()->set_show_enabled_subscene(true);
 
     texture_preview = memnew(TextureRect);
@@ -2008,31 +2008,31 @@ CustomPropertyEditor::CustomPropertyEditor() {
     easing_draw = memnew(Control);
     add_child(easing_draw);
     easing_draw->hide();
-    easing_draw->connect("draw", this, "_draw_easing");
-    easing_draw->connect("gui_input", this, "_drag_easing");
+    easing_draw->connect("draw",callable_mp(this, &ClassName::_draw_easing));
+    easing_draw->connect("gui_input",callable_mp(this, &ClassName::_drag_easing));
     easing_draw->set_default_cursor_shape(Control::CURSOR_MOVE);
 
     type_button = memnew(MenuButton);
     add_child(type_button);
     type_button->hide();
-    type_button->get_popup()->connect("id_pressed", this, "_type_create_selected");
+    type_button->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_type_create_selected));
 
     menu = memnew(PopupMenu);
     menu->set_pass_on_modal_close_click(false);
     add_child(menu);
-    menu->connect("id_pressed", this, "_menu_option");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     evaluator = nullptr;
 
     spinbox = memnew(SpinBox);
     add_child(spinbox);
     spinbox->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 5);
-    spinbox->connect("value_changed", this, "_range_modified");
+    spinbox->connect("value_changed",callable_mp(this, &ClassName::_range_modified));
 
     slider = memnew(HSlider);
     add_child(slider);
     slider->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 5);
-    slider->connect("value_changed", this, "_range_modified");
+    slider->connect("value_changed",callable_mp(this, &ClassName::_range_modified));
 
     create_dialog = nullptr;
     property_select = nullptr;

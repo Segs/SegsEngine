@@ -185,8 +185,6 @@ static StringView _get_float_type_name_from_meta(GodotTypeInfo::Metadata p_meta)
 static StringView _get_string_type_name_from_meta(GodotTypeInfo::Metadata p_meta) {
 
     switch (p_meta) {
-    case GodotTypeInfo::METADATA_STRING_NAME:
-        return "StringName";
     case GodotTypeInfo::METADATA_STRING_VIEW:
         return "StringView";
     default:

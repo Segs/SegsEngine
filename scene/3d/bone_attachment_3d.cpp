@@ -87,7 +87,7 @@ void BoneAttachment3D::_check_unbind() {
     }
 }
 
-void BoneAttachment3D::set_bone_name(const String &p_name) {
+void BoneAttachment3D::set_bone_name(const StringName &p_name) {
 
     if (is_inside_tree())
         _check_unbind();
@@ -123,5 +123,5 @@ void BoneAttachment3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_bone_name", {"bone_name"}), &BoneAttachment3D::set_bone_name);
     MethodBinder::bind_method(D_METHOD("get_bone_name"), &BoneAttachment3D::get_bone_name);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bone_name"), "set_bone_name", "get_bone_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "bone_name"), "set_bone_name", "get_bone_name");
 }

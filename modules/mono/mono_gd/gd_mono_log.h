@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -35,15 +35,10 @@
 #include "core/string.h"
 #include "core/typedefs.h"
 
-#define GD_MONO_LOG_ENABLED
-
-#if defined(GD_MONO_LOG_ENABLED)
 #include "core/os/file_access.h"
-#endif
 
 class GDMonoLog {
 
-#if defined(GD_MONO_LOG_ENABLED)
     int log_level_id;
 
     FileAccess *log_file=nullptr;
@@ -53,7 +48,6 @@ class GDMonoLog {
     void _delete_old_log_files(StringView p_logs_dir);
 
     static void mono_log_callback(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data);
-#endif
 
     static GDMonoLog *singleton;
 

@@ -30,6 +30,9 @@
 
 #include "editor_network_profiler.h"
 
+#include "core/callable_method_pointer.h"
+
+
 #include "core/method_bind.h"
 #include "core/os/os.h"
 #include "core/translation_helpers.h"
@@ -139,12 +142,12 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     activate = memnew(Button);
     activate->set_toggle_mode(true);
     activate->set_text(TTR("Start"));
-    activate->connect("pressed", this, "_activate_pressed");
+    activate->connect("pressed",callable_mp(this, &ClassName::_activate_pressed));
     hb->add_child(activate);
 
     clear_button = memnew(Button);
     clear_button->set_text(TTR("Clear"));
-    clear_button->connect("pressed", this, "_clear_pressed");
+    clear_button->connect("pressed",callable_mp(this, &ClassName::_clear_pressed));
     hb->add_child(clear_button);
 
     hb->add_spacer();
@@ -204,5 +207,5 @@ EditorNetworkProfiler::EditorNetworkProfiler() {
     frame_delay->set_wait_time(0.1);
     frame_delay->set_one_shot(true);
     add_child(frame_delay);
-    frame_delay->connect("timeout", this, "_update_frame");
+    frame_delay->connect("timeout",callable_mp(this, &ClassName::_update_frame));
 }

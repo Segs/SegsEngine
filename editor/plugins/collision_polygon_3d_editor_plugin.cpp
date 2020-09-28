@@ -57,7 +57,7 @@ void CollisionPolygon3DEditor::_notification(int p_what) {
             button_create->set_button_icon(get_icon("Edit", "EditorIcons"));
             button_edit->set_button_icon(get_icon("MovePoint", "EditorIcons"));
             button_edit->set_pressed(true);
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
 
         } break;
         case NOTIFICATION_PROCESS: {
@@ -540,12 +540,12 @@ CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
     add_child(memnew(VSeparator));
     button_create = memnew(ToolButton);
     add_child(button_create);
-    button_create->connect("pressed", this, "_menu_option", varray(MODE_CREATE));
+    button_create->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_CREATE));
     button_create->set_toggle_mode(true);
 
     button_edit = memnew(ToolButton);
     add_child(button_edit);
-    button_edit->connect("pressed", this, "_menu_option", varray(MODE_EDIT));
+    button_edit->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT));
     button_edit->set_toggle_mode(true);
 
     mode = MODE_EDIT;

@@ -165,12 +165,12 @@ void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
 
     if (shape) {
         shape->unregister_owner(this);
-        shape->disconnect("changed", this, "_shape_changed");
+        shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     shape = p_shape;
     if (shape) {
         shape->register_owner(this);
-        shape->connect("changed", this, "_shape_changed");
+        shape->connect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     update_gizmo();
     if (parent) {

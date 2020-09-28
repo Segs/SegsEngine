@@ -339,6 +339,15 @@ Error decode_variant(Variant &r_variant, const uint8_t *p_buffer, int p_len, int
                 (*r_len) += 4 * 4;
 
         } break;
+        case VariantType::STRING_NAME: {
+            String str;
+            Error err = _decode_string(buf, len, r_len, str);
+            if (err) {
+                return err;
+            }
+            r_variant = StringName(str);
+
+        } break;
         case VariantType::NODE_PATH: {
 
             ERR_FAIL_COND_V(len < 4, ERR_INVALID_DATA);
@@ -1077,6 +1086,10 @@ Error encode_variant(const Variant &p_variant, uint8_t *r_buffer, int &r_len, bo
             }
 
             r_len += 4 * 4;
+
+        } break;
+        case VariantType::STRING_NAME: {
+            _encode_string((StringName)p_variant, buf, r_len);
 
         } break;
         case VariantType::_RID: {

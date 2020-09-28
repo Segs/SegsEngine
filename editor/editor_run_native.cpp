@@ -31,6 +31,7 @@
 #include "editor_run_native.h"
 
 #include "core/method_bind.h"
+#include "core/callable_method_pointer.h"
 #include "editor_export.h"
 #include "editor_node.h"
 #include "editor_scale.h"
@@ -57,8 +58,8 @@ void EditorRunNative::_notification(int p_what) {
                     Ref<ImageTexture> small_icon(make_ref_counted<ImageTexture>());
                     small_icon->create_from_image(im, 0);
                     MenuButton *mb = memnew(MenuButton);
-                    mb->get_popup()->connect("id_pressed", this, "_run_native", varray(i));
-                    mb->connect("pressed", this, "_run_native", varray(-1, i));
+                    mb->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_run_native), varray(i));
+                    mb->connect("pressed",callable_mp(this, &ClassName::_run_native), varray(-1, i));
                     mb->set_button_icon(small_icon);
                     add_child(mb);
                     menus[i] = mb;

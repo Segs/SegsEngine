@@ -31,6 +31,7 @@
 #include "mesh_instance_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/callable_method_pointer.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/physics_body_3d.h"
@@ -487,7 +488,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     options->get_popup()->add_item(TTR("View UV2"), MENU_OPTION_DEBUG_UV2);
     options->get_popup()->add_item(TTR("Unwrap UV2 for Lightmap/AO"), MENU_OPTION_CREATE_UV2);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     outline_dialog = memnew(ConfirmationDialog);
     outline_dialog->set_title(TTR("Create Outline Mesh"));
@@ -505,7 +506,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     outline_dialog_vbc->add_margin_child(TTR("Outline Size:"), outline_size);
 
     add_child(outline_dialog);
-    outline_dialog->connect("confirmed", this, "_create_outline_mesh");
+    outline_dialog->connect("confirmed",callable_mp(this, &ClassName::_create_outline_mesh));
 
     err_dialog = memnew(AcceptDialog);
     add_child(err_dialog);
@@ -515,7 +516,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     add_child(debug_uv_dialog);
     debug_uv = memnew(Control);
     debug_uv->set_custom_minimum_size(Size2(600, 600) * EDSCALE);
-    debug_uv->connect("draw", this, "_debug_uv_draw");
+    debug_uv->connect("draw",callable_mp(this, &ClassName::_debug_uv_draw));
     debug_uv_dialog->add_child(debug_uv);
 }
 

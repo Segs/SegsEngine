@@ -97,7 +97,10 @@ class SceneTreeEditor : public Control {
 
     bool _add_nodes(Node *p_node, TreeItem *p_parent);
     void _test_update_tree();
+public:
+    //used as a signal target.
     void _update_tree();
+protected:
     void _tree_changed();
     void _node_removed(Node *p_node);
     void _node_renamed(Node *p_node);

@@ -30,6 +30,7 @@
 
 #include "cpu_particles_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
@@ -124,7 +125,7 @@ CPUParticles3DEditor::CPUParticles3DEditor() {
     options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 }
 
 void CPUParticles3DEditorPlugin::edit(Object *p_object) {

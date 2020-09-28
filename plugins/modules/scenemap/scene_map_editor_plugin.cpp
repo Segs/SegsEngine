@@ -46,7 +46,7 @@ SceneMapEditor::SceneMapEditor(EditorNode* p_editor) {
     scene_library_palette = memnew(Tree);
     add_child(scene_library_palette);
     scene_library_palette->set_v_size_flags(SIZE_EXPAND_FILL);
-    //mesh_library_palette->connect("gui_input", this, "_mesh_library_palette_input");
+    //mesh_library_palette->connect("gui_input",callable_mp(this, &ClassName::_mesh_library_palette_input));
 
     info_message = memnew(Label);
     info_message->set_text(TTR("Give a SceneLibrary resource to this SceneMap to use its elements."));

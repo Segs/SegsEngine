@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "gi_probe_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
@@ -99,7 +100,7 @@ GIProbeEditorPlugin::GIProbeEditorPlugin(EditorNode *p_node) {
     bake->set_button_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
     bake->set_text(TTR("Bake GI Probe"));
     bake->hide();
-    bake->connect("pressed", this, "_bake");
+    bake->connect("pressed",callable_mp(this, &ClassName::_bake));
     add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, bake);
     gi_probe = nullptr;
 

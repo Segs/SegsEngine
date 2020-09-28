@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -564,10 +564,10 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
         return Variant();
     }
 
-    if (p_args[1]->get_type() != VariantType::STRING) {
+	if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-        r_error.expected = VariantType::STRING;
+		r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -583,6 +583,7 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
         v[i] = *p_args[i + 2];
     }
 
+	static_assert(VARIANT_ARG_MAX == 5, "This code needs to be updated if VARIANT_ARG_MAX != 5");
     add_do_method(object, method, v[0], v[1], v[2], v[3], v[4]);
     return Variant();
 }
@@ -602,10 +603,10 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Calla
         return Variant();
     }
 
-    if (p_args[1]->get_type() != VariantType::STRING) {
+	if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-        r_error.expected = VariantType::STRING;
+		r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -632,11 +633,11 @@ void UndoRedo::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_committing_action"), &UndoRedo::is_committing_action);
 
     {
-        MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("add_do_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("add_do_method", &UndoRedo::_add_do_method, eastl::move(mi),null_variant_pvec,false);
     }
     {
-        MethodInfo mi("add_undo_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("add_undo_method",PropertyInfo(VariantType::OBJECT, "object"),PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("add_undo_method", &UndoRedo::_add_undo_method, eastl::move(mi),null_variant_pvec,false);
     }
 

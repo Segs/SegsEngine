@@ -30,6 +30,7 @@
 
 #include "editor_dir_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
@@ -86,21 +87,21 @@ void EditorDirDialog::reload(StringView p_path) {
 void EditorDirDialog::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        EditorFileSystem::get_singleton()->connect("filesystem_changed", this, "reload");
+        EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_mp(this, &ClassName::reload));
         reload();
 
-        if (!tree->is_connected("item_collapsed", this, "_item_collapsed")) {
-            tree->connect("item_collapsed", this, "_item_collapsed", varray(), ObjectNS::CONNECT_QUEUED);
+        if (!tree->is_connected("item_collapsed",callable_mp(this, &ClassName::_item_collapsed))) {
+            tree->connect("item_collapsed",callable_mp(this, &ClassName::_item_collapsed), varray(), ObjectNS::CONNECT_QUEUED);
         }
 
-        if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "reload")) {
-            EditorFileSystem::get_singleton()->connect("filesystem_changed", this, "reload");
+        if (!EditorFileSystem::get_singleton()->is_connected("filesystem_changed",callable_mp(this, &ClassName::reload))) {
+            EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_mp(this, &ClassName::reload));
         }
     }
 
     if (p_what == NOTIFICATION_EXIT_TREE) {
-        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "reload")) {
-            EditorFileSystem::get_singleton()->disconnect("filesystem_changed", this, "reload");
+        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed",callable_mp(this, &ClassName::reload))) {
+            EditorFileSystem::get_singleton()->disconnect("filesystem_changed",callable_mp(this, &ClassName::reload));
         }
     }
 
@@ -157,7 +158,7 @@ void EditorDirDialog::_make_dir_confirm() {
     String dir = ti->get_metadata(0).as<String>();
 
     DirAccessRef d = DirAccess::open(dir);
-    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'."); 
+    ERR_FAIL_COND_MSG(!d, "Cannot open directory '" + dir + "'.");
     Error err = d->make_dir(makedirname->get_text());
 
     if (err != OK) {
@@ -190,10 +191,10 @@ EditorDirDialog::EditorDirDialog() {
     tree = memnew(Tree);
     add_child(tree);
 
-    tree->connect("item_activated", this, "_ok");
+    tree->connect("item_activated",callable_mp((AcceptDialog *)this, &AcceptDialog::_ok_pressed));
 
     makedir = add_button(TTR("Create Folder"), OS::get_singleton()->get_swap_ok_cancel(), "makedir");
-    makedir->connect("pressed", this, "_make_dir");
+    makedir->connect("pressed",callable_mp(this, &ClassName::_make_dir));
 
     makedialog = memnew(ConfirmationDialog);
     makedialog->set_title(TTR("Create Folder"));
@@ -206,7 +207,7 @@ EditorDirDialog::EditorDirDialog() {
     makedirname = memnew(LineEdit);
     makevb->add_margin_child(TTR("Name:"), makedirname);
     makedialog->register_text_enter(makedirname);
-    makedialog->connect("confirmed", this, "_make_dir_confirm");
+    makedialog->connect("confirmed",callable_mp(this, &ClassName::_make_dir_confirm));
 
     mkdirerr = memnew(AcceptDialog);
     mkdirerr->set_text(TTR("Could not create folder."));

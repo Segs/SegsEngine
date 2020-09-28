@@ -140,8 +140,8 @@ MenuButton::MenuButton() {
     popup->hide();
     add_child(popup);
     popup->set_pass_on_modal_close_click(false);
-    popup->connect("about_to_show", this, "set_pressed", varray(true)); // For when switching from another MenuButton.
-    popup->connect("popup_hide", this, "set_pressed", varray(false));
+    popup->connect("about_to_show",callable_mp(this, &ClassName::set_pressed), varray(true)); // For when switching from another MenuButton.
+    popup->connect("popup_hide",callable_mp(this, &ClassName::set_pressed), varray(false));
 }
 
 MenuButton::~MenuButton() {

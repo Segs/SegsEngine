@@ -1066,10 +1066,10 @@ void AnimatedSprite3D::_notification(int p_what) {
 void AnimatedSprite3D::set_sprite_frames(const Ref<SpriteFrames> &p_frames) {
 
     if (frames)
-        frames->disconnect("changed", this, "_res_changed");
+        frames->disconnect("changed",callable_mp(this, &ClassName::_res_changed));
     frames = p_frames;
     if (frames)
-        frames->connect("changed", this, "_res_changed");
+        frames->connect("changed",callable_mp(this, &ClassName::_res_changed));
 
     if (not frames) {
         frame = 0;
@@ -1244,7 +1244,7 @@ void AnimatedSprite3D::_bind_methods() {
     ADD_SIGNAL(MethodInfo("frame_changed"));
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "frames", PropertyHint::ResourceType, "SpriteFrames"), "set_sprite_frames", "get_sprite_frames");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "animation"), "set_animation", "get_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "animation"), "set_animation", "get_animation");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "playing"), "_set_playing", "_is_playing");
 }

@@ -2908,19 +2908,19 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "_import_path", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL), "_set_import_path", "get_import_path");
 
     {
-        MethodInfo mi("rpc",PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("rpc",PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("rpc", &Node::_rpc_bind, eastl::move(mi));
     }
     {
-        MethodInfo mi("rpc_unreliable",PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("rpc_unreliable",PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("rpc_unreliable", &Node::_rpc_unreliable_bind, eastl::move(mi));
     }
     {
-        MethodInfo mi("rpc_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("rpc_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method( "rpc_id", &Node::_rpc_id_bind, eastl::move(mi));
     }
     {
-        MethodInfo mi("rpc_unreliable_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING, "method"));
+        MethodInfo mi("rpc_unreliable_id",PropertyInfo(VariantType::INT, "peer_id"),PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method( "rpc_unreliable_id", &Node::_rpc_unreliable_id_bind, eastl::move(mi));
     }
 
@@ -2987,7 +2987,7 @@ void Node::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor/display_folded", PropertyHint::None, "", 0), "set_display_folded", "is_displayed_folded");
 #endif
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "name", PropertyHint::None, "", 0), "set_name", "get_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "name", PropertyHint::None, "", 0), "set_name", "get_name");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "filename", PropertyHint::None, "", 0), "set_filename", "get_filename");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "owner", PropertyHint::ResourceType, "Node", 0), "set_owner", "get_owner");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "multiplayer", PropertyHint::ResourceType, "MultiplayerAPI", 0), "", "get_multiplayer");

@@ -31,7 +31,7 @@
 #include "visual_shader.h"
 
 #include "core/method_bind.h"
-
+#include "core/callable_method_pointer.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "core/object_tooling.h"
@@ -470,10 +470,10 @@ void VisualShaderNodeCustom::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_return_icon_type"));
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_count"));
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_input_port_type", PropertyInfo(VariantType::INT, "port")));
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING_NAME, "_get_input_port_name", PropertyInfo(VariantType::INT, "port")));
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_count"));
     BIND_VMETHOD(MethodInfo(VariantType::INT, "_get_output_port_type", PropertyInfo(VariantType::INT, "port")));
-    BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")));
+    BIND_VMETHOD(MethodInfo(VariantType::STRING_NAME, "_get_output_port_name", PropertyInfo(VariantType::INT, "port")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_code", PropertyInfo(VariantType::ARRAY, "input_vars"), PropertyInfo(VariantType::ARRAY, "output_vars"), PropertyInfo(VariantType::INT, "mode"), PropertyInfo(VariantType::INT, "type")));
     BIND_VMETHOD(MethodInfo(VariantType::STRING, "_get_global_code", PropertyInfo(VariantType::INT, "mode")));
 }
@@ -504,10 +504,10 @@ void VisualShader::add_node(Type p_type, const Ref<VisualShaderNode> &p_node, co
     if (input) {
         input->shader_mode = shader_mode;
         input->shader_type = p_type;
-        input->connect("input_type_changed", this, "_input_type_changed", varray(p_type, p_id));
+        input->connect("input_type_changed",callable_mp(this, &ClassName::_input_type_changed), varray(p_type, p_id));
     }
 
-    n.node->connect("changed", this, "_queue_update");
+    n.node->connect("changed",callable_mp(this, &ClassName::_queue_update));
 
     Ref<VisualShaderNodeCustom> custom = dynamic_ref_cast<VisualShaderNodeCustom>(n.node);
     if (custom) {
@@ -575,10 +575,10 @@ void VisualShader::remove_node(Type p_type, int p_id) {
 
     Ref<VisualShaderNodeInput> input = dynamic_ref_cast<VisualShaderNodeInput>(g->nodes[p_id].node);
     if (input) {
-        input->disconnect("input_type_changed", this, "_input_type_changed");
+        input->disconnect("input_type_changed",callable_mp(this, &ClassName::_input_type_changed));
     }
 
-    g->nodes[p_id].node->disconnect("changed", this, "_queue_update");
+    g->nodes[p_id].node->disconnect("changed",callable_mp(this, &ClassName::_queue_update));
 
     g->nodes.erase(p_id);
 
@@ -1888,7 +1888,7 @@ void VisualShaderNodeInput::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_input_name"), &VisualShaderNodeInput::get_input_name);
     MethodBinder::bind_method(D_METHOD("get_input_real_name"), &VisualShaderNodeInput::get_input_real_name);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "input_name", PropertyHint::Enum, ""), "set_input_name", "get_input_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "input_name", PropertyHint::Enum, ""), "set_input_name", "get_input_name");
     ADD_SIGNAL(MethodInfo("input_type_changed"));
 }
 VisualShaderNodeInput::VisualShaderNodeInput() {
@@ -2088,7 +2088,7 @@ void VisualShaderNodeUniform::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_uniform_name", {"name"}), &VisualShaderNodeUniform::set_uniform_name);
     MethodBinder::bind_method(D_METHOD("get_uniform_name"), &VisualShaderNodeUniform::get_uniform_name);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "uniform_name"), "set_uniform_name", "get_uniform_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "uniform_name"), "set_uniform_name", "get_uniform_name");
 }
 
 VisualShaderNodeUniform::VisualShaderNodeUniform() {

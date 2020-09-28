@@ -38,6 +38,7 @@
 #include "editor_feature_profile.h"
 #include "editor_help.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -587,7 +588,7 @@ void EditorProperty::_focusable_focused(int p_index) {
 
 void EditorProperty::add_focusable(Control *p_control) {
 
-    p_control->connect("focus_entered", this, "_focusable_focused", varray(focusables.size()));
+    p_control->connect("focus_entered",callable_mp(this, &ClassName::_focusable_focused), varray(focusables.size()));
     focusables.push_back(p_control);
 }
 
@@ -856,13 +857,13 @@ void EditorProperty::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "checked"), "set_checked", "is_checked");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_red"), "set_draw_red", "is_draw_red");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keying"), "set_keying", "is_keying");
-    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
     ADD_SIGNAL(MethodInfo("multiple_properties_changed", PropertyInfo(VariantType::POOL_STRING_ARRAY, "properties"), PropertyInfo(VariantType::ARRAY, "value")));
-    ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(VariantType::STRING, "property")));
-    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
-    ADD_SIGNAL(MethodInfo("property_checked", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::STRING, "bool")));
+    ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(VariantType::STRING_NAME, "property")));
+    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_checked", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::STRING, "bool")));
     ADD_SIGNAL(MethodInfo("resource_selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
-    ADD_SIGNAL(MethodInfo("object_id_selected", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("object_id_selected", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::INT, "focusable_idx")));
 
     MethodInfo vm;
@@ -1367,14 +1368,14 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
             continue;
 
         ep->object = object;
-        ep->connect("property_changed", this, "_property_changed");
-        ep->connect("property_keyed", this, "_property_keyed");
-        ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
-        ep->connect("property_checked", this, "_property_checked");
-        ep->connect("selected", this, "_property_selected");
-        ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-        ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
-        ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
+        ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
+        ep->connect("property_keyed",callable_mp(this, &ClassName::_property_keyed));
+        ep->connect("property_keyed_with_value",callable_mp(this, &ClassName::_property_keyed_with_value));
+        ep->connect("property_checked",callable_mp(this, &ClassName::_property_checked));
+        ep->connect("selected",callable_mp(this, &ClassName::_property_selected));
+        ep->connect("multiple_properties_changed",callable_mp(this, &ClassName::_multiple_properties_changed));
+        ep->connect("resource_selected",callable_mp(this, &ClassName::_resource_selected), varray(), ObjectNS::CONNECT_QUEUED);
+        ep->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected), varray(), ObjectNS::CONNECT_QUEUED);
 
         if (!F.properties.empty()) {
 
@@ -1784,17 +1785,17 @@ void EditorInspector::update_tree() {
 
                 if (ep) {
 
-                    ep->connect("property_changed", this, "_property_changed");
+                    ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
                     if (p.usage & PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED) {
-                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), ObjectNS::CONNECT_QUEUED);
+                        ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed_update_all), varray(), ObjectNS::CONNECT_QUEUED);
                     }
-                    ep->connect("property_keyed", this, "_property_keyed");
-                    ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
-                    ep->connect("property_checked", this, "_property_checked");
-                    ep->connect("selected", this, "_property_selected");
-                    ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-                    ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
-                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
+                    ep->connect("property_keyed",callable_mp(this, &ClassName::_property_keyed));
+                    ep->connect("property_keyed_with_value",callable_mp(this, &ClassName::_property_keyed_with_value));
+                    ep->connect("property_checked",callable_mp(this, &ClassName::_property_checked));
+                    ep->connect("selected",callable_mp(this, &ClassName::_property_selected));
+                    ep->connect("multiple_properties_changed",callable_mp(this, &ClassName::_multiple_properties_changed));
+                    ep->connect("resource_selected",callable_mp(this, &ClassName::_resource_selected), varray(), ObjectNS::CONNECT_QUEUED);
+                    ep->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected), varray(), ObjectNS::CONNECT_QUEUED);
                     if (!doc_hint.empty()) {
                         ep->set_tooltip_utf8(property_prefix + p.name + "::" + doc_hint);
                     } else {
@@ -1921,7 +1922,7 @@ void EditorInspector::set_use_filter(bool p_use) {
 void EditorInspector::register_text_enter(Node *p_line_edit) {
     search_box = object_cast<LineEdit>(p_line_edit);
     if (search_box)
-        search_box->connect("text_changed", this, "_filter_changed");
+        search_box->connect("text_changed",callable_mp(this, &ClassName::_filter_changed));
 }
 
 void EditorInspector::_filter_changed(StringView p_text) {
@@ -2193,7 +2194,7 @@ void EditorInspector::_node_removed(Node *p_node) {
 void EditorInspector::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
-        EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed", this, "_feature_profile_changed");
+        EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed",callable_mp(this, &ClassName::_feature_profile_changed));
     }
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
@@ -2202,7 +2203,7 @@ void EditorInspector::_notification(int p_what) {
             add_style_override("bg", get_stylebox("sub_inspector_bg", "Editor"));
         } else {
             add_style_override("bg", get_stylebox("bg", "Tree"));
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
         }
     }
     if (p_what == NOTIFICATION_PREDELETE) {
@@ -2211,7 +2212,7 @@ void EditorInspector::_notification(int p_what) {
     if (p_what == NOTIFICATION_EXIT_TREE) {
 
         if (!sub_inspector) {
-            get_tree()->disconnect("node_removed", this, "_node_removed");
+            get_tree()->disconnect("node_removed",callable_mp(this, &ClassName::_node_removed));
         }
         edit(nullptr);
     }
@@ -2365,6 +2366,6 @@ EditorInspector::EditorInspector() {
     property_focusable = -1;
     sub_inspector = false;
 
-    get_v_scrollbar()->connect("value_changed", this, "_vscroll_changed");
+    get_v_scrollbar()->connect("value_changed",callable_mp(this, &ClassName::_vscroll_changed));
     update_scroll_request = -1;
 }
