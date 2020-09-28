@@ -143,7 +143,7 @@ MethodBind *godot_icall_Object_ClassDB_get_method(StringName *p_type, MonoString
 }
 
 MonoObject *godot_icall_Object_weakref(Object *p_obj) {
-    if (!p_obj) P
+    if (!p_obj) {
         return nullptr;
 	}
 

@@ -30,6 +30,7 @@
 
 #include "scroll_bar.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"

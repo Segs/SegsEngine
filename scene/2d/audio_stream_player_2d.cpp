@@ -31,6 +31,7 @@
 #include "audio_stream_player_2d.h"
 
 #include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_tooling.h"
 #include "scene/2d/area_2d.h"
 #include "scene/main/viewport.h"

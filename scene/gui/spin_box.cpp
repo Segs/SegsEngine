@@ -30,6 +30,7 @@
 
 #include "spin_box.h"
 //#include "core/math/expression.h"
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/method_bind.h"
 

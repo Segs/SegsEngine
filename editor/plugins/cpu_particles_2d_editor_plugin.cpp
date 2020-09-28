@@ -30,6 +30,7 @@
 
 #include "cpu_particles_2d_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
@@ -250,10 +251,6 @@ void CPUParticles2DEditorPlugin::_notification(int p_what) {
 }
 
 void CPUParticles2DEditorPlugin::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_menu_callback"), &CPUParticles2DEditorPlugin::_menu_callback);
-    MethodBinder::bind_method(D_METHOD("_file_selected"), &CPUParticles2DEditorPlugin::_file_selected);
-    MethodBinder::bind_method(D_METHOD("_generate_emission_mask"), &CPUParticles2DEditorPlugin::_generate_emission_mask);
 }
 
 CPUParticles2DEditorPlugin::CPUParticles2DEditorPlugin(EditorNode *p_node) {

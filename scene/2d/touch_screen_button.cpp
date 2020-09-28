@@ -30,6 +30,7 @@
 
 #include "touch_screen_button.h"
 
+#include "core/callable_method_pointer.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 #include "core/input/input_map.h"
@@ -88,12 +89,12 @@ Ref<BitMap> TouchScreenButton::get_bitmask() const {
 void TouchScreenButton::set_shape(const Ref<Shape2D> &p_shape) {
 
     if (shape)
-        shape->disconnect("changed",callable_mp(this, &ClassName::update));
+        shape->disconnect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
 
     shape = p_shape;
 
     if (shape)
-        shape->connect("changed",callable_mp(this, &ClassName::update));
+        shape->connect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
 
     update();
 }

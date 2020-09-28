@@ -61,6 +61,7 @@ void buildCallArgumentList(const TS_Function *finfo, const eastl::vector_map<Str
     out.append(")");
 }
 void mapFunctionArguments(const TS_Function *finfo,GeneratorContext &ctx) {
+    TS_TypeMapper &mapper(TS_TypeMapper::get());
     ctx.out.append("(");
     int argc = finfo->arg_types.size();
 
@@ -94,9 +95,15 @@ void mapFunctionArguments(const TS_Function *finfo,GeneratorContext &ctx) {
             auto defval=finfo->arg_defaults.find(i);
             if(defval!=finfo->arg_defaults.end())
             {
+                auto default_mapping = mapper.map_type(TS_TypeMapper::SCRIPT_CS_DEFAULT_WRAPPER, finfo->arg_types[i]);
                 ctx.out.append(" = ");
-                if(!finfo->nullable_ref[i])
-                    ctx.out.append(String(String::CtorSprintf(),defval->second.c_str(),mapping.c_str()));
+                if(!finfo->nullable_ref[i]) {
+                    if(default_mapping.empty())
+                        ctx.out.append(String(String::CtorSprintf(),defval->second.c_str(),mapping.c_str()));
+                    else {
+                        ctx.out.append(default_mapping.replaced("%type%",mapping).replaced("%value%",defval->second));
+                    }
+                }
                 else
                     ctx.out.append("null");
             }
@@ -180,6 +187,103 @@ void prepareArgumentLocals(const TS_Function *finfo, eastl::vector_map<String, S
             ctx.out.append_indented_multiline(realized_mapping);
         }
     }
+}
+void mapSignalArguments(const TS_Signal *finfo,GeneratorContext &ctx) {
+    TS_TypeMapper &mapper(TS_TypeMapper::get());
+    ctx.out.append("(");
+    int argc = finfo->arg_types.size();
+
+    for(int i=0; i<argc; ++i) {
+        auto arg_type=finfo->arg_types[i].type;
+        auto mapping = arg_type->relative_path(TargetCode::CS_INTERFACE,finfo->enclosing_type);
+        if(mapping.empty())
+            mapping = arg_type->cs_name();
+        if(!mapping.empty()) {
+            bool nullable_val=false;
+            if(finfo->nullable_ref[i]) {
+                if(arg_type->kind()==TS_TypeLike::CLASS) {
+                    nullable_val = ((const TS_Type *)arg_type)->m_value_type;
+                }
+            }
+
+            if(nullable_val)
+                ctx.out.append("Nullable<");
+            ctx.out.append(mapping);
+            if(nullable_val)
+                ctx.out.append(">");
+        }
+        else {
+            ctx.out.append("MissingWrap<");
+            ctx.out.append(arg_type->c_name());
+            ctx.out.append(">");
+        }
+        ctx.out.append(" ");
+        ctx.out.append(finfo->arg_values[i]);
+        if(!finfo->arg_defaults.empty()) {
+            auto defval=finfo->arg_defaults.find(i);
+            if(defval!=finfo->arg_defaults.end())
+            {
+                auto default_mapping = mapper.map_type(TS_TypeMapper::SCRIPT_CS_DEFAULT_WRAPPER, finfo->arg_types[i]);
+                ctx.out.append(" = ");
+                if(!finfo->nullable_ref[i]) {
+                    if(default_mapping.empty())
+                        ctx.out.append(String(String::CtorSprintf(),defval->second.c_str(),mapping.c_str()));
+                    else {
+                        ctx.out.append(default_mapping.replaced("%type%",mapping).replaced("%value%",defval->second));
+                    }
+                }
+                else
+                    ctx.out.append("null");
+            }
+        }
+        if(i<argc-1)
+            ctx.out.append(", ");
+    }
+    ctx.out.append(") ");
+}
+void visitSignal(const TS_Signal &finfo,GeneratorContext &ctx,const String &nativecalls_ns) {
+    _generate_docs_for(&finfo,ctx);
+    String delegate = finfo.cs_name+"Handler";
+    ctx.out.append_indented("public delegate void ");
+    ctx.out.append(delegate);
+    mapSignalArguments(&finfo,ctx);
+    ctx.out.append(";\n");
+
+    // Cached signal name (StringName)
+    ctx.out.append_indented("[DebuggerBrowsable(DebuggerBrowsableState.Never)]\n");
+    ctx.out.append_indented("private static StringName __signal_name_");
+    ctx.out.append(finfo.c_name());
+    ctx.out.append(" = \"");
+    ctx.out.append(finfo.c_name());
+    ctx.out.append("\";\n");
+    // Generate event
+    ctx.append_line("[Signal]");
+    ctx.out.append_indented("public ");
+
+    if (!finfo.enclosing_type->needs_instance()) {
+        ctx.out.append("static ");
+    }
+    ctx.out.append("event ");
+    ctx.out.append(delegate);
+    ctx.out.append(" ");
+    ctx.out.append(finfo.cs_name);
+    ctx.out.append("\n");
+    ctx.start_block();
+    if (!finfo.enclosing_type->needs_instance()) {
+        ctx.out.append_indented("add => Singleton.Connect(__signal_name_");
+    } else {
+        ctx.out.append_indented("add => Connect(__signal_name_");
+    }
+    ctx.out.append(finfo.c_name());
+    ctx.out.append(", new Callable(value));\n");
+    if (!finfo.enclosing_type->needs_instance()) {
+        ctx.out.append_indented("remove => Singleton.Disconnect(__signal_name_");
+    } else {
+        ctx.out.append_indented("remove => Disconnect(__signal_name_");
+    }
+    ctx.out.append(finfo.c_name());
+    ctx.out.append(", new Callable(value));\n");
+    ctx.end_block();
 }
 
 void visitFunction(const TS_Function &finfo,GeneratorContext &ctx,const String &nativecalls_ns) {
@@ -478,6 +582,11 @@ void CsGeneratorVisitor::visitClassInternal(TS_Type *tp) {
     // methods
     for(const TS_Function *method : tp->m_functions) {
         visitFunction(*method,ctx,nativecalls_ns);
+    }
+
+    // signals
+    for(const TS_Signal *method : tp->m_signals) {
+        visitSignal(*method,ctx,nativecalls_ns);
     }
 
     ctx.end_block("end of type");

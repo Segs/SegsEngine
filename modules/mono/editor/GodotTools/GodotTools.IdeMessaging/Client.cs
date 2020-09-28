@@ -19,6 +19,7 @@ namespace GodotTools.IdeMessaging
         private readonly string identity;
 
         private string MetaFilePath { get; }
+        private DateTime? metaFileModifiedTime;
         private GodotIdeMetadata godotIdeMetadata;
         private readonly FileSystemWatcher fsWatcher;
 
@@ -142,6 +143,12 @@ namespace GodotTools.IdeMessaging
                 if (!File.Exists(MetaFilePath))
                     return;
 
+                var lastWriteTime = File.GetLastWriteTime(MetaFilePath);
+
+                if (lastWriteTime == metaFileModifiedTime)
+                    return;
+
+                metaFileModifiedTime = lastWriteTime;
                 var metadata = ReadMetadataFile();
 
                 if (metadata != null && metadata != godotIdeMetadata)
@@ -173,6 +180,12 @@ namespace GodotTools.IdeMessaging
                 if (IsConnected || !File.Exists(MetaFilePath))
                     return;
 
+                var lastWriteTime = File.GetLastWriteTime(MetaFilePath);
+
+                if (lastWriteTime == metaFileModifiedTime)
+                    return;
+
+                metaFileModifiedTime = lastWriteTime;
                 var metadata = ReadMetadataFile();
 
                 if (metadata != null)
@@ -185,7 +198,8 @@ namespace GodotTools.IdeMessaging
 
         private GodotIdeMetadata? ReadMetadataFile()
         {
-            using (var reader = File.OpenText(MetaFilePath))
+            using (var fileStream = new FileStream(MetaFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(fileStream))
             {
                 string portStr = reader.ReadLine();
 
@@ -272,6 +286,7 @@ namespace GodotTools.IdeMessaging
         // ReSharper disable once UnusedMember.Global
         public async void Start()
         {
+            fsWatcher.Created += OnMetaFileChanged;
             fsWatcher.Changed += OnMetaFileChanged;
             fsWatcher.Deleted += OnMetaFileDeleted;
             fsWatcher.EnableRaisingEvents = true;

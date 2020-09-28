@@ -30,23 +30,27 @@
 
 #include "scene_tree.h"
 
-#include "core/external_profiler.h"
+#include "node.h"
+#include "viewport.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/deque.h"
+#include "core/external_profiler.h"
+#include "core/input/input_default.h"
 #include "core/io/marshalls.h"
+#include "core/io/multiplayer_api.h"
 #include "core/message_queue.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
-#include "core/os/mutex.h"
 #include "core/os/dir_access.h"
 #include "core/os/keyboard.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
-#include "core/io/multiplayer_api.h"
 #include "core/project_settings.h"
-#include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
-#include "core/input/input_default.h"
-#include "node.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/resources/dynamic_font.h"
 #include "scene/resources/material.h"
@@ -55,11 +59,8 @@
 #include "scene/scene_string_names.h"
 #include "servers/physics_server_2d.h"
 #include "servers/physics_server_3d.h"
-#include "viewport.h"
 
 #include <cstdio>
-
-#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(SceneTreeTimer)
 IMPL_GDCLASS(SceneTree)
@@ -449,7 +450,7 @@ void SceneTreeTimer::release_connections() {
     get_all_signal_connections(&connections);
 
     for (Connection const &connection : connections) {
-        disconnect(connection.signal, connection.target, connection.method);
+        disconnect(connection.signal.get_name(), connection.callable);
     }
 }
 
@@ -617,35 +618,30 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
     call_lock++;
 
     if (p_call_flags & GROUP_CALL_REVERSE) {
-
         for (int i = node_count - 1; i >= 0; i--) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
+            if (call_lock && call_skip.contains(nodes[i])) {
                 continue;
+            }
 
             if (p_call_flags & GROUP_CALL_REALTIME) {
-                if (p_call_flags & GROUP_CALL_MULTILEVEL)
-                    nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
-                else
-                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else
+                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
+            } else {
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
+            }
         }
 
-    } else {
+    }  else {
 
         for (int i = 0; i < node_count; i++) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
+            if (call_lock && call_skip.contains(nodes[i])) {
                 continue;
+            }
 
             if (p_call_flags & GROUP_CALL_REALTIME) {
-                if (p_call_flags & GROUP_CALL_MULTILEVEL)
-                    nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
-                else
-                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else
+                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
+            } else {
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
+            }
         }
     }
 
@@ -1269,11 +1265,16 @@ bool SceneTree::is_paused() const {
 void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input) {
 
     HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
-    if (E==group_map.end())
+
+    if (E==group_map.end()) {
         return;
+    }
+
     SceneTreeGroup &g = E->second;
-    if (g.nodes.empty())
+
+    if (g.nodes.empty()) {
         return;
+    }
 
     _update_group_order(g);
 
@@ -1301,13 +1302,22 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
         if (!n->can_process())
             continue;
 
-        n->call_multilevel(p_method, (const Variant **)v, 1);
+        Callable::CallError err;
+        // Call both script and native method.
+        if (n->get_script_instance()) {
+            n->get_script_instance()->call(p_method, (const Variant **)v, 1, err);
+        }
+        MethodBind *method = ClassDB::get_method(n->get_class_name(), p_method);
+        if (method) {
+            method->call(n, (const Variant **)v, 1, err);
+        }
         //ERR_FAIL_COND();
     }
 
     call_lock--;
-    if (call_lock == 0)
+    if (call_lock == 0) {
         call_skip.clear();
+    }
 }
 
 void SceneTree::_notify_group_pause(const StringName &p_group, int p_notification) {
@@ -1876,11 +1886,6 @@ void SceneTree::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
     MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", {"refuse"}), &SceneTree::set_refuse_new_network_connections);
     MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("_network_peer_connected"), &SceneTree::_network_peer_connected);
-    MethodBinder::bind_method(D_METHOD("_network_peer_disconnected"), &SceneTree::_network_peer_disconnected);
-    MethodBinder::bind_method(D_METHOD("_connected_to_server"), &SceneTree::_connected_to_server);
-    MethodBinder::bind_method(D_METHOD("_connection_failed"), &SceneTree::_connection_failed);
-    MethodBinder::bind_method(D_METHOD("_server_disconnected"), &SceneTree::_server_disconnected);
 
     MethodBinder::bind_method(D_METHOD("set_use_font_oversampling", {"enable"}), &SceneTree::set_use_font_oversampling);
     MethodBinder::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);

@@ -76,6 +76,10 @@ StringView _get_name_num_separator() {
     return " ";
 }
 struct Node::PrivData {
+    struct NetData {
+        StringName name;
+        MultiplayerAPI_RPCMode mode;
+    };
     String *filename=nullptr;
     Ref<SceneState> instance_state;
     Ref<SceneState> inherited_state;
@@ -101,8 +105,8 @@ struct Node::PrivData {
     Node *pause_owner;
 
     int network_master;
-    HashMap<StringName, MultiplayerAPI_RPCMode> rpc_methods;
-    HashMap<StringName, MultiplayerAPI_RPCMode> rpc_properties;
+    Vector<NetData> rpc_methods;
+    Vector<NetData> rpc_properties;
 
 
     bool ready_notified; //this is a small hack, so if a node is added during _ready() to the tree, it correctly gets the _ready() notification
@@ -125,7 +129,37 @@ struct Node::PrivData {
     bool display_folded;
 
     mutable NodePath *path_cache;
+    uint16_t get_node_rset_property_id(const StringName &p_property) const {
+        for (int i = 0; i < rpc_properties.size(); i++) {
+            if (rpc_properties[i].name == p_property) {
+                // Returns `i` with the high bit set to 1 so we know that this id comes
+                // from the node and not the script.
+                return i | (1 << 15);
+            }
+        }
+        return UINT16_MAX;
+    }
 
+    StringName get_node_rset_property(const uint16_t p_rset_property_id) const {
+        // Make sure this is a node generated ID.
+        if (((1 << 15) & p_rset_property_id) > 0) {
+            int mid = (~(1 << 15)) & p_rset_property_id;
+            if (mid < rpc_properties.size()) {
+                return rpc_properties[mid].name;
+            }
+        }
+        return StringName();
+    }
+    uint16_t get_node_rpc_method_id(const StringName &p_method) const {
+        for (int i = 0; i < rpc_methods.size(); i++) {
+            if (rpc_methods[i].name == p_method) {
+                // Returns `i` with the high bit set to 1 so we know that this id comes
+                // from the node and not the script.
+                return i | (1 << 15);
+            }
+        }
+        return UINT16_MAX;
+    }
 };
 
 
@@ -138,8 +172,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_process_delta_time();
-                const Variant *ptr[1] = { &time };
-                get_script_instance()->call_multilevel(SceneStringNames::get_singleton()->_process, ptr, 1);
+                get_script_instance()->call(SceneStringNames::get_singleton()->_process, time);
             }
         } break;
         case NOTIFICATION_PHYSICS_PROCESS: {
@@ -147,8 +180,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_physics_process_delta_time();
-                const Variant *ptr[1] = { &time };
-                get_script_instance()->call_multilevel(SceneStringNames::get_singleton()->_physics_process, ptr, 1);
+                get_script_instance()->call(SceneStringNames::get_singleton()->_physics_process, time);
             }
 
         } break;
@@ -228,7 +260,7 @@ void Node::_notification(int p_notification) {
                     set_physics_process(true);
                 }
 
-                get_script_instance()->call_multilevel_reversed(SceneStringNames::get_singleton()->_ready, nullptr, 0);
+                get_script_instance()->call(SceneStringNames::get_singleton()->_ready);
             }
 
         } break;
@@ -305,8 +337,7 @@ void Node::_propagate_enter_tree() {
     notification(NOTIFICATION_ENTER_TREE);
 
     if (get_script_instance()) {
-
-        get_script_instance()->call_multilevel_reversed(SceneStringNames::get_singleton()->_enter_tree, nullptr, 0);
+        get_script_instance()->call(SceneStringNames::get_singleton()->_enter_tree);
     }
 
     emit_signal(SceneStringNames::get_singleton()->tree_entered);
@@ -318,8 +349,9 @@ void Node::_propagate_enter_tree() {
 
     for (size_t i = 0; i < priv_data->children.size(); i++) {
 
-        if (!priv_data->children[i]->is_inside_tree()) // could have been added in enter_tree
+        if (!priv_data->children[i]->is_inside_tree()) { // could have been added in enter_tree
             priv_data->children[i]->_propagate_enter_tree();
+        }
     }
 
     blocked--;
@@ -380,14 +412,14 @@ void Node::_propagate_exit_tree() {
     blocked--;
 
     if (get_script_instance()) {
-
-        get_script_instance()->call_multilevel(SceneStringNames::get_singleton()->_exit_tree, nullptr, 0);
+        get_script_instance()->call(SceneStringNames::get_singleton()->_exit_tree);
     }
     emit_signal(SceneStringNames::get_singleton()->tree_exiting);
 
     notification(NOTIFICATION_EXIT_TREE, true);
-    if (tree)
+    if (tree) {
         tree->node_removed(this);
+    }
 
     // exit groups
 
@@ -580,22 +612,40 @@ bool Node::is_network_master() const {
 }
 
 /***** RPC CONFIG ********/
+//MultiplayerAPI::RPCMode Node::get_node_rpc_mode(const StringName &p_method) const {
+//	return get_node_rpc_mode_by_id(get_node_rpc_method_id(p_method));
+//}
 
-void Node::rpc_config(const StringName &p_method, MultiplayerAPI_RPCMode p_mode) {
 
-    if (p_mode == MultiplayerAPI_RPCMode(0)) {
-        priv_data->rpc_methods.erase(p_method);
+uint16_t Node::rpc_config(const StringName &p_method, MultiplayerAPI_RPCMode p_mode) {
+    uint16_t mid = priv_data->get_node_rpc_method_id(p_method);
+    if (mid == UINT16_MAX) {
+        // It's new
+        PrivData::NetData nd;
+        nd.name = p_method;
+        nd.mode = p_mode;
+        priv_data->rpc_methods.push_back(nd);
+        return ((uint16_t)priv_data->rpc_properties.size() - 1) | (1 << 15);
     } else {
-        priv_data->rpc_methods[p_method] = p_mode;
+        int c_mid = (~(1 << 15)) & mid;
+        priv_data->rpc_methods[c_mid].mode = p_mode;
+        return mid;
     }
 }
 
-void Node::rset_config(const StringName &p_property, MultiplayerAPI_RPCMode p_mode) {
-
-    if (p_mode == MultiplayerAPI_RPCMode(0)) {
-        priv_data->rpc_properties.erase(p_property);
+uint16_t Node::rset_config(const StringName &p_property, MultiplayerAPI_RPCMode p_mode) {
+    uint16_t pid = priv_data->get_node_rset_property_id(p_property);
+    if (pid == UINT16_MAX) {
+        // It's new
+        PrivData::NetData nd;
+        nd.name = p_property;
+        nd.mode = p_mode;
+        priv_data->rpc_properties.push_back(nd);
+        return ((uint16_t)priv_data->rpc_properties.size() - 1) | (1 << 15);
     } else {
-        priv_data->rpc_properties[p_property] = p_mode;
+        int c_pid = (~(1 << 15)) & pid;
+        priv_data->rpc_properties[c_pid].mode = p_mode;
+        return pid;
     }
 }
 
@@ -814,18 +864,32 @@ void Node::set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer) {
     multiplayer = p_multiplayer;
 }
 
-const MultiplayerAPI_RPCMode *Node::get_node_rpc_mode(const StringName &p_method) {
-    auto iter = priv_data->rpc_methods.find(p_method);
-    if(iter==priv_data->rpc_methods.end())
-        return nullptr;
-    return &iter->second;
+MultiplayerAPI_RPCMode Node::get_node_rpc_mode_by_id(const uint16_t p_rpc_method_id) const {
+    // Make sure this is a node generated ID.
+    if (((1 << 15) & p_rpc_method_id) > 0) {
+        int mid = (~(1 << 15)) & p_rpc_method_id;
+        if (mid < priv_data->rpc_methods.size()) {
+            return priv_data->rpc_methods[mid].mode;
+        }
+    }
+    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
+}
+MultiplayerAPI_RPCMode Node::get_node_rpc_mode(const StringName &p_method) const {
+    return get_node_rpc_mode_by_id(priv_data->get_node_rpc_method_id(p_method));
 }
 
-const MultiplayerAPI_RPCMode *Node::get_node_rset_mode(const StringName &p_property) {
-    auto iter = priv_data->rpc_properties.find(p_property);
-    if(iter==priv_data->rpc_properties.end())
-        return nullptr;
-    return &iter->second;
+MultiplayerAPI_RPCMode Node::get_node_rset_mode_by_id(const uint16_t p_rset_property_id) const {
+    if (((1 << 15) & p_rset_property_id) > 0) {
+        int mid = (~(1 << 15)) & p_rset_property_id;
+        if (mid < priv_data->rpc_properties.size()) {
+            return priv_data->rpc_properties[mid].mode;
+        }
+    }
+    return MultiplayerAPI_RPCMode::RPC_MODE_DISABLED;
+}
+
+MultiplayerAPI_RPCMode Node::get_node_rset_mode(const StringName &p_property) const {
+    return get_node_rset_mode_by_id(priv_data->get_node_rset_property_id(p_property));
 }
 
 bool Node::can_process_notification(int p_what) const {
@@ -2342,7 +2406,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
             NodePath p = p_original->get_path_to(this);
             Node *copy = p_copy->get_node(p);
 
-            Node *target = object_cast<Node>(E.target);
+            Node *target = object_cast<Node>(E.callable.get_object());
             if (!target) {
                 continue;
             }
@@ -2357,8 +2421,11 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
             if (p_copy->has_node(ptarget))
                 copytarget = p_copy->get_node(ptarget);
 
-            if (copy && copytarget && !copy->is_connected(E.signal, copytarget, E.method)) {
-                copy->connect(E.signal, copytarget, E.method, E.binds, E.flags);
+            if (copy && copytarget) {
+                const Callable copy_callable = Callable(copytarget, E.callable.get_method());
+                if (!copy->is_connected(E.signal.get_name(), copy_callable)) {
+                    copy->connect(E.signal.get_name(), copy_callable, E.binds, E.flags);
+                }
             }
         }
     }
@@ -2511,12 +2578,13 @@ void Node::_replace_connections_target(Node *p_new_target) {
     for (Connection &c : cl) {
 
         if (c.flags & ObjectNS::CONNECT_PERSIST) {
-            c.source->disconnect(c.signal, this, c.method);
-            bool valid = p_new_target->has_method(c.method) || not refFromRefPtr<Script>(p_new_target->get_script()) ||
-                         refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.method);
-            ERR_CONTINUE_MSG(!valid, FormatVE("Attempt to connect signal '%s.", c.source->get_class()) + c.signal +
-                                             FormatVE("' to nonexistent method '%s.", c.target->get_class()) + c.method + "'.");
-            c.source->connect(c.signal, p_new_target, c.method, c.binds, c.flags);
+            
+            c.signal.get_object()->disconnect(c.signal.get_name(), Callable(this, c.callable.get_method()));
+            bool valid = p_new_target->has_method(c.callable.get_method())
+                    || !refFromRefPtr<Script>(p_new_target->get_script())
+                    || refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.callable.get_method());
+            ERR_CONTINUE_MSG(!valid, String("Attempt to connect signal '") + c.signal.get_object()->get_class() + "." + c.signal.get_name() + "' to nonexistent method '" + c.callable.get_object()->get_class() + "." + c.callable.get_method() + "'.");
+			c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
         }
     }
 }

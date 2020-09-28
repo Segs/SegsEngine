@@ -30,6 +30,7 @@
 
 #include "cpu_particles_3d.h"
 
+#include "core/callable_method_pointer.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/gpu_particles_3d.h"
 #include "scene/resources/particles_material.h"

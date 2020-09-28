@@ -32,6 +32,7 @@
 
 #include "core/message_queue.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
@@ -844,7 +845,7 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
 
     skin_bindings.insert(skin_ref.get());
 
-    skin->connect("changed", skin_ref.get(), "_skin_changed");
+    skin->connect("changed", callable_mp(skin_ref.get(), &SkinReference::_skin_changed));
     _make_dirty();
     return skin_ref;
 }

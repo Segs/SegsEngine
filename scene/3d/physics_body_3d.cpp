@@ -30,6 +30,7 @@
 
 #include "physics_body_3d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/engine.h"
 #include "core/list.h"
@@ -202,16 +203,18 @@ PhysicsBody3D::PhysicsBody3D(PhysicsServer3D::BodyMode p_mode) :
 
 void StaticBody3D::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
     if (physics_material_override) {
-        if (physics_material_override->is_connected(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics"))
-            physics_material_override->disconnect(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics");
+        if (physics_material_override->is_connected(CoreStringNames::get_singleton()->changed, callable_mp(this, &StaticBody3D::_reload_physics_characteristics))) {
+            physics_material_override->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &StaticBody3D::_reload_physics_characteristics));
+        }
     }
 
     physics_material_override = p_physics_material_override;
 
     if (physics_material_override) {
-        physics_material_override->connect(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics");
+        physics_material_override->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &StaticBody3D::_reload_physics_characteristics));
     }
     _reload_physics_characteristics();
+
 }
 
 Ref<PhysicsMaterial> StaticBody3D::get_physics_material_override() const {
@@ -248,8 +251,6 @@ void StaticBody3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &StaticBody3D::set_physics_material_override);
     MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &StaticBody3D::get_physics_material_override);
-
-    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &StaticBody3D::_reload_physics_characteristics);
 
     MethodBinder::bind_method(D_METHOD("get_collision_exceptions"), &PhysicsBody3D::get_collision_exceptions);
     MethodBinder::bind_method(D_METHOD("add_collision_exception_with", {"body"}), &PhysicsBody3D::add_collision_exception_with);
@@ -344,8 +345,9 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
             //E->second.rc=0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree), make_binds(objid));
+
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
                 }
@@ -371,8 +373,8 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
         if (E->second.shapes.empty()) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
                 if (in_tree)
                     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
             }
@@ -579,14 +581,15 @@ real_t RigidBody::get_weight() const {
 
 void RigidBody::set_physics_material_override(const Ref<PhysicsMaterial> &p_physics_material_override) {
     if (physics_material_override) {
-        if (physics_material_override->is_connected(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics"))
-            physics_material_override->disconnect(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics");
+        if (physics_material_override->is_connected(CoreStringNames::get_singleton()->changed, callable_mp(this, &RigidBody::_reload_physics_characteristics))) {
+            physics_material_override->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &RigidBody::_reload_physics_characteristics));
+        }
     }
 
     physics_material_override = p_physics_material_override;
 
     if (physics_material_override) {
-        physics_material_override->connect(CoreStringNames::get_singleton()->changed, this, "_reload_physics_characteristics");
+        physics_material_override->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &RigidBody::_reload_physics_characteristics));
     }
     _reload_physics_characteristics();
 }
@@ -770,9 +773,8 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
             Node *node = object_cast<Node>(obj);
 
             if (node) {
-
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
             }
         }
 
@@ -846,8 +848,6 @@ void RigidBody::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_physics_material_override", {"physics_material_override"}), &RigidBody::set_physics_material_override);
     MethodBinder::bind_method(D_METHOD("get_physics_material_override"), &RigidBody::get_physics_material_override);
-
-    MethodBinder::bind_method(D_METHOD("_reload_physics_characteristics"), &RigidBody::_reload_physics_characteristics);
 
     MethodBinder::bind_method(D_METHOD("set_linear_velocity", {"linear_velocity"}), &RigidBody::set_linear_velocity);
     MethodBinder::bind_method(D_METHOD("get_linear_velocity"), &RigidBody::get_linear_velocity);

@@ -41,7 +41,7 @@
 class Object;
 class Variant;
 class CallableCustom;
-struct Array;
+class Array;
 enum class VariantType : int8_t;
 // This is an abstraction of things that can be called.
 // It is used for signals and other cases where efficient calling of functions

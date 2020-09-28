@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "area_2d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
@@ -176,8 +178,8 @@ void Area2D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_body_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
                 }
@@ -203,8 +205,8 @@ void Area2D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_body_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_body_exit_tree));
                 if (E->second.in_tree)
                     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(obj));
             }
@@ -278,8 +280,8 @@ void Area2D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_area_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_area_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
                 }
@@ -305,8 +307,8 @@ void Area2D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_area_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_area_exit_tree));
                 if (E->second.in_tree)
                     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
             }
@@ -342,8 +344,8 @@ void Area2D::_clear_monitoring() {
                 continue;
             //ERR_CONTINUE(!node);
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_body_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_body_exit_tree));
 
             if (!E.second.in_tree)
                 continue;
@@ -372,8 +374,8 @@ void Area2D::_clear_monitoring() {
                 continue;
             //ERR_CONTINUE(!node);
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area2D::_area_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area2D::_area_exit_tree));
 
             if (!E.second.in_tree)
                 continue;

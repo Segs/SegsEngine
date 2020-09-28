@@ -441,10 +441,11 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
     ERR_FAIL_COND_MSG(p_offset >= p_packet_len, "Invalid packet received. Size too small.");
 
     // Check that remote can call the RPC on this node.
+
     MultiplayerAPI_RPCMode rpc_mode = RPC_MODE_DISABLED;
-    const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_name);
-    if (E) {
-        rpc_mode = *E;
+    const MultiplayerAPI_RPCMode E = p_node->get_node_rpc_mode(p_name);
+    if (E!=RPC_MODE_DISABLED) {
+        rpc_mode = E;
     } else if (p_node->get_script_instance()) {
         rpc_mode = p_node->get_script_instance()->get_rpc_mode(p_name);
     }
@@ -493,9 +494,9 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
 
     // Check that remote can call the RSET on this node.
     MultiplayerAPI_RPCMode rset_mode = RPC_MODE_DISABLED;
-    const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_name);
-    if (E) {
-        rset_mode = *E;
+    const MultiplayerAPI_RPCMode E = p_node->get_node_rset_mode(p_name);
+    if (E!=RPC_MODE_DISABLED) {
+        rset_mode = E;
     } else if (p_node->get_script_instance()) {
         rset_mode = p_node->get_script_instance()->get_rset_mode(p_name);
     }
@@ -790,9 +791,9 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
 
-        const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_method);
-        if (E) {
-            call_local_native = _should_call_local(*E, is_master, skip_rpc);
+        const MultiplayerAPI_RPCMode E = p_node->get_node_rpc_mode(p_method);
+        if (E!=RPC_MODE_DISABLED) {
+            call_local_native = _should_call_local(E, is_master, skip_rpc);
         }
 
         if (call_local_native) {
@@ -854,10 +855,9 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
-        const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_property);
-        if (E) {
-
-            set_local = _should_call_local(*E, is_master, skip_rset);
+        const MultiplayerAPI_RPCMode E = p_node->get_node_rset_mode(p_property);
+        if (E!=RPC_MODE_DISABLED) {
+            set_local = _should_call_local(E, is_master, skip_rset);
         }
 
         if (set_local) {

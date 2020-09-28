@@ -182,7 +182,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     Variant arr = get_array();
     //int size = arr.call("size");
 
-    const const StringName& pn = p_name;
+    const StringName& pn = p_name;
     if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {

@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "theme.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/object_tooling.h"
 #include "core/os/file_access.h"
 #include "core/print_string.h"
@@ -833,8 +835,6 @@ void Theme::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_default_font"), &Theme::get_default_theme_font);
 
     MethodBinder::bind_method(D_METHOD("get_type_list", {"type"}), &Theme::_get_type_list);
-
-    MethodBinder::bind_method(D_METHOD("_emit_theme_changed"), &Theme::_emit_theme_changed);
 
     MethodBinder::bind_method("copy_default_theme", &Theme::copy_default_theme);
     MethodBinder::bind_method(D_METHOD("copy_theme", {"other"}), &Theme::copy_theme);

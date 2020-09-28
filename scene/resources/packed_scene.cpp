@@ -205,7 +205,8 @@ void SceneState::handleConnections(int nc, Span<Node*> ret_nodes) const {
                 binds.emplace_back(variants[b]);
         }
 
-        cfrom->connect(names[c.signal], cto, names[c.method], binds, ObjectNS::CONNECT_PERSIST | c.flags);
+        cfrom->connect(names[c.signal], Callable(cto, names[c.method]), binds, ObjectNS::CONNECT_PERSIST | c.flags);
+
     }
 }
 
@@ -719,7 +720,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
             // only connections that originate or end into main saved scene are saved
             // everything else is discarded
 
-            Node *target = object_cast<Node>(c.target);
+            Node *target = object_cast<Node>(c.callable.get_object());
 
             if (!target) {
                 continue;
@@ -751,7 +752,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
                     NodePath signal_from = common_parent->get_path_to(p_node);
                     NodePath signal_to = common_parent->get_path_to(target);
 
-                    if (ps->has_connection(signal_from, c.signal, signal_to, c.method)) {
+                    if (ps->has_connection(signal_from, c.signal.get_name(), signal_to, c.callable.get_method())) {
                         exists = true;
                         break;
                     }
@@ -783,7 +784,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
                             if (from_node >= 0 && to_node >= 0) {
                                 //this one has state for this node, save
-                                if (state->is_connection(from_node, c.signal, to_node, c.method)) {
+                                if (state->is_connection(from_node, c.signal.get_name(), to_node, c.callable.get_method())) {
                                     exists2 = true;
                                     break;
                                 }
@@ -801,7 +802,7 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
                                 if (from_node >= 0 && to_node >= 0) {
                                     //this one has state for this node, save
-                                    if (state->is_connection(from_node, c.signal, to_node, c.method)) {
+                                    if (state->is_connection(from_node, c.signal.get_name(), to_node, c.callable.get_method())) {
                                         exists2 = true;
                                         break;
                                     }
@@ -848,8 +849,8 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
             ConnectionData cd;
             cd.from = src_id;
             cd.to = target_id;
-            cd.method = _nm_get_string(c.method, name_map);
-            cd.signal = _nm_get_string(c.signal, name_map);
+            cd.method = _nm_get_string(c.callable.get_method(), name_map);
+            cd.signal = _nm_get_string(c.signal.get_name(), name_map);
             cd.flags = c.flags;
             for (const auto &bind : c.binds) {
 
@@ -863,8 +864,9 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
         Node *c = p_node->get_child(i);
         Error err = _parse_connections(p_owner, c, name_map, variant_map, node_map, nodepath_map);
-        if (err)
+        if (err) {
             return err;
+        }
     }
 
     return OK;

@@ -478,13 +478,14 @@ void CanvasItem::_update_callback() {
         notification(NOTIFICATION_DRAW);
         emit_signal(SceneStringNames::get_singleton()->draw);
         if (get_script_instance()) {
-            get_script_instance()->call_multilevel_reversed(SceneStringNames::get_singleton()->_draw, nullptr, 0);
+            get_script_instance()->call(SceneStringNames::get_singleton()->_draw);
         }
         current_item_drawn = nullptr;
         drawing = false;
     }
     //todo updating = false
     pending_update = false; // don't change to false until finished drawing (avoid recursive update)
+
 }
 
 Transform2D CanvasItem::get_global_transform_with_canvas() const {

@@ -498,6 +498,18 @@ MethodBind *ClassDB::get_method(StringName p_class, StringName p_name) {
     }
     return nullptr;
 }
+
+HashMap<StringName, MethodInfo> *ClassDB::get_signal_list(const StringName &p_class)
+{
+    RWLockRead _rw_lockr_(lock);
+
+    auto iter=classes.find(p_class);
+
+    ClassInfo *type = iter!=classes.end() ? &iter->second : nullptr;
+    if(!type)
+        return nullptr;
+    return &type->signal_map;
+}
 void ClassDB::register_enum_type(const StringName &p_class, const StringName &p_enum, const StringName &p_underlying_type)
 {
     auto iter=classes.find(p_class);

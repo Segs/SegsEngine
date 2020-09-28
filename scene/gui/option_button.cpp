@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "option_button.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
 #include "scene/resources/style_box.h"
@@ -315,9 +317,6 @@ void OptionButton::get_translatable_strings(List<StringName> *p_strings) const {
 
 void OptionButton::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_selected"), &OptionButton::_selected);
-    MethodBinder::bind_method(D_METHOD("_focused"), &OptionButton::_focused);
-
     MethodBinder::bind_method(D_METHOD("add_item", {"label", "id"}), &OptionButton::add_item, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("add_icon_item", {"texture", "label", "id"}), &OptionButton::add_icon_item, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("set_item_text", {"idx", "text"}), &OptionButton::set_item_text);
@@ -370,7 +369,7 @@ OptionButton::OptionButton() {
     popup->set_allow_search(true);
     popup->connect("index_pressed",callable_mp(this, &ClassName::_selected));
     popup->connect("id_focused",callable_mp(this, &ClassName::_focused));
-    popup->connect("popup_hide",callable_mp(this, &ClassName::set_pressed), varray(false));
+    popup->connect("popup_hide",callable_mp((BaseButton *)this, &BaseButton::set_pressed), varray(false));
 }
 
 OptionButton::~OptionButton() {

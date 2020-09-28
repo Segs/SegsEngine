@@ -251,6 +251,18 @@ MonoObject *create_managed_for_godot_object(GDMonoClass *p_class, const StringNa
     return mono_object;
 }
 
+MonoObject *create_managed_from(const StringName &p_from) {
+    MonoObject *mono_object = mono_object_new(mono_domain_get(), CACHED_CLASS_RAW(StringName));
+    ERR_FAIL_NULL_V(mono_object, nullptr);
+
+    // Construct
+    GDMonoUtils::runtime_object_init(mono_object, CACHED_CLASS(StringName));
+
+    CACHED_FIELD(StringName, ptr)->set_value_raw(mono_object, memnew(StringName(p_from)));
+
+    return mono_object;
+}
+
 MonoObject *create_managed_from(const NodePath &p_from) {
     MonoObject *mono_object = mono_object_new(mono_domain_get(), CACHED_CLASS_RAW(NodePath));
     ERR_FAIL_NULL_V(mono_object, nullptr);
@@ -655,5 +667,11 @@ ScopeThreadAttach::~ScopeThreadAttach() {
     if (unlikely(mono_thread)) {
         GDMonoUtils::detach_current_thread(mono_thread);
     }
+}
+
+StringName get_native_godot_class_name(GDMonoClass *p_class) {
+    MonoObject *native_name_obj = p_class->get_field(BINDINGS_NATIVE_NAME_FIELD)->get_value(nullptr);
+    StringName *ptr = GDMonoMarshal::unbox<StringName *>(CACHED_FIELD(StringName, ptr)->get_value(native_name_obj));
+    return ptr ? *ptr : StringName();
 }
 } // namespace GDMonoUtils

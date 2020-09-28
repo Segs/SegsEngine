@@ -94,6 +94,7 @@ private:
         bool persistent = false;
     };
 
+
     int blocked; // safeguard that throws an error when attempting to modify the tree in a harmful way while being traversed.
     int process_priority;
     SceneTree *tree;
@@ -388,8 +389,8 @@ public:
     int get_network_master() const;
     bool is_network_master() const;
 
-    void rpc_config(const StringName &p_method, MultiplayerAPI_RPCMode p_mode); // config a local method for RPC
-    void rset_config(const StringName &p_property, MultiplayerAPI_RPCMode p_mode); // config a local property for RPC
+    uint16_t rpc_config(const StringName &p_method, MultiplayerAPI_RPCMode p_mode); // config a local method for RPC
+    uint16_t rset_config(const StringName &p_property, MultiplayerAPI_RPCMode p_mode); // config a local property for RPC
 
     void rpc(const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
     void rpc_unreliable(const StringName &p_method, VARIANT_ARG_LIST); //rpc call, honors RPCMode
@@ -407,8 +408,10 @@ public:
     Ref<MultiplayerAPI> get_multiplayer() const;
     Ref<MultiplayerAPI> get_custom_multiplayer() const;
     void set_custom_multiplayer(Ref<MultiplayerAPI> p_multiplayer);
-    const MultiplayerAPI_RPCMode *get_node_rpc_mode(const StringName &p_method);
-    const MultiplayerAPI_RPCMode *get_node_rset_mode(const StringName &p_property);
+    MultiplayerAPI_RPCMode get_node_rpc_mode(const StringName &p_method) const;
+    MultiplayerAPI_RPCMode get_node_rpc_mode_by_id(const uint16_t p_rpc_method_id) const;
+    MultiplayerAPI_RPCMode get_node_rset_mode(const StringName &p_property) const;
+    MultiplayerAPI_RPCMode get_node_rset_mode_by_id(const uint16_t p_rset_property_id) const;
 #ifdef DEBUG_ENABLED
     /// Used in gObjectDB().cleanup() warning print
     const char *get_dbg_name() const override { return get_name().asCString(); }

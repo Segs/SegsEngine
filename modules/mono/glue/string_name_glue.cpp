@@ -43,7 +43,7 @@ void godot_icall_StringName_Dtor(StringName *p_ptr) {
 }
 
 MonoString *godot_icall_StringName_operator_String(StringName *p_np) {
-    return GDMonoMarshal::mono_string_from_godot(p_np->operator String());
+    return GDMonoMarshal::mono_string_from_godot(p_np->asCString());
 }
 
 MonoBoolean godot_icall_StringName_is_empty(StringName *p_ptr) {

@@ -35,6 +35,7 @@
 #include "curve_texture.h"
 #include "mesh.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/image_enum_casters.h"
 #include "core/io/image_loader.h"
@@ -1793,11 +1794,11 @@ void GradientTexture::set_gradient(const Ref<Gradient>& p_gradient) {
     if (p_gradient == gradient)
         return;
     if (gradient) {
-        gradient->disconnect(CoreStringNames::get_singleton()->changed, this, "_update");
+        gradient->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &GradientTexture::_update));
     }
     gradient = p_gradient;
     if (gradient) {
-        gradient->connect(CoreStringNames::get_singleton()->changed, this, "_update");
+        gradient->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &GradientTexture::_update));
     }
     _update();
     emit_changed();

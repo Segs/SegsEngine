@@ -133,6 +133,9 @@ set(core_sources
     class_db.h
     callable.cpp
     callable.h
+    callable_method_pointer.cpp
+    callable_method_pointer.h
+
     command_queue_mt.cpp
     command_queue_mt.h
     compressed_translation.cpp

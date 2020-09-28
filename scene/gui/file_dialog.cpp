@@ -30,6 +30,7 @@
 
 #include "file_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/os/keyboard.h"
 #include "core/print_string.h"
 #include "core/translation_helpers.h"
@@ -815,15 +816,7 @@ void FileDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_unhandled_input"), &FileDialog::_unhandled_input);
 
-    MethodBinder::bind_method(D_METHOD("_tree_multi_selected"), &FileDialog::_tree_multi_selected);
-    MethodBinder::bind_method(D_METHOD("_tree_selected"), &FileDialog::_tree_selected);
-    MethodBinder::bind_method(D_METHOD("_tree_item_activated"), &FileDialog::_tree_item_activated);
-    MethodBinder::bind_method(D_METHOD("_dir_entered"), &FileDialog::_dir_entered);
-    MethodBinder::bind_method(D_METHOD("_file_entered"), &FileDialog::_file_entered);
-    MethodBinder::bind_method(D_METHOD("_action_pressed"), &FileDialog::_action_pressed);
     MethodBinder::bind_method(D_METHOD("_cancel_pressed"), &FileDialog::_cancel_pressed);
-    MethodBinder::bind_method(D_METHOD("_filter_selected"), &FileDialog::_filter_selected);
-    MethodBinder::bind_method(D_METHOD("_save_confirm_pressed"), &FileDialog::_save_confirm_pressed);
 
     MethodBinder::bind_method(D_METHOD("clear_filters"), &FileDialog::clear_filters);
     MethodBinder::bind_method(D_METHOD("add_filter", {"filter"}), &FileDialog::add_filter);
@@ -927,7 +920,7 @@ FileDialog::FileDialog() {
 
     refresh = memnew(ToolButton);
     refresh->set_tooltip(RTR("Refresh files."));
-    refresh->connect("pressed",callable_mp(this, &ClassName::_update_file_list));
+    refresh->connect("pressed",callable_mp(this, &ClassName::update_file_list));
     hbc->add_child(refresh);
 
     show_hidden = memnew(ToolButton);

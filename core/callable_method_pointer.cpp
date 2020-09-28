@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  gd_glue.h                                                            */
+/*  callable_method_pointer.cpp                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,55 +28,62 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GD_GLUE_H
-#define GD_GLUE_H
+#include "callable_method_pointer.h"
 
-#include "../mono_gd/gd_mono_marshal.h"
+bool CallableCustomMethodPointerBase::compare_equal(const CallableCustom *p_a, const CallableCustom *p_b) {
+	const CallableCustomMethodPointerBase *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
+	const CallableCustomMethodPointerBase *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
 
-MonoObject *godot_icall_GD_bytes2var(MonoArray *p_bytes, MonoBoolean p_allow_objects);
+	if (a->comp_size != b->comp_size) {
+		return false;
+	}
 
-MonoObject *godot_icall_GD_convert(MonoObject *p_what, int32_t p_type);
+	for (uint32_t i = 0; i < a->comp_size; i++) {
+		if (a->comp_ptr[i] != b->comp_ptr[i]) {
+			return false;
+		}
+	}
 
-int godot_icall_GD_hash(MonoObject *p_var);
+	return true;
+}
 
-MonoObject *godot_icall_GD_instance_from_id(uint64_t p_instance_id);
+bool CallableCustomMethodPointerBase::compare_less(const CallableCustom *p_a, const CallableCustom *p_b) {
+	const CallableCustomMethodPointerBase *a = static_cast<const CallableCustomMethodPointerBase *>(p_a);
+	const CallableCustomMethodPointerBase *b = static_cast<const CallableCustomMethodPointerBase *>(p_b);
 
-void godot_icall_GD_print(MonoArray *p_what);
+	if (a->comp_size != b->comp_size) {
+		return a->comp_size < b->comp_size;
+	}
 
-void godot_icall_GD_printerr(MonoArray *p_what);
+	for (uint32_t i = 0; i < a->comp_size; i++) {
+		if (a->comp_ptr[i] == b->comp_ptr[i]) {
+			continue;
+		}
 
-void godot_icall_GD_printraw(MonoArray *p_what);
+		return a->comp_ptr[i] < b->comp_ptr[i];
+	}
 
-void godot_icall_GD_prints(MonoArray *p_what);
+	return false;
+}
 
-void godot_icall_GD_printt(MonoArray *p_what);
 
-float godot_icall_GD_randf();
 
-uint32_t godot_icall_GD_randi();
 
-void godot_icall_GD_randomize();
 
-double godot_icall_GD_rand_range(double from, double to);
+uint32_t CallableCustomMethodPointerBase::hash() const {
+	return h;
+}
 
-uint32_t godot_icall_GD_rand_seed(uint64_t seed, uint64_t *newSeed);
+void CallableCustomMethodPointerBase::_setup(uint32_t *p_base_ptr, uint32_t p_ptr_size) {
+	comp_ptr = p_base_ptr;
+	comp_size = p_ptr_size / 4;
 
-void godot_icall_GD_seed(uint64_t p_seed);
-
-MonoString *godot_icall_GD_str(MonoArray *p_what);
-
-MonoObject *godot_icall_GD_str2var(MonoString *p_str);
-
-MonoBoolean godot_icall_GD_type_exists(StringName *p_type);
-
-MonoArray *godot_icall_GD_var2bytes(MonoObject *p_var, MonoBoolean p_full_objects);
-
-MonoString *godot_icall_GD_var2str(MonoObject *p_var);
-
-MonoObject *godot_icall_DefaultGodotTaskScheduler();
-
-// Register internal calls
-
-void godot_register_gd_icalls();
-
-#endif // GD_GLUE_H
+	// Precompute hash.
+	for (uint32_t i = 0; i < comp_size; i++) {
+		if (i == 0) {
+			h = hash_djb2_one_32(comp_ptr[i]);
+		} else {
+			h = hash_djb2_one_32(comp_ptr[i], h);
+		}
+	}
+}

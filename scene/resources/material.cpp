@@ -30,6 +30,7 @@
 
 #include "material.h"
 
+#include "core/callable_method_pointer.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/shader.h"

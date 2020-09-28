@@ -88,6 +88,7 @@ struct TS_TypeMapper {
         SCRIPT_TO_WRAP_VALUECHECK,
         SCRIPT_TO_WRAP_OUT,
         SCRIPT_TO_WRAP_ARGOUT,
+        SCRIPT_CS_DEFAULT_WRAPPER,
 
 //        WRAP_ARG_FROM_MONO,
 //        WRAP_MONO_ARG_TYPE,

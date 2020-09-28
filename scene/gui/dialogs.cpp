@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "dialogs.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/print_string.h"
 #include "core/translation.h"
 #include "line_edit.h"
@@ -584,28 +586,26 @@ Button *AcceptDialog::add_cancel(const StringName &p_cancel) {
     if (p_cancel.empty())
         c = RTR("Cancel");
     Button *b = swap_ok_cancel ? add_button(c, true) : add_button(c);
-    b->connect("pressed",callable_mp(this, &ClassName::_closed));
+    b->connect("pressed",callable_mp(this, &ClassName::_cancel_pressed));
     return b;
 }
 
 void AcceptDialog::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_ok"), &AcceptDialog::_ok_pressed);
     MethodBinder::bind_method(D_METHOD("get_ok"), &AcceptDialog::get_ok);
     MethodBinder::bind_method(D_METHOD("get_label"), &AcceptDialog::get_label);
     MethodBinder::bind_method(D_METHOD("set_hide_on_ok", {"enabled"}), &AcceptDialog::set_hide_on_ok);
     MethodBinder::bind_method(D_METHOD("get_hide_on_ok"), &AcceptDialog::get_hide_on_ok);
     MethodBinder::bind_method(D_METHOD("add_button", {"text", "right", "action"}), &AcceptDialog::add_button, {DEFVAL(false), DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("add_cancel", {"name"}), &AcceptDialog::add_cancel);
-    MethodBinder::bind_method(D_METHOD("_builtin_text_entered"), &AcceptDialog::_builtin_text_entered);
     MethodBinder::bind_method(D_METHOD("register_text_enter", {"line_edit"}), &AcceptDialog::register_text_enter);
-    MethodBinder::bind_method(D_METHOD("_custom_action"), &AcceptDialog::_custom_action);
     MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &AcceptDialog::set_text);
     MethodBinder::bind_method(D_METHOD("get_text"), &AcceptDialog::get_text);
     MethodBinder::bind_method(D_METHOD("set_autowrap", {"autowrap"}), &AcceptDialog::set_autowrap);
     MethodBinder::bind_method(D_METHOD("has_autowrap"), &AcceptDialog::has_autowrap);
 
     ADD_SIGNAL(MethodInfo("confirmed"));
+    ADD_SIGNAL(MethodInfo("cancelled"));
     ADD_SIGNAL(MethodInfo("custom_action", PropertyInfo(VariantType::STRING_NAME, "action")));
 
     ADD_GROUP("Dialog", "dialog");
@@ -641,7 +641,7 @@ AcceptDialog::AcceptDialog() {
     hbc->add_child(ok);
     hbc->add_spacer();
 
-    ok->connect("pressed",callable_mp(this, &ClassName::_ok));
+    ok->connect("pressed",callable_mp(this, &ClassName::_ok_pressed));
     set_as_toplevel(true);
 
     hide_on_ok = true;

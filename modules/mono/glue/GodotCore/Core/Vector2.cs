@@ -457,19 +457,6 @@ namespace Godot
             return new Vector2(Mathf.Round(x), Mathf.Round(y));
         }
 
-        [Obsolete("Set is deprecated. Use the Vector2(float, float) constructor instead.", error: true)]
-        public void Set(float x, float y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-        [Obsolete("Set is deprecated. Use the Vector2(" + nameof(Vector2) + ") constructor instead.", error: true)]
-        public void Set(Vector2 v)
-        {
-            x = v.x;
-            y = v.y;
-        }
-
         /// <summary>
         /// Returns a vector with each component set to one or negative one, depending
         /// on the signs of this vector's components, or zero if the component is zero,
@@ -695,7 +682,7 @@ namespace Godot
 
         public static bool operator <(Vector2 left, Vector2 right)
         {
-            if (Mathf.IsEqualApprox(left.x, right.x))
+            if (left.x == right.x)
             {
                 return left.y < right.y;
             }
@@ -705,7 +692,7 @@ namespace Godot
 
         public static bool operator >(Vector2 left, Vector2 right)
         {
-            if (Mathf.IsEqualApprox(left.x, right.x))
+            if (left.x == right.x)
             {
                 return left.y > right.y;
             }
@@ -715,7 +702,7 @@ namespace Godot
 
         public static bool operator <=(Vector2 left, Vector2 right)
         {
-            if (Mathf.IsEqualApprox(left.x, right.x))
+            if (left.x == right.x)
             {
                 return left.y <= right.y;
             }
@@ -725,7 +712,7 @@ namespace Godot
 
         public static bool operator >=(Vector2 left, Vector2 right)
         {
-            if (Mathf.IsEqualApprox(left.x, right.x))
+            if (left.x == right.x)
             {
                 return left.y >= right.y;
             }

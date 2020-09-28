@@ -64,6 +64,7 @@ bool _arg_default_value_from_variant(const Variant& p_val, ArgumentInterface& r_
         r_iarg.default_argument += "f";
 #endif
         break;
+    case VariantType::STRING_NAME:
     case VariantType::STRING:
     case VariantType::NODE_PATH:
         r_iarg.default_argument = "\"" + r_iarg.default_argument + "\"";
@@ -316,6 +317,8 @@ static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
         {"Transform","core/math/transform.h"},
         {"AABB","core/math/aabb.h"},
         {"Color","core/color.h"},
+        {"Callable","core/callable.h"},
+        {"Signal","core/callable.h"},
         {"Plane","core/math/plane.h"},
         {"PoolIntArray","core/vector.h"},
         {"VecInt","core/vector.h"},
@@ -355,6 +358,56 @@ static String fixup_group_name(String grp) {
         return grp;
     return grp.replaced(" ","").replaced("-","");
 }
+void fillArgInfoFromProperty(ArgumentInterface &iarg,const PropertyInfo& arginfo,const GodotTypeInfo::Metadata &arg_meta,const TypePassBy arg_pass)
+{
+    StringName orig_arg_name = arginfo.name;
+
+    iarg.name = orig_arg_name;
+
+    if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
+        iarg.type.cname = arginfo.class_name.asCString();
+        iarg.type.is_enum = TypeRefKind::Enum;
+        iarg.type.pass_by = TypePassBy::Value;
+    }
+    else if (!arginfo.class_name.empty()) {
+        iarg.type.cname = arginfo.class_name.asCString();
+        iarg.type.pass_by = arg_pass;
+    }
+    else if (arginfo.hint == PropertyHint::ResourceType) {
+        iarg.type.cname = "PH:"+arginfo.hint_string;
+        iarg.type.is_enum = arginfo.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
+        iarg.type.pass_by = TypePassBy::Reference;
+    }
+    else if (arginfo.type == VariantType::NIL) {
+        iarg.type.cname = "Variant";
+        iarg.type.pass_by = arg_pass;
+    }
+    else {
+        if (arginfo.type == VariantType::INT) {
+            if(arginfo.hint==PropertyHint::IntIsObjectID) {
+                iarg.type.cname = "ObjectID";
+            }
+            else
+                iarg.type.cname = _get_int_type_name_from_meta(arg_meta).data();
+        }
+        else if (arginfo.type == VariantType::FLOAT) {
+            iarg.type.cname = _get_float_type_name_from_meta(arg_meta).data();
+        }
+        else if (arginfo.type == VariantType::STRING) {
+            iarg.type.cname = _get_string_type_name_from_meta(arg_meta).data();
+        }
+        else {
+
+            iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta).asCString();
+        }
+        iarg.type.pass_by = arg_pass;
+    }
+    if (iarg.type.cname == "Object" && iarg.type.pass_by == TypePassBy::Value) {
+        // Fixup for virtual methods, since passing Object by value makes no sense.
+        iarg.type.pass_by = TypePassBy::Pointer;
+    }
+}
+
 static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource src) {
     auto& current_namespace = rd.namespaces.back();
     current_namespace.obj_types.clear();
@@ -691,50 +744,9 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 StringName orig_arg_name = arginfo.name;
 
                 ArgumentInterface iarg;
-                iarg.name = orig_arg_name;
-
-                if (arginfo.type == VariantType::INT && arginfo.usage & PROPERTY_USAGE_CLASS_IS_ENUM) {
-                    iarg.type.cname = arginfo.class_name.asCString();
-                    iarg.type.is_enum = TypeRefKind::Enum;
-                    iarg.type.pass_by = TypePassBy::Value;
-                }
-                else if (!arginfo.class_name.empty()) {
-                    iarg.type.cname = arginfo.class_name.asCString();
-                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Reference;
-                }
-                else if (arginfo.hint == PropertyHint::ResourceType) {
-                    iarg.type.cname = "PH:"+arginfo.hint_string;
-                    iarg.type.is_enum = arginfo.type!=VariantType::ARRAY ? TypeRefKind::Simple : TypeRefKind::Array;
-                    iarg.type.pass_by = TypePassBy::Reference;
-                }
-                else if (arginfo.type == VariantType::NIL) {
-                    iarg.type.cname = "Variant";
-                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
-                }
-                else {
-                    if (arginfo.type == VariantType::INT) {
-                        if(arginfo.hint==PropertyHint::IntIsObjectID) {
-                            iarg.type.cname = "ObjectID";
-                        }
-                        else
-                            iarg.type.cname = _get_int_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
-                    }
-                    else if (arginfo.type == VariantType::FLOAT) {
-                        iarg.type.cname = _get_float_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
-                    }
-                    else if (arginfo.type == VariantType::STRING) {
-                        iarg.type.cname = _get_string_type_name_from_meta(arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).data();
-                    }
-                    else {
-
-                        iarg.type.cname = _get_variant_type_name_from_meta(arginfo.type, arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE).asCString();
-                    }
-                    iarg.type.pass_by = arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value;
-                }
-                if (iarg.type.cname == "Object" && iarg.type.pass_by == TypePassBy::Value) {
-                    // Fixup for virtual methods, since passing Object by value makes no sense.
-                    iarg.type.pass_by = TypePassBy::Pointer;
-                }
+                fillArgInfoFromProperty(iarg,arginfo,
+                                        arg_meta.size() > (i + 1) ? arg_meta[i + 1] : GodotTypeInfo::METADATA_NONE,
+                                        arg_pass.size() > (i + 1) ? arg_pass[i + 1] : TypePassBy::Value);
                 //iarg.name = mapper->mapArgumentName(qPrintable(iarg.name)).data();
 
                 if (m && m->has_default_argument(i)) {
@@ -782,6 +794,35 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
             else {
                 itype.methods.push_back(imethod);
             }
+        }
+
+        // Populate signals
+        static const HashMap<StringName, MethodInfo> dummy_signals;
+        const HashMap<StringName, MethodInfo> * signal_map = ClassDB::get_signal_list(type_cname);
+        if(!signal_map)
+            signal_map = &dummy_signals;
+        const StringName *k = nullptr;
+        for(auto &e : *signal_map) {
+            SignalInterface isignal;
+
+            const MethodInfo &method_info = e.second;
+
+            isignal.name = method_info.name;
+
+            int argc = method_info.arguments.size();
+            eastl::array<GodotTypeInfo::Metadata,20> fake_metadata;
+            fake_metadata.fill(GodotTypeInfo::METADATA_NONE);
+            for (int i = 0; i < argc; i++) {
+                const PropertyInfo& arginfo = method_info.arguments[i];
+
+                StringName orig_arg_name = arginfo.name;
+
+                ArgumentInterface iarg;
+                fillArgInfoFromProperty(iarg,arginfo, GodotTypeInfo::METADATA_NONE, TypePassBy::Value);
+                isignal.add_argument(iarg);
+            }
+
+            itype.signals_.emplace_back(eastl::move(isignal));
         }
 
         // Populate enums and constants

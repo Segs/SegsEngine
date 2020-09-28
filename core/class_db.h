@@ -298,6 +298,7 @@ public:
 
     static void get_method_list(const StringName& p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false, bool p_exclude_from_properties = false);
     static MethodBind *get_method(StringName p_class, StringName p_name);
+    static HashMap<StringName, MethodInfo> *get_signal_list(const StringName& p_class);
 
     static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, bool p_virtual = true);
     static void get_virtual_methods(const StringName &p_class, Vector<MethodInfo> *p_methods, bool p_no_inheritance = false);

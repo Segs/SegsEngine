@@ -31,6 +31,7 @@
 #include "area_3d.h"
 
 #include "core/object_db.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
@@ -176,8 +177,10 @@ void Area3D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered,
+                              callable_mp(this, &Area3D::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting,
+                              callable_mp(this, &Area3D::_body_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
                 }
@@ -203,8 +206,8 @@ void Area3D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
                 if (E->second.in_tree)
                     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(obj));
             }
@@ -250,8 +253,8 @@ void Area3D::_clear_monitoring() {
 
             emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
         }
     }
 
@@ -280,8 +283,8 @@ void Area3D::_clear_monitoring() {
 
             emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
         }
     }
 }
@@ -369,8 +372,8 @@ void Area3D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_area_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_area_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
                 }
@@ -396,8 +399,8 @@ void Area3D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_area_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_area_exit_tree));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
                 }

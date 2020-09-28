@@ -31,6 +31,7 @@
 #include "animated_sprite_2d.h"
 
 #include "core/os/os.h"
+#include "core/callable_method_pointer.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"

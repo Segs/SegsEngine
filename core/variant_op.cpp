@@ -124,32 +124,13 @@
 }
 /* clang-format on */
 
-#define CASES(PREFIX) static const void *switch_table_##PREFIX[Variant::OP_MAX][VariantType::VARIANT_MAX] = { \
+#define CASES(PREFIX) static const void *switch_table_##PREFIX[Variant::OP_MAX][(int)VariantType::VARIANT_MAX] = { \
     TYPES(PREFIX, OP_EQUAL),                                               \
     TYPES(PREFIX, OP_NOT_EQUAL),                                           \
     TYPES(PREFIX, OP_LESS),                                                \
     TYPES(PREFIX, OP_LESS_EQUAL),                                          \
     TYPES(PREFIX, OP_GREATER),                                             \
     TYPES(PREFIX, OP_GREATER_EQUAL),                                       \
-    TYPES(PREFIX, OP_ADD),                                                 \
-    TYPES(PREFIX, OP_SUBTRACT),                                            \
-    TYPES(PREFIX, OP_MULTIPLY),                                            \
-    TYPES(PREFIX, OP_DIVIDE),                                              \
-    TYPES(PREFIX, OP_NEGATE),                                              \
-    TYPES(PREFIX, OP_POSITIVE),                                            \
-    TYPES(PREFIX, OP_MODULE),                                              \
-    TYPES(PREFIX, OP_STRING_CONCAT),                                       \
-    TYPES(PREFIX, OP_SHIFT_LEFT),                                          \
-    TYPES(PREFIX, OP_SHIFT_RIGHT),                                         \
-    TYPES(PREFIX, OP_BIT_AND),                                             \
-    TYPES(PREFIX, OP_BIT_OR),                                              \
-    TYPES(PREFIX, OP_BIT_XOR),                                             \
-    TYPES(PREFIX, OP_BIT_NEGATE),                                          \
-    TYPES(PREFIX, OP_AND),                                                 \
-    TYPES(PREFIX, OP_OR),                                                  \
-    TYPES(PREFIX, OP_XOR),                                                 \
-    TYPES(PREFIX, OP_NOT),                                                 \
-    TYPES(PREFIX, OP_IN),                                                  \
 }
 
 #define SWITCH(PREFIX, op, val) goto *switch_table_##PREFIX[op][int(val)];
@@ -513,13 +494,24 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
             DEFAULT_OP_NUM_NULL(math, OP_EQUAL, INT, ==, _int)
             DEFAULT_OP_NUM_NULL(math, OP_EQUAL, FLOAT, ==, _real)
-            CASE_TYPE(math, OP_EQUAL, STRING) {                                                                                                            \
-                if (p_b.type == VariantType::STRING) _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem)) == *reinterpret_cast<const String *>(p_b._data._mem))      \
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem)) \
-                if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type == VariantType::NIL))                                                                                             \
-                                                                                                                                                                \
-                _RETURN_FAIL                                                                                                                                    \
+            CASE_TYPE(math, OP_EQUAL, STRING) {
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+                if (p_b.type == VariantType::STRING) _RETURN(self == *reinterpret_cast<const String *>(p_b._data._mem))
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem))
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self == reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())
+                if (p_b.type == VariantType::NIL) _RETURN((false))
+
+                _RETURN_FAIL
             }
+            CASE_TYPE(math, OP_EQUAL, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+                if (p_b.type == VariantType::STRING) _RETURN(self == *reinterpret_cast<const String *>(p_b._data._mem))
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self == (String)*reinterpret_cast<const NodePath *>(p_b._data._mem))
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self == reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())
+                if (p_b.type == VariantType::NIL) _RETURN((false))
+                _RETURN_FAIL
+            }
+
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, VECTOR2, ==, Vector2)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, RECT2, ==, Rect2)
             DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, TRANSFORM2D, ==, _transform2d)
@@ -530,7 +522,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, BASIS, ==, _basis)
             DEFAULT_OP_PTRREF_NULL(math, OP_EQUAL, TRANSFORM, ==, _transform)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, COLOR, ==, Color)
-            DEFAULT_OP_STR_NULL_SN(math, OP_EQUAL, STRING_NAME, ==, StringName);
             DEFAULT_OP_STR_NULL(math, OP_EQUAL, NODE_PATH, ==, NodePath)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_EQUAL, _RID, ==, RID)
 
@@ -614,9 +605,20 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, INT, !=, _int)
             DEFAULT_OP_NUM_NULL(math, OP_NOT_EQUAL, FLOAT, !=, _real)
             CASE_TYPE(math, OP_NOT_EQUAL, STRING) {
-                if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != *reinterpret_cast<const String *>(p_b._data._mem));
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) != (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
-                if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type != VariantType::NIL))
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))!=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))!=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString()))
+                if (p_b.type == VariantType::NIL) _RETURN(true)
+
+                _RETURN_FAIL
+            }
+            CASE_TYPE(math, OP_NOT_EQUAL, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))!=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))!=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString()))
+                if (p_b.type == VariantType::NIL) _RETURN(true)
 
                 _RETURN_FAIL
             }
@@ -631,7 +633,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, BASIS, !=, _basis)
             DEFAULT_OP_PTRREF_NULL(math, OP_NOT_EQUAL, TRANSFORM, !=, _transform)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, COLOR, !=, Color)
-            DEFAULT_OP_STR_NULL_SN(math, OP_NOT_EQUAL, STRING_NAME, !=, StringName);
             DEFAULT_OP_STR_NULL(math, OP_NOT_EQUAL, NODE_PATH, !=, NodePath)
             DEFAULT_OP_LOCALMEM_NULL(math, OP_NOT_EQUAL, _RID, !=, RID)
 
@@ -683,9 +684,20 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_NUM(math, OP_LESS, INT, <, _int)
             DEFAULT_OP_NUM(math, OP_LESS, FLOAT, <, _real)
             CASE_TYPE(math, OP_LESS, STRING) {
-                if (p_b.type == VariantType::STRING)
-                    _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) < *reinterpret_cast<const String *>(p_b._data._mem))
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) < (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<0)
+
+                _RETURN_FAIL
+            }
+            CASE_TYPE(math, OP_LESS, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<0)
 
                 _RETURN_FAIL
             }
@@ -724,11 +736,24 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_NUM(math, OP_LESS_EQUAL, INT, <=, _int)
             DEFAULT_OP_NUM(math, OP_LESS_EQUAL, FLOAT, <=, _real)
             CASE_TYPE(math, OP_LESS_EQUAL, STRING) {
-                if (p_b.type == VariantType::STRING) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) <= *reinterpret_cast<const String *>(p_b._data._mem));
-                if (p_b.type == VariantType::NODE_PATH) _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) <= (String)*reinterpret_cast<const NodePath *>(p_b._data._mem));
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<=0)
 
                 _RETURN_FAIL
             }
+            CASE_TYPE(math, OP_LESS_EQUAL, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))<=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))<=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())<=0)
+
+                _RETURN_FAIL
+            }
+
             DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, VECTOR2, <=, Vector2)
             DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, VECTOR3, <=, Vector3)
             DEFAULT_OP_LOCALMEM(math, OP_LESS_EQUAL, _RID, <=, RID)
@@ -800,12 +825,20 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_NUM(math, OP_GREATER, INT, >, _int)
             DEFAULT_OP_NUM(math, OP_GREATER, FLOAT, >, _real)
             CASE_TYPE(math, OP_GREATER, STRING) {
-                if (p_b.type == VariantType::STRING)
-                    _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <
-                            *reinterpret_cast<const String *>(p_a._data._mem))
-                if (p_b.type == VariantType::NODE_PATH)
-                    _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <
-                            (String) * reinterpret_cast<const NodePath *>(p_a._data._mem))
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>0)
+
+                _RETURN_FAIL
+            }
+            CASE_TYPE(math, OP_GREATER, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>0)
 
                 _RETURN_FAIL
             }
@@ -846,15 +879,23 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, INT, >=, _int);
             DEFAULT_OP_NUM(math, OP_GREATER_EQUAL, FLOAT, >=, _real);
             CASE_TYPE(math, OP_GREATER_EQUAL, STRING) {
-                if (p_b.type == VariantType::STRING)
-                    _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <=
-                            *reinterpret_cast<const String *>(p_a._data._mem))
-                if (p_b.type == VariantType::NODE_PATH)
-                    _RETURN(*reinterpret_cast<const String *>(p_b._data._mem) <=
-                            (String) * reinterpret_cast<const NodePath *>(p_a._data._mem))
+                StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>=0)
 
                 _RETURN_FAIL
-                }
+            }
+            CASE_TYPE(math, OP_GREATER_EQUAL, STRING_NAME) {
+                StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+
+                if (p_b.type == VariantType::STRING) _RETURN(self.compare(*reinterpret_cast<const String *>(p_b._data._mem))>=0);
+                if (p_b.type == VariantType::NODE_PATH) _RETURN(self.compare((String)*reinterpret_cast<const NodePath *>(p_b._data._mem))>=0)
+                if (p_b.type == VariantType::STRING_NAME) _RETURN(self.compare(reinterpret_cast<const StringName *>(p_b._data._mem)->asCString())>=0)
+
+                _RETURN_FAIL
+            }
             DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, VECTOR2, <=, Vector2)
             DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, VECTOR3, <=, Vector3)
             DEFAULT_OP_LOCALMEM_REV(math, OP_GREATER_EQUAL, _RID, <=, RID)
@@ -874,6 +915,7 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             CASE_TYPE(math, OP_GREATER_EQUAL, SIGNAL)
             CASE_TYPE(math, OP_GREATER_EQUAL, DICTIONARY)
             CASE_TYPE(math, OP_GREATER_EQUAL, ARRAY)
+
             CASE_TYPE(math, OP_GREATER_EQUAL, POOL_BYTE_ARRAY);
             CASE_TYPE(math, OP_GREATER_EQUAL, POOL_INT_ARRAY);
             CASE_TYPE(math, OP_GREATER_EQUAL, POOL_REAL_ARRAY);
@@ -884,471 +926,6 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
             _RETURN_FAIL
         }
 
-        SWITCH_OP(math, OP_ADD, p_a.type) {
-            CASE_TYPE(math, OP_ADD, ARRAY) {
-                if (p_a.type != p_b.type)
-                    _RETURN_FAIL
-
-                const Array &array_a = *reinterpret_cast<const Array *>(p_a._data._mem);
-                const Array &array_b = *reinterpret_cast<const Array *>(p_b._data._mem);
-                Array sum;
-                int asize = array_a.size();
-                int bsize = array_b.size();
-                sum.resize(asize + bsize);
-                for (int i = 0; i < asize; i++)
-                    sum[i] = array_a[i];
-                for (int i = 0; i < bsize; i++)
-                    sum[i + asize] = array_b[i];
-                _RETURN(sum)
-            }
-
-            DEFAULT_OP_NUM(math, OP_ADD, INT, +, _int);
-            DEFAULT_OP_NUM(math, OP_ADD, FLOAT, +, _real);
-            CASE_TYPE(math, OP_ADD, STRING) {
-                if (p_b.type == VariantType::STRING)
-                    _RETURN(String(*reinterpret_cast<const String *>(p_a._data._mem) +
-                                   *reinterpret_cast<const String *>(p_b._data._mem)))
-                if (p_b.type == VariantType::NODE_PATH)
-                    _RETURN(*reinterpret_cast<const String *>(p_a._data._mem) +
-                                   (String) * reinterpret_cast<const NodePath *>(p_b._data._mem))
-
-                _RETURN_FAIL
-            }
-            DEFAULT_OP_LOCALMEM(math, OP_ADD, VECTOR2, +, Vector2)
-            DEFAULT_OP_LOCALMEM(math, OP_ADD, VECTOR3, +, Vector3)
-            DEFAULT_OP_LOCALMEM(math, OP_ADD, QUAT, +, Quat)
-            DEFAULT_OP_LOCALMEM(math, OP_ADD, COLOR, +, Color)
-
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_BYTE_ARRAY, uint8_t)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_INT_ARRAY, int)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_REAL_ARRAY, real_t)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_STRING_ARRAY, String)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_VECTOR2_ARRAY, Vector2)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_VECTOR3_ARRAY, Vector3)
-            DEFAULT_OP_ARRAY_ADD(math, OP_ADD, POOL_COLOR_ARRAY, Color)
-
-            CASE_TYPE(math, OP_ADD, NIL)
-            CASE_TYPE(math, OP_ADD, BOOL)
-            CASE_TYPE(math, OP_ADD, RECT2)
-            CASE_TYPE(math, OP_ADD, TRANSFORM2D)
-            CASE_TYPE(math, OP_ADD, PLANE)
-            CASE_TYPE(math, OP_ADD, AABB)
-            CASE_TYPE(math, OP_ADD, BASIS)
-            CASE_TYPE(math, OP_ADD, TRANSFORM)
-            CASE_TYPE(math, OP_ADD, NODE_PATH)
-            CASE_TYPE(math, OP_ADD, _RID)
-            CASE_TYPE(math, OP_ADD, OBJECT)
-            CASE_TYPE(math, OP_ADD, DICTIONARY)
-            CASE_TYPE(math, OP_ADD, CALLABLE)
-            CASE_TYPE(math, OP_ADD, SIGNAL)
-            _RETURN_FAIL
-        }
-
-        SWITCH_OP(math, OP_SUBTRACT, p_a.type) {
-            DEFAULT_OP_NUM(math, OP_SUBTRACT, INT, -, _int)
-            DEFAULT_OP_NUM(math, OP_SUBTRACT, FLOAT, -, _real)
-            DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, VECTOR2, -, Vector2)
-            DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, VECTOR3, -, Vector3)
-            DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, QUAT, -, Quat)
-            DEFAULT_OP_LOCALMEM(math, OP_SUBTRACT, COLOR, -, Color)
-
-            CASE_TYPE(math, OP_SUBTRACT, NIL)
-            CASE_TYPE(math, OP_SUBTRACT, BOOL)
-            CASE_TYPE(math, OP_SUBTRACT, STRING)
-            CASE_TYPE(math, OP_SUBTRACT, RECT2)
-            CASE_TYPE(math, OP_SUBTRACT, TRANSFORM2D)
-            CASE_TYPE(math, OP_SUBTRACT, PLANE)
-            CASE_TYPE(math, OP_SUBTRACT, AABB)
-            CASE_TYPE(math, OP_SUBTRACT, BASIS)
-            CASE_TYPE(math, OP_SUBTRACT, TRANSFORM)
-            CASE_TYPE(math, OP_SUBTRACT, NODE_PATH)
-            CASE_TYPE(math, OP_SUBTRACT, _RID)
-            CASE_TYPE(math, OP_SUBTRACT, OBJECT)
-            CASE_TYPE(math, OP_SUBTRACT, CALLABLE)
-            CASE_TYPE(math, OP_SUBTRACT, SIGNAL)
-            CASE_TYPE(math, OP_SUBTRACT, DICTIONARY)
-            CASE_TYPE(math, OP_SUBTRACT, ARRAY)
-            CASE_TYPE(math, OP_SUBTRACT, POOL_BYTE_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_INT_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_REAL_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_STRING_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_VECTOR2_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_VECTOR3_ARRAY);
-            CASE_TYPE(math, OP_SUBTRACT, POOL_COLOR_ARRAY);
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_MULTIPLY, p_a.type) {
-            CASE_TYPE(math, OP_MULTIPLY, TRANSFORM2D) {
-                switch (p_b.type) {
-                    case VariantType::TRANSFORM2D: {
-                        _RETURN(*p_a._data._transform2d * *p_b._data._transform2d);
-                    }
-                    case VariantType::VECTOR2: {
-                        _RETURN(p_a._data._transform2d->xform(*(const Vector2 *)p_b._data._mem));
-                    }
-                    default: _RETURN_FAIL;
-                }
-            }
-
-            CASE_TYPE(math, OP_MULTIPLY, QUAT) {
-                switch (p_b.type) {
-                    case VariantType::VECTOR3: {
-                        _RETURN(reinterpret_cast<const Quat *>(p_a._data._mem)->xform(*(const Vector3 *)p_b._data._mem));
-                    }
-                    case VariantType::QUAT: {
-                        _RETURN(*reinterpret_cast<const Quat *>(p_a._data._mem) * *reinterpret_cast<const Quat *>(p_b._data._mem));
-                    }
-                    case VariantType::FLOAT: {
-                        _RETURN(*reinterpret_cast<const Quat *>(p_a._data._mem) * p_b._data._real);
-                    }
-                    default: _RETURN_FAIL;
-                }
-            }
-
-            CASE_TYPE(math, OP_MULTIPLY, BASIS) {
-                switch (p_b.type) {
-                    case VariantType::VECTOR3: {
-                        _RETURN(p_a._data._basis->xform(*(const Vector3 *)p_b._data._mem));
-                    }
-                    case VariantType::BASIS: {
-                        _RETURN(*p_a._data._basis * *p_b._data._basis);
-                    }
-                    default: _RETURN_FAIL;
-                }
-            }
-
-            CASE_TYPE(math, OP_MULTIPLY, TRANSFORM) {
-                switch (p_b.type) {
-                    case VariantType::VECTOR3: {
-                        _RETURN(p_a._data._transform->xform(*(const Vector3 *)p_b._data._mem));
-                    }
-                    case VariantType::TRANSFORM: {
-                        _RETURN(*p_a._data._transform * *p_b._data._transform);
-                    }
-                    default: _RETURN_FAIL;
-                }
-            }
-
-            DEFAULT_OP_NUM_VEC(math, OP_MULTIPLY, INT, *, _int)
-            DEFAULT_OP_NUM_VEC(math, OP_MULTIPLY, FLOAT, *, _real)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, VECTOR2, *, Vector2)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, VECTOR3, *, Vector3)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_MULTIPLY, COLOR, *, Color)
-
-            CASE_TYPE(math, OP_MULTIPLY, NIL)
-            CASE_TYPE(math, OP_MULTIPLY, BOOL)
-            CASE_TYPE(math, OP_MULTIPLY, STRING)
-            CASE_TYPE(math, OP_MULTIPLY, RECT2)
-            CASE_TYPE(math, OP_MULTIPLY, PLANE)
-            CASE_TYPE(math, OP_MULTIPLY, AABB)
-            CASE_TYPE(math, OP_MULTIPLY, NODE_PATH)
-            CASE_TYPE(math, OP_MULTIPLY, _RID)
-            CASE_TYPE(math, OP_MULTIPLY, OBJECT)
-            CASE_TYPE(math, OP_MULTIPLY, CALLABLE)
-            CASE_TYPE(math, OP_MULTIPLY, SIGNAL)
-            CASE_TYPE(math, OP_MULTIPLY, DICTIONARY)
-            CASE_TYPE(math, OP_MULTIPLY, ARRAY)
-            CASE_TYPE(math, OP_MULTIPLY, POOL_BYTE_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_INT_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_REAL_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_STRING_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_VECTOR2_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_VECTOR3_ARRAY);
-            CASE_TYPE(math, OP_MULTIPLY, POOL_COLOR_ARRAY);
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_DIVIDE, p_a.type) {
-            CASE_TYPE(math, OP_DIVIDE, QUAT) {
-                if (p_b.type != VariantType::FLOAT)
-                    _RETURN_FAIL
-#ifdef DEBUG_ENABLED
-                if (p_b._data._real == 0.0) {
-                    r_valid = false;
-                    _RETURN("Division By Zero")
-                }
-#endif
-                _RETURN(*reinterpret_cast<const Quat *>(p_a._data._mem) / p_b._data._real)
-            }
-
-            DEFAULT_OP_NUM_DIV(math, OP_DIVIDE, INT, _int)
-            DEFAULT_OP_NUM_DIV(math, OP_DIVIDE, FLOAT, _real)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, VECTOR2, /, Vector2)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, VECTOR3, /, Vector3)
-            DEFAULT_OP_LOCALMEM_NUM(math, OP_DIVIDE, COLOR, /, Color)
-
-            CASE_TYPE(math, OP_DIVIDE, NIL)
-            CASE_TYPE(math, OP_DIVIDE, BOOL)
-            CASE_TYPE(math, OP_DIVIDE, STRING)
-            CASE_TYPE(math, OP_DIVIDE, RECT2)
-            CASE_TYPE(math, OP_DIVIDE, TRANSFORM2D)
-            CASE_TYPE(math, OP_DIVIDE, PLANE)
-            CASE_TYPE(math, OP_DIVIDE, AABB)
-            CASE_TYPE(math, OP_DIVIDE, BASIS)
-            CASE_TYPE(math, OP_DIVIDE, TRANSFORM)
-            CASE_TYPE(math, OP_DIVIDE, NODE_PATH)
-            CASE_TYPE(math, OP_DIVIDE, _RID)
-            CASE_TYPE(math, OP_DIVIDE, OBJECT)
-            CASE_TYPE(math, OP_DIVIDE, CALLABLE)
-            CASE_TYPE(math, OP_DIVIDE, SIGNAL)
-            CASE_TYPE(math, OP_DIVIDE, DICTIONARY)
-            CASE_TYPE(math, OP_DIVIDE, ARRAY)
-            CASE_TYPE(math, OP_DIVIDE, POOL_BYTE_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_INT_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_REAL_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_STRING_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_VECTOR2_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_VECTOR3_ARRAY);
-            CASE_TYPE(math, OP_DIVIDE, POOL_COLOR_ARRAY);
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_POSITIVE, p_a.type) {
-            DEFAULT_OP_NUM_POS(math, OP_POSITIVE, INT, _int)
-            DEFAULT_OP_NUM_POS(math, OP_POSITIVE, FLOAT, _real)
-            DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, VECTOR3, Vector3)
-            DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, PLANE, Plane)
-            DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, QUAT, Quat)
-            DEFAULT_OP_LOCALMEM_POS(math, OP_POSITIVE, VECTOR2, Vector2)
-
-            CASE_TYPE(math, OP_POSITIVE, NIL)
-            CASE_TYPE(math, OP_POSITIVE, BOOL)
-            CASE_TYPE(math, OP_POSITIVE, STRING)
-            CASE_TYPE(math, OP_POSITIVE, RECT2)
-            CASE_TYPE(math, OP_POSITIVE, TRANSFORM2D)
-            CASE_TYPE(math, OP_POSITIVE, AABB)
-            CASE_TYPE(math, OP_POSITIVE, BASIS)
-            CASE_TYPE(math, OP_POSITIVE, TRANSFORM)
-            CASE_TYPE(math, OP_POSITIVE, COLOR)
-            CASE_TYPE(math, OP_POSITIVE, NODE_PATH)
-            CASE_TYPE(math, OP_POSITIVE, _RID)
-            CASE_TYPE(math, OP_POSITIVE, OBJECT)
-            CASE_TYPE(math, OP_POSITIVE, CALLABLE)
-            CASE_TYPE(math, OP_POSITIVE, SIGNAL)
-            CASE_TYPE(math, OP_POSITIVE, DICTIONARY)
-            CASE_TYPE(math, OP_POSITIVE, ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_BYTE_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_INT_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_REAL_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_STRING_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_VECTOR2_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_VECTOR3_ARRAY)
-            CASE_TYPE(math, OP_POSITIVE, POOL_COLOR_ARRAY)
-            _RETURN_FAIL
-        }
-
-        SWITCH_OP(math, OP_NEGATE, p_a.type) {
-            DEFAULT_OP_NUM_NEG(math, OP_NEGATE, INT, _int)
-            DEFAULT_OP_NUM_NEG(math, OP_NEGATE, FLOAT, _real)
-
-            DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, VECTOR2, Vector2)
-            DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, VECTOR3, Vector3)
-            DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, PLANE, Plane)
-            DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, QUAT, Quat)
-            DEFAULT_OP_LOCALMEM_NEG(math, OP_NEGATE, COLOR, Color)
-
-            CASE_TYPE(math, OP_NEGATE, NIL)
-            CASE_TYPE(math, OP_NEGATE, BOOL)
-            CASE_TYPE(math, OP_NEGATE, STRING)
-            CASE_TYPE(math, OP_NEGATE, RECT2)
-            CASE_TYPE(math, OP_NEGATE, TRANSFORM2D)
-            CASE_TYPE(math, OP_NEGATE, AABB)
-            CASE_TYPE(math, OP_NEGATE, BASIS)
-            CASE_TYPE(math, OP_NEGATE, TRANSFORM)
-            CASE_TYPE(math, OP_NEGATE, NODE_PATH)
-            CASE_TYPE(math, OP_NEGATE, _RID)
-            CASE_TYPE(math, OP_NEGATE, OBJECT)
-            CASE_TYPE(math, OP_MODULE, CALLABLE)
-            CASE_TYPE(math, OP_MODULE, SIGNAL)
-            CASE_TYPE(math, OP_NEGATE, DICTIONARY)
-            CASE_TYPE(math, OP_NEGATE, ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_BYTE_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_INT_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_REAL_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_STRING_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_VECTOR2_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_VECTOR3_ARRAY)
-            CASE_TYPE(math, OP_NEGATE, POOL_COLOR_ARRAY)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_MODULE, p_a.type) {
-            CASE_TYPE(math, OP_MODULE, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL;
-#ifdef DEBUG_ENABLED
-                if (p_b._data._int == 0) {
-                    r_valid = false;
-                    _RETURN("Division By Zero");
-                }
-#endif
-                _RETURN(p_a._data._int % p_b._data._int);
-            }
-
-            CASE_TYPE(math, OP_MODULE, STRING) {
-                const String *format = reinterpret_cast<const String *>(p_a._data._mem);
-
-                String result;
-                bool error;
-                if (p_b.type == VariantType::ARRAY) {
-                    // e.g. "frog %s %d" % ["fish", 12]
-                    const Array *args = reinterpret_cast<const Array *>(p_b._data._mem);
-                    result = StringUtils::sprintf((*format).c_str(),*args, &error);
-                } else {
-                    // e.g. "frog %d" % 12
-                    Array args;
-                    args.push_back(p_b);
-                    result = StringUtils::sprintf((*format),args, &error);
-                }
-                r_valid = !error;
-                _RETURN(result)
-            }
-
-            CASE_TYPE(math, OP_MODULE, NIL)
-            CASE_TYPE(math, OP_MODULE, BOOL)
-            CASE_TYPE(math, OP_MODULE, FLOAT)
-            CASE_TYPE(math, OP_MODULE, VECTOR2)
-            CASE_TYPE(math, OP_MODULE, RECT2)
-            CASE_TYPE(math, OP_MODULE, VECTOR3)
-            CASE_TYPE(math, OP_MODULE, TRANSFORM2D)
-            CASE_TYPE(math, OP_MODULE, PLANE)
-            CASE_TYPE(math, OP_MODULE, QUAT)
-            CASE_TYPE(math, OP_MODULE, AABB)
-            CASE_TYPE(math, OP_MODULE, BASIS)
-            CASE_TYPE(math, OP_MODULE, TRANSFORM)
-            CASE_TYPE(math, OP_MODULE, COLOR)
-            CASE_TYPE(math, OP_MODULE, NODE_PATH)
-            CASE_TYPE(math, OP_MODULE, _RID)
-            CASE_TYPE(math, OP_MODULE, OBJECT)
-            CASE_TYPE(math, OP_MODULE, DICTIONARY)
-            CASE_TYPE(math, OP_MODULE, ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_BYTE_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_INT_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_REAL_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_STRING_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_VECTOR2_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_VECTOR3_ARRAY)
-            CASE_TYPE(math, OP_MODULE, POOL_COLOR_ARRAY)
-            _RETURN_FAIL
-        }
-
-        SWITCH_OP(math, OP_STRING_CONCAT, p_a.type) {
-            CASE_TYPE_ALL(math, OP_STRING_CONCAT)
-
-            _RETURN(String(p_a.as<String>() + p_b.as<String>()))
-        }
-
-        SWITCH_OP(math, OP_SHIFT_LEFT, p_a.type) {
-            CASE_TYPE(math, OP_SHIFT_LEFT, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL
-
-                if (p_b._data._int < 0 || p_b._data._int >= 64)
-                    _RETURN_FAIL
-
-                _RETURN(p_a._data._int << p_b._data._int)
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_SHIFT_LEFT)
-            _RETURN_FAIL
-        }
-
-        SWITCH_OP(math, OP_SHIFT_RIGHT, p_a.type) {
-            CASE_TYPE(math, OP_SHIFT_RIGHT, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL
-
-                if (p_b._data._int < 0 || p_b._data._int >= 64)
-                    _RETURN_FAIL
-
-                _RETURN(p_a._data._int >> p_b._data._int);
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_SHIFT_RIGHT)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_BIT_AND, p_a.type) {
-            CASE_TYPE(math, OP_BIT_AND, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL;
-                _RETURN(p_a._data._int & p_b._data._int);
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_BIT_AND)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_BIT_OR, p_a.type) {
-            CASE_TYPE(math, OP_BIT_OR, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL;
-                _RETURN(p_a._data._int | p_b._data._int);
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_BIT_OR)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_BIT_XOR, p_a.type) {
-            CASE_TYPE(math, OP_BIT_XOR, INT) {
-                if (p_b.type != VariantType::INT)
-                    _RETURN_FAIL;
-                _RETURN(p_a._data._int ^ p_b._data._int);
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_BIT_XOR)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_BIT_NEGATE, p_a.type) {
-            CASE_TYPE(math, OP_BIT_NEGATE, INT) {
-                _RETURN(~p_a._data._int);
-            }
-
-            CASE_TYPE_ALL_BUT_INT(math, OP_BIT_NEGATE)
-            _RETURN_FAIL;
-        }
-
-        SWITCH_OP(math, OP_AND, p_a.type) {
-            CASE_TYPE_ALL(math, OP_AND) {
-                bool l = p_a.booleanize();
-                bool r = p_b.booleanize();
-
-                _RETURN(l && r);
-            }
-        }
-
-        SWITCH_OP(math, OP_OR, p_a.type) {
-            CASE_TYPE_ALL(math, OP_OR) {
-                bool l = p_a.booleanize();
-                bool r = p_b.booleanize();
-
-                _RETURN(l || r);
-            }
-        }
-
-        SWITCH_OP(math, OP_XOR, p_a.type) {
-            CASE_TYPE_ALL(math, OP_XOR) {
-                bool l = p_a.booleanize();
-                bool r = p_b.booleanize();
-
-                _RETURN((l || r) && !(l && r));
-            }
-        }
-
-        SWITCH_OP(math, OP_NOT, p_a.type) {
-            CASE_TYPE_ALL(math, OP_NOT) {
-                bool l = p_a.booleanize();
-                _RETURN(!l);
-            }
-        }
-
-        SWITCH_OP(math, OP_IN, p_a.type) {
-            CASE_TYPE_ALL(math, OP_IN)
-            _RETURN(p_b.in(p_a, &r_valid));
-        }
     }
 }
 
@@ -3902,37 +3479,17 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
     }
 }
 
-static const char *_op_names[int8_t(Variant::OP_MAX)] = {
-    "==",
-    "!=",
-    "<",
-    "<=",
-    ">",
-    ">=",
-    "+",
-    "-",
-    "*",
-    "/",
-    "- (negation)",
-    "+ (positive)",
-    "%",
-    "+ (concatenation)",
-    "<<",
-    ">>",
-    "&",
-    "|",
-    "^",
-    "~",
-    "and",
-    "or",
-    "xor",
-    "not",
-    "in"
+//static const char *_op_names[int8_t(Variant::OP_MAX)] = {
+//    "==",
+//    "!=",
+//    "<",
+//    "<=",
+//    ">",
+//    ">=",
+//};
 
-};
+//const char *Variant::get_operator_name(Operator p_op) {
 
-const char *Variant::get_operator_name(Operator p_op) {
-
-    ERR_FAIL_INDEX_V(p_op, OP_MAX, nullptr);
-    return _op_names[p_op];
-}
+//    ERR_FAIL_INDEX_V(p_op, OP_MAX, nullptr);
+//    return _op_names[p_op];
+//}

@@ -117,7 +117,13 @@ struct ClassDoc {
             if (method_doc.name == c_name)
                 return &method_doc;
         return nullptr;
+    }
 
+    const MethodDoc *signal_by_name(StringView c_name) const {
+        for (const MethodDoc& method_doc : defined_signals)
+            if (method_doc.name == c_name)
+                return &method_doc;
+        return nullptr;
     }
 
     const PropertyDoc * property_by_name(StringView c_name) const {

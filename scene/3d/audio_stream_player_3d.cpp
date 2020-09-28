@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "audio_stream_player_3d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/object_tooling.h"
 #include "scene/3d/area_3d.h"

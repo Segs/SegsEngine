@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "animation_cache.h"
+
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 
 #include "scene/resources/animation.h"

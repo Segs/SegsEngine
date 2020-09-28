@@ -36,6 +36,7 @@
 #include "core/object_db.h"
 #include "core/string.h"
 #include "core/string_utils.h"
+#include "core/type_info.h"
 
 #include <stdlib.h>
 
@@ -65,8 +66,12 @@ public:
 		return String();
 	}
 #endif
-	virtual CompareEqualFunc get_compare_equal_func() const;
-	virtual CompareLessFunc get_compare_less_func() const;
+    CompareEqualFunc get_compare_equal_func() const final {
+        return compare_equal;
+    }
+    CompareLessFunc get_compare_less_func() const final  {
+        return compare_less;
+    }
 
 	virtual uint32_t hash() const;
 };
@@ -128,12 +133,12 @@ struct VariantCasterAndValidate<const T &> {
 
 template <class T, class... P, size_t... Is>
 void call_with_variant_args_helper(T *p_instance, void (T::*p_method)(P...), const Variant **p_args, Callable::CallError &r_error, eastl::index_sequence<Is...>) {
-	r_error.error = Callable::CallError::CALL_OK;
+      r_error.error = Callable::CallError::CALL_OK;
 
 #ifdef DEBUG_METHODS_ENABLED
-	(p_instance->*p_method)(VariantCasterAndValidate<P>::cast(p_args, Is, r_error)...);
+      (p_instance->*p_method)(VariantCasterAndValidate<P>::cast(p_args, Is, r_error)...);
 #else
-	(p_instance->*p_method)(VariantCaster<P>::cast(*p_args[Is])...);
+      (p_instance->*p_method)(VariantCaster<P>::cast(*p_args[Is])...);
 #endif
 }
 
@@ -263,8 +268,8 @@ class CallableCustomMethodPointerRet : public CallableCustomMethodPointerBase {
 #ifdef DEBUG_ENABLED
 		uint64_t object_id;
 #endif
-		R(T::*method)
-		(P...);
+            R(T::*method)
+            (P...);
 	} data;
 
 public:

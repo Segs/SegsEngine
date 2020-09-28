@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "sprite_3d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -609,18 +611,20 @@ void Sprite3D::_draw() {
     RenderingServer::get_singleton()->material_set_param(get_material(), "texture_albedo", texture->get_rid());
     RenderingServer::get_singleton()->instance_set_surface_material(get_instance(), 0, get_material());
 }
-
+void Sprite3D::_texture_changed() {
+    _queue_update();
+}
 void Sprite3D::set_texture(const Ref<Texture> &p_texture) {
 
     if (p_texture == texture)
         return;
     if (texture) {
-        texture->disconnect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_queue_update);
+        texture->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Sprite3D::_texture_changed));
     }
     texture = p_texture;
     if (texture) {
         texture->set_flags(texture->get_flags()); //remove repeat from texture, it looks bad in sprites
-        texture->connect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_queue_update);
+        texture->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Sprite3D::_texture_changed));
     }
     _queue_update();
 }

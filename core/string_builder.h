@@ -84,7 +84,6 @@ public:
     _FORCE_INLINE_ uint32_t get_string_length() const {
         return string_length;
     }
-
     StringBuilder &append_indented(const String &p_string) {
         add_indent();
         return append(p_string);

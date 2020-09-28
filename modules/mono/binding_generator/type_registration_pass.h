@@ -2,18 +2,12 @@
 
 #include "reflection_visitor_support.h"
 
-struct TS_Constant;
-struct TS_Function;
-struct TS_TypeLike;
-struct TS_Enum;
-struct TS_Type;
-struct TS_Property;
-
 struct ConstantInterface;
 struct MethodInterface;
 struct EnumInterface;
 struct TypeInterface;
 struct PropertyInterface;
+struct SignalInterface;
 
 struct TypeRegistrationPass : public ReflectionVisitorBase {
 
@@ -28,6 +22,7 @@ struct TypeRegistrationPass : public ReflectionVisitorBase {
     void visitConstant(const ConstantInterface *ci);
     void visitEnum(const EnumInterface *ei);
     void visitMethodInterface(const MethodInterface *fi);
+    void visitSignalInterface(const SignalInterface *fi);
     void visitTypeProperty(const PropertyInterface *pi);
 
     void registerTypesPass(const TypeInterface *ti);

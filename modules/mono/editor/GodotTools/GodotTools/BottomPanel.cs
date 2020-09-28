@@ -275,7 +275,7 @@ namespace GodotTools
                     Text = "Build Project".TTR(),
                     Focus= {Mode = FocusMode.None},
                 };
-                buildProjectBtn.Connect("pressed", this, nameof(BuildProjectPressed));
+                buildProjectBtn.PressedSignal += BuildProjectPressed;
                 toolBarHBox.AddChild(buildProjectBtn);
 
                 toolBarHBox.AddSpacer(begin: false);
@@ -288,7 +288,7 @@ namespace GodotTools
                     Visibility = { Visible = false },
                     Focus= {Mode = FocusMode.None},
                 };
-                warningsBtn.Connect("toggled", this, nameof(_WarningsToggled));
+                warningsBtn.Toggled += _WarningsToggled;
                 toolBarHBox.AddChild(warningsBtn);
 
                 errorsBtn = new ToolButton

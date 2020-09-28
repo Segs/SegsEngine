@@ -351,34 +351,11 @@ public:
         OP_LESS_EQUAL,
         OP_GREATER,
         OP_GREATER_EQUAL,
-        //mathematic
-        OP_ADD,
-        OP_SUBTRACT,
-        OP_MULTIPLY,
-        OP_DIVIDE,
-        OP_NEGATE,
-        OP_POSITIVE,
-        OP_MODULE,
-        OP_STRING_CONCAT,
-        //bitwise
-        OP_SHIFT_LEFT,
-        OP_SHIFT_RIGHT,
-        OP_BIT_AND,
-        OP_BIT_OR,
-        OP_BIT_XOR,
-        OP_BIT_NEGATE,
-        //logic
-        OP_AND,
-        OP_OR,
-        OP_XOR,
-        OP_NOT,
-        //containment
-        OP_IN,
         OP_MAX
 
     };
 
-    static const char * get_operator_name(Operator p_op);
+    //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
     static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 

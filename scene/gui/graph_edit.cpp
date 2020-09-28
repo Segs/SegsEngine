@@ -30,6 +30,7 @@
 
 #include "graph_edit.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "scene/gui/box_container.h"
@@ -265,7 +266,7 @@ void GraphEdit::add_child_notify(Node *p_child) {
         gn->set_scale(Vector2(zoom, zoom));
         gn->connect("offset_changed",callable_mp(this, &ClassName::_graph_node_moved), varray(Variant(gn)));
         gn->connect("raise_request",callable_mp(this, &ClassName::_graph_node_raised), varray(Variant(gn)));
-        gn->connect("item_rect_changed", connections_layer, "update");
+        gn->connect("item_rect_changed", callable_mp((CanvasItem *)connections_layer, &CanvasItem::update));
         _graph_node_moved(gn);
     }
 }
@@ -280,7 +281,7 @@ void GraphEdit::remove_child_notify(Node *p_child) {
     if (gn) {
         gn->disconnect("offset_changed",callable_mp(this, &ClassName::_graph_node_moved));
         gn->disconnect("raise_request",callable_mp(this, &ClassName::_graph_node_raised));
-        gn->disconnect("item_rect_changed", connections_layer, "update");
+        gn->disconnect("item_rect_changed", callable_mp((CanvasItem *)connections_layer, &CanvasItem::update));
     }
 }
 

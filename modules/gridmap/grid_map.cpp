@@ -1075,7 +1075,7 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
         }
     }
 
-    for (const eastl::pair<OctantKey, Map<Ref<Material>, Ref<SurfaceTool> > > &E : surface_map) {
+    for (const eastl::pair<const OctantKey, Map<Ref<Material>, Ref<SurfaceTool> > > &E : surface_map) {
 
         Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
         for (eastl::pair<const Ref<Material>,Ref<SurfaceTool> > F : E.second) {

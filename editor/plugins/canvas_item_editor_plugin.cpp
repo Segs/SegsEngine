@@ -30,6 +30,7 @@
 
 #include "canvas_item_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/os/input.h"
@@ -5037,32 +5038,12 @@ void CanvasItemEditor::_focus_selection(int p_op) {
 
 void CanvasItemEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_button_zoom_minus", &CanvasItemEditor::_button_zoom_minus);
-    MethodBinder::bind_method("_button_zoom_reset", &CanvasItemEditor::_button_zoom_reset);
-    MethodBinder::bind_method("_button_zoom_plus", &CanvasItemEditor::_button_zoom_plus);
-    MethodBinder::bind_method("_button_toggle_smart_snap", &CanvasItemEditor::_button_toggle_smart_snap);
-    MethodBinder::bind_method("_button_toggle_grid_snap", &CanvasItemEditor::_button_toggle_grid_snap);
-    MethodBinder::bind_method(D_METHOD("_button_override_camera", {"pressed"}), &CanvasItemEditor::_button_override_camera);
     MethodBinder::bind_method(D_METHOD("_update_override_camera_button", {"game_running"}), &CanvasItemEditor::_update_override_camera_button);
 
-    MethodBinder::bind_method("_button_toggle_anchor_mode", &CanvasItemEditor::_button_toggle_anchor_mode);
-    MethodBinder::bind_method("_update_scroll", &CanvasItemEditor::_update_scroll);
-    MethodBinder::bind_method("_update_scrollbars", &CanvasItemEditor::_update_scrollbars);
-    MethodBinder::bind_method("_popup_callback", &CanvasItemEditor::_popup_callback);
     MethodBinder::bind_method("_get_editor_data", &CanvasItemEditor::_get_editor_data);
-    MethodBinder::bind_method("_button_tool_select", &CanvasItemEditor::_button_tool_select);
-    MethodBinder::bind_method("_keying_changed", &CanvasItemEditor::_keying_changed);
     MethodBinder::bind_method("_unhandled_key_input", &CanvasItemEditor::_unhandled_key_input);
-    MethodBinder::bind_method("_draw_viewport", &CanvasItemEditor::_draw_viewport);
-    MethodBinder::bind_method("_gui_input_viewport", &CanvasItemEditor::_gui_input_viewport);
-    MethodBinder::bind_method("_snap_changed", &CanvasItemEditor::_snap_changed);
     MethodBinder::bind_method("_queue_update_bone_list", &CanvasItemEditor::_update_bone_list);
     MethodBinder::bind_method("_update_bone_list", &CanvasItemEditor::_update_bone_list);
-    MethodBinder::bind_method("_tree_changed", &CanvasItemEditor::_tree_changed);
-    MethodBinder::bind_method("_selection_changed", &CanvasItemEditor::_selection_changed);
-    MethodBinder::bind_method("_popup_warning_depop", &CanvasItemEditor::_popup_warning_depop);
-    MethodBinder::bind_method(D_METHOD("_selection_result_pressed"), &CanvasItemEditor::_selection_result_pressed);
-    MethodBinder::bind_method(D_METHOD("_selection_menu_hide"), &CanvasItemEditor::_selection_menu_hide);
     MethodBinder::bind_method(D_METHOD("set_state"), &CanvasItemEditor::set_state);
     MethodBinder::bind_method(D_METHOD("update_viewport"), &CanvasItemEditor::update_viewport);
 
@@ -5380,8 +5361,8 @@ CanvasItemEditor::CanvasItemEditor(EditorNode *p_editor) {
     editor = p_editor;
     editor_selection = p_editor->get_editor_selection();
     editor_selection->add_editor_plugin(this);
-    editor_selection->connect("selection_changed",callable_mp(this, &ClassName::update));
-    editor_selection->connect("selection_changed",callable_mp(this, &ClassName::_selection_changed));
+    editor_selection->connect("selection_changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
+    editor_selection->connect("selection_changed",callable_mp(this, &CanvasItemEditor::_selection_changed));
 
     editor->call_deferred([this]()
     {

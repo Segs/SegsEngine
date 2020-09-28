@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "animation_blend_space_1d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace1D)

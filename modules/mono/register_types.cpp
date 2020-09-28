@@ -53,6 +53,7 @@ void register_mono_types() {
     ClassDB::register_class<CSharpScript>();
     ClassDB::register_class<_GodotSharp>();
     MonoGCHandleRef::initialize_class();
+    ManagedCallableMiddleman::initialize_class();
 
     _godotsharp = memnew(_GodotSharp);
     Engine::get_singleton()->add_singleton(Engine::Singleton("GodotSharp", _GodotSharp::get_singleton()));

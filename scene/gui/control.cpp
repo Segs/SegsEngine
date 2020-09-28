@@ -2902,7 +2902,7 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);
 
     MethodBinder::bind_method(D_METHOD("get_icon", {"name", "type"}), &Control::get_icon, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL(StringName())});
     MethodBinder::bind_method(D_METHOD("get_font", {"name", "type"}), &Control::get_font, {DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_color", {"name", "type"}), &Control::get_color, {DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_constant", {"name", "type"}), &Control::get_constant, {DEFVAL("")});

@@ -30,6 +30,7 @@
 
 #include "viewport.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/debugger/script_debugger.h"
 #include "core/method_bind.h"
@@ -1143,13 +1144,13 @@ void Viewport::set_world(const Ref<World3D> &p_world) {
         _propagate_exit_world(this);
 
     if (own_world && world) {
-        world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+        world->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
     }
     world = p_world;
     if (own_world) {
         if (world) {
             own_world = dynamic_ref_cast<World3D>(world->duplicate());
-            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         } else {
             own_world = Ref<World3D>(memnew(World3D));
         }
@@ -1676,7 +1677,17 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 break;
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
-                control->call_multilevel(SceneStringNames::get_singleton()->_gui_input, ev);
+                // Call both script and native methods.
+                Callable::CallError error;
+                Variant event = ev;
+                const Variant *args[1] = { &event };
+                if (control->get_script_instance()) {
+                    control->get_script_instance()->call(SceneStringNames::get_singleton()->_gui_input, args, 1, error);
+                }
+                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::get_singleton()->_gui_input);
+                if (method) {
+                    method->call(control, args, 1, error);
+                }
             }
 
             if (!control->is_inside_tree() || control->is_set_as_toplevel())
@@ -2410,9 +2421,10 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             gui.key_event_accepted = false;
             if (gui.key_focus->can_process()) {
-                gui.key_focus->call_multilevel(SceneStringNames::get_singleton()->_gui_input, p_event);
-                if (gui.key_focus) //maybe lost it
+                gui.key_focus->call_va(SceneStringNames::get_singleton()->_gui_input, p_event);
+                if (gui.key_focus) { //maybe lost it
                     gui.key_focus->emit_signal(SceneStringNames::get_singleton()->gui_input, p_event);
+                }
             }
 
             if (gui.key_event_accepted) {
@@ -2701,7 +2713,7 @@ void Viewport::_drop_mouse_focus() {
             mb->set_global_position(c->get_local_mouse_position());
             mb->set_button_index(i + 1);
             mb->set_pressed(false);
-            c->call_multilevel(SceneStringNames::get_singleton()->_gui_input, mb);
+            c->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
         }
     }
 }
@@ -2784,7 +2796,7 @@ void Viewport::_post_gui_grab_click_focus() {
                 mb->set_position(click);
                 mb->set_button_index(i + 1);
                 mb->set_pressed(false);
-                gui.mouse_focus->call_multilevel(SceneStringNames::get_singleton()->_gui_input, mb);
+                gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
             }
         }
 
@@ -2864,12 +2876,12 @@ void Viewport::set_use_own_world(bool p_world) {
     if (!p_world) {
         own_world = Ref<World3D>();
         if (world) {
-            world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         }
     } else {
         if (world) {
             own_world = dynamic_ref_cast<World3D>(world->duplicate());
-            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         } else {
             own_world = make_ref_counted<World3D>();
         }
@@ -3128,10 +3140,6 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_transparent_background", {"enable"}), &Viewport::set_transparent_background);
     MethodBinder::bind_method(D_METHOD("has_transparent_background"), &Viewport::has_transparent_background);
 
-    MethodBinder::bind_method(D_METHOD("_vp_input"), &Viewport::_vp_input);
-    MethodBinder::bind_method(D_METHOD("_vp_input_text", {"text"}), &Viewport::_vp_input_text);
-    MethodBinder::bind_method(D_METHOD("_vp_unhandled_input"), &Viewport::_vp_unhandled_input);
-
     MethodBinder::bind_method(D_METHOD("set_size_override", {"enable", "size", "margin"}), &Viewport::set_size_override, {DEFVAL(Size2(-1, -1)), DEFVAL(Size2(0, 0))});
     MethodBinder::bind_method(D_METHOD("get_size_override"), &Viewport::get_size_override);
     MethodBinder::bind_method(D_METHOD("is_size_override_enabled"), &Viewport::is_size_override_enabled);
@@ -3146,6 +3154,7 @@ void Viewport::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_update_mode", {"mode"}), &Viewport::set_update_mode);
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &Viewport::get_update_mode);
+
 
     MethodBinder::bind_method(D_METHOD("set_msaa", {"msaa"}), &Viewport::set_msaa);
     MethodBinder::bind_method(D_METHOD("get_msaa"), &Viewport::get_msaa);

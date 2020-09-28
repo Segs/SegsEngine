@@ -71,6 +71,7 @@
 #define CACHED_STRING_NAME(m_var) (CSharpLanguage::get_singleton()->get_string_names().m_var)
 
 IMPL_GDCLASS(CSharpScript)
+IMPL_GDCLASS(ManagedCallableMiddleman)
 
 #ifdef TOOLS_ENABLED
 static bool _create_project_solution_if_needed() {

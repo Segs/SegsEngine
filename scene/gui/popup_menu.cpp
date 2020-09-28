@@ -29,18 +29,20 @@
 /*************************************************************************/
 
 #include "popup_menu.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/translation.h"
 #include "core/method_bind.h"
+#include "core/project_settings.h"
+#include "core/string_utils.inl"
 
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "scene/main/timer.h"
-#include "core/project_settings.h"
-#include "core/string_utils.inl"
 
 IMPL_GDCLASS(PopupMenu)
 
@@ -1293,7 +1295,7 @@ void PopupMenu::_ref_shortcut(Ref<ShortCut> p_sc) {
 
     if (!shortcut_refcount.contains(p_sc)) {
         shortcut_refcount[p_sc] = 1;
-        p_sc->connect("changed",callable_mp(this, &ClassName::update));
+        p_sc->connect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
     } else {
         shortcut_refcount[p_sc] += 1;
     }
@@ -1304,7 +1306,7 @@ void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
     ERR_FAIL_COND(!shortcut_refcount.contains(p_sc));
     shortcut_refcount[p_sc]--;
     if (shortcut_refcount[p_sc] == 0) {
-        p_sc->disconnect("changed",callable_mp(this, &ClassName::update));
+        p_sc->disconnect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
         shortcut_refcount.erase(p_sc);
     }
 }

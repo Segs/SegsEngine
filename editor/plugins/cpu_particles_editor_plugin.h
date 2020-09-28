@@ -40,7 +40,6 @@ class CPUParticles3DEditor : public ParticlesEditorBase {
     enum Menu {
 
         MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE,
-        MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH,
         MENU_OPTION_CLEAR_EMISSION_VOLUME,
         MENU_OPTION_RESTART
 

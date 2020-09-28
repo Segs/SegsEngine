@@ -31,6 +31,7 @@
 #include "animation_player.h"
 
 #include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/message_queue.h"
 #include "core/object_tooling.h"
@@ -1010,13 +1011,12 @@ void AnimationPlayer::remove_animation(const StringName &p_name) {
 }
 
 void AnimationPlayer::_ref_anim(const Ref<Animation> &p_anim) {
-
-    Ref<Animation>(p_anim)->connect(SceneStringNames::get_singleton()->tracks_changed, this, "_animation_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    Ref<Animation>(p_anim)->connect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 void AnimationPlayer::_unref_anim(const Ref<Animation> &p_anim) {
 
-    Ref<Animation>(p_anim)->disconnect(SceneStringNames::get_singleton()->tracks_changed, this, "_animation_changed");
+    Ref<Animation>(p_anim)->disconnect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed));
 }
 
 void AnimationPlayer::rename_animation(const StringName &p_name, const StringName &p_new_name) {
@@ -1630,8 +1630,8 @@ void AnimationPlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_default_blend_time", {"sec"}), &AnimationPlayer::set_default_blend_time);
     MethodBinder::bind_method(D_METHOD("get_default_blend_time"), &AnimationPlayer::get_default_blend_time);
 
-    MethodBinder::bind_method(D_METHOD("play", {"name", "custom_blend", "custom_speed", "from_end"}), &AnimationPlayer::play, {DEFVAL(""), DEFVAL(-1), DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("play_backwards", {"name", "custom_blend"}), &AnimationPlayer::play_backwards, {DEFVAL(""), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("play", {"name", "custom_blend", "custom_speed", "from_end"}), &AnimationPlayer::play, {DEFVAL(StringName()), DEFVAL(-1), DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("play_backwards", {"name", "custom_blend"}), &AnimationPlayer::play_backwards, {DEFVAL(StringName()), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("stop", {"reset"}), &AnimationPlayer::stop, {DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("is_playing"), &AnimationPlayer::is_playing);
 

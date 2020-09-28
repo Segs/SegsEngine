@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "animation_node_state_machine.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "EASTL/sort.h"
 

@@ -368,11 +368,6 @@ bool ItemListEditor::handles(Object *p_object) const {
 }
 
 void ItemListEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_node_removed", &ItemListEditor::_node_removed);
-    MethodBinder::bind_method("_edit_items", &ItemListEditor::_edit_items);
-    MethodBinder::bind_method("_add_button", &ItemListEditor::_add_pressed);
-    MethodBinder::bind_method("_delete_button", &ItemListEditor::_delete_pressed);
 }
 
 ItemListEditor::ItemListEditor() {
@@ -400,14 +395,14 @@ ItemListEditor::ItemListEditor() {
     add_button = memnew(Button);
     add_button->set_text(TTR("Add"));
     hbc->add_child(add_button);
-    add_button->connect("pressed",callable_mp(this, &ClassName::_add_button));
+    add_button->connect("pressed",callable_mp(this, &ClassName::_add_pressed));
 
     hbc->add_spacer();
 
     del_button = memnew(Button);
     del_button->set_text(TTR("Delete"));
     hbc->add_child(del_button);
-    del_button->connect("pressed",callable_mp(this, &ClassName::_delete_button));
+    del_button->connect("pressed",callable_mp(this, &ClassName::_delete_pressed));
 
     property_editor = memnew(EditorInspector);
     vbc->add_child(property_editor);
@@ -416,8 +411,9 @@ ItemListEditor::ItemListEditor() {
 
 ItemListEditor::~ItemListEditor() {
 
-    for (int i = 0; i < item_plugins.size(); i++)
+    for (int i = 0; i < item_plugins.size(); i++) {
         memdelete(item_plugins[i]);
+    }
 }
 
 void ItemListEditorPlugin::edit(Object *p_object) {

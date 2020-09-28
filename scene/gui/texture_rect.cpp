@@ -30,6 +30,7 @@
 
 #include "texture_rect.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
@@ -171,12 +172,12 @@ void TextureRect::set_texture(const Ref<Texture> &p_tex) {
         return;
 
     if (texture)
-        texture->disconnect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &TextureRect::_texture_changed));
 
     texture = p_tex;
 
     if (texture)
-        texture->connect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &TextureRect::_texture_changed));
 
     if(not p_tex)
     {

@@ -30,6 +30,7 @@
 
 #include "path_3d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"

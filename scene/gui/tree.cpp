@@ -30,6 +30,7 @@
 
 #include "tree.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -3999,13 +4000,7 @@ bool Tree::get_allow_reselect() const {
 
 void Tree::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &Tree::_range_click_timeout);
     MethodBinder::bind_method(D_METHOD("_gui_input"), &Tree::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_popup_select"), &Tree::popup_select);
-    MethodBinder::bind_method(D_METHOD("_text_editor_enter"), &Tree::text_editor_enter);
-    MethodBinder::bind_method(D_METHOD("_text_editor_modal_close"), &Tree::_text_editor_modal_close);
-    MethodBinder::bind_method(D_METHOD("_value_editor_changed"), &Tree::value_editor_changed);
-    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &Tree::_scroll_moved);
 
     MethodBinder::bind_method(D_METHOD("clear"), &Tree::clear);
     MethodBinder::bind_method(D_METHOD("create_item", {"parent", "idx"}), &Tree::_create_item, {DEFVAL(Variant()), DEFVAL(-1)});
@@ -4133,10 +4128,10 @@ Tree::Tree() {
 
     h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
     v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
-    text_editor->connect("text_entered",callable_mp(this, &ClassName::_text_editor_enter));
+    text_editor->connect("text_entered",callable_mp(this, &Tree::text_editor_enter));
     text_editor->connect("modal_closed",callable_mp(this, &ClassName::_text_editor_modal_close));
-    popup_menu->connect("id_pressed",callable_mp(this, &ClassName::_popup_select));
-    value_editor->connect("value_changed",callable_mp(this, &ClassName::_value_editor_changed));
+    popup_menu->connect("id_pressed",callable_mp(this, &ClassName::popup_select));
+    value_editor->connect("value_changed",callable_mp(this, &ClassName::value_editor_changed));
 
     value_editor->set_as_toplevel(true);
     text_editor->set_as_toplevel(true);
