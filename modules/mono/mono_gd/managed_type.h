@@ -29,12 +29,13 @@
 /*************************************************************************/
 
 #pragma once
+#include "core/godot_export.h"
+#include "gd_mono_header.h"
 
 #include <mono/metadata/object.h>
 
-#include "gd_mono_header.h"
 
-struct ManagedType {
+struct GODOT_EXPORT ManagedType {
 	int type_encoding = 0;
 	GDMonoClass *type_class = nullptr;
 

@@ -496,6 +496,7 @@ Callable::CallError vcall_error;
                          {WRAP_TO_CPP_IN,"StringName %val%(%input% ? *%input%:StringName())"},
                          {WRAP_TO_CPP_OUT,"return memnew(StringName(%val%))"},
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
+                         {SCRIPT_TO_WRAP_IN,"%type% %val% = %input% != null ? %input% : (%type%)\"\";"},
                          {SCRIPT_TO_WRAP_IN_ARG,"StringName.GetPtr(%input%)"},
                          {SCRIPT_TO_WRAP_OUT,"return new Godot.StringName(%val%)"},
                          {SCRIPT_CS_DEFAULT_WRAPPER,"null"}

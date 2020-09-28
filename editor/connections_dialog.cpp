@@ -509,13 +509,14 @@ Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
 
     FixedVector<StringView,16,true> parts;
 
-    String::split_ref(parts,p_text,"::");
+    String::split_ref(parts,p_text,"::",true);
 
     String text(String(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
     text += String(StringUtils::strip_edges(parts[1])) + "\n";
-    text += StringUtils::strip_edges(parts[2]);
+    if(parts.size()>2)
+        text += StringUtils::strip_edges(parts[2]);
 
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    help_bit->call_deferred([help_bit,text]() { help_bit->set_text(text); } ); //hack so it uses proper theme once inside scene
     return help_bit;
 }
 
@@ -608,10 +609,9 @@ void ConnectionsDock::_connect(const ConnectDialog::ConnectionData& cToMake) {
         return;
     String translated_fmt(TTR("Connect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), ((String)cToMake.signal).c_str(), ((String)cToMake.method).c_str()));
-
-    undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method,
-            Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
-    undo_redo->add_undo_method(source, "disconnect", cToMake.signal, Variant(target), cToMake.method);
+    Variant method_variant(Callable(target, cToMake.method));
+    undo_redo->add_do_method(source, "connect", cToMake.signal, method_variant, Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
+    undo_redo->add_undo_method(source, "disconnect", cToMake.signal, method_variant);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); //to force redraw of scene tree
@@ -631,9 +631,10 @@ void ConnectionsDock::_disconnect(TreeItem &item) {
 
     String translated_fmt(TTR("Disconnect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
+    Variant method_variant(Callable(c.target, c.method));
 
-    undo_redo->add_do_method(selectedNode, "disconnect", c.signal,Variant(c.target), c.method);
-    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
+    undo_redo->add_do_method(selectedNode, "disconnect", c.signal,method_variant);
+    undo_redo->add_undo_method(selectedNode, "connect", c.signal, method_variant, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); // To force redraw of scene tree.

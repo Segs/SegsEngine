@@ -74,7 +74,7 @@ class GODOT_EXPORT MessageQueue
 
     static MessageQueue *singleton;
 
-    bool flushing;
+    bool flushing=false;
 
 public:
     static MessageQueue *get_singleton();

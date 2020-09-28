@@ -987,7 +987,7 @@ namespace eastl
             const char* strEnd = str.data() + str.size();
             const char *start = str.data();
         	size_t sep_len = separator.size();
-            for (const char* splitEnd = start; splitEnd < strEnd-sep_len; )
+            for (const char* splitEnd = start; splitEnd <= strEnd-sep_len; )
             {
             	if(splitEnd+sep_len > strEnd)
                     break;

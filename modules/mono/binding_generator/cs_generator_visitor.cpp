@@ -169,12 +169,16 @@ void prepareArgumentLocals(const TS_Function *finfo, eastl::vector_map<String, S
         }
 
         // multiline mappings will not use `input_wrap`
-        if (!multiline_mapping && !input_wrap.empty()) {
-            input_arg = input_wrap.replaced("%input%", input_arg);
-        }
         String realized_mapping(mapping.replaced("%val%", locarg)
                                 .replaced("%input%", input_arg)
                                 .replaced("%type%", finfo->arg_types[i].type->cs_name()));
+        if(!mapping.empty())
+            input_arg = locarg;
+
+        if (!multiline_mapping && !input_wrap.empty()) {
+            input_arg = input_wrap.replaced("%input%", input_arg);
+        }
+
         if(!multiline_mapping) {
             ctx.out.append_indented(realized_mapping);
             ctx.out.append(";\n");

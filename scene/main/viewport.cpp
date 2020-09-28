@@ -1552,10 +1552,10 @@ void Viewport::_gui_cancel_tooltip() {
     }
 }
 
-StringName Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
+String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
 
     Vector2 pos = p_pos;
-    StringName tooltip;
+    String tooltip;
 
     while (p_control) {
 
@@ -1587,8 +1587,8 @@ void Viewport::_gui_show_tooltip() {
     }
 
     Control *which = nullptr;
-    StringName tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
-    tooltip =StringName(StringUtils::strip_edges( tooltip));
+    String tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
+    tooltip = StringUtils::strip_edges( tooltip);
     if (tooltip.empty())
         return; // bye
 
@@ -1618,7 +1618,7 @@ void Viewport::_gui_show_tooltip() {
         gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
         gui.tooltip_label->set_anchor_and_margin(Margin::Right, Control::ANCHOR_END, -ttp->get_margin(Margin::Right));
         gui.tooltip_label->set_anchor_and_margin(Margin::Bottom, Control::ANCHOR_END, -ttp->get_margin(Margin::Bottom));
-        gui.tooltip_label->set_text(tooltip);
+        gui.tooltip_label->set_text(StringName(tooltip));
     }
 
     rp->add_child(gui.tooltip_popup);
@@ -2235,7 +2235,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (gui.tooltip_popup) {
                 if (can_tooltip && gui.tooltip) {
-                    StringName tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
+                    String tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
 
                     if (tooltip.empty())
                         _gui_cancel_tooltip();
@@ -2243,7 +2243,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == gui.tooltip_popup->call_va("get_tooltip_text").as<StringName>()) {
+                    } else if (tooltip == gui.tooltip_popup->call_va("get_tooltip_text").as<String>()) {
                         is_tooltip_shown = true;
                     }
                 } else
