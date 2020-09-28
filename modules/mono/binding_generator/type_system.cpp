@@ -522,7 +522,7 @@ TS_Signal *TS_Signal::from_rd(const TS_Type *inside, const SignalInterface *meth
 
     res = new TS_Signal;
     res->cs_name = TS_Function::mapMethodName(method_interface->name,inside ? inside->cs_name() : "");
-    if(inside->find_property_by_exact_name(res->cs_name)) {
+    if(inside->find_property_by_exact_name(res->cs_name) || inside->find_method_by_name(TargetCode::CS_INTERFACE,res->cs_name,true)) {
         res->cs_name += "Signal";
     }
     res->source_type = method_interface;
