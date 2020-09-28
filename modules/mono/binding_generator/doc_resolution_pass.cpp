@@ -42,7 +42,26 @@ void DocResolutionPass::_resolveFuncDocs(TS_Function *tgt) {
 
     tgt->m_resolved_doc = located_docs;
 }
+void DocResolutionPass::_resolveFuncDocs(TS_Signal *tgt) {
+    if (!tgt->enclosing_type || !tgt->enclosing_type->m_docs) return;
+    const TS_TypeLike *iter = tgt->enclosing_type;
+    const DocContents::MethodDoc *located_docs = nullptr;
+    while (iter) {
+        const DocContents::ClassDoc *our_class_docs = iter->m_docs;
+        auto doc_data = our_class_docs ? our_class_docs->signal_by_name(tgt->source_type->name) : nullptr;
+        if (doc_data) {
+            located_docs = doc_data;
+            break;
+        }
+        // try in base class.
+        if (iter->kind() == TS_TypeLike::CLASS) {
+            iter = ((const TS_Type *)iter)->base_type;
+        } else
+            break;
+    }
 
+    tgt->m_resolved_doc = located_docs;
+}
 void DocResolutionPass::visitConstant(TS_Constant *ci) {
     TS_TypeLike *enclosing;
     if (m_current_enum) {
@@ -102,7 +121,20 @@ void DocResolutionPass::visitFunction(TS_Function *func) {
         }
     }
 }
+void DocResolutionPass::visitSignal(TS_Signal *func) {
+    _resolveFuncDocs(func);
 
+    if (func->m_resolved_doc) {
+        int idx = 0;
+        // Replace generic names with those from documentation.
+        for (const auto &doc : func->m_resolved_doc->arguments) {
+            if (!doc.name.empty() && func->arg_values[idx].starts_with("arg")) {
+                func->arg_values[idx] = escape_csharp_keyword(doc.name);
+            }
+            ++idx;
+        }
+    }
+}
 void DocResolutionPass::visitTypeProperty(TS_Property *prop) {
     auto owner_type = prop->m_owner;
     if (owner_type && owner_type->m_docs) {
@@ -139,6 +171,10 @@ void DocResolutionPass::visitType(TS_Type *type) {
 
     for (TS_Property *pi : type->m_properties) {
         visitTypeProperty(pi);
+    }
+
+    for (TS_Signal *pi : type->m_signals) {
+        visitSignal(pi);
     }
     m_type_stack.pop_back();
 }

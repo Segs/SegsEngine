@@ -133,10 +133,10 @@ real_t LineShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scale)
 void LineShape2DSW::set_data(const Variant &p_data) {
 
     ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY);
-    Array arr = p_data;
+    Array arr = p_data.as<Array>();
     ERR_FAIL_COND(arr.size() != 2);
-    normal = arr[0];
-    d = arr[1];
+    normal = arr[0].as<Vector2>();
+    d = arr[1].as<float>();
     configure(Rect2(Vector2(-1e4, -1e4), Vector2(1e4 * 2, 1e4 * 2)));
 }
 
@@ -180,9 +180,9 @@ real_t RayShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scale) 
 
 void RayShape2DSW::set_data(const Variant &p_data) {
 
-    Dictionary d = p_data;
-    length = d["length"];
-    slips_on_slope = d["slips_on_slope"];
+    Dictionary d = p_data.as<Dictionary>();
+    length = d["length"].as<float>();
+    slips_on_slope = d["slips_on_slope"].as<bool>();
     configure(Rect2(0, 0, 0.001, length));
 }
 
@@ -243,7 +243,7 @@ void SegmentShape2DSW::set_data(const Variant &p_data) {
 
     ERR_FAIL_COND(p_data.get_type() != VariantType::RECT2);
 
-    Rect2 r = p_data;
+    Rect2 r = p_data.as<Rect2>();
     a = r.position;
     b = r.size;
     n = (b - a).tangent();
@@ -317,7 +317,7 @@ real_t CircleShape2DSW::get_moment_of_inertia(real_t p_mass, const Size2 &p_scal
 void CircleShape2DSW::set_data(const Variant &p_data) {
 
     ERR_FAIL_COND(!p_data.is_num());
-    radius = p_data;
+    radius = p_data.as<float>();
     configure(Rect2(-radius, -radius, radius * 2, radius * 2));
 }
 
@@ -384,7 +384,7 @@ void RectangleShape2DSW::set_data(const Variant &p_data) {
 
     ERR_FAIL_COND(p_data.get_type() != VariantType::VECTOR2);
 
-    half_extents = p_data;
+    half_extents = p_data.as<Vector2>();
     configure(Rect2(-half_extents, half_extents * 2.0));
 }
 
@@ -511,13 +511,13 @@ void CapsuleShape2DSW::set_data(const Variant &p_data) {
     ERR_FAIL_COND(p_data.get_type() != VariantType::ARRAY && p_data.get_type() != VariantType::VECTOR2);
 
     if (p_data.get_type() == VariantType::ARRAY) {
-        Array arr = p_data;
+        Array arr = p_data.as<Array>();
         ERR_FAIL_COND(arr.size() != 2);
-        height = arr[0];
-        radius = arr[1];
+        height = arr[0].as<float>();
+        radius = arr[1].as<float>();
     } else {
 
-        Point2 p = p_data;
+        Point2 p = p_data.as<Vector2>();
         radius = p.x;
         height = p.y;
     }
@@ -643,7 +643,7 @@ void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
     point_count = 0;
 
     if (p_data.get_type() == VariantType::POOL_VECTOR2_ARRAY) {
-        PoolVector<Vector2> arr = p_data;
+        PoolVector<Vector2> arr = p_data.as<PoolVector<Vector2>>();
         ERR_FAIL_COND(arr.size() == 0);
         point_count = arr.size();
         points = memnew_arr(Point, point_count);
@@ -661,7 +661,7 @@ void ConvexPolygonShape2DSW::set_data(const Variant &p_data) {
         }
     } else {
 
-        PoolVector<real_t> dvr = p_data;
+        PoolVector<real_t> dvr = p_data.as<PoolVector<float>>();
         point_count = dvr.size() / 4;
         ERR_FAIL_COND(point_count == 0);
 
@@ -901,7 +901,7 @@ void ConcavePolygonShape2DSW::set_data(const Variant &p_data) {
 
     if (p_data.get_type() == VariantType::POOL_VECTOR2_ARRAY) {
 
-        PoolVector<Vector2> p2arr = p_data;
+        PoolVector<Vector2> p2arr = p_data.as<PoolVector<Vector2>>();
         int len = p2arr.size();
         ERR_FAIL_COND(len % 2);
 

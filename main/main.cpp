@@ -189,7 +189,7 @@ static String get_full_version_string() {
 void initialize_physics() {
 
     /// 3D Physics Server
-    physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
+    physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->getT<StringName>(PhysicsServerManager::setting_property_name));
     if (!physics_server_3d) {
         // Physics server not found, Use the default physics
         physics_server_3d = PhysicsServerManager::new_default_server();
@@ -198,7 +198,7 @@ void initialize_physics() {
     physics_server_3d->init();
 
     /// 2D Physics server
-    physics_server_2d = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->get(Physics2DServerManager::setting_property_name));
+    physics_server_2d = Physics2DServerManager::new_server(ProjectSettings::get_singleton()->getT<StringName>(Physics2DServerManager::setting_property_name));
     if (!physics_server_2d) {
         // Physics server not found, Use the default physics
         physics_server_2d = Physics2DServerManager::new_default_server();
@@ -526,7 +526,7 @@ Error Main::setup(bool p_second_phase) {
         packed_data = memnew(PackedData);
 
     add_plugin_resolver(new ArchivePluginResolver(packed_data));
-    auto z = QDir::currentPath();
+
 
     I = args.begin();
     while (I!= args.end()) {
@@ -811,11 +811,11 @@ Error Main::setup(bool p_second_phase) {
 
             path = PathUtils::path(file);
 
-            //if (OS::get_singleton()->set_cwd(path) == OK) {
-                // path already specified, don't override
-            //} else {
+            if (OS::get_singleton()->set_cwd(path) == OK) {
+               // path already specified, don't override
+            } else {
                 project_path = path;
-            //}
+            }
 #ifdef TOOLS_ENABLED
             //editor = true;
 #endif
@@ -1036,9 +1036,9 @@ Error Main::setup(bool p_second_phase) {
             "logging/file_logging/max_log_files", PropertyInfo(VariantType::INT, "logging/file_logging/max_log_files",
                                                           PropertyHint::Range, "0,20,1,or_greater")); // no negative numbers
     if (FileAccess::get_create_func(FileAccess::ACCESS_USERDATA) &&
-            GLOBAL_GET("logging/file_logging/enable_file_logging")) {
-        String base_path = GLOBAL_GET("logging/file_logging/log_path");
-        int max_files = GLOBAL_GET("logging/file_logging/max_log_files");
+            GLOBAL_GET("logging/file_logging/enable_file_logging").as<bool>()) {
+        String base_path = T_GLOBAL_GET<String>("logging/file_logging/log_path");
+        int max_files = T_GLOBAL_GET<int>("logging/file_logging/max_log_files");
         os->add_logger(memnew(RotatedFileLogger(base_path, max_files)));
     }
 
@@ -1058,7 +1058,7 @@ Error Main::setup(bool p_second_phase) {
     }
 #endif
 
-    if (main_args.empty() && String(GLOBAL_DEF("application/run/main_scene", "")).empty()) {
+    if (main_args.empty() && T_GLOBAL_DEF<String>("application/run/main_scene", "").empty()) {
 #ifdef TOOLS_ENABLED
         if (!editor && !project_manager) {
 #endif
@@ -1077,10 +1077,10 @@ Error Main::setup(bool p_second_phase) {
         input_map->load_from_globals(); //keys for game
     }
 
-    if (bool(project_settings->get("application/run/disable_stdout"))) {
+    if ((project_settings->getT<bool>("application/run/disable_stdout"))) {
         quiet_stdout = true;
     }
-    if (bool(project_settings->get("application/run/disable_stderr"))) {
+    if ((project_settings->getT<bool>("application/run/disable_stderr"))) {
         _print_error_enabled = false;
     }
 
@@ -1091,9 +1091,9 @@ Error Main::setup(bool p_second_phase) {
 
     GLOBAL_DEF("rendering/quality/driver/driver_name", "GLES3");
     project_settings->set_custom_property_info("rendering/quality/driver/driver_name",
-            PropertyInfo(VariantType::STRING, "rendering/quality/driver/driver_name", PropertyHint::Enum, "GLES2,GLES3"));
+            PropertyInfo(VariantType::STRING, "rendering/quality/driver/driver_name", PropertyHint::Enum, "GLES3")); //GLES2,
     if (video_driver.empty()) {
-        video_driver = GLOBAL_GET("rendering/quality/driver/driver_name");
+        video_driver = T_GLOBAL_GET<StringName>("rendering/quality/driver/driver_name");
     }
 
     GLOBAL_DEF("rendering/quality/driver/fallback_to_gles2", false);
@@ -1124,33 +1124,33 @@ Error Main::setup(bool p_second_phase) {
     if (use_custom_res) {
 
         if (!force_res) {
-            video_mode.width = GLOBAL_GET("display/window/size/width");
-            video_mode.height = GLOBAL_GET("display/window/size/height");
+            video_mode.width = T_GLOBAL_GET<int>("display/window/size/width");
+            video_mode.height = T_GLOBAL_GET<int>("display/window/size/height");
 
             if (globals->has_setting("display/window/size/test_width") && globals->has_setting("display/window/size/test_height")) {
-                int tw = globals->get("display/window/size/test_width");
+                int tw = globals->getT<int>("display/window/size/test_width");
                 if (tw > 0) {
                     video_mode.width = tw;
                 }
-                int th = globals->get("display/window/size/test_height");
+                int th = globals->getT<int>("display/window/size/test_height");
                 if (th > 0) {
                     video_mode.height = th;
                 }
             }
         }
 
-        video_mode.resizable = GLOBAL_GET("display/window/size/resizable");
-        video_mode.borderless_window = GLOBAL_GET("display/window/size/borderless");
-        video_mode.fullscreen = GLOBAL_GET("display/window/size/fullscreen");
-        video_mode.always_on_top = GLOBAL_GET("display/window/size/always_on_top");
+        video_mode.resizable = T_GLOBAL_GET<bool>("display/window/size/resizable");
+        video_mode.borderless_window = T_GLOBAL_GET<bool>("display/window/size/borderless");
+        video_mode.fullscreen = T_GLOBAL_GET<bool>("display/window/size/fullscreen");
+        video_mode.always_on_top = T_GLOBAL_GET<bool>("display/window/size/always_on_top");
     }
 
     if (!force_lowdpi) {
-        os->_allow_hidpi = GLOBAL_DEF("display/window/dpi/allow_hidpi", false);
+        os->_allow_hidpi = T_GLOBAL_DEF("display/window/dpi/allow_hidpi", false);
     }
 
 
-    video_mode.use_vsync = GLOBAL_DEF_RST("display/window/vsync/use_vsync", true);
+    video_mode.use_vsync = GLOBAL_DEF_T_RST("display/window/vsync/use_vsync", true,bool);
     os->_use_vsync = video_mode.use_vsync;
 
     if (!saw_vsync_via_compositor_override) {
@@ -1158,13 +1158,13 @@ Error Main::setup(bool p_second_phase) {
         // window compositor ("--enable-vsync-via-compositor" or
         // "--disable-vsync-via-compositor") was present then it overrides the
         // project setting.
-        video_mode.vsync_via_compositor = GLOBAL_DEF("display/window/vsync/vsync_via_compositor", false);
+        video_mode.vsync_via_compositor = T_GLOBAL_DEF("display/window/vsync/vsync_via_compositor", false);
     }
 
     os->_vsync_via_compositor = video_mode.vsync_via_compositor;
 
-    os->_allow_layered = GLOBAL_DEF("display/window/per_pixel_transparency/allowed", false);
-    video_mode.layered = GLOBAL_DEF("display/window/per_pixel_transparency/enabled", false);
+    os->_allow_layered = T_GLOBAL_DEF("display/window/per_pixel_transparency/allowed", false);
+    video_mode.layered = T_GLOBAL_DEF("display/window/per_pixel_transparency/enabled", false);
 
     GLOBAL_DEF("rendering/quality/intended_usage/framebuffer_allocation", 2);
     GLOBAL_DEF("rendering/quality/intended_usage/framebuffer_allocation.mobile", 3);
@@ -1175,10 +1175,10 @@ Error Main::setup(bool p_second_phase) {
         os->_allow_layered = false;
     }
 
-    Engine::get_singleton()->_pixel_snap = GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false);
-    os->_keep_screen_on = GLOBAL_DEF("display/window/energy_saving/keep_screen_on", true);
+    Engine::get_singleton()->_pixel_snap = T_GLOBAL_DEF("rendering/quality/2d/use_pixel_snap", false);
+    os->_keep_screen_on = T_GLOBAL_DEF("display/window/energy_saving/keep_screen_on", true);
     if (rtm == -1) {
-        rtm = GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
+        rtm = T_GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
     }
 
     if (rtm >= 0 && rtm < 3) {
@@ -1204,7 +1204,7 @@ Error Main::setup(bool p_second_phase) {
     }
 
     if (audio_driver.empty()) { // specified in project.godot
-        audio_driver = GLOBAL_DEF_RST("audio/driver", OS::get_singleton()->get_audio_driver_name(0));
+        audio_driver = T_GLOBAL_DEF<StringName>("audio/driver", StringName(OS::get_singleton()->get_audio_driver_name(0)),true);
     }
 
     for (int i = 0; i < os->get_audio_driver_count(); i++) {
@@ -1221,7 +1221,7 @@ Error Main::setup(bool p_second_phase) {
     }
 
     {
-        UIString orientation = GLOBAL_DEF("display/window/handheld/orientation", "landscape");
+        String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
 
         if (orientation == "portrait")
             os->set_screen_orientation(OS::SCREEN_PORTRAIT);
@@ -1239,25 +1239,25 @@ Error Main::setup(bool p_second_phase) {
             os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
     }
 
-    Engine::get_singleton()->set_iterations_per_second(GLOBAL_DEF("physics/common/physics_fps", 60));
+    Engine::get_singleton()->set_iterations_per_second(T_GLOBAL_DEF<int>("physics/common/physics_fps", 60));
     project_settings->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));
-    Engine::get_singleton()->set_physics_jitter_fix(GLOBAL_DEF("physics/common/physics_jitter_fix", 0.5));
-    Engine::get_singleton()->set_target_fps(GLOBAL_DEF("debug/settings/fps/force_fps", 0));
+    Engine::get_singleton()->set_physics_jitter_fix(T_GLOBAL_DEF<float>("physics/common/physics_jitter_fix", 0.5));
+    Engine::get_singleton()->set_target_fps(T_GLOBAL_DEF<int>("debug/settings/fps/force_fps", 0));
     project_settings->set_custom_property_info("debug/settings/fps/force_fps", PropertyInfo(VariantType::INT, "debug/settings/fps/force_fps", PropertyHint::Range, "0,120,1,or_greater"));
 
-    GLOBAL_DEF("debug/settings/stdout/print_fps", false);
-    GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
+    T_GLOBAL_DEF("debug/settings/stdout/print_fps", false);
+    T_GLOBAL_DEF("debug/settings/stdout/verbose_stdout", false);
 
     if (!OS::get_singleton()->_verbose_stdout) { // Not manually overridden.
-        OS::get_singleton()->_verbose_stdout = GLOBAL_GET("debug/settings/stdout/verbose_stdout");
+        OS::get_singleton()->_verbose_stdout = T_GLOBAL_GET<bool>("debug/settings/stdout/verbose_stdout");
     }
     if (frame_delay == 0) {
-        frame_delay = GLOBAL_DEF("application/run/frame_delay_msec", 0);
+        frame_delay = T_GLOBAL_DEF<int>("application/run/frame_delay_msec", 0);
         project_settings->set_custom_property_info("application/run/frame_delay_msec", PropertyInfo(VariantType::INT, "application/run/frame_delay_msec", PropertyHint::Range, "0,100,1,or_greater")); // No negative numbers
     }
 
-    os->set_low_processor_usage_mode(GLOBAL_DEF("application/run/low_processor_mode", false));
-    os->set_low_processor_usage_mode_sleep_usec(GLOBAL_DEF("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
+    os->set_low_processor_usage_mode(T_GLOBAL_DEF("application/run/low_processor_mode", false));
+    os->set_low_processor_usage_mode_sleep_usec(T_GLOBAL_DEF<int>("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
     project_settings->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PropertyHint::Range, "0,33200,1,or_greater")); // No negative numbers
 
     GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
@@ -1375,13 +1375,13 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     MAIN_PRINT("Main: Load Remaps");
 
-    Color clear = GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f));
+    Color clear = T_GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f));
     RenderingServer::get_singleton()->set_default_clear_color(clear);
 
     if (show_logo) { //boot logo!
-        String boot_logo_path = GLOBAL_DEF("application/boot_splash/image", String());
-        bool boot_logo_scale = GLOBAL_DEF("application/boot_splash/fullsize", true);
-        bool boot_logo_filter = GLOBAL_DEF("application/boot_splash/use_filter", true);
+        String boot_logo_path = T_GLOBAL_DEF("application/boot_splash/image", String());
+        bool boot_logo_scale = T_GLOBAL_DEF("application/boot_splash/fullsize", true);
+        bool boot_logo_filter = T_GLOBAL_DEF("application/boot_splash/use_filter", true);
         ProjectSettings::get_singleton()->set_custom_property_info("application/boot_splash/image",
                 PropertyInfo(VariantType::STRING, "application/boot_splash/image", PropertyHint::File, "*.png"));
 
@@ -1397,7 +1397,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             }
         }
 
-        Color boot_bg_color = GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
+        Color boot_bg_color = T_GLOBAL_DEF("application/boot_splash/bg_color", boot_splash_bg_color);
         if (boot_logo) {
             OS::get_singleton()->_msec_splash = OS::get_singleton()->get_ticks_msec();
             RenderingServer::get_singleton()->set_boot_image(boot_logo, boot_bg_color, boot_logo_scale, boot_logo_filter);
@@ -1427,7 +1427,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     }
 
     MAIN_PRINT("Main: DCC");
-    RenderingServer::get_singleton()->set_default_clear_color(GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f)));
+    RenderingServer::get_singleton()->set_default_clear_color(T_GLOBAL_DEF("rendering/environment/default_clear_color", Color(0.3f, 0.3f, 0.3f)));
     MAIN_PRINT("Main: END");
 
     GLOBAL_DEF("application/config/icon", String());
@@ -1441,14 +1441,14 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
     InputDefault *id = object_cast<InputDefault>(Input::get_singleton());
     if (id) {
-        if (bool(GLOBAL_DEF("input_devices/pointing/emulate_touch_from_mouse", false)) && !(editor || project_manager)) {
+        if (T_GLOBAL_DEF("input_devices/pointing/emulate_touch_from_mouse", false) && !(editor || project_manager)) {
             if (!OS::get_singleton()->has_touchscreen_ui_hint()) {
                 //only if no touchscreen ui hint, set emulation
                 id->set_emulate_touch_from_mouse(true);
             }
         }
 
-        id->set_emulate_mouse_from_touch(bool(GLOBAL_DEF("input_devices/pointing/emulate_mouse_from_touch", true)));
+        id->set_emulate_mouse_from_touch(T_GLOBAL_DEF("input_devices/pointing/emulate_mouse_from_touch", true));
     }
 
     MAIN_PRINT("Main: Load Remaps");
@@ -1463,12 +1463,12 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     ProjectSettings::get_singleton()->set_custom_property_info("display/mouse_cursor/custom_image",
             PropertyInfo(VariantType::STRING, "display/mouse_cursor/custom_image", PropertyHint::File, "*.png,*.webp"));
 
-    if (!String(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image")).empty()) {
+    if (!ProjectSettings::get_singleton()->getT<String>("display/mouse_cursor/custom_image").empty()) {
 
         Ref<Texture> cursor = dynamic_ref_cast<Texture>(
                 gResourceManager().load(ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image").as<String>()));
         if (cursor) {
-            Vector2 hotspot = ProjectSettings::get_singleton()->get("display/mouse_cursor/custom_image_hotspot");
+            Vector2 hotspot = ProjectSettings::get_singleton()->getT<Vector2>("display/mouse_cursor/custom_image_hotspot");
             Input::get_singleton()->set_custom_mouse_cursor(cursor, Input::CURSOR_ARROW, hotspot);
         }
     }
@@ -1590,7 +1590,7 @@ bool Main::start() {
         } else if (*i == "-p" || *i == "--project-manager") {
             project_manager = true;
 #endif
-        } else if (i->length() && i->at(0) != '-' && positional_arg == "") {
+        } else if (i->length() && i->at(0) != '-' && positional_arg.empty()) {
             positional_arg = *i;
 
             if (StringUtils::ends_with(positional_arg,".scn") ||
@@ -1705,8 +1705,8 @@ bool Main::start() {
         }
     }
 #endif
-    if (script.empty() && game_path.empty() && !String(GLOBAL_DEF("application/run/main_scene", "")).empty()) {
-        game_path = (String)GLOBAL_DEF("application/run/main_scene", "");
+    if (script.empty() && game_path.empty() && !T_GLOBAL_DEF("application/run/main_scene", String()).empty()) {
+        game_path = T_GLOBAL_DEF("application/run/main_scene", String());
     }
 
     MainLoop *main_loop = nullptr;
@@ -1754,7 +1754,7 @@ bool Main::start() {
         }
 
     } else {
-        main_loop_type = (String)GLOBAL_DEF("application/run/main_loop_type", "");
+        main_loop_type = T_GLOBAL_DEF("application/run/main_loop_type", String());
     }
 
     if (!main_loop && main_loop_type.empty())
@@ -1811,7 +1811,7 @@ bool Main::start() {
                     if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
                     StringName name(StringUtils::get_slice(s,'/', 1));
-                    String path = ProjectSettings::get_singleton()->get(s);
+                    String path = ProjectSettings::get_singleton()->getT<String>(s);
                     bool global_var = false;
                     if (StringUtils::begins_with(path,"*")) {
                         global_var = true;
@@ -1832,7 +1832,7 @@ bool Main::start() {
                     if (!StringUtils::begins_with(s,"autoload/"))
                         continue;
                     StringName name(StringUtils::get_slice(s,'/', 1));
-                    String path = ProjectSettings::get_singleton()->get(s);
+                    String path = ProjectSettings::get_singleton()->getT<String>(s);
                     bool global_var = false;
                     if (StringUtils::begins_with(path,"*")) {
                         global_var = true;
@@ -1897,10 +1897,10 @@ bool Main::start() {
         if (!editor && !project_manager) {
             //standard helpers that can be changed from main config
 
-            UIString stretch_mode = GLOBAL_DEF("display/window/stretch/mode", "disabled");
-            UIString stretch_aspect = GLOBAL_DEF("display/window/stretch/aspect", "ignore");
-            Size2i stretch_size = Size2(GLOBAL_DEF("display/window/size/width", 0), GLOBAL_DEF("display/window/size/height", 0));
-            real_t stretch_shrink = GLOBAL_DEF("display/window/stretch/shrink", 1.0);
+            String stretch_mode = T_GLOBAL_DEF("display/window/stretch/mode", String("disabled"));
+            String stretch_aspect = T_GLOBAL_DEF("display/window/stretch/aspect", String("ignore"));
+            Size2i stretch_size = Size2(T_GLOBAL_DEF<int>("display/window/size/width", 0), T_GLOBAL_DEF<int>("display/window/size/height", 0));
+            real_t stretch_shrink = T_GLOBAL_DEF("display/window/stretch/shrink", 1.0);
 
             SceneTree::StretchMode sml_sm = SceneTree::STRETCH_MODE_DISABLED;
             if (stretch_mode == "2d")
@@ -1920,30 +1920,30 @@ bool Main::start() {
 
             sml->set_screen_stretch(sml_sm, sml_aspect, stretch_size, stretch_shrink);
 
-            sml->set_auto_accept_quit(GLOBAL_DEF("application/config/auto_accept_quit", true));
-            sml->set_quit_on_go_back(GLOBAL_DEF("application/config/quit_on_go_back", true));
-            StringName appname = ProjectSettings::get_singleton()->get("application/config/name");
+            sml->set_auto_accept_quit(T_GLOBAL_DEF("application/config/auto_accept_quit", true));
+            sml->set_quit_on_go_back(T_GLOBAL_DEF("application/config/quit_on_go_back", true));
+            StringName appname = ProjectSettings::get_singleton()->getT<StringName>("application/config/name");
             appname = TranslationServer::get_singleton()->translate(appname);
             OS::get_singleton()->set_window_title(appname);
 
-            int shadow_atlas_size = GLOBAL_GET("rendering/quality/shadow_atlas/size");
-            int shadow_atlas_q0_subdiv = GLOBAL_GET("rendering/quality/shadow_atlas/quadrant_0_subdiv");
-            int shadow_atlas_q1_subdiv = GLOBAL_GET("rendering/quality/shadow_atlas/quadrant_1_subdiv");
-            int shadow_atlas_q2_subdiv = GLOBAL_GET("rendering/quality/shadow_atlas/quadrant_2_subdiv");
-            int shadow_atlas_q3_subdiv = GLOBAL_GET("rendering/quality/shadow_atlas/quadrant_3_subdiv");
+            int shadow_atlas_size = T_GLOBAL_GET<int>("rendering/quality/shadow_atlas/size");
+            int shadow_atlas_q0_subdiv = T_GLOBAL_GET<int>("rendering/quality/shadow_atlas/quadrant_0_subdiv");
+            int shadow_atlas_q1_subdiv = T_GLOBAL_GET<int>("rendering/quality/shadow_atlas/quadrant_1_subdiv");
+            int shadow_atlas_q2_subdiv = T_GLOBAL_GET<int>("rendering/quality/shadow_atlas/quadrant_2_subdiv");
+            int shadow_atlas_q3_subdiv = T_GLOBAL_GET<int>("rendering/quality/shadow_atlas/quadrant_3_subdiv");
 
             sml->get_root()->set_shadow_atlas_size(shadow_atlas_size);
             sml->get_root()->set_shadow_atlas_quadrant_subdiv(0, Viewport::ShadowAtlasQuadrantSubdiv(shadow_atlas_q0_subdiv));
             sml->get_root()->set_shadow_atlas_quadrant_subdiv(1, Viewport::ShadowAtlasQuadrantSubdiv(shadow_atlas_q1_subdiv));
             sml->get_root()->set_shadow_atlas_quadrant_subdiv(2, Viewport::ShadowAtlasQuadrantSubdiv(shadow_atlas_q2_subdiv));
             sml->get_root()->set_shadow_atlas_quadrant_subdiv(3, Viewport::ShadowAtlasQuadrantSubdiv(shadow_atlas_q3_subdiv));
-            Viewport::Usage usage = Viewport::Usage(int(GLOBAL_GET("rendering/quality/intended_usage/framebuffer_allocation")));
+            Viewport::Usage usage = T_GLOBAL_GET<Viewport::Usage>("rendering/quality/intended_usage/framebuffer_allocation");
             sml->get_root()->set_usage(usage);
 
-            bool snap_controls = GLOBAL_DEF("gui/common/snap_controls_to_pixels", true);
+            bool snap_controls = T_GLOBAL_DEF("gui/common/snap_controls_to_pixels", true);
             sml->get_root()->set_snap_controls_to_pixels(snap_controls);
 
-            bool font_oversampling = GLOBAL_DEF("rendering/quality/dynamic_fonts/use_oversampling", true);
+            bool font_oversampling = T_GLOBAL_DEF("rendering/quality/dynamic_fonts/use_oversampling", true);
             sml->set_use_font_oversampling(font_oversampling);
 
         }
@@ -1958,8 +1958,8 @@ bool Main::start() {
             GLOBAL_DEF("display/window/stretch/shrink", 1.0);
             ProjectSettings::get_singleton()->set_custom_property_info("display/window/stretch/shrink",
                     PropertyInfo(VariantType::FLOAT, "display/window/stretch/shrink", PropertyHint::Range, "1.0,8.0,0.1"));
-            sml->set_auto_accept_quit(GLOBAL_DEF("application/config/auto_accept_quit", true));
-            sml->set_quit_on_go_back(GLOBAL_DEF("application/config/quit_on_go_back", true));
+            sml->set_auto_accept_quit(T_GLOBAL_DEF("application/config/auto_accept_quit", true));
+            sml->set_quit_on_go_back(T_GLOBAL_DEF("application/config/quit_on_go_back", true));
             GLOBAL_DEF("gui/common/snap_controls_to_pixels", true);
             GLOBAL_DEF("rendering/quality/dynamic_fonts/use_oversampling", true);
         }
@@ -2002,7 +2002,7 @@ bool Main::start() {
 #ifdef TOOLS_ENABLED
             if (editor) {
 
-                if (game_path != (String)GLOBAL_GET("application/run/main_scene") || !editor_node->has_scenes_in_session()) {
+                if (game_path != T_GLOBAL_GET<String>("application/run/main_scene") || !editor_node->has_scenes_in_session()) {
                     Error serr = editor_node->load_scene(local_game_path);
                     if (serr != OK) {
                         ERR_PRINT("Failed to load scene");
@@ -2028,7 +2028,7 @@ bool Main::start() {
                 ERR_FAIL_COND_V_MSG(!scene, false, "Failed loading scene: " + local_game_path);
                 sml->add_current_scene(scene);
 #ifdef OSX_ENABLED
-                String mac_iconpath = GLOBAL_DEF("application/config/macos_native_icon", "Variant()");
+                String mac_iconpath = T_GLOBAL_DEF("application/config/macos_native_icon", String());
                 if (mac_iconpath != "") {
                     OS::get_singleton()->set_native_icon(mac_iconpath);
                     hasicon = true;
@@ -2036,14 +2036,14 @@ bool Main::start() {
 #endif
 
 #ifdef WINDOWS_ENABLED
-                String win_iconpath = GLOBAL_DEF("application/config/windows_native_icon", "Variant()");
+                String win_iconpath = T_GLOBAL_DEF("application/config/windows_native_icon", String());
                 if (not win_iconpath.empty()) {
                     OS::get_singleton()->set_native_icon(win_iconpath);
                     hasicon = true;
                 }
 #endif
 
-                String iconpath = GLOBAL_DEF("application/config/icon", "Variant()");
+                String iconpath = T_GLOBAL_DEF("application/config/icon", String());
                 if ((!iconpath.empty()) && (!hasicon)) {
                     Ref<Image> icon(make_ref_counted<Image>());
                     if (ImageLoader::load_image(iconpath, icon) == OK) {
@@ -2069,7 +2069,7 @@ bool Main::start() {
         }
         if (project_manager || editor) {
             // Hide console window if requested (Windows-only).
-            bool hide_console = EditorSettings::get_singleton()->get_setting("interface/editor/hide_console_window");
+            bool hide_console = EditorSettings::get_singleton()->get_setting("interface/editor/hide_console_window").as<bool>();
             OS::get_singleton()->set_console_visible(!hide_console);
         }
 
@@ -2236,7 +2236,7 @@ bool Main::iteration() {
             if (print_fps) {
                 print_line("Editor FPS: " + itos(frames));
             }
-        } else if (GLOBAL_GET("debug/settings/stdout/print_fps") || print_fps) {
+        } else if (T_GLOBAL_GET<bool>("debug/settings/stdout/print_fps") || print_fps) {
             print_line("Game FPS: " + itos(frames));
         }
 

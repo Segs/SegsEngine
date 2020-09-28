@@ -168,7 +168,7 @@ bool ProjectSettings::_set(const StringName &p_name, const Variant &p_value) {
     }
 
     if (p_name == CoreStringNames::get_singleton()->_custom_features) {
-        String val_str(p_value);
+        String val_str(p_value.as<String>());
         Vector<StringView> custom_feature_array = StringUtils::split(val_str,',');
         for (int i = 0; i < custom_feature_array.size(); i++) {
 
@@ -306,7 +306,7 @@ void ProjectSettings::_convert_to_last_version(int p_from_version) {
     for (eastl::pair<const StringName,ProjectSettings::VariantContainer> &E : props) {
         Variant value = E.second.variant;
         if (StringUtils::begins_with(E.first,"input/") && value.get_type() == VariantType::ARRAY) {
-            Array array = value;
+            Array array = value.as<Array>();
             Dictionary action;
             action["deadzone"] = Variant(0.5f);
             action["events"] = array;
@@ -481,7 +481,7 @@ Error ProjectSettings::_setup(StringView p_path, StringView p_main_pack, bool p_
 Error ProjectSettings::setup(StringView p_path, StringView p_main_pack, bool p_upwards) {
     Error err = _setup(p_path, p_main_pack, p_upwards);
     if (err == OK) {
-        String custom_settings = GLOBAL_DEF("application/config/project_settings_override", "");
+        String custom_settings = GLOBAL_T_DEF("application/config/project_settings_override", "", String);
         if (!custom_settings.empty()) {
             _load_settings_text(custom_settings);
         }
@@ -589,7 +589,7 @@ Error ProjectSettings::_load_settings_text(StringView p_path) {
 
         if (!assign.empty()) {
             if (section.empty() && assign == "config_version") {
-                config_version = value;
+                config_version = value.as<int>();
                 if (config_version > CONFIG_VERSION) {
                     VariantParser::release_stream(stream);
                     memdelete(f);
@@ -917,7 +917,7 @@ void ProjectSettings::_add_property_info_bind(const Dictionary &p_info) {
     ERR_FAIL_COND(!p_info.has("type"));
 
     PropertyInfo pinfo;
-    pinfo.name = p_info["name"];
+    pinfo.name = p_info["name"].as<StringName>();
     ERR_FAIL_COND(!props.contains(pinfo.name));
     pinfo.type = VariantType(p_info["type"].as<int>());
     ERR_FAIL_INDEX(int(pinfo.type), int(VariantType::VARIANT_MAX));
@@ -1195,15 +1195,15 @@ ProjectSettings::ProjectSettings() {
     //assigning here, because using GLOBAL_GET on every block for compressing can be slow
     Compression::zstd_long_distance_matching = GLOBAL_DEF("compression/formats/zstd/long_distance_matching", false).as<bool>();
     custom_prop_info[StaticCString("compression/formats/zstd/long_distance_matching")] = PropertyInfo(VariantType::BOOL, "compression/formats/zstd/long_distance_matching");
-    Compression::zstd_level = GLOBAL_DEF("compression/formats/zstd/compression_level", 3);
+    Compression::zstd_level = GLOBAL_T_DEF("compression/formats/zstd/compression_level", 3,int);
     custom_prop_info[StaticCString("compression/formats/zstd/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/compression_level", PropertyHint::Range, "1,22,1");
-    Compression::zstd_window_log_size = GLOBAL_DEF("compression/formats/zstd/window_log_size", 27);
+    Compression::zstd_window_log_size = GLOBAL_T_DEF("compression/formats/zstd/window_log_size", 27,int);
     custom_prop_info[StaticCString("compression/formats/zstd/window_log_size")] = PropertyInfo(VariantType::INT, "compression/formats/zstd/window_log_size", PropertyHint::Range, "10,30,1");
 
-    Compression::zlib_level = GLOBAL_DEF("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION);
+    Compression::zlib_level = GLOBAL_T_DEF("compression/formats/zlib/compression_level", Z_DEFAULT_COMPRESSION,int);
     custom_prop_info[StaticCString("compression/formats/zlib/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/zlib/compression_level", PropertyHint::Range, "-1,9,1");
 
-    Compression::gzip_level = GLOBAL_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION);
+    Compression::gzip_level = GLOBAL_T_DEF("compression/formats/gzip/compression_level", Z_DEFAULT_COMPRESSION,int);
     custom_prop_info[StaticCString("compression/formats/gzip/compression_level")] = PropertyInfo(VariantType::INT, "compression/formats/gzip/compression_level", PropertyHint::Range, "-1,9,1");
 
     using_datapack = false;

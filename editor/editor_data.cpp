@@ -161,8 +161,8 @@ bool EditorHistory::is_history_obj_inspector_only(int p_obj) const {
 }
 
 ObjectID EditorHistory::get_history_obj(int p_obj) const {
-    ERR_FAIL_INDEX_V(p_obj, history.size(), 0);
-    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), 0);
+    ERR_FAIL_INDEX_V(p_obj, history.size(), ObjectID(0ULL));
+    ERR_FAIL_INDEX_V(history[p_obj].level, history[p_obj].path.size(), ObjectID(0ULL));
     return history[p_obj].path[history[p_obj].level].object;
 }
 
@@ -209,12 +209,12 @@ bool EditorHistory::is_current_inspector_only() const {
 ObjectID EditorHistory::get_current() {
 
     if (current < 0 || current >= history.size())
-        return 0;
+        return ObjectID(0ULL);
 
     History &h = history[current];
     Object *obj = gObjectDB().get_instance(h.path[h.level].object);
     if (!obj)
-        return 0;
+        return ObjectID(0ULL);
 
     return obj->get_instance_id();
 }
@@ -231,15 +231,15 @@ int EditorHistory::get_path_size() const {
 ObjectID EditorHistory::get_path_object(int p_index) const {
 
     if (current < 0 || current >= history.size())
-        return 0;
+        return ObjectID(0ULL);
 
     const History &h = history[current];
 
-    ERR_FAIL_INDEX_V(p_index, h.path.size(), 0);
+    ERR_FAIL_INDEX_V(p_index, h.path.size(), ObjectID(0ULL));
 
     Object *obj = gObjectDB().get_instance(h.path[p_index].object);
     if (!obj)
-        return 0;
+        return ObjectID(0ULL);
 
     return obj->get_instance_id();
 }
@@ -363,7 +363,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
 
     for (const Variant & k : keys) {
 
-        String name = k;
+        String name = k.as<String>();
         int idx = -1;
         for (int i = 0; i < editor_plugins.size(); i++) {
 
@@ -375,7 +375,7 @@ void EditorData::set_editor_states(const Dictionary &p_states) {
 
         if (idx == -1)
             continue;
-        editor_plugins[idx]->set_state(p_states[name]);
+        editor_plugins[idx]->set_state(p_states[name].as<Dictionary>());
     }
 }
 
@@ -773,7 +773,7 @@ StringName EditorData::get_scene_title(int p_idx) const {
         return TTR("[empty]");
     if (edited_scene[p_idx].root->get_filename().empty())
         return TTR("[unsaved]");
-    bool show_ext = EDITOR_DEF("interface/scene_tabs/show_extension", false);
+    bool show_ext = EDITOR_DEF_T("interface/scene_tabs/show_extension", false);
     String name(PathUtils::get_file(edited_scene[p_idx].root->get_filename()));
     if (!show_ext) {
         name = PathUtils::get_basename(name);
@@ -971,7 +971,7 @@ void EditorData::script_class_load_icon_paths() {
     script_class_clear_icon_paths();
 
     if (ProjectSettings::get_singleton()->has_setting("_global_script_class_icons")) {
-        Dictionary d = ProjectSettings::get_singleton()->get("_global_script_class_icons");
+        Dictionary d = ProjectSettings::get_singleton()->getT<Dictionary>("_global_script_class_icons");
         Vector<Variant> keys(d.get_key_list());
 
         for (const Variant &E : keys) {
@@ -1017,14 +1017,14 @@ void EditorSelection::add_node(Node *p_node) {
     Object *meta = nullptr;
     for (Object * E :editor_plugins) {
 
-        meta = E->call_va("_get_editor_data", Variant(p_node));
+        meta = E->call_va("_get_editor_data", Variant(p_node)).as<Object *>();
         if (meta) {
             break;
         }
     }
     selection[p_node] = meta;
 
-    p_node->connect("tree_exiting", this, "_node_removed", varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+    p_node->connect("tree_exiting",callable_mp(this, &ClassName::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
 
     //emit_signal("selection_changed");
 }
@@ -1042,7 +1042,7 @@ void EditorSelection::remove_node(Node *p_node) {
     if (meta)
         memdelete(meta);
     selection.erase(p_node);
-    p_node->disconnect("tree_exiting", this, "_node_removed");
+    p_node->disconnect("tree_exiting",callable_mp(this, &ClassName::_node_removed));
     //emit_signal("selection_changed");
 }
 bool EditorSelection::is_selected(Node *p_node) const {

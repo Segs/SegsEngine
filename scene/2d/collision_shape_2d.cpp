@@ -31,6 +31,7 @@
 #include "collision_shape_2d.h"
 
 #include "collision_object_2d.h"
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
@@ -154,7 +155,7 @@ void CollisionShape2D::_notification(int p_what) {
 void CollisionShape2D::set_shape(const Ref<Shape2D> &p_shape) {
 
     if (shape)
-        shape->disconnect("changed", this, "_shape_changed");
+        shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
     shape = p_shape;
     update();
     if (parent) {
@@ -165,7 +166,7 @@ void CollisionShape2D::set_shape(const Ref<Shape2D> &p_shape) {
     }
 
     if (shape)
-        shape->connect("changed", this, "_shape_changed");
+        shape->connect("changed",callable_mp(this, &ClassName::_shape_changed));
 
     update_configuration_warning();
 }

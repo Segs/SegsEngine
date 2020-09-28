@@ -112,18 +112,18 @@ String EditorVCSInterface::_get_vcs_name() {
 
 bool EditorVCSInterface::initialize(StringView p_project_root_path) {
 
-    is_initialized = call_va("_initialize", p_project_root_path);
+    is_initialized = call_va("_initialize", p_project_root_path).as<bool>();
     return is_initialized;
 }
 
 bool EditorVCSInterface::is_vcs_initialized() {
 
-    return call_va("_is_vcs_initialized");
+    return call_va("_is_vcs_initialized").as<bool>();
 }
 
 Dictionary EditorVCSInterface::get_modified_files_data() {
 
-    return call_va("_get_modified_files_data");
+    return call_va("_get_modified_files_data").as<Dictionary>();
 }
 
 void EditorVCSInterface::stage_file(StringView p_file_path) {
@@ -159,24 +159,24 @@ Array EditorVCSInterface::get_file_diff(StringView p_file_path) {
 
     if (is_addon_ready()) {
 
-        return call_va("_get_file_diff", p_file_path);
+        return call_va("_get_file_diff", p_file_path).as<Array>();
     }
     return Array();
 }
 
 bool EditorVCSInterface::shut_down() {
 
-    return call_va("_shut_down");
+    return call_va("_shut_down").as<bool>();
 }
 
 String EditorVCSInterface::get_project_name() {
 
-    return call_va("_get_project_name");
+    return call_va("_get_project_name").as<String>();
 }
 
 String EditorVCSInterface::get_vcs_name() {
 
-    return call_va("_get_vcs_name");
+    return call_va("_get_vcs_name").as<String>();
 }
 
 EditorVCSInterface::EditorVCSInterface() {

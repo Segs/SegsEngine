@@ -250,7 +250,7 @@ public:
 
         if (p_start_mode == START_MODE_CONTINUE_SEQUENCE)
             return 2;
-        else if (p_inputs[0]->operator bool())
+        else if (p_inputs[0]->as<bool>())
             return 0 | STEP_FLAG_PUSH_STACK_BIT;
         else
             return 1 | STEP_FLAG_PUSH_STACK_BIT;
@@ -334,7 +334,7 @@ public:
 
     int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
-        bool keep_going = p_inputs[0]->operator bool();
+        bool keep_going = p_inputs[0]->as<bool>();
 
         if (keep_going)
             return 0 | STEP_FLAG_PUSH_STACK_BIT;
@@ -565,7 +565,7 @@ public:
             p_working_mem[0] = 0;
         }
 
-        int step = p_working_mem[0];
+        int step = p_working_mem[0].as<int>();
 
         *p_outputs[0] = step;
 
@@ -682,7 +682,7 @@ VisualScriptNodeInstance *VisualScriptSwitch::instance(VisualScriptInstance *p_i
 bool VisualScriptSwitch::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "case_count") {
-        case_values.resize(p_value);
+        case_values.resize(p_value.as<int>());
         Object_change_notify(this);
         ports_changed_notify();
         return true;
@@ -693,7 +693,7 @@ bool VisualScriptSwitch::_set(const StringName &p_name, const Variant &p_value) 
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         ERR_FAIL_INDEX_V(idx, case_values.size(), false);
 
-        case_values[idx].type = VariantType(int(p_value));
+        case_values[idx].type = p_value.as<VariantType>();
         Object_change_notify(this);
         ports_changed_notify();
 
@@ -845,7 +845,7 @@ public:
 
     int step(const Variant **p_inputs, Variant **p_outputs, StartMode p_start_mode, Variant *p_working_mem, Callable::CallError &r_error, String &r_error_str) override {
 
-        Object *obj = *p_inputs[0];
+        Object *obj = p_inputs[0]->as<Object *>();
 
         *p_outputs[0] = Variant();
 

@@ -109,7 +109,7 @@ Dictionary Engine::get_version_info() const {
     dict["hash"] = hash.length() == 0 ? Variant("unknown") : Variant(hash);
 
     String stringver = dict["major"].as<String>() + "." + dict["minor"].as<String>();
-    if ((int)dict["patch"] != 0)
+    if (dict["patch"].as<int>() != 0)
         stringver += "." + dict["patch"].as<String>();
     stringver += "-" + dict["status"].as<String>() + " (" + dict["build"].as<String>() + ")";
     dict["string"] = Variant(stringver);

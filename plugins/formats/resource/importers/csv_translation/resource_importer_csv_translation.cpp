@@ -85,7 +85,7 @@ Error ResourceImporterCSVTranslation::import(StringView p_source_file, StringVie
     bool compress = p_options.at("compress").as<bool>();
 
     char delimiter;
-    switch ((int)p_options.at("delimiter")) {
+    switch (p_options.at("delimiter").as<int>()) {
         case 0: delimiter = ','; break;
         case 1: delimiter = ';'; break;
         case 2: delimiter = '\t'; break;

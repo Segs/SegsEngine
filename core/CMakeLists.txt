@@ -103,8 +103,8 @@ set(core_sources
     math/bsp_tree.h
     math/disjoint_set.cpp
     math/disjoint_set.h
-    math/expression.cpp
-    math/expression.h
+    #math/expression.cpp
+    #math/expression.h
     math/octree.h
     math/random_number_generator.cpp
     math/random_number_generator.h
@@ -131,6 +131,11 @@ set(core_sources
 
     class_db.cpp
     class_db.h
+    callable.cpp
+    callable.h
+    callable_method_pointer.cpp
+    callable_method_pointer.h
+
     command_queue_mt.cpp
     command_queue_mt.h
     compressed_translation.cpp

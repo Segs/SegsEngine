@@ -31,6 +31,7 @@
 #include "multiplayer_api.h"
 
 #include "core/io/marshalls.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "scene/main/node.h"
 #include "core/script_language.h"
@@ -308,22 +309,22 @@ void MultiplayerAPI::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_pee
             "Supplied NetworkedMultiplayerPeer must be connecting or connected.");
 
     if (network_peer) {
-        network_peer->disconnect("peer_connected", this, "_add_peer");
-        network_peer->disconnect("peer_disconnected", this, "_del_peer");
-        network_peer->disconnect("connection_succeeded", this, "_connected_to_server");
-        network_peer->disconnect("connection_failed", this, "_connection_failed");
-        network_peer->disconnect("server_disconnected", this, "_server_disconnected");
+        network_peer->disconnect("peer_connected",callable_mp(this, &ClassName::_add_peer));
+        network_peer->disconnect("peer_disconnected",callable_mp(this, &ClassName::_del_peer));
+        network_peer->disconnect("connection_succeeded",callable_mp(this, &ClassName::_connected_to_server));
+        network_peer->disconnect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        network_peer->disconnect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
         clear();
     }
 
     network_peer = p_peer;
 
     if (network_peer) {
-        network_peer->connect("peer_connected", this, "_add_peer");
-        network_peer->connect("peer_disconnected", this, "_del_peer");
-        network_peer->connect("connection_succeeded", this, "_connected_to_server");
-        network_peer->connect("connection_failed", this, "_connection_failed");
-        network_peer->connect("server_disconnected", this, "_server_disconnected");
+        network_peer->connect("peer_connected",callable_mp(this, &ClassName::_add_peer));
+        network_peer->connect("peer_disconnected",callable_mp(this, &ClassName::_del_peer));
+        network_peer->connect("connection_succeeded",callable_mp(this, &ClassName::_connected_to_server));
+        network_peer->connect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        network_peer->connect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
     }
 }
 
@@ -440,10 +441,11 @@ void MultiplayerAPI::_process_rpc(Node *p_node, const StringName &p_name, int p_
     ERR_FAIL_COND_MSG(p_offset >= p_packet_len, "Invalid packet received. Size too small.");
 
     // Check that remote can call the RPC on this node.
+
     MultiplayerAPI_RPCMode rpc_mode = RPC_MODE_DISABLED;
-    const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_name);
-    if (E) {
-        rpc_mode = *E;
+    const MultiplayerAPI_RPCMode E = p_node->get_node_rpc_mode(p_name);
+    if (E!=RPC_MODE_DISABLED) {
+        rpc_mode = E;
     } else if (p_node->get_script_instance()) {
         rpc_mode = p_node->get_script_instance()->get_rpc_mode(p_name);
     }
@@ -492,9 +494,9 @@ void MultiplayerAPI::_process_rset(Node *p_node, const StringName &p_name, int p
 
     // Check that remote can call the RSET on this node.
     MultiplayerAPI_RPCMode rset_mode = RPC_MODE_DISABLED;
-    const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_name);
-    if (E) {
-        rset_mode = *E;
+    const MultiplayerAPI_RPCMode E = p_node->get_node_rset_mode(p_name);
+    if (E!=RPC_MODE_DISABLED) {
+        rset_mode = E;
     } else if (p_node->get_script_instance()) {
         rset_mode = p_node->get_script_instance()->get_rset_mode(p_name);
     }
@@ -533,7 +535,7 @@ void MultiplayerAPI::_process_simplify_path(int p_from, const uint8_t *p_packet,
 
     PathGetCache::NodeInfo ni;
     ni.path = path;
-    ni.instance = 0;
+    ni.instance = ObjectID(0ULL);
 
     path_get_cache[p_from].nodes[id] = ni;
 
@@ -789,9 +791,9 @@ void MultiplayerAPI::rpcp(Node *p_node, int p_peer_id, bool p_unreliable, const 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
 
-        const MultiplayerAPI_RPCMode *E = p_node->get_node_rpc_mode(p_method);
-        if (E) {
-            call_local_native = _should_call_local(*E, is_master, skip_rpc);
+        const MultiplayerAPI_RPCMode E = p_node->get_node_rpc_mode(p_method);
+        if (E!=RPC_MODE_DISABLED) {
+            call_local_native = _should_call_local(E, is_master, skip_rpc);
         }
 
         if (call_local_native) {
@@ -853,10 +855,9 @@ void MultiplayerAPI::rsetp(Node *p_node, int p_peer_id, bool p_unreliable, const
 
     if (p_peer_id == 0 || p_peer_id == node_id || (p_peer_id < 0 && p_peer_id != -node_id)) {
         // Check that send mode can use local call.
-        const MultiplayerAPI_RPCMode *E = p_node->get_node_rset_mode(p_property);
-        if (E) {
-
-            set_local = _should_call_local(*E, is_master, skip_rset);
+        const MultiplayerAPI_RPCMode E = p_node->get_node_rset_mode(p_property);
+        if (E!=RPC_MODE_DISABLED) {
+            set_local = _should_call_local(E, is_master, skip_rset);
         }
 
         if (set_local) {

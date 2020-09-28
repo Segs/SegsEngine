@@ -50,9 +50,9 @@ VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
 
 void AnimationNode::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {
-        Array parameters = get_script_instance()->call("get_parameter_list");
+        Array parameters = get_script_instance()->call("get_parameter_list").as<Array>();
         for (int i = 0; i < parameters.size(); i++) {
-            Dictionary d = parameters[i];
+            Dictionary d = parameters[i].as<Dictionary>();
             ERR_CONTINUE(d.empty());
             r_list->push_back(PropertyInfo::from_dict(d));
         }
@@ -87,12 +87,12 @@ Variant AnimationNode::get_parameter(const StringName &p_name) const {
 void AnimationNode::get_child_nodes(Vector<AnimationNode::ChildNode> *r_child_nodes) {
 
     if (get_script_instance()) {
-        Dictionary cn = get_script_instance()->call("get_child_nodes");
+        Dictionary cn = get_script_instance()->call("get_child_nodes").as<Dictionary>();
         Vector<Variant> keys(cn.get_key_list());
         for (const Variant &E :keys) {
             ChildNode child;
-            child.name = E;
-            child.node = refFromRefPtr<AnimationNode>(cn[E]);
+            child.name = E.as<StringName>();
+            child.node = refFromVariant<AnimationNode>(cn[E]);
             r_child_nodes->push_back(child);
         }
     }
@@ -357,7 +357,7 @@ void AnimationNode::remove_input(int p_index) {
 float AnimationNode::process(float p_time, bool p_seek) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("process", p_time, p_seek);
+        return get_script_instance()->call("process", p_time, p_seek).as<float>();
     }
 
     return 0;
@@ -401,7 +401,7 @@ Array AnimationNode::_get_filters() const {
 void AnimationNode::_set_filters(const Array &p_filters) {
     filter.clear();
     for (int i = 0; i < p_filters.size(); i++) {
-        set_filter_path(p_filters[i], true);
+        set_filter_path(p_filters[i].as<NodePath>(), true);
     }
 }
 
@@ -413,7 +413,7 @@ void AnimationNode::_validate_property(PropertyInfo &property) const {
 
 Ref<AnimationNode> AnimationNode::get_child_by_name(const StringName &p_name) {
     if (get_script_instance()) {
-        return refFromRefPtr<AnimationNode>(get_script_instance()->call("get_child_by_name",p_name));
+        return refFromVariant<AnimationNode>(get_script_instance()->call("get_child_by_name",p_name));
     }
     return Ref<AnimationNode>();
 }
@@ -449,7 +449,7 @@ void AnimationNode::_bind_methods() {
     BIND_VMETHOD(MethodInfo(VariantType::ARRAY, "get_parameter_list"));
     BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "get_child_by_name", PropertyInfo(VariantType::STRING, "name")));
     {
-        MethodInfo mi = MethodInfo(VariantType::NIL, "get_parameter_default_value", PropertyInfo(VariantType::STRING, "name"));
+        MethodInfo mi = MethodInfo(VariantType::NIL, "get_parameter_default_value", PropertyInfo(VariantType::STRING_NAME, "name"));
         mi.return_val.usage = PROPERTY_USAGE_NIL_IS_VARIANT;
         BIND_VMETHOD(mi);
     }
@@ -479,13 +479,13 @@ AnimationNode::AnimationNode() {
 void AnimationTree::set_tree_root(const Ref<AnimationNode> &p_root) {
 
     if (root) {
-        root->disconnect("tree_changed", this, "_tree_changed");
+        root->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
     }
 
     root = p_root;
 
     if (root) {
-        root->connect("tree_changed", this, "_tree_changed");
+        root->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
     }
 
     properties_dirty = true;
@@ -597,8 +597,8 @@ bool AnimationTree::_update_caches(AnimationPlayer *player) {
                     continue;
                 }
 
-                if (!child->is_connected("tree_exited", this, "_node_removed")) {
-                    child->connect("tree_exited", this, "_node_removed", varray(Variant(child)));
+                if (!child->is_connected("tree_exited",callable_mp(this, &ClassName::_node_removed))) {
+                    child->connect("tree_exited",callable_mp(this, &ClassName::_node_removed), varray(Variant(child)));
                 }
 
                 switch (track_type) {
@@ -780,7 +780,7 @@ void AnimationTree::_process_graph(float p_delta) {
 
     AnimationPlayer *player = object_cast<AnimationPlayer>(get_node(animation_player));
 
-    ObjectID current_animation_player = 0;
+    ObjectID current_animation_player = ObjectID(0ULL);
 
     if (player) {
         current_animation_player = player->get_instance_id();
@@ -788,15 +788,15 @@ void AnimationTree::_process_graph(float p_delta) {
 
     if (last_animation_player != current_animation_player) {
 
-        if (last_animation_player) {
+        if (last_animation_player.is_valid()) {
             Object *old_player = gObjectDB().get_instance(last_animation_player);
             if (old_player) {
-                old_player->disconnect("caches_cleared", this, "_clear_caches");
+                old_player->disconnect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }
         }
 
         if (player) {
-            player->connect("caches_cleared", this, "_clear_caches");
+            player->connect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
         }
 
         last_animation_player = current_animation_player;
@@ -1306,19 +1306,19 @@ void AnimationTree::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_EXIT_TREE) {
         _clear_caches();
-        if (last_animation_player) {
+        if (last_animation_player.is_valid()) {
 
             Object *player = gObjectDB().get_instance(last_animation_player);
             if (player) {
-                player->disconnect("caches_cleared", this, "_clear_caches");
+                player->disconnect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }
         }
     } else if (p_what == NOTIFICATION_ENTER_TREE) {
-        if (last_animation_player) {
+        if (last_animation_player.is_valid()) {
 
             Object *player = gObjectDB().get_instance(last_animation_player);
             if (player) {
-                player->connect("caches_cleared", this, "_clear_caches");
+                player->connect("caches_cleared",callable_mp(this, &ClassName::_clear_caches));
             }
         }
     }

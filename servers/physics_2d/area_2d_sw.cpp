@@ -129,14 +129,14 @@ void Area2DSW::set_space_override_mode(PhysicsServer2D::AreaSpaceOverrideMode p_
 void Area2DSW::set_param(PhysicsServer2D::AreaParameter p_param, const Variant &p_value) {
 
     switch (p_param) {
-        case PhysicsServer2D::AREA_PARAM_GRAVITY: gravity = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_VECTOR: gravity_vector = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_IS_POINT: gravity_is_point = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_DISTANCE_SCALE: gravity_distance_scale = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_GRAVITY_POINT_ATTENUATION: point_attenuation = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_LINEAR_DAMP: linear_damp = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_ANGULAR_DAMP: angular_damp = p_value; break;
-        case PhysicsServer2D::AREA_PARAM_PRIORITY: priority = p_value; break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY: gravity = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_VECTOR: gravity_vector = p_value.as<Vector2>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_IS_POINT: gravity_is_point = p_value.as<bool>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_DISTANCE_SCALE: gravity_distance_scale = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_GRAVITY_POINT_ATTENUATION: point_attenuation = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_LINEAR_DAMP: linear_damp = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_ANGULAR_DAMP: angular_damp = p_value.as<float>(); break;
+        case PhysicsServer2D::AREA_PARAM_PRIORITY: priority = p_value.as<float>(); break;
     }
 }
 
@@ -175,7 +175,7 @@ void Area2DSW::set_monitorable(bool p_monitorable) {
 
 void Area2DSW::call_queries() {
 
-    if (monitor_callback_id && !monitored_bodies.empty()) {
+    if (monitor_callback_id.is_valid() && !monitored_bodies.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
@@ -197,7 +197,7 @@ void Area2DSW::call_queries() {
 
             res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
             res[1] = iter->first.rid;
-            res[2] = iter->first.instance_id;
+            res[2] = Variant::from(iter->first.instance_id);
             res[3] = iter->first.body_shape;
             res[4] = iter->first.area_shape;
 
@@ -210,7 +210,7 @@ void Area2DSW::call_queries() {
 
     monitored_bodies.clear();
 
-    if (area_monitor_callback_id && !monitored_areas.empty()) {
+    if (area_monitor_callback_id.is_valid() && !monitored_areas.empty()) {
 
         Variant res[5];
         Variant *resptr[5];
@@ -231,11 +231,11 @@ void Area2DSW::call_queries() {
             }
             res[0] = iter->second.state > 0 ? PhysicsServer2D::AREA_BODY_ADDED : PhysicsServer2D::AREA_BODY_REMOVED;
             res[1] = iter->first.rid;
-            res[2] = iter->first.instance_id;
+            res[2] = Variant::from(iter->first.instance_id);
             res[3] = iter->first.body_shape;
             res[4] = iter->first.area_shape;
 
-            iter = monitored_bodies.erase(iter);
+            iter = monitored_areas.erase(iter);
             Callable::CallError ce;
             obj->call(area_monitor_callback_method, (const Variant **)resptr, 5, ce);
         }

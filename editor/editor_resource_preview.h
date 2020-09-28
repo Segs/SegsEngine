@@ -65,8 +65,7 @@ class GODOT_EXPORT EditorResourcePreview : public Node {
     struct QueueItem {
         Ref<Resource> resource;
         String path;
-        ObjectID id;
-        StringName function;
+        Callable callable;
         Variant userdata;
     };
     struct Item {
@@ -88,7 +87,7 @@ class GODOT_EXPORT EditorResourcePreview : public Node {
     Map<String, Item> cache;
     Vector<Ref<EditorResourcePreviewGenerator> > preview_generators;
 
-    void _preview_ready(StringView p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, ObjectID id, const StringName &p_func, const Variant &p_ud);
+    void _preview_ready(StringView p_str, const Ref<Texture> &p_texture, const Ref<Texture> &p_small_texture, const Callable &callit, const Variant &p_ud);
     void _generate_preview(Ref<ImageTexture> &r_texture, Ref<ImageTexture> &r_small_texture, const QueueItem &p_item, StringView cache_base);
 
     static void _thread_func(void *ud);
@@ -102,8 +101,8 @@ public:
     static EditorResourcePreview *get_singleton();
 
     //callback function is callback(String p_path,Ref<Texture> preview,Variant udata) preview null if could not load
-    void queue_resource_preview(StringView p_path, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata);
-    void queue_edited_resource_preview(const Ref<Resource> &p_res, Object *p_receiver, const StringName &p_receiver_func, const Variant &p_userdata);
+    void queue_resource_preview(StringView p_path, const Callable &callback, const Variant &p_userdata);
+    void queue_edited_resource_preview(const Ref<Resource> &p_res, const Callable &entry, const Variant &p_userdata);
 
     void add_preview_generator(const Ref<EditorResourcePreviewGenerator> &p_generator);
     void remove_preview_generator(const Ref<EditorResourcePreviewGenerator> &p_generator);

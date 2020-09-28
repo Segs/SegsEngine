@@ -1045,7 +1045,7 @@ bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringUtils::begins_with(p_name,"fallback/")) {
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
-        Ref<DynamicFontData> fd = refFromRefPtr<DynamicFontData>(p_value);
+        Ref<DynamicFontData> fd = refFromVariant<DynamicFontData>(p_value);
 
         if (fd) {
             if (idx == fallbacks.size()) {

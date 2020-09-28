@@ -171,6 +171,25 @@ void TypeRegistrationPass::visitMethodInterface(const MethodInterface *fi) {
     //  assert(false);
 }
 
+void TypeRegistrationPass::visitSignalInterface(const SignalInterface *fi) {
+    TS_TypeLike *tgt;
+    if (m_type_stack.empty()) {
+        assert(!m_namespace_stack.empty());
+        tgt = m_namespace_stack.back();
+    } else {
+        tgt = m_type_stack.back();
+    }
+    assert(tgt->kind()==TS_TypeLike::CLASS);
+    TS_Signal *sig = TS_Signal::from_rd((TS_Type *)tgt, fi);
+    if(sig->m_imported) // available in imported partial class
+        return;
+    sig->m_imported = m_currently_visiting_imported;
+
+    tgt->m_signals.emplace_back(sig);
+
+    //  assert(false);
+}
+
 void TypeRegistrationPass::visitTypeProperty(const PropertyInterface *pi) {
     // TODO: mark both setter and getter as do-not-generate
 
@@ -324,9 +343,12 @@ void TypeRegistrationPass::registerTypeDetails(const TS_Type *type) {
     for (const MethodInterface &mi : type->source_type->methods) {
         visitMethodInterface(&mi);
     }
-
     for (const PropertyInterface &pi : type->source_type->properties) {
         visitTypeProperty(&pi);
+    }
+
+    for (const SignalInterface &mi : type->source_type->signals_) {
+        visitSignalInterface(&mi);
     }
     m_type_stack.pop_back();
 }

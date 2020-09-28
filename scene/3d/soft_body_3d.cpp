@@ -134,7 +134,7 @@ bool SoftBody3D::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringView("pinned_points") == which) {
 
-        return _set_property_pinned_points_indices(p_value);
+        return _set_property_pinned_points_indices(p_value.as<Array>());
 
     } else if (StringView("attachments") == which) {
 
@@ -205,7 +205,7 @@ bool SoftBody3D::_set_property_pinned_points_indices(const Array &p_indices) {
     PoolVector<PinnedPoint>::Write w = pinned_points.write();
     int point_index;
     for (int i = 0; i < p_indices_size; ++i) {
-        point_index = p_indices.get(i);
+        point_index = p_indices.get(i).as<int>();
         if (w[i].point_index != point_index) {
             if (-1 != w[i].point_index)
                 pin_point(w[i].point_index, false);
@@ -223,11 +223,11 @@ bool SoftBody3D::_set_property_pinned_points_attachment(int p_item, StringView p
 
     if (StringView("spatial_attachment_path") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
-        pin_point(w[p_item].point_index, true, p_value);
+        pin_point(w[p_item].point_index, true, p_value.as<NodePath>());
         _make_cache_dirty();
     } else if (StringView("offset") == p_what) {
         PoolVector<PinnedPoint>::Write w = pinned_points.write();
-        w[p_item].offset = p_value;
+        w[p_item].offset = p_value.as<Vector3>();
     } else {
         return false;
     }
@@ -471,12 +471,12 @@ void SoftBody3D::prepare_physics_server() {
 
         become_mesh_owner();
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, get_mesh());
-        RS->connect("frame_pre_draw", this, "_draw_soft_mesh");
+        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh));
     } else {
 
         PhysicsServer3D::get_singleton()->soft_body_set_mesh(physics_rid, REF());
-        if(RS->is_connected("frame_pre_draw", this, "_draw_soft_mesh")) {
-            RS->disconnect("frame_pre_draw", this, "_draw_soft_mesh");
+        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh))) {
+            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_draw_soft_mesh));
         }
     }
 }

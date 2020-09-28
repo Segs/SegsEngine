@@ -87,7 +87,7 @@ void SkeletonEditor::create_physical_skeleton() {
 
                 bones_infos[parent].physical_bone = create_physical_bone(parent, bone_id, bones_infos);
 
-                ur->create_action_ui(TTR("Create physical bones"));
+                ur->create_action(TTR("Create physical bones"));
                 ur->add_do_method(skeleton, "add_child", Variant(bones_infos[parent].physical_bone));
                 ur->add_do_reference(bones_infos[parent].physical_bone);
                 ur->add_undo_method(skeleton, "remove_child", Variant(bones_infos[parent].physical_bone));
@@ -140,7 +140,7 @@ void SkeletonEditor::edit(Skeleton *p_node) {
 
 void SkeletonEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        get_tree()->connect("node_removed", this, "_node_removed");
+        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
 
@@ -167,7 +167,7 @@ SkeletonEditor::SkeletonEditor() {
 
     options->get_popup()->add_item(TTR("Create physical skeleton"), MENU_OPTION_CREATE_PHYSICAL_SKELETON);
 
-    options->get_popup()->connect("id_pressed", this, "_on_click_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_on_click_option));
     options->hide();
 }
 

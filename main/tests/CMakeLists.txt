@@ -1,6 +1,6 @@
 set(tests_sources)
 file(GLOB test_sources "*.cpp")
-
+ 
 foreach(tgt ${global_targets})
     add_library(${tgt}_tests STATIC ${test_sources})
     target_link_libraries(${tgt}_tests PRIVATE ${tgt}_core)

@@ -56,13 +56,13 @@ int RegExMatch::_find(const Variant &p_name) const {
 
     if (p_name.is_num()) {
 
-        int i = (int)p_name;
+        int i = p_name.as<int>();
         if (i >= data.size())
             return -1;
         return i;
 
     } else if (p_name.get_type() == VariantType::STRING) {
-        return names.at(p_name,-1);
+        return names.at(p_name.as<String>(),-1);
     }
 
     return -1;

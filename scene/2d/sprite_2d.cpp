@@ -30,6 +30,7 @@
 
 #include "sprite_2d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "core/os/os.h"
@@ -47,7 +48,7 @@ Dictionary Sprite2D::_edit_get_state() const {
 
 void Sprite2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
-    set_offset(p_state["offset"]);
+    set_offset(p_state["offset"].as<Vector2>());
 }
 
 void Sprite2D::_edit_set_pivot(const Point2 &p_pivot) {
@@ -147,12 +148,12 @@ void Sprite2D::set_texture(const Ref<Texture> &p_texture) {
         return;
 
     if (texture)
-        texture->disconnect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Sprite2D::_texture_changed));
 
     texture = p_texture;
 
     if (texture)
-        texture->connect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Sprite2D::_texture_changed));
 
     update();
     emit_signal("texture_changed");

@@ -99,19 +99,19 @@ void Control::_edit_set_state(const Dictionary &p_state) {
 
     Dictionary state = p_state;
 
-    set_rotation(state["rotation"]);
-    set_scale(state["scale"]);
-    set_pivot_offset(state["pivot"]);
-    Array anchors = state["anchors"];
-    data.anchor[(int8_t)Margin::Left] = anchors[0];
-    data.anchor[(int8_t)Margin::Top] = anchors[1];
-    data.anchor[(int8_t)Margin::Right] = anchors[2];
-    data.anchor[(int8_t)Margin::Bottom] = anchors[3];
-    Array margins = state["margins"];
-    data.margin[(int8_t)Margin::Left] = margins[0];
-    data.margin[(int8_t)Margin::Top] = margins[1];
-    data.margin[(int8_t)Margin::Right] = margins[2];
-    data.margin[(int8_t)Margin::Bottom] = margins[3];
+    set_rotation(state["rotation"].as<float>());
+    set_scale(state["scale"].as<Vector2>());
+    set_pivot_offset(state["pivot"].as<Vector2>());
+    Array anchors = state["anchors"].as<Array>();
+    data.anchor[(int8_t)Margin::Left] = anchors[0].as<float>();
+    data.anchor[(int8_t)Margin::Top] = anchors[1].as<float>();
+    data.anchor[(int8_t)Margin::Right] = anchors[2].as<float>();
+    data.anchor[(int8_t)Margin::Bottom] = anchors[3].as<float>();
+    Array margins = state["margins"].as<Array>();
+    data.margin[(int8_t)Margin::Left] = margins[0].as<float>();
+    data.margin[(int8_t)Margin::Top] = margins[1].as<float>();
+    data.margin[(int8_t)Margin::Right] = margins[2].as<float>();
+    data.margin[(int8_t)Margin::Bottom] = margins[3].as<float>();
     _size_changed();
 }
 
@@ -247,25 +247,25 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
         if (StringUtils::begins_with(name,"custom_icons/")) {
             if (data.icon_override.contains(dname)) {
-                data.icon_override[dname]->disconnect("changed", this, "_override_changed");
+                data.icon_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
             if (data.shader_override.contains(dname)) {
-                data.shader_override[dname]->disconnect("changed", this, "_override_changed");
+                data.shader_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
             if (data.style_override.contains(dname)) {
-                data.style_override[dname]->disconnect("changed", this, "_override_changed");
+                data.style_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
             if (data.font_override.contains(dname)) {
-                data.font_override[dname]->disconnect("changed", this, "_override_changed");
+                data.font_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
@@ -280,17 +280,17 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
     } else {
         if (StringUtils::begins_with(name,"custom_icons/")) {
-            add_icon_override(dname, refFromRefPtr<Texture>(p_value));
+            add_icon_override(dname, refFromVariant<Texture>(p_value));
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
-            add_shader_override(dname, refFromRefPtr<Shader>(p_value));
+            add_shader_override(dname, refFromVariant<Shader>(p_value));
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            add_style_override(dname, refFromRefPtr<StyleBox>(p_value));
+            add_style_override(dname, refFromVariant<StyleBox>(p_value));
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
-            add_font_override(dname, refFromRefPtr<Font>(p_value));
+            add_font_override(dname, refFromVariant<Font>(p_value));
         } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            add_color_override(dname, p_value);
+            add_color_override(dname, p_value.as<Color>());
         } else if (StringUtils::begins_with(name,"custom_constants/")) {
-            add_constant_override(dname, p_value);
+            add_constant_override(dname, p_value.as<int>());
         } else
             return false;
     }
@@ -561,10 +561,10 @@ void Control::_notification(int p_notification) {
 
                 if (data.parent_canvas_item) {
 
-                    data.parent_canvas_item->connect("item_rect_changed", this, "_size_changed");
+                    data.parent_canvas_item->connect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 } else {
                     //connect viewport
-                    get_viewport()->connect("size_changed", this, "_size_changed");
+                    get_viewport()->connect("size_changed",callable_mp(this, &ClassName::_size_changed));
                 }
             }
 
@@ -580,11 +580,11 @@ void Control::_notification(int p_notification) {
 
             if (data.parent_canvas_item) {
 
-                data.parent_canvas_item->disconnect("item_rect_changed", this, "_size_changed");
+                data.parent_canvas_item->disconnect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 data.parent_canvas_item = nullptr;
             } else if (!is_set_as_toplevel()) {
                 //disconnect viewport
-                get_viewport()->disconnect("size_changed", this, "_size_changed");
+                get_viewport()->disconnect("size_changed",callable_mp(this, &ClassName::_size_changed));
             }
 
             if (data.MI != nullptr) {
@@ -696,7 +696,7 @@ void Control::_notification(int p_notification) {
 bool Control::clips_input() const {
 
     if (get_script_instance()) {
-        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input);
+        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input).as<bool>();
     }
     return false;
 }
@@ -708,7 +708,7 @@ bool Control::has_point(const Point2 &p_point) const {
         Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK) {
-            return ret;
+            return ret.as<bool>();
         }
     }
     /*if (has_stylebox("mask")) {
@@ -728,7 +728,7 @@ void Control::set_drag_forwarding(Control *p_target) {
 
 Variant Control::get_drag_data(const Point2 &p_point) {
 
-    if (data.drag_owner) {
+    if (data.drag_owner.is_valid()) {
         Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
@@ -750,11 +750,11 @@ Variant Control::get_drag_data(const Point2 &p_point) {
 
 bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 
-    if (data.drag_owner) {
+    if (data.drag_owner.is_valid()) {
         Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
-            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this));
+            return c->call_va("can_drop_data_fw", p_point, p_data, Variant(this)).as<bool>();
         }
     }
 
@@ -764,14 +764,14 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Callable::CallError ce;
         Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
-            return ret;
+            return ret.as<bool>();
     }
 
-    return Variant();
+    return false;
 }
 void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
 
-    if (data.drag_owner) {
+    if (data.drag_owner.is_valid()) {
         Object *obj = gObjectDB().get_instance(data.drag_owner);
         if (obj) {
             Control *c = object_cast<Control>(obj);
@@ -826,7 +826,7 @@ Size2 Control::get_minimum_size() const {
         Callable::CallError ce;
         Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
         if (ce.error == Callable::CallError::CALL_OK)
-            return s;
+            return s.as<Vector2>();
     }
     return Size2();
 }
@@ -1904,7 +1904,7 @@ Rect2 Control::get_anchorable_rect() const {
 void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_icon) {
 
     if (data.icon_override.contains(p_name)) {
-        data.icon_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.icon_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a icon
@@ -1913,7 +1913,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
     } else {
         data.icon_override[p_name] = p_icon;
         if (data.icon_override[p_name]) {
-            data.icon_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.icon_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1922,7 +1922,7 @@ void Control::add_icon_override(const StringName &p_name, const Ref<Texture> &p_
 void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p_shader) {
 
     if (data.shader_override.contains(p_name)) {
-        data.shader_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.shader_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a shader
@@ -1931,7 +1931,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     } else {
         data.shader_override[p_name] = p_shader;
         if (data.shader_override[p_name]) {
-            data.shader_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.shader_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1939,7 +1939,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
 void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
 
     if (data.style_override.contains(p_name)) {
-        data.style_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.style_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a style
@@ -1948,7 +1948,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
     } else {
         data.style_override[p_name] = p_style;
         if (data.style_override[p_name]) {
-            data.style_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.style_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1957,7 +1957,7 @@ void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &
 void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_font) {
 
     if (data.font_override.contains(p_name)) {
-        data.font_override[p_name]->disconnect("changed", this, "_override_changed");
+        data.font_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
     }
 
     // clear if "null" is passed instead of a font
@@ -1966,7 +1966,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     } else {
         data.font_override[p_name] = p_font;
         if (data.font_override[p_name]) {
-            data.font_override[p_name]->connect("changed", this, "_override_changed", null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
+            data.font_override[p_name]->connect("changed",callable_mp(this, &ClassName::_override_changed), null_variant_pvec, ObjectNS::CONNECT_REFERENCE_COUNTED);
         }
     }
     notification(NOTIFICATION_THEME_CHANGED);
@@ -2282,7 +2282,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
         return;
 
     if (data.theme) {
-        data.theme->disconnect("changed", this, "_theme_changed");
+        data.theme->disconnect("changed",callable_mp(this, &ClassName::_theme_changed));
     }
 
     data.theme = p_theme;
@@ -2302,7 +2302,7 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
     }
 
     if (data.theme) {
-        data.theme->connect("changed", this, "_theme_changed", varray(), ObjectNS::CONNECT_QUEUED);
+        data.theme->connect("changed",callable_mp(this, &ClassName::_theme_changed), varray(), ObjectNS::CONNECT_QUEUED);
     }
 }
 
@@ -2329,7 +2329,7 @@ StringName Control::get_tooltip(const Point2 &p_pos) const {
 }
 Control *Control::make_custom_tooltip(StringView p_text) const {
     if (get_script_instance()) {
-        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text);
+        return const_cast<Control *>(this)->call_va("_make_custom_tooltip", p_text).as<Control *>();
     }
     return nullptr;
 }
@@ -2756,7 +2756,7 @@ bool Control::is_visibility_clip_disabled() const {
 void Control::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
     using namespace eastl;
 #ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char * quote_style = "\"";
 #endif
@@ -2902,7 +2902,7 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);
 
     MethodBinder::bind_method(D_METHOD("get_icon", {"name", "type"}), &Control::get_icon, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL(StringName())});
     MethodBinder::bind_method(D_METHOD("get_font", {"name", "type"}), &Control::get_font, {DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_color", {"name", "type"}), &Control::get_color, {DEFVAL("")});
     MethodBinder::bind_method(D_METHOD("get_constant", {"name", "type"}), &Control::get_constant, {DEFVAL("")});

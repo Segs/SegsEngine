@@ -412,7 +412,7 @@ Vector<float> Collada::_read_float_array(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             array = StringUtils::split_floats_mk(str,StringView(splitters,4), false);
             //array=str.split_floats(" ",false);
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END)
@@ -434,7 +434,7 @@ Vector<String> Collada::_read_string_array(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse string data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             auto arrayv = StringUtils::split_spaces(str);
             for (auto entry : arrayv)
                 array.emplace_back(entry);
@@ -457,7 +457,7 @@ Transform Collada::_read_transform(XMLParser &parser) {
 
         if (parser.get_node_type() == XMLParser::NODE_TEXT) {
             // parse float data
-            String str = parser.get_node_data();
+            const String& str = parser.get_node_data();
             auto arrayv = StringUtils::split_spaces(str);
             for (auto entry : arrayv)
                 array.emplace_back(entry);
@@ -651,16 +651,16 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                                     } else if (parser.get_node_name() == "texture") {
 
-                                        String sampler = parser.get_attribute_value("texture");
+                                        const String& sampler = parser.get_attribute_value("texture");
                                         if (!effect.params.contains(sampler)) {
                                             ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                                         } else {
-                                            String surface = effect.params[sampler];
+                                            String surface = effect.params[sampler].as<String>();
 
                                             if (!effect.params.contains(surface)) {
                                                 ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id);
                                             } else {
-                                                String uri = effect.params[surface];
+                                                String uri = effect.params[surface].as<String>();
 
                                                 if (what == "diffuse") {
                                                     effect.diffuse.texture = uri;
@@ -687,7 +687,7 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
                             }
 
                         } else if (what == "shininess") {
-                            effect.shininess = _parse_param(parser);
+                            effect.shininess = _parse_param(parser).as<float>();
                         }
                     } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END && (parser.get_node_name() == "constant" ||
                                                                                                 parser.get_node_name() == "lambert" ||
@@ -714,16 +714,16 @@ void Collada::_parse_effect_material(XMLParser &parser, Effect &effect, String &
 
                         if (parser.get_node_name() == "texture") {
 
-                            String sampler = parser.get_attribute_value("texture");
+                            const String& sampler = parser.get_attribute_value("texture");
                             if (!effect.params.contains(sampler)) {
                                 ERR_PRINT("Couldn't find sampler: " + sampler + " in material:" + id);
                             } else {
-                                String surface = effect.params[sampler];
+                                String surface = effect.params[sampler].as<String>();
 
                                 if (!effect.params.contains(surface)) {
                                     ERR_PRINT("Couldn't find surface: " + surface + " in material:" + id);
                                 } else {
-                                    String uri = effect.params[surface];
+                                    String uri = effect.params[surface].as<String>();
 
                                     if (parser.has_attribute("bumptype") && parser.get_attribute_value("bumptype") != "NORMALMAP") {
                                         WARN_PRINT("'bump' texture type is not NORMALMAP, only NORMALMAP is supported.");

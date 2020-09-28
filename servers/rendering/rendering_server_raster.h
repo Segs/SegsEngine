@@ -705,7 +705,7 @@ public:
 
     void call_set_use_vsync(bool p_enable) override;
 
-    bool is_low_end() const override;
+    // bool is_low_end() const override;
 
     GODOT_EXPORT VisualServerRaster();
     GODOT_EXPORT ~VisualServerRaster() override;

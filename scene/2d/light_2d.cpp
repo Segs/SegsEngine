@@ -50,7 +50,7 @@ Dictionary Light2D::_edit_get_state() const {
 
 void Light2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
-    set_texture_offset(p_state["offset"]);
+    set_texture_offset(p_state["offset"].as<Vector2>());
 }
 
 void Light2D::_edit_set_pivot(const Point2 &p_pivot) {

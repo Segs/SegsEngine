@@ -50,7 +50,7 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
         if (what == "name"_sv)
             set_item_name(idx, p_value.as<String>());
         else if (what == "mesh"_sv)
-            set_item_mesh(idx, refFromRefPtr<Mesh>(p_value));
+            set_item_mesh(idx, refFromVariant<Mesh>(p_value));
         else if (what == "shape"_sv) {
             PoolVector<ShapeData> shapes;
             ShapeData sd;
@@ -58,13 +58,13 @@ bool MeshLibrary::_set(const StringName &p_name, const Variant &p_value) {
             shapes.push_back(sd);
             set_item_shapes(idx, shapes);
         } else if (what == "shapes"_sv) {
-            _set_item_shapes(idx, p_value);
+            _set_item_shapes(idx, p_value.as<Array>());
         } else if (what == "preview"_sv)
-            set_item_preview(idx, refFromRefPtr<Texture>(p_value));
+            set_item_preview(idx, refFromVariant<Texture>(p_value));
         else if (what == "navmesh"_sv)
-            set_item_navmesh(idx, refFromRefPtr<NavigationMesh>(p_value));
+            set_item_navmesh(idx, refFromVariant<NavigationMesh>(p_value));
         else if (what == "navmesh_transform"_sv)
-            set_item_navmesh_transform(idx, p_value);
+            set_item_navmesh_transform(idx, p_value.as<Transform>());
         else
             return false;
 
@@ -277,7 +277,7 @@ void MeshLibrary::_set_item_shapes(int p_item, const Array &p_shapes) {
     for (int i = 0; i < p_shapes.size(); i += 2) {
         ShapeData sd;
         sd.shape = refFromVariant<Shape>(p_shapes[i + 0]);
-        sd.local_transform = p_shapes[i + 1];
+        sd.local_transform = p_shapes[i + 1].as<Transform>();
 
         if (sd.shape) {
             shapes.push_back(sd);

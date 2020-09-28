@@ -62,10 +62,10 @@ class GODOT_EXPORT WindowDialog : public Popup {
     bool was_editor_dimmed;
 #endif
     void _gui_input(const Ref<InputEvent> &p_event);
-    void _closed();
     int _drag_hit_test(const Point2 &pos) const;
 
 protected:
+    void _closed();
     void _post_popup() override;
     void _fix_size() override;
     virtual void _close_pressed() {}
@@ -110,14 +110,15 @@ class GODOT_EXPORT AcceptDialog : public WindowDialog {
     Button *ok;
     bool hide_on_ok;
 
-    void _custom_action(StringView p_action);
-    void _ok_pressed();
+    void _custom_action(const StringName &p_action);
     void _close_pressed() override;
     void _builtin_text_entered(StringView p_text);
     void _update_child_rects();
 
     static bool swap_ok_cancel;
-
+public: // slots
+    void _ok_pressed();
+    void _cancel_pressed();
 protected:
     void _post_popup() override;
     void _notification(int p_what);

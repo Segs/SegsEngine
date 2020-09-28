@@ -410,8 +410,8 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
     ERR_FAIL_COND(!p_data.has("segments"));
     ERR_FAIL_COND(!p_data.has("bounds"));
 
-    PoolVector<Vector2> p = p_data["points"];
-    Array c = p_data["connections"];
+    PoolVector<Vector2> p = p_data["points"].as<PoolVector<Vector2>>();
+    Array c = p_data["connections"].as<Array>();
 
     ERR_FAIL_COND(c.size() != p.size());
     if (!c.empty())
@@ -423,7 +423,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
     PoolVector<Vector2>::Read pr = p.read();
     for (int i = 0; i < pc; i++) {
         points[i].pos = pr[i];
-        PoolVector<int> con = c[i];
+        PoolVector<int> con = c[i].as<PoolVector<int>>();
         PoolVector<int>::Read cr = con.read();
         int cc = con.size();
         for (int j = 0; j < cc; j++) {
@@ -434,7 +434,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
 
     if (p_data.has("penalties")) {
 
-        PoolVector<float> penalties = p_data["penalties"];
+        PoolVector<float> penalties = p_data["penalties"].as<PoolVector<float>>();
         if (penalties.size() == pc) {
             PoolVector<float>::Read pr2 = penalties.read();
             for (int i = 0; i < pc; i++) {
@@ -443,7 +443,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
         }
     }
 
-    PoolVector<int> segs = p_data["segments"];
+    PoolVector<int> segs = p_data["segments"].as<PoolVector<int>>();
     int sc = segs.size();
     ERR_FAIL_COND(sc & 1);
     PoolVector<int>::Read sr = segs.read();
@@ -452,7 +452,7 @@ void PolygonPathFinder::_set_data(const Dictionary &p_data) {
         Edge e(sr[i], sr[i + 1]);
         edges.insert(e);
     }
-    bounds = p_data["bounds"];
+    bounds = p_data["bounds"].as<Rect2>();
 }
 
 Dictionary PolygonPathFinder::_get_data() const {

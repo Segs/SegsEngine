@@ -21,7 +21,7 @@ class RefPtr;
     void Object_add_tool_properties(Vector<PropertyInfo> *p_list);
     IObjectTooling * create_tooling_for(Object *self);
     void relase_tooling(IObjectTooling *);
-    bool Object_script_signal_validate(RefPtr self);
+    bool Object_script_signal_validate(const RefPtr &self);
     bool Object_allow_disconnect(uint32_t f);
     void Object_add_tooling_methods();
 #else
@@ -32,15 +32,20 @@ class RefPtr;
     inline constexpr void Object_remove_change_receptor(Object *self,Object *p_receptor) {}
     inline constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version=true) {}
     inline constexpr bool Object_set_fallback(Object *self,const StringName &p_name,const Variant &p_value) {return false;}
-    inline constexpr Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
+    inline Variant Object_get_fallback(const Object *self, const StringName &p_name, bool &r_valid) { r_valid=false; return {};}
     inline constexpr void Object_add_tool_properties(List<PropertyInfo> *) {}
-    inline constexpr bool Object_script_signal_validate(RefPtr self) { return false; }
+    inline constexpr bool Object_script_signal_validate(const RefPtr & self) { return false; }
     inline constexpr bool Object_allow_disconnect(ObjectNS::ConnectFlags f) { return true; }
     inline constexpr void Object_add_tooling_methods() {}
 #endif
 
 class GODOT_EXPORT IObjectTooling {
+#ifdef TOOLS_ENABLED
     friend void Object_set_edited(Object *self,bool p_edited,bool increment_version);
+#else
+    friend constexpr void Object_set_edited(Object *self,bool p_edited,bool increment_version);
+#endif
+
 public:
     virtual bool is_edited() const = 0;
     //! this function is used to check when something changed beyond a point, it's used mainly for generating previews

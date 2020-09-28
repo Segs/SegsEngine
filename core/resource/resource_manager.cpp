@@ -97,7 +97,7 @@ struct ResourceManagerPriv {
             return res;
         }
         ERR_FAIL_COND_V_MSG(found, RES(),
-                    String("Failed loading resource: %s") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
+                    String("Failed loading resource: ") +p_path+". Make sure resources have been imported by opening the project in the editor at least once.");
 
     #ifdef TOOLS_ENABLED
         FileAccessRef file_check = FileAccess::create(FileAccess::ACCESS_RESOURCES);
@@ -922,11 +922,11 @@ void ResourceRemapper::load_translation_remaps() {
     if (!ProjectSettings::get_singleton()->has_setting("locale/translation_remaps"))
         return;
 
-    Dictionary remaps = ProjectSettings::get_singleton()->get("locale/translation_remaps");
+    Dictionary remaps = ProjectSettings::get_singleton()->getT<Dictionary>("locale/translation_remaps");
     Vector<Variant> keys(remaps.get_key_list());
     for (const Variant& E : keys) {
 
-        Array langs = remaps[E];
+        Array langs = remaps[E].as<Array>();
         Vector<String> lang_remaps;
         lang_remaps.reserve(langs.size());
         for (int i = 0; i < langs.size(); i++) {
@@ -947,7 +947,7 @@ void ResourceRemapper::load_path_remaps() {
     if (!ProjectSettings::get_singleton()->has_setting("path_remap/remapped_paths"))
         return;
 
-    PoolVector<String> remaps = ProjectSettings::get_singleton()->get("path_remap/remapped_paths");
+    PoolVector<String> remaps = ProjectSettings::get_singleton()->getT<PoolVector<String>>("path_remap/remapped_paths");
     int rc = remaps.size();
     ERR_FAIL_COND(rc & 1); //must be even
     PoolVector<String>::Read r = remaps.read();

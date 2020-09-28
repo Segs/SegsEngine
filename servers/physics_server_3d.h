@@ -499,7 +499,7 @@ public:
         Variant collider_metadata;
         MotionResult() {
             collision_local_shape = 0;
-            collider_id = 0;
+            collider_id = ObjectID(0ULL);
             collider_shape = 0;
         }
     };

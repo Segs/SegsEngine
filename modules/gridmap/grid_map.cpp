@@ -51,11 +51,11 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (name == "data"_sv) {
 
-        Dictionary d = p_value;
+        Dictionary d = p_value.as<Dictionary>();
 
         if (d.has("cells")) {
 
-            PoolVector<int> cells = d["cells"];
+            PoolVector<int> cells = d["cells"].as<PoolVector<int>>();
             int amount = cells.size();
             PoolVector<int>::Read r = cells.read();
             ERR_FAIL_COND_V(amount % 3, false); // not even
@@ -76,11 +76,11 @@ bool GridMap::_set(const StringName &p_name, const Variant &p_value) {
 
         clear_baked_meshes();
 
-        Array meshes = p_value;
+        Array meshes = p_value.as<Array>();
 
         for (int i = 0; i < meshes.size(); i++) {
             BakedMesh bm;
-            bm.mesh = refFromRefPtr<Mesh>(meshes[i]);
+            bm.mesh = refFromVariant<Mesh>(meshes[i]);
             ERR_CONTINUE(not bm.mesh);
             auto vserver=RenderingServer::get_singleton();
             bm.instance = vserver->instance_create();
@@ -1075,7 +1075,7 @@ void GridMap::make_baked_meshes(bool p_gen_lightmap_uv, float p_lightmap_uv_texe
         }
     }
 
-    for (const eastl::pair<OctantKey, Map<Ref<Material>, Ref<SurfaceTool> > > &E : surface_map) {
+    for (const eastl::pair<const OctantKey, Map<Ref<Material>, Ref<SurfaceTool> > > &E : surface_map) {
 
         Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
         for (eastl::pair<const Ref<Material>,Ref<SurfaceTool> > F : E.second) {

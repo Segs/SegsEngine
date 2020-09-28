@@ -185,10 +185,10 @@ T *unbox_addr(MonoObject *p_obj) {
 #define BOX_PTR(x) mono_value_box(mono_domain_get(), CACHED_CLASS_RAW(IntPtr), x)
 #define BOX_ENUM(m_enum_class, x) mono_value_box(mono_domain_get(), m_enum_class, &x)
 
-VariantType managed_to_variant_type(const ManagedType &p_type);
+GODOT_EXPORT VariantType managed_to_variant_type(const ManagedType &p_type, bool *r_nil_is_variant = nullptr);
 
 bool try_get_array_element_type(const ManagedType &p_array_type, ManagedType &r_elem_type);
-bool try_get_dictionary_key_value_types(const ManagedType &p_dictionary_type, ManagedType &r_key_type, ManagedType &r_value_type);
+
 
 // String
 
@@ -200,8 +200,9 @@ _FORCE_INLINE_ String mono_string_to_godot_not_null(MonoString *p_mono_string) {
 }
 
 _FORCE_INLINE_ String mono_string_to_godot(MonoString *p_mono_string) {
-    if (p_mono_string == nullptr)
+    if (p_mono_string == nullptr) {
         return String();
+    }
 
     return mono_string_to_godot_not_null(p_mono_string);
 }
@@ -284,7 +285,27 @@ template<class T>
 MonoArray *container_to_mono_array(const Vector<T> &p_array) {
     return container_to_mono_array<T>(Span<const T>(p_array.data(),p_array.size()));
 }
+#pragma pack(push, 1)
 
+struct M_Callable {
+    MonoObject *target;
+    MonoObject *method_string_name;
+    MonoDelegate *delegate;
+};
+
+struct M_SignalInfo {
+    MonoObject *owner;
+    MonoObject *name_string_name;
+};
+
+#pragma pack(pop)
+// Callable
+GODOT_EXPORT Callable managed_to_callable(const M_Callable &p_managed_callable);
+GODOT_EXPORT M_Callable callable_to_managed(const Callable &p_callable);
+
+// SignalInfo
+GODOT_EXPORT Signal managed_to_signal_info(const M_SignalInfo &p_managed_signal);
+GODOT_EXPORT M_SignalInfo signal_info_to_managed(const Signal &p_signal);
 // Structures
 
 #pragma pack(push, 1)

@@ -724,11 +724,11 @@ void LineEdit::_notification(int p_what) {
 #ifdef TOOLS_ENABLED
         case NOTIFICATION_ENTER_TREE: {
             if (Engine::get_singleton()->is_editor_hint() && !get_tree()->is_node_being_edited(this)) {
-                cursor_set_blink_enabled(EDITOR_DEF("text_editor/cursor/caret_blink", false));
-                cursor_set_blink_speed(EDITOR_DEF("text_editor/cursor/caret_blink_speed", 0.65));
+                cursor_set_blink_enabled(EDITOR_DEF_T("text_editor/cursor/caret_blink", false));
+                cursor_set_blink_speed(EDITOR_DEF_T<float>("text_editor/cursor/caret_blink_speed", 0.65f));
 
-                if (!EditorSettings::get_singleton()->is_connected("settings_changed", this, "_editor_settings_changed")) {
-                    EditorSettings::get_singleton()->connect("settings_changed", this, "_editor_settings_changed");
+                if (!EditorSettings::get_singleton()->is_connected("settings_changed",callable_mp(this, &ClassName::_editor_settings_changed))) {
+                    EditorSettings::get_singleton()->connect("settings_changed",callable_mp(this, &ClassName::_editor_settings_changed));
                 }
             }
         } break;
@@ -1679,8 +1679,8 @@ PopupMenu *LineEdit::get_menu() const {
 
 void LineEdit::_editor_settings_changed() {
 #ifdef TOOLS_ENABLED
-    cursor_set_blink_enabled(EDITOR_DEF("text_editor/cursor/caret_blink", false));
-    cursor_set_blink_speed(EDITOR_DEF("text_editor/cursor/caret_blink_speed", 0.65));
+    cursor_set_blink_enabled(EDITOR_DEF_T("text_editor/cursor/caret_blink", false));
+    cursor_set_blink_speed(EDITOR_DEF_T<float>("text_editor/cursor/caret_blink_speed", 0.65f));
 #endif
 }
 
@@ -1918,7 +1918,7 @@ LineEdit::LineEdit() {
     caret_blink_timer = memnew(Timer);
     add_child(caret_blink_timer);
     caret_blink_timer->set_wait_time(0.65f);
-    caret_blink_timer->connect("timeout", this, "_toggle_draw_caret");
+    caret_blink_timer->connect("timeout",callable_mp(this, &ClassName::_toggle_draw_caret));
     cursor_set_blink_enabled(false);
 
     context_menu_enabled = true;
@@ -1926,7 +1926,7 @@ LineEdit::LineEdit() {
     add_child(menu);
     editable = false; // Initialise to opposite first, so we get past the early-out in set_editable.
     set_editable(true);
-    menu->connect("id_pressed", this, "menu_option");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::menu_option));
     expand_to_text_length = false;
 }
 

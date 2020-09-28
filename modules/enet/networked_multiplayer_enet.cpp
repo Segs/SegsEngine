@@ -364,7 +364,7 @@ void NetworkedMultiplayerENet::poll() {
                 } else if (server_relay) {
 
                     // Server just received a client disconnect and is in relay mode, notify everyone else.
-                    for (const eastl::pair<int, ENetPeer *> &E : D()->peer_map) {
+                    for (const eastl::pair<const int, ENetPeer *> &E : D()->peer_map) {
 
                         if (E.first == *id)
                             continue;

@@ -32,7 +32,7 @@ namespace GodotTools.ProjectEditor
             root.Sdk = GodotSdkAttrValue;
 
             var mainGroup = root.AddPropertyGroup();
-            mainGroup.AddProperty("TargetFramework", "net472");
+            mainGroup.AddProperty("TargetFramework", "netstandard2.1");
             mainGroup.AddProperty("GodotProjectDir","$(SolutionDir)").Condition = "'$(SolutionDir)' != ''"; 
             mainGroup.AddProperty("GodotProjectDir","$(MSBuildProjectDirectory)").Condition = "'$(SolutionDir)' == ''"; 
             mainGroup.AddProperty("GodotProjectDir","$([MSBuild]::EnsureTrailingSlash('$(GodotProjectDir)'))"); 

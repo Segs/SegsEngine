@@ -30,6 +30,7 @@
 
 #include "editor_sectioned_inspector.h"
 #include "editor_scale.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
 #include "core/method_bind.h"
@@ -104,7 +105,7 @@ class SectionedInspectorFilter : public Object {
 
     bool property_can_revert(const String &p_name) {
 
-        return edited->call_va("property_can_revert", section + "/" + p_name);
+        return edited->call_va("property_can_revert", section + "/" + p_name).as<bool>();
     }
 
     Variant property_get_revert(const String &p_name) {
@@ -166,7 +167,7 @@ void SectionedInspector::set_current_section(const String &p_section) {
 String SectionedInspector::get_current_section() const {
 
     if (sections->get_selected())
-        return sections->get_selected()->get_metadata(0);
+        return sections->get_selected()->get_metadata(0).as<String>();
     else
         return String();
 }
@@ -304,7 +305,7 @@ void SectionedInspector::register_search_box(LineEdit *p_box) {
 
     search_box = p_box;
     inspector->register_text_enter(p_box);
-    search_box->connect("text_changed", this, "_search_changed");
+    search_box->connect("text_changed",callable_mp(this, &ClassName::_search_changed));
 }
 
 void SectionedInspector::_search_changed(const String &p_what) {
@@ -343,7 +344,7 @@ SectionedInspector::SectionedInspector() :
     right_vb->add_child(inspector, true);
     inspector->set_use_doc_hints(true);
 
-    sections->connect("cell_selected", this, "_section_selected");
+    sections->connect("cell_selected",callable_mp(this, &ClassName::_section_selected));
 }
 
 SectionedInspector::~SectionedInspector() {

@@ -578,6 +578,13 @@ void _generate_docs_for(const TS_Function* func, GeneratorContext& ctx) {
     String xml_summary = bbcode_to_xml(fix_doc_description(func->m_resolved_doc->description), func->enclosing_type, true);
     _add_doc_lines(ctx, xml_summary);
 }
+void _generate_docs_for(const TS_Signal* func, GeneratorContext& ctx) {
+    if (!func->m_resolved_doc || func->m_resolved_doc->description.empty())
+        return;
+
+    String xml_summary = bbcode_to_xml(fix_doc_description(func->m_resolved_doc->description), func->enclosing_type, true);
+    _add_doc_lines(ctx, xml_summary);
+}
 
 
 void _generate_docs_for(const TS_Property *property, int subfield, GeneratorContext &ctx)

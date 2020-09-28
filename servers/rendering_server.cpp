@@ -97,7 +97,7 @@ static Array to_array(const Vector<ObjectID> &ids) {
     Array a;
     a.resize(ids.size());
     for (int i = 0; i < ids.size(); ++i) {
-        a[i] = ids[i];
+        a[i] = Variant::from(ids[i]);
     }
     return a;
 }
@@ -117,10 +117,11 @@ Array RenderingServer::_instances_cull_ray_bind(const Vector3 &p_from, const Vec
 Array RenderingServer::_instances_cull_convex_bind(const Array &p_convex, RID p_scenario) const {
     //TODO: SEGS: use a fixed vector here, with a sane'ish number of on-stack entries, and marked as growing to allow for larger counts.
     Vector<Plane> planes;
+    planes.reserve(p_convex.size());
     for (int i = 0; i < p_convex.size(); ++i) {
         Variant v = p_convex[i];
         ERR_FAIL_COND_V(v.get_type() != VariantType::PLANE, Array());
-        planes.push_back(v);
+        planes.push_back(v.as<Plane>());
     }
 
     Vector<ObjectID> ids = instances_cull_convex(planes, p_scenario);
@@ -1114,17 +1115,9 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
 
             case RS::ARRAY_VERTEX: {
 
-                if (p_format & RS::ARRAY_FLAG_USE_2D_VERTICES) {
-                    elem_size = 2;
-                } else {
-                    elem_size = 3;
-                }
+                elem_size = (p_format & RS::ARRAY_FLAG_USE_2D_VERTICES) ? 2 : 3;
 
-                if (p_format & RS::ARRAY_COMPRESS_VERTEX) {
-                    elem_size *= sizeof(int16_t);
-                } else {
-                    elem_size *= sizeof(float);
-                }
+                elem_size *= (p_format & RS::ARRAY_COMPRESS_VERTEX) ? sizeof(int16_t) : sizeof(float);
 
                 if (elem_size == 6) {
                     elem_size = 8;
@@ -1232,21 +1225,21 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
                 if (p_format & RS::ARRAY_FLAG_USE_2D_VERTICES) {
 
                     Vector<Vector2> arr_2d;
-                    arr_2d.resize(p_vertex_len);
+                    arr_2d.reserve(p_vertex_len);
 
                     if (p_format & RS::ARRAY_COMPRESS_VERTEX) {
 
                         for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                            arr_2d[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                            arr_2d.emplace_back(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                         }
                     } else {
 
                         for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                            arr_2d[j] = Vector2(v[0], v[1]);
+                            arr_2d.emplace_back(v[0], v[1]);
                         }
                     }
 
@@ -1254,21 +1247,21 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
                 } else {
 
                     Vector<Vector3> arr_3d;
-                    arr_3d.resize(p_vertex_len);
+                    arr_3d.reserve(p_vertex_len);
 
                     if (p_format & RS::ARRAY_COMPRESS_VERTEX) {
 
                         for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                            arr_3d[j] = Vector3(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
+                            arr_3d.emplace_back(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]), Math::halfptr_to_float(&v[2]));
                         }
                     } else {
 
                         for (uint32_t j = 0; j < p_vertex_len; j++) {
 
                             const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                            arr_3d[j] = Vector3(v[0], v[1], v[2]);
+                            arr_3d.emplace_back(v[0], v[1], v[2]);
                         }
                     }
 
@@ -1350,21 +1343,21 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
             case RS::ARRAY_TEX_UV: {
 
                 Vector<Vector2> arr;
-                arr.resize(p_vertex_len);
+                arr.reserve(p_vertex_len);
 
                 if (p_format & RS::ARRAY_COMPRESS_TEX_UV) {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                        arr.emplace_back(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        arr[j] = Vector2(v[0], v[1]);
+                        arr.emplace_back(v[0], v[1]);
                     }
                 }
 
@@ -1373,21 +1366,21 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
 
             case RS::ARRAY_TEX_UV2: {
                 Vector<Vector2> arr;
-                arr.resize(p_vertex_len);
+                arr.reserve(p_vertex_len);
 
                 if (p_format & RS::ARRAY_COMPRESS_TEX_UV2) {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        arr[j] = Vector2(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
+                        arr.emplace_back(Math::halfptr_to_float(&v[0]), Math::halfptr_to_float(&v[1]));
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        arr[j] = Vector2(v[0], v[1]);
+                        arr.emplace_back(v[0], v[1]);
                     }
                 }
 
@@ -1397,14 +1390,14 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
             case RS::ARRAY_WEIGHTS: {
 
                 Vector<float> arr;
-                arr.resize(p_vertex_len * 4);
+                arr.reserve(p_vertex_len * 4);
                 if (p_format & RS::ARRAY_COMPRESS_WEIGHTS) {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            arr[j * 4 + k] = float(v[k] / 65535.0);
+                            arr.emplace_back(float(v[k]) / 65535.0f);
                         }
                     }
                 } else {
@@ -1412,7 +1405,7 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
                     for (int j = 0; j < p_vertex_len; j++) {
                         const float *v = (const float *)&p_vertex_data[j * total_elem_size + offsets[i]];
                         for (int k = 0; k < 4; k++) {
-                            arr[j * 4 + k] = v[k];
+                            arr.emplace_back(v[k]);
                         }
                     }
                 }
@@ -1423,23 +1416,19 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
             case RS::ARRAY_BONES: {
 
                 Vector<int> arr;
-                arr.resize(p_vertex_len * 4);
+                arr.reserve(p_vertex_len * 4);
                 if (p_format & RS::ARRAY_FLAG_USE_16_BIT_BONES) {
 
                     for (int j = 0; j < p_vertex_len; j++) {
 
                         const uint16_t *v = (const uint16_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        for (int k = 0; k < 4; k++) {
-                            arr[j * 4 + k] = v[k];
-                        }
+                        arr.insert(arr.end(), v, v + 4);
                     }
                 } else {
 
                     for (int j = 0; j < p_vertex_len; j++) {
                         const uint8_t *v = (const uint8_t *)&p_vertex_data[j * total_elem_size + offsets[i]];
-                        for (int k = 0; k < 4; k++) {
-                            arr[j * 4 + k] = v[k];
-                        }
+                        arr.insert(arr.end(), v, v + 4);
                     }
                 }
 
@@ -1450,20 +1439,12 @@ SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<c
                 /* determine whether using 16 or 32 bits indices */
 
                 Vector<int> arr;
-                arr.resize(p_index_len);
                 if (p_vertex_len < (1 << 16)) {
-
-                    for (int j = 0; j < p_index_len; j++) {
-
-                        const uint16_t *v = (const uint16_t *)&p_index_data[j * 2];
-                        arr[j] = *v;
-                    }
+                    const uint16_t* v = (const uint16_t*)p_index_data.data();
+                    arr.assign(v,v+ p_index_len);
                 } else {
-
-                    for (int j = 0; j < p_index_len; j++) {
-                        const int *v = (const int *)&p_index_data[j * 4];
-                        arr[j] = *v;
-                    }
+                    const int* v = (const int*)p_index_data.data();
+                    arr.assign(v, v + p_index_len);
                 }
                 ret.m_indices = eastl::move(arr);
             } break;

@@ -30,6 +30,7 @@
 
 #include "physical_bone_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/plugins/spatial_editor_plugin.h"
@@ -70,7 +71,7 @@ PhysicalBoneEditor::PhysicalBoneEditor(EditorNode *p_editor) :
     button_transform_joint->set_text(TTR("Move Joint"));
     button_transform_joint->set_button_icon(SpatialEditor::get_singleton()->get_icon("PhysicalBone3D", "EditorIcons"));
     button_transform_joint->set_toggle_mode(true);
-    button_transform_joint->connect("toggled", this, "_on_toggle_button_transform_joint");
+    button_transform_joint->connect("toggled",callable_mp(this, &ClassName::_on_toggle_button_transform_joint));
 
     hide();
 }

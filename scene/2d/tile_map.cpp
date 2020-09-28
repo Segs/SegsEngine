@@ -187,7 +187,7 @@ void TileMap::_update_quadrant_transform() {
 void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
 
     if (tile_set) {
-        tile_set->disconnect("changed", this, "_recreate_quadrants");
+        tile_set->disconnect("changed",callable_mp(this, &ClassName::_recreate_quadrants));
         Object_remove_change_receptor(tile_set.get(),this);
     }
 
@@ -195,7 +195,7 @@ void TileMap::set_tileset(const Ref<TileSet> &p_tileset) {
     tile_set = p_tileset;
 
     if (tile_set) {
-        tile_set->connect("changed", this, "_recreate_quadrants");
+        tile_set->connect("changed",callable_mp(this, &ClassName::_recreate_quadrants));
         Object_add_change_receptor(tile_set.get(),this);
     } else {
         clear();
@@ -582,9 +582,9 @@ void TileMap::update_dirty_quadrants() {
                         }
 
                         if (shape->has_meta("decomposed")) {
-                            Array _shapes = shape->get_meta("decomposed");
+                            Array _shapes = shape->get_meta("decomposed").as<Array>();
                             for (int k = 0; k < _shapes.size(); k++) {
-                                Ref<ConvexPolygonShape2D> convex = refFromRefPtr<ConvexPolygonShape2D>(_shapes[k]);
+                                Ref<ConvexPolygonShape2D> convex = refFromVariant<ConvexPolygonShape2D>(_shapes[k]);
                                 if (convex) {
                                     _add_shape(shape_idx, q, convex, shapes[j], xform, Vector2(E->first.x, E->first.y));
 #ifdef DEBUG_ENABLED
@@ -1224,19 +1224,6 @@ void TileMap::_set_tile_data(const PoolVector<int> &p_data) {
         for (int j = 0; j < ((format == FORMAT_2) ? 12 : 8); j++)
             local[j] = ptr[j];
 
-#ifdef BIG_ENDIAN_ENABLED
-
-        SWAP(local[0], local[3]);
-        SWAP(local[1], local[2]);
-        SWAP(local[4], local[7]);
-        SWAP(local[5], local[6]);
-        //TODO: ask someone to check this...
-        if (FORMAT == FORMAT_2) {
-            SWAP(local[8], local[11]);
-            SWAP(local[9], local[10]);
-        }
-#endif
-
         uint16_t x = decode_uint16(&local[0]);
         uint16_t y = decode_uint16(&local[2]);
         uint32_t v = decode_uint32(&local[4]);
@@ -1569,12 +1556,12 @@ bool TileMap::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "format") {
         if (p_value.get_type() == VariantType::INT) {
-            format = (DataFormat)(p_value.operator int64_t()); // Set format used for loading
+            format = p_value.as<DataFormat>(); // Set format used for loading
             return true;
         }
     } else if (p_name == "tile_data") {
         if (p_value.is_array()) {
-            _set_tile_data(p_value);
+            _set_tile_data(p_value.as<PoolVector<int>>());
             return true;
         }
         return false;

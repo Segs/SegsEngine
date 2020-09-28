@@ -183,7 +183,7 @@ VisualServerWrapMT::VisualServerWrapMT(RenderingServer *p_contained, bool p_crea
     draw_pending = 0;
     draw_thread_up = false;
     alloc_mutex = memnew(Mutex);
-    pool_max_size = GLOBAL_GET("memory/limits/multithreaded_server/rid_pool_prealloc");
+    pool_max_size = T_GLOBAL_GET<int>("memory/limits/multithreaded_server/rid_pool_prealloc");
 
     if (!p_create_thread) {
         server_thread = Thread::get_caller_id();

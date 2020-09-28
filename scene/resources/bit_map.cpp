@@ -167,7 +167,7 @@ void BitMap::_set_data(const Dictionary &p_d) {
     ERR_FAIL_COND(!p_d.has("size"));
     ERR_FAIL_COND(!p_d.has("data"));
 
-    create(p_d["size"]);
+    create(p_d["size"].as<Vector2>());
     bitmask = p_d["data"].as<PoolVector<uint8_t>>();
 }
 

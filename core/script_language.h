@@ -39,11 +39,28 @@
 #include "core/variant.h"
 #include "core/string.h"
 #include "core/property_info.h"
+#include "core/color.h"
+
 
 class ScriptLanguage;
 class MultiplayerAPI;
 struct TypeInterface;
 enum MultiplayerAPI_RPCMode : int8_t;
+
+struct ScriptNetData {
+    StringName name;
+    MultiplayerAPI_RPCMode mode;
+    bool operator==(ScriptNetData const &p_other) const {
+        return name == p_other.name;
+    }
+};
+
+struct SortNetData {
+
+    bool operator()(const ScriptNetData &p_a, const ScriptNetData &p_b) const {
+        return StringName::AlphCompare(p_a.name, p_b.name);
+    }
+};
 
 using ScriptEditRequestFunction = void (*)(StringView);
 
@@ -126,11 +143,12 @@ public:
     virtual bool can_instance() const = 0;
 
     virtual Ref<Script> get_base_script() const = 0; //for script inheritance
+    virtual bool inherits_script(const Ref<Script> &p_script) const = 0;
 
     virtual StringName get_instance_base_type() const = 0; // this may not work in all scripts, will return empty if so
     virtual ScriptInstance *instance_create(Object *p_this) = 0;
     virtual PlaceHolderScriptInstance *placeholder_instance_create(Object * /*p_this*/) { return nullptr; }
-    virtual bool instance_has(const Object *p_this) const = 0;
+    virtual bool instance_has(Object *p_this) const = 0;
 
     virtual bool has_source_code() const = 0;
     virtual StringView get_source_code() const = 0;
@@ -161,6 +179,19 @@ public:
 
     virtual bool is_placeholder_fallback_enabled() const { return false; }
 
+    virtual Vector<ScriptNetData> get_rpc_methods() const = 0;
+    virtual uint16_t get_rpc_method_id(const StringName &p_method) const = 0;
+    virtual StringName get_rpc_method(const uint16_t p_rpc_method_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rpc_mode_by_id(const uint16_t p_rpc_method_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const = 0;
+
+    virtual Vector<ScriptNetData> get_rset_properties() const = 0;
+    virtual uint16_t get_rset_property_id(const StringName &p_property) const = 0;
+    virtual StringName get_rset_property(const uint16_t p_rset_property_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rset_mode_by_id(const uint16_t p_rpc_method_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const = 0;
+
+
     Script() {}
 };
 
@@ -178,9 +209,6 @@ public:
     [[nodiscard]] virtual bool has_method(const StringName &p_method) const = 0;
     virtual Variant call(const StringName &p_method, VARIANT_ARG_LIST);
     virtual Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error) = 0;
-    virtual void call_multilevel(const StringName &p_method, VARIANT_ARG_LIST);
-    virtual void call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount);
-    virtual void call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount);
     virtual void notification(int p_notification) = 0;
     virtual String to_string(bool *r_valid) {
         if (r_valid)
@@ -202,8 +230,19 @@ public:
     virtual void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid);
     virtual Variant property_get_fallback(const StringName &p_name, bool *r_valid);
 
+    virtual Vector<ScriptNetData> get_rpc_methods() const = 0;
+    virtual uint16_t get_rpc_method_id(const StringName &p_method) const = 0;
+    virtual StringName get_rpc_method(uint16_t p_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rpc_mode_by_id(uint16_t p_id) const = 0;
     [[nodiscard]] virtual MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const = 0;
+
+    virtual Vector<ScriptNetData> get_rset_properties() const = 0;
+    virtual uint16_t get_rset_property_id(const StringName &p_variable) const = 0;
+    virtual StringName get_rset_property(uint16_t p_id) const = 0;
+    virtual MultiplayerAPI_RPCMode get_rset_mode_by_id(uint16_t p_id) const = 0;
     [[nodiscard]] virtual MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const = 0;
+
+
 
     virtual ScriptLanguage *get_language() = 0;
     virtual ~ScriptInstance() = default;
@@ -222,14 +261,13 @@ struct ScriptCodeCompletionOption {
         KIND_FILE_PATH,
         KIND_PLAIN_TEXT,
     };
-    Kind kind;
+    Kind kind = KIND_PLAIN_TEXT;
     String display;
     String insert_text;
+    Color font_color;
     RES icon;
 
-    ScriptCodeCompletionOption() {
-        kind = KIND_PLAIN_TEXT;
-    }
+    ScriptCodeCompletionOption() = default;
 
     ScriptCodeCompletionOption(StringView p_text, Kind p_kind) : kind(p_kind), display(p_text),insert_text(p_text) {
     }
@@ -423,8 +461,17 @@ public:
     void property_set_fallback(const StringName &p_name, const Variant &p_value, bool *r_valid = nullptr) override;
     Variant property_get_fallback(const StringName &p_name, bool *r_valid = nullptr) override;
 
-    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &/*p_method*/) const override { return MultiplayerAPI_RPCMode(0); }
-    MultiplayerAPI_RPCMode get_rset_mode(const StringName &/*p_variable*/) const override { return MultiplayerAPI_RPCMode(0); }
+    Vector<ScriptNetData> get_rpc_methods() const override { return Vector<ScriptNetData>(); }
+    uint16_t get_rpc_method_id(const StringName &p_method) const override;
+    StringName get_rpc_method(uint16_t p_id) const override { return StringName(); }
+    MultiplayerAPI_RPCMode get_rpc_mode_by_id(uint16_t p_id) const override { return MultiplayerAPI_RPCMode(0); }
+    MultiplayerAPI_RPCMode get_rpc_mode(const StringName &p_method) const override { return MultiplayerAPI_RPCMode(0); }
+
+    Vector<ScriptNetData> get_rset_properties() const override { return Vector<ScriptNetData>(); }
+    uint16_t get_rset_property_id(const StringName &p_variable) const override;
+    StringName get_rset_property(uint16_t p_id) const override { return StringName(); }
+    MultiplayerAPI_RPCMode get_rset_mode_by_id(uint16_t p_id) const override { return MultiplayerAPI_RPCMode(0); }
+    MultiplayerAPI_RPCMode get_rset_mode(const StringName &p_variable) const override { return MultiplayerAPI_RPCMode(0); }
 
     PlaceHolderScriptInstance(ScriptLanguage *p_language, Ref<Script> p_script, Object *p_owner) :
         owner(p_owner),

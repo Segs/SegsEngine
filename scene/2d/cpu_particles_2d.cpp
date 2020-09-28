@@ -30,6 +30,7 @@
 
 #include "cpu_particles_2d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -229,12 +230,12 @@ void CPUParticles2D::set_texture(const Ref<Texture> &p_texture) {
         return;
 
     if (texture)
-        texture->disconnect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
 
     texture = p_texture;
 
     if (texture)
-        texture->connect(CoreStringNames::get_singleton()->changed, this, "_texture_changed");
+        texture->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &CPUParticles2D::_texture_changed));
 
     update();
     _update_mesh_texture();
@@ -941,13 +942,13 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
 #endif
     auto RS = RenderingServer::get_singleton();
     if (redraw) {
-        RS->connect("frame_pre_draw", this, "_update_render_thread");
+        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         RS->canvas_item_set_update_when_visible(get_canvas_item(), true);
 
         RS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        if(RS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
-            RS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread))) {
+            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         }
         RS->canvas_item_set_update_when_visible(get_canvas_item(), false);
 
@@ -1294,8 +1295,8 @@ void CPUParticles2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("convert_from_particles", {"particles"}), &CPUParticles2D::convert_from_particles);
 
-    MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
-    MethodBinder::bind_method(D_METHOD("_texture_changed"), &CPUParticles2D::_texture_changed);
+    //MethodBinder::bind_method(D_METHOD("_update_render_thread"), &CPUParticles2D::_update_render_thread);
+    //MethodBinder::bind_method(D_METHOD("_texture_changed"), &CPUParticles2D::_texture_changed);
 
     ADD_GROUP("Emission Shape", "emission_");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");

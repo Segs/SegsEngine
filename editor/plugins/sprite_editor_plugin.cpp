@@ -338,7 +338,7 @@ void SpriteEditor::_convert_to_mesh_2d_node() {
     mesh_instance->set_mesh(mesh);
 
     UndoRedo *ur = EditorNode::get_undo_redo();
-    ur->create_action_ui(TTR("Convert to Mesh2D"));
+    ur->create_action(TTR("Convert to Mesh2D"));
     ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(mesh_instance), true, false);
     ur->add_do_reference(mesh_instance);
     ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(mesh_instance), Variant(node), false, false);
@@ -397,7 +397,7 @@ void SpriteEditor::_convert_to_polygon_2d_node() {
     polygon_2d_instance->set_polygons(polys);
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-    ur->create_action_ui(TTR("Convert to Polygon2D"));
+    ur->create_action(TTR("Convert to Polygon2D"));
     ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(polygon_2d_instance), true, false);
     ur->add_do_reference(polygon_2d_instance);
     ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(polygon_2d_instance), Variant(node), false, false);
@@ -421,7 +421,7 @@ void SpriteEditor::_create_collision_polygon_2d_node() {
         collision_polygon_2d_instance->set_polygon(eastl::move(outline));
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-        ur->create_action_ui(TTR("Create CollisionPolygon2D Sibling"));
+        ur->create_action(TTR("Create CollisionPolygon2D Sibling"));
         ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(collision_polygon_2d_instance));
         ur->add_do_reference(collision_polygon_2d_instance);
         ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(collision_polygon_2d_instance));
@@ -449,7 +449,7 @@ void SpriteEditor::_create_light_occluder_2d_node() {
         light_occluder_2d_instance->set_occluder_polygon(polygon);
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-        ur->create_action_ui(TTR("Create LightOccluder2D Sibling"));
+        ur->create_action(TTR("Create LightOccluder2D Sibling"));
         ur->add_do_method(this, "_add_as_sibling_or_child", Variant(node), Variant(light_occluder_2d_instance));
         ur->add_do_reference(light_occluder_2d_instance);
         ur->add_undo_method(node != this->get_tree()->get_edited_scene_root() ? node->get_parent() : this->get_tree()->get_edited_scene_root(), "remove_child", Variant(light_occluder_2d_instance));
@@ -521,7 +521,7 @@ SpriteEditor::SpriteEditor() {
     options->get_popup()->add_item(TTR("Create LightOccluder2D Sibling"), MENU_OPTION_CREATE_LIGHT_OCCLUDER_2D);
     options->set_switch_on_hover(true);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     err_dialog = memnew(AcceptDialog);
     add_child(err_dialog);
@@ -537,9 +537,9 @@ SpriteEditor::SpriteEditor() {
     scroll->set_enable_v_scroll(true);
     vb->add_margin_child(TTR("Preview:"), scroll, true);
     debug_uv = memnew(Control);
-    debug_uv->connect("draw", this, "_debug_uv_draw");
+    debug_uv->connect("draw",callable_mp(this, &ClassName::_debug_uv_draw));
     scroll->add_child(debug_uv);
-    debug_uv_dialog->connect("confirmed", this, "_create_node");
+    debug_uv_dialog->connect("confirmed",callable_mp(this, &ClassName::_create_node));
 
     HBoxContainer *hb = memnew(HBoxContainer);
     hb->add_child(memnew(Label(TTR("Simplification: "))));
@@ -568,7 +568,7 @@ SpriteEditor::SpriteEditor() {
     hb->add_spacer();
     update_preview = memnew(Button);
     update_preview->set_text(TTR("Update Preview"));
-    update_preview->connect("pressed", this, "_update_mesh_data");
+    update_preview->connect("pressed",callable_mp(this, &ClassName::_update_mesh_data));
     hb->add_child(update_preview);
     vb->add_margin_child(TTR("Settings:"), hb);
 

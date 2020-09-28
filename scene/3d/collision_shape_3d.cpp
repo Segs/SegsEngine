@@ -31,6 +31,7 @@
 #include "collision_shape_3d.h"
 
 #include "core/method_bind.h"
+#include "core/callable_method_pointer.h"
 #include "core/translation_helpers.h"
 #include "scene/main/scene_tree.h"
 #include "scene/resources/box_shape_3d.h"
@@ -154,7 +155,6 @@ void CollisionShape3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_disabled"), &CollisionShape3D::is_disabled);
     MethodBinder::bind_method(D_METHOD("make_convex_from_brothers"), &CollisionShape3D::make_convex_from_brothers,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 
-    MethodBinder::bind_method(D_METHOD("_shape_changed"), &CollisionShape3D::_shape_changed);
     MethodBinder::bind_method(D_METHOD("_update_debug_shape"), &CollisionShape3D::_update_debug_shape);
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "shape", PropertyHint::ResourceType, "Shape"), "set_shape", "get_shape");
@@ -165,12 +165,12 @@ void CollisionShape3D::set_shape(const Ref<Shape> &p_shape) {
 
     if (shape) {
         shape->unregister_owner(this);
-        shape->disconnect("changed", this, "_shape_changed");
+        shape->disconnect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     shape = p_shape;
     if (shape) {
         shape->register_owner(this);
-        shape->connect("changed", this, "_shape_changed");
+        shape->connect("changed",callable_mp(this, &ClassName::_shape_changed));
     }
     update_gizmo();
     if (parent) {

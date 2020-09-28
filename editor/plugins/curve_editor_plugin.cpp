@@ -31,6 +31,7 @@
 #include "curve_editor_plugin.h"
 
 #include "canvas_item_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
@@ -59,7 +60,7 @@ CurveEditor::CurveEditor() {
     set_clip_contents(true);
 
     _context_menu = memnew(PopupMenu);
-    _context_menu->connect("id_pressed", this, "_on_context_menu_item_selected");
+    _context_menu->connect("id_pressed",callable_mp(this, &ClassName::on_context_menu_item_selected));
     add_child(_context_menu);
 
     _presets_menu = memnew(PopupMenu);
@@ -70,7 +71,7 @@ CurveEditor::CurveEditor() {
     _presets_menu->add_item(TTR("Ease In"), PRESET_EASE_IN);
     _presets_menu->add_item(TTR("Ease Out"), PRESET_EASE_OUT);
     _presets_menu->add_item(TTR("Smoothstep"), PRESET_SMOOTHSTEP);
-    _presets_menu->connect("id_pressed", this, "_on_preset_item_selected");
+    _presets_menu->connect("id_pressed",callable_mp(this, &ClassName::on_preset_item_selected));
     _context_menu->add_child(_presets_menu);
 }
 
@@ -80,15 +81,15 @@ void CurveEditor::set_curve(Ref<Curve> && curve) {
         return;
 
     if (_curve_ref) {
-        _curve_ref->disconnect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
-        _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
+        _curve_ref->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &ClassName::_curve_changed));
+        _curve_ref->disconnect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), callable_mp(this, &ClassName::_curve_changed));
     }
 
     _curve_ref = eastl::move(curve);
 
     if (_curve_ref) {
-        _curve_ref->connect(CoreStringNames::get_singleton()->changed, this, "_curve_changed");
-        _curve_ref->connect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), this, "_curve_changed");
+        _curve_ref->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &ClassName::_curve_changed));
+        _curve_ref->connect(StaticCString(Curve::SIGNAL_RANGE_CHANGED,true), callable_mp(this, &ClassName::_curve_changed));
     }
 
     _selected_point = -1;
@@ -147,7 +148,7 @@ void CurveEditor::on_gui_input(const Ref<InputEvent> &p_event) {
 
                 UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
 
-                ur.create_action_ui(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
+                ur.create_action(_selected_tangent == TANGENT_NONE ? TTR("Modify Curve Point") : TTR("Modify Curve Tangent"));
                 ur.add_do_method(_curve_ref.get(), "_set_data", _curve_ref->get_data());
                 ur.add_undo_method(_curve_ref.get(), "_set_data", _undo_data);
                 // Note: this will trigger one more "changed" signal even if nothing changes,
@@ -305,7 +306,7 @@ void CurveEditor::on_preset_item_selected(int preset_id) {
     }
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Load Curve Preset"));
+    ur.create_action(TTR("Load Curve Preset"));
 
     ur.add_do_method(&curve, "_set_data", curve.get_data());
     ur.add_undo_method(&curve, "_set_data", previous_data);
@@ -435,7 +436,7 @@ void CurveEditor::add_point(Vector2 pos) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Remove Curve Point"));
+    ur.create_action(TTR("Remove Curve Point"));
 
     Vector2 point_pos = get_world_pos(pos);
     if (point_pos.y < 0.0)
@@ -457,7 +458,7 @@ void CurveEditor::remove_point(int index) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Remove Curve Point"));
+    ur.create_action(TTR("Remove Curve Point"));
 
     Curve::Point p = _curve_ref->get_point(index);
 
@@ -477,7 +478,7 @@ void CurveEditor::toggle_linear(TangentIndex tangent) {
     ERR_FAIL_COND(not _curve_ref);
 
     UndoRedo &ur = *EditorNode::get_singleton()->get_undo_redo();
-    ur.create_action_ui(TTR("Toggle Curve Linear Tangent"));
+    ur.create_action(TTR("Toggle Curve Linear Tangent"));
 
     if (tangent == TANGENT_NONE)
         tangent = _selected_tangent;
@@ -755,9 +756,6 @@ void CurveEditor::_draw() {
 
 void CurveEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_gui_input"), &CurveEditor::on_gui_input);
-    MethodBinder::bind_method(D_METHOD("_on_preset_item_selected"), &CurveEditor::on_preset_item_selected);
-    MethodBinder::bind_method(D_METHOD("_curve_changed"), &CurveEditor::_curve_changed);
-    MethodBinder::bind_method(D_METHOD("_on_context_menu_item_selected"), &CurveEditor::on_context_menu_item_selected);
 }
 
 //---------------
@@ -800,7 +798,7 @@ Ref<Texture> CurvePreviewGenerator::generate(const Ref<Resource> &p_from, const 
     Curve &curve = *curve_ref;
 
     // FIXME: Should be ported to use p_size as done in b2633a97
-    int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
     Ref<Image> img_ref(make_ref_counted<Image>());
     Image &im = *img_ref;

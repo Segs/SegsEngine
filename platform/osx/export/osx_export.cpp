@@ -108,13 +108,13 @@ public:
 IMPL_GDCLASS(EditorExportPlatformOSX)
 
 void EditorExportPlatformOSX::get_preset_features(const Ref<EditorExportPreset> &p_preset, Vector<String> *r_features) {
-    if (p_preset->get("texture_format/s3tc")) {
+    if (p_preset->get("texture_format/s3tc").as<bool>()) {
         r_features->push_back("s3tc");
     }
-    if (p_preset->get("texture_format/etc")) {
+    if (p_preset->get("texture_format/etc").as<bool>()) {
         r_features->push_back("etc");
     }
-    if (p_preset->get("texture_format/etc2")) {
+    if (p_preset->get("texture_format/etc2").as<bool>()) {
         r_features->push_back("etc2");
     }
 
@@ -332,15 +332,15 @@ void EditorExportPlatformOSX::_fix_plist(const Ref<EditorExportPreset> &p_preset
     const std::pair<const char*,String> replacements[] = {
         {"$binary", String(p_binary)},
         {"$name", String(p_binary)},
-        {"$info", p_preset->get("application/info")},
-        {"$identifier", p_preset->get("application/identifier")},
-        {"$short_version", p_preset->get("application/short_version")},
-        {"$version", p_preset->get("application/version")},
-        {"$signature", p_preset->get("application/signature")},
-        {"$copyright", p_preset->get("application/copyright")},
-        {"$highres", String(p_preset->get("display/high_res") ? "<true/>" : "<false/>")},
-        {"$camera_usage_description",p_preset->get("privacy/camera_usage_description")},
-        {"$microphone_usage_description",p_preset->get("privacy/microphone_usage_description")}
+        {"$info", p_preset->get("application/info").as<String>()},
+        {"$identifier", p_preset->get("application/identifier").as<String>()},
+        {"$short_version", p_preset->get("application/short_version").as<String>()},
+        {"$version", p_preset->get("application/version").as<String>()},
+        {"$signature", p_preset->get("application/signature").as<String>()},
+        {"$copyright", p_preset->get("application/copyright").as<String>()},
+        {"$highres", (p_preset->getT<bool>("display/high_res") ? "<true/>" : "<false/>")},
+        {"$camera_usage_description",p_preset->get("privacy/camera_usage_description").as<String>()},
+        {"$microphone_usage_description",p_preset->get("privacy/microphone_usage_description").as<String>()}
     };
     for (int i = 0; i < lines.size(); i++) {
         String line(lines[i]);
@@ -488,8 +488,8 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
     String pkg_name;
     if (p_preset->get("application/name") != "")
         pkg_name = p_preset->get("application/name").as<String>(); // app_name
-    else if (!String(ProjectSettings::get_singleton()->get("application/config/name")).empty())
-        pkg_name = String(ProjectSettings::get_singleton()->get("application/config/name"));
+    else if (!ProjectSettings::get_singleton()->getT<String>("application/config/name").empty())
+        pkg_name = String(ProjectSettings::get_singleton()->getT<String>("application/config/name"));
     else
         pkg_name = "Unnamed";
 
@@ -570,9 +570,9 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
             //see if there is an icon
             String iconpath;
             if (p_preset->get("application/icon") != "")
-                iconpath = String(p_preset->get("application/icon"));
+                iconpath = p_preset->get("application/icon").as<String>();
             else
-                iconpath = String(ProjectSettings::get_singleton()->get("application/config/icon"));
+                iconpath = ProjectSettings::get_singleton()->getT<String>("application/config/icon");
 
             if (!iconpath.empty()) {
                 if (PathUtils::get_extension(iconpath) == StringView("icns")) {
@@ -655,7 +655,7 @@ Error EditorExportPlatformOSX::export_project(const Ref<EditorExportPreset> &p_p
         err = save_pack(p_preset, pack_path, &shared_objects);
 
         // see if we can code sign our new package
-        bool sign_enabled = p_preset->get("codesign/enable");
+        bool sign_enabled = p_preset->get("codesign/enable").as<bool>();
 
         if (err == OK) {
             DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);

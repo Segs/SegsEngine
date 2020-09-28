@@ -58,7 +58,7 @@ void ScriptCreateDialog::_notification(int p_what) {
                     language_menu->set_item_icon(i, lang_icon);
                 }
             }
-            String last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
+            String last_lang = EditorSettings::get_singleton()->get_project_metadataT<String>("script_setup", "last_selected_language", "");
             if (!last_lang.empty()) {
                 for (int i = 0; i < language_menu->get_item_count(); i++) {
                     if (language_menu->get_item_text_utf8(i) == last_lang) {
@@ -389,8 +389,8 @@ void ScriptCreateDialog::_lang_changed(int l) {
     if (use_templates) {
         _update_script_templates(language->get_extension());
 
-        StringName last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", "");
-        StringName last_template = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_template", "");
+        StringName last_lang = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_language", StringName()).as<StringName>();
+        StringName last_template = EditorSettings::get_singleton()->get_project_metadata("script_setup", "last_selected_template", StringName()).as<StringName>();
 
         template_menu->add_item(TTR("Default"));
         ScriptTemplateInfo *templates = template_list.data();
@@ -805,11 +805,12 @@ ScriptCreateDialog::ScriptCreateDialog() {
             default_language = i;
         }
     }
-
+    if(ScriptServer::get_language_count()>0) {
         language_menu->select(default_language);
         current_language = default_language;
+    }
 
-    language_menu->connect("item_selected", this, "_lang_changed");
+    language_menu->connect("item_selected",callable_mp(this, &ClassName::_lang_changed));
 
     /* Inherits */
 
@@ -818,16 +819,16 @@ ScriptCreateDialog::ScriptCreateDialog() {
     hb = memnew(HBoxContainer);
     hb->set_h_size_flags(SIZE_EXPAND_FILL);
     parent_name = memnew(LineEdit);
-    parent_name->connect("text_changed", this, "_parent_name_changed");
+    parent_name->connect("text_changed",callable_mp(this, &ClassName::_parent_name_changed));
     parent_name->set_h_size_flags(SIZE_EXPAND_FILL);
     hb->add_child(parent_name);
     parent_search_button = memnew(Button);
     parent_search_button->set_flat(true);
-    parent_search_button->connect("pressed", this, "_browse_class_in_tree");
+    parent_search_button->connect("pressed",callable_mp(this, &ClassName::_browse_class_in_tree));
     hb->add_child(parent_search_button);
     parent_browse_button = memnew(Button);
     parent_browse_button->set_flat(true);
-    parent_browse_button->connect("pressed", this, "_browse_path", varray(true, false));
+    parent_browse_button->connect("pressed",callable_mp(this, &ClassName::_browse_path), varray(true, false));
     hb->add_child(parent_browse_button);
     gc->add_child(memnew(Label(TTR("Inherits:"))));
     gc->add_child(hb);
@@ -836,7 +837,7 @@ ScriptCreateDialog::ScriptCreateDialog() {
     /* Class Name */
 
     class_name = memnew(LineEdit);
-    class_name->connect("text_changed", this, "_class_name_changed");
+    class_name->connect("text_changed",callable_mp(this, &ClassName::_class_name_changed));
     class_name->set_h_size_flags(SIZE_EXPAND_FILL);
     gc->add_child(memnew(Label(TTR("Class Name:"))));
     gc->add_child(class_name);
@@ -846,28 +847,28 @@ ScriptCreateDialog::ScriptCreateDialog() {
     template_menu = memnew(OptionButton);
     gc->add_child(memnew(Label(TTR("Template:"))));
     gc->add_child(template_menu);
-    template_menu->connect("item_selected", this, "_template_changed");
+    template_menu->connect("item_selected",callable_mp(this, &ClassName::_template_changed));
 
     /* Built-in Script */
 
     internal = memnew(CheckBox);
     internal->set_text(TTR("On"));
-    internal->connect("pressed", this, "_built_in_pressed");
+    internal->connect("pressed",callable_mp(this, &ClassName::_built_in_pressed));
     gc->add_child(memnew(Label(TTR("Built-in Script:"))));
     gc->add_child(internal);
 
     /* Path */
 
     hb = memnew(HBoxContainer);
-    hb->connect("sort_children", this, "_path_hbox_sorted");
+    hb->connect("sort_children",callable_mp(this, &ClassName::_path_hbox_sorted));
     file_path = memnew(LineEdit);
-    file_path->connect("text_changed", this, "_path_changed");
-    file_path->connect("text_entered", this, "_path_entered");
+    file_path->connect("text_changed",callable_mp(this, &ClassName::_path_changed));
+    file_path->connect("text_entered",callable_mp(this, &ClassName::_path_entered));
     file_path->set_h_size_flags(SIZE_EXPAND_FILL);
     hb->add_child(file_path);
     path_button = memnew(Button);
     path_button->set_flat(true);
-    path_button->connect("pressed", this, "_browse_path", varray(false, true));
+    path_button->connect("pressed",callable_mp(this, &ClassName::_browse_path), varray(false, true));
     hb->add_child(path_button);
     gc->add_child(memnew(Label(TTR("Path:"))));
     gc->add_child(hb);
@@ -876,11 +877,11 @@ ScriptCreateDialog::ScriptCreateDialog() {
     /* Dialog Setup */
 
     select_class = memnew(CreateDialog);
-    select_class->connect("create", this, "_create");
+    select_class->connect("create",callable_mp(this, &ClassName::_create));
     add_child(select_class);
 
     file_browse = memnew(EditorFileDialog);
-    file_browse->connect("file_selected", this, "_file_selected");
+    file_browse->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
     file_browse->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_browse);
     get_ok()->set_text(TTR("Create"));

@@ -376,7 +376,7 @@ void RigidBodyBullet::dispatch_callbacks() {
         Object *obj = gObjectDB().get_instance(force_integration_callback->id);
         if (!obj) {
             // Remove integration callback
-            set_force_integration_callback(0, StringName());
+            set_force_integration_callback(ObjectID(), StringName());
         } else {
             const Variant *vp[2] = { &variantBodyDirect, &force_integration_callback->udata };
 
@@ -405,7 +405,7 @@ void RigidBodyBullet::set_force_integration_callback(ObjectID p_id, const String
         force_integration_callback = nullptr;
     }
 
-    if (p_id != 0) {
+    if (p_id.is_valid()) {
         force_integration_callback = memnew(ForceIntegrationCallback);
         force_integration_callback->id = p_id;
         force_integration_callback->method = p_method;
@@ -596,19 +596,19 @@ void RigidBodyBullet::set_state(PhysicsServer3D::BodyState p_state, const Varian
 
     switch (p_state) {
         case PhysicsServer3D::BODY_STATE_TRANSFORM:
-            set_transform(p_variant);
+            set_transform(p_variant.as<Transform>());
             break;
         case PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY:
-            set_linear_velocity(p_variant);
+            set_linear_velocity(p_variant.as<Vector3>());
             break;
         case PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY:
-            set_angular_velocity(p_variant);
+            set_angular_velocity(p_variant.as<Vector3>());
             break;
         case PhysicsServer3D::BODY_STATE_SLEEPING:
-            set_activation_state(!bool(p_variant));
+            set_activation_state(!p_variant.as<bool>());
             break;
         case PhysicsServer3D::BODY_STATE_CAN_SLEEP:
-            can_sleep = bool(p_variant);
+            can_sleep = p_variant.as<bool>();
             if (!can_sleep) {
                 // Can't sleep
                 btBody->forceActivationState(DISABLE_DEACTIVATION);

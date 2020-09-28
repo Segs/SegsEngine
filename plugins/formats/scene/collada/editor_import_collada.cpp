@@ -223,7 +223,7 @@ Error ColladaImport::_create_scene(Collada::Node *p_node, Node3D *p_parent) {
                     if (found_directional)
                         return OK; //do nothing not needed
 
-                    if (!bool(GLOBAL_DEF("collada/use_ambient", false)))
+                    if (!T_GLOBAL_DEF("collada/use_ambient", false))
                         return OK;
                     //well, it's an ambient light..
                     Light3D *l = memnew(DirectionalLight3D);

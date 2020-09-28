@@ -461,9 +461,10 @@ private:
     void _update_debug_options();
     void _update_file_menu_opened();
     void _update_file_menu_closed();
-
+public:
+    // made public so it can be used in signal connection.
     void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
-
+private:
     void _fs_changed();
     void _resources_reimported(const Vector<String> &p_resources);
     void _sources_changed(bool p_exist);
@@ -831,7 +832,7 @@ public:
     void hide_bottom_panel();
     void remove_bottom_panel_item(Control *p_item);
 
-    Variant drag_resource(const Ref<Resource> &p_res, Control *p_from);
+    Dictionary drag_resource(const Ref<Resource> &p_res, Control *p_from);
     Variant drag_files_and_dirs(const Vector<String> &p_paths, Control *p_from);
 
     void add_tool_menu_item(const StringName &p_name, Object *p_handler, StringView p_callback, const Variant &p_ud = Variant());

@@ -14,7 +14,7 @@ IMPL_GDCLASS(SceneMapEditorPlugin)
 
 
 SceneMapEditor::SceneMapEditor(EditorNode* p_editor) {
-    int mw = EDITOR_DEF(("editors/scene_map/palette_min_width"), 230);
+    int mw = EDITOR_DEF_T<int>(("editors/scene_map/palette_min_width"), 230);
 
     VBoxContainer* track_vbox = memnew(VBoxContainer);
     add_child(track_vbox);
@@ -46,7 +46,7 @@ SceneMapEditor::SceneMapEditor(EditorNode* p_editor) {
     scene_library_palette = memnew(Tree);
     add_child(scene_library_palette);
     scene_library_palette->set_v_size_flags(SIZE_EXPAND_FILL);
-    //mesh_library_palette->connect("gui_input", this, "_mesh_library_palette_input");
+    //mesh_library_palette->connect("gui_input",callable_mp(this, &ClassName::_mesh_library_palette_input));
 
     info_message = memnew(Label);
     info_message->set_text(TTR("Give a SceneLibrary resource to this SceneMap to use its elements."));
@@ -113,7 +113,7 @@ SceneMapEditorPlugin::SceneMapEditorPlugin(EditorNode* editor) {
     EditorSettings::get_singleton()->add_property_hint(PropertyInfo(VariantType::INT, "editors/scene_map/editor_side", PropertyHint::Enum, "Left,Right"));
 
     scene_map_editor = memnew(SceneMapEditor(editor));
-    switch ((int)EditorSettings::get_singleton()->get("editors/scene_map/editor_side")) {
+    switch (EditorSettings::get_singleton()->getT<int>("editors/scene_map/editor_side")) {
     case 0: { // Left.
         add_control_to_container(CONTAINER_SPATIAL_EDITOR_SIDE_LEFT, scene_map_editor);
     } break;

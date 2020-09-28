@@ -30,6 +30,7 @@
 
 #include "material_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "editor/editor_scale.h"
 #include "scene/gui/viewport_container.h"
@@ -182,13 +183,13 @@ MaterialEditor::MaterialEditor() {
     sphere_switch->set_toggle_mode(true);
     sphere_switch->set_pressed(true);
     vb_shape->add_child(sphere_switch);
-    sphere_switch->connect("pressed", this, "_button_pressed", varray(Variant(sphere_switch)));
+    sphere_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(sphere_switch)));
 
     box_switch = memnew(TextureButton);
     box_switch->set_toggle_mode(true);
     box_switch->set_pressed(false);
     vb_shape->add_child(box_switch);
-    box_switch->connect("pressed", this, "_button_pressed", varray(Variant(box_switch)));
+    box_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(box_switch)));
 
     hb->add_spacer();
 
@@ -198,16 +199,16 @@ MaterialEditor::MaterialEditor() {
     light_1_switch = memnew(TextureButton);
     light_1_switch->set_toggle_mode(true);
     vb_light->add_child(light_1_switch);
-    light_1_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_1_switch)));
+    light_1_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_1_switch)));
 
     light_2_switch = memnew(TextureButton);
     light_2_switch->set_toggle_mode(true);
     vb_light->add_child(light_2_switch);
-    light_2_switch->connect("pressed", this, "_button_pressed", varray(Variant(light_2_switch)));
+    light_2_switch->connect("pressed",callable_mp(this, &ClassName::_button_pressed), varray(Variant(light_2_switch)));
 
     first_enter = true;
 
-    if (EditorSettings::get_singleton()->get_project_metadata("inspector_options", "material_preview_on_sphere", true)) {
+    if (EditorSettings::get_singleton()->get_project_metadataT("inspector_options", "material_preview_on_sphere", true)) {
         box_instance->hide();
     } else {
         box_instance->show();

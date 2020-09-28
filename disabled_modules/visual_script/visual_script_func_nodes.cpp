@@ -784,7 +784,7 @@ public:
         bool reliable = true;
 
         if (rpc_mode >= VisualScriptFunctionCall::RPC_RELIABLE_TO_ID) {
-            to_id = *p_args[0];
+            to_id = p_args[0]->as<int>();
             p_args += 1;
             p_argcount -= 1;
             if (rpc_mode == VisualScriptFunctionCall::RPC_UNRELIABLE_TO_ID) {
@@ -846,7 +846,7 @@ public:
                 Variant v = *p_inputs[0];
 
                 if (rpc_mode) {
-                    Object *obj = v;
+                    Object *obj = v.as<Object *>();
                     if (obj) {
                         call_rpc(obj, p_inputs + 1, input_args - 1);
                     }

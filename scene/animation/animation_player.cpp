@@ -31,6 +31,7 @@
 #include "animation_player.h"
 
 #include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/message_queue.h"
 #include "core/object_tooling.h"
@@ -71,29 +72,29 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
 
     if (StringUtils::begins_with(name,"playback/play")) { // bw compatibility
 
-        set_current_animation(p_value);
+        set_current_animation(p_value.as<StringName>());
 
     } else if (StringUtils::begins_with(name,"anims/")) {
 
         StringView which = StringUtils::get_slice(name,'/', 1);
-        add_animation(StringName(which), refFromRefPtr<Animation>(p_value));
+        add_animation(StringName(which), refFromVariant<Animation>(p_value));
 
     } else if (StringUtils::begins_with(name,"next/")) {
 
         StringView which = StringUtils::get_slice(name,'/', 1);
-        animation_set_next(StringName(which), p_value);
+        animation_set_next(StringName(which), p_value.as<StringName>());
 
     } else if (p_name == SceneStringNames::get_singleton()->blend_times) {
 
-        Array array = p_value;
+        Array array = p_value.as<Array>();
         int len = array.size();
         ERR_FAIL_COND_V(len % 3, false);
 
         for (int i = 0; i < len / 3; i++) {
 
-            StringName from = array[i * 3 + 0];
-            StringName to = array[i * 3 + 1];
-            float time = array[i * 3 + 2];
+            StringName from = array[i * 3 + 0].as<StringName>();
+            StringName to = array[i * 3 + 1].as<StringName>();
+            float time = array[i * 3 + 2].as<float>();
 
             set_blend_time(from, to, time);
         }
@@ -248,7 +249,7 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         Vector<StringName> leftover_path;
         Node *child = parent->get_node_and_resource(a->track_get_path(i), resource, leftover_path);
         ERR_CONTINUE_MSG(!child, "On Animation: '" + p_anim->name + "', couldn't resolve track:  '" + String(a->track_get_path(i)) + "'."); // couldn't find the child node
-        uint32_t id = resource ? resource->get_instance_id() : child->get_instance_id();
+        auto id = resource ? resource->get_instance_id() : child->get_instance_id();
         int bone_idx = -1;
 
         if (a->track_get_path(i).get_subname_count() == 1 && object_cast<Skeleton>(child)) {
@@ -262,8 +263,8 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
         }
 
         {
-            if (!child->is_connected("tree_exiting", this, "_node_removed"))
-                child->connect("tree_exiting", this, "_node_removed", make_binds(Variant(child)), ObjectNS::CONNECT_ONESHOT);
+            if (!child->is_connected("tree_exiting",callable_mp(this, &ClassName::_node_removed)))
+                child->connect("tree_exiting",callable_mp(this, &ClassName::_node_removed), make_binds(Variant(child)), ObjectNS::CONNECT_ONESHOT);
         }
 
         TrackNodeCacheKey key;
@@ -503,7 +504,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                     ERR_PRINT("Position key at time " + rtos(p_time) + " in Animation Track '" + String(pa->owner->path) + "' not of type Vector2(). Animation '" + a->get_name() + "' at node '" + (String)get_path() + "'.");
                                 }
 #endif
-                                static_cast<Node2D *>(pa->object)->set_position(value);
+                                static_cast<Node2D *>(pa->object)->set_position(value.as<Vector2>());
                             } break;
                             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
@@ -512,7 +513,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                 }
 #endif
 
-                                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad((double)value));
+                                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad(value.as<float>()));
                             } break;
                             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
@@ -521,7 +522,7 @@ void AnimationPlayer::_animation_process_animation(AnimationData *p_anim, float 
                                 }
 #endif
 
-                                static_cast<Node2D *>(pa->object)->set_scale(value);
+                                static_cast<Node2D *>(pa->object)->set_scale(value.as<Vector2>());
                             } break;
                         }
                     }
@@ -897,7 +898,7 @@ void AnimationPlayer::_animation_update_transforms() {
                     ERR_PRINT("Position key at time " + rtos(playback.current.pos) + " in Animation '" + get_current_animation() + "' at Node '" + (String)get_path() + "', Track '" + String(pa->owner->path) + "' not of type Vector2()");
                 }
 #endif
-                static_cast<Node2D *>(pa->object)->set_position(pa->value_accum);
+                static_cast<Node2D *>(pa->object)->set_position(pa->value_accum.as<Vector2>());
             } break;
             case SP_NODE2D_ROT: {
 #ifdef DEBUG_ENABLED
@@ -906,7 +907,7 @@ void AnimationPlayer::_animation_update_transforms() {
                 }
 #endif
 
-                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad((double)pa->value_accum));
+                static_cast<Node2D *>(pa->object)->set_rotation(Math::deg2rad(pa->value_accum.as<float>()));
             } break;
             case SP_NODE2D_SCALE: {
 #ifdef DEBUG_ENABLED
@@ -915,7 +916,7 @@ void AnimationPlayer::_animation_update_transforms() {
                 }
 #endif
 
-                static_cast<Node2D *>(pa->object)->set_scale(pa->value_accum);
+                static_cast<Node2D *>(pa->object)->set_scale(pa->value_accum.as<Vector2>());
             } break;
         }
     }
@@ -1010,13 +1011,12 @@ void AnimationPlayer::remove_animation(const StringName &p_name) {
 }
 
 void AnimationPlayer::_ref_anim(const Ref<Animation> &p_anim) {
-
-    Ref<Animation>(p_anim)->connect(SceneStringNames::get_singleton()->tracks_changed, this, "_animation_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    Ref<Animation>(p_anim)->connect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 void AnimationPlayer::_unref_anim(const Ref<Animation> &p_anim) {
 
-    Ref<Animation>(p_anim)->disconnect(SceneStringNames::get_singleton()->tracks_changed, this, "_animation_changed");
+    Ref<Animation>(p_anim)->disconnect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed));
 }
 
 void AnimationPlayer::rename_animation(const StringName &p_name, const StringName &p_new_name) {
@@ -1438,12 +1438,12 @@ StringName AnimationPlayer::find_animation(const Ref<Animation> &p_animation) co
     return "";
 }
 
-void AnimationPlayer::set_autoplay(StringView p_name) {
+void AnimationPlayer::set_autoplay(const StringName & p_name) {
     if (is_inside_tree() && !Engine::get_singleton()->is_editor_hint()) {
         WARN_PRINT("Setting autoplay after the node has been added to the scene has no effect.");
     }
 
-    autoplay = StringName(p_name);
+    autoplay = p_name;
 }
 
 StringName AnimationPlayer::get_autoplay() const {
@@ -1531,7 +1531,7 @@ NodePath AnimationPlayer::get_root() const {
 void AnimationPlayer::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
-    const char *quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char *quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char *quote_style = "\"";
 #endif
@@ -1603,7 +1603,7 @@ void AnimationPlayer::restore_animated_values(const AnimatedValuesBackup &p_back
         if (entry.bone_idx == -1) {
             entry.object->set_indexed(entry.subpath, entry.value);
         } else {
-            object_cast<Skeleton>(entry.object)->set_bone_pose(entry.bone_idx, entry.value);
+            object_cast<Skeleton>(entry.object)->set_bone_pose(entry.bone_idx, entry.value.as<Transform>());
         }
     }
 }
@@ -1630,8 +1630,8 @@ void AnimationPlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_default_blend_time", {"sec"}), &AnimationPlayer::set_default_blend_time);
     MethodBinder::bind_method(D_METHOD("get_default_blend_time"), &AnimationPlayer::get_default_blend_time);
 
-    MethodBinder::bind_method(D_METHOD("play", {"name", "custom_blend", "custom_speed", "from_end"}), &AnimationPlayer::play, {DEFVAL(""), DEFVAL(-1), DEFVAL(1.0), DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("play_backwards", {"name", "custom_blend"}), &AnimationPlayer::play_backwards, {DEFVAL(""), DEFVAL(-1)});
+    MethodBinder::bind_method(D_METHOD("play", {"name", "custom_blend", "custom_speed", "from_end"}), &AnimationPlayer::play, {DEFVAL(StringName()), DEFVAL(-1), DEFVAL(1.0), DEFVAL(false)});
+    MethodBinder::bind_method(D_METHOD("play_backwards", {"name", "custom_blend"}), &AnimationPlayer::play_backwards, {DEFVAL(StringName()), DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("stop", {"reset"}), &AnimationPlayer::stop, {DEFVAL(true)});
     MethodBinder::bind_method(D_METHOD("is_playing"), &AnimationPlayer::is_playing);
 
@@ -1673,9 +1673,9 @@ void AnimationPlayer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("advance", {"delta"}), &AnimationPlayer::advance);
 
     ADD_PROPERTY(PropertyInfo(VariantType::NODE_PATH, "root_node"), "set_root", "get_root");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "assigned_animation", PropertyHint::None, "", 0), "set_assigned_animation", "get_assigned_animation");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "autoplay", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_autoplay", "get_autoplay");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "current_animation", PropertyHint::Enum, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_ANIMATE_AS_TRIGGER), "set_current_animation", "get_current_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "assigned_animation", PropertyHint::None, "", 0), "set_assigned_animation", "get_assigned_animation");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "autoplay", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_autoplay", "get_autoplay");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_length", PropertyHint::None, "", 0), "", "get_current_animation_length");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "current_animation_position", PropertyHint::None, "", 0), "", "get_current_animation_position");
 

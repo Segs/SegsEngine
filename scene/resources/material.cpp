@@ -30,6 +30,7 @@
 
 #include "material.h"
 
+#include "core/callable_method_pointer.h"
 #include "servers/rendering/shader_language.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/shader.h"
@@ -276,7 +277,7 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
     // This can be a slow operation, and `_change_notify()` (which is called by `_shader_changed()`)
     // does nothing in non-editor builds anyway. See GH-34741 for details.
     if (shader && Engine::get_singleton()->is_editor_hint()) {
-        shader->disconnect("changed", this, "_shader_changed");
+        shader->disconnect("changed",callable_mp(this, &ClassName::_shader_changed));
     }
 
     shader = p_shader;
@@ -285,7 +286,7 @@ void ShaderMaterial::set_shader(const Ref<Shader> &p_shader) {
     if (shader) {
         rid = shader->get_rid();
         if (Engine::get_singleton()->is_editor_hint()) {
-            shader->connect("changed", this, "_shader_changed");
+            shader->connect("changed",callable_mp(this, &ClassName::_shader_changed));
         }
     }
 
@@ -329,7 +330,7 @@ void ShaderMaterial::_bind_methods() {
 void ShaderMaterial::get_argument_options(const StringName &p_function, int p_idx, List<String> *r_options) const {
 
 #ifdef TOOLS_ENABLED
-    const char * quote_style(EDITOR_DEF("text_editor/completion/use_single_quotes", 0) ? "'" : "\"");
+    const char * quote_style(EDITOR_DEF_T<bool>("text_editor/completion/use_single_quotes", false) ? "'" : "\"");
 #else
     const char * quote_style = "\"";
 #endif
@@ -822,7 +823,7 @@ void SpatialMaterial::_update_shader() {
         code += "\tvec2 base_uv2 = UV2;\n";
     }
 
-    if (!RenderingServer::get_singleton()->is_low_end() && features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
+    if (/*!RenderingServer::get_singleton()->is_low_end() &&*/ features[FEATURE_DEPTH_MAPPING] && !flags[FLAG_UV1_USE_TRIPLANAR]) { //depthmap not supported with triplanar
         code += "\t{\n";
         code += "\t\tvec3 view_dir = normalize(normalize(-VERTEX)*mat3(TANGENT*depth_flip.x,-BINORMAL*depth_flip.y,NORMAL));\n"; // binormal is negative due to mikktspace, flip 'unflips' it ;-)
 
@@ -963,7 +964,7 @@ void SpatialMaterial::_update_shader() {
     if (distance_fade != DISTANCE_FADE_DISABLED) {
         if ((distance_fade == DISTANCE_FADE_OBJECT_DITHER || distance_fade == DISTANCE_FADE_PIXEL_DITHER)) {
 
-            if (!RenderingServer::get_singleton()->is_low_end()) {
+            /*if (!RenderingServer::get_singleton()->is_low_end())*/ {
                 code += "\t{\n";
                 if (distance_fade == DISTANCE_FADE_OBJECT_DITHER) {
                     code += "\t\tfloat fade_distance = abs((INV_CAMERA_MATRIX * WORLD_MATRIX[3]).z);\n";

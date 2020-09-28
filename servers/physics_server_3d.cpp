@@ -304,7 +304,7 @@ Dictionary PhysicsDirectSpaceState3D::_intersect_ray(const Vector3 &p_from, cons
     Dictionary d;
     d["position"] = inters.position;
     d["normal"] = inters.normal;
-    d["collider_id"] = inters.collider_id;
+    d["collider_id"] = Variant::from(inters.collider_id);
     d["collider"] = Variant(inters.collider);
     d["shape"] = inters.shape;
     d["rid"] = inters.rid;
@@ -325,7 +325,7 @@ Array PhysicsDirectSpaceState3D::_intersect_shape(const Ref<PhysicsShapeQueryPar
 
         Dictionary d;
         d["rid"] = sr[i].rid;
-        d["collider_id"] = sr[i].collider_id;
+        d["collider_id"] = Variant::from(sr[i].collider_id);
         d["collider"] = Variant(sr[i].collider);
         d["shape"] = sr[i].shape;
         ret.emplace_back(eastl::move(d));
@@ -378,7 +378,7 @@ Dictionary PhysicsDirectSpaceState3D::_get_rest_info(const Ref<PhysicsShapeQuery
     r["point"] = sri.point;
     r["normal"] = sri.normal;
     r["rid"] = sri.rid;
-    r["collider_id"] = sri.collider_id;
+    r["collider_id"] = Variant::from(sri.collider_id);
     r["shape"] = sri.shape;
     r["linear_velocity"] = sri.linear_velocity;
 
@@ -836,7 +836,7 @@ void PhysicsServerManager::cleanup()
     default_server_priority = -1;
 }
 PhysicsServer3D * initialize_3d_physics() {
-    PhysicsServer3D *physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->get(PhysicsServerManager::setting_property_name));
+    PhysicsServer3D *physics_server_3d = PhysicsServerManager::new_server(ProjectSettings::get_singleton()->getT<StringName>(PhysicsServerManager::setting_property_name));
     if (!physics_server_3d) {
         // Physics server not found, Use the default physics
         physics_server_3d = PhysicsServerManager::new_default_server();

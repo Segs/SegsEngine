@@ -30,6 +30,7 @@
 
 #include "viewport.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/debugger/script_debugger.h"
 #include "core/method_bind.h"
@@ -439,7 +440,7 @@ void Viewport::_notification(int p_what) {
 #ifndef _3D_DISABLED
                 Vector2 last_pos(1e20f, 1e20f);
                 CollisionObject3D *last_object = nullptr;
-                ObjectID last_id = 0;
+                ObjectID last_id = ObjectID(0ULL);
 #endif
                 PhysicsDirectSpaceState3D::RayResult result;
                 PhysicsDirectSpaceState2D *ss2d = PhysicsServer2D::get_singleton()->space_get_direct_state(find_world_2d()->get_space());
@@ -566,7 +567,7 @@ void Viewport::_notification(int p_what) {
                             int rc = ss2d->intersect_point_on_canvas(point, canvas_layer_id, res, 64, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
                             for (int i = 0; i < rc; i++) {
 
-                                if (res[i].collider_id && res[i].collider) {
+                                if (res[i].collider_id.is_valid() && res[i].collider) {
                                     CollisionObject2D *co = object_cast<CollisionObject2D>(res[i].collider);
                                     if (co) {
                                         bool send_event = true;
@@ -615,7 +616,7 @@ void Viewport::_notification(int p_what) {
 #ifndef _3D_DISABLED
                     bool captured = false;
 
-                    if (physics_object_capture != 0) {
+                    if (physics_object_capture.is_valid()) {
 
                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_capture));
                         if (co && camera) {
@@ -634,7 +635,7 @@ void Viewport::_notification(int p_what) {
                         //none
                     } else if (pos == last_pos) {
 
-                        if (last_id) {
+                        if (last_id.is_valid()) {
                             if (gObjectDB().get_instance(last_id) && last_object) {
                                 //good, exists
                                 _collision_object_input_event(last_object, camera, ev, result.position, result.normal, result.shape);
@@ -654,7 +655,7 @@ void Viewport::_notification(int p_what) {
                             if (space) {
 
                                 bool col = space->intersect_ray(from, from + dir * 10000, result, HashSet<RID>(), 0xFFFFFFFF, true, true, true);
-                                ObjectID new_collider = 0;
+                                ObjectID new_collider = ObjectID(0ULL);
                                 if (col) {
 
                                     CollisionObject3D *co = object_cast<CollisionObject3D>(result.collider);
@@ -672,7 +673,7 @@ void Viewport::_notification(int p_what) {
 
                                 if (is_mouse && new_collider != physics_object_over) {
 
-                                    if (physics_object_over) {
+                                    if (physics_object_over.is_valid()) {
 
                                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
                                         if (co) {
@@ -680,7 +681,7 @@ void Viewport::_notification(int p_what) {
                                         }
                                     }
 
-                                    if (new_collider) {
+                                    if (new_collider.is_valid()) {
 
                                         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(new_collider));
                                         if (co) {
@@ -1143,13 +1144,13 @@ void Viewport::set_world(const Ref<World3D> &p_world) {
         _propagate_exit_world(this);
 
     if (own_world && world) {
-        world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+        world->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
     }
     world = p_world;
     if (own_world) {
         if (world) {
             own_world = dynamic_ref_cast<World3D>(world->duplicate());
-            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         } else {
             own_world = Ref<World3D>(memnew(World3D));
         }
@@ -1419,7 +1420,7 @@ Transform2D Viewport::_get_input_pre_xform() const {
 Vector2 Viewport::_get_window_offset() const {
 
     if (get_parent() && get_parent()->has_method("get_global_position")) {
-        return get_parent()->call_va("get_global_position");
+        return get_parent()->call_va("get_global_position").as<Vector2>();
     }
     return Vector2();
 }
@@ -1551,10 +1552,10 @@ void Viewport::_gui_cancel_tooltip() {
     }
 }
 
-StringName Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
+String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which) {
 
     Vector2 pos = p_pos;
-    StringName tooltip;
+    String tooltip;
 
     while (p_control) {
 
@@ -1586,8 +1587,8 @@ void Viewport::_gui_show_tooltip() {
     }
 
     Control *which = nullptr;
-    StringName tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
-    tooltip =StringName(StringUtils::strip_edges( tooltip));
+    String tooltip = _gui_get_tooltip(gui.tooltip, gui.tooltip->get_global_transform().xform_inv(gui.tooltip_pos), &which);
+    tooltip = StringUtils::strip_edges( tooltip);
     if (tooltip.empty())
         return; // bye
 
@@ -1617,7 +1618,7 @@ void Viewport::_gui_show_tooltip() {
         gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
         gui.tooltip_label->set_anchor_and_margin(Margin::Right, Control::ANCHOR_END, -ttp->get_margin(Margin::Right));
         gui.tooltip_label->set_anchor_and_margin(Margin::Bottom, Control::ANCHOR_END, -ttp->get_margin(Margin::Bottom));
-        gui.tooltip_label->set_text(tooltip);
+        gui.tooltip_label->set_text(StringName(tooltip));
     }
 
     rp->add_child(gui.tooltip_popup);
@@ -1626,7 +1627,7 @@ void Viewport::_gui_show_tooltip() {
     if (gui.tooltip) // Avoids crash when rapidly switching controls.
         gui.tooltip_popup->set_scale(gui.tooltip->get_global_transform().get_scale());
 
-    Point2 tooltip_offset = ProjectSettings::get_singleton()->get("display/mouse_cursor/tooltip_position_offset");
+    Point2 tooltip_offset = ProjectSettings::get_singleton()->getT<Vector2>("display/mouse_cursor/tooltip_position_offset");
     Rect2 r(gui.tooltip_pos + tooltip_offset, gui.tooltip_popup->get_minimum_size());
     Rect2 vr = gui.tooltip_popup->get_viewport_rect();
     if (r.size.x * gui.tooltip_popup->get_scale().x + r.position.x > vr.size.x)
@@ -1676,7 +1677,17 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 break;
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
-                control->call_multilevel(SceneStringNames::get_singleton()->_gui_input, ev);
+                // Call both script and native methods.
+                Callable::CallError error;
+                Variant event = ev;
+                const Variant *args[1] = { &event };
+                if (control->get_script_instance()) {
+                    control->get_script_instance()->call(SceneStringNames::get_singleton()->_gui_input, args, 1, error);
+                }
+                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::get_singleton()->_gui_input);
+                if (method) {
+                    method->call(control, args, 1, error);
+                }
             }
 
             if (!control->is_inside_tree() || control->is_set_as_toplevel())
@@ -2224,7 +2235,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             if (gui.tooltip_popup) {
                 if (can_tooltip && gui.tooltip) {
-                    StringName tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
+                    String tooltip = _gui_get_tooltip(over, gui.tooltip->get_global_transform().xform_inv(mpos));
 
                     if (tooltip.empty())
                         _gui_cancel_tooltip();
@@ -2232,7 +2243,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                         if (tooltip == gui.tooltip_label->get_text()) {
                             is_tooltip_shown = true;
                         }
-                    } else if (tooltip == StringName(gui.tooltip_popup->call_va("get_tooltip_text"))) {
+                    } else if (tooltip == gui.tooltip_popup->call_va("get_tooltip_text").as<String>()) {
                         is_tooltip_shown = true;
                     }
                 } else
@@ -2410,9 +2421,10 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             gui.key_event_accepted = false;
             if (gui.key_focus->can_process()) {
-                gui.key_focus->call_multilevel(SceneStringNames::get_singleton()->_gui_input, p_event);
-                if (gui.key_focus) //maybe lost it
+                gui.key_focus->call_va(SceneStringNames::get_singleton()->_gui_input, p_event);
+                if (gui.key_focus) { //maybe lost it
                     gui.key_focus->emit_signal(SceneStringNames::get_singleton()->gui_input, p_event);
+                }
             }
 
             if (gui.key_event_accepted) {
@@ -2497,7 +2509,7 @@ void Viewport::_gui_add_root_control(Control *p_control) {
 
 void Viewport::_gui_add_subwindow_control(Control *p_control) {
 
-    p_control->connect("visibility_changed", this, "_subwindow_visibility_changed");
+    p_control->connect("visibility_changed",callable_mp(this, &ClassName::_subwindow_visibility_changed));
 
     if (p_control->is_visible_in_tree()) {
         gui.subwindow_order_dirty = true;
@@ -2526,7 +2538,7 @@ void Viewport::_gui_remove_from_modal_stack(Control* MI, ObjectID p_prev_focus_o
 
     auto next = gui.modal_stack.erase_first(MI);
 
-    if (p_prev_focus_owner) {
+    if (p_prev_focus_owner.is_valid()) {
 
         // for previous window in stack, pass the focus so it feels more
         // natural
@@ -2588,7 +2600,7 @@ void Viewport::_gui_remove_subwindow_control(Control* SI) {
 
     ERR_FAIL_COND(SI==nullptr);
 
-    SI->disconnect("visibility_changed", this, "_subwindow_visibility_changed");
+    SI->disconnect("visibility_changed",callable_mp(this, &ClassName::_subwindow_visibility_changed));
 
     auto E = eastl::find(gui.subwindows.begin(), gui.subwindows.end(),SI);
     if (E!= gui.subwindows.end())
@@ -2701,7 +2713,7 @@ void Viewport::_drop_mouse_focus() {
             mb->set_global_position(c->get_local_mouse_position());
             mb->set_button_index(i + 1);
             mb->set_pressed(false);
-            c->call_multilevel(SceneStringNames::get_singleton()->_gui_input, mb);
+            c->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
         }
     }
 }
@@ -2720,7 +2732,7 @@ void Viewport::_drop_physics_mouseover() {
     }
 
 #ifndef _3D_DISABLED
-    if (physics_object_over) {
+    if (physics_object_over.is_valid()) {
         CollisionObject3D *co = object_cast<CollisionObject3D>(gObjectDB().get_instance(physics_object_over));
         if (co) {
             co->_mouse_exit();
@@ -2737,7 +2749,7 @@ void Viewport::_gui_show_modal(Control *p_control) {
     if (gui.key_focus)
         p_control->_modal_set_prev_focus_owner(gui.key_focus->get_instance_id());
     else
-        p_control->_modal_set_prev_focus_owner(0);
+        p_control->_modal_set_prev_focus_owner(ObjectID(0ULL));
 
     if (gui.mouse_focus && !p_control->is_a_parent_of(gui.mouse_focus) && !gui.mouse_click_grabber) {
 
@@ -2784,7 +2796,7 @@ void Viewport::_post_gui_grab_click_focus() {
                 mb->set_position(click);
                 mb->set_button_index(i + 1);
                 mb->set_pressed(false);
-                gui.mouse_focus->call_multilevel(SceneStringNames::get_singleton()->_gui_input, mb);
+                gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
             }
         }
 
@@ -2864,12 +2876,12 @@ void Viewport::set_use_own_world(bool p_world) {
     if (!p_world) {
         own_world = Ref<World3D>();
         if (world) {
-            world->disconnect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         }
     } else {
         if (world) {
             own_world = dynamic_ref_cast<World3D>(world->duplicate());
-            world->connect(CoreStringNames::get_singleton()->changed, this, "_own_world_changed");
+            world->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &Viewport::_own_world_changed));
         } else {
             own_world = make_ref_counted<World3D>();
         }
@@ -3098,12 +3110,14 @@ bool Viewport::is_handling_input_locally() const {
 
 void Viewport::_validate_property(PropertyInfo &property) const {
 
-    if (RenderingServer::get_singleton()->is_low_end() && property.name == "hdr") {
-        property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
-    }
+    //if (RenderingServer::get_singleton()->is_low_end() && property.name == "hdr") {
+    //    property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
+    //}
 }
 
 void Viewport::_bind_methods() {
+
+
 
     MethodBinder::bind_method(D_METHOD("set_use_arvr", {"use"}), &Viewport::set_use_arvr);
     MethodBinder::bind_method(D_METHOD("use_arvr"), &Viewport::use_arvr);
@@ -3146,6 +3160,7 @@ void Viewport::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_update_mode", {"mode"}), &Viewport::set_update_mode);
     MethodBinder::bind_method(D_METHOD("get_update_mode"), &Viewport::get_update_mode);
+
 
     MethodBinder::bind_method(D_METHOD("set_msaa", {"msaa"}), &Viewport::set_msaa);
     MethodBinder::bind_method(D_METHOD("get_msaa"), &Viewport::get_msaa);
@@ -3389,7 +3404,7 @@ Viewport::Viewport() {
     gui.tooltip_timer = -1;
 
     //gui.tooltip_timer->force_parent_owned();
-    gui.tooltip_delay = GLOBAL_DEF("gui/timers/tooltip_delay_sec", 0.5);
+    gui.tooltip_delay = T_GLOBAL_DEF("gui/timers/tooltip_delay_sec", float(0.5f));
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/tooltip_delay_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/tooltip_delay_sec", PropertyHint::Range, "0,5,0.01,or_greater")); // No negative numbers
 
     gui.tooltip = nullptr;

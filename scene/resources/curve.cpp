@@ -407,11 +407,11 @@ void Curve::set_data(Array input) {
         ERR_FAIL_COND(input[i + 2].get_type() != VariantType::FLOAT);
 
         ERR_FAIL_COND(input[i + 3].get_type() != VariantType::INT);
-        int left_mode = input[i + 3];
+        int left_mode = input[i + 3].as<int>();
         ERR_FAIL_COND(left_mode < 0 || left_mode >= TANGENT_MODE_COUNT);
 
         ERR_FAIL_COND(input[i + 4].get_type() != VariantType::INT);
-        int right_mode = input[i + 4];
+        int right_mode = input[i + 4].as<int>();
         ERR_FAIL_COND(right_mode < 0 || right_mode >= TANGENT_MODE_COUNT);
     }
 
@@ -422,14 +422,11 @@ void Curve::set_data(Array input) {
         Point &p = _points[j];
         int i = j * ELEMS;
 
-        p.pos = input[i];
-        p.left_tangent = input[i + 1];
-        p.right_tangent = input[i + 2];
-        // TODO For some reason the compiler won't convert from Variant to enum
-        int left_mode = input[i + 3];
-        int right_mode = input[i + 4];
-        p.left_mode = (TangentMode)left_mode;
-        p.right_mode = (TangentMode)right_mode;
+        p.pos = input[i].as<Vector2>();
+        p.left_tangent = input[i + 1].as<float>();
+        p.right_tangent = input[i + 2].as<float>();
+        p.left_mode = input[i + 3].as<TangentMode>();
+        p.right_mode = input[i + 4].as<TangentMode>();
     }
 
     mark_dirty();
@@ -928,7 +925,7 @@ void Curve2D::_set_data(const Dictionary &p_data) {
 
     ERR_FAIL_COND(!p_data.has("points"));
 
-    PoolVector2Array rp = p_data["points"];
+    PoolVector2Array rp = p_data["points"].as<PoolVector2Array>();
     int pc = rp.size();
     ERR_FAIL_COND(pc % 3 != 0);
     points.resize(pc / 3);
@@ -1604,12 +1601,12 @@ void Curve3D::_set_data(const Dictionary &p_data) {
     ERR_FAIL_COND(!p_data.has("points"));
     ERR_FAIL_COND(!p_data.has("tilts"));
 
-    PoolVector3Array rp = p_data["points"];
+    PoolVector3Array rp = p_data["points"].as<PoolVector3Array>();
     int pc = rp.size();
     ERR_FAIL_COND(pc % 3 != 0);
     points.resize(pc / 3);
     PoolVector3Array::Read r = rp.read();
-    PoolRealArray rtl = p_data["tilts"];
+    PoolRealArray rtl = p_data["tilts"].as<PoolRealArray>();
     PoolRealArray::Read rt = rtl.read();
 
     for (int i = 0; i < points.size(); i++) {

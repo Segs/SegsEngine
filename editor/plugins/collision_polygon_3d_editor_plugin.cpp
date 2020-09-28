@@ -57,7 +57,7 @@ void CollisionPolygon3DEditor::_notification(int p_what) {
             button_create->set_button_icon(get_icon("Edit", "EditorIcons"));
             button_edit->set_button_icon(get_icon("MovePoint", "EditorIcons"));
             button_edit->set_pressed(true);
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
 
         } break;
         case NOTIFICATION_PROCESS: {
@@ -105,7 +105,7 @@ void CollisionPolygon3DEditor::_menu_option(int p_option) {
 
 void CollisionPolygon3DEditor::_wip_close() {
 
-    undo_redo->create_action_ui(TTR("Create Polygon3D"));
+    undo_redo->create_action(TTR("Create Polygon3D"));
     undo_redo->add_undo_method(node, "set_polygon", node->call_va("get_polygon"));
     undo_redo->add_do_method(node, "set_polygon", Variant::from(wip));
     undo_redo->add_do_method(this, "_polygon_draw");
@@ -154,7 +154,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
         Vector<Vector2> poly = node->call_va("get_polygon").as<Vector<Vector2>>();
 
         //first check if a point is to be added (segment split)
-        real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+        real_t grab_threshold = EDITOR_GET_T<float>("editors/poly_editor/point_grab_radius");
 
         switch (mode) {
 
@@ -203,7 +203,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                             if (poly.size() < 3) {
 
-                                undo_redo->create_action_ui(TTR("Edit Poly"));
+                                undo_redo->create_action(TTR("Edit Poly"));
                                 undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                                 poly.push_back(cpoint);
                                 undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
@@ -287,7 +287,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                             ERR_FAIL_INDEX_V(edited_point, poly.size(), false);
                             poly[edited_point] = edited_point_pos;
-                            undo_redo->create_action_ui(TTR("Edit Poly"));
+                            undo_redo->create_action(TTR("Edit Poly"));
                             undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
                             undo_redo->add_undo_method(node, "set_polygon", Variant::from(pre_move_edit));
                             undo_redo->add_do_method(this, "_polygon_draw");
@@ -318,7 +318,7 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
                     if (closest_idx >= 0) {
 
-                        undo_redo->create_action_ui(TTR("Edit Poly (Remove Point)"));
+                        undo_redo->create_action(TTR("Edit Poly (Remove Point)"));
                         undo_redo->add_undo_method(node, "set_polygon", Variant::from(poly));
                         poly.erase_at(closest_idx);
                         undo_redo->add_do_method(node, "set_polygon", Variant::from(poly));
@@ -372,10 +372,10 @@ bool CollisionPolygon3DEditor::forward_spatial_gui_input(Camera3D *p_camera, con
 
 float CollisionPolygon3DEditor::_get_depth() {
 
-    if (bool(node->call_va("_has_editable_3d_polygon_no_depth")))
+    if (node->call_va("_has_editable_3d_polygon_no_depth").as<bool>())
         return 0;
 
-    return float(node->call_va("get_depth"));
+    return node->call_va("get_depth").as<float>();
 }
 
 void CollisionPolygon3DEditor::_polygon_draw() {
@@ -540,12 +540,12 @@ CollisionPolygon3DEditor::CollisionPolygon3DEditor(EditorNode *p_editor) {
     add_child(memnew(VSeparator));
     button_create = memnew(ToolButton);
     add_child(button_create);
-    button_create->connect("pressed", this, "_menu_option", varray(MODE_CREATE));
+    button_create->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_CREATE));
     button_create->set_toggle_mode(true);
 
     button_edit = memnew(ToolButton);
     add_child(button_edit);
-    button_edit->connect("pressed", this, "_menu_option", varray(MODE_EDIT));
+    button_edit->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT));
     button_edit->set_toggle_mode(true);
 
     mode = MODE_EDIT;
@@ -592,7 +592,7 @@ void CollisionPolygon3DEditorPlugin::edit(Object *p_object) {
 
 bool CollisionPolygon3DEditorPlugin::handles(Object *p_object) const {
 
-    return object_cast<Node3D>(p_object) && bool(p_object->call_va("_is_editable_3d_polygon"));
+    return object_cast<Node3D>(p_object) && p_object->call_va("_is_editable_3d_polygon").as<bool>();
 }
 
 void CollisionPolygon3DEditorPlugin::make_visible(bool p_visible) {

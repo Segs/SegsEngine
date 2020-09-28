@@ -569,7 +569,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "blend_shape/mode") {
 
-        set_blend_shape_mode(BlendShapeMode(int(p_value)));
+        set_blend_shape_mode(p_value.as<BlendShapeMode>());
         return true;
     }
 
@@ -582,7 +582,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
         int idx = StringUtils::to_int(StringUtils::substr(p_name,8, sl - 8)) - 1;
         StringName what( StringUtils::get_slice(p_name,'/', 1));
         if (what == StringView("material"))
-            surface_set_material(idx, refFromRefPtr<Material>(p_value));
+            surface_set_material(idx, refFromVariant<Material>(p_value));
         else if (what == StringView("name"))
             surface_set_name(idx, p_value.as<String>());
         return true;
@@ -599,59 +599,59 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
     }
 
     //create
-    Dictionary d = p_value;
+    Dictionary d = p_value.as<Dictionary>();
     ERR_FAIL_COND_V(!d.has("primitive"), false);
 
     if (d.has("arrays")) {
         //old format
         ERR_FAIL_COND_V(!d.has("morph_arrays"), false);
         Vector<SurfaceArrays> morph_arrays;
-        Array ma=d["morph_arrays"];
+        Array ma=d["morph_arrays"].as<Array>();
         morph_arrays.reserve(ma.size());
         for(int i=0; i<ma.size(); ++i)
             morph_arrays.emplace_back(SurfaceArrays::fromArray(ma[i].as<Array>()));
-        add_surface_from_arrays(PrimitiveType(int(d["primitive"])), SurfaceArrays::fromArray(d["arrays"]), eastl::move(morph_arrays));
+        add_surface_from_arrays(d["primitive"].as< PrimitiveType>(), SurfaceArrays::fromArray(d["arrays"].as<Array>()), eastl::move(morph_arrays));
 
     } else if (d.has("array_data")) {
 
-        PoolVector<uint8_t> array_data = d["array_data"];
+        PoolVector<uint8_t> array_data = d["array_data"].as<PoolVector<uint8_t>>();
         PoolVector<uint8_t> array_index_data;
         if (d.has("array_index_data"))
-            array_index_data = d["array_index_data"];
+            array_index_data = d["array_index_data"].as<PoolVector<uint8_t>>();
 
         ERR_FAIL_COND_V(!d.has("format"), false);
-        uint32_t format = d["format"];
+        uint32_t format = d["format"].as<uint32_t>();
 
-        uint32_t primitive = d["primitive"];
+        uint32_t primitive = d["primitive"].as<uint32_t>();
 
         ERR_FAIL_COND_V(!d.has("vertex_count"), false);
-        int vertex_count = d["vertex_count"];
+        int vertex_count = d["vertex_count"].as<int>();
 
         int index_count = 0;
         if (d.has("index_count"))
-            index_count = d["index_count"];
+            index_count = d["index_count"].as<int>();
 
         Vector<PoolVector<uint8_t> > blend_shapes;
 
         if (d.has("blend_shape_data")) {
-            Array blend_shape_data = d["blend_shape_data"];
+            Array blend_shape_data = d["blend_shape_data"].as<Array>();
             blend_shapes.reserve(blend_shape_data.size());
             for (int i = 0; i < blend_shape_data.size(); i++) {
-                PoolVector<uint8_t> shape = blend_shape_data[i];
+                PoolVector<uint8_t> shape = blend_shape_data[i].as<PoolVector<uint8_t>>();
                 blend_shapes.emplace_back(eastl::move(shape));
             }
         }
 
         ERR_FAIL_COND_V(!d.has("aabb"), false);
-        AABB aabb = d["aabb"];
+        AABB aabb = d["aabb"].as<AABB>();
 
         PoolVector<AABB> bone_aabb;
         if (d.has("skeleton_aabb")) {
-            Array baabb = d["skeleton_aabb"];
+            Array baabb = d["skeleton_aabb"].as<Array>();
             bone_aabb.resize(baabb.size());
             auto wr(bone_aabb.write());
             for (int i = 0; i < baabb.size(); i++) {
-                wr[i] = baabb[i];
+                wr[i] = baabb[i].as<AABB>();
             }
         }
 
@@ -662,7 +662,7 @@ bool ArrayMesh::_set(const StringName &p_name, const Variant &p_value) {
 
     if (d.has("material")) {
 
-        surface_set_material(idx, refFromRefPtr<Material>(d["material"]));
+        surface_set_material(idx, refFromVariant<Material>(d["material"]));
     }
     if (d.has("name")) {
         surface_set_name(idx, d["name"].as<String>());

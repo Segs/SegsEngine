@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "editor_layouts_dialog.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/class_db.h"
 #include "core/io/config_file.h"
@@ -129,8 +130,8 @@ EditorLayoutsDialog::EditorLayoutsDialog() {
     name->set_margin(Margin::Top, 5);
     name->set_anchor_and_margin(Margin::Left, ANCHOR_BEGIN, 5);
     name->set_anchor_and_margin(Margin::Right, ANCHOR_END, -5);
-    name->connect("gui_input", this, "_line_gui_input");
-    name->connect("focus_entered", layout_names, "unselect_all");
+    name->connect("gui_input",callable_mp(this, &ClassName::_line_gui_input));
+    name->connect("focus_entered", callable_mp(layout_names, &ItemList::unselect_all));
 }
 
 void EditorLayoutsDialog::set_name_line_enabled(bool p_enabled) {

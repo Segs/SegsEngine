@@ -72,7 +72,7 @@ Variant PackedDataContainer::_iter_next_ofs(const Array &p_iter, uint32_t p_offs
     int size = _size(p_offset);
     if (ref.size() != 1)
         return false;
-    int pos = ref[0];
+    int pos = ref[0].as<int>();
     if (pos < 0 || pos >= size)
         return false;
     pos += 1;
@@ -83,7 +83,7 @@ Variant PackedDataContainer::_iter_next_ofs(const Array &p_iter, uint32_t p_offs
 Variant PackedDataContainer::_iter_get_ofs(const Variant &p_iter, uint32_t p_offset) {
 
     int size = _size(p_offset);
-    int pos = p_iter;
+    int pos = p_iter.as<int>();
     if (pos < 0 || pos >= size)
         return Variant();
 
@@ -172,7 +172,7 @@ Variant PackedDataContainer::_key_at_ofs(uint32_t p_ofs, const Variant &p_key, b
 
         if (p_key.is_num()) {
 
-            int idx = p_key;
+            int idx = p_key.as<int>();
             int len = decode_uint32(r + 4);
             if (idx < 0 || idx >= len) {
                 err = true;
@@ -252,6 +252,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
         case VariantType::POOL_VECTOR2_ARRAY:
         case VariantType::POOL_VECTOR3_ARRAY:
         case VariantType::POOL_COLOR_ARRAY:
+        case VariantType::STRING_NAME:
         case VariantType::NODE_PATH: {
 
             uint32_t pos = tmpdata.size();
@@ -268,7 +269,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
         }
         case VariantType::DICTIONARY: {
 
-            Dictionary d = p_data;
+            Dictionary d = p_data.as<Dictionary>();
             //size is known, use sort
             uint32_t pos = tmpdata.size();
             int len = d.size();
@@ -303,7 +304,7 @@ uint32_t PackedDataContainer::_pack(const Variant &p_data, Vector<uint8_t> &tmpd
         }
         case VariantType::ARRAY: {
 
-            Array a = p_data;
+            Array a = p_data.as<Array>();
             //size is known, use sort
             uint32_t pos = tmpdata.size();
             int len = a.size();

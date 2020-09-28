@@ -418,12 +418,11 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         DocContents::ClassDoc &c = tgt.class_list[cname.asCString()];
         c.name = cname.asCString();
 
-        Callable::CallError cerror;
-        Variant v = Variant::construct(VariantType(i), nullptr, 0, cerror);
+        Variant v = Variant::construct_default(VariantType(i));
 
         Vector<MethodInfo> method_list;
-        v.get_method_list(&method_list);
-        eastl::sort(method_list.begin(),method_list.end());
+        //v.get_method_list(&method_list);
+        //eastl::sort(method_list.begin(),method_list.end());
         Variant::get_constructor_list(VariantType(i), &method_list);
 
         for (MethodInfo &mi : method_list) {
@@ -479,7 +478,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             DocContents::ConstantDoc constant;
             constant.name = E.asCString();
             Variant value = Variant::get_constant_value(VariantType(i), E);
-            constant.value = value.get_type() == VariantType::INT ? itos(value).c_str() : value.get_construct_string().c_str();
+            constant.value = value.get_type() == VariantType::INT ? itos(value.as<int>()).c_str() : value.get_construct_string().c_str();
             c.constants.push_back(constant);
         }
     }

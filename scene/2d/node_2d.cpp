@@ -51,10 +51,10 @@ Dictionary Node2D::_edit_get_state() const {
 }
 void Node2D::_edit_set_state(const Dictionary &p_state) {
 
-    pos = p_state["position"];
-    angle = p_state["rotation"];
-    _scale = p_state["scale"];
-    skew = p_state["skew"];
+    pos = p_state["position"].as<Vector2>();
+    angle = p_state["rotation"].as<float>();
+    _scale = p_state["scale"].as<Vector2>();
+    skew = p_state["skew"].as<float>();
 
     _update_transform();
     Object_change_notify(this,"rotation");

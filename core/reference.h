@@ -99,7 +99,7 @@ public:
             reference->reference();
     }
 
-    explicit Ref(const Variant &p_variant);
+    Ref(const Variant &p_variant);
 
 
     ~Ref() {
@@ -256,7 +256,7 @@ inline Ref<T> refFromVariant(const Variant &p_variant) {
 }
 template<class T>
 Ref<T>::Ref(const Variant &p_variant) {
-   RefPtr refptr = p_variant;
+   RefPtr refptr = p_variant.as<RefPtr>();
    reference = nullptr;
    *this = refFromRefPtr<T>(refptr);
 }
@@ -282,7 +282,7 @@ class GODOT_EXPORT WeakRef : public RefCounted {
 
     GDCLASS(WeakRef,RefCounted)
 
-    ObjectID ref {0};
+    ObjectID ref {0ULL};
 
 protected:
     static void _bind_methods();

@@ -406,7 +406,7 @@ public:
         return body->contacts[p_contact_idx].collider_pos;
     }
     ObjectID get_contact_collider_id(int p_contact_idx) const override {
-        ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, 0);
+        ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, ObjectID(0ULL));
         return body->contacts[p_contact_idx].collider_instance_id;
     }
     int get_contact_collider_shape(int p_contact_idx) const override {

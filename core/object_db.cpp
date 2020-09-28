@@ -11,16 +11,16 @@
 
 namespace  {
 HashMap<ObjectID, Object *> *s_instances=nullptr;
-ObjectID s_instance_counter;
+uint64_t s_instance_counter;
 
 }
 
 ObjectID ObjectDB::add_instance(Object *p_object) {
 
-    ERR_FAIL_COND_V(p_object->get_instance_id() != 0, 0);
+    ERR_FAIL_COND_V(p_object->get_instance_id().is_valid(), ObjectID());
 
     rw_lock->write_lock();
-    ObjectID instance_id = ++s_instance_counter;
+    ObjectID instance_id(++s_instance_counter);
     (*s_instances)[instance_id] = p_object;
     instance_checks[p_object] = instance_id;
 
@@ -40,10 +40,11 @@ void ObjectDB::remove_instance(Object *p_object) {
 }
 Object *ObjectDB::get_instance(ObjectID p_instance_id) {
 
-    rw_lock->read_lock();
+    ObjectDB &self(gObjectDB());
+    self.rw_lock->read_lock();
     auto iter= (*s_instances).find(p_instance_id);
     Object *obj = iter!=(*s_instances).end() ? iter->second : nullptr;
-    rw_lock->read_unlock();
+    self.rw_lock->read_unlock();
 
     return obj;
 }

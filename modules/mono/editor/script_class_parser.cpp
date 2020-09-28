@@ -202,8 +202,9 @@ ScriptClassParser::Token ScriptClassParser::get_token() {
                         tk_string += res;
 
                     } else {
-                        if (code[idx] == '\n')
+						if (code[idx] == '\n') {
                             line++;
+						}
                         tk_string += code[idx];
                     }
                     idx++;
@@ -295,15 +296,17 @@ Error ScriptClassParser::_skip_generic_type_params() {
 
                     tk = get_token();
 
-                    if (tk != TK_PERIOD)
+					if (tk != TK_PERIOD) {
                         break;
+					}
                 }
             }
 
             if (tk == TK_OP_LESS) {
                 Error err = _skip_generic_type_params();
-                if (err)
+				if (err) {
                     return err;
+				}
                 tk = get_token();
             }
 
@@ -338,7 +341,7 @@ Error ScriptClassParser::_parse_type_full_name(String &r_full_name) {
         return ERR_PARSE_ERROR;
     }
 
-    r_full_name += String(value);
+    r_full_name += value.as<String>();
 
     if (code[idx] == '<') {
         idx++;
@@ -375,7 +378,7 @@ Error ScriptClassParser::_parse_class_base(Vector<String> &r_base) {
         err = _parse_class_base(r_base);
         if (err)
             return err;
-    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+    } else if (tk == TK_IDENTIFIER && value.as<String>() == "where") {
         err = _parse_type_constraints();
         if (err) {
             return err;
@@ -413,7 +416,7 @@ Error ScriptClassParser::_parse_type_constraints() {
     while (true) {
         tk = get_token();
         if (tk == TK_IDENTIFIER) {
-            if (String(value) == "where") {
+            if (value.as<String>() == "where") {
                 return _parse_type_constraints();
             }
 
@@ -438,11 +441,11 @@ Error ScriptClassParser::_parse_type_constraints() {
 
         if (tk == TK_COMMA) {
             continue;
-        } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+        } else if (tk == TK_IDENTIFIER && value.as<String>() == "where") {
             return _parse_type_constraints();
-        } else if (tk == TK_SYMBOL && String(value) == "(") {
+        } else if (tk == TK_SYMBOL && value.as<String>() == "(") {
             tk = get_token();
-            if (tk != TK_SYMBOL || String(value) != ")") {
+            if (tk != TK_SYMBOL || value.as<String>() != ")") {
                 error_str = "Unexpected token: " + get_token_name(tk);
                 error = true;
                 return ERR_PARSE_ERROR;
@@ -466,7 +469,7 @@ Error ScriptClassParser::_parse_namespace_name(String &r_name, int &r_curly_stac
     Token tk = get_token();
 
     if (tk == TK_IDENTIFIER) {
-        r_name += String(value);
+        r_name += value.as<String>();
     } else {
         error_str = "Unexpected token: " + get_token_name(tk);
         error = true;
@@ -505,14 +508,14 @@ Error ScriptClassParser::parse(const String &p_code) {
     int type_curly_stack = 0;
 
     while (!error && tk != TK_EOF) {
-        String identifier = value;
+        String identifier = value.as<String>();
         if (tk == TK_IDENTIFIER && (identifier == "class" || identifier == "struct")) {
             bool is_class = identifier == "class";
 
             tk = get_token();
 
             if (tk == TK_IDENTIFIER) {
-                String name = value;
+                String name = value.as<String>();
                 int at_level = curly_stack;
 
                 ClassDecl class_decl;
@@ -556,7 +559,7 @@ Error ScriptClassParser::parse(const String &p_code) {
                         Error err = _skip_generic_type_params();
                         if (err)
                             return err;
-                    } else if (tk == TK_IDENTIFIER && String(value) == "where") {
+                    } else if (tk == TK_IDENTIFIER && value.as<String>() == "where") {
                         Error err = _parse_type_constraints();
                         if (err) {
                             return err;

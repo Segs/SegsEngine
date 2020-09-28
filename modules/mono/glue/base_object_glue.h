@@ -42,11 +42,11 @@ void godot_icall_Object_Disposed(MonoObject *p_obj, Object *p_ptr);
 
 void godot_icall_Reference_Disposed(MonoObject *p_obj, Object *p_ptr, MonoBoolean p_is_finalizer);
 
-MethodBind *godot_icall_Object_ClassDB_get_method(MonoString *p_type, MonoString *p_method);
+MethodBind *godot_icall_Object_ClassDB_get_method(StringName *p_type, MonoString *p_method);
 
 MonoObject *godot_icall_Object_weakref(Object *p_obj);
 
-Error godot_icall_SignalAwaiter_connect(Object *p_source, MonoString *p_signal, Object *p_target, MonoObject *p_awaiter);
+Error godot_icall_SignalAwaiter_connect(Object *p_source, StringName *p_signal, Object *p_target, MonoObject *p_awaiter);
 
 // DynamicGodotObject
 

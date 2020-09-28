@@ -30,18 +30,19 @@
 
 #include "editor_help.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
+#include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/resource/resource_manager.h"
+#include "core/string.h"
 #include "core/string_formatter.h"
 #include "doc_data_compressed.gen.h"
 #include "editor/plugins/script_editor_plugin.h"
 #include "editor_node.h"
-#include "editor_settings.h"
 #include "editor_scale.h"
-#include "core/method_bind.h"
-#include "core/string.h"
+#include "editor_settings.h"
 #include "scene/gui/rich_text_label.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
@@ -626,7 +627,7 @@ void EditorHelp::_update_doc() {
 
     // Methods overview
     bool method_descr = false;
-    bool sort_methods = EditorSettings::get_singleton()->get("text_editor/help/sort_functions_alphabetically");
+    bool sort_methods = EditorSettings::get_singleton()->getT<bool>("text_editor/help/sort_functions_alphabetically");
 
     Vector<DocContents::MethodDoc> methods;
 
@@ -966,7 +967,7 @@ void EditorHelp::_update_doc() {
                 class_desc->push_font(doc_code_font);
                 auto cval=constants[i].value;
                 if (StringUtils::begins_with(cval,"Color(") && StringUtils::ends_with(cval,")")) {
-                    
+
                     String stripped = cval.replaced(" ", "").replaced("Color(", "").replaced(")", "");
                     Vector<float> color = StringUtils::split_floats(stripped,",");
                     if (color.size() >= 3) {
@@ -1591,9 +1592,9 @@ EditorHelp::EditorHelp() {
     add_child(class_desc);
     class_desc->set_v_size_flags(SIZE_EXPAND_FILL);
     class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
-    class_desc->connect("meta_clicked", this, "_class_desc_select");
-    class_desc->connect("gui_input", this, "_class_desc_input");
-    class_desc->connect("resized", this, "_class_desc_resized");
+    class_desc->connect("meta_clicked",callable_mp(this, &ClassName::_class_desc_select));
+    class_desc->connect("gui_input",callable_mp(this, &ClassName::_class_desc_input));
+    class_desc->connect("resized",callable_mp(this, &ClassName::_class_desc_resized));
     _class_desc_resized();
 
     // Added second so it opens at the bottom so it won't offset the entire widget.
@@ -1680,7 +1681,7 @@ EditorHelpBit::EditorHelpBit() {
 
     rich_text = memnew(RichTextLabel);
     add_child(rich_text);
-    rich_text->connect("meta_clicked", this, "_meta_clicked");
+    rich_text->connect("meta_clicked",callable_mp(this, &ClassName::_meta_clicked));
     rich_text->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     rich_text->set_override_selected_font_color(false);
     set_custom_minimum_size(Size2(0, 70 * EDSCALE));
@@ -1692,8 +1693,8 @@ FindBar::FindBar() {
     add_child(m_private->search_text);
     m_private->search_text->set_custom_minimum_size(Size2(100 * EDSCALE, 0));
     m_private->search_text->set_h_size_flags(SIZE_EXPAND_FILL);
-    m_private->search_text->connect("text_changed", this, "_search_text_changed");
-    m_private->search_text->connect("text_entered", this, "_search_text_entered");
+    m_private->search_text->connect("text_changed",callable_mp(this, &ClassName::_search_text_changed));
+    m_private->search_text->connect("text_entered",callable_mp(this, &ClassName::_search_text_entered));
 
     m_private->matches_label = memnew(Label);
     add_child(m_private->matches_label);
@@ -1702,12 +1703,12 @@ FindBar::FindBar() {
     m_private->find_prev = memnew(ToolButton);
     add_child(m_private->find_prev);
     m_private->find_prev->set_focus_mode(FOCUS_NONE);
-    m_private->find_prev->connect("pressed", this, "_search_prev");
+    m_private->find_prev->connect("pressed",callable_mp(this, &ClassName::search_prev));
 
     m_private->find_next = memnew(ToolButton);
     add_child(m_private->find_next);
     m_private->find_next->set_focus_mode(FOCUS_NONE);
-    m_private->find_next->connect("pressed", this, "_search_next");
+    m_private->find_next->connect("pressed",callable_mp(this, &ClassName::search_next));
 
     Control *space = memnew(Control);
     add_child(space);
@@ -1718,7 +1719,7 @@ FindBar::FindBar() {
     m_private->hide_button->set_focus_mode(FOCUS_NONE);
     m_private->hide_button->set_expand(true);
     m_private->hide_button->set_stretch_mode(TextureButton::STRETCH_KEEP_CENTERED);
-    m_private->hide_button->connect("pressed", this, "_hide_pressed");
+    m_private->hide_button->connect("pressed",callable_mp(this, &ClassName::_hide_bar));
 }
 
 FindBar::~FindBar()

@@ -48,8 +48,7 @@ Variant ArrayPropertyEdit::get_array() const {
         return Array();
     Variant arr = o->get(property);
     if (!arr.is_array()) {
-        Callable::CallError ce;
-        arr = Variant::construct(default_type, nullptr, 0, ce);
+        arr = Variant::construct_default(default_type);
     }
     return arr;
 }
@@ -65,7 +64,8 @@ void ArrayPropertyEdit::_notif_changev(StringName p_v) {
 void ArrayPropertyEdit::_set_size(int p_size) {
 
     Variant arr = get_array();
-    arr.call("resize", p_size);
+    VariantOps::resize(arr,p_size);
+
     Object *o = gObjectDB().get_instance(obj);
     if (!o)
         return;
@@ -86,21 +86,21 @@ void ArrayPropertyEdit::_set_value(int p_idx, const Variant &p_value) {
 
 bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
-    StringName pn = p_name;
+    const StringName& pn = p_name;
 
     if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {
 
             Variant arr = get_array();
-            int size = arr.call("size");
+            int size = VariantOps::size(arr);
 
-            int newsize = p_value;
+            int newsize = p_value.as<int>();
             if (newsize == size)
                 return true;
 
             UndoRedo *ur = EditorNode::get_undo_redo();
-            ur->create_action_ui(TTR("Resize Array"));
+            ur->create_action(TTR("Resize Array"));
             ur->add_do_method(this, "_set_size", newsize);
             ur->add_undo_method(this, "_set_size", size);
             if (newsize < size) {
@@ -116,7 +116,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
                     new_type = arr.get(size - 1).get_type();
                 }
                 if (new_type != VariantType::NIL) {
-                    init = Variant::construct(new_type, nullptr, 0, ce);
+                    init = Variant::construct_default(new_type);
                     for (int i = size; i < newsize; i++) {
                         ur->add_do_method(this, "_set_value", i, init);
                     }
@@ -128,7 +128,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             return true;
         }
         if (pn == "array/page") {
-            page = p_value;
+            page = p_value.as<int>();
             Object_change_notify(this);
             return true;
         }
@@ -139,17 +139,16 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             //type
             int idx = StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(pn,'/', 1),'_', 0));
 
-            int type = p_value;
+            int type = p_value.as<int>();;
 
             Variant arr = get_array();
 
             Variant value = arr.get(idx);
             if ((int)value.get_type() != type && type >= 0 && type < (int)VariantType::VARIANT_MAX) {
-                Callable::CallError ce;
-                Variant new_value = Variant::construct(VariantType(type), nullptr, 0, ce);
+                Variant new_value = Variant::construct_default(VariantType(type));
                 UndoRedo *ur = EditorNode::get_undo_redo();
 
-                ur->create_action_ui(TTR("Change Array Value Type"));
+                ur->create_action(TTR("Change Array Value Type"));
                 ur->add_do_method(this, "_set_value", idx, new_value);
                 ur->add_undo_method(this, "_set_value", idx, value);
                 ur->add_do_method(this, "_notif_change");
@@ -165,7 +164,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             Variant value = arr.get(idx);
             UndoRedo *ur = EditorNode::get_undo_redo();
 
-            ur->create_action_ui(TTR("Change Array Value"));
+            ur->create_action(TTR("Change Array Value"));
             ur->add_do_method(this, "_set_value", idx, p_value);
             ur->add_undo_method(this, "_set_value", idx, value);
             ur->add_do_method(this, "_notif_changev", p_name);
@@ -183,11 +182,11 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
     Variant arr = get_array();
     //int size = arr.call("size");
 
-    StringName pn = p_name;
+    const StringName& pn = p_name;
     if (StringUtils::begins_with(pn,"array/")) {
 
         if (pn == "array/size") {
-            r_ret = arr.call("size");
+            r_ret = VariantOps::size(arr);
             return true;
         }
         if (pn == "array/page") {
@@ -210,8 +209,8 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
             bool valid;
             r_ret = arr.get(idx, &valid);
 
-            if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-                r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+            if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+                r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
             }
 
             return valid;
@@ -224,7 +223,7 @@ bool ArrayPropertyEdit::_get(const StringName &p_name, Variant &r_ret) const {
 void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
     Variant arr = get_array();
-    int size = arr.call("size");
+    int size = VariantOps::size(arr);
 
     p_list->push_back(PropertyInfo(VariantType::INT, "array/size", PropertyHint::Range, "0,100000,1"));
     int pages = size / ITEMS_PER_PAGE;
@@ -241,11 +240,11 @@ void ArrayPropertyEdit::_get_property_list(Vector<PropertyInfo> *p_list) const {
         bool is_typed = arr.get_type() != VariantType::ARRAY || subtype != VariantType::NIL;
 
         if (!is_typed) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PropertyHint::Enum, vtypes));
+            p_list->emplace_back(VariantType::INT, StringName("indices/" + itos(i + offset) + "_type"), PropertyHint::Enum, vtypes);
         }
 
-        if (v.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(v)) {
-            p_list->push_back(PropertyInfo(VariantType::INT, StringName("indices/" + itos(i + offset)), PropertyHint::ObjectID, "Object"));
+        if (v.get_type() == VariantType::OBJECT && v.asT<EncodedObjectAsID>()) {
+            p_list->emplace_back(VariantType::INT, StringName("indices/" + itos(i + offset)), PropertyHint::ObjectID, "Object");
             continue;
         }
 

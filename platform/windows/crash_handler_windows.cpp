@@ -171,7 +171,7 @@ DWORD CrashHandlerException(EXCEPTION_POINTERS *ep) {
 	String msg;
 	const ProjectSettings *proj_settings = ProjectSettings::get_singleton();
 	if (proj_settings) {
-		msg = proj_settings->get("debug/settings/crash_handler/message");
+		msg = proj_settings->getT<String>("debug/settings/crash_handler/message");
 	}
 
 	fprintf(stderr, "Dumping the backtrace. %s\n", msg.c_str());

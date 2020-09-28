@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "option_button.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"
 #include "scene/resources/style_box.h"
@@ -294,10 +296,10 @@ void OptionButton::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 5) {
 
-        StringName text = p_items[i + 0];
-        Ref<Texture> icon = refFromRefPtr<Texture>(p_items[i + 1]);
-        bool disabled = p_items[i + 2];
-        int id = p_items[i + 3];
+        StringName text = p_items[i + 0].as<StringName>();
+        Ref<Texture> icon = refFromVariant<Texture>(p_items[i + 1]);
+        bool disabled = p_items[i + 2].as<bool>();
+        int id = p_items[i + 3].as<int>();
         Variant meta = p_items[i + 4];
 
         int idx = get_item_count();
@@ -314,9 +316,6 @@ void OptionButton::get_translatable_strings(List<StringName> *p_strings) const {
 }
 
 void OptionButton::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_selected"), &OptionButton::_selected);
-    MethodBinder::bind_method(D_METHOD("_focused"), &OptionButton::_focused);
 
     MethodBinder::bind_method(D_METHOD("add_item", {"label", "id"}), &OptionButton::add_item, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("add_icon_item", {"texture", "label", "id"}), &OptionButton::add_icon_item, {DEFVAL(-1)});
@@ -368,9 +367,9 @@ OptionButton::OptionButton() {
     popup->set_pass_on_modal_close_click(false);
     popup->set_notify_transform(true);
     popup->set_allow_search(true);
-    popup->connect("index_pressed", this, "_selected");
-    popup->connect("id_focused", this, "_focused");
-    popup->connect("popup_hide", this, "set_pressed", varray(false));
+    popup->connect("index_pressed",callable_mp(this, &ClassName::_selected));
+    popup->connect("id_focused",callable_mp(this, &ClassName::_focused));
+    popup->connect("popup_hide",callable_mp((BaseButton *)this, &BaseButton::set_pressed), varray(false));
 }
 
 OptionButton::~OptionButton() {

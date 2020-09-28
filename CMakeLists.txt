@@ -6,6 +6,7 @@ project(SegsEngine)
 #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
 #set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
 #set(CMAKE_C_INCLUDE_WHAT_YOU_USE /usr/bin/include-what-you-use)
+#link_directories(/usr/lib/clang/10.0.1/lib/linux)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

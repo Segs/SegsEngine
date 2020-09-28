@@ -269,36 +269,36 @@ void AnimationTreePlayer::_set_process(bool p_process, bool p_force) {
 bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value) {
 
     if (p_name == "base_path") {
-        set_base_path(p_value);
+        set_base_path(p_value.as<NodePath>());
         return true;
     }
 
     if (p_name == "master_player") {
-        set_master_player(p_value);
+        set_master_player(p_value.as<NodePath>());
         return true;
     }
 
     if (p_name == SceneStringNames::get_singleton()->playback_active) {
-        set_active(p_value);
+        set_active(p_value.as<bool>());
         return true;
     }
 
     if (not (p_name == "data"))
         return false;
 
-    Dictionary data = p_value;
+    Dictionary data = p_value.as<Dictionary>();
 
-    Array nodes = data.get_valid("nodes");
+    Array nodes = data.get_valid("nodes").as<Array>();
 
     for (int i = 0; i < nodes.size(); i++) {
 
-        Dictionary node = nodes[i];
+        Dictionary node = nodes[i].as<Dictionary>();
 
-        StringName id = node.get_valid("id");
-        Point2 pos = node.get_valid("position");
+        StringName id = node.get_valid("id").as<StringName>();
+        Point2 pos = node.get_valid("position").as<Vector2>();
 
         NodeType nt = NODE_MAX;
-        StringName type = node.get_valid("type");
+        StringName type = node.get_valid("type").as<StringName>();
 
         if (type == "output")
             nt = NODE_OUTPUT;
@@ -336,61 +336,61 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
                 if (node.has("from"))
                     animation_node_set_master_animation(id, node.get_valid("from").as<String>());
                 else
-                    animation_node_set_animation(id, refFromRefPtr<Animation>(node.get_valid("animation")));
-                Array filters = node.get_valid("filter");
+                    animation_node_set_animation(id, refFromVariant<Animation>(node.get_valid("animation")));
+                Array filters = node.get_valid("filter").as<Array>();
                 for (int j = 0; j < filters.size(); j++) {
 
-                    animation_node_set_filter_path(id, filters[j], true);
+                    animation_node_set_filter_path(id, filters[j].as<NodePath>(), true);
                 }
             } break;
             case NODE_ONESHOT: {
 
-                oneshot_node_set_fadein_time(id, node.get_valid("fade_in"));
-                oneshot_node_set_fadeout_time(id, node.get_valid("fade_out"));
-                oneshot_node_set_mix_mode(id, node.get_valid("mix"));
-                oneshot_node_set_autorestart(id, node.get_valid("autorestart"));
-                oneshot_node_set_autorestart_delay(id, node.get_valid("autorestart_delay"));
-                oneshot_node_set_autorestart_random_delay(id, node.get_valid("autorestart_random_delay"));
-                Array filters = node.get_valid("filter");
+                oneshot_node_set_fadein_time(id, node.get_valid("fade_in").as<float>());
+                oneshot_node_set_fadeout_time(id, node.get_valid("fade_out").as<float>());
+                oneshot_node_set_mix_mode(id, node.get_valid("mix").as<bool>());
+                oneshot_node_set_autorestart(id, node.get_valid("autorestart").as<bool>());
+                oneshot_node_set_autorestart_delay(id, node.get_valid("autorestart_delay").as<float>());
+                oneshot_node_set_autorestart_random_delay(id, node.get_valid("autorestart_random_delay").as<float>());
+                Array filters = node.get_valid("filter").as<Array>();
                 for (int j = 0; j < filters.size(); j++) {
 
-                    oneshot_node_set_filter_path(id, filters[j], true);
+                    oneshot_node_set_filter_path(id, filters[j].as<NodePath>(), true);
                 }
 
             } break;
             case NODE_MIX: {
-                mix_node_set_amount(id, node.get_valid("mix"));
+                mix_node_set_amount(id, node.get_valid("mix").as<float>());
             } break;
             case NODE_BLEND2: {
-                blend2_node_set_amount(id, node.get_valid("blend"));
-                Array filters = node.get_valid("filter");
+                blend2_node_set_amount(id, node.get_valid("blend").as<float>());
+                Array filters = node.get_valid("filter").as<Array>();
                 for (int j = 0; j < filters.size(); j++) {
 
-                    blend2_node_set_filter_path(id, filters[j], true);
+                    blend2_node_set_filter_path(id, filters[j].as<NodePath>(), true);
                 }
             } break;
             case NODE_BLEND3: {
-                blend3_node_set_amount(id, node.get_valid("blend"));
+                blend3_node_set_amount(id, node.get_valid("blend").as<float>());
             } break;
             case NODE_BLEND4: {
-                blend4_node_set_amount(id, node.get_valid("blend"));
+                blend4_node_set_amount(id, node.get_valid("blend").as<Vector2>());
             } break;
             case NODE_TIMESCALE: {
-                timescale_node_set_scale(id, node.get_valid("scale"));
+                timescale_node_set_scale(id, node.get_valid("scale").as<float>());
             } break;
             case NODE_TIMESEEK: {
             } break;
             case NODE_TRANSITION: {
 
-                transition_node_set_xfade_time(id, node.get_valid("xfade"));
+                transition_node_set_xfade_time(id, node.get_valid("xfade").as<float>());
 
-                Array transitions = node.get_valid("transitions");
+                Array transitions = node.get_valid("transitions").as<Array>();
                 transition_node_set_input_count(id, transitions.size());
 
                 for (int x = 0; x < transitions.size(); x++) {
 
-                    Dictionary d = transitions[x];
-                    bool aa = d.get_valid("auto_advance");
+                    Dictionary d = transitions[x].as<Dictionary>();
+                    bool aa = d.get_valid("auto_advance").as<bool>();
                     transition_node_set_input_auto_advance(id, x, aa);
                 }
 
@@ -400,21 +400,21 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
         }
     }
 
-    Array connections = data.get_valid("connections");
+    Array connections = data.get_valid("connections").as<Array>();
     ERR_FAIL_COND_V(connections.size() % 3, false);
 
     int cc = connections.size() / 3;
 
     for (int i = 0; i < cc; i++) {
 
-        StringName src = connections[i * 3 + 0];
-        StringName dst = connections[i * 3 + 1];
-        int dst_in = connections[i * 3 + 2];
+        StringName src = connections[i * 3 + 0].as<StringName>();
+        StringName dst = connections[i * 3 + 1].as<StringName>();
+        int dst_in = connections[i * 3 + 2].as<int>();
         connect_nodes(src, dst, dst_in);
     }
 
-    set_active(data.get_valid("active"));
-    set_master_player(data.get_valid("master"));
+    set_active(data.get_valid("active").as<bool>());
+    set_master_player(data.get_valid("master").as<NodePath>());
 
     return true;
 }

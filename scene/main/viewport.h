@@ -112,7 +112,7 @@ public:
     };
 
     enum MSAA {
-        MSAA_DISABLED,
+        MSAA_DISABLED=0,
         MSAA_2X,
         MSAA_4X,
         MSAA_8X,
@@ -358,7 +358,7 @@ protected:
     void _gui_remove_root_control(Control *RI);
     void _gui_remove_subwindow_control(Control *SI);
 
-    StringName _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
+    String _gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Control **r_which = nullptr);
     void _gui_cancel_tooltip();
     void _gui_show_tooltip();
 

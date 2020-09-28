@@ -227,7 +227,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
 void CollisionShape2DEditor::commit_handle(int idx, Variant &p_org) {
 
-    undo_redo->create_action_ui(TTR("Set Handle"));
+    undo_redo->create_action(TTR("Set Handle"));
 
     switch (shape_type) {
         case CAPSULE_SHAPE: {
@@ -546,11 +546,11 @@ void CollisionShape2DEditor::_notification(int p_what) {
     switch (p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
         } break;
 
         case NOTIFICATION_EXIT_TREE: {
-            get_tree()->disconnect("node_removed", this, "_node_removed");
+            get_tree()->disconnect("node_removed",callable_mp(this, &ClassName::_node_removed));
         } break;
     }
 }

@@ -101,13 +101,13 @@ Dictionary JSONRPC::make_request(StringView p_method, const Variant &p_params, c
 Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elements) {
     Variant ret;
     if (p_action.get_type() == VariantType::DICTIONARY) {
-        Dictionary dict = p_action;
-        String method = dict.get("method", "");
+        Dictionary dict = p_action.as<Dictionary>();
+        String method = dict.get("method", "").as<String>();
         Array args;
         if (dict.has("params")) {
             Variant params = dict.get("params", Variant());
             if (params.get_type() == VariantType::ARRAY) {
-                args = params;
+                args = params.as<Array>();
             } else {
                 args.push_back(params);
             }
@@ -133,7 +133,7 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
             }
         }
     } else if (p_action.get_type() == VariantType::ARRAY && p_process_arr_elements) {
-        Array arr = p_action;
+        Array arr = p_action.as<Array>();
         int size = arr.size();
         if (size) {
             Array arr_ret;

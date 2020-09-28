@@ -42,6 +42,7 @@
 #include "scene/main/scene_tree.h"
 
 #include <utility>
+#include <core/callable_method_pointer.h>
 
 IMPL_GDCLASS(AbstractPolygon2DEditor)
 IMPL_GDCLASS(AbstractPolygon2DEditorPlugin)
@@ -221,8 +222,8 @@ void AbstractPolygon2DEditor::_notification(int p_what) {
             button_delete->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
             button_edit->set_pressed(true);
 
-            get_tree()->connect("node_removed", this, "_node_removed");
-            create_resource->connect("confirmed", this, "_create_resource");
+            get_tree()->connect("node_removed",callable_mp(this, &AbstractPolygon2DEditor::_node_removed));
+            create_resource->connect("confirmed",callable_mp(this, &AbstractPolygon2DEditor::_create_resource));
         } break;
     }
 }
@@ -265,7 +266,7 @@ void AbstractPolygon2DEditor::_wip_close() {
         _set_polygon(0, wip);
     } else if (wip.size() >= (_is_line() ? 2 : 3)) {
 
-        undo_redo->create_action_ui(TTR("Create Polygon"));
+        undo_redo->create_action(TTR("Create Polygon"));
         _action_add_polygon(Variant::from(wip));
         if (_has_uv()) {
             undo_redo->add_do_method(_get_node(), "set_uv", Variant(PoolVector<Vector2>()));
@@ -353,7 +354,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                         if (vertices.size() < (_is_line() ? 2 : 3)) {
 
                             vertices.push_back(cpoint);
-                            undo_redo->create_action_ui(TTR("Edit Polygon"));
+                            undo_redo->create_action(TTR("Edit Polygon"));
                             selected_point = Vertex(insert.polygon, vertices.size());
                             _action_set_polygon(insert.polygon, vertices);
                             _commit_action();
@@ -367,7 +368,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                             selected_point = edited_point;
                             edge_point = PosVertex();
 
-                            undo_redo->create_action_ui(TTR("Insert Point"));
+                            undo_redo->create_action(TTR("Insert Point"));
                             _action_set_polygon(insert.polygon, Variant::from(vertices2));
                             _commit_action();
                             return true;
@@ -400,7 +401,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                         ERR_FAIL_INDEX_V(edited_point.vertex, vertices.size(), false);
                         vertices[edited_point.vertex] = edited_point.pos - _get_offset(edited_point.polygon);
 
-                        undo_redo->create_action_ui(TTR("Edit Polygon"));
+                        undo_redo->create_action(TTR("Edit Polygon"));
                         _action_set_polygon(edited_point.polygon, Variant::from(pre_move_edit), vertices);
                         _commit_action();
 
@@ -441,7 +442,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                     // for lines, we don't have a wip mode, and we can undo each single add point.
                     Vector<Vector2> vertices = _get_polygon(0).as<Vector<Vector2>>();
                     vertices.push_back(cpoint);
-                    undo_redo->create_action_ui(TTR("Insert Point"));
+                    undo_redo->create_action(TTR("Insert Point"));
                     _action_set_polygon(0, vertices);
                     _commit_action();
                     return true;
@@ -459,7 +460,7 @@ bool AbstractPolygon2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) 
                     return true;
                 } else {
 
-                    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+                    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
 
                     if (!_is_line() && wip.size() > 1 && xform.xform(wip[0]).distance_to(xform.xform(cpoint)) < grab_threshold) {
                         //wip closed
@@ -601,17 +602,18 @@ void AbstractPolygon2DEditor::forward_canvas_draw_over_viewport(Control *p_overl
 
         if (wip_active && j == edited_point.polygon) {
 
-            points = Variant::from(wip);
+            points = wip;
             offset = Vector2(0, 0);
         } else {
 
             if (j == -1)
                 continue;
-            points = _get_polygon(j);
+            
+            points = _get_polygon(j).as<PoolVector<Vector2>>();
             offset = _get_offset(j);
         }
 
-        if (!wip_active && j == edited_point.polygon && EDITOR_GET("editors/poly_editor/show_previous_outline")) {
+        if (!wip_active && j == edited_point.polygon && EDITOR_GET_T<bool>("editors/poly_editor/show_previous_outline")) {
 
             const Color col = Color(0.5, 0.5, 0.5); // FIXME polygon->get_outline_color();
             const int n = pre_move_edit.size();
@@ -708,25 +710,25 @@ void AbstractPolygon2DEditor::edit(Node *p_polygon) {
 
 void AbstractPolygon2DEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &AbstractPolygon2DEditor::_node_removed);
-    MethodBinder::bind_method(D_METHOD("_menu_option"), &AbstractPolygon2DEditor::_menu_option);
-    MethodBinder::bind_method(D_METHOD("_create_resource"), &AbstractPolygon2DEditor::_create_resource);
+    //MethodBinder::bind_method(D_METHOD("_node_removed"), &AbstractPolygon2DEditor::_node_removed);
+    //MethodBinder::bind_method(D_METHOD("_menu_option"), &AbstractPolygon2DEditor::_menu_option);
+    //MethodBinder::bind_method(D_METHOD("_create_resource"), &AbstractPolygon2DEditor::_create_resource);
 }
 
 void AbstractPolygon2DEditor::remove_point(const Vertex &p_vertex) {
 
-    PoolVector<Vector2> vertices = _get_polygon(p_vertex.polygon);
+    PoolVector<Vector2> vertices = _get_polygon(p_vertex.polygon).as<PoolVector<Vector2>>();
 
     if (vertices.size() > (_is_line() ? 2 : 3)) {
 
         vertices.remove(p_vertex.vertex);
 
-        undo_redo->create_action_ui(TTR("Edit Polygon (Remove Point)"));
+        undo_redo->create_action(TTR("Edit Polygon (Remove Point)"));
         _action_set_polygon(p_vertex.polygon, Variant(vertices));
         _commit_action();
     } else {
 
-        undo_redo->create_action_ui(TTR("Remove Polygon And Point"));
+        undo_redo->create_action(TTR("Remove Polygon And Point"));
         _action_remove_polygon(p_vertex.polygon);
         _commit_action();
     }
@@ -746,7 +748,7 @@ AbstractPolygon2DEditor::Vertex AbstractPolygon2DEditor::get_active_point() cons
 
 AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const Vector2 &p_pos) const {
 
-    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
 
     const int n_polygons = _get_polygon_count();
     const Transform2D xform = canvas_item_editor->get_canvas_transform() * _get_node()->get_global_transform();
@@ -756,7 +758,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const 
 
     for (int j = 0; j < n_polygons; j++) {
 
-        PoolVector<Vector2> points = _get_polygon(j);
+        PoolVector<Vector2> points = _get_polygon(j).as<PoolVector<Vector2>>();
         const Vector2 offset = _get_offset(j);
         const int n_points = points.size();
 
@@ -777,7 +779,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_point(const 
 
 AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_edge_point(const Vector2 &p_pos) const {
 
-    const real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    const real_t grab_threshold = EDITOR_GET_T<real_t>("editors/poly_editor/point_grab_radius");
     const real_t eps = grab_threshold * 2;
     const real_t eps2 = eps * eps;
 
@@ -789,7 +791,7 @@ AbstractPolygon2DEditor::PosVertex AbstractPolygon2DEditor::closest_edge_point(c
 
     for (int j = 0; j < n_polygons; j++) {
 
-        PoolVector<Vector2> points = _get_polygon(j);
+        PoolVector<Vector2> points = _get_polygon(j).as<PoolVector<Vector2>>();
         const Vector2 offset = _get_offset(j);
         const int n_points = points.size();
         const int n_segments = n_points - (_is_line() ? 1 : 0);
@@ -832,17 +834,17 @@ AbstractPolygon2DEditor::AbstractPolygon2DEditor(EditorNode *p_editor, bool p_wi
     add_child(memnew(VSeparator));
     button_create = memnew(ToolButton);
     add_child(button_create);
-    button_create->connect("pressed", this, "_menu_option", varray(MODE_CREATE));
+    button_create->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_CREATE));
     button_create->set_toggle_mode(true);
 
     button_edit = memnew(ToolButton);
     add_child(button_edit);
-    button_edit->connect("pressed", this, "_menu_option", varray(MODE_EDIT));
+    button_edit->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT));
     button_edit->set_toggle_mode(true);
 
     button_delete = memnew(ToolButton);
     add_child(button_delete);
-    button_delete->connect("pressed", this, "_menu_option", varray(MODE_DELETE));
+    button_delete->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_DELETE));
     button_delete->set_toggle_mode(true);
 
     create_resource = memnew(ConfirmationDialog);

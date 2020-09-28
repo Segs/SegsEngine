@@ -125,8 +125,6 @@ struct PropertyInterface {
 
 };
 
-
-
 struct ArgumentInterface {
     enum DefaultParamMode {
         CONSTANT,
@@ -139,6 +137,23 @@ struct ArgumentInterface {
     String name;
     String default_argument;
     DefaultParamMode def_param_mode = CONSTANT;
+
+    void toJson(QJsonObject &obj) const;
+
+    void fromJson(const QJsonObject &obj);
+};
+
+struct SignalInterface {
+    String name;
+
+    Vector<ArgumentInterface> arguments;
+
+    bool is_deprecated = false;
+    String deprecation_message;
+
+    void add_argument(const ArgumentInterface &argument) {
+        arguments.push_back(argument);
+    }
 
     void toJson(QJsonObject &obj) const;
 
@@ -245,6 +260,7 @@ struct TypeInterface {
     Vector<EnumInterface> enums;
     Vector<PropertyInterface> properties;
     Vector<MethodInterface> methods;
+    Vector<SignalInterface> signals_;
 
     const MethodInterface* find_method_by_name(const String& p_cname) const {
         for (const MethodInterface& E : methods) {

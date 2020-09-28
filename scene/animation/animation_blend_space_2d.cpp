@@ -29,10 +29,11 @@
 /*************************************************************************/
 
 #include "animation_blend_space_2d.h"
-#include "core/math/delaunay.h"
-#include "core/method_bind.h"
-#include "core/math/geometry.h"
 
+#include "core/callable_method_pointer.h"
+#include "core/math/delaunay.h"
+#include "core/math/geometry.h"
+#include "core/method_bind.h"
 
 IMPL_GDCLASS(AnimationNodeBlendSpace2D)
 VARIANT_ENUM_CAST(AnimationNodeBlendSpace2D::BlendMode)
@@ -83,7 +84,7 @@ void AnimationNodeBlendSpace2D::add_blend_point(const Ref<AnimationRootNode> &p_
     blend_points[p_at_index].node = p_node;
     blend_points[p_at_index].position = p_position;
 
-    blend_points[p_at_index].node->connect("tree_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    blend_points[p_at_index].node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
     blend_points_used++;
 
     _queue_auto_triangles();
@@ -101,10 +102,10 @@ void AnimationNodeBlendSpace2D::set_blend_point_node(int p_point, const Ref<Anim
     ERR_FAIL_COND(not p_node);
 
     if (blend_points[p_point].node) {
-        blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
+        blend_points[p_point].node->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
     }
     blend_points[p_point].node = p_node;
-    blend_points[p_point].node->connect("tree_changed", this, "_tree_changed", varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    blend_points[p_point].node->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 
     emit_signal("tree_changed");
 }
@@ -120,7 +121,7 @@ void AnimationNodeBlendSpace2D::remove_blend_point(int p_point) {
     ERR_FAIL_INDEX(p_point, blend_points_used);
     ERR_FAIL_COND(not blend_points[p_point].node);
 
-    blend_points[p_point].node->disconnect("tree_changed", this, "_tree_changed");
+    blend_points[p_point].node->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
 
     for (int i = 0; i < triangles.size(); i++) {
         bool erase = false;
@@ -435,9 +436,9 @@ float AnimationNodeBlendSpace2D::process(float p_time, bool p_seek) {
 
     _update_triangles();
 
-    Vector2 blend_pos = get_parameter(blend_position);
-    int closest = get_parameter(this->closest);
-    float length_internal = get_parameter(this->length_internal);
+    Vector2 blend_pos = get_parameter(blend_position).as<Vector2>();
+    int closest = get_parameter(this->closest).as<int>();
+    float length_internal = get_parameter(this->length_internal).as<float>();
     float mind = 0; //time of min distance point
 
     if (blend_mode == BLEND_MODE_INTERPOLATED) {
@@ -566,9 +567,10 @@ void AnimationNodeBlendSpace2D::_validate_property(PropertyInfo &property) const
     if (auto_triangles && property.name == "triangles") {
         property.usage = 0;
     }
-    if (StringUtils::begins_with(property.name,"blend_point_")) {
-        StringView left = StringUtils::get_slice(property.name,'/', 0);
-        int idx = StringUtils::to_int(StringUtils::get_slice(left,'_', 2));
+    if (StringUtils::begins_with(property.name,"blend_point/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, property.name, '/');
+        int idx = StringUtils::to_int(parts[1]);
         if (idx >= blend_points_used) {
             property.usage = 0;
         }

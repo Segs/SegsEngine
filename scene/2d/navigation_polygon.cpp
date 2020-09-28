@@ -30,6 +30,7 @@
 
 #include "navigation_polygon.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/core_string_names.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -122,7 +123,7 @@ void NavigationPolygon::_set_outlines(const Array &p_array) {
 
     outlines.resize(p_array.size());
     for (int i = 0; i < p_array.size(); i++) {
-        outlines[i] = p_array[i];
+        outlines[i] = p_array[i].as<PoolVector<Vector2>>();
     }
     rect_cache_dirty = true;
 }
@@ -482,12 +483,12 @@ void NavigationPolygonInstance::set_navigation_polygon(const Ref<NavigationPolyg
     }
 
     if (navpoly) {
-        navpoly->disconnect(CoreStringNames::get_singleton()->changed, this, "_navpoly_changed");
+        navpoly->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &NavigationPolygonInstance::_navpoly_changed));
     }
     navpoly = p_navpoly;
     Navigation2DServer::get_singleton()->region_set_navpoly(region, p_navpoly);
     if (navpoly) {
-        navpoly->connect(CoreStringNames::get_singleton()->changed, this, "_navpoly_changed");
+        navpoly->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &NavigationPolygonInstance::_navpoly_changed));
     }
     _navpoly_changed();
 

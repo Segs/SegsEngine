@@ -30,6 +30,7 @@
 
 #include "property_selector.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -101,9 +102,7 @@ void PropertySelector::_update_search() {
         if (instance) {
             instance->get_property_list(&props, true);
         } else if (type != VariantType::NIL) {
-            Variant v;
-            Callable::CallError ce;
-            v = Variant::construct(type, nullptr, 0, ce);
+            Variant v = Variant::construct_default(type);
 
             v.get_property_list(&props);
         } else {
@@ -206,10 +205,8 @@ void PropertySelector::_update_search() {
         Vector<MethodInfo> methods;
 
         if (type != VariantType::NIL) {
-            Variant v;
-            Callable::CallError ce;
-            v = Variant::construct(type, nullptr, 0, ce);
-            v.get_method_list(&methods);
+            Variant v = Variant::construct_default(type);
+            //v.get_method_list(&methods);
         } else {
 
             Object *obj = gObjectDB().get_instance(script);
@@ -400,9 +397,9 @@ void PropertySelector::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        connect("confirmed", this, "_confirmed");
+        connect("confirmed",callable_mp(this, &ClassName::_confirmed));
     } else if (p_what == NOTIFICATION_EXIT_TREE) {
-        disconnect("confirmed", this, "_confirmed");
+        disconnect("confirmed",callable_mp(this, &ClassName::_confirmed));
     }
 }
 
@@ -411,7 +408,7 @@ void PropertySelector::select_method_from_base_type(const StringName &p_base, co
     base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = false;
     instance = nullptr;
     virtuals_only = p_virtuals_only;
@@ -444,7 +441,7 @@ void PropertySelector::select_method_from_basic_type(VariantType p_type, const U
     base_type = "";
     selected = p_current;
     type = p_type;
-    script = 0;
+    script = ObjectID();
     properties = false;
     instance = nullptr;
     virtuals_only = false;
@@ -460,7 +457,7 @@ void PropertySelector::select_method_from_instance(Object *p_instance, const UIS
     base_type = StringName(p_instance->get_class());
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     {
         Ref<Script> scr(refFromRefPtr<Script>(p_instance->get_script()));
         if (scr)
@@ -481,7 +478,7 @@ void PropertySelector::select_property_from_base_type(const StringName &p_base, 
     base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = true;
     instance = nullptr;
     virtuals_only = false;
@@ -516,7 +513,7 @@ void PropertySelector::select_property_from_basic_type(VariantType p_type, const
     base_type = "";
     selected = p_current;
     type = p_type;
-    script = 0;
+    script = ObjectID();
     properties = true;
     instance = nullptr;
     virtuals_only = false;
@@ -532,7 +529,7 @@ void PropertySelector::select_property_from_instance(Object *p_instance, const U
     base_type = "";
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = true;
     instance = p_instance;
     virtuals_only = false;
@@ -556,7 +553,9 @@ void PropertySelector::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::STRING, "name")));
 }
-
+void PropertySelector::_hide_requested() {
+    _cancel_pressed(); // From AcceptDialog.
+}
 PropertySelector::PropertySelector() {
 
     VBoxContainer *vbc = memnew(VBoxContainer);
@@ -564,21 +563,21 @@ PropertySelector::PropertySelector() {
     //set_child_rect(vbc);
     search_box = memnew(LineEdit);
     vbc->add_margin_child(TTR("Search:"), search_box);
-    search_box->connect("text_changed", this, "_text_changed");
-    search_box->connect("gui_input", this, "_sbox_input");
+    search_box->connect("text_changed",callable_mp(this, &ClassName::_text_changed));
+    search_box->connect("gui_input",callable_mp(this, &ClassName::_sbox_input));
     search_options = memnew(Tree);
     vbc->add_margin_child(TTR("Matches:"), search_options, true);
     get_ok()->set_text(TTR("Open"));
     get_ok()->set_disabled(true);
     register_text_enter(search_box);
     set_hide_on_ok(false);
-    search_options->connect("item_activated", this, "_confirmed");
-    search_options->connect("cell_selected", this, "_item_selected");
+    search_options->connect("item_activated",callable_mp(this, &ClassName::_confirmed));
+    search_options->connect("cell_selected",callable_mp(this, &ClassName::_item_selected));
     search_options->set_hide_root(true);
     search_options->set_hide_folding(true);
     virtuals_only = false;
 
     help_bit = memnew(EditorHelpBit);
     vbc->add_margin_child(TTR("Description:"), help_bit);
-    help_bit->connect("request_hide", this, "_closed");
+    help_bit->connect("request_hide",callable_mp(this, &PropertySelector::_hide_requested));
 }

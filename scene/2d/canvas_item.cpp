@@ -62,17 +62,6 @@ VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 static Vector<CanvasItemMaterial *> s_dirty_materials;
 
 
-template <>
-struct PtrToArg<CharType> {
-    _FORCE_INLINE_ static CharType convert(const void *p_ptr) {
-        return QChar(uint32_t(*reinterpret_cast<const int64_t *>(p_ptr)));
-    }
-    _FORCE_INLINE_ static void encode(CharType p_val, void *p_ptr) {
-        *((int64_t *)p_ptr) = static_cast<int64_t>(p_val.unicode());
-    }
-};
-
-
 Mutex *CanvasItemMaterial::material_mutex = nullptr;
 
 HashMap<CanvasItemMaterial::MaterialKey, CanvasItemMaterial::ShaderData> CanvasItemMaterial::shader_map;
@@ -489,13 +478,14 @@ void CanvasItem::_update_callback() {
         notification(NOTIFICATION_DRAW);
         emit_signal(SceneStringNames::get_singleton()->draw);
         if (get_script_instance()) {
-            get_script_instance()->call_multilevel_reversed(SceneStringNames::get_singleton()->_draw, nullptr, 0);
+            get_script_instance()->call(SceneStringNames::get_singleton()->_draw);
         }
         current_item_drawn = nullptr;
         drawing = false;
     }
     //todo updating = false
     pending_update = false; // don't change to false until finished drawing (avoid recursive update)
+
 }
 
 Transform2D CanvasItem::get_global_transform_with_canvas() const {
@@ -672,7 +662,7 @@ void CanvasItem::update() {
 
     pending_update = true;
 
-    MessageQueue::get_singleton()->push_call(this, "_update_callback");
+    MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() {this->_update_callback();});
 }
 
 void CanvasItem::set_modulate(const Color &p_modulate) {
@@ -1033,7 +1023,7 @@ ObjectID CanvasItem::get_canvas_layer_instance_id() const {
     if (canvas_layer) {
         return canvas_layer->get_instance_id();
     } else {
-        return 0;
+        return ObjectID(0ULL);
     }
 }
 

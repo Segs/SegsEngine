@@ -54,7 +54,7 @@ void RemoteTransform2D::_update_remote() {
     if (!is_inside_tree())
         return;
 
-    if (!cache)
+    if (cache.is_null())
         return;
 
     Node2D *n = object_cast<Node2D>(gObjectDB().get_instance(cache));
@@ -124,7 +124,7 @@ void RemoteTransform2D::_notification(int p_what) {
             if (!is_inside_tree())
                 break;
 
-            if (cache) {
+            if (cache.is_valid()) {
 
                 _update_remote();
             }

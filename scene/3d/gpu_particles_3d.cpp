@@ -307,11 +307,12 @@ AABB GPUParticles3D::capture_aabb() const {
 
 void GPUParticles3D::_validate_property(PropertyInfo &property) const {
 
-    if (StringUtils::begins_with(property.name,"draw_pass_")) {
-        int index = StringUtils::to_int(StringUtils::get_slice(property.name,'_', 2)) - 1;
+    if (StringUtils::begins_with(property.name,"draw_pass/")) {
+        FixedVector<StringView, 3> parts;
+        String::split_ref(parts, property.name, '/');
+        int index = StringUtils::to_int(parts[1]) - 1;
         if (index >= draw_passes.size()) {
             property.usage = 0;
-            return;
         }
     }
 }

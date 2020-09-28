@@ -73,7 +73,7 @@ public:
     static void make_current();
     static void register_config();
 
-    bool is_low_end() const override { return false; }
+//  bool is_low_end() const override { return false; }
 
     RasterizerGLES3();
     ~RasterizerGLES3() override;

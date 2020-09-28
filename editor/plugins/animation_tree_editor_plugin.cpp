@@ -62,7 +62,7 @@ void AnimationTreeEditor::edit(AnimationTree *p_tree) {
     tree = p_tree;
 
     if (!tree->has_meta("_tree_edit_path")) {
-        current_root = 0;
+        current_root = ObjectID(0ULL);
         return;
     }
 
@@ -91,7 +91,7 @@ void AnimationTreeEditor::_update_path() {
     b->set_button_group(group);
     b->set_pressed(true);
     b->set_focus_mode(FOCUS_NONE);
-    b->connect("pressed", this, "_path_button_pressed", varray(-1));
+    b->connect("pressed",callable_mp(this, &ClassName::_path_button_pressed), varray(-1));
     path_hb->add_child(b);
     for (int i = 0; i < button_path.size(); i++) {
         b = memnew(Button);
@@ -101,7 +101,7 @@ void AnimationTreeEditor::_update_path() {
         path_hb->add_child(b);
         b->set_pressed(true);
         b->set_focus_mode(FOCUS_NONE);
-        b->connect("pressed", this, "_path_button_pressed", varray(i));
+        b->connect("pressed",callable_mp(this, &ClassName::_path_button_pressed), varray(i));
     }
 }
 
@@ -112,7 +112,7 @@ void AnimationTreeEditor::edit_path(const Vector<String> &p_path) {
     Ref<AnimationNode> node = tree->get_tree_root();
 
     if (!node) {
-        current_root = 0;
+        current_root = ObjectID(0ULL);
         edited_path = button_path;
         _update_path();
         return;
@@ -159,7 +159,7 @@ void AnimationTreeEditor::_about_to_show_root() {
 
 void AnimationTreeEditor::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
-        ObjectID root = 0;
+        ObjectID root(0ULL);
         if (tree && tree->get_tree_root()) {
             root = tree->get_tree_root()->get_instance_id();
         }
@@ -249,7 +249,7 @@ AnimationTreeEditor::AnimationTreeEditor() {
 
     add_child(memnew(HSeparator));
 
-    current_root = 0;
+    current_root = ObjectID(0ULL);
     singleton = this;
     editor_base = memnew(MarginContainer);
     editor_base->set_v_size_flags(SIZE_EXPAND_FILL);

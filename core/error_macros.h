@@ -90,13 +90,15 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 
 // Don't use this directly; instead, use any of the CRASH_* macros
 #ifdef _MSC_VER
-#define GENERATE_TRAP                       \
-    __debugbreak();                         \
-    /* Avoid warning about control paths */ \
-    for (;;) {                              \
-    }
+/**
+ * Don't use GENERATE_TRAP() directly, should only be used be the macros below.
+ */
+#define GENERATE_TRAP() __debugbreak()
 #else
-#define GENERATE_TRAP __builtin_trap();
+/**
+ * Don't use GENERATE_TRAP() directly, should only be used be the macros below.
+ */
+#define GENERATE_TRAP() __builtin_trap();
 #endif
 
 /**
@@ -179,7 +181,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_BAD_INDEX(m_index, m_size)                                                                                      \
     if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                               \
         _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), "", true); \
-        GENERATE_TRAP                                                                                                     \
+        GENERATE_TRAP();                                                                                                  \
     } else \
         ((void)0)
 
@@ -192,7 +194,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_BAD_INDEX_MSG(m_index, m_size, m_msg)                                                                              \
     if (unlikely((m_index) < 0 || (m_index) >= (m_size))) {                                                                  \
         _err_print_index_error(FUNCTION_STR, __FILE__, __LINE__, m_index, m_size, _STR(m_index), _STR(m_size), DEBUG_STR(m_msg), true); \
-        GENERATE_TRAP                                                                                                        \
+        GENERATE_TRAP();                                                                                                     \
     } else \
         ((void)0)
 
@@ -266,7 +268,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_COND(m_cond)                                                                                        \
     if (unlikely(m_cond)) {                                                                                   \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true."); \
-        GENERATE_TRAP                                                                                         \
+        GENERATE_TRAP();                                                                                      \
     } else \
         ((void)0)
 
@@ -277,7 +279,7 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_COND_MSG(m_cond, m_msg)                                                                                    \
     if (unlikely(m_cond)) {                                                                                          \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Condition ' \"" _STR(m_cond) "\" ' is true.", DEBUG_STR(m_msg)); \
-        GENERATE_TRAP                                                                                                \
+        GENERATE_TRAP();                                                                                             \
     } else \
         ((void)0)
 
@@ -381,14 +383,14 @@ GODOT_EXPORT void _err_print_index_error(const char *p_function, const char *p_f
 #define CRASH_NOW()                                                                           \
     if constexpr (true) {                                                                               \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed."); \
-        GENERATE_TRAP                                                                         \
+        GENERATE_TRAP();                                                                      \
     } else \
         ((void)0)
 
 #define CRASH_NOW_MSG(m_msg)                                                                         \
     if constexpr (true) {                                                                               \
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "FATAL: Method/Function Failed.", DEBUG_STR(m_msg)); \
-        GENERATE_TRAP                                                                                \
+        GENERATE_TRAP();                                                                             \
     } else \
         ((void)0)
 

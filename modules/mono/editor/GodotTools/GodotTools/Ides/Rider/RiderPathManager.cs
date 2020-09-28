@@ -9,7 +9,7 @@ namespace GodotTools.Ides.Rider
 {
     public static class RiderPathManager
     {
-        public static readonly string EditorPathSettingName = "mono/editor/editor_path_optional";
+        public static readonly StringName EditorPathSettingName = "mono/editor/editor_path_optional";
 
         private static string GetRiderPathFromSettings()
         {
@@ -22,6 +22,7 @@ namespace GodotTools.Ides.Rider
         public static void Initialize()
         {
             var editorSettings = GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
+            var zz = editorSettings.GetSetting("mono/editor/external_editor");
             var editor = (ExternalEditorId)editorSettings.GetSetting("mono/editor/external_editor");
             if (editor == ExternalEditorId.Rider)
             {
@@ -30,7 +31,7 @@ namespace GodotTools.Ides.Rider
                     Globals.EditorDef(EditorPathSettingName, "Optional");
                     editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
                     {
-                        ["type"] = VariantType.String,
+                        ["type"] = VariantType.StringName,
                         ["name"] = EditorPathSettingName,
                         ["hint"] = PropertyHint.File,
                         ["hint_string"] = ""

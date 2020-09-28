@@ -87,7 +87,7 @@ void Position2D::set_gizmo_extents(float p_extents) {
 
 float Position2D::get_gizmo_extents() const {
     if (has_meta("_gizmo_extents_")) {
-        return get_meta("_gizmo_extents_");
+        return get_meta("_gizmo_extents_").as<float>();
     } else {
         return DEFAULT_GIZMO_EXTENTS;
     }

@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "animation_cache.h"
+
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 
 #include "scene/resources/animation.h"
@@ -61,7 +64,7 @@ void AnimationCache::_clear_cache() {
 
     while (!connected_nodes.empty()) {
 
-        (*connected_nodes.begin())->disconnect("tree_exiting", this, "_node_exit_tree");
+        (*connected_nodes.begin())->disconnect("tree_exiting",callable_mp(this, &ClassName::_node_exit_tree));
         connected_nodes.erase(connected_nodes.begin());
     }
     path_cache.clear();
@@ -179,7 +182,7 @@ void AnimationCache::_update_cache() {
 
         if (!connected_nodes.contains(path.node)) {
             connected_nodes.insert(path.node);
-            path.node->connect("tree_exiting", this, "_node_exit_tree", Node::make_binds(Variant(path.node)), ObjectNS::CONNECT_ONESHOT);
+            path.node->connect("tree_exiting",callable_mp(this, &ClassName::_node_exit_tree), Node::make_binds(Variant(path.node)), ObjectNS::CONNECT_ONESHOT);
         }
     }
 
@@ -318,12 +321,12 @@ void AnimationCache::set_animation(const Ref<Animation> &p_animation) {
     _clear_cache();
 
     if (animation)
-        animation->disconnect("changed", this, "_animation_changed");
+        animation->disconnect("changed",callable_mp(this, &ClassName::_animation_changed));
 
     animation = p_animation;
 
     if (animation)
-        animation->connect("changed", this, "_animation_changed");
+        animation->connect("changed",callable_mp(this, &ClassName::_animation_changed));
 }
 
 void AnimationCache::_bind_methods() {

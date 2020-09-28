@@ -46,7 +46,7 @@ Dictionary Polygon2D::_edit_get_state() const {
 
 void Polygon2D::_edit_set_state(const Dictionary &p_state) {
     Node2D::_edit_set_state(p_state);
-    set_offset(p_state["offset"]);
+    set_offset(p_state["offset"].as<Vector2>());
 }
 
 void Polygon2D::_edit_set_pivot(const Point2 &p_pivot) {
@@ -112,7 +112,7 @@ void Polygon2D::_notification(int p_what) {
                 skeleton_node = object_cast<Skeleton2D>(get_node(skeleton));
             }
 
-            ObjectID new_skeleton_id = 0;
+            ObjectID new_skeleton_id {0ULL};
 
             if (skeleton_node) {
                 RenderingServer::get_singleton()->canvas_item_attach_skeleton(get_canvas_item(), skeleton_node->get_skeleton());
@@ -124,11 +124,11 @@ void Polygon2D::_notification(int p_what) {
             if (new_skeleton_id != current_skeleton_id) {
                 Object *old_skeleton = gObjectDB().get_instance(current_skeleton_id);
                 if (old_skeleton) {
-                    old_skeleton->disconnect("bone_setup_changed", this, "_skeleton_bone_setup_changed");
+                    old_skeleton->disconnect("bone_setup_changed",callable_mp(this, &ClassName::_skeleton_bone_setup_changed));
                 }
 
                 if (skeleton_node) {
-                    skeleton_node->connect("bone_setup_changed", this, "_skeleton_bone_setup_changed");
+                    skeleton_node->connect("bone_setup_changed",callable_mp(this, &ClassName::_skeleton_bone_setup_changed));
                 }
 
                 current_skeleton_id = new_skeleton_id;
@@ -316,7 +316,7 @@ void Polygon2D::_notification(int p_what) {
                 //draw individual polygons
                 Vector<int> total_indices;
                 for (int i = 0; i < polygons.size(); i++) {
-                    PoolVector<int> src_indices = polygons[i];
+                    PoolVector<int> src_indices = polygons[i].as<PoolVector<int>>();
                     int ic = src_indices.size();
                     if (ic < 3)
                         continue;
@@ -567,7 +567,7 @@ void Polygon2D::_set_bones(const Array &p_bones) {
     ERR_FAIL_COND(p_bones.size() & 1);
     clear_bones();
     for (int i = 0; i < p_bones.size(); i += 2) {
-        add_bone(p_bones[i], p_bones[i + 1]);
+        add_bone(p_bones[i].as<NodePath>(), p_bones[i + 1].as< PoolVector<float>>());
     }
 }
 

@@ -31,15 +31,18 @@
 #include "mesh_instance_3d.h"
 
 #include "collision_shape_3d.h"
-#include "core/method_bind.h"
-#include "core/core_string_names.h"
-#include "core/object_tooling.h"
 #include "physics_body_3d.h"
+#include "skeleton_3d.h"
+
+#include "core/callable_method_pointer.h"
+#include "core/core_string_names.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "scene/main/scene_tree.h"
 #include "scene/resources/material.h"
 #include "scene/scene_string_names.h"
-#include "skeleton_3d.h"
-#include "scene/main/scene_tree.h"
 #include "servers/rendering_server.h"
+
 #include "EASTL/sort.h"
 
 IMPL_GDCLASS(MeshInstance3D)
@@ -54,7 +57,7 @@ bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
 
     HashMap<StringName, BlendShapeTrack>::iterator E = blend_shape_tracks.find(p_name);
     if (E!=blend_shape_tracks.end()) {
-        E->second.value = p_value;
+        E->second.value = p_value.as<float>();
         RenderingServer::get_singleton()->instance_set_blend_shape_weight(get_instance(), E->second.idx, E->second.value);
         return true;
     }
@@ -64,7 +67,7 @@ bool MeshInstance3D::_set(const StringName &p_name, const Variant &p_value) {
         if (idx >= materials.size() || idx < 0)
             return false;
 
-        set_surface_material(idx, refFromRefPtr<Material>(p_value));
+        set_surface_material(idx, refFromVariant<Material>(p_value));
         return true;
     }
 
@@ -120,7 +123,7 @@ void MeshInstance3D::set_mesh(const Ref<Mesh> &p_mesh) {
         return;
 
     if (mesh) {
-        mesh->disconnect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_mesh_changed);
+        mesh->disconnect(CoreStringNames::get_singleton()->changed, callable_mp(this, &MeshInstance3D::_mesh_changed));
         materials.clear();
     }
 
@@ -137,7 +140,7 @@ void MeshInstance3D::set_mesh(const Ref<Mesh> &p_mesh) {
             blend_shape_tracks[StringName("blend_shapes/" + String(mesh->get_blend_shape_name(i)))] = mt;
         }
 
-        mesh->connect(CoreStringNames::get_singleton()->changed, this, SceneStringNames::get_singleton()->_mesh_changed);
+        mesh->connect(CoreStringNames::get_singleton()->changed, callable_mp(this, &MeshInstance3D::_mesh_changed));
         materials.resize(mesh->get_surface_count());
 
         set_base(mesh->get_rid());

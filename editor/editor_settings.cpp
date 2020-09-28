@@ -84,11 +84,11 @@ bool EditorSettings::_set_only(const StringName &p_name, const Variant &p_value)
 
     if (StringView(p_name) == StringView("shortcuts")) {
 
-        Array arr = p_value;
+        Array arr = p_value.as<Array>();
         ERR_FAIL_COND_V(!arr.empty() && arr.size() & 1, true);
         for (int i = 0; i < arr.size(); i += 2) {
 
-            String name = arr[i];
+            String name = arr[i].as<String>();
             Ref<InputEvent> shortcut(arr[i + 1]);
 
             Ref<ShortCut> sc(make_ref_counted<ShortCut>());
@@ -243,13 +243,13 @@ void EditorSettings::_add_property_info_bind(const Dictionary &p_info) {
     ERR_FAIL_COND(!p_info.has("type"));
 
     PropertyInfo pinfo;
-    pinfo.name = p_info["name"];
+    pinfo.name = p_info["name"].as<StringName>();
     ERR_FAIL_COND(!props.contains(pinfo.name));
-    pinfo.type = VariantType(p_info["type"].operator int());
+    pinfo.type = VariantType(p_info["type"].as<int>());
     ERR_FAIL_INDEX((int)pinfo.type, (int)VariantType::VARIANT_MAX);
 
     if (p_info.has("hint"))
-        pinfo.hint = PropertyHint(p_info["hint"].operator int());
+        pinfo.hint = PropertyHint(p_info["hint"].as<int>());
     if (p_info.has("hint_string"))
         pinfo.hint_string = p_info["hint_string"].as<String>();
 
@@ -720,7 +720,7 @@ bool EditorSettings::_save_text_editor_theme(StringView p_file) {
     for (const StringName &key : keys) {
         if (StringUtils::begins_with(key, "text_editor/highlighting/") && StringUtils::contains(key, "color")) {
             cf->set_value(theme_section, StringUtils::replace(key, "text_editor/highlighting/", ""),
-                    ((Color)props[key].variant).to_html());
+                    props[key].variant.as<Color>().to_html());
         }
     }
 
@@ -984,7 +984,7 @@ fail:
 
 void EditorSettings::setup_language() {
 
-    UIString lang = get("interface/editor/editor_language");
+    String lang = getT<String>("interface/editor/editor_language");
     if (lang == "en")
         return; //none to do
 
@@ -1221,7 +1221,7 @@ String EditorSettings::get_script_templates_dir() const {
 
 String EditorSettings::get_project_script_templates_dir() const {
 
-    return ProjectSettings::get_singleton()->get("editor/script_templates_search_path");
+    return ProjectSettings::get_singleton()->getT<String>("editor/script_templates_search_path");
 }
 
 // Cache directory
@@ -1317,8 +1317,8 @@ void EditorSettings::load_favorites() {
 bool EditorSettings::is_dark_theme() {
     int AUTO_COLOR = 0;
     int LIGHT_COLOR = 2;
-    Color base_color = get("interface/theme/base_color");
-    int icon_font_color_setting = get("interface/theme/icon_and_font_color");
+    Color base_color = getT<Color>("interface/theme/base_color");
+    int icon_font_color_setting = getT<int>("interface/theme/icon_and_font_color");
     return (icon_font_color_setting == AUTO_COLOR && (base_color.r + base_color.g + base_color.b) / 3.0f < 0.5f) ||
            icon_font_color_setting == LIGHT_COLOR;
 }
@@ -1348,7 +1348,7 @@ void EditorSettings::list_text_editor_themes() {
 }
 
 void EditorSettings::load_text_editor_theme() {
-    String p_file = get("text_editor/theme/color_theme");
+    String p_file = getT<String>("text_editor/theme/color_theme");
 
     if (_is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)))) {
         if (p_file == "Default") {
@@ -1369,7 +1369,7 @@ void EditorSettings::load_text_editor_theme() {
     Vector<String> keys = cf->get_section_keys("color_theme");
 
     for (const String & key : keys) {
-        String val = cf->get_value("color_theme", key);
+        String val = cf->get_value("color_theme", key).as<String>();
 
         // don't load if it's not already there!
         if (has_setting(StringName("text_editor/highlighting/" + key))) {
@@ -1405,7 +1405,7 @@ bool EditorSettings::import_text_editor_theme(StringView p_file) {
 
 bool EditorSettings::save_text_editor_theme() {
 
-    String p_file = get("text_editor/theme/color_theme");
+    String p_file = getT<String>("text_editor/theme/color_theme");
 
     if (_is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)))) {
         return false;
@@ -1439,7 +1439,7 @@ bool EditorSettings::save_text_editor_theme_as(StringView _file) {
 }
 
 bool EditorSettings::is_default_text_editor_theme() {
-    String p_file = get("text_editor/theme/color_theme");
+    String p_file = getT<String>("text_editor/theme/color_theme");
     return _is_default_text_editor_theme(StringUtils::to_lower(PathUtils::get_file(p_file)));
 }
 Vector<String> EditorSettings::get_script_templates(StringView p_extension, StringView p_custom_path) {

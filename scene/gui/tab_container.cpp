@@ -64,7 +64,7 @@ int TabContainer::_get_top_margin() const {
         if (!c->has_meta("_tab_icon"))
             continue;
 
-        Ref<Texture> tex = refFromRefPtr<Texture>(c->get_meta("_tab_icon"));
+        Ref<Texture> tex = refFromVariant<Texture>(c->get_meta("_tab_icon"));
         if (not tex)
             continue;
         content_height = M_MAX(content_height, tex->get_size().height);
@@ -382,7 +382,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab contents.
                 Control *control = object_cast<Control>(tabs[i + first_tab_cache]);
-                StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : tr(control->get_name());
+                StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name").as<StringName>()) : tr(control->get_name());
 
                 int x_content = tab_rect.position.x + tab_style->get_margin(Margin::Left);
                 int top_margin = tab_style->get_margin(Margin::Top);
@@ -390,7 +390,7 @@ void TabContainer::_notification(int p_what) {
 
                 // Draw the tab icon.
                 if (control->has_meta("_tab_icon")) {
-                    Ref<Texture> icon = refFromRefPtr<Texture>(control->get_meta("_tab_icon"));
+                    Ref<Texture> icon = refFromVariant<Texture>(control->get_meta("_tab_icon"));
                     if (icon) {
                         int y = y_center - (icon->get_height() / 2);
                         icon->draw(canvas, Point2i(x_content, y));
@@ -438,7 +438,8 @@ void TabContainer::_notification(int p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
             minimum_size_changed();
-            call_deferred("_on_theme_changed"); // Wait until all changed theme.
+            // Wait until all changed theme.
+            call_deferred([this](){ _on_theme_changed();});
         } break;
     }
 }
@@ -464,12 +465,12 @@ int TabContainer::_get_tab_width(int p_index) const {
 
     // Get the width of the text displayed on the tab.
     Ref<Font> font = get_font("font");
-    StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name")) : control->get_name();
+    StringName text = control->has_meta("_tab_name") ? tr(control->get_meta("_tab_name").as<StringName>()) : control->get_name();
     int width = font->get_string_size(text).width;
 
     // Add space for a tab icon.
     if (control->has_meta("_tab_icon")) {
-        Ref<Texture> icon = refFromRefPtr<Texture>(control->get_meta("_tab_icon"));
+        Ref<Texture> icon = refFromVariant<Texture>(control->get_meta("_tab_icon"));
         if (icon) {
             width += icon->get_width();
             if (!text.empty())
@@ -543,7 +544,7 @@ void TabContainer::add_child_notify(Node *p_child) {
     c->set_margin(Margin(Margin::Bottom), c->get_margin(Margin(Margin::Bottom)) - sb->get_margin(Margin(Margin::Bottom)));
 
     update();
-    p_child->connect("renamed", this, "_child_renamed_callback");
+    p_child->connect("renamed",callable_mp(this, &ClassName::_child_renamed_callback));
     if (first)
         emit_signal("tab_changed", current);
 }
@@ -621,7 +622,7 @@ void TabContainer::remove_child_notify(Node *p_child) {
 
     call_deferred("_update_current_tab");
 
-    p_child->disconnect("renamed", this, "_child_renamed_callback");
+    p_child->disconnect("renamed",callable_mp(this, &ClassName::_child_renamed_callback));
 
     update();
 }
@@ -671,13 +672,13 @@ bool TabContainer::can_drop_data(const Point2 &p_point, const Variant &p_data) c
     if (!drag_to_rearrange_enabled)
         return false;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type"))
         return false;
 
     if (d["type"] == "tabc_element") {
 
-        NodePath from_path = d["from_path"];
+        NodePath from_path = d["from_path"].as<NodePath>();
         NodePath to_path = get_path();
         if (from_path == to_path) {
             return true;
@@ -700,14 +701,14 @@ void TabContainer::drop_data(const Point2 &p_point, const Variant &p_data) {
 
     int hover_now = get_tab_idx_at_point(p_point);
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type"))
         return;
 
     if (d["type"] == "tabc_element") {
 
-        int tab_from_id = d["tabc_element"];
-        NodePath from_path = d["from_path"];
+        int tab_from_id = d["tabc_element"].as<int>();
+        NodePath from_path = d["from_path"].as<NodePath>();
         NodePath to_path = get_path();
         if (from_path == to_path) {
             if (hover_now < 0)
@@ -828,7 +829,7 @@ StringName TabContainer::get_tab_title(int p_tab) const {
     Control *child = _get_tab(p_tab);
     ERR_FAIL_COND_V(!child, StringName());
     if (child->has_meta("_tab_name"))
-        return child->get_meta("_tab_name");
+        return child->get_meta("_tab_name").as<StringName>();
     else
         return child->get_name();
 }
@@ -845,7 +846,7 @@ Ref<Texture> TabContainer::get_tab_icon(int p_tab) const {
     Control *child = _get_tab(p_tab);
     ERR_FAIL_COND_V(!child, Ref<Texture>());
     if (child->has_meta("_tab_icon"))
-        return refFromRefPtr<Texture>(child->get_meta("_tab_icon"));
+        return refFromVariant<Texture>(child->get_meta("_tab_icon"));
     else
         return Ref<Texture>();
 }
@@ -863,7 +864,7 @@ bool TabContainer::get_tab_disabled(int p_tab) const {
     Control *child = _get_tab(p_tab);
     ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_disabled"))
-        return child->get_meta("_tab_disabled");
+        return child->get_meta("_tab_disabled").as<bool>();
     else
         return false;
 }
@@ -893,7 +894,7 @@ bool TabContainer::get_tab_hidden(int p_tab) const {
     Control *child = _get_tab(p_tab);
     ERR_FAIL_COND_V(!child, false);
     if (child->has_meta("_tab_hidden"))
-        return child->get_meta("_tab_hidden");
+        return child->get_meta("_tab_hidden").as<bool>();
 
     return false;
 }
@@ -906,7 +907,7 @@ void TabContainer::get_translatable_strings(List<StringName> *p_strings) const {
         if (!c->has_meta("_tab_name"))
             continue;
 
-        StringName name = c->get_meta("_tab_name");
+        StringName name = c->get_meta("_tab_name").as<StringName>();
 
         if (!name.empty())
             p_strings->push_back(name);
@@ -1042,5 +1043,5 @@ TabContainer::TabContainer() {
     tabs_rearrange_group = -1;
     use_hidden_tabs_for_min_size = false;
 
-    connect("mouse_exited", this, "_on_mouse_exited");
+    connect("mouse_exited",callable_mp(this, &ClassName::_on_mouse_exited));
 }

@@ -52,8 +52,8 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     Vector<String> args;
 
     String resource_path(ProjectSettings::get_singleton()->get_resource_path());
-    String remote_host = EditorSettings::get_singleton()->get("network/debug/remote_host").as<String>();
-    int remote_port = (int)EditorSettings::get_singleton()->get("network/debug/remote_port");
+    String remote_host = EditorSettings::get_singleton()->getT<String>("network/debug/remote_host");
+    int remote_port = EditorSettings::get_singleton()->getT<int>("network/debug/remote_port");
 
     if (!resource_path.empty()) {
         args.push_back("--path");
@@ -74,7 +74,7 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
         args.push_back("--debug-navigation");
     }
 
-    int screen = EditorSettings::get_singleton()->get("run/window_placement/screen");
+    int screen = EditorSettings::get_singleton()->getT<int>("run/window_placement/screen");
     if (screen == 0) {
         // Same as editor
         screen = OS::get_singleton()->get_current_screen();
@@ -105,19 +105,19 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
     screen_rect.size = OS::get_singleton()->get_screen_size(screen);
 
     Size2 desired_size;
-    desired_size.x = ProjectSettings::get_singleton()->get("display/window/size/width");
-    desired_size.y = ProjectSettings::get_singleton()->get("display/window/size/height");
+    desired_size.x = ProjectSettings::get_singleton()->getT<float>("display/window/size/width");
+    desired_size.y = ProjectSettings::get_singleton()->getT<float>("display/window/size/height");
 
     Size2 test_size;
-    test_size.x = ProjectSettings::get_singleton()->get("display/window/size/test_width");
-    test_size.y = ProjectSettings::get_singleton()->get("display/window/size/test_height");
+    test_size.x = ProjectSettings::get_singleton()->getT<float>("display/window/size/test_width");
+    test_size.y = ProjectSettings::get_singleton()->getT<float>("display/window/size/test_height");
     if (test_size.x > 0 && test_size.y > 0) {
 
         desired_size = test_size;
     }
 
-    int window_placement = EditorSettings::get_singleton()->get("run/window_placement/rect");
-    bool hidpi_proj = ProjectSettings::get_singleton()->get("display/window/dpi/allow_hidpi");
+    int window_placement = EditorSettings::get_singleton()->getT<int>("run/window_placement/rect");
+    bool hidpi_proj = ProjectSettings::get_singleton()->getT<bool>("display/window/dpi/allow_hidpi");
     int display_scale = 1;
     if (OS::get_singleton()->is_hidpi_allowed()) {
         if (hidpi_proj) {
@@ -147,7 +147,7 @@ Error EditorRun::run(StringView p_scene, StringView p_custom_args, const Vector<
             args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));
         } break;
         case 2: { // custom pos
-            Vector2 pos = EditorSettings::get_singleton()->get("run/window_placement/rect_custom_position");
+            Vector2 pos = EditorSettings::get_singleton()->getT<Vector2>("run/window_placement/rect_custom_position");
             pos += screen_rect.position;
             args.push_back("--position");
             args.push_back(::to_string(pos.x) + "," + ::to_string(pos.y));

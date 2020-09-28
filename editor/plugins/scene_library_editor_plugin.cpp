@@ -30,6 +30,7 @@
 
 #include "scene_library_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/resource/resource_manager.h"
 #include "editor/editor_node.h"
@@ -64,7 +65,7 @@ void SceneLibraryEditor::_menu_confirm() {
             m_scene_library->remove_item(to_erase);
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
-            String existing = m_scene_library->get_meta("_editor_source_scene");
+            String existing = m_scene_library->get_meta("_editor_source_scene").as<String>();
             ERR_FAIL_COND(existing.empty());
             _import_scene_cbk(existing);
 
@@ -167,7 +168,7 @@ void SceneLibraryEditor::_menu_cbk(int p_option) {
         } break;
         case MENU_OPTION_UPDATE_FROM_SCENE: {
 
-            cd->set_text(StringName(TTR("Update from existing scene?:\n") + String(m_scene_library->get_meta("_editor_source_scene"))));
+            cd->set_text(StringName(TTR("Update from existing scene?:\n") + m_scene_library->get_meta("_editor_source_scene").as<String>()));
             cd->popup_centered(Size2(500, 60));
         } break;
     }
@@ -193,7 +194,7 @@ SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {
         file->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
     }
     add_child(file);
-    file->connect("file_selected", this, "_import_scene_cbk");
+    file->connect("file_selected",callable_mp(this, &ClassName::_import_scene_cbk));
 
     menu = memnew(MenuButton);
     SpatialEditor::get_singleton()->add_control_to_menu_panel(menu);
@@ -206,13 +207,13 @@ SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {
     menu->get_popup()->add_item(TTR("Import from Scene"), MENU_OPTION_IMPORT_FROM_SCENE);
     menu->get_popup()->add_item(TTR("Update from Scene"), MENU_OPTION_UPDATE_FROM_SCENE);
     menu->get_popup()->set_item_disabled(menu->get_popup()->get_item_index(MENU_OPTION_UPDATE_FROM_SCENE), true);
-    menu->get_popup()->connect("id_pressed", this, "_menu_cbk");
+    menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_cbk));
     menu->hide();
 
     editor = p_editor;
     cd = memnew(ConfirmationDialog);
     add_child(cd);
-    cd->get_ok()->connect("pressed", this, "_menu_confirm");
+    cd->get_ok()->connect("pressed",callable_mp(this, &ClassName::_menu_confirm));
 }
 
 void SceneLibraryEditorPlugin::edit(Object *p_node) {

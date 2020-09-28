@@ -1034,8 +1034,8 @@ void AudioServer::init_channels_and_buffers() {
 
 void AudioServer::init() {
 
-    channel_disable_threshold_db = GLOBAL_DEF_RST("audio/channel_disable_threshold_db", -60.0);
-    channel_disable_frames = float(GLOBAL_DEF_RST("audio/channel_disable_time", 2.0)) * get_mix_rate();
+    channel_disable_threshold_db = T_GLOBAL_DEF("audio/channel_disable_threshold_db", -60.0f,true);
+    channel_disable_frames = T_GLOBAL_DEF("audio/channel_disable_time", 2.0f,true) * get_mix_rate();
     ProjectSettings::get_singleton()->set_custom_property_info("audio/channel_disable_time", PropertyInfo(VariantType::FLOAT, "audio/channel_disable_time", PropertyHint::Range, "0,5,0.01,or_greater"));
     buffer_size = 1024; //hardcoded for now
 
@@ -1123,7 +1123,7 @@ void AudioServer::update() {
 
 void AudioServer::load_default_bus_layout() {
 
-    String layout_path = ProjectSettings::get_singleton()->get("audio/default_bus_layout");
+    String layout_path = ProjectSettings::get_singleton()->getT<String>("audio/default_bus_layout");
 
     if (gResourceManager().exists(layout_path)) {
         Ref<AudioBusLayout> default_layout = dynamic_ref_cast<AudioBusLayout>(gResourceManager().load(layout_path));
@@ -1541,17 +1541,17 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
     StringView what = StringUtils::get_slice(s,"/", 2);
 
     if (what == "name"_sv) {
-        bus.name = p_value;
+        bus.name = p_value.as<StringName>();
     } else if (what == "solo"_sv) {
-        bus.solo = p_value;
+        bus.solo = p_value.as<bool>();
     } else if (what == "mute"_sv) {
-        bus.mute = p_value;
+        bus.mute = p_value.as<bool>();
     } else if (what == "bypass_fx"_sv) {
-        bus.bypass = p_value;
+        bus.bypass = p_value.as<bool>();
     } else if (what == "volume_db"_sv) {
-        bus.volume_db = p_value;
+        bus.volume_db = p_value.as<float>();
     } else if (what == "send"_sv) {
-        bus.send = p_value;
+        bus.send = p_value.as<StringName>();
     } else if (what == "effect"_sv) {
         int which = StringUtils::to_int(StringUtils::get_slice(s,"/", 3));
         if (bus.effects.size() <= which) {
@@ -1562,9 +1562,9 @@ bool AudioBusLayout::_set(const StringName &p_name, const Variant &p_value) {
 
         StringView fxwhat = StringUtils::get_slice(s,"/", 4);
         if (fxwhat == "effect"_sv) {
-            fx.effect = refFromRefPtr<AudioEffect>(p_value);
+            fx.effect = refFromVariant<AudioEffect>(p_value);
         } else if (fxwhat == "enabled"_sv) {
-            fx.enabled = p_value;
+            fx.enabled = p_value.as<bool>();
         } else {
             return false;
         }

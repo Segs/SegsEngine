@@ -32,6 +32,7 @@
 
 #include "core/message_queue.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
@@ -87,22 +88,22 @@ bool Skeleton::_set(const StringName &p_path, const Variant &p_value) {
     ERR_FAIL_INDEX_V(which, bones.size(), false);
 
     if (what == StringView("parent"))
-        set_bone_parent(which, p_value);
+        set_bone_parent(which, p_value.as<int>());
     else if (what == StringView("rest"))
-        set_bone_rest(which, p_value);
+        set_bone_rest(which, p_value.as<Transform>());
     else if (what == StringView("enabled"))
-        set_bone_enabled(which, p_value);
+        set_bone_enabled(which, p_value.as<bool>());
     else if (what == StringView("pose"))
-        set_bone_pose(which, p_value);
+        set_bone_pose(which, p_value.as<Transform>());
     else if (what == StringView("bound_children")) {
-        Array children = p_value;
+        Array children = p_value.as<Array>();
 
         if (is_inside_tree()) {
             bones[which].nodes_bound.clear();
 
             for (int i = 0; i < children.size(); i++) {
 
-                NodePath npath = children[i];
+                NodePath npath = children[i].as<NodePath>();
                 ERR_CONTINUE(npath.empty());
                 Node *node = get_node(npath);
                 ERR_CONTINUE(!node);
@@ -139,7 +140,7 @@ bool Skeleton::_get(const StringName &p_path, Variant &r_ret) const {
     else if (what == StringView("bound_children")) {
         Array children;
 
-        for (uint32_t E : bones[which].nodes_bound) {
+        for (ObjectID E : bones[which].nodes_bound) {
 
             Object *obj = gObjectDB().get_instance(E);
             ERR_CONTINUE(!obj);
@@ -307,7 +308,7 @@ void Skeleton::_notification(int p_what) {
                     b.global_pose_override_amount = 0.0;
                 }
 
-                for (uint32_t E : b.nodes_bound) {
+                for (ObjectID E : b.nodes_bound) {
 
                     Object *obj = gObjectDB().get_instance(E);
                     ERR_CONTINUE(!obj);
@@ -538,7 +539,7 @@ void Skeleton::bind_child_node_to_bone(int p_bone, Node *p_node) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    uint32_t id = p_node->get_instance_id();
+    auto id = p_node->get_instance_id();
 
     if(bones[p_bone].nodes_bound.contains(id))
         return; // already here
@@ -550,14 +551,14 @@ void Skeleton::unbind_child_node_from_bone(int p_bone, Node *p_node) {
     ERR_FAIL_NULL(p_node);
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    uint32_t id = p_node->get_instance_id();
+    auto id = p_node->get_instance_id();
     bones[p_bone].nodes_bound.erase_first(id);
 }
 void Skeleton::get_bound_child_nodes_to_bone(int p_bone, Vector<Node *> *p_bound) const {
 
     ERR_FAIL_INDEX(p_bone, bones.size());
 
-    for (uint32_t E : bones[p_bone].nodes_bound) {
+    for (ObjectID E : bones[p_bone].nodes_bound) {
 
         Object *obj = gObjectDB().get_instance(E);
         ERR_CONTINUE(!obj);
@@ -844,7 +845,7 @@ Ref<SkinReference> Skeleton::register_skin(const Ref<Skin> &p_skin) {
 
     skin_bindings.insert(skin_ref.get());
 
-    skin->connect("changed", skin_ref.get(), "_skin_changed");
+    skin->connect("changed", callable_mp(skin_ref.get(), &SkinReference::_skin_changed));
     _make_dirty();
     return skin_ref;
 }

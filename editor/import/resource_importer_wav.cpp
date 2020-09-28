@@ -65,7 +65,7 @@ StringName ResourceImporterWAV::get_resource_type() const {
 
 bool ResourceImporterWAV::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
-    if (p_option == "force/max_rate_hz" && !bool(p_options.at("force/max_rate"))) {
+    if (p_option == "force/max_rate_hz" && !p_options.at("force/max_rate").as<bool>()) {
         return false;
     }
 
@@ -317,8 +317,8 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
     //apply frequency limit
 
-    bool limit_rate = p_options.at("force/max_rate");
-    int limit_rate_hz = p_options.at("force/max_rate_hz");
+    bool limit_rate = p_options.at("force/max_rate").as<bool>();
+    int limit_rate_hz = p_options.at("force/max_rate_hz").as<int>();
     if (limit_rate && rate > limit_rate_hz && rate > 0 && frames > 0) {
         // resample!
         int new_data_frames = (int)(frames * (float)limit_rate_hz / (float)rate);
@@ -371,7 +371,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         frames = new_data_frames;
     }
 
-    bool normalize = p_options.at("edit/normalize");
+    bool normalize = p_options.at("edit/normalize").as<bool>();
 
     if (normalize) {
 
@@ -391,7 +391,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         }
     }
 
-    bool trim = p_options.at("edit/trim");
+    bool trim = p_options.at("edit/trim").as<bool>();
 
     if (trim && !loop && format_channels > 0) {
 
@@ -439,7 +439,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         }
     }
 
-    bool make_loop = p_options.at("edit/loop");
+    bool make_loop = p_options.at("edit/loop").as<bool>();
 
     if (make_loop && !loop) {
 
@@ -448,8 +448,8 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         loop_end = frames;
     }
 
-    int compression = p_options.at("compress/mode");
-    bool force_mono = p_options.at("force/mono");
+    int compression = p_options.at("compress/mode").as<int>();
+    bool force_mono = p_options.at("force/mono").as<bool>();
 
     if (force_mono && format_channels == 2) {
 
@@ -463,7 +463,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         format_channels = 1;
     }
 
-    bool force_8_bit = p_options.at("force/8_bit");
+    bool force_8_bit = p_options.at("force/8_bit").as<bool>();
     if (force_8_bit) {
 
         is16 = false;

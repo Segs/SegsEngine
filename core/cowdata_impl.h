@@ -5,25 +5,6 @@
 
 class Object;
 
-template <class T>
-bool CowData<T>::_get_alloc_size_checked(size_t p_elements, size_t *out) const {
-#if defined(_add_overflow) && defined(_mul_overflow)
-    size_t o;
-    size_t p;
-    if (_mul_overflow(p_elements, sizeof(T), &o)) {
-        *out = 0;
-        return false;
-    }
-    *out = next_power_of_2(o);
-    if (_add_overflow(o, static_cast<size_t>(32), &p)) return false; // no longer allocated here
-    return true;
-#else
-    // Speed is more important than correctness here, do the operations unchecked
-    // and hope the best
-    *out = _get_alloc_size(p_elements);
-    return true;
-#endif
-}
 
 template <class T> T *CowData<T>::_get_data() const {
 
@@ -259,11 +240,3 @@ T &CowData<T>::get_m(int p_index) {
     return _get_data()[p_index];
 }
 
-template <class T>
-int CowData<T>::size() const {
-    uint32_t *size = _get_size();
-    if (size) // TODO: mark as unlikely ?
-        return *size;
-
-    return 0;
-}

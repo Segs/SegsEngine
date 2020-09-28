@@ -38,6 +38,7 @@
 #include "editor_feature_profile.h"
 #include "editor_help.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -448,13 +449,13 @@ bool EditorPropertyRevert::is_node_property_different(Node *p_node, const Varian
     }
 
     if (p_current.get_type() == VariantType::FLOAT && p_orig.get_type() == VariantType::FLOAT) {
-        float a = p_current;
-        float b = p_orig;
+        float a = p_current.as<float>();
+        float b = p_orig.as<float>();
 
         return !Math::is_equal_approx(a, b); //this must be done because, as some scenes save as text, there might be a tiny difference in floats due to numerical error
     }
 
-    return bool(Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig));
+    return Variant::evaluate(Variant::OP_NOT_EQUAL, p_current, p_orig).as<bool>();
 }
 
 bool EditorPropertyRevert::can_property_revert(Object *p_object, const StringName &p_property) {
@@ -587,7 +588,7 @@ void EditorProperty::_focusable_focused(int p_index) {
 
 void EditorProperty::add_focusable(Control *p_control) {
 
-    p_control->connect("focus_entered", this, "_focusable_focused", varray(focusables.size()));
+    p_control->connect("focus_entered",callable_mp(this, &ClassName::_focusable_focused), varray(focusables.size()));
     focusables.push_back(p_control);
 }
 
@@ -663,7 +664,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
 
             if (use_keying_next()) {
                 if (property == "frame_coords" && (object->is_class("Sprite2D") || object->is_class("Sprite3D"))) {
-                    Vector2 new_coords = object->get(property);
+                    Vector2 new_coords = object->get(property).as<Vector2>();
                     new_coords.x++;
                     if (new_coords.x >= object->get("hframes").as<int64_t>()) {
                         new_coords.x = 0;
@@ -691,7 +692,7 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
                 return;
             }
 
-            if (object->call_va("property_can_revert", property).operator bool()) {
+            if (object->call_va("property_can_revert", property).as<bool>()) {
                 Variant rev = object->call_va("property_get_revert", property);
                 emit_changed(property, rev);
                 update_property();
@@ -856,13 +857,13 @@ void EditorProperty::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "checked"), "set_checked", "is_checked");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "draw_red"), "set_draw_red", "is_draw_red");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "keying"), "set_keying", "is_keying");
-    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_changed", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
     ADD_SIGNAL(MethodInfo("multiple_properties_changed", PropertyInfo(VariantType::POOL_STRING_ARRAY, "properties"), PropertyInfo(VariantType::ARRAY, "value")));
-    ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(VariantType::STRING, "property")));
-    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
-    ADD_SIGNAL(MethodInfo("property_checked", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::STRING, "bool")));
+    ADD_SIGNAL(MethodInfo("property_keyed", PropertyInfo(VariantType::STRING_NAME, "property")));
+    ADD_SIGNAL(MethodInfo("property_keyed_with_value", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::NIL, "value", PropertyHint::None, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+    ADD_SIGNAL(MethodInfo("property_checked", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::STRING, "bool")));
     ADD_SIGNAL(MethodInfo("resource_selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::OBJECT, "resource", PropertyHint::ResourceType, "Resource")));
-    ADD_SIGNAL(MethodInfo("object_id_selected", PropertyInfo(VariantType::STRING, "property"), PropertyInfo(VariantType::INT, "id")));
+    ADD_SIGNAL(MethodInfo("object_id_selected", PropertyInfo(VariantType::STRING_NAME, "property"), PropertyInfo(VariantType::INT, "id")));
     ADD_SIGNAL(MethodInfo("selected", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::INT, "focusable_idx")));
 
     MethodInfo vm;
@@ -925,7 +926,7 @@ void EditorInspectorPlugin::add_property_editor_for_multiple_properties(StringVi
 bool EditorInspectorPlugin::can_handle(Object *p_object) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("can_handle", Variant(p_object));
+        return get_script_instance()->call("can_handle", Variant(p_object)).as<bool>();
     }
     return false;
 }
@@ -954,7 +955,7 @@ bool EditorInspectorPlugin::parse_property(Object *p_object, VariantType p_type,
         };
 
         Callable::CallError err;
-        return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err);
+        return get_script_instance()->call("parse_property", (const Variant **)&argptr, 6, err).as<bool>();
     }
     return false;
 }
@@ -1367,14 +1368,14 @@ void EditorInspector::_parse_added_editors(VBoxContainer *current_vbox, const Re
             continue;
 
         ep->object = object;
-        ep->connect("property_changed", this, "_property_changed");
-        ep->connect("property_keyed", this, "_property_keyed");
-        ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
-        ep->connect("property_checked", this, "_property_checked");
-        ep->connect("selected", this, "_property_selected");
-        ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-        ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
-        ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
+        ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
+        ep->connect("property_keyed",callable_mp(this, &ClassName::_property_keyed));
+        ep->connect("property_keyed_with_value",callable_mp(this, &ClassName::_property_keyed_with_value));
+        ep->connect("property_checked",callable_mp(this, &ClassName::_property_checked));
+        ep->connect("selected",callable_mp(this, &ClassName::_property_selected));
+        ep->connect("multiple_properties_changed",callable_mp(this, &ClassName::_multiple_properties_changed));
+        ep->connect("resource_selected",callable_mp(this, &ClassName::_resource_selected), varray(), ObjectNS::CONNECT_QUEUED);
+        ep->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected), varray(), ObjectNS::CONNECT_QUEUED);
 
         if (!F.properties.empty()) {
 
@@ -1571,10 +1572,10 @@ void EditorInspector::update_tree() {
         } else if (!(p.usage & PROPERTY_USAGE_EDITOR) || _is_property_disabled_by_feature_profile(p.name))
             continue;
 
-        if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && RenderingServer::get_singleton()->is_low_end())
-            continue; //do not show this property in low end gfx
+        // if (p.usage & PROPERTY_USAGE_HIGH_END_GFX && RenderingServer::get_singleton()->is_low_end())
+        //     continue; //do not show this property in low end gfx
 
-        if (p.name == "script" && (hide_script || bool(object->call_va("_hide_script_from_inspector")))) {
+        if (p.name == "script" && (hide_script || object->call_va("_hide_script_from_inspector").as<bool>())) {
             continue;
         }
 
@@ -1784,17 +1785,17 @@ void EditorInspector::update_tree() {
 
                 if (ep) {
 
-                    ep->connect("property_changed", this, "_property_changed");
+                    ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
                     if (p.usage & PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED) {
-                        ep->connect("property_changed", this, "_property_changed_update_all", varray(), ObjectNS::CONNECT_QUEUED);
+                        ep->connect("property_changed",callable_mp(this, &ClassName::_property_changed_update_all), varray(), ObjectNS::CONNECT_QUEUED);
                     }
-                    ep->connect("property_keyed", this, "_property_keyed");
-                    ep->connect("property_keyed_with_value", this, "_property_keyed_with_value");
-                    ep->connect("property_checked", this, "_property_checked");
-                    ep->connect("selected", this, "_property_selected");
-                    ep->connect("multiple_properties_changed", this, "_multiple_properties_changed");
-                    ep->connect("resource_selected", this, "_resource_selected", varray(), ObjectNS::CONNECT_QUEUED);
-                    ep->connect("object_id_selected", this, "_object_id_selected", varray(), ObjectNS::CONNECT_QUEUED);
+                    ep->connect("property_keyed",callable_mp(this, &ClassName::_property_keyed));
+                    ep->connect("property_keyed_with_value",callable_mp(this, &ClassName::_property_keyed_with_value));
+                    ep->connect("property_checked",callable_mp(this, &ClassName::_property_checked));
+                    ep->connect("selected",callable_mp(this, &ClassName::_property_selected));
+                    ep->connect("multiple_properties_changed",callable_mp(this, &ClassName::_multiple_properties_changed));
+                    ep->connect("resource_selected",callable_mp(this, &ClassName::_resource_selected), varray(), ObjectNS::CONNECT_QUEUED);
+                    ep->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected), varray(), ObjectNS::CONNECT_QUEUED);
                     if (!doc_hint.empty()) {
                         ep->set_tooltip_utf8(property_prefix + p.name + "::" + doc_hint);
                     } else {
@@ -1849,7 +1850,7 @@ void EditorInspector::refresh() {
 
     if (refresh_countdown > 0 || changing)
         return;
-    refresh_countdown = EditorSettings::get_singleton()->get("docks/property_editor/auto_refresh_interval");
+    refresh_countdown = EditorSettings::get_singleton()->get("docks/property_editor/auto_refresh_interval").as<float>();
 }
 
 Object *EditorInspector::get_edited_object() {
@@ -1921,7 +1922,7 @@ void EditorInspector::set_use_filter(bool p_use) {
 void EditorInspector::register_text_enter(Node *p_line_edit) {
     search_box = object_cast<LineEdit>(p_line_edit);
     if (search_box)
-        search_box->connect("text_changed", this, "_filter_changed");
+        search_box->connect("text_changed",callable_mp(this, &ClassName::_filter_changed));
 }
 
 void EditorInspector::_filter_changed(StringView p_text) {
@@ -2010,7 +2011,7 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         }
     }
 
-    if (!undo_redo || bool(object->call_va("_dont_undo_redo"))) {
+    if (!undo_redo || object->call_va("_dont_undo_redo").as<bool>()) {
 
         object->set(StringName(p_name), p_value);
         if (p_refresh_all)
@@ -2027,7 +2028,7 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         emit_signal(_prop_edited, p_name);
     } else {
 
-        undo_redo->create_action_ui(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
+        undo_redo->create_action(TTR("Set") + " " + p_name, UndoRedo::MERGE_ENDS);
         undo_redo->add_do_property(object, p_name, p_value);
         undo_redo->add_undo_property(object, p_name, object->get(StringName(p_name)));
 
@@ -2044,8 +2045,8 @@ void EditorInspector::_edit_set(StringView p_name, const Variant &p_value, bool 
         if (r) {
 
             if (p_name == StringView("resource_local_to_scene")) {
-                bool prev = object->get(StringName(p_name));
-                bool next = p_value;
+                bool prev = object->get(StringName(p_name)).as<bool>();
+                bool next = p_value.as<bool>();
                 if (next) {
                     undo_redo->add_do_method(r, "setup_local_to_scene");
                 }
@@ -2094,7 +2095,7 @@ void EditorInspector::_multiple_properties_changed(const Vector<String> &p_paths
 
     String names = String::joined(p_paths,",");
 
-    undo_redo->create_action_ui(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
+    undo_redo->create_action(TTR("Set Multiple:") + " " + names, UndoRedo::MERGE_ENDS);
     for (size_t i = 0; i < p_paths.size(); i++) {
         _edit_set(StringName(p_paths[i]), p_values[i], false, StringView());
         if (restart_request_props.contains(StringName(p_paths[i]))) {
@@ -2128,34 +2129,32 @@ void EditorInspector::_property_checked(const StringName & p_path, bool p_checke
         return;
 
     //property checked
-    if (autoclear) {
-
-        if (!p_checked) {
-            object->set(p_path, Variant());
-        } else {
-
-            Variant to_create;
-            Vector<PropertyInfo> pinfo;
-            object->get_property_list(&pinfo);
-            for (const PropertyInfo &E : pinfo) {
-                if (E.name == p_path) {
-                    Callable::CallError ce;
-                    to_create = Variant::construct(E.type, nullptr, 0, ce);
-                    break;
-                }
-            }
-            object->set(p_path, to_create);
-        }
-
-        if (editor_property_map.contains(p_path)) {
-            for (EditorProperty *E : editor_property_map[p_path]) {
-                E->update_property();
-                E->update_reload_status();
-            }
-        }
-
-    } else {
+    if (!autoclear) {
         emit_signal("property_toggled", p_path, p_checked);
+        return;
+    }
+
+    if (!p_checked) {
+        object->set(p_path, Variant());
+    } else {
+
+        Variant to_create;
+        Vector<PropertyInfo> pinfo;
+        object->get_property_list(&pinfo);
+        for (const PropertyInfo &E : pinfo) {
+            if (E.name == p_path) {
+                to_create = Variant::construct_default(E.type);
+                break;
+            }
+        }
+        object->set(p_path, to_create);
+    }
+
+    if (editor_property_map.contains(p_path)) {
+        for (EditorProperty *E : editor_property_map[p_path]) {
+            E->update_property();
+            E->update_reload_status();
+        }
     }
 }
 
@@ -2178,7 +2177,7 @@ void EditorInspector::_property_selected(const StringName &p_path, int p_focusab
 
 void EditorInspector::_object_id_selected(StringView p_path, ObjectID p_id) {
 
-    emit_signal("object_id_selected", p_id);
+    emit_signal("object_id_selected", Variant::from(p_id));
 }
 
 void EditorInspector::_resource_selected(StringView p_path, const RES& p_resource) {
@@ -2195,7 +2194,7 @@ void EditorInspector::_node_removed(Node *p_node) {
 void EditorInspector::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
-        EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed", this, "_feature_profile_changed");
+        EditorFeatureProfileManager::get_singleton()->connect("current_feature_profile_changed",callable_mp(this, &ClassName::_feature_profile_changed));
     }
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
@@ -2204,7 +2203,7 @@ void EditorInspector::_notification(int p_what) {
             add_style_override("bg", get_stylebox("sub_inspector_bg", "Editor"));
         } else {
             add_style_override("bg", get_stylebox("bg", "Tree"));
-            get_tree()->connect("node_removed", this, "_node_removed");
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
         }
     }
     if (p_what == NOTIFICATION_PREDELETE) {
@@ -2213,7 +2212,7 @@ void EditorInspector::_notification(int p_what) {
     if (p_what == NOTIFICATION_EXIT_TREE) {
 
         if (!sub_inspector) {
-            get_tree()->disconnect("node_removed", this, "_node_removed");
+            get_tree()->disconnect("node_removed",callable_mp(this, &ClassName::_node_removed));
         }
         edit(nullptr);
     }
@@ -2367,6 +2366,6 @@ EditorInspector::EditorInspector() {
     property_focusable = -1;
     sub_inspector = false;
 
-    get_v_scrollbar()->connect("value_changed", this, "_vscroll_changed");
+    get_v_scrollbar()->connect("value_changed",callable_mp(this, &ClassName::_vscroll_changed));
     update_scroll_request = -1;
 }

@@ -89,7 +89,7 @@ void EditorAssetInstaller::_item_edited() {
     if (!item)
         return;
 
-    String path = item->get_metadata(0);
+    String path = item->get_metadata(0).as<String>();
 
     updating = true;
     if (path == String() || item == tree->get_root()) { //a dir or root
@@ -268,7 +268,7 @@ void EditorAssetInstaller::ok_pressed() {
 
         if (status_map.contains(name) && status_map[name]->is_checked(0)) {
 
-            String path = status_map[name]->get_metadata(0);
+            String path = status_map[name]->get_metadata(0).as<String>();
             if (path.empty()) { // a dir
 
                 String dirpath;
@@ -345,7 +345,7 @@ EditorAssetInstaller::EditorAssetInstaller() {
 
     tree = memnew(Tree);
     vb->add_margin_child(TTR("Package Contents:"), tree, true);
-    tree->connect("item_edited", this, "_item_edited");
+    tree->connect("item_edited",callable_mp(this, &ClassName::_item_edited));
 
     error = memnew(AcceptDialog);
     add_child(error);

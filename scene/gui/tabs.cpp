@@ -697,13 +697,13 @@ bool Tabs::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
     if (!drag_to_rearrange_enabled)
         return false;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type"))
         return false;
 
     if (d["type"] == "tab_element") {
 
-        NodePath from_path = d["from_path"];
+        NodePath from_path = d["from_path"].as<NodePath>();
         NodePath to_path = get_path();
         if (from_path == to_path) {
             return true;
@@ -726,14 +726,14 @@ void Tabs::drop_data(const Point2 &p_point, const Variant &p_data) {
 
     int hover_now = get_tab_idx_at_point(p_point);
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type"))
         return;
 
     if (d["type"] == "tab_element") {
 
-        int tab_from_id = d["tab_element"];
-        NodePath from_path = d["from_path"];
+        int tab_from_id = d["tab_element"].as<int>();
+        NodePath from_path = d["from_path"].as<NodePath>();
         NodePath to_path = get_path();
         if (from_path == to_path) {
             if (hover_now < 0)
@@ -1045,5 +1045,5 @@ Tabs::Tabs() {
     hover = -1;
     drag_to_rearrange_enabled = false;
     tabs_rearrange_group = -1;
-    connect("mouse_exited", this, "_on_mouse_exited");
+    connect("mouse_exited",callable_mp(this, &ClassName::_on_mouse_exited));
 }

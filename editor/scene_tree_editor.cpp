@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/message_queue.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/print_string.h"
 #include "core/string_formatter.h"
@@ -65,7 +66,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
     TreeItem *item = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!item);
 
-    NodePath np = item->get_metadata(0);
+    NodePath np = item->get_metadata(0).as<NodePath>();
 
     Node *n = get_node(np);
     ERR_FAIL_COND(!n);
@@ -85,7 +86,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
             emit_signal("open_script", Variant(script));
 
     } else if (p_id == BUTTON_VISIBILITY) {
-        undo_redo->create_action_ui(TTR("Toggle Visible"));
+        undo_redo->create_action(TTR("Toggle Visible"));
         _toggle_visible(n);
         const Vector<Node *> &selection = editor_selection->get_selected_node_list();
         if (selection.size() > 1 && selection.find(n) != nullptr) {
@@ -99,7 +100,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         }
         undo_redo->commit_action();
     } else if (p_id == BUTTON_LOCK) {
-        undo_redo->create_action_ui(TTR("Unlock Node"));
+        undo_redo->create_action(TTR("Unlock Node"));
 
         if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
@@ -119,7 +120,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
         }
 
     } else if (p_id == BUTTON_GROUP) {
-        undo_redo->create_action_ui(TTR("Button Group"));
+        undo_redo->create_action(TTR("Button Group"));
 
         if (n->is_class("CanvasItem") || n->is_class("Node3D")) {
 
@@ -163,7 +164,7 @@ void SceneTreeEditor::_cell_button_pressed(Object *p_item, int p_column, int p_i
 }
 void SceneTreeEditor::_toggle_visible(Node *p_node) {
     if (p_node->has_method("is_visible") && p_node->has_method("set_visible")) {
-        bool v = bool(p_node->call_va("is_visible"));
+        bool v = p_node->call_va("is_visible").as<bool>();
         undo_redo->add_do_method(p_node, "set_visible", !v);
         undo_redo->add_undo_method(p_node, "set_visible", v);
     }
@@ -331,8 +332,8 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
     if (can_open_instance && undo_redo) { //Show buttons only when necessary(SceneTreeDock) to avoid crashes
 
-        if (!p_node->is_connected("script_changed", this, "_node_script_changed"))
-            p_node->connect("script_changed", this, "_node_script_changed", varray(Variant(p_node)));
+        if (!p_node->is_connected("script_changed",callable_mp(this, &ClassName::_node_script_changed)))
+            p_node->connect("script_changed",callable_mp(this, &ClassName::_node_script_changed), varray(Variant(p_node)));
 
         Ref<Script> script(refFromRefPtr<Script>(p_node->get_script()));
         if (script) {
@@ -352,14 +353,14 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             if (is_grouped)
                 item->add_button(0, get_icon("Group", "EditorIcons"), BUTTON_GROUP, false, TTR("Children are not selectable.\nClick to make selectable."));
 
-            bool v = p_node->call_va("is_visible");
+            bool v = p_node->call_va("is_visible").as<bool>();
             if (v)
                 item->add_button(0, get_icon("GuiVisibilityVisible", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
             else
                 item->add_button(0, get_icon("GuiVisibilityHidden", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
 
-            if (!p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(Variant(p_node)));
+            if (!p_node->is_connected("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed)))
+                p_node->connect("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed), varray(Variant(p_node)));
 
             _update_visibility_color(p_node, item);
         } else if (p_node->is_class("Node3D")) {
@@ -372,14 +373,14 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
             if (is_grouped)
                 item->add_button(0, get_icon("Group", "EditorIcons"), BUTTON_GROUP, false, TTR("Children are not selectable.\nClick to make selectable."));
 
-            bool v = p_node->call_va("is_visible");
+            bool v = p_node->call_va("is_visible").as<bool>();
             if (v)
                 item->add_button(0, get_icon("GuiVisibilityVisible", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
             else
                 item->add_button(0, get_icon("GuiVisibilityHidden", "EditorIcons"), BUTTON_VISIBILITY, false, TTR("Toggle Visibility"));
 
-            if (!p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-                p_node->connect("visibility_changed", this, "_node_visibility_changed", varray(Variant(p_node)));
+            if (!p_node->is_connected("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed)))
+                p_node->connect("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed), varray(Variant(p_node)));
 
             _update_visibility_color(p_node, item);
         } else if (p_node->is_class("AnimationPlayer")) {
@@ -432,7 +433,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
 
     if (!keep) {
         if (editor_selection) {
-            Node *n = get_node(item->get_metadata(0));
+            Node *n = get_node(item->get_metadata(0).as<NodePath>());
             if (n) {
                 editor_selection->remove_node(n);
             }
@@ -463,10 +464,10 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
     bool visible = false;
 
     if (p_node->is_class("CanvasItem")) {
-        visible = p_node->call_va("is_visible");
+        visible = p_node->call_va("is_visible").as<bool>();
         CanvasItemEditor::get_singleton()->get_viewport_control()->update();
     } else if (p_node->is_class("Node3D")) {
-        visible = p_node->call_va("is_visible");
+        visible = p_node->call_va("is_visible").as<bool>();
     }
 
     if (visible)
@@ -480,7 +481,7 @@ void SceneTreeEditor::_node_visibility_changed(Node *p_node) {
 void SceneTreeEditor::_update_visibility_color(Node *p_node, TreeItem *p_item) {
     if (p_node->is_class("CanvasItem") || p_node->is_class("Node3D")) {
         Color color(1, 1, 1, 1);
-        bool visible_on_screen = p_node->call_va("is_visible_in_tree");
+        bool visible_on_screen = p_node->call_va("is_visible_in_tree").as<bool>();
         if (!visible_on_screen) {
             color.a = 0.6f;
         }
@@ -518,12 +519,12 @@ void SceneTreeEditor::_node_removed(Node *p_node) {
     if (EditorNode::get_singleton()->is_exiting())
         return; //speed up exit
 
-    if (p_node->is_connected("script_changed", this, "_node_script_changed"))
-        p_node->disconnect("script_changed", this, "_node_script_changed");
+    if (p_node->is_connected("script_changed",callable_mp(this, &ClassName::_node_script_changed)))
+        p_node->disconnect("script_changed",callable_mp(this, &ClassName::_node_script_changed));
 
     if (p_node->is_class("Node3D") || p_node->is_class("CanvasItem")) {
-        if (p_node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-            p_node->disconnect("visibility_changed", this, "_node_visibility_changed");
+        if (p_node->is_connected("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed)))
+            p_node->disconnect("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed));
     }
 
     if (p_node == selected) {
@@ -611,7 +612,7 @@ void SceneTreeEditor::_selected_changed() {
 
     TreeItem *s = tree->get_selected();
     ERR_FAIL_COND(!s);
-    NodePath np = s->get_metadata(0);
+    NodePath np = s->get_metadata(0).as<NodePath>();
 
     Node *n = get_node(np);
 
@@ -639,7 +640,7 @@ void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_
     TreeItem *item = object_cast<TreeItem>(p_object);
     ERR_FAIL_COND(!item);
 
-    NodePath np = item->get_metadata(0);
+    NodePath np = item->get_metadata(0).as<NodePath>();
 
     Node *n = get_node(np);
 
@@ -663,22 +664,22 @@ void SceneTreeEditor::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
-            get_tree()->connect("tree_changed", this, "_tree_changed");
-            get_tree()->connect("node_removed", this, "_node_removed");
-            get_tree()->connect("node_renamed", this, "_node_renamed");
-            get_tree()->connect("node_configuration_warning_changed", this, "_warning_changed");
+            get_tree()->connect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
+            get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
+            get_tree()->connect("node_renamed",callable_mp(this, &ClassName::_node_renamed));
+            get_tree()->connect("node_configuration_warning_changed",callable_mp(this, &ClassName::_warning_changed));
 
-            tree->connect("item_collapsed", this, "_cell_collapsed");
+            tree->connect("item_collapsed",callable_mp(this, &ClassName::_cell_collapsed));
 
             _update_tree();
         } break;
         case NOTIFICATION_EXIT_TREE: {
 
-            get_tree()->disconnect("tree_changed", this, "_tree_changed");
-            get_tree()->disconnect("node_removed", this, "_node_removed");
-            get_tree()->disconnect("node_renamed", this, "_node_renamed");
-            tree->disconnect("item_collapsed", this, "_cell_collapsed");
-            get_tree()->disconnect("node_configuration_warning_changed", this, "_warning_changed");
+            get_tree()->disconnect("tree_changed",callable_mp(this, &ClassName::_tree_changed));
+            get_tree()->disconnect("node_removed",callable_mp(this, &ClassName::_node_removed));
+            get_tree()->disconnect("node_renamed",callable_mp(this, &ClassName::_node_renamed));
+            tree->disconnect("item_collapsed",callable_mp(this, &ClassName::_cell_collapsed));
+            get_tree()->disconnect("node_configuration_warning_changed",callable_mp(this, &ClassName::_warning_changed));
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
@@ -692,7 +693,7 @@ TreeItem *SceneTreeEditor::_find(TreeItem *p_node, const NodePath &p_path) {
     if (!p_node)
         return nullptr;
 
-    NodePath np = p_node->get_metadata(0);
+    NodePath np = p_node->get_metadata(0).as<NodePath>();
     if (np == p_path)
         return p_node;
 
@@ -765,7 +766,7 @@ void SceneTreeEditor::_renamed() {
     TreeItem *which = tree->get_edited();
 
     ERR_FAIL_COND(!which);
-    NodePath np = which->get_metadata(0);
+    NodePath np = which->get_metadata(0).as<NodePath>();
     Node *n = get_node(np);
     ERR_FAIL_COND(!n);
 
@@ -798,10 +799,10 @@ void SceneTreeEditor::_renamed() {
         which->set_metadata(0, n->get_path());
         emit_signal("node_renamed");
     } else {
-        undo_redo->create_action_ui(TTR("Rename Node"));
+        undo_redo->create_action(TTR("Rename Node"));
         emit_signal("node_prerename", Variant(n), new_name);
-        undo_redo->add_do_method(this, "_rename_node", n->get_instance_id(), new_name);
-        undo_redo->add_undo_method(this, "_rename_node", n->get_instance_id(), n->get_name());
+        undo_redo->add_do_method(this, "_rename_node", Variant::from(n->get_instance_id()), new_name);
+        undo_redo->add_undo_method(this, "_rename_node", Variant::from(n->get_instance_id()), n->get_name());
         undo_redo->commit_action();
     }
 }
@@ -859,14 +860,14 @@ void SceneTreeEditor::set_editor_selection(EditorSelection *p_selection) {
     editor_selection = p_selection;
     tree->set_select_mode(Tree::SELECT_MULTI);
     tree->set_cursor_can_exit_tree(false);
-    editor_selection->connect("selection_changed", this, "_selection_changed");
+    editor_selection->connect("selection_changed",callable_mp(this, &ClassName::_selection_changed));
 }
 
 void SceneTreeEditor::_update_selection(TreeItem *item) {
 
     ERR_FAIL_COND(!item);
 
-    NodePath np = item->get_metadata(0);
+    NodePath np = item->get_metadata(0).as<NodePath>();
 
     if (!has_node(np))
         return;
@@ -915,7 +916,7 @@ void SceneTreeEditor::_cell_collapsed(Object *p_obj) {
 
     bool collapsed = ti->is_collapsed();
 
-    NodePath np = ti->get_metadata(0);
+    NodePath np = ti->get_metadata(0).as<NodePath>();
 
     Node *n = get_node(np);
     ERR_FAIL_COND(!n);
@@ -936,7 +937,7 @@ Variant SceneTreeEditor::get_drag_data_fw(const Point2 &p_point, Control *p_from
     TreeItem *next = tree->get_next_selected(nullptr);
     while (next) {
 
-        NodePath np = next->get_metadata(0);
+        NodePath np = next->get_metadata(0).as<NodePath>();
 
         Node *n = get_node(np);
         if (n) {
@@ -997,7 +998,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     if (!filter.isEmpty())
         return false; //can't rearrange tree with filter turned on
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     if (!d.has("type"))
         return false;
 
@@ -1009,7 +1010,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
     if (section < -1 || section == -1 && !item->get_parent())
         return false;
 
-    if (UIString(d["type"]) == "files") {
+    if (d["type"].as<String>() == "files") {
 
         Vector<String> files(d["files"].as<Vector<String>>());
 
@@ -1032,8 +1033,8 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         return true;
     }
 
-    if (UIString(d["type"]) == "script_list_element") {
-        ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
+    if (d["type"].as<String>() == "script_list_element") {
+        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase>();
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {
@@ -1043,7 +1044,7 @@ bool SceneTreeEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_d
         }
     }
 
-    return UIString(d["type"]) == "nodes";
+    return d["type"].as<String>() == "nodes";
 }
 void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
@@ -1057,19 +1058,19 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
     if (section < -1)
         return;
 
-    NodePath np = item->get_metadata(0);
+    NodePath np = item->get_metadata(0).as<NodePath>();
     Node *n = get_node(np);
     if (!n)
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
-    if (UIString(d["type"]) == "nodes") {
-        Array nodes = d["nodes"];
+    if (d["type"].as<String>() == "nodes") {
+        Array nodes = d["nodes"].as<Array>();
         emit_signal("nodes_rearranged", nodes, np, section);
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (d["type"].as<String>() == "files") {
 
         Vector<String> files(d["files"].as<Vector<String>>());
 
@@ -1081,8 +1082,8 @@ void SceneTreeEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data,
         }
     }
 
-    if (UIString(d["type"]) == "script_list_element") {
-        ScriptEditorBase *se = object_cast<ScriptEditorBase>(d["script_list_element"]);
+    if (d["type"].as<String>() == "script_list_element") {
+        ScriptEditorBase *se = d["script_list_element"].asT<ScriptEditorBase>();
         if (se) {
             String sp = se->get_edited_resource()->get_path();
             if (_is_script_type(StringName(EditorFileSystem::get_singleton()->get_file_type(sp)))) {
@@ -1189,15 +1190,15 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     tree->set_drag_forwarding(this);
     if (p_can_rename) {
         tree->set_allow_rmb_select(true);
-        tree->connect("item_rmb_selected", this, "_rmb_select");
-        tree->connect("empty_tree_rmb_selected", this, "_rmb_select");
+        tree->connect("item_rmb_selected",callable_mp(this, &ClassName::_rmb_select));
+        tree->connect("empty_tree_rmb_selected",callable_mp(this, &ClassName::_rmb_select));
     }
 
-    tree->connect("cell_selected", this, "_selected_changed");
-    tree->connect("item_edited", this, "_renamed", varray(),ObjectNS::CONNECT_QUEUED);
-    tree->connect("multi_selected", this, "_cell_multi_selected");
-    tree->connect("button_pressed", this, "_cell_button_pressed");
-    tree->connect("nothing_selected", this, "_deselect_items");
+    tree->connect("cell_selected",callable_mp(this, &ClassName::_selected_changed));
+    tree->connect("item_edited",callable_mp(this, &ClassName::_renamed), varray(),ObjectNS::CONNECT_QUEUED);
+    tree->connect("multi_selected",callable_mp(this, &ClassName::_cell_multi_selected));
+    tree->connect("button_pressed",callable_mp(this, &ClassName::_cell_button_pressed));
+    tree->connect("nothing_selected",callable_mp(this, &ClassName::_deselect_items));
     //tree->connect("item_edited", this,"_renamed",Vector<Variant>(),true);
 
     error = memnew(AcceptDialog);
@@ -1215,7 +1216,7 @@ SceneTreeEditor::SceneTreeEditor(bool p_label, bool p_can_rename, bool p_can_ope
     blocked = 0;
 
     update_timer = memnew(Timer);
-    update_timer->connect("timeout", this, "_update_tree");
+    update_timer->connect("timeout",callable_mp(this, &ClassName::_update_tree));
     update_timer->set_one_shot(true);
     update_timer->set_wait_time(0.5);
     add_child(update_timer);
@@ -1235,12 +1236,12 @@ void SceneTreeDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            connect("confirmed", this, "_select");
+            connect("confirmed",callable_mp(this, &ClassName::_select));
             filter->set_right_icon(get_icon("Search", "EditorIcons"));
             filter->set_clear_button_enabled(true);
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            disconnect("confirmed", this, "_select");
+            disconnect("confirmed",callable_mp(this, &ClassName::_select));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible_in_tree())
@@ -1285,12 +1286,12 @@ SceneTreeDialog::SceneTreeDialog() {
     filter->set_h_size_flags(SIZE_EXPAND_FILL);
     filter->set_placeholder(TTR("Filter nodes"));
     filter->add_constant_override("minimum_spaces", 0);
-    filter->connect("text_changed", this, "_filter_changed");
+    filter->connect("text_changed",callable_mp(this, &ClassName::_filter_changed));
     vbc->add_child(filter);
 
     tree = memnew(SceneTreeEditor(false, false, true));
     tree->set_v_size_flags(SIZE_EXPAND_FILL);
-    tree->get_scene_tree()->connect("item_activated", this, "_select");
+    tree->get_scene_tree()->connect("item_activated",callable_mp(this, &ClassName::_select));
     vbc->add_child(tree);
 }
 

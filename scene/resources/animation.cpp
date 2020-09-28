@@ -88,7 +88,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
         if (tracks.size() == track && what == "type") {
 
-            StringName type = p_value;
+            StringName type = p_value.as<StringName>();
 
             if (type == "transform") {
 
@@ -119,21 +119,21 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
         ERR_FAIL_INDEX_V(track, tracks.size(), false);
 
         if (what == "path")
-            track_set_path(track, p_value);
+            track_set_path(track, p_value.as<NodePath>());
         else if (what == "interp")
-            track_set_interpolation_type(track, InterpolationType(p_value.operator int()));
+            track_set_interpolation_type(track, p_value.as<InterpolationType>());
         else if (what == "loop_wrap")
-            track_set_interpolation_loop_wrap(track, p_value);
+            track_set_interpolation_loop_wrap(track, p_value.as<bool>());
         else if (what == "imported")
-            track_set_imported(track, p_value);
+            track_set_imported(track, p_value.as<bool>());
         else if (what == "enabled")
-            track_set_enabled(track, p_value);
+            track_set_enabled(track, p_value.as<bool>());
         else if (what == "keys" || what == "key_values") {
 
             if (track_get_type(track) == TYPE_TRANSFORM) {
 
                 TransformTrack *tt = static_cast<TransformTrack *>(tracks[track]);
-                PoolVector<float> values = p_value;
+                PoolVector<float> values = p_value.as<PoolVector<float>>();
                 int vcount = values.size();
                 ERR_FAIL_COND_V(vcount % 12, false); // should be multiple of 11
 
@@ -165,16 +165,16 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
             } else if (track_get_type(track) == TYPE_VALUE) {
 
                 ValueTrack *vt = static_cast<ValueTrack *>(tracks[track]);
-                Dictionary d = p_value;
+                Dictionary d = p_value.as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has("times"), false);
                 ERR_FAIL_COND_V(!d.has("values"), false);
                 if (d.has("cont")) {
-                    bool v = d["cont"];
+                    bool v = d["cont"].as<bool>();
                     vt->update_mode = v ? UPDATE_CONTINUOUS : UPDATE_DISCRETE;
                 }
 
                 if (d.has("update")) {
-                    int um = d["update"];
+                    int um = d["update"].as<int>();
                     if (um < 0)
                         um = 0;
                     else if (um > 3)
@@ -182,8 +182,8 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                     vt->update_mode = UpdateMode(um);
                 }
 
-                PoolVector<float> times = d["times"];
-                Array values = d["values"];
+                PoolVector<float> times = d["times"].as<PoolVector<float>>();
+                Array values = d["values"].as<Array>();
 
                 ERR_FAIL_COND_V(times.size() != values.size(), false);
 
@@ -203,7 +203,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                     if (d.has("transitions")) {
 
-                        PoolVector<float> transitions = d["transitions"];
+                        PoolVector<float> transitions = d["transitions"].as<PoolVector<float>>();
                         ERR_FAIL_COND_V(transitions.size() != valcount, false);
 
                         PoolVector<float>::Read rtr = transitions.read();
@@ -222,12 +222,12 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
                 while (track_get_key_count(track))
                     track_remove_key(track, 0); //well shouldn't be set anyway
 
-                Dictionary d = p_value;
+                Dictionary d = p_value.as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has("times"), false);
                 ERR_FAIL_COND_V(!d.has("values"), false);
 
-                PoolVector<float> times = d["times"];
-                Array values = d["values"];
+                PoolVector<float> times = d["times"].as<PoolVector<float>>();
+                Array values = d["values"].as<Array>();
 
                 ERR_FAIL_COND_V(times.size() != values.size(), false);
 
@@ -244,7 +244,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                     if (d.has("transitions")) {
 
-                        PoolVector<float> transitions = d["transitions"];
+                        PoolVector<float> transitions = d["transitions"].as<PoolVector<float>>();
                         ERR_FAIL_COND_V(transitions.size() != valcount, false);
 
                         PoolVector<float>::Read rtr = transitions.read();
@@ -258,12 +258,12 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
             } else if (track_get_type(track) == TYPE_BEZIER) {
 
                 BezierTrack *bt = static_cast<BezierTrack *>(tracks[track]);
-                Dictionary d = p_value;
+                Dictionary d = p_value.as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has("times"), false);
                 ERR_FAIL_COND_V(!d.has("points"), false);
 
-                PoolVector<float> times = d["times"];
-                PoolRealArray values = d["points"];
+                PoolVector<float> times = d["times"].as<PoolVector<float>>();
+                PoolRealArray values = d["points"].as<PoolRealArray>();
 
                 ERR_FAIL_COND_V(times.size() * 5 != values.size(), false);
 
@@ -292,12 +292,12 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
             } else if (track_get_type(track) == TYPE_AUDIO) {
 
                 AudioTrack *ad = static_cast<AudioTrack *>(tracks[track]);
-                Dictionary d = p_value;
+                Dictionary d = p_value.as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has("times"), false);
                 ERR_FAIL_COND_V(!d.has("clips"), false);
 
-                PoolVector<float> times = d["times"];
-                Array clips = d["clips"];
+                PoolVector<float> times = d["times"].as<PoolVector<float>>();
+                Array clips = d["clips"].as<Array>();
 
                 ERR_FAIL_COND_V(clips.size() != times.size(), false);
 
@@ -311,7 +311,7 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                     for (int i = 0; i < valcount; i++) {
 
-                        Dictionary d2 = clips[i];
+                        Dictionary d2 = clips[i].as<Dictionary>();
                         if (!d2.has("start_offset"))
                             continue;
                         if (!d2.has("end_offset"))
@@ -321,8 +321,8 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
                         TKey<AudioKey> ak;
                         ak.time = rt[i];
-                        ak.value.start_offset = d2["start_offset"];
-                        ak.value.end_offset = d2["end_offset"];
+                        ak.value.start_offset = d2["start_offset"].as<float>();
+                        ak.value.end_offset = d2["end_offset"].as<float>();
                         ak.value.stream = refFromVariant<Resource>(d2["stream"]);
 
                         ad->values.push_back(ak);
@@ -333,11 +333,11 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
             } else if (track_get_type(track) == TYPE_ANIMATION) {
 
                 AnimationTrack *an = static_cast<AnimationTrack *>(tracks[track]);
-                Dictionary d = p_value;
+                Dictionary d = p_value.as<Dictionary>();
                 ERR_FAIL_COND_V(!d.has("times"), false);
                 ERR_FAIL_COND_V(!d.has("clips"), false);
 
-                PoolVector<float> times = d["times"];
+                PoolVector<float> times = d["times"].as<PoolVector<float>>();
                 PoolVector<String> clips = d["clips"].as<PoolVector<String>>();
 
                 ERR_FAIL_COND_V(clips.size() != times.size(), false);
@@ -374,281 +374,290 @@ bool Animation::_set(const StringName &p_name, const Variant &p_value) {
 
 bool Animation::_get(const StringName &p_name, Variant &r_ret) const {
 
-    StringName name = p_name;
 
-    if (name == "length")
+    if (p_name == "length") {
         r_ret = length;
-    else if (name == "loop")
+        return true;
+    }
+    if (p_name == "loop") {
         r_ret = loop;
-    else if (name == "step")
+        return true;
+    }
+    if (p_name == "step") {
         r_ret = step;
-    else if (StringUtils::begins_with(name,"tracks/")) {
+        return true;
+    }
+    if (!StringUtils::begins_with(p_name,"tracks/"))
+        return false;
+    int track = StringUtils::to_int(StringUtils::get_slice(p_name, '/', 1));
+    StringName what(StringUtils::get_slice(p_name, '/', 2));
+    ERR_FAIL_INDEX_V(track, tracks.size(), false);
+    if (what == "type") {
 
-        int track = StringUtils::to_int(StringUtils::get_slice(name,'/', 1));
-        StringName what(StringUtils::get_slice(name,'/', 2));
-        ERR_FAIL_INDEX_V(track, tracks.size(), false);
-        if (what == "type") {
+        switch (track_get_type(track)) {
 
-            switch (track_get_type(track)) {
+            case TYPE_TRANSFORM: r_ret = "transform";
+                break;
+            case TYPE_VALUE: r_ret = "value";
+                break;
+            case TYPE_METHOD: r_ret = "method";
+                break;
+            case TYPE_BEZIER: r_ret = "bezier";
+                break;
+            case TYPE_AUDIO: r_ret = "audio";
+                break;
+            case TYPE_ANIMATION: r_ret = "animation";
+                break;
+        }
 
-                case TYPE_TRANSFORM: r_ret = "transform"; break;
-                case TYPE_VALUE: r_ret = "value"; break;
-                case TYPE_METHOD: r_ret = "method"; break;
-                case TYPE_BEZIER: r_ret = "bezier"; break;
-                case TYPE_AUDIO: r_ret = "audio"; break;
-                case TYPE_ANIMATION: r_ret = "animation"; break;
+        return true;
+
+    } else if (what == "path")
+        r_ret = track_get_path(track);
+    else if (what == "interp")
+        r_ret = track_get_interpolation_type(track);
+    else if (what == "loop_wrap")
+        r_ret = track_get_interpolation_loop_wrap(track);
+    else if (what == "imported")
+        r_ret = track_is_imported(track);
+    else if (what == "enabled")
+        r_ret = track_is_enabled(track);
+    else if (what == "keys") {
+
+        if (track_get_type(track) == TYPE_TRANSFORM) {
+
+            PoolVector<real_t> keys;
+            int kk = track_get_key_count(track);
+            keys.resize(kk * 12);
+
+            PoolVector<real_t>::Write w = keys.write();
+
+            int idx = 0;
+            for (int i = 0; i < track_get_key_count(track); i++) {
+
+                Vector3 loc;
+                Quat rot;
+                Vector3 scale;
+                transform_track_get_key(track, i, &loc, &rot, &scale);
+
+                w[idx++] = track_get_key_time(track, i);
+                w[idx++] = track_get_key_transition(track, i);
+                w[idx++] = loc.x;
+                w[idx++] = loc.y;
+                w[idx++] = loc.z;
+
+                w[idx++] = rot.x;
+                w[idx++] = rot.y;
+                w[idx++] = rot.z;
+                w[idx++] = rot.w;
+
+                w[idx++] = scale.x;
+                w[idx++] = scale.y;
+                w[idx++] = scale.z;
             }
+
+            w.release();
+            r_ret = keys;
+            return true;
+
+        } else if (track_get_type(track) == TYPE_VALUE) {
+
+            const ValueTrack *vt = static_cast<const ValueTrack *>(tracks[track]);
+
+            Dictionary d;
+
+            PoolVector<float> key_times;
+            PoolVector<float> key_transitions;
+            Array key_values;
+
+            int kk = vt->values.size();
+
+            key_times.resize(kk);
+            key_transitions.resize(kk);
+            key_values.resize(kk);
+
+            PoolVector<float>::Write wti = key_times.write();
+            PoolVector<float>::Write wtr = key_transitions.write();
+
+            int idx = 0;
+
+            const TKey<Variant> *vls = vt->values.data();
+
+            for (int i = 0; i < kk; i++) {
+
+                wti[idx] = vls[i].time;
+                wtr[idx] = vls[i].transition;
+                key_values[idx] = vls[i].value;
+                idx++;
+            }
+
+            wti.release();
+            wtr.release();
+
+            d["times"] = key_times;
+            d["transitions"] = key_transitions;
+            d["values"] = key_values;
+            if (track_get_type(track) == TYPE_VALUE) {
+                d["update"] = value_track_get_update_mode(track);
+            }
+
+            r_ret = d;
 
             return true;
 
-        } else if (what == "path")
-            r_ret = track_get_path(track);
-        else if (what == "interp")
-            r_ret = track_get_interpolation_type(track);
-        else if (what == "loop_wrap")
-            r_ret = track_get_interpolation_loop_wrap(track);
-        else if (what == "imported")
-            r_ret = track_is_imported(track);
-        else if (what == "enabled")
-            r_ret = track_is_enabled(track);
-        else if (what == "keys") {
+        } else if (track_get_type(track) == TYPE_METHOD) {
 
-            if (track_get_type(track) == TYPE_TRANSFORM) {
+            Dictionary d;
 
-                PoolVector<real_t> keys;
-                int kk = track_get_key_count(track);
-                keys.resize(kk * 12);
+            PoolVector<float> key_times;
+            PoolVector<float> key_transitions;
+            Array key_values;
 
-                PoolVector<real_t>::Write w = keys.write();
+            int kk = track_get_key_count(track);
 
-                int idx = 0;
-                for (int i = 0; i < track_get_key_count(track); i++) {
+            key_times.resize(kk);
+            key_transitions.resize(kk);
+            key_values.resize(kk);
 
-                    Vector3 loc;
-                    Quat rot;
-                    Vector3 scale;
-                    transform_track_get_key(track, i, &loc, &rot, &scale);
+            PoolVector<float>::Write wti = key_times.write();
+            PoolVector<float>::Write wtr = key_transitions.write();
 
-                    w[idx++] = track_get_key_time(track, i);
-                    w[idx++] = track_get_key_transition(track, i);
-                    w[idx++] = loc.x;
-                    w[idx++] = loc.y;
-                    w[idx++] = loc.z;
+            int idx = 0;
+            for (int i = 0; i < track_get_key_count(track); i++) {
 
-                    w[idx++] = rot.x;
-                    w[idx++] = rot.y;
-                    w[idx++] = rot.z;
-                    w[idx++] = rot.w;
-
-                    w[idx++] = scale.x;
-                    w[idx++] = scale.y;
-                    w[idx++] = scale.z;
-                }
-
-                w.release();
-                r_ret = keys;
-                return true;
-
-            } else if (track_get_type(track) == TYPE_VALUE) {
-
-                const ValueTrack *vt = static_cast<const ValueTrack *>(tracks[track]);
-
-                Dictionary d;
-
-                PoolVector<float> key_times;
-                PoolVector<float> key_transitions;
-                Array key_values;
-
-                int kk = vt->values.size();
-
-                key_times.resize(kk);
-                key_transitions.resize(kk);
-                key_values.resize(kk);
-
-                PoolVector<float>::Write wti = key_times.write();
-                PoolVector<float>::Write wtr = key_transitions.write();
-
-                int idx = 0;
-
-                const TKey<Variant> *vls = vt->values.data();
-
-                for (int i = 0; i < kk; i++) {
-
-                    wti[idx] = vls[i].time;
-                    wtr[idx] = vls[i].transition;
-                    key_values[idx] = vls[i].value;
-                    idx++;
-                }
-
-                wti.release();
-                wtr.release();
-
-                d["times"] = key_times;
-                d["transitions"] = key_transitions;
-                d["values"] = key_values;
-                if (track_get_type(track) == TYPE_VALUE) {
-                    d["update"] = value_track_get_update_mode(track);
-                }
-
-                r_ret = d;
-
-                return true;
-
-            } else if (track_get_type(track) == TYPE_METHOD) {
-
-                Dictionary d;
-
-                PoolVector<float> key_times;
-                PoolVector<float> key_transitions;
-                Array key_values;
-
-                int kk = track_get_key_count(track);
-
-                key_times.resize(kk);
-                key_transitions.resize(kk);
-                key_values.resize(kk);
-
-                PoolVector<float>::Write wti = key_times.write();
-                PoolVector<float>::Write wtr = key_transitions.write();
-
-                int idx = 0;
-                for (int i = 0; i < track_get_key_count(track); i++) {
-
-                    wti[idx] = track_get_key_time(track, i);
-                    wtr[idx] = track_get_key_transition(track, i);
-                    key_values[idx] = track_get_key_value(track, i);
-                    idx++;
-                }
-
-                wti.release();
-                wtr.release();
-
-                d["times"] = key_times;
-                d["transitions"] = key_transitions;
-                d["values"] = key_values;
-                if (track_get_type(track) == TYPE_VALUE) {
-                    d["update"] = value_track_get_update_mode(track);
-                }
-
-                r_ret = d;
-
-                return true;
-            } else if (track_get_type(track) == TYPE_BEZIER) {
-
-                const BezierTrack *bt = static_cast<const BezierTrack *>(tracks[track]);
-
-                Dictionary d;
-
-                PoolVector<float> key_times;
-                PoolVector<float> key_points;
-
-                int kk = bt->values.size();
-
-                key_times.resize(kk);
-                key_points.resize(kk * 5);
-
-                PoolVector<float>::Write wti = key_times.write();
-                PoolVector<float>::Write wpo = key_points.write();
-
-                int idx = 0;
-
-                const TKey<BezierKey> *vls = bt->values.data();
-
-                for (int i = 0; i < kk; i++) {
-
-                    wti[idx] = vls[i].time;
-                    wpo[idx * 5 + 0] = vls[i].value.value;
-                    wpo[idx * 5 + 1] = vls[i].value.in_handle.x;
-                    wpo[idx * 5 + 2] = vls[i].value.in_handle.y;
-                    wpo[idx * 5 + 3] = vls[i].value.out_handle.x;
-                    wpo[idx * 5 + 4] = vls[i].value.out_handle.y;
-                    idx++;
-                }
-
-                wti.release();
-                wpo.release();
-
-                d["times"] = key_times;
-                d["points"] = key_points;
-
-                r_ret = d;
-
-                return true;
-            } else if (track_get_type(track) == TYPE_AUDIO) {
-
-                const AudioTrack *ad = static_cast<const AudioTrack *>(tracks[track]);
-
-                Dictionary d;
-
-                PoolVector<float> key_times;
-                Array clips;
-
-                int kk = ad->values.size();
-
-                key_times.resize(kk);
-
-                PoolVector<float>::Write wti = key_times.write();
-
-                int idx = 0;
-
-                const TKey<AudioKey> *vls = ad->values.data();
-
-                for (int i = 0; i < kk; i++) {
-
-                    wti[idx] = vls[i].time;
-                    Dictionary clip;
-                    clip["start_offset"] = vls[i].value.start_offset;
-                    clip["end_offset"] = vls[i].value.end_offset;
-                    clip["stream"] = vls[i].value.stream;
-                    clips.push_back(clip);
-                    idx++;
-                }
-
-                wti.release();
-
-                d["times"] = key_times;
-                d["clips"] = clips;
-
-                r_ret = d;
-
-                return true;
-            } else if (track_get_type(track) == TYPE_ANIMATION) {
-
-                const AnimationTrack *an = static_cast<const AnimationTrack *>(tracks[track]);
-
-                Dictionary d;
-
-                PoolVector<float> key_times;
-                PoolVector<String> clips;
-
-                int kk = an->values.size();
-
-                key_times.resize(kk);
-                clips.resize(kk);
-
-                PoolVector<float>::Write wti = key_times.write();
-                PoolVector<String>::Write wcl = clips.write();
-
-                const TKey<StringName> *vls = an->values.data();
-
-                for (int i = 0; i < kk; i++) {
-
-                    wti[i] = vls[i].time;
-                    wcl[i] = vls[i].value;
-                }
-
-                wti.release();
-                wcl.release();
-
-                d["times"] = key_times;
-                d["clips"] = clips;
-
-                r_ret = d;
-
-                return true;
+                wti[idx] = track_get_key_time(track, i);
+                wtr[idx] = track_get_key_transition(track, i);
+                key_values[idx] = track_get_key_value(track, i);
+                idx++;
             }
-        } else
-            return false;
+
+            wti.release();
+            wtr.release();
+
+            d["times"] = key_times;
+            d["transitions"] = key_transitions;
+            d["values"] = key_values;
+            if (track_get_type(track) == TYPE_VALUE) {
+                d["update"] = value_track_get_update_mode(track);
+            }
+
+            r_ret = d;
+
+            return true;
+        } else if (track_get_type(track) == TYPE_BEZIER) {
+
+            const BezierTrack *bt = static_cast<const BezierTrack *>(tracks[track]);
+
+            Dictionary d;
+
+            PoolVector<float> key_times;
+            PoolVector<float> key_points;
+
+            int kk = bt->values.size();
+
+            key_times.resize(kk);
+            key_points.resize(kk * 5);
+
+            PoolVector<float>::Write wti = key_times.write();
+            PoolVector<float>::Write wpo = key_points.write();
+
+            int idx = 0;
+
+            const TKey<BezierKey> *vls = bt->values.data();
+
+            for (int i = 0; i < kk; i++) {
+
+                wti[idx] = vls[i].time;
+                wpo[idx * 5 + 0] = vls[i].value.value;
+                wpo[idx * 5 + 1] = vls[i].value.in_handle.x;
+                wpo[idx * 5 + 2] = vls[i].value.in_handle.y;
+                wpo[idx * 5 + 3] = vls[i].value.out_handle.x;
+                wpo[idx * 5 + 4] = vls[i].value.out_handle.y;
+                idx++;
+            }
+
+            wti.release();
+            wpo.release();
+
+            d["times"] = key_times;
+            d["points"] = key_points;
+
+            r_ret = d;
+
+            return true;
+        } else if (track_get_type(track) == TYPE_AUDIO) {
+
+            const AudioTrack *ad = static_cast<const AudioTrack *>(tracks[track]);
+
+            Dictionary d;
+
+            PoolVector<float> key_times;
+            Array clips;
+
+            int kk = ad->values.size();
+
+            key_times.resize(kk);
+
+            PoolVector<float>::Write wti = key_times.write();
+
+            int idx = 0;
+
+            const TKey<AudioKey> *vls = ad->values.data();
+
+            for (int i = 0; i < kk; i++) {
+
+                wti[idx] = vls[i].time;
+                Dictionary clip;
+                clip["start_offset"] = vls[i].value.start_offset;
+                clip["end_offset"] = vls[i].value.end_offset;
+                clip["stream"] = vls[i].value.stream;
+                clips.push_back(clip);
+                idx++;
+            }
+
+            wti.release();
+
+            d["times"] = key_times;
+            d["clips"] = clips;
+
+            r_ret = d;
+
+            return true;
+        } else if (track_get_type(track) == TYPE_ANIMATION) {
+
+            const AnimationTrack *an = static_cast<const AnimationTrack *>(tracks[track]);
+
+            Dictionary d;
+
+            PoolVector<float> key_times;
+            PoolVector<String> clips;
+
+            int kk = an->values.size();
+
+            key_times.resize(kk);
+            clips.resize(kk);
+
+            PoolVector<float>::Write wti = key_times.write();
+            PoolVector<String>::Write wcl = clips.write();
+
+            const TKey<StringName> *vls = an->values.data();
+
+            for (int i = 0; i < kk; i++) {
+
+                wti[i] = vls[i].time;
+                wcl[i] = vls[i].value;
+            }
+
+            wti.release();
+            wcl.release();
+
+            d["times"] = key_times;
+            d["clips"] = clips;
+
+            r_ret = d;
+
+            return true;
+        }
     } else
         return false;
 
@@ -1072,18 +1081,18 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
         case TYPE_TRANSFORM: {
 
-            Dictionary d = p_key;
+            Dictionary d = p_key.as<Dictionary>();
             Vector3 loc;
             if (d.has("location"))
-                loc = d["location"];
+                loc = d["location"].as<Vector3>();
 
             Quat rot;
             if (d.has("rotation"))
-                rot = d["rotation"];
+                rot = d["rotation"].as<Quat>();
 
             Vector3 scale;
             if (d.has("scale"))
-                scale = d["scale"];
+                scale = d["scale"].as<Vector3>();
 
             int idx = transform_track_insert_key(p_track, p_time, loc, rot, scale);
             track_set_key_transition(p_track, idx, p_transition);
@@ -1106,15 +1115,15 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
             ERR_FAIL_COND(p_key.get_type() != VariantType::DICTIONARY);
 
-            Dictionary d = p_key;
-            ERR_FAIL_COND(!d.has("method") || d["method"].get_type() != VariantType::STRING);
+            Dictionary d = p_key.as<Dictionary>();
+            ERR_FAIL_COND(!d.has("method") || (d["method"].get_type() != VariantType::STRING && d["method"].get_type() != VariantType::STRING_NAME));
             ERR_FAIL_COND(!d.has("args") || !d["args"].is_array());
 
             MethodKey k;
 
             k.time = p_time;
             k.transition = p_transition;
-            k.method = d["method"];
+            k.method = d["method"].as<StringName>();
             k.params = d["args"].as<Vector<Variant>>();
 
             _insert(p_time, mt->methods, k);
@@ -1124,16 +1133,16 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
             BezierTrack *bt = static_cast<BezierTrack *>(t);
 
-            Array arr = p_key;
+            Array arr = p_key.as<Array>();
             ERR_FAIL_COND(arr.size() != 5);
 
             TKey<BezierKey> k;
             k.time = p_time;
-            k.value.value = arr[0];
-            k.value.in_handle.x = arr[1];
-            k.value.in_handle.y = arr[2];
-            k.value.out_handle.x = arr[3];
-            k.value.out_handle.y = arr[4];
+            k.value.value = arr[0].as<float>();
+            k.value.in_handle.x = arr[1].as<float>();
+            k.value.in_handle.y = arr[2].as<float>();
+            k.value.out_handle.x = arr[3].as<float>();
+            k.value.out_handle.y = arr[4].as<float>();
             _insert(p_time, bt->values, k);
 
         } break;
@@ -1141,15 +1150,15 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
             AudioTrack *at = static_cast<AudioTrack *>(t);
 
-            Dictionary k = p_key;
+            Dictionary k = p_key.as<Dictionary>();
             ERR_FAIL_COND(!k.has("start_offset"));
             ERR_FAIL_COND(!k.has("end_offset"));
             ERR_FAIL_COND(!k.has("stream"));
 
             TKey<AudioKey> ak;
             ak.time = p_time;
-            ak.value.start_offset = k["start_offset"];
-            ak.value.end_offset = k["end_offset"];
+            ak.value.start_offset = k["start_offset"].as<float>();
+            ak.value.end_offset = k["end_offset"].as<float>();
             ak.value.stream = refFromVariant<Resource>(k["stream"]);
             _insert(p_time, at->values, ak);
 
@@ -1160,7 +1169,7 @@ void Animation::track_insert_key(int p_track, float p_time, const Variant &p_key
 
             TKey<StringName> ak;
             ak.time = p_time;
-            ak.value = p_key;
+            ak.value = p_key.as<StringName>();
 
             _insert(p_time, at->values, ak);
 
@@ -1469,14 +1478,14 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             TransformTrack *tt = static_cast<TransformTrack *>(t);
             ERR_FAIL_INDEX(p_key_idx, tt->transforms.size());
 
-            Dictionary d = p_value;
+            Dictionary d = p_value.as<Dictionary>();
 
             if (d.has("location"))
-                tt->transforms[p_key_idx].value.loc = d["location"];
+                tt->transforms[p_key_idx].value.loc = d["location"].as<Vector3>();
             if (d.has("rotation"))
-                tt->transforms[p_key_idx].value.rot = d["rotation"];
+                tt->transforms[p_key_idx].value.rot = d["rotation"].as<Quat>();
             if (d.has("scale"))
-                tt->transforms[p_key_idx].value.scale = d["scale"];
+                tt->transforms[p_key_idx].value.scale = d["scale"].as<Vector3>();
 
         } break;
         case TYPE_VALUE: {
@@ -1492,10 +1501,10 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             MethodTrack *mt = static_cast<MethodTrack *>(t);
             ERR_FAIL_INDEX(p_key_idx, mt->methods.size());
 
-            Dictionary d = p_value;
+            Dictionary d = p_value.as<Dictionary>();
 
             if (d.has("method"))
-                mt->methods[p_key_idx].method = d["method"];
+                mt->methods[p_key_idx].method = d["method"].as<StringName>();
             if (d.has("args"))
                 mt->methods[p_key_idx].params = d["args"].as<Vector<Variant>>();
 
@@ -1505,14 +1514,14 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             BezierTrack *bt = static_cast<BezierTrack *>(t);
             ERR_FAIL_INDEX(p_key_idx, bt->values.size());
 
-            Array arr = p_value;
+            Array arr = p_value.as<Array>();
             ERR_FAIL_COND(arr.size() != 5);
 
-            bt->values[p_key_idx].value.value = arr[0];
-            bt->values[p_key_idx].value.in_handle.x = arr[1];
-            bt->values[p_key_idx].value.in_handle.y = arr[2];
-            bt->values[p_key_idx].value.out_handle.x = arr[3];
-            bt->values[p_key_idx].value.out_handle.y = arr[4];
+            bt->values[p_key_idx].value.value = arr[0].as<float>();
+            bt->values[p_key_idx].value.in_handle.x = arr[1].as<float>();
+            bt->values[p_key_idx].value.in_handle.y = arr[2].as<float>();
+            bt->values[p_key_idx].value.out_handle.x = arr[3].as<float>();
+            bt->values[p_key_idx].value.out_handle.y = arr[4].as<float>();
 
         } break;
         case TYPE_AUDIO: {
@@ -1520,13 +1529,13 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             AudioTrack *at = static_cast<AudioTrack *>(t);
             ERR_FAIL_INDEX(p_key_idx, at->values.size());
 
-            Dictionary k = p_value;
+            Dictionary k = p_value.as<Dictionary>();
             ERR_FAIL_COND(!k.has("start_offset"));
             ERR_FAIL_COND(!k.has("end_offset"));
             ERR_FAIL_COND(!k.has("stream"));
 
-            at->values[p_key_idx].value.start_offset = k["start_offset"];
-            at->values[p_key_idx].value.end_offset = k["end_offset"];
+            at->values[p_key_idx].value.start_offset = k["start_offset"].as<float>();
+            at->values[p_key_idx].value.end_offset = k["end_offset"].as<float>();
             at->values[p_key_idx].value.stream = refFromVariant<Resource>(k["stream"]);
 
         } break;
@@ -1535,7 +1544,7 @@ void Animation::track_set_key_value(int p_track, int p_key_idx, const Variant &p
             AnimationTrack *at = static_cast<AnimationTrack *>(t);
             ERR_FAIL_INDEX(p_key_idx, at->values.size());
 
-            at->values[p_key_idx].value = p_value;
+            at->values[p_key_idx].value = p_value.as<StringName>();
 
         } break;
     }
@@ -1645,10 +1654,10 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
     if (vformat == ((1 << (int8_t)VariantType::INT) | (1 << (int8_t)VariantType::FLOAT)) || vformat == (1 << (int8_t)VariantType::FLOAT)) {
         //mix of real and int
 
-        real_t p0 = p_pre_a;
-        real_t p1 = p_a;
-        real_t p2 = p_b;
-        real_t p3 = p_post_b;
+        real_t p0 = p_pre_a.as<real_t>();
+        real_t p1 = p_a.as<real_t>();
+        real_t p2 = p_b.as<real_t>();
+        real_t p3 = p_post_b.as<real_t>();
 
         float t = p_c;
         float t2 = t * t;
@@ -1668,19 +1677,19 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
 
         case VariantType::VECTOR2: {
 
-            Vector2 a = p_a;
-            Vector2 b = p_b;
-            Vector2 pa = p_pre_a;
-            Vector2 pb = p_post_b;
+            Vector2 a = p_a.as<Vector2>();
+            Vector2 b = p_b.as<Vector2>();
+            Vector2 pa = p_pre_a.as<Vector2>();
+            Vector2 pb = p_post_b.as<Vector2>();
 
             return a.cubic_interpolate(b, pa, pb, p_c);
         }
         case VariantType::RECT2: {
 
-            Rect2 a = p_a;
-            Rect2 b = p_b;
-            Rect2 pa = p_pre_a;
-            Rect2 pb = p_post_b;
+            Rect2 a = p_a.as<Rect2>();
+            Rect2 b = p_b.as<Rect2>();
+            Rect2 pa = p_pre_a.as<Rect2>();
+            Rect2 pb = p_post_b.as<Rect2>();
 
             return Rect2(
                     a.position.cubic_interpolate(b.position, pa.position, pb.position, p_c),
@@ -1688,28 +1697,28 @@ Variant Animation::_cubic_interpolate(const Variant &p_pre_a, const Variant &p_a
         }
         case VariantType::VECTOR3: {
 
-            Vector3 a = p_a;
-            Vector3 b = p_b;
-            Vector3 pa = p_pre_a;
-            Vector3 pb = p_post_b;
+            Vector3 a = p_a.as<Vector3>();
+            Vector3 b = p_b.as<Vector3>();
+            Vector3 pa = p_pre_a.as<Vector3>();
+            Vector3 pb = p_post_b.as<Vector3>();
 
             return a.cubic_interpolate(b, pa, pb, p_c);
         }
         case VariantType::QUAT: {
 
-            Quat a = p_a;
-            Quat b = p_b;
-            Quat pa = p_pre_a;
-            Quat pb = p_post_b;
+            Quat a = p_a.as<Quat>();
+            Quat b = p_b.as<Quat>();
+            Quat pa = p_pre_a.as<Quat>();
+            Quat pb = p_post_b.as<Quat>();
 
             return a.cubic_slerp(b, pa, pb, p_c);
         }
         case VariantType::AABB: {
 
-            AABB a = p_a;
-            AABB b = p_b;
-            AABB pa = p_pre_a;
-            AABB pb = p_post_b;
+            AABB a = p_a.as<AABB>();
+            AABB b = p_b.as<AABB>();
+            AABB pa = p_pre_a.as<AABB>();
+            AABB pb = p_post_b.as<AABB>();
 
             return AABB(
                     a.position.cubic_interpolate(b.position, pa.position, pb.position, p_c),

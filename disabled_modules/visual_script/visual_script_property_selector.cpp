@@ -433,7 +433,7 @@ void VisualScriptPropertySelector::_item_selected() {
     TreeItem *item = search_options->get_selected();
     if (!item)
         return;
-    String name(item->get_metadata(0));
+    String name(item->get_metadata(0).as<String>());
 
     StringName class_type;
     if (type != VariantType::NIL) {
@@ -537,7 +537,7 @@ void VisualScriptPropertySelector::select_method_from_base_type(StringView p_bas
     base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = false;
     instance = nullptr;
     virtuals_only = p_virtuals_only;
@@ -562,7 +562,7 @@ void VisualScriptPropertySelector::select_from_base_type(StringView p_base, cons
     base_type = p_base;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = true;
     visual_script_generic = false;
     instance = nullptr;
@@ -609,7 +609,7 @@ void VisualScriptPropertySelector::select_from_basic_type(VariantType p_type, co
     base_type = "";
     selected = p_current;
     type = p_type;
-    script = 0;
+    script = ObjectID();
     properties = true;
     visual_script_generic = false;
     instance = nullptr;
@@ -631,7 +631,7 @@ void VisualScriptPropertySelector::select_from_action(StringView p_type, const U
     base_type = p_type;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = false;
     visual_script_generic = false;
     instance = nullptr;
@@ -653,7 +653,7 @@ void VisualScriptPropertySelector::select_from_instance(Object *p_instance, cons
     base_type = p_basetype;
     selected = p_current;
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = true;
     visual_script_generic = false;
     instance = p_instance;
@@ -675,7 +675,7 @@ void VisualScriptPropertySelector::select_from_visual_script(StringView p_base, 
     base_type = p_base;
     selected = "";
     type = VariantType::NIL;
-    script = 0;
+    script = ObjectID();
     properties = true;
     visual_script_generic = true;
     instance = nullptr;

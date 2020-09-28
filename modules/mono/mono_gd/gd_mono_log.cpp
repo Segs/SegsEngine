@@ -53,7 +53,7 @@ GDMonoLog *GDMonoLog::singleton = nullptr;
 
 static int get_log_level_id(const char *p_log_level) {
 
-    const char *valid_log_levels[] = { "error", "critical", "warning", "message", "info", "debug", NULL };
+    const char *valid_log_levels[] = { "error", "critical", "warning", "message", "info", "debug", nullptr };
 
     int i = 0;
     while (valid_log_levels[i]) {
@@ -212,8 +212,8 @@ GDMonoLog::~GDMonoLog() {
 #else
 
 void GDMonoLog::initialize() {
-    const chr * log_level = get_default_log_level();
-    mono_trace_set_level_string(log_level.get_data());
+    const char * log_level = get_default_log_level();
+    mono_trace_set_level_string(log_level);
 }
 
 GDMonoLog::GDMonoLog() {

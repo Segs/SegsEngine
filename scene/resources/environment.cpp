@@ -372,22 +372,22 @@ void Environment::_validate_property(PropertyInfo &property) const {
         StringName prefix(StaticCString(prefix_val,true));
 
         StringName enabled = prefix + "enabled";
-        if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !bool(get(enabled))) {
+        if (StringUtils::begins_with(property.name,prefix) && property.name != enabled && !getT<bool>(enabled)) {
             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
             return;
         }
     }
 
-    if (RenderingServer::get_singleton()->is_low_end()) {
-        for(const char *prefix_val : high_end_prefixes) {
-            StringName prefix(StaticCString(prefix_val,true));
-
-            if (StringUtils::begins_with(property.name,prefix)) {
-                property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
-                return;
-            }
-        }
-    }
+    // if (RenderingServer::get_singleton()->is_low_end()) {
+    //     for(const char *prefix_val : high_end_prefixes) {
+    //         StringName prefix(StaticCString(prefix_val,true));
+    //
+    //         if (StringUtils::begins_with(property.name,prefix)) {
+    //             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
+    //             return;
+    //         }
+    //     }
+    // }
 }
 
 void Environment::set_ssr_enabled(bool p_enable) {

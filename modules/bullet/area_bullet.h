@@ -50,7 +50,7 @@ public:
         StringName event_callback_method;
 
         InOutEventCallback() :
-                event_callback_id(0) {}
+                event_callback_id(0ULL) {}
     };
 
     enum OverlapState {

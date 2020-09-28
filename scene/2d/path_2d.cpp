@@ -30,12 +30,13 @@
 
 #include "path_2d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
-#include "scene/scene_string_names.h"
-#include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
+#include "scene/main/scene_tree.h"
+#include "scene/scene_string_names.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
@@ -139,13 +140,13 @@ void Path2D::_curve_changed() {
 void Path2D::set_curve(const Ref<Curve2D> &p_curve) {
 
     if (curve) {
-        curve->disconnect("changed", this, "_curve_changed");
+        curve->disconnect("changed",callable_mp(this, &ClassName::_curve_changed));
     }
 
     curve = p_curve;
 
     if (curve) {
-        curve->connect("changed", this, "_curve_changed");
+        curve->connect("changed",callable_mp(this, &ClassName::_curve_changed));
     }
 
     _curve_changed();

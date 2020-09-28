@@ -41,14 +41,14 @@ void ResourcePreloader::_set_resources(const Array &p_data) {
 
     ERR_FAIL_COND(p_data.size() != 2);
     PoolVector<String> names = p_data[0].as<PoolVector<String>>();
-    Array resdata = p_data[1];
+    Array resdata = p_data[1].as<Array>();
 
     ERR_FAIL_COND(names.size() != resdata.size());
 
     for (int i = 0; i < resdata.size(); i++) {
 
         StringName name(names[i]);
-        RES resource(refFromRefPtr<Resource>(resdata[i]));
+        RES resource(refFromVariant<Resource>(resdata[i]));
         ERR_CONTINUE(not resource);
         resources[name] = resource;
 

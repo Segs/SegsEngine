@@ -172,6 +172,8 @@ protected:
     static void _bind_methods();
 
     void _validate_property(PropertyInfo &property) const override;
+private /*slots*/:
+    void _texture_changed();
 
 public:
     void set_texture(const Ref<Texture> &p_texture);

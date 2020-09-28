@@ -28,6 +28,7 @@ set(source_files
     mono_gd/gd_mono_method.cpp
     mono_gd/gd_mono_class.cpp
     mono_gd/gd_mono_marshal.cpp
+    managed_callable.cpp
     csharp_script.cpp
     godotsharp_dirs.cpp
     mono_gc_handle.cpp
@@ -70,6 +71,7 @@ set(header_files
     mono_gd/gd_mono_assembly.h
     mono_gd/gd_mono_cache.h
     mono_gd/android_mono_config.h
+    managed_callable.h
     csharp_script.h
     signal_awaiter_utils.h
     godotsharp_defs.h
@@ -108,6 +110,7 @@ macro(add_glue_module name tgt)
             glue/collections_glue.cpp
             glue/nodepath_glue.cpp
             glue/string_glue.cpp
+            glue/string_name_glue.cpp
             glue/gd_glue.cpp
             glue/rid_glue.cpp
             glue/base_object_glue.cpp

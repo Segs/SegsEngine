@@ -30,6 +30,7 @@
 
 #include "path_3d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "scene/scene_string_names.h"
 #include "core/method_bind.h"
@@ -65,13 +66,13 @@ void Path3D::_curve_changed() {
 void Path3D::set_curve(const Ref<Curve3D> &p_curve) {
 
     if (curve) {
-        curve->disconnect("changed", this, "_curve_changed");
+        curve->disconnect("changed",callable_mp(this, &ClassName::_curve_changed));
     }
 
     curve = p_curve;
 
     if (curve) {
-        curve->connect("changed", this, "_curve_changed");
+        curve->connect("changed",callable_mp(this, &ClassName::_curve_changed));
     }
     _curve_changed();
 }

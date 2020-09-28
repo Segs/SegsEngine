@@ -238,7 +238,7 @@ namespace GodotTools
             {
                 hintString = $"{PropNameDotnetCli}:{(int)BuildTool.DotnetCli}," +
                              $"{PropNameMSBuildVs}:{(int)BuildTool.MsBuildVs}," +
-                             $"{PropNameMSBuildJetBrains}:{(int)BuildTool.JetBrainsMsBuild}" +
+                             $"{PropNameMSBuildJetBrains}:{(int)BuildTool.JetBrainsMsBuild}"
                              ;
             }
             else

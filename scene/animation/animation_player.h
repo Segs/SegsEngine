@@ -162,17 +162,14 @@ private:
 
     struct TrackNodeCacheKey {
 
-        uint32_t id;
+        ObjectID id;
         int bone_idx;
 
         inline bool operator<(const TrackNodeCacheKey &p_right) const {
+            if(id==p_right.id)
+                return bone_idx<p_right.bone_idx;
 
-            if (id < p_right.id)
-                return true;
-            else if (id > p_right.id)
-                return false;
-            else
-                return bone_idx < p_right.bone_idx;
+            return id < p_right.id;
         }
     };
 
@@ -328,7 +325,7 @@ public:
     float get_speed_scale() const;
     float get_playing_speed() const;
 
-    void set_autoplay(StringView p_name);
+    void set_autoplay(const StringName &p_name);
     StringName get_autoplay() const;
 
     void set_animation_process_mode(AnimationProcessMode p_mode);

@@ -486,7 +486,7 @@ String OS_Unix::get_user_data_dir() const {
 
     String appname(get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/name").as<String>()));
     if (!appname.empty()) {
-        bool use_custom_dir = ProjectSettings::get_singleton()->get("application/config/use_custom_user_dir");
+        bool use_custom_dir = ProjectSettings::get_singleton()->getT<bool>("application/config/use_custom_user_dir");
         if (use_custom_dir) {
             String custom_dir = get_safe_dir_name(ProjectSettings::get_singleton()->get("application/config/custom_user_dir_name").as<String>(), true);
             if (custom_dir.empty()) {

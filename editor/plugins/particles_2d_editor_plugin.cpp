@@ -31,6 +31,7 @@
 #include "particles_2d_editor_plugin.h"
 
 #include "canvas_item_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
@@ -100,7 +101,7 @@ void Particles2DEditorPlugin::_menu_callback(int p_idx) {
             cpu_particles->set_z_index(particles->get_z_index());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Convert to CPUParticles"));
+            ur->create_action(TTR("Convert to CPUParticles"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(particles), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(particles), false, false);
@@ -149,7 +150,7 @@ void Particles2DEditorPlugin::_generate_visibility_rect() {
         particles->set_emitting(false);
     }
 
-    undo_redo->create_action_ui(TTR("Generate Visibility Rect"));
+    undo_redo->create_action(TTR("Generate Visibility Rect"));
     undo_redo->add_do_method(particles, "set_visibility_rect", rect);
     undo_redo->add_undo_method(particles, "set_visibility_rect", particles->get_visibility_rect());
     undo_redo->commit_action();
@@ -165,7 +166,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
 
     Ref<Image> img(make_ref_counted<Image>());
     Error err = ImageLoader::load_image(source_emission_file, img);
-    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'."); 
+    ERR_FAIL_COND_MSG(err != OK, "Error loading image '" + source_emission_file + "'.");
 
     if (img->is_compressed()) {
         img->decompress();
@@ -273,7 +274,7 @@ void Particles2DEditorPlugin::_generate_emission_mask() {
         valid_normals.resize(vpc);
     }
 
-    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image..."); 
+    ERR_FAIL_COND_MSG(valid_positions.empty(), "No pixels with transparency > 128 in image...");
 
     PoolVector<uint8_t> texdata;
 
@@ -353,9 +354,9 @@ void Particles2DEditorPlugin::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        menu->get_popup()->connect("id_pressed", this, "_menu_callback");
+        menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_callback));
         menu->set_button_icon(menu->get_popup()->get_icon("GPUParticles2D", "EditorIcons"));
-        file->connect("file_selected", this, "_file_selected");
+        file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
     }
 }
 
@@ -420,7 +421,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
 
     toolbar->add_child(generate_visibility_rect);
 
-    generate_visibility_rect->connect("confirmed", this, "_generate_visibility_rect");
+    generate_visibility_rect->connect("confirmed",callable_mp(this, &ClassName::_generate_visibility_rect));
 
     emission_mask = memnew(ConfirmationDialog);
     emission_mask->set_title(TTR("Load Emission Mask"));
@@ -437,7 +438,7 @@ Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {
 
     toolbar->add_child(emission_mask);
 
-    emission_mask->connect("confirmed", this, "_generate_emission_mask");
+    emission_mask->connect("confirmed",callable_mp(this, &ClassName::_generate_emission_mask));
 }
 
 Particles2DEditorPlugin::~Particles2DEditorPlugin() = default;

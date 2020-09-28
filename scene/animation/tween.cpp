@@ -135,15 +135,15 @@ bool Tween::_set(const StringName &p_name, const Variant &p_value) {
 
     // Set the correct attribute based on the given name
     if (p_name == "playback/speed" || p_name == "speed") { // Backwards compatibility
-        set_speed_scale(p_value);
+        set_speed_scale(p_value.as<float>());
         return true;
 
     } else if (p_name == "playback/active") {
-        set_active(p_value);
+        set_active(p_value.as<bool>());
         return true;
 
     } else if (p_name == "playback/repeat") {
-        set_repeat(p_value);
+        set_repeat(p_value.as<bool>());
         return true;
     }
     return false;
@@ -403,7 +403,7 @@ const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
 
             // If we're looking at an INT value, instead convert it to a REAL
             // This is better for interpolation
-            if (final_val.get_type() == VariantType::INT) final_val = final_val.operator real_t();
+            if (final_val.get_type() == VariantType::INT) final_val = final_val.as<real_t>();
 
             // Calculate the delta based on the initial value and the final value
             _calc_delta_val(p_data.initial_val, final_val, p_data.delta_val);
@@ -417,7 +417,7 @@ const Variant &Tween::_get_delta_val(InterpolateData &p_data) {
 
             // If we're looking at an INT value, instead convert it to a REAL
             // This is better for interpolation
-            if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.operator real_t();
+            if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.as<real_t>();
 
             // Calculate the delta based on the initial value and the final value
             _calc_delta_val(initial_val, p_data.final_val, p_data.delta_val);
@@ -446,23 +446,23 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::BOOL:
             // Run the boolean specific equation (checking if it is at least 0.5)
-            result = (_run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, initial_val, delta_val, p_data.duration)) >= 0.5f;
+            result = (_run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, initial_val.as<float>(), delta_val.as<float>(), p_data.duration)) >= 0.5f;
             break;
 
         case VariantType::INT:
             // Run the integer specific equation
-            result = (int)_run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, (int)initial_val, (int)delta_val, p_data.duration);
+            result = (int)_run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, initial_val.as<int>(), delta_val.as<int>(), p_data.duration);
             break;
 
         case VariantType::FLOAT:
             // Run the REAL specific equation
-            result = _run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, (real_t)initial_val, (real_t)delta_val, p_data.duration);
+            result = _run_equation(p_data.trans_type, p_data.ease_type, p_data.elapsed - p_data.delay, initial_val.as<float>(), delta_val.as<float>(), p_data.duration);
             break;
 
         case VariantType::VECTOR2: {
             // Get vectors for initial and delta values
-            Vector2 i = initial_val;
-            Vector2 d = delta_val;
+            Vector2 i = initial_val.as<Vector2>();
+            Vector2 d = delta_val.as<Vector2>();
             Vector2 r;
 
             // Execute the equation and mutate the r vector
@@ -474,8 +474,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::RECT2: {
             // Get the Rect2 for initial and delta value
-            Rect2 i = initial_val;
-            Rect2 d = delta_val;
+            Rect2 i = initial_val.as<Rect2>();
+            Rect2 d = delta_val.as<Rect2>();
             Rect2 r;
 
             // Execute the equation for the position and size of Rect2
@@ -488,8 +488,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::VECTOR3: {
             // Get vectors for initial and delta values
-            Vector3 i = initial_val;
-            Vector3 d = delta_val;
+            Vector3 i = initial_val.as<Vector3>();
+            Vector3 d = delta_val.as<Vector3>();
             Vector3 r;
 
             // Execute the equation and mutate the r vector
@@ -502,8 +502,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::TRANSFORM2D: {
             // Get the transforms for initial and delta values
-            Transform2D i = initial_val;
-            Transform2D d = delta_val;
+            Transform2D i = initial_val.as<Transform2D>();
+            Transform2D d = delta_val.as<Transform2D>();
             Transform2D r;
 
             // Execute the equation on the transforms and mutate the r transform
@@ -518,8 +518,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
         } break;
         case VariantType::QUAT: {
             // Get the quaternian for the initial and delta values
-            Quat i = initial_val;
-            Quat d = delta_val;
+            Quat i = initial_val.as<Quat>();
+            Quat d = delta_val.as<Quat>();
             Quat r;
 
             // Execute the equation on the quaternian values and mutate the r quaternian
@@ -532,8 +532,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
         } break;
         case VariantType::AABB: {
             // Get the AABB's for the initial and delta values
-            AABB i = initial_val;
-            AABB d = delta_val;
+            AABB i = initial_val.as<AABB>();
+            AABB d = delta_val.as<AABB>();
             AABB r;
 
             // Execute the equation for the position and size of the AABB's and mutate the r AABB
@@ -549,8 +549,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::BASIS: {
             // Get the basis for initial and delta values
-            Basis i = initial_val;
-            Basis d = delta_val;
+            Basis i = initial_val.as<Basis>();
+            Basis d = delta_val.as<Basis>();
             Basis r;
 
             // Execute the equation on all the basis and mutate the r basis
@@ -569,8 +569,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
 
         case VariantType::TRANSFORM: {
             // Get the transforms for the initial and delta values
-            Transform i = initial_val;
-            Transform d = delta_val;
+            Transform i = initial_val.as<Transform>();
+            Transform d = delta_val.as<Transform>();
             Transform r;
 
             // Execute the equation for each of the transforms and their origin and mutate the r transform
@@ -591,8 +591,8 @@ Variant Tween::_run_equation(InterpolateData &p_data) {
         } break;
         case VariantType::COLOR: {
             // Get the Color for initial and delta value
-            Color i = initial_val;
-            Color d = delta_val;
+            Color i = initial_val.as<Color>();
+            Color d = delta_val.as<Color>();
             Color r;
 
             // Apply the equation on the Color RGBA, and mutate the r color
@@ -1123,35 +1123,35 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
             // We'll treat booleans just like integers
         case VariantType::INT:
             // Compute the integer delta
-            delta_val = (int)final_val - (int)initial_val;
+            delta_val = final_val.as<int>() - initial_val.as<int>();
             break;
 
         case VariantType::FLOAT:
             // Convert to REAL and find the delta
-            delta_val = (real_t)final_val - (real_t)initial_val;
+            delta_val = final_val.as<float>() - initial_val.as<float>();
             break;
 
         case VariantType::VECTOR2:
             // Convert to Vectors and find the delta
-            delta_val = final_val.operator Vector2() - initial_val.operator Vector2();
+            delta_val = final_val.as<Vector2>() - initial_val.as<Vector2>();
             break;
 
         case VariantType::RECT2: {
             // Build a new Rect2 and use the new position and sizes to make a delta
-            Rect2 i = initial_val;
-            Rect2 f = final_val;
+            Rect2 i = initial_val.as<Rect2>();
+            Rect2 f = final_val.as<Rect2>();
             delta_val = Rect2(f.position - i.position, f.size - i.size);
         } break;
 
         case VariantType::VECTOR3:
             // Convert to Vectors and find the delta
-            delta_val = final_val.operator Vector3() - initial_val.operator Vector3();
+            delta_val = final_val.as<Vector3>() - initial_val.as<Vector3>();
             break;
 
         case VariantType::TRANSFORM2D: {
             // Build a new transform which is the difference between the initial and final values
-            Transform2D i = initial_val;
-            Transform2D f = final_val;
+            Transform2D i = initial_val.as<Transform2D>();
+            Transform2D f = final_val.as<Transform2D>();
             Transform2D d = Transform2D();
             d[0][0] = f.elements[0][0] - i.elements[0][0];
             d[0][1] = f.elements[0][1] - i.elements[0][1];
@@ -1164,20 +1164,20 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
 
         case VariantType::QUAT:
             // Convert to quaternianls and find the delta
-            delta_val = final_val.operator Quat() - initial_val.operator Quat();
+            delta_val = final_val.as<Quat>() - initial_val.as<Quat>();
             break;
 
         case VariantType::AABB: {
             // Build a new AABB and use the new position and sizes to make a delta
-            AABB i = initial_val;
-            AABB f = final_val;
+            AABB i = initial_val.as<AABB>();
+            AABB f = final_val.as<AABB>();
             delta_val = AABB(f.position - i.position, f.size - i.size);
         } break;
 
         case VariantType::BASIS: {
             // Build a new basis which is the delta between the initial and final values
-            Basis i = initial_val;
-            Basis f = final_val;
+            Basis i = initial_val.as<Basis>();
+            Basis f = final_val.as<Basis>();
             delta_val = Basis(f.elements[0][0] - i.elements[0][0],
                     f.elements[0][1] - i.elements[0][1],
                     f.elements[0][2] - i.elements[0][2],
@@ -1191,8 +1191,8 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
 
         case VariantType::TRANSFORM: {
             // Build a new transform which is the difference between the initial and final values
-            Transform i = initial_val;
-            Transform f = final_val;
+            Transform i = initial_val.as<Transform>();
+            Transform f = final_val.as<Transform>();
             Transform d;
             d.set(f.basis.elements[0][0] - i.basis.elements[0][0],
                     f.basis.elements[0][1] - i.basis.elements[0][1],
@@ -1212,8 +1212,8 @@ bool Tween::_calc_delta_val(const Variant &p_initial_val, const Variant &p_final
 
         case VariantType::COLOR: {
             // Make a new color which is the difference between each the color's RGBA attributes
-            Color i = initial_val;
-            Color f = final_val;
+            Color i = initial_val.as<Color>();
+            Color f = final_val.as<Color>();
             delta_val = Color(f.r - i.r, f.g - i.g, f.b - i.b, f.a - i.a);
         } break;
 
@@ -1334,8 +1334,8 @@ bool Tween::interpolate_property(Object *p_object, NodePath p_property, Variant 
     if (p_initial_val.get_type() == VariantType::NIL) p_initial_val = p_object->get_indexed(p_property.get_subnames());
 
     // Convert any integers into REALs as they are better for interpolation
-    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
-    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.operator real_t();
+    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.as<real_t>();
+    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.as<real_t>();
 
     // Build the interpolation data
     bool result = _build_interpolation(INTER_PROPERTY, p_object, &p_property, nullptr, p_initial_val, p_final_val, p_duration, p_trans_type, p_ease_type, p_delay);
@@ -1350,8 +1350,8 @@ bool Tween::interpolate_method(Object *p_object, StringName p_method, Variant p_
     }
 
     // Convert any integers into REALs as they are better for interpolation
-    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
-    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.operator real_t();
+    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.as<real_t>();
+    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.as<real_t>();
 
     // Build the interpolation data
     bool result = _build_interpolation(INTER_METHOD, p_object, nullptr, &p_method, p_initial_val, p_final_val, p_duration, p_trans_type, p_ease_type, p_delay);
@@ -1492,7 +1492,7 @@ bool Tween::follow_property(Object *p_object, NodePath p_property, Variant p_ini
     if (p_initial_val.get_type() == VariantType::NIL) p_initial_val = p_object->get_indexed(p_property.get_subnames());
 
     // Convert initial INT values to REAL as they are better for interpolation
-    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
+    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.as<real_t>();
 
     // Confirm the source and target objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
@@ -1520,7 +1520,7 @@ bool Tween::follow_property(Object *p_object, NodePath p_property, Variant p_ini
     ERR_FAIL_COND_V(!target_prop_valid, false);
 
     // Convert target INT to REAL since it is better for interpolation
-    if (target_val.get_type() == VariantType::INT) target_val = target_val.operator real_t();
+    if (target_val.get_type() == VariantType::INT) target_val = target_val.as<real_t>();
 
     // Verify that the target value and initial value are the same type
     ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false);
@@ -1556,7 +1556,7 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
         return true;
     }
     // Convert initial INT values to REAL as they are better for interpolation
-    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.operator real_t();
+    if (p_initial_val.get_type() == VariantType::INT) p_initial_val = p_initial_val.as<real_t>();
 
     // Verify the source and target objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
@@ -1584,7 +1584,7 @@ bool Tween::follow_method(Object *p_object, const StringName& p_method, Variant 
     ERR_FAIL_COND_V(error.error != Callable::CallError::CALL_OK, false);
 
     // Convert target INT values to REAL as they are better for interpolation
-    if (target_val.get_type() == VariantType::INT) target_val = target_val.operator real_t();
+    if (target_val.get_type() == VariantType::INT) target_val = target_val.as<real_t>();
     ERR_FAIL_COND_V(target_val.get_type() != p_initial_val.get_type(), false);
 
     // Make the new InterpolateData for the method follow
@@ -1622,7 +1622,7 @@ bool Tween::targeting_property(Object *p_object, NodePath p_property, Object *p_
     p_initial_property = p_initial_property.get_as_property_path();
 
     // Convert the initial INT values to REAL as they are better for Interpolation
-    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.operator real_t();
+    if (p_final_val.get_type() == VariantType::INT) p_final_val = p_final_val.as<real_t>();
 
     // Verify both objects are valid
     ERR_FAIL_COND_V(p_object == nullptr, false);
@@ -1650,7 +1650,7 @@ bool Tween::targeting_property(Object *p_object, NodePath p_property, Object *p_
     ERR_FAIL_COND_V(!initial_prop_valid, false);
 
     // Convert the initial INT value to REAL as it is better for interpolation
-    if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.operator real_t();
+    if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.as<real_t>();
     ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false);
 
     // Build the InterpolateData object
@@ -1718,7 +1718,7 @@ bool Tween::targeting_method(Object *p_object, const StringName& p_method, Objec
     ERR_FAIL_COND_V(error.error != Callable::CallError::CALL_OK, false);
 
     // Convert initial INT values to REAL as they aer better for interpolation
-    if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.operator real_t();
+    if (initial_val.get_type() == VariantType::INT) initial_val = initial_val.as<real_t>();
     ERR_FAIL_COND_V(initial_val.get_type() != p_final_val.get_type(), false);
 
     // Build the new InterpolateData object

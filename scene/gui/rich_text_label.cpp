@@ -30,6 +30,7 @@
 
 #include "rich_text_label.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object.h"
 #include "core/input/input_event.h"
@@ -3224,7 +3225,7 @@ RichTextLabel::RichTextLabel() {
     vscroll->set_anchor_and_margin(Margin::Top, ANCHOR_BEGIN, 0);
     vscroll->set_anchor_and_margin(Margin::Bottom, ANCHOR_END, 0);
     vscroll->set_anchor_and_margin(Margin::Right, ANCHOR_END, 0);
-    vscroll->connect("value_changed", this, "_scroll_changed");
+    vscroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
     vscroll->set_step(1);
     vscroll->hide();
     current_idx = 1;

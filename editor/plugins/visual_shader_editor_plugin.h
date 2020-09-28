@@ -254,6 +254,10 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
 
+    void add_functions();
+    
+    void add_vector_ops();
+    
 public:
     void update_custom_nodes();
     void add_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);

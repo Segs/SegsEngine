@@ -371,11 +371,11 @@ void GIProbe::_find_meshes(Node *p_at_node, Vector<GIProbe::PlotMesh> &plot_mesh
 
         if (s->is_visible_in_tree()) {
 
-            Array meshes = p_at_node->call_va("get_meshes");
+            Array meshes = p_at_node->call_va("get_meshes").as<Array>();
             for (int i = 0; i < meshes.size(); i += 2) {
 
-                Transform mxf = meshes[i];
-                Ref<Mesh> mesh = refFromRefPtr<Mesh>(meshes[i + 1]);
+                Transform mxf = meshes[i].as<Transform>();
+                Ref<Mesh> mesh = refFromVariant<Mesh>(meshes[i + 1]);
                 if (not mesh)
                     continue;
 

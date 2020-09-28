@@ -5,8 +5,8 @@
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -50,9 +50,37 @@ class ConnectDialogBinds;
 class EditorNode;
 
 class ConnectDialog : public ConfirmationDialog {
-
     GDCLASS(ConnectDialog,ConfirmationDialog)
+public:
+    struct ConnectionData {
+        Node *source = nullptr;
+        Node *target = nullptr;
+        StringName signal;
+        StringName method;
+        uint32_t flags = 0;
+        Vector<Variant> binds;
 
+        ConnectionData() {
+        }
+        ConnectionData(const Connection &p_connection) {
+            source = object_cast<Node>(p_connection.signal.get_object());
+            signal = p_connection.signal.get_name();
+            target = object_cast<Node>(p_connection.callable.get_object());
+            method = p_connection.callable.get_method();
+            flags = p_connection.flags;
+            binds = p_connection.binds;
+        }
+        operator Connection() {
+            Connection c;
+            c.signal = ::Signal(source, signal);
+            c.callable = Callable(target, method);
+            c.flags = flags;
+            c.binds = binds;
+            return c;
+        }
+    };
+
+private:
     Label *connect_to_label;
     LineEdit *from_signal;
     Node *source;
@@ -98,7 +126,7 @@ public:
     bool get_oneshot() const;
     bool is_editing() const;
 
-    void init(const Connection& c, bool bEdit = false);
+    void init(const ConnectionData& c, bool bEdit = false);
 
     void popup_dialog(const UIString &p_for_signal);
     ConnectDialog();
@@ -144,7 +172,7 @@ class ConnectionsDock : public VBoxContainer {
     Map<StringName, Map<StringName, String> > descr_cache;
 
     void _make_or_edit_connection();
-    void _connect(const Connection& cToMake);
+    void _connect(const ConnectDialog::ConnectionData &cToMake);
     void _disconnect(TreeItem &item);
     void _disconnect_all();
 
@@ -153,7 +181,7 @@ class ConnectionsDock : public VBoxContainer {
     bool _is_item_signal(TreeItem &item);
 
     void _open_connection_dialog(TreeItem &item);
-    void _open_connection_dialog(const Connection& cToEdit);
+    void _open_connection_dialog(const ConnectDialog::ConnectionData &cToEdit);
     void _go_to_script(TreeItem &item);
 
     void _handle_signal_menu_option(int option);

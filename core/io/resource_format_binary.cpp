@@ -86,21 +86,22 @@ enum {
     VARIANT_DICTIONARY = 26,
     VARIANT_ARRAY = 30,
     VARIANT_RAW_ARRAY = 31,
-    VARIANT_INT_ARRAY = 32,
-    VARIANT_REAL_ARRAY = 33,
+    VARIANT_INT32_ARRAY = 32,
+    VARIANT_FLOAT32_ARRAY = 33,
     VARIANT_STRING_ARRAY = 34,
     VARIANT_VECTOR3_ARRAY = 35,
     VARIANT_COLOR_ARRAY = 36,
     VARIANT_VECTOR2_ARRAY = 37,
     VARIANT_INT64 = 40,
     VARIANT_DOUBLE = 41,
-//#ifndef DISABLE_DEPRECATED
-//    VARIANT_IMAGE = 21, // - no longer variant type
-//    IMAGE_ENCODING_EMPTY = 0,
-//    IMAGE_ENCODING_RAW = 1,
-//    IMAGE_ENCODING_LOSSLESS = 2,
-//    IMAGE_ENCODING_LOSSY = 3,
-//#endif
+    VARIANT_CALLABLE = 42,
+    VARIANT_SIGNAL = 43,
+    VARIANT_STRING_NAME = 44,
+    VARIANT_VECTOR2I = 45,
+    VARIANT_RECT2I = 46,
+    VARIANT_VECTOR3I = 47,
+    VARIANT_INT64_ARRAY = 48,
+    VARIANT_FLOAT64_ARRAY = 49,
     OBJECT_EMPTY = 0,
     OBJECT_EXTERNAL_RESOURCE = 1,
     OBJECT_INTERNAL_RESOURCE = 2,
@@ -111,7 +112,7 @@ enum {
     FORMAT_VERSION_CAN_RENAME_DEPS = 1,
     FORMAT_VERSION_NO_NODEPATH_PROPERTY = 3,
 
-};
+    };
 
 void ResourceInteractiveLoaderBinary::_advance_padding(uint32_t p_len) {
 
@@ -433,7 +434,7 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             r_v = array;
 
         } break;
-        case VARIANT_INT_ARRAY: {
+        case VARIANT_INT32_ARRAY: {
 
             uint32_t len = f->get_32();
 
@@ -441,20 +442,10 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             array.resize(len);
             PoolVector<int>::Write w = array.write();
             f->get_buffer((uint8_t *)w.ptr(), len * 4);
-#ifdef BIG_ENDIAN_ENABLED
-            {
-                uint32_t *ptr = (uint32_t *)w.ptr();
-                for (int i = 0; i < len; i++) {
-
-                    ptr[i] = BSWAP32(ptr[i]);
-                }
-            }
-
-#endif
             w.release();
             r_v = array;
         } break;
-        case VARIANT_REAL_ARRAY: {
+        case VARIANT_FLOAT32_ARRAY: {
 
             uint32_t len = f->get_32();
 
@@ -462,16 +453,6 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             array.resize(len);
             PoolVector<real_t>::Write w = array.write();
             f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t));
-#ifdef BIG_ENDIAN_ENABLED
-            {
-                uint32_t *ptr = (uint32_t *)w.ptr();
-                for (int i = 0; i < len; i++) {
-
-                    ptr[i] = BSWAP32(ptr[i]);
-                }
-            }
-
-#endif
 
             w.release();
             r_v = array;
@@ -495,18 +476,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Vector2> array;
             array.resize(len);
             PoolVector<Vector2>::Write w = array.write();
-            if (sizeof(Vector2) == 8) {
+            if constexpr (sizeof(Vector2) == 8) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 2);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 2; i++) {
-
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector2 size is NOT 8!");
@@ -522,18 +493,8 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Vector3> array;
             array.resize(len);
             PoolVector<Vector3>::Write w = array.write();
-            if (sizeof(Vector3) == 12) {
+            if constexpr (sizeof(Vector3) == 12) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 3);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 3; i++) {
-
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Vector3 size is NOT 12!");
@@ -549,18 +510,9 @@ Error ResourceInteractiveLoaderBinary::parse_variant(Variant &r_v) {
             PoolVector<Color> array;
             array.resize(len);
             PoolVector<Color>::Write w = array.write();
-            if (sizeof(Color) == 16) {
+            if constexpr (sizeof(Color) == 16) {
                 f->get_buffer((uint8_t *)w.ptr(), len * sizeof(real_t) * 4);
-#ifdef BIG_ENDIAN_ENABLED
-                {
-                    uint32_t *ptr = (uint32_t *)w.ptr();
-                    for (int i = 0; i < len * 4; i++) {
 
-                        ptr[i] = BSWAP32(ptr[i]);
-                    }
-                }
-
-#endif
 
             } else {
                 ERR_FAIL_V_MSG(ERR_UNAVAILABLE, "Color size is NOT 16!");
@@ -815,11 +767,7 @@ void ResourceInteractiveLoaderBinary::open(FileAccess *p_f) {
     ver_format = f->get_32();
 
     print_bl("big endian: " + itos(big_endian));
-#ifdef BIG_ENDIAN_ENABLED
-    print_bl("endian swap: " + itos(!big_endian));
-#else
     print_bl("endian swap: " + itos(big_endian));
-#endif
     print_bl("real64: " + itos(use_real64));
     print_bl("major: " + itos(ver_major));
     print_bl("minor: " + itos(ver_minor));
@@ -1056,11 +1004,7 @@ Error ResourceFormatLoaderBinary::rename_dependencies(StringView _path, const Ha
     bool use_real64 = f->get_32();
 
     f->set_endian_swap(big_endian != 0); //read big endian if saved as big endian
-#ifdef BIG_ENDIAN_ENABLED
-    fw->store_32(!big_endian);
-#else
     fw->store_32(big_endian);
-#endif
     fw->set_endian_swap(big_endian != 0);
     fw->store_32(use_real64); //use real64
 
@@ -1257,14 +1201,14 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::INT: {
 
-            int64_t val = p_property;
+            int64_t val = p_property.as<int64_t>();
             if (val > 0x7FFFFFFF || val < -(int64_t)0x80000000) {
                 f->store_32(VARIANT_INT64);
                 f->store_64(val);
 
             } else {
                 f->store_32(VARIANT_INT);
-                f->store_32(int32_t(p_property));
+                f->store_32(int32_t(val)); // was p_property.as<int32_t>();
             }
 
         } break;
@@ -1292,7 +1236,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::VECTOR2: {
 
             f->store_32(VARIANT_VECTOR2);
-            Vector2 val = p_property;
+            Vector2 val = p_property.as<Vector2>();
             f->store_real(val.x);
             f->store_real(val.y);
 
@@ -1300,7 +1244,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::RECT2: {
 
             f->store_32(VARIANT_RECT2);
-            Rect2 val = p_property;
+            Rect2 val = p_property.as<Rect2>();
             f->store_real(val.position.x);
             f->store_real(val.position.y);
             f->store_real(val.size.x);
@@ -1310,7 +1254,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::VECTOR3: {
 
             f->store_32(VARIANT_VECTOR3);
-            Vector3 val = p_property;
+            Vector3 val = p_property.as<Vector3>();
             f->store_real(val.x);
             f->store_real(val.y);
             f->store_real(val.z);
@@ -1319,7 +1263,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::PLANE: {
 
             f->store_32(VARIANT_PLANE);
-            Plane val = p_property;
+            Plane val = p_property.as<Plane>();
             f->store_real(val.normal.x);
             f->store_real(val.normal.y);
             f->store_real(val.normal.z);
@@ -1329,7 +1273,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::QUAT: {
 
             f->store_32(VARIANT_QUAT);
-            Quat val = p_property;
+            Quat val = p_property.as<Quat>();
             f->store_real(val.x);
             f->store_real(val.y);
             f->store_real(val.z);
@@ -1339,7 +1283,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::AABB: {
 
             f->store_32(VARIANT_AABB);
-            AABB val = p_property;
+            AABB val = p_property.as<AABB>();
             f->store_real(val.position.x);
             f->store_real(val.position.y);
             f->store_real(val.position.z);
@@ -1351,7 +1295,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::TRANSFORM2D: {
 
             f->store_32(VARIANT_MATRIX32);
-            Transform2D val = p_property;
+            Transform2D val = p_property.as<Transform2D>();
             f->store_real(val.elements[0].x);
             f->store_real(val.elements[0].y);
             f->store_real(val.elements[1].x);
@@ -1363,7 +1307,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::BASIS: {
 
             f->store_32(VARIANT_MATRIX3);
-            Basis val = p_property;
+            Basis val = p_property.as<Basis>();
             f->store_real(val.elements[0].x);
             f->store_real(val.elements[0].y);
             f->store_real(val.elements[0].z);
@@ -1396,17 +1340,21 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::COLOR: {
 
             f->store_32(VARIANT_COLOR);
-            Color val = p_property;
+            Color val = p_property.as<Color>();
             f->store_real(val.r);
             f->store_real(val.g);
             f->store_real(val.b);
             f->store_real(val.a);
 
         } break;
+        case VariantType::STRING_NAME: {
+            f->store_32(VARIANT_STRING_NAME);
+            save_unicode_string(f, (StringName)p_property);
 
+        } break;
         case VariantType::NODE_PATH: {
             f->store_32(VARIANT_NODE_PATH);
-            NodePath np = p_property;
+            NodePath np = p_property.as<NodePath>();
             f->store_16(np.get_name_count());
             uint16_t snc = np.get_subname_count();
             if (np.is_absolute())
@@ -1432,7 +1380,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
 
             f->store_32(VARIANT_RID);
             WARN_PRINT("Can't save RIDs.");
-            RID val = p_property;
+            RID val = p_property.as<RID>();
             f->store_32(val.get_id());
         } break;
         case VariantType::OBJECT: {
@@ -1463,7 +1411,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::DICTIONARY: {
 
             f->store_32(VARIANT_DICTIONARY);
-            Dictionary d = p_property;
+            Dictionary d = p_property.as<Dictionary>();
             f->store_32(uint32_t(d.size()));
 
             Vector<Variant> keys(d.get_key_list());
@@ -1483,7 +1431,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::ARRAY: {
 
             f->store_32(VARIANT_ARRAY);
-            Array a = p_property;
+            Array a = p_property.as<Array>();
             f->store_32(uint32_t(a.size()));
             for (int i = 0; i < a.size(); i++) {
 
@@ -1494,7 +1442,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::POOL_BYTE_ARRAY: {
 
             f->store_32(VARIANT_RAW_ARRAY);
-            PoolVector<uint8_t> arr = p_property;
+            PoolVector<uint8_t> arr = p_property.as<PoolVector<uint8_t>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<uint8_t>::Read r = arr.read();
@@ -1504,8 +1452,8 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::POOL_INT_ARRAY: {
 
-            f->store_32(VARIANT_INT_ARRAY);
-            PoolVector<int> arr = p_property;
+            f->store_32(VARIANT_INT32_ARRAY);
+            PoolVector<int> arr = p_property.as<PoolVector<int>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<int>::Read r = arr.read();
@@ -1515,8 +1463,8 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         } break;
         case VariantType::POOL_REAL_ARRAY: {
 
-            f->store_32(VARIANT_REAL_ARRAY);
-            PoolVector<real_t> arr = p_property;
+            f->store_32(VARIANT_FLOAT32_ARRAY);
+            PoolVector<real_t> arr = p_property.as<PoolVector<real_t>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<real_t>::Read r = arr.read();
@@ -1528,7 +1476,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::POOL_STRING_ARRAY: {
 
             f->store_32(VARIANT_STRING_ARRAY);
-            PoolVector<String> arr = p_property;
+            PoolVector<String> arr = p_property.as<PoolVector<String>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<String>::Read r = arr.read();
@@ -1540,7 +1488,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::POOL_VECTOR3_ARRAY: {
 
             f->store_32(VARIANT_VECTOR3_ARRAY);
-            PoolVector<Vector3> arr = p_property;
+            PoolVector<Vector3> arr = p_property.as<PoolVector<Vector3>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<Vector3>::Read r = arr.read();
@@ -1554,7 +1502,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::POOL_VECTOR2_ARRAY: {
 
             f->store_32(VARIANT_VECTOR2_ARRAY);
-            PoolVector<Vector2> arr = p_property;
+            PoolVector<Vector2> arr = p_property.as<PoolVector<Vector2>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<Vector2>::Read r = arr.read();
@@ -1567,7 +1515,7 @@ void ResourceFormatSaverBinaryInstance::write_variant(FileAccess *f, const Varia
         case VariantType::POOL_COLOR_ARRAY: {
 
             f->store_32(VARIANT_COLOR_ARRAY);
-            PoolVector<Color> arr = p_property;
+            PoolVector<Color> arr = p_property.as<PoolVector<Color>>();
             int len = arr.size();
             f->store_32(len);
             PoolVector<Color>::Read r = arr.read();
@@ -1642,7 +1590,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
 
         case VariantType::ARRAY: {
 
-            Array varray = p_variant;
+            Array varray = p_variant.as<Array>();
             int len = varray.size();
             for (int i = 0; i < len; i++) {
 
@@ -1654,7 +1602,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
 
         case VariantType::DICTIONARY: {
 
-            Dictionary d = p_variant;
+            Dictionary d = p_variant.as<Dictionary>();
             Vector<Variant> keys(d.get_key_list());
             for(Variant &E : keys ) {
 
@@ -1665,7 +1613,7 @@ void ResourceFormatSaverBinaryInstance::_find_resources(const Variant &p_variant
         } break;
         case VariantType::NODE_PATH: {
             //take the chance and save node path strings
-            NodePath np = p_variant;
+            NodePath np = p_variant.as<NodePath>();
             for (int i = 0; i < np.get_name_count(); i++)
                 get_string_index(np.get_name(i));
             for (int i = 0; i < np.get_subname_count(); i++)
@@ -1792,7 +1740,7 @@ Error ResourceFormatSaverBinaryInstance::save(StringView p_path, const RES &p_re
 
                     Variant default_value = ClassDB::class_get_default_property_value(E->get_class_name(), F.name);
 
-                    if (default_value.get_type() != VariantType::NIL && bool(Variant::evaluate(Variant::OP_EQUAL, p.value, default_value))) {
+                    if (default_value.get_type() != VariantType::NIL && Variant::evaluate(Variant::OP_EQUAL, p.value, default_value).as<bool>()) {
                         continue;
                     }
 

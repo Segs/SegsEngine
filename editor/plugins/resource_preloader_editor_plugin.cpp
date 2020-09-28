@@ -30,6 +30,7 @@
 
 #include "resource_preloader_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"
 #include "core/resource/resource_manager.h"
@@ -85,7 +86,7 @@ void ResourcePreloaderEditor::_files_load_request(const Vector<String> &p_paths)
             name = String(basename) + " " + itos(counter);
         }
 
-        undo_redo->create_action_ui(TTR("Add Resource"));
+        undo_redo->create_action(TTR("Add Resource"));
         undo_redo->add_do_method(preloader, "add_resource", name, resource);
         undo_redo->add_undo_method(preloader, "remove_resource", name);
         undo_redo->add_do_method(this, "_update_library");
@@ -118,7 +119,7 @@ void ResourcePreloaderEditor::_item_edited() {
 
     if (tree->get_selected_column() == 0) {
         // renamed
-        StringName old_name = s->get_metadata(0);
+        StringName old_name = s->get_metadata(0).as<StringName>();
         StringName new_name(s->get_text(0));
         if (old_name == new_name)
             return;
@@ -130,7 +131,7 @@ void ResourcePreloaderEditor::_item_edited() {
         }
 
         RES samp(preloader->get_resource(StringName(old_name)));
-        undo_redo->create_action_ui(TTR("Rename Resource"));
+        undo_redo->create_action(TTR("Rename Resource"));
         undo_redo->add_do_method(preloader, "remove_resource", old_name);
         undo_redo->add_do_method(preloader, "add_resource", new_name, samp);
         undo_redo->add_undo_method(preloader, "remove_resource", new_name);
@@ -143,7 +144,7 @@ void ResourcePreloaderEditor::_item_edited() {
 
 void ResourcePreloaderEditor::_remove_resource(const StringName &p_to_remove) {
 
-    undo_redo->create_action_ui(TTR("Delete Resource"));
+    undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(preloader, "remove_resource", p_to_remove);
     undo_redo->add_undo_method(preloader, "add_resource", p_to_remove, preloader->get_resource(StringName(p_to_remove)));
     undo_redo->add_do_method(this, "_update_library");
@@ -175,7 +176,7 @@ void ResourcePreloaderEditor::_paste_pressed() {
         name = basename + " " + itos(counter);
     }
 
-    undo_redo->create_action_ui(TTR("Paste Resource"));
+    undo_redo->create_action(TTR("Paste Resource"));
     undo_redo->add_do_method(preloader, "add_resource", name, r);
     undo_redo->add_undo_method(preloader, "remove_resource", name);
     undo_redo->add_do_method(this, "_update_library");
@@ -265,7 +266,7 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
     if (!ti)
         return Variant();
 
-    StringName name(ti->get_metadata(0));
+    StringName name(ti->get_metadata(0).as<StringName>());
 
     RES res(preloader->get_resource(name));
     if (not res)
@@ -276,12 +277,12 @@ Variant ResourcePreloaderEditor::get_drag_data_fw(const Point2 &p_point, Control
 
 bool ResourcePreloaderEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return false;
 
-    if (d.has("from") && (Object *)d["from"] == tree)
+    if (d.has("from") && d["from"].as<Object *>() == tree)
         return false;
 
     if (d["type"].as<String>() == "resource" && d.has("resource")) {
@@ -304,7 +305,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return;
@@ -330,7 +331,7 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
                 name = basename + "_" + itos(counter);
             }
 
-            undo_redo->create_action_ui(TTR("Add Resource"));
+            undo_redo->create_action(TTR("Add Resource"));
             undo_redo->add_do_method(preloader, "add_resource", name, r);
             undo_redo->add_undo_method(preloader, "remove_resource", name);
             undo_redo->add_do_method(this, "_update_library");
@@ -385,7 +386,7 @@ ResourcePreloaderEditor::ResourcePreloaderEditor() {
     add_child(file);
 
     tree = memnew(Tree);
-    tree->connect("button_pressed", this, "_cell_button_pressed");
+    tree->connect("button_pressed",callable_mp(this, &ClassName::_cell_button_pressed));
     tree->set_columns(2);
     tree->set_column_min_width(0, 2);
     tree->set_column_min_width(1, 3);
@@ -399,10 +400,10 @@ ResourcePreloaderEditor::ResourcePreloaderEditor() {
     dialog = memnew(AcceptDialog);
     add_child(dialog);
 
-    load->connect("pressed", this, "_load_pressed");
-    paste->connect("pressed", this, "_paste_pressed");
-    file->connect("files_selected", this, "_files_load_request");
-    tree->connect("item_edited", this, "_item_edited");
+    load->connect("pressed",callable_mp(this, &ClassName::_load_pressed));
+    paste->connect("pressed",callable_mp(this, &ClassName::_paste_pressed));
+    file->connect("files_selected",callable_mp(this, &ClassName::_files_load_request));
+    tree->connect("item_edited",callable_mp(this, &ClassName::_item_edited));
     loading_scene = false;
 }
 

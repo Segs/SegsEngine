@@ -59,6 +59,14 @@
 
 
 namespace {
+    struct VariantAutoCaster {
+        const Variant& from;
+        constexpr VariantAutoCaster(const Variant& src) : from(src) {}
+        template<class T>
+        operator T() const {
+            return from.as<T>();
+        }
+    };
     /*******************************************************************************************************/
     // Types
     /*******************************************************************************************************/
@@ -111,7 +119,7 @@ namespace {
         int height;
 
         Transform xform;
-        String name;
+        StringName name;
 
         GLTFMeshIndex mesh;
         GLTFCameraIndex camera;
@@ -581,7 +589,7 @@ namespace {
             _err_print_error("", String(p_path).c_str(), err_line, err_txt, {}, ERR_HANDLER_SCRIPT);
             return err;
         }
-        state.json = v;
+        state.json = v.as<Dictionary>();
 
         return OK;
     }
@@ -617,7 +625,7 @@ namespace {
             return err;
         }
 
-        state.json = v;
+        state.json = v.as<Dictionary>();
 
         //data?
 
@@ -639,33 +647,33 @@ namespace {
 
     static Vector3 _arr_to_vec3(const Array& p_array) {
         ERR_FAIL_COND_V(p_array.size() != 3, Vector3());
-        return Vector3(p_array[0], p_array[1], p_array[2]);
+        return Vector3(VariantAutoCaster(p_array[0]), VariantAutoCaster(p_array[1]), VariantAutoCaster(p_array[2]));
     }
 
     static Quat _arr_to_quat(const Array& p_array) {
         ERR_FAIL_COND_V(p_array.size() != 4, Quat());
-        return Quat(p_array[0], p_array[1], p_array[2], p_array[3]);
+        return Quat(VariantAutoCaster(p_array[0]), VariantAutoCaster(p_array[1]), VariantAutoCaster(p_array[2]), VariantAutoCaster(p_array[3]));
     }
 
     static Transform _arr_to_xform(const Array& p_array) {
         ERR_FAIL_COND_V(p_array.size() != 16, Transform());
 
         Transform xform;
-        xform.basis.set_axis(Vector3::AXIS_X, Vector3(p_array[0], p_array[1], p_array[2]));
-        xform.basis.set_axis(Vector3::AXIS_Y, Vector3(p_array[4], p_array[5], p_array[6]));
-        xform.basis.set_axis(Vector3::AXIS_Z, Vector3(p_array[8], p_array[9], p_array[10]));
-        xform.set_origin(Vector3(p_array[12], p_array[13], p_array[14]));
+        xform.basis.set_axis(Vector3::AXIS_X, Vector3(VariantAutoCaster(p_array[0]), VariantAutoCaster(p_array[1]), VariantAutoCaster(p_array[2])));
+        xform.basis.set_axis(Vector3::AXIS_Y, Vector3(VariantAutoCaster(p_array[4]), VariantAutoCaster(p_array[5]), VariantAutoCaster(p_array[6])));
+        xform.basis.set_axis(Vector3::AXIS_Z, Vector3(VariantAutoCaster(p_array[8]), VariantAutoCaster(p_array[9]), VariantAutoCaster(p_array[10])));
+        xform.set_origin(Vector3(VariantAutoCaster(p_array[12]), VariantAutoCaster(p_array[13]), VariantAutoCaster(p_array[14])));
 
         return xform;
     }
 
-    String _sanitize_scene_name(const String& name) {
+    String _sanitize_scene_name(StringView name) {
         QRegularExpression regex("([^a-zA-Z0-9_ -]+)");
-        UIString p_name = QString::fromUtf8(name.c_str()).replace(regex, "");
+        UIString p_name = QString::fromUtf8(name.data(),name.size()).replace(regex, "");
         return StringUtils::to_utf8(p_name);
     }
 
-    String _gen_unique_name(GLTFState& state, const String& p_name) {
+    String _gen_unique_name(GLTFState& state, StringView p_name) {
 
         const String s_name = _sanitize_scene_name(p_name);
 
@@ -688,11 +696,11 @@ namespace {
         return name;
     }
 
-    String _sanitize_bone_name(const String& name) {
+    String _sanitize_bone_name(const StringView name) {
         String p_name = StringUtils::camelcase_to_underscore(name, true);
 
         QRegularExpression pattern_del("([^a-zA-Z0-9_ ])+");
-        QString val(UIString::fromUtf8(name.c_str()));
+        QString val(UIString::fromUtf8(name.data(),name.size()));
         val.remove(pattern_del);
 
         QRegularExpression pattern_nospace(" +");
@@ -706,7 +714,7 @@ namespace {
 
         return StringUtils::to_utf8(val);
     }
-    String _gen_unique_bone_name(GLTFState& state, const GLTFSkeletonIndex skel_i, const String& p_name) {
+    String _gen_unique_bone_name(GLTFState& state, const GLTFSkeletonIndex skel_i, StringView p_name) {
 
         const String s_name = _sanitize_bone_name(p_name);
 
@@ -731,10 +739,10 @@ namespace {
     Error _parse_scenes(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("scenes"), ERR_FILE_CORRUPT);
-        const Array& scenes = state.json["scenes"];
+        const Array scenes = state.json["scenes"].as<Array>();
         int loaded_scene = 0;
         if (state.json.has("scene")) {
-            loaded_scene = state.json["scene"];
+            loaded_scene = state.json["scene"].as<int>();
         }
         else {
             WARN_PRINT("The load-time scene is not defined in the glTF2 file. Picking the first scene.");
@@ -742,15 +750,15 @@ namespace {
 
         if (!scenes.empty()) {
             ERR_FAIL_COND_V(loaded_scene >= scenes.size(), ERR_FILE_CORRUPT);
-            const Dictionary& s = scenes[loaded_scene];
+            Dictionary s = scenes[loaded_scene].as<Dictionary>();
             ERR_FAIL_COND_V(!s.has("nodes"), ERR_UNAVAILABLE);
-            const Array& nodes = s["nodes"];
+            Array nodes = s["nodes"].as<Array>();
             for (int j = 0; j < nodes.size(); j++) {
-                state.root_nodes.push_back(nodes[j]);
+                state.root_nodes.push_back(nodes[j].as<int>());
             }
 
             if (s.has("name") && s["name"] != "") {
-                state.scene_name = _gen_unique_name(state, s["name"]);
+                state.scene_name = _gen_unique_name(state, s["name"].as<String>());
             }
             else {
                 state.scene_name = _gen_unique_name(state, "Scene");
@@ -763,38 +771,38 @@ namespace {
     Error _parse_nodes(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("nodes"), ERR_FILE_CORRUPT);
-        const Array& nodes = state.json["nodes"];
+        const Array nodes = state.json["nodes"].as<Array>();
         for (int i = 0; i < nodes.size(); i++) {
 
             GLTFNode* node = memnew(GLTFNode);
-            const Dictionary& n = nodes[i];
+            const Dictionary n = nodes[i].as<Dictionary>();
 
             if (n.has("name")) {
-                node->name = n["name"].as<String>();
+                node->name = n["name"].as<StringName>();
             }
             if (n.has("camera")) {
-                node->camera = n["camera"];
+                node->camera = n["camera"].as<int>();
             }
             if (n.has("mesh")) {
-                node->mesh = n["mesh"];
+                node->mesh = n["mesh"].as<int>();
             }
             if (n.has("skin")) {
-                node->skin = n["skin"];
+                node->skin = n["skin"].as<int>();
             }
             if (n.has("matrix")) {
-                node->xform = _arr_to_xform(n["matrix"]);
+                node->xform = _arr_to_xform(n["matrix"].as<Array>());
 
             }
             else {
 
                 if (n.has("translation")) {
-                    node->translation = _arr_to_vec3(n["translation"]);
+                    node->translation = _arr_to_vec3(n["translation"].as<Array>());
                 }
                 if (n.has("rotation")) {
-                    node->rotation = _arr_to_quat(n["rotation"]);
+                    node->rotation = _arr_to_quat(n["rotation"].as<Array>());
                 }
                 if (n.has("scale")) {
-                    node->scale = _arr_to_vec3(n["scale"]);
+                    node->scale = _arr_to_vec3(n["scale"].as<Array>());
                 }
 
                 node->xform.basis.set_quat_scale(node->rotation, node->scale);
@@ -802,9 +810,9 @@ namespace {
             }
 
             if (n.has("children")) {
-                const Array& children = n["children"];
+                const Array children = n["children"].as<Array>();
                 for (int j = 0; j < children.size(); j++) {
-                    node->children.push_back(children[j]);
+                    node->children.push_back(children[j].as<int>());
                 }
             }
 
@@ -875,18 +883,18 @@ namespace {
         if (!state.json.has("buffers"))
             return OK;
 
-        const Array& buffers = state.json["buffers"];
+        const Array buffers = state.json["buffers"].as<Array>();
         if (!buffers.empty() && not state.glb_data.empty())
         {
             state.buffers.emplace_back(eastl::move(state.glb_data));
         }
         for (GLTFBufferIndex i = 0; i < buffers.size(); i++) {
 
-            const Dictionary& buffer = buffers[i];
+            const Dictionary buffer = buffers[i].as<Dictionary>();
             if (buffer.has("uri")) {
 
                 Vector<uint8_t> buffer_data;
-                String uri = buffer["uri"];
+                String uri = buffer["uri"].as<String>();
 
                 if (StringUtils::findn(uri, "data:application/octet-stream;base64") == 0) {
                     //embedded data
@@ -900,7 +908,7 @@ namespace {
                 }
 
                 ERR_FAIL_COND_V(!buffer.has("byteLength"), ERR_PARSE_ERROR);
-                int byteLength = buffer["byteLength"];
+                int byteLength = buffer["byteLength"].as<int>();
                 ERR_FAIL_COND_V(byteLength < buffer_data.size(), ERR_PARSE_ERROR);
                 state.buffers.emplace_back(eastl::move(buffer_data));
             }
@@ -914,28 +922,28 @@ namespace {
     Error _parse_buffer_views(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("bufferViews"), ERR_FILE_CORRUPT);
-        const Array& buffers = state.json["bufferViews"];
+        const Array buffers = state.json["bufferViews"].as<Array>();
         for (GLTFBufferViewIndex i = 0; i < buffers.size(); i++) {
 
-            const Dictionary& d = buffers[i];
+            const Dictionary d = buffers[i].as<Dictionary>();
 
             GLTFBufferView buffer_view;
 
             ERR_FAIL_COND_V(!d.has("buffer"), ERR_PARSE_ERROR);
-            buffer_view.buffer = d["buffer"];
+            buffer_view.buffer = d["buffer"].as<int>();
             ERR_FAIL_COND_V(!d.has("byteLength"), ERR_PARSE_ERROR);
-            buffer_view.byte_length = d["byteLength"];
+            buffer_view.byte_length = d["byteLength"].as<int>();
 
             if (d.has("byteOffset")) {
-                buffer_view.byte_offset = d["byteOffset"];
+                buffer_view.byte_offset = d["byteOffset"].as<int>();
             }
 
             if (d.has("byteStride")) {
-                buffer_view.byte_stride = d["byteStride"];
+                buffer_view.byte_stride = d["byteStride"].as<int>();
             }
 
             if (d.has("target")) {
-                const int target = d["target"];
+                const int target = d["target"].as<int>();
                 buffer_view.indices = target == ELEMENT_ARRAY_BUFFER;
             }
 
@@ -970,62 +978,62 @@ namespace {
     Error _parse_accessors(GLTFState& state) {
 
         ERR_FAIL_COND_V(!state.json.has("accessors"), ERR_FILE_CORRUPT);
-        const Array& accessors = state.json["accessors"];
+        const Array accessors = state.json["accessors"].as<Array>();
         for (GLTFAccessorIndex i = 0; i < accessors.size(); i++) {
 
-            const Dictionary& d = accessors[i];
+            const Dictionary d = accessors[i].as<Dictionary>();
 
             GLTFAccessor accessor;
 
             ERR_FAIL_COND_V(!d.has("componentType"), ERR_PARSE_ERROR);
-            accessor.component_type = d["componentType"];
+            accessor.component_type = d["componentType"].as<int>();
             ERR_FAIL_COND_V(!d.has("count"), ERR_PARSE_ERROR);
-            accessor.count = d["count"];
+            accessor.count = d["count"].as<int>();
             ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
-            accessor.type = _get_type_from_str(d["type"]);
+            accessor.type = _get_type_from_str(d["type"].as<String>());
 
             if (d.has("bufferView")) {
-                accessor.buffer_view = d["bufferView"]; //optional because it may be sparse...
+                accessor.buffer_view = d["bufferView"].as<int>(); //optional because it may be sparse...
             }
 
             if (d.has("byteOffset")) {
-                accessor.byte_offset = d["byteOffset"];
+                accessor.byte_offset = d["byteOffset"].as<int>();
             }
 
             if (d.has("max")) {
-                accessor.max = d["max"];
+                accessor.max = d["max"].as<float>();
             }
 
             if (d.has("min")) {
-                accessor.min = d["min"];
+                accessor.min = d["min"].as<float>();
             }
 
             if (d.has("sparse")) {
                 //eeh..
 
-                const Dictionary& s = d["sparse"];
+                const Dictionary s = d["sparse"].as<Dictionary>();
 
                 ERR_FAIL_COND_V(!s.has("count"), ERR_PARSE_ERROR);
-                accessor.sparse_count = s["count"];
+                accessor.sparse_count = s["count"].as<int>();
                 ERR_FAIL_COND_V(!s.has("indices"), ERR_PARSE_ERROR);
-                const Dictionary& si = s["indices"];
+                const Dictionary si = s["indices"].as<Dictionary>();
 
                 ERR_FAIL_COND_V(!si.has("bufferView"), ERR_PARSE_ERROR);
-                accessor.sparse_indices_buffer_view = si["bufferView"];
+                accessor.sparse_indices_buffer_view = si["bufferView"].as<int>();
                 ERR_FAIL_COND_V(!si.has("componentType"), ERR_PARSE_ERROR);
-                accessor.sparse_indices_component_type = si["componentType"];
+                accessor.sparse_indices_component_type = si["componentType"].as<int>();
 
                 if (si.has("byteOffset")) {
-                    accessor.sparse_indices_byte_offset = si["byteOffset"];
+                    accessor.sparse_indices_byte_offset = si["byteOffset"].as<int>();
                 }
 
                 ERR_FAIL_COND_V(!s.has("values"), ERR_PARSE_ERROR);
-                const Dictionary& sv = s["values"];
+                const Dictionary sv = s["values"].as<Dictionary>();
 
                 ERR_FAIL_COND_V(!sv.has("bufferView"), ERR_PARSE_ERROR);
-                accessor.sparse_values_buffer_view = sv["bufferView"];
+                accessor.sparse_values_buffer_view = sv["bufferView"].as<int>();
                 if (sv.has("byteOffset")) {
-                    accessor.sparse_values_byte_offset = sv["byteOffset"];
+                    accessor.sparse_values_byte_offset = sv["byteOffset"].as<int>();
                 }
             }
 
@@ -1309,33 +1317,33 @@ namespace {
         if (!state.json.has("meshes"))
             return OK;
 
-        Array meshes = state.json["meshes"];
+        Array meshes = state.json["meshes"].as<Array>();
         for (GLTFMeshIndex i = 0; i < meshes.size(); i++) {
 
             print_verbose("glTF: Parsing mesh: " + itos(i));
-            Dictionary d = meshes[i];
+            Dictionary d = meshes[i].as<Dictionary>();
 
             GLTFMesh mesh;
             mesh.mesh = make_ref_counted<ArrayMesh>();
 
             ERR_FAIL_COND_V(!d.has("primitives"), ERR_PARSE_ERROR);
 
-            Array primitives = d["primitives"];
-            const Dictionary& extras = d.has("extras") ? (Dictionary)d["extras"] : Dictionary();
+            Array primitives = d["primitives"].as<Array>();
+            const Dictionary extras = d.has("extras") ? d["extras"].as<Dictionary>() : Dictionary();
 
             for (int j = 0; j < primitives.size(); j++) {
 
-                Dictionary p = primitives[j];
+                Dictionary p = primitives[j].as<Dictionary>();
 
                 SurfaceArrays array;
 
                 ERR_FAIL_COND_V(!p.has("attributes"), ERR_PARSE_ERROR);
 
-                Dictionary a = p["attributes"];
+                Dictionary a = p["attributes"].as<Dictionary>();
 
                 Mesh::PrimitiveType primitive = Mesh::PRIMITIVE_TRIANGLES;
                 if (p.has("mode")) {
-                    const int mode = p["mode"];
+                    const int mode = p["mode"].as<int>();
                     ERR_FAIL_INDEX_V(mode, 7, ERR_FILE_CORRUPT);
                     static const Mesh::PrimitiveType primitives2[7] = {
                         Mesh::PRIMITIVE_POINTS,
@@ -1352,29 +1360,29 @@ namespace {
 
                 ERR_FAIL_COND_V(!a.has("POSITION"), ERR_PARSE_ERROR);
                 if (a.has("POSITION")) {
-                    array.set_positions(_decode_accessor_as_vec3(state, a["POSITION"], true));
+                    array.set_positions(_decode_accessor_as_vec3(state, a["POSITION"].as<int>(), true));
                 }
 
                 if (a.has("NORMAL")) {
-                    array.m_normals = eastl::move(_decode_accessor_as_vec3(state, a["NORMAL"], true));
+                    array.m_normals = eastl::move(_decode_accessor_as_vec3(state, a["NORMAL"].as<int>(), true));
                 }
                 if (a.has("TANGENT")) {
-                    array.m_tangents = eastl::move(_decode_accessor_as_floats(state, a["TANGENT"], true));
+                    array.m_tangents = eastl::move(_decode_accessor_as_floats(state, a["TANGENT"].as<int>(), true));
                 }
                 if (a.has("TEXCOORD_0")) {
-                    array.m_uv_1 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_0"], true));
+                    array.m_uv_1 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_0"].as<int>(), true));
                 }
                 if (a.has("TEXCOORD_1")) {
-                    array.m_uv_2 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_1"], true));
+                    array.m_uv_2 = eastl::move(_decode_accessor_as_vec2(state, a["TEXCOORD_1"].as<int>(), true));
                 }
                 if (a.has("COLOR_0")) {
-                    array.m_colors = eastl::move(_decode_accessor_as_color(state, a["COLOR_0"], true));
+                    array.m_colors = eastl::move(_decode_accessor_as_color(state, a["COLOR_0"].as<int>(), true));
                 }
                 if (a.has("JOINTS_0")) {
-                    array.m_bones = eastl::move(_decode_accessor_as_ints(state, a["JOINTS_0"], true));
+                    array.m_bones = eastl::move(_decode_accessor_as_ints(state, a["JOINTS_0"].as<int>(), true));
                 }
                 if (a.has("WEIGHTS_0")) {
-                    Vector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"], true));
+                    Vector<float> weights(_decode_accessor_as_floats(state, a["WEIGHTS_0"].as<int>(), true));
                     { //gltf does not seem to normalize the weights for some reason..
                         size_t wc = weights.size();
 
@@ -1398,7 +1406,7 @@ namespace {
 
                 if (p.has("indices")) {
 
-                    Vector<int> indices = _decode_accessor_as_ints(state, p["indices"], false);
+                    Vector<int> indices = _decode_accessor_as_ints(state, p["indices"].as<int>(), false);
 
                     if (primitive == Mesh::PRIMITIVE_TRIANGLES) {
                         //swap around indices, convert ccw to cw for front face
@@ -1442,30 +1450,30 @@ namespace {
                 //blend shapes
                 if (p.has("targets")) {
                     print_verbose("glTF: Mesh has targets");
-                    const Array& targets = p["targets"];
+                    const Array targets = p["targets"].as<Array>();
 
                     //ideally BLEND_SHAPE_MODE_RELATIVE since gltf2 stores in displacement
                     //but it could require a larger refactor?
                     mesh.mesh->set_blend_shape_mode(Mesh::BLEND_SHAPE_MODE_NORMALIZED);
 
                     if (j == 0) {
-                        const Array& target_names = extras.has("targetNames") ? (Array)extras["targetNames"] : Array();
+                        const Array& target_names = extras.has("targetNames") ? extras["targetNames"].as<Array>() : Array();
                         for (int k = 0; k < targets.size(); k++) {
-                            const String name = k < target_names.size() ? (String)target_names[k] : String("morph_") + itos(k);
+                            const String name = k < target_names.size() ? target_names[k].as<String>() : String("morph_") + itos(k);
                             mesh.mesh->add_blend_shape(StringName(name));
                         }
                     }
 
                     for (int k = 0; k < targets.size(); k++) {
 
-                        const Dictionary& t = targets[k];
+                        const Dictionary t = targets[k].as<Dictionary>();
 
                         SurfaceArrays array_copy(array.clone());
 
                         array_copy.m_indices.clear();
 
                         if (t.has("POSITION")) {
-                            Vector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"], true));
+                            Vector<Vector3> varr(_decode_accessor_as_vec3(state, t["POSITION"].as<int>(), true));
                             auto src_varr = array.positions3();
                             const int size = src_varr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1486,7 +1494,7 @@ namespace {
                             array_copy.set_positions(eastl::move(varr));
                         }
                         if (t.has("NORMAL")) {
-                            Vector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"], true);
+                            Vector<Vector3> narr = _decode_accessor_as_vec3(state, t["NORMAL"].as<int>(), true);
                             const auto &src_narr = array.m_normals;
                             size_t size = src_narr.size();
                             ERR_FAIL_COND_V(size == 0, ERR_PARSE_ERROR);
@@ -1506,7 +1514,7 @@ namespace {
                             array_copy.m_normals = eastl::move(narr);
                         }
                         if (t.has("TANGENT")) {
-                            const Vector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"], true);
+                            const Vector<Vector3> tangents_v3 = _decode_accessor_as_vec3(state, t["TANGENT"].as<int>(), true);
                             const auto & src_tangents = array.m_tangents;
                             ERR_FAIL_COND_V(src_tangents.empty(), ERR_PARSE_ERROR);
                             Vector<float> tangents_v4;
@@ -1555,7 +1563,7 @@ namespace {
                 mesh.mesh->add_surface_from_arrays(primitive, eastl::move(array), eastl::move(morphs));
 
                 if (p.has("material")) {
-                    const int material = p["material"];
+                    const int material = p["material"].as<int>();
                     ERR_FAIL_INDEX_V(material, state.materials.size(), ERR_FILE_CORRUPT);
                     const Ref<Material>& mat = state.materials[material];
 
@@ -1566,10 +1574,10 @@ namespace {
             mesh.blend_weights.resize(mesh.mesh->get_blend_shape_count(),0.0f);
 
             if (d.has("weights")) {
-                const Array &weights = d["weights"];
+                const Array weights = d["weights"].as<Array>();
                 ERR_FAIL_COND_V(mesh.blend_weights.size() != weights.size(), ERR_PARSE_ERROR);
                 for (int j = 0; j < weights.size(); j++) {
-                    mesh.blend_weights[j] = weights[j];
+                    mesh.blend_weights[j] = weights[j].as<int>();
                 }
             }
 
@@ -1586,10 +1594,10 @@ namespace {
         if (!state.json.has("images"))
             return OK;
 
-        const Array& images = state.json["images"];
+        const Array images = state.json["images"].as<Array>();
         for (int i = 0; i < images.size(); i++) {
 
-            const Dictionary& d = images[i];
+            const Dictionary d = images[i].as<Dictionary>();
 
             String mimetype;
             if (d.has("mimeType")) {
@@ -1601,7 +1609,7 @@ namespace {
             int data_size = 0;
 
             if (d.has("uri")) {
-                String uri = d["uri"];
+                String uri = d["uri"].as<String>();
 
                 if (StringUtils::findn(uri, "data:application/octet-stream;base64") == 0 ||
                     StringUtils::findn(uri, "data:" + mimetype + ";base64") == 0) {
@@ -1620,7 +1628,7 @@ namespace {
             }
 
             if (d.has("bufferView")) {
-                const GLTFBufferViewIndex bvi = d["bufferView"];
+                const GLTFBufferViewIndex bvi = d["bufferView"].as<int>();
 
                 ERR_FAIL_INDEX_V(bvi, state.buffer_views.size(), ERR_PARAMETER_RANGE_ERROR);
 
@@ -1684,15 +1692,15 @@ namespace {
         if (!state.json.has("textures"))
             return OK;
 
-        const Array& textures = state.json["textures"];
+        const Array textures = state.json["textures"].as<Array>();
         for (GLTFTextureIndex i = 0; i < textures.size(); i++) {
 
-            const Dictionary& d = textures[i];
+            const Dictionary d = textures[i].as<Dictionary>();
 
             ERR_FAIL_COND_V(!d.has("source"), ERR_PARSE_ERROR);
 
             GLTFTexture t;
-            t.src_image = d["source"];
+            t.src_image = d["source"].as<int>();
             state.textures.push_back(t);
         }
 
@@ -1712,10 +1720,10 @@ namespace {
         if (!state.json.has("materials"))
             return OK;
 
-        const Array& materials = state.json["materials"];
+        const Array materials = state.json["materials"].as<Array>();
         for (GLTFMaterialIndex i = 0; i < materials.size(); i++) {
 
-            const Dictionary& d = materials[i];
+            const Dictionary d = materials[i].as<Dictionary>();
 
             Ref<SpatialMaterial> material(make_ref_counted<SpatialMaterial>());
 
@@ -1725,19 +1733,19 @@ namespace {
 
             if (d.has("pbrMetallicRoughness")) {
 
-                const Dictionary& mr = d["pbrMetallicRoughness"];
+                const Dictionary mr = d["pbrMetallicRoughness"].as<Dictionary>();
                 if (mr.has("baseColorFactor")) {
-                    const Array& arr = mr["baseColorFactor"];
+                    const Array arr = mr["baseColorFactor"].as<Array>();
                     ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
-                    const Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
+                    const Color c = Color(arr[0].as<float>(), arr[1].as<float>(), arr[2].as<float>(), arr[3].as<float>()).to_srgb();
 
                     material->set_albedo(c);
                 }
 
                 if (mr.has("baseColorTexture")) {
-                    const Dictionary& bct = mr["baseColorTexture"];
+                    const Dictionary bct = mr["baseColorTexture"].as<Dictionary>();
                     if (bct.has("index")) {
-                        material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, _get_texture(state, bct["index"]));
+                        material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, _get_texture(state, bct["index"].as<int>()));
                     }
                     if (!mr.has("baseColorFactor")) {
                         material->set_albedo(Color(1, 1, 1));
@@ -1745,23 +1753,23 @@ namespace {
                 }
 
                 if (mr.has("metallicFactor")) {
-                    material->set_metallic(mr["metallicFactor"]);
+                    material->set_metallic(mr["metallicFactor"].as<float>());
                 }
                 else {
                     material->set_metallic(1.0);
                 }
 
                 if (mr.has("roughnessFactor")) {
-                    material->set_roughness(mr["roughnessFactor"]);
+                    material->set_roughness(mr["roughnessFactor"].as<float>());
                 }
                 else {
                     material->set_roughness(1.0);
                 }
 
                 if (mr.has("metallicRoughnessTexture")) {
-                    const Dictionary& bct = mr["metallicRoughnessTexture"];
+                    const Dictionary bct = mr["metallicRoughnessTexture"].as<Dictionary>();
                     if (bct.has("index")) {
-                        const Ref<Texture> t = _get_texture(state, bct["index"]);
+                        const Ref<Texture> t = _get_texture(state, bct["index"].as<int>());
                         material->set_texture(SpatialMaterial::TEXTURE_METALLIC, t);
                         material->set_metallic_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_BLUE);
                         material->set_texture(SpatialMaterial::TEXTURE_ROUGHNESS, t);
@@ -1777,37 +1785,37 @@ namespace {
             }
 
             if (d.has("normalTexture")) {
-                const Dictionary& bct = d["normalTexture"];
+                const Dictionary bct = d["normalTexture"].as<Dictionary>();
                 if (bct.has("index")) {
-                    material->set_texture(SpatialMaterial::TEXTURE_NORMAL, _get_texture(state, bct["index"]));
+                    material->set_texture(SpatialMaterial::TEXTURE_NORMAL, _get_texture(state, bct["index"].as<int>()));
                     material->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
                 }
                 if (bct.has("scale")) {
-                    material->set_normal_scale(bct["scale"]);
+                    material->set_normal_scale(bct["scale"].as<float>());
                 }
             }
             if (d.has("occlusionTexture")) {
-                const Dictionary& bct = d["occlusionTexture"];
+                const Dictionary bct = d["occlusionTexture"].as<Dictionary>();
                 if (bct.has("index")) {
-                    material->set_texture(SpatialMaterial::TEXTURE_AMBIENT_OCCLUSION, _get_texture(state, bct["index"]));
+                    material->set_texture(SpatialMaterial::TEXTURE_AMBIENT_OCCLUSION, _get_texture(state, bct["index"].as<int>()));
                     material->set_ao_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_RED);
                     material->set_feature(SpatialMaterial::FEATURE_AMBIENT_OCCLUSION, true);
                 }
             }
 
             if (d.has("emissiveFactor")) {
-                const Array& arr = d["emissiveFactor"];
+                const Array arr = d["emissiveFactor"].as<Array>();
                 ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
-                const Color c = Color(arr[0], arr[1], arr[2]).to_srgb();
+                const Color c = Color(arr[0].as<float>(), arr[1].as<float>(), arr[2].as<float>()).to_srgb();
                 material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
 
                 material->set_emission(c);
             }
 
             if (d.has("emissiveTexture")) {
-                const Dictionary& bct = d["emissiveTexture"];
+                const Dictionary bct = d["emissiveTexture"].as<Dictionary>();
                 if (bct.has("index")) {
-                    material->set_texture(SpatialMaterial::TEXTURE_EMISSION, _get_texture(state, bct["index"]));
+                    material->set_texture(SpatialMaterial::TEXTURE_EMISSION, _get_texture(state, bct["index"].as<int>()));
                     material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
                     material->set_emission(Color(0, 0, 0));
                 }
@@ -1821,7 +1829,7 @@ namespace {
             }
 
             if (d.has("alphaMode")) {
-                const UIString& am = d["alphaMode"];
+                const String am = d["alphaMode"].as<String>();
                 if (am == "BLEND") {
                     material->set_feature(SpatialMaterial::FEATURE_TRANSPARENT, true);
                     material->set_depth_draw_mode(SpatialMaterial::DEPTH_DRAW_ALPHA_OPAQUE_PREPASS);
@@ -1829,7 +1837,7 @@ namespace {
                 else if (am == "MASK") {
                     material->set_flag(SpatialMaterial::FLAG_USE_ALPHA_SCISSOR, true);
                     if (d.has("alphaCutoff")) {
-                        material->set_alpha_scissor_threshold(d["alphaCutoff"]);
+                        material->set_alpha_scissor_threshold(d["alphaCutoff"].as<float>());
                     }
                     else {
                         material->set_alpha_scissor_threshold(0.5f);
@@ -2081,26 +2089,26 @@ namespace {
         if (!state.json.has("skins"))
             return OK;
 
-        const Array& skins = state.json["skins"];
+        const Array skins = state.json["skins"].as<Array>();
 
         // Create the base skins, and mark nodes that are joints
         for (int i = 0; i < skins.size(); i++) {
 
-            const Dictionary& d = skins[i];
+            const Dictionary d = skins[i].as<Dictionary>();
 
             GLTFSkin skin;
 
             ERR_FAIL_COND_V(!d.has("joints"), ERR_PARSE_ERROR);
 
-            const Array& joints = d["joints"];
+            const Array joints = d["joints"].as<Array>();
 
             if (d.has("inverseBindMatrices")) {
-                skin.inverse_binds = _decode_accessor_as_xform(state, d["inverseBindMatrices"], false);
+                skin.inverse_binds = _decode_accessor_as_xform(state, d["inverseBindMatrices"].as<int>(), false);
                 ERR_FAIL_COND_V(skin.inverse_binds.size() != joints.size(), ERR_PARSE_ERROR);
             }
 
             for (int j = 0; j < joints.size(); j++) {
-                const GLTFNodeIndex node = joints[j];
+                const GLTFNodeIndex node = joints[j].as<int>();
                 ERR_FAIL_INDEX_V(node, state.nodes.size(), ERR_PARSE_ERROR);
 
                 skin.joints.push_back(node);
@@ -2114,7 +2122,7 @@ namespace {
             }
 
             if (d.has("skeleton")) {
-                skin.skin_root = d["skeleton"];
+                skin.skin_root = d["skeleton"].as<int>();
             }
             state.skins.push_back(skin);
         }
@@ -2487,7 +2495,7 @@ namespace {
                     node->name = "bone";
                 }
 
-                node->name = _gen_unique_bone_name(state, skel_i, node->name);
+                node->name = StringName(_gen_unique_bone_name(state, skel_i, node->name));
 
                 skeleton->add_bone(node->name);
                 skeleton->set_bone_rest(bone_index, node->xform);
@@ -2612,23 +2620,23 @@ namespace {
         if (!state.json.has("cameras"))
             return OK;
 
-        const Array& cameras = state.json["cameras"];
+        const Array cameras = state.json["cameras"].as<Array>();
 
         for (GLTFCameraIndex i = 0; i < cameras.size(); i++) {
 
-            const Dictionary& d = cameras[i];
+            const Dictionary d = cameras[i].as<Dictionary>();
 
             GLTFCamera camera;
             ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
-            const UIString& type = d["type"];
+            const String type = d["type"].as<String>();
             if (type == "orthographic") {
 
                 camera.perspective = false;
                 if (d.has("orthographic")) {
-                    const Dictionary& og = d["orthographic"];
-                    camera.fov_size = og["ymag"];
-                    camera.zfar = og["zfar"];
-                    camera.znear = og["znear"];
+                    const Dictionary og = d["orthographic"].as<Dictionary>();
+                    camera.fov_size = og["ymag"].as<float>();
+                    camera.zfar = og["zfar"].as<float>();
+                    camera.znear = og["znear"].as<float>();
                 }
                 else {
                     camera.fov_size = 10;
@@ -2639,11 +2647,11 @@ namespace {
 
                 camera.perspective = true;
                 if (d.has("perspective")) {
-                    const Dictionary& ppt = d["perspective"];
+                    const Dictionary ppt = d["perspective"].as<Dictionary>();
                     // GLTF spec is in radians, Godot's camera is in degrees.
-                    camera.fov_size = (double)ppt["yfov"] * 180.0 / Math_PI;
-                    camera.zfar = ppt["zfar"];
-                    camera.znear = ppt["znear"];
+                    camera.fov_size = ppt["yfov"].as<float>() * 180.0f / Math_PI;
+                    camera.zfar = ppt["zfar"].as<float>();
+                    camera.znear = ppt["znear"].as<float>();
                 }
                 else {
                     camera.fov_size = 10;
@@ -2666,22 +2674,22 @@ namespace {
         if (!state.json.has("animations"))
             return OK;
 
-        const Array& animations = state.json["animations"];
+        const Array animations = state.json["animations"].as<Array>();
 
         for (GLTFAnimationIndex i = 0; i < animations.size(); i++) {
 
-            const Dictionary& d = animations[i];
+            const Dictionary d = animations[i].as<Dictionary>();
 
             GLTFAnimation animation;
 
             if (!d.has("channels") || !d.has("samplers"))
                 continue;
 
-            Array channels = d["channels"];
-            Array samplers = d["samplers"];
+            Array channels = d["channels"].as<Array>();
+            Array samplers = d["samplers"].as<Array>();
 
             if (d.has("name")) {
-                String name = d["name"];
+                String name = d["name"].as<String>();
                 if (StringUtils::begins_with(name, "loop") ||
                     StringUtils::ends_with(name, "loop") ||
                     StringUtils::begins_with(name, "cycle") ||
@@ -2693,21 +2701,21 @@ namespace {
 
             for (int j = 0; j < channels.size(); j++) {
 
-                const Dictionary& c = channels[j];
+                const Dictionary c = channels[j].as<Dictionary>();
                 if (!c.has("target"))
                     continue;
 
-                const Dictionary& t = c["target"];
+                const Dictionary t = c["target"].as<Dictionary>();
                 if (!t.has("node") || !t.has("path")) {
                     continue;
                 }
 
                 ERR_FAIL_COND_V(!c.has("sampler"), ERR_PARSE_ERROR);
-                const int sampler = c["sampler"];
+                const int sampler = c["sampler"].as<int>();
                 ERR_FAIL_INDEX_V(sampler, samplers.size(), ERR_PARSE_ERROR);
 
-                GLTFNodeIndex node = t["node"];
-                String path = t["path"];
+                GLTFNodeIndex node = t["node"].as<int>();
+                String path = t["path"].as<String>();
 
                 ERR_FAIL_INDEX_V(node, state.nodes.size(), ERR_PARSE_ERROR);
 
@@ -2719,18 +2727,18 @@ namespace {
 
                 track = &animation.tracks[node];
 
-                const Dictionary& s = samplers[sampler];
+                const Dictionary s = samplers[sampler].as<Dictionary>();
 
                 ERR_FAIL_COND_V(!s.has("input"), ERR_PARSE_ERROR);
                 ERR_FAIL_COND_V(!s.has("output"), ERR_PARSE_ERROR);
 
-                const int input = s["input"];
-                const int output = s["output"];
+                const int input = s["input"].as<int>();
+                const int output = s["output"].as<int>();
 
                 GLTFAnimation::Interpolation interp = GLTFAnimation::INTERP_LINEAR;
                 int output_count = 1;
                 if (s.has("interpolation")) {
-                    String in = s["interpolation"];
+                    String in = s["interpolation"].as<String>();
                     if (in == "STEP") {
                         interp = GLTFAnimation::INTERP_STEP;
                     }
@@ -2828,7 +2836,7 @@ namespace {
                 }
             }
 
-            n->name = _gen_unique_name(state, n->name);
+            n->name = StringName(_gen_unique_name(state, n->name));
         }
     }
 
@@ -3025,8 +3033,8 @@ namespace {
                 const Skeleton* sk = object_cast<Skeleton>(state.scene_nodes.find(node_index)->second);
                 ERR_FAIL_COND(sk == nullptr);
 
-                    const String path = (String)ap->get_parent()->get_path_to(sk);
-                const String bone = node->name;
+                const String path = (String)ap->get_parent()->get_path_to(sk);
+                const StringName bone = node->name;
                 node_path = NodePath(path + ":" + bone);
             }
             else {
@@ -3250,11 +3258,11 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
 
     ERR_FAIL_COND_V(!state.json.has("asset"), nullptr);
 
-    Dictionary asset = state.json["asset"];
+    Dictionary asset = state.json["asset"].as<Dictionary>();
 
     ERR_FAIL_COND_V(!asset.has("version"), nullptr);
 
-    String version = asset["version"];
+    String version = asset["version"].as<String>();
 
     state.major_version = StringUtils::to_int(StringUtils::get_slice(version,".", 0));
     state.minor_version = StringUtils::to_int(StringUtils::get_slice(version,".", 1));

@@ -484,7 +484,7 @@
 			</description>
 		</method>
 		<method name="body_get_object_instance_id" qualifiers="const">
-			<return type="int">
+                  <return type="ObjectID">
 			</return>
 			<argument index="0" name="body" type="RID">
 			</argument>

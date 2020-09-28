@@ -30,7 +30,8 @@
 
 #include "editor_spin_slider.h"
 #include "core/method_bind.h"
-#include "core/math/expression.h"
+#include "core/callable_method_pointer.h"
+//#include "core/math/expression.h"
 #include "core/os/input.h"
 #include "core/string_formatter.h"
 #include "scene/resources/style_box.h"
@@ -380,16 +381,14 @@ const String &EditorSpinSlider::get_label() const {
 
 void EditorSpinSlider::_evaluate_input_text() {
     String text = value_input->get_text();
-    Ref<Expression> expr(make_ref_counted<Expression>());
-    Error err = expr->parse(text);
-    if (err != OK) {
+    bool was_ok= false;
+    float val=StringUtils::to_float(text, &was_ok);
+    if(!was_ok)
+      val=StringUtils::to_int(text,&was_ok);
+    if(!was_ok)
         return;
-    }
 
-    Variant v = expr->execute(Array(), nullptr, false);
-    if (v.get_type() == VariantType::NIL)
-        return;
-    set_value(v);
+    set_value(val);
 }
 
 //text_entered signal
@@ -510,9 +509,9 @@ EditorSpinSlider::EditorSpinSlider() {
     grabber->hide();
     grabber->set_as_toplevel(true);
     grabber->set_mouse_filter(MOUSE_FILTER_STOP);
-    grabber->connect("mouse_entered", this, "_grabber_mouse_entered");
-    grabber->connect("mouse_exited", this, "_grabber_mouse_exited");
-    grabber->connect("gui_input", this, "_grabber_gui_input");
+    grabber->connect("mouse_entered",callable_mp(this, &ClassName::_grabber_mouse_entered));
+    grabber->connect("mouse_exited",callable_mp(this, &ClassName::_grabber_mouse_exited));
+    grabber->connect("gui_input",callable_mp(this, &ClassName::_grabber_gui_input));
     mouse_over_spin = false;
     mouse_over_grabber = false;
     mousewheel_over_grabber = false;
@@ -522,9 +521,9 @@ EditorSpinSlider::EditorSpinSlider() {
     add_child(value_input);
     value_input->set_as_toplevel(true);
     value_input->hide();
-    value_input->connect("modal_closed", this, "_value_input_closed");
-    value_input->connect("text_entered", this, "_value_input_entered");
-    value_input->connect("focus_exited", this, "_value_focus_exited");
+    value_input->connect("modal_closed",callable_mp(this, &ClassName::_value_input_closed));
+    value_input->connect("text_entered",callable_mp(this, &ClassName::_value_input_entered));
+    value_input->connect("focus_exited",callable_mp(this, &ClassName::_value_focus_exited));
     value_input_just_closed = false;
     hide_slider = false;
     read_only = false;

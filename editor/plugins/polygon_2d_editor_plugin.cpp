@@ -30,6 +30,7 @@
 
 #include "polygon_2d_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/os/file_access.h"
@@ -131,7 +132,7 @@ void Polygon2DEditor::_sync_bones() {
         skeleton = object_cast<Skeleton2D>(sn);
     }
 
-    Array prev_bones = node->call_va("_get_bones");
+    Array prev_bones = node->call_va("_get_bones").as<Array>();
     node->clear_bones();
 
     if (!skeleton) {
@@ -144,8 +145,8 @@ void Polygon2DEditor::_sync_bones() {
             int wc = node->get_polygon().size();
 
             for (int j = 0; j < prev_bones.size(); j += 2) {
-                NodePath pvp = prev_bones[j];
-                PoolVector<float> pv = prev_bones[j + 1];
+                NodePath pvp = prev_bones[j].as<NodePath>();
+                PoolVector<float> pv = prev_bones[j + 1].as<PoolVector<float>>();
                 if (pvp == path && pv.size() == wc) {
                     weights = pv;
                 }
@@ -163,9 +164,9 @@ void Polygon2DEditor::_sync_bones() {
         }
     }
 
-    Array new_bones = node->call_va("_get_bones");
+    Array new_bones = node->call_va("_get_bones").as<Array>();
 
-    undo_redo->create_action_ui(TTR("Sync Bones"));
+    undo_redo->create_action(TTR("Sync Bones"));
     undo_redo->add_do_method(node, "_set_bones", new_bones);
     undo_redo->add_undo_method(node, "_set_bones", prev_bones);
     undo_redo->add_do_method(this, "_update_bone_list");
@@ -181,7 +182,7 @@ void Polygon2DEditor::_update_bone_list() {
     while (bone_scroll_vb->get_child_count()) {
         CheckBox *cb = object_cast<CheckBox>(bone_scroll_vb->get_child(0));
         if (cb && cb->is_pressed()) {
-            selected = cb->get_meta("bone_path");
+            selected = cb->get_meta("bone_path").as<NodePath>();
         }
         memdelete(bone_scroll_vb->get_child(0));
     }
@@ -206,7 +207,7 @@ void Polygon2DEditor::_update_bone_list() {
         if (np == selected || bone_scroll_vb->get_child_count() < 2)
             cb->set_pressed(true);
 
-        cb->connect("pressed", this, "_bone_paint_selected", varray(i));
+        cb->connect("pressed",callable_mp(this, &ClassName::_bone_paint_selected), varray(i));
     }
 
     uv_edit_draw->update();
@@ -310,7 +311,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             PoolVector<Vector2> points = node->get_polygon();
             PoolVector<Vector2> uvs = node->get_uv();
             if (uvs.size() != points.size()) {
-                undo_redo->create_action_ui(TTR("Create UV Map"));
+                undo_redo->create_action(TTR("Create UV Map"));
                 undo_redo->add_do_method(node, "set_uv", Variant(points));
                 undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
                 undo_redo->add_do_method(uv_edit_draw, "update");
@@ -319,7 +320,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             }
 
             if (EditorSettings::get_singleton()->has_setting("interface/dialogs/uv_editor_bounds"))
-                uv_edit->popup(EditorSettings::get_singleton()->get("interface/dialogs/uv_editor_bounds"));
+                uv_edit->popup(EditorSettings::get_singleton()->getT<Rect2>("interface/dialogs/uv_editor_bounds"));
             else
                 uv_edit->popup_centered_ratio(0.85f);
             _update_bone_list();
@@ -330,7 +331,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             if (points.size() == 0)
                 break;
             PoolVector<Vector2> uvs = node->get_uv();
-            undo_redo->create_action_ui(TTR("Create UV Map"));
+            undo_redo->create_action(TTR("Create UV Map"));
             undo_redo->add_do_method(node, "set_uv", Variant(points));
             undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -344,7 +345,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             if (uvs.size() == 0)
                 break;
 
-            undo_redo->create_action_ui(TTR("Create Polygon"));
+            undo_redo->create_action(TTR("Create Polygon"));
             undo_redo->add_do_method(node, "set_polygon", Variant(uvs));
             undo_redo->add_undo_method(node, "set_polygon", Variant(points));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -356,7 +357,7 @@ void Polygon2DEditor::_menu_option(int p_option) {
             PoolVector<Vector2> uvs = node->get_uv();
             if (uvs.size() == 0)
                 break;
-            undo_redo->create_action_ui(TTR("Create UV Map"));
+            undo_redo->create_action(TTR("Create UV Map"));
             undo_redo->add_do_method(node, "set_uv", Variant(PoolVector<Vector2>()));
             undo_redo->add_undo_method(node, "set_uv", Variant(uvs));
             undo_redo->add_do_method(uv_edit_draw, "update");
@@ -511,7 +512,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         uv_create_poly_prev = node->get_polygon();
                         uv_create_prev_internal_vertices = node->get_internal_vertex_count();
                         uv_create_colors_prev = node->get_vertex_colors();
-                        uv_create_bones_prev = node->call_va("_get_bones");
+                        uv_create_bones_prev = node->call_va("_get_bones").as<Array>();
                         polygons_prev = node->get_polygons();
                         disable_polygon_editing(false, StringName());
                         node->set_polygon(points_prev);
@@ -524,7 +525,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         Vector2 tuv = mtx.affine_inverse().xform(snap_point(Vector2(mb->get_position().x, mb->get_position().y)));
 
                         if (points_prev.size() > 2 && tuv.distance_to(points_prev[0]) < 8) {
-                            undo_redo->create_action_ui(TTR("Create Polygon & UV"));
+                            undo_redo->create_action(TTR("Create Polygon & UV"));
                             undo_redo->add_do_method(node, "set_uv", Variant(node->get_uv()));
                             undo_redo->add_undo_method(node, "set_uv", Variant(uv_create_uv_prev));
                             undo_redo->add_do_method(node, "set_polygon", Variant(node->get_polygon()));
@@ -562,7 +563,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                     uv_create_uv_prev = node->get_uv();
                     uv_create_poly_prev = node->get_polygon();
                     uv_create_colors_prev = node->get_vertex_colors();
-                    uv_create_bones_prev = node->call_va("_get_bones");
+                    uv_create_bones_prev = node->call_va("_get_bones").as<Array>();
                     int internal_vertices = node->get_internal_vertex_count();
 
                     Vector2 pos = mtx.affine_inverse().xform(snap_point(Vector2(mb->get_position().x, mb->get_position().y)));
@@ -573,7 +574,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         uv_create_colors_prev.push_back(Color(1, 1, 1));
                     }
 
-                    undo_redo->create_action_ui(TTR("Create Internal Vertex"));
+                    undo_redo->create_action(TTR("Create Internal Vertex"));
                     undo_redo->add_do_method(node, "set_uv", Variant(uv_create_uv_prev));
                     undo_redo->add_undo_method(node, "set_uv", Variant(node->get_uv()));
                     undo_redo->add_do_method(node, "set_polygon", Variant(uv_create_poly_prev));
@@ -600,7 +601,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                     uv_create_uv_prev = node->get_uv();
                     uv_create_poly_prev = node->get_polygon();
                     uv_create_colors_prev = node->get_vertex_colors();
-                    uv_create_bones_prev = node->call_va("_get_bones");
+                    uv_create_bones_prev = node->call_va("_get_bones").as<Array>();
                     int internal_vertices = node->get_internal_vertex_count();
 
                     if (internal_vertices <= 0)
@@ -628,7 +629,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
                         uv_create_colors_prev.remove(closest);
                     }
 
-                    undo_redo->create_action_ui(TTR("Remove Internal Vertex"));
+                    undo_redo->create_action(TTR("Remove Internal Vertex"));
                     undo_redo->add_do_method(node, "set_uv", Variant(uv_create_uv_prev));
                     undo_redo->add_undo_method(node, "set_uv", Variant(node->get_uv()));
                     undo_redo->add_do_method(node, "set_polygon", Variant(uv_create_poly_prev));
@@ -704,7 +705,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                                 //todo, could check whether it already exists?
                                 polygons.push_back(Variant::from(polygon_create));
-                                undo_redo->create_action_ui(TTR("Add Custom Polygon"));
+                                undo_redo->create_action(TTR("Add Custom Polygon"));
                                 undo_redo->add_do_method(node, "set_polygons", polygons);
                                 undo_redo->add_undo_method(node, "set_polygons", node->get_polygons());
                                 undo_redo->add_do_method(uv_edit_draw, "update");
@@ -726,7 +727,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     int erase_index = -1;
                     for (int i = polygons.size() - 1; i >= 0; i--) {
-                        PoolVector<int> points = polygons[i];
+                        PoolVector<int> points = polygons[i].as<PoolVector<int>>();
                         FixedVector<Vector2,16,true> polys;
                         polys.reserve(points.size());
                         for (size_t j = 0; j < polys.size(); j++) {
@@ -744,7 +745,7 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
 
                     if (erase_index != -1) {
                         polygons.remove(erase_index);
-                        undo_redo->create_action_ui(TTR("Remove Custom Polygon"));
+                        undo_redo->create_action(TTR("Remove Custom Polygon"));
                         undo_redo->add_do_method(node, "set_polygons", polygons);
                         undo_redo->add_undo_method(node, "set_polygons", node->get_polygons());
                         undo_redo->add_do_method(uv_edit_draw, "update");
@@ -775,14 +776,14 @@ void Polygon2DEditor::_uv_input(const Ref<InputEvent> &p_input) {
             } else {
                 if (uv_drag && !uv_create) {
                     if (uv_edit_mode[0]->is_pressed()) { // Edit UV.
-                        undo_redo->create_action_ui(TTR("Transform UV Map"));
+                        undo_redo->create_action(TTR("Transform UV Map"));
                         undo_redo->add_do_method(node, "set_uv", Variant(node->get_uv()));
                         undo_redo->add_undo_method(node, "set_uv", Variant(points_prev));
                         undo_redo->add_do_method(uv_edit_draw, "update");
                         undo_redo->add_undo_method(uv_edit_draw, "update");
                         undo_redo->commit_action();
                     } else if (uv_edit_mode[1]->is_pressed() && uv_move_current == UV_MODE_EDIT_POINT) { // Edit polygon.
-                        undo_redo->create_action_ui(TTR("Transform Polygon"));
+                        undo_redo->create_action(TTR("Transform Polygon"));
                         undo_redo->add_do_method(node, "set_polygon", Variant(node->get_polygon()));
                         undo_redo->add_undo_method(node, "set_polygon", Variant(points_prev));
                         undo_redo->add_do_method(uv_edit_draw, "update");
@@ -1091,7 +1092,7 @@ void Polygon2DEditor::_uv_draw() {
 
         int next = uv_draw_max > 0 ? (i + 1) % uv_draw_max : 0;
 
-        if (i < uv_draw_max && uv_drag && uv_move_current == UV_MODE_EDIT_POINT && EDITOR_DEF("editors/poly_editor/show_previous_outline", true)) {
+        if (i < uv_draw_max && uv_drag && uv_move_current == UV_MODE_EDIT_POINT && EDITOR_DEF_T("editors/poly_editor/show_previous_outline", true)) {
             uv_edit_draw->draw_line(mtx.xform(points_prev[i]), mtx.xform(points_prev[next]), prev_color, Math::round(EDSCALE), true);
         }
 
@@ -1108,7 +1109,7 @@ void Polygon2DEditor::_uv_draw() {
 
     for (int i = 0; i < polygons.size(); i++) {
 
-        const PoolVector<int> &points(polygons[i]);
+        const PoolVector<int> &points(polygons[i].as<PoolVector<int>>());
         FixedVector<Vector2,16,true> polypoints;
         polypoints.reserve(points.size());
         for (int j = 0; j < points.size(); j++) {
@@ -1277,22 +1278,22 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
         AbstractPolygon2DEditor(p_editor) {
 
     node = nullptr;
-    snap_offset = EditorSettings::get_singleton()->get_project_metadata("polygon_2d_uv_editor", "snap_offset", Vector2());
-    snap_step = EditorSettings::get_singleton()->get_project_metadata("polygon_2d_uv_editor", "snap_step", Vector2(10, 10));
-    use_snap = EditorSettings::get_singleton()->get_project_metadata("polygon_2d_uv_editor", "snap_enabled", false);
-    snap_show_grid = EditorSettings::get_singleton()->get_project_metadata("polygon_2d_uv_editor", "show_grid", false);
+    snap_offset = EditorSettings::get_singleton()->get_project_metadataT("polygon_2d_uv_editor", "snap_offset", Vector2());
+    snap_step = EditorSettings::get_singleton()->get_project_metadataT("polygon_2d_uv_editor", "snap_step", Vector2(10, 10));
+    use_snap = EditorSettings::get_singleton()->get_project_metadataT("polygon_2d_uv_editor", "snap_enabled", false);
+    snap_show_grid = EditorSettings::get_singleton()->get_project_metadataT("polygon_2d_uv_editor", "show_grid", false);
 
     button_uv = memnew(ToolButton);
     add_child(button_uv);
     button_uv->set_tooltip(TTR("Open Polygon 2D UV editor."));
-    button_uv->connect("pressed", this, "_menu_option", varray(MODE_EDIT_UV));
+    button_uv->connect("pressed",callable_mp(this, &ClassName::_menu_option), varray(MODE_EDIT_UV));
 
     uv_mode = UV_MODE_EDIT_POINT;
     uv_edit = memnew(AcceptDialog);
     add_child(uv_edit);
     uv_edit->set_title(TTR("Polygon 2D UV Editor"));
     uv_edit->set_resizable(true);
-    uv_edit->connect("popup_hide", this, "_uv_edit_popup_hide");
+    uv_edit->connect("popup_hide",callable_mp(this, &ClassName::_uv_edit_popup_hide));
 
     VBoxContainer *uv_main_vb = memnew(VBoxContainer);
     uv_edit->add_child(uv_main_vb);
@@ -1324,10 +1325,10 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     uv_edit_mode[2]->set_button_group(uv_edit_group);
     uv_edit_mode[3]->set_button_group(uv_edit_group);
 
-    uv_edit_mode[0]->connect("pressed", this, "_uv_edit_mode_select", varray(0));
-    uv_edit_mode[1]->connect("pressed", this, "_uv_edit_mode_select", varray(1));
-    uv_edit_mode[2]->connect("pressed", this, "_uv_edit_mode_select", varray(2));
-    uv_edit_mode[3]->connect("pressed", this, "_uv_edit_mode_select", varray(3));
+    uv_edit_mode[0]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(0));
+    uv_edit_mode[1]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(1));
+    uv_edit_mode[2]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(2));
+    uv_edit_mode[3]->connect("pressed",callable_mp(this, &ClassName::_uv_edit_mode_select), varray(3));
 
     uv_mode_hb->add_child(memnew(VSeparator));
 
@@ -1337,7 +1338,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
         uv_button[i] = memnew(ToolButton);
         uv_button[i]->set_toggle_mode(true);
         uv_mode_hb->add_child(uv_button[i]);
-        uv_button[i]->connect("pressed", this, "_uv_mode", varray(i));
+        uv_button[i]->connect("pressed",callable_mp(this, &ClassName::_uv_mode), varray(i));
         uv_button[i]->set_focus_mode(FOCUS_NONE);
     }
 
@@ -1400,7 +1401,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     uv_menu->get_popup()->add_item(TTR("Clear UV"), UVEDIT_UV_CLEAR);
     uv_menu->get_popup()->add_separator();
     uv_menu->get_popup()->add_item(TTR("Grid Settings"), UVEDIT_GRID_SETTINGS);
-    uv_menu->get_popup()->connect("id_pressed", this, "_menu_option");
+    uv_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     uv_mode_hb->add_child(memnew(VSeparator));
 
@@ -1411,7 +1412,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     b_snap_enable->set_toggle_mode(true);
     b_snap_enable->set_pressed(use_snap);
     b_snap_enable->set_tooltip(TTR("Enable Snap"));
-    b_snap_enable->connect("toggled", this, "_set_use_snap");
+    b_snap_enable->connect("toggled",callable_mp(this, &ClassName::_set_use_snap));
 
     b_snap_grid = memnew(ToolButton);
     uv_mode_hb->add_child(b_snap_grid);
@@ -1420,7 +1421,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     b_snap_grid->set_toggle_mode(true);
     b_snap_grid->set_pressed(snap_show_grid);
     b_snap_grid->set_tooltip(TTR("Show Grid"));
-    b_snap_grid->connect("toggled", this, "_set_show_grid");
+    b_snap_grid->connect("toggled",callable_mp(this, &ClassName::_set_show_grid));
 
     grid_settings = memnew(AcceptDialog);
     grid_settings->set_title(TTR("Configure Grid:"));
@@ -1434,7 +1435,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_off_x->set_step(1);
     sb_off_x->set_value(snap_offset.x);
     sb_off_x->set_suffix("px");
-    sb_off_x->connect("value_changed", this, "_set_snap_off_x");
+    sb_off_x->connect("value_changed",callable_mp(this, &ClassName::_set_snap_off_x));
     grid_settings_vb->add_margin_child(TTR("Grid Offset X:"), sb_off_x);
 
     SpinBox *sb_off_y = memnew(SpinBox);
@@ -1443,7 +1444,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_off_y->set_step(1);
     sb_off_y->set_value(snap_offset.y);
     sb_off_y->set_suffix("px");
-    sb_off_y->connect("value_changed", this, "_set_snap_off_y");
+    sb_off_y->connect("value_changed",callable_mp(this, &ClassName::_set_snap_off_y));
     grid_settings_vb->add_margin_child(TTR("Grid Offset Y:"), sb_off_y);
 
     SpinBox *sb_step_x = memnew(SpinBox);
@@ -1452,7 +1453,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_step_x->set_step(1);
     sb_step_x->set_value(snap_step.x);
     sb_step_x->set_suffix("px");
-    sb_step_x->connect("value_changed", this, "_set_snap_step_x");
+    sb_step_x->connect("value_changed",callable_mp(this, &ClassName::_set_snap_step_x));
     grid_settings_vb->add_margin_child(TTR("Grid Step X:"), sb_step_x);
 
     SpinBox *sb_step_y = memnew(SpinBox);
@@ -1461,7 +1462,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sb_step_y->set_step(1);
     sb_step_y->set_value(snap_step.y);
     sb_step_y->set_suffix("px");
-    sb_step_y->connect("value_changed", this, "_set_snap_step_y");
+    sb_step_y->connect("value_changed",callable_mp(this, &ClassName::_set_snap_step_y));
     grid_settings_vb->add_margin_child(TTR("Grid Step Y:"), sb_step_y);
 
     uv_mode_hb->add_child(memnew(VSeparator));
@@ -1481,16 +1482,16 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     uv_zoom->share(uv_zoom_value);
     uv_zoom_value->set_custom_minimum_size(Size2(50, 0));
     uv_mode_hb->add_child(uv_zoom_value);
-    uv_zoom->connect("value_changed", this, "_uv_scroll_changed");
+    uv_zoom->connect("value_changed",callable_mp(this, &ClassName::_uv_scroll_changed));
 
     uv_vscroll = memnew(VScrollBar);
     uv_vscroll->set_step(0.001f);
     uv_edit_draw->add_child(uv_vscroll);
-    uv_vscroll->connect("value_changed", this, "_uv_scroll_changed");
+    uv_vscroll->connect("value_changed",callable_mp(this, &ClassName::_uv_scroll_changed));
     uv_hscroll = memnew(HScrollBar);
     uv_hscroll->set_step(0.001f);
     uv_edit_draw->add_child(uv_hscroll);
-    uv_hscroll->connect("value_changed", this, "_uv_scroll_changed");
+    uv_hscroll->connect("value_changed",callable_mp(this, &ClassName::_uv_scroll_changed));
 
     bone_scroll_main_vb = memnew(VBoxContainer);
     bone_scroll_main_vb->hide();
@@ -1498,7 +1499,7 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     sync_bones = memnew(Button(TTR("Sync Bones to Polygon")));
     bone_scroll_main_vb->add_child(sync_bones);
     sync_bones->set_h_size_flags(0);
-    sync_bones->connect("pressed", this, "_sync_bones");
+    sync_bones->connect("pressed",callable_mp(this, &ClassName::_sync_bones));
     uv_main_hsc->add_child(bone_scroll_main_vb);
     bone_scroll = memnew(ScrollContainer);
     bone_scroll->set_v_scroll(true);
@@ -1508,8 +1509,8 @@ Polygon2DEditor::Polygon2DEditor(EditorNode *p_editor) :
     bone_scroll_vb = memnew(VBoxContainer);
     bone_scroll->add_child(bone_scroll_vb);
 
-    uv_edit_draw->connect("draw", this, "_uv_draw");
-    uv_edit_draw->connect("gui_input", this, "_uv_input");
+    uv_edit_draw->connect("draw",callable_mp(this, &ClassName::_uv_draw));
+    uv_edit_draw->connect("gui_input",callable_mp(this, &ClassName::_uv_input));
     uv_draw_zoom = 1.0;
     point_drag_index = -1;
     uv_drag = false;

@@ -30,6 +30,7 @@
 
 #include "particles_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/translation_helpers.h"
@@ -239,25 +240,12 @@ ParticlesEditorBase::ParticlesEditorBase() {
     emd_vb->add_margin_child(TTR("Emission Source: "), emission_fill);
 
     emission_dialog->get_ok()->set_text(TTR("Create"));
-    emission_dialog->connect("confirmed", this, "_generate_emission_points");
+    emission_dialog->connect("confirmed",callable_mp(this, &ClassName::_generate_emission_points));
 
-    emission_file_dialog = memnew(EditorFileDialog);
-    add_child(emission_file_dialog);
-    emission_file_dialog->connect("file_selected", this, "_resource_seleted");
     emission_tree_dialog = memnew(SceneTreeDialog);
     add_child(emission_tree_dialog);
-    emission_tree_dialog->connect("selected", this, "_node_selected");
+    emission_tree_dialog->connect("selected",callable_mp(this, &ClassName::_node_selected));
 
-    Vector<String> extensions;
-    gResourceManager().get_recognized_extensions_for_type("Mesh", extensions);
-
-    emission_file_dialog->clear_filters();
-    for (const String & ext : extensions) {
-
-        emission_file_dialog->add_filter("*." + ext + " ; " + StringUtils::to_upper(ext));
-    }
-
-    emission_file_dialog->set_mode(EditorFileDialog::MODE_OPEN_FILE);
 }
 
 void ParticlesEditor::_node_removed(Node *p_node) {
@@ -272,7 +260,7 @@ void ParticlesEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
         options->set_button_icon(options->get_popup()->get_icon("GPUParticles3D", "EditorIcons"));
-        get_tree()->connect("node_removed", this, "_node_removed");
+        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
 
@@ -289,17 +277,6 @@ void ParticlesEditor::_menu_option(int p_option) {
                 generate_seconds->set_value(trunc(gen_time) + 1.0);
             generate_aabb->popup_centered_minsize();
         } break;
-        case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH: {
-
-            Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
-            if (not material) {
-                EditorNode::get_singleton()->show_warning(TTR("A processor material of type 'ParticlesMaterial' is required."));
-                return;
-            }
-            emission_file_dialog->popup_centered_ratio();
-
-        } break;
-
         case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE: {
             Ref<ParticlesMaterial> material = dynamic_ref_cast<ParticlesMaterial>(node->get_process_material());
             if (not material) {
@@ -320,7 +297,7 @@ void ParticlesEditor::_menu_option(int p_option) {
             cpu_particles->set_pause_mode(node->get_pause_mode());
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Convert to CPUParticles3D"));
+            ur->create_action(TTR("Convert to CPUParticles3D"));
             ur->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(node), Variant(cpu_particles), true, false);
             ur->add_do_reference(cpu_particles);
             ur->add_undo_method(EditorNode::get_singleton()->get_scene_tree_dock(), "replace_node", Variant(cpu_particles), Variant(node), false, false);
@@ -372,7 +349,7 @@ void ParticlesEditor::_generate_aabb() {
     }
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-    ur->create_action_ui(TTR("Generate Visibility AABB"));
+    ur->create_action(TTR("Generate Visibility AABB"));
     ur->add_do_method(node, "set_visibility_aabb", rect);
     ur->add_undo_method(node, "set_visibility_aabb", node->get_visibility_aabb());
     ur->commit_action();
@@ -477,14 +454,13 @@ ParticlesEditor::ParticlesEditor() {
     options->set_text(TTR("Particles"));
     options->get_popup()->add_item(TTR("Generate AABB"), MENU_OPTION_GENERATE_AABB);
     options->get_popup()->add_separator();
-    options->get_popup()->add_item(TTR("Create Emission Points From Mesh"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH);
     options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Convert to CPUParticles3D"), MENU_OPTION_CONVERT_TO_CPU_PARTICLES);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     generate_aabb = memnew(ConfirmationDialog);
     generate_aabb->set_title(TTR("Generate Visibility AABB"));
@@ -498,7 +474,7 @@ ParticlesEditor::ParticlesEditor() {
 
     add_child(generate_aabb);
 
-    generate_aabb->connect("confirmed", this, "_generate_aabb");
+    generate_aabb->connect("confirmed",callable_mp(this, &ClassName::_generate_aabb));
 }
 
 void ParticlesEditorPlugin::edit(Object *p_object) {

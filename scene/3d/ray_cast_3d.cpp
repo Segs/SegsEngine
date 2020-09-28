@@ -85,7 +85,7 @@ bool RayCast3D::is_colliding() const {
 }
 Object *RayCast3D::get_collider() const {
 
-    if (against == 0)
+    if (against.is_null())
         return nullptr;
 
     return gObjectDB().get_instance(against);

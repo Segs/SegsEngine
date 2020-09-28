@@ -87,7 +87,7 @@ Camera3DEditor::Camera3DEditor() {
     preview->set_margin(Margin::Right, 0);
     preview->set_margin(Margin::Top, 0);
     preview->set_margin(Margin::Bottom, 10);
-    preview->connect("pressed", this, "_pressed");
+    preview->connect("pressed",callable_mp(this, &ClassName::_pressed));
 }
 
 void Camera3DEditorPlugin::edit(Object *p_object) {

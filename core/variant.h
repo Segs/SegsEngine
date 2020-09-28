@@ -36,17 +36,17 @@
 #include "core/ref_ptr.h"
 #include "core/vector.h"
 #include "core/array.h"
+#include "core/callable.h"
 #include "core/object_id.h"
 #include "core/object_rc.h"
 
 #include <cstdint>
 #include "EASTL/type_traits.h"
 
-
+class Node;
+class Control;
 class Object;
 class ObjectRC;
-class Node; // helper
-class Control; // helper
 using UIString = class QString;
 class RID;
 class Array;
@@ -75,6 +75,9 @@ template <class T> struct Hasher;
 
 template <class T>
 T *object_cast(Object *p_object);
+
+template<class T>
+inline Ref<T> refFromVariant(const Variant& p_variant);
 
 using PoolByteArray = PoolVector<uint8_t>;
 using PoolIntArray = PoolVector<int>;
@@ -123,44 +126,31 @@ enum class VariantType : int8_t {
 
     // misc types
     COLOR,
-    NODE_PATH, // 15
+    STRING_NAME, // 15
+    NODE_PATH,
     _RID,
     OBJECT,
+    CALLABLE,
+    SIGNAL, // 20
     DICTIONARY,
     ARRAY,
 
     // arrays
-    POOL_BYTE_ARRAY, // 20
+    POOL_BYTE_ARRAY,
     POOL_INT_ARRAY,
-    POOL_REAL_ARRAY,
+    POOL_REAL_ARRAY, //25
     POOL_STRING_ARRAY,
     POOL_VECTOR2_ARRAY,
-    POOL_VECTOR3_ARRAY, // 25
+    POOL_VECTOR3_ARRAY,
     POOL_COLOR_ARRAY,
 
     VARIANT_MAX
 
 };
-class GODOT_EXPORT Callable {
-public:
-    struct CallError {
-        enum Error : int8_t {
-            CALL_OK,
-            CALL_ERROR_INVALID_METHOD,
-            CALL_ERROR_INVALID_ARGUMENT,
-            CALL_ERROR_TOO_MANY_ARGUMENTS,
-            CALL_ERROR_TOO_FEW_ARGUMENTS,
-            CALL_ERROR_INSTANCE_IS_NULL,
-            };
-        int argument;
-        Error error;
-        VariantType expected;
-    };
 
-};
 class GODOT_EXPORT Variant {
 private:
-    friend struct _VariantCall;
+    friend GODOT_EXPORT struct VariantOps;
     // Variant takes 20 bytes when real_t is float, and 36 if double
     // it only allocates extra memory for aabb/matrix.
 
@@ -202,7 +192,19 @@ private:
     } _data GCC_ALIGNED_8;
     void reference(const Variant &p_variant);
     void clear();
-
+    template<class T>
+    struct asHelper {
+        T convertIt(const Variant &v)  {
+            return (T)v;
+        }
+    };
+    template<class T>
+    struct asHelper<T *> {
+        T *convertIt(const Variant &v)  {
+            static_assert (eastl::is_base_of<Object,T>::value);
+            return object_cast<T>((Object *)v);
+        }
+    };
 public:
     static const Variant null_variant;
     _FORCE_INLINE_ VariantType get_type() const { return type; }
@@ -218,84 +220,30 @@ public:
     [[nodiscard]] bool is_zero() const;
     [[nodiscard]] bool is_one() const;
 
-    operator bool() const { return booleanize(); }
-    operator signed int() const;
-    operator unsigned int() const; // this is the real one
-    operator signed short() const;
-    operator unsigned short() const;
-    operator signed char() const;
-    operator unsigned char() const;
-    //operator long unsigned int() const;
-    operator int64_t() const;
-    operator uint64_t() const;
-
     template <typename T>
-    [[nodiscard]] T as() const {
-        return (T)*this;
+    [[nodiscard]]
+    typename eastl::decay<typename eastl::enable_if<!eastl::is_enum_v<T>, T>::type>::type
+        as() const {
+      return (T)asHelper< typename eastl::decay<T>::type>().convertIt(*this);
     }
-    template<class T>
-    struct asHelper {
-        T convertIt(const Variant &v)  {
-            return v.as<T>();
-        }
-    };
-    template<class T>
-    struct asHelper<T *> {
-        T *convertIt(const Variant &v)  {
-            static_assert (eastl::is_base_of<Object,T>::value);
-            return object_cast<T>((Object *)v);
-        }
-    };
 
     template<class T>
-    [[nodiscard]] T asT() const {
-        return asHelper<T>().convertIt(*this);
+    [[nodiscard]]
+    typename eastl::enable_if<eastl::is_enum_v<T>,T>::type as() const {
+        return (T)static_cast<eastl::underlying_type_t<T>>(*this);
+
     }
-    template <typename T>
-    [[nodiscard]] Vector<T> asVector() const;
+
+    template<class T>
+    [[nodiscard]] T *asT() const {
+        static_assert (eastl::is_base_of<Object, T>::value);
+        return object_cast<T>(as<Object*>());
+    }
+
+
+
     // Not a recursive loop, as<String>,as<float>,as<StringName> are specialized.
-    operator UIString() const;
-    operator String() const;
-    operator float() const;
-    operator StringName() const;
 
-    operator Vector2() const;
-    operator Rect2() const;
-    operator Vector3() const;
-    operator Plane() const;
-    operator ::AABB() const;
-    operator Quat() const;
-    operator Basis() const;
-    operator Transform() const;
-    operator Transform2D() const;
-
-    operator Color() const;
-    operator NodePath() const;
-    operator RefPtr() const;
-    operator RID() const;
-
-    operator Node *() const;
-    operator Control *() const;
-    operator Object *() const;
-
-    operator Dictionary() const;
-    operator Array() const;
-
-    operator PoolVector<uint8_t>() const;
-    operator PoolVector<int>() const;
-    operator PoolVector<real_t>() const;
-    operator PoolVector<String>() const;
-    operator PoolVector<Vector2>() const;
-    operator PoolVector<Vector3>() const;
-    operator PoolVector<Color>() const;
-    operator PoolVector<Plane>() const;
-    operator PoolVector<Face3>() const;
-
-    // some core type enums to convert to
-    operator Margin() const;
-    operator Orientation() const;
-
-    operator IP_Address() const;
     //NOTE: Code below is convoluted to prevent implicit bool conversions from all bool convertible types.
     template<class T ,
                class = typename eastl::enable_if<eastl::is_same<bool,T>::value>::type >
@@ -304,10 +252,12 @@ public:
         _data._bool = p_bool;
     }
     template<class T ,
-               class = typename eastl::enable_if<eastl::is_enum<T>::value>::type >
+               class = typename eastl::enable_if<eastl::is_enum_v<T>>::type >
     Variant(T p_bool,int=0) : Variant(eastl::underlying_type_t<T>(p_bool)){
     }
-    Variant(VariantType p_v) : Variant(int8_t(p_v)) {}
+    //Variant(VariantType p_v) : type(p_v) {}
+    Variant(VariantType p_v,VariantUnion u) : type(p_v), _data(u) {}
+
     constexpr Variant(int8_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(uint8_t p_int)  : type(VariantType::INT),_data(p_int) { }
     constexpr Variant(int16_t p_int)  : type(VariantType::INT),_data(p_int) { }
@@ -339,6 +289,8 @@ public:
     explicit Variant(const RefPtr &p_resource);
     Variant(const RID &p_rid);
     explicit Variant(const Object *p_object);
+    explicit Variant(const Callable& p_callable);
+    explicit Variant(const Signal& p_signal);
     Variant(const Dictionary &p_dictionary);
     Variant(Dictionary&& p_dictionary) noexcept;
 
@@ -399,34 +351,11 @@ public:
         OP_LESS_EQUAL,
         OP_GREATER,
         OP_GREATER_EQUAL,
-        //mathematic
-        OP_ADD,
-        OP_SUBTRACT,
-        OP_MULTIPLY,
-        OP_DIVIDE,
-        OP_NEGATE,
-        OP_POSITIVE,
-        OP_MODULE,
-        OP_STRING_CONCAT,
-        //bitwise
-        OP_SHIFT_LEFT,
-        OP_SHIFT_RIGHT,
-        OP_BIT_AND,
-        OP_BIT_OR,
-        OP_BIT_XOR,
-        OP_BIT_NEGATE,
-        //logic
-        OP_AND,
-        OP_OR,
-        OP_XOR,
-        OP_NOT,
-        //containment
-        OP_IN,
         OP_MAX
 
     };
 
-    static const char * get_operator_name(Operator p_op);
+    //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
     static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 
@@ -438,24 +367,27 @@ public:
 
     void zero();
     [[nodiscard]] Variant duplicate(bool deep = false) const;
+    template<class T>
+    [[nodiscard]] T duplicate_t(bool deep = false) const {
+        return duplicate(deep).as<T>();
+    }
     static void blend(const Variant &a, const Variant &b, float c, Variant &r_dst);
     static void interpolate(const Variant &a, const Variant &b, float c, Variant &r_dst);
 
-    void call_ptr(const StringName &p_method, const Variant **p_args, int p_argcount, Variant *r_ret, Callable::CallError &r_error);
-    Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
-    Variant call(const StringName &p_method, const Variant &p_arg1 = Variant(), const Variant &p_arg2 = Variant(), const Variant &p_arg3 = Variant(), const Variant &p_arg4 = Variant(), const Variant &p_arg5 = Variant());
+    //Variant call(const StringName &p_method, const Variant **p_args, int p_argcount, Callable::CallError &r_error);
+    static String get_call_error_text(Object* p_base, const StringName& p_method, const Variant** p_argptrs, int p_argcount, const Callable::CallError& ce);
+    static String get_callable_error_text(const Callable& p_callable, const Variant** p_argptrs, int p_argcount, const Callable::CallError& ce);
 
-    static String get_call_error_text(Object *p_base, const StringName &p_method, const Variant **p_argptrs, int p_argcount, const Callable::CallError &ce);
+    static Variant construct_default(VariantType p_type);
+    static Variant construct(const VariantType, const Variant &p_arg, Callable::CallError &r_error);
 
-    static Variant construct(const VariantType, const Variant **p_args, int p_argcount, Callable::CallError &r_error, bool p_strict = true);
-
-    void get_method_list(Vector<MethodInfo> *p_list) const;
-    bool has_method(const StringName &p_method) const;
-    static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
-    static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
-    static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
-    static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
-    static bool is_method_const(VariantType p_type, const StringName &p_method);
+    //void get_method_list(Vector<MethodInfo> *p_list) const;
+    //bool has_method(const StringName &p_method) const;
+    //static Span<const VariantType> get_method_argument_types(VariantType p_type, const StringName &p_method);
+    //static Span<const Variant> get_method_default_arguments(VariantType p_type, const StringName &p_method);
+    //static VariantType get_method_return_type(VariantType p_type, const StringName &p_method, bool *r_has_return = nullptr);
+    //static Span<const StringView> get_method_argument_names(VariantType p_type, const StringName &p_method);
+    //static bool is_method_const(VariantType p_type, const StringName &p_method);
 
     void set_named(const StringName &p_index, const Variant &p_value, bool *r_valid = nullptr);
     Variant get_named(const StringName &p_index, bool *r_valid = nullptr) const;
@@ -481,7 +413,6 @@ public:
     bool booleanize() const;
     String stringify(Vector<const void *> &stack) const;
 
-    void static_assign(const Variant &p_variant);
     static void get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list);
     static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
@@ -503,6 +434,75 @@ public:
     _FORCE_INLINE_ ~Variant() {
         if (type != VariantType::NIL) clear();
     }
+
+    [[nodiscard]] explicit operator ::AABB() const;
+    [[nodiscard]] explicit operator Array() const;
+    [[nodiscard]] explicit operator Basis() const;
+    [[nodiscard]] explicit operator Color() const;
+    [[nodiscard]] explicit operator Dictionary() const;
+    [[nodiscard]] explicit operator IP_Address() const;
+    [[nodiscard]] explicit operator NodePath() const;
+    [[nodiscard]] explicit operator Object *() const;
+    [[nodiscard]] explicit operator ObjectID() const;
+    [[nodiscard]] explicit operator Plane() const;
+    [[nodiscard]] explicit operator PoolVector<Color>() const;
+    [[nodiscard]] explicit operator PoolVector<Face3>() const;
+    [[nodiscard]] explicit operator PoolVector<Plane>() const;
+    [[nodiscard]] explicit operator PoolVector<RID>() const;
+    [[nodiscard]] explicit operator PoolVector<String>() const;
+    [[nodiscard]] explicit operator PoolVector<Vector2>() const;
+    [[nodiscard]] explicit operator PoolVector<Vector3>() const;
+    [[nodiscard]] explicit operator PoolVector<float>() const;
+    [[nodiscard]] explicit operator PoolVector<int>() const;
+    [[nodiscard]] explicit operator PoolVector<uint8_t>() const;
+    [[nodiscard]] explicit operator QChar() const;
+    [[nodiscard]] explicit operator Quat() const;
+    [[nodiscard]] explicit operator RID() const;
+    [[nodiscard]] explicit operator Rect2() const;
+    [[nodiscard]] explicit operator RefPtr() const;
+    [[nodiscard]] explicit operator Span<const Vector2>() const;
+    [[nodiscard]] explicit operator Span<const Vector3>() const;
+    [[nodiscard]] explicit operator Span<const float>() const;
+    [[nodiscard]] explicit operator Span<const int>() const;
+    [[nodiscard]] explicit operator Span<const uint8_t>() const;
+    [[nodiscard]] explicit operator String() const;
+    [[nodiscard]] explicit operator StringName() const;
+    [[nodiscard]] explicit operator StringView() const;
+    [[nodiscard]] explicit operator Transform() const;
+    [[nodiscard]] explicit operator Transform2D() const;
+    [[nodiscard]] explicit operator UIString() const;
+    [[nodiscard]] explicit operator Vector2() const;
+    [[nodiscard]] explicit operator Vector3() const;
+    [[nodiscard]] explicit operator Vector<Color>() const;
+    [[nodiscard]] explicit operator Vector<Plane>() const;
+    [[nodiscard]] explicit operator Vector<RID>() const;
+    [[nodiscard]] explicit operator Vector<String>() const;
+    [[nodiscard]] explicit operator Vector<Variant>() const;
+    [[nodiscard]] explicit operator Vector<Vector2>() const;
+    [[nodiscard]] explicit operator Vector<Vector3>() const;
+    [[nodiscard]] explicit operator Vector<float>() const;
+    [[nodiscard]] explicit operator Vector<int>() const;
+    [[nodiscard]] explicit operator Vector<uint8_t>() const;
+    [[nodiscard]] explicit operator double() const;
+    [[nodiscard]] explicit operator float() const;
+    [[nodiscard]] explicit operator int64_t() const;
+    [[nodiscard]] explicit operator signed char() const;
+    [[nodiscard]] explicit operator signed int() const;
+    [[nodiscard]] explicit operator signed short() const;
+    [[nodiscard]] explicit operator uint64_t() const;
+    [[nodiscard]] explicit operator unsigned char() const;
+    [[nodiscard]] explicit operator unsigned int() const; // this is the real one
+    [[nodiscard]] explicit operator unsigned short() const;
+    [[nodiscard]] explicit operator bool() const { return booleanize();  }
+    [[nodiscard]] explicit operator Control *() const;
+    [[nodiscard]] explicit operator Node *() const;
+    [[nodiscard]] explicit operator Callable() const;
+    [[nodiscard]] explicit operator Signal() const;
+    template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
+    [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
+    template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>
+    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
+
 };
 static constexpr int longest_variant_type_name=16;
 //! Fill correctly sized char buffer with all variant names
@@ -548,35 +548,16 @@ const Variant::ObjData &Variant::_get_obj() const {
 
 GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
 
-template <> GODOT_EXPORT UIString Variant::as<UIString>() const;
-template <> GODOT_EXPORT String Variant::as<String>() const;
-template <> GODOT_EXPORT StringView Variant::as<StringView>() const;
-template <> GODOT_EXPORT StringName Variant::as<StringName>() const;
-template <> GODOT_EXPORT float Variant::as<float>() const;
-template <> GODOT_EXPORT double Variant::as<double>() const;
-template <> GODOT_EXPORT QChar Variant::as<QChar>() const;
-template <> GODOT_EXPORT NodePath Variant::as<NodePath>() const;
-template <> GODOT_EXPORT IP_Address Variant::as<IP_Address>() const;
-template <> GODOT_EXPORT Transform Variant::as<Transform>() const;
-template <> GODOT_EXPORT Basis Variant::as<Basis>() const;
-template <> GODOT_EXPORT Quat Variant::as<Quat>() const;
-
-template <> GODOT_EXPORT PoolVector<String> Variant::as<PoolVector<String>>() const;
-template <> GODOT_EXPORT PoolVector<RID> Variant::as<PoolVector<RID>>() const;
-
-template <> GODOT_EXPORT Vector<String> Variant::as<Vector<String>>() const;
-template <> GODOT_EXPORT Vector<uint8_t> Variant::as<Vector<uint8_t>>() const;
-template <> GODOT_EXPORT Vector<int> Variant::asVector<int>() const;
-template <> GODOT_EXPORT Vector<Plane> Variant::asVector<Plane>() const;
-
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
-template <> GODOT_EXPORT Span<const uint8_t> Variant::as<Span<const uint8_t>>() const;
-template <> GODOT_EXPORT Span<const int> Variant::as<Span<const int>>() const;
-template <> GODOT_EXPORT Span<const float> Variant::as<Span<const float>>() const;
-template <> GODOT_EXPORT Span<const Vector2> Variant::as<Span<const Vector2>>() const;
-template <> GODOT_EXPORT Span<const Vector3> Variant::as<Span<const Vector3>>() const;
+// some core type enums to convert to
+
+template<class T>
+constexpr T variantAs(const Variant &f) {
+    return (T)f;
+}
 
 template <> GODOT_EXPORT Variant Variant::from(const PoolVector<RID> &p_array);
+template <> inline Variant Variant::from(const ObjectID &ob) { return {VariantType::INT,VariantUnion((uint64_t)ob)}; }
 
 template <> GODOT_EXPORT Variant Variant::from(const Vector<String> &);
 template <> GODOT_EXPORT Variant Variant::from(const Vector<StringView> &);
@@ -587,19 +568,9 @@ template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector2> &);
 template <> GODOT_EXPORT Variant Variant::from(const Span<const Vector3> &);
 
 template <> GODOT_EXPORT Variant Variant::move_from(Vector<Variant> &&);
-
-template<class T>
-Vector<T> asVec(const Array &a) {
-    Vector<T> res;
-    res.reserve(a.size());
-    for(int i=0,fin=a.size(); i<fin; ++i)
-        res.emplace_back(a.get(i).as<T>());
-    return res;
-}
-template<class T>
-PoolVector<T> asPool(const Array &a) {
-    PoolVector<T> res;
-    for(int i=0,fin=a.size(); i<fin; ++i)
-        res.push_back(a.get(i).as<T>());
-    return res;
-}
+struct GODOT_EXPORT VariantOps {
+    static void resize(Variant& arg, int new_size);
+    static int size(const Variant& arg);
+    static Variant duplicate(const Variant& arg,bool deep=false);
+    static void remove(Variant& arg, int idx);
+};

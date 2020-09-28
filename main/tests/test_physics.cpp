@@ -279,7 +279,7 @@ public:
             if (mover.is_valid()) {
 
                 PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
-                Transform t = ps->body_get_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM);
+                Transform t = ps->body_get_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM).as<Transform>();
                 t.origin += Vector3(x, y, 0);
 
                 ps->body_set_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM, t);
@@ -338,7 +338,7 @@ public:
         if (mover.is_valid()) {
             static float joy_speed = 10;
             PhysicsServer3D *ps = PhysicsServer3D::get_singleton();
-            Transform t = ps->body_get_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM);
+            Transform t = ps->body_get_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM).as<Transform>();
             t.origin += Vector3(joy_speed * joy_direction.x * p_time, -joy_speed * joy_direction.y * p_time, 0);
             ps->body_set_state(mover, PhysicsServer3D::BODY_STATE_TRANSFORM, t);
         }

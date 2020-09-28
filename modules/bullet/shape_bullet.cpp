@@ -166,7 +166,7 @@ PlaneShapeBullet::PlaneShapeBullet() :
         ShapeBullet() {}
 
 void PlaneShapeBullet::set_data(const Variant &p_data) {
-    setup(p_data);
+    setup(p_data.as<Plane>());
 }
 
 Variant PlaneShapeBullet::get_data() const {
@@ -194,7 +194,7 @@ SphereShapeBullet::SphereShapeBullet() :
         ShapeBullet() {}
 
 void SphereShapeBullet::set_data(const Variant &p_data) {
-    setup(p_data);
+    setup(p_data.as<float>());
 }
 
 Variant SphereShapeBullet::get_data() const {
@@ -219,7 +219,7 @@ BoxShapeBullet::BoxShapeBullet() :
         ShapeBullet() {}
 
 void BoxShapeBullet::set_data(const Variant &p_data) {
-    setup(p_data);
+    setup(p_data.as<Vector3>());
 }
 
 Variant BoxShapeBullet::get_data() const {
@@ -247,10 +247,10 @@ CapsuleShapeBullet::CapsuleShapeBullet() :
         ShapeBullet() {}
 
 void CapsuleShapeBullet::set_data(const Variant &p_data) {
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     ERR_FAIL_COND(!d.has("radius"));
     ERR_FAIL_COND(!d.has("height"));
-    setup(d["height"], d["radius"]);
+    setup(d["height"].as<float>(), d["radius"].as<float>());
 }
 
 Variant CapsuleShapeBullet::get_data() const {
@@ -280,10 +280,10 @@ CylinderShapeBullet::CylinderShapeBullet() :
         ShapeBullet() {}
 
 void CylinderShapeBullet::set_data(const Variant &p_data) {
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     ERR_FAIL_COND(!d.has("radius"));
     ERR_FAIL_COND(!d.has("height"));
-    setup(d["height"], d["radius"]);
+    setup(d["height"].as<float>(), d["radius"].as<float>());
 }
 
 Variant CylinderShapeBullet::get_data() const {
@@ -371,7 +371,7 @@ ConcavePolygonShapeBullet::~ConcavePolygonShapeBullet() {
 }
 
 void ConcavePolygonShapeBullet::set_data(const Variant &p_data) {
-    setup(p_data);
+    setup(p_data.as<PoolVector<Vector3>>());
 }
 
 Variant ConcavePolygonShapeBullet::get_data() const {
@@ -417,7 +417,7 @@ void ConcavePolygonShapeBullet::setup(const PoolVector<Vector3>& p_faces) {
 
         meshShape = bulletnew(btBvhTriangleMeshShape(shapeInterface, useQuantizedAabbCompression));
 
-        if (GLOBAL_DEF("physics/3d/smooth_trimesh_collision", false)) {
+        if (T_GLOBAL_DEF("physics/3d/smooth_trimesh_collision", false)) {
             btTriangleInfoMap *triangleInfoMap = new btTriangleInfoMap();
             btGenerateInternalEdgeInfo(meshShape, triangleInfoMap);
         }
@@ -446,7 +446,7 @@ HeightMapShapeBullet::HeightMapShapeBullet() :
 
 void HeightMapShapeBullet::set_data(const Variant &p_data) {
     ERR_FAIL_COND(p_data.get_type() != VariantType::DICTIONARY);
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
     ERR_FAIL_COND(!d.has("width"));
     ERR_FAIL_COND(!d.has("depth"));
     ERR_FAIL_COND(!d.has("heights"));
@@ -456,14 +456,14 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
 
     // If specified, min and max height will be used as precomputed values
     if (d.has("min_height"))
-        l_min_height = d["min_height"];
+        l_min_height = d["min_height"].as<float>();
     if (d.has("max_height"))
-        l_max_height = d["max_height"];
+        l_max_height = d["max_height"].as<float>();
 
     ERR_FAIL_COND(l_min_height > l_max_height);
 
-    int l_width = d["width"];
-    int l_depth = d["depth"];
+    int l_width = d["width"].as<int>();
+    int l_depth = d["depth"].as<int>();
 
     ERR_FAIL_COND_MSG(l_width < 2, "Map width must be at least 2.");
     ERR_FAIL_COND_MSG(l_depth < 2, "Map depth must be at least 2.");
@@ -478,13 +478,13 @@ void HeightMapShapeBullet::set_data(const Variant &p_data) {
     if (l_heights_v.get_type() == VariantType::POOL_REAL_ARRAY) {
         // Ready-to-use heights can be passed
 
-        l_heights = l_heights_v;
+        l_heights = l_heights_v.as<PoolVector<real_t>>();
 
     } else if (l_heights_v.get_type() == VariantType::OBJECT) {
         // If an image is passed, we have to convert it to a format Bullet supports.
         // this would be expensive to do with a script, so it's nice to have it here.
 
-        Ref<Image> l_image = refFromRefPtr<Image>(l_heights_v);
+        Ref<Image> l_image = refFromVariant<Image>(l_heights_v);
         ERR_FAIL_COND(not l_image);
 
         // Float is the only common format between Godot and Bullet that can be used for decent collision.
@@ -569,8 +569,8 @@ RayShapeBullet::RayShapeBullet() :
 
 void RayShapeBullet::set_data(const Variant &p_data) {
 
-    Dictionary d = p_data;
-    setup(d["length"], d["slips_on_slope"]);
+    Dictionary d = p_data.as<Dictionary>();
+    setup(d["length"].as<float>(), d["slips_on_slope"].as<bool>());
 }
 
 Variant RayShapeBullet::get_data() const {

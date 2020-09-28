@@ -175,9 +175,9 @@ void EditorAutoloadSettings::_autoload_edited() {
         name = "autoload/" + name;
 
         int order = ProjectSettings::get_singleton()->get_order(StringName(selected_autoload));
-        String path = ProjectSettings::get_singleton()->get(StringName(selected_autoload));
+        String path = ProjectSettings::get_singleton()->getT<String>(StringName(selected_autoload));
 
-        undo_redo->create_action_ui(TTR("Rename Autoload"));
+        undo_redo->create_action(TTR("Rename Autoload"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), name, path);
         undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -203,7 +203,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         StringName base("autoload/" + ti->get_text(0));
 
         int order = ProjectSettings::get_singleton()->get_order(base);
-        String path = ProjectSettings::get_singleton()->get(base);
+        String path = ProjectSettings::get_singleton()->getT<String>(base);
 
         if (StringUtils::begins_with(path,"*"))
             path = StringUtils::substr(path,1, path.length());
@@ -212,7 +212,7 @@ void EditorAutoloadSettings::_autoload_edited() {
         if (checked)
             path = "*" + path;
 
-        undo_redo->create_action_ui(TTR("Toggle AutoLoad Globals"));
+        undo_redo->create_action(TTR("Toggle AutoLoad Globals"));
 
         undo_redo->add_do_property(ProjectSettings::get_singleton(), base, path);
         undo_redo->add_undo_property(ProjectSettings::get_singleton(), base, ProjectSettings::get_singleton()->get(base));
@@ -263,7 +263,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
             int order = ProjectSettings::get_singleton()->get_order(name);
             int swap_order = ProjectSettings::get_singleton()->get_order(swap_name);
 
-            undo_redo->create_action_ui(TTR("Move Autoload"));
+            undo_redo->create_action(TTR("Move Autoload"));
 
             undo_redo->add_do_method(ProjectSettings::get_singleton(), "set_order", name, swap_order);
             undo_redo->add_undo_method(ProjectSettings::get_singleton(), "set_order", name, order);
@@ -283,7 +283,7 @@ void EditorAutoloadSettings::_autoload_button_pressed(Object *p_item, int p_colu
 
             int order = ProjectSettings::get_singleton()->get_order(name);
 
-            undo_redo->create_action_ui(TTR("Remove Autoload"));
+            undo_redo->create_action(TTR("Remove Autoload"));
 
             undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 
@@ -405,7 +405,7 @@ void EditorAutoloadSettings::update_autoload() {
             continue;
 
         String name(StringUtils::get_slice(pi.name,"/", 1));
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        String path = ProjectSettings::get_singleton()->getT<String>(pi.name);
 
         if (name.empty())
             continue;
@@ -562,7 +562,7 @@ bool EditorAutoloadSettings::can_drop_data_fw(const Point2 &p_point, const Varia
     if (updating_autoload)
         return false;
 
-    Dictionary drop_data = p_data;
+    Dictionary drop_data = p_data.as<Dictionary>();
 
     if (!drop_data.has("type"))
         return false;
@@ -615,7 +615,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
         E = autoload_cache.find(aux);
     }
 
-    Dictionary drop_data = p_data;
+    Dictionary drop_data = p_data.as<Dictionary>();
     PoolVector<String> autoloads = drop_data["autoloads"].as<PoolVector<String>>();
 
     Vector<int> orders;
@@ -658,7 +658,7 @@ void EditorAutoloadSettings::drop_data_fw(const Point2 &p_point, const Variant &
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action_ui(TTR("Rearrange Autoloads"));
+    undo_redo->create_action(TTR("Rearrange Autoloads"));
 
     int i = 0;
 
@@ -703,7 +703,7 @@ bool EditorAutoloadSettings::autoload_add(const StringName &p_name, StringView p
 
     UndoRedo *undo_redo = EditorNode::get_undo_redo();
 
-    undo_redo->create_action_ui(TTR("Add AutoLoad"));
+    undo_redo->create_action(TTR("Add AutoLoad"));
     // Singleton autoloads are represented with a leading "*" in their path.
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, String("*") + path);
 
@@ -732,7 +732,7 @@ void EditorAutoloadSettings::autoload_remove(const StringName &p_name) {
 
     int order = ProjectSettings::get_singleton()->get_order(name);
 
-    undo_redo->create_action_ui(TTR("Remove Autoload"));
+    undo_redo->create_action(TTR("Remove Autoload"));
 
     undo_redo->add_do_property(ProjectSettings::get_singleton(), name, Variant());
 
@@ -784,7 +784,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
             continue;
 
         String name(StringUtils::get_slice(pi.name,"/", 1));
-        String path = ProjectSettings::get_singleton()->get(pi.name);
+        String path = ProjectSettings::get_singleton()->getT<String>(pi.name);
 
         if (name.empty())
             continue;
@@ -847,8 +847,8 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
     autoload_add_path = memnew(EditorLineEditFileChooser);
     autoload_add_path->set_h_size_flags(SIZE_EXPAND_FILL);
     autoload_add_path->get_file_dialog()->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-    autoload_add_path->get_file_dialog()->connect("file_selected", this, "_autoload_file_callback");
-    autoload_add_path->get_line_edit()->connect("text_changed", this, "_autoload_path_text_changed");
+    autoload_add_path->get_file_dialog()->connect("file_selected",callable_mp(this, &ClassName::_autoload_file_callback));
+    autoload_add_path->get_line_edit()->connect("text_changed",callable_mp(this, &ClassName::_autoload_path_text_changed));
     hbc->add_child(autoload_add_path);
 
     l = memnew(Label);
@@ -857,13 +857,13 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
 
     autoload_add_name = memnew(LineEdit);
     autoload_add_name->set_h_size_flags(SIZE_EXPAND_FILL);
-    autoload_add_name->connect("text_entered", this, "_autoload_text_entered");
-    autoload_add_name->connect("text_changed", this, "_autoload_text_changed");
+    autoload_add_name->connect("text_entered",callable_mp(this, &ClassName::_autoload_text_entered));
+    autoload_add_name->connect("text_changed",callable_mp(this, &ClassName::_autoload_text_changed));
     hbc->add_child(autoload_add_name);
 
     add_autoload = memnew(Button);
     add_autoload->set_text(TTR("Add"));
-    add_autoload->connect("pressed", this, "_autoload_add");
+    add_autoload->connect("pressed",callable_mp(this, &ClassName::_autoload_add));
     // The button will be enabled once a valid name is entered (either automatically or manually).
     add_autoload->set_disabled(true);
     hbc->add_child(add_autoload);
@@ -893,10 +893,10 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
     tree->set_column_expand(3, false);
     tree->set_column_min_width(3, 120 * EDSCALE);
 
-    tree->connect("cell_selected", this, "_autoload_selected");
-    tree->connect("item_edited", this, "_autoload_edited");
-    tree->connect("button_pressed", this, "_autoload_button_pressed");
-    tree->connect("item_activated", this, "_autoload_activated");
+    tree->connect("cell_selected",callable_mp(this, &ClassName::_autoload_selected));
+    tree->connect("item_edited",callable_mp(this, &ClassName::_autoload_edited));
+    tree->connect("button_pressed",callable_mp(this, &ClassName::_autoload_button_pressed));
+    tree->connect("item_activated",callable_mp(this, &ClassName::_autoload_activated));
     tree->set_v_size_flags(SIZE_EXPAND_FILL);
 
     add_child(tree, true);

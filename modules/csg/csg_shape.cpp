@@ -30,6 +30,7 @@
 
 #include "csg_shape.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/hashfuncs.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
@@ -579,10 +580,10 @@ bool CSGShape::is_calculating_tangents() const {
 
 void CSGShape::_validate_property(PropertyInfo &property) const {
     bool is_collision_prefixed = StringUtils::begins_with(property.name,"collision_");
-    if ((is_collision_prefixed || StringUtils::begins_with(property.name,"use_collision")) && is_inside_tree() && !is_root_shape()) {
+    if (is_collision_prefixed && is_inside_tree() && !is_root_shape()) {
         //hide collision if not root
         property.usage = PROPERTY_USAGE_NOEDITOR;
-    } else if (is_collision_prefixed && !bool(get("use_collision"))) {
+    } else if (is_collision_prefixed && !get("collision_use").as<bool>()) {
         property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
     }
 }
@@ -635,7 +636,7 @@ void CSGShape::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "calculate_tangents"), "set_calculate_tangents", "is_calculating_tangents");
 
     ADD_GROUP("Collision", "collision_");
-    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_collision"), "set_use_collision", "is_using_collision");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collision_use"), "set_use_collision", "is_using_collision");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
@@ -893,12 +894,12 @@ void CSGMesh::set_mesh(const Ref<Mesh> &p_mesh) {
     if (mesh == p_mesh)
         return;
     if (mesh) {
-        mesh->disconnect("changed", this, "_mesh_changed");
+        mesh->disconnect("changed",callable_mp(this, &ClassName::_mesh_changed));
     }
     mesh = p_mesh;
 
     if (mesh) {
-        mesh->connect("changed", this, "_mesh_changed");
+        mesh->connect("changed",callable_mp(this, &ClassName::_mesh_changed));
     }
 
     _make_dirty();
@@ -1807,15 +1808,15 @@ CSGBrush *CSGPolygon::_build_brush() {
 
         if (path != path_cache) {
             if (path_cache) {
-                path_cache->disconnect("tree_exited", this, "_path_exited");
-                path_cache->disconnect("curve_changed", this, "_path_changed");
+                path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+                path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
                 path_cache = nullptr;
             }
 
             path_cache = path;
 
-            path_cache->connect("tree_exited", this, "_path_exited");
-            path_cache->connect("curve_changed", this, "_path_changed");
+            path_cache->connect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+            path_cache->connect("curve_changed",callable_mp(this, &ClassName::_path_changed));
             path_cache = nullptr;
         }
         curve = path->get_curve();
@@ -2231,8 +2232,8 @@ CSGBrush *CSGPolygon::_build_brush() {
 void CSGPolygon::_notification(int p_what) {
     if (p_what == NOTIFICATION_EXIT_TREE) {
         if (path_cache) {
-            path_cache->disconnect("tree_exited", this, "_path_exited");
-            path_cache->disconnect("curve_changed", this, "_path_changed");
+            path_cache->disconnect("tree_exited",callable_mp(this, &ClassName::_path_exited));
+            path_cache->disconnect("curve_changed",callable_mp(this, &ClassName::_path_changed));
             path_cache = nullptr;
         }
     }

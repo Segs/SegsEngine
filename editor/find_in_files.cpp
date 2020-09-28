@@ -30,6 +30,7 @@
 
 #include "find_in_files.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/dir_access.h"
 #include "core/os/file_access.h"
@@ -329,8 +330,8 @@ FindInFilesDialog::FindInFilesDialog() {
 
     _search_text_line_edit = memnew(LineEdit);
     _search_text_line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
-    _search_text_line_edit->connect("text_changed", this, "_on_search_text_modified");
-    _search_text_line_edit->connect("text_entered", this, "_on_search_text_entered");
+    _search_text_line_edit->connect("text_changed",callable_mp(this, &ClassName::_on_search_text_modified));
+    _search_text_line_edit->connect("text_entered",callable_mp(this, &ClassName::_on_search_text_entered));
     gc->add_child(_search_text_line_edit);
 
     gc->add_child(memnew(Control)); // Space to maintain the grid aligned.
@@ -366,12 +367,12 @@ FindInFilesDialog::FindInFilesDialog() {
 
         Button *folder_button = memnew(Button);
         folder_button->set_text("...");
-        folder_button->connect("pressed", this, "_on_folder_button_pressed");
+        folder_button->connect("pressed",callable_mp(this, &ClassName::_on_folder_button_pressed));
         hbc->add_child(folder_button);
 
         _folder_dialog = memnew(FileDialog);
         _folder_dialog->set_mode(FileDialog::MODE_OPEN_DIR);
-        _folder_dialog->connect("dir_selected", this, "_on_folder_selected");
+        _folder_dialog->connect("dir_selected",callable_mp(this, &ClassName::_on_folder_selected));
         add_child(_folder_dialog);
 
         gc->add_child(hbc);
@@ -440,14 +441,15 @@ void FindInFilesDialog::_notification(int p_what) {
             for (int i = 0; i < _filters_container->get_child_count(); i++) {
                 _filters_container->get_child(i)->queue_delete();
             }
-            Array exts = ProjectSettings::get_singleton()->get("editor/search_in_file_extensions");
+            Array exts = ProjectSettings::get_singleton()->getT<Array>("editor/search_in_file_extensions");
             for (int i = 0; i < exts.size(); ++i) {
                 CheckBox *cb = memnew(CheckBox);
-                cb->set_text(exts[i]);
-                if (!_filters_preferences.contains(exts[i])) {
-                    _filters_preferences[exts[i]] = true;
+                StringName entry(exts[i].as<StringName>());
+                cb->set_text(entry);
+                if (!_filters_preferences.contains(entry)) {
+                    _filters_preferences[entry] = true;
                 }
-                cb->set_pressed(_filters_preferences[exts[i]]);
+                cb->set_pressed(_filters_preferences[entry]);
                 _filters_container->add_child(cb);
             }
         }
@@ -512,8 +514,8 @@ const char *FindInFilesPanel::SIGNAL_FILES_MODIFIED = "files_modified";
 FindInFilesPanel::FindInFilesPanel() {
 
     _finder = memnew(FindInFiles);
-    _finder->connect(StaticCString(FindInFiles::SIGNAL_RESULT_FOUND,true), this, "_on_result_found");
-    _finder->connect(StaticCString(FindInFiles::SIGNAL_FINISHED,true), this, "_on_finished");
+    _finder->connect(StaticCString(FindInFiles::SIGNAL_RESULT_FOUND,true), callable_mp(this, &FindInFilesPanel::_on_result_found));
+    _finder->connect(StaticCString(FindInFiles::SIGNAL_FINISHED,true), callable_mp(this, &FindInFilesPanel::_on_finished));
     add_child(_finder);
 
     VBoxContainer *vbc = memnew(VBoxContainer);
@@ -545,13 +547,13 @@ FindInFilesPanel::FindInFilesPanel() {
 
         _refresh_button = memnew(Button);
         _refresh_button->set_text(TTR("Refresh"));
-        _refresh_button->connect("pressed", this, "_on_refresh_button_clicked");
+        _refresh_button->connect("pressed",callable_mp(this, &ClassName::_on_refresh_button_clicked));
         _refresh_button->hide();
         hbc->add_child(_refresh_button);
 
         _cancel_button = memnew(Button);
         _cancel_button->set_text(TTR("Cancel"));
-        _cancel_button->connect("pressed", this, "_on_cancel_button_clicked");
+        _cancel_button->connect("pressed",callable_mp(this, &ClassName::_on_cancel_button_clicked));
         _cancel_button->hide();
         hbc->add_child(_cancel_button);
 
@@ -561,8 +563,8 @@ FindInFilesPanel::FindInFilesPanel() {
     _results_display = memnew(Tree);
     _results_display->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("source", "EditorFonts"));
     _results_display->set_v_size_flags(SIZE_EXPAND_FILL);
-    _results_display->connect("item_selected", this, "_on_result_selected");
-    _results_display->connect("item_edited", this, "_on_item_edited");
+    _results_display->connect("item_selected",callable_mp(this, &ClassName::_on_result_selected));
+    _results_display->connect("item_edited",callable_mp(this, &ClassName::_on_item_edited));
     _results_display->set_hide_root(true);
     _results_display->set_select_mode(Tree::SELECT_ROW);
     _results_display->set_allow_rmb_select(true);
@@ -580,12 +582,12 @@ FindInFilesPanel::FindInFilesPanel() {
 
         _replace_line_edit = memnew(LineEdit);
         _replace_line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
-        _replace_line_edit->connect("text_changed", this, "_on_replace_text_changed");
+        _replace_line_edit->connect("text_changed",callable_mp(this, &ClassName::_on_replace_text_changed));
         _replace_container->add_child(_replace_line_edit);
 
         _replace_all_button = memnew(Button);
         _replace_all_button->set_text(TTR("Replace all (no undo)"));
-        _replace_all_button->connect("pressed", this, "_on_replace_all_clicked");
+        _replace_all_button->connect("pressed",callable_mp(this, &ClassName::_on_replace_all_clicked));
         _replace_container->add_child(_replace_all_button);
 
         _replace_container->hide();
@@ -768,7 +770,7 @@ void FindInFilesPanel::_on_result_selected() {
     Result r = E->second;
 
     TreeItem *file_item = item->get_parent();
-    String fpath = file_item->get_metadata(0);
+    String fpath = file_item->get_metadata(0).as<String>();
 
     emit_signal(StaticCString(SIGNAL_RESULT_SELECTED,true), fpath, r.line_number, r.begin, r.end);
 }
@@ -786,7 +788,7 @@ void FindInFilesPanel::_on_replace_all_clicked() {
     for (eastl::pair<const String,TreeItem *> &E : _file_items) {
 
         TreeItem *file_item = E.second;
-        String fpath = file_item->get_metadata(0);
+        String fpath = file_item->get_metadata(0).as<String>();
 
         Vector<Result> locations;
         for (TreeItem *item = file_item->get_children(); item; item = item->get_next()) {

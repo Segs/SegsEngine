@@ -33,6 +33,7 @@
 
 #include "core/method_bind.h"
 #include "core/object_db.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_tooling.h"
 #include "core/resource/resource_manager.h"
 #include "core/string_formatter.h"
@@ -108,18 +109,27 @@ void EditorPropertyText::_text_entered(StringView p_string) {
 }
 
 void EditorPropertyText::_text_changed(StringView p_string) {
-    if (updating)
+    if (updating) {
         return;
+    }
 
-    emit_changed(get_edited_property(), p_string, "", true);
+    if (string_name) {
+        emit_changed(get_edited_property(), StringName(p_string), "", true);
+    } else {
+        emit_changed(get_edited_property(), p_string, "", true);
+    }
 }
 
 void EditorPropertyText::update_property() {
-    UIString s = get_edited_object()->get(get_edited_property());
+    String s = get_edited_object()->get(get_edited_property()).as<String>();
     updating = true;
-    text->set_text_uistring(s);
+    text->set_text(s);
     text->set_editable(!is_read_only());
     updating = false;
+}
+
+void EditorPropertyText::set_string_name(bool p_enabled) {
+    string_name = p_enabled;
 }
 
 void EditorPropertyText::set_placeholder(const StringName &p_string) {
@@ -127,17 +137,14 @@ void EditorPropertyText::set_placeholder(const StringName &p_string) {
 }
 
 void EditorPropertyText::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_text_changed", {"txt"}), &EditorPropertyText::_text_changed);
-    MethodBinder::bind_method(D_METHOD("_text_entered", {"txt"}), &EditorPropertyText::_text_entered);
 }
 
 EditorPropertyText::EditorPropertyText() {
     text = memnew(LineEdit);
     add_child(text);
     add_focusable(text);
-    text->connect("text_changed", this, "_text_changed");
-    text->connect("text_entered", this, "_text_entered");
+    text->connect("text_changed",callable_mp(this, &ClassName::_text_changed));
+    text->connect("text_entered",callable_mp(this, &ClassName::_text_entered));
 
     updating = false;
 }
@@ -157,7 +164,7 @@ void EditorPropertyMultilineText::_open_big_text() {
 
     if (!big_text_dialog) {
         big_text = memnew(TextEdit);
-        big_text->connect("text_changed", this, "_big_text_changed");
+        big_text->connect("text_changed",callable_mp(this, &ClassName::_big_text_changed));
         big_text->set_wrap_enabled(true);
         big_text_dialog = memnew(AcceptDialog);
         big_text_dialog->add_child(big_text);
@@ -171,10 +178,10 @@ void EditorPropertyMultilineText::_open_big_text() {
 }
 
 void EditorPropertyMultilineText::update_property() {
-    UIString t = get_edited_object()->get(get_edited_property());
-    text->set_text_ui(t);
+    String t = get_edited_object()->get(get_edited_property()).as<String>();
+    text->set_text(t);
     if (big_text && big_text->is_visible_in_tree()) {
-        big_text->set_text_ui(t);
+        big_text->set_text(t);
     }
 }
 
@@ -203,13 +210,13 @@ EditorPropertyMultilineText::EditorPropertyMultilineText()  {
     add_child(hb);
     set_bottom_editor(hb);
     text = memnew(TextEdit);
-    text->connect("text_changed", this, "_text_changed");
+    text->connect("text_changed",callable_mp(this, &ClassName::_text_changed));
     text->set_wrap_enabled(true);
     add_focusable(text);
     hb->add_child(text);
     text->set_h_size_flags(SIZE_EXPAND_FILL);
     open_big_text = memnew(ToolButton);
-    open_big_text->connect("pressed", this, "_open_big_text");
+    open_big_text->connect("pressed",callable_mp(this, &ClassName::_open_big_text));
     hb->add_child(open_big_text);
     big_text_dialog = nullptr;
     big_text = nullptr;
@@ -219,12 +226,16 @@ EditorPropertyMultilineText::EditorPropertyMultilineText()  {
 
 void EditorPropertyTextEnum::_option_selected(int p_which) {
 
-    emit_changed(get_edited_property(), options->get_item_text(p_which));
+    if (string_name) {
+        emit_changed(get_edited_property(), StringName(options->get_item_text(p_which)));
+    } else {
+        emit_changed(get_edited_property(), options->get_item_text(p_which));
+    }
 }
 
 void EditorPropertyTextEnum::update_property() {
 
-    StringName which = get_edited_object()->get(get_edited_property());
+    StringName which = get_edited_object()->get(get_edited_property()).as<StringName>();
     for (int i = 0; i < options->get_item_count(); i++) {
         StringName t = options->get_item_text(i);
         if (t == which) {
@@ -234,25 +245,26 @@ void EditorPropertyTextEnum::update_property() {
     }
 }
 
-void EditorPropertyTextEnum::setup(const Vector<StringView> &p_options) {
+void EditorPropertyTextEnum::setup(const Vector<StringView> &p_options, bool p_string_name) {
     for (int i = 0; i < p_options.size(); i++) {
         options->add_item(StringName(p_options[i]), i);
     }
+    string_name = p_string_name;
 }
 
 void EditorPropertyTextEnum::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_option_selected"), &EditorPropertyTextEnum::_option_selected);
 }
 
 EditorPropertyTextEnum::EditorPropertyTextEnum() {
     options = memnew(OptionButton);
     options->set_clip_text(true);
     options->set_flat(true);
+    string_name = false;
 
     add_child(options);
     add_focusable(options);
-    options->connect("item_selected", this, "_option_selected");
+    options->connect("item_selected",callable_mp(this, &ClassName::_option_selected));
 }
 ///////////////////// PATH /////////////////////////
 
@@ -265,12 +277,12 @@ void EditorPropertyPath::_path_pressed() {
 
     if (!dialog) {
         dialog = memnew(EditorFileDialog);
-        dialog->connect("file_selected", this, "_path_selected");
-        dialog->connect("dir_selected", this, "_path_selected");
+        dialog->connect("file_selected",callable_mp(this, &ClassName::_path_selected));
+        dialog->connect("dir_selected",callable_mp(this, &ClassName::_path_selected));
         add_child(dialog);
     }
 
-    String full_path = get_edited_object()->get(get_edited_property());
+    String full_path = get_edited_object()->get(get_edited_property()).as<String>();
 
     dialog->clear_filters();
 
@@ -299,7 +311,7 @@ void EditorPropertyPath::_path_pressed() {
 
 void EditorPropertyPath::update_property() {
 
-    StringName full_path = get_edited_object()->get(get_edited_property());
+    StringName full_path = get_edited_object()->get(get_edited_property()).as<StringName>();
     path->set_text(full_path);
     path->set_tooltip(full_path);
 }
@@ -343,8 +355,8 @@ EditorPropertyPath::EditorPropertyPath() {
     add_child(path_hb);
     path = memnew(LineEdit);
     path_hb->add_child(path);
-    path->connect("text_entered", this, "_path_selected");
-    path->connect("focus_exited", this, "_path_focus_exited");
+    path->connect("text_entered",callable_mp(this, &ClassName::_path_selected));
+    path->connect("focus_exited",callable_mp(this, &ClassName::_path_focus_exited));
     path->set_h_size_flags(SIZE_EXPAND_FILL);
 
     path_edit = memnew(Button);
@@ -352,7 +364,7 @@ EditorPropertyPath::EditorPropertyPath() {
     path_hb->add_child(path_edit);
     add_focusable(path);
     dialog = nullptr;
-    path_edit->connect("pressed", this, "_path_pressed");
+    path_edit->connect("pressed",callable_mp(this, &ClassName::_path_pressed));
     folder = false;
     global = false;
     save_mode = false;
@@ -370,7 +382,7 @@ void EditorPropertyClassName::setup(const StringName &p_base_type, const StringN
 
 void EditorPropertyClassName::update_property() {
 
-    StringName s = get_edited_object()->get(get_edited_property());
+    StringName s = get_edited_object()->get(get_edited_property()).as<StringName>();
     property->set_text(s);
     selected_type = s;
 }
@@ -396,10 +408,10 @@ EditorPropertyClassName::EditorPropertyClassName() {
     add_child(property);
     add_focusable(property);
     property->set_text(selected_type);
-    property->connect("pressed", this, "_property_selected");
+    property->connect("pressed",callable_mp(this, &ClassName::_property_selected));
     dialog = memnew(CreateDialog);
     dialog->set_base_type(base_type);
-    dialog->connect("create", this, "_dialog_created");
+    dialog->connect("create",callable_mp(this, &ClassName::_dialog_created));
     add_child(dialog);
 }
 
@@ -415,11 +427,11 @@ void EditorPropertyMember::_property_select() {
 
     if (!selector) {
         selector = memnew(PropertySelector);
-        selector->connect("selected", this, "_property_selected");
+        selector->connect("selected",callable_mp(this, &ClassName::_property_selected));
         add_child(selector);
     }
 
-    UIString current = get_edited_object()->get(get_edited_property());
+    UIString current = get_edited_object()->get(get_edited_property()).as<UIString>();
     switch (hint) {
         case EditorPropertyMember::MEMBER_METHOD_OF_VARIANT_TYPE: {
             VariantType type = VariantType::NIL;
@@ -438,7 +450,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_method_from_instance(instance, current);
 
@@ -446,7 +458,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_METHOD_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_method_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -475,7 +487,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_INSTANCE: {
 
-            Object *instance = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *instance = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (instance)
                 selector->select_property_from_instance(instance, current);
 
@@ -483,7 +495,7 @@ void EditorPropertyMember::_property_select() {
         }
         case EditorPropertyMember::MEMBER_PROPERTY_OF_SCRIPT: {
 
-            Object *obj = gObjectDB().get_instance(StringUtils::to_int64(hint_text));
+            Object *obj = gObjectDB().get_instance(ObjectID(StringUtils::to_int64(hint_text)));
             if (object_cast<Script>(obj)) {
                 selector->select_property_from_script(Ref<Script>(object_cast<Script>(obj)), current);
             }
@@ -499,7 +511,7 @@ void EditorPropertyMember::setup(Type p_hint, StringView p_hint_text) {
 
 void EditorPropertyMember::update_property() {
 
-    StringName full_path = get_edited_object()->get(get_edited_property());
+    StringName full_path = get_edited_object()->getT<StringName>(get_edited_property());
     property->set_text(full_path);
 }
 
@@ -514,7 +526,7 @@ EditorPropertyMember::EditorPropertyMember() {
     property->set_clip_text(true);
     add_child(property);
     add_focusable(property);
-    property->connect("pressed", this, "_property_select");
+    property->connect("pressed",callable_mp(this, &ClassName::_property_select));
 }
 
 ///////////////////// CHECK /////////////////////////
@@ -524,7 +536,7 @@ void EditorPropertyCheck::_checkbox_pressed() {
 }
 
 void EditorPropertyCheck::update_property() {
-    bool c = get_edited_object()->get(get_edited_property());
+    bool c = get_edited_object()->getT<bool>(get_edited_property());
     checkbox->set_pressed(c);
     checkbox->set_disabled(is_read_only());
 }
@@ -539,23 +551,23 @@ EditorPropertyCheck::EditorPropertyCheck() {
     checkbox->set_text(TTR("On"));
     add_child(checkbox);
     add_focusable(checkbox);
-    checkbox->connect("pressed", this, "_checkbox_pressed");
+    checkbox->connect("pressed",callable_mp(this, &ClassName::_checkbox_pressed));
 }
 
 ///////////////////// ENUM /////////////////////////
 
 void EditorPropertyEnum::_option_selected(int p_which) {
 
-    int64_t val = options->get_item_metadata(p_which);
+    int64_t val = options->get_item_metadata(p_which).as<int64_t>();
     emit_changed(get_edited_property(), val);
 }
 
 void EditorPropertyEnum::update_property() {
 
-    int64_t which = get_edited_object()->get(get_edited_property());
+    int64_t which = get_edited_object()->get(get_edited_property()).as<int64_t>();
 
     for (int i = 0; i < options->get_item_count(); i++) {
-        if (which == (int64_t)options->get_item_metadata(i)) {
+        if (which == options->get_item_metadata(i).as<int64_t>()) {
             options->select(i);
             return;
         }
@@ -590,7 +602,7 @@ EditorPropertyEnum::EditorPropertyEnum() {
     options->set_flat(true);
     add_child(options);
     add_focusable(options);
-    options->connect("item_selected", this, "_option_selected");
+    options->connect("item_selected",callable_mp(this, &ClassName::_option_selected));
 }
 
 ///////////////////// FLAGS /////////////////////////
@@ -611,7 +623,7 @@ void EditorPropertyFlags::_flag_toggled() {
 
 void EditorPropertyFlags::update_property() {
 
-    uint32_t value = get_edited_object()->get(get_edited_property());
+    uint32_t value = get_edited_object()->getT<uint32_t>(get_edited_property());
 
     for (int i = 0; i < flags.size(); i++) {
         uint32_t val = 1;
@@ -635,7 +647,7 @@ void EditorPropertyFlags::setup(const Vector<StringView> &p_options) {
             CheckBox *cb = memnew(CheckBox);
             cb->set_text_utf8(option);
             cb->set_clip_text(true);
-            cb->connect("pressed", this, "_flag_toggled");
+            cb->connect("pressed",callable_mp(this, &ClassName::_flag_toggled));
             add_focusable(cb);
             vbox->add_child(cb);
             flags.push_back(cb);
@@ -764,7 +776,7 @@ void EditorPropertyLayers::_grid_changed(uint32_t p_grid) {
 
 void EditorPropertyLayers::update_property() {
 
-    uint32_t value = get_edited_object()->get(get_edited_property());
+    uint32_t value = get_edited_object()->getT<uint32_t>(get_edited_property());
 
     grid->set_flag(value);
 }
@@ -850,20 +862,21 @@ EditorPropertyLayers::EditorPropertyLayers() {
     HBoxContainer *hb = memnew(HBoxContainer);
     add_child(hb);
     grid = memnew(EditorPropertyLayersGrid);
-    grid->connect("flag_changed", this, "_grid_changed");
+    grid->connect("flag_changed",callable_mp(this, &ClassName::_grid_changed));
     grid->set_h_size_flags(SIZE_EXPAND_FILL);
     hb->add_child(grid);
     button = memnew(Button);
     button->set_toggle_mode(true);
     button->set_text("..");
-    button->connect("pressed", this, "_button_pressed");
+    button->connect("pressed",callable_mp(this, &ClassName::_button_pressed));
     hb->add_child(button);
     set_bottom_editor(hb);
     layers = memnew(PopupMenu);
     add_child(layers);
     layers->set_hide_on_checkable_item_selection(false);
-    layers->connect("id_pressed", this, "_menu_pressed");
-    layers->connect("popup_hide", button, "set_pressed", varray(false));
+    layers->connect("id_pressed",callable_mp(this, &ClassName::_menu_pressed));
+    layers->connect("popup_hide", callable_mp((BaseButton *)button, &BaseButton::set_pressed), varray(false));
+
 }
 
 ///////////////////// INT /////////////////////////
@@ -875,7 +888,7 @@ void EditorPropertyInteger::_value_changed(int64_t val) {
 }
 
 void EditorPropertyInteger::update_property() {
-    int64_t val = get_edited_object()->get(get_edited_property());
+    int64_t val = get_edited_object()->getT<int64_t>(get_edited_property());
     setting = true;
     spin->set_value(val);
     setting = false;
@@ -905,7 +918,7 @@ EditorPropertyInteger::EditorPropertyInteger() {
     spin->set_flat(true);
     add_child(spin);
     add_focusable(spin);
-    spin->connect("value_changed", this, "_value_changed");
+    spin->connect("value_changed",callable_mp(this, &ClassName::_value_changed));
     setting = false;
 }
 
@@ -921,8 +934,8 @@ void EditorPropertyObjectID::update_property() {
     if (type.empty())
         type = "Object";
 
-    ObjectID id = get_edited_object()->get(get_edited_property());
-    if (id != 0) {
+    ObjectID id = get_edited_object()->get(get_edited_property()).as<ObjectID>();
+    if (id.is_valid()) {
         edit->set_text_utf8(String(type) + " ID: " + itos(id));
         edit->set_disabled(false);
         edit->set_button_icon(EditorNode::get_singleton()->get_class_icon(type));
@@ -945,7 +958,7 @@ EditorPropertyObjectID::EditorPropertyObjectID() {
     edit = memnew(Button);
     add_child(edit);
     add_focusable(edit);
-    edit->connect("pressed", this, "_edit_pressed");
+    edit->connect("pressed",callable_mp(this, &ClassName::_edit_pressed));
 }
 
 ///////////////////// FLOAT /////////////////////////
@@ -958,7 +971,7 @@ void EditorPropertyFloat::_value_changed(double val) {
 }
 
 void EditorPropertyFloat::update_property() {
-    double val = get_edited_object()->get(get_edited_property());
+    double val = get_edited_object()->getT<float>(get_edited_property());
     setting = true;
     spin->set_value(val);
     setting = false;
@@ -985,7 +998,7 @@ EditorPropertyFloat::EditorPropertyFloat() {
     spin->set_flat(true);
     add_child(spin);
     add_focusable(spin);
-    spin->connect("value_changed", this, "_value_changed");
+    spin->connect("value_changed",callable_mp(this, &ClassName::_value_changed));
     setting = false;
 }
 
@@ -1024,7 +1037,7 @@ void EditorPropertyEasing::_drag_easing(const Ref<InputEvent> &p_ev) {
         if (flip)
             rel = -rel;
 
-        float val = get_edited_object()->get(get_edited_property());
+        float val = get_edited_object()->getT<float>(get_edited_property());
         if (val == 0.0f)
             return;
         bool sg = val < 0;
@@ -1052,7 +1065,7 @@ void EditorPropertyEasing::_draw_easing() {
     const int points = 48;
 
     float prev = 1.0;
-    const float exp = get_edited_object()->get(get_edited_property());
+    const float exp = get_edited_object()->getT<float>(get_edited_property());
 
     const Ref<Font> f = get_font("font", "Label");
     const Color font_color = get_color("font_color", "Label");
@@ -1100,7 +1113,7 @@ void EditorPropertyEasing::_set_preset(int p_preset) {
 void EditorPropertyEasing::_setup_spin() {
     setting = true;
     spin->setup_and_show();
-    spin->get_line_edit()->set_text(rtos(get_edited_object()->get(get_edited_property())));
+    spin->get_line_edit()->set_text(rtos(get_edited_object()->getT<float>(get_edited_property())));
     setting = false;
     spin->show();
 }
@@ -1163,14 +1176,14 @@ void EditorPropertyEasing::_bind_methods() {
 EditorPropertyEasing::EditorPropertyEasing() {
 
     easing_draw = memnew(Control);
-    easing_draw->connect("draw", this, "_draw_easing");
-    easing_draw->connect("gui_input", this, "_drag_easing");
+    easing_draw->connect("draw",callable_mp(this, &ClassName::_draw_easing));
+    easing_draw->connect("gui_input",callable_mp(this, &ClassName::_drag_easing));
     easing_draw->set_default_cursor_shape(Control::CURSOR_MOVE);
     add_child(easing_draw);
 
     preset = memnew(PopupMenu);
     add_child(preset);
-    preset->connect("id_pressed", this, "_set_preset");
+    preset->connect("id_pressed",callable_mp(this, &ClassName::_set_preset));
 
     spin = memnew(EditorSpinSlider);
     spin->set_flat(true);
@@ -1180,8 +1193,8 @@ EditorPropertyEasing::EditorPropertyEasing() {
     spin->set_hide_slider(true);
     spin->set_allow_lesser(true);
     spin->set_allow_greater(true);
-    spin->connect("value_changed", this, "_spin_value_changed");
-    spin->get_line_edit()->connect("focus_exited", this, "_spin_focus_exited");
+    spin->connect("value_changed",callable_mp(this, &ClassName::_spin_value_changed));
+    spin->get_line_edit()->connect("focus_exited",callable_mp(this, &ClassName::_spin_focus_exited));
     spin->hide();
     add_child(spin);
 
@@ -1203,7 +1216,7 @@ void EditorPropertyVector2::_value_changed(double val, const StringName &p_name)
 }
 
 void EditorPropertyVector2::update_property() {
-    Vector2 val = get_edited_object()->get(get_edited_property());
+    Vector2 val = get_edited_object()->getT<Vector2>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.x);
     spin[1]->set_value(val.y);
@@ -1239,7 +1252,7 @@ void EditorPropertyVector2::setup(double p_min, double p_max, double p_step, boo
 }
 
 EditorPropertyVector2::EditorPropertyVector2() {
-    bool horizontal = EDITOR_GET("interface/inspector/horizontal_vector2_editing");
+    bool horizontal = EDITOR_GET_T<bool>("interface/inspector/horizontal_vector2_editing");
 
     BoxContainer *bc;
 
@@ -1259,7 +1272,7 @@ EditorPropertyVector2::EditorPropertyVector2() {
         spin[i]->set_label(desc[i]);
         bc->add_child(spin[i]);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
         if (horizontal) {
             spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         }
@@ -1286,7 +1299,7 @@ void EditorPropertyRect2::_value_changed(double val, const StringName &p_name) {
 }
 
 void EditorPropertyRect2::update_property() {
-    Rect2 val = get_edited_object()->get(get_edited_property());
+    Rect2 val = get_edited_object()->getT<Rect2>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.position.x);
     spin[1]->set_value(val.position.y);
@@ -1323,7 +1336,7 @@ void EditorPropertyRect2::setup(double p_min, double p_max, double p_step, bool 
 
 EditorPropertyRect2::EditorPropertyRect2() {
 
-    bool horizontal = EDITOR_GET("interface/inspector/horizontal_vector_types_editing");
+    bool horizontal = EDITOR_GET_T<bool>("interface/inspector/horizontal_vector_types_editing");
 
     BoxContainer *bc;
 
@@ -1343,7 +1356,7 @@ EditorPropertyRect2::EditorPropertyRect2() {
         spin[i]->set_flat(true);
         bc->add_child(spin[i]);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
         if (horizontal) {
             spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         }
@@ -1369,7 +1382,7 @@ void EditorPropertyVector3::_value_changed(double val, const StringName &p_name)
 }
 
 void EditorPropertyVector3::update_property() {
-    Vector3 val = get_edited_object()->get(get_edited_property());
+    Vector3 val = get_edited_object()->getT<Vector3>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.x);
     spin[1]->set_value(val.y);
@@ -1404,7 +1417,7 @@ void EditorPropertyVector3::setup(double p_min, double p_max, double p_step, boo
 }
 
 EditorPropertyVector3::EditorPropertyVector3() {
-    bool horizontal = EDITOR_GET("interface/inspector/horizontal_vector_types_editing");
+    bool horizontal = EDITOR_GET_T<bool>("interface/inspector/horizontal_vector_types_editing");
 
     BoxContainer *bc;
 
@@ -1424,7 +1437,7 @@ EditorPropertyVector3::EditorPropertyVector3() {
         spin[i]->set_label(desc[i]);
         bc->add_child(spin[i]);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
         if (horizontal) {
             spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         }
@@ -1450,7 +1463,7 @@ void EditorPropertyPlane::_value_changed(double val, const StringName &p_name) {
 }
 
 void EditorPropertyPlane::update_property() {
-    Plane val = get_edited_object()->get(get_edited_property());
+    Plane val = get_edited_object()->getT<Plane>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.normal.x);
     spin[1]->set_value(val.normal.y);
@@ -1487,7 +1500,7 @@ void EditorPropertyPlane::setup(double p_min, double p_max, double p_step, bool 
 
 EditorPropertyPlane::EditorPropertyPlane() {
 
-    bool horizontal = EDITOR_GET("interface/inspector/horizontal_vector_types_editing");
+    bool horizontal = EDITOR_GET_T<bool>("interface/inspector/horizontal_vector_types_editing");
 
     BoxContainer *bc;
 
@@ -1507,7 +1520,7 @@ EditorPropertyPlane::EditorPropertyPlane() {
         spin[i]->set_label(desc[i]);
         bc->add_child(spin[i]);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
         if (horizontal) {
             spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         }
@@ -1534,7 +1547,7 @@ void EditorPropertyQuat::_value_changed(double val, const StringName &p_name) {
 }
 
 void EditorPropertyQuat::update_property() {
-    Quat val = get_edited_object()->get(get_edited_property());
+    Quat val = get_edited_object()->getT<Quat>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.x);
     spin[1]->set_value(val.y);
@@ -1570,7 +1583,7 @@ void EditorPropertyQuat::setup(double p_min, double p_max, double p_step, bool p
 }
 
 EditorPropertyQuat::EditorPropertyQuat() {
-    bool horizontal = EDITOR_GET("interface/inspector/horizontal_vector_types_editing");
+    bool horizontal = EDITOR_GET_T<bool>("interface/inspector/horizontal_vector_types_editing");
 
     BoxContainer *bc;
 
@@ -1590,7 +1603,7 @@ EditorPropertyQuat::EditorPropertyQuat() {
         spin[i]->set_label(desc[i]);
         bc->add_child(spin[i]);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
         if (horizontal) {
             spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         }
@@ -1620,7 +1633,7 @@ void EditorPropertyAABB::_value_changed(double val, const StringName &p_name) {
 }
 
 void EditorPropertyAABB::update_property() {
-    AABB val = get_edited_object()->get(get_edited_property());
+    AABB val = get_edited_object()->getT<AABB>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.position.x);
     spin[1]->set_value(val.position.y);
@@ -1672,7 +1685,7 @@ EditorPropertyAABB::EditorPropertyAABB() {
         g->add_child(spin[i]);
         spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
     }
     set_bottom_editor(g);
     setting = false;
@@ -1696,7 +1709,7 @@ void EditorPropertyTransform2D::_value_changed(double val, const StringName &p_n
 }
 
 void EditorPropertyTransform2D::update_property() {
-    Transform2D val = get_edited_object()->get(get_edited_property());
+    Transform2D val = get_edited_object()->getT<Transform2D>(get_edited_property());
     setting = true;
     spin[0]->set_value(val[0][0]);
     spin[1]->set_value(val[0][1]);
@@ -1747,7 +1760,7 @@ EditorPropertyTransform2D::EditorPropertyTransform2D() {
         g->add_child(spin[i]);
         spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
     }
     set_bottom_editor(g);
     setting = false;
@@ -1774,7 +1787,7 @@ void EditorPropertyBasis::_value_changed(double val, const StringName &p_name) {
 }
 
 void EditorPropertyBasis::update_property() {
-    Basis val = get_edited_object()->get(get_edited_property());
+    Basis val = get_edited_object()->getT<Basis>(get_edited_property());
     setting = true;
     spin[0]->set_value(val[0][0]);
     spin[1]->set_value(val[1][0]);
@@ -1828,7 +1841,7 @@ EditorPropertyBasis::EditorPropertyBasis() {
         g->add_child(spin[i]);
         spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
     }
     set_bottom_editor(g);
     setting = false;
@@ -1858,7 +1871,7 @@ void EditorPropertyTransform::_value_changed(double val, const StringName &p_nam
 }
 
 void EditorPropertyTransform::update_property() {
-    Transform val = get_edited_object()->get(get_edited_property());
+    Transform val = get_edited_object()->getT<Transform>(get_edited_property());
     setting = true;
     spin[0]->set_value(val.basis[0][0]);
     spin[1]->set_value(val.basis[1][0]);
@@ -1915,7 +1928,7 @@ EditorPropertyTransform::EditorPropertyTransform() {
         g->add_child(spin[i]);
         spin[i]->set_h_size_flags(SIZE_EXPAND_FILL);
         add_focusable(spin[i]);
-        spin[i]->connect("value_changed", this, "_value_changed", varray(desc[i]));
+        spin[i]->connect("value_changed",callable_mp(this, &ClassName::_value_changed), varray(desc[i]));
     }
     set_bottom_editor(g);
     setting = false;
@@ -1938,7 +1951,7 @@ void EditorPropertyColor::_popup_closed() {
 
 void EditorPropertyColor::_picker_created() {
     // get default color picker mode from editor settings
-    int default_color_mode = EDITOR_GET("interface/inspector/default_color_picker_mode");
+    int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
     if (default_color_mode == 1)
         picker->get_picker()->set_hsv_mode(true);
     else if (default_color_mode == 2)
@@ -1954,7 +1967,7 @@ void EditorPropertyColor::_bind_methods() {
 
 void EditorPropertyColor::update_property() {
 
-    picker->set_pick_color(get_edited_object()->get(get_edited_property()));
+    picker->set_pick_color(get_edited_object()->getT<Color>(get_edited_property()));
     const Color color = picker->get_pick_color();
 
     // Add a tooltip to display each channel's values without having to click the ColorPickerButton
@@ -1985,9 +1998,9 @@ EditorPropertyColor::EditorPropertyColor() {
     picker = memnew(ColorPickerButton);
     add_child(picker);
     picker->set_flat(true);
-    picker->connect("color_changed", this, "_color_changed");
-    picker->connect("popup_closed", this, "_popup_closed");
-    picker->connect("picker_created", this, "_picker_created");
+    picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
+    picker->connect("popup_closed",callable_mp(this, &ClassName::_popup_closed));
+    picker->connect("picker_created",callable_mp(this, &ClassName::_picker_created));
 }
 
 ////////////// NODE PATH //////////////////////
@@ -2012,7 +2025,7 @@ void EditorPropertyNodePath::_node_selected(const NodePath &p_path) {
     }
 
     if (!base_node && get_edited_object()->has_method("get_root_path")) {
-        base_node = get_edited_object()->call_va("get_root_path");
+        base_node = get_edited_object()->call_va("get_root_path").as<Node *>();
     }
 
     if (!base_node && object_cast<RefCounted>(get_edited_object())) {
@@ -2034,7 +2047,7 @@ void EditorPropertyNodePath::_node_assign() {
         scene_tree->get_scene_tree()->set_show_enabled_subscene(true);
         scene_tree->get_scene_tree()->set_valid_types(valid_types);
         add_child(scene_tree);
-        scene_tree->connect("selected", this, "_node_selected");
+        scene_tree->connect("selected",callable_mp(this, &ClassName::_node_selected));
     }
     scene_tree->popup_centered_ratio();
 }
@@ -2047,7 +2060,7 @@ void EditorPropertyNodePath::_node_clear() {
 
 void EditorPropertyNodePath::update_property() {
 
-    NodePath p = get_edited_object()->get(get_edited_property());
+    NodePath p = get_edited_object()->get(get_edited_property()).as<NodePath>();
 
     assign->set_tooltip_utf8(String(p));
     if (p == NodePath()) {
@@ -2116,12 +2129,12 @@ EditorPropertyNodePath::EditorPropertyNodePath() {
     assign->set_flat(true);
     assign->set_h_size_flags(SIZE_EXPAND_FILL);
     assign->set_clip_text(true);
-    assign->connect("pressed", this, "_node_assign");
+    assign->connect("pressed",callable_mp(this, &ClassName::_node_assign));
     hbc->add_child(assign);
 
     clear = memnew(Button);
     clear->set_flat(true);
-    clear->connect("pressed", this, "_node_clear");
+    clear->connect("pressed",callable_mp(this, &ClassName::_node_clear));
     hbc->add_child(clear);
     use_path_from_scene_root = false;
 
@@ -2131,7 +2144,7 @@ EditorPropertyNodePath::EditorPropertyNodePath() {
 ///////////////////// RID /////////////////////////
 
 void EditorPropertyRID::update_property() {
-    RID rid = get_edited_object()->get(get_edited_property());
+    RID rid = get_edited_object()->get(get_edited_property()).as<RID>();
     if (rid.is_valid()) {
         int id = rid.get_id();
         label->set_text(StringName("RID: " + itos(id)));
@@ -2188,7 +2201,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
 
             if (!file) {
                 file = memnew(EditorFileDialog);
-                file->connect("file_selected", this, "_file_selected");
+                file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
                 add_child(file);
             }
             file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
@@ -2354,7 +2367,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
                     scene_tree->get_scene_tree()->set_valid_types(valid_types);
                     scene_tree->get_scene_tree()->set_show_enabled_subscene(true);
                     add_child(scene_tree);
-                    scene_tree->connect("selected", this, "_viewport_selected");
+                    scene_tree->connect("selected",callable_mp(this, &ClassName::_viewport_selected));
                     scene_tree->set_title(TTR("Pick a Viewport"));
                 }
                 scene_tree->popup_centered_ratio();
@@ -2369,7 +2382,7 @@ void EditorPropertyResource::_menu_option(int p_which) {
                 if (obj) {
                     Ref<Script> script = dynamic_ref_cast<Script>(gResourceManager().load(ScriptServer::get_global_class_path(intype)));
                     if (script) {
-                        obj->set_script(Variant(script));
+                        obj->set_script(script.get_ref_ptr());
                     }
                 }
             } else {
@@ -2414,7 +2427,7 @@ void EditorPropertyResource::_resource_preview(StringView p_path, const Ref<Text
                 assign->set_custom_minimum_size(Size2(1, 1));
             } else {
                 preview->set_stretch_mode(TextureRect::STRETCH_KEEP_ASPECT_CENTERED);
-                int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+                int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
                 thumbnail_size *= EDSCALE;
                 assign->set_custom_minimum_size(Size2(1, thumbnail_size));
             }
@@ -2667,9 +2680,9 @@ void EditorPropertyResource::update_property() {
                 sub_inspector->set_sub_inspector(true);
                 sub_inspector->set_enable_capitalize_paths(true);
 
-                sub_inspector->connect("property_keyed", this, "_sub_inspector_property_keyed");
-                sub_inspector->connect("resource_selected", this, "_sub_inspector_resource_selected");
-                sub_inspector->connect("object_id_selected", this, "_sub_inspector_object_id_selected");
+                sub_inspector->connect("property_keyed",callable_mp(this, &ClassName::_sub_inspector_property_keyed));
+                sub_inspector->connect("resource_selected",callable_mp(this, &ClassName::_sub_inspector_resource_selected));
+                sub_inspector->connect("object_id_selected",callable_mp(this, &ClassName::_sub_inspector_object_id_selected));
                 sub_inspector->set_keying(is_keying());
                 sub_inspector->set_read_only(is_read_only());
                 sub_inspector->set_use_folding(is_using_folding());
@@ -2741,7 +2754,8 @@ void EditorPropertyResource::update_property() {
         }
 
         //preview will override the above, so called at the end
-        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(res, this, "_resource_preview", res->get_instance_id());
+        EditorResourcePreview::get_singleton()->queue_edited_resource_preview(
+                res, callable_mp(this, &EditorPropertyResource::_resource_preview), Variant::from(res->get_instance_id()));
     }
 }
 
@@ -2779,7 +2793,7 @@ void EditorPropertyResource::_notification(int p_what) {
     if (p_what == NOTIFICATION_DRAG_BEGIN) {
 
         if (is_visible_in_tree()) {
-            if (_is_drop_valid(get_viewport()->gui_get_drag_data())) {
+            if (_is_drop_valid(get_viewport()->gui_get_drag_data().as<Dictionary>())) {
                 dropping = true;
                 assign->update();
             }
@@ -2849,10 +2863,12 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
     Dictionary drag_data = p_drag_data;
 
     Ref<Resource> res;
-    if (drag_data.has("type") && String(drag_data["type"]) == "script_list_element") {
-        ScriptEditorBase *se = object_cast<ScriptEditorBase>(drag_data["script_list_element"]);
+    String type = drag_data.has("type") ? drag_data["type"].as<String>() : "";
+
+    if (type == "script_list_element") {
+        ScriptEditorBase *se = drag_data["script_list_element"].asT<ScriptEditorBase>();
         res = se->get_edited_resource();
-    } else if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    } else if (type == "resource") {
         res = refFromVariant<Resource>(drag_data["resource"]);
     }
 
@@ -2865,7 +2881,7 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
         }
     }
 
-    if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
@@ -2890,18 +2906,19 @@ bool EditorPropertyResource::_is_drop_valid(const Dictionary &p_drag_data) const
 
 bool EditorPropertyResource::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    return _is_drop_valid(p_data);
+    return _is_drop_valid(p_data.as<Dictionary>());
 }
 void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    ERR_FAIL_COND(!_is_drop_valid(p_data));
+    Dictionary drag_data = p_data.as<Dictionary>();
+    ERR_FAIL_COND(!_is_drop_valid(drag_data));
+    String type = drag_data.has("type") ? drag_data["type"].as<String>() : "";
 
-    Dictionary drag_data = p_data;
     Ref<Resource> res;
-    if (drag_data.has("type") && String(drag_data["type"]) == "script_list_element") {
-        ScriptEditorBase *se = object_cast<ScriptEditorBase>(drag_data["script_list_element"]);
+    if (type == "script_list_element") {
+        ScriptEditorBase *se = drag_data["script_list_element"].asT<ScriptEditorBase>();
         res = se->get_edited_resource();
-    } else if (drag_data.has("type") && String(drag_data["type"]) == "resource") {
+    } else if (type == "resource") {
         res = refFromVariant<Resource>(drag_data["resource"]);
     }
     if (res) {
@@ -2910,7 +2927,7 @@ void EditorPropertyResource::drop_data_fw(const Point2 &p_point, const Variant &
         return;
     }
 
-    if (drag_data.has("type") && UIString(drag_data["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files = drag_data["files"].as<PoolVector<String>>();
 
@@ -2955,7 +2972,7 @@ EditorPropertyResource::EditorPropertyResource() {
     opened_editor = false;
     sub_inspector = nullptr;
     sub_inspector_vbox = nullptr;
-    use_sub_inspector = bool(EDITOR_GET("interface/inspector/open_resources_in_current_inspector"));
+    use_sub_inspector = EDITOR_GET_T<bool>("interface/inspector/open_resources_in_current_inspector");
 
     HBoxContainer *hbc = memnew(HBoxContainer);
     add_child(hbc);
@@ -2963,9 +2980,9 @@ EditorPropertyResource::EditorPropertyResource() {
     assign->set_flat(true);
     assign->set_h_size_flags(SIZE_EXPAND_FILL);
     assign->set_clip_text(true);
-    assign->connect("pressed", this, "_resource_selected");
+    assign->connect("pressed",callable_mp(this, &ClassName::_resource_selected));
     assign->set_drag_forwarding(this);
-    assign->connect("draw", this, "_button_draw");
+    assign->connect("draw",callable_mp(this, &ClassName::_button_draw));
     hbc->add_child(assign);
     add_focusable(assign);
 
@@ -2976,18 +2993,18 @@ EditorPropertyResource::EditorPropertyResource() {
     preview->set_margin(Margin::Bottom, -1);
     preview->set_margin(Margin::Right, -1);
     assign->add_child(preview);
-    assign->connect("gui_input", this, "_button_input");
+    assign->connect("gui_input",callable_mp(this, &ClassName::_button_input));
 
     menu = memnew(PopupMenu);
     add_child(menu);
     edit = memnew(Button);
     edit->set_flat(true);
     edit->set_toggle_mode(true);
-    menu->connect("id_pressed", this, "_menu_option");
-    menu->connect("popup_hide", edit, "set_pressed", varray(false));
-    edit->connect("pressed", this, "_update_menu");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
+    menu->connect("popup_hide", callable_mp((BaseButton *)edit, &BaseButton::set_pressed), varray(false));
+    edit->connect("pressed",callable_mp(this, &ClassName::_update_menu));
     hbc->add_child(edit);
-    edit->connect("gui_input", this, "_button_input");
+    edit->connect("gui_input",callable_mp(this, &ClassName::_button_input));
     add_focusable(edit);
 
     file = nullptr;
@@ -3009,7 +3026,7 @@ void EditorInspectorDefaultPlugin::parse_begin(Object *p_object) {
 
 bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType p_type, StringView p_path, PropertyHint p_hint, StringView p_hint_text, int p_usage) {
 
-    float default_float_step = EDITOR_GET("interface/inspector/default_float_step");
+    float default_float_step = EDITOR_GET_T<float>("interface/inspector/default_float_step");
 
     switch (p_type) {
 
@@ -3404,7 +3421,7 @@ bool EditorInspectorDefaultPlugin::parse_property(Object *p_object, VariantType 
             editor->setup(StringName(p_hint == PropertyHint::ResourceType ? p_hint_text : "Resource"));
 
             if (p_hint == PropertyHint::ResourceType) {
-                String open_in_new = EDITOR_GET("interface/inspector/resources_to_open_in_new_inspector");
+                String open_in_new = EDITOR_GET_T<String>("interface/inspector/resources_to_open_in_new_inspector");
                 Vector<StringView> allowed_types;
                 String::split_ref(allowed_types,open_in_new,",");
                 for (StringView entry : allowed_types) {

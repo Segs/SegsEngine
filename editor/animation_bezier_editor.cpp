@@ -30,6 +30,7 @@
 
 #include "animation_bezier_editor.h"
 
+#include "core/callable_method_pointer.h"
 #include "editor/editor_node.h"
 #include "editor_scale.h"
 #include "core/method_bind.h"
@@ -511,12 +512,12 @@ void AnimationBezierTrackEdit::set_animation_and_track(const Ref<Animation> &p_a
 
     animation = p_animation;
     track = p_track;
-    if (is_connected("select_key", editor, "_key_selected"))
-        disconnect("select_key", editor, "_key_selected");
-    if (is_connected("deselect_key", editor, "_key_deselected"))
-        disconnect("deselect_key", editor, "_key_deselected");
-    connect("select_key", editor, "_key_selected", varray(p_track), ObjectNS::CONNECT_QUEUED);
-    connect("deselect_key", editor, "_key_deselected", varray(p_track), ObjectNS::CONNECT_QUEUED);
+    if (is_connected("select_key", callable_mp(editor, &AnimationTrackEditor::_key_selected)))
+        disconnect("select_key", callable_mp(editor, &AnimationTrackEditor::_key_selected));
+    if (is_connected("deselect_key", callable_mp(editor, &AnimationTrackEditor::_key_deselected)))
+        disconnect("deselect_key", callable_mp(editor, &AnimationTrackEditor::_key_deselected));
+    connect("select_key", callable_mp(editor, &AnimationTrackEditor::_key_selected), varray(p_track), ObjectNS::CONNECT_QUEUED);
+    connect("deselect_key", callable_mp(editor, &AnimationTrackEditor::_key_deselected), varray(p_track), ObjectNS::CONNECT_QUEUED);
     update();
 }
 
@@ -531,11 +532,11 @@ void AnimationBezierTrackEdit::set_undo_redo(UndoRedo *p_undo_redo) {
 
 void AnimationBezierTrackEdit::set_timeline(AnimationTimelineEdit *p_timeline) {
     timeline = p_timeline;
-    timeline->connect("zoom_changed", this, "_zoom_changed");
+    timeline->connect("zoom_changed",callable_mp(this, &ClassName::_zoom_changed));
 }
 void AnimationBezierTrackEdit::set_editor(AnimationTrackEditor *p_editor) {
     editor = p_editor;
-    connect("clear_selection", editor, "_clear_selection", varray(false));
+    connect("clear_selection", callable_mp(editor, &AnimationTrackEditor::_clear_selection), varray(false));
 }
 
 void AnimationBezierTrackEdit::_play_position_draw() {
@@ -768,7 +769,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action_ui(TTR("Add Bezier Point"));
+            undo_redo->create_action(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -833,7 +834,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
 
     if (moving_handle != 0 && mb && !mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        undo_redo->create_action_ui(TTR("Move Bezier Points"));
+        undo_redo->create_action(TTR("Move Bezier Points"));
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, moving_handle_left);
         undo_redo->add_do_method(animation.get(), "bezier_track_set_key_out_handle", track, moving_handle_key, moving_handle_right);
         undo_redo->add_undo_method(animation.get(), "bezier_track_set_key_in_handle", track, moving_handle_key, animation->bezier_track_get_key_in_handle(track, moving_handle_key));
@@ -849,7 +850,7 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
         if (moving_selection) {
             //combit it
 
-            undo_redo->create_action_ui(TTR("Move Bezier Points"));
+            undo_redo->create_action(TTR("Move Bezier Points"));
 
             Vector<AnimMoveRestore> to_restore;
             // 1-remove the keys
@@ -887,8 +888,8 @@ void AnimationBezierTrackEdit::_gui_input(const Ref<InputEvent> &p_event) {
                 if (newpos<0)
                     continue; //no add at the beginning
                 */
-                Array key = animation->track_get_key_value(track, *E);
-                float h = key[0];
+                Array key = animation->track_get_key_value(track, *E).as<Array>();
+                float h = key[0].as<float>();
                 h += moving_selection_offset.y;
                 key[0] = h;
                 undo_redo->add_do_method(animation.get(), "track_insert_key", track, newpos, key, 1);
@@ -1055,7 +1056,7 @@ void AnimationBezierTrackEdit::_menu_selected(int p_index) {
                 time += 0.001f;
             }
 
-            undo_redo->create_action_ui(TTR("Add Bezier Point"));
+            undo_redo->create_action(TTR("Add Bezier Point"));
             undo_redo->add_do_method(animation.get(), "track_insert_key", track, time, new_point);
             undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", track, time);
             undo_redo->commit_action();
@@ -1083,7 +1084,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
             top_time = t;
     }
 
-    undo_redo->create_action_ui(TTR("Anim Duplicate Keys"));
+    undo_redo->create_action(TTR("Anim Duplicate Keys"));
 
     Vector<Pair<int, float> > new_selection_values;
     new_selection_values.reserve(selection.size());
@@ -1128,7 +1129,7 @@ void AnimationBezierTrackEdit::duplicate_selection() {
 
 void AnimationBezierTrackEdit::delete_selection() {
     if (!selection.empty()) {
-        undo_redo->create_action_ui(TTR("Anim Delete Keys"));
+        undo_redo->create_action(TTR("Anim Delete Keys"));
 
         for (auto E = selection.rbegin(); E!=selection.rend(); ++E) {
 
@@ -1191,7 +1192,7 @@ AnimationBezierTrackEdit::AnimationBezierTrackEdit() {
     play_position->set_mouse_filter(MOUSE_FILTER_PASS);
     add_child(play_position);
     play_position->set_anchors_and_margins_preset(PRESET_WIDE);
-    play_position->connect("draw", this, "_play_position_draw");
+    play_position->connect("draw",callable_mp(this, &ClassName::_play_position_draw));
     set_focus_mode(FOCUS_CLICK);
 
     v_scroll = 0;
@@ -1205,7 +1206,7 @@ AnimationBezierTrackEdit::AnimationBezierTrackEdit() {
 
     menu = memnew(PopupMenu);
     add_child(menu);
-    menu->connect("id_pressed", this, "_menu_selected");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_menu_selected));
 
     //set_mouse_filter(MOUSE_FILTER_PASS); //scroll has to work too for selection
 }

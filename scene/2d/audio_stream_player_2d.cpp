@@ -31,6 +31,7 @@
 #include "audio_stream_player_2d.h"
 
 #include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_tooling.h"
 #include "scene/2d/area_2d.h"
 #include "scene/main/viewport.h"
@@ -525,7 +526,7 @@ void AudioStreamPlayer2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "stream_paused", PropertyHint::None, ""), "set_stream_paused", "get_stream_paused");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "max_distance", PropertyHint::ExpRange, "1,4096,1,or_greater"), "set_max_distance", "get_max_distance");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "attenuation", PropertyHint::ExpEasing, "attenuation"), "set_attenuation", "get_attenuation");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "bus", PropertyHint::Enum, ""), "set_bus", "get_bus");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "area_mask", PropertyHint::Layers2DPhysics), "set_area_mask", "get_area_mask");
 
     ADD_SIGNAL(MethodInfo("finished"));
@@ -548,7 +549,7 @@ AudioStreamPlayer2D::AudioStreamPlayer2D() {
     stream_paused = false;
     stream_paused_fade_in = false;
     stream_paused_fade_out = false;
-    AudioServer::get_singleton()->connect("bus_layout_changed", this, "_bus_layout_changed");
+    AudioServer::get_singleton()->connect("bus_layout_changed",callable_mp(this, &ClassName::_bus_layout_changed));
 }
 
 AudioStreamPlayer2D::~AudioStreamPlayer2D() {

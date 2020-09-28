@@ -308,7 +308,7 @@ class GODOT_EXPORT AnimationTrackEditor : public VBoxContainer {
     OptionButton *snap_mode;
 
     Button *imported_anim_warning;
-    void _show_imported_anim_warning() const;
+    void _show_imported_anim_warning();
 
     void _snap_mode_changed(int p_mode);
     Vector<AnimationTrackEdit *> track_edits;
@@ -381,7 +381,6 @@ class GODOT_EXPORT AnimationTrackEditor : public VBoxContainer {
     void _insert_key_from_track(float p_ofs, int p_track);
     void _add_method_key(const StringName &p_method);
 
-    void _clear_selection(bool p_update = false);
     void _clear_selection_for_anim(const Ref<Animation> &p_anim);
     void _select_at_anim(const Ref<Animation> &p_anim, int p_track, float p_pos);
 
@@ -398,11 +397,14 @@ class GODOT_EXPORT AnimationTrackEditor : public VBoxContainer {
 
         float pos;
     };
-
-    Map<SelectedKey, KeyInfo> selection;
-
+public: // slots
+    void _clear_selection(bool p_update = false);
     void _key_selected(int p_key, bool p_single, int p_track);
     void _key_deselected(int p_key, int p_track);
+
+private:
+    Map<SelectedKey, KeyInfo> selection;
+
 
     bool moving_selection;
     float moving_selection_offset;

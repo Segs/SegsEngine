@@ -166,6 +166,10 @@ public:
 
     void set_project_metadata(StringView p_section, StringView p_key, const Variant& p_data);
     Variant get_project_metadata(StringView p_section, StringView p_key, const Variant& p_default) const;
+    template<class T>
+    T get_project_metadataT(StringView p_section, StringView p_key, const T& p_default) const {
+        return get_project_metadata(p_section,p_key,Variant::from(p_default)).template as<T>();
+    }
 
     void set_favorites(const Vector<String> &p_favorites);
     const Vector<String> &get_favorites() const;
@@ -198,16 +202,22 @@ public:
 
 //not a macro any longer
 
-#define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val))
-#define EDITOR_DEF_RST(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val), true)
 Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
-#define EDITOR_GET(m_var) _EDITOR_GET(m_var)
 Variant _EDITOR_GET(const StringName &p_setting);
 template<class T>
-inline T EditorGet(const StringName &p_setting) {
-    return _EDITOR_GET(p_setting).as<T>();
+T EDITOR_GET_T(const StringName &p_setting) {
+    return _EDITOR_GET(p_setting).template as<T>();
+}
+template<class T>
+T EDITOR_DEF_T(const StringName& p_setting, const T& p_default, bool p_restart_if_changed = false) {
+    return _EDITOR_DEF(p_setting, p_default,p_restart_if_changed).template as<T>();
 }
 
+#define EDITOR_DEF(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val))
+#define EDITOR_DEF_RST(m_var, m_val) _EDITOR_DEF(StringName(m_var), Variant(m_val), true)
+#define EDITOR_GET(m_var) _EDITOR_GET(m_var)
+
 #define ED_IS_SHORTCUT(p_name, p_ev) (EditorSettings::get_singleton()->is_shortcut(p_name, p_ev))
+
 Ref<ShortCut> ED_SHORTCUT(StringView p_path, const StringName &p_name, uint32_t p_keycode = 0);
 Ref<ShortCut> ED_GET_SHORTCUT(StringView p_path);

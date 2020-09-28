@@ -41,11 +41,11 @@ Error AudioDriverDummy::init() {
 	exit_thread = false;
 	samples_in = nullptr;
 
-	mix_rate = GLOBAL_GET("audio/mix_rate");
+	mix_rate = T_GLOBAL_GET<uint32_t>("audio/mix_rate");
 	speaker_mode = SPEAKER_MODE_STEREO;
 	channels = 2;
 
-	int latency = GLOBAL_GET("audio/output_latency");
+	int latency = T_GLOBAL_GET<int>("audio/output_latency");
 	buffer_frames = closest_power_of_2(latency * mix_rate / 1000);
 
 	samples_in = memnew_arr(int32_t, buffer_frames * channels);

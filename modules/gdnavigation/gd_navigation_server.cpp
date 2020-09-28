@@ -372,7 +372,7 @@ COMMAND_4(agent_set_callback, RID, p_agent, Object *, p_receiver, StringName, p_
     RvoAgent *agent = agent_owner.getornull(p_agent);
     ERR_FAIL_COND(agent == nullptr);
 
-    agent->set_callback(p_receiver == nullptr ? 0 : p_receiver->get_instance_id(), p_method, p_udata);
+    agent->set_callback(p_receiver == nullptr ? ObjectID(0ULL) : p_receiver->get_instance_id(), p_method, p_udata);
 
     if (agent->get_map()) {
         if (p_receiver == nullptr) {

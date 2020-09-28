@@ -47,7 +47,7 @@ class CowData {
     friend class VMap;
 
 private:
-    mutable T *_ptr;
+    mutable T *_ptr = nullptr;
 
     // internal helpers
 
@@ -58,7 +58,27 @@ private:
         return next_power_of_2(uint32_t(p_elements * sizeof(T)));
     }
 
-    _FORCE_INLINE_ bool _get_alloc_size_checked(size_t p_elements, size_t *out) const;
+    _FORCE_INLINE_ bool _get_alloc_size_checked(size_t p_elements, size_t *out) const {
+#if defined(__GNUC__)
+        size_t o;
+        size_t p;
+        if (__builtin_mul_overflow(p_elements, sizeof(T), &o)) {
+            *out = 0;
+            return false;
+        }
+        *out = next_power_of_2(o);
+        if (__builtin_add_overflow(o, static_cast<size_t>(32), &p)) {
+            return false; // No longer allocated here.
+    }
+        return true;
+#else
+        // Speed is more important than correctness here, do the operations unchecked
+        // and hope for the best.
+        * out = _get_alloc_size(p_elements);
+        return true;
+#endif
+    }
+
 
     void _unref(void *p_data);
     void _ref(const CowData *p_from);
@@ -77,7 +97,13 @@ public:
         return _get_data();
     }
 
-    _FORCE_INLINE_ int size() const;
+    _FORCE_INLINE_ int size() const {
+        uint32_t* size = _get_size();
+        if (likely(size)) // TODO: mark as likely ?
+            return *size;
+
+        return 0;
+    }
 
     void clear() { resize(0); }
     bool empty() const noexcept { return _ptr == nullptr; }
@@ -101,7 +127,7 @@ public:
 
     int find(const T &p_val, int p_from = 0) const;
 
-    constexpr CowData() noexcept : _ptr(nullptr) {}
+    constexpr CowData() noexcept = default;
     _FORCE_INLINE_ ~CowData();
     _FORCE_INLINE_ CowData(const CowData<T> &p_from) { _ref(p_from); }
 };

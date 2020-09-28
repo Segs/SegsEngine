@@ -31,6 +31,7 @@
 #include "import_dock.h"
 #include "editor_node.h"
 #include "editor_resource_preview.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/string_formatter.h"
@@ -207,7 +208,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
             Variant value = config->get_value("params", E);
 
             if (value_frequency[E].has(value)) {
-                value_frequency[E][value] = int(value_frequency[E][value]) + 1;
+                value_frequency[E][value] = value_frequency[E][value].as<int>() + 1;
             } else {
                 value_frequency[E][value] = 1;
             }
@@ -235,7 +236,7 @@ void ImportDock::set_edit_multiple_paths(const Vector<String> &p_paths) {
             Vector<Variant> v(d.get_key_list());
             Variant value;
             for (const Variant &F : v) {
-                int f = d[F];
+                int f = d[F].as<int>();
                 if (f > freq) {
                     value = F;
                 }
@@ -299,7 +300,7 @@ void ImportDock::_update_preset_menu() {
     }
 }
 void ImportDock::_importer_selected(int i_idx) {
-    String name = import_as->get_selected_metadata();
+    String name = import_as->get_selected_metadata().as<String>();
     ResourceImporterInterface * importer = ResourceFormatImporter::get_singleton()->get_importer_by_name(name);
     ERR_FAIL_COND(importer==nullptr);
 
@@ -336,15 +337,15 @@ void ImportDock::_preset_selected(int p_idx) {
 
             ERR_FAIL_COND(!ProjectSettings::get_singleton()->has_setting(importer_defaults));
 
-            Dictionary d = ProjectSettings::get_singleton()->get(importer_defaults);
+            Dictionary d = ProjectSettings::get_singleton()->getT<Dictionary>(importer_defaults);
             Vector<Variant> v(d.get_key_list());
             if (params->checking) {
                 params->checked.clear();
             }
             for (const Variant &E : v) {
-                params->values[E] = d[E];
+                params->values[E.as<StringName>()] = d[E];
                 if (params->checking) {
-                    params->checked.insert(E);
+                    params->checked.insert(E.as<StringName>());
                 }
             }
             params->update();
@@ -421,7 +422,7 @@ void ImportDock::_reimport_attempt() {
         Error err = config->load(params->paths[i] + ".import");
         ERR_CONTINUE(err != OK);
 
-        StringName imported_with(config->get_value("remap", "importer"));
+        StringName imported_with(config->get_value("remap", "importer").as<StringName>());
         if (imported_with != params->importer->get_importer_name()) {
             need_restart = true;
             if (_find_owners(EditorFileSystem::get_singleton()->get_filesystem(), params->paths[i])) {
@@ -481,7 +482,7 @@ void ImportDock::_reimport() {
         if (!group_file_property.empty()) {
             //can import from a group (as in, atlas)
             ERR_CONTINUE(!params->values.contains(group_file_property));
-            String group_file = params->values[group_file_property];
+            String group_file = params->values[group_file_property].as<String>();
             config->set_value("remap", "group_file", group_file);
         } else {
             config->set_value("remap", "group_file", Variant()); //clear group file if unused
@@ -545,26 +546,26 @@ ImportDock::ImportDock() {
     add_margin_child(TTR("Import As:"), hb);
     import_as = memnew(OptionButton);
     import_as->set_disabled(true);
-    import_as->connect("item_selected", this, "_importer_selected");
+    import_as->connect("item_selected",callable_mp(this, &ClassName::_importer_selected));
     hb->add_child(import_as);
     import_as->set_h_size_flags(SIZE_EXPAND_FILL);
     preset = memnew(MenuButton);
     preset->set_text(TTR("Preset"));
     preset->set_disabled(true);
-    preset->get_popup()->connect("index_pressed", this, "_preset_selected");
+    preset->get_popup()->connect("index_pressed",callable_mp(this, &ClassName::_preset_selected));
     hb->add_child(preset);
 
     import_opts = memnew(EditorInspector);
     add_child(import_opts);
     import_opts->set_v_size_flags(SIZE_EXPAND_FILL);
-    import_opts->connect("property_toggled", this, "_property_toggled");
+    import_opts->connect("property_toggled",callable_mp(this, &ClassName::_property_toggled));
 
     hb = memnew(HBoxContainer);
     add_child(hb);
     import = memnew(Button);
     import->set_text(TTR("Reimport"));
     import->set_disabled(true);
-    import->connect("pressed", this, "_reimport_attempt");
+    import->connect("pressed",callable_mp(this, &ClassName::_reimport_attempt));
     hb->add_spacer();
     hb->add_child(import);
     hb->add_spacer();
@@ -572,7 +573,7 @@ ImportDock::ImportDock() {
     reimport_confirm = memnew(ConfirmationDialog);
     reimport_confirm->get_ok()->set_text(TTR("Save Scenes, Re-Import and Restart"));
     add_child(reimport_confirm);
-    reimport_confirm->connect("confirmed", this, "_reimport_and_restart");
+    reimport_confirm->connect("confirmed",callable_mp(this, &ClassName::_reimport_and_restart));
 
     VBoxContainer *vbc_confirm = memnew(VBoxContainer());
     vbc_confirm->add_child(memnew(Label(TTR("Changing the type of an imported file requires editor restart."))));

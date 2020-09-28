@@ -644,15 +644,15 @@ void VisualScript::_set_variable_info(const StringName &p_name, const Dictionary
 
     PropertyInfo pinfo;
     if (p_info.has("type"))
-        pinfo.type = VariantType(int(p_info["type"]));
+        pinfo.type = p_info["type"].as<VariantType>();
     if (p_info.has("name"))
-        pinfo.name = p_info["name"];
+        pinfo.name = p_info["name"].as<StringName>();
     if (p_info.has("hint"))
-        pinfo.hint = PropertyHint(int(p_info["hint"]));
+        pinfo.hint = p_info["hint"].as<PropertyHint>();
     if (p_info.has("hint_string"))
         pinfo.hint_string = p_info["hint_string"].as<String>();
     if (p_info.has("usage"))
-        pinfo.usage = p_info["usage"];
+        pinfo.usage = p_info["usage"].as<uint32_t>();
 
     set_variable_info(p_name, pinfo);
 }
@@ -910,7 +910,7 @@ ScriptInstance *VisualScript::instance_create(Object *p_this) {
     return instance;
 }
 
-bool VisualScript::instance_has(const Object *p_this) const {
+bool VisualScript::instance_has(Object *p_this) const {
 
     return instances.contains((Object *)p_this);
 }
@@ -1080,34 +1080,34 @@ void VisualScript::_set_data(const Dictionary &p_data) {
 
     Dictionary d = p_data;
     if (d.has("base_type"))
-        base_type = d["base_type"];
+        base_type = d["base_type"].as<StringName>();
 
     variables.clear();
-    Array vars = d["variables"];
+    Array vars = d["variables"].as<Array>();
     for (int i = 0; i < vars.size(); i++) {
 
-        Dictionary v = vars[i];
-        StringName name = v["name"];
+        Dictionary v = vars[i].as<Dictionary>();
+        StringName name = v["name"].as<StringName>();
         add_variable(name);
         _set_variable_info(name, v);
         set_variable_default_value(name, v["default_value"]);
-        set_variable_export(name, v.has("export") && bool(v["export"]));
+        set_variable_export(name, v.has("export") && v["export"].as<bool>());
     }
 
     custom_signals.clear();
-    Array sigs = d["signals"];
+    Array sigs = d["signals"].as<Array>();
     for (int i = 0; i < sigs.size(); i++) {
 
-        Dictionary cs = sigs[i];
-        add_custom_signal(cs["name"]);
+        Dictionary cs = sigs[i].as<Dictionary>();
+        add_custom_signal(cs["name"].as<StringName>());
 
-        Array args = cs["arguments"];
+        Array args = cs["arguments"].as<Array>();
         for (int j = 0; j < args.size(); j += 2) {
-            custom_signal_add_argument(cs["name"], VariantType(int(args[j + 1])), args[j]);
+            custom_signal_add_argument(cs["name"].as<StringName>(), args[j + 1].as<VariantType>(), args[j].as<StringName>());
         }
     }
 
-    Array funcs = d["functions"];
+    Array funcs = d["functions"].as<Array>();
     functions.clear();
 
     Vector2 last_pos = Vector2(-100 * funcs.size(), -100 * funcs.size()); // this is the center of the last fn box
@@ -1115,21 +1115,21 @@ void VisualScript::_set_data(const Dictionary &p_data) {
 
     for (int i = 0; i < funcs.size(); i++) {
 
-        Dictionary func = funcs[i];
+        Dictionary func = funcs[i].as<Dictionary>();
 
-        StringName name = func["name"];
+        StringName name = func["name"].as<StringName>();
         //int id=func["function_id"];
         add_function(name);
 
-        set_function_scroll(name, func["scroll"]);
+        set_function_scroll(name, func["scroll"].as<Vector2>());
 
-        Array nodes = func["nodes"];
+        Array nodes = func["nodes"].as<Array>();
         if (!d.has("vs_unify") && nodes.size() > 0) {
-            Vector2 top_left = nodes[1];
-            Vector2 bottom_right = nodes[1];
+            Vector2 top_left = nodes[1].as<Vector2>();
+            Vector2 bottom_right = nodes[1].as<Vector2>();
 
         for (int j = 0; j < nodes.size(); j += 3) {
-                Point2 pos = nodes[j + 1];
+                Point2 pos = nodes[j + 1].as<Vector2>();
                 if (pos.y > top_left.y) {
                     top_left.y = pos.y;
                 }
@@ -1152,31 +1152,31 @@ void VisualScript::_set_data(const Dictionary &p_data) {
             last_size = size;
 
             for (int j = 0; j < nodes.size(); j += 3) {
-                add_node(name, nodes[j], refFromVariant<VisualScriptNode>(nodes[j + 2]), offset + nodes[j + 1]); // also add an additional buffer if you want to
+                add_node(name, nodes[j].as<int>(), refFromVariant<VisualScriptNode>(nodes[j + 2]), offset + nodes[j + 1].as<Vector2>()); // also add an additional buffer if you want to
         }
 
         } else {
             for (int j = 0; j < nodes.size(); j += 3) {
-                add_node(name, nodes[j], refFromVariant<VisualScriptNode>(nodes[j + 2]), nodes[j + 1]);
+                add_node(name, nodes[j].as<int>(), refFromVariant<VisualScriptNode>(nodes[j + 2]), nodes[j + 1].as<Vector2>());
             }
         }
-        Array sequence_connections = func["sequence_connections"];
+        Array sequence_connections = func["sequence_connections"].as<Array>();
 
         for (int j = 0; j < sequence_connections.size(); j += 3) {
 
-            sequence_connect(name, sequence_connections[j + 0], sequence_connections[j + 1], sequence_connections[j + 2]);
+            sequence_connect(name, sequence_connections[j + 0].as<int>(), sequence_connections[j + 1].as<int>(), sequence_connections[j + 2].as<int>());
         }
 
-        Array data_connections = func["data_connections"];
+        Array data_connections = func["data_connections"].as<Array>();
 
         for (int j = 0; j < data_connections.size(); j += 4) {
 
-            data_connect(name, data_connections[j + 0], data_connections[j + 1], data_connections[j + 2], data_connections[j + 3]);
+            data_connect(name, data_connections[j + 0].as<int>(), data_connections[j + 1].as<int>(), data_connections[j + 2].as<int>(), data_connections[j + 3].as<int>());
         }
     }
 
     if (d.has("is_tool_script"))
-        is_tool_script = d["is_tool_script"];
+        is_tool_script = d["is_tool_script"].as<bool>();
     else
         is_tool_script = false;
 }
@@ -2288,8 +2288,8 @@ Variant VisualScriptFunctionState::_signal_callback(const Variant **p_args, int 
 
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
-    ERR_FAIL_COND_V_MSG(script_id && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
+    ERR_FAIL_COND_V_MSG(instance_id.is_valid() && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
+    ERR_FAIL_COND_V_MSG(script_id.is_valid() && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
 
 #endif
 
@@ -2359,8 +2359,8 @@ Variant VisualScriptFunctionState::resume(Array p_args) {
     ERR_FAIL_COND_V(function == StringName(), Variant());
 #ifdef DEBUG_ENABLED
 
-    ERR_FAIL_COND_V_MSG(instance_id && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
-    ERR_FAIL_COND_V_MSG(script_id && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
+    ERR_FAIL_COND_V_MSG(instance_id.is_valid() && !gObjectDB().get_instance(instance_id), Variant(), "Resumed after yield, but class instance is gone.");
+    ERR_FAIL_COND_V_MSG(script_id.is_valid() && !gObjectDB().get_instance(script_id), Variant(), "Resumed after yield, but script is gone.");
 
 #endif
 
@@ -2724,7 +2724,7 @@ VisualScriptLanguage::VisualScriptLanguage() {
     _debug_parse_err_node = -1;
     _debug_parse_err_file = "";
     _debug_call_stack_pos = 0;
-    int dmcs = GLOBAL_DEF("debug/settings/visual_script/max_call_stack", 1024);
+    int dmcs = T_GLOBAL_DEF("debug/settings/visual_script/max_call_stack", int(1024));
     ProjectSettings::get_singleton()->set_custom_property_info("debug/settings/visual_script/max_call_stack", PropertyInfo(VariantType::INT, "debug/settings/visual_script/max_call_stack", PropertyHint::Range, "1024,4096,1,or_greater")); //minimum is 1024
 
     if (ScriptDebugger::get_singleton()) {

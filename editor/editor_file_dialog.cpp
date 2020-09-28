@@ -32,6 +32,7 @@
 
 #include <utility>
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
@@ -101,10 +102,10 @@ void EditorFileDialog::_notification(int p_what) {
 
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        bool is_showing_hidden = EditorSettings::get_singleton()->get("filesystem/file_dialog/show_hidden_files");
+        bool is_showing_hidden = EditorSettings::get_singleton()->getT<bool>("filesystem/file_dialog/show_hidden_files");
         if (show_hidden_files != is_showing_hidden)
             set_show_hidden_files(is_showing_hidden);
-        set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").operator int());
+        set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").as<int>());
 
         // update icons
         mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
@@ -316,8 +317,8 @@ void EditorFileDialog::_thumbnail_result(StringView p_path, const Ref<Texture> &
         return;
 
     for (int i = 0; i < item_list->get_item_count(); i++) {
-        Dictionary d = item_list->get_item_metadata(i);
-        String pname = d["path"];
+        Dictionary d = item_list->get_item_metadata(i).as<Dictionary>();
+        String pname = d["path"].as<String>();
         if (pname == p_path) {
             item_list->set_item_icon(i, p_preview);
             item_list->set_item_tag_icon(i, Ref<Texture>());
@@ -353,7 +354,7 @@ void EditorFileDialog::_request_single_thumbnail(StringView p_path) {
     set_process(true);
     preview_waiting = true;
     preview_wheel_timeout = 0;
-    EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, this, "_thumbnail_done", p_path);
+    EditorResourcePreview::get_singleton()->queue_resource_preview(p_path, callable_mp(this, &EditorFileDialog::_thumbnail_done), p_path);
 }
 
 void EditorFileDialog::_action_pressed() {
@@ -391,8 +392,8 @@ void EditorFileDialog::_action_pressed() {
 
         for (int i = 0; i < item_list->get_item_count(); i++) {
             if (item_list->is_selected(i)) {
-                Dictionary d = item_list->get_item_metadata(i);
-                if (d["dir"]) {
+                Dictionary d = item_list->get_item_metadata(i).as<Dictionary>();
+                if (d["dir"].as<bool>()) {
                     path = PathUtils::plus_file(path,d["name"].as<String>());
 
                     break;
@@ -488,11 +489,11 @@ void EditorFileDialog::_item_selected(int p_item) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (!d["dir"]) {
+    if (!d["dir"].as<bool>()) {
 
-        file->set_text_uistring(d["name"]);
+        file->set_text(d["name"].as<String>());
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     } else if (mode == MODE_OPEN_DIR) {
         get_ok()->set_text(TTR("Select This Folder"));
@@ -507,11 +508,11 @@ void EditorFileDialog::_multi_selected(int p_item, bool p_selected) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (!d["dir"] && p_selected) {
+    if (!d["dir"].as<bool>() && p_selected) {
 
-        file->set_text_uistring(d["name"]);
+        file->set_text(d["name"].as<String>());
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
     }
 
@@ -560,9 +561,9 @@ void EditorFileDialog::_item_dc_selected(int p_item) {
     if (current < 0 || current >= item_list->get_item_count())
         return;
 
-    Dictionary d = item_list->get_item_metadata(current);
+    Dictionary d = item_list->get_item_metadata(current).as<Dictionary>();
 
-    if (d["dir"]) {
+    if (d["dir"].as<bool>()) {
 
         dir_access->change_dir(d["name"].as<String>());
         call_deferred("_update_file_list");
@@ -591,7 +592,7 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
         if (!item_list->is_selected(i)) {
             continue;
         }
-        Dictionary item_meta = item_list->get_item_metadata(i);
+        Dictionary item_meta = item_list->get_item_metadata(i).as<Dictionary>();
         if (item_meta["path"] == "res://.import") {
             allow_delete = false;
             break;
@@ -606,8 +607,8 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
     }
     if (single_item_selected) {
         item_menu->add_separator();
-        Dictionary item_meta = item_list->get_item_metadata(p_item);
-        StringName item_text = item_meta["dir"] ? TTR("Open in File Manager") : TTR("Show in File Manager");
+        Dictionary item_meta = item_list->get_item_metadata(p_item).as<Dictionary>();
+        StringName item_text = item_meta["dir"].as<bool>() ? TTR("Open in File Manager") : TTR("Show in File Manager");
         item_menu->add_icon_item(get_icon("Filesystem", "EditorIcons"), item_text, ITEM_MENU_SHOW_IN_EXPLORER);
     }
 
@@ -643,7 +644,7 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
     switch (p_option) {
 
         case ITEM_MENU_COPY_PATH: {
-            Dictionary item_meta = item_list->get_item_metadata(item_list->get_current());
+            Dictionary item_meta = item_list->get_item_metadata(item_list->get_current()).as<Dictionary>();
             OS::get_singleton()->set_clipboard(item_meta["path"].as<String>());
         } break;
 
@@ -667,9 +668,9 @@ void EditorFileDialog::_item_menu_id_pressed(int p_option) {
                 path = ProjectSettings::get_singleton()->globalize_path(dir_access->get_current_dir());
             } else {
                 // Specific item was clicked. Open folders directly, or the folder containing a selected file.
-                Dictionary item_meta = item_list->get_item_metadata(idx);
+                Dictionary item_meta = item_list->get_item_metadata(idx).as<Dictionary>();
                 path = ProjectSettings::get_singleton()->globalize_path(item_meta["path"].as<String>());
-                if (!item_meta["dir"]) {
+                if (!item_meta["dir"].as<bool>()) {
                     path = PathUtils::get_base_dir(path);
                 }
             }
@@ -689,9 +690,9 @@ bool EditorFileDialog::_is_open_should_be_disabled() {
 
     for (size_t i = 0; i < items.size(); i++) {
 
-        Dictionary d = item_list->get_item_metadata(items[i]);
+        Dictionary d = item_list->get_item_metadata(items[i]).as<Dictionary>();
 
-        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"]) || (mode == MODE_OPEN_DIR && !d["dir"]))
+        if (((mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES) && d["dir"].as<bool>()) || (mode == MODE_OPEN_DIR && !d["dir"].as<bool>()))
             return true;
     }
 
@@ -721,7 +722,7 @@ void EditorFileDialog::update_file_name() {
 // DO NOT USE THIS FUNCTION UNLESS NEEDED, CALL INVALIDATE() INSTEAD.
 void EditorFileDialog::update_file_list() {
 
-    int thumbnail_size = EditorSettings::get_singleton()->get("filesystem/file_dialog/thumbnail_size");
+    int thumbnail_size = EditorSettings::get_singleton()->getT<int>("filesystem/file_dialog/thumbnail_size");
     thumbnail_size *= EDSCALE;
     Ref<Texture> folder_thumbnail;
     Ref<Texture> file_thumbnail;
@@ -877,7 +878,7 @@ void EditorFileDialog::update_file_list() {
             item_list->set_item_metadata(item_list->get_item_count() - 1, d);
 
             if (display_mode == DISPLAY_THUMBNAILS) {
-                EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, this, "_thumbnail_result", fullpath);
+                EditorResourcePreview::get_singleton()->queue_resource_preview(fullpath, callable_mp(this, &EditorFileDialog::_thumbnail_result), fullpath);
             }
 
             if (file->get_text() == files.front())
@@ -896,7 +897,7 @@ void EditorFileDialog::update_file_list() {
     fav_down->set_disabled(true);
     get_ok()->set_disabled(_is_open_should_be_disabled());
     for (int i = 0; i < favorites->get_item_count(); i++) {
-        String md(favorites->get_item_metadata(i));
+        String md(favorites->get_item_metadata(i).as<String>());
         if (md == cdir || md == cdir + "/") {
             favorites->select(i);
             favorite->set_pressed(true);
@@ -1138,11 +1139,11 @@ void EditorFileDialog::_delete_items() {
         if (!item_list->is_selected(i)) {
             continue;
         }
-        Dictionary item_meta = item_list->get_item_metadata(i);
-        if (item_meta["dir"]) {
-            folders.emplace_back(item_meta["path"]);
+        Dictionary item_meta = item_list->get_item_metadata(i).as<Dictionary>();
+        if (item_meta["dir"].as<bool>()) {
+            folders.emplace_back(item_meta["path"].as<String>());
         } else {
-            files.emplace_back(item_meta["path"]);
+            files.emplace_back(item_meta["path"].as<String>());
         }
     }
     if (folders.size() + files.size() > 0) {
@@ -1201,8 +1202,8 @@ void EditorFileDialog::_favorite_move_up() {
     if (current > 0 && current < favorites->get_item_count()) {
         Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.index_of(favorites->get_item_metadata(current - 1));
-        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current - 1).as<String>());
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current).as<String>());
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1221,8 +1222,8 @@ void EditorFileDialog::_favorite_move_down() {
     if (current >= 0 && current < favorites->get_item_count() - 1) {
         Vector<String> favorited = EditorSettings::get_singleton()->get_favorites();
 
-        int a_idx = favorited.index_of(favorites->get_item_metadata(current + 1));
-        int b_idx = favorited.index_of(favorites->get_item_metadata(current));
+        int a_idx = favorited.index_of(favorites->get_item_metadata(current + 1).as<String>());
+        int b_idx = favorited.index_of(favorites->get_item_metadata(current).as<String>());
 
         if (a_idx == -1 || b_idx == -1)
             return;
@@ -1562,9 +1563,9 @@ EditorFileDialog::EditorFileDialog() {
     pathhb->add_child(dir_next);
     pathhb->add_child(dir_up);
 
-    dir_prev->connect("pressed", this, "_go_back");
-    dir_next->connect("pressed", this, "_go_forward");
-    dir_up->connect("pressed", this, "_go_up");
+    dir_prev->connect("pressed",callable_mp(this, &ClassName::_go_back));
+    dir_next->connect("pressed",callable_mp(this, &ClassName::_go_forward));
+    dir_up->connect("pressed",callable_mp(this, &ClassName::_go_up));
 
     pathhb->add_child(memnew(Label(TTR("Path:"))));
 
@@ -1580,20 +1581,20 @@ EditorFileDialog::EditorFileDialog() {
 
     refresh = memnew(ToolButton);
     refresh->set_tooltip(TTR("Refresh files."));
-    refresh->connect("pressed", this, "_update_file_list");
+    refresh->connect("pressed",callable_mp(this, &ClassName::update_file_list));
     pathhb->add_child(refresh);
 
     favorite = memnew(ToolButton);
     favorite->set_toggle_mode(true);
     favorite->set_tooltip(TTR("(Un)favorite current folder."));
-    favorite->connect("pressed", this, "_favorite_pressed");
+    favorite->connect("pressed",callable_mp(this, &ClassName::_favorite_pressed));
     pathhb->add_child(favorite);
 
     show_hidden = memnew(ToolButton);
     show_hidden->set_toggle_mode(true);
     show_hidden->set_pressed(is_showing_hidden_files());
     show_hidden->set_tooltip(TTR("Toggle the visibility of hidden files."));
-    show_hidden->connect("toggled", this, "set_show_hidden_files");
+    show_hidden->connect("toggled",callable_mp(this, &ClassName::set_show_hidden_files));
     pathhb->add_child(show_hidden);
 
     pathhb->add_child(memnew(VSeparator));
@@ -1601,7 +1602,7 @@ EditorFileDialog::EditorFileDialog() {
     Ref<ButtonGroup> view_mode_group(make_ref_counted<ButtonGroup>());
 
     mode_thumbnails = memnew(ToolButton);
-    mode_thumbnails->connect("pressed", this, "set_display_mode", varray(DISPLAY_THUMBNAILS));
+    mode_thumbnails->connect("pressed",callable_mp(this, &ClassName::set_display_mode), varray(DISPLAY_THUMBNAILS));
     mode_thumbnails->set_toggle_mode(true);
     mode_thumbnails->set_pressed(display_mode == DISPLAY_THUMBNAILS);
     mode_thumbnails->set_button_group(view_mode_group);
@@ -1609,7 +1610,7 @@ EditorFileDialog::EditorFileDialog() {
     pathhb->add_child(mode_thumbnails);
 
     mode_list = memnew(ToolButton);
-    mode_list->connect("pressed", this, "set_display_mode", varray(DISPLAY_LIST));
+    mode_list->connect("pressed",callable_mp(this, &ClassName::set_display_mode), varray(DISPLAY_LIST));
     mode_list->set_toggle_mode(true);
     mode_list->set_pressed(display_mode == DISPLAY_LIST);
     mode_list->set_button_group(view_mode_group);
@@ -1618,11 +1619,11 @@ EditorFileDialog::EditorFileDialog() {
 
     drives = memnew(OptionButton);
     pathhb->add_child(drives);
-    drives->connect("item_selected", this, "_select_drive");
+    drives->connect("item_selected",callable_mp(this, &ClassName::_select_drive));
 
     makedir = memnew(Button);
     makedir->set_text(TTR("Create Folder"));
-    makedir->connect("pressed", this, "_make_dir");
+    makedir->connect("pressed",callable_mp(this, &ClassName::_make_dir));
     pathhb->add_child(makedir);
 
     list_hb = memnew(HSplitContainer);
@@ -1644,15 +1645,15 @@ EditorFileDialog::EditorFileDialog() {
     fav_hb->add_spacer();
     fav_up = memnew(ToolButton);
     fav_hb->add_child(fav_up);
-    fav_up->connect("pressed", this, "_favorite_move_up");
+    fav_up->connect("pressed",callable_mp(this, &ClassName::_favorite_move_up));
     fav_down = memnew(ToolButton);
     fav_hb->add_child(fav_down);
-    fav_down->connect("pressed", this, "_favorite_move_down");
+    fav_down->connect("pressed",callable_mp(this, &ClassName::_favorite_move_down));
 
     favorites = memnew(ItemList);
     fav_vb->add_child(favorites);
     favorites->set_v_size_flags(SIZE_EXPAND_FILL);
-    favorites->connect("item_selected", this, "_favorite_selected");
+    favorites->connect("item_selected",callable_mp(this, &ClassName::_favorite_selected));
 
     VBoxContainer *rec_vb = memnew(VBoxContainer);
     vsc->add_child(rec_vb);
@@ -1661,7 +1662,7 @@ EditorFileDialog::EditorFileDialog() {
     recent = memnew(ItemList);
     recent->set_allow_reselect(true);
     rec_vb->add_margin_child(TTR("Recent:"), recent, true);
-    recent->connect("item_selected", this, "_recent_selected");
+    recent->connect("item_selected",callable_mp(this, &ClassName::_recent_selected));
 
     VBoxContainer *item_vb = memnew(VBoxContainer);
     list_hb->add_child(item_vb);
@@ -1680,13 +1681,13 @@ EditorFileDialog::EditorFileDialog() {
 
     item_list = memnew(ItemList);
     item_list->set_v_size_flags(SIZE_EXPAND_FILL);
-    item_list->connect("item_rmb_selected", this, "_item_list_item_rmb_selected");
-    item_list->connect("rmb_clicked", this, "_item_list_rmb_clicked");
+    item_list->connect("item_rmb_selected",callable_mp(this, &ClassName::_item_list_item_rmb_selected));
+    item_list->connect("rmb_clicked",callable_mp(this, &ClassName::_item_list_rmb_clicked));
     item_list->set_allow_rmb_select(true);
     list_vb->add_child(item_list);
 
     item_menu = memnew(PopupMenu);
-    item_menu->connect("id_pressed", this, "_item_menu_id_pressed");
+    item_menu->connect("id_pressed",callable_mp(this, &ClassName::_item_menu_id_pressed));
     add_child(item_menu);
 
     // Other stuff.
@@ -1717,19 +1718,19 @@ EditorFileDialog::EditorFileDialog() {
     access = ACCESS_RESOURCES;
     _update_drives();
 
-    connect("confirmed", this, "_action_pressed");
-    item_list->connect("item_selected", this, "_item_selected", varray(), ObjectNS::CONNECT_QUEUED);
-    item_list->connect("multi_selected", this, "_multi_selected", varray(), ObjectNS::CONNECT_QUEUED);
-    item_list->connect("item_activated", this, "_item_db_selected", varray());
-    item_list->connect("nothing_selected", this, "_items_clear_selection");
-    dir->connect("text_entered", this, "_dir_entered");
-    file->connect("text_entered", this, "_file_entered");
-    filter->connect("item_selected", this, "_filter_selected");
+    connect("confirmed",callable_mp(this, &ClassName::_action_pressed));
+    item_list->connect("item_selected",callable_mp(this, &ClassName::_item_selected), varray(), ObjectNS::CONNECT_QUEUED);
+    item_list->connect("multi_selected",callable_mp(this, &ClassName::_multi_selected), varray(), ObjectNS::CONNECT_QUEUED);
+    item_list->connect("item_activated",callable_mp(this, &ClassName::_item_dc_selected), varray());
+    item_list->connect("nothing_selected",callable_mp(this, &ClassName::_items_clear_selection));
+    dir->connect("text_entered",callable_mp(this, &ClassName::_dir_entered));
+    file->connect("text_entered",callable_mp(this, &ClassName::_file_entered));
+    filter->connect("item_selected",callable_mp(this, &ClassName::_filter_selected));
 
     confirm_save = memnew(ConfirmationDialog);
     confirm_save->set_as_toplevel(true);
     add_child(confirm_save);
-    confirm_save->connect("confirmed", this, "_save_confirm_pressed");
+    confirm_save->connect("confirmed",callable_mp(this, &ClassName::_save_confirm_pressed));
 
     remove_dialog = memnew(DependencyRemoveDialog);
     add_child(remove_dialog);
@@ -1743,7 +1744,7 @@ EditorFileDialog::EditorFileDialog() {
     makevb->add_margin_child(TTR("Name:"), makedirname);
     add_child(makedialog);
     makedialog->register_text_enter(makedirname);
-    makedialog->connect("confirmed", this, "_make_dir_confirm");
+    makedialog->connect("confirmed",callable_mp(this, &ClassName::_make_dir_confirm));
     mkdirerr = memnew(AcceptDialog);
     mkdirerr->set_text(TTR("Could not create folder."));
     add_child(mkdirerr);
@@ -1807,10 +1808,10 @@ EditorLineEditFileChooser::EditorLineEditFileChooser() {
     line_edit->set_h_size_flags(SIZE_EXPAND_FILL);
     button = memnew(Button);
     add_child(button);
-    button->connect("pressed", this, "_browse");
+    button->connect("pressed",callable_mp(this, &ClassName::_browse));
     dialog = memnew(EditorFileDialog);
     add_child(dialog);
-    dialog->connect("file_selected", this, "_chosen");
-    dialog->connect("dir_selected", this, "_chosen");
-    dialog->connect("files_selected", this, "_chosen");
+    dialog->connect("file_selected",callable_mp(this, &ClassName::_chosen));
+    dialog->connect("dir_selected",callable_mp(this, &ClassName::_chosen));
+    dialog->connect("files_selected",callable_mp(this, &ClassName::_chosen));
 }

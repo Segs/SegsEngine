@@ -40,6 +40,7 @@
 
 void register_stb_vorbis_types() {
 
+    AudioStreamPlaybackOGGVorbis::initialize_class();
 #ifdef TOOLS_ENABLED
     if (Engine::get_singleton()->is_editor_hint()) {
         ResourceImporterOGGVorbis::initialize_class();

@@ -30,6 +30,7 @@
 
 #include "cpu_particles_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
@@ -58,12 +59,6 @@ void CPUParticles3DEditor::_notification(int p_notification) {
 void CPUParticles3DEditor::_menu_option(int p_option) {
 
     switch (p_option) {
-
-        case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH: {
-
-            emission_file_dialog->popup_centered_ratio();
-
-        } break;
 
         case MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE: {
 
@@ -106,8 +101,6 @@ void CPUParticles3DEditor::_generate_emission_points() {
 }
 
 void CPUParticles3DEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_option", &CPUParticles3DEditor::_menu_option);
 }
 
 CPUParticles3DEditor::CPUParticles3DEditor() {
@@ -120,11 +113,10 @@ CPUParticles3DEditor::CPUParticles3DEditor() {
     particles_editor_hb->hide();
 
     options->set_text(TTR("CPUParticles3D"));
-    options->get_popup()->add_item(TTR("Create Emission Points From Mesh"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH);
     options->get_popup()->add_item(TTR("Create Emission Points From Node"), MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE);
     options->get_popup()->add_separator();
     options->get_popup()->add_item(TTR("Restart"), MENU_OPTION_RESTART);
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 }
 
 void CPUParticles3DEditorPlugin::edit(Object *p_object) {

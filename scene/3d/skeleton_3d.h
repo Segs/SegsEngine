@@ -95,7 +95,7 @@ private:
         PhysicalBone3D* cache_parent_physical_bone;
 #endif // _3D_DISABLED
 
-        Vector<uint32_t> nodes_bound;
+        Vector<ObjectID> nodes_bound;
 
         Bone() {
             parent = -1;

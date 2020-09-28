@@ -129,6 +129,27 @@ struct GetTypeInfo;
         }\
     };
 
+//objectID
+template <>
+struct GetTypeInfo<ObjectID> {
+    static const VariantType VARIANT_TYPE = VariantType::INT;
+    static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_INT_IS_UINT64;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::IntIsObjectID };
+    }
+};
+
+template <>
+struct GetTypeInfo<void> {
+    static const VariantType VARIANT_TYPE = VariantType::NIL;
+    static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;
+    constexpr static const TypePassBy PASS_BY = TypePassBy::Value;
+    constexpr static inline RawPropertyInfo get_class_info() {
+        return RawPropertyInfo {nullptr, nullptr, nullptr, int8_t(VARIANT_TYPE), PropertyHint::None };
+    }
+};
+
 MAKE_TYPE_INFO(bool, VariantType::BOOL)
 MAKE_TYPE_INFO_WITH_META(uint8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_UINT8)
 MAKE_TYPE_INFO_WITH_META(int8_t, VariantType::INT, GodotTypeInfo::METADATA_INT_IS_INT8)
@@ -158,6 +179,8 @@ MAKE_TYPE_INFO(Transform, VariantType::TRANSFORM)
 MAKE_TYPE_INFO(Color, VariantType::COLOR)
 MAKE_TYPE_INFO(NodePath, VariantType::NODE_PATH)
 MAKE_TYPE_INFO(RID, VariantType::_RID)
+MAKE_TYPE_INFO(Callable, VariantType::CALLABLE)
+MAKE_TYPE_INFO(Signal, VariantType::SIGNAL)
 MAKE_TYPE_INFO(Dictionary, VariantType::DICTIONARY)
 MAKE_TYPE_INFO(Array, VariantType::ARRAY)
 MAKE_TYPE_INFO(PoolByteArray, VariantType::POOL_BYTE_ARRAY)
@@ -214,8 +237,7 @@ MAKE_SPAN_INFO(float,VariantType::POOL_REAL_ARRAY)
 MAKE_SPAN_INFO(int,VariantType::POOL_INT_ARRAY)
 MAKE_SPAN_INFO(uint8_t,VariantType::POOL_BYTE_ARRAY)
 
-
-MAKE_TYPE_INFO_WITH_META(StringName, VariantType::STRING,GodotTypeInfo::METADATA_STRING_NAME)
+MAKE_TYPE_INFO(StringName, VariantType::STRING_NAME)
 MAKE_TYPE_INFO(IP_Address, VariantType::STRING)
 
 class BSP_Tree;
@@ -231,6 +253,8 @@ struct GetTypeInfo<RefPtr> {
         return RawPropertyInfo{ nullptr,"RefCounted","RefCounted",int8_t(VariantType::OBJECT), PropertyHint::ResourceType };
     }
 };
+
+
 template <>
 struct GetTypeInfo<const RefPtr &> {
     constexpr static const VariantType VARIANT_TYPE = VariantType::OBJECT;
@@ -378,7 +402,7 @@ struct GetTypeInfo<const T *, typename EnableIf<TypeInherits<Object, T>::value>:
         constexpr static const GodotTypeInfo::Metadata METADATA = GodotTypeInfo::METADATA_NONE;                        \
     constexpr static const TypePassBy PASS_BY = TypePassBy::Value;                                                     \
         constexpr static inline RawPropertyInfo get_class_info() {                                                     \
-            return RawPropertyInfo{ nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                   \
+            return RawPropertyInfo { nullptr, nullptr, #m_impl, int8_t(VARIANT_TYPE),                                  \
                 PropertyHint::None, PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_CLASS_IS_ENUM };                           \
         }                                                                                                              \
     };

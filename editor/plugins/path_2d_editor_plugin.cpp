@@ -32,6 +32,7 @@
 
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/os/file_access.h"
 #include "core/os/keyboard.h"
 #include "core/translation_helpers.h"
@@ -76,7 +77,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
     if (not node->get_curve())
         return false;
 
-    real_t grab_threshold = EDITOR_GET("editors/poly_editor/point_grab_radius");
+    real_t grab_threshold = EDITOR_GET_T<float>("editors/poly_editor/point_grab_radius");
 
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     if (mb) {
@@ -133,7 +134,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                     (mb->get_button_index() == BUTTON_LEFT && mode == MODE_DELETE)) {
                     if (dist_to_p < grab_threshold) {
 
-                        undo_redo->create_action_ui(TTR("Remove Point from Curve"));
+                        undo_redo->create_action(TTR("Remove Point from Curve"));
                         undo_redo->add_do_method(curve.get(), "remove_point", i);
                         undo_redo->add_undo_method(curve.get(), "add_point", curve->get_point_position(i), curve->get_point_in(i), curve->get_point_out(i), i);
                         undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -142,7 +143,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         return true;
                     } else if (dist_to_p_out < grab_threshold) {
 
-                        undo_redo->create_action_ui(TTR("Remove Out-Control from Curve"));
+                        undo_redo->create_action(TTR("Remove Out-Control from Curve"));
                         undo_redo->add_do_method(curve.get(), "set_point_out", i, Vector2());
                         undo_redo->add_undo_method(curve.get(), "set_point_out", i, curve->get_point_out(i));
                         undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -151,7 +152,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
                         return true;
                     } else if (dist_to_p_in < grab_threshold) {
 
-                        undo_redo->create_action_ui(TTR("Remove In-Control from Curve"));
+                        undo_redo->create_action(TTR("Remove In-Control from Curve"));
                         undo_redo->add_do_method(curve.get(), "set_point_in", i, Vector2());
                         undo_redo->add_undo_method(curve.get(), "set_point_in", i, curve->get_point_in(i));
                         undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -169,7 +170,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
             Ref<Curve2D> curve = node->get_curve();
 
-            undo_redo->create_action_ui(TTR("Add Point to Curve"));
+            undo_redo->create_action(TTR("Add Point to Curve"));
             undo_redo->add_do_method(curve.get(), "add_point", cpoint);
             undo_redo->add_undo_method(curve.get(), "remove_point", curve->get_point_count());
             undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -202,7 +203,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
             if (insertion_point == -1)
                 insertion_point = curve->get_point_count() - 2;
 
-            undo_redo->create_action_ui(TTR("Split Curve"));
+            undo_redo->create_action(TTR("Split Curve"));
             undo_redo->add_do_method(curve.get(), "add_point", xform.affine_inverse().xform(gpoint2), Vector2(0, 0), Vector2(0, 0), insertion_point + 1);
             undo_redo->add_undo_method(curve.get(), "remove_point", insertion_point + 1);
             undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -235,7 +236,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                 case ACTION_MOVING_POINT: {
 
-                    undo_redo->create_action_ui(TTR("Move Point in Curve"));
+                    undo_redo->create_action(TTR("Move Point in Curve"));
                     undo_redo->add_do_method(curve.get(), "set_point_position", action_point, cpoint);
                     undo_redo->add_undo_method(curve.get(), "set_point_position", action_point, moving_from);
                     undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -246,7 +247,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                 case ACTION_MOVING_IN: {
 
-                    undo_redo->create_action_ui(TTR("Move In-Control in Curve"));
+                    undo_redo->create_action(TTR("Move In-Control in Curve"));
                     undo_redo->add_do_method(curve.get(), "set_point_in", action_point, new_pos);
                     undo_redo->add_undo_method(curve.get(), "set_point_in", action_point, moving_from);
 
@@ -262,7 +263,7 @@ bool Path2DEditor::forward_gui_input(const Ref<InputEvent> &p_event) {
 
                 case ACTION_MOVING_OUT: {
 
-                    undo_redo->create_action_ui(TTR("Move Out-Control in Curve"));
+                    undo_redo->create_action(TTR("Move Out-Control in Curve"));
                     undo_redo->add_do_method(curve.get(), "set_point_out", action_point, new_pos);
                     undo_redo->add_undo_method(curve.get(), "set_point_out", action_point, moving_from);
 
@@ -448,14 +449,14 @@ void Path2DEditor::edit(Node *p_path2d) {
     if (p_path2d) {
 
         node = object_cast<Path2D>(p_path2d);
-        if (!node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-            node->connect("visibility_changed", this, "_node_visibility_changed");
+        if (!node->is_connected("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed)))
+            node->connect("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed));
 
     } else {
 
         // node may have been deleted at this point
-        if (node && node->is_connected("visibility_changed", this, "_node_visibility_changed"))
-            node->disconnect("visibility_changed", this, "_node_visibility_changed");
+        if (node && node->is_connected("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed)))
+            node->disconnect("visibility_changed",callable_mp(this, &ClassName::_node_visibility_changed));
         node = nullptr;
     }
 }
@@ -508,7 +509,7 @@ void Path2DEditor::_mode_selected(int p_mode) {
         if (begin.distance_to(end) < CMP_EPSILON)
             return;
 
-        undo_redo->create_action_ui(TTR("Remove Point from Curve"));
+        undo_redo->create_action(TTR("Remove Point from Curve"));
         undo_redo->add_do_method(node->get_curve().get(), "add_point", begin);
         undo_redo->add_undo_method(node->get_curve().get(), "remove_point", node->get_curve()->get_point_count());
         undo_redo->add_do_method(canvas_item_editor, "update_viewport");
@@ -562,34 +563,34 @@ Path2DEditor::Path2DEditor(EditorNode *p_editor) {
     curve_edit->set_toggle_mode(true);
     curve_edit->set_focus_mode(Control::FOCUS_NONE);
     curve_edit->set_tooltip(TTR("Select Points") + "\n" + TTR("Shift+Drag: Select Control Points") + "\n" + String(keycode_get_string(KEY_MASK_CMD)) + TTR("Click: Add Point") + "\n" + TTR("Left Click: Split Segment (in curve)") + "\n" + TTR("Right Click: Delete Point"));
-    curve_edit->connect("pressed", this, "_mode_selected", varray(MODE_EDIT));
+    curve_edit->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_EDIT));
     base_hb->add_child(curve_edit);
     curve_edit_curve = memnew(ToolButton);
     curve_edit_curve->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCurve", "EditorIcons"));
     curve_edit_curve->set_toggle_mode(true);
     curve_edit_curve->set_focus_mode(Control::FOCUS_NONE);
     curve_edit_curve->set_tooltip(TTR("Select Control Points (Shift+Drag)"));
-    curve_edit_curve->connect("pressed", this, "_mode_selected", varray(MODE_EDIT_CURVE));
+    curve_edit_curve->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_EDIT_CURVE));
     base_hb->add_child(curve_edit_curve);
     curve_create = memnew(ToolButton);
     curve_create->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveCreate", "EditorIcons"));
     curve_create->set_toggle_mode(true);
     curve_create->set_focus_mode(Control::FOCUS_NONE);
     curve_create->set_tooltip(TTR("Add Point (in empty space)"));
-    curve_create->connect("pressed", this, "_mode_selected", varray(MODE_CREATE));
+    curve_create->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_CREATE));
     base_hb->add_child(curve_create);
     curve_del = memnew(ToolButton);
     curve_del->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveDelete", "EditorIcons"));
     curve_del->set_toggle_mode(true);
     curve_del->set_focus_mode(Control::FOCUS_NONE);
     curve_del->set_tooltip(TTR("Delete Point"));
-    curve_del->connect("pressed", this, "_mode_selected", varray(MODE_DELETE));
+    curve_del->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(MODE_DELETE));
     base_hb->add_child(curve_del);
     curve_close = memnew(ToolButton);
     curve_close->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("CurveClose", "EditorIcons"));
     curve_close->set_focus_mode(Control::FOCUS_NONE);
     curve_close->set_tooltip(TTR("Close Curve"));
-    curve_close->connect("pressed", this, "_mode_selected", varray(ACTION_CLOSE));
+    curve_close->connect("pressed",callable_mp(this, &ClassName::_mode_selected), varray(ACTION_CLOSE));
     base_hb->add_child(curve_close);
 
     PopupMenu *menu;
@@ -603,7 +604,7 @@ Path2DEditor::Path2DEditor(EditorNode *p_editor) {
     menu->set_item_checked(HANDLE_OPTION_ANGLE, mirror_handle_angle);
     menu->add_check_item(TTR("Mirror Handle Lengths"));
     menu->set_item_checked(HANDLE_OPTION_LENGTH, mirror_handle_length);
-    menu->connect("id_pressed", this, "_handle_option_pressed");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_handle_option_pressed));
 
     base_hb->hide();
 

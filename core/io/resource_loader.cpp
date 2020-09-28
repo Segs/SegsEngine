@@ -200,7 +200,7 @@ Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap
             deps_dict[E.first] = E.second;
         }
 
-        int64_t res = get_script_instance()->call("rename_dependencies", deps_dict);
+        int64_t res = get_script_instance()->call("rename_dependencies", deps_dict).as<int64_t>();
         return (Error)res;
     }
 
@@ -216,7 +216,7 @@ void ResourceFormatLoader::_bind_methods() {
     }
 
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING, "typename")));
+    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING_NAME, "typename")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "add_types")));
     ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "renames")));

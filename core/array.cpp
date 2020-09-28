@@ -433,7 +433,7 @@ Variant Array::min() const {
             if (!valid) {
                 return Variant(); // not a valid comparison
             }
-            if (bool(ret)) {
+            if (ret.as<bool>()) {
                 // is less
                 minval = test;
             }
@@ -456,7 +456,7 @@ Variant Array::max() const {
             if (!valid) {
                 return Variant(); // not a valid comparison
             }
-            if (bool(ret)) {
+            if (ret.as<bool>()) {
                 // is less
                 maxval = test;
             }

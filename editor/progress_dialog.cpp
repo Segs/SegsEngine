@@ -30,6 +30,7 @@
 
 #include "progress_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/os/mutex.h"
@@ -45,7 +46,7 @@ IMPL_GDCLASS(ProgressDialog)
 void BackgroundProgress::_add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
 
     _THREAD_SAFE_METHOD_
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists."); 
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), "Task '" + p_task + "' already exists.");
     BackgroundProgress::Task t;
     t.hb = memnew(HBoxContainer);
     Label *l = memnew(Label);
@@ -188,7 +189,7 @@ void ProgressDialog::add_task(const StringName &p_task, const StringName &p_labe
         return;
     }
 
-    ERR_FAIL_COND_MSG(tasks.contains(p_task), String("Task '") + p_task + "' already exists."); 
+    ERR_FAIL_COND_MSG(tasks.contains(p_task), String("Task '") + p_task + "' already exists.");
     ProgressDialog::Task t;
     t.vb = memnew(VBoxContainer);
     VBoxContainer *vb2 = memnew(VBoxContainer);
@@ -304,5 +305,5 @@ ProgressDialog::ProgressDialog() {
     cancel_hb->add_child(cancel);
     cancel->set_text(TTR("Cancel"));
     cancel_hb->add_spacer();
-    cancel->connect("pressed", this, "_cancel_pressed");
+    cancel->connect("pressed",callable_mp(this, &ClassName::_cancel_pressed));
 }

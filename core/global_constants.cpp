@@ -40,6 +40,7 @@ struct _GlobalConstant {
 
 #ifdef DEBUG_METHODS_ENABLED
     StringName enum_name;
+    bool ignore_value_in_docs;
 #endif
     const char *name;
     int value;
@@ -47,8 +48,9 @@ struct _GlobalConstant {
     _GlobalConstant() = default;
 
 #ifdef DEBUG_METHODS_ENABLED
-    _GlobalConstant(StringName p_enum_name, const char *p_name, int p_value) :
+    _GlobalConstant(StringName p_enum_name, const char *p_name, int p_value, bool p_ignore_value_in_docs = false) :
             enum_name(eastl::move(p_enum_name)),
+            ignore_value_in_docs(p_ignore_value_in_docs),
             name(p_name),
             value(p_value) {
     }
@@ -75,6 +77,16 @@ static Vector<_GlobalConstant> _global_constants;
 #define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM(m_custom_name, m_constant) \
     _global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
 
+#define BIND_GLOBAL_CONSTANT_NO_VAL(m_constant) \
+	_global_constants.push_back(_GlobalConstant(StringName(), #m_constant, m_constant, true));
+
+#define BIND_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant) \
+	_global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), #m_constant, m_constant, true));
+
+#define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM_NO_VAL(m_custom_name, m_constant) \
+	_global_constants.push_back(_GlobalConstant(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, m_constant, true));
+
+
 #else
 
 #define BIND_GLOBAL_CONSTANT(m_constant) \
@@ -91,6 +103,14 @@ static Vector<_GlobalConstant> _global_constants;
 #define BIND_GLOBAL_CLASS_ENUM_CONSTANT(m_class,m_constant) \
     _global_constants.emplace_back(#m_constant, int(m_class::m_constant));
 
+#define BIND_GLOBAL_CONSTANT_NO_VAL(m_constant) \
+	_global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
+
+#define BIND_GLOBAL_ENUM_CONSTANT_NO_VAL(m_constant) \
+	_global_constants.push_back(_GlobalConstant(#m_constant, m_constant));
+
+#define BIND_GLOBAL_ENUM_CONSTANT_CUSTOM_NO_VAL(m_custom_name, m_constant) \
+	_global_constants.push_back(_GlobalConstant(m_custom_name, m_constant));
 #endif
 
 VARIANT_ENUM_CAST(KeyList);
@@ -127,7 +147,7 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(VALIGN_CENTER);
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(VALIGN_BOTTOM);
 
-    // hueg list of keys
+    // huge list of keys
     BIND_GLOBAL_CONSTANT(SPKEY)
 
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(KEY_ESCAPE);
@@ -595,34 +615,35 @@ void register_global_constants() {
     BIND_STATIC_GLOBAL_ENUM_CONSTANT(METHOD_FLAGS_DEFAULT);
 
     //_global_constants.emplace_back(__constant_get_enum_name(m_constant, #m_constant), m_custom_name, int(m_constant));
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_NIL", VariantType::NIL)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_BOOL", VariantType::BOOL)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT", VariantType::INT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL", VariantType::FLOAT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING", VariantType::STRING)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR2", VariantType::VECTOR2) // 5
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RECT2", VariantType::RECT2)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3", VariantType::VECTOR3)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_TRANSFORM2D", VariantType::TRANSFORM2D)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_PLANE", VariantType::PLANE)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_QUAT", VariantType::QUAT) // 10
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_AABB", VariantType::AABB)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_BASIS", VariantType::BASIS)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_TRANSFORM", VariantType::TRANSFORM)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_COLOR", VariantType::COLOR)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_NODE_PATH", VariantType::NODE_PATH) // 15
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RID", VariantType::_RID)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_OBJECT", VariantType::OBJECT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_DICTIONARY", VariantType::DICTIONARY) // 20
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_ARRAY", VariantType::ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RAW_ARRAY", VariantType::POOL_BYTE_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT_ARRAY", VariantType::POOL_INT_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL_ARRAY", VariantType::POOL_REAL_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING_ARRAY", VariantType::POOL_STRING_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR2_ARRAY", VariantType::POOL_VECTOR2_ARRAY) // 25
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3_ARRAY", VariantType::POOL_VECTOR3_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_COLOR_ARRAY", VariantType::POOL_COLOR_ARRAY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_MAX", VariantType::VARIANT_MAX)
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_NIL", VariantType::NIL);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_BOOL", VariantType::BOOL);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT", VariantType::INT);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL", VariantType::FLOAT);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING", VariantType::STRING);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR2", VariantType::VECTOR2); // 5
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RECT2", VariantType::RECT2);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3", VariantType::VECTOR3);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_TRANSFORM2D", VariantType::TRANSFORM2D);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_PLANE", VariantType::PLANE);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_QUAT", VariantType::QUAT); // 10
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_AABB", VariantType::AABB);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_BASIS", VariantType::BASIS);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_TRANSFORM", VariantType::TRANSFORM);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_COLOR", VariantType::COLOR);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING_NAME", VariantType::STRING_NAME);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_NODE_PATH", VariantType::NODE_PATH); // 15
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RID", VariantType::_RID);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_OBJECT", VariantType::OBJECT);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_DICTIONARY", VariantType::DICTIONARY); // 20
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_ARRAY", VariantType::ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_RAW_ARRAY", VariantType::POOL_BYTE_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_INT_ARRAY", VariantType::POOL_INT_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_REAL_ARRAY", VariantType::POOL_REAL_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_STRING_ARRAY", VariantType::POOL_STRING_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR2_ARRAY", VariantType::POOL_VECTOR2_ARRAY); // 25
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_VECTOR3_ARRAY", VariantType::POOL_VECTOR3_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_COLOR_ARRAY", VariantType::POOL_COLOR_ARRAY);
+    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("TYPE_MAX", VariantType::VARIANT_MAX);
 
     //comparison
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_EQUAL", Variant::OP_EQUAL)
@@ -631,29 +652,6 @@ void register_global_constants() {
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_LESS_EQUAL", Variant::OP_LESS_EQUAL)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_GREATER", Variant::OP_GREATER)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_GREATER_EQUAL", Variant::OP_GREATER_EQUAL)
-    //mathematic
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_ADD", Variant::OP_ADD)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_SUBTRACT", Variant::OP_SUBTRACT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_MULTIPLY", Variant::OP_MULTIPLY)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_DIVIDE", Variant::OP_DIVIDE)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_NEGATE", Variant::OP_NEGATE)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_POSITIVE", Variant::OP_POSITIVE)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_MODULE", Variant::OP_MODULE)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_STRING_CONCAT", Variant::OP_STRING_CONCAT)
-    //bitwise
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_SHIFT_LEFT", Variant::OP_SHIFT_LEFT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_SHIFT_RIGHT", Variant::OP_SHIFT_RIGHT)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_BIT_AND", Variant::OP_BIT_AND)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_BIT_OR", Variant::OP_BIT_OR)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_BIT_XOR", Variant::OP_BIT_XOR)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_BIT_NEGATE", Variant::OP_BIT_NEGATE)
-    //logic
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_AND", Variant::OP_AND)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_OR", Variant::OP_OR)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_XOR", Variant::OP_XOR)
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_NOT", Variant::OP_NOT)
-    //containment
-    BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_IN", Variant::OP_IN)
     BIND_GLOBAL_ENUM_CONSTANT_CUSTOM("OP_MAX", Variant::OP_MAX)
 }
 

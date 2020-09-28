@@ -96,7 +96,7 @@ int Physics2DDirectSpaceStateSW::_intersect_point_impl(const Vector2 &p_point, S
             continue;
 
         r_results[cc].collider_id = col_obj->get_instance_id();
-        if (r_results[cc].collider_id != 0)
+        if (r_results[cc].collider_id.is_valid() )
             r_results[cc].collider = gObjectDB().get_instance(r_results[cc].collider_id);
         r_results[cc].rid = col_obj->get_self();
         r_results[cc].shape = shape_idx;
@@ -187,7 +187,7 @@ bool Physics2DDirectSpaceStateSW::intersect_ray(const Vector2 &p_from, const Vec
         return false;
 
     r_result.collider_id = res_obj->get_instance_id();
-    if (r_result.collider_id != 0)
+    if (r_result.collider_id.is_valid())
         r_result.collider = gObjectDB().get_instance(r_result.collider_id);
     r_result.normal = res_normal;
     r_result.metadata = res_obj->get_shape_metadata(res_shape);
@@ -231,7 +231,7 @@ int Physics2DDirectSpaceStateSW::intersect_shape(const RID &p_shape, const Trans
             continue;
 
         r_results[cc].collider_id = col_obj->get_instance_id();
-        if (r_results[cc].collider_id != 0)
+        if (r_results[cc].collider_id.is_valid())
             r_results[cc].collider = gObjectDB().get_instance(r_results[cc].collider_id);
         r_results[cc].rid = col_obj->get_self();
         r_results[cc].shape = shape_idx;
@@ -1166,6 +1166,9 @@ void *Space2DSW::_broadphase_pair(CollisionObject2DSW *A, int p_subindex_A, Coll
 
 void Space2DSW::_broadphase_unpair(CollisionObject2DSW *A, int p_subindex_A, CollisionObject2DSW *B, int p_subindex_B, void *p_data, void *p_self) {
 
+    if (!p_data) {
+        return;
+    }
     Space2DSW *self = (Space2DSW *)p_self;
     self->collision_pairs--;
     Constraint2DSW *c = (Constraint2DSW *)p_data;
@@ -1348,9 +1351,9 @@ Space2DSW::Space2DSW() {
     test_motion_min_contact_depth = 0.005;
 
     constraint_bias = 0.2;
-    body_linear_velocity_sleep_threshold = GLOBAL_DEF("physics/2d/sleep_threshold_linear", 2.0);
-    body_angular_velocity_sleep_threshold = GLOBAL_DEF("physics/2d/sleep_threshold_angular", (8.0 / 180.0 * Math_PI));
-    body_time_to_sleep = GLOBAL_DEF("physics/2d/time_before_sleep", 0.5);
+    body_linear_velocity_sleep_threshold = T_GLOBAL_DEF<float>("physics/2d/sleep_threshold_linear", 2.0f);
+    body_angular_velocity_sleep_threshold = T_GLOBAL_DEF<float>("physics/2d/sleep_threshold_angular", (8.0f / 180.0f * Math_PI));
+    body_time_to_sleep = T_GLOBAL_DEF<float>("physics/2d/time_before_sleep", 0.5f);
     ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/time_before_sleep", PropertyInfo(VariantType::FLOAT, "physics/2d/time_before_sleep", PropertyHint::Range, "0,5,0.01,or_greater"));
 
     broadphase = BroadPhase2DSW::create_func();

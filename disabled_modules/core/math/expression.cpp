@@ -302,7 +302,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
-            *r_return = Math::posmod((int)*p_inputs[0], (int)*p_inputs[1]);
+            *r_return = Math::posmod(p_inputs[0]->as<int>(), p_inputs[1]->as<int>());
         } break;
         case MATH_FLOOR: {
 
@@ -323,7 +323,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             if (p_inputs[0]->get_type() == VariantType::INT) {
 
-                int64_t i = *p_inputs[0];
+                int64_t i = p_inputs[0]->as<int64_t>();
                 *r_return = ABS(i);
             } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
@@ -340,7 +340,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             if (p_inputs[0]->get_type() == VariantType::INT) {
 
-                int64_t i = *p_inputs[0];
+                int64_t i = p_inputs[0]->as<int64_t>();
                 *r_return = i < 0 ? -1 : (i > 0 ? +1 : 0);
             } else if (p_inputs[0]->get_type() == VariantType::FLOAT) {
 
@@ -465,14 +465,14 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         case MATH_SEED: {
 
             VALIDATE_ARG_NUM(0);
-            uint64_t seed = *p_inputs[0];
+            uint64_t seed = p_inputs[0]->as<uint64_t>();
             Math::seed(seed);
 
         } break;
         case MATH_RANDSEED: {
 
             VALIDATE_ARG_NUM(0);
-            uint64_t seed = *p_inputs[0];
+            uint64_t seed = p_inputs[0]->as<uint64_t>();
             int ret = Math::rand_from_seed(&seed);
             Array reta;
             reta.push_back(ret);
@@ -518,7 +518,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
             VALIDATE_ARG_NUM(0);
             VALIDATE_ARG_NUM(1);
             VALIDATE_ARG_NUM(2);
-            *r_return = Math::wrapi((int64_t)*p_inputs[0], (int64_t)*p_inputs[1], (int64_t)*p_inputs[2]);
+            *r_return = Math::wrapi(p_inputs[0]->as<int64_t>(), p_inputs[1]->as<int64_t>(), p_inputs[2]->as<int64_t>());
         } break;
         case MATH_WRAPF: {
             VALIDATE_ARG_NUM(0);
@@ -530,8 +530,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
                 *r_return = M_MAX(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
@@ -548,8 +548,8 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
                 *r_return = MIN(a, b);
             } else {
                 VALIDATE_ARG_NUM(0);
@@ -565,9 +565,9 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             if (p_inputs[0]->get_type() == VariantType::INT && p_inputs[1]->get_type() == VariantType::INT && p_inputs[2]->get_type() == VariantType::INT) {
 
-                int64_t a = *p_inputs[0];
-                int64_t b = *p_inputs[1];
-                int64_t c = *p_inputs[2];
+                int64_t a = p_inputs[0]->as<int64_t>();
+                int64_t b = p_inputs[1]->as<int64_t>();
+                int64_t c = p_inputs[2]->as<int64_t>();
                 *r_return = CLAMP(a, b, c);
             } else {
                 VALIDATE_ARG_NUM(0);
@@ -584,7 +584,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         case LOGIC_NEAREST_PO2: {
 
             VALIDATE_ARG_NUM(0);
-            int64_t num = *p_inputs[0];
+            int64_t num = p_inputs[0]->as<int64_t>();
             *r_return = next_power_of_2(num);
         } break;
         case OBJ_WEAKREF: {
@@ -610,7 +610,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 wref->set_ref(r);
                 *r_return = wref;
             } else {
-                Object *obj = *p_inputs[0];
+                Object *obj = p_inputs[0]->as<Object *>();
                 if (!obj) {
 
                     return;
@@ -642,7 +642,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
 
             Ref<FuncRef> fr(make_ref_counted<FuncRef>());
 
-            fr->set_instance(*p_inputs[0]);
+            fr->set_instance(p_inputs[0]->as<Object *>());
             fr->set_function(p_inputs[1]->as<StringName>());
 
             *r_return = fr;
@@ -651,7 +651,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
         case TYPE_CONVERT: {
 
             VALIDATE_ARG_NUM(1);
-            int type = *p_inputs[1];
+            int type = p_inputs[1]->as<int>();
             if (type < 0 || type >= int(VariantType::VARIANT_MAX)) {
 
                 r_error_str = RTR_utf8("Invalid type argument to convert(), use TYPE_* constants."_sv);
@@ -795,7 +795,7 @@ void Expression::exec_func(BuiltinFunc p_func, const Variant **p_inputs, Variant
                 return;
             }
 
-            PoolByteArray varr = *p_inputs[0];
+            PoolByteArray varr = p_inputs[0]->as<PoolByteArray>();
             bool allow_objects = p_inputs[1]->as<bool>();
             Variant ret;
             {
@@ -1479,7 +1479,7 @@ Expression::ENode *Expression::_parse_expression() {
             case TK_INPUT: {
 
                 InputNode *input = alloc_node<InputNode>();
-                input->index = tk.value;
+                input->index = tk.value.as<int>();
                 expr = input;
             } break;
             case TK_SELF: {
@@ -1495,7 +1495,7 @@ Expression::ENode *Expression::_parse_expression() {
             case TK_BASIC_TYPE: {
                 //constructor..
 
-                VariantType bt = VariantType(int(tk.value));
+                VariantType bt = VariantType(tk.value.as<int>());
                 _get_token(tk);
                 if (tk.type != TK_PARENTHESIS_OPEN) {
                     _set_error("Expected '('");
@@ -1544,7 +1544,7 @@ Expression::ENode *Expression::_parse_expression() {
                 }
 
                 BuiltinFuncNode *bifunc = alloc_node<BuiltinFuncNode>();
-                bifunc->func = BuiltinFunc(int(tk.value));
+                bifunc->func = tk.value.as<BuiltinFunc>();
 
                 while (true) {
 

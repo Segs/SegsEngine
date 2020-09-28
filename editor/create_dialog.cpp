@@ -32,6 +32,7 @@
 #include "editor_feature_profile.h"
 
 #include "core/class_db.h"
+#include "core/callable_method_pointer.h"
 #include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
@@ -103,7 +104,7 @@ void CreateDialog::popup_create(bool p_dont_clear, bool p_replace_mode, const St
 
     // Restore valid window bounds or pop up at default size.
     Rect2 saved_size =
-            EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "create_new_node", Rect2());
+            EditorSettings::get_singleton()->get_project_metadataT("dialog_bounds", "create_new_node", Rect2());
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -248,7 +249,7 @@ void CreateDialog::add_type(
         }
     }
 
-    if (bool(EditorSettings::get_singleton()->get("docks/scene_tree/start_create_dialog_fully_expanded"))) {
+    if ((EditorSettings::get_singleton()->getT<bool>("docks/scene_tree/start_create_dialog_fully_expanded"))) {
         item->set_collapsed(false);
     } else {
         // don't collapse search results
@@ -469,13 +470,13 @@ void CreateDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            connect("confirmed", this, "_confirmed");
+            connect("confirmed",callable_mp(this, &ClassName::_confirmed));
             search_box->set_right_icon(get_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
             favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            disconnect("confirmed", this, "_confirmed");
+            disconnect("confirmed",callable_mp(this, &ClassName::_confirmed));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible_in_tree()) {
@@ -484,7 +485,8 @@ void CreateDialog::_notification(int p_what) {
             }
         } break;
         case NOTIFICATION_POPUP_HIDE: {
-            EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "create_new_node", get_rect());
+            //TODO: original code was calling get_project_metadata here!
+            EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "create_new_node", Rect2(get_position(), get_size()));
             search_loaded_scripts.clear();
         } break;
     }
@@ -532,7 +534,8 @@ Object *CreateDialog::instance_selected() {
         Variant md = selected->get_metadata(0);
 
         StringName custom;
-        if (md.get_type() != VariantType::NIL) custom = md;
+        if (md.get_type() != VariantType::NIL)
+            custom = md.as<StringName>();
 
         if (!custom.empty()) {
             if (ScriptServer::is_global_class(custom)) {
@@ -672,8 +675,8 @@ Variant CreateDialog::get_drag_data_fw(const Point2 &p_point, Control *p_from) {
 
 bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
-    if (d.has("type") && UIString(d["type"]) == "create_favorite_drag") {
+    Dictionary d = p_data.as<Dictionary>();
+    if (d.has("type") && d["type"].as<String>() == "create_favorite_drag") {
         favorites->set_drop_mode_flags(Tree::DROP_MODE_INBETWEEN);
         return true;
     }
@@ -682,7 +685,7 @@ bool CreateDialog::can_drop_data_fw(const Point2 &p_point, const Variant &p_data
 }
 void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     TreeItem *ti = favorites->get_item_at_position(p_point);
     if (!ti) return;
@@ -694,7 +697,7 @@ void CreateDialog::drop_data_fw(const Point2 &p_point, const Variant &p_data, Co
     if (drop_idx >= favorite_list.size())
         return;
 
-    String type = d["class"];
+    String type = d["class"].as<String>();
 
     auto from_idx = favorite_list.index_of(type);
     if (from_idx >= favorite_list.size())
@@ -770,8 +773,8 @@ CreateDialog::CreateDialog() {
     favorites->set_hide_root(true);
     favorites->set_hide_folding(true);
     favorites->set_allow_reselect(true);
-    favorites->connect("cell_selected", this, "_favorite_selected");
-    favorites->connect("item_activated", this, "_favorite_activated");
+    favorites->connect("cell_selected",callable_mp(this, &ClassName::_favorite_selected));
+    favorites->connect("item_activated",callable_mp(this, &ClassName::_favorite_activated));
     favorites->set_drag_forwarding(this);
     favorites->add_constant_override("draw_guides", 1);
 
@@ -785,8 +788,8 @@ CreateDialog::CreateDialog() {
     recent->set_hide_root(true);
     recent->set_hide_folding(true);
     recent->set_allow_reselect(true);
-    recent->connect("cell_selected", this, "_history_selected");
-    recent->connect("item_activated", this, "_history_activated");
+    recent->connect("cell_selected",callable_mp(this, &ClassName::_history_selected));
+    recent->connect("item_activated",callable_mp(this, &ClassName::_history_activated));
     recent->add_constant_override("draw_guides", 1);
 
     VBoxContainer *vbc = memnew(VBoxContainer);
@@ -801,23 +804,23 @@ CreateDialog::CreateDialog() {
     favorite->set_flat(true);
     favorite->set_toggle_mode(true);
     search_hb->add_child(favorite);
-    favorite->connect("pressed", this, "_favorite_toggled");
+    favorite->connect("pressed",callable_mp(this, &ClassName::_favorite_toggled));
     vbc->add_margin_child(TTR("Search:"), search_hb);
-    search_box->connect("text_changed", this, "_text_changed");
-    search_box->connect("gui_input", this, "_sbox_input");
+    search_box->connect("text_changed",callable_mp(this, &ClassName::_text_changed));
+    search_box->connect("gui_input",callable_mp(this, &ClassName::_sbox_input));
     search_options = memnew(Tree);
     vbc->add_margin_child(TTR("Matches:"), search_options, true);
     get_ok()->set_disabled(true);
     register_text_enter(search_box);
     set_hide_on_ok(false);
-    search_options->connect("item_activated", this, "_confirmed");
-    search_options->connect("cell_selected", this, "_item_selected");
+    search_options->connect("item_activated",callable_mp(this, &ClassName::_confirmed));
+    search_options->connect("cell_selected",callable_mp(this, &ClassName::_item_selected));
     base_type = "Object";
     preferred_search_result_type = "";
 
     help_bit = memnew(EditorHelpBit);
     vbc->add_margin_child(TTR("Description:"), help_bit);
-    help_bit->connect("request_hide", this, "_closed");
+    help_bit->connect("request_hide",callable_mp((AcceptDialog *)this, &AcceptDialog::_cancel_pressed));
 
     type_blacklist.insert("PluginScript"); // PluginScript must be initialized before use, which is not possible here
     type_blacklist.insert("ScriptCreateDialog"); // This is an exposed editor Node that doesn't have an Editor prefix.

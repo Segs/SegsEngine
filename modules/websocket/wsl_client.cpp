@@ -341,10 +341,10 @@ Error WSLClient::set_buffers(int p_in_buffer, int p_in_packets, int p_out_buffer
 }
 
 WSLClient::WSLClient() {
-    _in_buf_size = nearest_shift((int)GLOBAL_GET(WSC_IN_BUF) - 1) + 10;
-    _in_pkt_size = nearest_shift((int)GLOBAL_GET(WSC_IN_PKT) - 1);
-    _out_buf_size = nearest_shift((int)GLOBAL_GET(WSC_OUT_BUF) - 1) + 10;
-    _out_pkt_size = nearest_shift((int)GLOBAL_GET(WSC_OUT_PKT) - 1);
+    _in_buf_size = nearest_shift(GLOBAL_GET(WSC_IN_BUF).as<int>() - 1) + 10;
+    _in_pkt_size = nearest_shift(GLOBAL_GET(WSC_IN_PKT).as<int>() - 1);
+    _out_buf_size = nearest_shift(GLOBAL_GET(WSC_OUT_BUF).as<int>() - 1) + 10;
+    _out_pkt_size = nearest_shift(GLOBAL_GET(WSC_OUT_PKT).as<int>() - 1);
 
     _peer = make_ref_counted<WSLPeer>();
     _tcp = make_ref_counted<StreamPeerTCP>();

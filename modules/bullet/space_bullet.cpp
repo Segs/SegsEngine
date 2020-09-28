@@ -114,7 +114,7 @@ bool BulletPhysicsDirectSpaceState::intersect_ray(const Vector3 &p_from, const V
             r_result.shape = btResult.m_shapeId;
             r_result.rid = gObj->get_self();
             r_result.collider_id = gObj->get_instance_id();
-            r_result.collider = 0 == r_result.collider_id ? nullptr : gObjectDB().get_instance(r_result.collider_id);
+            r_result.collider = r_result.collider_id.is_null() ? nullptr : gObjectDB().get_instance(r_result.collider_id);
         } else {
             WARN_PRINT("The raycast performed has hit a collision object that is not part of Godot scene, please check it.");
         }
@@ -358,7 +358,7 @@ SpaceBullet::SpaceBullet() :
         contactDebugCount(0),
         delta_time(0.) {
 
-    create_empty_world(GLOBAL_DEF("physics/3d/active_soft_world", true));
+    create_empty_world(T_GLOBAL_DEF("physics/3d/active_soft_world", true));
     direct_access = memnew(BulletPhysicsDirectSpaceState(this));
 }
 
@@ -384,18 +384,18 @@ void SpaceBullet::set_param(PhysicsServer3D::AreaParameter p_param, const Varian
 
     switch (p_param) {
         case PhysicsServer3D::AREA_PARAM_GRAVITY:
-            gravityMagnitude = p_value;
+            gravityMagnitude = p_value.as<float>();
             update_gravity();
             break;
         case PhysicsServer3D::AREA_PARAM_GRAVITY_VECTOR:
-            gravityDirection = p_value;
+            gravityDirection = p_value.as<Vector3>();
             update_gravity();
             break;
         case PhysicsServer3D::AREA_PARAM_LINEAR_DAMP:
-            linear_damp = p_value;
+            linear_damp = p_value.as<float>();
             break;
         case PhysicsServer3D::AREA_PARAM_ANGULAR_DAMP:
-            angular_damp = p_value;
+            angular_damp = p_value.as<float>();
             break;
         case PhysicsServer3D::AREA_PARAM_PRIORITY:
             // Priority is always 0, the lower

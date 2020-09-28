@@ -93,19 +93,19 @@ void Skin::clear_binds() {
 bool Skin::_set(const StringName &p_name, const Variant &p_value) {
     using namespace StringUtils;
     if (p_name == "bind_count") {
-        set_bind_count(p_value);
+        set_bind_count(p_value.as<int>());
         return true;
     } else if (begins_with(p_name,"bind/")) {
         int index = to_int(get_slice(p_name,'/', 1));
         StringName what(get_slice(p_name,'/', 2));
         if (what == "bone") {
-            set_bind_bone(index, p_value);
+            set_bind_bone(index, p_value.as<int>());
             return true;
         } else if (what == "name") {
-            set_bind_name(index, p_value);
+            set_bind_name(index, p_value.as<StringName>());
             return true;
         } else if (what == "pose") {
-            set_bind_pose(index, p_value);
+            set_bind_pose(index, p_value.as<Transform>());
             return true;
         }
     }
@@ -137,7 +137,7 @@ bool Skin::_get(const StringName &p_name, Variant &r_ret) const {
 void Skin::_get_property_list(Vector<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(VariantType::INT, "bind_count", PropertyHint::Range, "0,16384,1,or_greater"));
     for (int i = 0; i < get_bind_count(); i++) {
-        p_list->emplace_back(VariantType::INT, StringName("bind/" + itos(i) + "/name"));
+        p_list->emplace_back(VariantType::STRING_NAME, StringName("bind/" + itos(i) + "/name"));
         auto bone_flag= !get_bind_name(i).empty() ? PROPERTY_USAGE_NOEDITOR : PROPERTY_USAGE_DEFAULT;
         p_list->emplace_back(VariantType::INT, StringName("bind/" + itos(i) + "/bone"), PropertyHint::Range, "0,16384,1,or_greater",bone_flag);
         p_list->emplace_back(VariantType::TRANSFORM, StringName("bind/" + itos(i) + "/pose"));

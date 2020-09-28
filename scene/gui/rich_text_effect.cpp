@@ -58,7 +58,7 @@ bool RichTextEffect::_process_effect_impl(const Ref<CharFXTransform>& p_cfx) {
         if (v.get_type() != VariantType::BOOL) {
             return_value = false;
         } else {
-            return_value = (bool)v;
+            return_value = v.as<bool>();
         }
     }
     return return_value;

@@ -63,8 +63,8 @@ bool EditorPropertyArrayObject::_get(const StringName &p_name, Variant &r_ret) c
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         bool valid;
         r_ret = array.get(idx, &valid);
-        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+        if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+            r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
         }
 
         return valid;
@@ -129,8 +129,8 @@ bool EditorPropertyDictionaryObject::_get(const StringName &p_name, Variant &r_r
         int idx = StringUtils::to_int(StringUtils::get_slice(p_name,'/', 1));
         Variant key = dict.get_key_at_index(idx);
         r_ret = dict[key];
-        if (r_ret.get_type() == VariantType::OBJECT && object_cast<EncodedObjectAsID>(r_ret)) {
-            r_ret = object_cast<EncodedObjectAsID>(r_ret)->get_object_id();
+        if (r_ret.get_type() == VariantType::OBJECT && r_ret.asT<EncodedObjectAsID>()) {
+            r_ret = Variant::from(r_ret.asT<EncodedObjectAsID>()->get_object_id());
         }
 
         return true;
@@ -177,7 +177,7 @@ void EditorPropertyArray::_property_changed(const StringName &p_prop, const Vari
         emit_changed(get_edited_property(), array, "", true);
 
         if (array.get_type() == VariantType::ARRAY) {
-            array = array.call("duplicate"); //dupe, so undo/redo works better
+            array = VariantOps::duplicate(array); //dupe, so undo/redo works better
         }
         object->set_array(array);
     }
@@ -200,16 +200,14 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
         return;
     }
 
-    Variant value;
-    Callable::CallError ce;
-    value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
+    Variant value = Variant::construct_default(VariantType(p_index));
     Variant array = object->get_array();
     array.set(changing_type_idx, value);
 
     emit_changed(get_edited_property(), array, "", true);
 
     if (array.get_type() == VariantType::ARRAY) {
-        array = array.call("duplicate"); //dupe, so undo/redo works better
+        array = VariantOps::duplicate(array); //dupe, so undo/redo works better
     }
 
     object->set_array(array);
@@ -217,7 +215,7 @@ void EditorPropertyArray::_change_type_menu(int p_index) {
 }
 
 void EditorPropertyArray::_object_id_selected(StringView p_property, ObjectID p_id) {
-    emit_signal("object_id_selected", p_property, p_id);
+    emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
 void EditorPropertyArray::update_property() {
@@ -274,7 +272,7 @@ void EditorPropertyArray::update_property() {
         return;
     }
 
-    edit->set_text_utf8(String(arrtype) + " (size " + itos(array.call("size")) + ")");
+    edit->set_text_utf8(String(arrtype) + " (size " + itos(VariantOps::size(array)) + ")");
 
     bool unfolded = get_edited_object()->get_tooling_interface()->editor_is_section_unfolded(get_edited_property());
     if (edit->is_pressed() != unfolded) {
@@ -300,7 +298,7 @@ void EditorPropertyArray::update_property() {
             length->set_max(1000000);
             length->set_h_size_flags(SIZE_EXPAND_FILL);
             hbc->add_child(length);
-            length->connect("value_changed", this, "_length_changed");
+            length->connect("value_changed",callable_mp(this, &ClassName::_length_changed));
 
             page_hb = memnew(HBoxContainer);
             vbox->add_child(page_hb);
@@ -311,7 +309,7 @@ void EditorPropertyArray::update_property() {
             page->set_step(1);
             page_hb->add_child(page);
             page->set_h_size_flags(SIZE_EXPAND_FILL);
-            page->connect("value_changed", this, "_page_changed");
+            page->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
         } else {
             //bye bye children of the box
             while (vbox->get_child_count() > 2) {
@@ -320,7 +318,7 @@ void EditorPropertyArray::update_property() {
             }
         }
 
-        int len = array.call("size");
+        int len = VariantOps::size(array);
 
         length->set_value(len);
 
@@ -336,7 +334,7 @@ void EditorPropertyArray::update_property() {
         int amount = MIN(len - offset, page_len);
 
         if (array.get_type() == VariantType::ARRAY) {
-            array = array.call("duplicate");
+            array = VariantOps::duplicate(array);
         }
 
         object->set_array(array);
@@ -352,7 +350,7 @@ void EditorPropertyArray::update_property() {
                 value_type = subtype;
             }
 
-            if (value_type == VariantType::OBJECT && object_cast<EncodedObjectAsID>(value)) {
+            if (value_type == VariantType::OBJECT && value.asT<EncodedObjectAsID>()) {
                 EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                 editor->setup("Object");
                 prop = editor;
@@ -363,8 +361,8 @@ void EditorPropertyArray::update_property() {
             prop->set_object_and_property(object.get(), prop_name);
             prop->set_label(itos(i + offset));
             prop->set_selectable(false);
-            prop->connect("property_changed", this, "_property_changed");
-            prop->connect("object_id_selected", this, "_object_id_selected");
+            prop->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
+            prop->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected));
             prop->set_h_size_flags(SIZE_EXPAND_FILL);
 
             HBoxContainer *hb = memnew(HBoxContainer);
@@ -379,12 +377,12 @@ void EditorPropertyArray::update_property() {
                 Button *edit = memnew(Button);
                 edit->set_button_icon(get_icon("Edit", "EditorIcons"));
                 hb->add_child(edit);
-                edit->connect("pressed", this, "_change_type", varray(Variant(edit), i + offset));
+                edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), i + offset));
             } else {
 
                 Button *remove = memnew(Button);
                 remove->set_button_icon(get_icon("Remove", "EditorIcons"));
-                remove->connect("pressed", this, "_remove_pressed", varray(i + offset));
+                remove->connect("pressed",callable_mp(this, &ClassName::_remove_pressed), varray(i + offset));
                 hb->add_child(remove);
             }
 
@@ -405,10 +403,11 @@ void EditorPropertyArray::update_property() {
 void EditorPropertyArray::_remove_pressed(int p_index) {
 
     Variant array = object->get_array();
-    array.call("remove", p_index);
+
+    VariantOps::remove(array,p_index);
 
     if (array.get_type() == VariantType::ARRAY) {
-        array = array.call("duplicate");
+        array = VariantOps::duplicate(array);
     }
 
     emit_changed(get_edited_property(), array, "", false);
@@ -422,8 +421,7 @@ void EditorPropertyArray::_edit_pressed() {
 
     Variant array = get_edited_object()->get(get_edited_property());
     if (!array.is_array()) {
-        Callable::CallError ce;
-        array = Variant::construct(array_type, nullptr, 0, ce);
+        array = Variant::construct_default(array_type);
 
         get_edited_object()->set(get_edited_property(), array);
     }
@@ -444,27 +442,24 @@ void EditorPropertyArray::_length_changed(double p_page) {
         return;
 
     Variant array = object->get_array();
-    int previous_size = array.call("size");
-
-    array.call("resize", int(p_page));
+    int previous_size = VariantOps::size(array);
+    VariantOps::resize(array,int(p_page));
 
     if (array.get_type() == VariantType::ARRAY) {
         if (subtype != VariantType::NIL) {
-            int size = array.call("size");
+            int size = VariantOps::size(array);
             for (int i = previous_size; i < size; i++) {
                 if (array.get(i).get_type() == VariantType::NIL) {
-                    Callable::CallError ce;
-                    array.set(i, Variant::construct(subtype, nullptr, 0, ce));
+                    array.set(i, Variant::construct_default(subtype));
                 }
             }
         }
-        array = array.call("duplicate"); //dupe, so undo/redo works better
+        array = VariantOps::duplicate(array); //dupe, so undo/redo works better
     } else {
-        int size = array.call("size");
+        int size = VariantOps::size(array);
         // Pool*Array don't initialize their elements, have to do it manually
         for (int i = previous_size; i < size; i++) {
-            Callable::CallError ce;
-            array.set(i, Variant::construct(array.get(i).get_type(), nullptr, 0, ce));
+            array.set(i, Variant::construct_default(array.get(i).get_type()));
         }
     }
 
@@ -513,7 +508,7 @@ EditorPropertyArray::EditorPropertyArray() {
     edit->set_flat(true);
     edit->set_h_size_flags(SIZE_EXPAND_FILL);
     edit->set_clip_text(true);
-    edit->connect("pressed", this, "_edit_pressed");
+    edit->connect("pressed",callable_mp(this, &ClassName::_edit_pressed));
     edit->set_toggle_mode(true);
     add_child(edit);
     add_focusable(edit);
@@ -523,7 +518,7 @@ EditorPropertyArray::EditorPropertyArray() {
     updating = false;
     change_type = memnew(PopupMenu);
     add_child(change_type);
-    change_type->connect("id_pressed", this, "_change_type_menu");
+    change_type->connect("id_pressed",callable_mp(this, &ClassName::_change_type_menu));
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         StringName type(Variant::interned_type_name(VariantType(i)));
@@ -595,9 +590,7 @@ void EditorPropertyDictionary::_add_key_value() {
 void EditorPropertyDictionary::_change_type_menu(int p_index) {
 
     if (changing_type_idx < 0) {
-        Variant value;
-        Callable::CallError ce;
-        value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
+        Variant value = Variant::construct_default(VariantType(p_index));
         if (changing_type_idx == -1) {
             object->set_new_item_key(value);
         } else {
@@ -611,9 +604,7 @@ void EditorPropertyDictionary::_change_type_menu(int p_index) {
 
     if (p_index < (int)VariantType::VARIANT_MAX) {
 
-        Variant value;
-        Callable::CallError ce;
-        value = Variant::construct(VariantType(p_index), nullptr, 0, ce);
+        Variant value = Variant::construct_default(VariantType(p_index));
         Variant key = dict.get_key_at_index(changing_type_idx);
         dict[key] = value;
     } else {
@@ -643,7 +634,7 @@ void EditorPropertyDictionary::update_property() {
         return;
     }
 
-    Dictionary dict = updated_val;
+    Dictionary dict = updated_val.as<Dictionary>();
 
     edit->set_text_utf8(String("Dictionary (size ") + itos(dict.size()) + ")");
 
@@ -671,7 +662,7 @@ void EditorPropertyDictionary::update_property() {
             page->set_step(1);
             page_hb->add_child(page);
             page->set_h_size_flags(SIZE_EXPAND_FILL);
-            page->connect("value_changed", this, "_page_changed");
+            page->connect("value_changed",callable_mp(this, &ClassName::_page_changed));
         } else {
             // Queue children for deletion, deleting immediately might cause errors.
             for (int i = 1; i < vbox->get_child_count(); i++) {
@@ -814,6 +805,12 @@ void EditorPropertyDictionary::update_property() {
                     prop = memnew(EditorPropertyColor);
 
                 } break;
+                case VariantType::STRING_NAME: {
+                    EditorPropertyText *ept = memnew(EditorPropertyText);
+                    ept->set_string_name(true);
+                    prop = ept;
+
+                } break;
                 case VariantType::NODE_PATH: {
                     prop = memnew(EditorPropertyNodePath);
 
@@ -824,7 +821,7 @@ void EditorPropertyDictionary::update_property() {
                 } break;
                 case VariantType::OBJECT: {
 
-                    if (object_cast<EncodedObjectAsID>(value)) {
+                    if (value.asT<EncodedObjectAsID>()) {
 
                         EditorPropertyObjectID *editor = memnew(EditorPropertyObjectID);
                         editor->setup("Object");
@@ -925,8 +922,8 @@ void EditorPropertyDictionary::update_property() {
             }
 
             prop->set_selectable(false);
-            prop->connect("property_changed", this, "_property_changed");
-            prop->connect("object_id_selected", this, "_object_id_selected");
+            prop->connect("property_changed",callable_mp(this, &ClassName::_property_changed));
+            prop->connect("object_id_selected",callable_mp(this, &ClassName::_object_id_selected));
 
             HBoxContainer *hb = memnew(HBoxContainer);
             if (add_vbox) {
@@ -939,14 +936,14 @@ void EditorPropertyDictionary::update_property() {
             Button *edit = memnew(Button);
             edit->set_button_icon(get_icon("Edit", "EditorIcons"));
             hb->add_child(edit);
-            edit->connect("pressed", this, "_change_type", varray(Variant(edit), change_index));
+            edit->connect("pressed",callable_mp(this, &ClassName::_change_type), varray(Variant(edit), change_index));
 
             prop->update_property();
 
             if (i == amount + 1) {
                 Button *butt_add_item = memnew(Button);
                 butt_add_item->set_text(TTR("Add Key/Value Pair"));
-                butt_add_item->connect("pressed", this, "_add_key_value");
+                butt_add_item->connect("pressed",callable_mp(this, &ClassName::_add_key_value));
                 add_vbox->add_child(butt_add_item);
             }
         }
@@ -963,7 +960,7 @@ void EditorPropertyDictionary::update_property() {
 }
 
 void EditorPropertyDictionary::_object_id_selected(StringView p_property, ObjectID p_id) {
-    emit_signal("object_id_selected", p_property, p_id);
+    emit_signal("object_id_selected", p_property, Variant::from(p_id));
 }
 
 void EditorPropertyDictionary::_notification(int p_what) {
@@ -973,8 +970,7 @@ void EditorPropertyDictionary::_edit_pressed() {
 
     Variant prop_val = get_edited_object()->get(get_edited_property());
     if (prop_val.get_type() == VariantType::NIL) {
-        Callable::CallError ce;
-        prop_val = Variant::construct(VariantType::DICTIONARY, nullptr, 0, ce);
+        prop_val = Variant::construct_default(VariantType::DICTIONARY);
         get_edited_object()->set(get_edited_property(), prop_val);
     }
 
@@ -1008,7 +1004,7 @@ EditorPropertyDictionary::EditorPropertyDictionary() {
     edit->set_flat(true);
     edit->set_h_size_flags(SIZE_EXPAND_FILL);
     edit->set_clip_text(true);
-    edit->connect("pressed", this, "_edit_pressed");
+    edit->connect("pressed",callable_mp(this, &ClassName::_edit_pressed));
     edit->set_toggle_mode(true);
     add_child(edit);
     add_focusable(edit);
@@ -1017,7 +1013,7 @@ EditorPropertyDictionary::EditorPropertyDictionary() {
     updating = false;
     change_type = memnew(PopupMenu);
     add_child(change_type);
-    change_type->connect("id_pressed", this, "_change_type_menu");
+    change_type->connect("id_pressed",callable_mp(this, &ClassName::_change_type_menu));
 
     for (int i = 0; i < (int)VariantType::VARIANT_MAX; i++) {
         StringName type(Variant::interned_type_name(VariantType(i)));

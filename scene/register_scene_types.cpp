@@ -842,7 +842,7 @@ void register_scene_types() {
 #endif
     ClassDB::register_class<NavigationMesh>();
 
-    AcceptDialog::set_swap_ok_cancel(GLOBAL_DEF("gui/common/swap_ok_cancel", bool(OS::get_singleton()->get_swap_ok_cancel())));
+    AcceptDialog::set_swap_ok_cancel(T_GLOBAL_DEF("gui/common/swap_ok_cancel", bool(OS::get_singleton()->get_swap_ok_cancel())));
 
     ClassDB::register_class<Shader>();
     ClassDB::register_class<VisualShader>();
@@ -1111,11 +1111,11 @@ void register_scene_types() {
         GLOBAL_DEF(StringName("layer_names/3d_physics/layer_" + itos(i + 1)), "");
     }
 
-    bool default_theme_hidpi = GLOBAL_DEF("gui/theme/use_hidpi", false);
+    bool default_theme_hidpi = T_GLOBAL_DEF("gui/theme/use_hidpi", false);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/use_hidpi", PropertyInfo(VariantType::BOOL, "gui/theme/use_hidpi", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String theme_path = GLOBAL_DEF("gui/theme/custom", "");
+    String theme_path = T_GLOBAL_DEF("gui/theme/custom", String());
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom", PropertyInfo(VariantType::STRING, "gui/theme/custom", PropertyHint::File, "*.tres,*.res,*.theme", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
-    String font_path = GLOBAL_DEF("gui/theme/custom_font", "");
+    String font_path = T_GLOBAL_DEF("gui/theme/custom_font", String());
     ProjectSettings::get_singleton()->set_custom_property_info("gui/theme/custom_font", PropertyInfo(VariantType::STRING, "gui/theme/custom_font", PropertyHint::File, "*.tres,*.res,*.font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_RESTART_IF_CHANGED));
 
     Ref<Font> font;

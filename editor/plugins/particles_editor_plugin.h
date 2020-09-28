@@ -51,7 +51,6 @@ protected:
     MenuButton *options;
     HBoxContainer *particles_editor_hb;
 
-    EditorFileDialog *emission_file_dialog;
     SceneTreeDialog *emission_tree_dialog;
 
     ConfirmationDialog *emission_dialog;
@@ -82,7 +81,6 @@ class ParticlesEditor : public ParticlesEditorBase {
 
         MENU_OPTION_GENERATE_AABB,
         MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_NODE,
-        MENU_OPTION_CREATE_EMISSION_VOLUME_FROM_MESH,
         MENU_OPTION_CLEAR_EMISSION_VOLUME,
         MENU_OPTION_CONVERT_TO_CPU_PARTICLES,
         MENU_OPTION_RESTART,

@@ -31,6 +31,31 @@
 #pragma once
 
 #include <stdint.h>
+#include "core/typedefs.h"
 
-typedef uint64_t ObjectID;
+// Class to store an object ID (int64)
+// needs to be compatile with int64 because this is what Variant uses
+// Also, need to be explicitly only castable to 64 bits integer types
+// to avoid bugs due to loss of precision
+
+class ObjectID {
+    uint64_t id = 0;
+public:
+    _ALWAYS_INLINE_ constexpr operator uint64_t() const { return id; }
+    _ALWAYS_INLINE_ constexpr operator int64_t() const { return id; }
+
+    _ALWAYS_INLINE_ constexpr bool operator==(const ObjectID& p_id) const { return id == p_id.id; }
+    _ALWAYS_INLINE_ constexpr bool operator!=(const ObjectID& p_id) const { return id != p_id.id; }
+    _ALWAYS_INLINE_ constexpr bool operator<(const ObjectID& p_id) const { return id < p_id.id; }
+
+    //_ALWAYS_INLINE_ constexpr ObjectID & operator=(int64_t p_int64) { id = p_int64; return *this; }
+    _ALWAYS_INLINE_ constexpr ObjectID & operator=(uint64_t p_uint64) { id = p_uint64; return *this; }
+
+    _ALWAYS_INLINE_ constexpr ObjectID() {}
+    _ALWAYS_INLINE_ constexpr explicit ObjectID(const uint64_t p_id) { id = p_id; }
+    //_ALWAYS_INLINE_ constexpr explicit ObjectID(const int64_t p_id) { id = p_id; }
+
+    _ALWAYS_INLINE_ constexpr bool is_valid() const { return id != 0; }
+    _ALWAYS_INLINE_ constexpr bool is_null() const { return id == 0; }
+};
 

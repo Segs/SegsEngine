@@ -28,9 +28,9 @@ bool SceneLibrary::_set(const StringName &p_name, const Variant &p_value) {
         if (what == "name"_sv)
             set_item_name(idx, p_value.as<String>());
         else if (what == "scene"_sv)
-            set_item_scene(idx, refFromRefPtr<PackedScene>(p_value));
+            set_item_scene(idx, refFromVariant<PackedScene>(p_value));
         else if (what == "preview"_sv)
-            set_item_preview(idx, refFromRefPtr<Texture>(p_value));
+            set_item_preview(idx, refFromVariant<Texture>(p_value));
         else
             return false;
 

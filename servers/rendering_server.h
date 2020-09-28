@@ -842,7 +842,7 @@ public:
 
     virtual void call_set_use_vsync(bool p_enable) = 0;
 
-    virtual bool is_low_end() const = 0;
+    //virtual bool is_low_end() const = 0;
 
     RenderingServer();
     ~RenderingServer() override;

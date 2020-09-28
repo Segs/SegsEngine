@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include "core/list.h"
 #include "core/method_ptrcall.h"
 #include "core/method_info.h"
 #include "core/method_bind_interface.h"
@@ -40,8 +39,6 @@
 #include "core/string_utils.h"
 #include "core/math/vector3.h"
 
-#include <cstdio>
-//#include <type_traits>
 #include "EASTL/type_traits.h"
 
 #include <functional>
@@ -67,8 +64,8 @@ struct VariantObjectClassChecker {
 template <>
 struct VariantObjectClassChecker<Node *> {
     static bool check(const Variant &p_variant) {
-        Object *obj = p_variant.as<Object *>();
-        Node *node = p_variant.as<Node *>();
+        Object *obj = (Object * )p_variant;
+        Node *node = (Node * )p_variant;
         return node || !obj;
     }
 };
@@ -76,8 +73,8 @@ struct VariantObjectClassChecker<Node *> {
 template <>
 struct VariantObjectClassChecker<Control *> {
     static bool check(const Variant &p_variant) {
-        Object *obj = p_variant;
-        Control *control = p_variant;
+        Object *obj = (Object * )p_variant;
+        Control *control = (Control * )p_variant;
         return control || !obj;
     }
 };
@@ -99,12 +96,12 @@ VARIANT_ENUM_CAST(VariantType)
 
 VARIANT_ENUM_CAST(Variant::Operator)
 
-template <>
-struct VariantCaster<char16_t> {
-    static char16_t cast(const Variant &p_variant) {
-        return (char16_t)p_variant.operator int();
-    }
-};
+//template <>
+//struct VariantCaster<char16_t> {
+//    static char16_t cast(const Variant &p_variant) {
+//        return (char16_t)p_variant.operator int();
+//    }
+//};
 
 
 template <class T>
@@ -159,7 +156,7 @@ struct ArgumentWrapper {
     Result doit() const {
         if(IDX>=p_arg_count)
         {
-            size_t def_idx = default_args.size() - IDX - 1;
+            ssize_t def_idx = ssize_t(default_args.size()) - IDX - 1;
             if (def_idx < 0 || def_idx >= default_args.size())
                 return &Variant::null_variant;
             else
@@ -170,13 +167,13 @@ struct ArgumentWrapper {
 };
 #ifdef DEBUG_METHODS_ENABLED
 
-struct GetPropertyType {
-    using Result = RawPropertyInfo;
-    template<class TS,int IDX>
-    static constexpr Result doit() noexcept {
-        return GetTypeInfo<TS>::get_class_info();
-    }
-};
+//struct GetPropertyType {
+//    using Result = RawPropertyInfo;
+//    template<class TS,int IDX>
+//    static constexpr Result doit() noexcept {
+//        return GetTypeInfo<TS>::get_class_info();
+//    }
+//};
 #endif
 template<class T, class RESULT,typename ...Args>
 class MethodBindVA final : public MethodBind {
@@ -202,8 +199,7 @@ protected:
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
             return std::invoke(method, instance,
-                    VariantCaster<typename std::tuple_element<Is, Params>::type>::cast(
-                            *visit_at_ce<ArgumentWrapper, Args...>(Is, wrap))...);
+                    (eastl::decay_t<typename std::tuple_element<Is, Params>::type>)*visit_at_ce<ArgumentWrapper, Args...>(Is, wrap)...);
         }
     }
     using Params = std::tuple<Args...>;
@@ -222,6 +218,11 @@ public:
         GetTypeInfo<typename eastl::conditional<eastl::is_same_v<void,RESULT>, bool , RESULT>::type >::PASS_BY,
         GetTypeInfo<Args>::PASS_BY ...
     };
+    constexpr static RawPropertyInfo arg_infos[sizeof...(Args) + 1] = {
+        GetTypeInfo<RESULT>::get_class_info(),
+        GetTypeInfo<Args>::get_class_info() ...
+    };
+
     Span<const GodotTypeInfo::Metadata> do_get_argument_meta() const override {
         return s_metadata;
     }
@@ -229,16 +230,14 @@ public:
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
-        if(p_arg==-1) {
-            if constexpr (!eastl::is_same_v<void,RESULT>) {
-                return GetTypeInfo<RESULT>::get_class_info();
-            }
-            else
-                return {};
-        }
-        if(p_arg<0 || size_t(p_arg)>= sizeof...(Args))
-            return {};
-        return visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
+//        RawPropertyInfo res;
+//        if(p_arg<-1 || size_t(p_arg) >= sizeof...(Args)) {
+//            return res;
+//        }
+//        else if(p_arg>=0 && size_t(p_arg)< sizeof...(Args))
+//            res=visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
+//        assert(res==arg_infos[p_arg+1]);
+        return arg_infos[p_arg+1];
     }
 #endif
 

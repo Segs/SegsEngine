@@ -98,7 +98,7 @@ MonoString *godot_icall_GodotSharpDirs_MonoSolutionsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_mono_solutions_dir());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -106,7 +106,7 @@ MonoString *godot_icall_GodotSharpDirs_BuildLogsDirs() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_build_logs_dir());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -114,7 +114,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectSlnPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_sln_path());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -122,7 +122,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectCsProjPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_csproj_path());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -130,7 +130,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorToolsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_tools_dir());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -138,7 +138,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorPrebuiltApiDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_prebuilt_api_dir());
 #else
-    return NULL;
+	return nullptr;
 #endif
 }
 
@@ -154,7 +154,7 @@ MonoString *godot_icall_GodotSharpDirs_DataMonoBinDir() {
 #ifdef WINDOWS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_mono_bin_dir());
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 
@@ -214,12 +214,10 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
     ScriptClassParser scp;
     Error err = scp.parse_file(filepath);
     if (err == OK) {
-        Array classes = GDMonoMarshal::mono_object_to_variant(p_classes);
+        Array classes = GDMonoMarshal::mono_object_to_variant(p_classes).as<Array>();
         const Vector<ScriptClassParser::ClassDecl> &class_decls = scp.get_classes();
 
-        for (int i = 0; i < class_decls.size(); i++) {
-            const ScriptClassParser::ClassDecl &classDecl = class_decls[i];
-
+        for (const ScriptClassParser::ClassDecl &classDecl : class_decls) {
             Dictionary classDeclDict;
             classDeclDict["name"] = classDecl.name;
             classDeclDict["namespace"] = classDecl.namespace_;
@@ -238,10 +236,10 @@ int32_t godot_icall_ScriptClassParser_ParseFile(MonoString *p_filepath, MonoObje
 
 uint32_t godot_icall_ExportPlugin_GetExportedAssemblyDependencies(MonoObject *p_initial_assemblies,
         MonoString *p_build_config, MonoString *p_custom_bcl_dir, MonoObject *r_assembly_dependencies) {
-    Dictionary initial_dependencies = GDMonoMarshal::mono_object_to_variant(p_initial_assemblies);
+    Dictionary initial_dependencies = GDMonoMarshal::mono_object_to_variant(p_initial_assemblies).as<Dictionary>();
     String build_config = GDMonoMarshal::mono_string_to_godot(p_build_config);
     String custom_bcl_dir = GDMonoMarshal::mono_string_to_godot(p_custom_bcl_dir);
-    Dictionary assembly_dependencies = GDMonoMarshal::mono_object_to_variant(r_assembly_dependencies);
+    Dictionary assembly_dependencies = GDMonoMarshal::mono_object_to_variant(r_assembly_dependencies).as<Dictionary>();
 
     return GodotSharpExport::get_exported_assembly_dependencies(initial_dependencies, build_config, custom_bcl_dir, assembly_dependencies);
 }
@@ -340,7 +338,7 @@ MonoString *godot_icall_Internal_MonoWindowsInstallRoot() {
     String install_root_dir = GDMono::get_singleton()->get_mono_reg_info().install_root_dir;
     return GDMonoMarshal::mono_string_from_godot(install_root_dir);
 #else
-    return NULL;
+    return nullptr;
 #endif
 }
 

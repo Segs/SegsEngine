@@ -59,7 +59,7 @@ IMPL_GDCLASS(ResourceImporterScene)
 uint32_t EditorSceneImporter::get_import_flags() const {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("_get_import_flags");
+        return get_script_instance()->call("_get_import_flags").as<uint32_t>();
     }
 
     ERR_FAIL_V(0);
@@ -67,7 +67,7 @@ uint32_t EditorSceneImporter::get_import_flags() const {
 void EditorSceneImporter::get_extensions(Vector<String> &r_extensions) const {
 
     if (get_script_instance()) {
-        Array arr = get_script_instance()->call("_get_extensions");
+        Array arr = get_script_instance()->call("_get_extensions").as<Array>();
         for (int i = 0; i < arr.size(); i++) {
             r_extensions.push_back(arr[i].as<String>());
         }
@@ -80,7 +80,7 @@ Node *EditorSceneImporter::import_scene(
         StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
 
     if (get_script_instance()) {
-        return get_script_instance()->call("_import_scene", p_path, p_flags, p_bake_fps);
+        return get_script_instance()->call("_import_scene", p_path, p_flags, p_bake_fps).as<Node *>();
     }
 
     ERR_FAIL_V(nullptr);
@@ -89,7 +89,7 @@ Node *EditorSceneImporter::import_scene(
 Ref<Animation> EditorSceneImporter::import_animation(StringView p_path, uint32_t p_flags, int p_bake_fps) {
 
     if (get_script_instance()) {
-        return refFromRefPtr<Animation>(get_script_instance()->call("_import_animation", p_path, p_flags));
+        return refFromVariant<Animation>(get_script_instance()->call("_import_animation", p_path, p_flags));
     }
 
     ERR_FAIL_V(Ref<Animation>());
@@ -151,7 +151,7 @@ void EditorScenePostImport::_bind_methods() {
 
 Node *EditorScenePostImport::post_import(Node *p_scene) {
 
-    if (get_script_instance()) return get_script_instance()->call("post_import", Variant(p_scene));
+    if (get_script_instance()) return get_script_instance()->call("post_import", Variant(p_scene)).as<Node *>();
 
     return p_scene;
 }
@@ -203,28 +203,28 @@ bool ResourceImporterScene::get_option_visibility(
         const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     if (StringUtils::begins_with(p_option, "animation/")) {
-        if (p_option != StringView("animation/import") && !bool(p_options.at("animation/import"))) return false;
+        if (p_option != StringView("animation/import") && !p_options.at("animation/import").as<bool>()) return false;
 
-        if (p_option == "animation/keep_custom_tracks" && int(p_options.at("animation/storage")) == 0) return false;
+        if (p_option == "animation/keep_custom_tracks" && p_options.at("animation/storage").as<int>() == 0) return false;
 
         if (StringUtils::begins_with(p_option, "animation/optimizer/") &&
                 p_option != StringView("animation/optimizer/enabled") &&
-                !bool(p_options.at("animation/optimizer/enabled")))
+                !p_options.at("animation/optimizer/enabled").as<bool>())
             return false;
 
         if (StringUtils::begins_with(p_option, "animation/clip_")) {
-            int max_clip = p_options.at("animation/clips/amount");
+            int max_clip = p_options.at("animation/clips/amount").as<int>();
             int clip =
                     StringUtils::to_int(StringUtils::get_slice(StringUtils::get_slice(p_option, '/', 1), '_', 1)) - 1;
             if (clip >= max_clip) return false;
         }
     }
 
-    if (p_option == "materials/keep_on_reimport" && int(p_options.at("materials/storage")) == 0) {
+    if (p_option == "materials/keep_on_reimport" && p_options.at("materials/storage").as<int>() == 0) {
         return false;
     }
 
-    if (p_option == "meshes/lightmap_texel_size" && int(p_options.at("meshes/light_baking")) < 2) {
+    if (p_option == "meshes/lightmap_texel_size" && p_options.at("meshes/light_baking").as<int>() < 2) {
         return false;
     }
 
@@ -262,7 +262,7 @@ static bool _teststr(const String &p_what, const char *_str) {
 
     // remove trailing spaces and numbers, some apps like blender add ".number" to duplicates so also compensate for
     // this
-    while (!what.empty() && ((what.back() >= '0' && what.back() <= '9') || what.back() <= 32 || what.back() == '.')) {
+    while (!what.empty() && (what.back() >= '0' && what.back() <= '9' || what.back() <= 32 || what.back() == '.')) {
 
         what = StringUtils::substr(what, 0, what.length() - 1);
     }
@@ -449,7 +449,7 @@ Node *ResourceImporterScene::_fix_node(
             }
 
         } else if (p_node->has_meta("empty_draw_type")) {
-            String empty_draw_type = String(p_node->get_meta("empty_draw_type"));
+            String empty_draw_type = p_node->get_meta("empty_draw_type").as<String>();
             StaticBody3D *sb = memnew(StaticBody3D);
             sb->set_name(_fixstr(name, "colonly"));
             object_cast<Node3D>(sb)->set_transform(object_cast<Node3D>(p_node)->get_transform());
@@ -689,10 +689,10 @@ void ResourceImporterScene::_create_clips(Node *scene, const Array &p_clips, boo
 
     for (int i = 0; i < p_clips.size(); i += 4) {
 
-        String name = p_clips[i];
-        float from = p_clips[i + 1];
-        float to = p_clips[i + 2];
-        bool loop = p_clips[i + 3];
+        String name = p_clips[i].as<String>();
+        float from = p_clips[i + 1].as<float>();
+        float to = p_clips[i + 2].as<float>();
+        bool loop = p_clips[i + 3].as<bool>();
         if (from >= to) continue;
 
         Ref<Animation> new_anim(make_ref_counted<Animation>());
@@ -1233,14 +1233,10 @@ void ResourceImporterScene::get_import_options(Vector<ResourceImporterInterface:
                                  PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED),
                     0));
     for (int i = 0; i < 256; i++) {
-        r_options->push_back(ImportOption(
-                PropertyInfo(VariantType::STRING, StringName("animation/clip_" + itos(i + 1) + "/name")), ""));
-        r_options->push_back(ImportOption(
-                PropertyInfo(VariantType::INT, StringName("animation/clip_" + itos(i + 1) + "/start_frame")), 0));
-        r_options->push_back(ImportOption(
-                PropertyInfo(VariantType::INT, StringName("animation/clip_" + itos(i + 1) + "/end_frame")), 0));
-        r_options->push_back(ImportOption(
-                PropertyInfo(VariantType::BOOL, StringName("animation/clip_" + itos(i + 1) + "/loops")), false));
+        r_options->emplace_back(PropertyInfo(VariantType::STRING, StringName("animation/clip_" + itos(i + 1) + "/name")), "");
+        r_options->emplace_back(PropertyInfo(VariantType::INT, StringName("animation/clip_" + itos(i + 1) + "/start_frame")), 0);
+        r_options->emplace_back(PropertyInfo(VariantType::INT, StringName("animation/clip_" + itos(i + 1) + "/end_frame")), 0);
+        r_options->emplace_back(PropertyInfo(VariantType::BOOL, StringName("animation/clip_" + itos(i + 1) + "/loops")), false);
     }
 }
 
@@ -1350,23 +1346,23 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
     ERR_FAIL_COND_V(nullptr == importer, ERR_FILE_UNRECOGNIZED);
 
-    float fps = p_options.at("animation/fps");
+    float fps = p_options.at("animation/fps").as<float>();
 
     int import_flags = EditorSceneImporter::IMPORT_ANIMATION_DETECT_LOOP;
-    if (!bool(p_options.at("animation/optimizer/remove_unused_tracks")))
+    if (!p_options.at("animation/optimizer/remove_unused_tracks").as<bool>())
         import_flags |= EditorSceneImporter::IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS;
 
-    if (bool(p_options.at("animation/import"))) import_flags |= EditorSceneImporter::IMPORT_ANIMATION;
+    if (p_options.at("animation/import").as<bool>()) import_flags |= EditorSceneImporter::IMPORT_ANIMATION;
 
-    if (int(p_options.at("meshes/compress"))) import_flags |= EditorSceneImporter::IMPORT_USE_COMPRESSION;
+    if (p_options.at("meshes/compress").as<int>()) import_flags |= EditorSceneImporter::IMPORT_USE_COMPRESSION;
 
-    if (bool(p_options.at("meshes/ensure_tangents")))
+    if (p_options.at("meshes/ensure_tangents").as<bool>())
         import_flags |= EditorSceneImporter::IMPORT_GENERATE_TANGENT_ARRAYS;
 
-    if (int(p_options.at("materials/location")) == 0)
+    if (p_options.at("materials/location").as<int>() == 0)
         import_flags |= EditorSceneImporter::IMPORT_MATERIALS_IN_INSTANCES;
 
-    if (bool(p_options.at("skins/use_named_skins")))
+    if (p_options.at("skins/use_named_skins").as<bool>())
         import_flags |= EditorSceneImporter::IMPORT_USE_NAMED_SKIN_BINDS;
 
     Error err = OK;
@@ -1375,7 +1371,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         return err;
     }
 
-    String root_type_tx = p_options.at("nodes/root_type");
+    String root_type_tx = p_options.at("nodes/root_type").as<String>();
     StringName root_type = StringName(StringUtils::split(
             root_type_tx, ' ')[0]); // full root_type is "ClassName (filename.gd)" for a script global class.
 
@@ -1397,11 +1393,11 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     }
 
     if (root_script) {
-        scene->set_script(Variant(root_script));
+        scene->set_script(root_script.get_ref_ptr());
     }
 
     if (object_cast<Node3D>(scene)) {
-        float root_scale = p_options.at("nodes/root_scale");
+        float root_scale = p_options.at("nodes/root_scale").as<float>();
         object_cast<Node3D>(scene)->scale(Vector3(root_scale, root_scale, root_scale));
     }
 
@@ -1414,11 +1410,11 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
     String animation_filter(StringUtils::strip_edges(p_options.at("animation/filter_script").as<String>()));
 
-    bool use_optimizer = p_options.at("animation/optimizer/enabled");
-    float anim_optimizer_linerr = p_options.at("animation/optimizer/max_linear_error");
-    float anim_optimizer_angerr = p_options.at("animation/optimizer/max_angular_error");
-    float anim_optimizer_maxang = p_options.at("animation/optimizer/max_angle");
-    int light_bake_mode = p_options.at("meshes/light_baking");
+    bool use_optimizer = p_options.at("animation/optimizer/enabled").as<bool>();
+    float anim_optimizer_linerr = p_options.at("animation/optimizer/max_linear_error").as<float>();
+    float anim_optimizer_angerr = p_options.at("animation/optimizer/max_angular_error").as<float>();
+    float anim_optimizer_maxang = p_options.at("animation/optimizer/max_angle").as<float>();
+    int light_bake_mode = p_options.at("meshes/light_baking").as<int>();
 
     Map<Ref<Mesh>, List<Ref<Shape>>> collision_map;
 
@@ -1431,13 +1427,13 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     Array animation_clips;
     {
 
-        int clip_count = p_options.at("animation/clips/amount");
+        int clip_count = p_options.at("animation/clips/amount").as<int>();
 
         for (int i = 0; i < clip_count; i++) {
-            String name = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/name"));
-            int from_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/start_frame"));
-            int end_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/end_frame"));
-            bool loop = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/loops"));
+            String name = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/name")).as<String>();
+            int from_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/start_frame")).as<int>();
+            int end_frame = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/end_frame")).as<int>();
+            bool loop = p_options.at(StringName("animation/clip_" + itos(i + 1) + "/loops")).as<bool>();
 
             animation_clips.push_back(name);
             animation_clips.push_back(from_frame / fps);
@@ -1446,7 +1442,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         }
     }
     if (!animation_clips.empty()) {
-        _create_clips(scene, animation_clips, !bool(p_options.at("animation/optimizer/remove_unused_tracks")));
+        _create_clips(scene, animation_clips, !(p_options.at("animation/optimizer/remove_unused_tracks").as<bool>()));
     }
 
     if (!animation_filter.empty()) {
@@ -1454,21 +1450,21 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
     }
 
     bool external_animations =
-            int(p_options.at("animation/storage")) == 1 || int(p_options.at("animation/storage")) == 2;
-    bool external_animations_as_text = int(p_options.at("animation/storage")) == 2;
-    bool keep_custom_tracks = p_options.at("animation/keep_custom_tracks");
+            p_options.at("animation/storage").as<int>() == 1 || p_options.at("animation/storage").as<int>() == 2;
+    bool external_animations_as_text = p_options.at("animation/storage").as<int>() == 2;
+    bool keep_custom_tracks = p_options.at("animation/keep_custom_tracks").as<bool>();
     bool external_materials =
-            int(p_options.at("materials/storage")) == 1 || int(p_options.at("materials/storage")) == 2;
-    bool external_materials_as_text = int(p_options.at("materials/storage")) == 2;
-    bool external_meshes = int(p_options.at("meshes/storage")) == 1 || int(p_options.at("meshes/storage")) == 2;
-    bool external_meshes_as_text = int(p_options.at("meshes/storage")) == 2;
-    bool external_scenes = int(p_options.at("nodes/storage")) == 1;
+            p_options.at("materials/storage").as<int>() == 1 || p_options.at("materials/storage").as<int>() == 2;
+    bool external_materials_as_text = p_options.at("materials/storage").as<int>() == 2;
+    bool external_meshes = p_options.at("meshes/storage").as<int>() == 1 || p_options.at("meshes/storage").as<int>() == 2;
+    bool external_meshes_as_text = p_options.at("meshes/storage").as<int>() == 2;
+    bool external_scenes = p_options.at("nodes/storage").as<int>() == 1;
 
     String base_path(PathUtils::get_base_dir(p_source_file));
 
     if (external_animations || external_materials || external_meshes || external_scenes) {
 
-        if (bool(p_options.at("external_files/store_in_subdir"))) {
+        if (p_options.at("external_files/store_in_subdir").as<bool>()) {
             StringView subdir_name = PathUtils::get_basename(PathUtils::get_file(p_source_file));
             DirAccess *da = DirAccess::open(base_path);
             Error err2 = da->make_dir(subdir_name);
@@ -1485,7 +1481,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
         if (light_bake_mode == 2) {
 
-            float texel_size = p_options.at("meshes/lightmap_texel_size");
+            float texel_size = p_options.at("meshes/lightmap_texel_size").as<float>();
             texel_size = M_MAX(0.001f, texel_size);
 
             EditorProgress progress2(("gen_lightmaps"), TTR("Generating Lightmaps"), meshes.size());
@@ -1517,7 +1513,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
         Map<Ref<Material>, Ref<Material>> mat_map;
         Map<Ref<ArrayMesh>, Ref<ArrayMesh>> mesh_map;
 
-        bool keep_materials = bool(p_options.at("materials/keep_on_reimport"));
+        bool keep_materials = p_options.at("materials/keep_on_reimport").as<bool>();
 
         _make_external_resources(scene, base_path, external_animations, external_animations_as_text, keep_custom_tracks,
                 external_materials, external_materials_as_text, keep_materials, external_meshes,
@@ -1526,7 +1522,7 @@ Error ResourceImporterScene::import(StringView p_source_file, StringView p_save_
 
     progress.step(TTR("Running Custom Script..."), 2);
 
-    String post_import_script_path(p_options.at("nodes/custom_script"));
+    String post_import_script_path(p_options.at("nodes/custom_script").as<String>());
     Ref<EditorScenePostImport> post_import_script;
 
     if (!post_import_script_path.empty()) {

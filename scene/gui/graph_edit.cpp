@@ -30,6 +30,7 @@
 
 #include "graph_edit.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "scene/gui/box_container.h"
@@ -259,13 +260,16 @@ void GraphEdit::add_child_notify(Node *p_child) {
 
     Control::add_child_notify(p_child);
 
-    top_layer->call_deferred("raise"); //top layer always on top!
+    //top layer always on top!
+    GraphEditFilter *top_layer_copy=top_layer;
+    top_layer->call_deferred([top_layer_copy](){ top_layer_copy->raise();});
+
     GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {
         gn->set_scale(Vector2(zoom, zoom));
-        gn->connect("offset_changed", this, "_graph_node_moved", varray(Variant(gn)));
-        gn->connect("raise_request", this, "_graph_node_raised", varray(Variant(gn)));
-        gn->connect("item_rect_changed", connections_layer, "update");
+        gn->connect("offset_changed",callable_mp(this, &ClassName::_graph_node_moved), varray(Variant(gn)));
+        gn->connect("raise_request",callable_mp(this, &ClassName::_graph_node_raised), varray(Variant(gn)));
+        gn->connect("item_rect_changed", callable_mp((CanvasItem *)connections_layer, &CanvasItem::update));
         _graph_node_moved(gn);
     }
 }
@@ -278,9 +282,9 @@ void GraphEdit::remove_child_notify(Node *p_child) {
     }
     GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {
-        gn->disconnect("offset_changed", this, "_graph_node_moved");
-        gn->disconnect("raise_request", this, "_graph_node_raised");
-        gn->disconnect("item_rect_changed", connections_layer, "update");
+        gn->disconnect("offset_changed",callable_mp(this, &ClassName::_graph_node_moved));
+        gn->disconnect("raise_request",callable_mp(this, &ClassName::_graph_node_raised));
+        gn->disconnect("item_rect_changed", callable_mp((CanvasItem *)connections_layer, &CanvasItem::update));
     }
 }
 
@@ -1351,16 +1355,16 @@ void GraphEdit::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "use_snap"), "set_use_snap", "is_using_snap");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "zoom"), "set_zoom", "get_zoom");
 
-    ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
-    ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot")));
+    ADD_SIGNAL(MethodInfo("connection_request", PropertyInfo(VariantType::STRING_NAME, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING_NAME, "to"), PropertyInfo(VariantType::INT, "to_slot")));
+    ADD_SIGNAL(MethodInfo("disconnection_request", PropertyInfo(VariantType::STRING_NAME, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::STRING_NAME, "to"), PropertyInfo(VariantType::INT, "to_slot")));
     ADD_SIGNAL(MethodInfo("popup_request", PropertyInfo(VariantType::VECTOR2, "position")));
     ADD_SIGNAL(MethodInfo("duplicate_nodes_request"));
     ADD_SIGNAL(MethodInfo("copy_nodes_request"));
     ADD_SIGNAL(MethodInfo("paste_nodes_request"));
     ADD_SIGNAL(MethodInfo("node_selected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("node_unselected", PropertyInfo(VariantType::OBJECT, "node", PropertyHint::ResourceType, "Node")));
-    ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
-    ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
+    ADD_SIGNAL(MethodInfo("connection_to_empty", PropertyInfo(VariantType::STRING_NAME, "from"), PropertyInfo(VariantType::INT, "from_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
+    ADD_SIGNAL(MethodInfo("connection_from_empty", PropertyInfo(VariantType::STRING_NAME, "to"), PropertyInfo(VariantType::INT, "to_slot"), PropertyInfo(VariantType::VECTOR2, "release_position")));
     ADD_SIGNAL(MethodInfo("delete_nodes_request"));
     ADD_SIGNAL(MethodInfo("_begin_node_move"));
     ADD_SIGNAL(MethodInfo("_end_node_move"));
@@ -1376,12 +1380,12 @@ GraphEdit::GraphEdit() {
     add_child(top_layer);
     top_layer->set_mouse_filter(MOUSE_FILTER_PASS);
     top_layer->set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    top_layer->connect("draw", this, "_top_layer_draw");
-    top_layer->connect("gui_input", this, "_top_layer_input");
+    top_layer->connect("draw",callable_mp(this, &ClassName::_top_layer_draw));
+    top_layer->connect("gui_input",callable_mp(this, &ClassName::_top_layer_input));
 
     connections_layer = memnew(Control);
     add_child(connections_layer);
-    connections_layer->connect("draw", this, "_connections_layer_draw");
+    connections_layer->connect("draw",callable_mp(this, &ClassName::_connections_layer_draw));
     connections_layer->set_name("CLAYER");
     connections_layer->set_disable_visibility_clip(true); // so it can draw freely and be offset
     connections_layer->set_mouse_filter(MOUSE_FILTER_IGNORE);
@@ -1407,8 +1411,8 @@ GraphEdit::GraphEdit() {
     v_scroll->set_min(-10000);
     v_scroll->set_max(10000);
 
-    h_scroll->connect("value_changed", this, "_scroll_moved");
-    v_scroll->connect("value_changed", this, "_scroll_moved");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
 
     zoom = 1;
 
@@ -1419,25 +1423,25 @@ GraphEdit::GraphEdit() {
     zoom_minus = memnew(ToolButton);
     zoom_hb->add_child(zoom_minus);
     zoom_minus->set_tooltip(RTR("Zoom Out"));
-    zoom_minus->connect("pressed", this, "_zoom_minus");
+    zoom_minus->connect("pressed",callable_mp(this, &ClassName::_zoom_minus));
     zoom_minus->set_focus_mode(FOCUS_NONE);
 
     zoom_reset = memnew(ToolButton);
     zoom_hb->add_child(zoom_reset);
     zoom_reset->set_tooltip(RTR("Zoom Reset"));
-    zoom_reset->connect("pressed", this, "_zoom_reset");
+    zoom_reset->connect("pressed",callable_mp(this, &ClassName::_zoom_reset));
     zoom_reset->set_focus_mode(FOCUS_NONE);
 
     zoom_plus = memnew(ToolButton);
     zoom_hb->add_child(zoom_plus);
     zoom_plus->set_tooltip(RTR("Zoom In"));
-    zoom_plus->connect("pressed", this, "_zoom_plus");
+    zoom_plus->connect("pressed",callable_mp(this, &ClassName::_zoom_plus));
     zoom_plus->set_focus_mode(FOCUS_NONE);
 
     snap_button = memnew(ToolButton);
     snap_button->set_toggle_mode(true);
     snap_button->set_tooltip(RTR("Enable snap and show grid."));
-    snap_button->connect("pressed", this, "_snap_toggled");
+    snap_button->connect("pressed",callable_mp(this, &ClassName::_snap_toggled));
     snap_button->set_pressed(true);
     snap_button->set_focus_mode(FOCUS_NONE);
     zoom_hb->add_child(snap_button);
@@ -1447,7 +1451,7 @@ GraphEdit::GraphEdit() {
     snap_amount->set_max(100);
     snap_amount->set_step(1);
     snap_amount->set_value(20);
-    snap_amount->connect("value_changed", this, "_snap_value_changed");
+    snap_amount->connect("value_changed",callable_mp(this, &ClassName::_snap_value_changed));
     zoom_hb->add_child(snap_amount);
 
     setting_scroll_ofs = false;

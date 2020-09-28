@@ -169,13 +169,13 @@ void ScriptServer::init_languages() {
         global_classes_clear();
         StringName gsc("_global_script_classes");
         if (ProjectSettings::get_singleton()->has_setting(gsc)) {
-            Array script_classes = ProjectSettings::get_singleton()->get(gsc);
+            Array script_classes = ProjectSettings::get_singleton()->getT<Array>(gsc);
 
             for (int i = 0; i < script_classes.size(); i++) {
-                Dictionary c = script_classes[i];
+                Dictionary c = script_classes[i].as<Dictionary>();
                 if (!c.has("class") || !c.has("language") || !c.has("path") || !c.has("base"))
                     continue;
-                add_global_class(c["class"], c["base"], c["language"], c["path"].as<String>());
+                add_global_class(c["class"].as<StringName>(), c["base"].as<StringName>(), c["language"].as<StringName>(), c["path"].as<String>());
             }
         }
     }
@@ -325,16 +325,6 @@ Variant ScriptInstance::call(const StringName &p_method, VARIANT_ARG_DECLARE) {
     return call(p_method, argptr, argc, error);
 }
 
-void ScriptInstance::call_multilevel(const StringName &p_method, const Variant **p_args, int p_argcount) {
-    Callable::CallError ce;
-    call(p_method, p_args, p_argcount, ce); // script may not support multilevel calls
-}
-
-void ScriptInstance::call_multilevel_reversed(const StringName &p_method, const Variant **p_args, int p_argcount) {
-    Callable::CallError ce;
-    call(p_method, p_args, p_argcount, ce); // script may not support multilevel calls
-}
-
 void ScriptInstance::property_set_fallback(const StringName &, const Variant &, bool *r_valid) {
     if (r_valid)
         *r_valid = false;
@@ -344,19 +334,6 @@ Variant ScriptInstance::property_get_fallback(const StringName &, bool *r_valid)
     if (r_valid)
         *r_valid = false;
     return Variant();
-}
-
-void ScriptInstance::call_multilevel(const StringName &p_method, VARIANT_ARG_DECLARE) {
-
-    VARIANT_ARGPTRS
-    int argc = 0;
-    for (const Variant *i : argptr) {
-        if (i->get_type() == VariantType::NIL)
-            break;
-        argc++;
-    }
-
-    call_multilevel(p_method, argptr, argc);
 }
 
 ScriptCodeCompletionCache *ScriptCodeCompletionCache::singleton = nullptr;
@@ -542,6 +519,14 @@ void PlaceHolderScriptInstance::property_set_fallback(const StringName &p_name, 
 
     if (r_valid)
         *r_valid = false; // Cannot change the value in either case
+}
+
+uint16_t PlaceHolderScriptInstance::get_rpc_method_id(const StringName &p_method) const {
+    return UINT16_MAX;
+}
+
+uint16_t PlaceHolderScriptInstance::get_rset_property_id(const StringName &p_method) const {
+    return UINT16_MAX;
 }
 
 Variant PlaceHolderScriptInstance::property_get_fallback(const StringName &p_name, bool *r_valid) {

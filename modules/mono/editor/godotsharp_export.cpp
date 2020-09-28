@@ -85,12 +85,13 @@ Error get_assembly_dependencies(GDMonoAssembly *p_assembly, MonoAssemblyName *re
 
         const String &ref_name = ref_info.name;
 
-        if (r_assembly_dependencies.has(ref_name))
+		if (r_assembly_dependencies.has(ref_name)) {
             continue;
+		}
 
         mono_assembly_get_assemblyref(image, i, reusable_aname);
 
-        GDMonoAssembly *ref_assembly = NULL;
+        GDMonoAssembly *ref_assembly = nullptr;
         if (!GDMono::get_singleton()->load_assembly(ref_name, reusable_aname, &ref_assembly, /* refonly: */ true, p_search_dirs)) {
             ERR_FAIL_V_MSG(ERR_CANT_RESOLVE, "Cannot load assembly (refonly): '" + ref_name + "'.");
         }
@@ -122,8 +123,8 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
     }
 
     for (const Variant *key = p_initial_assemblies.next(); key; key = p_initial_assemblies.next(key)) {
-        String assembly_name = *key;
-        String assembly_path = p_initial_assemblies[*key];
+        String assembly_name = key->as<String>();
+        String assembly_path = p_initial_assemblies[*key].as<String>();
 
         GDMonoAssembly *assembly = nullptr;
         bool load_success = GDMono::get_singleton()->load_assembly_from(assembly_name, assembly_path, &assembly, /* refonly: */ true);
@@ -134,8 +135,9 @@ Error get_exported_assembly_dependencies(const Dictionary &p_initial_assemblies,
         SCOPE_EXIT { mono_free(reusable_aname); };
 
         Error err = get_assembly_dependencies(assembly, reusable_aname, search_dirs, r_assembly_dependencies);
-        if (err != OK)
+		if (err != OK) {
             return err;
+		}
     }
 
     return OK;

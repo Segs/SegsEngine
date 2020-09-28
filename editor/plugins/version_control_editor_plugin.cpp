@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "version_control_editor_plugin.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
@@ -130,7 +132,7 @@ void VersionControlEditorPlugin::_initialize_vcs() {
     vcs_interface->set_script_and_instance(script.get_ref_ptr(), addon_script_instance);
 
     EditorVCSInterface::set_singleton(vcs_interface);
-    EditorFileSystem::get_singleton()->connect("filesystem_changed", this, "_refresh_stage_area");
+    EditorFileSystem::get_singleton()->connect("filesystem_changed",callable_mp(this, &ClassName::_refresh_stage_area));
 
     String res_dir = OS::get_singleton()->get_resource_dir();
     ERR_FAIL_COND_MSG(!EditorVCSInterface::get_singleton()->initialize(res_dir), "VCS was not initialized");
@@ -184,7 +186,7 @@ void VersionControlEditorPlugin::_refresh_stage_area() {
             TreeItem *found = stage_files->search_item_text(file_path, nullptr, true);
             if (!found) {
 
-                ChangeType change_index = (ChangeType)(int)modified_file_paths.get_value_at_index(i);
+                ChangeType change_index = modified_file_paths.get_value_at_index(i).as<ChangeType>();
                 String change_text = file_path + " (" + change_type_to_strings[change_index] + ")";
                 Color &change_color = change_type_to_color[change_index];
                 TreeItem *new_item = stage_files->create_item(stage_files->get_root());
@@ -287,7 +289,7 @@ void VersionControlEditorPlugin::_display_file_diff(StringView p_file_path) {
     diff->push_font(EditorNode::get_singleton()->get_gui_base()->get_font("source", "EditorFonts"));
     for (int i = 0; i < diff_content.size(); i++) {
 
-        Dictionary line_result = diff_content[i];
+        Dictionary line_result = diff_content[i].as<Dictionary>();
 
         if (line_result["status"] == "+") {
 
@@ -300,7 +302,7 @@ void VersionControlEditorPlugin::_display_file_diff(StringView p_file_path) {
             diff->push_color(EditorNode::get_singleton()->get_gui_base()->get_color("font_color", "Label"));
         }
 
-        diff->add_text_uistring((UIString)line_result["content"]);
+        diff->add_text(line_result["content"].as<String>());
 
         diff->pop();
     }
@@ -388,8 +390,8 @@ void VersionControlEditorPlugin::clear_stage_area() {
 void VersionControlEditorPlugin::shut_down() {
 
     if (EditorVCSInterface::get_singleton()) {
-        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed", this, "_refresh_stage_area")) {
-            EditorFileSystem::get_singleton()->disconnect("filesystem_changed", this, "_refresh_stage_area");
+        if (EditorFileSystem::get_singleton()->is_connected("filesystem_changed",callable_mp(this, &ClassName::_refresh_stage_area))) {
+            EditorFileSystem::get_singleton()->disconnect("filesystem_changed",callable_mp(this, &ClassName::_refresh_stage_area));
         }
         EditorVCSInterface::get_singleton()->shut_down();
         memdelete(EditorVCSInterface::get_singleton());
@@ -444,14 +446,14 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
     set_up_choice = memnew(OptionButton);
     set_up_choice->set_h_size_flags(HBoxContainer::SIZE_EXPAND_FILL);
-    set_up_choice->connect("item_selected", this, "_selected_a_vcs");
+    set_up_choice->connect("item_selected",callable_mp(this, &ClassName::_selected_a_vcs));
     set_up_hbc->add_child(set_up_choice);
 
     set_up_init_settings = nullptr;
 
     set_up_init_button = memnew(Button);
     set_up_init_button->set_text(TTR("Initialize"));
-    set_up_init_button->connect("pressed", this, "_initialize_vcs");
+    set_up_init_button->connect("pressed",callable_mp(this, &ClassName::_initialize_vcs));
     set_up_vbc->add_child(set_up_init_button);
 
     version_control_actions->set_v_size_flags(PopupMenu::SIZE_EXPAND_FILL);
@@ -479,7 +481,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     refresh_button->set_tooltip(TTR("Detect new changes"));
     refresh_button->set_text(TTR("Refresh"));
     refresh_button->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
-    refresh_button->connect("pressed", this, "_refresh_stage_area");
+    refresh_button->connect("pressed",callable_mp(this, &ClassName::_refresh_stage_area));
     stage_tools->add_child(refresh_button);
 
     stage_files = memnew(Tree);
@@ -492,7 +494,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     stage_files->set_allow_rmb_select(true);
     stage_files->set_select_mode(Tree::SelectMode::SELECT_MULTI);
     stage_files->set_edit_checkbox_cell_only_when_checkbox_is_pressed(true);
-    stage_files->connect("cell_selected", this, "_view_file_diff");
+    stage_files->connect("cell_selected",callable_mp(this, &ClassName::_view_file_diff));
     stage_files->create_item();
     stage_files->set_hide_root(true);
     commit_box_vbc->add_child(stage_files);
@@ -516,12 +518,12 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     stage_selected_button = memnew(Button);
     stage_selected_button->set_h_size_flags(Button::SIZE_EXPAND_FILL);
     stage_selected_button->set_text(TTR("Stage Selected"));
-    stage_selected_button->connect("pressed", this, "_stage_selected");
+    stage_selected_button->connect("pressed",callable_mp(this, &ClassName::_stage_selected));
     stage_buttons->add_child(stage_selected_button);
 
     stage_all_button = memnew(Button);
     stage_all_button->set_text(TTR("Stage All"));
-    stage_all_button->connect("pressed", this, "_stage_all");
+    stage_all_button->connect("pressed",callable_mp(this, &ClassName::_stage_all));
     stage_buttons->add_child(stage_all_button);
 
     commit_box_vbc->add_child(memnew(HSeparator));
@@ -537,7 +539,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
 
     commit_button = memnew(Button);
     commit_button->set_text(TTR("Commit Changes"));
-    commit_button->connect("pressed", this, "_send_commit_msg");
+    commit_button->connect("pressed",callable_mp(this, &ClassName::_send_commit_msg));
     commit_box_vbc->add_child(commit_button);
 
     commit_status = memnew(Label);
@@ -571,7 +573,7 @@ VersionControlEditorPlugin::VersionControlEditorPlugin() {
     diff_refresh_button = memnew(Button);
     diff_refresh_button->set_tooltip(TTR("Detect changes in file diff"));
     diff_refresh_button->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Reload", "EditorIcons"));
-    diff_refresh_button->connect("pressed", this, "_refresh_file_diff");
+    diff_refresh_button->connect("pressed",callable_mp(this, &ClassName::_refresh_file_diff));
     diff_hbc->add_child(diff_refresh_button);
 
     diff = memnew(RichTextLabel);

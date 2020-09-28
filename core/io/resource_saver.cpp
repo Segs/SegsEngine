@@ -54,7 +54,7 @@ enum {
 Error ResourceFormatSaver::save(StringView p_path, const Ref<Resource> &p_resource, uint32_t p_flags) {
 
     if (get_script_instance() && get_script_instance()->has_method("save")) {
-        return (Error)get_script_instance()->call("save", p_path, p_resource, p_flags).operator int64_t();
+        return (Error)get_script_instance()->call("save", p_path, p_resource, p_flags).as<int64_t>();
     }
     Ref<ImageTexture> texture = dynamic_ref_cast<ImageTexture>( p_resource );
     if(texture) {

@@ -52,9 +52,9 @@ void Container::add_child_notify(Node *p_child) {
     if (!control)
         return;
 
-    control->connect("size_flags_changed", this, "queue_sort");
-    control->connect("minimum_size_changed", this, "_child_minsize_changed");
-    control->connect("visibility_changed", this, "_child_minsize_changed");
+    control->connect("size_flags_changed",callable_mp(this, &ClassName::queue_sort));
+    control->connect("minimum_size_changed",callable_mp(this, &ClassName::_child_minsize_changed));
+    control->connect("visibility_changed",callable_mp(this, &ClassName::_child_minsize_changed));
 
     minimum_size_changed();
     queue_sort();
@@ -79,9 +79,9 @@ void Container::remove_child_notify(Node *p_child) {
     if (!control)
         return;
 
-    control->disconnect("size_flags_changed", this, "queue_sort");
-    control->disconnect("minimum_size_changed", this, "_child_minsize_changed");
-    control->disconnect("visibility_changed", this, "_child_minsize_changed");
+    control->disconnect("size_flags_changed",callable_mp(this, &ClassName::queue_sort));
+    control->disconnect("minimum_size_changed",callable_mp(this, &ClassName::_child_minsize_changed));
+    control->disconnect("visibility_changed",callable_mp(this, &ClassName::_child_minsize_changed));
 
     minimum_size_changed();
     queue_sort();
@@ -144,7 +144,7 @@ void Container::queue_sort() {
     if (pending_sort)
         return;
 
-    MessageQueue::get_singleton()->push_call(this, "_sort_children");
+    MessageQueue::get_singleton()->push_call(get_instance_id(), [this]() { _sort_children(); });
     pending_sort = true;
 }
 

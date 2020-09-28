@@ -29,18 +29,20 @@
 /*************************************************************************/
 
 #include "popup_menu.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
 #include "core/translation.h"
 #include "core/method_bind.h"
+#include "core/project_settings.h"
+#include "core/string_utils.inl"
 
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 #include "scene/main/timer.h"
-#include "core/project_settings.h"
-#include "core/string_utils.inl"
 
 IMPL_GDCLASS(PopupMenu)
 
@@ -398,7 +400,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
 
         uint64_t now = OS::get_singleton()->get_ticks_msec();
         uint64_t diff = now - search_time_msec;
-        uint64_t max_interval = uint64_t(GLOBAL_DEF("gui/timers/incremental_search_max_interval_msec", 2000));
+        uint64_t max_interval = T_GLOBAL_DEF<uint64_t>("gui/timers/incremental_search_max_interval_msec", 2000);
         search_time_msec = now;
 
         if (diff > max_interval) {
@@ -1293,7 +1295,7 @@ void PopupMenu::_ref_shortcut(Ref<ShortCut> p_sc) {
 
     if (!shortcut_refcount.contains(p_sc)) {
         shortcut_refcount[p_sc] = 1;
-        p_sc->connect("changed", this, "update");
+        p_sc->connect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
     } else {
         shortcut_refcount[p_sc] += 1;
     }
@@ -1304,7 +1306,7 @@ void PopupMenu::_unref_shortcut(Ref<ShortCut> p_sc) {
     ERR_FAIL_COND(!shortcut_refcount.contains(p_sc));
     shortcut_refcount[p_sc]--;
     if (shortcut_refcount[p_sc] == 0) {
-        p_sc->disconnect("changed", this, "update");
+        p_sc->disconnect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
         shortcut_refcount.erase(p_sc);
     }
 }
@@ -1316,19 +1318,19 @@ void PopupMenu::_set_items(const Array &p_items) {
 
     for (int i = 0; i < p_items.size(); i += 10) {
 
-        StringName text = p_items[i + 0];
+        StringName text = p_items[i + 0].as<StringName>();
         Ref<Texture> icon(p_items[i + 1]);
         // For compatibility, use false/true for no/checkbox and integers for other values
-        bool checkable = p_items[i + 2];
-        bool radio_checkable = (int)p_items[i + 2] == Item::CHECKABLE_TYPE_RADIO_BUTTON;
-        bool checked = p_items[i + 3];
-        bool disabled = p_items[i + 4];
+        bool checkable = p_items[i + 2].as<bool>();
+        bool radio_checkable = p_items[i + 2].as<int>() == Item::CHECKABLE_TYPE_RADIO_BUTTON;
+        bool checked = p_items[i + 3].as<bool>();
+        bool disabled = p_items[i + 4].as<bool>();
 
-        int id = p_items[i + 5];
-        int accel = p_items[i + 6];
+        int id = p_items[i + 5].as<int>();
+        int accel = p_items[i + 6].as<int>();
         Variant meta = p_items[i + 7];
-        StringName subm = p_items[i + 8];
-        bool sep = p_items[i + 9];
+        StringName subm = p_items[i + 8].as<StringName>();
+        bool sep = p_items[i + 9].as<bool>();
 
         int idx = get_item_count();
         add_item(text, id);
@@ -1575,7 +1577,7 @@ PopupMenu::PopupMenu() {
     submenu_timer = memnew(Timer);
     submenu_timer->set_wait_time(0.3);
     submenu_timer->set_one_shot(true);
-    submenu_timer->connect("timeout", this, "_submenu_timeout");
+    submenu_timer->connect("timeout",callable_mp(this, &ClassName::_submenu_timeout));
     add_child(submenu_timer);
 }
 

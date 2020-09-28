@@ -103,7 +103,7 @@ void EditorSettingsDialog::popup_edit_settings() {
     set_process_unhandled_input(true);
 
     // Restore valid window bounds or pop up at default size.
-    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "editor_settings", Rect2());
+    Rect2 saved_size = EditorSettings::get_singleton()->get_project_metadata("dialog_bounds", "editor_settings", Rect2()).as<Rect2>();
     if (saved_size != Rect2()) {
         popup(saved_size);
     } else {
@@ -274,7 +274,7 @@ void EditorSettingsDialog::_shortcut_button_pressed(Object *p_item, int p_column
     TreeItem *ti = object_cast<TreeItem>(p_item);
     ERR_FAIL_COND(!ti);
 
-    String item = ti->get_metadata(0);
+    String item = ti->get_metadata(0).as<String>();
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(item);
 
     if (p_idx == 0) {
@@ -290,7 +290,7 @@ void EditorSettingsDialog::_shortcut_button_pressed(Object *p_item, int p_column
         if (not sc)
             return; //pointless, there is nothing
 
-        undo_redo->create_action_ui(TTR("Erase Shortcut"));
+        undo_redo->create_action(TTR("Erase Shortcut"));
         undo_redo->add_do_method(sc.get(), "set_shortcut", Ref<InputEvent>());
         undo_redo->add_undo_method(sc.get(), "set_shortcut", sc->get_shortcut());
         undo_redo->add_do_method(this, "_update_shortcuts");
@@ -304,7 +304,7 @@ void EditorSettingsDialog::_shortcut_button_pressed(Object *p_item, int p_column
 
         Ref<InputEvent> original(sc->get_meta("original"));
 
-        undo_redo->create_action_ui(TTR("Restore Shortcut"));
+        undo_redo->create_action(TTR("Restore Shortcut"));
         undo_redo->add_do_method(sc.get(), "set_shortcut", original);
         undo_redo->add_undo_method(sc.get(), "set_shortcut", sc->get_shortcut());
         undo_redo->add_do_method(this, "_update_shortcuts");
@@ -342,7 +342,7 @@ void EditorSettingsDialog::_press_a_key_confirm() {
 
     Ref<ShortCut> sc = EditorSettings::get_singleton()->get_shortcut(shortcut_configured);
 
-    undo_redo->create_action_ui(TTR("Change Shortcut") + " '" + shortcut_configured + "'");
+    undo_redo->create_action(TTR("Change Shortcut") + " '" + shortcut_configured + "'");
     undo_redo->add_do_method(sc.get(), "set_shortcut", ie);
     undo_redo->add_undo_method(sc.get(), "set_shortcut", sc->get_shortcut());
     undo_redo->add_do_method(this, "_update_shortcuts");
@@ -411,7 +411,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
 
     tabs = memnew(TabContainer);
     tabs->set_tab_align(TabContainer::ALIGN_LEFT);
-    tabs->connect("tab_changed", this, "_tabs_tab_changed");
+    tabs->connect("tab_changed",callable_mp(this, &ClassName::_tabs_tab_changed));
     add_child(tabs);
 
     // General Tab
@@ -435,8 +435,8 @@ EditorSettingsDialog::EditorSettingsDialog() {
     inspector->set_v_size_flags(Control::SIZE_EXPAND_FILL);
     inspector->get_inspector()->set_undo_redo(undo_redo);
     tab_general->add_child(inspector);
-    inspector->get_inspector()->connect("property_edited", this, "_settings_property_edited");
-    inspector->get_inspector()->connect("restart_requested", this, "_editor_restart_request");
+    inspector->get_inspector()->connect("property_edited",callable_mp(this, &ClassName::_settings_property_edited));
+    inspector->get_inspector()->connect("restart_requested",callable_mp(this, &ClassName::_editor_restart_request));
 
     restart_container = memnew(PanelContainer);
     tab_general->add_child(restart_container);
@@ -450,11 +450,11 @@ EditorSettingsDialog::EditorSettingsDialog() {
     restart_hb->add_child(restart_label);
     restart_hb->add_spacer();
     Button *restart_button = memnew(Button);
-    restart_button->connect("pressed", this, "_editor_restart");
+    restart_button->connect("pressed",callable_mp(this, &ClassName::_editor_restart));
     restart_hb->add_child(restart_button);
     restart_button->set_text(TTR("Save & Restart"));
     restart_close_button = memnew(ToolButton);
-    restart_close_button->connect("pressed", this, "_editor_restart_close");
+    restart_close_button->connect("pressed",callable_mp(this, &ClassName::_editor_restart_close));
     restart_hb->add_child(restart_close_button);
     restart_container->hide();
 
@@ -471,7 +471,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
     shortcut_search_box = memnew(LineEdit);
     shortcut_search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     hbc->add_child(shortcut_search_box);
-    shortcut_search_box->connect("text_changed", this, "_filter_shortcuts");
+    shortcut_search_box->connect("text_changed",callable_mp(this, &ClassName::_filter_shortcuts));
 
     shortcuts = memnew(Tree);
     tab_shortcuts->add_child(shortcuts, true);
@@ -481,7 +481,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
     shortcuts->set_column_titles_visible(true);
     shortcuts->set_column_title(0, TTR("Name"));
     shortcuts->set_column_title(1, TTR("Binding"));
-    shortcuts->connect("button_pressed", this, "_shortcut_button_pressed");
+    shortcuts->connect("button_pressed",callable_mp(this, &ClassName::_shortcut_button_pressed));
 
     press_a_key = memnew(ConfirmationDialog);
     press_a_key->set_focus_mode(FOCUS_ALL);
@@ -495,17 +495,17 @@ EditorSettingsDialog::EditorSettingsDialog() {
     l->set_anchor_and_margin(Margin::Bottom, ANCHOR_BEGIN, 30);
     press_a_key_label = l;
     press_a_key->add_child(l);
-    press_a_key->connect("gui_input", this, "_wait_for_key");
-    press_a_key->connect("confirmed", this, "_press_a_key_confirm");
+    press_a_key->connect("gui_input",callable_mp(this, &ClassName::_wait_for_key));
+    press_a_key->connect("confirmed",callable_mp(this, &ClassName::_press_a_key_confirm));
 
     set_hide_on_ok(true);
 
     timer = memnew(Timer);
     timer->set_wait_time(1.5);
-    timer->connect("timeout", this, "_settings_save");
+    timer->connect("timeout",callable_mp(this, &ClassName::_settings_save));
     timer->set_one_shot(true);
     add_child(timer);
-    EditorSettings::get_singleton()->connect("settings_changed", this, "_settings_changed");
+    EditorSettings::get_singleton()->connect("settings_changed",callable_mp(this, &ClassName::_settings_changed));
     get_ok()->set_text(TTR("Close"));
 
     updating = false;

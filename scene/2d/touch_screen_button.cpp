@@ -30,6 +30,7 @@
 
 #include "touch_screen_button.h"
 
+#include "core/callable_method_pointer.h"
 #include "scene/main/scene_tree.h"
 #include "core/method_bind.h"
 #include "core/input/input_map.h"
@@ -88,12 +89,12 @@ Ref<BitMap> TouchScreenButton::get_bitmask() const {
 void TouchScreenButton::set_shape(const Ref<Shape2D> &p_shape) {
 
     if (shape)
-        shape->disconnect("changed", this, "update");
+        shape->disconnect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
 
     shape = p_shape;
 
     if (shape)
-        shape->connect("changed", this, "update");
+        shape->connect("changed",callable_mp((CanvasItem *)this, &CanvasItem::update));
 
     update();
 }
@@ -410,7 +411,7 @@ void TouchScreenButton::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shape_centered"), "set_shape_centered", "is_shape_centered");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "shape_visible"), "set_shape_visible", "is_shape_visible");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "passby_press"), "set_passby_press", "is_passby_press_enabled");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "action"), "set_action", "get_action");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "action"), "set_action", "get_action");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "visibility_mode", PropertyHint::Enum, "Always,TouchScreen Only"), "set_visibility_mode", "get_visibility_mode");
 
     ADD_SIGNAL(MethodInfo("pressed"));

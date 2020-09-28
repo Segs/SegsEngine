@@ -1,12 +1,12 @@
 /*************************************************************************/
-/*  test_gdscript.h                                                      */
+/*  managed_callable.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,21 +28,47 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef TEST_GDSCRIPT_H
-#define TEST_GDSCRIPT_H
+#pragma once
 
-#include "core/os/main_loop.h"
+#include "core/callable.h"
+#include "core/os/mutex.h"
+#include "core/self_list.h"
 
-namespace TestGDScript {
+#include "mono_gc_handle.h"
+#include "mono_gd/gd_mono_method.h"
 
-enum TestType {
-	TEST_TOKENIZER,
-	TEST_PARSER,
-	TEST_COMPILER,
-	TEST_BYTECODE,
+#include <mono/metadata/object.h>
+
+class ManagedCallable : public CallableCustom {
+    friend class CSharpLanguage;
+    MonoGCHandleData delegate_handle;
+    GDMonoMethod *delegate_invoke;
+
+#ifdef GD_MONO_HOT_RELOAD
+    IntrusiveListNode<ManagedCallable> self_instance {this};
+    static IntrusiveList<ManagedCallable> instances;
+    static Map<ManagedCallable *, Array> instances_pending_reload;
+    static Mutex instances_mutex;
+#endif
+
+public:
+    uint32_t hash() const override;
+    String get_as_text() const override;
+    CompareEqualFunc get_compare_equal_func() const override;
+    CompareLessFunc get_compare_less_func() const override;
+    ObjectID get_object() const override;
+    void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, Callable::CallError &r_call_error) const override;
+
+    _FORCE_INLINE_ MonoDelegate *get_delegate() { return (MonoDelegate *)delegate_handle.get_target(); }
+
+    void set_delegate(MonoDelegate *p_delegate);
+
+    static bool compare_equal(const CallableCustom *p_a, const CallableCustom *p_b);
+    static bool compare_less(const CallableCustom *p_a, const CallableCustom *p_b);
+
+    static constexpr CompareEqualFunc compare_equal_func_ptr = &ManagedCallable::compare_equal;
+    static constexpr CompareEqualFunc compare_less_func_ptr = &ManagedCallable::compare_less;
+
+    ManagedCallable(MonoDelegate *p_delegate);
+    ~ManagedCallable();
 };
-
-MainLoop *test(TestType p_type);
-} // namespace TestGDScript
-
-#endif // TEST_GDSCRIPT_H

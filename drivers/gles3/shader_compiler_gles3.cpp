@@ -1013,7 +1013,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     spatial_rendermode_defs["cull_front"] = "#define DO_SIDE_CHECK\n";
     spatial_rendermode_defs["cull_disabled"] = "#define DO_SIDE_CHECK\n";
 
-    bool force_lambert = GLOBAL_GET("rendering/quality/shading/force_lambert_over_burley");
+    bool force_lambert = GLOBAL_GET("rendering/quality/shading/force_lambert_over_burley").as<bool>();
 
     if (!force_lambert) {
         spatial_rendermode_defs["diffuse_burley"] = "#define DIFFUSE_BURLEY\n";
@@ -1023,7 +1023,7 @@ ShaderCompilerGLES3::ShaderCompilerGLES3() {
     spatial_rendermode_defs["diffuse_lambert_wrap"] = "#define DIFFUSE_LAMBERT_WRAP\n";
     spatial_rendermode_defs["diffuse_toon"] = "#define DIFFUSE_TOON\n";
 
-    bool force_blinn = GLOBAL_GET("rendering/quality/shading/force_blinn_over_ggx");
+    bool force_blinn = GLOBAL_GET("rendering/quality/shading/force_blinn_over_ggx").as<bool>();
 
     if (!force_blinn) {
         spatial_rendermode_defs["specular_schlick_ggx"] = "#define SPECULAR_SCHLICK_GGX\n";

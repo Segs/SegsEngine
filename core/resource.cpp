@@ -477,7 +477,7 @@ void Resource::_bind_methods() {
 //    }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "resource_local_to_scene"), "set_local_to_scene", "is_local_to_scene");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_path", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_path", "get_path");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "resource_name"), "set_name", "get_name");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "resource_name"), "set_name", "get_name");
 
     BIND_VMETHOD(MethodInfo("_setup_local_to_scene"));
 }

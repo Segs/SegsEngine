@@ -41,6 +41,26 @@ struct ResolvedTypeReference {
     String to_c_type(const TS_TypeLike *base_ns) const;
 };
 
+struct TS_Signal {
+    static HashMap< const SignalInterface*, TS_Signal*> s_ptr_cache;
+    const DocContents::MethodDoc *m_resolved_doc = nullptr;
+    const SignalInterface* source_type;
+    const TS_TypeLike *enclosing_type;
+
+    String cs_name;
+    Vector<ResolvedTypeReference> arg_types;
+    Vector<String> arg_values; // name of variable or a value.
+    Vector<bool> nullable_ref; // true if given parameter is nullable reference, and we need to always pass a valid pointer.
+    eastl::vector_map<int,String> arg_defaults;
+    bool m_imported=false; // if true, the methods is imported and should not be processed by generators etc.
+
+    const StringView c_name() const {
+        assert(source_type);
+        return source_type->name;
+    }
+    static TS_Signal* from_rd(const TS_Type *inside, const SignalInterface* method_interface);
+};
+
 struct TS_Function {
     static HashMap< const MethodInterface*, TS_Function*> s_ptr_cache;
     const DocContents::MethodDoc *m_resolved_doc = nullptr;
@@ -124,6 +144,7 @@ public:
     Vector<TS_TypeLike *> m_children;
     Vector<TS_Constant *> m_constants;
     Vector<TS_Function *> m_functions;
+    Vector<TS_Signal *> m_signals;
     const DocContents::ClassDoc *m_docs = nullptr;
     bool m_imported = false;
     bool m_skip_special_functions = false; // modules extending imported class should not generate special functions.
@@ -219,6 +240,8 @@ struct TS_Type : public TS_TypeLike {
     // If this object is not a singleton, it needs the instance pointer.
     bool needs_instance() const override { return !source_type->is_singleton; }
     TS_Property * find_property_by_name(StringView name) const;
+    TS_Property * find_property_by_exact_name(StringView name) const;
+
     String get_property_path_by_func(const TS_Function *f) const;
     // search in base class first, then enclosing space
     TS_TypeLike *find_by(eastl::function<bool(const TS_TypeLike *)> func) const override;

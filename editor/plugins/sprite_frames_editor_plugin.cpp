@@ -161,7 +161,7 @@ void SpriteFramesEditor::_sheet_add_frames() {
     int h = split_sheet_h->get_value();
     int v = split_sheet_v->get_value();
 
-    undo_redo->create_action_ui(TTR("Add Frame"));
+    undo_redo->create_action(TTR("Add Frame"));
 
     int fc = frames->get_frame_count(edited_anim);
 
@@ -290,7 +290,7 @@ void SpriteFramesEditor::_file_load_request(const PoolVector<String> &p_path, in
         return;
     }
 
-    undo_redo->create_action_ui(TTR("Add Frame"));
+    undo_redo->create_action(TTR("Add Frame"));
     int fc = frames->get_frame_count(edited_anim);
 
     int count = 0;
@@ -337,7 +337,7 @@ void SpriteFramesEditor::_paste_pressed() {
         return; ///beh should show an error i guess
     }
 
-    undo_redo->create_action_ui(TTR("Paste Frame"));
+    undo_redo->create_action(TTR("Paste Frame"));
     undo_redo->add_do_method(frames, "add_frame", edited_anim, r);
     undo_redo->add_undo_method(frames, "remove_frame", edited_anim, frames->get_frame_count(edited_anim));
     undo_redo->add_do_method(this, "_update_library");
@@ -375,7 +375,7 @@ void SpriteFramesEditor::_empty_pressed() {
 
     Ref<Texture> r;
 
-    undo_redo->create_action_ui(TTR("Add Empty"));
+    undo_redo->create_action(TTR("Add Empty"));
     undo_redo->add_do_method(frames, "add_frame", edited_anim, r, from);
     undo_redo->add_undo_method(frames, "remove_frame", edited_anim, from);
     undo_redo->add_do_method(this, "_update_library");
@@ -400,7 +400,7 @@ void SpriteFramesEditor::_empty2_pressed() {
 
     Ref<Texture> r;
 
-    undo_redo->create_action_ui(TTR("Add Empty"));
+    undo_redo->create_action(TTR("Add Empty"));
     undo_redo->add_do_method(frames, "add_frame", edited_anim, r, from + 1);
     undo_redo->add_undo_method(frames, "remove_frame", edited_anim, from + 1);
     undo_redo->add_do_method(this, "_update_library");
@@ -422,7 +422,7 @@ void SpriteFramesEditor::_up_pressed() {
     sel = to_move;
     sel -= 1;
 
-    undo_redo->create_action_ui(TTR("Delete Resource"));
+    undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(frames, "set_frame", edited_anim, to_move, frames->get_frame(edited_anim, to_move - 1));
     undo_redo->add_do_method(frames, "set_frame", edited_anim, to_move - 1, frames->get_frame(edited_anim, to_move));
     undo_redo->add_undo_method(frames, "set_frame", edited_anim, to_move, frames->get_frame(edited_anim, to_move));
@@ -446,7 +446,7 @@ void SpriteFramesEditor::_down_pressed() {
     sel = to_move;
     sel += 1;
 
-    undo_redo->create_action_ui(TTR("Delete Resource"));
+    undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(frames, "set_frame", edited_anim, to_move, frames->get_frame(edited_anim, to_move + 1));
     undo_redo->add_do_method(frames, "set_frame", edited_anim, to_move + 1, frames->get_frame(edited_anim, to_move));
     undo_redo->add_undo_method(frames, "set_frame", edited_anim, to_move, frames->get_frame(edited_anim, to_move));
@@ -468,7 +468,7 @@ void SpriteFramesEditor::_delete_pressed() {
         return;
     }
 
-    undo_redo->create_action_ui(TTR("Delete Resource"));
+    undo_redo->create_action(TTR("Delete Resource"));
     undo_redo->add_do_method(frames, "remove_frame", edited_anim, to_delete);
     undo_redo->add_undo_method(frames, "add_frame", edited_anim, frames->get_frame(edited_anim, to_delete), to_delete);
     undo_redo->add_do_method(this, "_update_library");
@@ -549,13 +549,13 @@ void SpriteFramesEditor::_animation_name_edited() {
     Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
-    undo_redo->create_action_ui(TTR("Rename Animation"));
+    undo_redo->create_action(TTR("Rename Animation"));
     undo_redo->add_do_method(frames, "rename_animation", edited_anim, name);
     undo_redo->add_undo_method(frames, "rename_animation", name, edited_anim);
 
     for (Node * E : nodes) {
 
-        UIString current = E->call_va("get_animation");
+        String current = E->call_va("get_animation").as<String>();
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", edited_anim);
     }
@@ -579,7 +579,7 @@ void SpriteFramesEditor::_animation_add() {
     Vector<Node *> nodes;
     _find_anim_sprites(EditorNode::get_singleton()->get_edited_scene(), &nodes, Ref<SpriteFrames>(frames));
 
-    undo_redo->create_action_ui(TTR("Add Animation"));
+    undo_redo->create_action(TTR("Add Animation"));
     undo_redo->add_do_method(frames, "add_animation", name);
     undo_redo->add_undo_method(frames, "remove_animation", name);
     undo_redo->add_do_method(this, "_update_library");
@@ -587,7 +587,7 @@ void SpriteFramesEditor::_animation_add() {
 
     for (Node *E : nodes) {
 
-        String current = E->call_va("get_animation");
+        String current = E->call_va("get_animation").as<String>();
         undo_redo->add_do_method(E, "set_animation", name);
         undo_redo->add_undo_method(E, "set_animation", current);
     }
@@ -609,7 +609,7 @@ void SpriteFramesEditor::_animation_remove() {
 
 void SpriteFramesEditor::_animation_remove_confirmed() {
 
-    undo_redo->create_action_ui(TTR("Remove Animation"));
+    undo_redo->create_action(TTR("Remove Animation"));
     undo_redo->add_do_method(frames, "remove_animation", edited_anim);
     undo_redo->add_undo_method(frames, "add_animation", edited_anim);
     undo_redo->add_undo_method(frames, "set_animation_speed", edited_anim, frames->get_animation_speed(edited_anim));
@@ -632,7 +632,7 @@ void SpriteFramesEditor::_animation_loop_changed() {
     if (updating)
         return;
 
-    undo_redo->create_action_ui(TTR("Change Animation Loop"));
+    undo_redo->create_action(TTR("Change Animation Loop"));
     undo_redo->add_do_method(frames, "set_animation_loop", edited_anim, anim_loop->is_pressed());
     undo_redo->add_undo_method(frames, "set_animation_loop", edited_anim, frames->get_animation_loop(edited_anim));
     undo_redo->add_do_method(this, "_update_library", true);
@@ -645,7 +645,7 @@ void SpriteFramesEditor::_animation_fps_changed(double p_value) {
     if (updating)
         return;
 
-    undo_redo->create_action_ui(TTR("Change Animation FPS"), UndoRedo::MERGE_ENDS);
+    undo_redo->create_action(TTR("Change Animation FPS"), UndoRedo::MERGE_ENDS);
     undo_redo->add_do_method(frames, "set_animation_speed", edited_anim, p_value);
     undo_redo->add_undo_method(frames, "set_animation_speed", edited_anim, frames->get_animation_speed(edited_anim));
     undo_redo->add_do_method(this, "_update_library", true);
@@ -768,16 +768,17 @@ Variant SpriteFramesEditor::get_drag_data_fw(const Point2 &p_point, Control *p_f
 
 bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return false;
 
     // reordering frames
-    if (d.has("from") && (Object *)d["from"] == tree)
+    if (d.has("from") && d["from"].as<Object *>() == tree)
         return true;
 
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+    String type = d["type"].as<String>();
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
@@ -788,7 +789,7 @@ bool SpriteFramesEditor::can_drop_data_fw(const Point2 &p_point, const Variant &
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files = d["files"].as<PoolVector<String>>();
 
@@ -814,29 +815,29 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
     if (!can_drop_data_fw(p_point, p_data, p_from))
         return;
 
-    Dictionary d = p_data;
+    Dictionary d = p_data.as<Dictionary>();
 
     if (!d.has("type"))
         return;
 
     int at_pos = tree->get_item_at_position(p_point, true);
-
-    if (UIString(d["type"]) == "resource" && d.has("resource")) {
+    String type = d["type"].as<String>();
+    if (type == "resource" && d.has("resource")) {
         RES r(d["resource"]);
 
         Ref<Texture> texture = dynamic_ref_cast<Texture>(r);
 
         if (texture) {
             bool reorder = false;
-            if (d.has("from") && (Object *)d["from"] == tree)
+            if (d.has("from") && d["from"].as<Object *>() == tree)
                 reorder = true;
 
             if (reorder) { //drop is from reordering frames
                 int from_frame = -1;
                 if (d.has("frame"))
-                    from_frame = d["frame"];
+                    from_frame = d["frame"].as<int>();
 
-                undo_redo->create_action_ui(TTR("Move Frame"));
+                undo_redo->create_action(TTR("Move Frame"));
                 undo_redo->add_do_method(frames, "remove_frame", edited_anim, from_frame == -1 ? frames->get_frame_count(edited_anim) : from_frame);
                 undo_redo->add_do_method(frames, "add_frame", edited_anim, texture, at_pos == -1 ? -1 : at_pos);
                 undo_redo->add_undo_method(frames, "remove_frame", edited_anim, at_pos == -1 ? frames->get_frame_count(edited_anim) - 1 : at_pos);
@@ -845,7 +846,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
                 undo_redo->add_undo_method(this, "_update_library");
                 undo_redo->commit_action();
             } else {
-                undo_redo->create_action_ui(TTR("Add Frame"));
+                undo_redo->create_action(TTR("Add Frame"));
                 undo_redo->add_do_method(frames, "add_frame", edited_anim, texture, at_pos == -1 ? -1 : at_pos);
                 undo_redo->add_undo_method(frames, "remove_frame", edited_anim, at_pos == -1 ? frames->get_frame_count(edited_anim) : at_pos);
                 undo_redo->add_do_method(this, "_update_library");
@@ -855,7 +856,7 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
         }
     }
 
-    if (UIString(d["type"]) == "files") {
+    if (type == "files") {
 
         PoolVector<String> files(d["files"].as<PoolVector<String>>());
 
@@ -909,19 +910,19 @@ SpriteFramesEditor::SpriteFramesEditor() {
     new_anim = memnew(ToolButton);
     new_anim->set_tooltip(TTR("New Animation"));
     hbc_animlist->add_child(new_anim);
-    new_anim->connect("pressed", this, "_animation_add");
+    new_anim->connect("pressed",callable_mp(this, &ClassName::_animation_add));
 
     remove_anim = memnew(ToolButton);
     remove_anim->set_tooltip(TTR("Remove Animation"));
     hbc_animlist->add_child(remove_anim);
-    remove_anim->connect("pressed", this, "_animation_remove");
+    remove_anim->connect("pressed",callable_mp(this, &ClassName::_animation_remove));
 
     animations = memnew(Tree);
     sub_vb->add_child(animations);
     animations->set_v_size_flags(SIZE_EXPAND_FILL);
     animations->set_hide_root(true);
-    animations->connect("cell_selected", this, "_animation_select");
-    animations->connect("item_edited", this, "_animation_name_edited");
+    animations->connect("cell_selected",callable_mp(this, &ClassName::_animation_select));
+    animations->connect("item_edited",callable_mp(this, &ClassName::_animation_name_edited));
     animations->set_allow_reselect(true);
 
     anim_speed = memnew(SpinBox);
@@ -929,12 +930,12 @@ SpriteFramesEditor::SpriteFramesEditor() {
     anim_speed->set_min(0);
     anim_speed->set_max(100);
     anim_speed->set_step(0.01);
-    anim_speed->connect("value_changed", this, "_animation_fps_changed");
+    anim_speed->connect("value_changed",callable_mp(this, &ClassName::_animation_fps_changed));
 
     anim_loop = memnew(CheckButton);
     anim_loop->set_text(TTR("Loop"));
     vbc_animlist->add_child(anim_loop);
-    anim_loop->connect("pressed", this, "_animation_loop_changed");
+    anim_loop->connect("pressed",callable_mp(this, &ClassName::_animation_loop_changed));
 
     VBoxContainer *vbc = memnew(VBoxContainer);
     add_child(vbc);
@@ -1008,16 +1009,16 @@ SpriteFramesEditor::SpriteFramesEditor() {
     dialog = memnew(AcceptDialog);
     add_child(dialog);
 
-    load->connect("pressed", this, "_load_pressed");
-    load_sheet->connect("pressed", this, "_open_sprite_sheet");
-    _delete->connect("pressed", this, "_delete_pressed");
-    copy->connect("pressed", this, "_copy_pressed");
-    paste->connect("pressed", this, "_paste_pressed");
-    empty->connect("pressed", this, "_empty_pressed");
-    empty2->connect("pressed", this, "_empty2_pressed");
-    move_up->connect("pressed", this, "_up_pressed");
-    move_down->connect("pressed", this, "_down_pressed");
-    file->connect("files_selected", this, "_file_load_request");
+    load->connect("pressed",callable_mp(this, &ClassName::_load_pressed));
+    load_sheet->connect("pressed",callable_mp(this, &ClassName::_open_sprite_sheet));
+    _delete->connect("pressed",callable_mp(this, &ClassName::_delete_pressed));
+    copy->connect("pressed",callable_mp(this, &ClassName::_copy_pressed));
+    paste->connect("pressed",callable_mp(this, &ClassName::_paste_pressed));
+    empty->connect("pressed",callable_mp(this, &ClassName::_empty_pressed));
+    empty2->connect("pressed",callable_mp(this, &ClassName::_empty2_pressed));
+    move_up->connect("pressed",callable_mp(this, &ClassName::_up_pressed));
+    move_down->connect("pressed",callable_mp(this, &ClassName::_down_pressed));
+    file->connect("files_selected",callable_mp(this, &ClassName::_file_load_request));
     loading_scene = false;
     sel = -1;
 
@@ -1027,14 +1028,14 @@ SpriteFramesEditor::SpriteFramesEditor() {
 
     delete_dialog = memnew(ConfirmationDialog);
     add_child(delete_dialog);
-    delete_dialog->connect("confirmed", this, "_animation_remove_confirmed");
+    delete_dialog->connect("confirmed",callable_mp(this, &ClassName::_animation_remove_confirmed));
 
     split_sheet_dialog = memnew(ConfirmationDialog);
     add_child(split_sheet_dialog);
     VBoxContainer *split_sheet_vb = memnew(VBoxContainer);
     split_sheet_dialog->add_child(split_sheet_vb);
     split_sheet_dialog->set_title(TTR("Select Frames"));
-    split_sheet_dialog->connect("confirmed", this, "_sheet_add_frames");
+    split_sheet_dialog->connect("confirmed",callable_mp(this, &ClassName::_sheet_add_frames));
 
     HBoxContainer *split_sheet_hb = memnew(HBoxContainer);
 
@@ -1045,7 +1046,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_h->set_max(128);
     split_sheet_h->set_step(1);
     split_sheet_hb->add_child(split_sheet_h);
-    split_sheet_h->connect("value_changed", this, "_sheet_spin_changed");
+    split_sheet_h->connect("value_changed",callable_mp(this, &ClassName::_sheet_spin_changed));
 
     ss_label = memnew(Label(TTR("Vertical:")));
     split_sheet_hb->add_child(ss_label);
@@ -1054,13 +1055,13 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_v->set_max(128);
     split_sheet_v->set_step(1);
     split_sheet_hb->add_child(split_sheet_v);
-    split_sheet_v->connect("value_changed", this, "_sheet_spin_changed");
+    split_sheet_v->connect("value_changed",callable_mp(this, &ClassName::_sheet_spin_changed));
 
     split_sheet_hb->add_spacer();
 
     Button *select_clear_all = memnew(Button);
     select_clear_all->set_text(TTR("Select/Clear All Frames"));
-    select_clear_all->connect("pressed", this, "_sheet_select_clear_all_frames");
+    select_clear_all->connect("pressed",callable_mp(this, &ClassName::_sheet_select_clear_all_frames));
     split_sheet_hb->add_child(select_clear_all);
 
     split_sheet_vb->add_child(split_sheet_hb);
@@ -1068,8 +1069,8 @@ SpriteFramesEditor::SpriteFramesEditor() {
     split_sheet_preview = memnew(TextureRect);
     split_sheet_preview->set_expand(false);
     split_sheet_preview->set_mouse_filter(MOUSE_FILTER_PASS);
-    split_sheet_preview->connect("draw", this, "_sheet_preview_draw");
-    split_sheet_preview->connect("gui_input", this, "_sheet_preview_input");
+    split_sheet_preview->connect("draw",callable_mp(this, &ClassName::_sheet_preview_draw));
+    split_sheet_preview->connect("gui_input",callable_mp(this, &ClassName::_sheet_preview_input));
 
     splite_sheet_scroll = memnew(ScrollContainer);
     splite_sheet_scroll->set_enable_h_scroll(true);
@@ -1087,7 +1088,7 @@ SpriteFramesEditor::SpriteFramesEditor() {
     file_split_sheet->set_title(TTR("Create Frames from Sprite2D Sheet"));
     file_split_sheet->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(file_split_sheet);
-    file_split_sheet->connect("file_selected", this, "_prepare_sprite_sheet");
+    file_split_sheet->connect("file_selected",callable_mp(this, &ClassName::_prepare_sprite_sheet));
 }
 
 void SpriteFramesEditorPlugin::edit(Object *p_object) {

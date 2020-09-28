@@ -57,7 +57,7 @@
 #include "core/io/translation_loader_po.h"
 #include "core/io/xml_parser.h"
 #include "core/math/a_star.h"
-#include "core/math/expression.h"
+//#include "core/math/expression.h"
 #include "core/math/geometry.h"
 #include "core/math/random_number_generator.h"
 #include "core/math/triangle_mesh.h"
@@ -270,7 +270,7 @@ void register_core_singletons() {
     ClassDB::register_virtual_class<Input>();
     ClassDB::register_class<InputMap>();
     ClassDB::register_class<_JSON>();
-    ClassDB::register_class<Expression>();
+    //ClassDB::register_class<Expression>();
     Engine *en =Engine::get_singleton();
     en->add_singleton(Engine::Singleton(StaticCString("ProjectSettings"), ProjectSettings::get_singleton()));
     en->add_singleton(Engine::Singleton(StaticCString("IP"), IP::get_singleton()));

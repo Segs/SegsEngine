@@ -29,7 +29,8 @@
 /*************************************************************************/
 
 #include "spin_box.h"
-#include "core/math/expression.h"
+//#include "core/math/expression.h"
+#include "core/callable_method_pointer.h"
 #include "core/os/input.h"
 #include "core/method_bind.h"
 
@@ -56,18 +57,17 @@ void SpinBox::_value_changed(double) {
 
 void SpinBox::_text_entered(StringView p_string) {
     using namespace StringUtils;
-    Ref<Expression> expr(make_ref_counted<Expression>());
     // Ignore the prefix and suffix in the expression
-    Error err = expr->parse(trim_suffix(trim_prefix(p_string,prefix + " ")," " + suffix));
-    if (err != OK) {
+    StringView text = trim_suffix(trim_prefix(p_string, prefix + " "), " " + suffix);
+    bool was_ok=false;
+    float val=StringUtils::to_float(text,&was_ok);
+    if(!was_ok)
+        val = StringUtils::to_int(text, &was_ok);
+    if(!was_ok)
         return;
-    }
 
-    Variant value = expr->execute(Array(), nullptr, false);
-    if (value.get_type() != VariantType::NIL) {
-        set_value(value);
+    set_value(val);
     _value_changed(0);
-    }
 }
 
 LineEdit *SpinBox::get_line_edit() {
@@ -215,9 +215,9 @@ void SpinBox::_notification(int p_what) {
         _adjust_width_for_icon(get_icon("updown"));
         _value_changed(0);
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
+        call_deferred([this]() { minimum_size_changed(); });
 
-        call_deferred("minimum_size_changed");
-        get_line_edit()->call_deferred("minimum_size_changed");
+        get_line_edit()->call_deferred([self=get_line_edit()]() { self->minimum_size_changed(); });
     }
 }
 
@@ -298,12 +298,12 @@ SpinBox::SpinBox() {
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
     //connect("value_changed",this,"_value_changed");
-    line_edit->connect("text_entered", this, "_text_entered", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("focus_exited", this, "_line_edit_focus_exit", null_variant_pvec, ObjectNS::CONNECT_QUEUED);
-    line_edit->connect("gui_input", this, "_line_edit_input");
+    line_edit->connect("text_entered",callable_mp(this, &ClassName::_text_entered), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("focus_exited",callable_mp(this, &ClassName::_line_edit_focus_exit), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
+    line_edit->connect("gui_input",callable_mp(this, &ClassName::_line_edit_input));
     drag.enabled = false;
 
     range_click_timer = memnew(Timer);
-    range_click_timer->connect("timeout", this, "_range_click_timeout");
+    range_click_timer->connect("timeout",callable_mp(this, &ClassName::_range_click_timeout));
     add_child(range_click_timer);
 }

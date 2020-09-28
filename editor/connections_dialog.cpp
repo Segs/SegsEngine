@@ -30,22 +30,23 @@
 
 #include "connections_dialog.h"
 
+#include "core/callable_method_pointer.h"
+#include "core/doc_support/doc_data.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "core/translation_helpers.h"
 #include "core/string_formatter.h"
-#include "core/doc_support/doc_data.h"
-#include "editor_node.h"
+#include "core/translation_helpers.h"
 #include "editor/editor_help.h"
 #include "editor/editor_scale.h"
 #include "editor/scene_tree_dock.h"
+#include "editor_node.h"
 #include "editor_settings.h"
 #include "plugins/script_editor_plugin.h"
 #include "scene/gui/label.h"
 #include "scene/gui/popup_menu.h"
 #include "scene/gui/rich_text_label.h"
-#include "scene/resources/style_box.h"
 #include "scene/main/scene_tree.h"
+#include "scene/resources/style_box.h"
 
 #include "EASTL/sort.h"
 
@@ -161,8 +162,9 @@ void ConnectDialog::_tree_node_selected() {
 
     Node *current = tree->get_selected();
 
-    if (!current)
+    if (!current) {
         return;
+    }
 
     dst_path = source->get_path_to(current);
     _update_ok_enabled();
@@ -184,6 +186,7 @@ void ConnectDialog::_add_bind() {
         case VariantType::INT: value = 0; break;
         case VariantType::FLOAT: value = 0.0; break;
         case VariantType::STRING: value = ""; break;
+        case VariantType::STRING_NAME: value = ""; break;
         case VariantType::VECTOR2: value = Vector2(); break;
         case VariantType::RECT2: value = Rect2(); break;
         case VariantType::VECTOR3: value = Vector3(); break;
@@ -248,12 +251,7 @@ void ConnectDialog::_notification(int p_what) {
 
 void ConnectDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_advanced_pressed", &ConnectDialog::_advanced_pressed);
     MethodBinder::bind_method("_cancel", &ConnectDialog::_cancel_pressed);
-    MethodBinder::bind_method("_tree_node_selected", &ConnectDialog::_tree_node_selected);
-
-    MethodBinder::bind_method("_add_bind", &ConnectDialog::_add_bind);
-    MethodBinder::bind_method("_remove_bind", &ConnectDialog::_remove_bind);
     MethodBinder::bind_method("_update_ok_enabled", &ConnectDialog::_update_ok_enabled);
 
     ADD_SIGNAL(MethodInfo("connected"));
@@ -320,7 +318,7 @@ bool ConnectDialog::is_editing() const {
  * If creating a connection from scratch, sensible defaults are used.
  * If editing an existing connection, previous data is retained.
 */
-void ConnectDialog::init(const Connection& c, bool bEdit) {
+void ConnectDialog::init(const ConnectionData &c, bool bEdit) {
 
     set_hide_on_ok(false);
 
@@ -405,8 +403,8 @@ ConnectDialog::ConnectDialog() {
 
     tree = memnew(SceneTreeEditor(false));
     tree->set_connecting_signal(true);
-    tree->get_scene_tree()->connect("item_activated", this, "_ok");
-    tree->connect("node_selected", this, "_tree_node_selected");
+    tree->get_scene_tree()->connect("item_activated",callable_mp((AcceptDialog *)this, &AcceptDialog::_ok_pressed));
+    tree->connect("node_selected",callable_mp(this, &ConnectDialog::_tree_node_selected));
     tree->set_connect_to_script_mode(true);
 
     Node *mc = vbc_left->add_margin_child(TTR("Connect to Script:"), tree, true);
@@ -431,6 +429,7 @@ ConnectDialog::ConnectDialog() {
     type_list->add_item("int", (int)VariantType::INT);
     type_list->add_item("float", (int)VariantType::FLOAT);
     type_list->add_item("String", (int)VariantType::STRING);
+    type_list->add_item("StringName", (int)VariantType::STRING_NAME);
     type_list->add_item("Vector2", (int)VariantType::VECTOR2);
     type_list->add_item("Rect2", (int)VariantType::RECT2);
     type_list->add_item("Vector3", (int)VariantType::VECTOR3);
@@ -445,12 +444,12 @@ ConnectDialog::ConnectDialog() {
     Button *add_bind = memnew(Button);
     add_bind->set_text(TTR("Add"));
     add_bind_hb->add_child(add_bind);
-    add_bind->connect("pressed", this, "_add_bind");
+    add_bind->connect("pressed",callable_mp(this, &ClassName::_add_bind));
 
     Button *del_bind = memnew(Button);
     del_bind->set_text(TTR("Remove"));
     add_bind_hb->add_child(del_bind);
-    del_bind->connect("pressed", this, "_remove_bind");
+    del_bind->connect("pressed",callable_mp(this, &ClassName::_remove_bind));
 
     vbc_right->add_margin_child(TTR("Add Extra Call Argument:"), add_bind_hb);
 
@@ -463,13 +462,13 @@ ConnectDialog::ConnectDialog() {
 
     dst_method = memnew(LineEdit);
     dst_method->set_h_size_flags(SIZE_EXPAND_FILL);
-    dst_method->connect("text_entered", this, "_builtin_text_entered");
+    dst_method->connect("text_entered",callable_mp((AcceptDialog *)this, &AcceptDialog::_ok_pressed));
     dstm_hb->add_child(dst_method);
 
     advanced = memnew(CheckButton);
     dstm_hb->add_child(advanced);
     advanced->set_text(TTR("Advanced"));
-    advanced->connect("pressed", this, "_advanced_pressed");
+    advanced->connect("pressed",callable_mp(this, &ClassName::_advanced_pressed));
 
     deferred = memnew(CheckBox);
     deferred->set_h_size_flags(0);
@@ -510,13 +509,14 @@ Control *ConnectionsDockTree::make_custom_tooltip(StringView p_text) const {
 
     FixedVector<StringView,16,true> parts;
 
-    String::split_ref(parts,p_text,"::");
+    String::split_ref(parts,p_text,"::",true);
 
     String text(String(TTR("Signal:")) + " [u][b]" + parts[0] + "[/b][/u]");
     text += String(StringUtils::strip_edges(parts[1])) + "\n";
-    text += StringUtils::strip_edges(parts[2]);
+    if(parts.size()>2)
+        text += StringUtils::strip_edges(parts[2]);
 
-    help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+    help_bit->call_deferred([help_bit,text]() { help_bit->set_text(text); } ); //hack so it uses proper theme once inside scene
     return help_bit;
 }
 
@@ -540,7 +540,7 @@ void ConnectionsDock::_make_or_edit_connection() {
     Node *target = selectedNode->get_node(dst_path);
     ERR_FAIL_COND(!target);
 
-    Connection cToMake;
+    ConnectDialog::ConnectionData cToMake;
     cToMake.source = connect_dialog->get_source();
     cToMake.target = target;
     cToMake.signal = connect_dialog->get_signal_name();
@@ -600,7 +600,7 @@ void ConnectionsDock::_make_or_edit_connection() {
 /*
  * Creates single connection w/ undo-redo functionality.
 */
-void ConnectionsDock::_connect(const Connection& cToMake) {
+void ConnectionsDock::_connect(const ConnectDialog::ConnectionData& cToMake) {
 
     Node *source = static_cast<Node *>(cToMake.source);
     Node *target = static_cast<Node *>(cToMake.target);
@@ -608,11 +608,10 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
     if (!source || !target)
         return;
     String translated_fmt(TTR("Connect '%s' to '%s'"));
-    undo_redo->create_action(FormatVE(translated_fmt.c_str(), cToMake.signal.asCString(), cToMake.method.asCString()));
-
-    undo_redo->add_do_method(source, "connect", cToMake.signal, Variant(target), cToMake.method,
-            Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
-    undo_redo->add_undo_method(source, "disconnect", cToMake.signal, Variant(target), cToMake.method);
+    undo_redo->create_action(FormatVE(translated_fmt.c_str(), ((String)cToMake.signal).c_str(), ((String)cToMake.method).c_str()));
+    Variant method_variant(Callable(target, cToMake.method));
+    undo_redo->add_do_method(source, "connect", cToMake.signal, method_variant, Variant::fromVector(Span<const Variant>(cToMake.binds)), cToMake.flags);
+    undo_redo->add_undo_method(source, "disconnect", cToMake.signal, method_variant);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); //to force redraw of scene tree
@@ -625,15 +624,17 @@ void ConnectionsDock::_connect(const Connection& cToMake) {
  * Break single connection w/ undo-redo functionality.
 */
 void ConnectionsDock::_disconnect(TreeItem &item) {
+    Connection cd = item.get_metadata(0);
+    ConnectDialog::ConnectionData c = cd;
 
-    Connection c = item.get_metadata(0);
     ERR_FAIL_COND(c.source != selectedNode); // Shouldn't happen but... Bugcheck.
 
     String translated_fmt(TTR("Disconnect '%s' to '%s'"));
     undo_redo->create_action(FormatVE(translated_fmt.c_str(), c.signal.asCString(), c.method.asCString()));
+    Variant method_variant(Callable(c.target, c.method));
 
-    undo_redo->add_do_method(selectedNode, "disconnect", c.signal,Variant(c.target), c.method);
-    undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
+    undo_redo->add_do_method(selectedNode, "disconnect", c.signal,method_variant);
+    undo_redo->add_undo_method(selectedNode, "connect", c.signal, method_variant, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
     undo_redo->add_do_method(this, "update_tree");
     undo_redo->add_undo_method(this, "update_tree");
     undo_redo->add_do_method(EditorNode::get_singleton()->get_scene_tree_dock()->get_tree_editor(), "update_tree"); // To force redraw of scene tree.
@@ -654,12 +655,13 @@ void ConnectionsDock::_disconnect_all() {
         return;
 
     TreeItem *child = item->get_children();
-    String signalName = item->get_metadata(0).operator Dictionary()["name"];
+    StringName signalName = item->get_metadata(0).as<Dictionary>()["name"].as<StringName>();
     String translated_fmt(TTR("Disconnect all from signal: '%s'"));
-    undo_redo->create_action(FormatVE(translated_fmt.c_str(), signalName.c_str()));
+    undo_redo->create_action(FormatVE(translated_fmt.c_str(), signalName.asCString()));
 
     while (child) {
-        Connection c = child->get_metadata(0);
+        Connection cd = child->get_metadata(0);
+        ConnectDialog::ConnectionData c = cd;
         undo_redo->add_do_method(selectedNode, "disconnect", c.signal, Variant(c.target), c.method);
         undo_redo->add_undo_method(selectedNode, "connect", c.signal, Variant(c.target), c.method, Variant::fromVector(Span<const Variant>(c.binds)), c.flags);
         child = child->get_next();
@@ -692,8 +694,9 @@ void ConnectionsDock::_tree_item_activated() { // "Activation" on double-click.
 
     TreeItem *item = tree->get_selected();
 
-    if (!item)
+    if (!item) {
         return;
+    }
 
     if (_is_item_signal(*item)) {
         _open_connection_dialog(*item);
@@ -712,8 +715,8 @@ Open connection dialog with TreeItem data to CREATE a brand-new connection.
 */
 void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 
-    String signal = item.get_metadata(0).operator Dictionary()["name"];
-    const String &signalname = signal;
+    StringName signal = item.get_metadata(0).as<Dictionary>()["name"].as<StringName>();
+    const StringName&signalname = signal;
     String midname(selectedNode->get_name());
     for (size_t i = 0; i < midname.length(); i++) { //TODO: Regex filter may be cleaner.
         char c = midname[i];
@@ -738,7 +741,7 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 
     StringName dst_method("_on_" + midname + "_" + signal);
 
-    Connection c;
+    ConnectDialog::ConnectionData c;
     c.source = selectedNode;
     c.signal = StringName(signalname);
     c.target = dst_node;
@@ -751,12 +754,13 @@ void ConnectionsDock::_open_connection_dialog(TreeItem &item) {
 /*
  * Open connection dialog with Connection data to EDIT an existing connection.
 */
-void ConnectionsDock::_open_connection_dialog(const Connection& cToEdit) {
+void ConnectionsDock::_open_connection_dialog(const ConnectDialog::ConnectionData& cToEdit) {
 
     Node *src = static_cast<Node *>(cToEdit.source);
     Node *dst = static_cast<Node *>(cToEdit.target);
 
     if (src && dst) {
+        const StringName &signalname = cToEdit.signal;
         connect_dialog->set_title(TTR("Edit Connection:") + cToEdit.signal);
         connect_dialog->popup_centered();
         connect_dialog->init(cToEdit, true);
@@ -768,14 +772,17 @@ void ConnectionsDock::_open_connection_dialog(const Connection& cToEdit) {
 */
 void ConnectionsDock::_go_to_script(TreeItem &item) {
 
-    if (_is_item_signal(item))
+    if (_is_item_signal(item)) {
         return;
+    }
 
-    Connection c = item.get_metadata(0);
+    Connection cd = item.get_metadata(0);
+    ConnectDialog::ConnectionData c = cd;
     ERR_FAIL_COND(c.source != selectedNode); //shouldn't happen but...bugcheck
 
-    if (!c.target)
+    if (!c.target) {
         return;
+    }
 
     Ref<Script> script = refFromRefPtr<Script>(c.target->get_script());
 
@@ -791,15 +798,16 @@ void ConnectionsDock::_handle_signal_menu_option(int option) {
 
     TreeItem *item = tree->get_selected();
 
-    if (!item)
+    if (!item) {
         return;
+    }
 
     switch (option) {
         case CONNECT: {
             _open_connection_dialog(*item);
         } break;
         case DISCONNECT_ALL: {
-            StringName signal_name = item->get_metadata(0).operator Dictionary()["name"];
+            StringName signal_name = item->get_metadata(0).as<Dictionary>()["name"].as<StringName>();
             disconnect_all_dialog->set_text(FormatSN(TTR("Are you sure you want to remove all connections from the \"%s\" signal?").asCString(), signal_name.asCString()));
             disconnect_all_dialog->popup_centered();
         } break;
@@ -810,8 +818,9 @@ void ConnectionsDock::_handle_slot_menu_option(int option) {
 
     TreeItem *item = tree->get_selected();
 
-    if (!item)
+    if (!item) {
         return;
+    }
 
     switch (option) {
         case EDIT: {
@@ -832,8 +841,9 @@ void ConnectionsDock::_rmb_pressed(Vector2 position) {
 
     TreeItem *item = tree->get_selected();
 
-    if (!item)
+    if (!item) {
         return;
+    }
 
     Vector2 global_position = tree->get_global_position() + position;
 
@@ -876,15 +886,6 @@ void ConnectionsDock::_notification(int p_what) {
 
 void ConnectionsDock::_bind_methods() {
 
-    MethodBinder::bind_method("_make_or_edit_connection", &ConnectionsDock::_make_or_edit_connection);
-    MethodBinder::bind_method("_disconnect_all", &ConnectionsDock::_disconnect_all);
-    MethodBinder::bind_method("_tree_item_selected", &ConnectionsDock::_tree_item_selected);
-    MethodBinder::bind_method("_tree_item_activated", &ConnectionsDock::_tree_item_activated);
-    MethodBinder::bind_method("_handle_signal_menu_option", &ConnectionsDock::_handle_signal_menu_option);
-    MethodBinder::bind_method("_handle_slot_menu_option", &ConnectionsDock::_handle_slot_menu_option);
-    MethodBinder::bind_method("_rmb_pressed", &ConnectionsDock::_rmb_pressed);
-    MethodBinder::bind_method("_close", &ConnectionsDock::_close);
-    MethodBinder::bind_method("_connect_pressed", &ConnectionsDock::_connect_pressed);
     MethodBinder::bind_method("update_tree", &ConnectionsDock::update_tree);
 }
 
@@ -975,13 +976,13 @@ void ConnectionsDock::update_tree() {
             }
             signaldesc += ')';
 
-            TreeItem *item = tree->create_item(pitem);
-            item->set_text_utf8(0, String(signal_name) + signaldesc);
+            TreeItem *signal_item = tree->create_item(pitem);
+            signal_item->set_text_utf8(0, String(signal_name) + signaldesc);
             Dictionary sinfo;
             sinfo["name"] = signal_name;
             sinfo["args"] = argnames;
-            item->set_metadata(0, sinfo);
-            item->set_icon(0, get_icon("Signal", "EditorIcons"));
+            signal_item->set_metadata(0, sinfo);
+            signal_item->set_icon(0, get_icon("Signal", "EditorIcons"));
 
             // Set tooltip with the signal's documentation.
             {
@@ -1017,16 +1018,18 @@ void ConnectionsDock::update_tree() {
                 }
 
                 // "::" separators used in make_custom_tooltip for formatting.
-                item->set_tooltip(0, StringName(String(signal_name) + "::" + signaldesc + "::" + descr));
+                signal_item->set_tooltip(0, StringName(String(signal_name) + "::" + signaldesc + "::" + descr));
             }
 
             // List existing connections
             List<Object::Connection> connections;
             selectedNode->get_signal_connection_list(signal_name, &connections);
 
-            for (Object::Connection &c : connections) {
-                if (!(c.flags & ObjectNS::CONNECT_PERSIST))
+            for (Object::Connection &cn : connections) {
+                if (!(cn.flags & ObjectNS::CONNECT_PERSIST)) {
                     continue;
+                }
+                ConnectDialog::ConnectionData c = cn;
 
                 Node *target = object_cast<Node>(c.target);
                 if (!target)
@@ -1049,10 +1052,12 @@ void ConnectionsDock::update_tree() {
                     path += " )";
                 }
 
-                TreeItem *item2 = tree->create_item(item);
-                item2->set_text_utf8(0, path);
-                item2->set_metadata(0, c);
-                item2->set_icon(0, get_icon("Slot", "EditorIcons"));
+                TreeItem *connection_item = tree->create_item(signal_item);
+                connection_item->set_text_utf8(0, path);
+                Connection cd = c;
+                connection_item->set_metadata(0, cd);
+                connection_item->set_icon(0, get_icon("Slot", "EditorIcons"));
+
             }
         }
 
@@ -1087,7 +1092,7 @@ ConnectionsDock::ConnectionsDock(EditorNode *p_editor) {
     vbc->add_child(hb);
     hb->add_spacer();
     hb->add_child(connect_button);
-    connect_button->connect("pressed", this, "_connect_pressed");
+    connect_button->connect("pressed", callable_mp(this, &ConnectionsDock::_connect_pressed));
 
     connect_dialog = memnew(ConnectDialog);
     connect_dialog->set_as_toplevel(true);
@@ -1096,26 +1101,26 @@ ConnectionsDock::ConnectionsDock(EditorNode *p_editor) {
     disconnect_all_dialog = memnew(ConfirmationDialog);
     disconnect_all_dialog->set_as_toplevel(true);
     add_child(disconnect_all_dialog);
-    disconnect_all_dialog->connect("confirmed", this, "_disconnect_all");
+    disconnect_all_dialog->connect("confirmed", callable_mp(this, &ConnectionsDock::_disconnect_all));
     disconnect_all_dialog->set_text(TTR("Are you sure you want to remove all connections from this signal?"));
 
     signal_menu = memnew(PopupMenu);
     add_child(signal_menu);
-    signal_menu->connect("id_pressed", this, "_handle_signal_menu_option");
+    signal_menu->connect("id_pressed", callable_mp(this, &ConnectionsDock::_handle_signal_menu_option));
     signal_menu->add_item(TTR("Connect..."), CONNECT);
     signal_menu->add_item(TTR("Disconnect All"), DISCONNECT_ALL);
 
     slot_menu = memnew(PopupMenu);
     add_child(slot_menu);
-    slot_menu->connect("id_pressed", this, "_handle_slot_menu_option");
+    slot_menu->connect("id_pressed", callable_mp(this, &ConnectionsDock::_handle_slot_menu_option));
     slot_menu->add_item(TTR("Edit..."), EDIT);
     slot_menu->add_item(TTR("Go To Method"), GO_TO_SCRIPT);
     slot_menu->add_item(TTR("Disconnect"), DISCONNECT);
 
-    connect_dialog->connect("connected", this, "_make_or_edit_connection");
-    tree->connect("item_selected", this, "_tree_item_selected");
-    tree->connect("item_activated", this, "_tree_item_activated");
-    tree->connect("item_rmb_selected", this, "_rmb_pressed");
+    connect_dialog->connect("connected", callable_mp(this, &ConnectionsDock::_make_or_edit_connection));
+    tree->connect("item_selected", callable_mp(this, &ConnectionsDock::_tree_item_selected));
+    tree->connect("item_activated", callable_mp(this, &ConnectionsDock::_tree_item_activated));
+    tree->connect("item_rmb_selected", callable_mp(this, &ConnectionsDock::_rmb_pressed));
 
     add_constant_override("separation", 3 * EDSCALE);
 }

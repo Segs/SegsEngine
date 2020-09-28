@@ -30,6 +30,7 @@
 
 #include "tree.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -768,14 +769,14 @@ Variant TreeItem::_call_recursive_bind(const Variant **p_args, int p_argcount, C
         return Variant();
     }
 
-    if (p_args[0]->get_type() != VariantType::STRING) {
+    if (p_args[0]->get_type() != VariantType::STRING && p_args[0]->get_type() != VariantType::STRING_NAME) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 0;
-        r_error.expected = VariantType::STRING;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
-    StringName method = *p_args[0];
+    StringName method = p_args[0]->as<StringName>();
 
     call_recursive(method, &p_args[1], p_argcount - 1, r_error);
     return Variant();
@@ -893,7 +894,7 @@ void TreeItem::_bind_methods() {
     {
         MethodInfo mi;
         mi.name = "call_recursive";
-        mi.arguments.push_back(PropertyInfo(VariantType::STRING, "method"));
+        mi.arguments.push_back(PropertyInfo(VariantType::STRING_NAME, "method"));
         MethodBinder::bind_vararg_method("call_recursive", &TreeItem::_call_recursive_bind, eastl::move(mi));
     }
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
@@ -1432,7 +1433,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 case TreeItem::CELL_MODE_CUSTOM: {
 
 
-                    if (p_item->cells[i].custom_draw_obj) {
+                    if (p_item->cells[i].custom_draw_obj.is_valid()) {
 
                         Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw_obj);
                         if (cdo)
@@ -2637,7 +2638,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
                         Input::get_singleton()->set_mouse_mode(Input::MOUSE_MODE_VISIBLE);
                         warp_mouse(range_drag_capture_pos);
                     } else {
-                        Rect2 rect = get_selected()->get_meta("__focus_rect");
+                        Rect2 rect = get_selected()->get_meta("__focus_rect").as<Rect2>();
                         if (rect.has_point(Point2(b->get_position().x, b->get_position().y))) {
                             if (!edit_selected()) {
                                 emit_signal("item_double_clicked");
@@ -2806,7 +2807,7 @@ bool Tree::edit_selected() {
     if (!s->cells[col].editable)
         return false;
 
-    Rect2 rect = s->get_meta("__focus_rect");
+    Rect2 rect = s->get_meta("__focus_rect").as<Rect2>();
 
     popup_edited_item = s;
     popup_edited_item_col = col;
@@ -3105,7 +3106,7 @@ void Tree::_notification(int p_what) {
     if (p_what == NOTIFICATION_RESIZED || p_what == NOTIFICATION_TRANSFORM_CHANGED) {
 
         if (popup_edited_item != nullptr) {
-            Rect2 rect = popup_edited_item->get_meta("__focus_rect");
+            Rect2 rect = popup_edited_item->get_meta("__focus_rect").as<Rect2>();
             Vector2 ofs(0, (text_editor->get_size().height - rect.size.height) / 2);
             Point2i textedpos = get_global_position() + rect.position - ofs;
 
@@ -3127,7 +3128,7 @@ TreeItem *Tree::create_item(TreeItem *p_parent, int p_idx) {
 
     ERR_FAIL_COND_V(blocked > 0, nullptr);
 
-    TreeItem *ti = nullptr;
+    TreeItem *ti;
 
     if (p_parent) {
 
@@ -3689,7 +3690,7 @@ void Tree::_do_incr_search(const String &p_add) {
 
     uint64_t time = OS::get_singleton()->get_ticks_usec() / 1000; // convert to msec
     uint64_t diff = time - last_keypress;
-    if (diff > uint64_t(GLOBAL_DEF("gui/timers/incremental_search_max_interval_msec", 2000)))
+    if (diff > T_GLOBAL_DEF<uint64_t>("gui/timers/incremental_search_max_interval_msec", 2000))
         incr_search = p_add;
     else if (incr_search != p_add)
         incr_search += p_add;
@@ -3999,13 +4000,7 @@ bool Tree::get_allow_reselect() const {
 
 void Tree::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &Tree::_range_click_timeout);
     MethodBinder::bind_method(D_METHOD("_gui_input"), &Tree::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_popup_select"), &Tree::popup_select);
-    MethodBinder::bind_method(D_METHOD("_text_editor_enter"), &Tree::text_editor_enter);
-    MethodBinder::bind_method(D_METHOD("_text_editor_modal_close"), &Tree::_text_editor_modal_close);
-    MethodBinder::bind_method(D_METHOD("_value_editor_changed"), &Tree::value_editor_changed);
-    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &Tree::_scroll_moved);
 
     MethodBinder::bind_method(D_METHOD("clear"), &Tree::clear);
     MethodBinder::bind_method(D_METHOD("create_item", {"parent", "idx"}), &Tree::_create_item, {DEFVAL(Variant()), DEFVAL(-1)});
@@ -4128,15 +4123,15 @@ Tree::Tree() {
     add_child(v_scroll);
 
     range_click_timer = memnew(Timer);
-    range_click_timer->connect("timeout", this, "_range_click_timeout");
+    range_click_timer->connect("timeout",callable_mp(this, &ClassName::_range_click_timeout));
     add_child(range_click_timer);
 
-    h_scroll->connect("value_changed", this, "_scroll_moved");
-    v_scroll->connect("value_changed", this, "_scroll_moved");
-    text_editor->connect("text_entered", this, "_text_editor_enter");
-    text_editor->connect("modal_closed", this, "_text_editor_modal_close");
-    popup_menu->connect("id_pressed", this, "_popup_select");
-    value_editor->connect("value_changed", this, "_value_editor_changed");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_moved));
+    text_editor->connect("text_entered",callable_mp(this, &Tree::text_editor_enter));
+    text_editor->connect("modal_closed",callable_mp(this, &ClassName::_text_editor_modal_close));
+    popup_menu->connect("id_pressed",callable_mp(this, &ClassName::popup_select));
+    value_editor->connect("value_changed",callable_mp(this, &ClassName::value_editor_changed));
 
     value_editor->set_as_toplevel(true);
     text_editor->set_as_toplevel(true);

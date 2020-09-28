@@ -31,6 +31,7 @@
 #include "visibility_notifier_3d.h"
 
 #include "core/engine.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "scene/3d/camera_3d.h"
@@ -176,8 +177,7 @@ void VisibilityEnabler3D::_find_nodes(Node *p_node) {
     }
 
     if (add) {
-
-        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed", varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
@@ -215,7 +215,7 @@ void VisibilityEnabler3D::_notification(int p_what) {
 
             if (!visible)
                 _change_node_state(E.first, true);
-            E.first->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, "_node_removed");
+            E.first->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed));
         }
 
         nodes.clear();

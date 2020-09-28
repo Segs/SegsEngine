@@ -55,7 +55,7 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
 
     UndoRedo *ur = EditorNode::get_undo_redo();
 
-    ur->create_action_ui(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
+    ur->create_action(TTR("MultiNode Set") + " " + name, UndoRedo::MERGE_ENDS);
     for (const NodePath &E : nodes) {
 
         if (!es->has_node(E))
@@ -66,7 +66,7 @@ bool MultiNodeEdit::_set_impl(const StringName &p_name, const Variant &p_value, 
             continue;
 
         if (p_value.get_type() == VariantType::NODE_PATH) {
-            Node *tonode = n->get_node(p_value);
+            Node *tonode = n->get_node(p_value.as<NodePath>());
             NodePath p_path = n->get_path_to(tonode);
             ur->add_do_property(n, name, p_path);
         } else {

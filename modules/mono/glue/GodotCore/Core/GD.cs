@@ -8,9 +8,9 @@ namespace Godot
 {
     public static partial class GD
     {
-        public static object Bytes2Var(byte[] bytes, bool allow_objects = false)
+        public static object Bytes2Var(byte[] bytes, bool allowObjects = false)
         {
-            return godot_icall_GD_bytes2var(bytes, allow_objects);
+            return godot_icall_GD_bytes2var(bytes, allowObjects);
         }
 
         public static object Convert(object what, VariantType type)
@@ -33,11 +33,11 @@ namespace Godot
             return val * sgn;
         }
 
-        public static FuncRef FuncRef(Object instance, string funcname)
+        public static FuncRef FuncRef(Object instance, StringName funcName)
         {
             var ret = new FuncRef();
             ret.SetInstance(instance);
-            ret.SetFunction(funcname);
+            ret.SetFunction(funcName);
             return ret;
         }
 
@@ -176,14 +176,14 @@ namespace Godot
             return godot_icall_GD_str2var(str);
         }
 
-        public static bool TypeExists(string type)
+        public static bool TypeExists(StringName type)
         {
-            return godot_icall_GD_type_exists(type);
+            return godot_icall_GD_type_exists(StringName.GetPtr(type));
         }
 
-        public static byte[] Var2Bytes(object var, bool full_objects = false)
+        public static byte[] Var2Bytes(object var, bool fullObjects = false)
         {
-            return godot_icall_GD_var2bytes(var, full_objects);
+            return godot_icall_GD_var2bytes(var, fullObjects);
         }
 
         public static string Var2Str(object var)
@@ -191,8 +191,12 @@ namespace Godot
             return godot_icall_GD_var2str(var);
         }
 
+        public static VariantType TypeToVariantType(Type type)
+        {
+            return godot_icall_TypeToVariantType(type);
+        }
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static object godot_icall_GD_bytes2var(byte[] bytes, bool allow_objects);
+        internal extern static object godot_icall_GD_bytes2var(byte[] bytes, bool allowObjects);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static object godot_icall_GD_convert(object what, VariantType type);
@@ -201,7 +205,7 @@ namespace Godot
         internal extern static int godot_icall_GD_hash(object var);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static Object godot_icall_GD_instance_from_id(ulong instance_id);
+        internal extern static Object godot_icall_GD_instance_from_id(ulong instanceId);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void godot_icall_GD_print(object[] what);
@@ -244,10 +248,10 @@ namespace Godot
         internal extern static object godot_icall_GD_str2var(string str);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static bool godot_icall_GD_type_exists(string type);
+        internal extern static bool godot_icall_GD_type_exists(IntPtr type);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static byte[] godot_icall_GD_var2bytes(object what, bool full_objects);
+        internal extern static byte[] godot_icall_GD_var2bytes(object what, bool fullObjects);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static string godot_icall_GD_var2str(object var);
@@ -257,5 +261,8 @@ namespace Godot
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void godot_icall_GD_pushwarning(string type);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        private static extern VariantType godot_icall_TypeToVariantType(Type type);
     }
 }

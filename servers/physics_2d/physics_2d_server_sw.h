@@ -194,11 +194,11 @@ public:
     void body_set_shape_disabled(RID p_body, int p_shape_idx, bool p_disabled) override;
     void body_set_shape_as_one_way_collision(RID p_body, int p_shape_idx, bool p_enable, float p_margin) override;
 
-    void body_attach_object_instance_id(RID p_body, uint32_t p_id) override;
-    uint32_t body_get_object_instance_id(RID p_body) const override;
+    void body_attach_object_instance_id(RID p_body, ObjectID p_id) override;
+    ObjectID body_get_object_instance_id(RID p_body) const override;
 
-    void body_attach_canvas_instance_id(RID p_body, uint32_t p_id) override;
-    uint32_t body_get_canvas_instance_id(RID p_body) const override;
+    void body_attach_canvas_instance_id(RID p_body, ObjectID p_id) override;
+    ObjectID body_get_canvas_instance_id(RID p_body) const override;
 
     void body_set_continuous_collision_detection_mode(RID p_body, CCDMode p_mode) override;
     CCDMode body_get_continuous_collision_detection_mode(RID p_body) const override;

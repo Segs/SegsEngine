@@ -237,7 +237,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
 
             Ref<AnimationNode> an = state_machine->get_node(selected_node);
             updating = true;
-            undo_redo->create_action_ui(TTR("Move Node"));
+            undo_redo->create_action(TTR("Move Node"));
             undo_redo->add_do_method(state_machine.get(), "set_node_position", selected_node, state_machine->get_node_position(selected_node) + drag_ofs / EDSCALE);
             undo_redo->add_undo_method(state_machine.get(), "set_node_position", selected_node, state_machine->get_node_position(selected_node));
             undo_redo->add_do_method(this, "_update_graph");
@@ -282,7 +282,7 @@ void AnimationNodeStateMachineEditor::_state_machine_gui_input(const Ref<InputEv
                 tr->set_switch_mode(AnimationNodeStateMachineTransition::SwitchMode(transition_mode->get_selected()));
 
                 updating = true;
-                undo_redo->create_action_ui(TTR("Add Transition"));
+                undo_redo->create_action(TTR("Add Transition"));
                 undo_redo->add_do_method(state_machine.get(), "add_transition", connecting_from, connecting_to_node, tr);
                 undo_redo->add_undo_method(state_machine.get(), "remove_transition", connecting_from, connecting_to_node);
                 undo_redo->add_do_method(this, "_update_graph");
@@ -445,7 +445,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
         node = dynamic_ref_cast<AnimationRootNode>(EditorSettings::get_singleton()->get_resource_clipboard());
 
     } else {
-        String type = menu->get_item_metadata(p_index);
+        String type = menu->get_item_metadata(p_index).as<String>();
 
         Object *obj = ClassDB::instance(StringName(type));
         ERR_FAIL_COND(!obj);
@@ -474,7 +474,7 @@ void AnimationNodeStateMachineEditor::_add_menu_type(int p_index) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Add Node"));
+    undo_redo->create_action(TTR("Add Node"));
     undo_redo->add_do_method(state_machine.get(), "add_node", name, node, add_node_pos);
     undo_redo->add_undo_method(state_machine.get(), "remove_node", name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -500,7 +500,7 @@ void AnimationNodeStateMachineEditor::_add_animation_type(int p_index) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Add Node"));
+    undo_redo->create_action(TTR("Add Node"));
     undo_redo->add_do_method(state_machine.get(), "add_node", name, anim, add_node_pos);
     undo_redo->add_undo_method(state_machine.get(), "remove_node", name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -757,7 +757,7 @@ void AnimationNodeStateMachineEditor::_state_machine_draw() {
 
         bool auto_advance = tl.auto_advance;
         StringName fullpath(AnimationTreeEditor::get_singleton()->get_base_path() + tl.advance_condition_name);
-        if (tl.advance_condition_name != StringName() && bool(AnimationTreeEditor::get_singleton()->get_tree()->get(fullpath))) {
+        if (!tl.advance_condition_name.empty() && AnimationTreeEditor::get_singleton()->get_tree()->getT<bool>(fullpath)) {
             tl.advance_condition_state = true;
             auto_advance = true;
         }
@@ -1012,9 +1012,9 @@ void AnimationNodeStateMachineEditor::_notification(int p_what) {
             }
 
             bool acstate = !transition_lines[i].advance_condition_name.empty() &&
-                           bool(AnimationTreeEditor::get_singleton()->get_tree()->get(
+                           AnimationTreeEditor::get_singleton()->get_tree()->getT<bool>(
                                    StringName(AnimationTreeEditor::get_singleton()->get_base_path() +
-                                   transition_lines[i].advance_condition_name)));
+                                   transition_lines[i].advance_condition_name));
 
             if (transition_lines[i].advance_condition_state != acstate) {
                 state_machine_draw->update();
@@ -1127,7 +1127,7 @@ void AnimationNodeStateMachineEditor::_name_edited(StringView p_text) {
     }
 
     updating = true;
-    undo_redo->create_action_ui(TTR("Node Renamed"));
+    undo_redo->create_action(TTR("Node Renamed"));
     undo_redo->add_do_method(state_machine.get(), "rename_node", prev_name, name);
     undo_redo->add_undo_method(state_machine.get(), "rename_node", name, prev_name);
     undo_redo->add_do_method(this, "_update_graph");
@@ -1159,7 +1159,7 @@ void AnimationNodeStateMachineEditor::_erase_selected() {
 
     if (selected_node != StringName() && state_machine->has_node(selected_node)) {
         updating = true;
-        undo_redo->create_action_ui(TTR("Node Removed"));
+        undo_redo->create_action(TTR("Node Removed"));
         undo_redo->add_do_method(state_machine.get(), "remove_node", selected_node);
         undo_redo->add_undo_method(state_machine.get(), "add_node", selected_node, state_machine->get_node(selected_node), state_machine->get_node_position(selected_node));
         for (int i = 0; i < state_machine->get_transition_count(); i++) {
@@ -1183,7 +1183,7 @@ void AnimationNodeStateMachineEditor::_erase_selected() {
 
         Ref<AnimationNodeStateMachineTransition> tr = state_machine->get_transition(state_machine->find_transition(selected_transition_from, selected_transition_to));
         updating = true;
-        undo_redo->create_action_ui(TTR("Transition Removed"));
+        undo_redo->create_action(TTR("Transition Removed"));
         undo_redo->add_do_method(state_machine.get(), "remove_transition", selected_transition_from, selected_transition_to);
         undo_redo->add_undo_method(state_machine.get(), "add_transition", selected_transition_from, selected_transition_to, tr);
         undo_redo->add_do_method(this, "_update_graph");
@@ -1209,7 +1209,7 @@ void AnimationNodeStateMachineEditor::_autoplay_selected() {
         }
 
         updating = true;
-        undo_redo->create_action_ui(TTR("Set Start Node (Autoplay)"));
+        undo_redo->create_action(TTR("Set Start Node (Autoplay)"));
         undo_redo->add_do_method(state_machine.get(), "set_start_node", new_start_node);
         undo_redo->add_undo_method(state_machine.get(), "set_start_node", state_machine->get_start_node());
         undo_redo->add_do_method(this, "_update_graph");
@@ -1232,7 +1232,7 @@ void AnimationNodeStateMachineEditor::_end_selected() {
         }
 
         updating = true;
-        undo_redo->create_action_ui(TTR("Set Start Node (Autoplay)"));
+        undo_redo->create_action(TTR("Set Start Node (Autoplay)"));
         undo_redo->add_do_method(state_machine.get(), "set_end_node", new_end_node);
         undo_redo->add_undo_method(state_machine.get(), "set_end_node", state_machine->get_end_node());
         undo_redo->add_do_method(this, "_update_graph");
@@ -1297,21 +1297,21 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_select->set_button_group(bg);
     tool_select->set_pressed(true);
     tool_select->set_tooltip(TTR("Select and move nodes.\nRMB to add new nodes.\nShift+LMB to create connections."));
-    tool_select->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_select->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_create = memnew(ToolButton);
     top_hb->add_child(tool_create);
     tool_create->set_toggle_mode(true);
     tool_create->set_button_group(bg);
     tool_create->set_tooltip(TTR("Create new nodes."));
-    tool_create->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_create->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_connect = memnew(ToolButton);
     top_hb->add_child(tool_connect);
     tool_connect->set_toggle_mode(true);
     tool_connect->set_button_group(bg);
     tool_connect->set_tooltip(TTR("Connect nodes."));
-    tool_connect->connect("pressed", this, "_update_mode", varray(),ObjectNS::CONNECT_QUEUED);
+    tool_connect->connect("pressed",callable_mp(this, &ClassName::_update_mode), varray(),ObjectNS::CONNECT_QUEUED);
 
     tool_erase_hb = memnew(HBoxContainer);
     top_hb->add_child(tool_erase_hb);
@@ -1319,7 +1319,7 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_erase = memnew(ToolButton);
     tool_erase->set_tooltip(TTR("Remove selected node or transition."));
     tool_erase_hb->add_child(tool_erase);
-    tool_erase->connect("pressed", this, "_erase_selected");
+    tool_erase->connect("pressed",callable_mp(this, &ClassName::_erase_selected));
     tool_erase->set_disabled(true);
 
     tool_erase_hb->add_child(memnew(VSeparator));
@@ -1327,13 +1327,13 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
     tool_autoplay = memnew(ToolButton);
     tool_autoplay->set_tooltip(TTR("Toggle autoplay this animation on start, restart or seek to zero."));
     tool_erase_hb->add_child(tool_autoplay);
-    tool_autoplay->connect("pressed", this, "_autoplay_selected");
+    tool_autoplay->connect("pressed",callable_mp(this, &ClassName::_autoplay_selected));
     tool_autoplay->set_disabled(true);
 
     tool_end = memnew(ToolButton);
     tool_end->set_tooltip(TTR("Set the end animation. This is useful for sub-transitions."));
     tool_erase_hb->add_child(tool_end);
-    tool_end->connect("pressed", this, "_end_selected");
+    tool_end->connect("pressed",callable_mp(this, &ClassName::_end_selected));
     tool_end->set_disabled(true);
 
     top_hb->add_child(memnew(VSeparator));
@@ -1354,26 +1354,26 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
     state_machine_draw = memnew(Control);
     panel->add_child(state_machine_draw);
-    state_machine_draw->connect("gui_input", this, "_state_machine_gui_input");
-    state_machine_draw->connect("draw", this, "_state_machine_draw");
+    state_machine_draw->connect("gui_input",callable_mp(this, &ClassName::_state_machine_gui_input));
+    state_machine_draw->connect("draw",callable_mp(this, &ClassName::_state_machine_draw));
     state_machine_draw->set_focus_mode(FOCUS_ALL);
 
     state_machine_play_pos = memnew(Control);
     state_machine_draw->add_child(state_machine_play_pos);
     state_machine_play_pos->set_mouse_filter(MOUSE_FILTER_PASS); //pass all to parent
     state_machine_play_pos->set_anchors_and_margins_preset(PRESET_WIDE);
-    state_machine_play_pos->connect("draw", this, "_state_machine_pos_draw");
+    state_machine_play_pos->connect("draw",callable_mp(this, &ClassName::_state_machine_pos_draw));
 
     v_scroll = memnew(VScrollBar);
     state_machine_draw->add_child(v_scroll);
     v_scroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
-    v_scroll->connect("value_changed", this, "_scroll_changed");
+    v_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
 
     h_scroll = memnew(HScrollBar);
     state_machine_draw->add_child(h_scroll);
     h_scroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
     h_scroll->set_margin(Margin::Right, -v_scroll->get_size().x * EDSCALE);
-    h_scroll->connect("value_changed", this, "_scroll_changed");
+    h_scroll->connect("value_changed",callable_mp(this, &ClassName::_scroll_changed));
 
     error_panel = memnew(PanelContainer);
     add_child(error_panel);
@@ -1387,25 +1387,25 @@ AnimationNodeStateMachineEditor::AnimationNodeStateMachineEditor() {
 
     menu = memnew(PopupMenu);
     add_child(menu);
-    menu->connect("id_pressed", this, "_add_menu_type");
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_add_menu_type));
 
     animations_menu = memnew(PopupMenu);
     menu->add_child(animations_menu);
     animations_menu->set_name("animations");
-    animations_menu->connect("index_pressed", this, "_add_animation_type");
+    animations_menu->connect("index_pressed",callable_mp(this, &ClassName::_add_animation_type));
 
     name_edit = memnew(LineEdit);
     state_machine_draw->add_child(name_edit);
     name_edit->hide();
-    name_edit->connect("text_entered", this, "_name_edited");
-    name_edit->connect("focus_exited", this, "_name_edited_focus_out");
+    name_edit->connect("text_entered",callable_mp(this, &ClassName::_name_edited));
+    name_edit->connect("focus_exited",callable_mp(this, &ClassName::_name_edited_focus_out));
     name_edit->set_as_toplevel(true);
 
     open_file = memnew(EditorFileDialog);
     add_child(open_file);
     open_file->set_title(TTR("Open Animation Node"));
     open_file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
-    open_file->connect("file_selected", this, "_file_opened");
+    open_file->connect("file_selected",callable_mp(this, &ClassName::_file_opened));
     undo_redo = EditorNode::get_undo_redo();
 
     over_text = false;

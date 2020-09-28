@@ -30,6 +30,7 @@
 
 #include "cpu_particles_3d.h"
 
+#include "core/callable_method_pointer.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/3d/gpu_particles_3d.h"
 #include "scene/resources/particles_material.h"
@@ -48,31 +49,30 @@ VARIANT_ENUM_CAST(CPUParticles3D::Flags)
 VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape)
 
 AABB CPUParticles3D::get_aabb() const {
-
     return AABB();
 }
-Vector<Face3> CPUParticles3D::get_faces(uint32_t p_usage_flags) const {
 
+Vector<Face3> CPUParticles3D::get_faces(uint32_t p_usage_flags) const {
     return Vector<Face3>();
 }
 
 void CPUParticles3D::set_emitting(bool p_emitting) {
-
-    if (emitting == p_emitting)
+    if (emitting == p_emitting) {
         return;
+    }
 
     emitting = p_emitting;
     if (emitting) {
         set_process_internal(true);
 
         // first update before rendering to avoid one frame delay after emitting starts
-        if (time == 0.0f)
+        if (time == 0.0f) {
             _update_internal();
+        }
     }
 }
 
 void CPUParticles3D::set_amount(int p_amount) {
-
     ERR_FAIL_COND_MSG(p_amount < 1, "Amount of particles must be greater than 0.");
 
     particles.resize(p_amount);
@@ -232,15 +232,17 @@ StringName CPUParticles3D::get_configuration_warning() const {
     anim_material_found = anim_material_found || (spat && spat->get_billboard_mode() == SpatialMaterial::BILLBOARD_PARTICLES);
 
     if (!mesh_found) {
-        if (!warnings.empty())
+        if (!warnings.empty()) {
             warnings += '\n';
+        }
         warnings += "- " + TTR("Nothing is visible because no mesh has been assigned.");
     }
 
     if (!anim_material_found && (get_param(PARAM_ANIM_SPEED) != 0.0 || get_param(PARAM_ANIM_OFFSET) != 0.0 ||
                                         get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET))) {
-        if (!warnings.empty())
+        if (!warnings.empty()) {
             warnings += '\n';
+        }
         warnings += "- " + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
@@ -248,13 +250,11 @@ StringName CPUParticles3D::get_configuration_warning() const {
 }
 
 void CPUParticles3D::restart() {
-
     time = 0;
     inactive_time = 0;
     frame_remainder = 0;
     cycle = 0;
     emitting = false;
-
 
     {
         int pc = particles.size();
@@ -839,7 +839,7 @@ void CPUParticles3D::_particles_process(float p_delta) {
             if (flags[FLAG_DISABLE_Z]) {
                 float orbit_amount = (parameters[PARAM_ORBIT_VELOCITY] + tex_orbit_velocity) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_ORBIT_VELOCITY]);
                 if (orbit_amount != 0.0) {
-                    float ang = orbit_amount * local_delta * Math_PI * 2.0;
+                    float ang = orbit_amount * local_delta * Math_PI * 2.0f;
                     // Not sure why the ParticlesMaterial code uses a clockwise rotation matrix,
                     // but we use -ang here to reproduce its behavior.
                     Transform2D rot = Transform2D(-ang, Vector2());
@@ -851,7 +851,7 @@ void CPUParticles3D::_particles_process(float p_delta) {
             if (curve_parameters[PARAM_INITIAL_LINEAR_VELOCITY]) {
                 p.velocity = p.velocity.normalized() * tex_linear_velocity;
             }
-            if (parameters[PARAM_DAMPING] + tex_damping > 0.0) {
+            if (parameters[PARAM_DAMPING] + tex_damping > 0.0f) {
 
                 float v = p.velocity.length();
                 float damp = (parameters[PARAM_DAMPING] + tex_damping) * Math::lerp(1.0f, rand_from_seed(alt_seed), randomness[PARAM_DAMPING]);
@@ -886,9 +886,9 @@ void CPUParticles3D::_particles_process(float p_delta) {
 
         Basis hue_rot_mat;
         {
-            Basis mat1(0.299, 0.587, 0.114, 0.299, 0.587, 0.114, 0.299, 0.587, 0.114);
-            Basis mat2(0.701, -0.587, -0.114, -0.299, 0.413, -0.114, -0.300, -0.588, 0.886);
-            Basis mat3(0.168, 0.330, -0.497, -0.328, 0.035, 0.292, 1.250, -1.050, -0.203);
+            Basis mat1(0.299f, 0.587f, 0.114f, 0.299f, 0.587f, 0.114f, 0.299f, 0.587f, 0.114f);
+            Basis mat2(0.701f, -0.587f, -0.114f, -0.299f, 0.413f, -0.114f, -0.300f, -0.588f, 0.886f);
+            Basis mat3(0.168f, 0.330f, -0.497f, -0.328f, 0.035f, 0.292f, 1.250f, -1.050f, -0.203f);
 
             for (int j = 0; j < 3; j++) {
                 hue_rot_mat[j] = mat1[j] + mat2[j] * hue_rot_c + mat3[j] * hue_rot_s;
@@ -953,7 +953,8 @@ void CPUParticles3D::_particles_process(float p_delta) {
 
         //scale by scale
         float base_scale = Math::lerp(parameters[PARAM_SCALE] * tex_scale, 1.0f, p.scale_rand * randomness[PARAM_SCALE]);
-        if (base_scale == 0.0) base_scale = 0.000001;
+        if (base_scale == 0.0)
+            base_scale = 0.000001f;
 
         p.transform.basis.scale(Vector3(1, 1, 1) * base_scale);
 
@@ -967,141 +968,123 @@ void CPUParticles3D::_particles_process(float p_delta) {
 }
 
 void CPUParticles3D::_update_particle_data_buffer() {
-#ifndef NO_THREADS
-    update_mutex->lock();
-#endif
+    MutexLock guard(*update_mutex);
 
-    {
+    int pc = particles.size();
 
-        int pc = particles.size();
+    PoolVector<int>::Write ow;
+    int *order = nullptr;
 
-        PoolVector<int>::Write ow;
-        int *order = nullptr;
+    PoolVector<float>::Write w = particle_data.write();
+    PoolVector<Particle>::Read r = particles.read();
+    float *ptr = w.ptr();
 
-        PoolVector<float>::Write w = particle_data.write();
-        PoolVector<Particle>::Read r = particles.read();
-        float *ptr = w.ptr();
+    if (draw_order != DRAW_ORDER_INDEX) {
+      ow = particle_order.write();
+      order = ow.ptr();
 
-        if (draw_order != DRAW_ORDER_INDEX) {
-            ow = particle_order.write();
-            order = ow.ptr();
+      for (int i = 0; i < pc; i++) {
+        order[i] = i;
+      }
+      if (draw_order == DRAW_ORDER_LIFETIME) {
+        SortArray<int, SortLifetime> sorter;
+        sorter.compare.particles = r.ptr();
+        sorter.sort(order, pc);
+      } else if (draw_order == DRAW_ORDER_VIEW_DEPTH) {
+        Camera3D *c = get_viewport()->get_camera();
+        if (c) {
+          Vector3 dir = c->get_global_transform().basis.get_axis(2); //far away to close
 
-            for (int i = 0; i < pc; i++) {
-                order[i] = i;
-            }
-            if (draw_order == DRAW_ORDER_LIFETIME) {
-                SortArray<int, SortLifetime> sorter;
-                sorter.compare.particles = r.ptr();
-                sorter.sort(order, pc);
-            } else if (draw_order == DRAW_ORDER_VIEW_DEPTH) {
-                Camera3D *c = get_viewport()->get_camera();
-                if (c) {
-                    Vector3 dir = c->get_global_transform().basis.get_axis(2); //far away to close
+          if (local_coords) {
 
-                    if (local_coords) {
+            // will look different from Particles in editor as this is based on the camera in the scenetree
+            // and not the editor camera
+            dir = inv_emission_transform.xform(dir).normalized();
+          } else {
+            dir = dir.normalized();
+          }
 
-                        // will look different from Particles in editor as this is based on the camera in the scenetree
-                        // and not the editor camera
-                        dir = inv_emission_transform.xform(dir).normalized();
-                    } else {
-                        dir = dir.normalized();
-                    }
-
-                    SortArray<int, SortAxis> sorter;
-                    sorter.compare.particles = r.ptr();
-                    sorter.compare.axis = dir;
-                    sorter.sort(order, pc);
-                }
-            }
+          SortArray<int, SortAxis> sorter;
+          sorter.compare.particles = r.ptr();
+          sorter.compare.axis = dir;
+          sorter.sort(order, pc);
         }
-
-        for (int i = 0; i < pc; i++) {
-
-            int idx = order ? order[i] : i;
-
-            Transform t = r[idx].transform;
-
-            if (!local_coords) {
-                t = inv_emission_transform * t;
-            }
-
-            if (r[idx].active) {
-                ptr[0] = t.basis.elements[0][0];
-                ptr[1] = t.basis.elements[0][1];
-                ptr[2] = t.basis.elements[0][2];
-                ptr[3] = t.origin.x;
-                ptr[4] = t.basis.elements[1][0];
-                ptr[5] = t.basis.elements[1][1];
-                ptr[6] = t.basis.elements[1][2];
-                ptr[7] = t.origin.y;
-                ptr[8] = t.basis.elements[2][0];
-                ptr[9] = t.basis.elements[2][1];
-                ptr[10] = t.basis.elements[2][2];
-                ptr[11] = t.origin.z;
-            } else {
-                memset(ptr, 0, sizeof(float) * 12);
-            }
-
-            Color c = r[idx].color;
-            uint8_t *data8 = (uint8_t *)&ptr[12];
-            data8[0] = CLAMP(c.r * 255.0f, 0, 255);
-            data8[1] = CLAMP(c.g * 255.0f, 0, 255);
-            data8[2] = CLAMP(c.b * 255.0f, 0, 255);
-            data8[3] = CLAMP(c.a * 255.0f, 0, 255);
-
-            ptr[13] = r[idx].custom[0];
-            ptr[14] = r[idx].custom[1];
-            ptr[15] = r[idx].custom[2];
-            ptr[16] = r[idx].custom[3];
-
-            ptr += 17;
-        }
-
-        can_update = true;
+      }
     }
 
-#ifndef NO_THREADS
-    update_mutex->unlock();
-#endif
+    for (int i = 0; i < pc; i++) {
+
+      int idx = order ? order[i] : i;
+
+      Transform t = r[idx].transform;
+
+      if (!local_coords) {
+        t = inv_emission_transform * t;
+      }
+
+      if (r[idx].active) {
+        ptr[0] = t.basis.elements[0][0];
+        ptr[1] = t.basis.elements[0][1];
+        ptr[2] = t.basis.elements[0][2];
+        ptr[3] = t.origin.x;
+        ptr[4] = t.basis.elements[1][0];
+        ptr[5] = t.basis.elements[1][1];
+        ptr[6] = t.basis.elements[1][2];
+        ptr[7] = t.origin.y;
+        ptr[8] = t.basis.elements[2][0];
+        ptr[9] = t.basis.elements[2][1];
+        ptr[10] = t.basis.elements[2][2];
+        ptr[11] = t.origin.z;
+      } else {
+        memset(ptr, 0, sizeof(float) * 12);
+      }
+
+      Color c = r[idx].color;
+      uint8_t *data8 = (uint8_t *)&ptr[12];
+      data8[0] = CLAMP(c.r * 255.0f, 0, 255);
+      data8[1] = CLAMP(c.g * 255.0f, 0, 255);
+      data8[2] = CLAMP(c.b * 255.0f, 0, 255);
+      data8[3] = CLAMP(c.a * 255.0f, 0, 255);
+
+      ptr[13] = r[idx].custom[0];
+      ptr[14] = r[idx].custom[1];
+      ptr[15] = r[idx].custom[2];
+      ptr[16] = r[idx].custom[3];
+
+      ptr += 17;
+    }
+
+    can_update = true;
 }
 
 void CPUParticles3D::_set_redraw(bool p_redraw) {
     if (redraw == p_redraw)
         return;
     redraw = p_redraw;
-#ifndef NO_THREADS
-    update_mutex->lock();
-#endif
+    MutexLock guard(*update_mutex);
+
     auto RS = RenderingServer::get_singleton();
     if (redraw) {
-        RS->connect("frame_pre_draw", this, "_update_render_thread");
+        RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         RS->instance_geometry_set_flag(get_instance(), RS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, true);
         RS->multimesh_set_visible_instances(multimesh, -1);
     } else {
-        if(RS->is_connected("frame_pre_draw", this, "_update_render_thread")) {
-            RS->disconnect("frame_pre_draw", this, "_update_render_thread");
+        if(RS->is_connected("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread))) {
+            RS->disconnect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
         }
         RS->instance_geometry_set_flag(get_instance(), RS::INSTANCE_FLAG_DRAW_NEXT_FRAME_IF_VISIBLE, false);
         RS->multimesh_set_visible_instances(multimesh, 0);
     }
-#ifndef NO_THREADS
-    update_mutex->unlock();
-#endif
 }
 
 void CPUParticles3D::_update_render_thread() {
 
-#ifndef NO_THREADS
-    update_mutex->lock();
-#endif
+    MutexLock guard(*update_mutex);
     if (can_update) {
         RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
         can_update = false; //wait for next time
     }
 
-#ifndef NO_THREADS
-    update_mutex->unlock();
-#endif
 }
 
 void CPUParticles3D::_notification(int p_what) {
@@ -1127,45 +1110,45 @@ void CPUParticles3D::_notification(int p_what) {
     if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
         _update_internal();
     }
-    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
+    if (p_what != NOTIFICATION_TRANSFORM_CHANGED)
+      return;
 
-        inv_emission_transform = get_global_transform().affine_inverse();
+    inv_emission_transform = get_global_transform().affine_inverse();
 
-        if (!local_coords) {
+    if (local_coords)
+      return;
 
-            int pc = particles.size();
+    int pc = particles.size();
 
-            PoolVector<float>::Write w = particle_data.write();
-            PoolVector<Particle>::Read r = particles.read();
-            float *ptr = w.ptr();
+    PoolVector<float>::Write w = particle_data.write();
+    PoolVector<Particle>::Read r = particles.read();
+    float *ptr = w.ptr();
 
-            for (int i = 0; i < pc; i++) {
+    for (int i = 0; i < pc; i++) {
 
-                Transform t = inv_emission_transform * r[i].transform;
+      Transform t = inv_emission_transform * r[i].transform;
 
-                if (r[i].active) {
-                    ptr[0] = t.basis.elements[0][0];
-                    ptr[1] = t.basis.elements[0][1];
-                    ptr[2] = t.basis.elements[0][2];
-                    ptr[3] = t.origin.x;
-                    ptr[4] = t.basis.elements[1][0];
-                    ptr[5] = t.basis.elements[1][1];
-                    ptr[6] = t.basis.elements[1][2];
-                    ptr[7] = t.origin.y;
-                    ptr[8] = t.basis.elements[2][0];
-                    ptr[9] = t.basis.elements[2][1];
-                    ptr[10] = t.basis.elements[2][2];
-                    ptr[11] = t.origin.z;
-                } else {
-                    memset(ptr, 0, sizeof(float) * 12);
-                }
+      if (r[i].active) {
+        ptr[0] = t.basis.elements[0][0];
+        ptr[1] = t.basis.elements[0][1];
+        ptr[2] = t.basis.elements[0][2];
+        ptr[3] = t.origin.x;
+        ptr[4] = t.basis.elements[1][0];
+        ptr[5] = t.basis.elements[1][1];
+        ptr[6] = t.basis.elements[1][2];
+        ptr[7] = t.origin.y;
+        ptr[8] = t.basis.elements[2][0];
+        ptr[9] = t.basis.elements[2][1];
+        ptr[10] = t.basis.elements[2][2];
+        ptr[11] = t.origin.z;
+      } else {
+        memset(ptr, 0, sizeof(float) * 12);
+      }
 
-                ptr += 17;
-            }
-
-            can_update = true;
-        }
+      ptr += 17;
     }
+
+    can_update = true;
 }
 
 void CPUParticles3D::convert_from_particles(Node *p_particles) {
@@ -1452,15 +1435,14 @@ CPUParticles3D::CPUParticles3D() {
     cycle = 0;
     redraw = false;
     emitting = false;
-#ifndef NO_THREADS
     update_mutex = memnew(Mutex);
-#endif
     set_notify_transform(true);
 
     multimesh = RenderingServer::get_singleton()->multimesh_create();
     RenderingServer::get_singleton()->multimesh_set_visible_instances(multimesh, 0);
     set_base(multimesh);
 
+    set_emitting(true);
     set_one_shot(false);
     set_amount(8);
     set_lifetime(1);
@@ -1507,16 +1489,10 @@ CPUParticles3D::CPUParticles3D() {
     can_update = false;
 
     set_color(Color(1, 1, 1, 1));
-
-    set_emitting(true);
-
-
 }
 
 CPUParticles3D::~CPUParticles3D() {
     RenderingServer::get_singleton()->free_rid(multimesh);
 
-#ifndef NO_THREADS
     memdelete(update_mutex);
-#endif
 }

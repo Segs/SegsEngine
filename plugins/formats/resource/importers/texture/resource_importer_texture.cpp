@@ -96,17 +96,17 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
         ERR_CONTINUE(err != OK);
 
         bool changed = false;
-        if (E.second & MAKE_SRGB_FLAG && int(cf->get_value("params", "flags/srgb")) == 2) {
+        if (E.second & MAKE_SRGB_FLAG && cf->get_value("params", "flags/srgb").as<int>() == 2) {
             cf->set_value("params", "flags/srgb", 1);
             changed = true;
         }
 
-        if (E.second & MAKE_NORMAL_FLAG && int(cf->get_value("params", "compress/normal_map")) == 0) {
+        if (E.second & MAKE_NORMAL_FLAG && cf->get_value("params", "compress/normal_map").as<int>() == 0) {
             cf->set_value("params", "compress/normal_map", 1);
             changed = true;
         }
 
-        if (E.second & MAKE_3D_FLAG && bool(cf->get_value("params", "detect_3d"))) {
+        if (E.second & MAKE_3D_FLAG && cf->get_value("params", "detect_3d").as<bool>()) {
             cf->set_value("params", "detect_3d", false);
             cf->set_value("params", "compress/mode", 2);
             cf->set_value("params", "flags/repeat", true);
@@ -152,21 +152,21 @@ StringName ResourceImporterTexture::get_resource_type() const {
 bool ResourceImporterTexture::get_option_visibility(const StringName &p_option, const HashMap<StringName, Variant> &p_options) const {
 
     if (p_option == "compress/lossy_quality") {
-        int compress_mode = int(p_options.at("compress/mode"));
+        int compress_mode = p_options.at("compress/mode").as<int>();
         if (compress_mode != COMPRESS_LOSSY && compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
     } else if (p_option == "compress/hdr_mode") {
-        int compress_mode = int(p_options.at("compress/mode"));
+        int compress_mode= p_options.at("compress/mode").as<int>();
         if (compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
     } else if (p_option == "compress/bptc_ldr") {
-        int compress_mode = int(p_options.at("compress/mode"));
+        int compress_mode= p_options.at("compress/mode").as<int>();
         if (compress_mode != COMPRESS_VIDEO_RAM) {
             return false;
         }
-        if (!ProjectSettings::get_singleton()->get("rendering/vram_compression/import_bptc")) {
+        if (!ProjectSettings::get_singleton()->getT<bool>("rendering/vram_compression/import_bptc")) {
             return false;
         }
     }
@@ -371,23 +371,23 @@ void ResourceImporterTexture::_save_stex(const Ref<Image> &p_image, StringView p
 Error ResourceImporterTexture::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
                                       Vector<String> *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
 
-    int compress_mode = p_options.at("compress/mode");
-    float lossy = p_options.at("compress/lossy_quality");
-    int repeat = p_options.at("flags/repeat");
+    int compress_mode= p_options.at("compress/mode").as<int>();
+    float lossy= p_options.at("compress/lossy_quality").as<float>();
+    int repeat= p_options.at("flags/repeat").as<int>();
     bool filter = p_options.at("flags/filter").as<bool>();
     bool mipmaps = p_options.at("flags/mipmaps").as<bool>();
     bool anisotropic = p_options.at("flags/anisotropic").as<bool>();
-    int srgb = p_options.at("flags/srgb");
+    int srgb= p_options.at("flags/srgb").as<int>();
     bool fix_alpha_border = p_options.at("process/fix_alpha_border").as<bool>();
     bool premult_alpha = p_options.at("process/premult_alpha").as<bool>();
     bool invert_color = p_options.at("process/invert_color").as<bool>();
     bool stream = p_options.at("stream").as<bool>();
-    int size_limit = p_options.at("size_limit");
+    int size_limit= p_options.at("size_limit").as<int>();
     bool hdr_as_srgb = p_options.at("process/HDR_as_SRGB").as<bool>();
-    int normal = p_options.at("compress/normal_map");
-    float scale = p_options.at("svg/scale");
+    int normal= p_options.at("compress/normal_map").as<int>();
+    float scale= p_options.at("svg/scale").as<float>();
     bool force_rgbe = p_options.at("compress/hdr_mode").as<bool>();
-    int bptc_ldr = p_options.at("compress/bptc_ldr");
+    int bptc_ldr= p_options.at("compress/bptc_ldr").as<int>();
 
     Ref<Image> image(make_ref_counted<Image>());
 
@@ -497,20 +497,20 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
             ok_on_pc = true;
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2")) {
+        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc2").as<bool>()) {
 
             _save_stex(image, String(p_save_path) + ".etc2.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC2, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("etc2");
             formats_imported.push_back("etc2");
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc")) {
+        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_etc").as<bool>()) {
             _save_stex(image, String(p_save_path) + ".etc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_ETC, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("etc");
             formats_imported.push_back("etc");
         }
 
-        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc")) {
+        if (ProjectSettings::get_singleton()->get("rendering/vram_compression/import_pvrtc").as<bool>()) {
 
             _save_stex(image, String(p_save_path) + ".pvrtc.stex", compress_mode, lossy, ImageCompressMode::COMPRESS_PVRTC4, mipmaps, tex_flags, stream, detect_3d, detect_srgb, force_rgbe, detect_normal, force_normal, true);
             r_platform_variants->push_back("pvrtc");
@@ -565,7 +565,7 @@ String ResourceImporterTexture::get_import_settings_string() const {
 bool ResourceImporterTexture::are_import_settings_valid(StringView p_path) const {
 
     //will become invalid if formats are missing to import
-    Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
+    Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path).as<Dictionary>();
 
     if (!metadata.has("vram_texture")) {
         return false;

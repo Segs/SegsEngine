@@ -179,8 +179,7 @@ void Node3D::_notification(int p_what) {
             ERR_FAIL_COND(!data.viewport);
 
             if (get_script_instance()) {
-
-                get_script_instance()->call_multilevel(SceneStringNames::get_singleton()->_enter_world, nullptr, 0);
+                get_script_instance()->call(SceneStringNames::get_singleton()->_enter_world);
             }
 #ifdef TOOLS_ENABLED
             if (Engine::get_singleton()->is_editor_hint() && get_tree()->is_node_being_edited(this)) {
@@ -209,10 +208,8 @@ void Node3D::_notification(int p_what) {
                 data.gizmo.unref();
             }
 #endif
-
             if (get_script_instance()) {
-
-                get_script_instance()->call_multilevel(SceneStringNames::get_singleton()->_exit_world, nullptr, 0);
+                get_script_instance()->call(SceneStringNames::get_singleton()->_exit_world);
             }
 
             data.viewport = nullptr;

@@ -43,7 +43,7 @@ struct GODOT_EXPORT Color {
             float b;
             float a;
         };
-        float components[4];
+        float components[4] = {0,0,0,1.0f};
     };
 
     constexpr bool operator==(Color p_color) const { return (r == p_color.r && g == p_color.g && b == p_color.b && a == p_color.a); }
@@ -183,13 +183,17 @@ struct GODOT_EXPORT Color {
     /**
      * No construct parameters, r=0, g=0, b=0. a=255
      */
-    constexpr _FORCE_INLINE_ Color() : r(0),g(0),b(0),a(1.0f) {
-    }
+    constexpr Color() = default;
 
     /**
      * RGB / RGBA construct parameters. Alpha is optional, but defaults to 1.0
      */
     constexpr Color(float p_r, float p_g, float p_b, float p_a = 1.0) : r(p_r),g(p_g),b(p_b),a(p_a) {
+    }
+    /**
+     * Construct a Color from another Color, but with the specified alpha value.
+     */
+    constexpr Color(const Color& p_c, float p_a) : r(p_c.r),g(p_c.g),b(p_c.b),a(p_a) {
     }
 };
 

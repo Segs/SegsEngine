@@ -35,7 +35,6 @@
 #ifdef DEBUG_ENABLED
 
 #include "test_astar.h"
-#include "test_gdscript.h"
 #include "test_gui.h"
 #include "test_math.h"
 #include "test_oa_hash_map.h"
@@ -110,26 +109,6 @@ MainLoop *test_main(const String& p_test, const Vector<String> &p_args) {
     if (p_test == "shaderlang") {
 
         return TestShaderLang::test();
-    }
-
-    if (p_test == "gd_tokenizer") {
-
-        return TestGDScript::test(TestGDScript::TEST_TOKENIZER);
-    }
-
-    if (p_test == "gd_parser") {
-
-        return TestGDScript::test(TestGDScript::TEST_PARSER);
-    }
-
-    if (p_test == "gd_compiler") {
-
-        return TestGDScript::test(TestGDScript::TEST_COMPILER);
-    }
-
-    if (p_test == "gd_bytecode") {
-
-        return TestGDScript::test(TestGDScript::TEST_BYTECODE);
     }
 
     if (p_test == "astar") {

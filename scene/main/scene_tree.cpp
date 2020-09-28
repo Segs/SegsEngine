@@ -30,23 +30,27 @@
 
 #include "scene_tree.h"
 
-#include "core/external_profiler.h"
+#include "node.h"
+#include "viewport.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/deque.h"
+#include "core/external_profiler.h"
+#include "core/input/input_default.h"
 #include "core/io/marshalls.h"
+#include "core/io/multiplayer_api.h"
 #include "core/message_queue.h"
+#include "core/method_bind.h"
 #include "core/object_db.h"
-#include "core/os/mutex.h"
 #include "core/os/dir_access.h"
 #include "core/os/keyboard.h"
+#include "core/os/mutex.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
-#include "core/io/multiplayer_api.h"
 #include "core/project_settings.h"
-#include "core/method_bind.h"
+#include "core/resource/resource_manager.h"
 #include "core/script_language.h"
 #include "core/translation_helpers.h"
-#include "core/input/input_default.h"
-#include "node.h"
 #include "scene/debugger/script_debugger_remote.h"
 #include "scene/resources/dynamic_font.h"
 #include "scene/resources/material.h"
@@ -55,11 +59,8 @@
 #include "scene/scene_string_names.h"
 #include "servers/physics_server_2d.h"
 #include "servers/physics_server_3d.h"
-#include "viewport.h"
 
 #include <cstdio>
-
-#include "core/resource/resource_manager.h"
 
 IMPL_GDCLASS(SceneTreeTimer)
 IMPL_GDCLASS(SceneTree)
@@ -402,7 +403,7 @@ static void _fill_array(Node *p_node, Array &array, int p_level) {
     array.push_back(p_node->get_child_count());
     array.push_back(p_node->get_name());
     array.push_back(p_node->get_class());
-    array.push_back(p_node->get_instance_id());
+    array.push_back(Variant::from(p_node->get_instance_id()));
     for (int i = 0; i < p_node->get_child_count(); i++) {
 
         _fill_array(p_node->get_child(i), array, p_level + 1);
@@ -449,7 +450,7 @@ void SceneTreeTimer::release_connections() {
     get_all_signal_connections(&connections);
 
     for (Connection const &connection : connections) {
-        disconnect(connection.signal, connection.target, connection.method);
+        disconnect(connection.signal.get_name(), connection.callable);
     }
 }
 
@@ -617,35 +618,30 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
     call_lock++;
 
     if (p_call_flags & GROUP_CALL_REVERSE) {
-
         for (int i = node_count - 1; i >= 0; i--) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
+            if (call_lock && call_skip.contains(nodes[i])) {
                 continue;
+            }
 
             if (p_call_flags & GROUP_CALL_REALTIME) {
-                if (p_call_flags & GROUP_CALL_MULTILEVEL)
-                    nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
-                else
-                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else
+                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
+            } else {
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
+            }
         }
 
-    } else {
+    }  else {
 
         for (int i = 0; i < node_count; i++) {
-
-            if (call_lock && call_skip.contains(nodes[i]))
+            if (call_lock && call_skip.contains(nodes[i])) {
                 continue;
+            }
 
             if (p_call_flags & GROUP_CALL_REALTIME) {
-                if (p_call_flags & GROUP_CALL_MULTILEVEL)
-                    nodes[i]->call_multilevel(p_function, VARIANT_ARG_PASS);
-                else
-                    nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
-            } else
+                nodes[i]->call_va(p_function, VARIANT_ARG_PASS);
+            } else {
                 MessageQueue::get_singleton()->push_call(nodes[i], p_function, VARIANT_ARG_PASS);
+            }
         }
     }
 
@@ -944,7 +940,7 @@ bool SceneTree::idle(float p_time) {
 
     if (Engine::get_singleton()->is_editor_hint()) {
         //simple hack to reload fallback environment if it changed from editor
-        String env_path = ProjectSettings::get_singleton()->get("rendering/environment/default_environment");
+        String env_path = ProjectSettings::get_singleton()->getT<String>("rendering/environment/default_environment");
         env_path =StringUtils::strip_edges( env_path); //user may have added a space or two
         StringView cpath;
         Ref<Environment> fallback = get_root()->get_world()->get_fallback_environment();
@@ -1269,11 +1265,16 @@ bool SceneTree::is_paused() const {
 void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p_method, const Ref<InputEvent> &p_input) {
 
     HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
-    if (E==group_map.end())
+
+    if (E==group_map.end()) {
         return;
+    }
+
     SceneTreeGroup &g = E->second;
-    if (g.nodes.empty())
+
+    if (g.nodes.empty()) {
         return;
+    }
 
     _update_group_order(g);
 
@@ -1301,13 +1302,22 @@ void SceneTree::_call_input_pause(const StringName &p_group, const StringName &p
         if (!n->can_process())
             continue;
 
-        n->call_multilevel(p_method, (const Variant **)v, 1);
+        Callable::CallError err;
+        // Call both script and native method.
+        if (n->get_script_instance()) {
+            n->get_script_instance()->call(p_method, (const Variant **)v, 1, err);
+        }
+        MethodBind *method = ClassDB::get_method(n->get_class_name(), p_method);
+        if (method) {
+            method->call(n, (const Variant **)v, 1, err);
+        }
         //ERR_FAIL_COND();
     }
 
     call_lock--;
-    if (call_lock == 0)
+    if (call_lock == 0) {
         call_skip.clear();
+    }
 }
 
 void SceneTree::_notify_group_pause(const StringName &p_group, int p_notification) {
@@ -1363,12 +1373,12 @@ Variant SceneTree::_call_group_flags(const Variant **p_args, int p_argcount, Cal
 
     ERR_FAIL_COND_V(p_argcount < 3, Variant());
     ERR_FAIL_COND_V(!p_args[0]->is_num(), Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING && p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[2]->get_type() != VariantType::STRING && p_args[2]->get_type() != VariantType::STRING_NAME, Variant());
 
-    int flags = *p_args[0];
-    StringName group = *p_args[1];
-    StringName method = *p_args[2];
+    int flags = p_args[0]->as<float>();
+    StringName group = p_args[1]->as<StringName>();
+    StringName method = p_args[2]->as<StringName>();
     Variant v[VARIANT_ARG_MAX];
 
     for (int i = 0; i < MIN(p_argcount - 3, 5); i++) {
@@ -1385,11 +1395,11 @@ Variant SceneTree::_call_group(const Variant **p_args, int p_argcount, Callable:
     r_error.error = Callable::CallError::CALL_OK;
 
     ERR_FAIL_COND_V(p_argcount < 2, Variant());
-    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING, Variant());
-    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING, Variant());
+    ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING && p_args[1]->get_type() != VariantType::STRING_NAME, Variant());
+    ERR_FAIL_COND_V(p_args[1]->get_type() != VariantType::STRING && p_args[2]->get_type() != VariantType::STRING_NAME, Variant());
 
-    StringName group = *p_args[0];
-    StringName method = *p_args[1];
+    StringName group = p_args[0]->as<StringName>();
+    StringName method = p_args[1]->as<StringName>();
     Variant v[VARIANT_ARG_MAX];
 
     for (int i = 0; i < MIN(p_argcount - 2, 5); i++) {
@@ -1743,21 +1753,21 @@ void SceneTree::set_multiplayer(const Ref<MultiplayerAPI>& p_multiplayer) {
     ERR_FAIL_COND(not p_multiplayer);
 
     if (multiplayer) {
-        multiplayer->disconnect("network_peer_connected", this, "_network_peer_connected");
-        multiplayer->disconnect("network_peer_disconnected", this, "_network_peer_disconnected");
-        multiplayer->disconnect("connected_to_server", this, "_connected_to_server");
-        multiplayer->disconnect("connection_failed", this, "_connection_failed");
-        multiplayer->disconnect("server_disconnected", this, "_server_disconnected");
+        multiplayer->disconnect("network_peer_connected",callable_mp(this, &ClassName::_network_peer_connected));
+        multiplayer->disconnect("network_peer_disconnected",callable_mp(this, &ClassName::_network_peer_disconnected));
+        multiplayer->disconnect("connected_to_server",callable_mp(this, &ClassName::_connected_to_server));
+        multiplayer->disconnect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+        multiplayer->disconnect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
     }
 
     multiplayer = p_multiplayer;
     multiplayer->set_root_node(root);
 
-    multiplayer->connect("network_peer_connected", this, "_network_peer_connected");
-    multiplayer->connect("network_peer_disconnected", this, "_network_peer_disconnected");
-    multiplayer->connect("connected_to_server", this, "_connected_to_server");
-    multiplayer->connect("connection_failed", this, "_connection_failed");
-    multiplayer->connect("server_disconnected", this, "_server_disconnected");
+    multiplayer->connect("network_peer_connected",callable_mp(this, &ClassName::_network_peer_connected));
+    multiplayer->connect("network_peer_disconnected",callable_mp(this, &ClassName::_network_peer_disconnected));
+    multiplayer->connect("connected_to_server",callable_mp(this, &ClassName::_connected_to_server));
+    multiplayer->connect("connection_failed",callable_mp(this, &ClassName::_connection_failed));
+    multiplayer->connect("server_disconnected",callable_mp(this, &ClassName::_server_disconnected));
 }
 
 void SceneTree::set_network_peer(const Ref<NetworkedMultiplayerPeer> &p_network_peer) {
@@ -1834,8 +1844,8 @@ void SceneTree::_bind_methods() {
 
     MethodInfo mi("call_group_flags",
                   PropertyInfo(VariantType::INT, "flags"),
-                  PropertyInfo(VariantType::STRING, "group"),
-                  PropertyInfo(VariantType::STRING, "method"));
+                  PropertyInfo(VariantType::STRING_NAME, "group"),
+                  PropertyInfo(VariantType::STRING_NAME, "method"));
 
     MethodBinder::bind_vararg_method("call_group_flags", &SceneTree::_call_group_flags, eastl::move(mi));
 
@@ -1843,8 +1853,8 @@ void SceneTree::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_group_flags", {"call_flags", "group", "property", "value"}), &SceneTree::set_group_flags);
 
     MethodInfo mi2("call_group",
-                   PropertyInfo(VariantType::STRING, "group"),
-                   PropertyInfo(VariantType::STRING, "method"));
+                   PropertyInfo(VariantType::STRING_NAME, "group"),
+                   PropertyInfo(VariantType::STRING_NAME, "method"));
 
     MethodBinder::bind_vararg_method( "call_group", &SceneTree::_call_group, eastl::move(mi2));
 
@@ -1876,11 +1886,6 @@ void SceneTree::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_rpc_sender_id"), &SceneTree::get_rpc_sender_id);
     MethodBinder::bind_method(D_METHOD("set_refuse_new_network_connections", {"refuse"}), &SceneTree::set_refuse_new_network_connections);
     MethodBinder::bind_method(D_METHOD("is_refusing_new_network_connections"), &SceneTree::is_refusing_new_network_connections);
-    MethodBinder::bind_method(D_METHOD("_network_peer_connected"), &SceneTree::_network_peer_connected);
-    MethodBinder::bind_method(D_METHOD("_network_peer_disconnected"), &SceneTree::_network_peer_disconnected);
-    MethodBinder::bind_method(D_METHOD("_connected_to_server"), &SceneTree::_connected_to_server);
-    MethodBinder::bind_method(D_METHOD("_connection_failed"), &SceneTree::_connection_failed);
-    MethodBinder::bind_method(D_METHOD("_server_disconnected"), &SceneTree::_server_disconnected);
 
     MethodBinder::bind_method(D_METHOD("set_use_font_oversampling", {"enable"}), &SceneTree::set_use_font_oversampling);
     MethodBinder::bind_method(D_METHOD("is_using_font_oversampling"), &SceneTree::is_using_font_oversampling);
@@ -2012,11 +2017,11 @@ SceneTree::SceneTree() {
     debug_collisions_hint = false;
     debug_navigation_hint = false;
 #endif
-    debug_collisions_color = GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
-    debug_collision_contact_color = GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
-    debug_navigation_color = GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
-    debug_navigation_disabled_color = GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
-    collision_debug_contacts = GLOBAL_DEF("debug/shapes/collision/max_contacts_displayed", 10000);
+    debug_collisions_color = T_GLOBAL_DEF("debug/shapes/collision/shape_color", Color(0.0, 0.6f, 0.7f, 0.5));
+    debug_collision_contact_color = T_GLOBAL_DEF("debug/shapes/collision/contact_color", Color(1.0, 0.2f, 0.1f, 0.8f));
+    debug_navigation_color = T_GLOBAL_DEF("debug/shapes/navigation/geometry_color", Color(0.1f, 1.0, 0.7f, 0.4f));
+    debug_navigation_disabled_color = T_GLOBAL_DEF("debug/shapes/navigation/disabled_geometry_color", Color(1.0, 0.7f, 0.1f, 0.4f));
+    collision_debug_contacts = T_GLOBAL_DEF<int>("debug/shapes/collision/max_contacts_displayed", 10000);
     ProjectSettings::get_singleton()->set_custom_property_info("debug/shapes/collision/max_contacts_displayed", PropertyInfo(VariantType::INT, "debug/shapes/collision/max_contacts_displayed", PropertyHint::Range, "0,20000,1")); // No negative
 
     tree_version = 1;
@@ -2055,18 +2060,18 @@ SceneTree::SceneTree() {
     root->set_as_audio_listener_2d(true);
     current_scene = nullptr;
 
-    int ref_atlas_size = GLOBAL_DEF("rendering/quality/reflections/atlas_size", 2048);
+    int ref_atlas_size = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_size", 2048);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_size", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_size", PropertyHint::Range, "0,8192,or_greater")); //next_power_of_2 will return a 0 as min value
-    int ref_atlas_subdiv = GLOBAL_DEF("rendering/quality/reflections/atlas_subdiv", 8);
+    int ref_atlas_subdiv = T_GLOBAL_DEF<int>("rendering/quality/reflections/atlas_subdiv", 8);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/reflections/atlas_subdiv", PropertyInfo(VariantType::INT, "rendering/quality/reflections/atlas_subdiv", PropertyHint::Range, "0,32,or_greater")); //next_power_of_2 will return a 0 as min value
-    int msaa_mode = GLOBAL_DEF("rendering/quality/filters/msaa", 0);
+    Viewport::MSAA msaa_mode = T_GLOBAL_DEF< Viewport::MSAA>("rendering/quality/filters/msaa", Viewport::MSAA::MSAA_DISABLED);
     ProjectSettings::get_singleton()->set_custom_property_info("rendering/quality/filters/msaa", PropertyInfo(VariantType::INT, "rendering/quality/filters/msaa", PropertyHint::Enum, "Disabled,2x,4x,8x,16x,AndroidVR 2x,AndroidVR 4x"));
-    root->set_msaa(Viewport::MSAA(msaa_mode));
+    root->set_msaa(msaa_mode);
 
     GLOBAL_DEF("rendering/quality/depth/hdr", true);
     GLOBAL_DEF("rendering/quality/depth/hdr.mobile", false);
 
-    bool hdr = GLOBAL_GET("rendering/quality/depth/hdr");
+    bool hdr = GLOBAL_GET("rendering/quality/depth/hdr").as<bool>();
     root->set_hdr(hdr);
 
     RenderingServer::get_singleton()->scenario_set_reflection_atlas_size(root->get_world()->get_scenario(), ref_atlas_size, ref_atlas_subdiv);
@@ -2082,7 +2087,7 @@ SceneTree::SceneTree() {
             ext_hint += "*." + E;
         }
         //get path
-        String env_path = GLOBAL_DEF("rendering/environment/default_environment", "");
+        String env_path = GLOBAL_DEF("rendering/environment/default_environment", "").as<String>();
         //setup property
         ProjectSettings::get_singleton()->set_custom_property_info("rendering/environment/default_environment",
                 PropertyInfo(VariantType::STRING, "rendering/viewport/default_environment", PropertyHint::File, ext_hint));
@@ -2119,7 +2124,7 @@ SceneTree::SceneTree() {
         ScriptDebugger::get_singleton()->set_multiplayer(multiplayer);
     }
 
-    root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true));
+    root->set_physics_object_picking(GLOBAL_DEF("physics/common/enable_object_picking", true).as<bool>());
 
 #ifdef TOOLS_ENABLED
     edited_scene_root = nullptr;

@@ -31,6 +31,7 @@
 #include "item_list_editor_plugin.h"
 
 #include "core/io/resource_loader.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/translation_helpers.h"
@@ -54,28 +55,28 @@ bool ItemListPlugin::_set(const StringName &p_name, const Variant &p_value) {
     StringView what = StringUtils::get_slice(p_name,'/', 1);
 
     if (what == "text"_sv)
-        set_item_text(idx, p_value);
+        set_item_text(idx, p_value.as<StringName>());
     else if (what == "icon"_sv)
-        set_item_icon(idx, refFromRefPtr<Texture>(p_value));
+        set_item_icon(idx, refFromVariant<Texture>(p_value));
     else if (what == "checkable"_sv) {
         // This keeps compatibility to/from versions where this property was a boolean, before radio buttons
-        switch ((int)p_value) {
+        switch ((int)p_value.as<int>()) {
             case 0:
             case 1:
-                set_item_checkable(idx, p_value);
+                set_item_checkable(idx, p_value.as<bool>());
                 break;
             case 2:
                 set_item_radio_checkable(idx, true);
                 break;
         }
     } else if (what == "checked"_sv)
-        set_item_checked(idx, p_value);
+        set_item_checked(idx, p_value.as<bool>());
     else if (what == "id"_sv)
-        set_item_id(idx, p_value);
+        set_item_id(idx, p_value.as<int>());
     else if (what == "enabled"_sv)
-        set_item_enabled(idx, p_value);
+        set_item_enabled(idx, p_value.as<bool>());
     else if (what == "separator"_sv)
-        set_item_separator(idx, p_value);
+        set_item_separator(idx, p_value.as<bool>());
     else
         return false;
 
@@ -292,7 +293,7 @@ void ItemListEditor::_notification(int p_notification) {
         del_button->set_button_icon(get_icon("Remove", "EditorIcons"));
     } else if (p_notification == NOTIFICATION_READY) {
 
-        get_tree()->connect("node_removed", this, "_node_removed");
+        get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
     }
 }
 
@@ -367,11 +368,6 @@ bool ItemListEditor::handles(Object *p_object) const {
 }
 
 void ItemListEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_node_removed", &ItemListEditor::_node_removed);
-    MethodBinder::bind_method("_edit_items", &ItemListEditor::_edit_items);
-    MethodBinder::bind_method("_add_button", &ItemListEditor::_add_pressed);
-    MethodBinder::bind_method("_delete_button", &ItemListEditor::_delete_pressed);
 }
 
 ItemListEditor::ItemListEditor() {
@@ -382,7 +378,7 @@ ItemListEditor::ItemListEditor() {
     toolbar_button = memnew(ToolButton);
     toolbar_button->set_text(TTR("Items"));
     add_child(toolbar_button);
-    toolbar_button->connect("pressed", this, "_edit_items");
+    toolbar_button->connect("pressed",callable_mp(this, &ClassName::_edit_items));
 
     dialog = memnew(AcceptDialog);
     dialog->set_title(TTR("Item List Editor"));
@@ -399,14 +395,14 @@ ItemListEditor::ItemListEditor() {
     add_button = memnew(Button);
     add_button->set_text(TTR("Add"));
     hbc->add_child(add_button);
-    add_button->connect("pressed", this, "_add_button");
+    add_button->connect("pressed",callable_mp(this, &ClassName::_add_pressed));
 
     hbc->add_spacer();
 
     del_button = memnew(Button);
     del_button->set_text(TTR("Delete"));
     hbc->add_child(del_button);
-    del_button->connect("pressed", this, "_delete_button");
+    del_button->connect("pressed",callable_mp(this, &ClassName::_delete_pressed));
 
     property_editor = memnew(EditorInspector);
     vbc->add_child(property_editor);
@@ -415,8 +411,9 @@ ItemListEditor::ItemListEditor() {
 
 ItemListEditor::~ItemListEditor() {
 
-    for (int i = 0; i < item_plugins.size(); i++)
+    for (int i = 0; i < item_plugins.size(); i++) {
         memdelete(item_plugins[i]);
+    }
 }
 
 void ItemListEditorPlugin::edit(Object *p_object) {

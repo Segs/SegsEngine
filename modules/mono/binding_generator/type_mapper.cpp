@@ -323,7 +323,12 @@ void TS_TypeMapper::register_godot_base_types() {
                          {SCRIPT_TO_WRAP_IN_ARG,"RID.GetPtr(%input%)"},
                          {SCRIPT_TO_WRAP_OUT,"return new RID(%val%)"},
     });
-
+    registerTypeMaps(getGodotOpaqueType("ObjectID","ulong"), {
+                         {CPP_TO_WRAP_TYPE,"uint64_t"},
+                         {WRAP_TO_CPP_IN_ARG,"ObjectID(%input%)"},
+                         {SCRIPT_TO_WRAP_TYPE,"ulong"},
+                         {WRAP_TO_CPP_OUT,"return uint64_t(%val%)"},
+    });
     // type used to pass variable number of arguments
     registerTypeMaps(getGodotOpaqueType("VarArg","params object[]"), {
                          {CPP_TO_WRAP_TYPE,"MonoArray *"},
@@ -433,11 +438,50 @@ Callable::CallError vcall_error;
                          {CPP_TO_WRAP_TYPE,"Array *"},
                          {WRAP_TO_CPP_IN,""}, // empty mapping to prevent temporaries?
                          {WRAP_TO_CPP_IN_ARG,"ArrConverter(%input%)"},
-                         {WRAP_TO_CPP_OUT,"return ToArray(eastl::move(%val%))"},
+                         {WRAP_TO_CPP_OUT,"return ToArray(%val%)"},
                          {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
                          {SCRIPT_TO_WRAP_IN_ARG,"%input%.GetPtr()"},
                          {SCRIPT_TO_WRAP_OUT,"return new Collections.Array(%val%)"},
     });
+
+    registerTypeMaps(getGodotOpaqueType("Callable","Callable"), {
+                         {CPP_TO_WRAP_TYPE,"GDMonoMarshal::M_Callable*"},
+                         {WRAP_TO_CPP_IN,"auto %val%(::managed_to_callable(*%input%))"},
+                         {WRAP_TO_CPP_OUT,"return ::callable_to_managed(%val%)"},
+                         {SCRIPT_TO_WRAP_TYPE,"ref Callable"},
+                         {SCRIPT_TO_WRAP_IN_ARG,"ref %input%"},
+                         {SCRIPT_TO_WRAP_ARGOUT,"out Callable %input%"},
+
+    });
+    // Callable
+//	itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_CALLABLE "(*%1);\n";
+//	itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_CALLABLE "(%1);\n";
+//	itype.c_arg_in = "&%s_in";
+//	itype.cs_in = "ref %s";
+//	/* in cs_out, im_type_out (%3) includes the 'out ' part */
+//	itype.cs_out = "%0(%1, %3 argRet); return argRet;";
+//	itype.im_type_out = "out " + itype.cs_type;
+//	itype.ret_as_byref_arg = true;
+//	builtin_types.insert(itype.cname, itype);
+
+//	// Signal
+//	itype = TypeInterface();
+//	itype.name = "Signal";
+//	itype.cname = itype.name;
+//	itype.proxy_name = "SignalInfo";
+//	itype.c_in = "\t%0 %1_in = " C_METHOD_MANAGED_TO_SIGNAL "(*%1);\n";
+//	itype.c_out = "\t*%3 = " C_METHOD_MANAGED_FROM_SIGNAL "(%1);\n";
+//	itype.c_arg_in = "&%s_in";
+//	itype.c_type = itype.name;
+//	itype.c_type_in = "GDMonoMarshal::M_SignalInfo*";
+//	itype.c_type_out = "GDMonoMarshal::M_SignalInfo";
+//	itype.cs_in = "ref %s";
+//	/* in cs_out, im_type_out (%3) includes the 'out ' part */
+//	itype.cs_out = "%0(%1, %3 argRet); return argRet;";
+//	itype.cs_type = itype.proxy_name;
+//	itype.im_type_in = "ref " + itype.cs_type;
+//	itype.im_type_out = "out " + itype.cs_type;
+//	itype.ret_as_byref_arg = true;
 
     // StringView
     registerTypeMaps(getGodotOpaqueType("StringView","string"), {
@@ -447,13 +491,36 @@ Callable::CallError vcall_error;
                          {SCRIPT_TO_WRAP_TYPE,"string"},
     });
     // StringName
-    registerTypeMaps(getGodotOpaqueType("StringName","string"), {
-                         {CPP_TO_WRAP_TYPE,"MonoString *"},
-                         {WRAP_TO_CPP_IN,"StringName %val%(::mono_string_to_godot(%input%))"},
-                         {WRAP_TO_CPP_OUT,"return ::mono_string_from_godot(%val%)"},
-                         {SCRIPT_TO_WRAP_TYPE,"string"},
-    });
+    registerTypeMaps(getGodotOpaqueType("StringName","StringName"), {
+                         {CPP_TO_WRAP_TYPE,"StringName *"},
+                         {WRAP_TO_CPP_IN,"StringName %val%(%input% ? *%input%:StringName())"},
+                         {WRAP_TO_CPP_OUT,"return memnew(StringName(%val%))"},
+                         {SCRIPT_TO_WRAP_TYPE,"IntPtr"},
+                         {SCRIPT_TO_WRAP_IN,"%type% %val% = %input% != null ? %input% : (%type%)\"\";"},
+                         {SCRIPT_TO_WRAP_IN_ARG,"StringName.GetPtr(%input%)"},
+                         {SCRIPT_TO_WRAP_OUT,"return new Godot.StringName(%val%)"},
+                         {SCRIPT_CS_DEFAULT_WRAPPER,"null"}
 
+    });
+/*
+    // StringName
+    itype = TypeInterface();
+    itype.name = "StringName";
+    itype.cname = itype.name;
+    itype.proxy_name = "StringName";
+    itype.c_in = "\t%0 %1_in = %1 ? *%1 : StringName();\n";
+    itype.c_out = "\treturn memnew(StringName(%1));\n";
+    itype.c_arg_in = "&%s_in";
+    itype.c_type = itype.name;
+    itype.c_type_in = itype.c_type + "*";
+    itype.c_type_out = itype.c_type + "*";
+    itype.cs_type = itype.proxy_name;
+    itype.cs_in = "StringName." CS_SMETHOD_GETINSTANCE "(%0)";
+    itype.cs_out = "return new %2(%0(%1));";
+    itype.im_type_in = "IntPtr";
+    itype.im_type_out = "IntPtr";
+    builtin_types.insert(itype.cname, itype);
+*/
 }
 
 

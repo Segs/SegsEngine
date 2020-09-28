@@ -35,7 +35,7 @@
 class GODOT_EXPORT FuncRef : public RefCounted {
 
     GDCLASS(FuncRef, RefCounted)
-    ObjectID id{0};
+    ObjectID id{0ULL};
     StringName function;
 
 protected:

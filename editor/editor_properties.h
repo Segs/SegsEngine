@@ -61,6 +61,7 @@ class EditorPropertyText : public EditorProperty {
     LineEdit *text;
 
     bool updating;
+    bool string_name;
     void _text_changed(StringView p_string);
     void _text_entered(StringView p_string);
 
@@ -68,6 +69,7 @@ protected:
     static void _bind_methods();
 
 public:
+    void set_string_name(bool p_enabled);
     void update_property() override;
     void set_placeholder(const StringName &p_string);
     EditorPropertyText();
@@ -101,12 +103,13 @@ class EditorPropertyTextEnum : public EditorProperty {
     OptionButton *options;
 
     void _option_selected(int p_which);
+	bool string_name;
 
 protected:
     static void _bind_methods();
 
 public:
-    void setup(const Vector<StringView> &p_options);
+    void setup(const Vector<StringView> &p_options, bool p_string_name = false);
     void update_property() override;
     EditorPropertyTextEnum();
 };

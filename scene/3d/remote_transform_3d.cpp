@@ -53,7 +53,7 @@ void RemoteTransform3D::_update_remote() {
     if (!is_inside_tree())
         return;
 
-    if (!cache)
+    if (cache.is_null())
         return;
 
     Node3D *n = object_cast<Node3D>(gObjectDB().get_instance(cache));
@@ -120,7 +120,7 @@ void RemoteTransform3D::_notification(int p_what) {
             if (!is_inside_tree())
                 break;
 
-            if (cache) {
+            if (cache.is_valid()) {
 
                 _update_remote();
             }

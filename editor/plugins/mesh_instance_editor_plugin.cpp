@@ -31,6 +31,7 @@
 #include "mesh_instance_editor_plugin.h"
 
 #include "core/method_bind.h"
+#include "core/callable_method_pointer.h"
 #include "scene/3d/collision_shape_3d.h"
 #include "scene/3d/navigation_mesh_instance.h"
 #include "scene/3d/physics_body_3d.h"
@@ -90,7 +91,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
                 Node *owner = node == get_tree()->get_edited_scene_root() ? node : node->get_owner();
 
-                ur->create_action_ui(TTR("Create Static Trimesh Body"));
+                ur->create_action(TTR("Create Static Trimesh Body"));
                 ur->add_do_method(node, "add_child", Variant(body));
                 ur->add_do_method(body, "set_owner", Variant(owner));
                 ur->add_do_method(cshape, "set_owner", Variant(owner));
@@ -100,7 +101,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
                 return;
             }
 
-            ur->create_action_ui(TTR("Create Static Trimesh Body"));
+            ur->create_action(TTR("Create Static Trimesh Body"));
 
             for (Node * E : selection) {
 
@@ -153,7 +154,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
 
         UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-        ur->create_action_ui(TTR("Create Trimesh Static Shape"));
+        ur->create_action(TTR("Create Trimesh Static Shape"));
 
         ur->add_do_method(node->get_parent(), "add_child", Variant(cshape));
         ur->add_do_method(node->get_parent(), "move_child", Variant(cshape), node->get_index() + 1);
@@ -249,7 +250,7 @@ void MeshInstanceEditor::_menu_option(int p_option) {
             Node *owner = node == get_tree()->get_edited_scene_root() ? node : node->get_owner();
 
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Create Navigation Mesh"));
+            ur->create_action(TTR("Create Navigation Mesh"));
 
             ur->add_do_method(node, "add_child", Variant(nmi));
             ur->add_do_method(nmi, "set_owner", Variant(owner));
@@ -442,7 +443,7 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
     UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
 
-    ur->create_action_ui(TTR("Create Outline"));
+    ur->create_action(TTR("Create Outline"));
 
     ur->add_do_method(node, "add_child", Variant(mi));
     ur->add_do_method(mi, "set_owner", Variant(owner));
@@ -487,7 +488,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     options->get_popup()->add_item(TTR("View UV2"), MENU_OPTION_DEBUG_UV2);
     options->get_popup()->add_item(TTR("Unwrap UV2 for Lightmap/AO"), MENU_OPTION_CREATE_UV2);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     outline_dialog = memnew(ConfirmationDialog);
     outline_dialog->set_title(TTR("Create Outline Mesh"));
@@ -505,7 +506,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     outline_dialog_vbc->add_margin_child(TTR("Outline Size:"), outline_size);
 
     add_child(outline_dialog);
-    outline_dialog->connect("confirmed", this, "_create_outline_mesh");
+    outline_dialog->connect("confirmed",callable_mp(this, &ClassName::_create_outline_mesh));
 
     err_dialog = memnew(AcceptDialog);
     add_child(err_dialog);
@@ -515,7 +516,7 @@ MeshInstanceEditor::MeshInstanceEditor() {
     add_child(debug_uv_dialog);
     debug_uv = memnew(Control);
     debug_uv->set_custom_minimum_size(Size2(600, 600) * EDSCALE);
-    debug_uv->connect("draw", this, "_debug_uv_draw");
+    debug_uv->connect("draw",callable_mp(this, &ClassName::_debug_uv_draw));
     debug_uv_dialog->add_child(debug_uv);
 }
 

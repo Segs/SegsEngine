@@ -31,6 +31,7 @@
 #include "area_3d.h"
 
 #include "core/object_db.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
@@ -133,7 +134,7 @@ void Area3D::_body_enter_tree(ObjectID p_id) {
     emit_signal(SceneStringNames::get_singleton()->body_entered,  Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
+        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
     }
 }
 
@@ -149,11 +150,11 @@ void Area3D::_body_exit_tree(ObjectID p_id) {
     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, p_id, Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
+        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].area_shape);
     }
 }
 
-void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_body_shape, int p_area_shape) {
+void Area3D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, int p_body_shape, int p_area_shape) {
 
     bool body_in = p_status == PhysicsServer3D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
@@ -176,8 +177,10 @@ void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered,
+                              callable_mp(this, &Area3D::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting,
+                              callable_mp(this, &Area3D::_body_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
                 }
@@ -188,7 +191,7 @@ void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
             E->second.shapes.insert(ShapePair(p_body_shape, p_area_shape));
 
         if (E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, objid, Variant(node), p_body_shape, p_area_shape);
+            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_area_shape);
         }
 
     } else {
@@ -203,8 +206,8 @@ void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
                 if (E->second.in_tree)
                     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(obj));
             }
@@ -212,7 +215,7 @@ void Area3D::_body_inout(int p_status, const RID &p_body, int p_instance, int p_
             eraseit = true;
         }
         if (node && E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, objid, Variant(obj), p_body_shape, p_area_shape);
+            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_area_shape);
         }
 
         if (eraseit)
@@ -245,13 +248,13 @@ void Area3D::_clear_monitoring() {
 
             for (size_t i = 0; i < E.second.shapes.size(); i++) {
 
-                emit_signal(SceneStringNames::get_singleton()->body_shape_exited, E.first, Variant(node), E.second.shapes[i].body_shape, E.second.shapes[i].area_shape);
+                emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(E.first), Variant(node), E.second.shapes[i].body_shape, E.second.shapes[i].area_shape);
             }
 
             emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_body_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_body_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
         }
     }
 
@@ -275,13 +278,13 @@ void Area3D::_clear_monitoring() {
 
             for (size_t i = 0; i < E.second.shapes.size(); i++) {
 
-                emit_signal(SceneStringNames::get_singleton()->area_shape_exited, E.first, Variant(node), E.second.shapes[i].area_shape, E.second.shapes[i].self_shape);
+                emit_signal(SceneStringNames::get_singleton()->area_shape_exited, Variant::from(E.first), Variant(node), E.second.shapes[i].area_shape, E.second.shapes[i].self_shape);
             }
 
             emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
 
-            node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+            node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
+            node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
         }
     }
 }
@@ -326,7 +329,7 @@ void Area3D::_area_enter_tree(ObjectID p_id) {
     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->area_shape_entered, p_id, Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
+        emit_signal(SceneStringNames::get_singleton()->area_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
     }
 }
 
@@ -342,11 +345,11 @@ void Area3D::_area_exit_tree(ObjectID p_id) {
     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(node));
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->area_shape_exited, p_id, Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
+        emit_signal(SceneStringNames::get_singleton()->area_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].area_shape, E->second.shapes[i].self_shape);
     }
 }
 
-void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_area_shape, int p_self_shape) {
+void Area3D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, int p_area_shape, int p_self_shape) {
 
     bool area_in = p_status == PhysicsServer3D::AREA_BODY_ADDED;
     ObjectID objid = p_instance;
@@ -369,8 +372,8 @@ void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
             E->second.rc = 0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree, make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree, make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_area_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_area_exit_tree), make_binds(objid));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->area_entered, Variant(node));
                 }
@@ -381,7 +384,7 @@ void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
             E->second.shapes.insert(AreaShapePair(p_area_shape, p_self_shape));
 
         if (!node || E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->area_shape_entered, objid, Variant(node), p_area_shape, p_self_shape);
+            emit_signal(SceneStringNames::get_singleton()->area_shape_entered, Variant::from(objid), Variant(node), p_area_shape, p_self_shape);
         }
 
     } else {
@@ -396,8 +399,8 @@ void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
         if (E->second.rc == 0) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, this, SceneStringNames::get_singleton()->_area_enter_tree);
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, this, SceneStringNames::get_singleton()->_area_exit_tree);
+                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_area_enter_tree));
+                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_area_exit_tree));
                 if (E->second.in_tree) {
                     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
                 }
@@ -406,7 +409,7 @@ void Area3D::_area_inout(int p_status, const RID &p_area, int p_instance, int p_
             eraseit = true;
         }
         if (!node || E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->area_shape_exited, objid, Variant(obj), p_area_shape, p_self_shape);
+            emit_signal(SceneStringNames::get_singleton()->area_shape_exited, Variant::from(objid), Variant(obj), p_area_shape, p_self_shape);
         }
 
         if (eraseit)
@@ -725,10 +728,10 @@ void Area3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
     ADD_GROUP("Audio Bus", "audio_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_bus_override"), "set_audio_bus_override", "is_overriding_audio_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus", "get_audio_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus", "get_audio_bus");
     ADD_GROUP("Reverb Bus", "reverb_bus_");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "reverb_bus_enable"), "set_use_reverb_bus", "is_using_reverb_bus");
-    ADD_PROPERTY(PropertyInfo(VariantType::STRING, "reverb_bus_name", PropertyHint::Enum, ""), "set_reverb_bus", "get_reverb_bus");
+    ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "reverb_bus_name", PropertyHint::Enum, ""), "set_reverb_bus", "get_reverb_bus");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "reverb_bus_amount", PropertyHint::Range, "0,1,0.01"), "set_reverb_amount", "get_reverb_amount");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "reverb_bus_uniformity", PropertyHint::Range, "0,1,0.01"), "set_reverb_uniformity", "get_reverb_uniformity");
 

@@ -71,7 +71,7 @@ void Skeleton2DEditor::_menu_option(int p_option) {
                 return;
             }
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Create Rest Pose from Bones"));
+            ur->create_action(TTR("Create Rest Pose from Bones"));
             for (int i = 0; i < node->get_bone_count(); i++) {
                 Bone2D *bone = node->get_bone(i);
                 ur->add_do_method(bone, "set_rest", bone->get_transform());
@@ -87,7 +87,7 @@ void Skeleton2DEditor::_menu_option(int p_option) {
                 return;
             }
             UndoRedo *ur = EditorNode::get_singleton()->get_undo_redo();
-            ur->create_action_ui(TTR("Set Rest Pose to Bones"));
+            ur->create_action(TTR("Set Rest Pose to Bones"));
             for (int i = 0; i < node->get_bone_count(); i++) {
                 Bone2D *bone = node->get_bone(i);
                 ur->add_do_method(bone, "set_transform", bone->get_rest());
@@ -118,7 +118,7 @@ Skeleton2DEditor::Skeleton2DEditor() {
     options->get_popup()->add_item(TTR("Set Bones to Rest Pose"), MENU_OPTION_SET_REST);
     options->set_switch_on_hover(true);
 
-    options->get_popup()->connect("id_pressed", this, "_menu_option");
+    options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));
 
     err_dialog = memnew(AcceptDialog);
     add_child(err_dialog);

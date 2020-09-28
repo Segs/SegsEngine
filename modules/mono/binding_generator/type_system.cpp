@@ -427,6 +427,8 @@ TS_Property *TS_Type::find_property_by_name(StringView name) const {
     auto iter = eastl::find_if(m_properties.begin(), m_properties.end(),[csname](const TS_Property *p) {
         return p->cs_name==csname;
     });
+    if(iter!=m_properties.end())
+        return *iter;
     if(iter==m_properties.end()) { // try to search for non-converted name in indexed parts.
         for(auto prop : m_properties) {
             for(const auto &sub : prop->indexed_entries) {
@@ -438,11 +440,28 @@ TS_Property *TS_Type::find_property_by_name(StringView name) const {
         }
 
     }
-    if(iter==m_properties.end())
-        return nullptr;
-    return *iter;
+    return nullptr;
 }
+TS_Property *TS_Type::find_property_by_exact_name(StringView name) const {
+    String csname(TS_TypeMapper::get().mapPropertyName(name));
+    auto iter = eastl::find_if(m_properties.begin(), m_properties.end(),[csname](const TS_Property *p) {
+        return p->cs_name==csname;
+    });
+    if(iter!=m_properties.end())
+        return *iter;
+    if(iter==m_properties.end()) { // try to search for non-converted name in indexed parts.
+        for(auto prop : m_properties) {
+            for(const auto &sub : prop->indexed_entries) {
+                //TODO: this might fail!
+                // property name in docs might be prefixed by a groupname
+                if(name==sub.subfield_name)
+                    return prop;
+            }
+        }
 
+    }
+    return nullptr;
+}
 String TS_Type::get_property_path_by_func(const TS_Function *f) const
 {
     String res;
@@ -493,6 +512,32 @@ bool TS_Type::enum_name_would_clash_with_property(StringView cs_enum_name) const
             return true;
     }
     return false;
+}
+HashMap< const SignalInterface*, TS_Signal*> TS_Signal::s_ptr_cache;
+TS_Signal *TS_Signal::from_rd(const TS_Type *inside, const SignalInterface *method_interface) {
+
+    TS_Signal* res = s_ptr_cache[method_interface];
+    if(res)
+        return res;
+
+    res = new TS_Signal;
+    res->cs_name = TS_Function::mapMethodName(method_interface->name,inside ? inside->cs_name() : "");
+    if(inside->find_property_by_exact_name(res->cs_name) || inside->find_method_by_name(TargetCode::CS_INTERFACE,res->cs_name,true)) {
+        res->cs_name += "Signal";
+    }
+    res->source_type = method_interface;
+    res->enclosing_type = inside;
+
+    for(const ArgumentInterface & ai : method_interface->arguments) {
+        res->arg_types.emplace_back(TS_TypeResolver::get().resolveType(ai.type));
+        res->arg_values.emplace_back(escape_csharp_keyword(ai.name));
+        res->nullable_ref.emplace_back(ai.def_param_mode!= ArgumentInterface::CONSTANT);
+        if(!ai.default_argument.empty()) {
+            res->arg_defaults[res->arg_values.size()-1] = ai.default_argument;
+        }
+    }
+    s_ptr_cache[method_interface] = res;
+    return res;
 }
 
 

@@ -16,7 +16,6 @@ enum Metadata {
     METADATA_REAL_IS_FLOAT,
     METADATA_REAL_IS_DOUBLE,
     METADATA_STRING_VIEW,
-    METADATA_STRING_NAME,
     METADATA_NON_COW_CONTAINER,
 };
 }
@@ -70,6 +69,7 @@ enum class PropertyHint : int8_t {
     ObjectTooBig, ///< object is too big to send
     NodePathValidTypes,
     SaveFile, ///< a file path must be passed, hint_text (optionally) is a filter "*.png,*.wav,*.doc,". This opens a save dialog
+    IntIsObjectID,
     Max
     // When updating PropertyHint, also sync the hardcoded list in VisualScriptEditorVariableEdit
 };
@@ -125,5 +125,4 @@ struct RawPropertyInfo {
     int8_t type = 0;
     PropertyHint hint = PropertyHint::None;
     uint32_t usage = PROPERTY_USAGE_DEFAULT;
-
 };

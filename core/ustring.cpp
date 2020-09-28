@@ -1157,8 +1157,8 @@ int64_t StringUtils::to_int64(StringView s) {
 int StringUtils::to_int(const char *p_str, int p_len) {
     return QByteArray::fromRawData(p_str,p_len).toInt();
 }
-int StringUtils::to_int(StringView p_str) {
-    return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt();
+int StringUtils::to_int(StringView p_str,bool *ok) {
+    return QByteArray::fromRawData(p_str.data(),p_str.length()).toInt(ok);
 }
 
 bool StringUtils::is_numeric(const String &str) {
@@ -1397,8 +1397,8 @@ done:
     return fraction;
 }
 
-double StringUtils::to_double(StringView p_str) {
-    return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble();
+double StringUtils::to_double(StringView p_str, bool* ok) {
+    return QByteArray::fromRawData(p_str.data(),p_str.size()).toDouble(ok);
 }
 double StringUtils::to_double(const char *p_str, char ** r_end) {
     return strtod(p_str,r_end);
@@ -3288,8 +3288,8 @@ String PathUtils::path_to(StringView str,StringView p_path) {
     }
 
     //remove leading and trailing slash and split
-    auto src_dirs = StringUtils::split(src.substr(1, src.length() - 2),"/");
-    auto dst_dirs = StringUtils::split(dst.substr(1, dst.length() - 2),"/");
+    auto src_dirs = StringUtils::split(StringView(src).substr(1, src.length() - 2),"/");
+    auto dst_dirs = StringUtils::split(StringView(dst).substr(1, dst.length() - 2),"/");
 
     //find common parent
     size_t common_parent = 0;
@@ -3707,7 +3707,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                         return ("a number is required");
                     }
 
-                    int64_t value = values[value_index];
+                    int64_t value = values[value_index].as<int64_t>();
                     int base = 16;
                     bool capitalize = false;
                     switch (c) {
@@ -3803,7 +3803,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                     // Convert to character.
                     String str;
                     if (values[value_index].is_num()) {
-                        int value = values[value_index];
+                        int value = values[value_index].as<int>();
                         if (value < 0) {
                             return ("unsigned byte integer is lower than maximum");
                         } else if (value > 255) {
@@ -3881,7 +3881,7 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                         return ("* wants number");
                     }
 
-                    int size = values[value_index];
+                    int size = values[value_index].as<int>();
 
                     if (in_decimals) {
                         min_decimals = size;

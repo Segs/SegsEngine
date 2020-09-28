@@ -123,7 +123,7 @@ EditorAssetLibraryItem::EditorAssetLibraryItem() {
     icon = memnew(TextureButton);
     icon->set_custom_minimum_size(Size2(64, 64) * EDSCALE);
     icon->set_default_cursor_shape(CURSOR_POINTING_HAND);
-    icon->connect("pressed", this, "_asset_clicked");
+    icon->connect("pressed",callable_mp(this, &ClassName::_asset_clicked));
 
     hb->add_child(icon);
 
@@ -134,17 +134,17 @@ EditorAssetLibraryItem::EditorAssetLibraryItem() {
 
     title = memnew(LinkButton);
     title->set_underline_mode(LinkButton::UNDERLINE_MODE_ON_HOVER);
-    title->connect("pressed", this, "_asset_clicked");
+    title->connect("pressed",callable_mp(this, &ClassName::_asset_clicked));
     vb->add_child(title);
 
     category = memnew(LinkButton);
     category->set_underline_mode(LinkButton::UNDERLINE_MODE_ON_HOVER);
-    category->connect("pressed", this, "_category_clicked");
+    category->connect("pressed",callable_mp(this, &ClassName::_category_clicked));
     vb->add_child(category);
 
     author = memnew(LinkButton);
     author->set_underline_mode(LinkButton::UNDERLINE_MODE_ON_HOVER);
-    author->connect("pressed", this, "_author_clicked");
+    author->connect("pressed",callable_mp(this, &ClassName::_author_clicked));
     vb->add_child(author);
 
     price = memnew(Label);
@@ -274,7 +274,7 @@ void EditorAssetLibraryItemDescription::add_preview(int p_id, bool p_video, Stri
     preview.button->set_flat(true);
     preview.button->set_button_icon(get_icon("ThumbnailWait", "EditorIcons"));
     preview.button->set_toggle_mode(true);
-    preview.button->connect("pressed", this, "_preview_click", varray(p_id));
+    preview.button->connect("pressed",callable_mp(this, &ClassName::_preview_click), varray(p_id));
     preview_hb->add_child(preview.button);
     if (!p_video) {
         preview.image = get_icon("ThumbnailWait", "EditorIcons");
@@ -302,7 +302,7 @@ EditorAssetLibraryItemDescription::EditorAssetLibraryItemDescription() {
     description = memnew(RichTextLabel);
     desc_vbox->add_child(description);
     description->set_v_size_flags(SIZE_EXPAND_FILL);
-    description->connect("meta_clicked", this, "_link_click");
+    description->connect("meta_clicked",callable_mp(this, &ClassName::_link_click));
     description->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 
     VBoxContainer *previews_vbox = memnew(VBoxContainer);
@@ -539,7 +539,7 @@ EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
     title->set_h_size_flags(SIZE_EXPAND_FILL);
 
     dismiss = memnew(TextureButton);
-    dismiss->connect("pressed", this, "_close");
+    dismiss->connect("pressed",callable_mp(this, &ClassName::_close));
     title_hb->add_child(dismiss);
 
     title->set_clip_text(true);
@@ -559,11 +559,11 @@ EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
     install = memnew(Button);
     install->set_text(TTR("Install..."));
     install->set_disabled(true);
-    install->connect("pressed", this, "_install");
+    install->connect("pressed",callable_mp(this, &ClassName::_install));
 
     retry = memnew(Button);
     retry->set_text(TTR("Retry"));
-    retry->connect("pressed", this, "_make_request");
+    retry->connect("pressed",callable_mp(this, &ClassName::_make_request));
 
     hb2->add_child(retry);
     hb2->add_child(install);
@@ -571,8 +571,8 @@ EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
 
     download = memnew(HTTPRequest);
     add_child(download);
-    download->connect("request_completed", this, "_http_download_completed");
-    download->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
+    download->connect("request_completed",callable_mp(this, &ClassName::_http_download_completed));
+    download->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
 
     download_error = memnew(AcceptDialog);
     add_child(download_error);
@@ -580,7 +580,7 @@ EditorAssetLibraryItemDownload::EditorAssetLibraryItemDownload() {
 
     asset_installer = memnew(EditorAssetInstaller);
     add_child(asset_installer);
-    asset_installer->connect("confirmed", this, "_close");
+    asset_installer->connect("confirmed",callable_mp(this, &ClassName::_close));
 
     prev_status = -1;
 
@@ -655,7 +655,7 @@ void EditorAssetLibrary::_install_asset() {
 
     if (templates_only) {
         download->set_external_install(true);
-        download->connect("install_asset", this, "_install_external_asset");
+        download->connect("install_asset",callable_mp(this, &ClassName::_install_external_asset));
     }
 }
 
@@ -694,7 +694,7 @@ void EditorAssetLibrary::_select_category(int p_id) {
 
         if (i == 0)
             continue;
-        int id = categories->get_item_metadata(i);
+        int id = categories->get_item_metadata(i).as<int>();
         if (id == p_id) {
             categories->select(i);
             _search();
@@ -888,13 +888,13 @@ void EditorAssetLibrary::_request_image(ObjectID p_for, String p_image_url, Imag
     iq.image_index = p_image_index;
     iq.image_type = p_type;
     iq.request = memnew(HTTPRequest);
-    iq.request->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
+    iq.request->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
 
     iq.target = p_for;
     iq.queue_id = ++last_queue_id;
     iq.active = false;
 
-    iq.request->connect("request_completed", this, "_image_request_completed", varray(iq.queue_id));
+    iq.request->connect("request_completed",callable_mp(this, &ClassName::_image_request_completed), varray(iq.queue_id));
 
     image_queue[iq.queue_id] = iq;
 
@@ -948,7 +948,7 @@ void EditorAssetLibrary::_search(int p_page) {
 
     if (categories->get_selected() > 0) {
 
-        args += "&category=" + itos(categories->get_item_metadata(categories->get_selected()));
+        args += "&category=" + itos(categories->get_item_metadata(categories->get_selected()).as<int>());
     }
 
     // Sorting options with an odd index are always the reverse of the previous one
@@ -993,7 +993,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
     Button *first = memnew(Button);
     first->set_text(TTR("First"));
     if (p_page != 0) {
-        first->connect("pressed", this, "_search", varray(0));
+        first->connect("pressed",callable_mp(this, &ClassName::_search), varray(0));
     } else {
         first->set_disabled(true);
         first->set_focus_mode(Control::FOCUS_NONE);
@@ -1003,7 +1003,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
     Button *prev = memnew(Button);
     prev->set_text(TTR("Previous"));
     if (p_page > 0) {
-        prev->connect("pressed", this, "_search", varray(p_page - 1));
+        prev->connect("pressed",callable_mp(this, &ClassName::_search), varray(p_page - 1));
     } else {
         prev->set_disabled(true);
         prev->set_focus_mode(Control::FOCUS_NONE);
@@ -1025,7 +1025,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
 
             Button *current = memnew(Button);
             current->set_text_utf8(itos(i + 1));
-            current->connect("pressed", this, "_search", varray(i));
+            current->connect("pressed",callable_mp(this, &ClassName::_search), varray(i));
 
             hbc->add_child(current);
         }
@@ -1034,7 +1034,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
     Button *next = memnew(Button);
     next->set_text(TTR("Next"));
     if (p_page < p_page_count - 1) {
-        next->connect("pressed", this, "_search", varray(p_page + 1));
+        next->connect("pressed",callable_mp(this, &ClassName::_search), varray(p_page + 1));
     } else {
         next->set_disabled(true);
         next->set_focus_mode(Control::FOCUS_NONE);
@@ -1045,7 +1045,7 @@ HBoxContainer *EditorAssetLibrary::_make_pages(int p_page, int p_page_count, int
     Button *last = memnew(Button);
     last->set_text(TTR("Last"));
     if (p_page != p_page_count - 1) {
-        last->connect("pressed", this, "_search", varray(p_page_count - 1));
+        last->connect("pressed",callable_mp(this, &ClassName::_search), varray(p_page_count - 1));
     } else {
         last->set_disabled(true);
         last->set_focus_mode(Control::FOCUS_NONE);
@@ -1126,7 +1126,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
         String errs;
         int errl;
         JSON::parse(str, js, errs, errl);
-        d = js;
+        d = js.as<Dictionary>();
     }
 
     RequestType requested = requesting;
@@ -1139,13 +1139,13 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             categories->add_item(TTR("All"));
             categories->set_item_metadata(0, 0);
             if (d.has("categories")) {
-                Array clist = d["categories"];
+                Array clist = d["categories"].as<Array>();
                 for (int i = 0; i < clist.size(); i++) {
-                    Dictionary cat = clist[i];
+                    Dictionary cat = clist[i].as<Dictionary>();
                     if (!cat.has("name") || !cat.has("id"))
                         continue;
-                    StringName name = cat["name"];
-                    int id = cat["id"];
+                    StringName name = cat["name"].as<StringName>();
+                    int id = cat["id"].as<int>();
                     categories->add_item(name);
                     categories->set_item_metadata(categories->get_item_count() - 1, id);
                     category_map[cat["id"]] = name;
@@ -1182,19 +1182,19 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             Array result;
 
             if (d.has("page")) {
-                page = d["page"];
+                page = d["page"].as<int>();
             }
             if (d.has("pages")) {
-                pages = d["pages"];
+                pages = d["pages"].as<int>();
             }
             if (d.has("page_length")) {
-                page_len = d["page_length"];
+                page_len = d["page_length"].as<int>();
             }
             if (d.has("total")) {
-                total_items = d["total"];
+                total_items = d["total"].as<int>();
             }
             if (d.has("result")) {
-                result = d["result"];
+                result = d["result"].as<Array>();
             }
 
             asset_top_page = _make_pages(page, pages, page_len, total_items, result.size());
@@ -1216,7 +1216,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             }
             for (int i = 0; i < result.size(); i++) {
 
-                Dictionary r = result[i];
+                Dictionary r = result[i].as<Dictionary>();
 
                 ERR_CONTINUE(!r.has("title"));
                 ERR_CONTINUE(!r.has("asset_id"));
@@ -1228,13 +1228,13 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
                 EditorAssetLibraryItem *item = memnew(EditorAssetLibraryItem);
                 asset_items->add_child(item);
-                item->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(), r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>());
-                item->connect("asset_selected", this, "_select_asset");
-                item->connect("author_selected", this, "_select_author");
-                item->connect("category_selected", this, "_select_category");
+                item->configure(r["title"].as<StringName>(), r["asset_id"].as<int>(), category_map[r["category_id"].as<int>()].as<String>(), r["category_id"].as<int>(), r["author"].as<String>(), r["author_id"].as<int>(), r["cost"].as<String>());
+                item->connect("asset_selected",callable_mp(this, &ClassName::_select_asset));
+                item->connect("author_selected",callable_mp(this, &ClassName::_select_author));
+                item->connect("category_selected",callable_mp(this, &ClassName::_select_category));
 
                 if (r.has("icon_url") && r["icon_url"] != "") {
-                    _request_image(item->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
+                    _request_image(item->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
                 }
             }
         } break;
@@ -1262,29 +1262,29 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             description = memnew(EditorAssetLibraryItemDescription);
             add_child(description);
             description->popup_centered_minsize();
-            description->connect("confirmed", this, "_install_asset");
+            description->connect("confirmed",callable_mp(this, &ClassName::_install_asset));
 
-            description->configure(r["title"], r["asset_id"], category_map[r["category_id"]].as<String>(),
-                    r["category_id"], r["author"].as<String>(), r["author_id"], r["cost"].as<String>(), r["version"],
+            description->configure(r["title"].as<StringName>(), r["asset_id"].as<int>(), category_map[r["category_id"]].as<String>(),
+                    r["category_id"].as<int>(), r["author"].as<String>(), r["author_id"].as<int>(), r["cost"].as<String>(), r["version"].as<int>(),
                     r["version_string"].as<String>(), r["description"].as<String>(),
                     r["download_url"].as<String>(), r["browse_url"].as<String>(),
                     r["download_hash"].as<String>());
 
             if (r.has("icon_url") && r["icon_url"] != "") {
-                _request_image(description->get_instance_id(), r["icon_url"], IMAGE_QUEUE_ICON, 0);
+                _request_image(description->get_instance_id(), r["icon_url"].as<String>(), IMAGE_QUEUE_ICON, 0);
             }
 
             if (d.has("previews")) {
-                Array previews = d["previews"];
+                Array previews = d["previews"].as<Array>();
 
                 for (int i = 0; i < previews.size(); i++) {
 
-                    Dictionary p = previews[i];
+                    Dictionary p = previews[i].as<Dictionary>();
 
                     ERR_CONTINUE(!p.has("type"));
                     ERR_CONTINUE(!p.has("link"));
 
-                    bool is_video = p.has("type") && String(p["type"]) == "video";
+                    bool is_video = p.has("type") && p["type"].as<String>() == "video";
                     String video_url;
                     if (is_video && p.has("link")) {
                         video_url = p["link"].as<String>();
@@ -1293,11 +1293,11 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
                     description->add_preview(i, is_video, video_url);
 
                     if (p.has("thumbnail")) {
-                        _request_image(description->get_instance_id(), p["thumbnail"], IMAGE_QUEUE_THUMBNAIL, i);
+                        _request_image(description->get_instance_id(), p["thumbnail"].as<String>(), IMAGE_QUEUE_THUMBNAIL, i);
                     }
 
                     if (!is_video) {
-                        _request_image(description->get_instance_id(), p["link"], IMAGE_QUEUE_SCREENSHOT, i);
+                        _request_image(description->get_instance_id(), p["link"].as<String>(), IMAGE_QUEUE_SCREENSHOT, i);
                     }
                 }
             }
@@ -1377,9 +1377,9 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     filter = memnew(LineEdit);
     search_hb->add_child(filter);
     filter->set_h_size_flags(SIZE_EXPAND_FILL);
-    filter->connect("text_entered", this, "_search_text_entered");
+    filter->connect("text_entered",callable_mp(this, &ClassName::_search_text_entered));
     search = memnew(Button(TTR("Search")));
-    search->connect("pressed", this, "_search");
+    search->connect("pressed",callable_mp(this, &ClassName::_search));
     search_hb->add_child(search);
 
     if (!p_templates_only)
@@ -1388,12 +1388,12 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     Button *open_asset = memnew(Button);
     open_asset->set_text(TTR("Import..."));
     search_hb->add_child(open_asset);
-    open_asset->connect("pressed", this, "_asset_open");
+    open_asset->connect("pressed",callable_mp(this, &ClassName::_asset_open));
 
     Button *plugins = memnew(Button);
     plugins->set_text(TTR("Plugins..."));
     search_hb->add_child(plugins);
-    plugins->connect("pressed", this, "_manage_plugins");
+    plugins->connect("pressed",callable_mp(this, &ClassName::_manage_plugins));
 
     if (p_templates_only) {
         open_asset->hide();
@@ -1412,7 +1412,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     search_hb2->add_child(sort);
 
     sort->set_h_size_flags(SIZE_EXPAND_FILL);
-    sort->connect("item_selected", this, "_rerun_search");
+    sort->connect("item_selected",callable_mp(this, &ClassName::_rerun_search));
 
     search_hb2->add_child(memnew(VSeparator));
 
@@ -1421,7 +1421,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     categories->add_item(TTR("All"));
     search_hb2->add_child(categories);
     categories->set_h_size_flags(SIZE_EXPAND_FILL);
-    categories->connect("item_selected", this, "_rerun_search");
+    categories->connect("item_selected",callable_mp(this, &ClassName::_rerun_search));
 
     search_hb2->add_child(memnew(VSeparator));
 
@@ -1433,7 +1433,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     repository->add_item("localhost");
     repository->set_item_metadata(1, "http://127.0.0.1/asset-library/api");
 
-    repository->connect("item_selected", this, "_repository_changed");
+    repository->connect("item_selected",callable_mp(this, &ClassName::_repository_changed));
 
     search_hb2->add_child(repository);
     repository->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -1448,7 +1448,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     support->get_popup()->add_check_item(TTR("Testing"), SUPPORT_TESTING);
     support->get_popup()->set_item_checked(SUPPORT_OFFICIAL, true);
     support->get_popup()->set_item_checked(SUPPORT_COMMUNITY, true);
-    support->get_popup()->connect("id_pressed", this, "_support_toggled");
+    support->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_support_toggled));
 
     /////////
 
@@ -1502,8 +1502,8 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
 
     request = memnew(HTTPRequest);
     add_child(request);
-    request->set_use_threads(EDITOR_DEF("asset_library/use_threads", true));
-    request->connect("request_completed", this, "_http_request_completed");
+    request->set_use_threads(EDITOR_DEF_T("asset_library/use_threads", true));
+    request->connect("request_completed",callable_mp(this, &ClassName::_http_request_completed));
 
     last_queue_id = 0;
 
@@ -1535,7 +1535,7 @@ EditorAssetLibrary::EditorAssetLibrary(bool p_templates_only) {
     asset_open->add_filter("*.zip ; " + TTR("Assets ZIP File"));
     asset_open->set_mode(EditorFileDialog::MODE_OPEN_FILE);
     add_child(asset_open);
-    asset_open->connect("file_selected", this, "_asset_file_selected");
+    asset_open->connect("file_selected",callable_mp(this, &ClassName::_asset_file_selected));
 
     asset_installer = nullptr;
 }

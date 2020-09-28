@@ -255,7 +255,19 @@ void ArgumentInterface::fromJson(const QJsonObject &obj) {
         def_param_mode = CONSTANT;
 
 }
+void SignalInterface::fromJson(const QJsonObject &obj) {
+    name = obj["name"].toString().toUtf8().data();
+    ::fromJson(obj, "arguments", arguments);
+    getJsonOrDefault(obj, "is_deprecated", is_deprecated);
+    getJsonOrDefault(obj, "deprecation_message", deprecation_message);
+}
 
+void SignalInterface::toJson(QJsonObject &obj) const {
+    obj["name"] = name.c_str();
+    ::toJson(obj, "arguments", arguments);
+    setJsonIfNonDefault(obj, "is_deprecated", is_deprecated);
+    setJsonIfNonDefault(obj, "deprecation_message", deprecation_message);
+}
 
 void MethodInterface::toJson(QJsonObject &obj) const {
     QJsonObject sertype;
@@ -295,7 +307,6 @@ void MethodInterface::fromJson(const QJsonObject &obj) {
     getJsonOrDefault(obj, "deprecation_message", deprecation_message);
 
 }
-
 TypeInterface TypeInterface::create_value_type(const String &p_name) {
     TypeInterface itype;
     itype.name = p_name;
@@ -358,10 +369,16 @@ void TypeInterface::toJson(QJsonObject &obj) const {
     if(ret_as_byref_arg)
         obj["ret_as_byref_arg"] = ret_as_byref_arg;
 
-    ::toJson(obj, "constants", constants);
-    ::toJson(obj, "enums", enums);
-    ::toJson(obj, "properties", properties);
-    ::toJson(obj, "methods", methods);
+    if(!constants.empty())
+        ::toJson(obj, "constants", constants);
+    if(!enums.empty())
+        ::toJson(obj, "enums", enums);
+    if(!properties.empty())
+        ::toJson(obj, "properties", properties);
+    if(!methods.empty())
+        ::toJson(obj, "methods", methods);
+    if(!signals_.empty())
+        ::toJson(obj, "signals", signals_);
 
 }
 
@@ -380,11 +397,16 @@ void TypeInterface::fromJson(const QJsonObject &obj) {
     is_opaque_type = obj["is_opaque_type"].toBool(false);
     memory_own = obj["memory_own"].toBool(false);
     ret_as_byref_arg = obj["ret_as_byref_arg"].toBool(false);
-
-    ::fromJson(obj,"constants",constants);
-    ::fromJson(obj, "enums", enums);
-    ::fromJson(obj, "properties", properties);
-    ::fromJson(obj, "methods", methods);
+    if(obj.contains("constants"))
+        ::fromJson(obj,"constants",constants);
+    if(obj.contains("enums"))
+        ::fromJson(obj, "enums", enums);
+    if(obj.contains("properties"))
+        ::fromJson(obj, "properties", properties);
+    if(obj.contains("methods"))
+        ::fromJson(obj, "methods", methods);
+    if(obj.contains("signals"))
+        ::fromJson(obj, "signals", signals_);
 }
 
 const TypeInterface * NamespaceInterface::_get_type_or_null(const TypeReference &p_typeref) const {
@@ -459,8 +481,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
     required_header = obj["required_header"].toString().toUtf8().data();
     QJsonObject root_obj = obj["namespace_contents"].toObject();
 
-    QJsonArray insert_order_j = root_obj["insert_order"].toArray();
-
     QJsonArray enum_arr = root_obj["global_enums"].toArray();
     global_enums.reserve(enum_arr.size());
 
@@ -501,8 +521,6 @@ void NamespaceInterface::fromJson(const QJsonObject &obj)
 }
 
 bool ReflectionData::load_from_file(StringView os_path) {
-    QJsonDocument src_doc;
-    QString aa=QDir::currentPath();
     QFile inFile(QLatin1String(os_path.data(), os_path.size()));
     if(!inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
