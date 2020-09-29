@@ -176,7 +176,7 @@ void GeneratorContext::append_line(const String &ln) {
     out.append("\n");
 }
 
-void GeneratorContext::start_struct_block(const char *access_level, String name) {
+void GeneratorContext::start_struct_block(const char *access_level, const String &name) {
     out.append_indented(access_level);
     out.append(" struct ");
     out.append(name);
@@ -185,7 +185,7 @@ void GeneratorContext::start_struct_block(const char *access_level, String name)
     out.indent();
 }
 
-void GeneratorContext::start_class_block(const char *access_level, String name) {
+void GeneratorContext::start_class_block(const char *access_level, const String &name) {
     out.append_indented(access_level);
     out.append(" class ");
     out.append(name);

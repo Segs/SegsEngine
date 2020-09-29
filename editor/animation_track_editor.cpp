@@ -5447,12 +5447,12 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
             Vector<_AnimMoveRestore> to_restore;
 
             // 1-remove the keys
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 undo_redo->add_do_method(animation.get(), "track_remove_key", iter->first.track, iter->first.key);
             }
             // 2- remove overlapped keys
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 float newtime = (iter->second.pos - from_t) * s + from_t;
                 int idx = animation->track_find_key(iter->first.track, newtime, true);
@@ -5477,7 +5477,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 
 #define _NEW_POS(m_ofs) (((s > 0) ? m_ofs : from_t + (len - (m_ofs - from_t))) - pivot) * ABS(s) + from_t
             // 3-move the keys (re insert them)
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 float newpos = _NEW_POS(iter->second.pos);
                 undo_redo->add_do_method(animation.get(), "track_insert_key", iter->first.track, newpos,
@@ -5486,14 +5486,14 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
             }
 
             // 4-(undo) remove inserted keys
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 float newpos = _NEW_POS(iter->second.pos);
                 undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", iter->first.track, newpos);
             }
 
             // 5-(undo) reinsert keys
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 undo_redo->add_undo_method(animation.get(), "track_insert_key", iter->first.track, iter->second.pos,
                         animation->track_get_key_value(iter->first.track, iter->first.key),
@@ -5509,7 +5509,7 @@ void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
             undo_redo->add_undo_method(this, "_clear_selection_for_anim", animation);
 
             // 7-reselect
-            for (auto iter = selection.rbegin(); iter!=selection.rend(); iter++) {
+            for (auto iter = selection.rbegin(); iter!=selection.rend(); ++iter) {
 
                 float oldpos = iter->second.pos;
                 float newpos = _NEW_POS(oldpos);

@@ -65,7 +65,7 @@ public:
 	BoxContainer(bool p_vertical = false);
 };
 
-class HBoxContainer : public BoxContainer {
+class GODOT_EXPORT HBoxContainer : public BoxContainer {
 
 	GDCLASS(HBoxContainer,BoxContainer)
 
@@ -75,7 +75,7 @@ public:
 };
 
 class MarginContainer;
-class VBoxContainer : public BoxContainer {
+class GODOT_EXPORT VBoxContainer : public BoxContainer {
 
 	GDCLASS(VBoxContainer,BoxContainer)
 

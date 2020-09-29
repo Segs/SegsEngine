@@ -1086,7 +1086,7 @@ void Image::resize_to_po2(bool p_square) {
 
 void Image::resize(int p_width, int p_height, Interpolation p_interpolation) {
 
-    ERR_FAIL_COND_MSG(data.size() == 0, "Cannot resize image before creating it, use create() or create_from_data() first.");
+    ERR_FAIL_COND_MSG(data.empty(), "Cannot resize image before creating it, use create() or create_from_data() first.");
     ERR_FAIL_COND_MSG(!_can_modify(format), "Cannot resize in compressed or custom image formats.");
     ERR_FAIL_COND_MSG(write_lock.ptr(), "Cannot resize image when it is locked.");
 

@@ -257,14 +257,14 @@ public:
 
 using EditorPluginCreateFunc = EditorPlugin *(*)(EditorNode *);
 
-class EditorPlugins {
+class  EditorPlugins {
 
     enum {
         MAX_CREATE_FUNCS = 64
     };
 
     static EditorPluginCreateFunc creation_funcs[MAX_CREATE_FUNCS];
-    static int creation_func_count;
+    GODOT_EXPORT static int creation_func_count;
 
     template <class T>
     static EditorPlugin *creator(EditorNode *p_node) {

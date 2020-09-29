@@ -37,8 +37,8 @@ struct GeneratorContext {
     void append_line(const String &ln);
     void append_multiline(StringView ln);
 
-    void start_struct_block(const char *access_level,String name);
-    void start_class_block(const char *access_level, String name);
+    void start_struct_block(const char *access_level, const String &name);
+    void start_class_block(const char *access_level, const String &name);
     void start_block();
     void start_cs_namespace(StringView name);
 

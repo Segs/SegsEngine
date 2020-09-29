@@ -308,8 +308,8 @@ static inline uint64_t BSWAP64(uint64_t x) {
 }
 #endif
 
-void _global_lock();
-void _global_unlock();
+GODOT_EXPORT void _global_lock();
+GODOT_EXPORT void _global_unlock();
 
 struct _GlobalLock {
 

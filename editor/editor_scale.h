@@ -29,8 +29,9 @@
 /*************************************************************************/
 
 #pragma once
+#include "core/godot_export.h"
 
-void editor_set_scale(float p_scale);
-float editor_get_scale();
+GODOT_EXPORT void editor_set_scale(float p_scale);
+GODOT_EXPORT float editor_get_scale();
 
 #define EDSCALE (editor_get_scale())

@@ -287,16 +287,18 @@ String ScriptEditor::_get_debug_tooltip(StringView p_text, Node *_se) {
     }
 }
 
-void ScriptEditor::_breaked(bool p_breaked, bool p_can_debug) {
+void ScriptEditor::_breaked(bool p_breaked, bool p_can_debug)
+{
 
     if (EditorSettings::get_singleton()->getT<bool>("text_editor/external/use_external_editor")) {
         return;
     }
 
-    debug_menu->get_popup()->set_item_disabled(debug_menu->get_popup()->get_item_index(DEBUG_NEXT), !(p_breaked && p_can_debug));
-    debug_menu->get_popup()->set_item_disabled(debug_menu->get_popup()->get_item_index(DEBUG_STEP), !(p_breaked && p_can_debug));
-    debug_menu->get_popup()->set_item_disabled(debug_menu->get_popup()->get_item_index(DEBUG_BREAK), p_breaked);
-    debug_menu->get_popup()->set_item_disabled(debug_menu->get_popup()->get_item_index(DEBUG_CONTINUE), !p_breaked);
+    PopupMenu *popup_menu = debug_menu->get_popup();
+    popup_menu->set_item_disabled(popup_menu->get_item_index(DEBUG_NEXT), !(p_breaked && p_can_debug));
+    popup_menu->set_item_disabled(popup_menu->get_item_index(DEBUG_STEP), !(p_breaked && p_can_debug));
+    popup_menu->set_item_disabled(popup_menu->get_item_index(DEBUG_BREAK), p_breaked);
+    popup_menu->set_item_disabled(popup_menu->get_item_index(DEBUG_CONTINUE), !p_breaked);
 
     for (int i = 0; i < tab_container->get_child_count(); i++) {
 

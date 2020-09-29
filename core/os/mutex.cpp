@@ -30,11 +30,6 @@
 
 #include "mutex.h"
 
-#include "core/error_macros.h"
-
-#include <cstddef>
-
-
 Mutex *_global_mutex = nullptr;
 
 void _global_lock() {

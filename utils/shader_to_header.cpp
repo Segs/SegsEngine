@@ -48,7 +48,7 @@ bool include_file_in_legacygl_header(const QString &filename,LegacyGLHeaderStruc
     while(text_input.readLineInto(&line))
     {
         if(line.startsWith("//")) // discard comment lines?
-            line = "";
+            line.clear();
 
         if (line.contains("[vertex]"))
         {

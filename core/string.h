@@ -16,7 +16,7 @@ using StringView = eastl::basic_string_view<char>;
 extern template class eastl::basic_string<char, wrap_allocator>;
 #endif
 constexpr char c_cursor_marker(-1); // invalid utf8 char to symbolize a cursor in a string
-extern const String null_string; // used to return 'null' string reference
+extern GODOT_EXPORT const String null_string; // used to return 'null' string reference
 
 template<>
 struct Hasher<String> {

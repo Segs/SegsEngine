@@ -294,7 +294,7 @@ Error save_exr(Vector<uint8_t> &tgt, const ImageData &p_img, bool p_grayscale) {
     const char *err;
     uint8_t *exr_memory;
     int ret = SaveEXRImageToMemory(&image, &header, &exr_memory, &err);
-    if (ret != TINYEXR_SUCCESS) {
+    if (ret == 0) {
         //TODO: use OsInterface if the reporting is needed.
         //print_error(String("Saving EXR failed. Error: {0}").format(varray(err)));
         FreeEXRErrorMessage(err);

@@ -144,7 +144,11 @@ macro(add_glue_module name tgt)
     set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELASE ${OUTPUT_DIR}/plugins/mono_glue)
     set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins/mono_glue)
     # archive (on vs it's an import lib) not put in the output dir
-
+	install(TARGETS ${name}_glue EXPORT SegsEngine
+		LIBRARY DESTINATION bin/plugins/mono_glue
+		RUNTIME DESTINATION bin/plugins/mono_glue
+	)
+	
     if(DOTNET_FOUND)
         ADD_DOTNET(
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
@@ -171,12 +175,24 @@ foreach(tgt ${global_targets})
         DEPENDS ${tgt}_engine
         COMMENT "Generating reflection data"
     )
+    add_custom_target(reflection_${tgt}_gen
+        # If the file exists, then commands related to that file won't be executed
+        # DONOT let other target depends on the same OUTPUT as current target,
+        #   or it may be bad when doing parallel make
+        DEPENDS ${reflection_files}
+
+        # to make quotes printable,for example
+        VERBATIM
+    )
+    add_dependencies(reflection_${tgt}_gen  ${tgt}_engine)
+
     add_glue_module(GodotCore ${tgt})
     if(${tgt} STREQUAL "editor")
         add_glue_module(GodotEditor ${tgt})
         # record the hidden fact that GodotEditor csproj requires GodotCore
         add_dependencies(BUILD_GodotEditor BUILD_GodotCore)
     endif()
+    add_dependencies(BUILD_GodotCore reflection_${tgt}_gen)
 endforeach()
 
 foreach(tgt ${global_targets})

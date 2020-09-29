@@ -1386,7 +1386,12 @@ Variant::operator String() const {
 Variant::operator StringView() const {
     if(type==VariantType::NIL)
         return "";
-    assert(type==VariantType::STRING);
+
+    assert(type==VariantType::STRING || type == VariantType::STRING_NAME);
+
+    if(type == VariantType::STRING_NAME)
+        return StringView(*reinterpret_cast<const StringName*>(_data._mem));
+
     return StringView(*reinterpret_cast<const String *>(_data._mem));
 }
 

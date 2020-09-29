@@ -63,7 +63,7 @@ public:
 
     MemberType get_member_type() const final { return MEMBER_TYPE_METHOD; }
 
-    StringName get_name() const final { return name; }
+    const StringName &get_name() const final { return name; }
 
     bool is_static() final;
 

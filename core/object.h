@@ -251,7 +251,7 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    friend void Object_change_notify(Object *self,StringName p_property);
+    friend void GODOT_EXPORT Object_change_notify(Object *self,StringName p_property);
     friend bool GODOT_EXPORT predelete_handler(Object *);
     friend void GODOT_EXPORT postinitialize_handler(Object *);
 

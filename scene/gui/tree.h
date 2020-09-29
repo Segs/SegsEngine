@@ -94,17 +94,11 @@ private:
         StringName custom_draw_callback;
 
         struct Button {
-            int id;
-            bool disabled;
+            Color color = { 1,1,1,1 };
             Ref<Texture> texture;
-            Color color;
             StringName tooltip;
-            Button() {
-                id = 0;
-                disabled = false;
-                color = Color(1, 1, 1, 1);
-                tooltip = "";
-            }
+            int id=0;
+            bool disabled=false;
         };
 
         Vector<Button> buttons;

@@ -90,10 +90,9 @@ CallableCustom *Callable::get_custom() const {
 uint32_t Callable::hash() const {
     if (is_custom()) {
         return custom->hash();
-    } else {
-        uint32_t hash = method.hash();
-        return hash_djb2_one_64(object, hash);
     }
+    uint32_t hash = method.hash();
+    return hash_djb2_one_64(object, hash);
 }
 
 bool Callable::operator==(const Callable &p_callable) const {
@@ -358,7 +357,3 @@ Signal::Signal(const Object *p_object, const StringName &p_name) {
     name = p_name;
 }
 
-Signal::Signal(ObjectID p_object, const StringName &p_name) {
-    object = p_object;
-    name = p_name;
-}

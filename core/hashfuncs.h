@@ -123,7 +123,7 @@ static inline uint32_t hash_one_uint64(const uint64_t p_int) {
     return (int)v;
 }
 
-static inline uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) {
+static uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) {
     union {
         double d;
         uint64_t i;
@@ -139,7 +139,7 @@ static inline uint32_t hash_djb2_one_float(double p_in, uint32_t p_prev = 5381) 
 
     return ((p_prev << 5) + p_prev) + hash_one_uint64(u.i);
 }
-static inline uint32_t hash_djb2_one_float(float p_in, uint32_t p_prev = 5381) {
+static uint32_t hash_djb2_one_float(float p_in, uint32_t p_prev = 5381) {
     union {
         float d;
         uint32_t i;
@@ -156,7 +156,7 @@ static inline uint32_t hash_djb2_one_float(float p_in, uint32_t p_prev = 5381) {
     return ((p_prev << 5) + p_prev) + hash_djb2_one_32(u.i);
 }
 template <class T>
-static inline uint32_t make_uint32_t(T p_in) {
+static uint32_t make_uint32_t(T p_in) {
 
     union {
         T t;
@@ -167,13 +167,13 @@ static inline uint32_t make_uint32_t(T p_in) {
     return _u._u32;
 }
 
-static inline uint64_t hash_djb2_one_64(uint64_t p_in, uint64_t p_prev = 5381) {
+static uint64_t hash_djb2_one_64(uint64_t p_in, uint64_t p_prev = 5381) {
 
     return ((p_prev << 5) + p_prev) + p_in;
 }
 
 template <class T>
-static inline uint64_t make_uint64_t(T p_in) {
+static uint64_t make_uint64_t(T p_in) {
 
     union {
         T t;

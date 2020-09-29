@@ -84,10 +84,10 @@ public:
         return method != StringName();
     }
 
-    Object *get_object() const;
-    ObjectID get_object_id() const;
-    StringName get_method() const;
-    CallableCustom *get_custom() const;
+    [[nodiscard]] Object *get_object() const;
+    [[nodiscard]] ObjectID get_object_id() const;
+    [[nodiscard]] StringName get_method() const;
+    [[nodiscard]] CallableCustom *get_custom() const;
 
     uint32_t hash() const;
     explicit operator size_t() const // used by eastl hash containers
@@ -107,7 +107,7 @@ public:
     Callable(ObjectID p_object, const StringName &p_method);
     Callable(CallableCustom *p_custom);
     Callable(const Callable &p_callable);
-    Callable() {}
+    Callable()  = default;
     ~Callable();
 };
 
@@ -143,9 +143,9 @@ public:
     _FORCE_INLINE_ bool is_null() const {
         return object.is_null() && name == StringName();
     }
-    Object *get_object() const;
-    ObjectID get_object_id() const;
-    StringName get_name() const;
+    [[nodiscard]] Object *get_object() const;
+    [[nodiscard]] ObjectID get_object_id() const;
+    [[nodiscard]] StringName get_name() const;
 
     bool operator==(const Signal &p_signal) const;
     bool operator!=(const Signal &p_signal) const;
@@ -156,10 +156,11 @@ public:
     Error emit_signal(const Variant **p_arguments, int p_argcount) const;
     Error connect(const Callable &p_callable, const Vector<Variant> &p_binds = Vector<Variant>(), uint32_t p_flags = 0);
     void disconnect(const Callable &p_callable);
-    bool is_connected(const Callable &p_callable) const;
+    [[nodiscard]] bool is_connected(const Callable &p_callable) const;
 
-    Array get_connections() const;
+    [[nodiscard]] Array get_connections() const;
     Signal(const Object *p_object, const StringName &p_name);
-    Signal(ObjectID p_object, const StringName &p_name);
-    Signal() {}
+    Signal(ObjectID p_object, const StringName& p_name) : name(p_name), object(p_object) {
+    }
+    Signal() = default;
 };

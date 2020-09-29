@@ -71,14 +71,10 @@ struct ConstantInterface {
 
     ConstantInterface() {}
 
-    ConstantInterface(const String& p_name, int p_value) {
-        name = p_name;
-        value = p_value;
+    ConstantInterface(const String& p_name, int p_value) : name(p_name),value(p_value) {
     }
-    ConstantInterface(const String& p_name, StringView p_value) {
-        name = p_name;
+    ConstantInterface(const String& p_name, StringView p_value) : name(p_name), str_value(p_value) {
         const_type = {"String"};
-        str_value = p_value;
     }
     void toJson(QJsonObject& obj) const;
     void fromJson(const QJsonObject& obj);

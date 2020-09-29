@@ -202,8 +202,9 @@ public:
 
 //not a macro any longer
 
-Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
-Variant _EDITOR_GET(const StringName &p_setting);
+GODOT_EXPORT Variant _EDITOR_DEF(const StringName &p_setting, const Variant &p_default, bool p_restart_if_changed = false);
+GODOT_EXPORT Variant _EDITOR_GET(const StringName &p_setting);
+
 template<class T>
 T EDITOR_GET_T(const StringName &p_setting) {
     return _EDITOR_GET(p_setting).template as<T>();
