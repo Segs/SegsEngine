@@ -388,9 +388,9 @@ void UndoRedo::create_action(StringView p_name, MergeMode p_mode) {
 void UndoRedo::create_action_pair(StringView p_name, ObjectID owner, eastl::function<void()> do_actions, eastl::function<void()> undo_actions, MergeMode p_mode) {
     pimpl->create_action(p_name, p_mode);
     ERR_FAIL_COND(pimpl->action_level <= 0);
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    ERR_FAIL_COND(size_t(pimpl->current_action) + 1 >= pimpl->actions.size());
     pimpl->add_do_method(do_actions,owner);
-    ERR_FAIL_COND(size_t(pimpl->current_action + 1) >= pimpl->actions.size());
+    ERR_FAIL_COND(size_t(pimpl->current_action) + 1 >= pimpl->actions.size());
     pimpl->add_undo_method(undo_actions,owner);
 
 }

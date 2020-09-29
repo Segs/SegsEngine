@@ -64,24 +64,21 @@ void DocData::merge_from(const DocData &p_data) {
 
         for (MethodDoc &m : c.second.methods) {
 
-            for (int j = 0; j < cf.methods.size(); j++) {
-
-                if (cf.methods[j].name != m.name)
+            for (const MethodDoc & method_doc : cf.methods) {
+                if (method_doc.name != m.name)
                     continue;
-                if (cf.methods[j].arguments.size() != m.arguments.size())
+                if (method_doc.arguments.size() != m.arguments.size())
                     continue;
                 // since polymorphic functions are allowed we need to check the type of
                 // the arguments so we make sure they are different.
-                int arg_count = cf.methods[j].arguments.size();
-                Vector<bool> arg_used;
-                arg_used.resize(arg_count);
-                for (int l = 0; l < arg_count; ++l)
-                    arg_used[l] = false;
+                int arg_count = method_doc.arguments.size();
+                Vector<bool> arg_used(arg_count, false);
+
                 // also there is no guarantee that argument ordering will match, so we
                 // have to check one by one so we make sure we have an exact match
                 for (int k = 0; k < arg_count; ++k) {
                     for (int l = 0; l < arg_count; ++l)
-                        if (cf.methods[j].arguments[k].type == m.arguments[l].type && !arg_used[l]) {
+                        if (method_doc.arguments[k].type == m.arguments[l].type && !arg_used[l]) {
                             arg_used[l] = true;
                             break;
                         }
@@ -93,7 +90,7 @@ void DocData::merge_from(const DocData &p_data) {
                 if (not_the_same)
                     continue;
 
-                const MethodDoc &mf = cf.methods[j];
+                const MethodDoc &mf = method_doc;
 
                 m.description = mf.description;
                 break;

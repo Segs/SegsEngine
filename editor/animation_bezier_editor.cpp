@@ -79,7 +79,7 @@ void AnimationBezierTrackEdit::_draw_track(int p_track, const Color &p_color) {
 
         int i = E->second;
         auto next = E;
-        next++;
+        ++next;
         if (next==key_order.end())
             break;
 

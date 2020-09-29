@@ -3492,25 +3492,22 @@ void CSharpScript::update_exports() {
 }
 
 bool CSharpScript::has_script_signal(const StringName &p_signal) const {
-    return _signals.contains(p_signal);
+    return _signals.contains(p_signal) || event_signals.contains(p_signal);
 }
 
 void CSharpScript::get_script_signal_list(Vector<MethodInfo> *r_signals) const {
     for (const auto & E : _signals) {
-        MethodInfo mi;
-        mi.name = E.first;
+        MethodInfo mi(E.first);
 
         const Vector<SignalParameter> &params = E.second;
-        for (int i = 0; i < params.size(); i++) {
-            const SignalParameter &param = params[i];
-
+        for (const SignalParameter& param : params) {
             PropertyInfo arg_info = PropertyInfo(param.type, param.name);
             if (param.type == VariantType::NIL && param.nil_is_variant) {
                 arg_info.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         }
             mi.arguments.push_back(arg_info);
         }
-        r_signals->push_back(mi);
+        r_signals->emplace_back(eastl::move(mi));
     }
     for (const auto &E : event_signals) {
         MethodInfo mi(E.first);
@@ -3528,7 +3525,7 @@ void CSharpScript::get_script_signal_list(Vector<MethodInfo> *r_signals) const {
             mi.arguments.push_back(arg_info);
         }
 
-        r_signals->push_back(mi);
+        r_signals->emplace_back(eastl::move(mi));
     }
 }
 

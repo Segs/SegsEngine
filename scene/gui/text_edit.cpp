@@ -5404,11 +5404,10 @@ Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
             wrap_substring += word_str;
             lines.push_back(wrap_substring);
             cur_wrap_index++;
-            wrap_substring = "";
+            wrap_substring.clear();
             px = 0;
 
-            word_str = "";
-            word_str += c;
+            word_str = c; // reset word_str to c
             word_px = w;
         } else {
             word_str += c;
@@ -5417,7 +5416,7 @@ Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
                 // End of a word; add this word to the substring.
                 wrap_substring += word_str;
                 px += word_px;
-                word_str = "";
+                word_str.clear();
                 word_px = 0;
             }
 
@@ -5426,7 +5425,7 @@ Vector<UIString> TextEdit::get_wrap_rows_text(int p_line) const {
                 lines.push_back(wrap_substring);
                 // Reset for next wrap.
                 cur_wrap_index++;
-                wrap_substring = "";
+                wrap_substring.clear();
                 px = 0;
             }
         }

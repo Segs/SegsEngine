@@ -51,7 +51,7 @@ public:
 
 	virtual MemberType get_member_type() const final { return MEMBER_TYPE_PROPERTY; }
 
-	virtual StringName get_name() const final { return name; }
+	virtual const StringName &get_name() const final { return name; }
 
 	virtual bool is_static() final;
 	virtual Visibility get_visibility() final;

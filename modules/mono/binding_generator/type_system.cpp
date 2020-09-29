@@ -55,8 +55,8 @@ const TS_TypeLike *TS_TypeLike::common_base(const TS_TypeLike *with) const {
             --rb_lh;
             return *rb_lh;
         }
-        rb_lh++;
-        rb_rh++;
+        ++rb_lh;
+        ++rb_rh;
     }
     return nullptr;
 }

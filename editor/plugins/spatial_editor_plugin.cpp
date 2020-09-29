@@ -4527,17 +4527,19 @@ Dictionary SpatialEditor::get_state() const {
     d["local_coords"] = tool_option_button[TOOL_OPT_LOCAL_COORDS]->is_pressed();
 
     int vc = 0;
-    if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_1_VIEWPORT)))
+    PopupMenu *popup_menu = view_menu->get_popup();
+
+    if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_1_VIEWPORT)))
         vc = 1;
-    else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_2_VIEWPORTS)))
+    else if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_2_VIEWPORTS)))
         vc = 2;
-    else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_3_VIEWPORTS)))
+    else if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_3_VIEWPORTS)))
         vc = 3;
-    else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_4_VIEWPORTS)))
+    else if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_4_VIEWPORTS)))
         vc = 4;
-    else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_2_VIEWPORTS_ALT)))
+    else if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_2_VIEWPORTS_ALT)))
         vc = 5;
-    else if (view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_USE_3_VIEWPORTS_ALT)))
+    else if (popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_USE_3_VIEWPORTS_ALT)))
         vc = 6;
 
     d["viewport_mode"] = vc;
@@ -4548,8 +4550,8 @@ Dictionary SpatialEditor::get_state() const {
 
     d["viewports"] = vpdata;
 
-    d["show_grid"] = view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_GRID));
-    d["show_origin"] = view_menu->get_popup()->is_item_checked(view_menu->get_popup()->get_item_index(MENU_VIEW_ORIGIN));
+    d["show_grid"] = popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_GRID));
+    d["show_origin"] = popup_menu->is_item_checked(popup_menu->get_item_index(MENU_VIEW_ORIGIN));
     d["fov"] = get_fov();
     d["znear"] = get_znear();
     d["zfar"] = get_zfar();

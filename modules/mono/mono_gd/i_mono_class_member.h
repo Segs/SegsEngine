@@ -57,7 +57,7 @@ public:
 
 	virtual MemberType get_member_type() const = 0;
 
-	virtual StringName get_name() const = 0;
+	virtual const StringName& get_name() const = 0;
 
 	virtual bool is_static() = 0;
 

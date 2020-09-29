@@ -361,13 +361,6 @@ void Environment::_validate_property(PropertyInfo &property) const {
 
     };
 
-    static const char *high_end_prefixes[] = {
-        "auto_exposure_",
-        "tonemap_",
-        "ss_reflections_",
-        "ssao_"
-    };
-
     for(const char *prefix_val : hide_prefixes) {
         StringName prefix(StaticCString(prefix_val,true));
 
@@ -377,17 +370,6 @@ void Environment::_validate_property(PropertyInfo &property) const {
             return;
         }
     }
-
-    // if (RenderingServer::get_singleton()->is_low_end()) {
-    //     for(const char *prefix_val : high_end_prefixes) {
-    //         StringName prefix(StaticCString(prefix_val,true));
-    //
-    //         if (StringUtils::begins_with(property.name,prefix)) {
-    //             property.usage = PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL;
-    //             return;
-    //         }
-    //     }
-    // }
 }
 
 void Environment::set_ssr_enabled(bool p_enable) {
