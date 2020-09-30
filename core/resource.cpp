@@ -93,7 +93,7 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
         cached_resources.erase(impl_data->path_cache);
     }
     HashMap<String, Resource*>::iterator lociter;
-    bool has_path=false;
+    bool has_path;
     impl_data->path_cache.clear();
     {
         RWLockRead read_guard(ResourceCache::lock);
@@ -557,11 +557,12 @@ Resource *ResourceCache::get(StringView p_path) {
     return res;
 }
 
-void ResourceCache::get_cached_resources(List<Ref<Resource>> *p_resources) {
+void ResourceCache::get_cached_resources(Vector<Ref<Resource>> &p_resources) {
 
     lock->read_lock();
-    for(eastl::pair<const String,Resource *> & e :cached_resources) {
-        p_resources->push_back(Ref<Resource>(e.second));
+    p_resources.reserve(cached_resources.size());
+    for(eastl::pair<const String,Resource *> & e : cached_resources) {
+        p_resources.emplace_back(e.second);
     }
     lock->read_unlock();
 }
