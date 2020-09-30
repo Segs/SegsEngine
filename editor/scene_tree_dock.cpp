@@ -1146,19 +1146,20 @@ void SceneTreeDock::_notification(int p_what) {
             beginner_node_shortcuts->add_child(button_2d);
             button_2d->set_text(TTR("2D Scene"));
             button_2d->set_button_icon(get_icon("Node2D", "EditorIcons"));
-            button_2d->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_CREATE_2D_SCENE, false));
+            
+            button_2d->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_CREATE_2D_SCENE,false);}));
 
             button_3d = memnew(Button);
             beginner_node_shortcuts->add_child(button_3d);
             button_3d->set_text(TTR("3D Scene"));
             button_3d->set_button_icon(get_icon("Node3D", "EditorIcons"));
-            button_3d->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_CREATE_3D_SCENE, false));
+            button_3d->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_CREATE_3D_SCENE,false);}));
 
             Button *button_ui = memnew(Button);
             beginner_node_shortcuts->add_child(button_ui);
             button_ui->set_text(TTR("User Interface"));
             button_ui->set_button_icon(get_icon("Control", "EditorIcons"));
-            button_ui->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_CREATE_USER_INTERFACE, false));
+            button_ui->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_CREATE_USER_INTERFACE,false);}));
 
             VBoxContainer *favorite_node_shortcuts = memnew(VBoxContainer);
             favorite_node_shortcuts->set_name("FavoriteNodeShortcuts");
@@ -1168,7 +1169,7 @@ void SceneTreeDock::_notification(int p_what) {
             node_shortcuts->add_child(button_custom);
             button_custom->set_text(TTR("Other Node"));
             button_custom->set_button_icon(get_icon("Add", "EditorIcons"));
-            button_custom->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_NEW, false));
+            button_custom->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_NEW,false);}));
 
             node_shortcuts->add_spacer();
             create_root_dialog->add_child(node_shortcuts);
@@ -2892,13 +2893,13 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     ED_SHORTCUT("scene_tree/delete", TTR("Delete"), KEY_DELETE);
 
     button_add = memnew(ToolButton);
-    button_add->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_NEW, false));
+    button_add->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_NEW,false);}));
     button_add->set_tooltip(TTR("Add/Create a New Node."));
     button_add->set_shortcut(ED_GET_SHORTCUT("scene_tree/add_child_node"));
     filter_hbc->add_child(button_add);
 
     button_instance = memnew(ToolButton);
-    button_instance->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_INSTANCE, false));
+    button_instance->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_INSTANCE,false);}));
     button_instance->set_tooltip(TTR("Instance a scene file as a Node. Creates an inherited scene if no root node exists."));
     button_instance->set_shortcut(ED_GET_SHORTCUT("scene_tree/instance_scene"));
     filter_hbc->add_child(button_instance);
@@ -2912,14 +2913,14 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
     filter->connect("text_changed",callable_mp(this, &ClassName::_filter_changed));
 
     button_create_script = memnew(ToolButton);
-    button_create_script->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_ATTACH_SCRIPT, false));
+    button_create_script->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_ATTACH_SCRIPT,false);}));
     button_create_script->set_tooltip(TTR("Attach a new or existing script to the selected node."));
     button_create_script->set_shortcut(ED_GET_SHORTCUT("scene_tree/attach_script"));
     filter_hbc->add_child(button_create_script);
     button_create_script->hide();
 
     button_detach_script = memnew(ToolButton);
-    button_detach_script->connect("pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(TOOL_DETACH_SCRIPT, false));
+    button_detach_script->connect("pressed",callable_gen(this,[this]() { this->_tool_selected(TOOL_DETACH_SCRIPT,false);}));
     button_detach_script->set_tooltip(TTR("Detach the script from the selected node."));
     button_detach_script->set_shortcut(ED_GET_SHORTCUT("scene_tree/detach_script"));
     filter_hbc->add_child(button_detach_script);
@@ -3018,11 +3019,11 @@ SceneTreeDock::SceneTreeDock(EditorNode *p_editor, Node *p_scene_root, EditorSel
 
     menu = memnew(PopupMenu);
     add_child(menu);
-    menu->connect("id_pressed",callable_mp(this, &ClassName::_tool_selected));
+    menu->connect("id_pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(false));
     menu->set_hide_on_window_lose_focus(true);
     menu_subresources = memnew(PopupMenu);
     menu_subresources->set_name("Sub-Resources");
-    menu_subresources->connect("id_pressed",callable_mp(this, &ClassName::_tool_selected));
+    menu_subresources->connect("id_pressed",callable_mp(this, &ClassName::_tool_selected), make_binds(false));
     menu->add_child(menu_subresources);
     first_enter = true;
     restore_script_editor_on_drag = false;
