@@ -1571,24 +1571,25 @@ AnimatedValuesBackup AnimationPlayer::backup_animated_values() {
             entry.bone_idx = nc->bone_idx;
             entry.value = nc->skeleton->get_bone_pose(nc->bone_idx);
             backup.entries.emplace_back(eastl::move(entry));
+            continue;
+        }
+        if (nc->spatial) {
+            AnimatedValuesBackup::Entry entry;
+            entry.object = nc->spatial;
+            entry.subpath.push_back("transform");
+            entry.value = nc->spatial->get_transform();
+            entry.bone_idx = -1;
+            backup.entries.emplace_back(eastl::move(entry));
         } else {
-            if (nc->spatial) {
+            for (eastl::pair<const StringName,TrackNodeCache::PropertyAnim> &E : nc->property_anim) {
                 AnimatedValuesBackup::Entry entry;
-                entry.object = nc->spatial;
-                entry.subpath.push_back("transform");
-                entry.value = nc->spatial->get_transform();
-                entry.bone_idx = -1;
-                backup.entries.emplace_back(eastl::move(entry));
-            } else {
-                for (eastl::pair<const StringName,TrackNodeCache::PropertyAnim> &E : nc->property_anim) {
-                    AnimatedValuesBackup::Entry entry;
-                    bool valid;
-                    entry.value = E.second.object->get_indexed(E.second.subpath, &valid);
-                    if (valid)
-                        entry.object = E.second.object;
-                        entry.subpath = E.second.subpath;
-                        entry.bone_idx = -1;
-                        backup.entries.emplace_back(eastl::move(entry));
+                bool valid;
+                entry.value = E.second.object->get_indexed(E.second.subpath, &valid);
+                if (valid) {
+                    entry.object = E.second.object;
+                    entry.subpath = E.second.subpath;
+                    entry.bone_idx = -1;
+                    backup.entries.emplace_back(eastl::move(entry));
                 }
             }
         }

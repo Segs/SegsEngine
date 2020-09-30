@@ -31,6 +31,7 @@
 #include "line_edit.h"
 #include "line_edit_enum_casters.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"

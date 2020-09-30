@@ -30,6 +30,7 @@
 
 #include "tab_container.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/input/input_event.h"

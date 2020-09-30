@@ -31,6 +31,8 @@
 #include "polygon_2d.h"
 
 #include "skeleton_2d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/math/geometry.h"

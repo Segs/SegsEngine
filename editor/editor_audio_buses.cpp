@@ -30,6 +30,7 @@
 
 #include "editor_audio_buses.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"

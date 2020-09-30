@@ -30,11 +30,12 @@
 
 #include "animation_blend_tree_editor_plugin.h"
 
-#include "core/resource/resource_manager.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_scale.h"
@@ -745,7 +746,7 @@ void AnimationNodeBlendTreeEditor::_notification(int p_what) {
         }
 
         Vector<AnimationNodeBlendTree::NodeConnection> conns(blend_tree->get_node_connections());
-        
+
         for (AnimationNodeBlendTree::NodeConnection& E : conns) {
             float activity = 0;
             StringName path(AnimationTreeEditor::get_singleton()->get_base_path() + E.input_node);

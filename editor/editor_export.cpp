@@ -32,6 +32,7 @@
 
 #include <utility>
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/crypto/crypto_core.h"
 #include "core/io/config_file.h"

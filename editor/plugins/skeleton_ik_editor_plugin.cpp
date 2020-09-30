@@ -30,6 +30,7 @@
 
 #include "skeleton_ik_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "scene/animation/skeleton_ik_3d.h"

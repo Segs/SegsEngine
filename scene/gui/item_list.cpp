@@ -30,6 +30,7 @@
 
 #include "item_list.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/input/input_event.h"
 #include "core/os/os.h"

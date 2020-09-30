@@ -30,6 +30,7 @@
 
 #include "node_3d_editor_gizmos.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/math/geometry.h"
 #include "core/math/quick_hull.h"
 #include "core/method_bind.h"

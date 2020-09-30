@@ -30,6 +30,7 @@
 
 #include "dependency_editor.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"
 #include "core/project_settings.h"

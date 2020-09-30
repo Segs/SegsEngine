@@ -34,6 +34,7 @@
 #include "core/input/input_map.h"
 #include "core/os/mutex.h"
 #include "core/os/os.h"
+#include "core/ustring.h"
 #include "core/input/default_controller_mappings.h"
 #include "scene/resources/texture.h"
 #include "servers/rendering_server.h"

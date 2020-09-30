@@ -30,6 +30,7 @@
 
 #include "rename_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/string_formatter.h"
 #include "core/print_string.h"

@@ -167,13 +167,13 @@ static uint32_t make_uint32_t(T p_in) {
     return _u._u32;
 }
 
-static uint64_t hash_djb2_one_64(uint64_t p_in, uint64_t p_prev = 5381) {
+static constexpr uint64_t hash_djb2_one_64(uint64_t p_in, uint64_t p_prev = 5381) {
 
     return ((p_prev << 5) + p_prev) + p_in;
 }
 
 template <class T>
-static uint64_t make_uint64_t(T p_in) {
+static constexpr uint64_t make_uint64_t(T p_in) {
 
     union {
         T t;

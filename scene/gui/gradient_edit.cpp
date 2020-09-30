@@ -30,6 +30,7 @@
 
 #include "gradient_edit.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/os/keyboard.h"
 #include "core/method_bind.h"
 #include "EASTL/sort.h"

@@ -31,6 +31,7 @@
 #include "animation_state_machine_editor.h"
 
 #include "editor/editor_scale.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/math/delaunay.h"

@@ -31,6 +31,7 @@
 #include "editor_about.h"
 #include "editor_node.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/authors.gen.h"
 #include "core/donors.gen.h"
 #include "core/license.gen.h"

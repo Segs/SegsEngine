@@ -1247,7 +1247,7 @@ Dictionary SceneState::get_bundled_scene() const {
         rnodes.emplace_back(nd.owner);
         rnodes.emplace_back(nd.type);
         uint32_t name_index = nd.name;
-        if (nd.index < (1 << 32 - NAME_INDEX_BITS) - 1) { //save if less than 16k children
+        if (nd.index < (1 << (32 - NAME_INDEX_BITS)) - 1) { //save if less than 16k children
             name_index |= uint32_t(nd.index + 1) << NAME_INDEX_BITS; //for backwards compatibility, index 0 is no index
         }
         rnodes.emplace_back(name_index);

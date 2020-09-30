@@ -34,6 +34,8 @@
 #include "animation_blend_space_2d_editor.h"
 #include "animation_blend_tree_editor_plugin.h"
 #include "animation_state_machine_editor.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/resource_loader.h"
 #include "core/math/delaunay.h"

@@ -30,6 +30,7 @@
 
 #include "light_occluder_2d.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"

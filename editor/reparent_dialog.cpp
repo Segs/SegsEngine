@@ -30,6 +30,7 @@
 
 #include "reparent_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/print_string.h"
 #include "core/translation_helpers.h"

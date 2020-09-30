@@ -31,6 +31,7 @@
 #include "camera_3d_editor_plugin.h"
 
 #include "spatial_editor_plugin.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"

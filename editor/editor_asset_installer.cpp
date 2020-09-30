@@ -31,6 +31,7 @@
 #include "editor_asset_installer.h"
 #include "progress_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/zip_io.h"
 #include "core/os/dir_access.h"

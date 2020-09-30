@@ -30,8 +30,8 @@
 
 #include "text_edit.h"
 
-#include <utility>
 
+#include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/os/input.h"
@@ -42,14 +42,16 @@
 #include "core/string_utils.inl"
 #include "core/translation_helpers.h"
 #include "core/ustring.h"
-#include "scene/main/viewport.h"
 
+#include "scene/main/viewport.h"
 #include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"
 #endif
+
+#include <utility>
 
 template<>
 struct eastl::hash<QStringRef> {

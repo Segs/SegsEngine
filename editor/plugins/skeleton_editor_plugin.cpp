@@ -30,6 +30,7 @@
 
 #include "skeleton_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "scene/3d/collision_shape_3d.h"
