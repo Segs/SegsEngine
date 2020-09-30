@@ -30,6 +30,7 @@
 
 #include "animation_track_editor_plugins.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/resource/resource_manager.h"

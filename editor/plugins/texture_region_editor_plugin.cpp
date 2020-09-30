@@ -30,6 +30,7 @@
 
 #include "texture_region_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/core_string_names.h"
 #include "editor/editor_scale.h"

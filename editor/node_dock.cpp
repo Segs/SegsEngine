@@ -32,6 +32,8 @@
 
 #include "editor_node.h"
 #include "editor_scale.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(NodeDock)

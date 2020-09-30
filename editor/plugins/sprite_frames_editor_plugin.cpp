@@ -30,6 +30,7 @@
 
 #include "sprite_frames_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/io/resource_loader.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"

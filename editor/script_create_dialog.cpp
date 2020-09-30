@@ -30,6 +30,7 @@
 
 #include "script_create_dialog.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/io/resource_saver.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"

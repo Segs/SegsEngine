@@ -32,6 +32,7 @@
 #include "settings_config_dialog.h"
 #include "script_editor_debugger.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"

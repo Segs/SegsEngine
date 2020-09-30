@@ -35,6 +35,7 @@
 #include "core/os/input.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"
+#include "core/callable_method_pointer.h"
 #include "core/resource/resource_manager.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_scale.h"

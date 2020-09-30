@@ -31,6 +31,7 @@
 #include "filesystem_dock.h"
 #include "property_editor.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/class_db.h"
 #include "core/io/image_loader.h"
 #include "core/io/marshalls.h"
@@ -1562,7 +1563,7 @@ void CustomPropertyEditor::_modified(StringView p_string) {
             if (int_ok) {
                 val_variant = new_wal;
                 emit_signal("variant_changed");
-            } 
+            }
         } break;
         case VariantType::FLOAT: {
 

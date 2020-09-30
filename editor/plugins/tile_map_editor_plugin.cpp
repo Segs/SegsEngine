@@ -30,6 +30,7 @@
 
 #include "tile_map_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "canvas_item_editor_plugin.h"
 #include "core/math/math_funcs.h"

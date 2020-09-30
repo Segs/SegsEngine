@@ -31,6 +31,7 @@
 #include "shader_editor_plugin.h"
 
 #include "core/io/resource_loader.h"
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/keyboard.h"

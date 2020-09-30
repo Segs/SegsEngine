@@ -31,6 +31,8 @@
 #include "tile_map.h"
 
 #include "collision_object_2d.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/io/marshalls.h"
 #include "core/object_tooling.h"

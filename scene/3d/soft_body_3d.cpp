@@ -29,6 +29,9 @@
 /*************************************************************************/
 
 #include "soft_body_3d.h"
+
+
+#include "core/callable_method_pointer.h"
 #include "core/list.h"
 #include "core/method_bind.h"
 #include "core/object.h"

@@ -31,6 +31,7 @@
 #include "editor_autoload_settings.h"
 #include "project_settings_editor.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/global_constants.h"
 #include "core/project_settings.h"

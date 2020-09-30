@@ -32,8 +32,10 @@
 
 #include "editor_node.h"
 #include "editor_scale.h"
-#include "core/object_db.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
+#include "core/object_db.h"
 
 IMPL_GDCLASS(EditorPath)
 

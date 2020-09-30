@@ -30,6 +30,7 @@
 
 #include "asset_library_editor_plugin.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/io/json.h"
 #include "core/io/image_loader.h"
 #include "core/method_bind.h"

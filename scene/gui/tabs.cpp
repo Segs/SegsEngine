@@ -30,14 +30,15 @@
 
 #include "tabs.h"
 
+#include "core/callable_method_pointer.h"
+#include "core/input/input_event.h"
 #include "core/message_queue.h"
+#include "core/method_bind.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/texture_rect.h"
-#include "scene/resources/style_box.h"
 #include "scene/resources/font.h"
-#include "core/method_bind.h"
-#include "core/input/input_event.h"
+#include "scene/resources/style_box.h"
 
 
 IMPL_GDCLASS(Tabs)

@@ -29,9 +29,10 @@
 /*************************************************************************/
 
 #include "audio_stream_player.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/object_tooling.h"
 #include "core/method_bind.h"
-
 #include "core/engine.h"
 
 IMPL_GDCLASS(AudioStreamPlayer)

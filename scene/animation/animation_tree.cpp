@@ -31,6 +31,8 @@
 #include "animation_tree.h"
 
 #include "animation_blend_tree.h"
+
+#include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"

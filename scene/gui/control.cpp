@@ -30,6 +30,7 @@
 
 #include "control.h"
 
+#include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
@@ -1598,8 +1599,8 @@ void Control::set_anchors_preset(LayoutPreset p_preset, bool p_keep_margins) {
 }
 
 void Control::set_margins_preset(LayoutPreset p_preset, LayoutPresetMode p_resize_mode, int p_margin) {
-	ERR_FAIL_INDEX((int)p_preset, 16);
-	ERR_FAIL_INDEX((int)p_resize_mode, 4);
+    ERR_FAIL_INDEX((int)p_preset, 16);
+    ERR_FAIL_INDEX((int)p_resize_mode, 4);
     // Calculate the size if the node is not resized
     Size2 min_size = get_minimum_size();
     Size2 new_size = get_size();
