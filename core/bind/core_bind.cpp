@@ -959,8 +959,8 @@ void _OS::print_all_textures_by_size() {
 
     Vector<_OSCoreBindImg> imgs;
 
-    List<Ref<Resource> > rsrc;
-    ResourceCache::get_cached_resources(&rsrc);
+    Vector<Ref<Resource> > rsrc;
+    ResourceCache::get_cached_resources(rsrc);
     imgs.reserve(rsrc.size());
 
     for (const Ref<Resource> &E : rsrc) {
@@ -985,8 +985,8 @@ void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
     HashMap<String, int> type_count;
 
-    List<Ref<Resource> > rsrc;
-    ResourceCache::get_cached_resources(&rsrc);
+    Vector<Ref<Resource> > rsrc;
+    ResourceCache::get_cached_resources(rsrc);
 
     for (const Ref<Resource> &r : rsrc) {
 

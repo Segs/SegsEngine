@@ -1363,9 +1363,9 @@ int EditorNode::_save_external_resources() {
 
     Set<Ref<Resource>> edited_subresources;
     int saved = 0;
-    List<Ref<Resource>> cached;
-    ResourceCache::get_cached_resources(&cached);
-    for (Ref<Resource> res : cached) {
+    Vector<Ref<Resource>> cached;
+    ResourceCache::get_cached_resources(cached);
+    for (const Ref<Resource> &res : cached) {
 
         if (!PathUtils::is_resource_file(res->get_path()))
             continue;
@@ -5618,8 +5618,8 @@ void EditorNode::reload_scene(StringView p_path) {
 
     // first of all, reload internal textures, materials, meshes, etc. as they might have changed on disk
 
-    List<Ref<Resource>> cached;
-    ResourceCache::get_cached_resources(&cached);
+    Vector<Ref<Resource>> cached;
+    ResourceCache::get_cached_resources(cached);
     List<Ref<Resource>> to_clear; // clear internal resources from previous scene from being used
     for (const Ref<Resource> &E : cached) {
 
@@ -5630,7 +5630,7 @@ void EditorNode::reload_scene(StringView p_path) {
     }
 
     // so reload reloads everything, clear subresources of previous scene
-    while (to_clear.front()) {
+    while (!to_clear.empty()) {
         to_clear.front()->set_path({});
         to_clear.pop_front();
     }

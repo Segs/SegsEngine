@@ -1122,9 +1122,9 @@ void FileSystemDock::_try_duplicate_item(const FileOrFolder &p_item, const Strin
 void FileSystemDock::_update_resource_paths_after_move(const HashMap<String, String> &p_renames) const {
 
     // Rename all resources loaded, be it subresources or actual resources.
-    List<Ref<Resource> > cached;
-    ResourceCache::get_cached_resources(&cached);
-
+    Vector<Ref<Resource> > cached;
+    ResourceCache::get_cached_resources(cached);
+    
     for (Ref<Resource> r : cached) {
 
         String base_path = r->get_path();

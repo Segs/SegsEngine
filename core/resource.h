@@ -175,10 +175,11 @@ class GODOT_EXPORT ResourceCache {
     friend class Resource;
     friend class ResourceManager; //need the lock
     friend class ResourceRemapper; //need the lock
-    static RWLock *lock;
     friend void unregister_core_types();
-    static void clear();
     friend void register_core_types();
+
+    static RWLock* lock;
+    static void clear();
     static void setup();
     static Resource *get_unguarded(StringView p_path);
 public:
@@ -186,6 +187,6 @@ public:
     static bool has(StringView p_path);
     static Resource *get(StringView p_path);
     static void dump(StringView p_file = nullptr, bool p_short = false);
-    static void get_cached_resources(List<Ref<Resource>> *p_resources);
+    static void get_cached_resources(Vector<Ref<Resource>> &p_resources);
     static int get_cached_resource_count();
 };
