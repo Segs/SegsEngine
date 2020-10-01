@@ -595,14 +595,14 @@ bool Object::has_method(const StringName &p_method) const {
     return method != nullptr;
 }
 
-Variant Object::getvar(const Variant &p_key, bool *r_valid) const {
+Variant Object::getvar(const Variant &/*p_key*/, bool *r_valid) const {
 
     if (r_valid) {
         *r_valid = false;
     }
     return Variant();
 }
-void Object::setvar(const Variant &p_key, const Variant &p_value, bool *r_valid) {
+void Object::setvar(const Variant &/*p_key*/, const Variant &/*p_value*/, bool *r_valid) {
 
     if (r_valid)
         *r_valid = false;
@@ -1223,10 +1223,6 @@ void Object::get_signals_connected_to_this(List<Connection> *p_connections) cons
     p_connections->insert(p_connections->end(), private_data->connections.begin(), private_data->connections.end());
 }
 
-Error Object::connect_compat2(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method, const Vector<Variant>& p_binds, uint32_t p_flags) {
-    return connect(p_signal, Callable(p_to_object, p_to_method), p_binds, p_flags);
-}
-
 Error Object::connect(const StringName& p_signal, const Callable& p_callable, const Vector<Variant>& p_binds, uint32_t p_flags) {
     ERR_FAIL_COND_V(p_callable.is_null(), ERR_INVALID_PARAMETER);
 
@@ -1239,20 +1235,24 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_signal);
         //check in script
         if (!signal_is_valid && !script.is_null()) {
-            if (refFromRefPtr<Script>(script)->has_script_signal(p_signal)) {
+            Ref<Script> script_ref(refFromRefPtr<Script>(script));
+            if (script_ref->has_script_signal(p_signal)) {
                 signal_is_valid = true;
             }
 #ifdef TOOLS_ENABLED
             else {
                 //allow connecting signals anyway if script is invalid, see issue #17070
-                if (!refFromRefPtr<Script>(script)->is_valid()) {
+                if (!script_ref->is_valid()) {
                     signal_is_valid = true;
                 }
             }
 #endif
         }
 
-        ERR_FAIL_COND_V_MSG(!signal_is_valid, ERR_INVALID_PARAMETER, "In Object of type '" + String(get_class()) + "': Attempt to connect nonexistent signal '" + p_signal + "' to callable '" + (String)p_callable + "'.");
+        ERR_FAIL_COND_V_MSG(!signal_is_valid, ERR_INVALID_PARAMETER,
+                "In Object of type '" + String(get_class()) +
+                "': Attempt to connect nonexistent signal '" + p_signal +
+                "' to callable '" + (String)p_callable + "'.");
 
         private_data->signal_map[p_signal] = SignalData();
         s = private_data->signal_map.emplace(p_signal,SignalData()).first;
@@ -1289,10 +1289,6 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
     return OK;
 }
 
-bool Object::is_connected_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) const {
-    return is_connected(p_signal, Callable(p_to_object, p_to_method));
-}
-
 bool Object::is_connected(const StringName& p_signal, const Callable& p_callable) const {
     ERR_FAIL_COND_V(p_callable.is_null(), false);
     auto s = private_data->signal_map.find(p_signal);
@@ -1312,13 +1308,6 @@ bool Object::is_connected(const StringName& p_signal, const Callable& p_callable
     Callable target = p_callable;
 
     return s->second.slot_map.has(target);
-    //const Map<Signal::Target,Signal::Slot>::Element *E = s->slot_map.find(target);
-    //return (E!=nullptr );
-}
-
-
-void Object::disconnect_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) {
-    _disconnect(p_signal, Callable(p_to_object, p_to_method));
 }
 
 void Object::disconnect(const StringName& p_signal, const Callable& p_callable) {

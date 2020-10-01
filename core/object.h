@@ -451,12 +451,9 @@ public:
     int get_persistent_signal_connection_count() const;
     void get_signals_connected_to_this(List<Connection> *p_connections) const;
 
-    Error connect_compat2(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method, const Vector<Variant>& p_binds = null_variant_pvec, uint32_t p_flags = 0);
     Error connect(const StringName &p_signal, const Callable &callable, const Vector<Variant> &p_binds = null_variant_pvec, uint32_t p_flags = 0);
     Error connectF(const StringName& p_signal, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);
-    void disconnect_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method);
     void disconnect(const StringName& p_signal, const Callable& p_callable);
-    bool is_connected_compat(const StringName& p_signal, Object* p_to_object, const StringName& p_to_method) const;
     bool is_connected(const StringName& p_signal, const Callable& p_callable) const;
 
     void call_deferred(const StringName &p_method, VARIANT_ARG_LIST);
