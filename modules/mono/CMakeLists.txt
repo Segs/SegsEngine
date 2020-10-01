@@ -101,7 +101,9 @@ macro(add_glue_module name tgt)
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}.h
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}_plugin.json
             #${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
-        DEPENDS bindings_generator ${tgt}_engine ${CMAKE_CURRENT_BINARY_DIR}/${name}.json
+        DEPENDS
+            bindings_generator ${tgt}_engine
+            #${CMAKE_CURRENT_BINARY_DIR}/${name}.json not depending on source json, since reflection_${tgt}_gen depends on them and we depend on reflection_${tgt}_gen
         COMMENT "Generating mono glue for ${name}"
     )
     set(additional_sources)
@@ -144,11 +146,11 @@ macro(add_glue_module name tgt)
     set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELASE ${OUTPUT_DIR}/plugins/mono_glue)
     set_target_properties(${name}_glue PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${OUTPUT_DIR}/plugins/mono_glue)
     # archive (on vs it's an import lib) not put in the output dir
-	install(TARGETS ${name}_glue EXPORT SegsEngine
-		LIBRARY DESTINATION bin/plugins/mono_glue
-		RUNTIME DESTINATION bin/plugins/mono_glue
-	)
-	
+    install(TARGETS ${name}_glue EXPORT SegsEngine
+        LIBRARY DESTINATION bin/plugins/mono_glue
+        RUNTIME DESTINATION bin/plugins/mono_glue
+    )
+
     if(DOTNET_FOUND)
         ADD_DOTNET(
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
