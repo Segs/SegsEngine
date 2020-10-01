@@ -197,7 +197,7 @@ void Theme::_get_property_list(Vector<PropertyInfo> *p_tgt) const {
         tmp_str.assign(e.first.asCString());
         tmp_str.append("/styles/");
         for (const auto &f : e.second) {
-            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str + f.first.asCString()), PropertyHint::ResourceType, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
+            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str.append(f.first.asCString())), PropertyHint::ResourceType, "StyleBox", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
         }
     }
 
@@ -206,7 +206,7 @@ void Theme::_get_property_list(Vector<PropertyInfo> *p_tgt) const {
         tmp_str.append("/fonts/");
         for (const auto &f : e.second) {
 
-            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str + f.first.asCString()), PropertyHint::ResourceType, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
+            store.emplace_back(VariantType::OBJECT,  StringName(tmp_str.append(f.first.asCString())), PropertyHint::ResourceType, "Font", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_STORE_IF_NULL);
         }
     }
 
@@ -215,7 +215,7 @@ void Theme::_get_property_list(Vector<PropertyInfo> *p_tgt) const {
         tmp_str.append("/colors/");
         for(const auto &f : e.second) {
 
-            store.emplace_back(VariantType::COLOR, StringName(tmp_str + f.first.asCString()));
+            store.emplace_back(VariantType::COLOR, StringName(tmp_str.append(f.first.asCString())));
         }
     }
 
@@ -224,7 +224,7 @@ void Theme::_get_property_list(Vector<PropertyInfo> *p_tgt) const {
         tmp_str.append("/constants/");
         for(const auto &f : e.second) {
 
-            store.emplace_back(VariantType::INT, StringName(tmp_str + f.first.asCString()));
+            store.emplace_back(VariantType::INT, StringName(tmp_str.append(f.first.asCString())));
         }
     }
     eastl::sort(store.begin(),store.end());
