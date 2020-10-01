@@ -57,8 +57,6 @@ if( WIN32 )
   if( csharp_mono_valid )
     # Extract version number (eg. 2.10.2)
      # Add variable holding executable
-    set( CSHARP_MONO_COMPILER ${csharp_mono_executable} CACHE STRING "C# Mono compiler ${csharp_mono_version_temp}" FORCE )
-    mark_as_advanced( CSHARP_MONO_COMPILER )
 
     # Set interpreter
     if (EXISTS "${csharp_mono_bin_dir}/bin/mono.exe")
@@ -66,11 +64,13 @@ if( WIN32 )
         COMMAND "${csharp_mono_bin_dir}/bin/mono.exe" -V
         OUTPUT_VARIABLE csharp_mono_version_string
       )
-      message("${csharp_mono_version_string}")
       string( REGEX MATCH "([0-9]*)([.])([0-9]*)([.]*)([0-9]*)" csharp_mono_version_temp "${csharp_mono_version_string}" )
+      message("Candidate mono version ${csharp_mono_version_temp}")
 
       set( CSHARP_MONO_INTERPRETER "${csharp_mono_bin_dir}/bin/mono.exe" CACHE STRING "C# Mono interpreter ${csharp_mono_version_temp}" FORCE )
       mark_as_advanced( CSHARP_MONO_INTERPRETER )
+      set( CSHARP_MONO_COMPILER ${csharp_mono_executable} CACHE STRING "C# Mono compiler ${csharp_mono_version_temp}" FORCE )
+      mark_as_advanced( CSHARP_MONO_COMPILER )
     endif ()
   endif()
 
@@ -94,7 +94,7 @@ if( WIN32 )
     list(REMOVE_DUPLICATES RUN_PATH)
     set(CMAKE_MSVCIDE_RUN_PATH "${RUN_PATH}" CACHE STATIC "MSVC IDE Run path" FORCE)
   endif()
-else( UNIX )
+elseif( UNIX )
   # Remove temp variable from cache
   unset( csharp_mono_compiler CACHE )
 
