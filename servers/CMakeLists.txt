@@ -125,20 +125,19 @@ rendering_server.cpp
 rendering_server.h
 rendering_server_enum_casters.h
 rendering_server_enums.h
-
-
 navigation_2d_server.cpp
 navigation_2d_server.h
 navigation_server.cpp
 navigation_server.h
 )
+
 foreach(tgt ${global_targets})
     target_sources(${tgt}_engine PRIVATE
         ${SERVER_SOURCES}
         "${PROJECT_SOURCE_DIR}/thirdparty/misc/easing_equations.cpp"
     )
 endforeach()
-source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${source_files} ${header_files})
+source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${source_files})
 INSTALL (
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     DESTINATION include/SegsEngine

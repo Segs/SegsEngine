@@ -14,6 +14,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
 
 if(MSVC)
+    if (CMAKE_GENERATOR MATCHES "Ninja")
+        message(FATAL_ERROR "Ninja generator fails to create a valid build on windows, please select another generator.")
+        return()
+    endif()
+
     add_definitions(-D_CRT_SECURE_NO_WARNINGS -DNOMINMAX)
       add_compile_options (/wd4251) # disable warning related to dll interface needed ... clients of class
     if (NOT (MSVC_VERSION LESS 1910))

@@ -55,3 +55,10 @@ target_compile_definitions(bindings_generator PRIVATE GODOT_STATIC_DEFINE)
 target_include_directories(bindings_generator PRIVATE ${PROJECT_SOURCE_DIR})
 # put the bindings_generator project in a fake location ( fake since it does not match actual path)
 set_target_properties(bindings_generator PROPERTIES FOLDER utils/mono)
+
+if(WIN32 AND NOT(CMAKE_GENERATOR MATCHES "Visual Studio"))
+    #TODO: this is bonkers, we should be able to provide qt path to all code generator tools that run during build :|
+    add_custom_command(TARGET bindings_generator POST_BUILD
+        COMMAND cmake -E copy ${Qt5_BIN_DIR}/Qt5Cored.dll ${OUTPUT_DIR}
+        COMMAND cmake -E copy ${Qt5_BIN_DIR}/Qt5Core.dll ${OUTPUT_DIR})
+endif()
