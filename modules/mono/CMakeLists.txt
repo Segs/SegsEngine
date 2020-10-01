@@ -213,6 +213,7 @@ if(DOTNET_FOUND)
     ADD_DOTNET(
         editor/GodotTools/GodotTools.sln
         OUTPUT_PATH ${OUTPUT_DIR}/csharp/assemblies
+		PLATFORM x64
         ARGUMENTS -noWarn:CS1591
     )
     add_dependencies(BUILD_GodotTools BUILD_GodotCore)
