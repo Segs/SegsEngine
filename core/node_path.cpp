@@ -471,10 +471,6 @@ NodePath::NodePath(StringView p_path) {
 
 }
 
-bool NodePath::is_empty() const {
-
-    return !data;
-}
 NodePath::NodePath() = default;
 
 NodePath::~NodePath() {

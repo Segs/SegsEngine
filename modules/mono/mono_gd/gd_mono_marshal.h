@@ -208,7 +208,7 @@ _FORCE_INLINE_ String mono_string_to_godot(MonoString *p_mono_string) {
 }
 
 _FORCE_INLINE_ MonoString *mono_from_utf8_string(StringView p_string) {
-    return mono_string_new_len(mono_domain_get(), p_string.data(),p_string.size());
+    return mono_string_new_len(mono_domain_get(), p_string.data(),(uint32_t)p_string.size());
 }
 
 _FORCE_INLINE_ MonoString *mono_from_utf16_string(const UIString &p_string) {

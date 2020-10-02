@@ -201,7 +201,7 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringNam
 
         String uidname(p_guid);
         if (p_guid.empty()) {
-            int uidlen = MIN(StringView(p_name).length(), 16);
+            auto uidlen = MIN(StringView(p_name).length(), 16);
             for (int i = 0; i < uidlen; i++) {
                 uidname += _hex_str(StringView(p_name)[i]);
             }

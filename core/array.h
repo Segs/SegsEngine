@@ -70,8 +70,8 @@ public:
     void emplace_back(Variant &&p_value);
     void push_back(const Variant *entries,int count);
     _FORCE_INLINE_ void append(const Variant &p_value) { push_back(p_value); } // for python compatibility
-    void resize(int p_new_size);
-    void reserve(int p_new_size);
+    void resize(uint32_t p_new_size);
+    void reserve(uint32_t p_new_size);
 
     void insert(int p_pos, const Variant &p_value);
     void remove(int p_pos);

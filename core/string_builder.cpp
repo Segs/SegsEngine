@@ -40,7 +40,7 @@ StringBuilder &StringBuilder::append(StringView p_string) {
     strings.push_back(String(p_string));
     appended_strings.push_back(-1);
 
-    string_length += p_string.length();
+    string_length += uint32_t(p_string.length());
 
     return *this;
 }

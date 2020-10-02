@@ -94,11 +94,11 @@ public:
         Error decrypt_ecb(const uint8_t p_src[16], uint8_t r_dst[16]);
     };
 
-    static String b64_encode_str(const uint8_t *p_src, int p_src_len);
-    static Error b64_encode(uint8_t *r_dst, int p_dst_len, size_t *r_len, const uint8_t *p_src, int p_src_len);
-    static Error b64_decode(uint8_t *r_dst, int p_dst_len, size_t *r_len, const uint8_t *p_src, int p_src_len);
+    static String b64_encode_str(const uint8_t *p_src, size_t p_src_len);
+    static Error b64_encode(uint8_t *r_dst, size_t p_dst_len, size_t *r_len, const uint8_t *p_src, size_t p_src_len);
+    static Error b64_decode(uint8_t *r_dst, size_t p_dst_len, size_t *r_len, const uint8_t *p_src, size_t p_src_len);
 
-    static Error md5(const uint8_t *p_src, int p_src_len, unsigned char r_hash[16]);
-    static Error sha1(const uint8_t *p_src, int p_src_len, unsigned char r_hash[20]);
-    static Error sha256(const uint8_t *p_src, int p_src_len, unsigned char r_hash[32]);
+    static Error md5(const uint8_t *p_src, size_t p_src_len, unsigned char r_hash[16]);
+    static Error sha1(const uint8_t *p_src, size_t p_src_len, unsigned char r_hash[20]);
+    static Error sha256(const uint8_t *p_src, size_t p_src_len, unsigned char r_hash[32]);
 };

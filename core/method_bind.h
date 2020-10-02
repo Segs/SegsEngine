@@ -157,7 +157,7 @@ struct ArgumentWrapper {
         if(IDX>=p_arg_count)
         {
             ssize_t def_idx = ssize_t(default_args.size()) - IDX - 1;
-            if (def_idx < 0 || def_idx >= default_args.size())
+            if (def_idx < 0 || def_idx >= ssize_t(default_args.size()))
                 return &Variant::null_variant;
             else
                 return &default_args[IDX];
