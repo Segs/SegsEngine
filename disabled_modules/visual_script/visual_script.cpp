@@ -2717,9 +2717,7 @@ VisualScriptLanguage::VisualScriptLanguage() {
     _step = "_step";
     _subcall = "_subcall";
     singleton = this;
-#ifndef NO_THREADS
     lock = memnew(Mutex);
-#endif
 
     _debug_parse_err_node = -1;
     _debug_parse_err_file = "";

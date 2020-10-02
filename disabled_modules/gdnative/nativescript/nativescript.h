@@ -45,9 +45,7 @@
 #include "modules/gdnative/gdnative.h"
 #include <nativescript/godot_nativescript.h>
 
-#ifndef NO_THREADS
 #include "core/os/mutex.h"
-#endif
 
 struct NativeScriptDesc {
 
@@ -122,9 +120,7 @@ class NativeScript : public Script {
     String script_class_name;
     String script_class_icon_path;
 
-#ifndef NO_THREADS
     Mutex *owners_lock;
-#endif
     HashSet<Object *> instance_owners;
 
 protected:
@@ -238,14 +234,12 @@ private:
 
     void _unload_stuff(bool p_reload = false);
 
-#ifndef NO_THREADS
     Mutex *mutex;
 
     HashSet<Ref<GDNativeLibrary> > libs_to_init;
     HashSet<NativeScript *> scripts_to_register;
     volatile bool has_objects_to_register; // so that we don't lock mutex every frame - it's rarely needed
     void defer_init_library(Ref<GDNativeLibrary> lib, NativeScript *script);
-#endif
 
     void init_library(const Ref<GDNativeLibrary> &lib);
     void register_script(NativeScript *script);
@@ -286,10 +280,8 @@ public:
     StringName _terminate_call_name;
     StringName _noarg_call_type;
     StringName _frame_call_name;
-#ifndef NO_THREADS
     StringName _thread_enter_call_name;
     StringName _thread_exit_call_name;
-#endif
 
     NativeScriptLanguage();
     ~NativeScriptLanguage() override;
@@ -302,10 +294,8 @@ public:
 
     _FORCE_INLINE_ void set_language_index(int p_idx) { lang_idx = p_idx; }
 
-#ifndef NO_THREADS
     void thread_enter() override;
     void thread_exit() override;
-#endif
 
     void frame() override;
 

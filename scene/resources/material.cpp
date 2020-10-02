@@ -374,9 +374,7 @@ HashMap<SpatialMaterial::MaterialKey, SpatialMaterial::ShaderData> SpatialMateri
 
 void SpatialMaterial::init_shaders() {
 
-#ifndef NO_THREADS
     material_mutex = memnew(Mutex);
-#endif
 
     shader_names = memnew(SpatialShaderNames);
 
@@ -454,9 +452,7 @@ void SpatialMaterial::finish_shaders() {
         materials_for_2d[i].unref();
     }
 
-#ifndef NO_THREADS
     memdelete(material_mutex);
-#endif
 
     s_dirty_materials.clear();
 

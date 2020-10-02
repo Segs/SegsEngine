@@ -310,8 +310,6 @@ IP::IP() {
 }
 
 IP::~IP() {
-
-#ifndef NO_THREADS
     if (resolver->thread) {
         resolver->thread_abort = true;
         resolver->sem.post();
@@ -319,5 +317,4 @@ IP::~IP() {
         memdelete(resolver->thread);
     }
     memdelete(resolver);
-#endif
 }

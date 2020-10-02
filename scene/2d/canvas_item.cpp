@@ -69,9 +69,7 @@ CanvasItemMaterial::ShaderNames *CanvasItemMaterial::shader_names = nullptr;
 
 void CanvasItemMaterial::init_shaders() {
 
-#ifndef NO_THREADS
     material_mutex = memnew(Mutex);
-#endif
 
     shader_names = memnew(ShaderNames);
 
@@ -85,9 +83,7 @@ void CanvasItemMaterial::finish_shaders() {
     s_dirty_materials.clear();
     memdelete(shader_names);
 
-#ifndef NO_THREADS
     memdelete(material_mutex);
-#endif
 }
 
 void CanvasItemMaterial::_update_shader() {

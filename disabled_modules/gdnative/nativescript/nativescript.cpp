@@ -46,9 +46,7 @@
 
 #include <stdlib.h>
 
-#ifndef NO_THREADS
 #include "core/os/thread.h"
-#endif
 
 #if defined(TOOLS_ENABLED) && defined(DEBUG_METHODS_ENABLED)
 #include "api_generator.h"
@@ -133,11 +131,9 @@ void NativeScript::set_library(Ref<GDNativeLibrary> p_library) {
     library = p_library;
     lib_path = library->get_current_library_path();
 
-#ifndef NO_THREADS
     if (Thread::get_caller_id() != Thread::get_main_id()) {
         NSL->defer_init_library(p_library, this);
     } else
-#endif
     {
         NSL->init_library(p_library);
         NSL->register_script(this);
@@ -225,15 +221,11 @@ ScriptInstance *NativeScript::instance_create(Object *p_this) {
     nsi->userdata = script_data->create_func.create_func((godot_object *)p_this, script_data->create_func.method_data);
 #endif
 
-#ifndef NO_THREADS
     owners_lock->lock();
-#endif
 
     instance_owners.insert(p_this);
 
-#ifndef NO_THREADS
     owners_lock->unlock();
-#endif
 
     return nsi;
 }
@@ -529,17 +521,13 @@ Variant NativeScript::_new(const Variant **p_args, int p_argcount, Callable::Cal
 NativeScript::NativeScript() : library(Ref<GDNativeLibrary>()) {
     lib_path = "";
     class_name = "";
-#ifndef NO_THREADS
     owners_lock = memnew(Mutex);
-#endif
 }
 
 NativeScript::~NativeScript() {
     NSL->unregister_script(this);
 
-#ifndef NO_THREADS
     memdelete(owners_lock);
-#endif
 }
 
 #define GET_SCRIPT_DESC() script->get_script_desc()
@@ -916,15 +904,11 @@ NativeScriptInstance::~NativeScriptInstance() {
 
     if (owner) {
 
-#ifndef NO_THREADS
         script->owners_lock->lock();
-#endif
 
         script->instance_owners.erase(owner);
 
-#ifndef NO_THREADS
         script->owners_lock->unlock();
-#endif
     }
 }
 
@@ -1019,10 +1003,8 @@ void NativeScriptLanguage::_unload_stuff(bool p_reload) {
 
 NativeScriptLanguage::NativeScriptLanguage() {
     NativeScriptLanguage::singleton = this;
-#ifndef NO_THREADS
     has_objects_to_register = false;
     mutex = memnew(Mutex);
-#endif
 
 #ifdef DEBUG_ENABLED
     profiling = false;
@@ -1033,10 +1015,8 @@ NativeScriptLanguage::NativeScriptLanguage() {
     _terminate_call_name = "nativescript_terminate";
     _noarg_call_type = "nativescript_no_arg";
     _frame_call_name = "nativescript_frame";
-#ifndef NO_THREADS
     _thread_enter_call_name = "nativescript_thread_enter";
     _thread_exit_call_name = "nativescript_thread_exit";
-#endif
 }
 
 NativeScriptLanguage::~NativeScriptLanguage() {
@@ -1059,9 +1039,7 @@ NativeScriptLanguage::~NativeScriptLanguage() {
     NSL->library_gdnatives.clear();
     NSL->library_script_users.clear();
 
-#ifndef NO_THREADS
     memdelete(mutex);
-#endif
 }
 
 String NativeScriptLanguage::get_name() const {
@@ -1188,9 +1166,7 @@ void NativeScriptLanguage::get_public_constants(List<Pair<String, Variant> > *p_
 
 void NativeScriptLanguage::profiling_start() {
 #ifdef DEBUG_ENABLED
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
 
     profile_data.clear();
     profiling = true;
@@ -1199,9 +1175,7 @@ void NativeScriptLanguage::profiling_start() {
 
 void NativeScriptLanguage::profiling_stop() {
 #ifdef DEBUG_ENABLED
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
 
     profiling = false;
 #endif
@@ -1209,9 +1183,7 @@ void NativeScriptLanguage::profiling_stop() {
 
 int NativeScriptLanguage::profiling_get_accumulated_data(ProfilingInfo *p_info_arr, int p_info_max) {
 #ifdef DEBUG_ENABLED
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
     int current = 0;
 
     for (eastl::pair<const StringName,ProfileData> &d : profile_data) {
@@ -1233,9 +1205,7 @@ int NativeScriptLanguage::profiling_get_accumulated_data(ProfilingInfo *p_info_a
 
 int NativeScriptLanguage::profiling_get_frame_data(ProfilingInfo *p_info_arr, int p_info_max) {
 #ifdef DEBUG_ENABLED
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
     int current = 0;
 
     for (eastl::pair<const StringName,ProfileData> &d : profile_data) {
@@ -1259,9 +1229,7 @@ int NativeScriptLanguage::profiling_get_frame_data(ProfilingInfo *p_info_arr, in
 
 void NativeScriptLanguage::profiling_add_data(StringName p_signature, uint64_t p_time) {
 #ifdef DEBUG_ENABLED
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
 
     Map<StringName, ProfileData>::iterator d = profile_data.find(p_signature);
     if (d!=profile_data.end()) {
@@ -1470,19 +1438,15 @@ const void *NativeScriptLanguage::get_global_type_tag(int p_idx, StringName p_cl
     return tag;
 }
 
-#ifndef NO_THREADS
 void NativeScriptLanguage::defer_init_library(Ref<GDNativeLibrary> lib, NativeScript *script) {
     MutexLock lock(*mutex);
     libs_to_init.insert(lib);
     scripts_to_register.insert(script);
     has_objects_to_register = true;
 }
-#endif
 
 void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
     // See if this library was "registered" already.
     const String &lib_path = lib->get_current_library_path();
     ERR_FAIL_COND_MSG(lib_path.length() == 0, lib->get_name() + " does not have a library for the current platform.");
@@ -1517,16 +1481,12 @@ void NativeScriptLanguage::init_library(const Ref<GDNativeLibrary> &lib) {
 }
 
 void NativeScriptLanguage::register_script(NativeScript *script) {
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
     library_script_users[script->lib_path].insert(script);
 }
 
 void NativeScriptLanguage::unregister_script(NativeScript *script) {
-#ifndef NO_THREADS
     MutexLock lock(*mutex);
-#endif
     Map<String, HashSet<NativeScript *> >::iterator S = library_script_users.find(script->lib_path);
     if (S!=library_script_users.end()) {
         S->second.erase(script);
@@ -1534,9 +1494,7 @@ void NativeScriptLanguage::unregister_script(NativeScript *script) {
             library_script_users.erase(S);
         }
     }
-#ifndef NO_THREADS
     scripts_to_register.erase(script);
-#endif
 }
 
 void NativeScriptLanguage::call_libraries_cb(const StringName &name) {
@@ -1560,7 +1518,6 @@ void NativeScriptLanguage::call_libraries_cb(const StringName &name) {
 }
 
 void NativeScriptLanguage::frame() {
-#ifndef NO_THREADS
     if (has_objects_to_register) {
         MutexLock lock(*mutex);
         for (const Ref<GDNativeLibrary> &L : libs_to_init) {
@@ -1573,13 +1530,10 @@ void NativeScriptLanguage::frame() {
         scripts_to_register.clear();
         has_objects_to_register = false;
     }
-#endif
 
 #ifdef DEBUG_ENABLED
     {
-#ifndef NO_THREADS
         MutexLock lock(*mutex);
-#endif
 
         for (eastl::pair<const StringName,ProfileData> &d : profile_data) {
             d.second.last_frame_call_count = d.second.frame_call_count;
@@ -1595,8 +1549,6 @@ void NativeScriptLanguage::frame() {
     call_libraries_cb(_frame_call_name);
 }
 
-#ifndef NO_THREADS
-
 void NativeScriptLanguage::thread_enter() {
     call_libraries_cb(_thread_enter_call_name);
 }
@@ -1604,8 +1556,6 @@ void NativeScriptLanguage::thread_enter() {
 void NativeScriptLanguage::thread_exit() {
     call_libraries_cb(_thread_exit_call_name);
 }
-
-#endif // NO_THREADS
 
 bool NativeScriptLanguage::handles_global_class_type(StringView p_type) const {
     return p_type.compare("NativeScript")==0;
@@ -1641,9 +1591,7 @@ void NativeReloadNode::_notification(int p_what) {
 
             if (unloaded)
                 break;
-#ifndef NO_THREADS
             MutexLock lock(*NSL->mutex);
-#endif
             NSL->_unload_stuff(true);
 
             for (eastl::pair<const String,Ref<GDNative> > &L : NSL->library_gdnatives) {
@@ -1678,9 +1626,8 @@ void NativeReloadNode::_notification(int p_what) {
 
             if (!unloaded)
                 break;
-#ifndef NO_THREADS
+
             MutexLock lock(*NSL->mutex);
-#endif
             HashSet<StringName> libs_to_remove;
             for (eastl::pair<const String,Ref<GDNative> > &L : NSL->library_gdnatives) {
 
