@@ -3319,7 +3319,7 @@ void RasterizerSceneGLES3::_render_mrts(Environment *env, const CameraMatrix &p_
 
         glBindFramebuffer(GL_FRAMEBUFFER, storage->frame.current_rt->effects.ssao.blur_fbo[0]); //copy to front first
         Color white(1, 1, 1, 1);
-        glClearBufferfv(GL_COLOR, 0, white.components); // specular
+        glClearBufferfv(GL_COLOR, 0, &white.r); // specular
 
         _copy_screen(true);
 
@@ -3347,7 +3347,7 @@ void RasterizerSceneGLES3::_render_mrts(Environment *env, const CameraMatrix &p_
                 glBindTexture(GL_TEXTURE_2D, storage->frame.current_rt->buffers.effect);
                 glBindFramebuffer(GL_FRAMEBUFFER, storage->frame.current_rt->effects.ssao.blur_fbo[1 - i]);
                 if (i == 0) {
-                    glClearBufferfv(GL_COLOR, 0, white.components); // specular
+                    glClearBufferfv(GL_COLOR, 0, &white.r); // specular
                 }
                 _copy_screen(true);
             }
@@ -4218,10 +4218,10 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
             glDrawBuffers(draw_buffers.size(), draw_buffers.data());
 
             Color black(0, 0, 0, 0);
-            glClearBufferfv(GL_COLOR, 1, black.components); // specular
-            glClearBufferfv(GL_COLOR, 2, black.components); // normal metal rough
+            glClearBufferfv(GL_COLOR, 1, &black.r); // specular
+            glClearBufferfv(GL_COLOR, 2, &black.r); // normal metal rough
             if (state.used_sss) {
-                glClearBufferfv(GL_COLOR, 3, black.components); // normal metal rough
+                glClearBufferfv(GL_COLOR, 3, &black.r); // normal metal rough
             }
 
         } else {
@@ -4294,7 +4294,7 @@ void RasterizerSceneGLES3::render_scene(const Transform &p_cam_transform, const 
     }
 
     if (!env || env->bg_mode != RS::ENV_BG_KEEP) {
-        glClearBufferfv(GL_COLOR, 0, clear_color.components); // specular
+        glClearBufferfv(GL_COLOR, 0, &clear_color.r); // specular
     }
 
     RS::EnvironmentBG bg_mode = (!env || (probe && env->bg_mode == RS::ENV_BG_CANVAS)) ? RS::ENV_BG_CLEAR_COLOR : env->bg_mode; //if no environment, or canvas while rendering a probe (invalid use case), use color.

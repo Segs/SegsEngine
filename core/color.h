@@ -35,16 +35,10 @@
 
 struct GODOT_EXPORT Color {
 
-    union {
-
-        struct {
-            float r;
-            float g;
-            float b;
-            float a;
-        };
-        float components[4] = {0,0,0,1.0f};
-    };
+    float r=0.0f;
+    float g=0.0f;
+    float b=0.0f;
+    float a=1.0f;
 
     constexpr bool operator==(Color p_color) const { return (r == p_color.r && g == p_color.g && b == p_color.b && a == p_color.a); }
     constexpr bool operator!=(Color p_color) const { return (r != p_color.r || g != p_color.g || b != p_color.b || a != p_color.a); }
@@ -62,10 +56,10 @@ struct GODOT_EXPORT Color {
     void set_hsv(float p_h, float p_s, float p_v, float p_alpha = 1.0);
 
     _FORCE_INLINE_ float &operator[](int idx) {
-        return components[idx];
+        return (&r)[idx];
     }
     _FORCE_INLINE_ float operator[](int idx) const {
-        return components[idx];
+        return (&r)[idx];
     }
 
     Color operator+(const Color &p_color) const;
@@ -179,7 +173,7 @@ struct GODOT_EXPORT Color {
 
     _FORCE_INLINE_ bool operator<(const Color &p_color) const; //used in set keys
     operator String() const;
-
+    float *components() { return &r; }
     /**
      * No construct parameters, r=0, g=0, b=0. a=255
      */
