@@ -31,7 +31,7 @@
 #ifndef THREAD_POSIX_H
 #define THREAD_POSIX_H
 
-#if (defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED)) && !defined(NO_THREADS)
+#if (defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED))
 
 #include "core/os/thread.h"
 #include <pthread.h>

@@ -170,9 +170,6 @@ void NoiseTexture::_update_texture() {
         use_thread = false;
         first_time = false;
     }
-#ifdef NO_THREADS
-    use_thread = false;
-#endif
     if (use_thread) {
 
         if (!noise_thread) {

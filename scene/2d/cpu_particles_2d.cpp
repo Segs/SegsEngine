@@ -859,9 +859,9 @@ void CPUParticles2D::_particles_process(float p_delta) {
 }
 
 void CPUParticles2D::_update_particle_data_buffer() {
-#ifndef NO_THREADS
+
     update_mutex->lock();
-#endif
+
 
     {
 
@@ -927,19 +927,17 @@ void CPUParticles2D::_update_particle_data_buffer() {
             ptr += 13;
         }
     }
-
-#ifndef NO_THREADS
     update_mutex->unlock();
-#endif
+
 }
 
 void CPUParticles2D::_set_redraw(bool p_redraw) {
     if (redraw == p_redraw)
         return;
     redraw = p_redraw;
-#ifndef NO_THREADS
+
     update_mutex->lock();
-#endif
+
     auto RS = RenderingServer::get_singleton();
     if (redraw) {
         RS->connect("frame_pre_draw",callable_mp(this, &ClassName::_update_render_thread));
@@ -954,23 +952,19 @@ void CPUParticles2D::_set_redraw(bool p_redraw) {
 
         RS->multimesh_set_visible_instances(multimesh, 0);
     }
-#ifndef NO_THREADS
+
     update_mutex->unlock();
-#endif
+
     update(); // redraw to update render list
 }
 
 void CPUParticles2D::_update_render_thread() {
 
-#ifndef NO_THREADS
     update_mutex->lock();
-#endif
 
     RenderingServer::get_singleton()->multimesh_set_as_bulk_array(multimesh, particle_data);
 
-#ifndef NO_THREADS
     update_mutex->unlock();
-#endif
 }
 
 void CPUParticles2D::_notification(int p_what) {
@@ -978,12 +972,10 @@ void CPUParticles2D::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
         set_process_internal(emitting);
     }
-
-    if (p_what == NOTIFICATION_EXIT_TREE) {
+    else if (p_what == NOTIFICATION_EXIT_TREE) {
         _set_redraw(false);
     }
-
-    if (p_what == NOTIFICATION_DRAW) {
+    else if (p_what == NOTIFICATION_DRAW) {
         // first update before rendering to avoid one frame delay after emitting starts
         if (emitting && (time == 0.0f))
             _update_internal();
@@ -1003,44 +995,43 @@ void CPUParticles2D::_notification(int p_what) {
 
         RenderingServer::get_singleton()->canvas_item_add_multimesh(get_canvas_item(), multimesh, texrid, normrid);
     }
-
-    if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
+    else if (p_what == NOTIFICATION_INTERNAL_PROCESS) {
         _update_internal();
     }
 
-    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
+    else if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
 
         inv_emission_transform = get_global_transform().affine_inverse();
 
-        if (!local_coords) {
+        if (local_coords)
+            return;
 
-            int pc = particles.size();
+        int pc = particles.size();
 
-            PoolVector<float>::Write w = particle_data.write();
-            PoolVector<Particle>::Read r = particles.read();
-            float *ptr = w.ptr();
+        PoolVector<float>::Write w = particle_data.write();
+        PoolVector<Particle>::Read r = particles.read();
+        float *ptr = w.ptr();
 
-            for (int i = 0; i < pc; i++) {
+        for (int i = 0; i < pc; i++) {
 
-                Transform2D t = inv_emission_transform * r[i].transform;
+            Transform2D t = inv_emission_transform * r[i].transform;
 
-                if (r[i].active) {
+            if (r[i].active) {
 
-                    ptr[0] = t.elements[0][0];
-                    ptr[1] = t.elements[1][0];
-                    ptr[2] = 0;
-                    ptr[3] = t.elements[2][0];
-                    ptr[4] = t.elements[0][1];
-                    ptr[5] = t.elements[1][1];
-                    ptr[6] = 0;
-                    ptr[7] = t.elements[2][1];
+                ptr[0] = t.elements[0][0];
+                ptr[1] = t.elements[1][0];
+                ptr[2] = 0;
+                ptr[3] = t.elements[2][0];
+                ptr[4] = t.elements[0][1];
+                ptr[5] = t.elements[1][1];
+                ptr[6] = 0;
+                ptr[7] = t.elements[2][1];
 
-                } else {
-                    memset(ptr, 0, sizeof(float) * 8);
-                }
-
-                ptr += 13;
+            } else {
+                memset(ptr, 0, sizeof(float) * 8);
             }
+
+            ptr += 13;
         }
     }
 }
@@ -1448,9 +1439,7 @@ CPUParticles2D::CPUParticles2D() {
 
     set_color(Color(1, 1, 1, 1));
 
-#ifndef NO_THREADS
     update_mutex = memnew(Mutex);
-#endif
 
     _update_mesh_texture();
 }
@@ -1459,8 +1448,6 @@ CPUParticles2D::~CPUParticles2D() {
     RenderingServer::get_singleton()->free_rid(multimesh);
     RenderingServer::get_singleton()->free_rid(mesh);
 
-#ifndef NO_THREADS
     memdelete(update_mutex);
-#endif
 }
 

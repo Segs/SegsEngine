@@ -124,14 +124,9 @@ int OS_Unix::unix_initialize_audio(int p_audio_driver) {
 
 void OS_Unix::initialize_core() {
 
-#ifdef NO_THREADS
-    ThreadDummy::make_default();
-    SemaphoreDummy::make_default();
-    RWLockDummy::make_default();
-#else
     ThreadPosix::make_default();
     RWLockPosix::make_default();
-#endif
+
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
     FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);

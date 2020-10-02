@@ -31,7 +31,7 @@
 #include "thread_posix.h"
 #include "core/script_language.h"
 
-#if (defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED)) && !defined(NO_THREADS)
+#if (defined(UNIX_ENABLED) || defined(PTHREAD_ENABLED))
 
 #ifdef PTHREAD_BSD_SET_NAME
 #include <pthread_np.h>

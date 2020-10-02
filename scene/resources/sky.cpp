@@ -412,9 +412,6 @@ void ProceduralSky::_update_sky() {
         use_thread = false;
         first_time = false;
     }
-#ifdef NO_THREADS
-    use_thread = false;
-#endif
     if (use_thread) {
 
         if (!sky_thread) {

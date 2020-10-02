@@ -213,11 +213,7 @@ void image_compress_cvtt(Image *p_image, float p_lossy_quality, ImageUsedChannel
     job_queue.job_params.options = options;
     job_queue.job_params.bytes_per_pixel = is_hdr ? 6 : 4;
 
-#ifdef NO_THREADS
-    int num_job_threads = 0;
-#else
     int num_job_threads = OS::get_singleton()->can_use_threads() ? (OS::get_singleton()->get_processor_count() - 1) : 0;
-#endif
 
     PoolVector<CVTTCompressionRowTask> tasks;
 

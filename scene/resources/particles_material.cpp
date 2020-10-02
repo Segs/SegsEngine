@@ -172,17 +172,13 @@ VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
 
 void ParticlesMaterial::init_shaders() {
     ERR_FAIL_COND_MSG(material_mutex!=nullptr,"Cannot reinitialize shaders without calling finish_shaders beforehand");
-#ifndef NO_THREADS
     material_mutex = memnew(Mutex);
-#endif
     shader_names = memnew(ShaderNames);
 }
 
 void ParticlesMaterial::finish_shaders() {
 
-#ifndef NO_THREADS
     memdelete(material_mutex);
-#endif
 
     s_dirty_materials.clear();
 
