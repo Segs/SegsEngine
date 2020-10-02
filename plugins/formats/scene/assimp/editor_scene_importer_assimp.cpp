@@ -825,7 +825,7 @@ void EditorSceneImporterAssimp::_import_animation(ImportState &state, int p_anim
         if (allocated_node) {
             node_path = state.root->get_path_to(allocated_node);
 
-            if (node_path != NodePath()) {
+            if (!node_path.is_empty()) {
                 _insert_animation_track(state, anim, i, p_bake_fps, animation, ticks_per_second, skeleton,
                         node_path, node_name, nullptr);
             }

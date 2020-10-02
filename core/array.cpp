@@ -191,12 +191,12 @@ void Array::push_back(const Variant *entries,int count)
     _p->array.insert(_p->array.end(),entries,entries+count);
 }
 
-void Array::resize(int p_new_size) {
+void Array::resize(uint32_t p_new_size) {
 
     _p->array.resize(p_new_size);
 }
 
-void Array::reserve(int p_new_size) {
+void Array::reserve(uint32_t p_new_size) {
 
     _p->array.reserve(p_new_size);
 }

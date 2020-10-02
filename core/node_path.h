@@ -78,7 +78,9 @@ public:
 
     explicit operator String() const;
 
-    bool is_empty() const; //!< this function only checks if `data` is set/allocated
+    //!< this function only checks if `data` is set/allocated
+    bool is_empty() const { return !data; }
+
     bool empty() const noexcept;
 
     bool operator==(const NodePath &p_path) const;

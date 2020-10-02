@@ -118,7 +118,7 @@ void TriangulatorPoly::Invert() {
 
 TriangulatorPoint TriangulatorPartition::Normalize(const TriangulatorPoint &p) {
     TriangulatorPoint r;
-    real_t n = sqrt(p.x*p.x + p.y*p.y);
+    real_t n = sqrtf(p.x*p.x + p.y*p.y);
     if(n!=0) {
         r = p/n;
     } else {

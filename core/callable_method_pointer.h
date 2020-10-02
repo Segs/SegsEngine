@@ -44,7 +44,7 @@
 struct FunctorCallable : CallableCustom
 {
 private:
-    uint32_t h;
+    const uint32_t h;
     const char *m_filename;
     int m_line;
 public:
@@ -52,10 +52,10 @@ public:
     eastl::function<void()> m_func;
 
     FunctorCallable(ObjectID holder, eastl::function<void()> f,const char *func=nullptr,int line=0) :
-        m_holder(holder), m_func(eastl::move(f)), m_filename(func), m_line(line)
-    {
         // dangerous code
-        h = hash_djb2_buffer((const uint8_t *)&f,sizeof(eastl::function<void()>));
+        h(hash_djb2_buffer((const uint8_t *)&f,sizeof(eastl::function<void()>))),
+        m_filename(func), m_line(line),m_holder(holder), m_func(eastl::move(f))
+    {
     }
 
     uint32_t hash() const override

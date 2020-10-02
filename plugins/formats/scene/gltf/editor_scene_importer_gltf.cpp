@@ -51,9 +51,11 @@
 #include "scene/resources/texture.h"
 #include "scene/3d/skeleton_3d.h"
 #include "scene/3d/node_3d.h"
+#include "scene/3d/light_3d.h"
 
 #include "EASTL/sort.h"
 #include "EASTL/deque.h"
+
 
 #include <QtCore/QRegularExpression>
 
@@ -79,6 +81,7 @@ namespace {
     typedef int GLTFImageIndex;
     typedef int GLTFMaterialIndex;
     typedef int GLTFMeshIndex;
+    typedef int GLTFLightIndex;
     typedef int GLTFNodeIndex;
     typedef int GLTFSkeletonIndex;
     typedef int GLTFSkinIndex;
@@ -115,37 +118,26 @@ namespace {
 
     struct GLTFNode {
         //matrices need to be transformed to this
-        GLTFNodeIndex parent;
-        int height;
+        GLTFNodeIndex parent = -1;
+        int height = -1;
 
         Transform xform;
         StringName name;
 
-        GLTFMeshIndex mesh;
-        GLTFCameraIndex camera;
-        GLTFSkinIndex skin;
+        GLTFMeshIndex mesh = -1;
+        GLTFCameraIndex camera = -1;
+        GLTFSkinIndex skin = -1;
 
-        GLTFSkeletonIndex skeleton;
-        bool joint;
+        GLTFSkeletonIndex skeleton = -1;
+        bool joint = false;
 
-        Vector3 translation;
+        Vector3 translation = Vector3(0, 0, 0);
         Quat rotation;
-        Vector3 scale;
+        Vector3 scale = Vector3(1, 1, 1);
 
         Vector<int> children;
-        GLTFNodeIndex fake_joint_parent;
-
-        GLTFNode() :
-            parent(-1),
-            height(-1),
-            mesh(-1),
-            camera(-1),
-            skin(-1),
-            skeleton(-1),
-            joint(false),
-            translation(0, 0, 0),
-            scale(Vector3(1, 1, 1)),
-            fake_joint_parent(-1) {}
+        GLTFNodeIndex fake_joint_parent=-1;
+        GLTFLightIndex light = -1;
     };
 
     struct GLTFBufferView {
@@ -252,19 +244,19 @@ namespace {
 
     struct GLTFCamera {
 
-        bool perspective;
-        float fov_size;
-        float zfar;
-        float znear;
-
-        GLTFCamera() {
-            perspective = true;
-            fov_size = 65;
-            zfar = 500;
-            znear = 0.1f;
-        }
+        bool perspective=true;
+        float fov_size=65.0f;
+        float zfar=500.0f;
+        float znear=0.1f;
     };
-
+    struct GLTFLight {
+        Color color = Color(1.0f, 1.0f, 1.0f);
+        float intensity = 1.0f;
+        String type = "";
+        float range = Math_INF;
+        float inner_cone_angle = 0.0f;
+        float outer_cone_angle = Math_PI / 4.0f;
+    };
     struct GLTFAnimation {
 
         enum Interpolation {
@@ -317,6 +309,7 @@ namespace {
 
         Vector<GLTFSkin> skins;
         Vector<GLTFCamera> cameras;
+        Vector<GLTFLight> lights;
 
         Set<String> unique_names;
 
@@ -808,7 +801,16 @@ namespace {
                 node->xform.basis.set_quat_scale(node->rotation, node->scale);
                 node->xform.origin = node->translation;
             }
-
+		    if (n.has("extensions")) {
+			    Dictionary extensions = (Dictionary)n["extensions"];
+			    if (extensions.has("KHR_lights_punctual")) {
+				    Dictionary lights_punctual = (Dictionary)extensions["KHR_lights_punctual"];
+				    if (lights_punctual.has("light")) {
+					    GLTFLightIndex light = (GLTFLightIndex)lights_punctual["light"];
+					    node->light = light;
+				    }
+			    }
+		    }
             if (n.has("children")) {
                 const Array children = n["children"].as<Array>();
                 for (int j = 0; j < children.size(); j++) {
@@ -2615,6 +2617,58 @@ namespace {
             }
         }
     }
+    Error _parse_lights(GLTFState& state) {
+        if (!state.json.has("extensions")) {
+            return OK;
+        }
+        Dictionary extensions = (Dictionary)state.json["extensions"];
+        if (!extensions.has("KHR_lights_punctual")) {
+            return OK;
+        }
+        Dictionary lights_punctual = (Dictionary)extensions["KHR_lights_punctual"];
+        if (!lights_punctual.has("lights")) {
+            return OK;
+        }
+
+        const Array lights = (Array)lights_punctual["lights"];
+
+        for (GLTFLightIndex light_i = 0; light_i < lights.size(); light_i++) {
+            const Dictionary d = (Dictionary)lights[light_i];
+
+            GLTFLight light;
+            ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
+            const String type = (String)d["type"];
+            light.type = type;
+
+            if (d.has("color")) {
+                const Array arr = (Array)d["color"];
+                ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
+                const Color c = Color((float)arr[0], (float)arr[1], (float)arr[2]).to_srgb();
+                light.color = c;
+            }
+            if (d.has("intensity")) {
+                light.intensity = (float)d["intensity"];
+            }
+            if (d.has("range")) {
+                light.range = (float)d["range"];
+            }
+            if (type == "spot") {
+                const Dictionary spot = (Dictionary)d["spot"];
+                light.inner_cone_angle = (float)spot["innerConeAngle"];
+                light.outer_cone_angle = (float)spot["outerConeAngle"];
+                ERR_FAIL_COND_V_MSG(light.inner_cone_angle >= light.outer_cone_angle, ERR_PARSE_ERROR, "The inner angle must be smaller than the outer angle.");
+            }
+            else if (type != "point" && type != "directional") {
+                ERR_FAIL_V_MSG(ERR_PARSE_ERROR, "Light type is unknown.");
+            }
+
+            state.lights.emplace_back(eastl::move(light));
+        }
+
+        print_verbose("glTF: Total lights: " + itos(state.lights.size()));
+
+        return OK;
+    }
     Error _parse_cameras(GLTFState& state) {
 
         if (!state.json.has("cameras"))
@@ -2874,6 +2928,57 @@ namespace {
 
         return mi;
     }
+    Light3D *_generate_light(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
+        const GLTFNode* gltf_node = state.nodes[node_index];
+
+        ERR_FAIL_INDEX_V(gltf_node->light, state.lights.size(), nullptr);
+
+        print_verbose("glTF: Creating light for: " + gltf_node->name);
+
+        const GLTFLight& l = state.lights[gltf_node->light];
+
+        float intensity = l.intensity;
+        if (intensity > 10) {
+            // GLTF spec has the default around 1, but Blender defaults lights to 100.
+            // The only sane way to handle this is to check where it came from and
+            // handle it accordingly. If it's over 10, it probably came from Blender.
+            intensity /= 100;
+        }
+
+        if (l.type == "directional") {
+            DirectionalLight3D* light = memnew(DirectionalLight3D);
+            light->set_param(Light3D::PARAM_ENERGY, intensity);
+            light->set_color(l.color);
+            return light;
+        }
+
+        const float range = CLAMP(l.range, 0, 4096);
+        // Doubling the range will double the effective brightness, so we need double attenuation (half brightness).
+        // We want to have double intensity give double brightness, so we need half the attenuation.
+        const float attenuation = range / intensity;
+        if (l.type == "point") {
+            OmniLight3D* light = memnew(OmniLight3D);
+            light->set_param(OmniLight3D::PARAM_ATTENUATION, attenuation);
+            light->set_param(OmniLight3D::PARAM_RANGE, range);
+            light->set_color(l.color);
+            return light;
+        }
+        if (l.type == "spot") {
+            SpotLight3D* light = memnew(SpotLight3D);
+            light->set_param(SpotLight3D::PARAM_ATTENUATION, attenuation);
+            light->set_param(SpotLight3D::PARAM_RANGE, range);
+            light->set_param(SpotLight3D::PARAM_SPOT_ANGLE, Math::rad2deg(l.outer_cone_angle));
+            light->set_color(l.color);
+
+            // Line of best fit derived from guessing, see https://www.desmos.com/calculator/biiflubp8b
+            // The points in desmos are not exact, except for (1, infinity).
+            float angle_ratio = l.inner_cone_angle / l.outer_cone_angle;
+            float angle_attenuation = 0.2 / (1 - angle_ratio) - 0.1;
+            light->set_param(SpotLight3D::PARAM_SPOT_ATTENUATION, angle_attenuation);
+            return light;
+        }
+        return nullptr;
+    }
 
     Camera3D* _generate_camera(GLTFState& state, Node* scene_parent, const GLTFNodeIndex node_index) {
         const GLTFNode* gltf_node = state.nodes[node_index];
@@ -2951,6 +3056,9 @@ namespace {
             }
             else if (gltf_node->camera >= 0) {
                 current_node = _generate_camera(state, scene_parent, node_index);
+            }
+            else if (gltf_node->light >= 0) {
+                current_node = _generate_light(state, scene_parent, node_index);
             }
             else {
                 current_node = _generate_spatial(state, scene_parent, node_index);
@@ -3333,20 +3441,26 @@ Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags,
     if (err != OK)
         return nullptr;
 
-    /* STEP 14 PARSE CAMERAS */
+    /* STEP 14 PARSE LIGHTS */
+    err = _parse_lights(state);
+    if (err != OK) {
+        return nullptr;
+    }
+
+    /* STEP 15 PARSE CAMERAS */
     err = _parse_cameras(state);
     if (err != OK)
         return nullptr;
 
-    /* STEP 15 PARSE ANIMATIONS */
+    /* STEP 16 PARSE ANIMATIONS */
     err = _parse_animations(state);
     if (err != OK)
         return nullptr;
 
-    /* STEP 16 ASSIGN SCENE NAMES */
+    /* STEP 17 ASSIGN SCENE NAMES */
     _assign_scene_names(state);
 
-    /* STEP 17 MAKE SCENE! */
+    /* STEP 18 MAKE SCENE! */
     Node3D *scene = _generate_scene(state, p_bake_fps);
 
     return scene;

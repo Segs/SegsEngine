@@ -1249,14 +1249,14 @@ void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
         for (i = 0; i <= (subdivide_w + 1); i++) {
             float u = i;
             float v = j;
-            u /= (3.0 * (subdivide_w + 1.0));
-            v /= (2.0 * (subdivide_d + 1.0));
+            u /= (3.0f * (subdivide_w + 1.0f));
+            v /= (2.0f * (subdivide_d + 1.0f));
 
             /* bottom */
             points.push_back(Vector3(x, start_pos.y, -z));
-            normals.push_back(Vector3(0.0, -1.0, 0.0));
+            normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
             ADD_TANGENT(1.0, 0.0, 0.0, 1.0);
-            uvs.push_back(Vector2(twothirds + u, 0.5 + v));
+            uvs.push_back(Vector2(twothirds + u, 0.5f + v));
             point++;
 
             if (i > 0 && j > 0) {
@@ -1269,10 +1269,10 @@ void PrismMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
                 indices.push_back(thisrow + i - 1);
             };
 
-            x += size.x / (subdivide_w + 1.0);
+            x += size.x / (subdivide_w + 1.0f);
         };
 
-        z += size.z / (subdivide_d + 1.0);
+        z += size.z / (subdivide_d + 1.0f);
         prevrow = thisrow;
         thisrow = point;
     };
@@ -1440,7 +1440,7 @@ Size2 QuadMesh::get_size() const {
 
 void SphereMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
     int i, j, prevrow, thisrow, point;
-    float x, y, z;
+    float y;
 
     // set our bounding box
 
@@ -1465,14 +1465,14 @@ void SphereMesh::_create_mesh_array(SurfaceArrays &p_arr) const {
 
         v /= (rings + 1);
         w = sin(Math_PI * v);
-        y = height * (is_hemisphere ? 1.0 : 0.5) * cos(Math_PI * v);
+        y = height * (is_hemisphere ? 1.0f : 0.5f) * std::cos(Math_PI * v);
 
         for (i = 0; i <= radial_segments; i++) {
             float u = i;
             u /= radial_segments;
 
-            x = sin(u * (Math_PI * 2.0));
-            z = cos(u * (Math_PI * 2.0));
+            float x = std::sin(u * (Math_PI * 2.0f));
+            float z = std::cos(u * (Math_PI * 2.0f));
 
             if (is_hemisphere && y < 0.0) {
                 points.push_back(Vector3(x * radius * w, 0.0, z * radius * w));

@@ -152,18 +152,13 @@ struct GODOT_EXPORT Vector3 {
     _FORCE_INLINE_ bool operator>=(const Vector3 &p_v) const;
 
     operator String() const;
-    explicit operator Vector3i() const {
-        return Vector3i(x, y, z);
+    explicit constexpr operator Vector3i() const {
+        return Vector3i((int)x, (int)y, (int)z);
     }
 
-    explicit Vector3(const Vector3i &p_ivec) {
-        x = p_ivec.x;
-        y = p_ivec.y;
-        z = p_ivec.z;
-    }
-    constexpr Vector3() noexcept : x(0),y(0),z(0) {}
-    constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) noexcept : x(p_x),y(p_y),z(p_z) {
-    }
+    explicit constexpr Vector3(const Vector3i &p_ivec) : x(p_ivec.x),y(p_ivec.y),z(p_ivec.z) {}
+    constexpr Vector3() noexcept : Vector3(0,0,0) {}
+    constexpr Vector3(real_t p_x, real_t p_y, real_t p_z) noexcept : x(p_x),y(p_y),z(p_z) {}
 };
 static_assert (std::is_trivially_copyable<Vector3>() );
 

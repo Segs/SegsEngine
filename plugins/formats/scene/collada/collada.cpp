@@ -298,7 +298,7 @@ void Collada::_parse_asset(XMLParser &parser) {
                 COLLADA_PRINT("up axis: " + parser.get_node_data());
             } else if (name == "unit") {
 
-                state.unit_scale = StringUtils::to_double(parser.get_attribute_value("meter"));
+                state.unit_scale = StringUtils::to_float(parser.get_attribute_value("meter"));
                 COLLADA_PRINT("unit scale: " + rtos(state.unit_scale));
             }
 
@@ -469,7 +469,7 @@ Transform Collada::_read_transform(XMLParser &parser) {
     Vector<float> farr;
     farr.resize(16);
     for (int i = 0; i < 16; i++) {
-        farr[i] = StringUtils::to_double(array[i]);
+        farr[i] = StringUtils::to_float(array[i]);
     }
 
     return _read_transform_from_array(farr);
@@ -511,7 +511,7 @@ Variant Collada::_parse_param(XMLParser &parser) {
             parser.read();
             if (parser.get_node_type() == XMLParser::NODE_TEXT) {
 
-                data = StringUtils::to_double(parser.get_node_data());
+                data = StringUtils::to_float(parser.get_node_data());
             }
         } else if (parser.get_node_name() == "float2") {
 
@@ -799,35 +799,35 @@ void Collada::_parse_camera(XMLParser &parser) {
             } else if (name == "xfov") {
 
                 parser.read();
-                camera.perspective.x_fov = StringUtils::to_double(parser.get_node_data());
+                camera.perspective.x_fov = StringUtils::to_float(parser.get_node_data());
 
             } else if (name == "yfov") {
 
                 parser.read();
-                camera.perspective.y_fov = StringUtils::to_double(parser.get_node_data());
+                camera.perspective.y_fov = StringUtils::to_float(parser.get_node_data());
             } else if (name == "xmag") {
 
                 parser.read();
-                camera.orthogonal.x_mag = StringUtils::to_double(parser.get_node_data());
+                camera.orthogonal.x_mag = StringUtils::to_float(parser.get_node_data());
 
             } else if (name == "ymag") {
 
                 parser.read();
-                camera.orthogonal.y_mag = StringUtils::to_double(parser.get_node_data());
+                camera.orthogonal.y_mag = StringUtils::to_float(parser.get_node_data());
             } else if (name == "aspect_ratio") {
 
                 parser.read();
-                camera.aspect = StringUtils::to_double(parser.get_node_data());
+                camera.aspect = StringUtils::to_float(parser.get_node_data());
 
             } else if (name == "znear") {
 
                 parser.read();
-                camera.z_near = StringUtils::to_double(parser.get_node_data());
+                camera.z_near = StringUtils::to_float(parser.get_node_data());
 
             } else if (name == "zfar") {
 
                 parser.read();
-                camera.z_far = StringUtils::to_double(parser.get_node_data());
+                camera.z_far = StringUtils::to_float(parser.get_node_data());
             }
 
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END && parser.get_node_name() == "camera")
@@ -883,24 +883,24 @@ void Collada::_parse_light(XMLParser &parser) {
             } else if (name == "constant_attenuation") {
 
                 parser.read();
-                light.constant_att = StringUtils::to_double(parser.get_node_data());
+                light.constant_att = StringUtils::to_float(parser.get_node_data());
             } else if (name == "linear_attenuation") {
 
                 parser.read();
-                light.linear_att = StringUtils::to_double(parser.get_node_data());
+                light.linear_att = StringUtils::to_float(parser.get_node_data());
             } else if (name == "quadratic_attenuation") {
 
                 parser.read();
-                light.quad_att = StringUtils::to_double(parser.get_node_data());
+                light.quad_att = StringUtils::to_float(parser.get_node_data());
             } else if (name == "falloff_angle") {
 
                 parser.read();
-                light.spot_angle = StringUtils::to_double(parser.get_node_data());
+                light.spot_angle = StringUtils::to_float(parser.get_node_data());
 
             } else if (name == "falloff_exponent") {
 
                 parser.read();
-                light.spot_exp = StringUtils::to_double(parser.get_node_data());
+                light.spot_exp = StringUtils::to_float(parser.get_node_data());
             }
 
         } else if (parser.get_node_type() == XMLParser::NODE_ELEMENT_END && parser.get_node_name() == "light")
@@ -2002,9 +2002,9 @@ void Collada::_parse_animation_clip(XMLParser &parser) {
     else if (parser.has_attribute("id"))
         clip.name = parser.get_attribute_value("id");
     if (parser.has_attribute("start"))
-        clip.begin = StringUtils::to_double(parser.get_attribute_value("start"));
+        clip.begin = StringUtils::to_float(parser.get_attribute_value("start"));
     if (parser.has_attribute("end"))
-        clip.end = StringUtils::to_double(parser.get_attribute_value("end"));
+        clip.end = StringUtils::to_float(parser.get_attribute_value("end"));
 
     while (parser.read() == OK) {
 
