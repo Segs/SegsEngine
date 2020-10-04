@@ -39,7 +39,10 @@
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
+
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
+    // TODO: restrict csv files to only valid ones ?
+    bool can_import(StringView /*p_path*/) const override { return true; }
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;
 

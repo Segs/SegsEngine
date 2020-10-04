@@ -69,11 +69,20 @@ StringName ResourceImporterCSV::get_preset_name(int p_idx) const {
     return "";
 }
 
-void ResourceImporterCSV::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void ResourceImporterCSV::get_import_options(Vector<ImportOption> *r_options, int p_preset) const {
+    r_options->push_back(ImportOption(PropertyInfo(VariantType::INT, "delimiter", PropertyHint::Enum, "Comma,Semicolon,Tab"), 0));
+
 }
 
 Error ResourceImporterCSV::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps, Vector<String>
         *r_platform_variants, Vector<String> *r_gen_files, Variant *r_metadata) {
+    char delimiter;
+    switch (p_options.at("delimiter").as<int>()) {
+    case 0: delimiter = ','; break;
+    case 1: delimiter = ';'; break;
+    case 2: delimiter = '\t'; break;
+    }
+
     return OK;
 }
 

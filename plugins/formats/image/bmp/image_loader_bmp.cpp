@@ -34,10 +34,10 @@
 #include "core/ustring.h"
 
 Error ImageLoaderBMP::convert_to_image(ImageData &p_image,
-        const uint8_t *p_buffer,
-        const uint8_t *p_color_buffer,
-        const uint32_t color_table_size,
-        const bmp_header_s &p_header) {
+                                       const uint8_t *p_buffer,
+                                       const uint8_t *p_color_buffer,
+                                       uint32_t color_table_size,
+                                       const bmp_header_s &p_header) {
 
     Error err = OK;
 
@@ -284,7 +284,7 @@ Error ImageLoaderBMP::load_image(ImageData &p_image, FileAccess *f, LoadParams p
                 PoolVector<uint8_t>::Read bmp_buffer_r = bmp_buffer.read();
                 PoolVector<uint8_t>::Read bmp_color_table_r = bmp_color_table.read();
                 err = convert_to_image(p_image, bmp_buffer_r.ptr(),
-                        bmp_color_table_r.ptr(), color_table_size, bmp_header);
+                                       bmp_color_table_r.ptr(), color_table_size, bmp_header);
             }
             f->close();
         }

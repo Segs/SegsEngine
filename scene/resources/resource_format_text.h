@@ -91,7 +91,6 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
 
     // for converter
     class DummyResource : public Resource {
-    public:
     };
 
     struct DummyReadData {
@@ -118,6 +117,8 @@ class ResourceInteractiveLoaderText : public ResourceInteractiveLoader {
     RES resource;
 
     Ref<PackedScene> _parse_node_tag(VariantParser::ResourceParser &parser);
+    Error poll_ext_resource();
+    Error poll_resource();
 
 public:
     void set_local_path(StringView p_local_path) override;

@@ -40,10 +40,6 @@
 #include "core/property_info.h"
 #include "core/resource/resource_manager.h"
 
-namespace {
-
-} // end of anonymous namespace
-
 IMPL_GDCLASS(ResourceInteractiveLoader);
 IMPL_GDCLASS(ResourceFormatLoader);
 

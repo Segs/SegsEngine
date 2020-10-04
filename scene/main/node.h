@@ -228,12 +228,10 @@ public:
     bool has_node(const NodePath &p_path) const;
     Node *get_node(const NodePath &p_path) const;
     Node *get_node_or_null(const NodePath &p_path) const;
-    Node *find_node(StringView p_mask, bool p_recursive = true, bool p_owned = true) const;
     bool has_node_and_resource(const NodePath &p_path) const;
     Node *get_node_and_resource(const NodePath &p_path, Ref<Resource> &r_res, Vector<StringName> &r_leftover_subpath, bool p_last_is_property = true) const;
 
     Node *get_parent() const;
-    Node *find_parent(StringView p_mask) const;
 
     _FORCE_INLINE_ SceneTree *get_tree() const {
         ERR_FAIL_COND_V(!tree, nullptr);

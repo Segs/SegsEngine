@@ -214,8 +214,6 @@ protected:
     static void _bind_methods();
 
 public:
-
-
     Error pack(Node *p_scene);
 
     void clear();

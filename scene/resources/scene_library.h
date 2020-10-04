@@ -13,6 +13,8 @@
 class Texture;
 class PackedScene;
 
+using LibraryItemHandle = int;
+
 class GODOT_EXPORT SceneLibrary : public Resource {
 
     GDCLASS(SceneLibrary,Resource)
@@ -26,7 +28,7 @@ public:
         Ref<Texture> preview;
     };
 
-    Map<int, Item> item_map;
+    Map<LibraryItemHandle, Item> item_map;
 protected:
     bool _set(const StringName &p_name, const Variant &p_value);
     bool _get(const StringName &p_name, Variant &r_ret) const;
@@ -35,16 +37,17 @@ protected:
     static void _bind_methods();
 
 public:
-    void create_item(int p_item);
-    void set_item_name(int p_item, StringView p_name);
-    void set_item_scene(int p_item, const Ref<PackedScene> &p_mesh);
-    void set_item_preview(int p_item, const Ref<Texture> &p_preview);
-    const String &get_item_name(int p_item) const;
-    Ref<PackedScene> get_item_scene(int p_item) const;
-    Ref<Texture> get_item_preview(int p_item) const;
+    LibraryItemHandle add_item(Item &&data);
+    void create_item(LibraryItemHandle p_item);
+    void set_item_name(LibraryItemHandle p_item, StringView p_name);
+    void set_item_scene(LibraryItemHandle p_item, const Ref<PackedScene> &p_mesh);
+    void set_item_preview(LibraryItemHandle p_item, const Ref<Texture> &p_preview);
+    const String &get_item_name(LibraryItemHandle p_item) const;
+    Ref<PackedScene> get_item_scene(LibraryItemHandle p_item) const;
+    Ref<Texture> get_item_preview(LibraryItemHandle p_item) const;
 
-    void remove_item(int p_item);
-    bool has_item(int p_item) const;
+    void remove_item(LibraryItemHandle p_item);
+    bool has_item(LibraryItemHandle p_item) const;
 
     void clear();
 

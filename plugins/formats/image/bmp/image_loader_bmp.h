@@ -80,14 +80,15 @@ protected:
     };
 
     static Error convert_to_image(ImageData &p_image,
-            const uint8_t *p_buffer,
-            const uint8_t *p_color_buffer,
-            const uint32_t color_table_size,
-            const bmp_header_s &p_header);
+                                  const uint8_t *p_buffer,
+                                  const uint8_t *p_color_buffer,
+                                  uint32_t color_table_size,
+                                  const bmp_header_s &p_header);
 
 public:
     Error load_image(ImageData &p_image, FileAccess *f, LoadParams params={}) override;
 
+    bool can_load(StringView) const override { return true; }
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     ImageLoaderBMP();
 };

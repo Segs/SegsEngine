@@ -38,25 +38,25 @@ IMPL_GDCLASS(ResourceImporterOGGVorbis)
 
 StringName ResourceImporterOGGVorbis::get_importer_name() const {
 
-    return ("ogg_vorbis");
+    return "ogg_vorbis";
 }
 
 StringName ResourceImporterOGGVorbis::get_visible_name() const {
 
-    return ("OGGVorbis");
+    return "OGGVorbis";
 }
 void ResourceImporterOGGVorbis::get_recognized_extensions(Vector<String> &p_extensions) const {
 
-    p_extensions.push_back("ogg");
+    p_extensions.emplace_back("ogg");
 }
 
 StringName ResourceImporterOGGVorbis::get_save_extension() const {
-    return ("oggstr");
+    return "oggstr";
 }
 
 StringName ResourceImporterOGGVorbis::get_resource_type() const {
 
-    return ("AudioStreamOGGVorbis");
+    return "AudioStreamOGGVorbis";
 }
 
 bool ResourceImporterOGGVorbis::get_option_visibility(const StringName &/*p_option*/, const HashMap<StringName, Variant> &/*p_options*/) const {

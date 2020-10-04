@@ -40,6 +40,7 @@ class ImageLoaderHDR : public QObject, public ImageFormatLoader {
 
 public:
     Error load_image(ImageData &p_image, FileAccess *f, LoadParams params) override;
+    bool can_load(StringView) const override {return true; }
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     ImageLoaderHDR();
 };

@@ -1544,42 +1544,9 @@ bool Node::has_node(const NodePath &p_path) const {
     return get_node_or_null(p_path) != nullptr;
 }
 
-Node *Node::find_node(StringView p_mask, bool p_recursive, bool p_owned) const {
-
-    Node *const *cptr = priv_data->children.data();
-    int ccount = priv_data->children.size();
-    for (int i = 0; i < ccount; i++) {
-        if (p_owned && !cptr[i]->priv_data->owner)
-            continue;
-        if (StringUtils::match(cptr[i]->priv_data->name,p_mask))
-            return cptr[i];
-
-        if (!p_recursive)
-            continue;
-
-        Node *ret = cptr[i]->find_node(p_mask, true, p_owned);
-        if (ret)
-            return ret;
-    }
-    return nullptr;
-}
-
 Node *Node::get_parent() const {
 
     return priv_data->parent;
-}
-
-Node *Node::find_parent(StringView p_mask) const {
-
-    Node *p = priv_data->parent;
-    while (p) {
-
-        if (StringUtils::match(p->priv_data->name,p_mask))
-            return p;
-        p = p->priv_data->parent;
-    }
-
-    return nullptr;
 }
 
 bool Node::is_a_parent_of(const Node *p_node) const {
@@ -2578,13 +2545,13 @@ void Node::_replace_connections_target(Node *p_new_target) {
     for (Connection &c : cl) {
 
         if (c.flags & ObjectNS::CONNECT_PERSIST) {
-            
+
             c.signal.get_object()->disconnect(c.signal.get_name(), Callable(this, c.callable.get_method()));
             bool valid = p_new_target->has_method(c.callable.get_method())
                     || !refFromRefPtr<Script>(p_new_target->get_script())
                     || refFromRefPtr<Script>(p_new_target->get_script())->has_method(c.callable.get_method());
             ERR_CONTINUE_MSG(!valid, String("Attempt to connect signal '") + c.signal.get_object()->get_class() + "." + c.signal.get_name() + "' to nonexistent method '" + c.callable.get_object()->get_class() + "." + c.callable.get_method() + "'.");
-			c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
+            c.signal.get_object()->connect(c.signal.get_name(), Callable(p_new_target, c.callable.get_method()), c.binds, c.flags);
         }
     }
 }
@@ -2886,8 +2853,6 @@ void Node::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_node", {"path"}), &Node::get_node);
     MethodBinder::bind_method(D_METHOD("get_node_or_null", {"path"}), &Node::get_node_or_null);
     MethodBinder::bind_method(D_METHOD("get_parent"), &Node::get_parent);
-    MethodBinder::bind_method(D_METHOD("find_node", {"mask", "recursive", "owned"}), &Node::find_node, {DEFVAL(true), DEFVAL(true)});
-    MethodBinder::bind_method(D_METHOD("find_parent", {"mask"}), &Node::find_parent);
     MethodBinder::bind_method(D_METHOD("has_node_and_resource", {"path"}), &Node::has_node_and_resource);
     MethodBinder::bind_method(D_METHOD("get_node_and_resource", {"path"}), &Node::_get_node_and_resource);
 

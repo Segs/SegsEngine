@@ -623,12 +623,6 @@ void ScriptTextEditor::_validate_script() {
 
     int warning_nb = warnings.size();
     warnings_panel->clear();
-#ifdef MODULE_GDSCRIPT_ENABLED
-    // Add missing connections.
-    if (GLOBAL_GET("debug/gdscript/warnings/enable").booleanize()) {
-        _validate_missing_connections(warning_nb);
-    }
-#endif
     code_editor->set_warning_nb(warning_nb);
 
     // Add script warnings.

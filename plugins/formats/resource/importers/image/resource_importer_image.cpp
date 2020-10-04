@@ -72,7 +72,7 @@ StringName ResourceImporterImage::get_preset_name(int p_idx) const {
     return StringName();
 }
 
-void ResourceImporterImage::get_import_options(Vector<ResourceImporterInterface::ImportOption> *r_options, int p_preset) const {
+void ResourceImporterImage::get_import_options(Vector<ImportOption> *r_options, int p_preset) const {
 }
 
 Error ResourceImporterImage::import(StringView p_source_file, StringView p_save_path, const HashMap<StringName, Variant> &p_options, Vector<String> &r_missing_deps,
@@ -105,5 +105,4 @@ Error ResourceImporterImage::import(StringView p_source_file, StringView p_save_
     return OK;
 }
 
-ResourceImporterImage::ResourceImporterImage() {
-}
+ResourceImporterImage::ResourceImporterImage() = default;

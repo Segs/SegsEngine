@@ -42,6 +42,7 @@ class ResourceImporterImage : public QObject, public ResourceImporterInterface {
 public:
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
+    bool can_import(StringView) const override { return true; }
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     StringName get_save_extension() const override;
     StringName get_resource_type() const override;

@@ -5,6 +5,8 @@
 #include "core/error_list.h"
 #include "core/forward_decls.h"
 
+#include "EASTL/string_view.h"
+
 class Image;
 enum Error : int;
 class FileAccess;
@@ -28,7 +30,8 @@ public:
     }
     virtual void get_recognized_extensions(Vector<String> &p_extensions) const = 0;
     virtual void set_loader_option(int /*option_id*/,void * /*option_var*/) {}
-public:
+    virtual bool can_load(StringView) const { return true; }
+
     virtual ~ImageFormatLoader() = default;
     ImageFormatLoader() = default;
     // Not copyable.

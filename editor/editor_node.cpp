@@ -6090,6 +6090,38 @@ struct ResourcePluginResolver : public ResolverInterface {
 };
 
 } // end anonymous namespace
+void EditorNode::register_importers()
+{
+    static bool resource_importers_registered = false;
+    if (!resource_importers_registered) {
+        print_line("Resolving resource import plugins");
+        add_plugin_resolver(new ResourcePluginResolver);
+        resource_importers_registered = true;
+    } else
+        WARN_PRINT("Attempted to register resource importer resolver again.");
+
+    Ref<ResourceImporterWAV> import_wav(make_ref_counted<ResourceImporterWAV>());
+    ResourceFormatImporter::get_singleton()->add_importer(import_wav);
+
+    Ref<ResourceImporterScene> import_scene(make_ref_counted<ResourceImporterScene>());
+    ResourceFormatImporter::get_singleton()->add_importer(import_scene);
+
+    // Load higher level 'scene' importer plugins
+    {
+        // TODO: convert all of those into scene importer plugins.
+        static bool registered = false;
+        if (!registered) {
+            print_line("Resolving editor plugins");
+            add_plugin_resolver(new EditorPluginResolver(import_scene.get()));
+            registered = true;
+        } else
+            WARN_PRINT("Attempted to register resource loader again.");
+
+        static EditorSceneImporterESCN import_escn;
+        import_scene->add_importer(&import_escn);
+    }
+}
+
 EditorNode::EditorNode() {
 
     Input::get_singleton()->set_use_accumulated_input(true);
@@ -6182,36 +6214,8 @@ EditorNode::EditorNode() {
     gResourceManager().set_error_notify_func(this, _load_error_notify);
     gResourceManager().set_dependency_error_notify_func(this, _dependency_error_report);
 
-    { // register importers at the beginning, so dialogs are created with the right extensions
-        static bool resource_importers_registered = false;
-        if (!resource_importers_registered) {
-            print_line("Resolving resource import plugins");
-            add_plugin_resolver(new ResourcePluginResolver);
-            resource_importers_registered = true;
-        } else
-            WARN_PRINT("Attempted to register resource importer resolver again.");
-
-        Ref<ResourceImporterWAV> import_wav(make_ref_counted<ResourceImporterWAV>());
-        ResourceFormatImporter::get_singleton()->add_importer(import_wav);
-
-        Ref<ResourceImporterScene> import_scene(make_ref_counted<ResourceImporterScene>());
-        ResourceFormatImporter::get_singleton()->add_importer(import_scene);
-
-        // Load higher level 'scene' importer plugins
-        {
-            // TODO: convert all of those into scene importer plugins.
-            static bool registered = false;
-            if (!registered) {
-                print_line("Resolving editor plugins");
-                add_plugin_resolver(new EditorPluginResolver(import_scene.get()));
-                registered = true;
-            } else
-                WARN_PRINT("Attempted to register resource loader again.");
-
-            static EditorSceneImporterESCN import_escn;
-            import_scene->add_importer(&import_escn);
-        }
-    }
+    // register importers at the beginning, so dialogs are created with the right extensions
+    register_importers();
 
     {
         Ref<EditorInspectorDefaultPlugin> eidp(make_ref_counted<EditorInspectorDefaultPlugin>());

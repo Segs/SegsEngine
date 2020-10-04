@@ -166,7 +166,7 @@ void ResourceFormatImporter::get_recognized_extensions_for_type(StringView p_typ
 
     HashSet<String> found;
 
-    for (auto importer : importers) {
+    for (ResourceImporterInterface* importer : importers) {
         StringName res_type(importer->get_resource_type());
         if (res_type.empty())
             continue;
@@ -392,7 +392,7 @@ ResourceImporterInterface *ResourceFormatImporter::get_importer_by_name(StringVi
     return nullptr;
 }
 
-void ResourceFormatImporter::get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) {
+void ResourceFormatImporter::get_importers_for_extension(StringView p_extension, Vector<ResourceImporterInterface *> *r_importers) const {
 
     for (auto importer : importers) {
         Vector<String> local_exts;
@@ -412,6 +412,26 @@ void ResourceFormatImporter::get_importers_for_extension(StringView p_extension,
             }
         }
     }
+}
+/**
+ * \brief Check if any importer can actually import give file.
+ * \param filepath - a full path to the file ( some importers might require full path to decide )
+ * \return true if any importer can import given file.
+ */
+bool ResourceFormatImporter::any_can_import(StringView filepath) const
+{
+    String ext = StringUtils::to_lower(PathUtils::get_extension(filepath));
+    Vector<ResourceImporterInterface*> importers;
+    get_importers_for_extension(ext, &importers);
+
+    for (auto imp : importers)
+    {
+        if (imp->can_import(filepath))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 ResourceImporterInterface *ResourceFormatImporter::get_importer_by_extension(StringView p_extension) const {

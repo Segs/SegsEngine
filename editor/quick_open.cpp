@@ -131,7 +131,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
     for (int i = 0; i < efsd->get_subdir_count(); i++) {
         _parse_fs(efsd->get_subdir(i), list);
     }
-
+    
     String search_text = search_box->get_text();
 
     for (int i = 0; i < efsd->get_file_count(); i++) {
@@ -140,7 +140,7 @@ void EditorQuickOpen::_parse_fs(EditorFileSystemDirectory *efsd, Vector<Pair<Str
         file = file.substr(6, file.length());
 
         StringName file_type = efsd->get_file_type(i);
-        if (ClassDB::is_parent_class(file_type, base_type) && search_text.contains(file,false)) {
+        if (ClassDB::is_parent_class(file_type, base_type) && file.contains(search_text,false)) {
             Pair<String, Ref<Texture> > pair;
             pair.first = file;
             StringName icon_name = search_options->has_icon(file_type, ei) ? file_type : ot;

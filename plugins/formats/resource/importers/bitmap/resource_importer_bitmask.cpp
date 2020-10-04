@@ -35,7 +35,7 @@
 #include "core/resource/resource_manager.h"
 #include "scene/resources/bit_map.h"
 #include "scene/resources/texture.h"
-
+#include "core/ustring.h"
 
 StringName ResourceImporterBitMap::get_importer_name() const {
 
@@ -46,6 +46,14 @@ StringName ResourceImporterBitMap::get_visible_name() const {
 
     return "BitMap";
 }
+
+bool ResourceImporterBitMap::can_import(StringView path) const {
+    auto ldr=ImageLoader::recognize(PathUtils::get_extension(path));
+    if(!ldr)
+        return false;
+    return ldr->can_load(path);
+}
+
 void ResourceImporterBitMap::get_recognized_extensions(Vector<String> &p_extensions) const {
 
     ImageLoader::get_recognized_extensions(p_extensions);
@@ -115,8 +123,6 @@ Error ResourceImporterBitMap::import(StringView p_source_file, StringView p_save
     return gResourceManager().save(String(p_save_path) + ".res", bitmap);
 }
 
-ResourceImporterBitMap::ResourceImporterBitMap() {
-}
+ResourceImporterBitMap::ResourceImporterBitMap() = default;
 
-ResourceImporterBitMap::~ResourceImporterBitMap() {
-}
+ResourceImporterBitMap::~ResourceImporterBitMap() = default;
