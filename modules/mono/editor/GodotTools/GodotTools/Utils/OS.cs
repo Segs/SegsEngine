@@ -67,12 +67,12 @@ namespace GodotTools.Utils
 
         public static char PathSep => IsWindows ? ';' : ':';
 
-        public static string PathWhich([NotNull] string name)
+        public static string PathWhich([JetBrains.Annotations.NotNull] string name)
         {
             return IsWindows ? PathWhichWindows(name) : PathWhichUnix(name);
         }
 
-        private static string PathWhichWindows([NotNull] string name)
+        private static string PathWhichWindows([JetBrains.Annotations.NotNull] string name)
         {
             string[] windowsExts = Environment.GetEnvironmentVariable("PATHEXT")?.Split(PathSep) ?? new string[] { };
             string[] pathDirs = Environment.GetEnvironmentVariable("PATH")?.Split(PathSep);
@@ -97,7 +97,7 @@ namespace GodotTools.Utils
                     select path + ext).FirstOrDefault(File.Exists);
         }
 
-        private static string PathWhichUnix([NotNull] string name)
+        private static string PathWhichUnix([JetBrains.Annotations.NotNull] string name)
         {
             string[] pathDirs = Environment.GetEnvironmentVariable("PATH")?.Split(PathSep);
 
