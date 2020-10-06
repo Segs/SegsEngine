@@ -86,7 +86,18 @@ public:
     bool operator==(const NodePath &p_path) const;
     bool operator!=(const NodePath &p_path) const;
     NodePath &operator=(const NodePath &p_path);
-
+    NodePath& operator=(NodePath&& p_path) noexcept {
+        if(this==&p_path)
+            return *this;
+        unref();
+        data = p_path.data;
+        hash_cache_valid = p_path.hash_cache_valid;
+        hash_cache = p_path.hash_cache;
+        p_path.data = nullptr;
+        p_path.hash_cache_valid = false;
+        p_path.hash_cache = 0;
+        return *this;
+    }
     void simplify();
     NodePath simplified() const;
 

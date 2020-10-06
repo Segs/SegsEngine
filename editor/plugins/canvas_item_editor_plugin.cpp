@@ -6092,7 +6092,7 @@ bool CanvasItemEditorViewport::can_drop_data(const Point2 &p_point, const Varian
         return false;
     }
 
-    Vector<String> files(d["files"].as<Vector<String>>());
+    Vector<String> files((Vector<String>)d["files"]);
     bool can_instance = false;
     for (int i = 0; i < files.size(); i++) { // check if dragged files contain resource or scene can be created at least once
         RES res(gResourceManager().load(files[i]));

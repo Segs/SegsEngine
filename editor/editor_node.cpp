@@ -220,7 +220,7 @@ void EditorNode::disambiguate_filenames(const Vector<String> p_full_paths, Vecto
                     String parent = full_path.substr(0, difference);
                     auto slash_idx = parent.rfind("/");
                     slash_idx = parent.rfind("/", slash_idx - 1);
-                    parent = slash_idx >= 0 ? parent.substr(slash_idx + 1) : parent;
+                    parent = slash_idx != String::npos ? parent.substr(slash_idx + 1) : parent;
                     r_filenames[set_idx] = parent + r_filenames[set_idx];
                 }
             }

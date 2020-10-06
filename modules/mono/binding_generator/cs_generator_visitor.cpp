@@ -598,8 +598,6 @@ void CsGeneratorVisitor::visitClassInternal(TS_Type *tp) {
     if(top_level_class) {
         ctx.append_line("#pragma warning restore CS1591");
         ctx.append_line("#pragma warning restore CS1573");
-    }
-    if(top_level_class) {
         m_gen_stack.pop_back();
         m_ctx.set_generator(!m_gen_stack.empty() ? m_gen_stack.back() : nullptr);
     }

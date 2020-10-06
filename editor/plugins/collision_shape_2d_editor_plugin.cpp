@@ -79,10 +79,7 @@ Variant CollisionShape2DEditor::get_handle_value(int idx) const {
 
         } break;
 
-        case CONCAVE_POLYGON_SHAPE: {
-            // Cannot be edited directly, use CollisionPolygon2D instead.
-        } break;
-
+        case CONCAVE_POLYGON_SHAPE:
         case CONVEX_POLYGON_SHAPE: {
             // Cannot be edited directly, use CollisionPolygon2D instead.
         } break;
@@ -159,10 +156,7 @@ void CollisionShape2DEditor::set_handle(int idx, Point2 &p_point) {
 
         } break;
 
-        case CONCAVE_POLYGON_SHAPE: {
-
-        } break;
-
+        case CONCAVE_POLYGON_SHAPE:
         case CONVEX_POLYGON_SHAPE: {
 
         } break;

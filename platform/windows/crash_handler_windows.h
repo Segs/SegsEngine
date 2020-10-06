@@ -28,11 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef CRASH_HANDLER_WINDOWS_H
-#define CRASH_HANDLER_WINDOWS_H
+#pragma once
+
+#include "core/typedefs.h"
 
 #include <windows.h>
-#include "core/typedefs.h"
+
 // Crash handler exception only enabled with MSVC
 #if defined(DEBUG_ENABLED) && defined(MSVC)
 #define CRASH_HANDLER_EXCEPTION 1
@@ -53,5 +54,3 @@ public:
 	CrashHandler();
 	~CrashHandler();
 };
-
-#endif // CRASH_HANDLER_WINDOWS_H

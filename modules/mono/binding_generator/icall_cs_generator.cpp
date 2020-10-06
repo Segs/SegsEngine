@@ -11,7 +11,7 @@ static constexpr const char* basic_csproj = R"raw(
     <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFramework>netstandard2.1</TargetFramework>
         <AssemblyName>%module%Assembly</AssemblyName>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>

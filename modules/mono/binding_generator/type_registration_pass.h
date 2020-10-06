@@ -12,7 +12,6 @@ struct SignalInterface;
 struct TypeRegistrationPass : public ReflectionVisitorBase {
 
     bool m_currently_visiting_imported=false;
-    TS_Module *m_current_module=nullptr;
 
     static bool covariantSetterGetterTypes(StringView getter, StringView setter);
     static int _determine_enum_prefix(const TS_Enum &p_ienum);

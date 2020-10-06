@@ -189,9 +189,7 @@ void PropertyInterface::toJson(QJsonObject &obj) const {
 void PropertyInterface::fromJson(const QJsonObject &obj) {
     cname = obj["cname"].toString().toUtf8().data();
     hint_str = obj["hint_string"].toString("").toUtf8().data();
-    max_property_index = -1;
-
-    max_property_index = obj["max_property_index"].toInt();
+    max_property_index = obj["max_property_index"].toInt(-1);
 
     QJsonArray subfields = obj["subfields"].toArray();
     indexed_entries.resize(subfields.size());

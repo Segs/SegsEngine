@@ -206,7 +206,6 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
             [](class_iter a, class_iter b) -> bool { return StringName::AlphCompare(a->first, b->first); });
     // must be alphabetically sorted for hash to compute
     Vector<StringName> snames;
-    const StringName *k;
 
     for (const auto &iter : entries) {
 
@@ -266,8 +265,6 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             snames.clear();
 
-            k = nullptr;
-
             for(const auto &k : t.constant_map) {
 
                 snames.emplace_back(k.first);
@@ -283,8 +280,6 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
         { // signals
 
-
-            k = nullptr;
             snames.clear();
             t.class_signal_map().keys_into(snames);
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);
@@ -303,7 +298,6 @@ uint64_t ClassDB::get_api_hash(APIType p_api) {
 
             snames.clear();
 
-            k = nullptr;
             t.property_setget.keys_into(snames);
 
             eastl::stable_sort(snames.begin(), snames.end(), StringName::AlphCompare);

@@ -1989,7 +1989,8 @@ Variant::operator Vector<int>() const {
         WARN_PRINT("Inefficient code, converting non int-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<int> >(*this);
     }
-    return Vector<int>(tmp.read().ptr(),tmp.read().ptr()+tmp.size());
+    auto rd(tmp.read());
+    return Vector<int>(rd.ptr(), rd.ptr()+tmp.size());
 }
 
 
@@ -2002,7 +2003,8 @@ Variant::operator Vector<float>() const {
         WARN_PRINT("Inefficient code, converting non int-array Variant to array");
         tmp = _convert_array_from_variant<PoolVector<float> >(*this);
     }
-    return Vector<float>(tmp.read().ptr(), tmp.read().ptr() + tmp.size());
+    auto rd(tmp.read());
+    return Vector<float>(rd.ptr(), rd.ptr() + tmp.size());
 }
 
 Variant::operator Vector<Color>() const {

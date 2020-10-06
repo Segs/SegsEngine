@@ -148,8 +148,7 @@ void TypeRegistrationPass::visitEnum(const EnumInterface *ei) {
     int prefix_length=1;
     if(StringView("Error")!=en->c_name())
         prefix_length = _determine_enum_prefix(*en);
-    else
-        prefix_length = 1;
+    
     _apply_prefix_to_enum_constants(*en, prefix_length);
 }
 

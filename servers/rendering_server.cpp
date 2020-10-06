@@ -682,7 +682,7 @@ Error RenderingServer::_surface_set_data(const SurfaceArrays &p_arrays, uint32_t
                 //ERR_FAIL_COND_V(p_arrays[ai].get_type() != VariantType::POOL_INT_ARRAY, ERR_INVALID_PARAMETER);
 
                 const Vector<int> &indices = p_arrays.m_indices;
-                ERR_FAIL_COND_V(indices.size() == 0, ERR_INVALID_PARAMETER);
+                ERR_FAIL_COND_V(indices.empty(), ERR_INVALID_PARAMETER);
                 ERR_FAIL_COND_V(indices.size() != p_index_array_len, ERR_INVALID_PARAMETER);
 
                 /* determine whether using 16 or 32 bits indices */

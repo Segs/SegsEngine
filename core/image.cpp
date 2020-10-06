@@ -2745,7 +2745,7 @@ Dictionary Image::_get_data() const {
     d["width"] = width;
     d["height"] = height;
     d["format"] = get_format_name(format);
-    d["mipmaps"] = mipmaps;
+    d["mipmaps"] = Variant(mipmaps);
     d["data"] = data;
     return d;
 }

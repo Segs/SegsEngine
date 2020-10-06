@@ -90,7 +90,7 @@ public:
 
 private:
     struct GroupData {
-        SceneTreeGroup *group;
+        SceneTreeGroup *group=nullptr;
         bool persistent = false;
     };
 
