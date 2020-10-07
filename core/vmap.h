@@ -43,12 +43,9 @@ public:
         T key;
         V value;
 
-        Pair() {}
+        Pair() = default;
 
-        _FORCE_INLINE_ Pair(const T &p_key, const V &p_value) {
-
-            key = p_key;
-            value = p_value;
+        _FORCE_INLINE_ Pair(const T &p_key, const V &p_value) : key(p_key),value(p_value) {
         }
     };
 
@@ -97,11 +94,10 @@ private:
 
         int low = 0;
         int high = _cowdata.size() - 1;
-        int middle;
         const Pair *a = _cowdata.ptr();
 
         while (low <= high) {
-            middle = (low + high) / 2;
+            int middle = (low + high) / 2;
 
             if (p_val < a[middle].key) {
                 high = middle - 1; //search low end of array

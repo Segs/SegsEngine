@@ -1848,12 +1848,13 @@ ProjectSettingsEditor::ProjectSettingsEditor(EditorData *p_data) {
 
     globals_editor = memnew(SectionedInspector);
     props_base->add_child(globals_editor);
-    globals_editor->get_inspector()->set_undo_redo(EditorNode::get_singleton()->get_undo_redo());
+    EditorInspector *editor_inspector = globals_editor->get_inspector();
+    editor_inspector->set_undo_redo(EditorNode::get_singleton()->get_undo_redo());
     globals_editor->set_v_size_flags(Control::SIZE_EXPAND_FILL);
     globals_editor->register_search_box(search_box);
-    globals_editor->get_inspector()->connect("property_selected",callable_mp(this, &ProjectSettingsEditor::_item_selected));
-    globals_editor->get_inspector()->connect("property_edited",callable_mp(this, &ProjectSettingsEditor::_settings_prop_edited));
-    globals_editor->get_inspector()->connect("restart_requested",callable_mp(this, &ProjectSettingsEditor::_editor_restart_request));
+    editor_inspector->connect("property_selected",callable_mp(this, &ProjectSettingsEditor::_item_selected));
+    editor_inspector->connect("property_edited",callable_mp(this, &ProjectSettingsEditor::_settings_prop_edited));
+    editor_inspector->connect("restart_requested",callable_mp(this, &ProjectSettingsEditor::_editor_restart_request));
 
     Button *del = memnew(Button);
     hbc->add_child(del);

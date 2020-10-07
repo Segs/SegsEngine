@@ -74,8 +74,8 @@ struct AnimationTreeNode : public AnimationTreeNodeBase {
     Ref<Animation> animation;
 
     struct TrackRef {
+        AnimationTreePlayer::Track* track;
         int local_track;
-        AnimationTreePlayer::Track *track;
         float weight;
     };
 

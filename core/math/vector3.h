@@ -47,24 +47,18 @@ struct GODOT_EXPORT Vector3 {
         AXIS_Z,
     };
 
-    union {
-        struct {
-            real_t x;
-            real_t y;
-            real_t z;
-        };
-
-        real_t coord[3];
-    };
+    real_t x;
+    real_t y;
+    real_t z;
 
     _FORCE_INLINE_ constexpr const real_t &operator[](int p_axis) const {
 
-        return coord[p_axis];
+        return (&x)[p_axis];
     }
 
     _FORCE_INLINE_ constexpr real_t &operator[](int p_axis) {
 
-        return coord[p_axis];
+        return (&x)[p_axis];
     }
 
     void set_axis(int p_axis, real_t p_value);

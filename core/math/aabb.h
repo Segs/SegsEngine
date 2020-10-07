@@ -221,10 +221,10 @@ bool AABB::intersects_convex_shape(Span<const Plane> p_planes,Span<const Vector3
     for (int k = 0; k < 3; k++) {
 
         for (int i = 0; i < p_points.size(); i++) {
-            if (p_points[i].coord[k] > ofs.coord[k] + half_extents.coord[k]) {
+            if (p_points[i][k] > ofs[k] + half_extents[k]) {
                 bad_point_counts_positive[k]++;
             }
-            if (p_points[i].coord[k] < ofs.coord[k] - half_extents.coord[k]) {
+            if (p_points[i][k] < ofs[k] - half_extents[k]) {
                 bad_point_counts_negative[k]++;
             }
         }

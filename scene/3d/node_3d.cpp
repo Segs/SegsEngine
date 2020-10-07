@@ -310,8 +310,9 @@ Node3D *Node3D::get_parent_spatial() const {
 
 Transform Node3D::get_relative_transform(const Node *p_parent) const {
 
-    if (p_parent == this)
+    if (p_parent == this) {
         return Transform();
+	}
 
     ERR_FAIL_COND_V(!data.parent, Transform());
 

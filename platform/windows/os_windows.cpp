@@ -1703,8 +1703,6 @@ int OS_Windows::get_mouse_button_state() const {
 }
 
 void OS_Windows::set_window_title(StringView p_title) {
-
-    auto st= StringUtils::from_utf8(p_title);
     SetWindowTextW(hWnd, qUtf16Printable(StringUtils::from_utf8(p_title)));
 }
 

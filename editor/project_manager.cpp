@@ -448,8 +448,8 @@ private:
     void ok_pressed() override {
 
         String dir = project_path->get_text();
-
-        if (mode == MODE_RENAME) {
+        switch(mode) {
+        case MODE_RENAME: {
 
             String dir2 = _test_path();
             if (dir2.empty()) {
@@ -457,42 +457,43 @@ private:
                 return;
             }
 
-            ProjectSettings *current = memnew(ProjectSettings);
+            ProjectSettings* current = memnew(ProjectSettings);
 
             int err = current->setup(dir2, StringView());
             if (err != OK) {
                 set_message(FormatSN(TTR("Couldn't load project.godot in project path (error %d). It may be missing or corrupted.").asCString(), err), MESSAGE_ERROR);
-            } else {
+            }
+            else {
                 ProjectSettings::CustomMap edited_settings;
                 edited_settings["application/config/name"] = project_name->get_text();
 
-                if (current->save_custom(PathUtils::plus_file(dir2,"project.godot"), edited_settings) != OK) {
+                if (current->save_custom(PathUtils::plus_file(dir2, "project.godot"), edited_settings) != OK) {
                     set_message(TTR("Couldn't edit project.godot in project path."), MESSAGE_ERROR);
                 }
             }
 
             hide();
             emit_signal("projects_updated");
+            return;
+        }
+        case MODE_IMPORT: {
 
-        } else {
-
-            if (mode == MODE_IMPORT) {
-
-                if (StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            if (StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
 
                     mode = MODE_INSTALL;
                     ok_pressed();
 
                     return;
                 }
-
-            } else {
-                if (mode == MODE_NEW) {
+            break;
+        }
+        case MODE_NEW: {
 
                     ProjectSettings::CustomMap initial_settings;
                     if (rasterizer_button_group->get_pressed_button()->get_meta("driver_name") == "GLES3") {
                         initial_settings["rendering/quality/driver/driver_name"] = "GLES3";
-                    } else {
+            }
+            else {
                         assert(false);
                         //initial_settings["rendering/quality/driver/driver_name"] = "GLES2";
                         //initial_settings["rendering/vram_compression/import_etc2"] = false;
@@ -502,15 +503,19 @@ private:
                     initial_settings["application/config/icon"] = "res://icon.png";
                     initial_settings["rendering/environment/default_environment"] = "res://default_env.tres";
 
-                    if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir,"project.godot"), initial_settings, {}, false) != OK) {
+            if (ProjectSettings::get_singleton()->save_custom(PathUtils::plus_file(dir, "project.godot"),
+                initial_settings, {}, false) != OK) {
                         set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
-                    } else {
-                        gResourceManager().save(PathUtils::plus_file(dir,"icon.png"), get_icon("DefaultProjectIcon", "EditorIcons"));
+            }
+            else {
+                gResourceManager().save(PathUtils::plus_file(dir, "icon.png"),
+                    get_icon("DefaultProjectIcon", "EditorIcons"));
 
-                        FileAccess *f = FileAccess::open(PathUtils::plus_file(dir,"default_env.tres"), FileAccess::WRITE);
+                FileAccess* f = FileAccess::open(PathUtils::plus_file(dir, "default_env.tres"), FileAccess::WRITE);
                         if (!f) {
                             set_message(TTR("Couldn't create project.godot in project path."), MESSAGE_ERROR);
-                        } else {
+                }
+                else {
                             f->store_line("[gd_resource type=\"Environment\" load_steps=2 format=2]");
                             f->store_line("[sub_resource type=\"ProceduralSky\" id=1]");
                             f->store_line("[resource]");
@@ -519,15 +524,16 @@ private:
                             memdelete(f);
                         }
                     }
+            break;
+        }
+        case MODE_INSTALL: {
 
-                } else if (mode == MODE_INSTALL) {
-
-                    if (StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            if (StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
                         dir = install_path->get_text();
                         zip_path = project_path->get_text();
                     }
 
-                    FileAccess *src_f = nullptr;
+            FileAccess* src_f = nullptr;
                     zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
                     unzFile pkg = unzOpen2(zip_path.c_str(), &io);
@@ -555,40 +561,44 @@ private:
                         int depth = 1; //stuff from github comes with tag
                         bool skip = false;
                         while (depth > 0) {
-                            auto pp = StringUtils::find(path,"/");
+                    auto pp = StringUtils::find(path, "/");
                             if (pp == String::npos) {
                                 skip = true;
                                 break;
                             }
-                            path = StringUtils::substr(path,pp + 1, path.length());
+                    path = StringUtils::substr(path, pp + 1, path.length());
                             depth--;
                         }
 
                         if (skip || path.empty()) {
                             //
-                        } else if (StringUtils::ends_with(path,"/")) { // a dir
+                }
+                else if (StringUtils::ends_with(path, "/")) {
+                    // a dir
 
-                            path = StringUtils::substr(path,0, path.length() - 1);
+                    path = StringUtils::substr(path, 0, path.length() - 1);
 
-                            DirAccess *da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
-                            da->make_dir(PathUtils::plus_file(dir,path));
+                    DirAccess* da = DirAccess::create(DirAccess::ACCESS_FILESYSTEM);
+                    da->make_dir(PathUtils::plus_file(dir, path));
                             memdelete(da);
 
-                        } else {
-                            size_t sz= info.uncompressed_size;
-                            auto data= eastl::make_unique<uint8_t[]>(sz);
+                }
+                else {
+                    size_t sz = info.uncompressed_size;
+                    auto data = eastl::make_unique<uint8_t[]>(sz);
 
                             //read
                             unzOpenCurrentFile(pkg);
                             unzReadCurrentFile(pkg, data.get(), sz);
                             unzCloseCurrentFile(pkg);
 
-                            FileAccess *f = FileAccess::open(PathUtils::plus_file(dir,path), FileAccess::WRITE);
+                    FileAccess* f = FileAccess::open(PathUtils::plus_file(dir, path), FileAccess::WRITE);
 
                             if (f) {
                                 f->store_buffer(data.get(), sz);
                                 memdelete(f);
-                            } else {
+                    }
+                    else {
                                 failed_files.emplace_back(eastl::move(path));
                             }
                         }
@@ -613,10 +623,12 @@ private:
                         dialog_error->set_text_utf8(msg);
                         dialog_error->popup_centered_minsize();
 
-                    } else if (!StringUtils::ends_with(project_path->get_text_ui(),".zip")) {
+            }
+            else if (!StringUtils::ends_with(project_path->get_text_ui(), ".zip")) {
                         dialog_error->set_text(TTR("Package installed successfully!"));
                         dialog_error->popup_centered_minsize();
                     }
+            break;
                 }
             }
 
@@ -629,7 +641,6 @@ private:
 
             hide();
             emit_signal("project_created", dir);
-        }
     }
 
     void _remove_created_folder() {

@@ -219,7 +219,7 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     /* STEP 1, READ WAVE FILE */
 
     Error err;
-    FileAccess *file = FileAccess::open(p_source_file, FileAccess::READ, &err);
+    FileAccessRef<true> file(FileAccess::open(p_source_file, FileAccess::READ, &err));
 
     ERR_FAIL_COND_V_MSG(err != OK, ERR_CANT_OPEN, String("Cannot open file '") + p_source_file + "'.");
 
@@ -229,9 +229,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     file->get_buffer((uint8_t *)&riff, 4); //RIFF
 
     if (riff[0] != 'R' || riff[1] != 'I' || riff[2] != 'F' || riff[3] != 'F') {
-
-        file->close();
-        memdelete(file);
         ERR_FAIL_V(ERR_FILE_UNRECOGNIZED);
     }
 
@@ -245,9 +242,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
     file->get_buffer((uint8_t *)&wave, 4); //RIFF
 
     if (wave[0] != 'W' || wave[1] != 'A' || wave[2] != 'V' || wave[3] != 'E') {
-
-        file->close();
-        memdelete(file);
         ERR_FAIL_V_MSG(ERR_FILE_UNRECOGNIZED, "Not a WAV file (no WAVE RIFF header).");
     }
 
@@ -288,15 +282,11 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             //Consider revision for engine version 3.0
             compression_code = file->get_16();
             if (compression_code != 1 && compression_code != 3) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not PCM). Save WAVE files as uncompressed PCM instead.");
             }
 
             format_channels = file->get_16();
             if (format_channels != 1 && format_channels != 2) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Format not supported for WAVE file (not stereo or mono).");
             }
 
@@ -307,8 +297,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             format_bits = file->get_16(); // bits per sample
 
             if (format_bits % 8 || format_bits == 0) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_INVALID_DATA, "Invalid amount of bits in the sample (should be one of 8, 16, 24 or 32).");
             }
 
@@ -327,11 +315,8 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
 
             frames = chunksize;
 
-            if (format_channels == 0) {
-                file->close();
-                memdelete(file);
-                ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
-            }
+            ERR_FAIL_COND_V(format_channels == 0, ERR_INVALID_DATA);
+
             frames /= format_channels;
             frames /= format_bits >> 3;
 
@@ -377,8 +362,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
             }
 
             if (file->eof_reached()) {
-                file->close();
-                memdelete(file);
                 ERR_FAIL_V_MSG(ERR_FILE_CORRUPT, "Premature end of file.");
             }
         }
@@ -416,9 +399,6 @@ Error ResourceImporterWAV::import(StringView p_source_file, StringView p_save_pa
         }
         file->seek(file_pos + chunksize);
     }
-
-    file->close();
-    memdelete(file);
 
     // STEP 2, APPLY CONVERSIONS
 

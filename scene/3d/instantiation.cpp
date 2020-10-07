@@ -32,6 +32,8 @@
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
+#include "scene/main/scene_tree.h"
 
 IMPL_GDCLASS(LibraryEntryInstance)
 
@@ -41,10 +43,19 @@ void LibraryEntryInstance::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_library", {"library"}), &LibraryEntryInstance::set_library);
     MethodBinder::bind_method(D_METHOD("get_library"), &LibraryEntryInstance::get_library);
 
+    MethodBinder::bind_method(D_METHOD("set_library_path", {"library"}), &LibraryEntryInstance::set_library_path);
+    MethodBinder::bind_method(D_METHOD("get_library_path"), &LibraryEntryInstance::get_library_path);
+
     MethodBinder::bind_method(D_METHOD("set_entry", { "library" }), &LibraryEntryInstance::set_entry);
     MethodBinder::bind_method(D_METHOD("get_entry"), &LibraryEntryInstance::get_entry);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "library", PropertyHint::ResourceType, "SceneLibrary"), "set_library", "get_library");
+    ClassDB::add_property(get_class_static_name(),
+            PropertyInfo(VariantType::OBJECT, "library", PropertyHint::ResourceType, "SceneLibrary",PROPERTY_USAGE_EDITOR),
+            "set_library", "get_library");
+    ClassDB::add_property(get_class_static_name(),
+            PropertyInfo(VariantType::STRING, "library_path",PropertyHint::None,"",PROPERTY_USAGE_NOEDITOR|PROPERTY_USAGE_INTERNAL),
+            "set_library_path", "get_library_path");
+
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "entry"), "set_entry", "get_entry");
 }
 
@@ -60,38 +71,79 @@ static void visit_child_and_assign_library(Node *n,const Ref<SceneLibrary> &lib)
     }
 }
 
+static void search_for_parent_with_library(LibraryEntryInstance *n) {
+
+    auto iter =n ? n->get_parent() : nullptr;
+    while(iter) {
+        LibraryEntryInstance *parent = object_cast<LibraryEntryInstance>(iter);
+        if(parent && parent->get_library()) {
+            n->set_library(parent->get_library());
+            return;
+        }
+        iter = iter->get_parent();
+    }
+}
+
 void LibraryEntryInstance::update_instance()
 {
-    if (instantiated_child) {
-        remove_child(instantiated_child);
-    }
     if(!is_inside_tree())
         return;
 
-    if(library && !entry_name.empty())
+    if(!resolved_library || entry_name.empty())
+        return;
+
     {
         //instantiated_child->set_editable_instance(false);
-        LibraryItemHandle h = library->find_item_by_name(entry_name);
+        LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
         ERR_FAIL_COND_MSG(h == LibraryItemHandle(-1), "Library does not contain selected entry:" + entry_name);
-        instantiated_child = library->get_item_scene(h)->instance();
-        instantiated_child->set_name(library->get_name()+"::"+entry_name);
-        if(library) {
-            visit_child_and_assign_library(instantiated_child,library);
-        }
-        add_child(instantiated_child);
 
+        int idx = get_position_in_parent();
+        auto parent=get_parent();
+        parent->remove_child(this);
+        auto transf = get_transform();
+        instantiated_child = (Node3D *)resolved_library->get_item_scene(h)->instance();
+        instantiated_child->set_name(resolved_library->get_name()+"::"+entry_name);
         // Not setting owner here, to prevent those nodes from being saved.
-
+        int children = get_child_count();
+        while(get_child_count()) {
+            auto chld = get_child(0);
+            remove_child(chld);
+            instantiated_child->add_child(chld);
+        }
+        parent->add_child(instantiated_child);
+        parent->move_child(instantiated_child,idx);
+        instantiated_child->set_transform(transf);
+        instantiated_child->set_owner(parent->get_tree()->get_edited_scene_root());
+        this->queue_delete();
     }
     //EditorNode::get_singleton()->get_edited_scene()->set_editable_instance(node, false);
 }
 
 void LibraryEntryInstance::set_library(const Ref<SceneLibrary> &p_lib) {
-    if(library==p_lib)
+    if(resolved_library==p_lib)
         return;
-    library = p_lib;
+    resolved_library = p_lib;
+    if(p_lib)
+        lib_name = p_lib->get_path();
     Object_change_notify(this);
-    update_instance();
+    call_deferred([this]() {update_instance();});
+}
+
+void LibraryEntryInstance::set_library_path(const String &lib)
+{
+    lib_name = lib;
+    if(!is_inside_tree()) {
+        return;
+    }
+
+    if(!lib.empty()) {
+        resolved_library = dynamic_ref_cast<SceneLibrary>(gResourceManager().load(lib));
+        if(resolved_library)
+            call_deferred([this]() {update_instance();});
+    }
+    else {
+        set_library({});
+    }
 }
 
 void LibraryEntryInstance::set_entry(StringView name)
@@ -107,7 +159,10 @@ void LibraryEntryInstance::_notification(int p_what)
 {
     if(p_what== NOTIFICATION_ENTER_WORLD)
     {
-        update_instance();
+        int idx=get_position_in_parent();
+        if(!resolved_library && !lib_name.empty()) {
+            set_library_path(lib_name);
+        }
         return;
     }
     if (p_what == NOTIFICATION_EXIT_WORLD)

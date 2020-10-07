@@ -5982,7 +5982,6 @@ SpatialEditor::SpatialEditor(EditorNode *p_editor) {
 
     Vector<Variant> button_binds;
     button_binds.resize(1);
-    UIString sct;
 
     tool_button[TOOL_MODE_SELECT] = memnew(ToolButton);
     hbc_menu->add_child(tool_button[TOOL_MODE_SELECT]);

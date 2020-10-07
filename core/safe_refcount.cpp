@@ -119,51 +119,51 @@ _ALWAYS_INLINE_ uint64_t _atomic_exchange_if_greater_impl(volatile uint64_t *pw,
 
 // The actual advertised functions; they'll call the right implementation
 
-uint32_t atomic_conditional_increment(volatile uint32_t *pw) {
+uint32_t atomic_conditional_increment(volatile uint32_t *pw) noexcept {
 	return _atomic_conditional_increment_impl(pw);
 }
 
-uint32_t atomic_decrement(volatile uint32_t *pw) {
+uint32_t atomic_decrement(volatile uint32_t *pw) noexcept {
 	return _atomic_decrement_impl(pw);
 }
 
-uint32_t atomic_increment(volatile uint32_t *pw) {
+uint32_t atomic_increment(volatile uint32_t *pw) noexcept {
 	return _atomic_increment_impl(pw);
 }
 
-uint32_t atomic_sub(volatile uint32_t *pw, volatile uint32_t val) {
+uint32_t atomic_sub(volatile uint32_t *pw, volatile uint32_t val) noexcept {
 	return _atomic_sub_impl(pw, val);
 }
 
-uint32_t atomic_add(volatile uint32_t *pw, volatile uint32_t val) {
+uint32_t atomic_add(volatile uint32_t *pw, volatile uint32_t val) noexcept {
 	return _atomic_add_impl(pw, val);
 }
 
-uint32_t atomic_exchange_if_greater(volatile uint32_t *pw, volatile uint32_t val) {
+uint32_t atomic_exchange_if_greater(volatile uint32_t *pw, volatile uint32_t val) noexcept {
 	return _atomic_exchange_if_greater_impl(pw, val);
 }
 
-uint64_t atomic_conditional_increment(volatile uint64_t *pw) {
+uint64_t atomic_conditional_increment(volatile uint64_t *pw) noexcept {
 	return _atomic_conditional_increment_impl(pw);
 }
 
-uint64_t atomic_decrement(volatile uint64_t *pw) {
+uint64_t atomic_decrement(volatile uint64_t *pw) noexcept {
 	return _atomic_decrement_impl(pw);
 }
 
-uint64_t atomic_increment(volatile uint64_t *pw) {
+uint64_t atomic_increment(volatile uint64_t *pw) noexcept {
 	return _atomic_increment_impl(pw);
 }
 
-uint64_t atomic_sub(volatile uint64_t *pw, volatile uint64_t val) {
+uint64_t atomic_sub(volatile uint64_t *pw, volatile uint64_t val) noexcept {
 	return _atomic_sub_impl(pw, val);
 }
 
-uint64_t atomic_add(volatile uint64_t *pw, volatile uint64_t val) {
+uint64_t atomic_add(volatile uint64_t *pw, volatile uint64_t val) noexcept {
 	return _atomic_add_impl(pw, val);
 }
 
-uint64_t atomic_exchange_if_greater(volatile uint64_t *pw, volatile uint64_t val) {
+uint64_t atomic_exchange_if_greater(volatile uint64_t *pw, volatile uint64_t val) noexcept {
 	return _atomic_exchange_if_greater_impl(pw, val);
 }
 #endif

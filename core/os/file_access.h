@@ -180,18 +180,22 @@ public:
     FileAccess();
     virtual ~FileAccess() = default;
 };
-
+template<bool AUTOCLOSE=false>
 struct FileAccessRef {
+    FileAccess* f;
 
     FileAccess *operator->() {
         return f;
     }
 
     operator bool() const { return f != nullptr; }
-    FileAccess *f;
     operator FileAccess *() { return f; }
     FileAccessRef(FileAccess *fa) { f = fa; }
     ~FileAccessRef() {
-        if (f) memdelete(f);
+        if (f) {
+            if constexpr(AUTOCLOSE)
+                f->close();
+            memdelete(f);
+        }
     }
 };

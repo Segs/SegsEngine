@@ -42,7 +42,7 @@
 // Clang states it supports GCC atomic builtins.
 
 template <class T>
-static _ALWAYS_INLINE_ T atomic_conditional_increment(volatile T *pw) {
+static _ALWAYS_INLINE_ T atomic_conditional_increment(volatile T *pw) noexcept {
 
     while (true) {
         T tmp = static_cast<T const volatile &>(*pw);
@@ -54,31 +54,31 @@ static _ALWAYS_INLINE_ T atomic_conditional_increment(volatile T *pw) {
 }
 
 template <class T>
-static _ALWAYS_INLINE_ T atomic_decrement(volatile T *pw) {
+static _ALWAYS_INLINE_ T atomic_decrement(volatile T *pw) noexcept {
 
     return __sync_sub_and_fetch(pw, 1);
 }
 
 template <class T>
-static _ALWAYS_INLINE_ T atomic_increment(volatile T *pw) {
+static _ALWAYS_INLINE_ T atomic_increment(volatile T *pw) noexcept {
 
     return __sync_add_and_fetch(pw, 1);
 }
 
 template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_sub(volatile T *pw, volatile V val) {
+static _ALWAYS_INLINE_ T atomic_sub(volatile T *pw, volatile V val) noexcept {
 
     return __sync_sub_and_fetch(pw, val);
 }
 
 template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_add(volatile T *pw, volatile V val) {
+static _ALWAYS_INLINE_ T atomic_add(volatile T *pw, volatile V val) noexcept {
 
     return __sync_add_and_fetch(pw, val);
 }
 
 template <class T, class V>
-static _ALWAYS_INLINE_ T atomic_exchange_if_greater(volatile T *pw, volatile V val) {
+static _ALWAYS_INLINE_ T atomic_exchange_if_greater(volatile T *pw, volatile V val) noexcept {
 
     while (true) {
         T tmp = static_cast<T const volatile &>(*pw);
@@ -92,19 +92,19 @@ static _ALWAYS_INLINE_ T atomic_exchange_if_greater(volatile T *pw, volatile V v
 #elif defined(_MSC_VER)
 // For MSVC use a separate compilation unit to prevent windows.h from polluting
 // the global namespace.
-GODOT_EXPORT uint32_t atomic_conditional_increment(volatile uint32_t *pw);
-GODOT_EXPORT uint32_t atomic_decrement(volatile uint32_t *pw);
-GODOT_EXPORT uint32_t atomic_increment(volatile uint32_t *pw);
-GODOT_EXPORT uint32_t atomic_sub(volatile uint32_t *pw, volatile uint32_t val);
-GODOT_EXPORT uint32_t atomic_add(volatile uint32_t *pw, volatile uint32_t val);
-GODOT_EXPORT uint32_t atomic_exchange_if_greater(volatile uint32_t *pw, volatile uint32_t val);
+GODOT_EXPORT uint32_t atomic_conditional_increment(volatile uint32_t *pw) noexcept;
+GODOT_EXPORT uint32_t atomic_decrement(volatile uint32_t *pw) noexcept;
+GODOT_EXPORT uint32_t atomic_increment(volatile uint32_t *pw) noexcept;
+GODOT_EXPORT uint32_t atomic_sub(volatile uint32_t *pw, volatile uint32_t val) noexcept;
+GODOT_EXPORT uint32_t atomic_add(volatile uint32_t *pw, volatile uint32_t val) noexcept;
+GODOT_EXPORT uint32_t atomic_exchange_if_greater(volatile uint32_t *pw, volatile uint32_t val) noexcept;
 
-GODOT_EXPORT uint64_t atomic_conditional_increment(volatile uint64_t *pw);
-GODOT_EXPORT uint64_t atomic_decrement(volatile uint64_t *pw);
-GODOT_EXPORT uint64_t atomic_increment(volatile uint64_t *pw);
-GODOT_EXPORT uint64_t atomic_sub(volatile uint64_t *pw, volatile uint64_t val);
-GODOT_EXPORT uint64_t atomic_add(volatile uint64_t *pw, volatile uint64_t val);
-GODOT_EXPORT uint64_t atomic_exchange_if_greater(volatile uint64_t *pw, volatile uint64_t val);
+GODOT_EXPORT uint64_t atomic_conditional_increment(volatile uint64_t *pw) noexcept;
+GODOT_EXPORT uint64_t atomic_decrement(volatile uint64_t *pw) noexcept;
+GODOT_EXPORT uint64_t atomic_increment(volatile uint64_t *pw) noexcept;
+GODOT_EXPORT uint64_t atomic_sub(volatile uint64_t *pw, volatile uint64_t val) noexcept;
+GODOT_EXPORT uint64_t atomic_add(volatile uint64_t *pw, volatile uint64_t val) noexcept;
+GODOT_EXPORT uint64_t atomic_exchange_if_greater(volatile uint64_t *pw, volatile uint64_t val) noexcept;
 
 #else
 //no threads supported?
@@ -118,22 +118,22 @@ struct SafeRefCount {
 public:
     // destroy() is called when weak_count_ drops to zero.
 
-    _ALWAYS_INLINE_ bool ref() { //true on success
+    _ALWAYS_INLINE_ bool ref() noexcept { //true on success
 
         return atomic_conditional_increment(&count) != 0;
     }
 
-    _ALWAYS_INLINE_ uint32_t refval() { // none-zero on success
+    _ALWAYS_INLINE_ uint32_t refval() noexcept { // none-zero on success
 
         return atomic_conditional_increment(&count);
     }
 
-    _ALWAYS_INLINE_ bool unref() { // true if must be disposed of
+    _ALWAYS_INLINE_ bool unref() noexcept { // true if must be disposed of
 
         return atomic_decrement(&count) == 0;
     }
 
-    _ALWAYS_INLINE_ uint32_t unrefval() { // 0 if must be disposed of
+    _ALWAYS_INLINE_ uint32_t unrefval() noexcept { // 0 if must be disposed of
 
         return atomic_decrement(&count);
     }

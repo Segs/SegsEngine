@@ -93,11 +93,12 @@ Vector<Vector2> expand(const Vector<Vector2> &points, const Rect2i &rect, float 
     cl.StrictlySimple(true);
     cl.AddPath(p->Contour, ClipperLib::ptSubject, true);
     //create the clipping rect
-    ClipperLib::Path clamp;
-    clamp.push_back(ClipperLib::IntPoint(0, 0));
-    clamp.push_back(ClipperLib::IntPoint(rect.size.width * PRECISION, 0));
-    clamp.push_back(ClipperLib::IntPoint(rect.size.width * PRECISION, rect.size.height * PRECISION));
-    clamp.push_back(ClipperLib::IntPoint(0, rect.size.height * PRECISION));
+    ClipperLib::Path clamp {
+        ClipperLib::IntPoint(0, 0),
+        ClipperLib::IntPoint(rect.size.width * PRECISION, 0),
+        ClipperLib::IntPoint(rect.size.width * PRECISION, rect.size.height * PRECISION),
+        ClipperLib::IntPoint(0, rect.size.height * PRECISION)
+    };
     cl.AddPath(clamp, ClipperLib::ptClip, true);
     cl.Execute(ClipperLib::ctIntersection, out);
 

@@ -313,8 +313,8 @@ bool make_license_header2(QStringList source)
                 if (tp_current == 5)
                 {
                     tp_licensetext.append({tp_licensename, tp_licensebody});
-                    tp_licensename = "";
-                    tp_licensebody = "";
+                    tp_licensename.clear();
+                    tp_licensebody.clear();
                 }
                 else
                 {

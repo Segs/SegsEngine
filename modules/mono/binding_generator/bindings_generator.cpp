@@ -64,64 +64,6 @@ static void process(ProjectContext &ctx) {
     for (auto pass : passes)
         delete pass;
 
-    //    TS_Function tf;
-    //    tf.cs_name="nest";
-    //    process_call(tf,ctx);
-
-    //    TS_Property pinfo;
-    //    pinfo.cs_name = "Proppy";
-    //    pinfo.setter = TS_Function {"set_proppy","void",{"int"}};
-    //    pinfo.getter = TS_Function {"get_proppy","int",{}};
-    //    process_property(pinfo,ctx);
-
-    //    /*
-    //        ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("blend_point/" + itos(i) + "/node"),
-    //        PropertyHint::ResourceType, "AnimationRootNode", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL),
-    //        "_add_blend_point", "get_blend_point_node", i); ADD_PROPERTYI(PropertyInfo(VariantType::FLOAT,
-    //        StringName("blend_point/" + itos(i) + "/pos"), PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR |
-    //        PROPERTY_USAGE_INTERNAL), "set_blend_point_position", "get_blend_point_position", i);
-    //    */
-
-    //    Vector<PropertyInterface> nested_indexed;
-    //    PropertyInterface bp;
-    //    bp.cname = "Blend Points";
-    //    bp.max_property_index = 64;
-    //    PropertyInterface::TypedEntry te;
-    //    te.index=0;
-    //    te.entry_type=TypeReference {"Object"};
-    //    te.subfield_name = "node";
-    //    te.getter="get_blend_point_node";
-    //    te.setter="_add_blend_point";
-    //    bp.indexed_entries.push_back(te);
-    //    te.index=0;
-    //    te.entry_type=TypeReference {"float"};
-    //    te.subfield_name = "pos";
-    //    te.getter="get_blend_point_position";
-    //    te.setter="set_blend_point_position";
-    //    bp.indexed_entries.push_back(te);
-
-    //    if(bp.max_property_index>0) {
-    //        process_array_property(bp,ctx.impl_cs_ctx());
-    //    }
-    //    bp={};
-    //    bp.cname = "Interface";
-    //    bp.max_property_index = -2;
-    //    te.index=-1;
-    //    te.entry_type=TypeReference {"bool"};
-    //    te.subfield_name = "is_primary";
-    //    te.getter="is_primary";
-    //    te.setter="set_is_primary";
-    //    bp.indexed_entries.push_back(te);
-    //    te.index=1;
-    //    te.entry_type=TypeReference {"bool"};
-    //    te.subfield_name = "is_initialized";
-    //    te.getter="is_initialized";
-    //    te.setter="set_is_initialized";
-    //    bp.indexed_entries.push_back(te);
-
-    //    if(bp.max_property_index==-2) {
-    //        process_group_property(bp,ctx.impl_cs_ctx());
-    //    }
 }
 void register_core_types() {
     StringName::setup();

@@ -126,7 +126,7 @@ void PropertySelector::_update_search() {
 
         bool found = false;
 
-        Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
+        const Ref<Texture> type_icons[(int)VariantType::VARIANT_MAX] = {
             Control::get_icon("Variant", "EditorIcons"),
             Control::get_icon("bool", "EditorIcons"),
             Control::get_icon("int", "EditorIcons"),
