@@ -155,7 +155,7 @@ public:
     void set_velocity(Vector3 p_velocity);
     void _avoidance_done(Vector3 p_new_velocity);
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 private:
     void update_navigation();

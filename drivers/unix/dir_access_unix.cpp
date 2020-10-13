@@ -129,6 +129,10 @@ uint64_t DirAccessUnix::get_modified_time(StringView _file) {
     return 0;
 };
 
+bool DirAccessUnix::is_hidden(StringView p_name) {
+    return p_name != StringView(".") && p_name != StringView("..") && StringUtils::begins_with(p_name,".");
+}
+
 String DirAccessUnix::get_next() {
 
     if (!dir_stream)
@@ -161,7 +165,7 @@ String DirAccessUnix::get_next() {
         _cisdir = (entry->d_type == DT_DIR);
     }
 
-    _cishidden = (fname != "." && fname != ".." && StringUtils::begins_with(fname,"."));
+    _cishidden = is_hidden(fname);
 
     return fname;
 }

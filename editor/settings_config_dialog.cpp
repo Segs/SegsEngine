@@ -181,15 +181,15 @@ void EditorSettingsDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 
 void EditorSettingsDialog::_update_icons() {
 
-    search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+    search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
     search_box->set_clear_button_enabled(true);
-    shortcut_search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+    shortcut_search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
     shortcut_search_box->set_clear_button_enabled(true);
 
-    restart_close_button->set_button_icon(get_icon("Close", "EditorIcons"));
-    restart_container->add_style_override("panel", get_stylebox("bg", "Tree"));
-    restart_icon->set_texture(get_icon("StatusWarning", "EditorIcons"));
-    restart_label->add_color_override("font_color", get_color("warning_color", "Editor"));
+    restart_close_button->set_button_icon(get_theme_icon("Close", "EditorIcons"));
+    restart_container->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
+    restart_icon->set_texture(get_theme_icon("StatusWarning", "EditorIcons"));
+    restart_label->add_theme_color_override("font_color", get_theme_color("warning_color", "Editor"));
 }
 
 void EditorSettingsDialog::_update_shortcuts() {
@@ -235,8 +235,8 @@ void EditorSettingsDialog::_update_shortcuts() {
             }
 
             sections[section_name] = section;
-            section->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
-            section->set_custom_bg_color(1, get_color("prop_subsection", "Editor"));
+            section->set_custom_bg_color(0, get_theme_color("prop_subsection", "Editor"));
+            section->set_custom_bg_color(1, get_theme_color("prop_subsection", "Editor"));
         }
         // Don't match unassigned shortcuts when searching for assigned keys in search results.
         // This prevents all unassigned shortcuts from appearing when searching a string like "no".
@@ -248,14 +248,14 @@ void EditorSettingsDialog::_update_shortcuts() {
             item->set_text_utf8(0, sc->get_name());
             item->set_text_utf8(1, sc->get_as_text());
             if (!sc->is_shortcut(original) && !(not sc->get_shortcut() && not original)) {
-                item->add_button(1, get_icon("Reload", "EditorIcons"), 2);
+                item->add_button(1, get_theme_icon("Reload", "EditorIcons"), 2);
             }
             if (sc->get_as_text() == "None") {
                 // Fade out unassigned shortcut labels for easier visual grepping.
-                item->set_custom_color(1, get_color("font_color", "Label") * Color(1, 1, 1, 0.5));
+                item->set_custom_color(1, get_theme_color("font_color", "Label") * Color(1, 1, 1, 0.5));
             }
-            item->add_button(1, get_icon("Edit", "EditorIcons"), 0);
-            item->add_button(1, get_icon("Close", "EditorIcons"), 1);
+            item->add_button(1, get_theme_icon("Edit", "EditorIcons"), 0);
+            item->add_button(1, get_theme_icon("Close", "EditorIcons"), 1);
             item->set_tooltip(0, StringName(E));
             item->set_metadata(0, E);
         }
@@ -389,19 +389,8 @@ void EditorSettingsDialog::_editor_restart_close() {
 void EditorSettingsDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_unhandled_input"), &EditorSettingsDialog::_unhandled_input);
-    MethodBinder::bind_method(D_METHOD("_settings_save"), &EditorSettingsDialog::_settings_save);
     MethodBinder::bind_method(D_METHOD("_settings_changed"), &EditorSettingsDialog::_settings_changed);
-    MethodBinder::bind_method(D_METHOD("_settings_property_edited"), &EditorSettingsDialog::_settings_property_edited);
-    MethodBinder::bind_method(D_METHOD("_shortcut_button_pressed"), &EditorSettingsDialog::_shortcut_button_pressed);
-    MethodBinder::bind_method(D_METHOD("_filter_shortcuts"), &EditorSettingsDialog::_filter_shortcuts);
     MethodBinder::bind_method(D_METHOD("_update_shortcuts"), &EditorSettingsDialog::_update_shortcuts);
-    MethodBinder::bind_method(D_METHOD("_press_a_key_confirm"), &EditorSettingsDialog::_press_a_key_confirm);
-    MethodBinder::bind_method(D_METHOD("_wait_for_key"), &EditorSettingsDialog::_wait_for_key);
-    MethodBinder::bind_method(D_METHOD("_tabs_tab_changed"), &EditorSettingsDialog::_tabs_tab_changed);
-
-    MethodBinder::bind_method(D_METHOD("_editor_restart_request"), &EditorSettingsDialog::_editor_restart_request);
-    MethodBinder::bind_method(D_METHOD("_editor_restart"), &EditorSettingsDialog::_editor_restart);
-    MethodBinder::bind_method(D_METHOD("_editor_restart_close"), &EditorSettingsDialog::_editor_restart_close);
 }
 
 EditorSettingsDialog::EditorSettingsDialog() {
@@ -427,6 +416,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
     tab_general->add_child(hbc);
 
     search_box = memnew(LineEdit);
+    search_box->set_placeholder(TTR("Search"));
     search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
     hbc->add_child(search_box);
 
@@ -471,6 +461,7 @@ EditorSettingsDialog::EditorSettingsDialog() {
 
     shortcut_search_box = memnew(LineEdit);
     shortcut_search_box->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    shortcut_search_box->set_placeholder(TTR("Search"));
     hbc->add_child(shortcut_search_box);
     shortcut_search_box->connect("text_changed",callable_mp(this, &ClassName::_filter_shortcuts));
 

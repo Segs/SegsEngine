@@ -458,10 +458,10 @@ void EditorAutoloadSettings::update_autoload() {
         item->set_editable(2, true);
         item->set_text(2, TTR("Enable"));
         item->set_checked(2, info.is_singleton);
-        item->add_button(3, get_icon("Load", "EditorIcons"), BUTTON_OPEN);
-        item->add_button(3, get_icon("MoveUp", "EditorIcons"), BUTTON_MOVE_UP);
-        item->add_button(3, get_icon("MoveDown", "EditorIcons"), BUTTON_MOVE_DOWN);
-        item->add_button(3, get_icon("Remove", "EditorIcons"), BUTTON_DELETE);
+        item->add_button(3, get_theme_icon("Load", "EditorIcons"), BUTTON_OPEN);
+        item->add_button(3, get_theme_icon("MoveUp", "EditorIcons"), BUTTON_MOVE_UP);
+        item->add_button(3, get_theme_icon("MoveDown", "EditorIcons"), BUTTON_MOVE_DOWN);
+        item->add_button(3, get_theme_icon("Remove", "EditorIcons"), BUTTON_DELETE);
         item->set_selectable(3, false);
     }
 
@@ -751,17 +751,6 @@ void EditorAutoloadSettings::autoload_remove(const StringName &p_name) {
 }
 
 void EditorAutoloadSettings::_bind_methods() {
-
-    MethodBinder::bind_method("_autoload_add", &EditorAutoloadSettings::_autoload_add);
-    MethodBinder::bind_method("_autoload_selected", &EditorAutoloadSettings::_autoload_selected);
-    MethodBinder::bind_method("_autoload_edited", &EditorAutoloadSettings::_autoload_edited);
-    MethodBinder::bind_method("_autoload_button_pressed", &EditorAutoloadSettings::_autoload_button_pressed);
-    MethodBinder::bind_method("_autoload_activated", &EditorAutoloadSettings::_autoload_activated);
-    MethodBinder::bind_method("_autoload_path_text_changed", &EditorAutoloadSettings::_autoload_path_text_changed);
-    MethodBinder::bind_method("_autoload_text_entered", &EditorAutoloadSettings::_autoload_text_entered);
-    MethodBinder::bind_method("_autoload_text_changed", &EditorAutoloadSettings::_autoload_text_changed);
-    MethodBinder::bind_method("_autoload_open", &EditorAutoloadSettings::_autoload_open);
-    MethodBinder::bind_method("_autoload_file_callback", &EditorAutoloadSettings::_autoload_file_callback);
 
     MethodBinder::bind_method("get_drag_data_fw", &EditorAutoloadSettings::get_drag_data_fw);
     MethodBinder::bind_method("can_drop_data_fw", &EditorAutoloadSettings::can_drop_data_fw);

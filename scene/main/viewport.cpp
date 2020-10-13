@@ -1571,7 +1571,7 @@ String Viewport::_gui_get_tooltip(Control *p_control, const Vector2 &p_pos, Cont
 
         if (p_control->data.mouse_filter == Control::MOUSE_FILTER_STOP)
             break;
-        if (p_control->is_set_as_toplevel())
+        if (p_control->is_set_as_top_level())
             break;
 
         p_control = p_control->get_parent_control();
@@ -1612,7 +1612,7 @@ void Viewport::_gui_show_tooltip() {
         gui.tooltip_label = memnew(TooltipLabel);
         gui.tooltip_popup->add_child(gui.tooltip_label);
 
-        Ref<StyleBox> ttp = gui.tooltip_label->get_stylebox("panel", "TooltipPanel");
+        Ref<StyleBox> ttp = gui.tooltip_label->get_theme_stylebox("panel", "TooltipPanel");
 
         gui.tooltip_label->set_anchor_and_margin(Margin::Left, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Left));
         gui.tooltip_label->set_anchor_and_margin(Margin::Top, Control::ANCHOR_BEGIN, ttp->get_margin(Margin::Top));
@@ -1623,7 +1623,7 @@ void Viewport::_gui_show_tooltip() {
 
     rp->add_child(gui.tooltip_popup);
     gui.tooltip_popup->force_parent_owned();
-    gui.tooltip_popup->set_as_toplevel(true);
+    gui.tooltip_popup->set_as_top_level(true);
     if (gui.tooltip) // Avoids crash when rapidly switching controls.
         gui.tooltip_popup->set_scale(gui.tooltip->get_global_transform().get_scale());
 
@@ -1690,7 +1690,7 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 }
             }
 
-            if (!control->is_inside_tree() || control->is_set_as_toplevel())
+            if (!control->is_inside_tree() || control->is_set_as_top_level())
                 break;
             if (gui.key_event_accepted)
                 break;
@@ -1698,7 +1698,7 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 break;
         }
 
-        if (ci->is_set_as_toplevel())
+        if (ci->is_set_as_top_level())
             break;
 
         ev = ev->xformed_by(ci->get_transform()); //transform event upwards
@@ -1723,13 +1723,13 @@ void Viewport::_gui_call_notification(Control *p_control, int p_what) {
             if (!control->is_inside_tree())
                 break;
 
-            if (!control->is_inside_tree() || control->is_set_as_toplevel())
+            if (!control->is_inside_tree() || control->is_set_as_top_level())
                 break;
             if (control->data.mouse_filter == Control::MOUSE_FILTER_STOP)
                 break;
         }
 
-        if (ci->is_set_as_toplevel())
+        if (ci->is_set_as_top_level())
             break;
 
         ci = ci->get_parent_item();
@@ -1809,7 +1809,7 @@ Control *Viewport::_gui_find_control_at_pos(CanvasItem *p_node, const Point2 &p_
                 continue;
 
             CanvasItem *ci = object_cast<CanvasItem>(p_node->get_child(i));
-            if (!ci || ci->is_set_as_toplevel())
+            if (!ci || ci->is_set_as_top_level())
                 continue;
 
             Control *ret = _gui_find_control_at_pos(ci, p_global, matrix, r_inv_xform);
@@ -1854,7 +1854,7 @@ bool Viewport::_gui_drop(Control *p_at_control, Point2 p_at_pos, bool p_just_che
 
             p_at_pos = ci->get_transform().xform(p_at_pos);
 
-            if (ci->is_set_as_toplevel())
+            if (ci->is_set_as_top_level())
                 break;
 
             ci = ci->get_parent_item();
@@ -1988,7 +1988,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                             break;
                     }
 
-                    if (ci->is_set_as_toplevel())
+                    if (ci->is_set_as_top_level())
                         break;
 
                     ci = ci->get_parent_item();
@@ -2123,7 +2123,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                                 break;
                         }
 
-                        if (ci->is_set_as_toplevel())
+                        if (ci->is_set_as_top_level())
                             break;
 
                         ci = ci->get_parent_item();
@@ -2273,7 +2273,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                     break;
                 if (c->data.mouse_filter == Control::MOUSE_FILTER_STOP)
                     break;
-                if (c->is_set_as_toplevel())
+                if (c->is_set_as_top_level())
                     break;
                 c = c->get_parent_control();
             }
@@ -2583,7 +2583,7 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     if (gui.drag_preview) {
         memdelete(gui.drag_preview);
     }
-    p_control->set_as_toplevel(true);
+    p_control->set_as_top_level(true);
     p_control->set_position(gui.last_mouse_pos);
     p_base->get_root_parent_control()->add_child(p_control); //add as child of viewport
     p_control->raise();
@@ -2765,7 +2765,7 @@ Control *Viewport::_gui_get_focus_owner() {
 void Viewport::_gui_grab_click_focus(Control *p_control) {
 
     gui.mouse_click_grabber = p_control;
-    call_deferred("_post_gui_grab_click_focus");
+    call_deferred([this]() { _post_gui_grab_click_focus(); });
 }
 
 void Viewport::_post_gui_grab_click_focus() {
@@ -2992,17 +2992,20 @@ Control *Viewport::get_modal_stack_top() const {
     return !gui.modal_stack.empty() ? gui.modal_stack.back() : nullptr;
 }
 
-StringName Viewport::get_configuration_warning() const {
-
-    /*if (get_parent() && !object_cast<Control>(get_parent()) && !render_target) {
+String Viewport::get_configuration_warning() const {
+    /*if (get_parent() && !Object::cast_to<Control>(get_parent()) && !render_target) {
 
         return TTR("This viewport is not set as render target. If you intend for it to display its contents directly to the screen, make it a child of a Control so it can obtain a size. Otherwise, make it a RenderTarget and assign its internal texture to some node for display.");
     }*/
-    if (size.x == 0 || size.y == 0) {
-        return TTR("Viewport size must be greater than 0 to render anything.");
-    }
 
-    return StringName();
+    String warning = Node::get_configuration_warning();
+
+    if (size.x == 0 || size.y == 0) {
+        if (!warning.empty())
+            warning += "\n\n";
+        warning += TTR("Viewport size must be greater than 0 to render anything.");
+    }
+    return warning;
 }
 
 void Viewport::gui_reset_canvas_sort_index() {
@@ -3221,7 +3224,6 @@ void Viewport::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_show_tooltip"), &Viewport::_gui_show_tooltip);
     MethodBinder::bind_method(D_METHOD("_gui_remove_focus"), &Viewport::_gui_remove_focus);
-    MethodBinder::bind_method(D_METHOD("_post_gui_grab_click_focus"), &Viewport::_post_gui_grab_click_focus);
 
     MethodBinder::bind_method(D_METHOD("set_shadow_atlas_size", {"size"}), &Viewport::set_shadow_atlas_size);
     MethodBinder::bind_method(D_METHOD("get_shadow_atlas_size"), &Viewport::get_shadow_atlas_size);
@@ -3239,8 +3241,6 @@ void Viewport::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_handling_input_locally"), &Viewport::is_handling_input_locally);
 
     MethodBinder::bind_method(D_METHOD("_subwindow_visibility_changed"), &Viewport::_subwindow_visibility_changed);
-
-    MethodBinder::bind_method(D_METHOD("_own_world_changed"), &Viewport::_own_world_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "arvr"), "set_use_arvr", "use_arvr");
 

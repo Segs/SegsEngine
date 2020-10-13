@@ -153,7 +153,7 @@ public:
 
     operator String() const;
 
-    Error emit_signal(const Variant **p_arguments, int p_argcount) const;
+    void emit_signal(const Variant **p_arguments, int p_argcount) const;
     Error connect(const Callable &p_callable, const Vector<Variant> &p_binds = Vector<Variant>(), uint32_t p_flags = 0);
     void disconnect(const Callable &p_callable);
     [[nodiscard]] bool is_connected(const Callable &p_callable) const;

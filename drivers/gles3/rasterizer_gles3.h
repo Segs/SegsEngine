@@ -75,6 +75,8 @@ public:
 
 //  bool is_low_end() const override { return false; }
 
+    const char *gl_check_for_error(bool p_print_error = true);
+
     RasterizerGLES3();
     ~RasterizerGLES3() override;
 };

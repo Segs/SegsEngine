@@ -222,11 +222,6 @@ void EditorSubScene::clear() {
 
 void EditorSubScene::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_path_selected"), &EditorSubScene::_path_selected);
-    MethodBinder::bind_method(D_METHOD("_path_changed"), &EditorSubScene::_path_changed);
-    MethodBinder::bind_method(D_METHOD("_path_browse"), &EditorSubScene::_path_browse);
-    MethodBinder::bind_method(D_METHOD("_item_multi_selected"), &EditorSubScene::_item_multi_selected);
-    MethodBinder::bind_method(D_METHOD("_selected_changed"), &EditorSubScene::_selected_changed);
     ADD_SIGNAL(MethodInfo("subscene_selected"));
 }
 

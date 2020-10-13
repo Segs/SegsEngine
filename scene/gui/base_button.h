@@ -32,6 +32,7 @@
 
 #include "scene/gui/control.h"
 #include "scene/gui/shortcut.h"
+#include "core/jlsignal/SignalDefinitions.h"
 
 class ButtonGroup;
 
@@ -89,6 +90,8 @@ public:
         DRAW_DISABLED,
         DRAW_HOVER_PRESSED,
     };
+
+    jl::Signal<bool> sig_toggled;
 
     DrawMode get_draw_mode() const;
 

@@ -262,17 +262,24 @@ int LightOccluder2D::get_occluder_light_mask() const {
     return mask;
 }
 
-StringName LightOccluder2D::get_configuration_warning() const {
+String LightOccluder2D::get_configuration_warning() const {
 
-    if (not occluder_polygon) {
-        return TTR("An occluder polygon must be set (or drawn) for this occluder to take effect.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (!occluder_polygon) {
+        if (!warning.empty()){
+            warning += "\n\n";
+        }
+        warning += TTR("An occluder polygon must be set (or drawn) for this occluder to take effect.");
     }
 
     if (occluder_polygon && occluder_polygon->get_polygon().size() == 0) {
-        return TTR("The occluder polygon for this occluder is empty. Please draw a polygon.");
+        if (!warning.empty()){
+            warning += "\n\n";
+        }
+        warning += TTR("The occluder polygon for this occluder is empty. Please draw a polygon.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void LightOccluder2D::_bind_methods() {

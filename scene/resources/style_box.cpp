@@ -31,6 +31,7 @@
 #include "style_box.h"
 #include "scene/2d/canvas_item.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 #include <climits>
 
@@ -264,6 +265,7 @@ void StyleBoxTexture::set_region_rect(const Rect2 &p_region_rect) {
 
     region_rect = p_region_rect;
     emit_changed();
+    Object_change_notify(this,"region");
 }
 
 Rect2 StyleBoxTexture::get_region_rect() const {
@@ -944,7 +946,8 @@ void StyleBoxFlat::_bind_methods() {
 
     ADD_GROUP("Shadow", "shadow_");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "shadow_color"), "set_shadow_color", "get_shadow_color");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_size"), "set_shadow_size", "get_shadow_size");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "shadow_size", PropertyHint::Range, "0,100,1,or_greater"), "set_shadow_size", "get_shadow_size");
+
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "shadow_offset"), "set_shadow_offset", "get_shadow_offset");
 
     ADD_GROUP("Anti Aliasing", "anti_aliasing_");

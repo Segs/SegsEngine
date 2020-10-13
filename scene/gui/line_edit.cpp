@@ -613,7 +613,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
                 } break;
                 case KEY_MENU: {
                     if (context_menu_enabled) {
-                        Point2 pos = Point2(get_cursor_pixel_pos(), (get_size().y + get_font("font")->get_height()) / 2);
+                        Point2 pos = Point2(get_cursor_pixel_pos(), (get_size().y + get_theme_font("font")->get_height()) / 2);
                         menu->set_position(get_global_transform().xform(pos));
                         menu->set_size(Vector2(1, 1));
                         menu->set_scale(get_global_transform().get_scale());
@@ -630,7 +630,7 @@ void LineEdit::_gui_input(const Ref<InputEvent>& p_event) {
 
             if (handled) {
                 accept_event();
-            } else if (!k->get_command()) {
+            } else if (!k->get_command() || (k->get_command() && k->get_alt())) {
                 if (k->get_unicode() >= 32 && k->get_keycode() != KEY_DELETE) {
 
                     if (editable) {
@@ -689,7 +689,7 @@ void LineEdit::drop_data(const Point2 &p_point, const Variant &p_data) {
         set_cursor_at_pixel_pos(p_point.x);
         int selected = selection.end - selection.begin;
 
-        Ref<Font> font = get_font("font");
+        Ref<Font> font = get_theme_font("font");
         if (font != nullptr) {
             for (int i = selection.begin; i < selection.end; i++)
                 m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
@@ -714,8 +714,8 @@ bool LineEdit::_is_over_clear_button(const Point2 &p_pos) const {
     if (!clear_button_enabled || !has_point(p_pos)) {
         return false;
     }
-    Ref<Texture> icon = Control::get_icon("clear");
-    int x_ofs = get_stylebox("normal")->get_offset().x;
+    Ref<Texture> icon = Control::get_theme_icon("clear");
+    int x_ofs = get_theme_stylebox("normal")->get_offset().x;
     return p_pos.x > get_size().width - icon->get_width() - x_ofs;
 }
 
@@ -769,19 +769,19 @@ void LineEdit::_notification(int p_what) {
 
             RID ci = get_canvas_item();
 
-            Ref<StyleBox> style = get_stylebox("normal");
+            Ref<StyleBox> style = get_theme_stylebox("normal");
             if (!is_editable()) {
-                style = get_stylebox("read_only");
+                style = get_theme_stylebox("read_only");
                 draw_caret = false;
             }
 
-            Ref<Font> font = get_font("font");
+            Ref<Font> font = get_theme_font("font");
 
             style->draw(ci, Rect2(Point2(), size));
 
             if (has_focus()) {
 
-                get_stylebox("focus")->draw(ci, Rect2(Point2(), size));
+                get_theme_stylebox("focus")->draw(ci, Rect2(Point2(), size));
             }
 
             int x_ofs = 0;
@@ -816,10 +816,10 @@ void LineEdit::_notification(int p_what) {
 
             int font_ascent = font->get_ascent();
 
-            Color selection_color = get_color("selection_color");
-            Color font_color = is_editable() ? get_color("font_color") : get_color("font_color_uneditable");
-            Color font_color_selected = get_color("font_color_selected");
-            Color cursor_color = get_color("cursor_color");
+            Color selection_color = get_theme_color("selection_color");
+            Color font_color = is_editable() ? get_theme_color("font_color") : get_theme_color("font_color_uneditable");
+            Color font_color_selected = get_theme_color("font_color_selected");
+            Color cursor_color = get_theme_color("cursor_color");
 
             const UIString t = using_placeholder ? StringUtils::from_utf8(placeholder_translated) : m_priv->text;
             // Draw placeholder color.
@@ -828,13 +828,13 @@ void LineEdit::_notification(int p_what) {
 
             bool display_clear_icon = !using_placeholder && is_editable() && clear_button_enabled;
             if (right_icon || display_clear_icon) {
-                Ref<Texture> r_icon = display_clear_icon ? Control::get_icon("clear") : right_icon;
+                Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : right_icon;
                 Color color_icon(1, 1, 1, !is_editable() ? .5f * .9f : .9f);
                 if (display_clear_icon) {
                     if (clear_button_status.press_attempt && clear_button_status.pressing_inside) {
-                        color_icon = get_color("clear_button_color_pressed");
+                        color_icon = get_theme_color("clear_button_color_pressed");
                     } else {
-                        color_icon = get_color("clear_button_color");
+                        color_icon = get_theme_color("clear_button_color");
                     }
                 }
                 r_icon->draw(ci, Point2(width - r_icon->get_width() - style->get_margin(Margin::Right), height / 2 - r_icon->get_height() / 2), color_icon);
@@ -1050,7 +1050,7 @@ void LineEdit::paste_text() {
 
         if (!text_changed_dirty) {
             if (is_inside_tree() && m_priv->text.length()!=prev_len) {
-                MessageQueue::get_singleton()->push_call(this, "_text_changed");
+                MessageQueue::get_singleton()->push_call(get_instance_id(),[this]() {_text_changed();});
             }
             text_changed_dirty = true;
         }
@@ -1099,13 +1099,13 @@ void LineEdit::shift_selection_check_post(bool p_shift) {
 
 void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
-    Ref<Font> font = get_font("font");
+    Ref<Font> font = get_theme_font("font");
     int ofs = m_priv->window_pos;
-    Ref<StyleBox> style = get_stylebox("normal");
+    Ref<StyleBox> style = get_theme_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
     bool display_clear_icon = !m_priv->text.isEmpty() && is_editable() && clear_button_enabled;
-    int r_icon_width = Control::get_icon("clear")->get_width();
+    int r_icon_width = Control::get_theme_icon("clear")->get_width();
 
     switch (align) {
 
@@ -1153,13 +1153,13 @@ void LineEdit::set_cursor_at_pixel_pos(int p_x) {
 
 int LineEdit::get_cursor_pixel_pos() {
 
-    Ref<Font> font = get_font("font");
+    Ref<Font> font = get_theme_font("font");
     int ofs = m_priv->window_pos;
-    Ref<StyleBox> style = get_stylebox("normal");
+    Ref<StyleBox> style = get_theme_stylebox("normal");
     int pixel_ofs = 0;
     Size2 size = get_size();
     bool display_clear_icon = !m_priv->text.isEmpty() && is_editable() && clear_button_enabled;
-    int r_icon_width = Control::get_icon("clear")->get_width();
+    int r_icon_width = Control::get_theme_icon("clear")->get_width();
 
     switch (align) {
 
@@ -1244,7 +1244,7 @@ void LineEdit::delete_char() {
 
     if ((m_priv->text.length() <= 0) || (cursor_pos == 0)) return;
 
-    Ref<Font> font = get_font("font");
+    Ref<Font> font = get_theme_font("font");
     if (font != nullptr) {
         m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[cursor_pos - 1]).width;
     }
@@ -1261,7 +1261,7 @@ void LineEdit::delete_char() {
 void LineEdit::delete_text(int p_from_column, int p_to_column) {
 
     if (!m_priv->text.isEmpty()) {
-        Ref<Font> font = get_font("font");
+        Ref<Font> font = get_theme_font("font");
         if (font != nullptr) {
             for (int i = p_from_column; i < p_to_column; i++)
                 m_priv->cached_width -= font->get_char_size(pass ? UIString(secret_character.c_str())[0] : m_priv->text[i]).width;
@@ -1286,7 +1286,7 @@ void LineEdit::delete_text(int p_from_column, int p_to_column) {
     }
     if (!text_changed_dirty) {
         if (is_inside_tree()) {
-            MessageQueue::get_singleton()->push_call(this, "_text_changed");
+            MessageQueue::get_singleton()->push_call(get_instance_id(),[this]() {_text_changed();});
         }
         text_changed_dirty = true;
     }
@@ -1373,8 +1373,8 @@ void LineEdit::set_cursor_position(int p_pos) {
         return;
     }
 
-    Ref<StyleBox> style = get_stylebox("normal");
-    Ref<Font> font = get_font("font");
+    Ref<StyleBox> style = get_theme_stylebox("normal");
+    Ref<Font> font = get_theme_font("font");
 
     if (cursor_pos <= m_priv->window_pos) {
         // Adjust window if cursor goes too much to the left.
@@ -1384,7 +1384,7 @@ void LineEdit::set_cursor_position(int p_pos) {
         int window_width = get_size().width - style->get_minimum_size().width;
         bool display_clear_icon = !m_priv->text.isEmpty() && is_editable() && clear_button_enabled;
         if (right_icon || display_clear_icon) {
-            Ref<Texture> r_icon = display_clear_icon ? Control::get_icon("clear") : right_icon;
+            Ref<Texture> r_icon = display_clear_icon ? Control::get_theme_icon("clear") : right_icon;
             window_width -= r_icon->get_width();
         }
 
@@ -1461,14 +1461,14 @@ void LineEdit::clear_internal() {
 
 Size2 LineEdit::get_minimum_size() const {
 
-    Ref<StyleBox> style = get_stylebox("normal");
-    Ref<Font> font = get_font("font");
+    Ref<StyleBox> style = get_theme_stylebox("normal");
+    Ref<Font> font = get_theme_font("font");
 
     Size2 min_size;
 
     // Minimum size of text.
     int space_size = font->get_char_size(' ').x;
-    min_size.width = get_constant("minimum_spaces") * space_size;
+    min_size.width = get_theme_constant("minimum_spaces") * space_size;
 
     if (expand_to_text_length) {
         // Add a space because some fonts are too exact, and because cursor needs a bit more when at the end.
@@ -1479,8 +1479,8 @@ Size2 LineEdit::get_minimum_size() const {
 
     // Take icons into account.
     if (!m_priv->text.isEmpty() && is_editable() && clear_button_enabled) {
-        min_size.width = M_MAX(min_size.width, Control::get_icon("clear")->get_width());
-        min_size.height = M_MAX(min_size.height, Control::get_icon("clear")->get_height());
+        min_size.width = M_MAX(min_size.width, Control::get_theme_icon("clear")->get_width());
+        min_size.height = M_MAX(min_size.height, Control::get_theme_icon("clear")->get_height());
     }
     if (right_icon) {
         min_size.width = M_MAX(min_size.width, right_icon->get_width());
@@ -1760,7 +1760,7 @@ void LineEdit::_emit_text_change() {
     text_changed_dirty = false;
 }
 void LineEdit::update_cached_width() {
-    Ref<Font> font = get_font("font");
+    Ref<Font> font = get_theme_font("font");
     m_priv->cached_width = 0;
     if (font != NULL) {
         String text = get_text();
@@ -1770,7 +1770,7 @@ void LineEdit::update_cached_width() {
     }
 }
 void LineEdit::update_placeholder_width() {
-    Ref<Font> font = get_font("font");
+    Ref<Font> font = get_theme_font("font");
     cached_placeholder_width = 0;
     if (font != nullptr) {
         UIString ph_ui_string(placeholder_translated.asString());
@@ -1799,11 +1799,6 @@ void LineEdit::_generate_context_menu() {
     }
 }
 void LineEdit::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_text_changed"), &LineEdit::_text_changed);
-    MethodBinder::bind_method(D_METHOD("_toggle_draw_caret"), &LineEdit::_toggle_draw_caret);
-
-    MethodBinder::bind_method("_editor_settings_changed", &LineEdit::_editor_settings_changed);
 
     MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &LineEdit::set_align);
     MethodBinder::bind_method(D_METHOD("get_align"), &LineEdit::get_align);

@@ -282,12 +282,12 @@ void NavigationAgent2D::_avoidance_done(Vector3 p_new_velocity) {
     emit_signal("velocity_computed", velocity);
 }
 
-StringName NavigationAgent2D::get_configuration_warning() const {
+String NavigationAgent2D::get_configuration_warning() const {
     if (!object_cast<Node2D>(get_parent())) {
-        return TTR("The NavigationAgent2D can be used only under a Node2D node");
+        return TTRS("The NavigationAgent2D can be used only under a Node2D node");
     }
 
-    return StringName();
+    return String();
 }
 
 void NavigationAgent2D::update_navigation() {

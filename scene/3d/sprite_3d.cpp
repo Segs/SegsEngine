@@ -402,6 +402,7 @@ SpriteBase3D::SpriteBase3D() {
     ren_server->material_set_param(material, "uv1_scale", Vector3(1, 1, 1));
     ren_server->material_set_param(material, "uv2_offset", Vector3(0, 0, 0));
     ren_server->material_set_param(material, "uv2_scale", Vector3(1, 1, 1));
+    ren_server->material_set_param(material, "alpha_scissor_threshold", 0.98);
 
     mesh = ren_server->mesh_create();
 
@@ -425,7 +426,8 @@ SpriteBase3D::SpriteBase3D() {
     mesh_array.m_colors = eastl::move(mesh_colors);
     mesh_array.m_uv_1 = eastl::move(mesh_uvs);
 
-    ren_server->mesh_add_surface_from_arrays(mesh, RS::PRIMITIVE_TRIANGLE_FAN, mesh_array);
+    ren_server->mesh_add_surface_from_arrays(mesh, RS::PRIMITIVE_TRIANGLE_FAN, mesh_array, Vector<SurfaceArrays>(), RS::ARRAY_COMPRESS_DEFAULT & ~RS::ARRAY_COMPRESS_TEX_UV);
+
     const int surface_vertex_len = ren_server->mesh_surface_get_array_len(mesh, 0);
     const int surface_index_len = ren_server->mesh_surface_get_array_index_len(mesh, 0);
 
@@ -581,13 +583,10 @@ void Sprite3D::_draw() {
         } else {
             aabb.expand_to(vtx);
         }
-        if (mesh_surface_format & RS::ARRAY_COMPRESS_TEX_UV) {
-            uint16_t v_uv[2] = { Math::make_half_float(uvs[i].x), Math::make_half_float(uvs[i].y) };
-            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 4);
-        } else {
-            float v_uv[2] = { uvs[i].x, uvs[i].y };
-            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
-        }
+
+        float v_uv[2] = { uvs[i].x, uvs[i].y };
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
+
         float v_vertex[3] = { vtx.x, vtx.y, vtx.z };
 
         memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_VERTEX]], &v_vertex, sizeof(float) * 3);
@@ -779,8 +778,8 @@ void Sprite3D::_bind_methods() {
 
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_GROUP("Animation", "");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PropertyHint::Range, "1,16384,1"), "set_vframes", "get_vframes");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hframes", PropertyHint::Range, "1,16384,1"), "set_hframes", "get_hframes");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "vframes", PropertyHint::Range, "1,16384,1"), "set_vframes", "get_vframes");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "frame"), "set_frame", "get_frame");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "frame_coords", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_frame_coords", "get_frame_coords");
     ADD_GROUP("Region", "region_");
@@ -947,13 +946,9 @@ void AnimatedSprite3D::_draw() {
             aabb.expand_to(vtx);
         }
 
-        if (mesh_surface_format & RS::ARRAY_COMPRESS_TEX_UV) {
-            uint16_t v_uv[2] = { Math::make_half_float(uvs[i].x), Math::make_half_float(uvs[i].y) };
-            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 4);
-        } else {
-            float v_uv[2] = { uvs[i].x, uvs[i].y };
-            memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
-        }
+        float v_uv[2] = { uvs[i].x, uvs[i].y };
+        memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_TEX_UV]], v_uv, 8);
+
         float v_vertex[3] = { vtx.x, vtx.y, vtx.z };
 
         memcpy(&write_buffer[i * mesh_stride + mesh_surface_offsets[RS::ARRAY_VERTEX]], &v_vertex, sizeof(float) * 3);
@@ -1216,13 +1211,18 @@ StringName AnimatedSprite3D::get_animation() const {
     return animation;
 }
 
-StringName AnimatedSprite3D::get_configuration_warning() const {
+String AnimatedSprite3D::get_configuration_warning() const {
 
-    if (not frames) {
-        return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite3D to display frames.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (!frames) {
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite3D to display frames.");
     }
 
-    return StringName();
+    return warning;
+
 }
 
 void AnimatedSprite3D::_bind_methods() {

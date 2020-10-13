@@ -70,7 +70,7 @@ public:
     void set_disabled(bool p_disabled);
     bool is_disabled() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     CollisionShape3D();
     ~CollisionShape3D() override;

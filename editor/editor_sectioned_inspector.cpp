@@ -33,6 +33,8 @@
 #include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/object_tooling.h"
+#include "core/ustring.h"
+
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(SectionedInspector)
@@ -141,9 +143,6 @@ IMPL_GDCLASS(SectionedInspectorFilter)
 
 void SectionedInspector::_bind_methods() {
 
-    MethodBinder::bind_method("_section_selected", &SectionedInspector::_section_selected);
-    MethodBinder::bind_method("_search_changed", &SectionedInspector::_search_changed);
-
     MethodBinder::bind_method("update_category_list", &SectionedInspector::update_category_list);
 }
 
@@ -241,6 +240,7 @@ void SectionedInspector::update_category_list() {
     if (search_box)
         filter = search_box->get_text();
 
+    UIString filter_ui(StringUtils::from_utf8(filter));
     for (const PropertyInfo &pi : pinfo) {
 
         if (pi.usage & PROPERTY_USAGE_CATEGORY)
@@ -253,8 +253,8 @@ void SectionedInspector::update_category_list() {
                 StringUtils::begins_with(pi.name, "_global_script"))
             continue;
 
-        if (!filter.empty() && !is_subsequence_of(filter, capitalize(pi.name), CaseInsensitive) &&
-                !is_subsequence_of(filter, capitalize(String(pi.name).replaced("/", " ")), CaseInsensitive))
+        if (!filter.empty() && StringUtils::from_utf8(pi.name).contains(filter_ui,Qt::CaseInsensitive) &&
+                StringUtils::from_utf8(StringUtils::capitalize(pi.name).replaced("/", " ")).contains(filter_ui,Qt::CaseInsensitive))
             continue;
 
         auto sp = StringUtils::find(pi.name,"/");
@@ -271,7 +271,7 @@ void SectionedInspector::update_category_list() {
         for (int i = 0; i < sc; i++) {
 
             TreeItem *parent = section_map[metasection];
-            parent->set_custom_bg_color(0, get_color("prop_subsection", "Editor"));
+            parent->set_custom_bg_color(0, get_theme_color("prop_subsection", "Editor"));
 
             if (i > 0) {
                 metasection += String("/") + sectionarr[i];

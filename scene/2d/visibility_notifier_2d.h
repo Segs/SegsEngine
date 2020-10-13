@@ -102,7 +102,7 @@ public:
     void set_enabler(Enabler p_enabler, bool p_enable);
     bool is_enabler_enabled(Enabler p_enabler) const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     VisibilityEnabler2D();
 };

@@ -58,7 +58,7 @@ IMPL_GDCLASS(EditorInspector)
 Size2 EditorProperty::get_minimum_size() const {
 
     Size2 ms;
-    Ref<Font> font = get_font("font", "Tree");
+    Ref<Font> font = get_theme_font("font", "Tree");
     ms.height = font->get_height();
 
     for (int i = 0; i < get_child_count(); i++) {
@@ -66,7 +66,7 @@ Size2 EditorProperty::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
         if (!c->is_visible())
             continue;
@@ -79,17 +79,17 @@ Size2 EditorProperty::get_minimum_size() const {
     }
 
     if (keying) {
-        Ref<Texture> key = get_icon("Key", "EditorIcons");
-        ms.width += key->get_width() + get_constant("hseparator", "Tree");
+        Ref<Texture> key = get_theme_icon("Key", "EditorIcons");
+        ms.width += key->get_width() + get_theme_constant("hseparator", "Tree");
     }
 
     if (checkable) {
-        Ref<Texture> check = get_icon("checked", "CheckBox");
-        ms.width += check->get_width() + get_constant("hseparation", "CheckBox") + get_constant("hseparator", "Tree");
+        Ref<Texture> check = get_theme_icon("checked", "CheckBox");
+        ms.width += check->get_width() + get_theme_constant("hseparation", "CheckBox") + get_theme_constant("hseparator", "Tree");
     }
 
     if (bottom_editor != nullptr && bottom_editor->is_visible()) {
-        ms.height += get_constant("vseparation", "Tree");
+        ms.height += get_theme_constant("vseparation", "Tree");
         Size2 bems = bottom_editor->get_combined_minimum_size();
         //bems.width += get_constant("item_margin", "Tree");
         ms.height += bems.height;
@@ -120,7 +120,7 @@ void EditorProperty::_notification(int p_what) {
 
         {
             int child_room = size.width * (1.0 - split_ratio);
-            Ref<Font> font = get_font("font", "Tree");
+            Ref<Font> font = get_theme_font("font", "Tree");
             int height = font->get_height();
             bool no_children = true;
 
@@ -130,7 +130,7 @@ void EditorProperty::_notification(int p_what) {
                 Control *c = object_cast<Control>(get_child(i));
                 if (!c)
                     continue;
-                if (c->is_set_as_toplevel())
+                if (c->is_set_as_top_level())
                     continue;
                 if (c == bottom_editor)
                     continue;
@@ -153,19 +153,19 @@ void EditorProperty::_notification(int p_what) {
 
                 int m = 0; //get_constant("item_margin", "Tree");
 
-                bottom_rect = Rect2(m, rect.size.height + get_constant("vseparation", "Tree"), size.width - m, bottom_editor->get_combined_minimum_size().height);
+                bottom_rect = Rect2(m, rect.size.height + get_theme_constant("vseparation", "Tree"), size.width - m, bottom_editor->get_combined_minimum_size().height);
             }
 
             if (keying) {
                 Ref<Texture> key;
 
                 if (use_keying_next()) {
-                    key = get_icon("KeyNext", "EditorIcons");
+                    key = get_theme_icon("KeyNext", "EditorIcons");
                 } else {
-                    key = get_icon("Key", "EditorIcons");
+                    key = get_theme_icon("Key", "EditorIcons");
                 }
 
-                rect.size.x -= key->get_width() + get_constant("hseparator", "Tree");
+                rect.size.x -= key->get_width() + get_theme_constant("hseparator", "Tree");
 
                 if (no_children) {
                     text_size -= key->get_width() + 4 * EDSCALE;
@@ -179,7 +179,7 @@ void EditorProperty::_notification(int p_what) {
             Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
             if (c == bottom_editor)
                 continue;
@@ -197,8 +197,8 @@ void EditorProperty::_notification(int p_what) {
     }
 
     if (p_what == NOTIFICATION_DRAW) {
-        Ref<Font> font = get_font("font", "Tree");
-        Color dark_color = get_color("dark_color_2", "Editor");
+        Ref<Font> font = get_theme_font("font", "Tree");
+        Color dark_color = get_theme_color("dark_color_2", "Editor");
 
         Size2 size = get_size();
         if (bottom_editor) {
@@ -208,7 +208,7 @@ void EditorProperty::_notification(int p_what) {
         }
 
         if (selected) {
-            Ref<StyleBox> sb = get_stylebox("selected", "Tree");
+            Ref<StyleBox> sb = get_theme_stylebox("selected", "Tree");
             draw_style_box(sb, Rect2(Vector2(), size));
         }
 
@@ -221,9 +221,9 @@ void EditorProperty::_notification(int p_what) {
 
         Color color;
         if (draw_red) {
-            color = get_color("error_color", "Editor");
+            color = get_theme_color("error_color", "Editor");
         } else {
-            color = get_color("property_color", "Editor");
+            color = get_theme_color("property_color", "Editor");
         }
         if (StringUtils::contains(label,'.')) {
             color.a = 0.5; //this should be un-hacked honestly, as it's used for editor overrides
@@ -235,9 +235,9 @@ void EditorProperty::_notification(int p_what) {
         if (checkable) {
             Ref<Texture> checkbox;
             if (checked)
-                checkbox = get_icon("GuiChecked", "EditorIcons");
+                checkbox = get_theme_icon("GuiChecked", "EditorIcons");
             else
-                checkbox = get_icon("GuiUnchecked", "EditorIcons");
+                checkbox = get_theme_icon("GuiUnchecked", "EditorIcons");
 
             Color color2(1, 1, 1);
             if (check_hover) {
@@ -247,16 +247,16 @@ void EditorProperty::_notification(int p_what) {
             }
             check_rect = Rect2(ofs, (size.height - checkbox->get_height()) / 2, checkbox->get_width(), checkbox->get_height());
             draw_texture(checkbox, check_rect.position, color2);
-            ofs += get_constant("hseparator", "Tree") + checkbox->get_width() + get_constant("hseparation", "CheckBox");
+            ofs += get_theme_constant("hseparator", "Tree") + checkbox->get_width() + get_theme_constant("hseparation", "CheckBox");
             text_limit -= ofs;
         } else {
             check_rect = Rect2();
         }
 
         if (can_revert) {
-            Ref<Texture> reload_icon = get_icon("ReloadSmall", "EditorIcons");
-            text_limit -= reload_icon->get_width() + get_constant("hseparator", "Tree") * 2;
-            revert_rect = Rect2(text_limit + get_constant("hseparator", "Tree"), (size.height - reload_icon->get_height()) / 2, reload_icon->get_width(), reload_icon->get_height());
+            Ref<Texture> reload_icon = get_theme_icon("ReloadSmall", "EditorIcons");
+            text_limit -= reload_icon->get_width() + get_theme_constant("hseparator", "Tree") * 2;
+            revert_rect = Rect2(text_limit + get_theme_constant("hseparator", "Tree"), (size.height - reload_icon->get_height()) / 2, reload_icon->get_width(), reload_icon->get_height());
 
             Color color2(1, 1, 1);
             if (revert_hover) {
@@ -277,12 +277,12 @@ void EditorProperty::_notification(int p_what) {
             Ref<Texture> key;
 
             if (use_keying_next()) {
-                key = get_icon("KeyNext", "EditorIcons");
+                key = get_theme_icon("KeyNext", "EditorIcons");
             } else {
-                key = get_icon("Key", "EditorIcons");
+                key = get_theme_icon("Key", "EditorIcons");
             }
 
-            ofs = size.width - key->get_width() - get_constant("hseparator", "Tree");
+            ofs = size.width - key->get_width() - get_theme_constant("hseparator", "Tree");
 
             Color color2(1, 1, 1);
             if (keying_hover) {
@@ -793,7 +793,7 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
 
     tooltip_text = p_text;
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
-    help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
+    help_bit->add_theme_style_override("panel", get_theme_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
     auto slices = StringUtils::split(p_text,"::", false);
@@ -1003,9 +1003,9 @@ void EditorInspectorCategory::_notification(int p_what) {
     if (p_what == NOTIFICATION_DRAW) {
 
         draw_rect(Rect2(Vector2(), get_size()), bg_color);
-        Ref<Font> font = get_font("font", "Tree");
+        Ref<Font> font = get_theme_font("font", "Tree");
 
-        int hs = get_constant("hseparation", "Tree");
+        int hs = get_theme_constant("hseparation", "Tree");
 
         int w = font->get_string_size(label).width;
         if (icon) {
@@ -1019,7 +1019,7 @@ void EditorInspectorCategory::_notification(int p_what) {
             ofs += hs + icon->get_width();
         }
 
-        Color color = get_color("font_color", "Tree");
+        Color color = get_theme_color("font_color", "Tree");
         draw_string(font, Point2(ofs, font->get_ascent() + (get_size().height - font->get_height()) / 2).floor(), label, color, get_size().width);
     }
 }
@@ -1028,7 +1028,7 @@ Control *EditorInspectorCategory::make_custom_tooltip(StringView p_text) const {
 
     tooltip_text = p_text;
     EditorHelpBit *help_bit = memnew(EditorHelpBit);
-    help_bit->add_style_override("panel", get_stylebox("panel", "TooltipPanel"));
+    help_bit->add_theme_style_override("panel", get_theme_stylebox("panel", "TooltipPanel"));
     help_bit->get_rich_text()->set_fixed_size_to_width(360 * EDSCALE);
 
     auto slices = StringUtils::split(p_text,"::", false);
@@ -1048,7 +1048,7 @@ Control *EditorInspectorCategory::make_custom_tooltip(StringView p_text) const {
 
 Size2 EditorInspectorCategory::get_minimum_size() const {
 
-    Ref<Font> font = get_font("font", "Tree");
+    Ref<Font> font = get_theme_font("font", "Tree");
 
     Size2 ms;
     ms.width = 1;
@@ -1056,7 +1056,7 @@ Size2 EditorInspectorCategory::get_minimum_size() const {
     if (icon) {
         ms.height = M_MAX(icon->get_height(), ms.height);
     }
-    ms.height += get_constant("vseparation", "Tree");
+    ms.height += get_theme_constant("vseparation", "Tree");
 
     return ms;
 }
@@ -1088,12 +1088,12 @@ void EditorInspectorSection::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_SORT_CHILDREN) {
 
-        Ref<Font> font = get_font("font", "Tree");
+        Ref<Font> font = get_theme_font("font", "Tree");
         Ref<Texture> arrow;
 
         if (foldable) {
             bool unfolded=object->get_tooling_interface()->editor_is_section_unfolded(section);
-            arrow = get_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
+            arrow = get_theme_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
         }
 
         Size2 size = get_size();
@@ -1103,8 +1103,8 @@ void EditorInspectorSection::_notification(int p_what) {
             offset.y = M_MAX(offset.y, arrow->get_height());
         }
 
-        offset.y += get_constant("vseparation", "Tree");
-        offset.x += get_constant("inspector_margin", "Editor");
+        offset.y += get_theme_constant("vseparation", "Tree");
+        offset.x += get_theme_constant("inspector_margin", "Editor");
 
         Rect2 rect(offset, size - offset);
 
@@ -1114,7 +1114,7 @@ void EditorInspectorSection::_notification(int p_what) {
             Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
             if (!c->is_visible_in_tree())
                 continue;
@@ -1131,22 +1131,22 @@ void EditorInspectorSection::_notification(int p_what) {
 
         if (foldable) {
             bool unfolded=object->get_tooling_interface()->editor_is_section_unfolded(section);
-            arrow = get_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
+            arrow = get_theme_icon(unfolded ? StringName("arrow") : StringName("arrow_collapsed"), "Tree");
         }
 
-        Ref<Font> font = get_font("font", "Tree");
+        Ref<Font> font = get_theme_font("font", "Tree");
 
         int h = font->get_height();
         if (arrow) {
             h = M_MAX(h, arrow->get_height());
         }
-        h += get_constant("vseparation", "Tree");
+        h += get_theme_constant("vseparation", "Tree");
 
         draw_rect(Rect2(Vector2(), Vector2(get_size().width, h)), bg_color);
 
         const int arrow_margin = 3;
 
-        Color color = get_color("font_color", "Tree");
+        Color color = get_theme_color("font_color", "Tree");
         draw_string(font, Point2(Math::round((16 + arrow_margin) * EDSCALE), font->get_ascent() + (h - font->get_height()) / 2).floor(), label, color, get_size().width);
 
         if (arrow) {
@@ -1163,7 +1163,7 @@ Size2 EditorInspectorSection::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
         if (!c->is_visible())
             continue;
@@ -1172,9 +1172,9 @@ Size2 EditorInspectorSection::get_minimum_size() const {
         ms.height = M_MAX(ms.height, minsize.height);
     }
 
-    Ref<Font> font = get_font("font", "Tree");
-    ms.height += font->get_height() + get_constant("vseparation", "Tree");
-    ms.width += get_constant("inspector_margin", "Editor");
+    Ref<Font> font = get_theme_font("font", "Tree");
+    ms.height += font->get_height() + get_theme_constant("vseparation", "Tree");
+    ms.width += get_theme_constant("inspector_margin", "Editor");
 
     return ms;
 }
@@ -1209,7 +1209,7 @@ void EditorInspectorSection::_gui_input(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
     if (mb && mb->is_pressed() && mb->get_button_index() == BUTTON_LEFT) {
 
-        Ref<Font> font = get_font("font", "Tree");
+        Ref<Font> font = get_theme_font("font", "Tree");
         if (mb->get_position().y > font->get_height()) { //clicked outside
             return;
         }
@@ -1494,7 +1494,7 @@ void EditorInspector::update_tree() {
 
     item_path[""] = main_vbox;
 
-    Color sscolor = get_color("prop_subsection", "Editor");
+    Color sscolor = get_theme_color("prop_subsection", "Editor");
 
     for (const Ref<EditorInspectorPlugin> &ped : valid_plugins) {
         ped->parse_begin(object);
@@ -1545,7 +1545,7 @@ void EditorInspector::update_tree() {
             category->icon = EditorNode::get_singleton()->get_class_icon(StringName(type), "Object");
             category->label = type;
 
-            category->bg_color = get_color("prop_category", "Editor");
+            category->bg_color = get_theme_color("prop_category", "Editor");
             if (use_doc_hints) {
                 StringName type2 = p.name;
                 if (!class_descr_cache.contains(type2)) {
@@ -1979,9 +1979,9 @@ void EditorInspector::set_sub_inspector(bool p_enable) {
         return;
 
     if (sub_inspector) {
-        add_style_override("bg", get_stylebox("sub_inspector_bg", "Editor"));
+        add_theme_style_override("bg", get_theme_stylebox("sub_inspector_bg", "Editor"));
     } else {
-        add_style_override("bg", get_stylebox("bg", "Tree"));
+        add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
     }
 }
 //TODO: pass p_property as StringName
@@ -2200,9 +2200,9 @@ void EditorInspector::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         if (sub_inspector) {
-            add_style_override("bg", get_stylebox("sub_inspector_bg", "Editor"));
+            add_theme_style_override("bg", get_theme_stylebox("sub_inspector_bg", "Editor"));
         } else {
-            add_style_override("bg", get_stylebox("bg", "Tree"));
+            add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
             get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
         }
     }
@@ -2263,9 +2263,9 @@ void EditorInspector::_notification(int p_what) {
     if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
         if (sub_inspector) {
-            add_style_override("bg", get_stylebox("sub_inspector_bg", "Editor"));
+            add_theme_style_override("bg", get_theme_stylebox("sub_inspector_bg", "Editor"));
         } else if (is_inside_tree()) {
-            add_style_override("bg", get_stylebox("bg", "Tree"));
+            add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
         }
 
         update_tree();
@@ -2310,21 +2310,8 @@ void EditorInspector::_feature_profile_changed() {
 
 void EditorInspector::_bind_methods() {
 
-    MethodBinder::bind_method("_property_changed", &EditorInspector::_property_changed, {DEFVAL(""), DEFVAL(false)});
-    MethodBinder::bind_method("_multiple_properties_changed", &EditorInspector::_multiple_properties_changed);
-    MethodBinder::bind_method("_property_changed_update_all", &EditorInspector::_property_changed_update_all);
-
     MethodBinder::bind_method("_edit_request_change", &EditorInspector::_edit_request_change);
-    MethodBinder::bind_method("_node_removed", &EditorInspector::_node_removed);
-    MethodBinder::bind_method("_filter_changed", &EditorInspector::_filter_changed);
-    MethodBinder::bind_method("_property_keyed", &EditorInspector::_property_keyed);
-    MethodBinder::bind_method("_property_keyed_with_value", &EditorInspector::_property_keyed_with_value);
-    MethodBinder::bind_method("_property_checked", &EditorInspector::_property_checked);
-    MethodBinder::bind_method("_property_selected", &EditorInspector::_property_selected);
     MethodBinder::bind_method("_resource_selected", &EditorInspector::_resource_selected);
-    MethodBinder::bind_method("_object_id_selected", &EditorInspector::_object_id_selected);
-    MethodBinder::bind_method("_vscroll_changed", &EditorInspector::_vscroll_changed);
-    MethodBinder::bind_method("_feature_profile_changed", &EditorInspector::_feature_profile_changed);
 
     MethodBinder::bind_method("refresh", &EditorInspector::refresh);
 

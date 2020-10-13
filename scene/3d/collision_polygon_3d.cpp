@@ -165,17 +165,25 @@ bool CollisionPolygon3D::is_disabled() const {
     return disabled;
 }
 
-StringName CollisionPolygon3D::get_configuration_warning() const {
+String CollisionPolygon3D::get_configuration_warning() const {
 
+
+    String warning = BaseClassName::get_configuration_warning();
     if (!object_cast<CollisionObject3D>(get_parent())) {
-        return TTR("CollisionPolygon3D only serves to provide a collision shape to a CollisionObject3D derived node. Please only use it as a child of Area, StaticBody3D, RigidBody, KinematicBody3D, etc. to give them a shape.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("CollisionPolygon only serves to provide a collision shape to a CollisionObject derived node. Please only use it as a child of Area, StaticBody, RigidBody, KinematicBody, etc. to give them a shape.");
     }
 
     if (polygon.empty()) {
-        return TTR("An empty CollisionPolygon3D has no effect on collision.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("An empty CollisionPolygon has no effect on collision.");
     }
 
-    return StringName();
+    return warning;
 }
 
 bool CollisionPolygon3D::_is_editable_3d_polygon() const {

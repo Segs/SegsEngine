@@ -45,7 +45,7 @@ class GradientEditor : public GradientEdit {
     void _ramp_changed();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     Size2 get_minimum_size() const override;

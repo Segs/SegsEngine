@@ -48,7 +48,7 @@ void ResourcePreloaderEditor::_gui_input(const Ref<InputEvent>& p_event) {
 void ResourcePreloaderEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE) {
-        load->set_button_icon(get_icon("Folder", "EditorIcons"));
+        load->set_button_icon(get_theme_icon("Folder", "EditorIcons"));
     }
 
     if (p_what == NOTIFICATION_READY) {
@@ -219,11 +219,11 @@ void ResourcePreloaderEditor::_update_library() {
         ti->set_selectable(1, false);
 
         if (type == "PackedScene") {
-            ti->add_button(1, get_icon("InstanceOptions", "EditorIcons"), BUTTON_OPEN_SCENE, false, TTR("Open in Editor"));
+            ti->add_button(1, get_theme_icon("InstanceOptions", "EditorIcons"), BUTTON_OPEN_SCENE, false, TTR("Open in Editor"));
         } else {
-            ti->add_button(1, get_icon("Load", "EditorIcons"), BUTTON_EDIT_RESOURCE, false, TTR("Open in Editor"));
+            ti->add_button(1, get_theme_icon("Load", "EditorIcons"), BUTTON_EDIT_RESOURCE, false, TTR("Open in Editor"));
         }
-        ti->add_button(1, get_icon("Remove", "EditorIcons"), BUTTON_REMOVE, false, TTR("Remove"));
+        ti->add_button(1, get_theme_icon("Remove", "EditorIcons"), BUTTON_REMOVE, false, TTR("Remove"));
     }
 
     //player->add_resource("default",resource);
@@ -351,13 +351,8 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 void ResourcePreloaderEditor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &ResourcePreloaderEditor::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_load_pressed"), &ResourcePreloaderEditor::_load_pressed);
     MethodBinder::bind_method(D_METHOD("_item_edited"), &ResourcePreloaderEditor::_item_edited);
-    MethodBinder::bind_method(D_METHOD("_paste_pressed"), &ResourcePreloaderEditor::_paste_pressed);
-    MethodBinder::bind_method(D_METHOD("_files_load_request"), &ResourcePreloaderEditor::_files_load_request);
     MethodBinder::bind_method(D_METHOD("_update_library"), &ResourcePreloaderEditor::_update_library);
-    MethodBinder::bind_method(D_METHOD("_cell_button_pressed"), &ResourcePreloaderEditor::_cell_button_pressed);
-    MethodBinder::bind_method(D_METHOD("_remove_resource", {"to_remove"}), &ResourcePreloaderEditor::_remove_resource);
 
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &ResourcePreloaderEditor::get_drag_data_fw);
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &ResourcePreloaderEditor::can_drop_data_fw);
@@ -366,7 +361,7 @@ void ResourcePreloaderEditor::_bind_methods() {
 
 ResourcePreloaderEditor::ResourcePreloaderEditor() {
 
-    //add_style_override("panel", EditorNode::get_singleton()->get_gui_base()->get_stylebox("panel","Panel"));
+    //add_theme_style_override("panel", EditorNode::get_singleton()->get_gui_base()->get_stylebox("panel","Panel"));
 
     VBoxContainer *vbc = memnew(VBoxContainer);
     add_child(vbc);

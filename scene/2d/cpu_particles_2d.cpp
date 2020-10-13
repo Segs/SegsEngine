@@ -281,9 +281,9 @@ bool CPUParticles2D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName CPUParticles2D::get_configuration_warning() const {
+String CPUParticles2D::get_configuration_warning() const {
 
-    String warnings;
+    String warnings = BaseClassName::get_configuration_warning();
 
     CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
@@ -291,12 +291,12 @@ StringName CPUParticles2D::get_configuration_warning() const {
         if (get_param(PARAM_ANIM_SPEED) != 0.0f || get_param(PARAM_ANIM_OFFSET) != 0.0f ||
                 get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET)) {
             if (!warnings.empty())
-                warnings += '\n';
+                warnings += "\n\n";
             warnings += "- " + TTR("CPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
         }
     }
 
-    return StringName(warnings);
+    return warnings;
 }
 
 void CPUParticles2D::restart() {
@@ -1290,7 +1290,7 @@ void CPUParticles2D::_bind_methods() {
     //MethodBinder::bind_method(D_METHOD("_texture_changed"), &CPUParticles2D::_texture_changed);
 
     ADD_GROUP("Emission Shape", "emission_");
-    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points"), "set_emission_shape", "get_emission_shape");
+    ADD_PROPERTY(PropertyInfo(VariantType::INT, "emission_shape", PropertyHint::Enum, "Point,Sphere,Box,Points,Directed Points", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_emission_shape", "get_emission_shape");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "emission_sphere_radius", PropertyHint::Range, "0.01,128,0.01"), "set_emission_sphere_radius", "get_emission_sphere_radius");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "emission_rect_extents"), "set_emission_rect_extents", "get_emission_rect_extents");
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "emission_points"), "set_emission_points", "get_emission_points");

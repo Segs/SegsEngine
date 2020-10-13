@@ -597,7 +597,7 @@ void ThemeEditor::_notification(int p_what) {
             }
         } break;
         case NOTIFICATION_THEME_CHANGED: {
-            theme_menu->set_button_icon(get_icon("Theme", "EditorIcons"));
+            theme_menu->set_button_icon(get_theme_icon("Theme", "EditorIcons"));
         } break;
     }
 }

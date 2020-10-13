@@ -65,7 +65,7 @@ public:
     void bake_navigation_mesh();
     void _bake_finished(Ref<NavigationMesh> p_nav_mesh);
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     NavigationMeshInstance();
     ~NavigationMeshInstance() override;

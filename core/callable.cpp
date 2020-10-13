@@ -305,13 +305,13 @@ Signal::operator String() const {
     return class_name + "::[signal]" + String(name);
 }
 
-Error Signal::emit_signal(const Variant **p_arguments, int p_argcount) const {
+void Signal::emit_signal(const Variant **p_arguments, int p_argcount) const {
     Object *obj = ObjectDB::get_instance(object);
     if (!obj) {
-        return ERR_INVALID_DATA;
+        return;// ERR_INVALID_DATA;
     }
 
-    return obj->emit_signal(name, p_arguments, p_argcount);
+    obj->emit_signal(name, p_arguments, p_argcount);
 }
 
 Error Signal::connect(const Callable &p_callable, const Vector<Variant> &p_binds, uint32_t p_flags) {

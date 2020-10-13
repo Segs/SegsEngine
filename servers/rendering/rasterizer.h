@@ -266,6 +266,8 @@ public:
 
     virtual bool material_is_animated(RID p_material) = 0;
     virtual bool material_casts_shadows(RID p_material) = 0;
+    virtual bool material_uses_tangents(RID p_material) { return false; }
+    virtual bool material_uses_ensure_correct_normals(RID p_material) { return false; }
 
     virtual void material_add_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) = 0;
     virtual void material_remove_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) = 0;

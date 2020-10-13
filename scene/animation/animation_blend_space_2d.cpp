@@ -648,7 +648,6 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_blend_mode", {"mode"}), &AnimationNodeBlendSpace2D::set_blend_mode);
     MethodBinder::bind_method(D_METHOD("get_blend_mode"), &AnimationNodeBlendSpace2D::get_blend_mode);
 
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeBlendSpace2D::_tree_changed);
     MethodBinder::bind_method(D_METHOD("_update_triangles"), &AnimationNodeBlendSpace2D::_update_triangles);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "auto_triangles", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_auto_triangles", "get_auto_triangles");

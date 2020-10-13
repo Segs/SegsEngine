@@ -108,7 +108,7 @@ class EditorPropertyArray : public EditorProperty {
     void _remove_pressed(int p_index);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_what);
 
 public:
@@ -143,7 +143,7 @@ class EditorPropertyDictionary : public EditorProperty {
     void _object_id_selected(StringView p_property, ObjectID p_id);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_what);
 
 public:

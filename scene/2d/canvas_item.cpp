@@ -674,7 +674,7 @@ Color CanvasItem::get_modulate() const {
     return modulate;
 }
 
-void CanvasItem::set_as_toplevel(bool p_toplevel) {
+void CanvasItem::set_as_top_level(bool p_toplevel) {
 
     if (toplevel == p_toplevel)
         return;
@@ -689,7 +689,7 @@ void CanvasItem::set_as_toplevel(bool p_toplevel) {
     _enter_canvas();
 }
 
-bool CanvasItem::is_set_as_toplevel() const {
+bool CanvasItem::is_set_as_top_level() const {
 
     return toplevel;
 }
@@ -1214,8 +1214,8 @@ void CanvasItem::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("update"), &CanvasItem::update);
 
-    MethodBinder::bind_method(D_METHOD("set_as_toplevel", {"enable"}), &CanvasItem::set_as_toplevel);
-    MethodBinder::bind_method(D_METHOD("is_set_as_toplevel"), &CanvasItem::is_set_as_toplevel);
+    MethodBinder::bind_method(D_METHOD("set_as_top_level", {"enable"}), &CanvasItem::set_as_top_level);
+    MethodBinder::bind_method(D_METHOD("is_set_as_top_level"), &CanvasItem::is_set_as_top_level);
 
     MethodBinder::bind_method(D_METHOD("set_light_mask", {"light_mask"}), &CanvasItem::set_light_mask);
     MethodBinder::bind_method(D_METHOD("get_light_mask"), &CanvasItem::get_light_mask);
@@ -1290,6 +1290,7 @@ void CanvasItem::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_modulate"), "set_modulate", "get_modulate");
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "vis_self_modulate"), "set_self_modulate", "get_self_modulate");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_behind_parent"), "set_draw_behind_parent", "is_draw_behind_parent_enabled");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_toplevel"), "set_as_top_level", "is_set_as_top_level");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "vis_show_on_top", PropertyHint::None, "", 0), "_set_on_top", "_is_on_top"); //compatibility
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "vis_light_mask", PropertyHint::Layers2DRenderer), "set_light_mask", "get_light_mask");
 
@@ -1297,7 +1298,6 @@ void CanvasItem::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "mat_material", PropertyHint::ResourceType, "ShaderMaterial,CanvasItemMaterial"), "set_material", "get_material");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "mat_use_parent_material"), "set_use_parent_material", "get_use_parent_material");
     //exporting these things doesn't really make much sense i think
-    // ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR), "set_as_toplevel", "is_set_as_toplevel");
     // ADD_PROPERTY(PropertyInfo(VariantType::BOOL,"transform/notify"),"set_transform_notify","is_transform_notify_enabled");
 
     ADD_SIGNAL(MethodInfo("draw"));

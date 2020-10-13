@@ -52,6 +52,7 @@ namespace Godot.Collections
             }
             safeHandle = new ArraySafeHandle(godot_icall_Array_Ctor_MonoArray(array));
         }
+
         internal Array(ArraySafeHandle handle)
         {
             safeHandle = handle;

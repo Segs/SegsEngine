@@ -101,8 +101,6 @@ void Skeleton2DEditor::_menu_option(int p_option) {
 }
 
 void Skeleton2DEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_option", &Skeleton2DEditor::_menu_option);
 }
 
 Skeleton2DEditor::Skeleton2DEditor() {
@@ -112,7 +110,7 @@ Skeleton2DEditor::Skeleton2DEditor() {
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Skeleton2D"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Skeleton2D", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Skeleton2D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Make Rest Pose (From Bones)"), MENU_OPTION_MAKE_REST);
     options->get_popup()->add_separator();

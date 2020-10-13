@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  spatial_editor_plugin.h                                              */
+/*  node_3d_editor_plugin.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -42,7 +42,7 @@
 
 
 class Camera3D;
-class SpatialEditor;
+class Node3DEditor;
 class EditorSpatialGizmoPlugin;
 class ViewportContainer;
 class Environment;
@@ -54,11 +54,11 @@ class ConfirmationDialog;
 class VSplitContainer;
 class HSplitContainer;
 class TextureRect;
-class SpatialEditorViewport;
+class Node3DEditorViewport;
 
-class GODOT_EXPORT EditorSpatialGizmo : public Node3DGizmo {
+class GODOT_EXPORT EditorNode3DGizmo : public Node3DGizmo {
 
-    GDCLASS(EditorSpatialGizmo,Node3DGizmo)
+    GDCLASS(EditorNode3DGizmo,Node3DGizmo)
 
     bool selected;
     bool instanced;
@@ -142,8 +142,8 @@ public:
     void set_hidden(bool p_hidden);
     void set_plugin(EditorSpatialGizmoPlugin *p_plugin);
 
-    EditorSpatialGizmo();
-    ~EditorSpatialGizmo() override;
+    EditorNode3DGizmo();
+    ~EditorNode3DGizmo() override;
 };
 
 class GODOT_EXPORT ViewportRotationControl : public Control {
@@ -161,7 +161,7 @@ class GODOT_EXPORT ViewportRotationControl : public Control {
         }
     };
 
-    SpatialEditorViewport *viewport = nullptr;
+    Node3DEditorViewport *viewport = nullptr;
     Vector<Color> axis_colors;
     Vector<int> axis_menu_options;
     Vector2i orbiting_mouse_start;
@@ -182,14 +182,14 @@ protected:
     void _on_mouse_exited();
 
 public:
-    void set_viewport(SpatialEditorViewport *p_viewport);
+    void set_viewport(Node3DEditorViewport *p_viewport);
 };
 
-class GODOT_EXPORT SpatialEditorViewport : public Control {
+class GODOT_EXPORT Node3DEditorViewport : public Control {
 
-    GDCLASS(SpatialEditorViewport,Control)
+    GDCLASS(Node3DEditorViewport,Control)
 
-    friend class SpatialEditor;
+    friend class Node3DEditor;
     friend class ViewportRotationControl;
     enum {
 
@@ -269,7 +269,7 @@ private:
     UndoRedo *undo_redo;
 
     CheckBox *preview_camera;
-    ViewportContainer *viewport_container;
+    ViewportContainer *subviewport_container;
 
     class MenuButton *view_menu;
     PopupMenu *display_submenu;
@@ -285,8 +285,8 @@ private:
 
     bool freelook_active;
     real_t freelook_speed;
+    Vector2 previous_mouse_position;
 
-    TextureRect *crosshair;
     Label *info_label;
     Label *fps_label;
     Label *cinema_label;
@@ -378,7 +378,7 @@ private:
         int edited_gizmo;
         Point2 mouse_pos;
         bool snap;
-        Ref<EditorSpatialGizmo> gizmo;
+        Ref<EditorNode3DGizmo> gizmo;
         int gizmo_handle;
         Variant gizmo_initial_value;
         Vector3 gizmo_initial_pos;
@@ -393,7 +393,8 @@ private:
         Point2 region_begin, region_end;
 
         Cursor() {
-            x_rot = y_rot = 0.5;
+            x_rot = 0.5;
+            y_rot = -0.5;
             distance = 4;
             region_select = false;
         }
@@ -410,7 +411,7 @@ private:
 
     real_t zoom_indicator_delay;
 
-    RID move_gizmo_instance[3], move_plane_gizmo_instance[3], rotate_gizmo_instance[3], scale_gizmo_instance[3], scale_plane_gizmo_instance[3];
+    RID move_gizmo_instance[3], move_plane_gizmo_instance[3], rotate_gizmo_instance[4], scale_gizmo_instance[3], scale_plane_gizmo_instance[3];
 
     StringName last_message;
     StringName message;
@@ -430,7 +431,7 @@ private:
 
     void _sinput(const Ref<InputEvent> &p_event);
     void _update_freelook(real_t delta);
-    SpatialEditor *spatial_editor;
+    Node3DEditor *spatial_editor;
 
     Camera3D *previewing;
     Camera3D *preview;
@@ -482,12 +483,12 @@ public:
     Viewport *get_viewport_node() { return viewport; }
     Camera3D *get_camera() { return camera; } // return the default camera object.
 
-    SpatialEditorViewport(SpatialEditor *p_spatial_editor, EditorNode *p_editor, int p_index);
+    Node3DEditorViewport(Node3DEditor *p_spatial_editor, EditorNode *p_editor, int p_index);
 };
 
-class SpatialEditorSelectedItem : public Object {
+class Node3DEditorSelectedItem : public Object {
 
-    GDCLASS(SpatialEditorSelectedItem,Object)
+    GDCLASS(Node3DEditorSelectedItem,Object)
 
 public:
     AABB aabb;
@@ -498,8 +499,8 @@ public:
     RID sbox_instance;
     bool last_xform_dirty =  true;
 
-    SpatialEditorSelectedItem() = default;
-    ~SpatialEditorSelectedItem() override;
+    Node3DEditorSelectedItem() = default;
+    ~Node3DEditorSelectedItem() override;
 };
 
 class GODOT_EXPORT SpatialEditorViewportContainer : public Container {
@@ -543,9 +544,9 @@ public:
     SpatialEditorViewportContainer();
 };
 
-class GODOT_EXPORT SpatialEditor : public VBoxContainer {
+class GODOT_EXPORT Node3DEditor : public VBoxContainer {
 
-    GDCLASS(SpatialEditor,VBoxContainer)
+    GDCLASS(Node3DEditor,VBoxContainer)
 
 public:
     static const unsigned int VIEWPORTS_COUNT = 4;
@@ -578,7 +579,7 @@ private:
     EditorSelection *editor_selection;
 
     SpatialEditorViewportContainer *viewport_base;
-    SpatialEditorViewport *viewports[VIEWPORTS_COUNT];
+    Node3DEditorViewport *viewports[VIEWPORTS_COUNT];
     VSplitContainer *shader_split;
     HSplitContainer *palette_split;
 
@@ -598,11 +599,13 @@ private:
     bool grid_enable[3]; //should be always visible if true
     bool grid_enabled;
 
-    Ref<ArrayMesh> move_gizmo[3], move_plane_gizmo[3], rotate_gizmo[3], scale_gizmo[3], scale_plane_gizmo[3];
+    Ref<ArrayMesh> move_gizmo[3], move_plane_gizmo[3], rotate_gizmo[4], scale_gizmo[3], scale_plane_gizmo[3];
     Ref<SpatialMaterial> gizmo_color[3];
     Ref<SpatialMaterial> plane_gizmo_color[3];
     Ref<SpatialMaterial> gizmo_color_hl[3];
     Ref<SpatialMaterial> plane_gizmo_color_hl[3];
+    Ref<ShaderMaterial> rotate_gizmo_color[3];
+    Ref<ShaderMaterial> rotate_gizmo_color_hl[3];
 
     int over_gizmo_handle;
     float snap_translate_value;
@@ -723,7 +726,7 @@ private:
 
     void _request_gizmo(Object *p_obj);
 
-    static SpatialEditor *singleton;
+    static Node3DEditor *singleton;
 
     void _node_removed(Node *p_node);
     Vector<Ref<EditorSpatialGizmoPlugin> > gizmo_plugins_by_priority;
@@ -731,7 +734,7 @@ private:
 
     void _register_all_gizmos();
 
-    SpatialEditor()=delete;
+    Node3DEditor()=delete;
 
     bool is_any_freelook_active() const;
 
@@ -745,7 +748,7 @@ protected:
     static void _bind_methods();
 
 public:
-    static SpatialEditor *get_singleton() { return singleton; }
+    static Node3DEditor *get_singleton() { return singleton; }
     void snap_cursor_to_plane(const Plane &p_plane);
 
     Vector3 snap_point(Vector3 p_target, Vector3 p_start = Vector3(0, 0, 0)) const;
@@ -770,6 +773,7 @@ public:
     Ref<ArrayMesh> get_scale_gizmo(int idx) const { return scale_gizmo[idx]; }
     Ref<ArrayMesh> get_scale_plane_gizmo(int idx) const { return scale_plane_gizmo[idx]; }
 
+    void update_grid();
     void update_transform_gizmo();
     void update_all_gizmos(Node *p_node = nullptr);
     void snap_selected_nodes_to_floor();
@@ -797,7 +801,7 @@ public:
 
     void set_can_preview(Camera3D *p_preview);
 
-    SpatialEditorViewport *get_editor_viewport(int p_idx) {
+    Node3DEditorViewport *get_editor_viewport(int p_idx) {
         ERR_FAIL_INDEX_V(p_idx, static_cast<int>(VIEWPORTS_COUNT), nullptr);
         return viewports[p_idx];
     }
@@ -808,15 +812,15 @@ public:
     void edit(Node3D *p_spatial);
     void clear();
 
-    SpatialEditor(EditorNode *p_editor);
-    ~SpatialEditor() override;
+    Node3DEditor(EditorNode *p_editor);
+    ~Node3DEditor() override;
 };
 
-class GODOT_EXPORT SpatialEditorPlugin : public EditorPlugin {
+class GODOT_EXPORT Node3DEditorPlugin : public EditorPlugin {
 
-    GDCLASS(SpatialEditorPlugin,EditorPlugin)
+    GDCLASS(Node3DEditorPlugin,EditorPlugin)
 
-    SpatialEditor *spatial_editor;
+    Node3DEditor *spatial_editor;
     EditorNode *editor;
 
 protected:
@@ -825,7 +829,7 @@ protected:
 public:
     void snap_cursor_to_plane(const Plane &p_plane);
 
-    SpatialEditor *get_spatial_editor() { return spatial_editor; }
+    Node3DEditor *get_spatial_editor() { return spatial_editor; }
     StringView get_name() const override { return "3D"; }
     bool has_main_screen() const override { return true; }
     void make_visible(bool p_visible) override;
@@ -838,8 +842,8 @@ public:
 
     void edited_scene_changed() override;
 
-    SpatialEditorPlugin(EditorNode *p_node);
-    ~SpatialEditorPlugin() override;
+    Node3DEditorPlugin(EditorNode *p_node);
+    ~Node3DEditorPlugin() override;
 };
 
 class GODOT_EXPORT EditorSpatialGizmoPlugin : public Resource {
@@ -853,12 +857,12 @@ public:
 
 protected:
     int current_state;
-    Vector<EditorSpatialGizmo *> current_gizmos;
+    Vector<EditorNode3DGizmo *> current_gizmos;
     HashMap<String, Vector<Ref<SpatialMaterial> > > materials;
 
     static void _bind_methods();
     virtual bool has_gizmo(Node3D *p_spatial);
-    virtual Ref<EditorSpatialGizmo> create_gizmo(Node3D *p_spatial);
+    virtual Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial);
 
 public:
     void create_material(StringView p_name, const Color &p_color, bool p_billboard = false, bool p_on_top = false, bool p_use_vertex_color = false);
@@ -866,24 +870,24 @@ public:
     void create_handle_material(const String &p_name, bool p_billboard = false);
     void add_material(const String &p_name, const Ref<SpatialMaterial>& p_material);
 
-    Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorSpatialGizmo> &p_gizmo = Ref<EditorSpatialGizmo>());
+    Ref<SpatialMaterial> get_material(const String &p_name, const Ref<EditorNode3DGizmo> &p_gizmo = Ref<EditorNode3DGizmo>());
 
     virtual StringView get_name() const;
     virtual int get_priority() const;
     virtual bool can_be_hidden() const;
     virtual bool is_selectable_when_hidden() const;
 
-    virtual void redraw(EditorSpatialGizmo *p_gizmo);
-    virtual StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
-    virtual Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const;
-    virtual void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point);
-    virtual void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false);
-    virtual bool is_handle_highlighted(const EditorSpatialGizmo *p_gizmo, int p_idx) const;
+    virtual void redraw(EditorNode3DGizmo *p_gizmo);
+    virtual StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const;
+    virtual Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const;
+    virtual void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point);
+    virtual void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel = false);
+    virtual bool is_handle_highlighted(const EditorNode3DGizmo *p_gizmo, int p_idx) const;
 
-    Ref<EditorSpatialGizmo> get_gizmo(Node3D *p_spatial);
+    Ref<EditorNode3DGizmo> get_gizmo(Node3D *p_spatial);
     void set_state(int p_state);
     int get_state() const;
-    void unregister_gizmo(EditorSpatialGizmo *p_gizmo);
+    void unregister_gizmo(EditorNode3DGizmo *p_gizmo);
 
     EditorSpatialGizmoPlugin();
     ~EditorSpatialGizmoPlugin() override;

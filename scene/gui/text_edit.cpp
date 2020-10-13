@@ -422,51 +422,51 @@ struct PrivateData {
     Map<int, TextEdit::HighlighterInfo> _get_line_syntax_highlighting(TextEdit *te,int p_line);
     void _update_caches(TextEdit *te) {
 
-        cache.style_normal = te->get_stylebox("normal");
-        cache.style_focus = te->get_stylebox("focus");
-        cache.style_readonly = te->get_stylebox("read_only");
-        cache.completion_background_color = te->get_color("completion_background_color");
-        cache.completion_selected_color = te->get_color("completion_selected_color");
-        cache.completion_existing_color = te->get_color("completion_existing_color");
-        cache.completion_font_color = te->get_color("completion_font_color");
-        cache.font = te->get_font("font");
-        cache.caret_color = te->get_color("caret_color");
-        cache.caret_background_color = te->get_color("caret_background_color");
-        cache.line_number_color = te->get_color("line_number_color");
-        cache.safe_line_number_color = te->get_color("safe_line_number_color");
-        cache.font_color = te->get_color("font_color");
-        cache.font_color_selected = te->get_color("font_color_selected");
-        cache.font_color_readonly = te->get_color("font_color_readonly");
-        cache.keyword_color = te->get_color("keyword_color");
-        cache.function_color = te->get_color("function_color");
-        cache.member_variable_color = te->get_color("member_variable_color");
-        cache.number_color = te->get_color("number_color");
-        cache.selection_color = te->get_color("selection_color");
-        cache.mark_color = te->get_color("mark_color");
-        cache.current_line_color = te->get_color("current_line_color");
-        cache.line_length_guideline_color = te->get_color("line_length_guideline_color");
-        cache.bookmark_color = te->get_color("bookmark_color");
-        cache.breakpoint_color = te->get_color("breakpoint_color");
-        cache.executing_line_color = te->get_color("executing_line_color");
-        cache.code_folding_color = te->get_color("code_folding_color");
-        cache.brace_mismatch_color = te->get_color("brace_mismatch_color");
-        cache.word_highlighted_color = te->get_color("word_highlighted_color");
-        cache.search_result_color = te->get_color("search_result_color");
-        cache.search_result_border_color = te->get_color("search_result_border_color");
-        cache.symbol_color = te->get_color("symbol_color");
-        cache.background_color = te->get_color("background_color");
+        cache.style_normal = te->get_theme_stylebox("normal");
+        cache.style_focus = te->get_theme_stylebox("focus");
+        cache.style_readonly = te->get_theme_stylebox("read_only");
+        cache.completion_background_color = te->get_theme_color("completion_background_color");
+        cache.completion_selected_color = te->get_theme_color("completion_selected_color");
+        cache.completion_existing_color = te->get_theme_color("completion_existing_color");
+        cache.completion_font_color = te->get_theme_color("completion_font_color");
+        cache.font = te->get_theme_font("font");
+        cache.caret_color = te->get_theme_color("caret_color");
+        cache.caret_background_color = te->get_theme_color("caret_background_color");
+        cache.line_number_color = te->get_theme_color("line_number_color");
+        cache.safe_line_number_color = te->get_theme_color("safe_line_number_color");
+        cache.font_color = te->get_theme_color("font_color");
+        cache.font_color_selected = te->get_theme_color("font_color_selected");
+        cache.font_color_readonly = te->get_theme_color("font_color_readonly");
+        cache.keyword_color = te->get_theme_color("keyword_color");
+        cache.function_color = te->get_theme_color("function_color");
+        cache.member_variable_color = te->get_theme_color("member_variable_color");
+        cache.number_color = te->get_theme_color("number_color");
+        cache.selection_color = te->get_theme_color("selection_color");
+        cache.mark_color = te->get_theme_color("mark_color");
+        cache.current_line_color = te->get_theme_color("current_line_color");
+        cache.line_length_guideline_color = te->get_theme_color("line_length_guideline_color");
+        cache.bookmark_color = te->get_theme_color("bookmark_color");
+        cache.breakpoint_color = te->get_theme_color("breakpoint_color");
+        cache.executing_line_color = te->get_theme_color("executing_line_color");
+        cache.code_folding_color = te->get_theme_color("code_folding_color");
+        cache.brace_mismatch_color = te->get_theme_color("brace_mismatch_color");
+        cache.word_highlighted_color = te->get_theme_color("word_highlighted_color");
+        cache.search_result_color = te->get_theme_color("search_result_color");
+        cache.search_result_border_color = te->get_theme_color("search_result_border_color");
+        cache.symbol_color = te->get_theme_color("symbol_color");
+        cache.background_color = te->get_theme_color("background_color");
     #ifdef TOOLS_ENABLED
-        cache.line_spacing = te->get_constant("line_spacing") * EDSCALE;
+        cache.line_spacing = te->get_theme_constant("line_spacing") * EDSCALE;
     #else
-        cache.line_spacing = te->get_constant("line_spacing");
+        cache.line_spacing = te->get_theme_constant("line_spacing");
     #endif
         cache.row_height = cache.font->get_height() + cache.line_spacing;
-        cache.tab_icon = te->get_icon("tab");
-        cache.space_icon = te->get_icon("space");
-        cache.folded_icon = te->get_icon("folded");
-        cache.can_fold_icon = te->get_icon("fold");
-        cache.folded_eol_icon = te->get_icon("GuiEllipsis", "EditorIcons");
-        cache.executing_icon = te->get_icon("MainPlay", "EditorIcons");
+        cache.tab_icon = te->get_theme_icon("tab");
+        cache.space_icon = te->get_theme_icon("space");
+        cache.folded_icon = te->get_theme_icon("folded");
+        cache.can_fold_icon = te->get_theme_icon("fold");
+        cache.folded_eol_icon = te->get_theme_icon("GuiEllipsis", "EditorIcons");
+        cache.executing_icon = te->get_theme_icon("MainPlay", "EditorIcons");
 
         if (syntax_highlighter) {
             syntax_highlighter->_update_cache();
@@ -1493,14 +1493,14 @@ struct PrivateData {
     }
     void completion_key_page_up()
     {
-        completion_index -= m_owner->get_constant("completion_lines");
+        completion_index -= m_owner->get_theme_constant("completion_lines");
         if (completion_index < 0)
             completion_index = 0;
         completion_current = completion_options[completion_index];
     }
     void completion_key_page_down()
     {
-        completion_index += m_owner->get_constant("completion_lines");
+        completion_index += m_owner->get_theme_constant("completion_lines");
         if (completion_index >= completion_options.size())
             completion_index = completion_options.size() - 1;
         completion_current = completion_options[completion_index];
@@ -2033,10 +2033,12 @@ void TextEdit::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
 
             _update_caches();
-            if (D()->cursor_changed_dirty)
+            if (D()->cursor_changed_dirty) {
                 MessageQueue::get_singleton()->push_call(this, "_cursor_changed_emit");
-            if (D()->text_changed_dirty)
+            }
+            if (D()->text_changed_dirty) {
                 MessageQueue::get_singleton()->push_call(this, "_text_changed_emit");
+            }
             _update_wrap_at();
         } break;
         case NOTIFICATION_RESIZED: {
@@ -2094,6 +2096,7 @@ void TextEdit::_notification(int p_what) {
                 adjust_viewport_to_cursor();
                 first_draw = false;
             }
+
             Size2 size = get_size();
             if ((!has_focus() && !menu->has_focus()) || !window_has_focus) {
                 draw_caret = false;
@@ -2991,11 +2994,11 @@ void TextEdit::_notification(int p_what) {
             bool completion_below = false;
             if (D()->completion_active && D()->completion_options.size() > 0) {
                 // Code completion box.
-                Ref<StyleBox> csb = get_stylebox("completion");
-                int maxlines = get_constant("completion_lines");
-                int cmax_width = get_constant("completion_max_width") * D()->cache.font->get_char_size('x').x;
-                int scrollw = get_constant("completion_scroll_width");
-                Color scrollc = get_color("completion_scroll_color");
+                Ref<StyleBox> csb = get_theme_stylebox("completion");
+                int maxlines = get_theme_constant("completion_lines");
+                int cmax_width = get_theme_constant("completion_max_width") * D()->cache.font->get_char_size('x').x;
+                int scrollw = get_theme_constant("completion_scroll_width");
+                Color scrollc = get_theme_color("completion_scroll_color");
 
                 const int completion_options_size = D()->completion_options.size();
                 int lines = eastl::min(completion_options_size, maxlines);
@@ -3014,7 +3017,7 @@ void TextEdit::_notification(int p_what) {
                 }
 
                 // Add space for completion icons.
-                const int icon_hsep = get_constant("hseparation", "ItemList");
+                const int icon_hsep = get_theme_constant("hseparation", "ItemList");
                 Size2 icon_area_size(get_row_height(), get_row_height());
                 w += icon_area_size.width + icon_hsep;
 
@@ -3105,9 +3108,9 @@ void TextEdit::_notification(int p_what) {
 
             if (show_hint) {
 
-                Ref<StyleBox> sb = get_stylebox("panel", "TooltipPanel");
+                Ref<StyleBox> sb = get_theme_stylebox("panel", "TooltipPanel");
                 Ref<Font> font = D()->cache.font;
-                Color font_color = get_color("font_color", "TooltipLabel");
+                Color font_color = get_theme_color("font_color", "TooltipLabel");
 
                 int max_w = 0;
                 int sc = StringUtils::get_slice_count(D()->completion_hint,'\n');
@@ -7538,21 +7541,15 @@ void TextEdit::_push_current_op() {
 void TextEdit::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &TextEdit::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &TextEdit::_scroll_moved);
     MethodBinder::bind_method(D_METHOD("_cursor_changed_emit"), &TextEdit::_cursor_changed_emit);
     MethodBinder::bind_method(D_METHOD("_text_changed_emit"), &TextEdit::_text_changed_emit);
-    MethodBinder::bind_method(D_METHOD("_push_current_op"), &TextEdit::_push_current_op);
-    MethodBinder::bind_method(D_METHOD("_click_selection_held"), &TextEdit::_click_selection_held);
-    MethodBinder::bind_method(D_METHOD("_toggle_draw_caret"), &TextEdit::_toggle_draw_caret);
-    MethodBinder::bind_method(D_METHOD("_v_scroll_input"), &TextEdit::_v_scroll_input);
-    MethodBinder::bind_method(D_METHOD("_update_wrap_at"), &TextEdit::_update_wrap_at);
 
-    BIND_ENUM_CONSTANT(SEARCH_MATCH_CASE)
-    BIND_ENUM_CONSTANT(SEARCH_WHOLE_WORDS)
-    BIND_ENUM_CONSTANT(SEARCH_BACKWARDS)
+    BIND_ENUM_CONSTANT(SEARCH_MATCH_CASE);
+    BIND_ENUM_CONSTANT(SEARCH_WHOLE_WORDS);
+    BIND_ENUM_CONSTANT(SEARCH_BACKWARDS);
 
-    BIND_ENUM_CONSTANT(SEARCH_RESULT_COLUMN)
-    BIND_ENUM_CONSTANT(SEARCH_RESULT_LINE)
+    BIND_ENUM_CONSTANT(SEARCH_RESULT_COLUMN);
+    BIND_ENUM_CONSTANT(SEARCH_RESULT_LINE);
     /*
     MethodBinder::bind_method(D_METHOD("delete_char"),&TextEdit::delete_char);
     MethodBinder::bind_method(D_METHOD("delete_line"),&TextEdit::delete_line);
@@ -7713,14 +7710,14 @@ void TextEdit::_bind_methods() {
     ADD_SIGNAL(MethodInfo("symbol_lookup", PropertyInfo(VariantType::STRING, "symbol"), PropertyInfo(VariantType::INT, "row"), PropertyInfo(VariantType::INT, "column")));
     ADD_SIGNAL(MethodInfo("info_clicked", PropertyInfo(VariantType::INT, "row"), PropertyInfo(VariantType::STRING, "info")));
 
-    BIND_ENUM_CONSTANT(MENU_CUT)
-    BIND_ENUM_CONSTANT(MENU_COPY)
-    BIND_ENUM_CONSTANT(MENU_PASTE)
-    BIND_ENUM_CONSTANT(MENU_CLEAR)
-    BIND_ENUM_CONSTANT(MENU_SELECT_ALL)
-    BIND_ENUM_CONSTANT(MENU_UNDO)
-    BIND_ENUM_CONSTANT(MENU_REDO)
-    BIND_ENUM_CONSTANT(MENU_MAX)
+    BIND_ENUM_CONSTANT(MENU_CUT);
+    BIND_ENUM_CONSTANT(MENU_COPY);
+    BIND_ENUM_CONSTANT(MENU_PASTE);
+    BIND_ENUM_CONSTANT(MENU_CLEAR);
+    BIND_ENUM_CONSTANT(MENU_SELECT_ALL);
+    BIND_ENUM_CONSTANT(MENU_UNDO);
+    BIND_ENUM_CONSTANT(MENU_REDO);
+    BIND_ENUM_CONSTANT(MENU_MAX);
 
     GLOBAL_DEF("gui/timers/text_edit_idle_detect_sec", 3);
     ProjectSettings::get_singleton()->set_custom_property_info("gui/timers/text_edit_idle_detect_sec", PropertyInfo(VariantType::FLOAT, "gui/timers/text_edit_idle_detect_sec", PropertyHint::Range, "0,10,0.01,or_greater")); // No negative numbers.

@@ -43,7 +43,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/main/viewport.h"
 #include "scene/resources/packed_scene.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 
 IMPL_GDCLASS(MeshLibraryEditor)
 IMPL_GDCLASS(MeshLibraryEditorPlugin)
@@ -279,10 +279,10 @@ MeshLibraryEditor::MeshLibraryEditor(EditorNode *p_editor) {
     file->connect("file_selected",callable_mp(this, &ClassName::_import_scene_cbk));
 
     menu = memnew(MenuButton);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(menu);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(menu);
     menu->set_position(Point2(1, 1));
     menu->set_text(TTR("Mesh Library"));
-    menu->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshLibrary", "EditorIcons"));
+    menu->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("MeshLibrary", "EditorIcons"));
     menu->get_popup()->add_item(TTR("Add Item"), MENU_OPTION_ADD_ITEM);
     menu->get_popup()->add_item(TTR("Remove Selected Item"), MENU_OPTION_REMOVE_ITEM);
     menu->get_popup()->add_separator();

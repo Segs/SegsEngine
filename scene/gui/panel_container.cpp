@@ -42,9 +42,9 @@ Size2 PanelContainer::get_minimum_size() const {
     Ref<StyleBox> style;
 
     if (has_stylebox("panel"))
-        style = get_stylebox("panel");
+        style = get_theme_stylebox("panel");
     else
-        style = get_stylebox("panel", "PanelContainer");
+        style = get_theme_stylebox("panel", "PanelContainer");
 
     Size2 ms;
     for (int i = 0; i < get_child_count(); i++) {
@@ -52,7 +52,7 @@ Size2 PanelContainer::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c || !c->is_visible_in_tree())
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2 minsize = c->get_combined_minimum_size();
@@ -73,9 +73,9 @@ void PanelContainer::_notification(int p_what) {
         Ref<StyleBox> style;
 
         if (has_stylebox("panel"))
-            style = get_stylebox("panel");
+            style = get_theme_stylebox("panel");
         else
-            style = get_stylebox("panel", "PanelContainer");
+            style = get_theme_stylebox("panel", "PanelContainer");
 
         style->draw(ci, Rect2(Point2(), get_size()));
     }
@@ -85,9 +85,9 @@ void PanelContainer::_notification(int p_what) {
         Ref<StyleBox> style;
 
         if (has_stylebox("panel"))
-            style = get_stylebox("panel");
+            style = get_theme_stylebox("panel");
         else
-            style = get_stylebox("panel", "PanelContainer");
+            style = get_theme_stylebox("panel", "PanelContainer");
 
         Size2 size = get_size();
         Point2 ofs;
@@ -101,7 +101,7 @@ void PanelContainer::_notification(int p_what) {
             Control *c = object_cast<Control>(get_child(i));
             if (!c || !c->is_visible_in_tree())
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
 
             fit_child_in_rect(c, Rect2(ofs, size));

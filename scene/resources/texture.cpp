@@ -1784,8 +1784,6 @@ void GradientTexture::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_width", {"width"}), &GradientTexture::set_width);
 
-    MethodBinder::bind_method(D_METHOD("_update"), &GradientTexture::_update);
-
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "gradient", PropertyHint::ResourceType, "Gradient"), "set_gradient", "get_gradient");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
 }

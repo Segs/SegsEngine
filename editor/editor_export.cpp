@@ -1187,9 +1187,6 @@ void EditorExport::save_presets() {
 }
 
 void EditorExport::_bind_methods() {
-
-    MethodBinder::bind_method("_save", &EditorExport::_save);
-
     ADD_SIGNAL(MethodInfo("export_presets_updated"));
 }
 

@@ -4,7 +4,7 @@
 		Used by the editor to define Node3D gizmo types.
 	</brief_description>
 	<description>
-		EditorSpatialGizmoPlugin allows you to define a new type of Gizmo. There are two main ways to do so: extending [EditorSpatialGizmoPlugin] for the simpler gizmos, or creating a new [EditorSpatialGizmo] type. See the tutorial in the documentation for more info.
+		EditorSpatialGizmoPlugin allows you to define a new type of Gizmo. There are two main ways to do so: extending [EditorSpatialGizmoPlugin] for the simpler gizmos, or creating a new [EditorNode3DGizmo] type. See the tutorial in the documentation for more info.
 	</description>
 	<tutorials>
 		<link>https://docs.godotengine.org/en/latest/tutorials/plugins/editor/spatial_gizmos.html</link>
@@ -31,7 +31,7 @@
 		<method name="commit_handle" qualifiers="virtual">
 			<return type="void">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>
@@ -44,12 +44,12 @@
 			</description>
 		</method>
 		<method name="create_gizmo" qualifiers="virtual">
-			<return type="EditorSpatialGizmo">
+			<return type="EditorNode3DGizmo">
 			</return>
 			<argument index="0" name="spatial" type="Node3D">
 			</argument>
 			<description>
-				Override this method to return a custom [EditorSpatialGizmo] for the spatial nodes of your choice, return [code]null[/code] for the rest of nodes. See also [method has_gizmo].
+				Override this method to return a custom [EditorNode3DGizmo] for the spatial nodes of your choice, return [code]null[/code] for the rest of nodes. See also [method has_gizmo].
 			</description>
 		</method>
 		<method name="create_handle_material">
@@ -60,7 +60,7 @@
 			<argument index="1" name="billboard" type="bool" default="false">
 			</argument>
 			<description>
-				Creates a handle material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorSpatialGizmo.add_handles]. Should not be overridden.
+				Creates a handle material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorNode3DGizmo.add_handles]. Should not be overridden.
 			</description>
 		</method>
 		<method name="create_icon_material">
@@ -75,7 +75,7 @@
 			<argument index="3" name="color" type="Color" default="Color( 1, 1, 1, 1 )">
 			</argument>
 			<description>
-				Creates an icon material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorSpatialGizmo.add_unscaled_billboard]. Should not be overridden.
+				Creates an icon material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorNode3DGizmo.add_unscaled_billboard]. Should not be overridden.
 			</description>
 		</method>
 		<method name="create_material">
@@ -92,13 +92,13 @@
 			<argument index="4" name="use_vertex_color" type="bool" default="false">
 			</argument>
 			<description>
-				Creates an unshaded material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorSpatialGizmo.add_mesh] and [method EditorSpatialGizmo.add_lines]. Should not be overridden.
+				Creates an unshaded material with its variants (selected and/or editable) and adds them to the internal material list. They can then be accessed with [method get_material] and used in [method EditorNode3DGizmo.add_mesh] and [method EditorNode3DGizmo.add_lines]. Should not be overridden.
 			</description>
 		</method>
 		<method name="get_handle_name" qualifiers="virtual">
 			<return type="String">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>
@@ -109,7 +109,7 @@
 		<method name="get_handle_value" qualifiers="virtual">
 			<return type="Variant">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>
@@ -122,10 +122,10 @@
 			</return>
 			<argument index="0" name="name" type="String">
 			</argument>
-			<argument index="1" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="1" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<description>
-				Gets material from the internal list of materials. If an [EditorSpatialGizmo] is provided, it will try to get the corresponding variant (selected and/or editable).
+				Gets material from the internal list of materials. If an [EditorNode3DGizmo] is provided, it will try to get the corresponding variant (selected and/or editable).
 			</description>
 		</method>
 		<method name="get_name" qualifiers="virtual">
@@ -149,13 +149,13 @@
 			<argument index="0" name="spatial" type="Node3D">
 			</argument>
 			<description>
-				Override this method to define which Node3D nodes have a gizmo from this plugin. Whenever a [Node3D] node is added to a scene this method is called, if it returns [code]true[/code] the node gets a generic [EditorSpatialGizmo] assigned and is added to this plugin's list of active gizmos.
+				Override this method to define which Node3D nodes have a gizmo from this plugin. Whenever a [Node3D] node is added to a scene this method is called, if it returns [code]true[/code] the node gets a generic [EditorNode3DGizmo] assigned and is added to this plugin's list of active gizmos.
 			</description>
 		</method>
 		<method name="is_handle_highlighted" qualifiers="virtual">
 			<return type="bool">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>
@@ -173,7 +173,7 @@
 		<method name="redraw" qualifiers="virtual">
 			<return type="void">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<description>
 				Callback to redraw the provided gizmo. Called for this plugin's active gizmos.
@@ -182,7 +182,7 @@
 		<method name="set_handle" qualifiers="virtual">
 			<return type="void">
 			</return>
-			<argument index="0" name="gizmo" type="EditorSpatialGizmo">
+			<argument index="0" name="gizmo" type="EditorNode3DGizmo">
 			</argument>
 			<argument index="1" name="index" type="int">
 			</argument>

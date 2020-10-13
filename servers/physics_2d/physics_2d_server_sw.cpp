@@ -42,7 +42,7 @@
 IMPL_GDCLASS(Physics2DServerSW)
 
 #define FLUSH_QUERY_CHECK(m_object) \
-    ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead."); 
+    ERR_FAIL_COND_MSG(m_object->get_space() && flushing_queries, "Can't change this state while flushing queries. Use call_deferred() or set_deferred() to change monitoring state instead.");
 
 RID Physics2DServerSW::_shape_create(ShapeType p_shape) {
 
@@ -903,6 +903,7 @@ void Physics2DServerSW::body_apply_torque_impulse(RID p_body, real_t p_torque) {
     _update_shapes();
 
     body->apply_torque_impulse(p_torque);
+    body->wakeup();
 }
 
 void Physics2DServerSW::body_apply_impulse(RID p_body, const Vector2 &p_pos, const Vector2 &p_impulse) {

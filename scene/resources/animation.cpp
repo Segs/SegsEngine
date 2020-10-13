@@ -2824,6 +2824,7 @@ void Animation::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("value_track_get_update_mode", {"track_idx"}), &Animation::value_track_get_update_mode);
 
     MethodBinder::bind_method(D_METHOD("value_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::value_track_get_key_indices);
+    MethodBinder::bind_method(D_METHOD("value_track_interpolate", {"track_idx", "time_sec"}), &Animation::value_track_interpolate);
 
     MethodBinder::bind_method(D_METHOD("method_track_get_key_indices", {"track_idx", "time_sec", "delta"}), (PoolVector<int>(Animation::*)(int, float, float) const)&Animation::method_track_get_key_indices);
     MethodBinder::bind_method(D_METHOD("method_track_get_name", {"track_idx", "key_idx"}), &Animation::method_track_get_name);

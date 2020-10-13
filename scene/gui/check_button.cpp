@@ -40,8 +40,8 @@ IMPL_GDCLASS(CheckButton)
 
 Size2 CheckButton::get_icon_size() const {
 
-    Ref<Texture> on = Control::get_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
-    Ref<Texture> off = Control::get_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
+    Ref<Texture> on = Control::get_theme_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
+    Ref<Texture> off = Control::get_theme_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
     Size2 tex_size = Size2(0, 0);
     if (on)
         tex_size = Size2(on->get_width(), on->get_height());
@@ -57,8 +57,8 @@ Size2 CheckButton::get_minimum_size() const {
     Size2 tex_size = get_icon_size();
     minsize.width += tex_size.width;
     if (not get_text().empty())
-        minsize.width += get_constant("hseparation");
-    Ref<StyleBox> sb = get_stylebox("normal");
+        minsize.width += get_theme_constant("hseparation");
+    Ref<StyleBox> sb = get_theme_stylebox("normal");
     minsize.height = M_MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
 
     return minsize;
@@ -73,15 +73,15 @@ void CheckButton::_notification(int p_what) {
 
         RID ci = get_canvas_item();
 
-        Ref<Texture> on = Control::get_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
-        Ref<Texture> off = Control::get_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
+        Ref<Texture> on = Control::get_theme_icon(is_disabled() ? StringName("on_disabled") : StringName("on"));
+        Ref<Texture> off = Control::get_theme_icon(is_disabled() ? StringName("off_disabled") : StringName("off"));
 
-        Ref<StyleBox> sb = get_stylebox("normal");
+        Ref<StyleBox> sb = get_theme_stylebox("normal");
         Vector2 ofs;
         Size2 tex_size = get_icon_size();
 
         ofs.x = get_size().width - (tex_size.width + sb->get_margin(Margin::Right));
-        ofs.y = (get_size().height - tex_size.height) / 2 + get_constant("check_vadjust");
+        ofs.y = (get_size().height - tex_size.height) / 2 + get_theme_constant("check_vadjust");
 
         if (is_pressed())
             on->draw(ci, ofs);

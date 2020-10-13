@@ -755,7 +755,7 @@ bool Variant::is_zero() const {
             return *reinterpret_cast<const RID *>(_data._mem) == RID();
         }
         case VariantType::OBJECT: {
-            return _OBJ_PTR(*this) == nullptr;
+            return _UNSAFE_OBJ_PROXY_PTR(*this) == nullptr;
         }
         case VariantType::CALLABLE: {
             return reinterpret_cast<const Callable*>(_data._mem)->is_null();
@@ -2932,7 +2932,7 @@ uint32_t Variant::hash() const {
         }
         case VariantType::OBJECT: {
 
-            return hash_djb2_one_64(make_uint64_t(_OBJ_PTR(*this)));
+            return hash_djb2_one_64(make_uint64_t(_UNSAFE_OBJ_PROXY_PTR(*this)));
         }
         case VariantType::STRING_NAME: {
             return reinterpret_cast<const StringName *>(_data._mem)->hash();

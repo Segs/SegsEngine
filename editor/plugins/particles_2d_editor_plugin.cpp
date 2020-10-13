@@ -355,17 +355,9 @@ void Particles2DEditorPlugin::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_callback));
-        menu->set_button_icon(menu->get_popup()->get_icon("GPUParticles2D", "EditorIcons"));
+        menu->set_button_icon(menu->get_popup()->get_theme_icon("GPUParticles2D", "EditorIcons"));
         file->connect("file_selected",callable_mp(this, &ClassName::_file_selected));
     }
-}
-
-void Particles2DEditorPlugin::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_menu_callback"), &Particles2DEditorPlugin::_menu_callback);
-    MethodBinder::bind_method(D_METHOD("_file_selected"), &Particles2DEditorPlugin::_file_selected);
-    MethodBinder::bind_method(D_METHOD("_generate_visibility_rect"), &Particles2DEditorPlugin::_generate_visibility_rect);
-    MethodBinder::bind_method(D_METHOD("_generate_emission_mask"), &Particles2DEditorPlugin::_generate_emission_mask);
 }
 
 Particles2DEditorPlugin::Particles2DEditorPlugin(EditorNode *p_node) {

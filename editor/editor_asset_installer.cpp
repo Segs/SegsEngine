@@ -140,17 +140,17 @@ void EditorAssetInstaller::open(StringView p_path, int p_depth) {
 
     Map<StringView, Ref<Texture> > extension_guess;
     {
-        extension_guess["png"] = get_icon("ImageTexture", "EditorIcons");
-        extension_guess["jpg"] = get_icon("ImageTexture", "EditorIcons");
-        extension_guess["atlastex"] = get_icon("AtlasTexture", "EditorIcons");
-        extension_guess["scn"] = get_icon("PackedScene", "EditorIcons");
-        extension_guess["tscn"] = get_icon("PackedScene", "EditorIcons");
-        extension_guess["shader"] = get_icon("Shader", "EditorIcons");
-        extension_guess["gd"] = get_icon("GDScript", "EditorIcons");
-        extension_guess["vs"] = get_icon("VisualScript", "EditorIcons");
+        extension_guess["png"] = get_theme_icon("ImageTexture", "EditorIcons");
+        extension_guess["jpg"] = get_theme_icon("ImageTexture", "EditorIcons");
+        extension_guess["atlastex"] = get_theme_icon("AtlasTexture", "EditorIcons");
+        extension_guess["scn"] = get_theme_icon("PackedScene", "EditorIcons");
+        extension_guess["tscn"] = get_theme_icon("PackedScene", "EditorIcons");
+        extension_guess["shader"] = get_theme_icon("Shader", "EditorIcons");
+        extension_guess["gd"] = get_theme_icon("GDScript", "EditorIcons");
+        extension_guess["vs"] = get_theme_icon("VisualScript", "EditorIcons");
     }
 
-    Ref<Texture> generic_extension = get_icon("Object", "EditorIcons");
+    Ref<Texture> generic_extension = get_theme_icon("Object", "EditorIcons");
 
     unzClose(pkg);
 
@@ -159,7 +159,7 @@ void EditorAssetInstaller::open(StringView p_path, int p_depth) {
     TreeItem *root = tree->create_item();
     root->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
     root->set_checked(0, true);
-    root->set_icon(0, get_icon("folder", "FileDialog"));
+    root->set_icon(0, get_theme_icon("folder", "FileDialog"));
     root->set_text(0, "res://");
     root->set_editable(0, true);
     Map<String, TreeItem *> dir_map;
@@ -208,7 +208,7 @@ void EditorAssetInstaller::open(StringView p_path, int p_depth) {
         if (isdir) {
             dir_map[path] = ti;
             ti->set_text_utf8(0, String(PathUtils::get_file(path)) + "/");
-            ti->set_icon(0, get_icon("folder", "FileDialog"));
+            ti->set_icon(0, get_theme_icon("folder", "FileDialog"));
             ti->set_metadata(0, StringView());
         } else {
             String file(PathUtils::get_file(path));
@@ -222,7 +222,7 @@ void EditorAssetInstaller::open(StringView p_path, int p_depth) {
 
             String res_path = "res://" + path;
             if (FileAccess::exists(res_path)) {
-                ti->set_custom_color(0, get_color("error_color", "Editor"));
+                ti->set_custom_color(0, get_theme_color("error_color", "Editor"));
                 ti->set_tooltip(0, StringName(res_path + " (Already Exists)"));
                 ti->set_checked(0, false);
             } else {

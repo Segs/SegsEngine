@@ -38,10 +38,10 @@
 IMPL_GDCLASS(CheckBox)
 
 Size2 CheckBox::get_icon_size() const {
-    Ref<Texture> checked = Control::get_icon("checked");
-    Ref<Texture> unchecked = Control::get_icon("unchecked");
-    Ref<Texture> radio_checked = Control::get_icon("radio_checked");
-    Ref<Texture> radio_unchecked = Control::get_icon("radio_unchecked");
+    Ref<Texture> checked = Control::get_theme_icon("checked");
+    Ref<Texture> unchecked = Control::get_theme_icon("unchecked");
+    Ref<Texture> radio_checked = Control::get_theme_icon("radio_checked");
+    Ref<Texture> radio_unchecked = Control::get_theme_icon("radio_unchecked");
 
     Size2 tex_size = Size2(0, 0);
     if (checked)
@@ -61,9 +61,9 @@ Size2 CheckBox::get_minimum_size() const {
     Size2 tex_size = get_icon_size();
     minsize.width += tex_size.width;
     if (not get_text().empty()) {
-        minsize.width += get_constant("hseparation");
+        minsize.width += get_theme_constant("hseparation");
     }
-    Ref<StyleBox> sb = get_stylebox("normal");
+    Ref<StyleBox> sb = get_theme_stylebox("normal");
     minsize.height = M_MAX(minsize.height, tex_size.height + sb->get_margin(Margin::Top) + sb->get_margin(Margin::Bottom));
 
     return minsize;
@@ -78,13 +78,13 @@ void CheckBox::_notification(int p_what) {
 
         RID ci = get_canvas_item();
 
-        Ref<Texture> on = Control::get_icon(is_radio() ? StringName("radio_checked") : StringName("checked"));
-        Ref<Texture> off = Control::get_icon(is_radio() ? StringName("radio_unchecked") : StringName("unchecked"));
-        Ref<StyleBox> sb = get_stylebox("normal");
+        Ref<Texture> on = Control::get_theme_icon(is_radio() ? StringName("radio_checked") : StringName("checked"));
+        Ref<Texture> off = Control::get_theme_icon(is_radio() ? StringName("radio_unchecked") : StringName("unchecked"));
+        Ref<StyleBox> sb = get_theme_stylebox("normal");
 
         Vector2 ofs;
         ofs.x = sb->get_margin(Margin::Left);
-        ofs.y = int((get_size().height - get_icon_size().height) / 2) + get_constant("check_vadjust");
+        ofs.y = int((get_size().height - get_icon_size().height) / 2) + get_theme_constant("check_vadjust");
 
         if (is_pressed())
             on->draw(ci, ofs);

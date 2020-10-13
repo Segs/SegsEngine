@@ -63,7 +63,7 @@ public:
         return agent;
     }
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 private:
     void update_agent_shape();

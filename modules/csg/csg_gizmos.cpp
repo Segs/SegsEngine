@@ -55,7 +55,7 @@ CSGShapeSpatialGizmoPlugin::CSGShapeSpatialGizmoPlugin() {
     create_handle_material("handles");
 }
 
-StringName CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const {
+StringName CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -82,7 +82,7 @@ StringName CSGShapeSpatialGizmoPlugin::get_handle_name(const EditorSpatialGizmo 
 
     return StringName();
 }
-Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const {
+Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -116,7 +116,7 @@ Variant CSGShapeSpatialGizmoPlugin::get_handle_value(EditorSpatialGizmo *p_gizmo
 
     return Variant();
 }
-void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
+void CSGShapeSpatialGizmoPlugin::set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -136,8 +136,8 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), Vector3(4096, 0, 0), sg[0], sg[1], ra, rb);
         float d = ra.x;
-        if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-            d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
+        if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+            d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
         if (d < 0.001f)
@@ -155,8 +155,8 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = ra[p_idx];
-        if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-            d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
+        if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+            d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
         if (d < 0.001f)
@@ -178,8 +178,8 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = axis.dot(ra);
-        if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-            d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
+        if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+            d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
         if (d < 0.001f)
@@ -200,8 +200,8 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
         Vector3 ra, rb;
         Geometry::get_closest_points_between_segments(Vector3(), axis * 4096, sg[0], sg[1], ra, rb);
         float d = axis.dot(ra);
-        if (SpatialEditor::get_singleton()->is_snap_enabled()) {
-            d = Math::stepify(d, SpatialEditor::get_singleton()->get_translate_snap());
+        if (Node3DEditor::get_singleton()->is_snap_enabled()) {
+            d = Math::stepify(d, Node3DEditor::get_singleton()->get_translate_snap());
         }
 
         if (d < 0.001)
@@ -213,7 +213,7 @@ void CSGShapeSpatialGizmoPlugin::set_handle(EditorSpatialGizmo *p_gizmo, int p_i
             s->set_outer_radius(d);
     }
 }
-void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
+void CSGShapeSpatialGizmoPlugin::commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
@@ -224,7 +224,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
             return;
         }
 
-        UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
+        UndoRedo *ur = Node3DEditor::get_singleton()->get_undo_redo();
         ur->create_action(TTR("Change Sphere Shape Radius"));
         ur->add_do_method(s, "set_radius", s->get_radius());
         ur->add_undo_method(s, "set_radius", p_restore);
@@ -242,7 +242,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
             return;
         }
 
-        UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
+        UndoRedo *ur = Node3DEditor::get_singleton()->get_undo_redo();
         ur->create_action(TTR("Change Box Shape Extents"));
         static const char *method[3] = { "set_width", "set_height", "set_depth" };
         float current = 0;
@@ -267,7 +267,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
             return;
         }
 
-        UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
+        UndoRedo *ur = Node3DEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
             ur->create_action(TTR("Change Cylinder Radius"));
             ur->add_do_method(s, "set_radius", s->get_radius());
@@ -291,7 +291,7 @@ void CSGShapeSpatialGizmoPlugin::commit_handle(EditorSpatialGizmo *p_gizmo, int 
             return;
         }
 
-        UndoRedo *ur = SpatialEditor::get_singleton()->get_undo_redo();
+        UndoRedo *ur = Node3DEditor::get_singleton()->get_undo_redo();
         if (p_idx == 0) {
             ur->create_action(TTR("Change Torus Inner Radius"));
             ur->add_do_method(s, "set_inner_radius", s->get_inner_radius());
@@ -321,14 +321,14 @@ bool CSGShapeSpatialGizmoPlugin::is_selectable_when_hidden() const {
     return true;
 }
 
-void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
+void CSGShapeSpatialGizmoPlugin::redraw(EditorNode3DGizmo *p_gizmo) {
 
     CSGShape *cs = object_cast<CSGShape>(p_gizmo->get_spatial_node());
 
     p_gizmo->clear();
 
     Ref<Material> material;
-    Ref<EditorSpatialGizmo> ref_p_gizmo(p_gizmo);
+    Ref<EditorNode3DGizmo> ref_p_gizmo(p_gizmo);
 
     switch (cs->get_operation()) {
         case CSGShape::OPERATION_UNION:
@@ -426,5 +426,5 @@ void CSGShapeSpatialGizmoPlugin::redraw(EditorSpatialGizmo *p_gizmo) {
 
 EditorPluginCSG::EditorPluginCSG(EditorNode *p_editor) {
     Ref<CSGShapeSpatialGizmoPlugin> gizmo_plugin(make_ref_counted<CSGShapeSpatialGizmoPlugin>());
-    SpatialEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
+    Node3DEditor::get_singleton()->add_gizmo_plugin(gizmo_plugin);
 }

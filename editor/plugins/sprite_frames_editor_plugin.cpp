@@ -93,7 +93,7 @@ void SpriteFramesEditor::_sheet_preview_draw() {
         return;
     }
 
-    Color accent = get_color("accent_color", "Editor");
+    Color accent = get_theme_color("accent_color", "Editor");
 
     for (int E : frames_selected) {
         int idx = E;
@@ -241,21 +241,21 @@ void SpriteFramesEditor::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            load->set_button_icon(get_icon("Load", "EditorIcons"));
-            load_sheet->set_button_icon(get_icon("SpriteSheet", "EditorIcons"));
-            copy->set_button_icon(get_icon("ActionCopy", "EditorIcons"));
-            paste->set_button_icon(get_icon("ActionPaste", "EditorIcons"));
-            empty->set_button_icon(get_icon("InsertBefore", "EditorIcons"));
-            empty2->set_button_icon(get_icon("InsertAfter", "EditorIcons"));
-            move_up->set_button_icon(get_icon("MoveLeft", "EditorIcons"));
-            move_down->set_button_icon(get_icon("MoveRight", "EditorIcons"));
-            _delete->set_button_icon(get_icon("Remove", "EditorIcons"));
-            new_anim->set_button_icon(get_icon("New", "EditorIcons"));
-            remove_anim->set_button_icon(get_icon("Remove", "EditorIcons"));
+            load->set_button_icon(get_theme_icon("Load", "EditorIcons"));
+            load_sheet->set_button_icon(get_theme_icon("SpriteSheet", "EditorIcons"));
+            copy->set_button_icon(get_theme_icon("ActionCopy", "EditorIcons"));
+            paste->set_button_icon(get_theme_icon("ActionPaste", "EditorIcons"));
+            empty->set_button_icon(get_theme_icon("InsertBefore", "EditorIcons"));
+            empty2->set_button_icon(get_theme_icon("InsertAfter", "EditorIcons"));
+            move_up->set_button_icon(get_theme_icon("MoveLeft", "EditorIcons"));
+            move_down->set_button_icon(get_theme_icon("MoveRight", "EditorIcons"));
+            _delete->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+            new_anim->set_button_icon(get_theme_icon("New", "EditorIcons"));
+            remove_anim->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
             [[fallthrough]];
         }
         case NOTIFICATION_THEME_CHANGED: {
-            splite_sheet_scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
+            splite_sheet_scroll->add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_READY: {
             add_constant_override("autohide", 1); // Fixes the dragger always showing up.
@@ -866,33 +866,10 @@ void SpriteFramesEditor::drop_data_fw(const Point2 &p_point, const Variant &p_da
 }
 void SpriteFramesEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_load_pressed"), &SpriteFramesEditor::_load_pressed);
-    MethodBinder::bind_method(D_METHOD("_empty_pressed"), &SpriteFramesEditor::_empty_pressed);
-    MethodBinder::bind_method(D_METHOD("_empty2_pressed"), &SpriteFramesEditor::_empty2_pressed);
-    MethodBinder::bind_method(D_METHOD("_delete_pressed"), &SpriteFramesEditor::_delete_pressed);
-    MethodBinder::bind_method(D_METHOD("_copy_pressed"), &SpriteFramesEditor::_copy_pressed);
-    MethodBinder::bind_method(D_METHOD("_paste_pressed"), &SpriteFramesEditor::_paste_pressed);
-    MethodBinder::bind_method(D_METHOD("_file_load_request", {"files", "at_position"}), &SpriteFramesEditor::_file_load_request, {DEFVAL(-1)});
     MethodBinder::bind_method(D_METHOD("_update_library", {"skipsel"}), &SpriteFramesEditor::_update_library, {DEFVAL(false)});
-    MethodBinder::bind_method(D_METHOD("_up_pressed"), &SpriteFramesEditor::_up_pressed);
-    MethodBinder::bind_method(D_METHOD("_down_pressed"), &SpriteFramesEditor::_down_pressed);
-    MethodBinder::bind_method(D_METHOD("_animation_select"), &SpriteFramesEditor::_animation_select);
-    MethodBinder::bind_method(D_METHOD("_animation_name_edited"), &SpriteFramesEditor::_animation_name_edited);
-    MethodBinder::bind_method(D_METHOD("_animation_add"), &SpriteFramesEditor::_animation_add);
-    MethodBinder::bind_method(D_METHOD("_animation_remove"), &SpriteFramesEditor::_animation_remove);
-    MethodBinder::bind_method(D_METHOD("_animation_remove_confirmed"), &SpriteFramesEditor::_animation_remove_confirmed);
-    MethodBinder::bind_method(D_METHOD("_animation_loop_changed"), &SpriteFramesEditor::_animation_loop_changed);
-    MethodBinder::bind_method(D_METHOD("_animation_fps_changed"), &SpriteFramesEditor::_animation_fps_changed);
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &SpriteFramesEditor::get_drag_data_fw);
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &SpriteFramesEditor::can_drop_data_fw);
     MethodBinder::bind_method(D_METHOD("drop_data_fw"), &SpriteFramesEditor::drop_data_fw);
-    MethodBinder::bind_method(D_METHOD("_prepare_sprite_sheet"), &SpriteFramesEditor::_prepare_sprite_sheet);
-    MethodBinder::bind_method(D_METHOD("_open_sprite_sheet"), &SpriteFramesEditor::_open_sprite_sheet);
-    MethodBinder::bind_method(D_METHOD("_sheet_preview_draw"), &SpriteFramesEditor::_sheet_preview_draw);
-    MethodBinder::bind_method(D_METHOD("_sheet_preview_input"), &SpriteFramesEditor::_sheet_preview_input);
-    MethodBinder::bind_method(D_METHOD("_sheet_spin_changed"), &SpriteFramesEditor::_sheet_spin_changed);
-    MethodBinder::bind_method(D_METHOD("_sheet_add_frames"), &SpriteFramesEditor::_sheet_add_frames);
-    MethodBinder::bind_method(D_METHOD("_sheet_select_clear_all_frames"), &SpriteFramesEditor::_sheet_select_clear_all_frames);
 }
 
 SpriteFramesEditor::SpriteFramesEditor() {
@@ -926,11 +903,19 @@ SpriteFramesEditor::SpriteFramesEditor() {
     animations->connect("item_edited",callable_mp(this, &ClassName::_animation_name_edited));
     animations->set_allow_reselect(true);
 
+    HBoxContainer *hbc_anim_speed = memnew(HBoxContainer);
+    hbc_anim_speed->add_child(memnew(Label(TTR("Speed:"))));
+    vbc_animlist->add_child(hbc_anim_speed);
+
+
     anim_speed = memnew(SpinBox);
     vbc_animlist->add_margin_child(TTR("Speed (FPS):"), anim_speed);
+    anim_speed->set_suffix(String(TTR("FPS")));
     anim_speed->set_min(0);
     anim_speed->set_max(100);
     anim_speed->set_step(0.01);
+    anim_speed->set_h_size_flags(SIZE_EXPAND_FILL);
+    hbc_anim_speed->add_child(anim_speed);
     anim_speed->connect("value_changed",callable_mp(this, &ClassName::_animation_fps_changed));
 
     anim_loop = memnew(CheckButton);

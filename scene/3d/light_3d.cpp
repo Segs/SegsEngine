@@ -485,7 +485,7 @@ OmniLight3D::OmniLight3D() :
     set_shadow_detail(SHADOW_DETAIL_HORIZONTAL);
 }
 
-StringName SpotLight3D::get_configuration_warning() const {
+String SpotLight3D::get_configuration_warning() const {
     String warning(Light3D::get_configuration_warning());
 
     if (has_shadow() && get_param(PARAM_SPOT_ANGLE) >= 90.0f) {
@@ -493,10 +493,10 @@ StringName SpotLight3D::get_configuration_warning() const {
             warning += "\n\n";
         }
 
-        warning += TTR("A SpotLight3D with an angle wider than 90 degrees cannot cast shadows.");
+        warning += TTRS("A SpotLight3D with an angle wider than 90 degrees cannot cast shadows.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void SpotLight3D::_bind_methods() {

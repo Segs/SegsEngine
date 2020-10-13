@@ -34,7 +34,7 @@
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 #include "editor/editor_node.h"
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "editor/scene_tree_editor.h"
 #include "scene/resources/environment.h"
 
@@ -52,7 +52,7 @@ void CPUParticles3DEditor::_node_removed(Node *p_node) {
 void CPUParticles3DEditor::_notification(int p_notification) {
 
     if (p_notification == NOTIFICATION_ENTER_TREE) {
-        options->set_button_icon(options->get_popup()->get_icon("CPUParticles3D", "EditorIcons"));
+        options->set_button_icon(options->get_popup()->get_theme_icon("CPUParticles3D", "EditorIcons"));
     }
 }
 
@@ -106,7 +106,7 @@ void CPUParticles3DEditor::_bind_methods() {
 CPUParticles3DEditor::CPUParticles3DEditor() {
 
     particles_editor_hb = memnew(HBoxContainer);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(particles_editor_hb);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(particles_editor_hb);
     options = memnew(MenuButton);
     options->set_switch_on_hover(true);
     particles_editor_hb->add_child(options);

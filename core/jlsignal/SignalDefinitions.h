@@ -49,9 +49,7 @@ private:
 
     ConnectionList m_oConnections;
 public:
-    Signal() { /*SetAllocator( defaultAllocator() );*/ }
-    //Signal( ScopedAllocator* pAllocator ) { SetAllocator( pAllocator ); }
-
+    Signal() {}
     ~Signal() override
     {
         JL_SIGNAL_LOG( "Destroying Signal %p\n", this );
@@ -89,6 +87,7 @@ public:
     template< class X, class Y >
     void Connect( Y* pObject, void (X::*const fpMethod)(Types...) )
     {
+        static_assert (eastl::is_base_of_v<X,Y> || eastl::is_same_v<X,Y> );
         if ( ! pObject )
             return;
 

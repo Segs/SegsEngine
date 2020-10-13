@@ -529,6 +529,12 @@ void CSGShape::_notification(int p_what) {
         _make_dirty();
     }
 
+    if (p_what == NOTIFICATION_TRANSFORM_CHANGED) {
+        if (use_collision && is_root_shape() && root_collision_instance.is_valid()) {
+            PhysicsServer3D::get_singleton()->body_set_state(root_collision_instance, PhysicsServer3D::BODY_STATE_TRANSFORM, get_global_transform());
+        }
+    }
+
     if (p_what == NOTIFICATION_LOCAL_TRANSFORM_CHANGED) {
 
         if (parent) {
@@ -668,7 +674,7 @@ CSGShape::~CSGShape() {
 
 CSGBrush *CSGCombiner::_build_brush() {
 
-    return nullptr; //does not build anything
+    return memnew(CSGBrush); //does not build anything
 }
 
 CSGCombiner::CSGCombiner() = default;
@@ -2304,9 +2310,6 @@ void CSGPolygon::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_is_editable_3d_polygon"), &CSGPolygon::_is_editable_3d_polygon);
     MethodBinder::bind_method(D_METHOD("_has_editable_3d_polygon_no_depth"), &CSGPolygon::_has_editable_3d_polygon_no_depth);
-
-    MethodBinder::bind_method(D_METHOD("_path_exited"), &CSGPolygon::_path_exited);
-    MethodBinder::bind_method(D_METHOD("_path_changed"), &CSGPolygon::_path_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::POOL_VECTOR2_ARRAY, "polygon"), "set_polygon", "get_polygon");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "mode", PropertyHint::Enum, "Depth,Spin,Path"), "set_mode", "get_mode");

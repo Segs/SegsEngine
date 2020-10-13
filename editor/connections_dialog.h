@@ -168,8 +168,11 @@ class ConnectionsDock : public VBoxContainer {
     PopupMenu *signal_menu;
     PopupMenu *slot_menu;
     UndoRedo *undo_redo;
+    LineEdit *search_box;
 
     Map<StringName, Map<StringName, String> > descr_cache;
+
+    void _filter_changed(StringView p_text);
 
     void _make_or_edit_connection();
     void _connect(const ConnectDialog::ConnectionData &cToMake);

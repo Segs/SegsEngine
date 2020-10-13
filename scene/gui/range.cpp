@@ -34,17 +34,17 @@
 
 IMPL_GDCLASS(Range)
 
-StringName Range::get_configuration_warning() const {
+String Range::get_configuration_warning() const {
     String warning(Control::get_configuration_warning());
 
     if (shared->exp_ratio && shared->min <= 0) {
         if (!warning.empty()) {
-            warning += ("\n\n");
+            warning += "\n\n";
         }
-        warning += TTR(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
+        warning += TTRS(R"(If "Exp Edit" is enabled, "Min Value" must be greater than 0.)");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void Range::_value_changed_notify() {

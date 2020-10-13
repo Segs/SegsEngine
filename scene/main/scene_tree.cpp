@@ -578,9 +578,10 @@ void SceneTree::_update_group_order(SceneTreeGroup &g, bool p_use_priority) {
 
 void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_group, const StringName &p_function, VARIANT_ARG_DECLARE) {
 
-    HashMap<StringName, SceneTreeGroup>::iterator E = group_map.find(p_group);
+    auto E = group_map.find(p_group);
     if (E==group_map.end())
         return;
+
     SceneTreeGroup &g = E->second;
     if (g.nodes.empty())
         return;

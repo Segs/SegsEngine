@@ -246,17 +246,25 @@ bool CollisionPolygon2D::_edit_is_selected_on_click(const Point2 &p_point, float
 }
 #endif
 
-StringName CollisionPolygon2D::get_configuration_warning() const {
+String CollisionPolygon2D::get_configuration_warning() const {
+
+    String warning = BaseClassName::get_configuration_warning();
 
     if (!object_cast<CollisionObject2D>(get_parent())) {
-        return TTR("CollisionPolygon2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("CollisionPolygon2D only serves to provide a collision shape to a CollisionObject2D derived node. Please only use it as a child of Area2D, StaticBody2D, RigidBody2D, KinematicBody2D, etc. to give them a shape.");
     }
 
     if (polygon.empty()) {
-        return TTR("An empty CollisionPolygon2D has no effect on collision.");
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("An empty CollisionPolygon2D has no effect on collision.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void CollisionPolygon2D::set_disabled(bool p_disabled) {

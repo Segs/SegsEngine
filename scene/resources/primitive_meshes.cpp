@@ -200,8 +200,6 @@ RID PrimitiveMesh::get_rid() const {
 }
 
 void PrimitiveMesh::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_update"), &PrimitiveMesh::_update);
-
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &PrimitiveMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &PrimitiveMesh::get_material);
 

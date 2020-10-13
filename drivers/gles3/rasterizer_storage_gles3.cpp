@@ -2176,6 +2176,8 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             p_shader->spatial.uses_screen_texture = false;
             p_shader->spatial.uses_depth_texture = false;
             p_shader->spatial.uses_vertex = false;
+            p_shader->spatial.uses_tangent = false;
+            p_shader->spatial.uses_ensure_correct_normals = false;
             p_shader->spatial.writes_modelview_or_projection = false;
             p_shader->spatial.uses_world_coordinates = false;
 
@@ -2198,6 +2200,8 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
 
             shaders.actions_scene.render_mode_flags["vertex_lighting"] = &p_shader->spatial.uses_vertex_lighting;
 
+            shaders.actions_scene.render_mode_flags["ensure_correct_normals"] = &p_shader->spatial.uses_ensure_correct_normals;
+
             shaders.actions_scene.render_mode_flags["world_vertex_coords"] = &p_shader->spatial.uses_world_coordinates;
 
             shaders.actions_scene.usage_flag_pointers["ALPHA"] = &p_shader->spatial.uses_alpha;
@@ -2208,6 +2212,12 @@ void RasterizerStorageGLES3::_update_shader(Shader *p_shader) const {
             shaders.actions_scene.usage_flag_pointers["SCREEN_TEXTURE"] = &p_shader->spatial.uses_screen_texture;
             shaders.actions_scene.usage_flag_pointers["DEPTH_TEXTURE"] = &p_shader->spatial.uses_depth_texture;
             shaders.actions_scene.usage_flag_pointers["TIME"] = &p_shader->spatial.uses_time;
+
+            // Use of any of these BUILTINS indicate the need for transformed tangents.
+            // This is needed to know when to transform tangents in software skinning.
+            shaders.actions_scene.usage_flag_pointers["TANGENT"] = &p_shader->spatial.uses_tangent;
+            shaders.actions_scene.usage_flag_pointers["NORMALMAP"] = &p_shader->spatial.uses_tangent;
+
 
             shaders.actions_scene.write_flag_pointers["MODELVIEW_MATRIX"] = &p_shader->spatial.writes_modelview_or_projection;
             shaders.actions_scene.write_flag_pointers["PROJECTION_MATRIX"] = &p_shader->spatial.writes_modelview_or_projection;
@@ -2549,6 +2559,7 @@ bool RasterizerStorageGLES3::material_is_animated(RID p_material) {
     }
     return animated;
 }
+
 bool RasterizerStorageGLES3::material_casts_shadows(RID p_material) {
 
     Material *material = material_owner.get(p_material);
@@ -2564,6 +2575,36 @@ bool RasterizerStorageGLES3::material_casts_shadows(RID p_material) {
     }
 
     return casts_shadows;
+}
+
+bool RasterizerStorageGLES3::material_uses_tangents(RID p_material) {
+    Material *material = material_owner.get(p_material);
+    ERR_FAIL_COND_V(!material, false);
+
+    if (!material->shader) {
+        return false;
+    }
+
+    if (material->shader->dirty_list.in_list()) {
+        _update_shader(material->shader);
+    }
+
+    return material->shader->spatial.uses_tangent;
+}
+
+bool RasterizerStorageGLES3::material_uses_ensure_correct_normals(RID p_material) {
+    Material *material = material_owner.get(p_material);
+    ERR_FAIL_COND_V(!material, false);
+
+    if (!material->shader) {
+        return false;
+    }
+
+    if (material->shader->dirty_list.in_list()) {
+        _update_shader(material->shader);
+    }
+
+    return material->shader->spatial.uses_ensure_correct_normals;
 }
 
 void RasterizerStorageGLES3::material_add_instance_owner(RID p_material, RasterizerScene::InstanceBase *p_instance) {
@@ -3265,7 +3306,9 @@ RID RasterizerStorageGLES3::mesh_create() {
     return mesh_owner.make_rid(mesh);
 }
 
-void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive, Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count, const AABB &p_aabb, const Vector<PoolVector<uint8_t> > &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
+void RasterizerStorageGLES3::mesh_add_surface(RID p_mesh, uint32_t p_format, RS::PrimitiveType p_primitive,
+        Span<const uint8_t> p_array, int p_vertex_count, Span<const uint8_t> p_index_array, int p_index_count,
+        const AABB &p_aabb, const Vector<PoolVector<uint8_t>> &p_blend_shapes, Span<const AABB> p_bone_aabbs) {
 
     Span<const uint8_t> array = p_array;
     Vector<uint8_t> converted_array;

@@ -56,8 +56,8 @@ Files extracted from upstream source:
 - LICENSE file
 
 Important: enet.h, host.c, protocol.c have been slightly modified
-to be usable by godot socket implementation and allow IPv6.
-Apply the patch in the `patches/` folder when syncing on newer upstream
+to be usable by godot socket implementation and allow IPv6 and DTLS.
+Apply the patches in the `patches/` folder when syncing on newer upstream
 commits.
 Two files (godot.cpp and enet/godot.h) have been added to provide
 enet socket implementation using Godot classes.
@@ -120,7 +120,7 @@ Files extracted from upstream source:
 ## glad
 
 - Upstream: https://github.com/Dav1dde/glad
-- Version: 0.1.33
+- Version: 0.1.33 (2019)
 - License: MIT
 
 The files we package are automatically generated.
@@ -460,7 +460,7 @@ comments and a patch is provided in the squish/ folder.
 ## tinyexr
 
 - Upstream: https://github.com/syoyo/tinyexr
-- Version: git (4dbd05a22f51a2d7462311569b8b0cba0bbe2ac5, 2020)
+- Version: 1.0.0 (e4b7840d9448b7d57a88384ce26143004f3c0c71, 2020)
 - License: BSD-3-Clause
 
 Files extracted from upstream source:
@@ -530,7 +530,7 @@ Files extracted from upstream source:
 ## zstd
 
 - Upstream: https://github.com/facebook/zstd
-- Version: 1.4.4 (2019)
+- Version: 1.4.5 (2020)
 - License: BSD-3-Clause
 
 Files extracted from upstream source:

@@ -1,12 +1,15 @@
+// DO NOT ADD INCLUDE GUARDS OR PRAGMA ONCE.
+// This file will be included more than once.
+
 /*************************************************************************/
-/*  gdscript_text_document.h                                             */
+/*  octree_definition.inc                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
-/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md).   */
+/* Copyright (c) 2007-2020 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2020 Godot Engine contributors (cf. AUTHORS.md).   */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -28,52 +31,3 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef GDSCRIPT_TEXT_DOCUMENT_H
-#define GDSCRIPT_TEXT_DOCUMENT_H
-
-#include "core/os/file_access.h"
-#include "core/reference.h"
-#include "lsp.hpp"
-
-class GDScriptTextDocument : public RefCounted {
-    GDCLASS(GDScriptTextDocument,RefCounted)
-protected:
-    static void _bind_methods();
-
-    FileAccess *file_checker;
-
-    void didOpen(const Variant &p_param);
-    void didChange(const Variant &p_param);
-
-    void sync_script_content(StringView p_path, StringView p_content);
-    void show_native_symbol_in_editor(StringView p_symbol_id);
-
-    Array native_member_completions;
-
-private:
-    Array find_symbols(const lsp::TextDocumentPositionParams &p_location, List<const lsp::DocumentSymbol *> &r_list);
-
-    lsp::TextDocumentItem load_document_item(const Variant &p_param);
-    void notify_client_show_symbol(const lsp::DocumentSymbol *symbol);
-
-public:
-    Variant nativeSymbol(const Dictionary &p_params);
-    Array documentSymbol(const Dictionary &p_params);
-    Array completion(const Dictionary &p_params);
-    Dictionary resolve(const Dictionary &p_params);
-    Array foldingRange(const Dictionary &p_params);
-    Array codeLens(const Dictionary &p_params);
-    Array documentLink(const Dictionary &p_params);
-    Array colorPresentation(const Dictionary &p_params);
-    Variant hover(const Dictionary &p_params);
-    Array definition(const Dictionary &p_params);
-    Variant declaration(const Dictionary &p_params);
-    Variant signatureHelp(const Dictionary &p_params);
-
-    void initialize();
-
-    GDScriptTextDocument();
-    virtual ~GDScriptTextDocument();
-};
-
-#endif

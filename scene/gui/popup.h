@@ -66,7 +66,7 @@ public:
     void popup_centered_clamped(const Size2 &p_size = Size2(), float p_fallback_ratio = 0.75f);
     virtual void popup(const Rect2 &p_bounds = Rect2());
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     Popup();
     ~Popup() override;

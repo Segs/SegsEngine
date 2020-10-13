@@ -116,11 +116,6 @@ Node *InstancePlaceholder::create_instance(bool p_replace, const Ref<PackedScene
     return scene;
 }
 
-void InstancePlaceholder::replace_by_instance(const Ref<PackedScene> &p_custom_scene) {
-    //Deprecated by
-    create_instance(true, p_custom_scene);
-}
-
 Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
 
     Dictionary ret;
@@ -142,7 +137,6 @@ void InstancePlaceholder::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("get_stored_values", {"with_order"}), &InstancePlaceholder::get_stored_values, {DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("create_instance", {"replace", "custom_scene"}), &InstancePlaceholder::create_instance, {DEFVAL(false), DEFVAL(Variant())});
-    MethodBinder::bind_method(D_METHOD("replace_by_instance", {"custom_scene"}), &InstancePlaceholder::replace_by_instance, {DEFVAL(Variant())});
     MethodBinder::bind_method(D_METHOD("get_instance_path"), &InstancePlaceholder::get_instance_path);
 }
 

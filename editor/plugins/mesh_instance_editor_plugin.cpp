@@ -37,7 +37,7 @@
 #include "scene/3d/physics_body_3d.h"
 #include "scene/gui/box_container.h"
 #include "scene/main/scene_tree.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 #include "editor/editor_scale.h"
 #include "core/translation_helpers.h"
 
@@ -455,7 +455,6 @@ void MeshInstanceEditor::_create_outline_mesh() {
 
 void MeshInstanceEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_menu_option", &MeshInstanceEditor::_menu_option);
     MethodBinder::bind_method("_create_outline_mesh", &MeshInstanceEditor::_create_outline_mesh);
     MethodBinder::bind_method("_debug_uv_draw", &MeshInstanceEditor::_debug_uv_draw);
 }
@@ -464,10 +463,10 @@ MeshInstanceEditor::MeshInstanceEditor() {
 
     options = memnew(MenuButton);
     options->set_switch_on_hover(true);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Mesh"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MeshInstance3D", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("MeshInstance3D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Create Trimesh Static Body"), MENU_OPTION_CREATE_STATIC_TRIMESH_BODY);
     options->get_popup()->set_item_tooltip(options->get_popup()->get_item_count() - 1, TTR("Creates a StaticBody3D and assigns a polygon-based collision shape to it automatically.\nThis is the most accurate (but slowest) option for collision detection."));

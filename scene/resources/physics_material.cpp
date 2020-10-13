@@ -48,9 +48,9 @@ void PhysicsMaterial::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_absorbent", {"absorbent"}), &PhysicsMaterial::set_absorbent);
     MethodBinder::bind_method(D_METHOD("is_absorbent"), &PhysicsMaterial::is_absorbent);
 
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "friction"), "set_friction", "get_friction");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "friction",PropertyHint::Range,"0,1,0.01"), "set_friction", "get_friction");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "rough"), "set_rough", "is_rough");
-    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce"), "set_bounce", "get_bounce");
+    ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce",PropertyHint::Range,"0,1,0.01"), "set_bounce", "get_bounce");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "absorbent"), "set_absorbent", "is_absorbent");
 }
 

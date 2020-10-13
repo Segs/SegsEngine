@@ -101,8 +101,9 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
 
             UndoRedo *ur = EditorNode::get_undo_redo();
             ur->create_action(TTR("Resize Array"));
-            ur->add_do_method(this, "_set_size", newsize);
-            ur->add_undo_method(this, "_set_size", size);
+            ur->add_do_method([this,newsize]() { _set_size(newsize);}, this->get_instance_id());
+            ur->add_undo_method([this,size]() { _set_size(size);}, this->get_instance_id());
+
             if (newsize < size) {
                 for (int i = newsize; i < size; i++) {
                     ur->add_undo_method(this, "_set_value", i, arr.get(i));
@@ -299,7 +300,6 @@ bool ArrayPropertyEdit::_dont_undo_redo() {
 
 void ArrayPropertyEdit::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_set_size"), &ArrayPropertyEdit::_set_size);
     MethodBinder::bind_method(D_METHOD("_set_value"), &ArrayPropertyEdit::_set_value);
     MethodBinder::bind_method(D_METHOD("_notif_change"), &ArrayPropertyEdit::_notif_change);
     MethodBinder::bind_method(D_METHOD("_notif_changev"), &ArrayPropertyEdit::_notif_changev);

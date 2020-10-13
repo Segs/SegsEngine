@@ -246,9 +246,9 @@ bool GPUParticles3D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName GPUParticles3D::get_configuration_warning() const {
+String GPUParticles3D::get_configuration_warning() const {
 
-    String warnings;
+    String warnings = BaseClassName::get_configuration_warning();
 
     bool meshes_found = false;
     bool anim_material_found = false;
@@ -272,14 +272,14 @@ StringName GPUParticles3D::get_configuration_warning() const {
 
     if (!meshes_found) {
         if (!warnings.empty())
-            warnings += '\n';
-        warnings += "- " + TTR("Nothing is visible because meshes have not been assigned to draw passes.");
+            warnings += "\n\n";
+        warnings += "- " + TTRS("Nothing is visible because meshes have not been assigned to draw passes.");
     }
 
     if (not process_material) {
         if (!warnings.empty())
             warnings += '\n';
-        warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+        warnings += "- " + TTRS("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
         const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
         if (!anim_material_found && process &&
@@ -287,11 +287,11 @@ StringName GPUParticles3D::get_configuration_warning() const {
                         process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
             if (!warnings.empty())
                 warnings += '\n';
-            warnings += "- " + TTR("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
+            warnings += "- " + TTRS("Particles animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
         }
     }
 
-    return StringName(warnings);
+    return warnings;
 }
 
 void GPUParticles3D::restart() {

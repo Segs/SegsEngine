@@ -169,7 +169,7 @@ void PhysicsBody2D::add_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
-    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type."); 
+    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type.");
     PhysicsServer2D::get_singleton()->body_add_collision_exception(get_rid(), physics_body->get_rid());
 }
 
@@ -177,7 +177,7 @@ void PhysicsBody2D::remove_collision_exception_with(Node *p_node) {
 
     ERR_FAIL_NULL(p_node);
     PhysicsBody2D *physics_body = object_cast<PhysicsBody2D>(p_node);
-    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type."); 
+    ERR_FAIL_COND_MSG(!physics_body, "Collision exception only works between two objects of PhysicsBody3D type.");
     PhysicsServer2D::get_singleton()->body_remove_collision_exception(get_rid(), physics_body->get_rid());
 }
 
@@ -788,7 +788,7 @@ void RigidBody2D::set_contact_monitor(bool p_enabled) {
 
     if (!p_enabled) {
 
-        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead."); 
+        ERR_FAIL_COND_MSG(contact_monitor->locked, "Can't disable contact monitoring during in/out callback. Use call_deferred(\"set_contact_monitor\", false) instead.");
 
         for (eastl::pair<const ObjectID,BodyState> &E : contact_monitor->body_map) {
 
@@ -834,7 +834,7 @@ void RigidBody2D::_notification(int p_what) {
 #endif
 }
 
-StringName RigidBody2D::get_configuration_warning() const {
+String RigidBody2D::get_configuration_warning() const {
 
     Transform2D t = get_transform();
 
@@ -847,7 +847,7 @@ StringName RigidBody2D::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody2D (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return StringName(warning);
+    return String(warning);
 }
 
 void RigidBody2D::_bind_methods() {

@@ -206,24 +206,38 @@ void NavigationMeshInstance::_bake_finished(Ref<NavigationMesh> p_nav_mesh) {
     bake_thread = nullptr;
 }
 
-StringName NavigationMeshInstance::get_configuration_warning() const {
+String NavigationMeshInstance::get_configuration_warning() const {
 
     if (!is_visible_in_tree() || !is_inside_tree())
-        return StringName();
+        return String();
+
+    String warning = BaseClassName::get_configuration_warning();
 
     if (!navmesh) {
-        return TTR("A NavigationMesh resource must be set or created for this node to work.");
+        return TTRS("A NavigationMesh resource must be set or created for this node to work.");
     }
+    if (!navmesh) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A NavigationMesh resource must be set or created for this node to work.");
+        return warning;
+    }
+
     const Node3D *c = this;
     while (c) {
 
         if (object_cast<Navigation3D>(c))
-            return StringName();
+            return warning;
 
         c = object_cast<Node3D>(c->get_parent());
     }
+    if (!warning.empty()) {
+        warning += "\n\n";
+    }
+    warning += TTR("NavigationMeshInstance must be a child or grandchild to a Navigation node. It only provides navigation data.");
 
-    return TTR("NavigationMeshInstance must be a child or grandchild to a Navigation node. It only provides navigation data.");
+    return warning;
 }
 
 void NavigationMeshInstance::_bind_methods() {

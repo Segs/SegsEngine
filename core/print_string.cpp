@@ -146,12 +146,6 @@ void print_error(StringView p_string) {
     _global_unlock();
 }
 
-//void print_verbose(const String &p_string) {
-
-//    if (OS::get_singleton()->is_stdout_verbose()) {
-//        print_line(p_string);
-//    }
-//}
 void print_verbose(StringView p_string) {
 
     if (OS::get_singleton()->is_stdout_verbose()) {

@@ -40,7 +40,7 @@
 #include "main/main.h"
 #include "project_settings_editor.h"
 #include "plugins/canvas_item_editor_plugin.h"
-#include "plugins/spatial_editor_plugin.h"
+#include "plugins/node_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/gui/popup_menu.h"
 #include "servers/rendering_server.h"
@@ -252,9 +252,9 @@ const String &EditorInterface::get_current_path() const {
     return EditorNode::get_singleton()->get_filesystem_dock()->get_current_path();
 }
 
-void EditorInterface::inspect_object(Object *p_obj, StringView p_for_property) {
+void EditorInterface::inspect_object(Object *p_obj, StringView p_for_property, bool p_inspector_only) {
 
-    EditorNode::get_singleton()->push_item(p_obj, p_for_property);
+    EditorNode::get_singleton()->push_item(p_obj, p_for_property, p_inspector_only);
 }
 
 EditorFileSystem *EditorInterface::get_resource_file_system() {
@@ -317,7 +317,7 @@ EditorInterface *EditorInterface::singleton = nullptr;
 
 void EditorInterface::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property"}), &EditorInterface::inspect_object, {DEFVAL(StringView())});
+    MethodBinder::bind_method(D_METHOD("inspect_object", {"object", "for_property", "inspector_only"}), &EditorInterface::inspect_object, {DEFVAL(StringView()),DEFVAL(false)});
     MethodBinder::bind_method(D_METHOD("get_selection"), &EditorInterface::get_selection);
     MethodBinder::bind_method(D_METHOD("get_editor_settings"), &EditorInterface::get_editor_settings);
     MethodBinder::bind_method(D_METHOD("get_script_editor"), &EditorInterface::get_script_editor);
@@ -412,24 +412,24 @@ void EditorPlugin::add_control_to_container(CustomControlContainer p_location, C
 
         case CONTAINER_SPATIAL_EDITOR_MENU: {
 
-            SpatialEditor::get_singleton()->add_control_to_menu_panel(p_control);
+            Node3DEditor::get_singleton()->add_control_to_menu_panel(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_LEFT: {
 
-            SpatialEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            SpatialEditor::get_singleton()->get_palette_split()->move_child(p_control, 0);
+            Node3DEditor::get_singleton()->get_palette_split()->add_child(p_control);
+            Node3DEditor::get_singleton()->get_palette_split()->move_child(p_control, 0);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT: {
 
-            SpatialEditor::get_singleton()->get_palette_split()->add_child(p_control);
-            SpatialEditor::get_singleton()->get_palette_split()->move_child(p_control, 1);
+            Node3DEditor::get_singleton()->get_palette_split()->add_child(p_control);
+            Node3DEditor::get_singleton()->get_palette_split()->move_child(p_control, 1);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_BOTTOM: {
 
-            SpatialEditor::get_singleton()->get_shader_split()->add_child(p_control);
+            Node3DEditor::get_singleton()->get_shader_split()->add_child(p_control);
 
         } break;
         case CONTAINER_CANVAS_EDITOR_MENU: {
@@ -486,18 +486,18 @@ void EditorPlugin::remove_control_from_container(CustomControlContainer p_locati
 
         case CONTAINER_SPATIAL_EDITOR_MENU: {
 
-            SpatialEditor::get_singleton()->remove_control_from_menu_panel(p_control);
+            Node3DEditor::get_singleton()->remove_control_from_menu_panel(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_SIDE_LEFT:
         case CONTAINER_SPATIAL_EDITOR_SIDE_RIGHT: {
 
-            SpatialEditor::get_singleton()->get_palette_split()->remove_child(p_control);
+            Node3DEditor::get_singleton()->get_palette_split()->remove_child(p_control);
 
         } break;
         case CONTAINER_SPATIAL_EDITOR_BOTTOM: {
 
-            SpatialEditor::get_singleton()->get_shader_split()->remove_child(p_control);
+            Node3DEditor::get_singleton()->get_shader_split()->remove_child(p_control);
 
         } break;
         case CONTAINER_CANVAS_EDITOR_MENU: {
@@ -603,10 +603,10 @@ void EditorPlugin::forward_canvas_force_draw_over_viewport(Control *p_overlay) {
 // Updates the overlays of the 2D viewport or, if in 3D mode, of every 3D viewport.
 int EditorPlugin::update_overlays() const {
 
-    if (SpatialEditor::get_singleton()->is_visible()) {
+    if (Node3DEditor::get_singleton()->is_visible()) {
         int count = 0;
-        for (uint32_t i = 0; i < SpatialEditor::VIEWPORTS_COUNT; i++) {
-            SpatialEditorViewport *vp = SpatialEditor::get_singleton()->get_editor_viewport(i);
+        for (uint32_t i = 0; i < Node3DEditor::VIEWPORTS_COUNT; i++) {
+            Node3DEditorViewport *vp = Node3DEditor::get_singleton()->get_editor_viewport(i);
             if (vp->is_visible()) {
                 vp->update_surface();
                 count++;
@@ -768,11 +768,11 @@ void EditorPlugin::remove_export_plugin(const Ref<EditorExportPlugin> &p_exporte
 }
 
 void EditorPlugin::add_spatial_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin> &p_gizmo_plugin) {
-    SpatialEditor::get_singleton()->add_gizmo_plugin(p_gizmo_plugin);
+    Node3DEditor::get_singleton()->add_gizmo_plugin(p_gizmo_plugin);
 }
 
 void EditorPlugin::remove_spatial_gizmo_plugin(const Ref<EditorSpatialGizmoPlugin> &p_gizmo_plugin) {
-    SpatialEditor::get_singleton()->remove_gizmo_plugin(p_gizmo_plugin);
+    Node3DEditor::get_singleton()->remove_gizmo_plugin(p_gizmo_plugin);
 }
 
 void EditorPlugin::add_inspector_plugin(const Ref<EditorInspectorPlugin> &p_plugin) {

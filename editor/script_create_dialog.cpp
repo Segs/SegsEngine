@@ -54,7 +54,7 @@ void ScriptCreateDialog::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE: {
             for (int i = 0; i < ScriptServer::get_language_count(); i++) {
                 StringName lang(ScriptServer::get_language(i)->get_type());
-                Ref<Texture> lang_icon = get_icon(lang, "EditorIcons");
+                Ref<Texture> lang_icon = get_theme_icon(lang, "EditorIcons");
                 if (lang_icon) {
                     language_menu->set_item_icon(i, lang_icon);
                 }
@@ -72,10 +72,10 @@ void ScriptCreateDialog::_notification(int p_what) {
                 language_menu->select(default_language);
             }
 
-            path_button->set_button_icon(get_icon("Folder", "EditorIcons"));
-            parent_browse_button->set_button_icon(get_icon("Folder", "EditorIcons"));
-            parent_search_button->set_button_icon(get_icon("ClassList", "EditorIcons"));
-            status_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
+            path_button->set_button_icon(get_theme_icon("Folder", "EditorIcons"));
+            parent_browse_button->set_button_icon(get_theme_icon("Folder", "EditorIcons"));
+            parent_search_button->set_button_icon(get_theme_icon("ClassList", "EditorIcons"));
+            status_panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
         } break;
     }
 }
@@ -444,7 +444,7 @@ void ScriptCreateDialog::_lang_changed(int l) {
                     override_info += ", ";
                 }
             }
-            template_menu->set_item_icon(extended.id, get_icon("Override", "EditorIcons"));
+            template_menu->set_item_icon(extended.id, get_theme_icon("Override", "EditorIcons"));
             template_menu->get_popup()->set_item_tooltip(extended.id, StringName(override_info.as_string()));
         }
         // Reselect last selected template
@@ -609,9 +609,9 @@ void ScriptCreateDialog::_msg_script_valid(bool valid, const StringName &p_msg) 
 
     error_label->set_text("- " + p_msg);
     if (valid) {
-        error_label->add_color_override("font_color", get_color("success_color", "Editor"));
+        error_label->add_theme_color_override("font_color", get_theme_color("success_color", "Editor"));
     } else {
-        error_label->add_color_override("font_color", get_color("error_color", "Editor"));
+        error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
     }
 }
 
@@ -619,9 +619,9 @@ void ScriptCreateDialog::_msg_path_valid(bool valid, const StringName &p_msg) {
 
     path_error_label->set_text("- " + p_msg);
     if (valid) {
-        path_error_label->add_color_override("font_color", get_color("success_color", "Editor"));
+        path_error_label->add_theme_color_override("font_color", get_theme_color("success_color", "Editor"));
     } else {
-        path_error_label->add_color_override("font_color", get_color("error_color", "Editor"));
+        path_error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
     }
 }
 
@@ -727,18 +727,7 @@ void ScriptCreateDialog::_update_dialog() {
 
 void ScriptCreateDialog::_bind_methods() {
 
-    MethodBinder::bind_method("_path_hbox_sorted", &ScriptCreateDialog::_path_hbox_sorted);
-    MethodBinder::bind_method("_class_name_changed", &ScriptCreateDialog::_class_name_changed);
-    MethodBinder::bind_method("_parent_name_changed", &ScriptCreateDialog::_parent_name_changed);
-    MethodBinder::bind_method("_lang_changed", &ScriptCreateDialog::_lang_changed);
-    MethodBinder::bind_method("_built_in_pressed", &ScriptCreateDialog::_built_in_pressed);
-    MethodBinder::bind_method("_browse_path", &ScriptCreateDialog::_browse_path);
-    MethodBinder::bind_method("_file_selected", &ScriptCreateDialog::_file_selected);
-    MethodBinder::bind_method("_path_changed", &ScriptCreateDialog::_path_changed);
-    MethodBinder::bind_method("_path_entered", &ScriptCreateDialog::_path_entered);
-    MethodBinder::bind_method("_template_changed", &ScriptCreateDialog::_template_changed);
     MethodBinder::bind_method("_create", &ScriptCreateDialog::_create);
-    MethodBinder::bind_method("_browse_class_in_tree", &ScriptCreateDialog::_browse_class_in_tree);
 
     MethodBinder::bind_method(D_METHOD("config", {"inherits", "path", "built_in_enabled","load_enabled"}), &ScriptCreateDialog::config, {DEFVAL(true),DEFVAL(true)});
 

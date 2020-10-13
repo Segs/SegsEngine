@@ -44,7 +44,7 @@
 #include "core/project_settings.h"
 
 #ifdef TOOLS_ENABLED
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #endif
 
 IMPL_GDCLASS(PhysicsBody3D)
@@ -819,7 +819,7 @@ Array RigidBody::get_colliding_bodies() const {
     return ret;
 }
 
-StringName RigidBody::get_configuration_warning() const {
+String RigidBody::get_configuration_warning() const {
 
     Transform t = get_transform();
 
@@ -832,7 +832,7 @@ StringName RigidBody::get_configuration_warning() const {
         warning += TTR("Size changes to RigidBody (in character or rigid modes) will be overridden by the physics engine when running.\nChange the size in children collision shapes instead.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void RigidBody::_bind_methods() {
@@ -2305,7 +2305,7 @@ void PhysicalBone3D::_on_bone_parent_changed() {
 void PhysicalBone3D::_set_gizmo_move_joint(bool p_move_joint) {
 #ifdef TOOLS_ENABLED
     gizmo_move_joint = p_move_joint;
-    SpatialEditor::get_singleton()->update_transform_gizmo();
+    Node3DEditor::get_singleton()->update_transform_gizmo();
 #endif
 }
 
@@ -2411,7 +2411,7 @@ void PhysicalBone3D::set_static_body(bool p_static) {
 
     static_body = p_static;
 
-    set_as_toplevel(!static_body);
+    set_as_top_level(!static_body);
 
     _reset_physics_simulation_state();
 }

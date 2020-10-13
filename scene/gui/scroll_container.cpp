@@ -48,7 +48,7 @@ bool ScrollContainer::clips_input() const {
 
 Size2 ScrollContainer::get_minimum_size() const {
 
-    Ref<StyleBox> sb = get_stylebox("bg");
+    Ref<StyleBox> sb = get_theme_stylebox("bg");
     Size2 min_size;
 
     for (int i = 0; i < get_child_count(); i++) {
@@ -56,7 +56,7 @@ Size2 ScrollContainer::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
         if (c == h_scroll || c == v_scroll)
             continue;
@@ -284,7 +284,7 @@ void ScrollContainer::_notification(int p_what) {
         Size2 size = get_size();
         Point2 ofs;
 
-        Ref<StyleBox> sb = get_stylebox("bg");
+        Ref<StyleBox> sb = get_theme_stylebox("bg");
         size -= sb->get_minimum_size();
         ofs += sb->get_offset();
 
@@ -299,7 +299,7 @@ void ScrollContainer::_notification(int p_what) {
             Control *c = object_cast<Control>(get_child(i));
             if (!c)
                 continue;
-            if (c->is_set_as_toplevel())
+            if (c->is_set_as_top_level())
                 continue;
             if (c == h_scroll || c == v_scroll)
                 continue;
@@ -330,7 +330,7 @@ void ScrollContainer::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        Ref<StyleBox> sb = get_stylebox("bg");
+        Ref<StyleBox> sb = get_theme_stylebox("bg");
         draw_style_box(sb, Rect2(Vector2(), get_size()));
 
         update_scrollbars();
@@ -411,7 +411,7 @@ void ScrollContainer::_notification(int p_what) {
 void ScrollContainer::update_scrollbars() {
 
     Size2 size = get_size();
-    Ref<StyleBox> sb = get_stylebox("bg");
+    Ref<StyleBox> sb = get_theme_stylebox("bg");
     size -= sb->get_minimum_size();
 
     Size2 hmin;
@@ -539,7 +539,9 @@ void ScrollContainer::set_follow_focus(bool p_follow) {
     follow_focus = p_follow;
 }
 
-StringName ScrollContainer::get_configuration_warning() const {
+String ScrollContainer::get_configuration_warning() const {
+
+    String warning = Control::get_configuration_warning();
 
     int found = 0;
 
@@ -548,7 +550,7 @@ StringName ScrollContainer::get_configuration_warning() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
         if (c == h_scroll || c == v_scroll)
             continue;
@@ -556,10 +558,14 @@ StringName ScrollContainer::get_configuration_warning() const {
         found++;
     }
 
-    if (found != 1)
-        return TTR("ScrollContainer is intended to work with a single child control.\nUse a container as child (VBox, HBox, etc.), or a Control and set the custom minimum size manually.");
-    else
-        return StringName();
+    if (found != 1) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTRS("ScrollContainer is intended to work with a single child control.\nUse a container as child (VBox, HBox, etc.), or a Control and set the custom minimum size manually.");
+    }
+
+    return warning;
 }
 
 HScrollBar *ScrollContainer::get_h_scrollbar() {
@@ -574,14 +580,11 @@ VScrollBar *ScrollContainer::get_v_scrollbar() {
 
 void ScrollContainer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &ScrollContainer::_scroll_moved);
     MethodBinder::bind_method(D_METHOD("_gui_input"), &ScrollContainer::_gui_input);
     MethodBinder::bind_method(D_METHOD("set_enable_h_scroll", {"enable"}), &ScrollContainer::set_enable_h_scroll);
     MethodBinder::bind_method(D_METHOD("is_h_scroll_enabled"), &ScrollContainer::is_h_scroll_enabled);
     MethodBinder::bind_method(D_METHOD("set_enable_v_scroll", {"enable"}), &ScrollContainer::set_enable_v_scroll);
     MethodBinder::bind_method(D_METHOD("is_v_scroll_enabled"), &ScrollContainer::is_v_scroll_enabled);
-    MethodBinder::bind_method(D_METHOD("_update_scrollbar_position"), &ScrollContainer::_update_scrollbar_position);
-    MethodBinder::bind_method(D_METHOD("_ensure_focused_visible"), &ScrollContainer::_ensure_focused_visible);
 
     MethodBinder::bind_method(D_METHOD("set_h_scroll", {"value"}), &ScrollContainer::set_h_scroll);
     MethodBinder::bind_method(D_METHOD("get_h_scroll"), &ScrollContainer::get_h_scroll);

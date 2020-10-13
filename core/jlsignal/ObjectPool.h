@@ -2,10 +2,24 @@
 
 #include "Utils.h"
 
+#include <thread> // for std::thread::id,
 //#define JL_OBJECT_POOL_ENABLE_FREELIST_CHECK
 
 namespace jl {
+namespace {
+    constexpr bool IsBounded( const void* pObject, const unsigned char* pObjectBuffer, unsigned nCapacity, unsigned nStride )
+    {
+        const unsigned char* const pFirst = pObjectBuffer;
+        const unsigned char* const pLast = pObjectBuffer + nStride * (nCapacity - 1);
+        return pFirst <= pObject && pObject <= pLast;
+    }
+    constexpr bool IsAligned( const void* pObject, const unsigned char* pObjectBuffer, unsigned nStride )
+    {
+        const auto nDiff = (const unsigned char*)(pObject) - pObjectBuffer;
+        return ( nDiff % nStride == 0 );
+    }
 
+}
 /**
  * A family of object pool classes:
  *
@@ -15,11 +29,11 @@ namespace jl {
  * Due to data alignment issues, this does not derive from the ScopedAllocator
  * interface. If you need an object pool to act as a ScopedAllocator, please
  * see ObjectPoolScopedAllocator.h.
- * 
+ *
  * PRO:
  *    O(1) allocate and free
  *    O(1) overhead
- * 
+ *
  * CON:
  *    No support for array-new allocation
  *    Free()/Destroy() requires knowledge of which pool a pointer was allocated from
@@ -65,7 +79,11 @@ namespace ObjectPool
     unsigned FreeListSize( FreeNode* pFreeListHead );
 
     // Returns true if an object is allocated to the given object pool
-    bool IsBoundedAndAligned( const void* pObject, const unsigned char* pObjectBuffer, unsigned nCapacity, unsigned nStride );
+    constexpr bool IsBoundedAndAligned( const void* pObject, const unsigned char* pObjectBuffer, unsigned nCapacity, unsigned nStride )
+    {
+        return IsBounded( pObject, pObjectBuffer, nCapacity, nStride )
+            && IsAligned( pObject, pObjectBuffer, nStride );
+    }
     bool IsFree( const void* pObject, const FreeNode* pFreeListHead );
 }
 
@@ -83,7 +101,7 @@ public:
         eFlag_ManageBuffer = 0x01,
         eFlag_Defaults = eFlag_ManageBuffer,
     };
-    
+
     PreallocatedObjectPool();
     PreallocatedObjectPool( void* pBuffer, unsigned nCapacity, unsigned nStride, unsigned nFlags = eFlag_Defaults );
 
@@ -161,11 +179,10 @@ public:
         eStride = _Stride,
         eCapacity = _Capacity,
     };
-    
+
     StaticObjectPool()
     {
         m_pFreeListHead = ObjectPool::InitFreeList( m_pObjectBuffer, eCapacity, eStride );
-        m_nAllocations = 0;
     }
 
     // Allocates memory. Does not call constructor--you should do a placement new on the returned pointer.
@@ -192,7 +209,9 @@ public:
         ObjectPool::Free( pObject, m_pFreeListHead );
         m_nAllocations--;
     }
-
+    bool FromThisPool(const void *pObject) const {
+        return ObjectPool::IsBoundedAndAligned(pObject, m_pObjectBuffer, eCapacity, eStride);
+    }
     // Accessors
     unsigned char* GetObjectBuffer() { return m_pObjectBuffer; }
     const unsigned char* GetObjectBuffer() const { return m_pObjectBuffer; }
@@ -206,11 +225,13 @@ public:
 
     bool IsEmpty() const { return m_nAllocations == 0; }
     bool IsFull() const { return m_nAllocations == eCapacity; }
-
+    std::thread::id GetOwner() const { return owner; }
+    void SetOwner(std::thread::id id) { owner=id; }
 private:
     unsigned char m_pObjectBuffer[ eCapacity * eStride ];
     ObjectPool::FreeNode* m_pFreeListHead;
-    unsigned m_nAllocations;
+    std::thread::id owner;
+    unsigned m_nAllocations = 0;
 };
 
-} // namespace jl    
+} // namespace jl

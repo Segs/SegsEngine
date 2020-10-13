@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/icons">
-        <file alias="GDScript.svg">icons/GDScript.svg</file>
-    </qresource>
-</RCC>

@@ -233,31 +233,33 @@ bool GPUParticles2D::get_fractional_delta() const {
     return fractional_delta;
 }
 
-StringName GPUParticles2D::get_configuration_warning() const {
+String GPUParticles2D::get_configuration_warning() const {
 
-    String warnings;
+    String warning = BaseClassName::get_configuration_warning();
 
-    if (not process_material) {
-        if (!warnings.empty())
-            warnings += '\n';
-        warnings += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+    if (!process_material) {
+        if (!warning.empty())
+            warning += "\n\n";
+        warning += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
         CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
 
-        if (not get_material() || (mat && !mat->get_particles_animation())) {
+        if (!get_material() || (mat && !mat->get_particles_animation())) {
             const ParticlesMaterial *process = object_cast<ParticlesMaterial>(process_material.get());
             if (process &&
-                    (process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0f || process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0f ||
-                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) || process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
-                if (!warnings.empty())
-                    warnings += '\n';
-                warnings += "- " + TTR("GPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+                    ((float)process->get_param(ParticlesMaterial::PARAM_ANIM_SPEED) != 0.0 ||
+                     (float)process->get_param(ParticlesMaterial::PARAM_ANIM_OFFSET) != 0.0 ||
+                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_SPEED) ||
+                            process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
+                if (warning != String())
+                    warning += "\n\n";
+                warning += "- " + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
             }
         }
     }
 
-    return StringName(warnings);
+    return warning;
 }
 
 Rect2 GPUParticles2D::capture_rect() const {

@@ -56,7 +56,7 @@ public:
 private:
     Align align;
     VAlign valign;
-    StringName text;
+    String text;
     StringName xl_text;
     bool autowrap;
     bool clip;
@@ -111,9 +111,8 @@ public:
     void set_valign(VAlign p_align);
     VAlign get_valign() const;
 
-    void set_text(const StringName &p_string);
-    StringName get_text() const;
-    String get_text_utf8() const;
+    void set_text(StringView p_string);
+    const String &get_text() const;
 
     void set_autowrap(bool p_autowrap);
     bool has_autowrap() const;

@@ -955,10 +955,10 @@ Variant Object::_emit_signal(const Variant** p_args, int p_argcount, Callable::C
     return Variant();
 }
 
-Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount) {
+void Object::emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount) {
 
     if (_block_signals) {
-        return ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
+        return ; //ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
     }
 
     auto s = private_data->signal_map.find(p_name);
@@ -966,11 +966,11 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 #ifdef DEBUG_ENABLED
         bool signal_is_valid = ClassDB::has_signal(get_class_name(), p_name);
         //check in script
-        ERR_FAIL_COND_V_MSG(!signal_is_valid && !script.is_null() && !refFromRefPtr<Script>(script)->has_script_signal(p_name),
-                ERR_UNAVAILABLE, "Can't emit non-existing signal " + String("\"") + p_name + "\".");
+        ERR_FAIL_COND_MSG(!signal_is_valid && !script.is_null() && !refFromRefPtr<Script>(script)->has_script_signal(p_name),
+                "Can't emit non-existing signal " + String("\"") + p_name + "\".");
 #endif
         //not connected? just return
-        return ERR_UNAVAILABLE;
+        return; // ERR_UNAVAILABLE;
     }
 
     FixedVector<_ObjectSignalDisconnectData,32> disconnect_data;
@@ -986,7 +986,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
 
     FixedVector<const Variant *,16,true> bind_mem; // upto 16 binds will not heap alloc here.
 
-    Error err = OK;
+   // Error err = OK;
 
     for (int i = 0; i < ssize; i++) {
 
@@ -1034,7 +1034,7 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
                     // most likely object is not initialized yet, do not throw error.
                 } else {
                     ERR_PRINT("Error calling from signal '" + String(p_name) + "' to callable: " + Variant::get_callable_error_text(c.callable, args, argc, ce) + ".");
-                    err = ERR_METHOD_NOT_FOUND;
+                    //err = ERR_METHOD_NOT_FOUND;
                 }
             }
         }
@@ -1052,10 +1052,10 @@ Error Object::emit_signal(const StringName &p_name, const Variant **p_args, int 
     for(const _ObjectSignalDisconnectData & dd : disconnect_data) {
         _disconnect(dd.signal, dd.callable);
     }
-    return err;
+   // return err;
 }
 
-Error Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
+void Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
 
     VARIANT_ARGPTRS
 
@@ -1068,7 +1068,7 @@ Error Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    return emit_signal(p_name, argptr, argc);
+    emit_signal(p_name, argptr, argc);
 }
 
 void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
@@ -1320,12 +1320,12 @@ void Object::_disconnect(const StringName& p_signal, const Callable& p_callable,
     Object* target_object = p_callable.get_object();
     ERR_FAIL_COND(!target_object);
 
-    auto s = private_data->signal_map.find(p_signal);
-    ERR_FAIL_COND_MSG(s== private_data->signal_map.end(), vformat("Nonexistent signal '%s' in %s.", p_signal, to_string()));
+    auto per_sig_data = private_data->signal_map.find(p_signal);
+    ERR_FAIL_COND_MSG(per_sig_data== private_data->signal_map.end(), vformat("Nonexistent signal '%s' in %s.", p_signal, to_string()));
 
-    ERR_FAIL_COND_MSG(!s->second.slot_map.has(p_callable), "Disconnecting nonexistent signal '" + p_signal + "', callable: " + (String)p_callable + ".");
+    ERR_FAIL_COND_MSG(!per_sig_data->second.slot_map.has(p_callable), "Signal '" + p_signal + "', is not connected to callable: " + (String)p_callable + ".");
 
-    SignalData::Slot* slot = &s->second.slot_map[p_callable];
+    SignalData::Slot* slot = &per_sig_data->second.slot_map[p_callable];
 
     if (!p_force) {
         slot->reference_count--; // by default is zero, if it was not referenced it will go below it
@@ -1335,9 +1335,9 @@ void Object::_disconnect(const StringName& p_signal, const Callable& p_callable,
     }
 
     target_object->private_data->connections.erase(slot->cE);
-    s->second.slot_map.erase(p_callable);
+    per_sig_data->second.slot_map.erase(p_callable);
 
-    if (s->second.slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
+    if (per_sig_data->second.slot_map.empty() && ClassDB::has_signal(get_class_name(), p_signal)) {
         //not user signal, delete
         private_data->signal_map.erase(p_signal);
     }
@@ -1375,10 +1375,10 @@ bool Object::initialize_class() {
     return true;
 }
 
-StringName Object::tr(const StringName &p_message) const {
+StringName Object::tr(StringView p_message) const {
 
     if (!_can_translate || !TranslationServer::get_singleton())
-        return p_message;
+        return StringName(p_message);
 
     return TranslationServer::get_singleton()->translate(p_message);
 }

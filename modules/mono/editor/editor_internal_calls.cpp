@@ -98,7 +98,7 @@ MonoString *godot_icall_GodotSharpDirs_MonoSolutionsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_mono_solutions_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -106,7 +106,7 @@ MonoString *godot_icall_GodotSharpDirs_BuildLogsDirs() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_build_logs_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -114,7 +114,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectSlnPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_sln_path());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -122,7 +122,7 @@ MonoString *godot_icall_GodotSharpDirs_ProjectCsProjPath() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_project_csproj_path());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -130,7 +130,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorToolsDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_tools_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -138,7 +138,7 @@ MonoString *godot_icall_GodotSharpDirs_DataEditorPrebuiltApiDir() {
 #ifdef TOOLS_ENABLED
     return GDMonoMarshal::mono_string_from_godot(GodotSharpDirs::get_data_editor_prebuilt_api_dir());
 #else
-	return nullptr;
+    return nullptr;
 #endif
 }
 
@@ -318,7 +318,7 @@ MonoBoolean godot_icall_Internal_ScriptEditorEdit(MonoObject *p_resource, int32_
 }
 
 void godot_icall_Internal_EditorNodeShowScriptScreen() {
-    EditorNode::get_singleton()->call_va("_editor_select", EditorNode::EDITOR_SCRIPT);
+    EditorNode::get_singleton()->_editor_select(EditorNode::EDITOR_SCRIPT);
 }
 
 MonoObject *godot_icall_Internal_GetScriptsMetadataOrNothing(MonoReflectionType *p_dict_reftype) {

@@ -68,7 +68,7 @@ void Popup::_notification(int p_what) {
 #ifdef TOOLS_ENABLED
         if (Engine::get_singleton()->is_editor_hint() && get_tree()->get_edited_scene_root() && get_tree()->get_edited_scene_root()->is_a_parent_of(this)) {
             //edited on editor
-            set_as_toplevel(false);
+            set_as_top_level(false);
         } else
 #endif
                 if (is_visible()) {
@@ -233,19 +233,24 @@ void Popup::_bind_methods() {
 
 Popup::Popup() {
 
-    set_as_toplevel(true);
+    set_as_top_level(true);
     exclusive = false;
     popped_up = false;
     hide();
 }
 
-StringName Popup::get_configuration_warning() const {
+String Popup::get_configuration_warning() const {
+
+    String warning = Control::get_configuration_warning();
 
     if (is_visible_in_tree()) {
-        return TTR("Popups will hide by default unless you call popup() or any of the popup*() functions. Making them visible for editing is fine, but they will hide upon running.");
+        if (warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTRS("Popups will hide by default unless you call popup() or any of the popup*() functions. Making them visible for editing is fine, but they will hide upon running.");
     }
 
-    return StringName();
+    return warning;
 }
 
 Popup::~Popup() {
@@ -253,7 +258,7 @@ Popup::~Popup() {
 
 Size2 PopupPanel::get_minimum_size() const {
 
-    Ref<StyleBox> p = get_stylebox("panel");
+    Ref<StyleBox> p = get_theme_stylebox("panel");
 
     Size2 ms;
 
@@ -262,7 +267,7 @@ Size2 PopupPanel::get_minimum_size() const {
         if (!c)
             continue;
 
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2 cms = c->get_combined_minimum_size();
@@ -275,7 +280,7 @@ Size2 PopupPanel::get_minimum_size() const {
 
 void PopupPanel::_update_child_rects() {
 
-    Ref<StyleBox> p = get_stylebox("panel");
+    Ref<StyleBox> p = get_theme_stylebox("panel");
 
     Vector2 cpos(p->get_offset());
     Vector2 csize(get_size() - p->get_minimum_size());
@@ -285,7 +290,7 @@ void PopupPanel::_update_child_rects() {
         if (!c)
             continue;
 
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         c->set_position(cpos);
@@ -297,7 +302,7 @@ void PopupPanel::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        get_stylebox("panel")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
+        get_theme_stylebox("panel")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
     } else if (p_what == NOTIFICATION_READY) {
 
         _update_child_rects();

@@ -197,16 +197,17 @@ class OS_X11 : public OS_Unix {
 
     int video_driver_index;
     bool maximized;
-    //void set_wm_border(bool p_enabled);
-    void set_wm_fullscreen(bool p_enabled);
-    void set_wm_above(bool p_enabled);
-
     using xrr_get_monitors_t = xrr_monitor_info *(*)(Display *, Window, int, int *);
     using xrr_free_monitors_t = void (*)(xrr_monitor_info *);
     xrr_get_monitors_t xrr_get_monitors;
     xrr_free_monitors_t xrr_free_monitors;
     void *xrandr_handle;
     Bool xrandr_ext_ok;
+    mutable Mutex events_mutex;
+
+    //void set_wm_border(bool p_enabled);
+    void set_wm_fullscreen(bool p_enabled);
+    void set_wm_above(bool p_enabled);
 
 protected:
     int get_current_video_driver() const override;

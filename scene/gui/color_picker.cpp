@@ -54,15 +54,15 @@ void ColorPicker::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_THEME_CHANGED: {
 
-            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_button_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_theme_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_theme_icon("add_preset"));
 
             _update_controls();
         } break;
         case NOTIFICATION_ENTER_TREE: {
 
-            btn_pick->set_button_icon(get_icon("screen_picker", "ColorPicker"));
-            bt_add_preset->set_button_icon(get_icon("add_preset"));
+            btn_pick->set_button_icon(get_theme_icon("screen_picker", "ColorPicker"));
+            bt_add_preset->set_button_icon(get_theme_icon("add_preset"));
 
             _update_color();
 
@@ -79,13 +79,13 @@ void ColorPicker::_notification(int p_what) {
         case NOTIFICATION_PARENTED: {
 
             for (int i = 0; i < 4; i++)
-                set_margin((Margin)i, get_constant("margin"));
+                set_margin((Margin)i, get_theme_constant("margin"));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
             Popup *p = object_cast<Popup>(get_parent());
             if (p)
-                p->set_size(Size2(get_combined_minimum_size().width + get_constant("margin") * 2, get_combined_minimum_size().height + get_constant("margin") * 2));
+                p->set_size(Size2(get_combined_minimum_size().width + get_theme_constant("margin") * 2, get_combined_minimum_size().height + get_theme_constant("margin") * 2));
         } break;
         case MainLoop::NOTIFICATION_WM_QUIT_REQUEST: {
 
@@ -107,10 +107,10 @@ void ColorPicker::_update_controls() {
 
     if (hsv_mode_enabled) {
         for (int i = 0; i < 3; i++)
-            labels[i]->set_text(StaticCString(hsv[i],true));
+            labels[i]->set_text(hsv[i]);
     } else {
         for (int i = 0; i < 3; i++)
-            labels[i]->set_text(StaticCString(rgb[i],true));
+            labels[i]->set_text(rgb[i]);
     }
 
     if (hsv_mode_enabled) {
@@ -277,7 +277,7 @@ void ColorPicker::_text_type_toggled() {
     text_is_constructor = !text_is_constructor;
     if (text_is_constructor) {
         text_type->set_text("");
-        text_type->set_button_icon(get_icon("Script", "EditorIcons"));
+        text_type->set_button_icon(get_theme_icon("Script", "EditorIcons"));
 
         c_text->set_editable(false);
     } else {
@@ -410,12 +410,12 @@ void ColorPicker::_update_text_value() {
 void ColorPicker::_sample_draw() {
     const Rect2 r = Rect2(Point2(), Size2(uv_edit->get_size().width, sample->get_size().height * 0.95f));
     if (color.a < 1.0f) {
-        sample->draw_texture_rect(get_icon("preset_bg", "ColorPicker"), r, true);
+        sample->draw_texture_rect(get_theme_icon("preset_bg", "ColorPicker"), r, true);
     }
     sample->draw_rect(r, color);
     if (color.r > 1 || color.g > 1 || color.b > 1) {
         // Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
-        sample->draw_texture(get_icon("overbright_indicator", "ColorPicker"), Point2());
+        sample->draw_texture(get_theme_icon("overbright_indicator", "ColorPicker"), Point2());
     }
 }
 
@@ -449,7 +449,7 @@ void ColorPicker::_hsv_draw(int p_which, Control *c) {
         c->draw_line(Point2(0, y), Point2(c->get_size().x, y), col.inverted());
         c->draw_line(Point2(x, y), Point2(x, y), Color(1, 1, 1), 2);
     } else if (p_which == 1) {
-        Ref<Texture> hue = get_icon("color_hue", "ColorPicker");
+        Ref<Texture> hue = get_theme_icon("color_hue", "ColorPicker");
         c->draw_texture_rect(hue, Rect2(Point2(), c->get_size()));
         int y = c->get_size().y - c->get_size().y * (1.0f - h);
         Color col = Color();
@@ -620,7 +620,7 @@ void ColorPicker::_screen_pick_pressed() {
     if (!screen) {
         screen = memnew(Control);
         r->add_child(screen);
-        screen->set_as_toplevel(true);
+        screen->set_as_top_level(true);
         screen->set_anchors_and_margins_preset(Control::PRESET_WIDE);
         screen->set_default_cursor_shape(CURSOR_POINTING_HAND);
         screen->connect("gui_input",callable_mp(this, &ClassName::_screen_input));
@@ -708,21 +708,6 @@ void ColorPicker::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("add_preset", {"color"}), &ColorPicker::add_preset);
     MethodBinder::bind_method(D_METHOD("erase_preset", {"color"}), &ColorPicker::erase_preset);
     MethodBinder::bind_method(D_METHOD("get_presets"), &ColorPicker::get_presets);
-    MethodBinder::bind_method(D_METHOD("_value_changed"), &ColorPicker::_value_changed);
-    MethodBinder::bind_method(D_METHOD("_html_entered"), &ColorPicker::_html_entered);
-    MethodBinder::bind_method(D_METHOD("_text_type_toggled"), &ColorPicker::_text_type_toggled);
-    MethodBinder::bind_method(D_METHOD("_add_preset_pressed"), &ColorPicker::_add_preset_pressed);
-    MethodBinder::bind_method(D_METHOD("_screen_pick_pressed"), &ColorPicker::_screen_pick_pressed);
-    MethodBinder::bind_method(D_METHOD("_sample_draw"), &ColorPicker::_sample_draw);
-    MethodBinder::bind_method(D_METHOD("_update_presets"), &ColorPicker::_update_presets);
-    MethodBinder::bind_method(D_METHOD("_hsv_draw"), &ColorPicker::_hsv_draw);
-    MethodBinder::bind_method(D_METHOD("_uv_input"), &ColorPicker::_uv_input);
-    MethodBinder::bind_method(D_METHOD("_w_input"), &ColorPicker::_w_input);
-    MethodBinder::bind_method(D_METHOD("_preset_input"), &ColorPicker::_preset_input);
-    MethodBinder::bind_method(D_METHOD("_screen_input"), &ColorPicker::_screen_input);
-    MethodBinder::bind_method(D_METHOD("_focus_enter"), &ColorPicker::_focus_enter);
-    MethodBinder::bind_method(D_METHOD("_focus_exit"), &ColorPicker::_focus_exit);
-    MethodBinder::bind_method(D_METHOD("_html_focus_exit"), &ColorPicker::_html_focus_exit);
 
     ADD_PROPERTY(PropertyInfo(VariantType::COLOR, "color"), "set_pick_color", "get_pick_color");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "edit_alpha"), "set_edit_alpha", "is_editing_alpha");
@@ -761,12 +746,12 @@ ColorPicker::ColorPicker() :
     uv_edit->set_mouse_filter(MOUSE_FILTER_PASS);
     uv_edit->set_h_size_flags(SIZE_EXPAND_FILL);
     uv_edit->set_v_size_flags(SIZE_EXPAND_FILL);
-    uv_edit->set_custom_minimum_size(Size2(get_constant("sv_width"), get_constant("sv_height")));
+    uv_edit->set_custom_minimum_size(Size2(get_theme_constant("sv_width"), get_theme_constant("sv_height")));
     uv_edit->connect("draw",callable_mp(this, &ClassName::_hsv_draw), make_binds(0, Variant(uv_edit)));
 
     w_edit = memnew(Control);
     hb_edit->add_child(w_edit);
-    w_edit->set_custom_minimum_size(Size2(get_constant("h_width"), 0));
+    w_edit->set_custom_minimum_size(Size2(get_theme_constant("h_width"), 0));
     w_edit->set_h_size_flags(SIZE_FILL);
     w_edit->set_v_size_flags(SIZE_EXPAND_FILL);
     w_edit->connect("gui_input",callable_mp(this, &ClassName::_w_input));
@@ -800,7 +785,7 @@ ColorPicker::ColorPicker() :
         HBoxContainer *hbc = memnew(HBoxContainer);
 
         labels[i] = memnew(Label());
-        labels[i]->set_custom_minimum_size(Size2(get_constant("label_width"), 0));
+        labels[i]->set_custom_minimum_size(Size2(get_theme_constant("label_width"), 0));
         labels[i]->set_v_size_flags(SIZE_SHRINK_CENTER);
         hbc->add_child(labels[i]);
 
@@ -915,13 +900,13 @@ void ColorPickerButton::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_DRAW: {
 
-            const Ref<StyleBox> normal = get_stylebox("normal");
+            const Ref<StyleBox> normal = get_theme_stylebox("normal");
             const Rect2 r = Rect2(normal->get_offset(), get_size() - normal->get_minimum_size());
-            draw_texture_rect(Control::get_icon("bg", "ColorPickerButton"), r, true);
+            draw_texture_rect(Control::get_theme_icon("bg", "ColorPickerButton"), r, true);
             draw_rect(r, color);
             if (color.r > 1 || color.g > 1 || color.b > 1) {
                 // Draw an indicator to denote that the color is "overbright" and can't be displayed accurately in the preview
-                draw_texture(Control::get_icon("overbright_indicator", "ColorPicker"), normal->get_offset());
+                draw_texture(Control::get_theme_icon("overbright_indicator", "ColorPicker"), normal->get_offset());
             }
         } break;
         case MainLoop::NOTIFICATION_WM_QUIT_REQUEST: {
@@ -1001,8 +986,6 @@ void ColorPickerButton::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_popup"), &ColorPickerButton::get_popup);
     MethodBinder::bind_method(D_METHOD("set_edit_alpha", {"show"}), &ColorPickerButton::set_edit_alpha);
     MethodBinder::bind_method(D_METHOD("is_editing_alpha"), &ColorPickerButton::is_editing_alpha);
-    MethodBinder::bind_method(D_METHOD("_color_changed"), &ColorPickerButton::_color_changed);
-    MethodBinder::bind_method(D_METHOD("_modal_closed"), &ColorPickerButton::_modal_closed);
 
     ADD_SIGNAL(MethodInfo("color_changed", PropertyInfo(VariantType::COLOR, "color")));
     ADD_SIGNAL(MethodInfo("popup_closed"));

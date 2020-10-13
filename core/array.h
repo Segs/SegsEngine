@@ -113,7 +113,13 @@ public:
     Variant min() const;
     Variant max() const;
     const void *id() const;
-
+    template<class T>
+    explicit Array(Span<T> from) {
+        reserve(from.size());
+        for(const auto &entry : from) {
+            emplace_back(entry);
+        }
+    }
     Array(const Array &p_from);
     Array(Vector<Variant> &&v) noexcept;
     Array(Array &&from) noexcept {

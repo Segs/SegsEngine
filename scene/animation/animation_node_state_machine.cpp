@@ -1001,7 +1001,6 @@ void AnimationNodeStateMachine::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeStateMachine::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeStateMachine::get_graph_offset);
 
-    MethodBinder::bind_method(D_METHOD("_tree_changed"), &AnimationNodeStateMachine::_tree_changed);
 }
 
 AnimationNodeStateMachine::AnimationNodeStateMachine() {

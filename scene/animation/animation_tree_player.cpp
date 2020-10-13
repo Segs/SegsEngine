@@ -1915,9 +1915,9 @@ Error AnimationTreePlayer::node_rename(const StringName &p_node, const StringNam
     return OK;
 }
 
-StringName AnimationTreePlayer::get_configuration_warning() const {
+String AnimationTreePlayer::get_configuration_warning() const {
 
-    return TTR("This node has been deprecated. Use AnimationTree instead.");
+    return TTRS("This node has been deprecated. Use AnimationTree instead.");
 }
 
 void AnimationTreePlayer::_bind_methods() {

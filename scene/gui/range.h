@@ -94,7 +94,7 @@ public:
     void share(Range *p_range);
     void unshare();
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     Range();
     ~Range() override;

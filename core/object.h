@@ -415,7 +415,7 @@ public:
     Variant call_va(const StringName &p_name, VARIANT_ARG_LIST); // C++ helper
 
     void notification(int p_notification, bool p_reversed = false);
-    String to_string();
+    virtual String to_string();
 
     //used mainly by script, get and set all INCLUDING string
     virtual Variant getvar(const Variant &p_key, bool *r_valid = nullptr) const;
@@ -442,8 +442,8 @@ public:
     void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
     void add_user_signal(MethodInfo &&p_signal);
-    Error emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
-    Error emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
+    void emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
+    void emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
     bool has_signal(const StringName &p_name) const;
     void get_signal_list(Vector<MethodInfo> *p_signals) const;
     void get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const;
@@ -474,7 +474,7 @@ public:
     virtual const char *get_dbg_name() const { return nullptr; }
 #endif
 
-    StringName tr(const StringName &p_message) const; // translate message (internationalization)
+    StringName tr(StringView p_message) const; // translate message (internationalization)
 
     bool is_queued_for_deletion() const;
     void deleteLater() { _is_queued_for_deletion = true; }

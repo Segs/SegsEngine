@@ -39,7 +39,7 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_node.h"
 #include "editor/editor_settings.h"
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/3d/camera_3d.h"
 #include "scene/gui/menu_button.h"
 #include "scene/gui/item_list.h"
@@ -674,8 +674,8 @@ bool GridMapEditor::forward_spatial_input_event(Camera3D *p_camera, const Ref<In
         }
 
         if (mb->is_pressed()) {
-            auto nav_scheme = EditorSettings::get_singleton()->getT<SpatialEditorViewport::NavigationScheme>("editors/3d/navigation/navigation_scheme");
-            if ((nav_scheme == SpatialEditorViewport::NAVIGATION_MAYA || nav_scheme == SpatialEditorViewport::NAVIGATION_MODO) && mb->get_alt()) {
+            auto nav_scheme = EditorSettings::get_singleton()->getT<Node3DEditorViewport::NavigationScheme>("editors/3d/navigation/navigation_scheme");
+            if ((nav_scheme == Node3DEditorViewport::NAVIGATION_MAYA || nav_scheme == Node3DEditorViewport::NAVIGATION_MODO) && mb->get_alt()) {
                 input_action = INPUT_NONE;
             } else if (mb->get_button_index() == BUTTON_LEFT) {
                 bool can_edit = (node && node->get_mesh_library());
@@ -974,7 +974,7 @@ void GridMapEditor::edit(GridMap *p_gridmap) {
     _update_selection_transform();
     _update_paste_indicator();
 
-    spatial_editor = object_cast<SpatialEditorPlugin>(editor->get_editor_plugin_screen());
+    spatial_editor = object_cast<Node3DEditorPlugin>(editor->get_editor_plugin_screen());
 
     if (!node) {
         set_process(false);
@@ -1151,15 +1151,15 @@ void GridMapEditor::_notification(int p_what) {
                 p.d = edit_floor[edit_axis] * node->get_cell_size()[edit_axis];
                 p = node->get_transform().xform(p); // plane to snap
 
-                SpatialEditorPlugin *sep = object_cast<SpatialEditorPlugin>(editor->get_editor_plugin_screen());
+                Node3DEditorPlugin *sep = object_cast<Node3DEditorPlugin>(editor->get_editor_plugin_screen());
                 if (sep)
                     sep->snap_cursor_to_plane(p);
             }
         } break;
 
         case NOTIFICATION_THEME_CHANGED: {
-            options->set_button_icon(get_icon("GridMap", "EditorIcons"));
-            search_box->set_right_icon(get_icon("Search", "EditorIcons"));
+            options->set_button_icon(get_theme_icon("GridMap", "EditorIcons"));
+            search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
         } break;
     }
 }
@@ -1210,17 +1210,8 @@ void GridMapEditor::_floor_mouse_exited() {
 
 void GridMapEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_text_changed", &GridMapEditor::_text_changed);
-    MethodBinder::bind_method("_sbox_input", &GridMapEditor::_sbox_input);
-    MethodBinder::bind_method("_mesh_library_palette_input", &GridMapEditor::_mesh_library_palette_input);
-    MethodBinder::bind_method("_icon_size_changed", &GridMapEditor::_icon_size_changed);
-    MethodBinder::bind_method("_menu_option", &GridMapEditor::_menu_option);
     MethodBinder::bind_method("_configure", &GridMapEditor::_configure);
-    MethodBinder::bind_method("_item_selected_cbk", &GridMapEditor::_item_selected_cbk);
-    MethodBinder::bind_method("_floor_changed", &GridMapEditor::_floor_changed);
-    MethodBinder::bind_method("_floor_mouse_exited", &GridMapEditor::_floor_mouse_exited);
     MethodBinder::bind_method("_set_selection", &GridMapEditor::_set_selection);
-    MethodBinder::bind_method("_node_removed", &GridMapEditor::_node_removed);
 
     MethodBinder::bind_method(D_METHOD("_set_display_mode", {"mode"}), &GridMapEditor::_set_display_mode);
     MethodBinder::bind_method("_draw_grids", &GridMapEditor::_draw_grids);
@@ -1240,7 +1231,7 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     spatial_editor_hb = memnew(HBoxContainer);
     spatial_editor_hb->set_h_size_flags(SIZE_EXPAND_FILL);
     spatial_editor_hb->set_alignment(BoxContainer::ALIGN_END);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(spatial_editor_hb);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(spatial_editor_hb);
 
     spin_box_label = memnew(Label);
     spin_box_label->set_text(TTR("Floor:"));
@@ -1328,14 +1319,14 @@ GridMapEditor::GridMapEditor(EditorNode *p_editor) {
     mode_thumbnail = memnew(ToolButton);
     mode_thumbnail->set_toggle_mode(true);
     mode_thumbnail->set_pressed(true);
-    mode_thumbnail->set_button_icon(p_editor->get_gui_base()->get_icon("FileThumbnail", "EditorIcons"));
+    mode_thumbnail->set_button_icon(p_editor->get_gui_base()->get_theme_icon("FileThumbnail", "EditorIcons"));
     hb->add_child(mode_thumbnail);
     mode_thumbnail->connect("pressed",callable_mp(this, &ClassName::_set_display_mode), varray(DISPLAY_THUMBNAIL));
 
     mode_list = memnew(ToolButton);
     mode_list->set_toggle_mode(true);
     mode_list->set_pressed(false);
-    mode_list->set_button_icon(p_editor->get_gui_base()->get_icon("FileList", "EditorIcons"));
+    mode_list->set_button_icon(p_editor->get_gui_base()->get_theme_icon("FileList", "EditorIcons"));
     hb->add_child(mode_list);
     mode_list->connect("pressed",callable_mp(this, &ClassName::_set_display_mode), varray(DISPLAY_LIST));
 
@@ -1541,10 +1532,10 @@ void GridMapEditorPlugin::_notification(int p_what) {
 
         switch (EditorSettings::get_singleton()->getT<int>("editors/grid_map/editor_side")) {
             case 0: { // Left.
-                SpatialEditor::get_singleton()->get_palette_split()->move_child(grid_map_editor, 0);
+                Node3DEditor::get_singleton()->get_palette_split()->move_child(grid_map_editor, 0);
             } break;
             case 1: { // Right.
-                SpatialEditor::get_singleton()->get_palette_split()->move_child(grid_map_editor, 1);
+                Node3DEditor::get_singleton()->get_palette_split()->move_child(grid_map_editor, 1);
             } break;
         }
     }

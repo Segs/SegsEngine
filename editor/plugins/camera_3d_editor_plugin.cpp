@@ -30,7 +30,7 @@
 
 #include "camera_3d_editor_plugin.h"
 
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
@@ -43,7 +43,7 @@ void Camera3DEditor::_node_removed(Node *p_node) {
 
     if (p_node == node) {
         node = nullptr;
-        SpatialEditor::get_singleton()->set_custom_camera(nullptr);
+        Node3DEditor::get_singleton()->set_custom_camera(nullptr);
         hide();
     }
 }
@@ -51,7 +51,7 @@ void Camera3DEditor::_node_removed(Node *p_node) {
 void Camera3DEditor::_pressed() {
 
     Node *sn = node && preview->is_pressed() ? node : nullptr;
-    SpatialEditor::get_singleton()->set_custom_camera(sn);
+    Node3DEditor::get_singleton()->set_custom_camera(sn);
 }
 
 void Camera3DEditor::_bind_methods() {
@@ -65,13 +65,13 @@ void Camera3DEditor::edit(Node *p_camera) {
 
     if (!node) {
         preview->set_pressed(false);
-        SpatialEditor::get_singleton()->set_custom_camera(nullptr);
+        Node3DEditor::get_singleton()->set_custom_camera(nullptr);
     } else {
 
         if (preview->is_pressed())
-            SpatialEditor::get_singleton()->set_custom_camera(p_camera);
+            Node3DEditor::get_singleton()->set_custom_camera(p_camera);
         else
-            SpatialEditor::get_singleton()->set_custom_camera(nullptr);
+            Node3DEditor::get_singleton()->set_custom_camera(nullptr);
     }
 }
 
@@ -93,7 +93,7 @@ Camera3DEditor::Camera3DEditor() {
 
 void Camera3DEditorPlugin::edit(Object *p_object) {
 
-    SpatialEditor::get_singleton()->set_can_preview(object_cast<Camera3D>(p_object));
+    Node3DEditor::get_singleton()->set_can_preview(object_cast<Camera3D>(p_object));
     //camera_editor->edit(object_cast<Node>(p_object));
 }
 
@@ -105,9 +105,9 @@ bool Camera3DEditorPlugin::handles(Object *p_object) const {
 void Camera3DEditorPlugin::make_visible(bool p_visible) {
 
     if (p_visible) {
-        //SpatialEditor::get_singleton()->set_can_preview(object_cast<Camera3D>(p_object));
+        //Node3DEditor::get_singleton()->set_can_preview(object_cast<Camera3D>(p_object));
     } else {
-        SpatialEditor::get_singleton()->set_can_preview(nullptr);
+        Node3DEditor::get_singleton()->set_can_preview(nullptr);
     }
 }
 

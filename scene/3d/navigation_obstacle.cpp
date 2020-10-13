@@ -120,13 +120,13 @@ Node *NavigationObstacle::get_navigation_node() const {
     return object_cast<Node>(navigation);
 }
 
-StringName NavigationObstacle::get_configuration_warning() const {
+String NavigationObstacle::get_configuration_warning() const {
     if (!object_cast<Node3D>(get_parent())) {
 
-        return TTR("The NavigationObstacle only serves to provide collision avoidance to a spatial object.");
+        return TTRS("The NavigationObstacle only serves to provide collision avoidance to a spatial object.");
     }
 
-    return StringName();
+    return String();
 }
 
 void NavigationObstacle::update_agent_shape() {

@@ -175,7 +175,7 @@ void Container::_notification(int p_what) {
     }
 }
 
-StringName Container::get_configuration_warning() const {
+String Container::get_configuration_warning() const {
 
     String warning(Control::get_configuration_warning());
 
@@ -186,7 +186,7 @@ StringName Container::get_configuration_warning() const {
         warning += TTR("Container by itself serves no purpose unless a script configures its children placement behavior.\nIf "
                        "you don't intend to add a script, use a plain Control node instead.");
     }
-    return StringName(warning);
+    return warning;
 }
 
 void Container::_bind_methods() {

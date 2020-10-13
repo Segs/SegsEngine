@@ -3724,11 +3724,12 @@ String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
                     int number_len = str.length();
 
                     // Padding.
+                    int pad_chars_count = (value < 0 || show_sign) ? min_chars - 1 : min_chars;
                     char pad_char = pad_with_zeroes ? '0' : ' ';
                     if (left_justified) {
-                        str = rpad(str,min_chars, pad_char);
+                        str = rpad(str,pad_chars_count, pad_char);
                     } else {
-                        str = lpad(str,min_chars, pad_char);
+                        str = lpad(str,pad_chars_count, pad_char);
                     }
 
                     // Sign.

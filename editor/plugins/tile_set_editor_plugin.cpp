@@ -296,11 +296,7 @@ void TileSetEditor::_bind_methods() {
     MethodBinder::bind_method("_set_snap_off", &TileSetEditor::_set_snap_off);
     MethodBinder::bind_method("_set_snap_sep", &TileSetEditor::_set_snap_sep);
     MethodBinder::bind_method("_validate_current_tile_id", &TileSetEditor::_validate_current_tile_id);
-    MethodBinder::bind_method("_zoom_in", &TileSetEditor::_zoom_in);
-    MethodBinder::bind_method("_zoom_out", &TileSetEditor::_zoom_out);
-    MethodBinder::bind_method("_zoom_reset", &TileSetEditor::_zoom_reset);
     MethodBinder::bind_method("_select_edited_shape_coord", &TileSetEditor::_select_edited_shape_coord);
-    MethodBinder::bind_method("_sort_tiles", &TileSetEditor::_sort_tiles);
 
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &TileSetEditor::get_drag_data_fw);
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &TileSetEditor::can_drop_data_fw);
@@ -323,42 +319,42 @@ void TileSetEditor::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            tileset_toolbar_buttons[TOOL_TILESET_ADD_TEXTURE]->set_button_icon(get_icon("ToolAddNode", "EditorIcons"));
-            tileset_toolbar_buttons[TOOL_TILESET_REMOVE_TEXTURE]->set_button_icon(get_icon("Remove", "EditorIcons"));
-            tileset_toolbar_tools->set_button_icon(get_icon("Tools", "EditorIcons"));
+            tileset_toolbar_buttons[TOOL_TILESET_ADD_TEXTURE]->set_button_icon(get_theme_icon("ToolAddNode", "EditorIcons"));
+            tileset_toolbar_buttons[TOOL_TILESET_REMOVE_TEXTURE]->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+            tileset_toolbar_tools->set_button_icon(get_theme_icon("Tools", "EditorIcons"));
 
-            tool_workspacemode[WORKSPACE_EDIT]->set_button_icon(get_icon("Edit", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_SINGLE]->set_button_icon(get_icon("AddSingleTile", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_AUTOTILE]->set_button_icon(get_icon("AddAutotile", "EditorIcons"));
-            tool_workspacemode[WORKSPACE_CREATE_ATLAS]->set_button_icon(get_icon("AddAtlasTile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_EDIT]->set_button_icon(get_theme_icon("Edit", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_SINGLE]->set_button_icon(get_theme_icon("AddSingleTile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_AUTOTILE]->set_button_icon(get_theme_icon("AddAutotile", "EditorIcons"));
+            tool_workspacemode[WORKSPACE_CREATE_ATLAS]->set_button_icon(get_theme_icon("AddAtlasTile", "EditorIcons"));
 
-            tools[TOOL_SELECT]->set_button_icon(get_icon("ToolSelect", "EditorIcons"));
-            tools[BITMASK_COPY]->set_button_icon(get_icon("Duplicate", "EditorIcons"));
-            tools[BITMASK_PASTE]->set_button_icon(get_icon("Override", "EditorIcons"));
-            tools[BITMASK_CLEAR]->set_button_icon(get_icon("Clear", "EditorIcons"));
-            tools[SHAPE_NEW_POLYGON]->set_button_icon(get_icon("CollisionPolygon2D", "EditorIcons"));
-            tools[SHAPE_NEW_RECTANGLE]->set_button_icon(get_icon("CollisionShape2D", "EditorIcons"));
-            tools[SELECT_PREVIOUS]->set_button_icon(get_icon("ArrowLeft", "EditorIcons"));
-            tools[SELECT_NEXT]->set_button_icon(get_icon("ArrowRight", "EditorIcons"));
-            tools[SHAPE_DELETE]->set_button_icon(get_icon("Remove", "EditorIcons"));
-            tools[SHAPE_KEEP_INSIDE_TILE]->set_button_icon(get_icon("Snap", "EditorIcons"));
-            tools[TOOL_GRID_SNAP]->set_button_icon(get_icon("SnapGrid", "EditorIcons"));
-            tools[ZOOM_OUT]->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
-            tools[ZOOM_1]->set_button_icon(get_icon("ZoomReset", "EditorIcons"));
-            tools[ZOOM_IN]->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
-            tools[VISIBLE_INFO]->set_button_icon(get_icon("InformationSign", "EditorIcons"));
+            tools[TOOL_SELECT]->set_button_icon(get_theme_icon("ToolSelect", "EditorIcons"));
+            tools[BITMASK_COPY]->set_button_icon(get_theme_icon("Duplicate", "EditorIcons"));
+            tools[BITMASK_PASTE]->set_button_icon(get_theme_icon("Override", "EditorIcons"));
+            tools[BITMASK_CLEAR]->set_button_icon(get_theme_icon("Clear", "EditorIcons"));
+            tools[SHAPE_NEW_POLYGON]->set_button_icon(get_theme_icon("CollisionPolygon2D", "EditorIcons"));
+            tools[SHAPE_NEW_RECTANGLE]->set_button_icon(get_theme_icon("CollisionShape2D", "EditorIcons"));
+            tools[SELECT_PREVIOUS]->set_button_icon(get_theme_icon("ArrowLeft", "EditorIcons"));
+            tools[SELECT_NEXT]->set_button_icon(get_theme_icon("ArrowRight", "EditorIcons"));
+            tools[SHAPE_DELETE]->set_button_icon(get_theme_icon("Remove", "EditorIcons"));
+            tools[SHAPE_KEEP_INSIDE_TILE]->set_button_icon(get_theme_icon("Snap", "EditorIcons"));
+            tools[TOOL_GRID_SNAP]->set_button_icon(get_theme_icon("SnapGrid", "EditorIcons"));
+            tools[ZOOM_OUT]->set_button_icon(get_theme_icon("ZoomLess", "EditorIcons"));
+            tools[ZOOM_1]->set_button_icon(get_theme_icon("ZoomReset", "EditorIcons"));
+            tools[ZOOM_IN]->set_button_icon(get_theme_icon("ZoomMore", "EditorIcons"));
+            tools[VISIBLE_INFO]->set_button_icon(get_theme_icon("InformationSign", "EditorIcons"));
             _update_toggle_shape_button();
 
-            tool_editmode[EDITMODE_REGION]->set_button_icon(get_icon("RegionEdit", "EditorIcons"));
-            tool_editmode[EDITMODE_COLLISION]->set_button_icon(get_icon("StaticBody2D", "EditorIcons"));
-            tool_editmode[EDITMODE_OCCLUSION]->set_button_icon(get_icon("LightOccluder2D", "EditorIcons"));
-            tool_editmode[EDITMODE_NAVIGATION]->set_button_icon(get_icon("Navigation2D", "EditorIcons"));
-            tool_editmode[EDITMODE_BITMASK]->set_button_icon(get_icon("PackedDataContainer", "EditorIcons"));
-            tool_editmode[EDITMODE_PRIORITY]->set_button_icon(get_icon("MaterialPreviewLight1", "EditorIcons"));
-            tool_editmode[EDITMODE_ICON]->set_button_icon(get_icon("LargeTexture", "EditorIcons"));
-            tool_editmode[EDITMODE_Z_INDEX]->set_button_icon(get_icon("Sort", "EditorIcons"));
+            tool_editmode[EDITMODE_REGION]->set_button_icon(get_theme_icon("RegionEdit", "EditorIcons"));
+            tool_editmode[EDITMODE_COLLISION]->set_button_icon(get_theme_icon("StaticBody2D", "EditorIcons"));
+            tool_editmode[EDITMODE_OCCLUSION]->set_button_icon(get_theme_icon("LightOccluder2D", "EditorIcons"));
+            tool_editmode[EDITMODE_NAVIGATION]->set_button_icon(get_theme_icon("Navigation2D", "EditorIcons"));
+            tool_editmode[EDITMODE_BITMASK]->set_button_icon(get_theme_icon("PackedDataContainer", "EditorIcons"));
+            tool_editmode[EDITMODE_PRIORITY]->set_button_icon(get_theme_icon("MaterialPreviewLight1", "EditorIcons"));
+            tool_editmode[EDITMODE_ICON]->set_button_icon(get_theme_icon("LargeTexture", "EditorIcons"));
+            tool_editmode[EDITMODE_Z_INDEX]->set_button_icon(get_theme_icon("Sort", "EditorIcons"));
 
-            scroll->add_style_override("bg", get_stylebox("bg", "Tree"));
+            scroll->add_theme_style_override("bg", get_theme_stylebox("bg", "Tree"));
         } break;
     }
 }
@@ -1170,7 +1166,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
             else if (tileset->tile_get_tile_mode(t_id) == TileSet::ATLAS_TILE)
                 c = COLOR_ATLAS;
             UIString tile_id_name = UIString("%1: %2").arg(t_id).arg(StringUtils::from_utf8(tileset->tile_get_name(t_id)));
-            Ref<Font> font = get_font("font", "Label");
+            Ref<Font> font = get_theme_font("font", "Label");
             region.set_size(font->get_ui_string_size(tile_id_name));
             workspace_overlay->draw_rect(region, c);
             region.position.y += region.size.y - 2;
@@ -1183,7 +1179,7 @@ void TileSetEditor::_on_workspace_overlay_draw() {
     if (t_id < 0)
         return;
 
-    Ref<Texture> handle = get_icon("EditorHandle", "EditorIcons");
+    Ref<Texture> handle = get_theme_icon("EditorHandle", "EditorIcons");
     if (draw_handles) {
         for (int i = 0; i < current_shape.size(); i++) {
             workspace_overlay->draw_texture(handle, current_shape[i] * workspace->get_scale().x - handle->get_size() * 0.5);
@@ -2033,10 +2029,10 @@ void TileSetEditor::_update_toggle_shape_button() {
         separator_shape_toggle->hide();
         tools[SHAPE_TOGGLE_TYPE]->hide();
     } else if (concave) {
-        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_icon("ConvexPolygonShape2D", "EditorIcons"));
+        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_theme_icon("ConvexPolygonShape2D", "EditorIcons"));
         tools[SHAPE_TOGGLE_TYPE]->set_text("Make Convex");
     } else if (convex) {
-        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_icon("ConcavePolygonShape2D", "EditorIcons"));
+        tools[SHAPE_TOGGLE_TYPE]->set_button_icon(get_theme_icon("ConcavePolygonShape2D", "EditorIcons"));
         tools[SHAPE_TOGGLE_TYPE]->set_text("Make Concave");
     } else {
         // Shouldn't happen
@@ -2046,19 +2042,17 @@ void TileSetEditor::_update_toggle_shape_button() {
 }
 
 void TileSetEditor::_select_next_tile() {
-    Array tiles = _get_tiles_in_current_texture(true);
+    Vector<int> tiles = _get_tiles_in_current_texture(true);
     if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
-        set_current_tile(tiles[0].as<int>());
+        set_current_tile(tiles[0]);
     } else {
-        int index = tiles.find(get_current_tile());
-        if (index < 0) {
-            set_current_tile(tiles[0].as<int>());
-        } else if (index == tiles.size() - 1) {
-            set_current_tile(tiles[0].as<int>());
+        int index = tiles.index_of(get_current_tile());
+        if (index >= tiles.size()-1) { // not existing or last ?
+            set_current_tile(tiles[0]);
         } else {
-            set_current_tile(tiles[index + 1].as<int>());
+            set_current_tile(tiles[index + 1]);
         }
     }
     if (get_current_tile() == -1) {
@@ -2082,17 +2076,17 @@ void TileSetEditor::_select_next_tile() {
 }
 
 void TileSetEditor::_select_previous_tile() {
-    Array tiles = _get_tiles_in_current_texture(true);
+    Vector<int> tiles = _get_tiles_in_current_texture(true);
     if (tiles.empty()) {
         set_current_tile(-1);
     } else if (get_current_tile() == -1) {
-        set_current_tile(tiles.back().as<int>());
+        set_current_tile(tiles.back());
     } else {
-        int index = tiles.find(get_current_tile());
-        if (index <= 0) {
-            set_current_tile(tiles.back().as<int>());
+        int index = tiles.index_of(get_current_tile());
+        if (index >= tiles.size()) { // no such tile?
+            set_current_tile(tiles.back());
         } else {
-            set_current_tile(tiles[index - 1].as<int>());
+            set_current_tile(tiles[index - 1]);
         }
     }
     if (get_current_tile() == -1) {
@@ -2119,8 +2113,8 @@ void TileSetEditor::_select_previous_tile() {
     }
 }
 
-Array TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
-    Array a;
+Vector<int> TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
+    Vector<int> a;
     Vector<int> all_tiles;
     if (not get_current_texture()) {
         return a;
@@ -2132,14 +2126,14 @@ Array TileSetEditor::_get_tiles_in_current_texture(bool sorted) {
         }
     }
     if (sorted) {
-        a.sort_custom(this, "_sort_tiles");
+        eastl::sort(a.begin(),a.end(),[this](int l,int r) -> bool {
+            return _sort_tiles(l,r);
+        });
     }
     return a;
 }
 
-bool TileSetEditor::_sort_tiles(const Variant& p_a, const Variant& p_b) {
-    int a = p_a.as<int>();
-    int b = p_b.as<int>();
+bool TileSetEditor::_sort_tiles(int a, int b) {
 
     Vector2 pos_a = tileset->tile_get_region(a).position;
     Vector2 pos_b = tileset->tile_get_region(b).position;
@@ -3068,6 +3062,8 @@ Vector2 TileSetEditor::snap_point(const Vector2 &point) {
     anchor += tileset->tile_get_region(get_current_tile()).position;
     anchor += WORKSPACE_MARGIN;
     Rect2 region(anchor, tile_size);
+    Rect2 tile_region(tileset->tile_get_region(get_current_tile()).position + WORKSPACE_MARGIN, tileset->tile_get_region(get_current_tile()).size);
+
     if (tileset->tile_get_tile_mode(get_current_tile()) == TileSet::SINGLE_TILE) {
         region.position = tileset->tile_get_region(get_current_tile()).position + WORKSPACE_MARGIN;
         region.size = tileset->tile_get_region(get_current_tile()).size;
@@ -3087,6 +3083,21 @@ Vector2 TileSetEditor::snap_point(const Vector2 &point) {
         if (p.y > region.position.y + region.size.y)
             p.y = region.position.y + region.size.y;
     }
+
+    if (p.x < tile_region.position.x) {
+        p.x = tile_region.position.x;
+    }
+    if (p.y < tile_region.position.y) {
+        p.y = tile_region.position.y;
+    }
+    if (p.x > (tile_region.position.x + tile_region.size.x)) {
+        p.x = (tile_region.position.x + tile_region.size.x);
+    }
+    if (p.y > (tile_region.position.y + tile_region.size.y)) {
+        p.y = (tile_region.position.y + tile_region.size.y);
+    }
+
+
     return p;
 }
 

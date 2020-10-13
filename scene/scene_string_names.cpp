@@ -137,10 +137,6 @@ SceneStringNames::SceneStringNames() {
     _unhandled_key_input = StringName("_unhandled_key_input");
 
     changed = StringName("changed");
-    _shader_changed = StringName("_shader_changed");
-
-    _spatial_editor_group = StringName("_spatial_editor_group");
-    _request_gizmo = StringName("_request_gizmo");
 
     offset = StringName("offset");
     unit_offset = StringName("unit_offset");

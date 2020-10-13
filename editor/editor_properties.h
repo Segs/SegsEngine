@@ -90,7 +90,7 @@ class EditorPropertyMultilineText : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -103,7 +103,7 @@ class EditorPropertyTextEnum : public EditorProperty {
     OptionButton *options;
 
     void _option_selected(int p_which);
-	bool string_name;
+    bool string_name;
 
 protected:
     static void _bind_methods();
@@ -130,7 +130,7 @@ class EditorPropertyPath : public EditorProperty {
     void _path_focus_exited();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
     void _notification(int p_what);
 
 public:
@@ -152,7 +152,7 @@ private:
     void _dialog_created();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void setup(const StringName &p_base_type, const StringName &p_selected_type);
@@ -186,7 +186,7 @@ private:
     void _property_select();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void setup(Type p_hint, StringView p_hint_text);
@@ -202,7 +202,7 @@ class EditorPropertyCheck : public EditorProperty {
     void _checkbox_pressed();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -217,7 +217,7 @@ class EditorPropertyEnum : public EditorProperty {
     void _option_selected(int p_which);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void setup(const Vector<StringView> &p_options);
@@ -236,7 +236,7 @@ class EditorPropertyFlags : public EditorProperty {
     void _flag_toggled();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void setup(const Vector<StringView> &p_options);
@@ -268,7 +268,7 @@ private:
     void _menu_pressed(int p_menu);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void setup(LayerType p_layer_type);
@@ -284,7 +284,7 @@ class EditorPropertyInteger : public EditorProperty {
     void _value_changed(int64_t p_val);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void update_property() override;
@@ -300,7 +300,7 @@ class EditorPropertyObjectID : public EditorProperty {
     void _edit_pressed();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -316,7 +316,7 @@ class EditorPropertyFloat : public EditorProperty {
     void _value_changed(double p_val);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -358,7 +358,7 @@ class EditorPropertyEasing : public EditorProperty {
     void _notification(int p_what);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void update_property() override;
@@ -375,7 +375,7 @@ class EditorPropertyVector2 : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -392,7 +392,7 @@ class EditorPropertyRect2 : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -409,7 +409,7 @@ class EditorPropertyVector3 : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -426,7 +426,7 @@ class EditorPropertyPlane : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -443,7 +443,7 @@ class EditorPropertyQuat : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -460,7 +460,7 @@ class EditorPropertyAABB : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -477,7 +477,7 @@ class EditorPropertyTransform2D : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -494,7 +494,7 @@ class EditorPropertyBasis : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -511,7 +511,7 @@ class EditorPropertyTransform : public EditorProperty {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void update_property() override;
@@ -528,7 +528,7 @@ class EditorPropertyColor : public EditorProperty {
     void _picker_created();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     void update_property() override;
@@ -551,7 +551,7 @@ class EditorPropertyNodePath : public EditorProperty {
     void _node_clear();
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() { }
     void _notification(int p_what);
 
 public:

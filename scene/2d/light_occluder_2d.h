@@ -101,7 +101,7 @@ public:
     void set_occluder_light_mask(int p_mask);
     int get_occluder_light_mask() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     LightOccluder2D();
     ~LightOccluder2D() override;

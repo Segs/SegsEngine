@@ -36,9 +36,9 @@
 class Separator;
 class Path3D;
 
-class PathSpatialGizmo : public EditorSpatialGizmo {
+class PathSpatialGizmo : public EditorNode3DGizmo {
 
-    GDCLASS(PathSpatialGizmo,EditorSpatialGizmo)
+    GDCLASS(PathSpatialGizmo,EditorNode3DGizmo)
 
     Path3D *path;
     mutable Vector3 original;
@@ -60,7 +60,7 @@ class PathSpatialGizmoPlugin : public EditorSpatialGizmoPlugin {
     GDCLASS(PathSpatialGizmoPlugin,EditorSpatialGizmoPlugin)
 
 protected:
-    Ref<EditorSpatialGizmo> create_gizmo(Node3D *p_spatial) override;
+    Ref<EditorNode3DGizmo> create_gizmo(Node3D *p_spatial) override;
 
 public:
     StringView get_name() const override;
@@ -97,7 +97,7 @@ class PathEditorPlugin : public EditorPlugin {
 
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     Path3D *get_edited_path() { return path; }

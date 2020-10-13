@@ -50,7 +50,7 @@ IMPL_GDCLASS(TextureRegionEditorPlugin)
 void draw_margin_line(Control *edit_draw, Vector2 from, Vector2 to) {
     Vector2 line = (to - from).normalized() * 10;
     while ((to - from).length_squared() > 200) {
-        edit_draw->draw_line(from, from + line, EditorNode::get_singleton()->get_theme_base()->get_color("mono_color", "Editor"), 2);
+        edit_draw->draw_line(from, from + line, EditorNode::get_singleton()->get_theme_base()->get_theme_color("mono_color", "Editor"), 2);
         from += line * 2;
     }
 }
@@ -140,7 +140,7 @@ void TextureRegionEditor::_region_draw() {
         }
     }
 
-    Ref<Texture> select_handle = get_icon("EditorHandle", "EditorIcons");
+    Ref<Texture> select_handle = get_theme_icon("EditorHandle", "EditorIcons");
 
     Rect2 scroll_rect(Point2(), base_tex->get_size());
 
@@ -157,7 +157,7 @@ void TextureRegionEditor::_region_draw() {
         mtx.basis_xform(raw_endpoints[3])
     };
 
-    Color color = get_color("mono_color", "Editor");
+    Color color = get_theme_color("mono_color", "Editor");
     for (int i = 0; i < 4; i++) {
 
         int prev = (i + 3) % 4;
@@ -739,12 +739,12 @@ void TextureRegionEditor::_notification(int p_what) {
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
-            edit_draw->add_style_override("panel", get_stylebox("bg", "Tree"));
+            edit_draw->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
         } break;
         case NOTIFICATION_READY: {
-            zoom_out->set_button_icon(get_icon("ZoomLess", "EditorIcons"));
-            zoom_reset->set_button_icon(get_icon("ZoomReset", "EditorIcons"));
-            zoom_in->set_button_icon(get_icon("ZoomMore", "EditorIcons"));
+            zoom_out->set_button_icon(get_theme_icon("ZoomLess", "EditorIcons"));
+            zoom_reset->set_button_icon(get_theme_icon("ZoomReset", "EditorIcons"));
+            zoom_in->set_button_icon(get_theme_icon("ZoomMore", "EditorIcons"));
 
             vscroll->set_anchors_and_margins_preset(PRESET_RIGHT_WIDE);
             hscroll->set_anchors_and_margins_preset(PRESET_BOTTOM_WIDE);
@@ -775,22 +775,6 @@ void TextureRegionEditor::_node_removed(Object *p_obj) {
 }
 
 void TextureRegionEditor::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_edit_region"), &TextureRegionEditor::_edit_region);
-    MethodBinder::bind_method(D_METHOD("_region_draw"), &TextureRegionEditor::_region_draw);
-    MethodBinder::bind_method(D_METHOD("_region_input"), &TextureRegionEditor::_region_input);
-    MethodBinder::bind_method(D_METHOD("_scroll_changed"), &TextureRegionEditor::_scroll_changed);
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &TextureRegionEditor::_node_removed);
-    MethodBinder::bind_method(D_METHOD("_set_snap_mode"), &TextureRegionEditor::_set_snap_mode);
-    MethodBinder::bind_method(D_METHOD("_set_snap_off_x"), &TextureRegionEditor::_set_snap_off_x);
-    MethodBinder::bind_method(D_METHOD("_set_snap_off_y"), &TextureRegionEditor::_set_snap_off_y);
-    MethodBinder::bind_method(D_METHOD("_set_snap_step_x"), &TextureRegionEditor::_set_snap_step_x);
-    MethodBinder::bind_method(D_METHOD("_set_snap_step_y"), &TextureRegionEditor::_set_snap_step_y);
-    MethodBinder::bind_method(D_METHOD("_set_snap_sep_x"), &TextureRegionEditor::_set_snap_sep_x);
-    MethodBinder::bind_method(D_METHOD("_set_snap_sep_y"), &TextureRegionEditor::_set_snap_sep_y);
-    MethodBinder::bind_method(D_METHOD("_zoom_on_position"), &TextureRegionEditor::_zoom_on_position);
-    MethodBinder::bind_method(D_METHOD("_zoom_in"), &TextureRegionEditor::_zoom_in);
-    MethodBinder::bind_method(D_METHOD("_zoom_reset"), &TextureRegionEditor::_zoom_reset);
-    MethodBinder::bind_method(D_METHOD("_zoom_out"), &TextureRegionEditor::_zoom_out);
     MethodBinder::bind_method(D_METHOD("_update_rect"), &TextureRegionEditor::_update_rect);
 }
 
@@ -857,7 +841,7 @@ void TextureRegionEditor::_changed_callback(Object *p_changed, StringName p_prop
     if (!is_visible())
         return;
 
-    if (p_prop == StringName("atlas") || p_prop == StringName("texture"))
+    if (p_prop == StringName("atlas") || p_prop == StringName("texture") || p_prop == StringName("region"))
         _edit_region();
 }
 

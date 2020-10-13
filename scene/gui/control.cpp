@@ -285,11 +285,11 @@ bool Control::_set(const StringName &p_name, const Variant &p_value) {
         } else if (StringUtils::begins_with(name,"custom_shaders/")) {
             add_shader_override(dname, refFromVariant<Shader>(p_value));
         } else if (StringUtils::begins_with(name,"custom_styles/")) {
-            add_style_override(dname, refFromVariant<StyleBox>(p_value));
+            add_theme_style_override(dname, refFromVariant<StyleBox>(p_value));
         } else if (StringUtils::begins_with(name,"custom_fonts/")) {
             add_font_override(dname, refFromVariant<Font>(p_value));
         } else if (StringUtils::begins_with(name,"custom_colors/")) {
-            add_color_override(dname, p_value.as<Color>());
+            add_theme_color_override(dname, p_value.as<Color>());
         } else if (StringUtils::begins_with(name,"custom_constants/")) {
             add_constant_override(dname, p_value.as<int>());
         } else
@@ -503,7 +503,7 @@ void Control::_notification(int p_notification) {
 
             data.parent = object_cast<Control>(get_parent());
 
-            if (is_set_as_toplevel()) {
+            if (is_set_as_top_level()) {
                 get_viewport()->_gui_add_subwindow_control(this);
                 data.SI = this;
 
@@ -526,7 +526,7 @@ void Control::_notification(int p_notification) {
                         break;
 
                     CanvasItem *ci = object_cast<CanvasItem>(parent);
-                    if (ci && ci->is_set_as_toplevel()) {
+                    if (ci && ci->is_set_as_top_level()) {
                         subwindow = true;
                         break;
                     }
@@ -583,7 +583,7 @@ void Control::_notification(int p_notification) {
 
                 data.parent_canvas_item->disconnect("item_rect_changed",callable_mp(this, &ClassName::_size_changed));
                 data.parent_canvas_item = nullptr;
-            } else if (!is_set_as_toplevel()) {
+            } else if (!is_set_as_top_level()) {
                 //disconnect viewport
                 get_viewport()->disconnect("size_changed",callable_mp(this, &ClassName::_size_changed));
             }
@@ -832,7 +832,7 @@ Size2 Control::get_minimum_size() const {
     return Size2();
 }
 
-Ref<Texture> Control::get_icon(const StringName &p_name, const StringName &p_type) const {
+Ref<Texture> Control::get_theme_icon(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
 
@@ -923,7 +923,7 @@ Ref<Shader> Control::get_shader(const StringName &p_name, const StringName &p_ty
     return Theme::get_default()->get_shader(p_name, type);
 }
 
-Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &p_type) const {
+Ref<StyleBox> Control::get_theme_stylebox(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
 
@@ -970,7 +970,7 @@ Ref<StyleBox> Control::get_stylebox(const StringName &p_name, const StringName &
     }
     return Theme::get_default()->get_stylebox(p_name, type);
 }
-Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) const {
+Ref<Font> Control::get_theme_font(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto font = data.font_override.find(p_name);
@@ -1007,7 +1007,7 @@ Ref<Font> Control::get_font(const StringName &p_name, const StringName &p_type) 
 
     return Theme::get_default()->get_font(p_name, type);
 }
-Color Control::get_color(const StringName &p_name, const StringName &p_type) const {
+Color Control::get_theme_color(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto color = data.color_override.find(p_name);
@@ -1047,7 +1047,7 @@ Color Control::get_color(const StringName &p_name, const StringName &p_type) con
     return Theme::get_default()->get_color(p_name, type);
 }
 
-int Control::get_constant(const StringName &p_name, const StringName &p_type) const {
+int Control::get_theme_constant(const StringName &p_name, const StringName &p_type) const {
 
     if (p_type.empty() || p_type == get_class_name()) {
         auto constant = data.constant_override.find(p_name);
@@ -1937,7 +1937,7 @@ void Control::add_shader_override(const StringName &p_name, const Ref<Shader> &p
     }
     notification(NOTIFICATION_THEME_CHANGED);
 }
-void Control::add_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
+void Control::add_theme_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
 
     if (data.style_override.contains(p_name)) {
         data.style_override[p_name]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
@@ -1972,7 +1972,7 @@ void Control::add_font_override(const StringName &p_name, const Ref<Font> &p_fon
     }
     notification(NOTIFICATION_THEME_CHANGED);
 }
-void Control::add_color_override(const StringName &p_name, const Color &p_color) {
+void Control::add_theme_color_override(const StringName &p_name, const Color &p_color) {
 
     data.color_override[p_name] = p_color;
     notification(NOTIFICATION_THEME_CHANGED);
@@ -1993,7 +1993,7 @@ void Control::set_focus_mode(FocusMode p_focus_mode) {
 
 static Control *_next_control(Control *p_from) {
 
-    if (p_from->is_set_as_toplevel())
+    if (p_from->is_set_as_top_level())
         return nullptr; // can't go above
 
     Control *parent = object_cast<Control>(p_from->get_parent());
@@ -2008,7 +2008,7 @@ static Control *_next_control(Control *p_from) {
     for (int i = (next + 1); i < parent->get_child_count(); i++) {
 
         Control *c = object_cast<Control>(parent->get_child(i));
-        if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
+        if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level())
             continue;
 
         return c;
@@ -2046,7 +2046,7 @@ Control *Control::find_next_valid_focus() const {
         for (int i = 0; i < from->get_child_count(); i++) {
 
             Control *c = object_cast<Control>(from->get_child(i));
-            if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
+            if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
                 continue;
             }
 
@@ -2059,7 +2059,7 @@ Control *Control::find_next_valid_focus() const {
             next_child = _next_control(from);
             if (!next_child) { //nothing else.. go up and find either window or subwindow
                 next_child = const_cast<Control *>(this);
-                while (next_child && !next_child->is_set_as_toplevel()) {
+                while (next_child && !next_child->is_set_as_top_level()) {
 
                     next_child = object_cast<Control>(next_child->get_parent());
                 }
@@ -2096,7 +2096,7 @@ static Control *_prev_control(Control *p_from) {
     for (int i = p_from->get_child_count() - 1; i >= 0; i--) {
 
         Control *c = object_cast<Control>(p_from->get_child(i));
-        if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel())
+        if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level())
             continue;
 
         child = c;
@@ -2134,7 +2134,7 @@ Control *Control::find_prev_valid_focus() const {
 
         Control *prev_child = nullptr;
 
-        if (from->is_set_as_toplevel() || !object_cast<Control>(from->get_parent())) {
+        if (from->is_set_as_top_level() || !object_cast<Control>(from->get_parent())) {
 
             //find last of the children
 
@@ -2146,7 +2146,7 @@ Control *Control::find_prev_valid_focus() const {
 
                 Control *c = object_cast<Control>(from->get_parent()->get_child(i));
 
-                if (!c || !c->is_visible_in_tree() || c->is_set_as_toplevel()) {
+                if (!c || !c->is_visible_in_tree() || c->is_set_as_top_level()) {
                     continue;
                 }
 
@@ -2209,7 +2209,7 @@ void Control::release_focus() {
 
 bool Control::is_toplevel_control() const {
 
-    return is_inside_tree() && (!data.parent_canvas_item && !data.RI && is_set_as_toplevel());
+    return is_inside_tree() && (!data.parent_canvas_item && !data.RI && is_set_as_top_level());
 }
 
 void Control::show_modal(bool p_exclusive) {
@@ -2588,7 +2588,7 @@ void Control::minimum_size_changed() {
     //invalidate cache upwards
     while (invalidate && invalidate->data.minimum_size_valid) {
         invalidate->data.minimum_size_valid = false;
-        if (invalidate->is_set_as_toplevel())
+        if (invalidate->is_set_as_top_level())
             break; // do not go further up
         invalidate = invalidate->data.parent;
     }
@@ -2601,7 +2601,7 @@ void Control::minimum_size_changed() {
 
     data.updating_last_minimum_size = true;
 
-    MessageQueue::get_singleton()->push_call(this, "_update_minimum_size");
+    MessageQueue::get_singleton()->push_call(get_instance_id(),[this]() {_update_minimum_size(); });
 }
 
 int Control::get_v_size_flags() const {
@@ -2767,13 +2767,13 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     if (p_idx == 0) {
         Vector<StringName> sn;
         StringView pf = p_function;
-        if (pf == "add_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_color"_sv) {
+        if (pf == "add_theme_color_override"_sv || pf == "has_color"_sv || pf == "has_color_override"_sv || pf == "get_theme_color"_sv) {
             Theme::get_default()->get_color_list(get_class_name(), &sn);
-        } else if (pf == "add_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_style"_sv) {
+        } else if (pf == "add_theme_style_override"_sv || pf == "has_style"_sv || pf == "has_style_override"_sv || pf == "get_theme_style"_sv) {
             sn = Theme::get_default()->get_stylebox_list(get_class_name());
-        } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_font"_sv) {
+        } else if (pf == "add_font_override"_sv || pf == "has_font"_sv || pf == "has_font_override"_sv || pf == "get_theme_font"_sv) {
             Theme::get_default()->get_font_list(get_class_name(), &sn);
-        } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_constant"_sv) {
+        } else if (pf == "add_constant_override"_sv || pf == "has_constant"_sv || pf == "has_constant_override"_sv || pf == "get_theme_constant"_sv) {
             Theme::get_default()->get_constant_list(get_class_name(), &sn);
         }
         eastl::sort(sn.begin(),sn.end(),WrapAlphaCompare());
@@ -2783,7 +2783,7 @@ void Control::get_argument_options(const StringName &p_function, int p_idx, List
     }
 }
 
-StringName Control::get_configuration_warning() const {
+String Control::get_configuration_warning() const {
     String warning(CanvasItem::get_configuration_warning());
 
     if (data.mouse_filter == MOUSE_FILTER_IGNORE && !data.tooltip.empty()) {
@@ -2793,7 +2793,7 @@ StringName Control::get_configuration_warning() const {
         warning += TTR(R"(The Hint Tooltip won't be displayed as the control's Mouse Filter is set to "Ignore". To solve this, set the Mouse Filter to "Stop" or "Pass".)");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void Control::set_clip_contents(bool p_clip) {
@@ -2832,10 +2832,6 @@ Control::GrowDirection Control::get_v_grow_direction() const {
 }
 
 void Control::_bind_methods() {
-
-    //MethodBinder::bind_method(D_METHOD("_window_resize_event"),&Control::_window_resize_event);
-    MethodBinder::bind_method(D_METHOD("_size_changed"), &Control::_size_changed);
-    MethodBinder::bind_method(D_METHOD("_update_minimum_size"), &Control::_update_minimum_size);
 
     MethodBinder::bind_method(D_METHOD("accept_event"), &Control::accept_event);
     MethodBinder::bind_method(D_METHOD("get_minimum_size"), &Control::get_minimum_size);
@@ -2897,16 +2893,16 @@ void Control::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_icon_override", {"name", "texture"}), &Control::add_icon_override);
     MethodBinder::bind_method(D_METHOD("add_shader_override", {"name", "shader"}), &Control::add_shader_override);
-    MethodBinder::bind_method(D_METHOD("add_style_override", {"name", "stylebox"}), &Control::add_style_override);
+    MethodBinder::bind_method(D_METHOD("add_theme_style_override", {"name", "stylebox"}), &Control::add_theme_style_override);
     MethodBinder::bind_method(D_METHOD("add_font_override", {"name", "font"}), &Control::add_font_override);
-    MethodBinder::bind_method(D_METHOD("add_color_override", {"name", "color"}), &Control::add_color_override);
+    MethodBinder::bind_method(D_METHOD("add_theme_color_override", {"name", "color"}), &Control::add_theme_color_override);
     MethodBinder::bind_method(D_METHOD("add_constant_override", {"name", "constant"}), &Control::add_constant_override);
 
-    MethodBinder::bind_method(D_METHOD("get_icon", {"name", "type"}), &Control::get_icon, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_stylebox", {"name", "type"}), &Control::get_stylebox, {DEFVAL(StringName())});
-    MethodBinder::bind_method(D_METHOD("get_font", {"name", "type"}), &Control::get_font, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_color", {"name", "type"}), &Control::get_color, {DEFVAL("")});
-    MethodBinder::bind_method(D_METHOD("get_constant", {"name", "type"}), &Control::get_constant, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_icon", {"name", "type"}), &Control::get_theme_icon, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_stylebox", {"name", "type"}), &Control::get_theme_stylebox, {DEFVAL(StringName())});
+    MethodBinder::bind_method(D_METHOD("get_theme_font", {"name", "type"}), &Control::get_theme_font, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_color", {"name", "type"}), &Control::get_theme_color, {DEFVAL("")});
+    MethodBinder::bind_method(D_METHOD("get_theme_constant", {"name", "type"}), &Control::get_theme_constant, {DEFVAL("")});
 
     MethodBinder::bind_method(D_METHOD("has_icon_override", {"name"}), &Control::has_icon_override);
     MethodBinder::bind_method(D_METHOD("has_shader_override", {"name"}), &Control::has_shader_override);
@@ -2962,10 +2958,6 @@ void Control::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("warp_mouse", {"to_position"}), &Control::warp_mouse);
 
     MethodBinder::bind_method(D_METHOD("minimum_size_changed"), &Control::minimum_size_changed);
-
-    MethodBinder::bind_method(D_METHOD("_theme_changed"), &Control::_theme_changed);
-
-    MethodBinder::bind_method(D_METHOD("_override_changed"), &Control::_override_changed);
 
     BIND_VMETHOD(MethodInfo("_gui_input", PropertyInfo(VariantType::OBJECT, "event", PropertyHint::ResourceType, "InputEvent")));
     BIND_VMETHOD(MethodInfo(VariantType::VECTOR2, "_get_minimum_size"));

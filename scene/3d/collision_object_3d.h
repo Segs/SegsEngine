@@ -107,7 +107,7 @@ public:
 
     _FORCE_INLINE_ RID get_rid() const { return rid; }
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     CollisionObject3D();
     ~CollisionObject3D() override;

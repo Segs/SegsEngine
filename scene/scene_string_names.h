@@ -36,181 +36,177 @@
 
 class SceneStringNames {
 
-	friend void register_scene_types();
-	friend void unregister_scene_types();
+    friend void register_scene_types();
+    friend void unregister_scene_types();
 
-	static SceneStringNames *singleton;
+    static SceneStringNames *singleton;
 
-	static void create() { singleton = memnew(SceneStringNames); }
-	static void free() {
-		memdelete(singleton);
-		singleton = nullptr;
-	}
+    static void create() { singleton = memnew(SceneStringNames); }
+    static void free() {
+        memdelete(singleton);
+        singleton = nullptr;
+    }
 
-	SceneStringNames();
+    SceneStringNames();
 
 public:
-	_FORCE_INLINE_ static SceneStringNames *get_singleton() { return singleton; }
+    _FORCE_INLINE_ static SceneStringNames *get_singleton() { return singleton; }
 
-	StringName _estimate_cost;
-	StringName _compute_cost;
+    StringName _estimate_cost;
+    StringName _compute_cost;
 
-	StringName resized;
-	StringName dot;
-	StringName doubledot;
-	StringName draw;
-	StringName hide;
-	StringName visibility_changed;
-	StringName input_event;
-	StringName _input_event;
-	StringName gui_input;
-	StringName _gui_input;
-	StringName item_rect_changed;
-	StringName shader;
-	StringName shader_unshaded;
-	StringName shading_mode;
-	StringName tree_entered;
-	StringName tree_exiting;
-	StringName tree_exited;
-	StringName ready;
-	StringName size_flags_changed;
-	StringName minimum_size_changed;
-	StringName sleeping_state_changed;
-	StringName idle;
-	StringName iteration;
-	StringName update;
-	StringName updated;
+    StringName resized;
+    StringName dot;
+    StringName doubledot;
+    StringName draw;
+    StringName hide;
+    StringName visibility_changed;
+    StringName input_event;
+    StringName _input_event;
+    StringName gui_input;
+    StringName _gui_input;
+    StringName item_rect_changed;
+    StringName shader;
+    StringName shader_unshaded;
+    StringName shading_mode;
+    StringName tree_entered;
+    StringName tree_exiting;
+    StringName tree_exited;
+    StringName ready;
+    StringName size_flags_changed;
+    StringName minimum_size_changed;
+    StringName sleeping_state_changed;
+    StringName idle;
+    StringName iteration;
+    StringName update;
+    StringName updated;
 
-	StringName line_separation;
+    StringName line_separation;
 
-	StringName mouse_entered;
-	StringName mouse_exited;
-	StringName focus_entered;
-	StringName focus_exited;
+    StringName mouse_entered;
+    StringName mouse_exited;
+    StringName focus_entered;
+    StringName focus_exited;
 
-	StringName sort_children;
+    StringName sort_children;
 
-	StringName finished;
-	StringName emission_finished;
-	StringName animation_finished;
-	StringName animation_changed;
-	StringName animation_started;
+    StringName finished;
+    StringName emission_finished;
+    StringName animation_finished;
+    StringName animation_changed;
+    StringName animation_started;
 
-	StringName body_shape_entered;
-	StringName body_entered;
-	StringName body_shape_exited;
-	StringName body_exited;
+    StringName body_shape_entered;
+    StringName body_entered;
+    StringName body_shape_exited;
+    StringName body_exited;
 
-	StringName area_shape_entered;
-	StringName area_shape_exited;
+    StringName area_shape_entered;
+    StringName area_shape_exited;
 
-	StringName _body_inout;
-	StringName _area_inout;
+    StringName _body_inout;
+    StringName _area_inout;
 
-	StringName _get_gizmo_geometry;
-	StringName _can_gizmo_scale;
+    StringName _get_gizmo_geometry;
+    StringName _can_gizmo_scale;
 
-	StringName _physics_process;
-	StringName _process;
-	StringName _enter_world;
-	StringName _exit_world;
-	StringName _enter_tree;
-	StringName _exit_tree;
-	StringName _draw;
-	StringName _input;
-	StringName _ready;
-	StringName _unhandled_input;
-	StringName _unhandled_key_input;
+    StringName _physics_process;
+    StringName _process;
+    StringName _enter_world;
+    StringName _exit_world;
+    StringName _enter_tree;
+    StringName _exit_tree;
+    StringName _draw;
+    StringName _input;
+    StringName _ready;
+    StringName _unhandled_input;
+    StringName _unhandled_key_input;
 
-	StringName _pressed;
-	StringName _toggled;
+    StringName _pressed;
+    StringName _toggled;
 
-	StringName _update_scroll;
-	StringName _update_xform;
+    StringName _update_scroll;
+    StringName _update_xform;
 
-	StringName _clips_input;
+    StringName _clips_input;
 
-	StringName _proxgroup_add;
-	StringName _proxgroup_remove;
+    StringName _proxgroup_add;
+    StringName _proxgroup_remove;
 
-	StringName grouped;
-	StringName ungrouped;
+    StringName grouped;
+    StringName ungrouped;
 
-	StringName has_point;
-	StringName get_drag_data;
-	StringName can_drop_data;
-	StringName drop_data;
+    StringName has_point;
+    StringName get_drag_data;
+    StringName can_drop_data;
+    StringName drop_data;
 
-	StringName screen_entered;
-	StringName screen_exited;
-	StringName viewport_entered;
-	StringName viewport_exited;
-	StringName camera_entered;
-	StringName camera_exited;
+    StringName screen_entered;
+    StringName screen_exited;
+    StringName viewport_entered;
+    StringName viewport_exited;
+    StringName camera_entered;
+    StringName camera_exited;
 
-	StringName _body_enter_tree;
-	StringName _body_exit_tree;
+    StringName _body_enter_tree;
+    StringName _body_exit_tree;
 
-	StringName _area_enter_tree;
-	StringName _area_exit_tree;
+    StringName _area_enter_tree;
+    StringName _area_exit_tree;
 
-	StringName changed;
-	StringName _shader_changed;
+    StringName changed;
 
-	StringName _spatial_editor_group;
-	StringName _request_gizmo;
+    StringName offset;
+    StringName unit_offset;
+    StringName rotation_mode;
+    StringName rotate;
+    StringName v_offset;
+    StringName h_offset;
 
-	StringName offset;
-	StringName unit_offset;
-	StringName rotation_mode;
-	StringName rotate;
-	StringName v_offset;
-	StringName h_offset;
+    StringName transform_pos;
+    StringName transform_rot;
+    StringName transform_scale;
 
-	StringName transform_pos;
-	StringName transform_rot;
-	StringName transform_scale;
+    StringName _update_remote;
+    StringName _update_pairs;
 
-	StringName _update_remote;
-	StringName _update_pairs;
+    StringName area_entered;
+    StringName area_exited;
 
-	StringName area_entered;
-	StringName area_exited;
+    StringName _get_minimum_size;
 
-	StringName _get_minimum_size;
+    StringName _im_update;
+    StringName _queue_update;
 
-	StringName _im_update;
-	StringName _queue_update;
+    StringName baked_light_changed;
+    StringName _baked_light_changed;
 
-	StringName baked_light_changed;
-	StringName _baked_light_changed;
+    StringName _mouse_enter;
+    StringName _mouse_exit;
 
-	StringName _mouse_enter;
-	StringName _mouse_exit;
+    StringName frame_changed;
 
-	StringName frame_changed;
+    StringName playback_speed;
+    StringName playback_active;
+    StringName autoplay;
+    StringName blend_times;
+    StringName speed;
 
-	StringName playback_speed;
-	StringName playback_active;
-	StringName autoplay;
-	StringName blend_times;
-	StringName speed;
+    NodePath path_pp;
 
-	NodePath path_pp;
+    StringName _default;
 
-	StringName _default;
+    StringName node_configuration_warning_changed;
 
-	StringName node_configuration_warning_changed;
+    StringName output;
 
-	StringName output;
+    StringName parameters_base_path;
 
-	StringName parameters_base_path;
+    StringName tracks_changed;
 
-	StringName tracks_changed;
-
-	enum {
-		MAX_MATERIALS = 32
-	};
-	StringName mesh_materials[MAX_MATERIALS];
-	StringName _mesh_changed;
+    enum {
+        MAX_MATERIALS = 32
+    };
+    StringName mesh_materials[MAX_MATERIALS];
+    StringName _mesh_changed;
 };

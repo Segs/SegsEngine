@@ -318,7 +318,7 @@ void Main::print_help(const String &p_binary) {
 
     OS::get_singleton()->print("Standalone tools:\n");
     OS::get_singleton()->print("  --gen-reflection <path>          Generate reflection data.\n");
-    
+
     OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
     OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
 #ifdef TOOLS_ENABLED
@@ -1002,6 +1002,7 @@ Error Main::setup(bool p_second_phase) {
             memdelete(sdr);
         } else {
             script_debugger = sdr;
+            sdr->set_allow_focus_steal_pid(allow_focus_steal_pid);
         }
     } else if (debug_mode == "local") {
 
@@ -1367,11 +1368,6 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
     if (init_always_on_top) {
         OS::get_singleton()->set_window_always_on_top(true);
     }
-
-    if (allow_focus_steal_pid) {
-        OS::get_singleton()->enable_for_stealing_focus(allow_focus_steal_pid);
-    }
-
 
     MAIN_PRINT("Main: Load Remaps");
 

@@ -342,14 +342,14 @@ namespace eastl
         iterator insert_at(size_type position, value_type&& value)
         {
             position = eastl::min(position, size());
-            return insert(begin() + position, value);
+            return insert(cbegin() + position, eastl::move(value));
         }
 
-        iterator insert_at(size_type position, std::initializer_list<value_type> ilist)
-        {
-            position = eastl::min(position, size());
-            return insert(begin() + position, ilist);
-        }
+//        iterator insert_at(size_type position, std::initializer_list<value_type> ilist)
+//        {
+//            position = eastl::min(position, size());
+//            return insert(begin() + position, ilist);
+//        }
 
         const_iterator find(const value_type& value) const EA_NOEXCEPT
         {
@@ -416,9 +416,9 @@ namespace eastl
         // (iterator categories). This is because in these cases there is an optimized
         // implementation that can be had for some cases relative to others. Functions
         // which aren't referenced are neither compiled nor linked into the application.
-		template <bool bMove> struct should_move_or_copy_tag{};
-		using should_copy_tag = should_move_or_copy_tag<false>;
-		using should_move_tag = should_move_or_copy_tag<true>;
+        template <bool bMove> struct should_move_or_copy_tag{};
+        using should_copy_tag = should_move_or_copy_tag<false>;
+        using should_move_tag = should_move_or_copy_tag<true>;
 
         template <typename ForwardIterator> // Allocates a pointer of array count n and copy-constructs it with [first,last).
         pointer DoRealloc(size_type n, ForwardIterator first, ForwardIterator last, should_copy_tag);
@@ -996,8 +996,8 @@ namespace eastl
     inline typename vector<T, Allocator>::reference
     vector<T, Allocator>::operator[](size_type n)
     {
-	    #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
                 EASTL_FAIL_MSG("vector::operator[] -- out of range");
         #elif EASTL_ASSERT_ENABLED
             if(EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
@@ -1012,8 +1012,8 @@ namespace eastl
     inline typename vector<T, Allocator>::const_reference
     vector<T, Allocator>::operator[](size_type n) const
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
                 EASTL_FAIL_MSG("vector::operator[] -- out of range");
         #elif EASTL_ASSERT_ENABLED
             if(EASTL_UNLIKELY(n >= (static_cast<size_type>(mpEnd - mpBegin))))
@@ -1064,11 +1064,11 @@ namespace eastl
     inline typename vector<T, Allocator>::reference
     vector<T, Allocator>::front()
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
                 EASTL_FAIL_MSG("vector::front -- empty vector");
-		#else
-			// We allow the user to reference an empty container.
+        #else
+            // We allow the user to reference an empty container.
         #endif
 
         return *mpBegin;
@@ -1079,11 +1079,11 @@ namespace eastl
     inline typename vector<T, Allocator>::const_reference
     vector<T, Allocator>::front() const
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
                 EASTL_FAIL_MSG("vector::front -- empty vector");
-		#else
-			// We allow the user to reference an empty container.
+        #else
+            // We allow the user to reference an empty container.
         #endif
 
         return *mpBegin;
@@ -1094,11 +1094,11 @@ namespace eastl
     inline typename vector<T, Allocator>::reference
     vector<T, Allocator>::back()
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
                 EASTL_FAIL_MSG("vector::back -- empty vector");
-		#else
-			// We allow the user to reference an empty container.
+        #else
+            // We allow the user to reference an empty container.
         #endif
 
         return *(mpEnd - 1);
@@ -1109,11 +1109,11 @@ namespace eastl
     inline typename vector<T, Allocator>::const_reference
     vector<T, Allocator>::back() const
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
-			if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+            if (EASTL_UNLIKELY((mpBegin == nullptr) || (mpEnd <= mpBegin))) // We don't allow the user to reference an empty container.
                 EASTL_FAIL_MSG("vector::back -- empty vector");
-		#else
-			// We allow the user to reference an empty container.
+        #else
+            // We allow the user to reference an empty container.
         #endif
 
         return *(mpEnd - 1);
@@ -1617,7 +1617,7 @@ namespace eastl
 
         if(n > size_type(internalCapacityPtr() - mpBegin)) // If n > capacity ...
         {
-			pointer const pNewData = DoRealloc(n, first, last, should_move_or_copy_tag<bMove>());
+            pointer const pNewData = DoRealloc(n, first, last, should_move_or_copy_tag<bMove>());
             eastl::destruct(mpBegin, mpEnd);
             DoFree(mpBegin, (size_type)(internalCapacityPtr() - mpBegin));
 
@@ -2125,21 +2125,21 @@ namespace eastl
     }
 
     ///////////////////////////////////////////////////////////////////////
-	// erase / erase_if
-	// 
-	// https://en.cppreference.com/w/cpp/container/vector/erase2
-	///////////////////////////////////////////////////////////////////////
+    // erase / erase_if
+    //
+    // https://en.cppreference.com/w/cpp/container/vector/erase2
+    ///////////////////////////////////////////////////////////////////////
     template <class T, class Allocator, class U>
     void erase(vector<T, Allocator>& c, const U& value)
     {
-        // Erases all elements that compare equal to value from the container. 
+        // Erases all elements that compare equal to value from the container.
         c.erase(eastl::remove(c.begin(), c.end(), value), c.end());
     }
 
     template <class T, class Allocator, class Predicate>
     void erase_if(vector<T, Allocator>& c, Predicate predicate)
     {
-        // Erases all elements that satisfy the predicate pred from the container. 
+        // Erases all elements that satisfy the predicate pred from the container.
         c.erase(eastl::remove_if(c.begin(), c.end(), predicate), c.end());
     }
 

@@ -332,8 +332,8 @@ public:
 
     /* RECT / TRANSFORM */
 
-    void set_as_toplevel(bool p_toplevel);
-    bool is_set_as_toplevel() const;
+    void set_as_top_level(bool p_toplevel);
+    bool is_set_as_top_level() const;
 
     void set_draw_behind_parent(bool p_enable);
     bool is_draw_behind_parent_enabled() const;

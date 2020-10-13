@@ -105,7 +105,7 @@ void GraphNode::_get_property_list(Vector<PropertyInfo> *p_list) const {
     int idx = 0;
     for (int i = 0; i < get_child_count(); i++) {
         Control *c = object_cast<Control>(get_child(i));
-        if (!c || c->is_set_as_toplevel())
+        if (!c || c->is_set_as_top_level())
             continue;
 
         String base = "slot/" + itos(idx) + "/";
@@ -123,8 +123,8 @@ void GraphNode::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
 void GraphNode::_resort() {
 
-    int sep = get_constant("separation");
-    Ref<StyleBox> sb = get_stylebox("frame");
+    int sep = get_theme_constant("separation");
+    Ref<StyleBox> sb = get_theme_stylebox("frame");
     bool first = true;
 
     Size2 minsize;
@@ -133,7 +133,7 @@ void GraphNode::_resort() {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2i size = c->get_combined_minimum_size();
@@ -155,7 +155,7 @@ void GraphNode::_resort() {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2i size = c->get_combined_minimum_size();
@@ -175,8 +175,8 @@ void GraphNode::_resort() {
 bool GraphNode::has_point(const Point2 &p_point) const {
 
     if (comment) {
-        Ref<StyleBox> comment = get_stylebox("comment");
-        Ref<Texture> resizer = get_icon("resizer");
+        Ref<StyleBox> comment = get_theme_stylebox("comment");
+        Ref<Texture> resizer = get_theme_icon("resizer");
 
         if (Rect2(get_size() - resizer->get_size(), resizer->get_size()).has_point(p_point)) {
             return true;
@@ -201,28 +201,28 @@ void GraphNode::_notification(int p_what) {
             Ref<StyleBox> sb;
 
             if (comment) {
-                sb = get_stylebox(selected ? StringName("commentfocus") : StringName("comment"));
+                sb = get_theme_stylebox(selected ? StringName("commentfocus") : StringName("comment"));
 
             } else {
 
-                sb = get_stylebox(selected ? StringName("selectedframe") : StringName("frame"));
+                sb = get_theme_stylebox(selected ? StringName("selectedframe") : StringName("frame"));
             }
 
             //sb=sb->duplicate();
             //sb->call("set_modulate",modulate);
-            Ref<Texture> port = get_icon("port");
-            Ref<Texture> close = get_icon("close");
-            Ref<Texture> resizer = get_icon("resizer");
-            int close_offset = get_constant("close_offset");
-            int close_h_offset = get_constant("close_h_offset");
-            Color close_color = get_color("close_color");
-            Color resizer_color = get_color("resizer_color");
-            Ref<Font> title_font = get_font("title_font");
-            int title_offset = get_constant("title_offset");
-            int title_h_offset = get_constant("title_h_offset");
-            Color title_color = get_color("title_color");
+            Ref<Texture> port = get_theme_icon("port");
+            Ref<Texture> close = get_theme_icon("close");
+            Ref<Texture> resizer = get_theme_icon("resizer");
+            int close_offset = get_theme_constant("close_offset");
+            int close_h_offset = get_theme_constant("close_h_offset");
+            Color close_color = get_theme_color("close_color");
+            Color resizer_color = get_theme_color("resizer_color");
+            Ref<Font> title_font = get_theme_font("title_font");
+            int title_offset = get_theme_constant("title_offset");
+            int title_h_offset = get_theme_constant("title_h_offset");
+            Color title_color = get_theme_color("title_color");
             Point2i icofs = -port->get_size() * 0.5;
-            int edgeofs = get_constant("port_offset");
+            int edgeofs = get_theme_constant("port_offset");
             icofs.y += sb->get_margin(Margin::Top);
 
             draw_style_box(sb, Rect2(Point2(), get_size()));
@@ -233,10 +233,10 @@ void GraphNode::_notification(int p_what) {
                 } break;
                 case OVERLAY_BREAKPOINT: {
 
-                    draw_style_box(get_stylebox("breakpoint"), Rect2(Point2(), get_size()));
+                    draw_style_box(get_theme_stylebox("breakpoint"), Rect2(Point2(), get_size()));
                 } break;
                 case OVERLAY_POSITION: {
-                    draw_style_box(get_stylebox("position"), Rect2(Point2(), get_size()));
+                    draw_style_box(get_theme_stylebox("position"), Rect2(Point2(), get_size()));
 
                 } break;
             }
@@ -379,16 +379,16 @@ Color GraphNode::get_slot_color_right(int p_idx) const {
 
 Size2 GraphNode::get_minimum_size() const {
 
-    Ref<Font> title_font = get_font("title_font");
+    Ref<Font> title_font = get_theme_font("title_font");
 
-    int sep = get_constant("separation");
-    Ref<StyleBox> sb = get_stylebox("frame");
+    int sep = get_theme_constant("separation");
+    Ref<StyleBox> sb = get_theme_stylebox("frame");
     bool first = true;
 
     Size2 minsize;
     minsize.x = title_font->get_string_size(title).x;
     if (show_close) {
-        Ref<Texture> close = get_icon("close");
+        Ref<Texture> close = get_theme_icon("close");
         minsize.x += sep + close->get_width();
     }
 
@@ -397,7 +397,7 @@ Size2 GraphNode::get_minimum_size() const {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2i size = c->get_combined_minimum_size();
@@ -472,10 +472,10 @@ bool GraphNode::is_close_button_visible() const {
 
 void GraphNode::_connpos_update() {
 
-    int edgeofs = get_constant("port_offset");
-    int sep = get_constant("separation");
+    int edgeofs = get_theme_constant("port_offset");
+    int sep = get_theme_constant("separation");
 
-    Ref<StyleBox> sb = get_stylebox("frame");
+    Ref<StyleBox> sb = get_theme_stylebox("frame");
     conn_input_cache.clear();
     conn_output_cache.clear();
     int vofs = 0;
@@ -486,7 +486,7 @@ void GraphNode::_connpos_update() {
         Control *c = object_cast<Control>(get_child(i));
         if (!c)
             continue;
-        if (c->is_set_as_toplevel())
+        if (c->is_set_as_top_level())
             continue;
 
         Size2i size = c->get_combined_minimum_size();
@@ -613,7 +613,7 @@ void GraphNode::_gui_input(const Ref<InputEvent> &p_ev) {
                 return;
             }
 
-            Ref<Texture> resizer = get_icon("resizer");
+            Ref<Texture> resizer = get_theme_icon("resizer");
 
             if (resizable && mpos.x > get_size().x - resizer->get_width() && mpos.y > get_size().y - resizer->get_height()) {
 

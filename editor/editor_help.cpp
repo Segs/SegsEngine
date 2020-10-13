@@ -84,16 +84,16 @@ public:
 
 void EditorHelp::_init_colors() {
 
-    title_color = get_color("accent_color", "Editor");
-    text_color = get_color("default_color", "RichTextLabel");
-    headline_color = get_color("headline_color", "EditorHelp");
+    title_color = get_theme_color("accent_color", "Editor");
+    text_color = get_theme_color("default_color", "RichTextLabel");
+    headline_color = get_theme_color("headline_color", "EditorHelp");
     base_type_color = title_color.linear_interpolate(text_color, 0.5);
     comment_color = text_color * Color(1, 1, 1, 0.6f);
     symbol_color = comment_color;
     value_color = text_color * Color(1, 1, 1, 0.6f);
     qualifier_color = text_color * Color(1, 1, 1, 0.8f);
-    type_color = get_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
-    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
+    type_color = get_theme_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
+    class_desc->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     class_desc->add_constant_override("line_separation", Math::round(5 * EDSCALE));
 }
 
@@ -212,14 +212,14 @@ void EditorHelp::_class_desc_input(const Ref<InputEvent> &/*p_input*/) {
 void EditorHelp::_class_desc_resized() {
     // Add extra horizontal margins for better readability.
     // The margins increase as the width of the editor help container increases.
-    Ref<Font> doc_code_font = get_font("doc_source", "EditorFonts");
+    Ref<Font> doc_code_font = get_theme_font("doc_source", "EditorFonts");
     real_t char_width = doc_code_font->get_char_size('x').width;
     const int display_margin = M_MAX(30 * EDSCALE, get_parent_anchorable_rect().size.width - char_width * 120 * EDSCALE) * 0.5f;
 
-    Ref<StyleBox> class_desc_stylebox = dynamic_ref_cast<StyleBox>(EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "RichTextLabel")->duplicate());
+    Ref<StyleBox> class_desc_stylebox = dynamic_ref_cast<StyleBox>(EditorNode::get_singleton()->get_theme_base()->get_theme_stylebox("normal", "RichTextLabel")->duplicate());
     class_desc_stylebox->set_default_margin(Margin::Left, display_margin);
     class_desc_stylebox->set_default_margin(Margin::Right, display_margin);
-    class_desc->add_style_override("normal", class_desc_stylebox);
+    class_desc->add_theme_style_override("normal", class_desc_stylebox);
 }
 
 void EditorHelp::_add_type(StringView p_type, StringView p_enum) {
@@ -236,8 +236,8 @@ void EditorHelp::_add_type(StringView p_type, StringView p_enum) {
             t = StringUtils::get_slice(p_enum,'.', 0);
         }
     }
-    const Color text_color = get_color("default_color", "RichTextLabel");
-    const Color type_color = get_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
+    const Color text_color = get_theme_color("default_color", "RichTextLabel");
+    const Color type_color = get_theme_color("accent_color", "Editor").linear_interpolate(text_color, 0.5);
     class_desc->push_color(type_color);
     if (can_ref) {
         if (p_enum.empty()) {
@@ -385,10 +385,10 @@ void EditorHelp::_update_doc() {
 
     DocContents::ClassDoc cd = doc->class_list[String(edited_class)]; //make a copy, so we can sort without worrying
 
-    Ref<Font> doc_font = get_font("doc", "EditorFonts");
-    Ref<Font> doc_bold_font = get_font("doc_bold", "EditorFonts");
-    Ref<Font> doc_title_font = get_font("doc_title", "EditorFonts");
-    Ref<Font> doc_code_font = get_font("doc_source", "EditorFonts");
+    Ref<Font> doc_font = get_theme_font("doc", "EditorFonts");
+    Ref<Font> doc_bold_font = get_theme_font("doc_bold", "EditorFonts");
+    Ref<Font> doc_title_font = get_theme_font("doc_title", "EditorFonts");
+    Ref<Font> doc_code_font = get_theme_font("doc_source", "EditorFonts");
     String link_color_text = title_color.to_html(false);
 
     // Class name
@@ -1108,7 +1108,7 @@ void EditorHelp::_update_doc() {
                 _add_text(cd.properties[i].description);
             }
             else {
-                class_desc->add_image(get_icon("Error", "EditorIcons"));
+                class_desc->add_image(get_theme_icon("Error", "EditorIcons"));
                 class_desc->add_text(" ");
                 class_desc->push_color(comment_color);
                 auto translated = TTR("There is currently no description for this property. Please help us by "
@@ -1162,7 +1162,7 @@ void EditorHelp::_update_doc() {
                 if (not StringUtils::strip_edges(methods_filtered[i].description).empty()) {
                     _add_text(methods_filtered[i].description);
                 } else {
-                    class_desc->add_image(get_icon("Error", "EditorIcons"));
+                    class_desc->add_image(get_theme_icon("Error", "EditorIcons"));
                     class_desc->add_text(" ");
                     class_desc->push_color(comment_color);
                     auto translated = TTR("There is currently no description for this method. Please help us by "
@@ -1246,11 +1246,11 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
     DocData *doc = EditorHelp::get_doc_data();
     String base_path;
 
-    Ref<Font> doc_font = p_rt->get_font("doc", "EditorFonts");
-    Ref<Font> doc_bold_font = p_rt->get_font("doc_bold", "EditorFonts");
-    Ref<Font> doc_code_font = p_rt->get_font("doc_source", "EditorFonts");
-    Color font_color_hl = p_rt->get_color("headline_color", "EditorHelp");
-    Color accent_color = p_rt->get_color("accent_color", "Editor");
+    Ref<Font> doc_font = p_rt->get_theme_font("doc", "EditorFonts");
+    Ref<Font> doc_bold_font = p_rt->get_theme_font("doc_bold", "EditorFonts");
+    Ref<Font> doc_code_font = p_rt->get_theme_font("doc_source", "EditorFonts");
+    Color font_color_hl = p_rt->get_theme_color("headline_color", "EditorHelp");
+    Color accent_color = p_rt->get_theme_color("accent_color", "Editor");
     Color link_color = accent_color.linear_interpolate(font_color_hl, 0.8f);
     Color code_color = accent_color.linear_interpolate(font_color_hl, 0.6f);
 
@@ -1569,15 +1569,7 @@ void EditorHelp::set_scroll(int p_scroll) {
 }
 
 void EditorHelp::_bind_methods() {
-
-    MethodBinder::bind_method("_class_list_select", &EditorHelp::_class_list_select);
-    MethodBinder::bind_method("_class_desc_select", &EditorHelp::_class_desc_select);
-    MethodBinder::bind_method("_class_desc_input", &EditorHelp::_class_desc_input);
-    MethodBinder::bind_method("_class_desc_resized", &EditorHelp::_class_desc_resized);
-    MethodBinder::bind_method("_request_help", &EditorHelp::_request_help);
     MethodBinder::bind_method("_unhandled_key_input", &EditorHelp::_unhandled_key_input);
-    MethodBinder::bind_method("_search", &EditorHelp::_search);
-    MethodBinder::bind_method("_help_callback", &EditorHelp::_help_callback);
 
     ADD_SIGNAL(MethodInfo("go_to_help"));
 }
@@ -1591,7 +1583,7 @@ EditorHelp::EditorHelp() {
     class_desc = memnew(RichTextLabel);
     add_child(class_desc);
     class_desc->set_v_size_flags(SIZE_EXPAND_FILL);
-    class_desc->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
+    class_desc->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     class_desc->connect("meta_clicked",callable_mp(this, &ClassName::_class_desc_select));
     class_desc->connect("gui_input",callable_mp(this, &ClassName::_class_desc_input));
     class_desc->connect("resized",callable_mp(this, &ClassName::_class_desc_resized));
@@ -1642,7 +1634,7 @@ void EditorHelpBit::_meta_clicked(StringView p_select) {
 
         StringView m = StringUtils::substr(p_select,1, p_select.length());
 
-        if (StringUtils::contains(m,"."))
+        if (StringUtils::contains(m,'.'))
             _go_to_help(StringName(String("class_method:") + StringUtils::get_slice(m, ".", 0) + ":" +
                                    StringUtils::get_slice(m, ".", 0))); // must go somewhere else
     }
@@ -1650,8 +1642,7 @@ void EditorHelpBit::_meta_clicked(StringView p_select) {
 
 void EditorHelpBit::_bind_methods() {
 
-    MethodBinder::bind_method("_meta_clicked", &EditorHelpBit::_meta_clicked);
-    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), (void (EditorHelpBit::*)(StringView)) &EditorHelpBit::set_text);
+    MethodBinder::bind_method(D_METHOD("set_text", {"text"}), &EditorHelpBit::set_text);
     ADD_SIGNAL(MethodInfo("request_hide"));
 }
 
@@ -1660,7 +1651,7 @@ void EditorHelpBit::_notification(int p_what) {
     switch (p_what) {
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
-            rich_text->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
+            rich_text->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
         } break;
         default: break;
     }
@@ -1682,7 +1673,7 @@ EditorHelpBit::EditorHelpBit() {
     rich_text = memnew(RichTextLabel);
     add_child(rich_text);
     rich_text->connect("meta_clicked",callable_mp(this, &ClassName::_meta_clicked));
-    rich_text->add_color_override("selection_color", get_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
+    rich_text->add_theme_color_override("selection_color", get_theme_color("accent_color", "Editor") * Color(1, 1, 1, 0.4f));
     rich_text->set_override_selected_font_color(false);
     set_custom_minimum_size(Size2(0, 70 * EDSCALE));
 }
@@ -1751,13 +1742,13 @@ void FindBar::_notification(int p_what) {
         case NOTIFICATION_ENTER_TREE:
         case NOTIFICATION_THEME_CHANGED: {
 
-            m_private->find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-            m_private->find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
-            m_private->hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
-            m_private->hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
-            m_private->hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
+            m_private->find_prev->set_button_icon(get_theme_icon("MoveUp", "EditorIcons"));
+            m_private->find_next->set_button_icon(get_theme_icon("MoveDown", "EditorIcons"));
+            m_private->hide_button->set_normal_texture(get_theme_icon("Close", "EditorIcons"));
+            m_private->hide_button->set_hover_texture(get_theme_icon("Close", "EditorIcons"));
+            m_private->hide_button->set_pressed_texture(get_theme_icon("Close", "EditorIcons"));
             m_private->hide_button->set_custom_minimum_size(m_private->hide_button->get_normal_texture()->get_size());
-            m_private->matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+            m_private->matches_label->add_theme_color_override("font_color", results_count > 0 ? get_theme_color("font_color", "Label") : get_theme_color("error_color", "Editor"));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
@@ -1769,12 +1760,6 @@ void FindBar::_notification(int p_what) {
 void FindBar::_bind_methods() {
 
     MethodBinder::bind_method("_unhandled_input", &FindBar::_unhandled_input);
-
-    MethodBinder::bind_method("_search_text_changed", &FindBar::_search_text_changed);
-    MethodBinder::bind_method("_search_text_entered", &FindBar::_search_text_entered);
-    MethodBinder::bind_method("_search_next", &FindBar::search_next);
-    MethodBinder::bind_method("_search_prev", &FindBar::search_prev);
-    MethodBinder::bind_method("_hide_pressed", &FindBar::_hide_bar);
 
     ADD_SIGNAL(MethodInfo("search"));
 }
@@ -1844,7 +1829,7 @@ void FindBar::_update_matches_label() {
     } else {
         m_private->matches_label->show();
 
-        m_private->matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+        m_private->matches_label->add_theme_color_override("font_color", results_count > 0 ? get_theme_color("font_color", "Label") : get_theme_color("error_color", "Editor"));
         m_private->matches_label->set_text(FormatSN((results_count == 1 ? TTR("%d match.") : TTR("%d matches.")).asCString(), results_count));
     }
 }

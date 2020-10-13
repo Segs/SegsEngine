@@ -142,7 +142,7 @@ public:
     void set_hide_on_ok(bool p_hide);
     bool get_hide_on_ok() const;
 
-    void set_text(const StringName &p_text);
+    void set_text(StringView p_text);
     void set_text_utf8(StringView p_text);
     String get_text() const;
     UIString get_text_ui() const;

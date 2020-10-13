@@ -44,12 +44,12 @@ public:
     StringView get_name() const override;
 	int get_priority() const override;
 	bool is_selectable_when_hidden() const override;
-	void redraw(EditorSpatialGizmo *p_gizmo) override;
+	void redraw(EditorNode3DGizmo *p_gizmo) override;
 
-    StringName get_handle_name(const EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-	Variant get_handle_value(EditorSpatialGizmo *p_gizmo, int p_idx) const override;
-	void set_handle(EditorSpatialGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
-	void commit_handle(EditorSpatialGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) override;
+    StringName get_handle_name(const EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+	Variant get_handle_value(EditorNode3DGizmo *p_gizmo, int p_idx) const override;
+	void set_handle(EditorNode3DGizmo *p_gizmo, int p_idx, Camera3D *p_camera, const Point2 &p_point) override;
+	void commit_handle(EditorNode3DGizmo *p_gizmo, int p_idx, const Variant &p_restore, bool p_cancel) override;
 
 	CSGShapeSpatialGizmoPlugin();
 };

@@ -686,13 +686,17 @@ StringName AnimatedSprite2D::get_animation() const {
     return animation;
 }
 
-StringName AnimatedSprite2D::get_configuration_warning() const {
+String AnimatedSprite2D::get_configuration_warning() const {
 
-    if (not frames) {
-        return TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite to display frames.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (!frames) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("A SpriteFrames resource must be created or set in the \"Frames\" property in order for AnimatedSprite to display frames.");
     }
 
-    return StringName();
+    return warning;
 }
 
 void AnimatedSprite2D::_bind_methods() {

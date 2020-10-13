@@ -49,7 +49,7 @@
 // For onion skinning.
 #include "core/resource/resource_manager.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/main/viewport.h"
 #include "servers/rendering_server.h"
 
@@ -118,33 +118,33 @@ void AnimationPlayerEditor::_notification(int p_what) {
 
             get_tree()->connect("node_removed",callable_mp(this, &ClassName::_node_removed));
 
-            add_style_override("panel", editor->get_gui_base()->get_stylebox("panel", "Panel"));
+            add_theme_style_override("panel", editor->get_gui_base()->get_theme_stylebox("panel", "Panel"));
         } break;
         case EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED: {
 
-            add_style_override("panel", editor->get_gui_base()->get_stylebox("panel", "Panel"));
+            add_theme_style_override("panel", editor->get_gui_base()->get_theme_stylebox("panel", "Panel"));
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
-            autoplay->set_button_icon(get_icon("AutoPlay", "EditorIcons"));
+            autoplay->set_button_icon(get_theme_icon("AutoPlay", "EditorIcons"));
 
-            play->set_button_icon(get_icon("PlayStart", "EditorIcons"));
-            play_from->set_button_icon(get_icon("Play", "EditorIcons"));
-            play_bw->set_button_icon(get_icon("PlayStartBackwards", "EditorIcons"));
-            play_bw_from->set_button_icon(get_icon("PlayBackwards", "EditorIcons"));
+            play->set_button_icon(get_theme_icon("PlayStart", "EditorIcons"));
+            play_from->set_button_icon(get_theme_icon("Play", "EditorIcons"));
+            play_bw->set_button_icon(get_theme_icon("PlayStartBackwards", "EditorIcons"));
+            play_bw_from->set_button_icon(get_theme_icon("PlayBackwards", "EditorIcons"));
 
-            autoplay_icon = get_icon("AutoPlay", "EditorIcons");
-            stop->set_button_icon(get_icon("Stop", "EditorIcons"));
+            autoplay_icon = get_theme_icon("AutoPlay", "EditorIcons");
+            stop->set_button_icon(get_theme_icon("Stop", "EditorIcons"));
 
-            onion_toggle->set_button_icon(get_icon("Onion", "EditorIcons"));
-            onion_skinning->set_button_icon(get_icon("GuiTabMenuHl", "EditorIcons"));
+            onion_toggle->set_button_icon(get_theme_icon("Onion", "EditorIcons"));
+            onion_skinning->set_button_icon(get_theme_icon("GuiTabMenuHl", "EditorIcons"));
 
-            pin->set_button_icon(get_icon("Pin", "EditorIcons"));
+            pin->set_button_icon(get_theme_icon("Pin", "EditorIcons"));
 
-            tool_anim->add_style_override("normal", get_stylebox("normal", "Button"));
-            track_editor->get_edit_menu()->add_style_override("normal", get_stylebox("normal", "Button"));
+            tool_anim->add_theme_style_override("normal", get_theme_stylebox("normal", "Button"));
+            track_editor->get_edit_menu()->add_theme_style_override("normal", get_theme_stylebox("normal", "Button"));
 
-#define ITEM_ICON(m_item, m_icon) tool_anim->get_popup()->set_item_icon(tool_anim->get_popup()->get_item_index(m_item), get_icon(m_icon, "EditorIcons"))
+#define ITEM_ICON(m_item, m_icon) tool_anim->get_popup()->set_item_icon(tool_anim->get_popup()->get_item_index(m_item), get_theme_icon(m_icon, "EditorIcons"))
 
             ITEM_ICON(TOOL_NEW_ANIM, "New");
             ITEM_ICON(TOOL_LOAD_ANIM, "Load");
@@ -1377,7 +1377,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_1() {
         return;
 
     // And go to next step afterwards.
-    call_deferred("_prepare_onion_layers_2");
+    call_deferred([this]() { _prepare_onion_layers_2(); });
 }
 
 void AnimationPlayerEditor::_prepare_onion_layers_2() {
@@ -1392,9 +1392,9 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
     // Hide superfluous elements that would make the overlay unnecessary cluttered.
     Dictionary canvas_edit_state;
     Dictionary spatial_edit_state;
-    if (SpatialEditor::get_singleton()->is_visible()) {
+    if (Node3DEditor::get_singleton()->is_visible()) {
         // 3D
-        spatial_edit_state = SpatialEditor::get_singleton()->get_state();
+        spatial_edit_state = Node3DEditor::get_singleton()->get_state();
         Dictionary new_state = spatial_edit_state.duplicate();
         new_state["show_grid"] = false;
         new_state["show_origin"] = false;
@@ -1412,7 +1412,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
         }
         new_state["viewports"] = vp;
         // TODO: Save/restore only affected entries.
-        SpatialEditor::get_singleton()->set_state(new_state);
+        Node3DEditor::get_singleton()->set_state(new_state);
     } else { // CanvasItemEditor
         // 2D
         canvas_edit_state = CanvasItemEditor::get_singleton()->get_state();
@@ -1497,9 +1497,9 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
     player->restore_animated_values(values_backup);
 
     // Restor state of main editors.
-    if (SpatialEditor::get_singleton()->is_visible()) {
+    if (Node3DEditor::get_singleton()->is_visible()) {
         // 3D
-        SpatialEditor::get_singleton()->set_state(spatial_edit_state);
+        Node3DEditor::get_singleton()->set_state(spatial_edit_state);
     } else { // CanvasItemEditor
         // 2D
         CanvasItemEditor::get_singleton()->set_state(canvas_edit_state);
@@ -1510,7 +1510,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2() {
     plugin->update_overlays();
 }
 void AnimationPlayerEditor::_prepare_onion_layers_1_deferred() {
-    call_deferred("_prepare_onion_layers_1");
+    call_deferred([this]() {_prepare_onion_layers_1();});
 }
 void AnimationPlayerEditor::_start_onion_skinning() {
 
@@ -1541,20 +1541,9 @@ void AnimationPlayerEditor::_pin_pressed() {
 
 void AnimationPlayerEditor::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_animation_new"), &AnimationPlayerEditor::_animation_new);
-    MethodBinder::bind_method(D_METHOD("_animation_rename"), &AnimationPlayerEditor::_animation_rename);
-    MethodBinder::bind_method(D_METHOD("_animation_load"), &AnimationPlayerEditor::_animation_load);
-    MethodBinder::bind_method(D_METHOD("_animation_remove"), &AnimationPlayerEditor::_animation_remove);
-    MethodBinder::bind_method(D_METHOD("_animation_blend"), &AnimationPlayerEditor::_animation_blend);
-    MethodBinder::bind_method(D_METHOD("_animation_edit"), &AnimationPlayerEditor::_animation_edit);
-    MethodBinder::bind_method(D_METHOD("_animation_resource_edit"), &AnimationPlayerEditor::_animation_resource_edit);
     MethodBinder::bind_method(D_METHOD("_animation_player_changed"), &AnimationPlayerEditor::_animation_player_changed);
-    MethodBinder::bind_method(D_METHOD("_list_changed"), &AnimationPlayerEditor::_list_changed);
-    MethodBinder::bind_method(D_METHOD("_animation_duplicate"), &AnimationPlayerEditor::_animation_duplicate);
     MethodBinder::bind_method(D_METHOD("_unhandled_key_input"), &AnimationPlayerEditor::_unhandled_key_input);
 
-    MethodBinder::bind_method(D_METHOD("_prepare_onion_layers_1"), &AnimationPlayerEditor::_prepare_onion_layers_1);
-    MethodBinder::bind_method(D_METHOD("_prepare_onion_layers_2"), &AnimationPlayerEditor::_prepare_onion_layers_2);
     MethodBinder::bind_method(D_METHOD("_start_onion_skinning"), &AnimationPlayerEditor::_start_onion_skinning);
     MethodBinder::bind_method(D_METHOD("_stop_onion_skinning"), &AnimationPlayerEditor::_stop_onion_skinning);
 

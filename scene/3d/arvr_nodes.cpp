@@ -62,17 +62,21 @@ void ARVRCamera::_notification(int p_what) {
     };
 };
 
-StringName ARVRCamera::get_configuration_warning() const {
+String ARVRCamera::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return StringName();
+        return String();
+
+    String warning = BaseClassName::get_configuration_warning();
 
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
     if (origin == nullptr) {
-        return TTR("ARVRCamera must have an ARVROrigin node as its parent.");
+        if(!warning.empty())
+            warning += "\n\n";
+        return warning + TTR("ARVRCamera must have an ARVROrigin node as its parent.");
     }
 
-    return StringName();
+    return String();
 };
 
 Vector3 ARVRCamera::project_local_ray_normal(const Point2 &p_pos) const {
@@ -372,21 +376,28 @@ ARVRPositionalTracker::TrackerHand ARVRController::get_hand() const {
     return tracker->get_hand();
 };
 
-StringName ARVRController::get_configuration_warning() const {
+String ARVRController::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return StringName();
+        return String();
 
+    String warning = BaseClassName::get_configuration_warning();
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
-    if (origin == nullptr) {
-        return TTR("ARVRController must have an ARVROrigin node as its parent.");
-    }
+    if (origin == NULL) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("ARVRController must have an ARVROrigin node as its parent.");
+    };
 
     if (controller_id == 0) {
-        return TTR("The controller ID must not be 0 or this controller won't be bound to an actual controller.");
-    }
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("The controller ID must not be 0 or this controller won't be bound to an actual controller.");
+    };
 
-    return StringName();
+    return warning;
 };
 
 ARVRController::ARVRController() {
@@ -499,21 +510,28 @@ bool ARVRAnchor::get_is_active() const {
     return is_active;
 };
 
-StringName ARVRAnchor::get_configuration_warning() const {
+String ARVRAnchor::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return StringName();
+        return String();
 
+    String warning = BaseClassName::get_configuration_warning();
     // must be child node of ARVROrigin!
     ARVROrigin *origin = object_cast<ARVROrigin>(get_parent());
-    if (origin == nullptr) {
-        return TTR("ARVRAnchor must have an ARVROrigin node as its parent.");
-    }
+    if (origin == NULL) {
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("ARVRAnchor must have an ARVROrigin node as its parent.");
+    };
 
     if (anchor_id == 0) {
-        return TTR("The anchor ID must not be 0 or this anchor won't be bound to an actual anchor.");
-    }
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("The anchor ID must not be 0 or this anchor won't be bound to an actual anchor.");
+    };
 
-    return StringName();
+    return warning;
 };
 
 Plane ARVRAnchor::get_plane() const {
@@ -540,14 +558,19 @@ ARVRAnchor::~ARVRAnchor(){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-StringName ARVROrigin::get_configuration_warning() const {
+String ARVROrigin::get_configuration_warning() const {
     if (!is_visible() || !is_inside_tree())
-        return StringName();
+        return String();
 
-    if (tracked_camera == nullptr)
-        return TTR("ARVROrigin requires an ARVRCamera child node.");
+    String warning = BaseClassName::get_configuration_warning();
+    if (tracked_camera == NULL) {
+        if (!warning.empty()) {
+            warning += "\n\n";
+        }
+        warning += TTR("ARVROrigin requires an ARVRCamera child node.");
+    }
 
-    return StringName();
+    return warning;
 };
 
 void ARVROrigin::_bind_methods() {

@@ -99,25 +99,25 @@ void FindReplaceBar::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_READY) {
 
-        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
-        hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
-        hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
-        hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
+        find_prev->set_button_icon(get_theme_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_theme_icon("MoveDown", "EditorIcons"));
+        hide_button->set_normal_texture(get_theme_icon("Close", "EditorIcons"));
+        hide_button->set_hover_texture(get_theme_icon("Close", "EditorIcons"));
+        hide_button->set_pressed_texture(get_theme_icon("Close", "EditorIcons"));
         hide_button->set_custom_minimum_size(hide_button->get_normal_texture()->get_size());
     } else if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
 
         set_process_unhandled_input(is_visible_in_tree());
     } else if (p_what == EditorSettings::NOTIFICATION_EDITOR_SETTINGS_CHANGED) {
 
-        find_prev->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-        find_next->set_button_icon(get_icon("MoveDown", "EditorIcons"));
-        hide_button->set_normal_texture(get_icon("Close", "EditorIcons"));
-        hide_button->set_hover_texture(get_icon("Close", "EditorIcons"));
-        hide_button->set_pressed_texture(get_icon("Close", "EditorIcons"));
+        find_prev->set_button_icon(get_theme_icon("MoveUp", "EditorIcons"));
+        find_next->set_button_icon(get_theme_icon("MoveDown", "EditorIcons"));
+        hide_button->set_normal_texture(get_theme_icon("Close", "EditorIcons"));
+        hide_button->set_hover_texture(get_theme_icon("Close", "EditorIcons"));
+        hide_button->set_pressed_texture(get_theme_icon("Close", "EditorIcons"));
         hide_button->set_custom_minimum_size(hide_button->get_normal_texture()->get_size());
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
-        matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+        matches_label->add_theme_color_override("font_color", results_count > 0 ? get_theme_color("font_color", "Label") : get_theme_color("error_color", "Editor"));
     }
 }
 
@@ -289,10 +289,12 @@ void FindReplaceBar::_replace_all() {
     }
 
     text_edit->set_v_scroll(vsval);
-    matches_label->add_color_override("font_color", rc > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+    matches_label->add_theme_color_override("font_color", rc > 0 ? get_theme_color("font_color", "Label") : get_theme_color("error_color", "Editor"));
     matches_label->set_text(FormatSN(TTR("%d replaced.").asCString(), rc));
 
-    text_edit->call_deferred("connect", "text_changed", Variant(this), "_editor_text_changed");
+    text_edit->call_deferred([this]() {
+        text_edit->connect("text_changed",callable_mp(this,&FindReplaceBar::_editor_text_changed));
+    });
     results_count = -1;
 }
 
@@ -347,7 +349,7 @@ void FindReplaceBar::_update_matches_label() {
     } else {
         matches_label->show();
 
-        matches_label->add_color_override("font_color", results_count > 0 ? get_color("font_color", "Label") : get_color("error_color", "Editor"));
+        matches_label->add_theme_color_override("font_color", results_count > 0 ? get_theme_color("font_color", "Label") : get_theme_color("error_color", "Editor"));
         matches_label->set_text(FormatSN((results_count == 1 ? TTR("%d match.") : TTR("%d matches.")).asCString(), results_count));
     }
 }
@@ -575,20 +577,7 @@ void FindReplaceBar::set_text_edit(TextEdit *p_text_edit) {
 }
 
 void FindReplaceBar::_bind_methods() {
-
     MethodBinder::bind_method("_unhandled_input", &FindReplaceBar::_unhandled_input);
-
-    MethodBinder::bind_method("_editor_text_changed", &FindReplaceBar::_editor_text_changed);
-    MethodBinder::bind_method("_search_text_changed", &FindReplaceBar::_search_text_changed);
-    MethodBinder::bind_method("_search_text_entered", &FindReplaceBar::_search_text_entered);
-    MethodBinder::bind_method("_replace_text_entered", &FindReplaceBar::_replace_text_entered);
-    MethodBinder::bind_method("_search_current", &FindReplaceBar::search_current);
-    MethodBinder::bind_method("_search_next", &FindReplaceBar::search_next);
-    MethodBinder::bind_method("_search_prev", &FindReplaceBar::search_prev);
-    MethodBinder::bind_method("_replace_pressed", &FindReplaceBar::_replace);
-    MethodBinder::bind_method("_replace_all_pressed", &FindReplaceBar::_replace_all);
-    MethodBinder::bind_method("_search_options_changed", &FindReplaceBar::_search_options_changed);
-    MethodBinder::bind_method("_hide_pressed", &FindReplaceBar::_hide_bar);
 
     ADD_SIGNAL(MethodInfo("search"));
     ADD_SIGNAL(MethodInfo("error"));
@@ -734,7 +723,7 @@ void CodeTextEditor::_text_editor_gui_input(const Ref<InputEvent> &p_event) {
     Ref<InputEventMagnifyGesture> magnify_gesture = dynamic_ref_cast<InputEventMagnifyGesture>(p_event);
     if (magnify_gesture) {
 
-        Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_font("font"));
+        Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_theme_font("font"));
 
         if (font) {
             if (font->get_size() != (int)font_size) {
@@ -782,7 +771,7 @@ void CodeTextEditor::_zoom_changed() {
 }
 
 void CodeTextEditor::_reset_zoom() {
-    Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_font("font")); // Reset source font size to default.
+    Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_theme_font("font")); // Reset source font size to default.
 
     if (font) {
         EditorSettings::get_singleton()->set("interface/editor/code_font_size", 14);
@@ -843,40 +832,40 @@ Ref<Texture> CodeTextEditor::_get_completion_icon(const ScriptCodeCompletionOpti
     switch (p_option.kind) {
         case ScriptCodeCompletionOption::KIND_CLASS: {
             if (has_icon(StringName(p_option.display), "EditorIcons")) {
-                tex = get_icon(StringName(p_option.display), "EditorIcons");
+                tex = get_theme_icon(StringName(p_option.display), "EditorIcons");
             } else {
-                tex = get_icon("Object", "EditorIcons");
+                tex = get_theme_icon("Object", "EditorIcons");
             }
         } break;
         case ScriptCodeCompletionOption::KIND_ENUM:
-            tex = get_icon("Enum", "EditorIcons");
+            tex = get_theme_icon("Enum", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_FILE_PATH:
-            tex = get_icon("File", "EditorIcons");
+            tex = get_theme_icon("File", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_NODE_PATH:
-            tex = get_icon("NodePath", "EditorIcons");
+            tex = get_theme_icon("NodePath", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_VARIABLE:
-            tex = get_icon("Variant", "EditorIcons");
+            tex = get_theme_icon("Variant", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_CONSTANT:
-            tex = get_icon("MemberConstant", "EditorIcons");
+            tex = get_theme_icon("MemberConstant", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_MEMBER:
-            tex = get_icon("MemberProperty", "EditorIcons");
+            tex = get_theme_icon("MemberProperty", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_SIGNAL:
-            tex = get_icon("MemberSignal", "EditorIcons");
+            tex = get_theme_icon("MemberSignal", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_FUNCTION:
-            tex = get_icon("MemberMethod", "EditorIcons");
+            tex = get_theme_icon("MemberMethod", "EditorIcons");
             break;
         case ScriptCodeCompletionOption::KIND_PLAIN_TEXT:
-            tex = get_icon("CubeMesh", "EditorIcons");
+            tex = get_theme_icon("CubeMesh", "EditorIcons");
             break;
         default:
-            tex = get_icon("String", "EditorIcons");
+            tex = get_theme_icon("String", "EditorIcons");
             break;
     }
     return tex;
@@ -891,7 +880,7 @@ void CodeTextEditor::_font_resize_timeout() {
 
 bool CodeTextEditor::_add_font_size(int p_delta) {
 
-    Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_font("font"));
+    Ref<DynamicFont> font = dynamic_ref_cast<DynamicFont>(text_editor->get_theme_font("font"));
 
     if (font) {
         int new_size = CLAMP(font->get_size() + p_delta, 8 * EDSCALE, 96 * EDSCALE);
@@ -1467,12 +1456,12 @@ void CodeTextEditor::goto_error() {
 
 void CodeTextEditor::_update_font() {
 
-    text_editor->add_font_override("font", get_font("source", "EditorFonts"));
+    text_editor->add_font_override("font", get_theme_font("source", "EditorFonts"));
 
-    error->add_font_override("font", get_font("status_source", "EditorFonts"));
-    error->add_color_override("font_color", get_color("error_color", "Editor"));
+    error->add_font_override("font", get_theme_font("status_source", "EditorFonts"));
+    error->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
 
-    Ref<Font> status_bar_font = get_font("status_source", "EditorFonts");
+    Ref<Font> status_bar_font = get_theme_font("status_source", "EditorFonts");
     error->add_font_override("font", status_bar_font);
     int count = status_bar->get_child_count();
     for (int i = 0; i < count; i++) {
@@ -1526,7 +1515,7 @@ void CodeTextEditor::_set_show_warnings_panel(bool p_show) {
     emit_signal("show_warnings_panel", p_show);
 }
 void CodeTextEditor::_toggle_scripts_pressed() {
-    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->toggle_scripts_panel() ? get_theme_icon("Back", "EditorIcons") : get_theme_icon("Forward", "EditorIcons"));
 }
 void CodeTextEditor::_error_pressed(const Ref<InputEvent> &p_event) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_event);
@@ -1549,7 +1538,7 @@ void CodeTextEditor::_notification(int p_what) {
             _update_font();
         } break;
         case NOTIFICATION_ENTER_TREE: {
-            warning_button->set_button_icon(get_icon("NodeWarning", "EditorIcons"));
+            warning_button->set_button_icon(get_theme_icon("NodeWarning", "EditorIcons"));
             add_constant_override("separation", 4 * EDSCALE);
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -1640,18 +1629,6 @@ void CodeTextEditor::remove_all_bookmarks() {
 void CodeTextEditor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_input"), &CodeTextEditor::_input);
-    MethodBinder::bind_method("_text_editor_gui_input", &CodeTextEditor::_text_editor_gui_input);
-    MethodBinder::bind_method("_line_col_changed", &CodeTextEditor::_line_col_changed);
-    MethodBinder::bind_method("_text_changed", &CodeTextEditor::_text_changed);
-    MethodBinder::bind_method("_on_settings_change", &CodeTextEditor::_on_settings_change);
-    MethodBinder::bind_method("_text_changed_idle_timeout", &CodeTextEditor::_text_changed_idle_timeout);
-    MethodBinder::bind_method("_code_complete_timer_timeout", &CodeTextEditor::_code_complete_timer_timeout);
-    MethodBinder::bind_method("_complete_request", &CodeTextEditor::_complete_request);
-    MethodBinder::bind_method("_font_resize_timeout", &CodeTextEditor::_font_resize_timeout);
-    MethodBinder::bind_method("_error_pressed", &CodeTextEditor::_error_pressed);
-    MethodBinder::bind_method("_toggle_scripts_pressed", &CodeTextEditor::_toggle_scripts_pressed);
-    MethodBinder::bind_method("_warning_button_pressed", &CodeTextEditor::_warning_button_pressed);
-    MethodBinder::bind_method("_warning_label_gui_input", &CodeTextEditor::_warning_label_gui_input);
 
     ADD_SIGNAL(MethodInfo("validate_script"));
     ADD_SIGNAL(MethodInfo("load_theme_settings"));
@@ -1663,7 +1640,7 @@ void CodeTextEditor::show_toggle_scripts_button() {
 }
 
 void CodeTextEditor::update_toggle_scripts_button() {
-    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_icon("Back", "EditorIcons") : get_icon("Forward", "EditorIcons"));
+    toggle_scripts_button->set_button_icon(ScriptEditor::get_singleton()->is_scripts_panel_toggled() ? get_theme_icon("Back", "EditorIcons") : get_theme_icon("Forward", "EditorIcons"));
     toggle_scripts_button->set_tooltip(TTR("Toggle Scripts Panel") + " (" + ED_GET_SHORTCUT("script_editor/toggle_scripts_panel")->get_as_text() + ")");
 }
 
@@ -1747,8 +1724,8 @@ CodeTextEditor::CodeTextEditor() {
     warning_count_label->set_default_cursor_shape(CURSOR_POINTING_HAND);
     warning_count_label->set_mouse_filter(MOUSE_FILTER_STOP);
     warning_count_label->set_tooltip(TTR("Warnings"));
-    warning_count_label->add_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_color("warning_color", "Editor"));
-    warning_count_label->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("status_source", "EditorFonts"));
+    warning_count_label->add_theme_color_override("font_color", EditorNode::get_singleton()->get_gui_base()->get_theme_color("warning_color", "Editor"));
+    warning_count_label->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("status_source", "EditorFonts"));
     warning_count_label->connect("gui_input",callable_mp(this, &ClassName::_warning_label_gui_input));
 
     is_warnings_panel_opened = false;
@@ -1758,7 +1735,7 @@ CodeTextEditor::CodeTextEditor() {
     line_and_col_txt = memnew(Label);
     status_bar->add_child(line_and_col_txt);
     line_and_col_txt->set_v_size_flags(SIZE_EXPAND | SIZE_SHRINK_CENTER);
-    line_and_col_txt->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_font("status_source", "EditorFonts"));
+    line_and_col_txt->add_font_override("font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("status_source", "EditorFonts"));
     line_and_col_txt->set_tooltip(TTR("Line and column numbers."));
     line_and_col_txt->set_mouse_filter(MOUSE_FILTER_STOP);
 

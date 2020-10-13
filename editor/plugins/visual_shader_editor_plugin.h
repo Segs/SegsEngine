@@ -144,12 +144,33 @@ class VisualShaderEditor : public VBoxContainer {
             highend = p_highend;
             is_custom = false;
         }
+        AddOption(AddOption &&) = default;
+        AddOption& operator=(AddOption &&) = default;
     };
 
     Vector<AddOption> add_options;
     int texture_node_option_idx;
     int custom_node_option_idx;
     Vector<StringView> keyword_list;
+    struct DragOp {
+        VisualShader::Type type;
+        int node;
+        Vector2 from;
+        Vector2 to;
+    };
+    Vector<DragOp> drag_buffer;
+    bool drag_dirty = false;
+    bool updating;
+    int to_node;
+    int to_slot;
+    int from_node;
+    int from_slot;
+
+    Vector2 selection_center;
+    int copy_type; // shader type
+    Vector<int> copy_nodes_buffer;
+    HashSet<int> copy_nodes_excluded_buffer;
+    Vector<Ref<VisualShaderNodePlugin> > plugins;
 
     void _draw_color_over_button(Object *obj, Color p_color);
 
@@ -162,10 +183,12 @@ class VisualShaderEditor : public VBoxContainer {
     void _update_preview();
     StringName _get_description(int p_idx);
 
+
+
     static VisualShaderEditor *singleton;
 
     void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, int p_node);
-    bool updating;
+    void _nodes_dragged();
 
     void _connection_request(const StringName &p_from, int p_from_index, const StringName &p_to, int p_to_index);
     void _disconnection_request(const StringName &p_from, int p_from_index, const StringName &p_to, int p_to_index);
@@ -183,10 +206,6 @@ class VisualShaderEditor : public VBoxContainer {
     void _edit_port_default_input(Object *p_button, int p_node, int p_port);
     void _port_edited();
 
-    int to_node;
-    int to_slot;
-    int from_node;
-    int from_slot;
 
     void _connection_to_empty(const StringName &p_from, int p_from_slot, const Vector2 &p_release_position);
     void _connection_from_empty(const StringName &p_to, int p_to_slot, const Vector2 &p_release_position);
@@ -202,22 +221,19 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _duplicate_nodes();
 
-    Vector2 selection_center;
-    int copy_type; // shader type
-    Vector<int> copy_nodes_buffer;
-    HashSet<int> copy_nodes_excluded_buffer;
-
     void _clear_buffer();
     void _copy_nodes();
     void _paste_nodes();
 
-    Vector<Ref<VisualShaderNodePlugin> > plugins;
 
     void _mode_selected(int p_id);
     void _rebuild();
 
     void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
-
+public:
+    // made public for call_deferred lambda
+    void _uniform_select_item(Ref<VisualShaderNodeUniformRef> p_uniform_ref, const StringName & p_name);
+private:
     void _add_input_port(int p_node, int p_port, int p_port_type, StringView p_name);
     void _remove_input_port(int p_node, int p_port);
     void _change_input_port_type(int p_type, int p_node, int p_port);
@@ -255,8 +271,12 @@ protected:
     static void _bind_methods();
 
     void add_functions();
-    
+
     void add_vector_ops();
+
+    void add_color_op_nodes();
+    
+    void add_spatial_input_ops();
     
 public:
     void update_custom_nodes();
@@ -307,7 +327,7 @@ class EditorPropertyShaderMode : public EditorProperty {
     void _option_selected(int p_which);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     void setup(const Vector<StringView> &p_options);
@@ -335,7 +355,7 @@ class VisualShaderNodePortPreview : public Control {
     void _shader_changed(); //must regen
 protected:
     void _notification(int p_what);
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     Size2 get_minimum_size() const override;

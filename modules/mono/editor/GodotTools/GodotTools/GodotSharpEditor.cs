@@ -419,7 +419,7 @@ namespace GodotTools
 
             menuPopup = new PopupMenu();
             menuPopup.Hide();
-            menuPopup.SetAsToplevel(true);
+            menuPopup.Visibility.Toplevel = true;
 
             AddToolSubmenuItem("Mono", menuPopup);
 
@@ -442,7 +442,7 @@ namespace GodotTools
                 aboutVBox.AddChild(aboutHBox);
 
                 var aboutIcon = new TextureRect();
-                aboutIcon.Texture = aboutIcon.GetIcon("NodeWarning", "EditorIcons");
+                aboutIcon.Texture = aboutIcon.GetThemeIcon("NodeWarning", "EditorIcons");
                 aboutHBox.AddChild(aboutIcon);
 
                 var aboutLabel = new Label();

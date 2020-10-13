@@ -59,26 +59,26 @@ void FileDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
 
         if (p_what == NOTIFICATION_ENTER_TREE) {
-            dir_up->set_button_icon(get_icon("parent_folder"));
-            refresh->set_button_icon(get_icon("reload"));
-            show_hidden->set_button_icon(get_icon("toggle_hidden"));
+            dir_up->set_button_icon(get_theme_icon("parent_folder"));
+            refresh->set_button_icon(get_theme_icon("reload"));
+            show_hidden->set_button_icon(get_theme_icon("toggle_hidden"));
         }
 
-        Color font_color = get_color("font_color", "ToolButton");
-        Color font_color_hover = get_color("font_color_hover", "ToolButton");
-        Color font_color_pressed = get_color("font_color_pressed", "ToolButton");
+        Color font_color = get_theme_color("font_color", "ToolButton");
+        Color font_color_hover = get_theme_color("font_color_hover", "ToolButton");
+        Color font_color_pressed = get_theme_color("font_color_pressed", "ToolButton");
 
-        dir_up->add_color_override("icon_color_normal", font_color);
-        dir_up->add_color_override("icon_color_hover", font_color_hover);
-        dir_up->add_color_override("icon_color_pressed", font_color_pressed);
+        dir_up->add_theme_color_override("icon_color_normal", font_color);
+        dir_up->add_theme_color_override("icon_color_hover", font_color_hover);
+        dir_up->add_theme_color_override("icon_color_pressed", font_color_pressed);
 
-        refresh->add_color_override("icon_color_normal", font_color);
-        refresh->add_color_override("icon_color_hover", font_color_hover);
-        refresh->add_color_override("icon_color_pressed", font_color_pressed);
+        refresh->add_theme_color_override("icon_color_normal", font_color);
+        refresh->add_theme_color_override("icon_color_hover", font_color_hover);
+        refresh->add_theme_color_override("icon_color_pressed", font_color_pressed);
 
-        show_hidden->add_color_override("icon_color_normal", font_color);
-        show_hidden->add_color_override("icon_color_hover", font_color_hover);
-        show_hidden->add_color_override("icon_color_pressed", font_color_pressed);
+        show_hidden->add_theme_color_override("icon_color_normal", font_color);
+        show_hidden->add_theme_color_override("icon_color_hover", font_color_hover);
+        show_hidden->add_theme_color_override("icon_color_pressed", font_color_pressed);
 
     } else if (p_what == NOTIFICATION_POPUP_HIDE) {
 
@@ -401,8 +401,11 @@ void FileDialog::_tree_item_activated() {
         dir_access->change_dir(d["name"].as<String>());
         if (mode == MODE_OPEN_FILE || mode == MODE_OPEN_FILES || mode == MODE_OPEN_DIR || mode == MODE_OPEN_ANY)
             file->set_text("");
-        call_deferred("_update_file_list");
-        call_deferred("_update_dir");
+        call_deferred([this]() {
+            update_file_list();
+            update_dir();
+        }
+        );
     } else {
 
         _action_pressed();
@@ -430,10 +433,10 @@ void FileDialog::update_file_list() {
     dir_access->list_dir_begin();
 
     TreeItem *root = tree->create_item();
-    Ref<Texture> folder = get_icon("folder");
-	Ref<Texture> file_icon = get_icon("file");
-    const Color folder_color = get_color("folder_icon_modulate");
-	const Color file_color = get_color("file_icon_modulate");
+    Ref<Texture> folder = get_theme_icon("folder");
+    Ref<Texture> file_icon = get_theme_icon("file");
+    const Color folder_color = get_theme_color("folder_icon_modulate");
+    const Color file_color = get_theme_color("file_icon_modulate");
 
     Vector<String> files;
     Vector<String> dirs;
@@ -525,13 +528,13 @@ void FileDialog::update_file_list() {
 
                 Ref<Texture> icon = get_icon_func(PathUtils::plus_file(base_dir,filename));
                 ti->set_icon(0, icon);
-			} else {
-				ti->set_icon(0, file_icon);
+            } else {
+                ti->set_icon(0, file_icon);
             }
-			ti->set_icon_modulate(0, file_color);
+            ti->set_icon_modulate(0, file_color);
 
             if (mode == MODE_OPEN_DIR) {
-                ti->set_custom_color(0, get_color("files_disabled"));
+                ti->set_custom_color(0, get_theme_color("files_disabled"));
                 ti->set_selectable(0, false);
             }
             Dictionary d;
@@ -816,8 +819,6 @@ void FileDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_unhandled_input"), &FileDialog::_unhandled_input);
 
-    MethodBinder::bind_method(D_METHOD("_cancel_pressed"), &FileDialog::_cancel_pressed);
-
     MethodBinder::bind_method(D_METHOD("clear_filters"), &FileDialog::clear_filters);
     MethodBinder::bind_method(D_METHOD("add_filter", {"filter"}), &FileDialog::add_filter);
     MethodBinder::bind_method(D_METHOD("set_filters", {"filters"}), &FileDialog::set_filters);
@@ -838,13 +839,6 @@ void FileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_access"), &FileDialog::get_access);
     MethodBinder::bind_method(D_METHOD("set_show_hidden_files", {"show"}), &FileDialog::set_show_hidden_files);
     MethodBinder::bind_method(D_METHOD("is_showing_hidden_files"), &FileDialog::is_showing_hidden_files);
-    MethodBinder::bind_method(D_METHOD("_select_drive"), &FileDialog::_select_drive);
-    MethodBinder::bind_method(D_METHOD("_make_dir"), &FileDialog::_make_dir);
-    MethodBinder::bind_method(D_METHOD("_make_dir_confirm"), &FileDialog::_make_dir_confirm);
-    MethodBinder::bind_method(D_METHOD("_update_file_name"), &FileDialog::update_file_name);
-    MethodBinder::bind_method(D_METHOD("_update_file_list"), &FileDialog::update_file_list);
-    MethodBinder::bind_method(D_METHOD("_update_dir"), &FileDialog::update_dir);
-    MethodBinder::bind_method(D_METHOD("_go_up"), &FileDialog::_go_up);
     MethodBinder::bind_method(D_METHOD("deselect_items"), &FileDialog::deselect_items);
 
     MethodBinder::bind_method(D_METHOD("invalidate"), &FileDialog::invalidate);
@@ -970,7 +964,7 @@ FileDialog::FileDialog() {
     filter->connect("item_selected",callable_mp(this, &ClassName::_filter_selected));
 
     confirm_save = memnew(ConfirmationDialog);
-    confirm_save->set_as_toplevel(true);
+    confirm_save->set_as_top_level(true);
     add_child(confirm_save);
 
     confirm_save->connect("confirmed",callable_mp(this, &ClassName::_save_confirm_pressed));
@@ -1013,8 +1007,6 @@ FileDialog::~FileDialog() {
 
 void LineEditFileChooser::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_browse"), &LineEditFileChooser::_browse);
-    MethodBinder::bind_method(D_METHOD("_chosen"), &LineEditFileChooser::_chosen);
     MethodBinder::bind_method(D_METHOD("get_button"), &LineEditFileChooser::get_button);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &LineEditFileChooser::get_line_edit);
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &LineEditFileChooser::get_file_dialog);

@@ -50,9 +50,9 @@ const char *EditorFeatureProfile::feature_names[FEATURE_MAX] = {
     TTRC("Script Editor"),
     TTRC("Asset Library"),
     TTRC("Scene Tree Editing"),
-    TTRC("Import Dock"),
     TTRC("Node Dock"),
-    TTRC("FileSystem and Import Docks")
+    TTRC("FileSystem Dock"),
+    TTRC("Import Dock"),
 };
 
 const char *EditorFeatureProfile::feature_identifiers[FEATURE_MAX] = {
@@ -60,9 +60,9 @@ const char *EditorFeatureProfile::feature_identifiers[FEATURE_MAX] = {
     "script",
     "asset_lib",
     "scene_tree",
-    "import_dock",
     "node_dock",
-    "filesystem_dock"
+    "filesystem_dock",
+    "import_dock",
 };
 
 void EditorFeatureProfile::set_disable_class(const StringName &p_class, bool p_disabled) {
@@ -288,9 +288,9 @@ void EditorFeatureProfile::_bind_methods() {
     BIND_ENUM_CONSTANT(FEATURE_SCRIPT)
     BIND_ENUM_CONSTANT(FEATURE_ASSET_LIB)
     BIND_ENUM_CONSTANT(FEATURE_SCENE_TREE)
-    BIND_ENUM_CONSTANT(FEATURE_IMPORT_DOCK)
     BIND_ENUM_CONSTANT(FEATURE_NODE_DOCK)
     BIND_ENUM_CONSTANT(FEATURE_FILESYSTEM_DOCK)
+    BIND_ENUM_CONSTANT(FEATURE_IMPORT_DOCK)
     BIND_ENUM_CONSTANT(FEATURE_MAX)
 }
 
@@ -495,7 +495,7 @@ void EditorFeatureProfileManager::_fill_classes_from(TreeItem *p_parent, const S
     bool disabled_editor = edited->is_class_editor_disabled(p_class);
     bool disabled_properties = edited->has_class_properties_disabled(p_class);
     if (disabled) {
-        class_item->set_custom_color(0, get_color("disabled_font_color", "Editor"));
+        class_item->set_custom_color(0, get_theme_color("disabled_font_color", "Editor"));
     } else if (disabled_editor && disabled_properties) {
         text = text + " " + TTR("(Editor Disabled, Properties Disabled)");
     } else if (disabled_properties) {
@@ -697,10 +697,18 @@ void EditorFeatureProfileManager::_update_selected_profile() {
     TreeItem *root = class_list->create_item();
 
     TreeItem *features = class_list->create_item(root);
+    TreeItem *last_feature;
+
     features->set_text(0, TTR("Enabled Features:"));
     for (int i = 0; i < EditorFeatureProfile::FEATURE_MAX; i++) {
+        TreeItem *feature;
+        if (i == EditorFeatureProfile::FEATURE_IMPORT_DOCK) {
+            feature = class_list->create_item(last_feature);
+        } else {
+            feature = class_list->create_item(features);
+            last_feature = feature;
+        }
 
-        TreeItem *feature = class_list->create_item(features);
         feature->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
         feature->set_text(0, TTRGET(EditorFeatureProfile::get_feature_name(EditorFeatureProfile::Feature(i))));
         feature->set_selectable(0, true);
@@ -799,19 +807,6 @@ Ref<EditorFeatureProfile> EditorFeatureProfileManager::get_current_profile() {
 EditorFeatureProfileManager *EditorFeatureProfileManager::singleton = nullptr;
 
 void EditorFeatureProfileManager::_bind_methods() {
-
-    MethodBinder::bind_method("_update_selected_profile", &EditorFeatureProfileManager::_update_selected_profile);
-    MethodBinder::bind_method("_profile_action", &EditorFeatureProfileManager::_profile_action);
-    MethodBinder::bind_method("_create_new_profile", &EditorFeatureProfileManager::_create_new_profile);
-    MethodBinder::bind_method("_profile_selected", &EditorFeatureProfileManager::_profile_selected);
-    MethodBinder::bind_method("_erase_selected_profile", &EditorFeatureProfileManager::_erase_selected_profile);
-    MethodBinder::bind_method("_import_profiles", &EditorFeatureProfileManager::_import_profiles);
-    MethodBinder::bind_method("_export_profile", &EditorFeatureProfileManager::_export_profile);
-    MethodBinder::bind_method("_class_list_item_selected", &EditorFeatureProfileManager::_class_list_item_selected);
-    MethodBinder::bind_method("_class_list_item_edited", &EditorFeatureProfileManager::_class_list_item_edited);
-    MethodBinder::bind_method("_property_item_edited", &EditorFeatureProfileManager::_property_item_edited);
-    MethodBinder::bind_method("_emit_current_profile_changed", &EditorFeatureProfileManager::_emit_current_profile_changed);
-
     ADD_SIGNAL(MethodInfo("current_feature_profile_changed"));
 }
 

@@ -113,7 +113,7 @@ public:
     void set_normal_map(const Ref<Texture> &p_normal_map);
     Ref<Texture> get_normal_map() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     void restart();
     Rect2 capture_rect() const;

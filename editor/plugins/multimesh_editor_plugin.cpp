@@ -37,7 +37,7 @@
 #include "editor/scene_tree_editor.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/gui/box_container.h"
-#include "spatial_editor_plugin.h"
+#include "node_3d_editor_plugin.h"
 
 IMPL_GDCLASS(MultiMeshEditor)
 IMPL_GDCLASS(MultiMeshEditorPlugin)
@@ -282,22 +282,14 @@ void MultiMeshEditor::_browse(bool p_source) {
         std->set_title(TTR("Select a Target Surface:"));
 }
 
-void MultiMeshEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_option", &MultiMeshEditor::_menu_option);
-    MethodBinder::bind_method("_populate", &MultiMeshEditor::_populate);
-    MethodBinder::bind_method("_browsed", &MultiMeshEditor::_browsed);
-    MethodBinder::bind_method("_browse", &MultiMeshEditor::_browse);
-}
-
 MultiMeshEditor::MultiMeshEditor() {
 
     options = memnew(MenuButton);
     options->set_switch_on_hover(true);
-    SpatialEditor::get_singleton()->add_control_to_menu_panel(options);
+    Node3DEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text("MultiMesh");
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("MultiMeshInstance3D", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("MultiMeshInstance3D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Populate Surface"));
     options->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_menu_option));

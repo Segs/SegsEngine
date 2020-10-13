@@ -348,20 +348,23 @@ void VisibilityEnabler2D::_node_removed(Node *p_node) {
     nodes.erase(p_node);
 }
 
-StringName VisibilityEnabler2D::get_configuration_warning() const {
+String VisibilityEnabler2D::get_configuration_warning() const {
+    String warning = BaseClassName::get_configuration_warning();
+
 #ifdef TOOLS_ENABLED
     if (is_inside_tree() && get_parent() && (get_parent()->get_filename().empty() && get_parent() != get_tree()->get_edited_scene_root())) {
-        return TTR("VisibilityEnabler2D works best when used with the edited scene root directly as parent.");
+        if(!warning.empty())
+            warning.append("\n\n");
+        return warning+TTRS("VisibilityEnabler2D works best when used with the edited scene root directly as parent.");
     }
 #endif
-    return StringName();
+    return warning;
 }
 
 void VisibilityEnabler2D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_enabler", {"enabler", "enabled"}), &VisibilityEnabler2D::set_enabler);
     MethodBinder::bind_method(D_METHOD("is_enabler_enabled", {"enabler"}), &VisibilityEnabler2D::is_enabler_enabled);
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &VisibilityEnabler2D::_node_removed);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

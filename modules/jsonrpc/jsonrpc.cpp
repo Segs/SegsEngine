@@ -103,6 +103,9 @@ Variant JSONRPC::process_action(const Variant &p_action, bool p_process_arr_elem
     if (p_action.get_type() == VariantType::DICTIONARY) {
         Dictionary dict = p_action.as<Dictionary>();
         String method = dict.get("method", "").as<String>();
+        if (method.starts_with("$/")) {
+            return ret;
+        }
         Array args;
         if (dict.has("params")) {
             Variant params = dict.get("params", Variant());

@@ -296,7 +296,7 @@ void SoftBody3D::_notification(int p_what) {
 
             set_notify_transform(false);
             // Required to be top level with Transform at center of world in order to modify RenderingServer only to support custom Transform
-            set_as_toplevel(true);
+            set_as_top_level(true);
             set_transform(Transform());
             set_notify_transform(true);
 
@@ -395,7 +395,7 @@ void SoftBody3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "ray_pickable"), "set_ray_pickable", "is_ray_pickable");
 }
 
-StringName SoftBody3D::get_configuration_warning() const {
+String SoftBody3D::get_configuration_warning() const {
 
     String warning(MeshInstance3D::get_configuration_warning());
 
@@ -415,7 +415,7 @@ StringName SoftBody3D::get_configuration_warning() const {
                        "in children collision shapes instead.");
     }
 
-    return StringName(warning);
+    return warning;
 }
 
 void SoftBody3D::_draw_soft_mesh() {
@@ -429,7 +429,7 @@ void SoftBody3D::_draw_soft_mesh() {
         /// Necessary in order to render the mesh correctly (Soft body nodes are in global space)
         simulation_started = true;
         call_deferred([this]() {
-            set_as_toplevel(true);
+            set_as_top_level(true);
             set_transform(Transform());
         });
     }

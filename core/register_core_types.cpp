@@ -37,7 +37,7 @@
 #include "core/crypto/crypto.h"
 #include "core/crypto/hashing_context.h"
 #include "core/engine.h"
-#include "core/func_ref.h"
+//#include "core/func_ref.h"
 #include "core/image.h"
 #include "core/input/input_map.h"
 #include "core/io/config_file.h"
@@ -167,7 +167,7 @@ void register_core_types() {
     ClassDB::register_class<InputEventPanGesture>();
     ClassDB::register_class<InputEventMIDI>();
 
-    ClassDB::register_class<FuncRef>();
+    //ClassDB::register_class<FuncRef>();
     ClassDB::register_virtual_class<StreamPeer>();
     ClassDB::register_class<StreamPeerBuffer>();
     ClassDB::register_class<StreamPeerTCP>();

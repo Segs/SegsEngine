@@ -265,21 +265,30 @@ void PathFollow3D::_validate_property(PropertyInfo &property) const {
     }
 }
 
-StringName PathFollow3D::get_configuration_warning() const {
+String PathFollow3D::get_configuration_warning() const {
 
-    if (!is_visible_in_tree() || !is_inside_tree())
-        return StringName();
+    if (!is_visible_in_tree() || !is_inside_tree()) {
+        return String();
+    }
 
-    if (!object_cast<Path3D>(get_parent())) {
-        return TTR("PathFollow3D only works when set as a child of a Path3D node.");
+    String warning = BaseClassName::get_configuration_warning();
+    Path3D *path = object_cast<Path3D>(get_parent());
+    if (!path) {
+        if (warning != String()) {
+            warning += "\n\n";
+        }
+        warning += TTR("PathFollow only works when set as a child of a Path node.");
     } else {
-        Path3D *path = object_cast<Path3D>(get_parent());
         if (path->get_curve() && !path->get_curve()->is_up_vector_enabled() && rotation_mode == ROTATION_ORIENTED) {
-            return TTR("PathFollow3D's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path3D's Curve resource.");
+            if (warning != String()) {
+                warning += "\n\n";
+            }
+            warning += TTR("PathFollow's ROTATION_ORIENTED requires \"Up Vector\" to be enabled in its parent Path's "
+                           "Curve resource.");
         }
     }
 
-    return StringName();
+    return warning;
 }
 
 void PathFollow3D::_bind_methods() {

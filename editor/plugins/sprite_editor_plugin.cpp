@@ -501,7 +501,6 @@ void SpriteEditor::_debug_uv_draw() {
 
 void SpriteEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_menu_option", &SpriteEditor::_menu_option);
     MethodBinder::bind_method("_debug_uv_draw", &SpriteEditor::_debug_uv_draw);
     MethodBinder::bind_method("_update_mesh_data", &SpriteEditor::_update_mesh_data);
     MethodBinder::bind_method("_create_node", &SpriteEditor::_create_node);
@@ -515,7 +514,7 @@ SpriteEditor::SpriteEditor() {
     CanvasItemEditor::get_singleton()->add_control_to_menu_panel(options);
 
     options->set_text(TTR("Sprite2D"));
-    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_icon("Sprite2D", "EditorIcons"));
+    options->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Sprite2D", "EditorIcons"));
 
     options->get_popup()->add_item(TTR("Convert to Mesh2D"), MENU_OPTION_CONVERT_TO_MESH_2D);
     options->get_popup()->add_item(TTR("Convert to Polygon2D"), MENU_OPTION_CONVERT_TO_POLYGON_2D);

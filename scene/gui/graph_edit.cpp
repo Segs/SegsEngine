@@ -131,7 +131,7 @@ Vector2 GraphEdit::get_scroll_ofs() const {
 void GraphEdit::_scroll_moved(double) {
 
     if (!awaiting_scroll_offset_update) {
-        call_deferred("_update_scroll_offset");
+        call_deferred([this]() {_update_scroll_offset();});
         awaiting_scroll_offset_update = true;
     }
     top_layer->update();
@@ -217,7 +217,7 @@ void GraphEdit::_update_scroll() {
     set_block_minimum_size_adjust(false);
 
     if (!awaiting_scroll_offset_update) {
-        call_deferred("_update_scroll_offset");
+        call_deferred([this]() {_update_scroll_offset();});
         awaiting_scroll_offset_update = true;
     }
 
@@ -291,13 +291,13 @@ void GraphEdit::remove_child_notify(Node *p_child) {
 void GraphEdit::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
-        port_grab_distance_horizontal = get_constant("port_grab_distance_horizontal");
-        port_grab_distance_vertical = get_constant("port_grab_distance_vertical");
+        port_grab_distance_horizontal = get_theme_constant("port_grab_distance_horizontal");
+        port_grab_distance_vertical = get_theme_constant("port_grab_distance_vertical");
 
-        zoom_minus->set_button_icon(get_icon("minus"));
-        zoom_reset->set_button_icon(get_icon("reset"));
-        zoom_plus->set_button_icon(get_icon("more"));
-        snap_button->set_button_icon(get_icon("snap"));
+        zoom_minus->set_button_icon(get_theme_icon("minus"));
+        zoom_reset->set_button_icon(get_theme_icon("reset"));
+        zoom_plus->set_button_icon(get_theme_icon("more"));
+        snap_button->set_button_icon(get_theme_icon("snap"));
     }
     if (p_what == NOTIFICATION_READY) {
         Size2 hmin = h_scroll->get_combined_minimum_size();
@@ -316,7 +316,7 @@ void GraphEdit::_notification(int p_what) {
     }
     if (p_what == NOTIFICATION_DRAW) {
 
-        draw_style_box(get_stylebox("bg"), Rect2(Point2(), get_size()));
+        draw_style_box(get_theme_stylebox("bg"), Rect2(Point2(), get_size()));
 
         if (is_using_snap()) {
             //draw grid
@@ -329,8 +329,8 @@ void GraphEdit::_notification(int p_what) {
             Point2i from = (offset / float(snap)).floor();
             Point2i len = (size / float(snap)).floor() + Vector2(1, 1);
 
-            Color grid_minor = get_color("grid_minor");
-            Color grid_major = get_color("grid_major");
+            Color grid_minor = get_theme_color("grid_minor");
+            Color grid_major = get_theme_color("grid_major");
 
             for (int i = from.x; i < from.x + len.x; i++) {
 
@@ -368,7 +368,7 @@ void GraphEdit::_notification(int p_what) {
 
 bool GraphEdit::_filter_input(const Point2 &p_point) {
 
-    Ref<Texture> port = get_icon("port", "GraphNode");
+    Ref<Texture> port = get_theme_icon("port", "GraphNode");
 
     for (int i = get_child_count() - 1; i >= 0; i--) {
 
@@ -400,7 +400,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
     Ref<InputEventMouseButton> mb = dynamic_ref_cast<InputEventMouseButton>(p_ev);
     if (mb && mb->get_button_index() == BUTTON_LEFT && mb->is_pressed()) {
 
-        Ref<Texture> port = get_icon("port", "GraphNode");
+        Ref<Texture> port = get_theme_icon("port", "GraphNode");
         Vector2 mpos(mb->get_position().x, mb->get_position().y);
         for (int i = get_child_count() - 1; i >= 0; i--) {
 
@@ -512,7 +512,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
         connecting_target = false;
         top_layer->update();
 
-        Ref<Texture> port = get_icon("port", "GraphNode");
+        Ref<Texture> port = get_theme_icon("port", "GraphNode");
         Vector2 mpos = mm->get_position();
         for (int i = get_child_count() - 1; i >= 0; i--) {
 
@@ -589,7 +589,7 @@ void GraphEdit::_top_layer_input(const Ref<InputEvent> &p_ev) {
 
 bool GraphEdit::_check_clickable_control(Control *p_control, const Vector2 &pos) {
 
-    if (p_control->is_set_as_toplevel() || !p_control->is_visible())
+    if (p_control->is_set_as_top_level() || !p_control->is_visible())
         return false;
 
     if (!p_control->has_point(pos) || p_control->get_mouse_filter() == MOUSE_FILTER_IGNORE) {
@@ -677,8 +677,8 @@ void GraphEdit::_draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const
     //cubic bezier code
     float diff = p_to.x - p_from.x;
     float cp_offset;
-    int cp_len = get_constant("bezier_len_pos");
-    int cp_neg_len = get_constant("bezier_len_neg");
+    int cp_len = get_theme_constant("bezier_len_pos");
+    int cp_neg_len = get_theme_constant("bezier_len_neg");
 
     if (diff > 0) {
         cp_offset = MIN(cp_len, diff * 0.5);
@@ -708,7 +708,7 @@ void GraphEdit::_draw_cos_line(CanvasItem *p_where, const Vector2 &p_from, const
 
 void GraphEdit::_connections_layer_draw() {
 
-    Color activity_color = get_color("activity");
+    Color activity_color = get_theme_color("activity");
     //draw connections
 
     for (auto E = connections.begin(); E!= connections.end(); ) {
@@ -791,8 +791,8 @@ void GraphEdit::_top_layer_draw() {
     }
 
     if (box_selecting) {
-        top_layer->draw_rect(box_selecting_rect, get_color("selection_fill"));
-        top_layer->draw_rect(box_selecting_rect, get_color("selection_stroke"), false);
+        top_layer->draw_rect(box_selecting_rect, get_theme_color("selection_fill"));
+        top_layer->draw_rect(box_selecting_rect, get_theme_color("selection_stroke"), false);
     }
 }
 
@@ -1329,21 +1329,7 @@ void GraphEdit::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_right_disconnects", {"enable"}), &GraphEdit::set_right_disconnects);
     MethodBinder::bind_method(D_METHOD("is_right_disconnects_enabled"), &GraphEdit::is_right_disconnects_enabled);
 
-    MethodBinder::bind_method(D_METHOD("_graph_node_moved"), &GraphEdit::_graph_node_moved);
-    MethodBinder::bind_method(D_METHOD("_graph_node_raised"), &GraphEdit::_graph_node_raised);
-
-    MethodBinder::bind_method(D_METHOD("_top_layer_input"), &GraphEdit::_top_layer_input);
-    MethodBinder::bind_method(D_METHOD("_top_layer_draw"), &GraphEdit::_top_layer_draw);
-    MethodBinder::bind_method(D_METHOD("_scroll_moved"), &GraphEdit::_scroll_moved);
-    MethodBinder::bind_method(D_METHOD("_zoom_minus"), &GraphEdit::_zoom_minus);
-    MethodBinder::bind_method(D_METHOD("_zoom_reset"), &GraphEdit::_zoom_reset);
-    MethodBinder::bind_method(D_METHOD("_zoom_plus"), &GraphEdit::_zoom_plus);
-    MethodBinder::bind_method(D_METHOD("_snap_toggled"), &GraphEdit::_snap_toggled);
-    MethodBinder::bind_method(D_METHOD("_snap_value_changed"), &GraphEdit::_snap_value_changed);
-
     MethodBinder::bind_method(D_METHOD("_gui_input"), &GraphEdit::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_update_scroll_offset"), &GraphEdit::_update_scroll_offset);
-    MethodBinder::bind_method(D_METHOD("_connections_layer_draw"), &GraphEdit::_connections_layer_draw);
 
     MethodBinder::bind_method(D_METHOD("get_zoom_hbox"), &GraphEdit::get_zoom_hbox);
 

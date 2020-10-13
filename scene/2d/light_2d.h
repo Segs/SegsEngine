@@ -160,7 +160,7 @@ public:
     void set_shadow_smooth(float p_amount);
     float get_shadow_smooth() const;
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     Light2D();
     ~Light2D() override;

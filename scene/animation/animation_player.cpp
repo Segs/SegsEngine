@@ -1612,7 +1612,6 @@ void AnimationPlayer::restore_animated_values(const AnimatedValuesBackup &p_back
 
 void AnimationPlayer::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &AnimationPlayer::_node_removed);
     MethodBinder::bind_method(D_METHOD("_animation_changed"), &AnimationPlayer::_animation_changed);
 
     MethodBinder::bind_method(D_METHOD("add_animation", {"name", "animation"}), &AnimationPlayer::add_animation);

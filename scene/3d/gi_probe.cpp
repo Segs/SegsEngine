@@ -498,8 +498,8 @@ Vector<Face3> GIProbe::get_faces(uint32_t p_usage_flags) const {
     return Vector<Face3>();
 }
 
-StringName GIProbe::get_configuration_warning() const {
-    return StringName();
+String GIProbe::get_configuration_warning() const {
+    return BaseClassName::get_configuration_warning();
 }
 
 void GIProbe::_bind_methods() {

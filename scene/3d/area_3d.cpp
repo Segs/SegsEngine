@@ -202,24 +202,21 @@ void Area3D::_body_inout(int p_status, const RID &p_body, ObjectID p_instance, i
             E->second.shapes.erase(ShapePair(p_body_shape, p_area_shape));
 
         bool eraseit = false;
-
+        bool in_tree = E->second.in_tree;
         if (E->second.rc == 0) {
-
+            body_map.erase(E);
             if (node) {
                 node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_body_enter_tree));
                 node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_body_exit_tree));
-                if (E->second.in_tree)
+
+                if (in_tree)
                     emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(obj));
             }
-
-            eraseit = true;
         }
-        if (node && E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_area_shape);
+        if (node && in_tree) {
+            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(obj), Variant(p_body_shape),
+                    Variant(p_area_shape));
         }
-
-        if (eraseit)
-            body_map.erase(E);
     }
 
     locked = false;
@@ -394,26 +391,23 @@ void Area3D::_area_inout(int p_status, const RID &p_area, ObjectID p_instance, i
         if (node)
             E->second.shapes.erase(AreaShapePair(p_area_shape, p_self_shape));
 
-        bool eraseit = false;
+        bool in_tree = E->second.in_tree;
 
         if (E->second.rc == 0) {
-
+            area_map.erase(E);
             if (node) {
                 node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &Area3D::_area_enter_tree));
                 node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &Area3D::_area_exit_tree));
-                if (E->second.in_tree) {
+
+                if (in_tree)
                     emit_signal(SceneStringNames::get_singleton()->area_exited, Variant(obj));
-                }
             }
-
-            eraseit = true;
         }
-        if (!node || E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->area_shape_exited, Variant::from(objid), Variant(obj), p_area_shape, p_self_shape);
+        if (!node || in_tree) {
+            emit_signal(SceneStringNames::get_singleton()->area_shape_exited, Variant::from(objid), Variant(obj), Variant(p_area_shape),
+                    Variant(p_area_shape));
         }
 
-        if (eraseit)
-            area_map.erase(E);
     }
 
     locked = false;

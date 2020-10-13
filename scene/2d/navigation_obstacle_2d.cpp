@@ -111,12 +111,12 @@ Node *NavigationObstacle2D::get_navigation_node() const {
     return object_cast<Node>(navigation);
 }
 
-StringName NavigationObstacle2D::get_configuration_warning() const {
+String NavigationObstacle2D::get_configuration_warning() const {
     if (!object_cast<Node2D>(get_parent())) {
-        return TTR("The NavigationObstacle2D only serves to provide collision avoidance to a Node2D object.");
+        return TTRS("The NavigationObstacle2D only serves to provide collision avoidance to a Node2D object.");
     }
 
-    return StringName();
+    return String();
 }
 
 void NavigationObstacle2D::update_agent_shape() {

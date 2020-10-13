@@ -170,6 +170,8 @@ class GODOT_EXPORT VisualShaderNode : public Resource {
     GDCLASS(VisualShaderNode,Resource)
 
     Map<int, Variant> default_input_values;
+    Map<int, bool> connected_input_ports;
+    Map<int, int> connected_output_ports;
     int port_preview;
 
 protected:
@@ -210,6 +212,14 @@ public:
     int get_output_port_for_preview() const;
 
     virtual bool is_port_separator(int p_index) const;
+
+    bool is_output_port_connected(int p_port) const;
+    void set_output_port_connected(int p_port, bool p_connected);
+    bool is_input_port_connected(int p_port) const;
+    void set_input_port_connected(int p_port, bool p_connected);
+    virtual bool is_generate_input_var(int p_port) const;
+
+    virtual bool is_code_generated() const;
 
     virtual Vector<StringName> get_editable_properties() const;
 
@@ -357,16 +367,77 @@ class GODOT_EXPORT VisualShaderNodeUniform : public VisualShaderNode {
     GDCLASS(VisualShaderNodeUniform,VisualShaderNode)
 private:
     StringName uniform_name;
+    bool global_code_generated = false;
 
 protected:
     static void _bind_methods();
 
 public:
+    void set_global_code_generated(bool p_enabled);
+    bool is_global_code_generated() const;
+
     void set_uniform_name(const StringName &p_name);
     StringName get_uniform_name() const;
 
     VisualShaderNodeUniform();
 };
+
+class VisualShaderNodeUniformRef : public VisualShaderNode {
+    GDCLASS(VisualShaderNodeUniformRef, VisualShaderNode);
+
+public:
+    enum UniformType {
+        UNIFORM_TYPE_SCALAR,
+        UNIFORM_TYPE_BOOLEAN,
+        UNIFORM_TYPE_VECTOR,
+        UNIFORM_TYPE_TRANSFORM,
+        UNIFORM_TYPE_COLOR,
+        UNIFORM_TYPE_SAMPLER,
+    };
+
+    struct Uniform {
+        StringName name;
+        UniformType type;
+    };
+
+private:
+    StringName uniform_name;
+    UniformType uniform_type;
+
+protected:
+    static void _bind_methods();
+
+public:
+    static void add_uniform(const StringName &p_name, UniformType p_type);
+    static void clear_uniforms();
+
+public:
+    StringView get_caption() const override;
+
+    int get_input_port_count() const override;
+    PortType get_input_port_type(int p_port) const override;
+    StringName get_input_port_name(int p_port) const override;
+
+    int get_output_port_count() const override;
+    PortType get_output_port_type(int p_port) const override;
+    StringName get_output_port_name(int p_port) const override;
+
+    void set_uniform_name(const StringName &p_name);
+    StringName get_uniform_name() const;
+
+    int get_uniforms_count() const;
+    StringName get_uniform_name_by_index(int p_idx) const;
+    UniformType get_uniform_type_by_name(const StringName &p_name) const;
+    UniformType get_uniform_type_by_index(int p_idx) const;
+
+    Vector<StringName> get_editable_properties() const override;
+
+    String generate_code(RenderingServerEnums::ShaderMode p_mode, VisualShader::Type p_type, int p_id,
+            const String *p_input_vars, const String *p_output_vars, bool p_for_preview = false) const override;
+
+    VisualShaderNodeUniformRef();
+};
+
 
 class GODOT_EXPORT VisualShaderNodeGroupBase : public VisualShaderNode {
     GDCLASS(VisualShaderNodeGroupBase,VisualShaderNode)

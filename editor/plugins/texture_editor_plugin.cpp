@@ -55,7 +55,7 @@ void TextureEditor::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        Ref<Texture> checkerboard = get_icon("Checkerboard", "EditorIcons");
+        Ref<Texture> checkerboard = get_theme_icon("Checkerboard", "EditorIcons");
         Size2 size = get_size();
 
         draw_texture_rect(checkerboard, Rect2(Point2(), size), true);
@@ -88,7 +88,7 @@ void TextureEditor::_notification(int p_what) {
 
         draw_texture_rect(texture, Rect2(ofs_x, ofs_y, tex_width, tex_height));
 
-        Ref<Font> font = get_font("font", "Label");
+        Ref<Font> font = get_theme_font("font", "Label");
 
         String format;
         if (dynamic_ref_cast<ImageTexture>(texture)) {

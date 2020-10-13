@@ -216,30 +216,30 @@ void EditorSpinSlider::_notification(int p_what) {
         // when it's edited. The LineEdit "focus" stylebox uses the "normal" stylebox's
         // default margins.
         Ref<StyleBoxFlat> stylebox = { dynamic_ref_cast<StyleBoxFlat>(
-                EditorNode::get_singleton()->get_theme_base()->get_stylebox("normal", "LineEdit")->duplicate()) };
+                EditorNode::get_singleton()->get_theme_base()->get_theme_stylebox("normal", "LineEdit")->duplicate()) };
         // EditorSpinSliders with a label have more space on the left, so add an
         // higher margin to match the location where the text begins.
         // The margin values below were determined by empirical testing.
         stylebox->set_default_margin(Margin::Left, (!get_label().empty() ? 23 : 16) * EDSCALE);
-        value_input->add_style_override("normal", stylebox);
+        value_input->add_theme_style_override("normal", stylebox);
     }
 
     if (p_what == NOTIFICATION_DRAW) {
 
         updown_offset = -1;
 
-        Ref<StyleBox> sb = get_stylebox("normal", "LineEdit");
+        Ref<StyleBox> sb = get_theme_stylebox("normal", "LineEdit");
         if (!flat) {
             draw_style_box(sb, Rect2(Vector2(), get_size()));
         }
-        Ref<Font> font = get_font("font", "LineEdit");
+        Ref<Font> font = get_theme_font("font", "LineEdit");
         int sep_base = 4 * EDSCALE;
         int sep = sep_base + sb->get_offset().x; //make it have the same margin on both sides, looks better
 
         int string_width = font->get_string_size(label).width;
         int number_width = get_size().width - sb->get_minimum_size().width - string_width - sep;
 
-        Ref<Texture> updown = get_icon("updown", "SpinBox");
+        Ref<Texture> updown = get_theme_icon("updown", "SpinBox");
 
         if (get_step() == 1) {
             number_width -= updown->get_width();
@@ -249,7 +249,7 @@ void EditorSpinSlider::_notification(int p_what) {
 
         int vofs = (get_size().height - font->get_height()) / 2 + font->get_ascent();
 
-        Color fc = get_color("font_color", "LineEdit");
+        Color fc = get_theme_color("font_color", "LineEdit");
         Color lc;
         if (use_custom_label_color) {
             lc = custom_label_color;
@@ -258,12 +258,12 @@ void EditorSpinSlider::_notification(int p_what) {
         }
 
         if (flat && !label.empty()) {
-            Color label_bg_color = get_color("dark_color_3", "Editor");
+            Color label_bg_color = get_theme_color("dark_color_3", "Editor");
             draw_rect(Rect2(Vector2(), Vector2(sb->get_offset().x * 2 + string_width, get_size().height)), label_bg_color);
         }
 
         if (has_focus()) {
-            Ref<StyleBox> focus = get_stylebox("focus", "LineEdit");
+            Ref<StyleBox> focus = get_theme_stylebox("focus", "LineEdit");
             draw_style_box(focus, Rect2(Vector2(), get_size()));
         }
 
@@ -272,7 +272,7 @@ void EditorSpinSlider::_notification(int p_what) {
         draw_ui_string(font, Vector2(Math::round(sb->get_offset().x + string_width + sep), vofs), numstr, fc, number_width);
 
         if (get_step() == 1) {
-            Ref<Texture> updown2 = get_icon("updown", "SpinBox");
+            Ref<Texture> updown2 = get_theme_icon("updown", "SpinBox");
             int updown_vofs = (get_size().height - updown2->get_height()) / 2;
             updown_offset = get_size().width - sb->get_margin(Margin::Right) - updown2->get_width();
             Color c(1, 1, 1);
@@ -309,9 +309,9 @@ void EditorSpinSlider::_notification(int p_what) {
             if (display_grabber) {
                 Ref<Texture> grabber_tex;
                 if (mouse_over_grabber) {
-                    grabber_tex = get_icon("grabber_highlight", "HSlider");
+                    grabber_tex = get_theme_icon("grabber_highlight", "HSlider");
                 } else {
-                    grabber_tex = get_icon("grabber", "HSlider");
+                    grabber_tex = get_theme_icon("grabber", "HSlider");
                 }
 
                 if (grabber->get_texture() != grabber_tex) {
@@ -353,8 +353,8 @@ void EditorSpinSlider::_notification(int p_what) {
 
 Size2 EditorSpinSlider::get_minimum_size() const {
 
-    Ref<StyleBox> sb = get_stylebox("normal", "LineEdit");
-    Ref<Font> font = get_font("font", "LineEdit");
+    Ref<StyleBox> sb = get_theme_stylebox("normal", "LineEdit");
+    Ref<Font> font = get_theme_font("font", "LineEdit");
 
     Size2 ms = sb->get_minimum_size();
     ms.height += font->get_height();
@@ -380,7 +380,9 @@ const String &EditorSpinSlider::get_label() const {
 }
 
 void EditorSpinSlider::_evaluate_input_text() {
-    String text = value_input->get_text();
+    // Replace comma with dot to support it as decimal separator (GH-6028).
+    // We'd rather support German/French keyboard layouts out of the box.
+    String text = value_input->get_text().replaced(",", ".");
     bool was_ok= false;
     float val=StringUtils::to_float(text, &was_ok);
     if(!was_ok)
@@ -507,7 +509,7 @@ EditorSpinSlider::EditorSpinSlider() {
     grabber = memnew(TextureRect);
     add_child(grabber);
     grabber->hide();
-    grabber->set_as_toplevel(true);
+    grabber->set_as_top_level(true);
     grabber->set_mouse_filter(MOUSE_FILTER_STOP);
     grabber->connect("mouse_entered",callable_mp(this, &ClassName::_grabber_mouse_entered));
     grabber->connect("mouse_exited",callable_mp(this, &ClassName::_grabber_mouse_exited));
@@ -519,7 +521,7 @@ EditorSpinSlider::EditorSpinSlider() {
     grabber_range = 1;
     value_input = memnew(LineEdit);
     add_child(value_input);
-    value_input->set_as_toplevel(true);
+    value_input->set_as_top_level(true);
     value_input->hide();
     value_input->connect("modal_closed",callable_mp(this, &ClassName::_value_input_closed));
     value_input->connect("text_entered",callable_mp(this, &ClassName::_value_input_entered));

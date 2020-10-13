@@ -42,11 +42,11 @@ Size2 OptionButton::get_minimum_size() const {
     Size2 minsize = Button::get_minimum_size();
 
     if (has_icon("arrow")) {
-        const Size2 padding = get_stylebox("normal")->get_minimum_size();
-        const Size2 arrow_size = Control::get_icon("arrow")->get_size();
+        const Size2 padding = get_theme_stylebox("normal")->get_minimum_size();
+        const Size2 arrow_size = Control::get_theme_icon("arrow")->get_size();
 
         Size2 content_size = minsize - padding;
-        content_size.width += arrow_size.width + get_constant("hseparation");
+        content_size.width += arrow_size.width + get_theme_constant("hseparation");
         content_size.height = M_MAX(content_size.height, arrow_size.height);
 
         minsize = content_size + padding;
@@ -64,33 +64,33 @@ void OptionButton::_notification(int p_what) {
                 return;
 
             RID ci = get_canvas_item();
-            Ref<Texture> arrow = Control::get_icon("arrow");
+            Ref<Texture> arrow = Control::get_theme_icon("arrow");
             Color clr = Color(1, 1, 1);
-            if (get_constant("modulate_arrow")) {
+            if (get_theme_constant("modulate_arrow")) {
                 switch (get_draw_mode()) {
                     case DRAW_PRESSED:
-                        clr = get_color("font_color_pressed");
+                        clr = get_theme_color("font_color_pressed");
                         break;
                     case DRAW_HOVER:
-                        clr = get_color("font_color_hover");
+                        clr = get_theme_color("font_color_hover");
                         break;
                     case DRAW_DISABLED:
-                        clr = get_color("font_color_disabled");
+                        clr = get_theme_color("font_color_disabled");
                         break;
                     default:
-                        clr = get_color("font_color");
+                        clr = get_theme_color("font_color");
                 }
             }
 
             Size2 size = get_size();
 
-            Point2 ofs(size.width - arrow->get_width() - get_constant("arrow_margin"), int(Math::abs((size.height - arrow->get_height()) / 2)));
+            Point2 ofs(size.width - arrow->get_width() - get_theme_constant("arrow_margin"), int(Math::abs((size.height - arrow->get_height()) / 2)));
             arrow->draw(ci, ofs, clr);
         } break;
         case NOTIFICATION_THEME_CHANGED: {
 
             if (has_icon("arrow")) {
-                _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
+                _set_internal_margin(Margin::Right, Control::get_theme_icon("arrow")->get_width());
             }
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
@@ -359,7 +359,7 @@ OptionButton::OptionButton() {
     set_text_align(ALIGN_LEFT);
     set_action_mode(ACTION_MODE_BUTTON_PRESS);
     if (has_icon("arrow")) {
-        _set_internal_margin(Margin::Right, Control::get_icon("arrow")->get_width());
+        _set_internal_margin(Margin::Right, Control::get_theme_icon("arrow")->get_width());
     }
     popup = memnew(PopupMenu);
     popup->hide();

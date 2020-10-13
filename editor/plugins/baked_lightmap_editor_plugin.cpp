@@ -118,7 +118,7 @@ BakedLightmapEditorPlugin::BakedLightmapEditorPlugin(EditorNode *p_node) {
 
     editor = p_node;
     bake = memnew(ToolButton);
-    bake->set_button_icon(editor->get_gui_base()->get_icon("Bake", "EditorIcons"));
+    bake->set_button_icon(editor->get_gui_base()->get_theme_icon("Bake", "EditorIcons"));
     bake->set_text(TTR("Bake Lightmaps"));
     bake->hide();
     bake->connect("pressed",callable_mp(this, &ClassName::_bake));

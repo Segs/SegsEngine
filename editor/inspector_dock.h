@@ -45,7 +45,7 @@ class AcceptDialog;
 class InspectorDock : public VBoxContainer {
 
     GDCLASS(InspectorDock,VBoxContainer)
-
+    friend class SceneTreeDock;
     enum MenuOptions {
         RESOURCE_LOAD,
         RESOURCE_SAVE,
@@ -107,7 +107,9 @@ class InspectorDock : public VBoxContainer {
     void _menu_collapseall();
     void _menu_expandall();
     void _select_history(int p_idx);
+private:
     void _prepare_history();
+protected:
 
     void _property_keyed(StringView p_keyed, const Variant &p_value, bool p_advance);
 public: // slots

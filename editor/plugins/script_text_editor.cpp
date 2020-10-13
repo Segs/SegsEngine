@@ -79,7 +79,7 @@ void ConnectionInfoDialog::popup_connections(StringView p_method, const Vector<N
 
             node_item->set_text(1, connection.signal.get_name());
             Control* p = object_cast<Control>(get_parent());
-            node_item->set_icon(1, p->get_icon("Slot", "EditorIcons"));
+            node_item->set_icon(1, p->get_theme_icon("Slot", "EditorIcons"));
             node_item->set_selectable(1, false);
             node_item->set_editable(1, false);
 
@@ -154,9 +154,9 @@ RES ScriptTextEditor::get_edited_resource() const {
 
 void ScriptTextEditor::set_edited_resource(const RES &p_res) {
     ERR_FAIL_COND(script);
+    ERR_FAIL_COND(!p_res);
 
     script = dynamic_ref_cast<Script>(p_res);
-    _set_theme_for_script();
 
     code_editor->get_text_edit()->set_text(script->get_source_code());
     code_editor->get_text_edit()->clear_undo_history();
@@ -164,6 +164,17 @@ void ScriptTextEditor::set_edited_resource(const RES &p_res) {
 
     emit_signal("name_changed");
     code_editor->update_line_and_column();
+}
+
+void ScriptTextEditor::enable_editor() {
+    if (editor_enabled) {
+        return;
+    }
+
+    editor_enabled = true;
+
+    _enable_code_editor();
+    _set_theme_for_script();
 
     _validate_script();
 }
@@ -240,34 +251,34 @@ void ScriptTextEditor::_load_theme_settings() {
     Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
     Color string_color = EDITOR_GET_T<Color>("text_editor/highlighting/string_color");
 
-    text_edit->add_color_override("background_color", background_color);
-    text_edit->add_color_override("completion_background_color", completion_background_color);
-    text_edit->add_color_override("completion_selected_color", completion_selected_color);
-    text_edit->add_color_override("completion_existing_color", completion_existing_color);
-    text_edit->add_color_override("completion_scroll_color", completion_scroll_color);
-    text_edit->add_color_override("completion_font_color", completion_font_color);
-    text_edit->add_color_override("font_color", text_color);
-    text_edit->add_color_override("line_number_color", line_number_color);
-    text_edit->add_color_override("safe_line_number_color", safe_line_number_color);
-    text_edit->add_color_override("caret_color", caret_color);
-    text_edit->add_color_override("caret_background_color", caret_background_color);
-    text_edit->add_color_override("font_color_selected", text_selected_color);
-    text_edit->add_color_override("selection_color", selection_color);
-    text_edit->add_color_override("brace_mismatch_color", brace_mismatch_color);
-    text_edit->add_color_override("current_line_color", current_line_color);
-    text_edit->add_color_override("line_length_guideline_color", line_length_guideline_color);
-    text_edit->add_color_override("word_highlighted_color", word_highlighted_color);
-    text_edit->add_color_override("number_color", number_color);
-    text_edit->add_color_override("function_color", function_color);
-    text_edit->add_color_override("member_variable_color", member_variable_color);
-    text_edit->add_color_override("bookmark_color", bookmark_color);
-    text_edit->add_color_override("breakpoint_color", breakpoint_color);
-    text_edit->add_color_override("executing_line_color", executing_line_color);
-    text_edit->add_color_override("mark_color", mark_color);
-    text_edit->add_color_override("code_folding_color", code_folding_color);
-    text_edit->add_color_override("search_result_color", search_result_color);
-    text_edit->add_color_override("search_result_border_color", search_result_border_color);
-    text_edit->add_color_override("symbol_color", symbol_color);
+    text_edit->add_theme_color_override("background_color", background_color);
+    text_edit->add_theme_color_override("completion_background_color", completion_background_color);
+    text_edit->add_theme_color_override("completion_selected_color", completion_selected_color);
+    text_edit->add_theme_color_override("completion_existing_color", completion_existing_color);
+    text_edit->add_theme_color_override("completion_scroll_color", completion_scroll_color);
+    text_edit->add_theme_color_override("completion_font_color", completion_font_color);
+    text_edit->add_theme_color_override("font_color", text_color);
+    text_edit->add_theme_color_override("line_number_color", line_number_color);
+    text_edit->add_theme_color_override("safe_line_number_color", safe_line_number_color);
+    text_edit->add_theme_color_override("caret_color", caret_color);
+    text_edit->add_theme_color_override("caret_background_color", caret_background_color);
+    text_edit->add_theme_color_override("font_color_selected", text_selected_color);
+    text_edit->add_theme_color_override("selection_color", selection_color);
+    text_edit->add_theme_color_override("brace_mismatch_color", brace_mismatch_color);
+    text_edit->add_theme_color_override("current_line_color", current_line_color);
+    text_edit->add_theme_color_override("line_length_guideline_color", line_length_guideline_color);
+    text_edit->add_theme_color_override("word_highlighted_color", word_highlighted_color);
+    text_edit->add_theme_color_override("number_color", number_color);
+    text_edit->add_theme_color_override("function_color", function_color);
+    text_edit->add_theme_color_override("member_variable_color", member_variable_color);
+    text_edit->add_theme_color_override("bookmark_color", bookmark_color);
+    text_edit->add_theme_color_override("breakpoint_color", breakpoint_color);
+    text_edit->add_theme_color_override("executing_line_color", executing_line_color);
+    text_edit->add_theme_color_override("mark_color", mark_color);
+    text_edit->add_theme_color_override("code_folding_color", code_folding_color);
+    text_edit->add_theme_color_override("search_result_color", search_result_color);
+    text_edit->add_theme_color_override("search_result_border_color", search_result_border_color);
+    text_edit->add_theme_color_override("symbol_color", symbol_color);
 
     text_edit->add_constant_override("line_spacing", EDITOR_DEF_T<int>("text_editor/theme/line_spacing", 6));
 
@@ -424,15 +435,6 @@ void ScriptTextEditor::reload_text() {
     code_editor->update_line_and_column();
 }
 
-void ScriptTextEditor::_notification(int p_what) {
-
-    switch (p_what) {
-        case NOTIFICATION_READY:
-            _load_theme_settings();
-            break;
-    }
-}
-
 void ScriptTextEditor::add_callback(const StringName &p_function, const PoolVector<String> &p_args) {
 
     String code = code_editor->get_text_edit()->get_text_utf8();
@@ -480,6 +482,10 @@ void ScriptTextEditor::set_edit_state(const Variant &p_state) {
         if (idx >= 0) {
             _change_syntax_highlighter(idx);
         }
+    }
+
+    if (editor_enabled) {
+        ensure_focus();
     }
 }
 
@@ -557,10 +563,10 @@ String ScriptTextEditor::get_name() {
     return name;
 }
 
-Ref<Texture> ScriptTextEditor::get_icon() {
+Ref<Texture> ScriptTextEditor::get_theme_icon() {
 
     if (get_parent_control() && get_parent_control()->has_icon(script->get_class_name(), "EditorIcons")) {
-        return get_parent_control()->get_icon(script->get_class_name(), "EditorIcons");
+        return get_parent_control()->get_theme_icon(script->get_class_name(), "EditorIcons");
     }
 
     return Ref<Texture>();
@@ -579,7 +585,7 @@ void ScriptTextEditor::_validate_missing_connections(int &warning_nb) {
         String target_path = base == connection.callable.get_object() ? base_path : base_path + "/" + (String)base->get_path_to(object_cast<Node>(connection.callable.get_object()));
 
         warnings_panel->push_cell();
-        warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
+        warnings_panel->push_color(warnings_panel->get_theme_color("warning_color", "Editor"));
         warnings_panel->add_text(FormatVE(
                 TTR("Missing connected method '%s' for signal '%s' from node '%s' to node '%s'.").asCString(),
                 connection.callable.get_method().asCString(), connection.signal.get_name().asCString(), source_path.c_str(), target_path.c_str()));
@@ -631,7 +637,7 @@ void ScriptTextEditor::_validate_script() {
 
         warnings_panel->push_cell();
         warnings_panel->push_meta(w.line - 1);
-        warnings_panel->push_color(warnings_panel->get_color("warning_color", "Editor"));
+        warnings_panel->push_color(warnings_panel->get_theme_color("warning_color", "Editor"));
         warnings_panel->add_text_uistring((TTR("Line") + " " + itos(w.line)).asString());
         warnings_panel->add_text(" (" + w.string_code + "):");
         warnings_panel->pop(); // Color.
@@ -1057,7 +1063,7 @@ void ScriptTextEditor::_update_connected_methods() {
                     StringView name = StringUtils::get_slice(functions[j],":", 0);
                     if (name == StringView(connection.callable.get_method())) {
                         line = StringUtils::to_int(StringUtils::get_slice(functions[j],":", 1));
-                        text_edit->set_line_info_icon(line - 1, get_parent_control()->get_icon("Slot", "EditorIcons"), connection.callable.get_method());
+                        text_edit->set_line_info_icon(line - 1, get_parent_control()->get_theme_icon("Slot", "EditorIcons"), connection.callable.get_method());
                         methods_found.insert(connection.callable.get_method());
                         break;
                     }
@@ -1426,26 +1432,6 @@ void ScriptTextEditor::_change_syntax_highlighter(int p_idx) {
 }
 
 void ScriptTextEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_validate_script", &ScriptTextEditor::_validate_script);
-    MethodBinder::bind_method("_update_bookmark_list", &ScriptTextEditor::_update_bookmark_list);
-    MethodBinder::bind_method("_bookmark_item_pressed", &ScriptTextEditor::_bookmark_item_pressed);
-    MethodBinder::bind_method("_load_theme_settings", &ScriptTextEditor::_load_theme_settings);
-    MethodBinder::bind_method("_update_breakpoint_list", &ScriptTextEditor::_update_breakpoint_list);
-    MethodBinder::bind_method("_breakpoint_item_pressed", &ScriptTextEditor::_breakpoint_item_pressed);
-    MethodBinder::bind_method("_breakpoint_toggled", &ScriptTextEditor::_breakpoint_toggled);
-    MethodBinder::bind_method("_lookup_connections", &ScriptTextEditor::_lookup_connections);
-    MethodBinder::bind_method("_update_connected_methods", &ScriptTextEditor::_update_connected_methods);
-    MethodBinder::bind_method("_change_syntax_highlighter", &ScriptTextEditor::_change_syntax_highlighter);
-    MethodBinder::bind_method("_edit_option", &ScriptTextEditor::_edit_option);
-    MethodBinder::bind_method("_goto_line", &ScriptTextEditor::_goto_line);
-    MethodBinder::bind_method("_lookup_symbol", &ScriptTextEditor::_lookup_symbol);
-    MethodBinder::bind_method("_text_edit_gui_input", &ScriptTextEditor::_text_edit_gui_input);
-    MethodBinder::bind_method("_show_warnings_panel", &ScriptTextEditor::_show_warnings_panel);
-    MethodBinder::bind_method("_error_pressed", &ScriptTextEditor::_error_pressed);
-    MethodBinder::bind_method("_warning_clicked", &ScriptTextEditor::_warning_clicked);
-    MethodBinder::bind_method("_color_changed", &ScriptTextEditor::_color_changed);
-
     MethodBinder::bind_method("get_drag_data_fw", &ScriptTextEditor::get_drag_data_fw);
     MethodBinder::bind_method("can_drop_data_fw", &ScriptTextEditor::can_drop_data_fw);
     MethodBinder::bind_method("drop_data_fw", &ScriptTextEditor::drop_data_fw);
@@ -1750,77 +1736,92 @@ void ScriptTextEditor::_make_context_menu(bool p_selection, bool p_color, bool p
     context_menu->popup();
 }
 
-ScriptTextEditor::ScriptTextEditor() {
-
-    theme_loaded = false;
-    script_is_valid = false;
+void ScriptTextEditor::_enable_code_editor() {
+    ERR_FAIL_COND(code_editor->get_parent());
 
     VSplitContainer *editor_box = memnew(VSplitContainer);
     add_child(editor_box);
     editor_box->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     editor_box->set_v_size_flags(SIZE_EXPAND_FILL);
 
-    code_editor = memnew(CodeTextEditor);
     editor_box->add_child(code_editor);
-    code_editor->add_constant_override("separation", 2);
-    code_editor->set_anchors_and_margins_preset(Control::PRESET_WIDE);
-    code_editor->connect("validate_script",callable_mp(this, &ClassName::_validate_script));
-    code_editor->connect("load_theme_settings",callable_mp(this, &ClassName::_load_theme_settings));
-    code_editor->set_code_complete_func(_code_complete_scripts, this);
-    code_editor->get_text_edit()->connect("breakpoint_toggled",callable_mp(this, &ClassName::_breakpoint_toggled));
-    code_editor->get_text_edit()->connect("symbol_lookup",callable_mp(this, &ClassName::_lookup_symbol));
-    code_editor->get_text_edit()->connect("info_clicked",callable_mp(this, &ClassName::_lookup_connections));
-    code_editor->set_v_size_flags(SIZE_EXPAND_FILL);
+    code_editor->connect("show_warnings_panel", callable_mp(this, &ScriptTextEditor::_show_warnings_panel));
+    code_editor->connect("validate_script", callable_mp(this, &ScriptTextEditor::_validate_script));
+    code_editor->connect("load_theme_settings", callable_mp(this, &ScriptTextEditor::_load_theme_settings));
+    code_editor->get_text_edit()->connect("breakpoint_toggled", callable_mp(this, &ScriptTextEditor::_breakpoint_toggled));
+    code_editor->get_text_edit()->connect("symbol_lookup", callable_mp(this, &ScriptTextEditor::_lookup_symbol));
+    code_editor->get_text_edit()->connect("info_clicked", callable_mp(this, &ScriptTextEditor::_lookup_connections));
+    code_editor->get_text_edit()->connect("gui_input", callable_mp(this, &ScriptTextEditor::_text_edit_gui_input));
     code_editor->show_toggle_scripts_button();
 
-    warnings_panel = memnew(RichTextLabel);
     editor_box->add_child(warnings_panel);
-    warnings_panel->set_custom_minimum_size(Size2(0, 100 * EDSCALE));
-    warnings_panel->set_h_size_flags(SIZE_EXPAND_FILL);
-    warnings_panel->set_meta_underline(true);
-    warnings_panel->set_selection_enabled(true);
-    warnings_panel->set_focus_mode(FOCUS_CLICK);
-    warnings_panel->hide();
+    warnings_panel->add_font_override(
+            "normal_font", EditorNode::get_singleton()->get_gui_base()->get_theme_font("main", "EditorFonts"));
+    warnings_panel->connect("meta_clicked", callable_mp(this, &ScriptTextEditor::_warning_clicked));
 
-    code_editor->connect("error_pressed",callable_mp(this, &ClassName::_error_pressed));
-    code_editor->connect("show_warnings_panel",callable_mp(this, &ClassName::_show_warnings_panel));
-    warnings_panel->connect("meta_clicked",callable_mp(this, &ClassName::_warning_clicked));
-
-    ScriptTextEditor::update_settings();
-
-    code_editor->get_text_edit()->set_callhint_settings(
-            EditorSettings::get_singleton()->getT<bool>("text_editor/completion/put_callhint_tooltip_below_current_line"),
-            EditorSettings::get_singleton()->getT<Vector2>("text_editor/completion/callhint_tooltip_offset"));
-
-    code_editor->get_text_edit()->set_select_identifiers_on_hover(true);
-    code_editor->get_text_edit()->set_context_menu_enabled(false);
-    code_editor->get_text_edit()->connect("gui_input",callable_mp(this, &ClassName::_text_edit_gui_input));
-
-    context_menu = memnew(PopupMenu);
     add_child(context_menu);
-    context_menu->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
+    context_menu->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_edit_option));
     context_menu->set_hide_on_window_lose_focus(true);
 
-    color_panel = memnew(PopupPanel);
     add_child(color_panel);
+
     color_picker = memnew(ColorPicker);
     color_picker->set_deferred_mode(true);
+    color_picker->connect("color_changed", callable_mp(this, &ScriptTextEditor::_color_changed));
+
     color_panel->add_child(color_picker);
-    color_picker->connect("color_changed",callable_mp(this, &ClassName::_color_changed));
 
     // get default color picker mode from editor settings
-    int default_color_mode = EDITOR_GET_T<int>("interface/inspector/default_color_picker_mode");
+    int default_color_mode = (int)EDITOR_GET("interface/inspector/default_color_picker_mode");
     if (default_color_mode == 1)
         color_picker->set_hsv_mode(true);
     else if (default_color_mode == 2)
         color_picker->set_raw_mode(true);
 
-    edit_hb = memnew(HBoxContainer);
+    quick_open = memnew(ScriptEditorQuickOpen);
+    quick_open->connect("goto_line", callable_mp(this, &ScriptTextEditor::_goto_line));
+    add_child(quick_open);
 
-    edit_menu = memnew(MenuButton);
-    edit_menu->set_text(TTR("Edit"));
-    edit_menu->set_switch_on_hover(true);
-    edit_menu->get_popup()->set_hide_on_window_lose_focus(true);
+    goto_line_dialog = memnew(GotoLineDialog);
+    add_child(goto_line_dialog);
+
+    add_child(connection_info_dialog);
+
+    edit_hb->add_child(search_menu);
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find"), SEARCH_FIND);
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_next"), SEARCH_FIND_NEXT);
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_previous"), SEARCH_FIND_PREV);
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/replace"), SEARCH_REPLACE);
+    search_menu->get_popup()->add_separator();
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_in_files"), SEARCH_IN_FILES);
+    search_menu->get_popup()->add_separator();
+    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/contextual_help"), HELP_CONTEXTUAL);
+    search_menu->get_popup()->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_edit_option));
+    edit_hb->add_child(edit_menu);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/undo"), EDIT_UNDO);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/redo"), EDIT_REDO);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/cut"), EDIT_CUT);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/copy"), EDIT_COPY);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/paste"), EDIT_PASTE);
+    edit_menu->get_popup()->add_separator();
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/select_all"), EDIT_SELECT_ALL);
+    edit_menu->get_popup()->add_separator();
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/move_up"), EDIT_MOVE_LINE_UP);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/move_down"), EDIT_MOVE_LINE_DOWN);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/indent_left"), EDIT_INDENT_LEFT);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/indent_right"), EDIT_INDENT_RIGHT);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/delete_line"), EDIT_DELETE_LINE);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_comment"), EDIT_TOGGLE_COMMENT);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/toggle_fold_line"), EDIT_TOGGLE_FOLD_LINE);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/fold_all_lines"), EDIT_FOLD_ALL_LINES);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/unfold_all_lines"), EDIT_UNFOLD_ALL_LINES);
+    edit_menu->get_popup()->add_separator();
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/clone_down"), EDIT_CLONE_DOWN);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/complete_symbol"), EDIT_COMPLETE);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/trim_trailing_whitespace"), EDIT_TRIM_TRAILING_WHITESAPCE);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_spaces"), EDIT_CONVERT_INDENT_TO_SPACES);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_tabs"), EDIT_CONVERT_INDENT_TO_TABS);
+    edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/auto_indent"), EDIT_AUTO_INDENT);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/undo"), EDIT_UNDO);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/redo"), EDIT_REDO);
     edit_menu->get_popup()->add_separator();
@@ -1846,81 +1847,114 @@ ScriptTextEditor::ScriptTextEditor() {
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_spaces"), EDIT_CONVERT_INDENT_TO_SPACES);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/convert_indent_to_tabs"), EDIT_CONVERT_INDENT_TO_TABS);
     edit_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/auto_indent"), EDIT_AUTO_INDENT);
-    edit_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
+    edit_menu->get_popup()->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_edit_option));
     edit_menu->get_popup()->add_separator();
 
-    PopupMenu *convert_case = memnew(PopupMenu);
-    convert_case->set_name("convert_case");
     edit_menu->get_popup()->add_child(convert_case);
-    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), StringName("convert_case"));
+    edit_menu->get_popup()->add_submenu_item(TTR("Convert Case"), "convert_case");
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_uppercase", TTR("Uppercase"), KEY_MASK_SHIFT | KEY_F4), EDIT_TO_UPPERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/convert_to_lowercase", TTR("Lowercase"), KEY_MASK_SHIFT | KEY_F5), EDIT_TO_LOWERCASE);
     convert_case->add_shortcut(ED_SHORTCUT("script_text_editor/capitalize", TTR("Capitalize"), KEY_MASK_SHIFT | KEY_F6), EDIT_CAPITALIZE);
-    convert_case->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
+    convert_case->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_edit_option));
 
-    highlighters[String(TTR("Standard"))] = nullptr;
-    highlighter_menu = memnew(PopupMenu);
-    highlighter_menu->set_name("highlighter_menu");
     edit_menu->get_popup()->add_child(highlighter_menu);
-    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), StringName("highlighter_menu"));
-    highlighter_menu->add_radio_check_item(TTR("Standard"));
-    highlighter_menu->connect("id_pressed",callable_mp(this, &ClassName::_change_syntax_highlighter));
+    edit_menu->get_popup()->add_submenu_item(TTR("Syntax Highlighter"), "highlighter_menu");
+    highlighter_menu->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_change_syntax_highlighter));
 
-    search_menu = memnew(MenuButton);
-    edit_hb->add_child(search_menu);
-    search_menu->set_text(TTR("Search"));
-    search_menu->set_switch_on_hover(true);
-    search_menu->get_popup()->set_hide_on_window_lose_focus(true);
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find"), SEARCH_FIND);
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_next"), SEARCH_FIND_NEXT);
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_previous"), SEARCH_FIND_PREV);
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/replace"), SEARCH_REPLACE);
-    search_menu->get_popup()->add_separator();
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/find_in_files"), SEARCH_IN_FILES);
-    search_menu->get_popup()->add_separator();
-    search_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/contextual_help"), HELP_CONTEXTUAL);
-    search_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
+    _load_theme_settings();
 
-    edit_hb->add_child(edit_menu);
-
-    MenuButton *goto_menu = memnew(MenuButton);
     edit_hb->add_child(goto_menu);
-    goto_menu->set_text(TTR("Go To"));
-    goto_menu->set_switch_on_hover(true);
-    goto_menu->get_popup()->connect("id_pressed",callable_mp(this, &ClassName::_edit_option));
-
     goto_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_function"), SEARCH_LOCATE_FUNCTION);
     goto_menu->get_popup()->add_shortcut(ED_GET_SHORTCUT("script_text_editor/goto_line"), SEARCH_GOTO_LINE);
     goto_menu->get_popup()->add_separator();
 
+    goto_menu->get_popup()->add_child(bookmarks_menu);
+    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), "Bookmarks");
+    _update_bookmark_list();
+    bookmarks_menu->connect("about_to_show", callable_mp(this, &ScriptTextEditor::_update_bookmark_list));
+    bookmarks_menu->connect("index_pressed", callable_mp(this, &ScriptTextEditor::_bookmark_item_pressed));
+
+    goto_menu->get_popup()->add_child(breakpoints_menu);
+    goto_menu->get_popup()->add_submenu_item(TTR("Breakpoints"), "Breakpoints");
+    _update_breakpoint_list();
+    breakpoints_menu->connect("about_to_show", callable_mp(this, &ScriptTextEditor::_update_breakpoint_list));
+    breakpoints_menu->connect("index_pressed", callable_mp(this, &ScriptTextEditor::_breakpoint_item_pressed));
+
+    goto_menu->get_popup()->connect("id_pressed", callable_mp(this, &ScriptTextEditor::_edit_option));
+}
+
+
+ScriptTextEditor::ScriptTextEditor() {
+    theme_loaded = false;
+    script_is_valid = false;
+    editor_enabled = false;
+
+    code_editor = memnew(CodeTextEditor);
+    code_editor->add_constant_override("separation", 2);
+    code_editor->set_anchors_and_margins_preset(Control::PRESET_WIDE);
+    code_editor->set_code_complete_func(_code_complete_scripts, this);
+    code_editor->set_v_size_flags(SIZE_EXPAND_FILL);
+
+    warnings_panel = memnew(RichTextLabel);
+    warnings_panel->set_custom_minimum_size(Size2(0, 100 * EDSCALE));
+    warnings_panel->set_h_size_flags(SIZE_EXPAND_FILL);
+    warnings_panel->set_meta_underline(true);
+    warnings_panel->set_selection_enabled(true);
+    warnings_panel->set_focus_mode(FOCUS_CLICK);
+    warnings_panel->hide();
+
+    update_settings();
+
+    code_editor->get_text_edit()->set_callhint_settings(
+            EditorSettings::get_singleton()->getT<bool>("text_editor/completion/put_callhint_tooltip_below_current_line"),
+            EditorSettings::get_singleton()->getT<Vector2>("text_editor/completion/callhint_tooltip_offset"));
+
+    code_editor->get_text_edit()->set_select_identifiers_on_hover(true);
+    code_editor->get_text_edit()->set_context_menu_enabled(false);
+
+    context_menu = memnew(PopupMenu);
+
+    color_panel = memnew(PopupPanel);
+    color_picker = NULL;
+
+    edit_hb = memnew(HBoxContainer);
+
+    edit_menu = memnew(MenuButton);
+    edit_menu->set_text(TTR("Edit"));
+    edit_menu->set_switch_on_hover(true);
+    edit_menu->get_popup()->set_hide_on_window_lose_focus(true);
+
+    convert_case = memnew(PopupMenu);
+    convert_case->set_name("convert_case");
+
+    highlighters[String(TTR("Standard"))] = nullptr;
+    highlighter_menu = memnew(PopupMenu);
+    highlighter_menu->set_name("highlighter_menu");
+    highlighter_menu->add_radio_check_item(TTR("Standard"));
+
+    search_menu = memnew(MenuButton);
+    search_menu->set_text(TTR("Search"));
+    search_menu->set_switch_on_hover(true);
+    search_menu->get_popup()->set_hide_on_window_lose_focus(true);
+
+    goto_menu = memnew(MenuButton);
+    goto_menu->set_text(TTR("Go To"));
+    goto_menu->set_switch_on_hover(true);
+
     bookmarks_menu = memnew(PopupMenu);
     bookmarks_menu->set_name("Bookmarks");
-    goto_menu->get_popup()->add_child(bookmarks_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Bookmarks"), StringName("Bookmarks"));
-    _update_bookmark_list();
-    bookmarks_menu->connect("about_to_show",callable_mp(this, &ClassName::_update_bookmark_list));
-    bookmarks_menu->connect("index_pressed",callable_mp(this, &ClassName::_bookmark_item_pressed));
 
     breakpoints_menu = memnew(PopupMenu);
     breakpoints_menu->set_name("Breakpoints");
-    goto_menu->get_popup()->add_child(breakpoints_menu);
-    goto_menu->get_popup()->add_submenu_item(TTR("Breakpoints"), StringName("Breakpoints"));
-    _update_breakpoint_list();
-    breakpoints_menu->connect("about_to_show",callable_mp(this, &ClassName::_update_breakpoint_list));
-    breakpoints_menu->connect("index_pressed",callable_mp(this, &ClassName::_breakpoint_item_pressed));
 
-    quick_open = memnew(ScriptEditorQuickOpen);
-    add_child(quick_open);
-    quick_open->connect("goto_line",callable_mp(this, &ClassName::_goto_line));
-
-    goto_line_dialog = memnew(GotoLineDialog);
-    add_child(goto_line_dialog);
+    quick_open = NULL;
+    goto_line_dialog = NULL;
 
     connection_info_dialog = memnew(ConnectionInfoDialog);
-    add_child(connection_info_dialog);
 
     code_editor->get_text_edit()->set_drag_forwarding(this);
 }
+
 
 ScriptTextEditor::~ScriptTextEditor() {
     for (eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
@@ -1929,6 +1963,22 @@ ScriptTextEditor::~ScriptTextEditor() {
         }
     }
     highlighters.clear();
+
+    if (editor_enabled) {
+        memdelete(code_editor);
+        memdelete(warnings_panel);
+        memdelete(context_menu);
+        memdelete(color_panel);
+        memdelete(edit_hb);
+        memdelete(edit_menu);
+        memdelete(convert_case);
+        memdelete(highlighter_menu);
+        memdelete(search_menu);
+        memdelete(goto_menu);
+        memdelete(bookmarks_menu);
+        memdelete(breakpoints_menu);
+        memdelete(connection_info_dialog);
+    }
 }
 
 static ScriptEditorBase *create_editor(const RES &p_resource) {

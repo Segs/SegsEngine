@@ -464,6 +464,7 @@ private:
 public:
     // made public so it can be used in signal connection.
     void _on_plugin_ready(Object *p_script, const StringName &p_activate_name);
+    void _editor_select(int p_which);
 private:
     void _fs_changed();
     void _resources_reimported(const Vector<String> &p_resources);
@@ -472,7 +473,6 @@ private:
     void _node_renamed();
     void _editor_select_next();
     void _editor_select_prev();
-    void _editor_select(int p_which);
     void _set_scene_metadata(StringView p_file, int p_idx = -1);
     void _get_scene_metadata(StringView p_file);
     void _update_title();

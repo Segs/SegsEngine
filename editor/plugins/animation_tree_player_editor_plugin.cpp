@@ -98,8 +98,8 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
 
     AnimationTreePlayer::NodeType type = anim_tree->node_get_type(p_node);
 
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
-    Ref<Font> font = get_font("font", "PopupMenu");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
+    Ref<Font> font = get_theme_font("font", "PopupMenu");
 
     Size2 size = style->get_minimum_size();
 
@@ -132,7 +132,7 @@ Size2 AnimationTreePlayerEditor::get_node_size(const StringName &p_node) const {
     }
 
     size.x += max_w + 20;
-    size.y += count * (font->get_height() + get_constant("vseparation", "PopupMenu"));
+    size.y += count * (font->get_height() + get_theme_constant("vseparation", "PopupMenu"));
 
     return size;
 }
@@ -273,7 +273,7 @@ void AnimationTreePlayerEditor::_popup_edit_dialog() {
     edit_check->hide();
 
     Point2 pos = anim_tree->node_get_position(edited_node) - Point2(h_scroll->get_value(), v_scroll->get_value());
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
     Size2 size = get_node_size(edited_node);
     Point2 popup_pos(pos.x + style->get_margin(Margin::Left), pos.y + size.y - style->get_margin(Margin::Bottom));
     popup_pos += get_global_position();
@@ -486,12 +486,12 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
     RID ci = get_canvas_item();
     AnimationTreePlayer::NodeType type = anim_tree->node_get_type(p_node);
 
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
-    Ref<Font> font = get_font("font", "PopupMenu");
-    Color font_color = get_color("font_color", "PopupMenu");
-    Color font_color_title = get_color("font_color_hover", "PopupMenu");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
+    Ref<Font> font = get_theme_font("font", "PopupMenu");
+    Color font_color = get_theme_color("font_color", "PopupMenu");
+    Color font_color_title = get_theme_color("font_color_hover", "PopupMenu");
     font_color_title.a *= 0.8f;
-    Ref<Texture> slot_icon = get_icon("VisualShaderPort", "EditorIcons");
+    Ref<Texture> slot_icon = get_theme_icon("VisualShaderPort", "EditorIcons");
 
     Size2 size = get_node_size(p_node);
     Point2 pos = anim_tree->node_get_position(p_node);
@@ -509,7 +509,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
     style->draw(ci, Rect2(pos, size));
 
     float w = size.width - style->get_minimum_size().width;
-    float h = font->get_height() + get_constant("vseparation", "PopupMenu");
+    float h = font->get_height() + get_theme_constant("vseparation", "PopupMenu");
 
     Point2 ofs = style->get_offset() + pos;
     Point2 ascofs(0, font->get_ascent());
@@ -578,8 +578,8 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
         ofs.y += h;
     }
 
-    Ref<StyleBox> pg_bg = get_stylebox("bg", "ProgressBar");
-    Ref<StyleBox> pg_fill = get_stylebox("fill", "ProgressBar");
+    Ref<StyleBox> pg_bg = get_theme_stylebox("bg", "ProgressBar");
+    Ref<StyleBox> pg_fill = get_theme_stylebox("fill", "ProgressBar");
     Rect2 pg_rect(ofs, Size2(w, h));
 
     bool editable = true;
@@ -613,7 +613,7 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
 
     if (editable) {
 
-        Ref<Texture> arrow = get_icon("GuiDropdown", "EditorIcons");
+        Ref<Texture> arrow = get_theme_icon("GuiDropdown", "EditorIcons");
         Point2 arrow_ofs(w - arrow->get_width(), Math::floor((h - arrow->get_height()) / 2));
         arrow->draw(ci, ofs + arrow_ofs);
     }
@@ -621,10 +621,10 @@ void AnimationTreePlayerEditor::_draw_node(const StringName &p_node) {
 
 AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(const Point2 &p_click, StringName *p_node_id, int *p_slot_index) const {
 
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
-    Ref<Font> font = get_font("font", "PopupMenu");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
+    Ref<Font> font = get_theme_font("font", "PopupMenu");
 
-    float h = font->get_height() + get_constant("vseparation", "PopupMenu");
+    float h = font->get_height() + get_theme_constant("vseparation", "PopupMenu");
 
     for (auto iter = order.rbegin(); iter!=order.rend(); ++iter) {
 
@@ -683,9 +683,9 @@ AnimationTreePlayerEditor::ClickType AnimationTreePlayerEditor::_locate_click(co
 
 Point2 AnimationTreePlayerEditor::_get_slot_pos(const StringName &p_node_id, bool p_input, int p_slot) {
 
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
-    Ref<Font> font = get_font("font", "PopupMenu");
-    Ref<Texture> slot_icon = get_icon("VisualShaderPort", "EditorIcons");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
+    Ref<Font> font = get_theme_font("font", "PopupMenu");
+    Ref<Texture> slot_icon = get_theme_icon("VisualShaderPort", "EditorIcons");
 
     Size2 size = get_node_size(p_node_id);
     Point2 pos = anim_tree->node_get_position(p_node_id);
@@ -702,7 +702,7 @@ Point2 AnimationTreePlayerEditor::_get_slot_pos(const StringName &p_node_id, boo
     pos -= Point2(h_scroll->get_value(), v_scroll->get_value());
 
     float w = size.width - style->get_minimum_size().width;
-    float h = font->get_height() + get_constant("vseparation", "PopupMenu");
+    float h = font->get_height() + get_theme_constant("vseparation", "PopupMenu");
 
     pos += style->get_offset();
 
@@ -893,14 +893,14 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
         case NOTIFICATION_ENTER_TREE: {
 
-            play_button->set_button_icon(get_icon("Play", "EditorIcons"));
-            add_menu->set_button_icon(get_icon("Add", "EditorIcons"));
+            play_button->set_button_icon(get_theme_icon("Play", "EditorIcons"));
+            add_menu->set_button_icon(get_theme_icon("Add", "EditorIcons"));
         } break;
         case NOTIFICATION_DRAW: {
 
             _update_scrollbars();
             //RenderingServer::get_singleton()->canvas_item_add_rect(get_canvas_item(),Rect2(Point2(),get_size()),Color(0,0,0,1));
-            get_stylebox("bg", "Tree")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
+            get_theme_stylebox("bg", "Tree")->draw(get_canvas_item(), Rect2(Point2(), get_size()));
 
             for (const StringName &E : order) {
 
@@ -932,7 +932,7 @@ void AnimationTreePlayerEditor::_notification(int p_what) {
 
                 _draw_cos_line(source, dest, col);
             }
-            const Ref<Font> f = get_font("font", "Label");
+            const Ref<Font> f = get_theme_font("font", "Label");
             const Point2 status_offset = Point2(5, 25) * EDSCALE + Point2(0, f->get_ascent());
 
             switch (anim_tree->get_last_error()) {
@@ -1259,23 +1259,7 @@ void AnimationTreePlayerEditor::_edit_filters() {
 
 void AnimationTreePlayerEditor::_bind_methods() {
 
-    MethodBinder::bind_method("_add_menu_item", &AnimationTreePlayerEditor::_add_menu_item);
-    MethodBinder::bind_method("_node_menu_item", &AnimationTreePlayerEditor::_node_menu_item);
     MethodBinder::bind_method("_gui_input", &AnimationTreePlayerEditor::_gui_input);
-    //MethodBinder::bind_method( "_node_param_changed", &AnimationTreeEditor::_node_param_changed );
-    MethodBinder::bind_method("_scroll_moved", &AnimationTreePlayerEditor::_scroll_moved);
-    MethodBinder::bind_method("_edit_dialog_changeds", &AnimationTreePlayerEditor::_edit_dialog_changeds);
-    MethodBinder::bind_method("_edit_dialog_changede", &AnimationTreePlayerEditor::_edit_dialog_changede);
-    MethodBinder::bind_method("_edit_dialog_changedf", &AnimationTreePlayerEditor::_edit_dialog_changedf);
-    MethodBinder::bind_method("_edit_dialog_changed", &AnimationTreePlayerEditor::_edit_dialog_changed);
-    MethodBinder::bind_method("_edit_dialog_animation_changed", &AnimationTreePlayerEditor::_edit_dialog_animation_changed);
-    MethodBinder::bind_method("_edit_dialog_edit_animation", &AnimationTreePlayerEditor::_edit_dialog_edit_animation);
-    MethodBinder::bind_method("_play_toggled", &AnimationTreePlayerEditor::_play_toggled);
-    MethodBinder::bind_method("_edit_oneshot_start", &AnimationTreePlayerEditor::_edit_oneshot_start);
-    MethodBinder::bind_method("_file_dialog_selected", &AnimationTreePlayerEditor::_file_dialog_selected);
-    MethodBinder::bind_method("_master_anim_menu_item", &AnimationTreePlayerEditor::_master_anim_menu_item);
-    MethodBinder::bind_method("_edit_filters", &AnimationTreePlayerEditor::_edit_filters);
-    MethodBinder::bind_method("_filter_edited", &AnimationTreePlayerEditor::_filter_edited);
 }
 
 AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
@@ -1333,7 +1317,7 @@ AnimationTreePlayerEditor::AnimationTreePlayerEditor() {
 
     node_popup = memnew(PopupMenu);
     add_child(node_popup);
-    node_popup->set_as_toplevel(true);
+    node_popup->set_as_top_level(true);
 
     master_anim_popup = memnew(PopupMenu);
     add_child(master_anim_popup);

@@ -5,7 +5,7 @@
 #include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_node.h"
-#include "editor/plugins/spatial_editor_plugin.h"
+#include "editor/plugins/node_3d_editor_plugin.h"
 #include "scene/gui/item_list.h"
 #include "scene/gui/tree.h"
 
@@ -96,7 +96,7 @@ void SceneMapEditor::_notification(int p_what) {
             p.d = edit_floor[edit_axis] * m_node->get_cell_size()[edit_axis];
             p = m_node->get_transform().xform(p); // plane to snap
 
-            SpatialEditorPlugin* sep = object_cast<SpatialEditorPlugin>(m_editor->get_editor_plugin_screen());
+            Node3DEditorPlugin* sep = object_cast<Node3DEditorPlugin>(m_editor->get_editor_plugin_screen());
             if (sep)
                 sep->snap_cursor_to_plane(p);
         }*/

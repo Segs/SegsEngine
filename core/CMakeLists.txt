@@ -145,8 +145,8 @@ set(core_sources
     cowdata_impl.h
     engine.cpp
     engine.h
-    func_ref.cpp
-    func_ref.h
+#    func_ref.cpp
+#    func_ref.h
     global_constants.cpp
     global_constants.h
     hashfuncs.h
@@ -253,6 +253,19 @@ set(generic_core_sources
     math/vector3.h
     math/vector3i.cpp
     math/vector3i.h
+
+    jlsignal/DoublyLinkedList.h
+    jlsignal/FastFunc.h
+    jlsignal/ObjectPool.cpp
+    jlsignal/ObjectPool.h
+    jlsignal/ObjectPoolScopedAllocator.h
+    jlsignal/ScopedAllocator.h
+    jlsignal/SignalBase.cpp
+    jlsignal/SignalBase.h
+    jlsignal/SignalDefinitions.h
+    jlsignal/Signal.h
+    #jlsignal/StaticSignalConnectionAllocators.h
+    jlsignal/Utils.h
 
     os/dir_access.cpp
     os/dir_access.h
@@ -467,3 +480,7 @@ file(
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${tree_source_list})
 
+
+add_executable(thread_test thread_test.cpp)
+find_package(benchmark REQUIRED)
+target_link_libraries(thread_test Threads::Threads) #benchmark::benchmark

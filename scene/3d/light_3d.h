@@ -210,7 +210,7 @@ protected:
     static void _bind_methods();
 
 public:
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
     SpotLight3D() :
             Light3D(RS::LIGHT_SPOT) {}

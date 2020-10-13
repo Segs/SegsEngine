@@ -22,8 +22,6 @@ void CurveTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_curve", {"curve"}), &CurveTexture::set_curve);
     MethodBinder::bind_method(D_METHOD("get_curve"), &CurveTexture::get_curve);
 
-    MethodBinder::bind_method(D_METHOD("_update"), &CurveTexture::_update);
-
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "32,4096"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "curve", PropertyHint::ResourceType, "Curve"), "set_curve", "get_curve");
 }

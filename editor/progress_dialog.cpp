@@ -110,7 +110,6 @@ void BackgroundProgress::_bind_methods() {
     MethodBinder::bind_method("_add_task", &BackgroundProgress::_add_task);
     MethodBinder::bind_method("_task_step", &BackgroundProgress::_task_step);
     MethodBinder::bind_method("_end_task", &BackgroundProgress::_end_task);
-    MethodBinder::bind_method("_update", &BackgroundProgress::_update);
 }
 
 void BackgroundProgress::add_task(const StringName &p_task, const StringName &p_label, int p_steps) {
@@ -127,7 +126,7 @@ void BackgroundProgress::task_step(const StringName &p_task, int p_step) {
     }
 
     if (no_updates)
-        MessageQueue::get_singleton()->push_call(this, "_update");
+        MessageQueue::get_singleton()->push_call(get_instance_id(),[this](){_update();});
 
     {
         _THREAD_SAFE_METHOD_
@@ -159,7 +158,7 @@ void ProgressDialog::_notification(int p_what) {
 
         case NOTIFICATION_DRAW: {
 
-            Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
+            Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
             draw_style_box(style, Rect2(Point2(), get_size()));
 
         } break;
@@ -171,7 +170,7 @@ void ProgressDialog::_popup() {
     Size2 ms = main->get_combined_minimum_size();
     ms.width = M_MAX(500 * EDSCALE, ms.width);
 
-    Ref<StyleBox> style = get_stylebox("panel", "PopupMenu");
+    Ref<StyleBox> style = get_theme_stylebox("panel", "PopupMenu");
     ms += style->get_minimum_size();
     main->set_margin(Margin::Left, style->get_margin(Margin::Left));
     main->set_margin(Margin::Right, -style->get_margin(Margin::Right));
@@ -283,10 +282,6 @@ void ProgressDialog::end_task(const StringName &p_task) {
 
 void ProgressDialog::_cancel_pressed() {
     cancelled = true;
-}
-
-void ProgressDialog::_bind_methods() {
-    MethodBinder::bind_method("_cancel_pressed", &ProgressDialog::_cancel_pressed);
 }
 
 ProgressDialog::ProgressDialog() {

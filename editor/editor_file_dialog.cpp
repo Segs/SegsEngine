@@ -71,17 +71,17 @@ void EditorFileDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_ENTER_TREE) {
 
         // update icons
-        mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
-        mode_list->set_button_icon(get_icon("FileList", "EditorIcons"));
-        dir_prev->set_button_icon(get_icon("Back", "EditorIcons"));
-        dir_next->set_button_icon(get_icon("Forward", "EditorIcons"));
-        dir_up->set_button_icon(get_icon("ArrowUp", "EditorIcons"));
-        refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
-        favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
-        show_hidden->set_button_icon(get_icon("GuiVisibilityVisible", "EditorIcons"));
+        mode_thumbnails->set_button_icon(get_theme_icon("FileThumbnail", "EditorIcons"));
+        mode_list->set_button_icon(get_theme_icon("FileList", "EditorIcons"));
+        dir_prev->set_button_icon(get_theme_icon("Back", "EditorIcons"));
+        dir_next->set_button_icon(get_theme_icon("Forward", "EditorIcons"));
+        dir_up->set_button_icon(get_theme_icon("ArrowUp", "EditorIcons"));
+        refresh->set_button_icon(get_theme_icon("Reload", "EditorIcons"));
+        favorite->set_button_icon(get_theme_icon("Favorites", "EditorIcons"));
+        show_hidden->set_button_icon(get_theme_icon("GuiVisibilityVisible", "EditorIcons"));
 
-        fav_up->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-        fav_down->set_button_icon(get_icon("MoveDown", "EditorIcons"));
+        fav_up->set_button_icon(get_theme_icon("MoveUp", "EditorIcons"));
+        fav_down->set_button_icon(get_theme_icon("MoveDown", "EditorIcons"));
 
     } else if (p_what == NOTIFICATION_PROCESS) {
 
@@ -91,7 +91,7 @@ void EditorFileDialog::_notification(int p_what) {
                 preview_wheel_index++;
                 if (preview_wheel_index >= 8)
                     preview_wheel_index = 0;
-                Ref<Texture> frame = get_icon(StringName("Progress" + itos(preview_wheel_index + 1)), "EditorIcons");
+                Ref<Texture> frame = get_theme_icon(StringName("Progress" + itos(preview_wheel_index + 1)), "EditorIcons");
                 preview->set_texture(frame);
                 preview_wheel_timeout = 0.1f;
             }
@@ -108,16 +108,16 @@ void EditorFileDialog::_notification(int p_what) {
         set_display_mode((DisplayMode)EditorSettings::get_singleton()->get("filesystem/file_dialog/display_mode").as<int>());
 
         // update icons
-        mode_thumbnails->set_button_icon(get_icon("FileThumbnail", "EditorIcons"));
-        mode_list->set_button_icon(get_icon("FileList", "EditorIcons"));
-        dir_prev->set_button_icon(get_icon("Back", "EditorIcons"));
-        dir_next->set_button_icon(get_icon("Forward", "EditorIcons"));
-        dir_up->set_button_icon(get_icon("ArrowUp", "EditorIcons"));
-        refresh->set_button_icon(get_icon("Reload", "EditorIcons"));
-        favorite->set_button_icon(get_icon("Favorites", "EditorIcons"));
+        mode_thumbnails->set_button_icon(get_theme_icon("FileThumbnail", "EditorIcons"));
+        mode_list->set_button_icon(get_theme_icon("FileList", "EditorIcons"));
+        dir_prev->set_button_icon(get_theme_icon("Back", "EditorIcons"));
+        dir_next->set_button_icon(get_theme_icon("Forward", "EditorIcons"));
+        dir_up->set_button_icon(get_theme_icon("ArrowUp", "EditorIcons"));
+        refresh->set_button_icon(get_theme_icon("Reload", "EditorIcons"));
+        favorite->set_button_icon(get_theme_icon("Favorites", "EditorIcons"));
 
-        fav_up->set_button_icon(get_icon("MoveUp", "EditorIcons"));
-        fav_down->set_button_icon(get_icon("MoveDown", "EditorIcons"));
+        fav_up->set_button_icon(get_theme_icon("MoveUp", "EditorIcons"));
+        fav_down->set_button_icon(get_theme_icon("MoveDown", "EditorIcons"));
         // DO NOT CALL UPDATE FILE LIST HERE, ALL HUNDREDS OF HIDDEN DIALOGS WILL RESPOND, CALL INVALIDATE INSTEAD
         invalidate();
     }
@@ -279,8 +279,8 @@ void EditorFileDialog::_post_popup() {
         _request_single_thumbnail(PathUtils::plus_file(get_current_dir(),get_current_file()));
 
     if (is_visible_in_tree()) {
-        Ref<Texture> folder = get_icon("folder", "FileDialog");
-        const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
+        Ref<Texture> folder = get_theme_icon("folder", "FileDialog");
+        const Color folder_color = get_theme_color("folder_icon_modulate", "FileDialog");
         recent->clear();
 
         bool res = access == ACCESS_RESOURCES;
@@ -566,9 +566,10 @@ void EditorFileDialog::_item_dc_selected(int p_item) {
     if (d["dir"].as<bool>()) {
 
         dir_access->change_dir(d["name"].as<String>());
-        call_deferred("_update_file_list");
-        call_deferred("_update_dir");
-
+        call_deferred([this]() {
+            update_file_list();
+            update_dir(); }
+        );
         _push_history();
 
     } else {
@@ -600,16 +601,16 @@ void EditorFileDialog::_item_list_item_rmb_selected(int p_item, const Vector2 &p
     }
 
     if (single_item_selected) {
-        item_menu->add_icon_item(get_icon("ActionCopy", "EditorIcons"), TTR("Copy Path"), ITEM_MENU_COPY_PATH);
+        item_menu->add_icon_item(get_theme_icon("ActionCopy", "EditorIcons"), TTR("Copy Path"), ITEM_MENU_COPY_PATH);
     }
     if (allow_delete) {
-        item_menu->add_icon_item(get_icon("Remove", "EditorIcons"), TTR("Delete"), ITEM_MENU_DELETE, KEY_DELETE);
+        item_menu->add_icon_item(get_theme_icon("Remove", "EditorIcons"), TTR("Delete"), ITEM_MENU_DELETE, KEY_DELETE);
     }
     if (single_item_selected) {
         item_menu->add_separator();
         Dictionary item_meta = item_list->get_item_metadata(p_item).as<Dictionary>();
         StringName item_text = item_meta["dir"].as<bool>() ? TTR("Open in File Manager") : TTR("Show in File Manager");
-        item_menu->add_icon_item(get_icon("Filesystem", "EditorIcons"), item_text, ITEM_MENU_SHOW_IN_EXPLORER);
+        item_menu->add_icon_item(get_theme_icon("Filesystem", "EditorIcons"), item_text, ITEM_MENU_SHOW_IN_EXPLORER);
     }
 
     if (item_menu->get_item_count() > 0) {
@@ -629,11 +630,11 @@ void EditorFileDialog::_item_list_rmb_clicked(const Vector2 &p_pos) {
     item_menu->set_size(Size2(1, 1));
 
     if (can_create_dir) {
-        item_menu->add_icon_item(get_icon("folder", "FileDialog"), TTR("New Folder..."), ITEM_MENU_NEW_FOLDER, KEY_MASK_CMD | KEY_N);
+        item_menu->add_icon_item(get_theme_icon("folder", "FileDialog"), TTR("New Folder..."), ITEM_MENU_NEW_FOLDER, KEY_MASK_CMD | KEY_N);
     }
-    item_menu->add_icon_item(get_icon("Reload", "EditorIcons"), TTR("Refresh"), ITEM_MENU_REFRESH, KEY_F5);
+    item_menu->add_icon_item(get_theme_icon("Reload", "EditorIcons"), TTR("Refresh"), ITEM_MENU_REFRESH, KEY_F5);
     item_menu->add_separator();
-    item_menu->add_icon_item(get_icon("Filesystem", "EditorIcons"), TTR("Open in File Manager"), ITEM_MENU_SHOW_IN_EXPLORER);
+    item_menu->add_icon_item(get_theme_icon("Filesystem", "EditorIcons"), TTR("Open in File Manager"), ITEM_MENU_SHOW_IN_EXPLORER);
 
     item_menu->set_position(item_list->get_global_position() + p_pos);
     item_menu->popup();
@@ -741,11 +742,11 @@ void EditorFileDialog::update_file_list() {
         item_list->set_fixed_icon_size(Size2(thumbnail_size, thumbnail_size));
 
         if (thumbnail_size < 64) {
-            folder_thumbnail = get_icon("FolderMediumThumb", "EditorIcons");
-            file_thumbnail = get_icon("FileMediumThumb", "EditorIcons");
+            folder_thumbnail = get_theme_icon("FolderMediumThumb", "EditorIcons");
+            file_thumbnail = get_theme_icon("FileMediumThumb", "EditorIcons");
         } else {
-            folder_thumbnail = get_icon("FolderBigThumb", "EditorIcons");
-            file_thumbnail = get_icon("FileBigThumb", "EditorIcons");
+            folder_thumbnail = get_theme_icon("FolderBigThumb", "EditorIcons");
+            file_thumbnail = get_theme_icon("FileBigThumb", "EditorIcons");
         }
 
         preview_vb->hide();
@@ -765,8 +766,8 @@ void EditorFileDialog::update_file_list() {
 
     dir_access->list_dir_begin();
 
-    Ref<Texture> folder = get_icon("folder", "FileDialog");
-    const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
+    Ref<Texture> folder = get_theme_icon("folder", "FileDialog");
+    const Color folder_color = get_theme_color("folder_icon_modulate", "FileDialog");
     List<String> files;
     List<String> dirs;
 
@@ -1241,8 +1242,8 @@ void EditorFileDialog::_update_favorites() {
     bool res = access == ACCESS_RESOURCES;
 
     String current = get_current_dir();
-    Ref<Texture> folder_icon = get_icon("Folder", "EditorIcons");
-    const Color folder_color = get_color("folder_icon_modulate", "FileDialog");
+    Ref<Texture> folder_icon = get_theme_icon("Folder", "EditorIcons");
+    const Color folder_color = get_theme_color("folder_icon_modulate", "FileDialog");
     favorites->clear();
 
     favorite->set_pressed(false);
@@ -1390,20 +1391,6 @@ void EditorFileDialog::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_unhandled_input"), &EditorFileDialog::_unhandled_input);
 
-    MethodBinder::bind_method(D_METHOD("_item_selected"), &EditorFileDialog::_item_selected);
-    MethodBinder::bind_method(D_METHOD("_multi_selected"), &EditorFileDialog::_multi_selected);
-    MethodBinder::bind_method(D_METHOD("_items_clear_selection"), &EditorFileDialog::_items_clear_selection);
-    MethodBinder::bind_method(D_METHOD("_item_list_item_rmb_selected"), &EditorFileDialog::_item_list_item_rmb_selected);
-    MethodBinder::bind_method(D_METHOD("_item_list_rmb_clicked"), &EditorFileDialog::_item_list_rmb_clicked);
-    MethodBinder::bind_method(D_METHOD("_item_menu_id_pressed"), &EditorFileDialog::_item_menu_id_pressed);
-    MethodBinder::bind_method(D_METHOD("_item_db_selected"), &EditorFileDialog::_item_dc_selected);
-    MethodBinder::bind_method(D_METHOD("_dir_entered"), &EditorFileDialog::_dir_entered);
-    MethodBinder::bind_method(D_METHOD("_file_entered"), &EditorFileDialog::_file_entered);
-    MethodBinder::bind_method(D_METHOD("_action_pressed"), &EditorFileDialog::_action_pressed);
-    MethodBinder::bind_method(D_METHOD("_cancel_pressed"), &EditorFileDialog::_cancel_pressed);
-    MethodBinder::bind_method(D_METHOD("_filter_selected"), &EditorFileDialog::_filter_selected);
-    MethodBinder::bind_method(D_METHOD("_save_confirm_pressed"), &EditorFileDialog::_save_confirm_pressed);
-
     MethodBinder::bind_method(D_METHOD("clear_filters"), &EditorFileDialog::clear_filters);
     MethodBinder::bind_method(D_METHOD("add_filter", {"filter"}), &EditorFileDialog::add_filter);
     MethodBinder::bind_method(D_METHOD("get_current_dir"), &EditorFileDialog::get_current_dir);
@@ -1419,28 +1406,10 @@ void EditorFileDialog::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_access"), &EditorFileDialog::get_access);
     MethodBinder::bind_method(D_METHOD("set_show_hidden_files", {"show"}), &EditorFileDialog::set_show_hidden_files);
     MethodBinder::bind_method(D_METHOD("is_showing_hidden_files"), &EditorFileDialog::is_showing_hidden_files);
-    MethodBinder::bind_method(D_METHOD("_select_drive"), &EditorFileDialog::_select_drive);
-    MethodBinder::bind_method(D_METHOD("_make_dir"), &EditorFileDialog::_make_dir);
-    MethodBinder::bind_method(D_METHOD("_make_dir_confirm"), &EditorFileDialog::_make_dir_confirm);
-    MethodBinder::bind_method(D_METHOD("_update_file_name"), &EditorFileDialog::update_file_name);
-    MethodBinder::bind_method(D_METHOD("_update_file_list"), &EditorFileDialog::update_file_list);
-    MethodBinder::bind_method(D_METHOD("_update_dir"), &EditorFileDialog::update_dir);
-    MethodBinder::bind_method(D_METHOD("_thumbnail_done"), &EditorFileDialog::_thumbnail_done);
     MethodBinder::bind_method(D_METHOD("set_display_mode", {"mode"}), &EditorFileDialog::set_display_mode);
     MethodBinder::bind_method(D_METHOD("get_display_mode"), &EditorFileDialog::get_display_mode);
-    MethodBinder::bind_method(D_METHOD("_thumbnail_result"), &EditorFileDialog::_thumbnail_result);
     MethodBinder::bind_method(D_METHOD("set_disable_overwrite_warning", {"disable"}), &EditorFileDialog::set_disable_overwrite_warning);
     MethodBinder::bind_method(D_METHOD("is_overwrite_warning_disabled"), &EditorFileDialog::is_overwrite_warning_disabled);
-
-    MethodBinder::bind_method(D_METHOD("_recent_selected"), &EditorFileDialog::_recent_selected);
-    MethodBinder::bind_method(D_METHOD("_go_back"), &EditorFileDialog::_go_back);
-    MethodBinder::bind_method(D_METHOD("_go_forward"), &EditorFileDialog::_go_forward);
-    MethodBinder::bind_method(D_METHOD("_go_up"), &EditorFileDialog::_go_up);
-
-    MethodBinder::bind_method(D_METHOD("_favorite_pressed"), &EditorFileDialog::_favorite_pressed);
-    MethodBinder::bind_method(D_METHOD("_favorite_selected"), &EditorFileDialog::_favorite_selected);
-    MethodBinder::bind_method(D_METHOD("_favorite_move_up"), &EditorFileDialog::_favorite_move_up);
-    MethodBinder::bind_method(D_METHOD("_favorite_move_down"), &EditorFileDialog::_favorite_move_down);
 
     MethodBinder::bind_method(D_METHOD("invalidate"), &EditorFileDialog::invalidate);
 
@@ -1728,7 +1697,7 @@ EditorFileDialog::EditorFileDialog() {
     filter->connect("item_selected",callable_mp(this, &ClassName::_filter_selected));
 
     confirm_save = memnew(ConfirmationDialog);
-    confirm_save->set_as_toplevel(true);
+    confirm_save->set_as_top_level(true);
     add_child(confirm_save);
     confirm_save->connect("confirmed",callable_mp(this, &ClassName::_save_confirm_pressed));
 
@@ -1778,13 +1747,11 @@ EditorFileDialog::~EditorFileDialog() {
 void EditorLineEditFileChooser::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED)
-        button->set_button_icon(get_icon("Folder", "EditorIcons"));
+        button->set_button_icon(get_theme_icon("Folder", "EditorIcons"));
 }
 
 void EditorLineEditFileChooser::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_browse"), &EditorLineEditFileChooser::_browse);
-    MethodBinder::bind_method(D_METHOD("_chosen"), &EditorLineEditFileChooser::_chosen);
     MethodBinder::bind_method(D_METHOD("get_button"), &EditorLineEditFileChooser::get_button);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &EditorLineEditFileChooser::get_line_edit);
     MethodBinder::bind_method(D_METHOD("get_file_dialog"), &EditorLineEditFileChooser::get_file_dialog);

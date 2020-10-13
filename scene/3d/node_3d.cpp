@@ -185,7 +185,7 @@ void Node3D::_notification(int p_what) {
             if (Engine::get_singleton()->is_editor_hint() && get_tree()->is_node_being_edited(this)) {
 
                 //get_scene()->call_group(SceneMainLoop::GROUP_CALL_REALTIME,SceneStringNames::get_singleton()->_spatial_editor_group,SceneStringNames::get_singleton()->_request_gizmo,this);
-                get_tree()->call_group_flags(0, SceneStringNames::get_singleton()->_spatial_editor_group, SceneStringNames::get_singleton()->_request_gizmo, Variant(this));
+                get_tree()->call_group_flags(0, "_spatial_editor_group", "_request_gizmo", Variant(this));
                 if (!data.gizmo_disabled) {
 
                     if (data.gizmo) {
@@ -312,7 +312,7 @@ Transform Node3D::get_relative_transform(const Node *p_parent) const {
 
     if (p_parent == this) {
         return Transform();
-	}
+    }
 
     ERR_FAIL_COND_V(!data.parent, Transform());
 
@@ -409,8 +409,7 @@ void Node3D::update_gizmo() {
     if (!is_inside_world())
         return;
     if (not data.gizmo)
-        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, SceneStringNames::get_singleton()->_spatial_editor_group,
-                SceneStringNames::get_singleton()->_request_gizmo, Variant(this));
+        get_tree()->call_group_flags(SceneTree::GROUP_CALL_REALTIME, "_spatial_editor_group", "_request_gizmo", Variant(this));
     if (not data.gizmo)
         return;
     if (data.gizmo_dirty)
@@ -486,7 +485,7 @@ bool Node3D::is_scale_disabled() const {
     return data.disable_scale;
 }
 
-void Node3D::set_as_toplevel(bool p_enabled) {
+void Node3D::set_as_top_level(bool p_enabled) {
 
     if (data.toplevel == p_enabled)
         return;
@@ -505,7 +504,7 @@ void Node3D::set_as_toplevel(bool p_enabled) {
     }
 }
 
-bool Node3D::is_set_as_toplevel() const {
+bool Node3D::is_set_as_top_level() const {
 
     return data.toplevel;
 }
@@ -754,8 +753,8 @@ void Node3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_global_transform"), &Node3D::get_global_transform);
     MethodBinder::bind_method(D_METHOD("get_parent_spatial"), &Node3D::get_parent_spatial);
     MethodBinder::bind_method(D_METHOD("set_ignore_transform_notification", {"enabled"}), &Node3D::set_ignore_transform_notification);
-    MethodBinder::bind_method(D_METHOD("set_as_toplevel", {"enable"}), &Node3D::set_as_toplevel);
-    MethodBinder::bind_method(D_METHOD("is_set_as_toplevel"), &Node3D::is_set_as_toplevel);
+    MethodBinder::bind_method(D_METHOD("set_as_top_level", {"enable"}), &Node3D::set_as_top_level);
+    MethodBinder::bind_method(D_METHOD("is_set_as_top_level"), &Node3D::is_set_as_top_level);
     MethodBinder::bind_method(D_METHOD("set_disable_scale", {"disable"}), &Node3D::set_disable_scale);
     MethodBinder::bind_method(D_METHOD("is_scale_disabled"), &Node3D::is_scale_disabled);
     MethodBinder::bind_method(D_METHOD("get_world"), &Node3D::get_world);
@@ -812,6 +811,8 @@ void Node3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation_degrees", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_rotation_degrees", "get_rotation_degrees");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "rotation", PropertyHint::None, "", 0), "set_rotation", "get_rotation");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR3, "scale", PropertyHint::None, "", PROPERTY_USAGE_EDITOR), "set_scale", "get_scale");
+    ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "toplevel"), "set_as_top_level", "is_set_as_top_level");
+
     ADD_GROUP("Matrix", "");
     ADD_PROPERTY(PropertyInfo(VariantType::TRANSFORM, "transform", PropertyHint::None, ""), "set_transform", "get_transform");
     ADD_GROUP("Visibility", "");

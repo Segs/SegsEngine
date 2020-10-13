@@ -2795,13 +2795,13 @@ void Node::clear_internal_tree_resource_paths() {
     }
 }
 
-StringName Node::get_configuration_warning() const {
+String Node::get_configuration_warning() const {
 
     if (get_script_instance() && get_script_instance()->get_script() &&
             get_script_instance()->has_method("_get_configuration_warning")) {
-        return get_script_instance()->call("_get_configuration_warning").as<StringName>();
+        return get_script_instance()->call("_get_configuration_warning").as<String>();
     }
-    return StringName();
+    return String();
 }
 
 void Node::update_configuration_warning() {

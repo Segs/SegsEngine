@@ -14,6 +14,15 @@ StringName TTR(StringView p_text) {
     return StringName(p_text);
 }
 
+String TTRS(StringView p_text) {
+
+    if (TranslationServer::get_singleton()) {
+        return String(TranslationServer::get_singleton()->tool_translate(StringName(p_text)));
+    }
+
+    return String(p_text);
+}
+
 StringName DTR(StringView p_text) {
     using namespace StringUtils;
     if (TranslationServer::get_singleton()) {

@@ -198,7 +198,7 @@ void SpinBox::_notification(int p_what) {
 
     if (p_what == NOTIFICATION_DRAW) {
 
-        Ref<Texture> updown = get_icon("updown");
+        Ref<Texture> updown = get_theme_icon("updown");
 
         _adjust_width_for_icon(updown);
 
@@ -212,7 +212,7 @@ void SpinBox::_notification(int p_what) {
         //_value_changed(0);
     } else if (p_what == NOTIFICATION_ENTER_TREE) {
 
-        _adjust_width_for_icon(get_icon("updown"));
+        _adjust_width_for_icon(get_theme_icon("updown"));
         _value_changed(0);
     } else if (p_what == NOTIFICATION_THEME_CHANGED) {
         call_deferred([this]() { minimum_size_changed(); });
@@ -266,9 +266,7 @@ void SpinBox::apply() {
 }
 void SpinBox::_bind_methods() {
 
-    //MethodBinder::bind_method(D_METHOD("_value_changed"),&SpinBox::_value_changed);
     MethodBinder::bind_method(D_METHOD("_gui_input"), &SpinBox::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_text_entered"), &SpinBox::_text_entered);
     MethodBinder::bind_method(D_METHOD("set_align", {"align"}), &SpinBox::set_align);
     MethodBinder::bind_method(D_METHOD("get_align"), &SpinBox::get_align);
     MethodBinder::bind_method(D_METHOD("set_suffix", {"suffix"}), &SpinBox::set_suffix);
@@ -278,10 +276,7 @@ void SpinBox::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_editable", {"editable"}), &SpinBox::set_editable);
     MethodBinder::bind_method(D_METHOD("is_editable"), &SpinBox::is_editable);
     MethodBinder::bind_method(D_METHOD("apply"), &SpinBox::apply);
-    MethodBinder::bind_method(D_METHOD("_line_edit_focus_exit"), &SpinBox::_line_edit_focus_exit);
     MethodBinder::bind_method(D_METHOD("get_line_edit"), &SpinBox::get_line_edit);
-    MethodBinder::bind_method(D_METHOD("_line_edit_input"), &SpinBox::_line_edit_input);
-    MethodBinder::bind_method(D_METHOD("_range_click_timeout"), &SpinBox::_range_click_timeout);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "align", PropertyHint::Enum, "Left,Center,Right,Fill"), "set_align", "get_align");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editable"), "set_editable", "is_editable");
@@ -297,7 +292,7 @@ SpinBox::SpinBox() {
 
     line_edit->set_anchors_and_margins_preset(Control::PRESET_WIDE);
     line_edit->set_mouse_filter(MOUSE_FILTER_PASS);
-    //connect("value_changed",this,"_value_changed");
+
     line_edit->connect("text_entered",callable_mp(this, &ClassName::_text_entered), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
     line_edit->connect("focus_exited",callable_mp(this, &ClassName::_line_edit_focus_exit), null_variant_pvec, ObjectNS::CONNECT_QUEUED);
     line_edit->connect("gui_input",callable_mp(this, &ClassName::_line_edit_input));

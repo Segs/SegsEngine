@@ -11,7 +11,7 @@
 #include "scene_map.h"
 
 
-class SpatialEditorPlugin;
+class Node3DEditorPlugin;
 class SpinBox;
 class MenuButton;
 class HSlider;

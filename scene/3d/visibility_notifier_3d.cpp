@@ -254,7 +254,6 @@ void VisibilityEnabler3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_enabler", {"enabler", "enabled"}), &VisibilityEnabler3D::set_enabler);
     MethodBinder::bind_method(D_METHOD("is_enabler_enabled", {"enabler"}), &VisibilityEnabler3D::is_enabler_enabled);
-    MethodBinder::bind_method(D_METHOD("_node_removed"), &VisibilityEnabler3D::_node_removed);
 
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);

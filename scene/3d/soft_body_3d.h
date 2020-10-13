@@ -113,7 +113,7 @@ protected:
     void _notification(int p_what);
     static void _bind_methods();
 
-    StringName get_configuration_warning() const override;
+    String get_configuration_warning() const override;
 
 protected:
     void _update_physics_server();

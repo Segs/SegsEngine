@@ -1,5 +1,4 @@
-#ifndef _JL_OBJECT_POOL_SCOPED_ALLOCATOR_H_
-#define _JL_OBJECT_POOL_SCOPED_ALLOCATOR_H_
+#pragma once
 
 #include "ScopedAllocator.h"
 #include "ObjectPool.h"
@@ -73,7 +72,5 @@ public:
 private:
     TObjectPool m_oPool;
 };
-    
-} // namespace jl
 
-#endif // ! defined( _JL_OBJECT_POOL_SCOPED_ALLOCATOR_H_ )
+} // namespace jl
