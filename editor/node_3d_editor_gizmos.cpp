@@ -4238,8 +4238,8 @@ JointSpatialGizmoPlugin::JointSpatialGizmoPlugin() {
     update_timer->connect("timeout",callable_mp(this, &ClassName::incremental_update_gizmos));
     update_timer->set_autostart(true);
 
-    EditorNode::get_singleton()->call_deferred([this]() {
-        EditorNode::get_singleton()->add_child(update_timer);
+    EditorNode::get_singleton()->call_deferred([ut=update_timer]() {
+        EditorNode::get_singleton()->add_child(ut);
     });
 
 }

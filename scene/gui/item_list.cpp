@@ -1586,11 +1586,11 @@ void ItemList::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "icon_scale"), "set_icon_scale", "get_icon_scale");
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "fixed_icon_size"), "set_fixed_icon_size", "get_fixed_icon_size");
 
-    BIND_ENUM_CONSTANT(ICON_MODE_TOP)
-    BIND_ENUM_CONSTANT(ICON_MODE_LEFT)
+    BIND_ENUM_CONSTANT(ICON_MODE_TOP);
+    BIND_ENUM_CONSTANT(ICON_MODE_LEFT);
 
-    BIND_ENUM_CONSTANT(SELECT_SINGLE)
-    BIND_ENUM_CONSTANT(SELECT_MULTI)
+    BIND_ENUM_CONSTANT(SELECT_SINGLE);
+    BIND_ENUM_CONSTANT(SELECT_MULTI);
 
     ADD_SIGNAL(MethodInfo("item_selected", PropertyInfo(VariantType::INT, "index")));
     ADD_SIGNAL(MethodInfo("item_rmb_selected", PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::VECTOR2, "at_position")));

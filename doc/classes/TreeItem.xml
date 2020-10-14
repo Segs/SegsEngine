@@ -458,9 +458,7 @@
 			</return>
 			<argument index="0" name="column" type="int">
 			</argument>
-			<argument index="1" name="object" type="Object">
-			</argument>
-			<argument index="2" name="callback" type="String">
+			<argument index="1" name="callback" type="Callable">
 			</argument>
 			<description>
 				Sets the given column's custom draw callback to [code]callback[/code] method on [code]object[/code].

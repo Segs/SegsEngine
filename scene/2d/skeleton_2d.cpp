@@ -183,7 +183,7 @@ void Skeleton2D::_make_bone_setup_dirty() {
         return;
     bone_setup_dirty = true;
     if (is_inside_tree()) {
-        call_deferred("_update_bone_setup");
+        call_deferred([this]() { _update_bone_setup(); });
     }
 }
 
@@ -218,7 +218,7 @@ void Skeleton2D::_make_transform_dirty() {
         return;
     transform_dirty = true;
     if (is_inside_tree()) {
-        call_deferred("_update_transform");
+        call_deferred([this]() { _update_transform(); });
     }
 }
 

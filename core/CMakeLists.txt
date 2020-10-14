@@ -432,8 +432,6 @@ target_link_libraries(se_core PUBLIC editor_interface)
 # Make binders
 
 foreach(tgt ${global_targets})
-    OPTION(OPTION_${tgt}_USE_PTRCALL "Use ptrcall in GDNative" OFF)
-
     add_library(${tgt}_core STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
         ${core_sources} ${tool_core_sources}
@@ -481,6 +479,6 @@ file(
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${tree_source_list})
 
 
-add_executable(thread_test thread_test.cpp)
-find_package(benchmark REQUIRED)
-target_link_libraries(thread_test Threads::Threads) #benchmark::benchmark
+#add_executable(thread_test thread_test.cpp)
+#find_package(benchmark REQUIRED)
+#target_link_libraries(thread_test Threads::Threads) #benchmark::benchmark

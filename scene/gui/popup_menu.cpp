@@ -362,7 +362,7 @@ void PopupMenu::_gui_input(const Ref<InputEvent> &p_event) {
         for (const Rect2 &E : autohide_areas) {
 
             if (!Rect2(Point2(), get_size()).has_point(m->get_position()) && E.has_point(m->get_position())) {
-                call_deferred("hide");
+                call_deferred([this] { hide();} );
                 return;
             }
         }

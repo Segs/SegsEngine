@@ -454,10 +454,10 @@ void FindReplaceBar::_show_search(bool p_focus_replace, bool p_show_only) {
 
     if (p_focus_replace) {
         search_text->deselect();
-        replace_text->call_deferred("grab_focus");
+        replace_text->call_deferred([tgt=replace_text](){tgt->grab_focus();});
     } else {
         replace_text->deselect();
-        search_text->call_deferred("grab_focus");
+        search_text->call_deferred([tgt=search_text](){tgt->grab_focus();});
     }
 
     if (text_edit->is_selection_active() && !selection_only->is_pressed()) {
@@ -1342,19 +1342,22 @@ void CodeTextEditor::toggle_inline_comment(StringView delimiter) {
 void CodeTextEditor::goto_line(int p_line) {
     text_editor->deselect();
     text_editor->unfold_line(p_line);
-    text_editor->call_deferred("cursor_set_line", p_line);
+    text_editor->call_deferred([te=text_editor,p_line] { te->cursor_set_line(p_line);});
 }
 
 void CodeTextEditor::goto_line_selection(int p_line, int p_begin, int p_end) {
     text_editor->unfold_line(p_line);
-    text_editor->call_deferred("cursor_set_line", p_line);
-    text_editor->call_deferred("cursor_set_column", p_begin);
+    text_editor->call_deferred([te=text_editor,p_line,p_begin] {
+        te->cursor_set_line(p_line);
+        te->cursor_set_column(p_begin);
+    });
     text_editor->select(p_line, p_begin, p_line, p_end);
 }
 
 void CodeTextEditor::goto_line_centered(int p_line) {
     goto_line(p_line);
-    text_editor->call_deferred("center_viewport_to_cursor");
+    text_editor->call_deferred([te=text_editor] { te->center_viewport_to_cursor();});
+
 }
 
 void CodeTextEditor::set_executing_line(int p_line) {

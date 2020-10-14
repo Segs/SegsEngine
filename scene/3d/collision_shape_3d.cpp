@@ -259,6 +259,6 @@ void CollisionShape3D::_shape_changed() {
 
     if (is_inside_tree() && get_tree()->is_debugging_collisions_hint() && !debug_shape_dirty) {
         debug_shape_dirty = true;
-        call_deferred("_update_debug_shape");
+        call_deferred([this] { _update_debug_shape(); });
     }
 }

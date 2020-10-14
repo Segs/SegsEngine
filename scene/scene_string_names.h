@@ -104,16 +104,8 @@ public:
     StringName area_shape_entered;
     StringName area_shape_exited;
 
-    StringName _body_inout;
-    StringName _area_inout;
-
-    StringName _get_gizmo_geometry;
-    StringName _can_gizmo_scale;
-
     StringName _physics_process;
     StringName _process;
-    StringName _enter_world;
-    StringName _exit_world;
     StringName _enter_tree;
     StringName _exit_tree;
     StringName _draw;
@@ -126,11 +118,9 @@ public:
     StringName _toggled;
 
     StringName _update_scroll;
-    StringName _update_xform;
 
     StringName _clips_input;
 
-    StringName _proxgroup_add;
     StringName _proxgroup_remove;
 
     StringName grouped;
@@ -147,12 +137,6 @@ public:
     StringName viewport_exited;
     StringName camera_entered;
     StringName camera_exited;
-
-    StringName _body_enter_tree;
-    StringName _body_exit_tree;
-
-    StringName _area_enter_tree;
-    StringName _area_exit_tree;
 
     StringName changed;
 
@@ -208,5 +192,4 @@ public:
         MAX_MATERIALS = 32
     };
     StringName mesh_materials[MAX_MATERIALS];
-    StringName _mesh_changed;
 };

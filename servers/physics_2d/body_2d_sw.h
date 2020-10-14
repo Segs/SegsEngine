@@ -64,12 +64,7 @@ class Body2DSW : public CollisionObject2DSW {
         RID collider;
         Vector2 collider_velocity_at_pos;
     };
-    struct ForceIntegrationCallback {
-
-        ObjectID id;
-        StringName method;
-        Variant callback_udata;
-    };
+    using ForceIntegrationCallback = Callable;
 
 
     PhysicsServer2D::BodyMode mode;
@@ -124,7 +119,7 @@ class Body2DSW : public CollisionObject2DSW {
     Vector<Contact> contacts; //no contacts by default
     int contact_count;
 
-    ForceIntegrationCallback *fi_callback;
+    ForceIntegrationCallback fi_callback;
 
     uint64_t island_step;
     Body2DSW *island_next;
@@ -140,7 +135,7 @@ class Body2DSW : public CollisionObject2DSW {
     friend class Physics2DDirectBodyStateSW; // i give up, too many functions to expose
 
 public:
-    void set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata = Variant());
+    void set_force_integration_callback(Callable &&cb);
 
     _FORCE_INLINE_ void add_area(Area2DSW *p_area) {
         auto index = areas.find(AreaCMP(p_area));

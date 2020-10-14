@@ -274,27 +274,27 @@ void Tween::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "playback_speed", PropertyHint::Range, "-64,64,0.01"), "set_speed_scale", "get_speed_scale");
 
     // Bind Idle vs Physics process
-    BIND_ENUM_CONSTANT(TWEEN_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(TWEEN_PROCESS_IDLE)
+    BIND_ENUM_CONSTANT(TWEEN_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(TWEEN_PROCESS_IDLE);
 
     // Bind the Transition type constants
-    BIND_ENUM_CONSTANT(TRANS_LINEAR)
-    BIND_ENUM_CONSTANT(TRANS_SINE)
-    BIND_ENUM_CONSTANT(TRANS_QUINT)
-    BIND_ENUM_CONSTANT(TRANS_QUART)
-    BIND_ENUM_CONSTANT(TRANS_QUAD)
-    BIND_ENUM_CONSTANT(TRANS_EXPO)
-    BIND_ENUM_CONSTANT(TRANS_ELASTIC)
-    BIND_ENUM_CONSTANT(TRANS_CUBIC)
-    BIND_ENUM_CONSTANT(TRANS_CIRC)
-    BIND_ENUM_CONSTANT(TRANS_BOUNCE)
-    BIND_ENUM_CONSTANT(TRANS_BACK)
+    BIND_ENUM_CONSTANT(TRANS_LINEAR);
+    BIND_ENUM_CONSTANT(TRANS_SINE);
+    BIND_ENUM_CONSTANT(TRANS_QUINT);
+    BIND_ENUM_CONSTANT(TRANS_QUART);
+    BIND_ENUM_CONSTANT(TRANS_QUAD);
+    BIND_ENUM_CONSTANT(TRANS_EXPO);
+    BIND_ENUM_CONSTANT(TRANS_ELASTIC);
+    BIND_ENUM_CONSTANT(TRANS_CUBIC);
+    BIND_ENUM_CONSTANT(TRANS_CIRC);
+    BIND_ENUM_CONSTANT(TRANS_BOUNCE);
+    BIND_ENUM_CONSTANT(TRANS_BACK);
 
     // Bind the easing constants
-    BIND_ENUM_CONSTANT(EASE_IN)
-    BIND_ENUM_CONSTANT(EASE_OUT)
-    BIND_ENUM_CONSTANT(EASE_IN_OUT)
-    BIND_ENUM_CONSTANT(EASE_OUT_IN)
+    BIND_ENUM_CONSTANT(EASE_IN);
+    BIND_ENUM_CONSTANT(EASE_OUT);
+    BIND_ENUM_CONSTANT(EASE_IN_OUT);
+    BIND_ENUM_CONSTANT(EASE_OUT_IN);
 }
 
 Variant Tween::_get_initial_val(const InterpolateData &p_data) const {
@@ -787,7 +787,7 @@ void Tween::_tween_process(float p_delta) {
 
             // If we are not repeating the tween, remove it
             if (!repeat)
-                call_deferred("_remove_by_uid", data.uid);
+                call_deferred([this,uid=data.uid] { _remove_by_uid(uid); });
         } else if (!repeat) {
             // Check whether all tweens are finished
             all_finished = all_finished && data.finish;
@@ -848,7 +848,7 @@ bool Tween::start() {
     // Are there any pending updates?
     if (pending_update != 0) {
         // Start the tweens after deferring
-        call_deferred("start");
+        call_deferred([this] {start();});
         return true;
     }
 
@@ -969,7 +969,7 @@ bool Tween::resume_all() {
 bool Tween::remove(Object *p_object, const StringName& p_key) {
     // If we are still updating, call this function again later
     if (pending_update != 0) {
-        call_deferred("remove", Variant(p_object), p_key);
+        call_deferred([this,p_object,p_key] {remove(p_object,p_key);});
         return true;
     }
 
@@ -999,7 +999,7 @@ bool Tween::remove(Object *p_object, const StringName& p_key) {
 void Tween::_remove_by_uid(int uid) {
     // If we are still updating, call this function again later
     if (pending_update != 0) {
-        call_deferred("_remove_by_uid", uid);
+        call_deferred([this,uid] {_remove_by_uid(uid);});
         return;
     }
 
@@ -1022,7 +1022,7 @@ void Tween::_push_interpolate_data(InterpolateData &p_data) {
 bool Tween::remove_all() {
     // If we are still updating, call this function again later
     if (pending_update != 0) {
-        call_deferred("remove_all");
+        call_deferred([this] {remove_all();});
         return true;
     }
     // We no longer need to be active

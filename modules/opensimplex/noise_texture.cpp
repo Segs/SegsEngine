@@ -82,12 +82,6 @@ void NoiseTexture::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_bump_strength", {"bump_strength"}), &NoiseTexture::set_bump_strength);
     MethodBinder::bind_method(D_METHOD("get_bump_strength"), &NoiseTexture::get_bump_strength);
 
-    MethodBinder::bind_method(D_METHOD("_update_texture"), &NoiseTexture::_update_texture);
-    MethodBinder::bind_method(D_METHOD("_queue_update"), &NoiseTexture::_queue_update);
-
-    MethodBinder::bind_method(D_METHOD("_generate_texture"), &NoiseTexture::_generate_texture);
-    MethodBinder::bind_method(D_METHOD("_thread_done", {"image"}), &NoiseTexture::_thread_done);
-
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "width", PropertyHint::Range, "1,2048,1,or_greater"), "set_width", "get_width");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "height", PropertyHint::Range, "1,2048,1,or_greater"), "set_height", "get_height");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "seamless"), "set_seamless", "get_seamless");
@@ -128,7 +122,7 @@ void NoiseTexture::_thread_done(const Ref<Image> &p_image) {
 
 void NoiseTexture::_thread_function(void *p_ud) {
     NoiseTexture *tex = (NoiseTexture *)p_ud;
-    tex->call_deferred("_thread_done", tex->_generate_texture());
+    tex->call_deferred([tex,img=eastl::move(tex->_generate_texture())]() { tex->_thread_done(img); });
 }
 
 void NoiseTexture::_queue_update() {

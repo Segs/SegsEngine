@@ -337,13 +337,12 @@ Variant TreeItem::get_metadata(int p_column) const {
     return cells[p_column].meta;
 }
 
-void TreeItem::set_custom_draw(int p_column, Object *p_object, const StringName &p_callback) {
+void TreeItem::set_custom_draw(int p_column, Callable &&callback) {
 
     ERR_FAIL_INDEX(p_column, cells.size());
-    ERR_FAIL_NULL(p_object);
+    ERR_FAIL_COND(callback==Callable{});
 
-    cells[p_column].custom_draw_obj = p_object->get_instance_id();
-    cells[p_column].custom_draw_callback = p_callback;
+    cells[p_column].custom_draw = eastl::move(callback);
 }
 
 void TreeItem::set_collapsed(bool p_collapsed) {
@@ -831,7 +830,7 @@ void TreeItem::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_metadata", {"column", "meta"}), &TreeItem::set_metadata);
     MethodBinder::bind_method(D_METHOD("get_metadata", {"column"}), &TreeItem::get_metadata);
 
-    MethodBinder::bind_method(D_METHOD("set_custom_draw", {"column", "object", "callback"}), &TreeItem::set_custom_draw);
+    MethodBinder::bind_method(D_METHOD("set_custom_draw", {"column", "callback"}), &TreeItem::set_custom_draw);
 
     MethodBinder::bind_method(D_METHOD("set_collapsed", {"enable"}), &TreeItem::set_collapsed);
     MethodBinder::bind_method(D_METHOD("is_collapsed"), &TreeItem::is_collapsed);
@@ -901,15 +900,15 @@ void TreeItem::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disable_folding"), "set_disable_folding", "is_folding_disabled");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "custom_minimum_height", PropertyHint::Range, "0,1000,1"), "set_custom_minimum_height", "get_custom_minimum_height");
 
-    BIND_ENUM_CONSTANT(CELL_MODE_STRING)
-    BIND_ENUM_CONSTANT(CELL_MODE_CHECK)
-    BIND_ENUM_CONSTANT(CELL_MODE_RANGE)
-    BIND_ENUM_CONSTANT(CELL_MODE_ICON)
-    BIND_ENUM_CONSTANT(CELL_MODE_CUSTOM)
+    BIND_ENUM_CONSTANT(CELL_MODE_STRING);
+    BIND_ENUM_CONSTANT(CELL_MODE_CHECK);
+    BIND_ENUM_CONSTANT(CELL_MODE_RANGE);
+    BIND_ENUM_CONSTANT(CELL_MODE_ICON);
+    BIND_ENUM_CONSTANT(CELL_MODE_CUSTOM);
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT)
-    BIND_ENUM_CONSTANT(ALIGN_CENTER)
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
+    BIND_ENUM_CONSTANT(ALIGN_LEFT);
+    BIND_ENUM_CONSTANT(ALIGN_CENTER);
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
 }
 
 void TreeItem::clear_children() {
@@ -1433,11 +1432,21 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
                 case TreeItem::CELL_MODE_CUSTOM: {
 
 
-                    if (p_item->cells[i].custom_draw_obj.is_valid()) {
+                    if (!p_item->cells[i].custom_draw.is_null()) {
 
-                        Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw_obj);
-                        if (cdo)
-                            cdo->call_va(p_item->cells[i].custom_draw_callback, Variant(p_item), Rect2(item_rect));
+                        Object *cdo = gObjectDB().get_instance(p_item->cells[i].custom_draw.get_object_id());
+                        if (cdo) {
+                            Variant args[2] = {
+                                Variant(p_item), Rect2(item_rect)
+                            };
+                            const Variant *pargs[2] = {
+                                &args[0],&args[1]
+                            };
+
+                            Variant ret;
+                            Callable::CallError err;
+                            p_item->cells[i].custom_draw.call(pargs,2,ret,err);
+                        }
                     }
 
                     if (!p_item->cells[i].editable) {
@@ -3518,7 +3527,7 @@ void Tree::ensure_cursor_is_visible() {
         if (cell_h > screen_h) { // Screen size is too small, maybe it was not resized yet.
             v_scroll->set_value(y_offset);
         } else if (y_offset + cell_h > v_scroll->get_value() + screen_h) {
-            v_scroll->call_deferred("set_value", y_offset - screen_h + cell_h);
+            v_scroll->call_deferred([tgt=v_scroll,y_offset,screen_h,cell_h]() { tgt->set_value(y_offset - screen_h + cell_h); });
         } else if (y_offset < v_scroll->get_value()) {
             v_scroll->set_value(y_offset);
         }
@@ -3536,7 +3545,7 @@ void Tree::ensure_cursor_is_visible() {
         if (cell_w > screen_w) {
             h_scroll->set_value(x_offset);
         } else if (x_offset + cell_w > h_scroll->get_value() + screen_w) {
-            h_scroll->call_deferred("set_value", x_offset - screen_w + cell_w);
+            h_scroll->call_deferred([tgt=h_scroll,x_offset,screen_w,cell_w]() { tgt->set_value(x_offset - screen_w + cell_w); });
         } else if (x_offset < h_scroll->get_value()) {
             h_scroll->set_value(x_offset);
         }
@@ -4077,13 +4086,13 @@ void Tree::_bind_methods() {
     ADD_SIGNAL(MethodInfo("column_title_pressed", PropertyInfo(VariantType::INT, "column")));
     ADD_SIGNAL(MethodInfo("nothing_selected"));
 
-    BIND_ENUM_CONSTANT(SELECT_SINGLE)
-    BIND_ENUM_CONSTANT(SELECT_ROW)
-    BIND_ENUM_CONSTANT(SELECT_MULTI)
+    BIND_ENUM_CONSTANT(SELECT_SINGLE);
+    BIND_ENUM_CONSTANT(SELECT_ROW);
+    BIND_ENUM_CONSTANT(SELECT_MULTI);
 
-    BIND_ENUM_CONSTANT(DROP_MODE_DISABLED)
-    BIND_ENUM_CONSTANT(DROP_MODE_ON_ITEM)
-    BIND_ENUM_CONSTANT(DROP_MODE_INBETWEEN)
+    BIND_ENUM_CONSTANT(DROP_MODE_DISABLED);
+    BIND_ENUM_CONSTANT(DROP_MODE_ON_ITEM);
+    BIND_ENUM_CONSTANT(DROP_MODE_INBETWEEN);
 }
 
 Tree::Tree() {

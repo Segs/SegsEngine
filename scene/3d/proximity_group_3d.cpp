@@ -201,8 +201,8 @@ void ProximityGroup3D::_bind_methods() {
 
     ADD_SIGNAL(MethodInfo("broadcast", PropertyInfo(VariantType::STRING, "group_name"), PropertyInfo(VariantType::ARRAY, "parameters")));
 
-    BIND_ENUM_CONSTANT(MODE_PROXY)
-    BIND_ENUM_CONSTANT(MODE_SIGNAL)
+    BIND_ENUM_CONSTANT(MODE_PROXY);
+    BIND_ENUM_CONSTANT(MODE_SIGNAL);
 };
 
 ProximityGroup3D::ProximityGroup3D() {

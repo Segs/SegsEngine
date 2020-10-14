@@ -720,7 +720,8 @@ void ScriptTextEditor::_bookmark_item_pressed(int p_idx) {
         _edit_option(bookmarks_menu->get_item_id(p_idx));
     } else {
         code_editor->goto_line(bookmarks_menu->get_item_metadata(p_idx).as<int>());
-        code_editor->get_text_edit()->call_deferred("center_viewport_to_cursor"); //Need to be deferred, because goto uses call_deferred().
+        auto te=code_editor->get_text_edit();
+        te->call_deferred([te] { te->center_viewport_to_cursor(); }); //Need to be deferred, because goto uses call_deferred().
     }
 }
 
@@ -870,8 +871,8 @@ void ScriptTextEditor::_breakpoint_item_pressed(int p_idx) {
         _edit_option(breakpoints_menu->get_item_id(p_idx));
     } else {
         code_editor->goto_line(breakpoints_menu->get_item_metadata(p_idx).as<int>());
-        code_editor->get_text_edit()->call_deferred("center_viewport_to_cursor"); //Need to be deferred, because goto uses call_deferred().
-
+        auto te=code_editor->get_text_edit();
+        te->call_deferred([te] { te->center_viewport_to_cursor(); }); //Need to be deferred, because goto uses call_deferred().
     }
 }
 
@@ -1110,32 +1111,32 @@ void ScriptTextEditor::_edit_option(int p_op) {
         case EDIT_UNDO: {
 
             tx->undo();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_REDO: {
 
             tx->redo();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_CUT: {
 
             tx->cut();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_COPY: {
 
             tx->copy();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_PASTE: {
 
             tx->paste();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_SELECT_ALL: {
 
             tx->select_all();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus(); });
         } break;
         case EDIT_MOVE_LINE_UP: {
 

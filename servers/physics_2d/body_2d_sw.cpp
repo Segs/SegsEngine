@@ -561,7 +561,7 @@ void Body2DSW::integrate_velocities(real_t p_step) {
     if (mode == PhysicsServer2D::BODY_MODE_STATIC)
         return;
 
-    if (fi_callback)
+    if (fi_callback.is_valid())
         get_space()->body_add_to_state_query_list(&direct_state_query_list);
 
     if (mode == PhysicsServer2D::BODY_MODE_KINEMATIC) {
@@ -612,27 +612,22 @@ void Body2DSW::wakeup_neighbours() {
 
 void Body2DSW::call_queries() {
 
-    if (fi_callback) {
+    if (fi_callback.is_valid()) {
 
         Physics2DDirectBodyStateSW *dbs = Physics2DDirectBodyStateSW::singleton;
         dbs->body = this;
 
         Variant v(dbs);
-        const Variant *vp[2] = { &v, &fi_callback->callback_udata };
+        const Variant *vp[1] = { &v };
 
-        Object *obj = gObjectDB().get_instance(fi_callback->id);
+        Object *obj = fi_callback.get_object();
         if (!obj) {
 
-            set_force_integration_callback(ObjectID(0ULL), StringName());
+            set_force_integration_callback({});
         } else {
             Callable::CallError ce;
-            if (fi_callback->callback_udata.get_type() != VariantType::NIL) {
-
-                obj->call(fi_callback->method, vp, 2, ce);
-
-            } else {
-                obj->call(fi_callback->method, vp, 1, ce);
-            }
+            Variant ret;
+            fi_callback.call(vp,1,ret,ce);
         }
     }
 }
@@ -658,21 +653,8 @@ bool Body2DSW::sleep_test(real_t p_step) {
     }
 }
 
-void Body2DSW::set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata) {
-
-    if (fi_callback) {
-
-        memdelete(fi_callback);
-        fi_callback = nullptr;
-    }
-
-    if (p_id.is_valid()) {
-
-        fi_callback = memnew(ForceIntegrationCallback);
-        fi_callback->id = p_id;
-        fi_callback->method = p_method;
-        fi_callback->callback_udata = p_udata;
-    }
+void Body2DSW::set_force_integration_callback(Callable &&cb) {
+    fi_callback = eastl::move(cb);
 }
 
 Body2DSW::Body2DSW() :
@@ -709,16 +691,13 @@ Body2DSW::Body2DSW() :
     still_time = 0;
     continuous_cd_mode = PhysicsServer2D::CCD_MODE_DISABLED;
     can_sleep = true;
-    fi_callback = nullptr;
+    fi_callback = {};
 }
 
 Body2DSW::~Body2DSW() {
 
     if (get_space())
         get_space()->body_remove_from_active_list(this);
-
-    if (fi_callback)
-        memdelete(fi_callback);
 }
 
 Physics2DDirectBodyStateSW *Physics2DDirectBodyStateSW::singleton = nullptr;

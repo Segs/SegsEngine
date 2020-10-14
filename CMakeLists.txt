@@ -98,6 +98,16 @@ target_include_directories(editor_interface INTERFACE
 )
 
 add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
+target_compile_definitions(client_interface INTERFACE
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+)
+target_include_directories(client_interface INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include/SegsEngine>
+
+)
+
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
 
 add_library(server_interface INTERFACE) # serve executable

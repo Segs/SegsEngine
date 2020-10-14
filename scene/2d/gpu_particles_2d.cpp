@@ -407,8 +407,8 @@ void GPUParticles2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "texture", PropertyHint::ResourceType, "Texture"), "set_texture", "get_texture");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "normal_map", PropertyHint::ResourceType, "Texture"), "set_normal_map", "get_normal_map");
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
 }
 
 GPUParticles2D::GPUParticles2D() {

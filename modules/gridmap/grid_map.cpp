@@ -750,7 +750,7 @@ void GridMap::_queue_octants_dirty() {
     if (awaiting_update)
         return;
 
-    MessageQueue::get_singleton()->push_call(this, "_update_octants_callback");
+    MessageQueue::get_singleton()->push_call(get_instance_id(),[this]() { _update_octants_callback(); });
     awaiting_update = true;
 }
 
@@ -848,7 +848,6 @@ void GridMap::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("world_to_map", {"pos"}), &GridMap::world_to_map);
     MethodBinder::bind_method(D_METHOD("map_to_world", {"x", "y", "z"}), &GridMap::map_to_world);
 
-    MethodBinder::bind_method(D_METHOD("_update_octants_callback"), &GridMap::_update_octants_callback);
     MethodBinder::bind_method(D_METHOD("resource_changed", {"resource"}), &GridMap::resource_changed);
 
     MethodBinder::bind_method(D_METHOD("set_center_x", {"enable"}), &GridMap::set_center_x);

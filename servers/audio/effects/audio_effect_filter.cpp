@@ -175,10 +175,10 @@ void AudioEffectFilter::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gain", PropertyHint::Range, "0,4,0.01"), "set_gain", "get_gain");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "db", PropertyHint::Enum, "6 dB,12 dB,18 dB,24 dB"), "set_db", "get_db");
 
-    BIND_ENUM_CONSTANT(FILTER_6DB)
-    BIND_ENUM_CONSTANT(FILTER_12DB)
-    BIND_ENUM_CONSTANT(FILTER_18DB)
-    BIND_ENUM_CONSTANT(FILTER_24DB)
+    BIND_ENUM_CONSTANT(FILTER_6DB);
+    BIND_ENUM_CONSTANT(FILTER_12DB);
+    BIND_ENUM_CONSTANT(FILTER_18DB);
+    BIND_ENUM_CONSTANT(FILTER_24DB);
 }
 
 AudioEffectFilter::AudioEffectFilter(AudioFilterSW::Mode p_mode) {

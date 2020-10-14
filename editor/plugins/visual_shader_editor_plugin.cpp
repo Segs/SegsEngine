@@ -82,7 +82,9 @@ Control *VisualShaderNodePlugin::create_editor(const Ref<Resource> &p_parent_res
 
 void VisualShaderNodePlugin::_bind_methods() {
 
-    BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "create_editor", PropertyInfo(VariantType::OBJECT, "parent_resource", PropertyHint::ResourceType, "Resource"), PropertyInfo(VariantType::OBJECT, "for_node", PropertyHint::ResourceType, "VisualShaderNode")));
+    BIND_VMETHOD(MethodInfo(VariantType::OBJECT, "create_editor",
+            PropertyInfo(VariantType::OBJECT, "parent_resource", PropertyHint::ResourceType, "Resource"),
+            PropertyInfo(VariantType::OBJECT, "for_node", PropertyHint::ResourceType, "VisualShaderNode")));
 }
 
 ///////////////////
@@ -647,7 +649,9 @@ void VisualShaderEditor::_update_graph() {
             port_offset++;
             node->add_child(custom_editor);
             if (scalar_uniform) {
-                custom_editor->call_deferred("_show_prop_names", true);
+                auto iface = dynamic_cast<IVisualShaderEditor *>(custom_editor);
+                if(iface)
+                    custom_editor->call_deferred([iface] { iface->_show_prop_names(true); } );
                 continue;
             }
             custom_editor = nullptr;
@@ -922,7 +926,7 @@ void VisualShaderEditor::_update_graph() {
             graph->add_child(node);
             _update_created_node(node);
             if (is_group)
-                call_deferred("_set_node_size", (int)type, n_idx, size);
+                call_deferred([this,type,n_idx,size] { _set_node_size((int)type, n_idx, size); });
         }
     }
 
@@ -1701,7 +1705,7 @@ void VisualShaderEditor::_show_members_dialog(bool at_mouse_pos) {
         members_dialog->set_position(members_dialog->get_position() - Point2(difference, 0));
     }
 
-    node_filter->call_deferred("grab_focus"); // still not visible
+    node_filter->call_deferred([nd=node_filter] {  nd->grab_focus(); }); // still not visible
     node_filter->select_all();
 }
 
@@ -1745,44 +1749,45 @@ void VisualShaderEditor::_notification(int p_what) {
         members->set_drop_mode_flags(0);
     }
 
-    if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
+    if (p_what != NOTIFICATION_ENTER_TREE && p_what != NOTIFICATION_THEME_CHANGED) {
+        return;
+    }
 
-        error_panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
-        error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
+    error_panel->add_theme_style_override("panel", get_theme_stylebox("bg", "Tree"));
+    error_label->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
 
-        node_filter->set_right_icon(Control::get_theme_icon("Search", "EditorIcons"));
+    node_filter->set_right_icon(get_theme_icon("Search", "EditorIcons"));
 
-        preview_shader->set_button_icon(Control::get_theme_icon("Shader", "EditorIcons"));
+    preview_shader->set_button_icon(get_theme_icon("Shader", "EditorIcons"));
 
-        {
-            Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
-            Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
-            Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
-            Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
-            Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
+    {
+        Color background_color = EDITOR_GET_T<Color>("text_editor/highlighting/background_color");
+        Color text_color = EDITOR_GET_T<Color>("text_editor/highlighting/text_color");
+        Color keyword_color = EDITOR_GET_T<Color>("text_editor/highlighting/keyword_color");
+        Color comment_color = EDITOR_GET_T<Color>("text_editor/highlighting/comment_color");
+        Color symbol_color = EDITOR_GET_T<Color>("text_editor/highlighting/symbol_color");
 
-            preview_text->add_theme_color_override("background_color", background_color);
+        preview_text->add_theme_color_override("background_color", background_color);
 
-            for (StringView E : keyword_list) {
+        for (StringView E : keyword_list) {
 
-                preview_text->add_keyword_color(E, keyword_color);
-            }
-
-            preview_text->add_font_override("font", get_theme_font("expression", "EditorFonts"));
-            preview_text->add_theme_color_override("font_color", text_color);
-            preview_text->add_theme_color_override("symbol_color", symbol_color);
-            preview_text->add_color_region("/*", "*/", comment_color, false);
-            preview_text->add_color_region("//", "", comment_color, false);
-
-            error_text->add_font_override("font", get_theme_font("status_source", "EditorFonts"));
-            error_text->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
+            preview_text->add_keyword_color(E, keyword_color);
         }
 
-        tools->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Tools", "EditorIcons"));
+        preview_text->add_font_override("font", get_theme_font("expression", "EditorFonts"));
+        preview_text->add_theme_color_override("font_color", text_color);
+        preview_text->add_theme_color_override("symbol_color", symbol_color);
+        preview_text->add_color_region("/*", "*/", comment_color, false);
+        preview_text->add_color_region("//", "", comment_color, false);
 
-        if (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())
-            _update_graph();
+        error_text->add_font_override("font", get_theme_font("status_source", "EditorFonts"));
+        error_text->add_theme_color_override("font_color", get_theme_color("error_color", "Editor"));
     }
+
+    tools->set_button_icon(EditorNode::get_singleton()->get_gui_base()->get_theme_icon("Tools", "EditorIcons"));
+
+    if (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())
+        _update_graph();
 }
 
 void VisualShaderEditor::_scroll_changed(const Vector2 &p_scroll) {
@@ -1918,18 +1923,19 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
 
-    if (p_select) {
-        // reselect duplicated nodes by excluding the other ones
-        for (int i = 0; i < graph->get_child_count(); i++) {
+    if (!p_select) 
+        return;
 
-            GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
-            if (gn) {
-                int id = StringUtils::to_int(gn->get_name());
-                if (!r_excluded.contains(id)) {
-                    gn->set_selected(true);
-                } else {
-                    gn->set_selected(false);
-                }
+    // reselect duplicated nodes by excluding the other ones
+    for (int i = 0; i < graph->get_child_count(); i++) {
+
+        GraphNode *gn = object_cast<GraphNode>(graph->get_child(i));
+        if (gn) {
+            int id = StringUtils::to_int(gn->get_name());
+            if (!r_excluded.contains(id)) {
+                gn->set_selected(true);
+            } else {
+                gn->set_selected(false);
             }
         }
     }
@@ -2327,48 +2333,12 @@ void VisualShaderEditor::_bind_methods() {
     MethodBinder::bind_method("_rebuild", &VisualShaderEditor::_rebuild);
     MethodBinder::bind_method("_update_graph", &VisualShaderEditor::_update_graph);
     MethodBinder::bind_method("_update_options_menu", &VisualShaderEditor::_update_options_menu);
-    MethodBinder::bind_method("_expression_focus_out", &VisualShaderEditor::_expression_focus_out);
-    MethodBinder::bind_method("_on_nodes_delete", &VisualShaderEditor::_on_nodes_delete);
-    MethodBinder::bind_method("_node_changed", &VisualShaderEditor::_node_changed);
-    MethodBinder::bind_method("_edit_port_default_input", &VisualShaderEditor::_edit_port_default_input);
-    MethodBinder::bind_method("_port_edited", &VisualShaderEditor::_port_edited);
-    MethodBinder::bind_method("_connection_to_empty", &VisualShaderEditor::_connection_to_empty);
-    MethodBinder::bind_method("_connection_from_empty", &VisualShaderEditor::_connection_from_empty);
-    MethodBinder::bind_method("_line_edit_focus_out", &VisualShaderEditor::_line_edit_focus_out);
-    MethodBinder::bind_method("_line_edit_changed", &VisualShaderEditor::_line_edit_changed);
-    MethodBinder::bind_method("_port_name_focus_out", &VisualShaderEditor::_port_name_focus_out);
-    MethodBinder::bind_method("_duplicate_nodes", &VisualShaderEditor::_duplicate_nodes);
-    MethodBinder::bind_method("_copy_nodes", &VisualShaderEditor::_copy_nodes);
-    MethodBinder::bind_method("_paste_nodes", &VisualShaderEditor::_paste_nodes);
-    MethodBinder::bind_method("_input_select_item", &VisualShaderEditor::_input_select_item);
-    MethodBinder::bind_method("_preview_select_port", &VisualShaderEditor::_preview_select_port);
-    MethodBinder::bind_method("_graph_gui_input", &VisualShaderEditor::_graph_gui_input);
-    MethodBinder::bind_method("_add_input_port", &VisualShaderEditor::_add_input_port);
-    MethodBinder::bind_method("_change_input_port_type", &VisualShaderEditor::_change_input_port_type);
-    MethodBinder::bind_method("_change_input_port_name", &VisualShaderEditor::_change_input_port_name);
-    MethodBinder::bind_method("_remove_input_port", &VisualShaderEditor::_remove_input_port);
-    MethodBinder::bind_method("_add_output_port", &VisualShaderEditor::_add_output_port);
-    MethodBinder::bind_method("_change_output_port_type", &VisualShaderEditor::_change_output_port_type);
-    MethodBinder::bind_method("_change_output_port_name", &VisualShaderEditor::_change_output_port_name);
-    MethodBinder::bind_method("_remove_output_port", &VisualShaderEditor::_remove_output_port);
-    MethodBinder::bind_method("_node_resized", &VisualShaderEditor::_node_resized);
     MethodBinder::bind_method("_set_node_size", &VisualShaderEditor::_set_node_size);
     MethodBinder::bind_method("_clear_buffer", &VisualShaderEditor::_clear_buffer);
-    MethodBinder::bind_method("_show_preview_text", &VisualShaderEditor::_show_preview_text);
-    MethodBinder::bind_method("_update_preview", &VisualShaderEditor::_update_preview);
 
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &VisualShaderEditor::get_drag_data_fw);
     MethodBinder::bind_method(D_METHOD("can_drop_data_fw"), &VisualShaderEditor::can_drop_data_fw);
     MethodBinder::bind_method(D_METHOD("drop_data_fw"), &VisualShaderEditor::drop_data_fw);
-
-    MethodBinder::bind_method("_is_available", &VisualShaderEditor::_is_available);
-    MethodBinder::bind_method("_tools_menu_option", &VisualShaderEditor::_tools_menu_option);
-    MethodBinder::bind_method("_show_members_dialog", &VisualShaderEditor::_show_members_dialog);
-    MethodBinder::bind_method("_member_filter_changed", &VisualShaderEditor::_member_filter_changed);
-    MethodBinder::bind_method("_member_selected", &VisualShaderEditor::_member_selected);
-    MethodBinder::bind_method("_member_unselected", &VisualShaderEditor::_member_unselected);
-    MethodBinder::bind_method("_member_create", &VisualShaderEditor::_member_create);
-    MethodBinder::bind_method("_member_cancel", &VisualShaderEditor::_member_cancel);
 }
 
 VisualShaderEditor *VisualShaderEditor::singleton = nullptr;
@@ -3003,7 +2973,7 @@ VisualShaderEditorPlugin::~VisualShaderEditorPlugin() {
 
 ////////////////
 
-class VisualShaderNodePluginInputEditor : public OptionButton {
+class VisualShaderNodePluginInputEditor : public OptionButton, public IVisualShaderEditor {
     GDCLASS(VisualShaderNodePluginInputEditor,OptionButton)
 
 
@@ -3020,7 +2990,9 @@ public:
     }
 
     void _item_selected(int p_item) {
-        VisualShaderEditor::get_singleton()->call_deferred("_input_select_item", input, get_item_text(p_item));
+        VisualShaderEditor::get_singleton()->call_deferred([inp=input,text=get_item_text(p_item)]() {
+            VisualShaderEditor::get_singleton()->_input_select_item(inp, text);
+        });
     }
 
     void setup(const Ref<VisualShaderNodeInput> &p_input) {
@@ -3051,7 +3023,7 @@ IMPL_GDCLASS(VisualShaderNodePluginInputEditor)
 
 ////////////////
 
-class VisualShaderNodePluginUniformRefEditor : public OptionButton {
+class VisualShaderNodePluginUniformRefEditor : public OptionButton, public IVisualShaderEditor {
     GDCLASS(VisualShaderNodePluginUniformRefEditor, OptionButton);
 
     Ref<VisualShaderNodeUniformRef> uniform_ref;
@@ -3104,7 +3076,7 @@ public:
 IMPL_GDCLASS(VisualShaderNodePluginUniformRefEditor)
 
 
-class VisualShaderNodePluginDefaultEditor : public VBoxContainer {
+class VisualShaderNodePluginDefaultEditor : public VBoxContainer, public IVisualShaderEditor {
     GDCLASS(VisualShaderNodePluginDefaultEditor,VBoxContainer)
 
     Ref<Resource> parent_resource;
@@ -3154,7 +3126,9 @@ public:
     }
 
     void _refresh_request() {
-        VisualShaderEditor::get_singleton()->call_deferred("_update_graph");
+        VisualShaderEditor::get_singleton()->call_deferred([] {
+            VisualShaderEditor::get_singleton()->_update_graph();
+        });
     }
 
     void _resource_selected(StringView p_path, const RES& p_resource) {
@@ -3170,7 +3144,7 @@ public:
     Vector<EditorProperty *> properties;
     Vector<Label *> prop_names;
 
-    void _show_prop_names(bool p_show) {
+    void _show_prop_names(bool p_show) final {
         for (int i = 0; i < prop_names.size(); i++) {
             prop_names[i]->set_visible(p_show);
         }
@@ -3215,7 +3189,6 @@ public:
     }
 
     static void _bind_methods() {
-        MethodBinder::bind_method("_node_changed", &VisualShaderNodePluginDefaultEditor::_node_changed);
         MethodBinder::bind_method("_refresh_request", &VisualShaderNodePluginDefaultEditor::_refresh_request);
         MethodBinder::bind_method("_resource_selected", &VisualShaderNodePluginDefaultEditor::_resource_selected);
         MethodBinder::bind_method("_open_inspector", &VisualShaderNodePluginDefaultEditor::_open_inspector);
@@ -3254,8 +3227,8 @@ Control *VisualShaderNodePluginDefault::create_editor(const Ref<Resource> &p_par
 
     for(const PropertyInfo & E : props) {
 
-        for (int i = 0; i < properties.size(); i++) {
-            if (E.name == properties[i]) {
+        for (auto & property : properties) {
+            if (E.name == property) {
                 pinfo.push_back(E);
             }
         }
@@ -3528,4 +3501,12 @@ void register_visual_shader_editor_classes()
     VisualShaderNodePortPreview::initialize_class();
     VisualShaderConversionPlugin::initialize_class();
 
+}
+
+void IVisualShaderEditor::_show_prop_names(bool p_show) {
+    Object *self = dynamic_cast<Object *>(this);
+    auto script = self->get_script_instance();
+    if(script && script->has_method("_show_prop_names")) {
+        script->call("_show_prop_names", p_show);
+    }
 }

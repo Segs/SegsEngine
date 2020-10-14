@@ -154,7 +154,7 @@ void Navigation2DServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("agent_set_target_velocity", {"agent", "target_velocity"}),&Navigation2DServer::agent_set_target_velocity);
     MethodBinder::bind_method(D_METHOD("agent_set_position", {"agent", "position"}),&Navigation2DServer::agent_set_position);
     MethodBinder::bind_method(D_METHOD("agent_is_map_changed", {"agent"}),&Navigation2DServer::agent_is_map_changed);
-    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "receiver", "method", "userdata"}),&Navigation2DServer::agent_set_callback, {DEFVAL(Variant())});
+    MethodBinder::bind_method(D_METHOD("agent_set_callback", {"agent", "callback"}),&Navigation2DServer::agent_set_callback);
 
     MethodBinder::bind_method(D_METHOD("free", {"object"}),&Navigation2DServer::free);
 }
@@ -218,6 +218,9 @@ void FORWARD_2_C(agent_set_ignore_y, RID, p_agent, bool, p_ignore, rid_to_rid, b
 
 bool FORWARD_1_C(agent_is_map_changed, RID, p_agent, rid_to_rid);
 
-void FORWARD_4_C(agent_set_callback, RID, p_agent, Object *, p_receiver, StringName, p_method, Variant, p_udata, rid_to_rid, obj_to_obj, sn_to_sn, var_to_var);
+void Navigation2DServer::agent_set_callback(RID p_agent, Callable&& cb) const
+{
+    return NavigationServer::get_singleton()->agent_set_callback(rid_to_rid(p_agent), eastl::move(cb));
+};
 
 void FORWARD_1_C(free, RID, p_object, rid_to_rid);

@@ -184,11 +184,11 @@ void AudioEffectDistortion::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "drive", PropertyHint::Range, "0,1,0.01"), "set_drive", "get_drive");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "post_gain", PropertyHint::Range, "-80,24,0.01"), "set_post_gain", "get_post_gain");
 
-    BIND_ENUM_CONSTANT(MODE_CLIP)
-    BIND_ENUM_CONSTANT(MODE_ATAN)
-    BIND_ENUM_CONSTANT(MODE_LOFI)
-    BIND_ENUM_CONSTANT(MODE_OVERDRIVE)
-    BIND_ENUM_CONSTANT(MODE_WAVESHAPE)
+    BIND_ENUM_CONSTANT(MODE_CLIP);
+    BIND_ENUM_CONSTANT(MODE_ATAN);
+    BIND_ENUM_CONSTANT(MODE_LOFI);
+    BIND_ENUM_CONSTANT(MODE_OVERDRIVE);
+    BIND_ENUM_CONSTANT(MODE_WAVESHAPE);
 }
 
 AudioEffectDistortion::AudioEffectDistortion() {

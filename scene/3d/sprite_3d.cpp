@@ -345,7 +345,6 @@ void SpriteBase3D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_item_rect"), &SpriteBase3D::get_item_rect);
     MethodBinder::bind_method(D_METHOD("generate_triangle_mesh"), &SpriteBase3D::generate_triangle_mesh);
 
-    MethodBinder::bind_method(D_METHOD("_queue_update"), &SpriteBase3D::_queue_update);
     MethodBinder::bind_method(D_METHOD("_im_update"), &SpriteBase3D::_im_update);
 
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "centered"), "set_centered", "is_centered");
@@ -363,14 +362,14 @@ void SpriteBase3D::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "double_sided"), "set_draw_flag", "get_draw_flag", FLAG_DOUBLE_SIDED);
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "alpha_cut", PropertyHint::Enum, "Disabled,Discard,Opaque Pre-Pass"), "set_alpha_cut_mode", "get_alpha_cut_mode");
 
-    BIND_ENUM_CONSTANT(FLAG_TRANSPARENT)
-    BIND_ENUM_CONSTANT(FLAG_SHADED)
-    BIND_ENUM_CONSTANT(FLAG_DOUBLE_SIDED)
-    BIND_ENUM_CONSTANT(FLAG_MAX)
+    BIND_ENUM_CONSTANT(FLAG_TRANSPARENT);
+    BIND_ENUM_CONSTANT(FLAG_SHADED);
+    BIND_ENUM_CONSTANT(FLAG_DOUBLE_SIDED);
+    BIND_ENUM_CONSTANT(FLAG_MAX);
 
-    BIND_ENUM_CONSTANT(ALPHA_CUT_DISABLED)
-    BIND_ENUM_CONSTANT(ALPHA_CUT_DISCARD)
-    BIND_ENUM_CONSTANT(ALPHA_CUT_OPAQUE_PREPASS)
+    BIND_ENUM_CONSTANT(ALPHA_CUT_DISABLED);
+    BIND_ENUM_CONSTANT(ALPHA_CUT_DISCARD);
+    BIND_ENUM_CONSTANT(ALPHA_CUT_OPAQUE_PREPASS);
 }
 
 SpriteBase3D::SpriteBase3D() {

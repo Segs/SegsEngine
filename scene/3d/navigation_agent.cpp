@@ -30,6 +30,8 @@
 
 #include "navigation_agent.h"
 
+
+#include "core/callable_method_pointer.h"
 #include "core/engine.h"
 #include "core/method_bind_interface.h"
 #include "core/method_bind.h"
@@ -107,7 +109,7 @@ void NavigationAgent::_notification(int p_what) {
 
             agent_parent = object_cast<Node3D>(get_parent());
 
-            NavigationServer::get_singleton()->agent_set_callback(agent, this, "_avoidance_done");
+            NavigationServer::get_singleton()->agent_set_callback(agent, callable_mp(this, &NavigationAgent::_avoidance_done));
 
             // Search the navigation node and set it
             {

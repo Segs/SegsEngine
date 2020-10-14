@@ -35,21 +35,21 @@
 
 class CoreStringNames {
 
-	friend void register_core_types();
-	friend void unregister_core_types();
+    friend void register_core_types();
+    friend void unregister_core_types();
 
-	static void create() { singleton = memnew(CoreStringNames); }
-	static void free() {
-		memdelete(singleton);
-		singleton = nullptr;
-	}
+    static void create() { singleton = memnew(CoreStringNames); }
+    static void free() {
+        memdelete(singleton);
+        singleton = nullptr;
+    }
 
-	CoreStringNames();
+    CoreStringNames();
 
 public:
-	_FORCE_INLINE_ static CoreStringNames *get_singleton() { return singleton; }
+    _FORCE_INLINE_ static CoreStringNames *get_singleton() { return singleton; }
 
-	static CoreStringNames *singleton;
+    static CoreStringNames *singleton;
 
     const StringName _free;
     const StringName changed;
@@ -90,7 +90,6 @@ public:
     const StringName a8;
 
     const StringName call;
-    const StringName call_deferred;
     const StringName emit;
     const StringName notification;
 };

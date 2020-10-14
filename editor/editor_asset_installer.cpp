@@ -334,11 +334,6 @@ void EditorAssetInstaller::ok_pressed() {
     EditorFileSystem::get_singleton()->scan_changes();
 }
 
-void EditorAssetInstaller::_bind_methods() {
-
-    MethodBinder::bind_method("_item_edited", &EditorAssetInstaller::_item_edited);
-}
-
 EditorAssetInstaller::EditorAssetInstaller() {
 
     VBoxContainer *vb = memnew(VBoxContainer);

@@ -435,7 +435,8 @@ void FindInFilesDialog::_notification(int p_what) {
     if (p_what == NOTIFICATION_VISIBILITY_CHANGED) {
         if (is_visible()) {
             // Doesn't work more than once if not deferred...
-            _search_text_line_edit->call_deferred("grab_focus");
+            auto stle=_search_text_line_edit;
+            stle->call_deferred([stle] { stle->grab_focus(); });
             _search_text_line_edit->select_all();
             // Extensions might have changed in the meantime, we clean them and instance them again.
             for (int i = 0; i < _filters_container->get_child_count(); i++) {
@@ -497,11 +498,6 @@ void FindInFilesDialog::_on_folder_selected(StringView path) {
 }
 
 void FindInFilesDialog::_bind_methods() {
-
-    MethodBinder::bind_method("_on_folder_button_pressed", &FindInFilesDialog::_on_folder_button_pressed);
-    MethodBinder::bind_method("_on_folder_selected", &FindInFilesDialog::_on_folder_selected);
-    MethodBinder::bind_method("_on_search_text_modified", &FindInFilesDialog::_on_search_text_modified);
-    MethodBinder::bind_method("_on_search_text_entered", &FindInFilesDialog::_on_search_text_entered);
 
     ADD_SIGNAL(MethodInfo(SIGNAL_FIND_REQUESTED));
     ADD_SIGNAL(MethodInfo(SIGNAL_REPLACE_REQUESTED));
@@ -685,7 +681,7 @@ void FindInFilesPanel::_on_result_found(StringView fpath, int line_number, int b
     StringName item_text = FormatSN("%3s:    %s", line_number, StringUtils::replace(text,"\t", "    ").c_str());
 
     item->set_text(text_index, item_text);
-    item->set_custom_draw(text_index, this, "_draw_result_text");
+    item->set_custom_draw(text_index, callable_mp(this,&FindInFilesPanel::draw_result_text));
 
     Ref<Font> font = _results_display->get_theme_font("font");
 
@@ -926,16 +922,6 @@ void FindInFilesPanel::set_progress_visible(bool visible) {
 }
 
 void FindInFilesPanel::_bind_methods() {
-
-    MethodBinder::bind_method("_on_result_found", &FindInFilesPanel::_on_result_found);
-    MethodBinder::bind_method("_on_item_edited", &FindInFilesPanel::_on_item_edited);
-    MethodBinder::bind_method("_on_finished", &FindInFilesPanel::_on_finished);
-    MethodBinder::bind_method("_on_refresh_button_clicked", &FindInFilesPanel::_on_refresh_button_clicked);
-    MethodBinder::bind_method("_on_cancel_button_clicked", &FindInFilesPanel::_on_cancel_button_clicked);
-    MethodBinder::bind_method("_on_result_selected", &FindInFilesPanel::_on_result_selected);
-    MethodBinder::bind_method("_on_replace_text_changed", &FindInFilesPanel::_on_replace_text_changed);
-    MethodBinder::bind_method("_on_replace_all_clicked", &FindInFilesPanel::_on_replace_all_clicked);
-    MethodBinder::bind_method("_draw_result_text", &FindInFilesPanel::draw_result_text);
 
     ADD_SIGNAL(MethodInfo(SIGNAL_RESULT_SELECTED,
             PropertyInfo(VariantType::STRING, "path"),

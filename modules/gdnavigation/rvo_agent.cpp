@@ -32,15 +32,12 @@
 
 #include "nav_map.h"
 
-#include "core/object_db.h"
-
 /**
     @author AndreaCatania
 */
 
 RvoAgent::RvoAgent() :
-        map(NULL) {
-    callback.id = ObjectID(0ULL);
+        map(nullptr) {
 }
 
 void RvoAgent::set_map(NavMap *p_map) {
@@ -48,39 +45,37 @@ void RvoAgent::set_map(NavMap *p_map) {
 }
 
 bool RvoAgent::is_map_changed() {
-    if (map) {
-        bool is_changed = map->get_map_update_id() != map_update_id;
-        map_update_id = map->get_map_update_id();
-        return is_changed;
-    } else {
+    if (!map) {
         return false;
     }
+
+    bool is_changed = map->get_map_update_id() != map_update_id;
+    map_update_id = map->get_map_update_id();
+    return is_changed;
 }
 
-void RvoAgent::set_callback(ObjectID p_id, const StringName p_method, const Variant p_udata) {
-    callback.id = p_id;
-    callback.method = p_method;
-    callback.udata = p_udata;
+void RvoAgent::set_callback(Callable &&cb) {
+    callback = eastl::move(cb);
 }
 
 bool RvoAgent::has_callback() const {
-    return callback.id.is_valid();
+    return callback.is_valid();
 }
 
 void RvoAgent::dispatch_callback() {
-    if (callback.id.is_null()) {
+    if (callback.is_null()) {
         return;
     }
-    Object *obj = gObjectDB().get_instance(callback.id);
-    if (obj == NULL) {
-        callback.id = ObjectID(0ULL);
+    Object *obj = callback.get_object();
+    if (obj == nullptr) {
+        callback = {};
+        return;
     }
 
     Callable::CallError responseCallError;
+    Variant ret;
+    Variant new_velocity = Vector3(agent.newVelocity_.x(), agent.newVelocity_.y(), agent.newVelocity_.z());
 
-    callback.new_velocity = Vector3(agent.newVelocity_.x(), agent.newVelocity_.y(), agent.newVelocity_.z());
-
-    const Variant *vp[2] = { &callback.new_velocity, &callback.udata };
-    int argc = (callback.udata.get_type() == VariantType::NIL) ? 1 : 2;
-    obj->call(callback.method, vp, argc, responseCallError);
+    const Variant *vp[1] = { &new_velocity};
+    callback.call(vp, 1,ret, responseCallError);
 }

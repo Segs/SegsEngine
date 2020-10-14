@@ -171,7 +171,7 @@ void CSGShape::_make_dirty() {
     if (parent) {
         parent->_make_dirty();
     } else if (!dirty) {
-        call_deferred("_update_shape");
+        call_deferred([this]() { _update_shape(); });
     }
 
     dirty = true;
@@ -646,9 +646,9 @@ void CSGShape::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_layer", PropertyHint::Layers3DPhysics), "set_collision_layer", "get_collision_layer");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "collision_mask", PropertyHint::Layers3DPhysics), "set_collision_mask", "get_collision_mask");
 
-    BIND_ENUM_CONSTANT(OPERATION_UNION)
-    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION)
-    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION)
+    BIND_ENUM_CONSTANT(OPERATION_UNION);
+    BIND_ENUM_CONSTANT(OPERATION_INTERSECTION);
+    BIND_ENUM_CONSTANT(OPERATION_SUBTRACTION);
 }
 
 CSGShape::CSGShape() {
@@ -885,8 +885,6 @@ void CSGMesh::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_mesh", {"mesh"}), &CSGMesh::set_mesh);
     MethodBinder::bind_method(D_METHOD("get_mesh"), &CSGMesh::get_mesh);
-
-    MethodBinder::bind_method(D_METHOD("_mesh_changed"), &CSGMesh::_mesh_changed);
 
     MethodBinder::bind_method(D_METHOD("set_material", {"material"}), &CSGMesh::set_material);
     MethodBinder::bind_method(D_METHOD("get_material"), &CSGMesh::get_material);
@@ -2325,13 +2323,13 @@ void CSGPolygon::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "smooth_faces"), "set_smooth_faces", "get_smooth_faces");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "material", PropertyHint::ResourceType, "SpatialMaterial,ShaderMaterial"), "set_material", "get_material");
 
-    BIND_ENUM_CONSTANT(MODE_DEPTH)
-    BIND_ENUM_CONSTANT(MODE_SPIN)
-    BIND_ENUM_CONSTANT(MODE_PATH)
+    BIND_ENUM_CONSTANT(MODE_DEPTH);
+    BIND_ENUM_CONSTANT(MODE_SPIN);
+    BIND_ENUM_CONSTANT(MODE_PATH);
 
-    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON)
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH)
-    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW)
+    BIND_ENUM_CONSTANT(PATH_ROTATION_POLYGON);
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH);
+    BIND_ENUM_CONSTANT(PATH_ROTATION_PATH_FOLLOW);
 }
 
 void CSGPolygon::set_polygon(const Vector<Vector2> &p_polygon) {

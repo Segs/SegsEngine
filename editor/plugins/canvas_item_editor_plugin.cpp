@@ -2581,7 +2581,7 @@ void CanvasItemEditor::_gui_input_viewport(const Ref<InputEvent> &p_event) {
 
     // Grab focus
     if (!viewport->has_focus() && (!get_focus_owner() || !get_focus_owner()->is_text_field())) {
-        viewport->call_deferred("grab_focus");
+        viewport->call_deferred([vp=viewport] { vp->grab_focus(); });
     }
 }
 
@@ -5065,7 +5065,7 @@ void CanvasItemEditor::_focus_selection(int p_op) {
             zoom *= 0.9f;
             viewport->update();
             _update_zoom_label();
-            call_deferred("_popup_callback", VIEW_CENTER_TO_SELECTION);
+            call_deferred([this] { _popup_callback(VIEW_CENTER_TO_SELECTION); });
         }
     }
 }
@@ -6245,13 +6245,6 @@ void CanvasItemEditorViewport::_notification(int p_what) {
 
         default: break;
     }
-}
-
-void CanvasItemEditorViewport::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_on_select_type"), &CanvasItemEditorViewport::_on_select_type);
-    MethodBinder::bind_method(D_METHOD("_on_change_type_confirmed"), &CanvasItemEditorViewport::_on_change_type_confirmed);
-    MethodBinder::bind_method(D_METHOD("_on_change_type_closed"), &CanvasItemEditorViewport::_on_change_type_closed);
-    MethodBinder::bind_method(D_METHOD("_on_mouse_exit"), &CanvasItemEditorViewport::_on_mouse_exit);
 }
 
 CanvasItemEditorViewport::CanvasItemEditorViewport(EditorNode *p_node, CanvasItemEditor *p_canvas_item_editor) {

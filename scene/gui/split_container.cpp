@@ -361,9 +361,9 @@ void SplitContainer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "collapsed"), "set_collapsed", "is_collapsed");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "dragger_visibility", PropertyHint::Enum, "Visible,Hidden,Hidden & Collapsed"), "set_dragger_visibility", "get_dragger_visibility");
 
-    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE)
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN)
-    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED)
+    BIND_ENUM_CONSTANT(DRAGGER_VISIBLE);
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN);
+    BIND_ENUM_CONSTANT(DRAGGER_HIDDEN_COLLAPSED);
 }
 
 SplitContainer::SplitContainer(bool p_vertical) {

@@ -372,8 +372,8 @@ void AnimationNodeOneShot::_bind_methods() {
     ADD_GROUP("", "");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "sync"), "set_use_sync", "is_using_sync");
 
-    BIND_ENUM_CONSTANT(MIX_MODE_BLEND)
-    BIND_ENUM_CONSTANT(MIX_MODE_ADD)
+    BIND_ENUM_CONSTANT(MIX_MODE_BLEND);
+    BIND_ENUM_CONSTANT(MIX_MODE_ADD);
 }
 
 AnimationNodeOneShot::AnimationNodeOneShot() {
@@ -1259,8 +1259,6 @@ void AnimationNodeBlendTree::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &AnimationNodeBlendTree::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &AnimationNodeBlendTree::get_graph_offset);
-
-    MethodBinder::bind_method(D_METHOD("_node_changed", {"node"}), &AnimationNodeBlendTree::_node_changed);
 
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
 

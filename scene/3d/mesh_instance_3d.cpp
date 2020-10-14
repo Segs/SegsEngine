@@ -408,7 +408,6 @@ void MeshInstance3D::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("create_trimesh_collision"), &MeshInstance3D::create_trimesh_collision);
     MethodBinder::bind_method(D_METHOD("create_convex_collision"), &MeshInstance3D::create_convex_collision);
-    MethodBinder::bind_method(D_METHOD("_mesh_changed"), &MeshInstance3D::_mesh_changed);
 
     MethodBinder::bind_method(D_METHOD("create_debug_tangents"), &MeshInstance3D::create_debug_tangents,METHOD_FLAGS_DEFAULT | METHOD_FLAG_EDITOR);
 

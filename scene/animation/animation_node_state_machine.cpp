@@ -134,9 +134,9 @@ void AnimationNodeStateMachineTransition::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "priority", PropertyHint::Range, "0,32,1"), "set_priority", "get_priority");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "disabled"), "set_disabled", "is_disabled");
 
-    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE)
-    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC)
-    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END)
+    BIND_ENUM_CONSTANT(SWITCH_MODE_IMMEDIATE);
+    BIND_ENUM_CONSTANT(SWITCH_MODE_SYNC);
+    BIND_ENUM_CONSTANT(SWITCH_MODE_AT_END);
 
     ADD_SIGNAL(MethodInfo("advance_condition_changed"));
 }

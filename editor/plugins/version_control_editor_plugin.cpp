@@ -47,22 +47,14 @@ VARIANT_ENUM_CAST(VersionControlEditorPlugin::ChangeType);
 
 void VersionControlEditorPlugin::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_selected_a_vcs"), &VersionControlEditorPlugin::_selected_a_vcs);
-    MethodBinder::bind_method(D_METHOD("_initialize_vcs"), &VersionControlEditorPlugin::_initialize_vcs);
-    MethodBinder::bind_method(D_METHOD("_send_commit_msg"), &VersionControlEditorPlugin::_send_commit_msg);
-    MethodBinder::bind_method(D_METHOD("_refresh_stage_area"), &VersionControlEditorPlugin::_refresh_stage_area);
-    MethodBinder::bind_method(D_METHOD("_stage_all"), &VersionControlEditorPlugin::_stage_all);
-    MethodBinder::bind_method(D_METHOD("_stage_selected"), &VersionControlEditorPlugin::_stage_selected);
-    MethodBinder::bind_method(D_METHOD("_view_file_diff"), &VersionControlEditorPlugin::_view_file_diff);
-    MethodBinder::bind_method(D_METHOD("_refresh_file_diff"), &VersionControlEditorPlugin::_refresh_file_diff);
     MethodBinder::bind_method(D_METHOD("popup_vcs_set_up_dialog"), &VersionControlEditorPlugin::popup_vcs_set_up_dialog);
 
     // Used to track the status of files in the staging area
-    BIND_ENUM_CONSTANT(CHANGE_TYPE_NEW)
-    BIND_ENUM_CONSTANT(CHANGE_TYPE_MODIFIED)
-    BIND_ENUM_CONSTANT(CHANGE_TYPE_RENAMED)
-    BIND_ENUM_CONSTANT(CHANGE_TYPE_DELETED)
-    BIND_ENUM_CONSTANT(CHANGE_TYPE_TYPECHANGE)
+    BIND_ENUM_CONSTANT(CHANGE_TYPE_NEW);
+    BIND_ENUM_CONSTANT(CHANGE_TYPE_MODIFIED);
+    BIND_ENUM_CONSTANT(CHANGE_TYPE_RENAMED);
+    BIND_ENUM_CONSTANT(CHANGE_TYPE_DELETED);
+    BIND_ENUM_CONSTANT(CHANGE_TYPE_TYPECHANGE);
 }
 
 void VersionControlEditorPlugin::_selected_a_vcs(int p_id) {

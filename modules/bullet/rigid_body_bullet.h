@@ -225,7 +225,7 @@ private:
 
     bool previousActiveState; // Last check state
 
-    ForceIntegrationCallback *force_integration_callback;
+    Callable force_integration_callback;
 
 public:
     RigidBodyBullet();
@@ -242,7 +242,7 @@ public:
     void set_space(SpaceBullet *p_space) override;
 
     void dispatch_callbacks() override;
-    void set_force_integration_callback(ObjectID p_id, const StringName &p_method, const Variant &p_udata = Variant());
+    void set_force_integration_callback(Callable &&callback);
     void scratch_space_override_modificator();
 
     void on_collision_filters_change() override;

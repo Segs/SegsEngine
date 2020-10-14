@@ -258,9 +258,9 @@ void VisibilityEnabler3D::_bind_methods() {
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "pause_animations"), "set_enabler", "is_enabler_enabled", ENABLER_PAUSE_ANIMATIONS);
     ADD_PROPERTYI(PropertyInfo(VariantType::BOOL, "freeze_bodies"), "set_enabler", "is_enabler_enabled", ENABLER_FREEZE_BODIES);
 
-    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATIONS)
-    BIND_ENUM_CONSTANT(ENABLER_FREEZE_BODIES)
-    BIND_ENUM_CONSTANT(ENABLER_MAX)
+    BIND_ENUM_CONSTANT(ENABLER_PAUSE_ANIMATIONS);
+    BIND_ENUM_CONSTANT(ENABLER_FREEZE_BODIES);
+    BIND_ENUM_CONSTANT(ENABLER_MAX);
 }
 
 void VisibilityEnabler3D::set_enabler(Enabler p_enabler, bool p_enable) {

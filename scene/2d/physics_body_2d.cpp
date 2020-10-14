@@ -38,6 +38,7 @@
 #include "core/method_bind.h"
 #include "core/script_language.h"
 #include "core/object.h"
+#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
 #include "core/rid.h"
 #include "core/translation_helpers.h"
@@ -952,14 +953,14 @@ void RigidBody2D::_bind_methods() {
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("sleeping_state_changed"));
 
-    BIND_ENUM_CONSTANT(MODE_RIGID)
-    BIND_ENUM_CONSTANT(MODE_STATIC)
-    BIND_ENUM_CONSTANT(MODE_CHARACTER)
-    BIND_ENUM_CONSTANT(MODE_KINEMATIC)
+    BIND_ENUM_CONSTANT(MODE_RIGID);
+    BIND_ENUM_CONSTANT(MODE_STATIC);
+    BIND_ENUM_CONSTANT(MODE_CHARACTER);
+    BIND_ENUM_CONSTANT(MODE_KINEMATIC);
 
-    BIND_ENUM_CONSTANT(CCD_MODE_DISABLED)
-    BIND_ENUM_CONSTANT(CCD_MODE_CAST_RAY)
-    BIND_ENUM_CONSTANT(CCD_MODE_CAST_SHAPE)
+    BIND_ENUM_CONSTANT(CCD_MODE_DISABLED);
+    BIND_ENUM_CONSTANT(CCD_MODE_CAST_RAY);
+    BIND_ENUM_CONSTANT(CCD_MODE_CAST_SHAPE);
 }
 
 RigidBody2D::RigidBody2D() :
@@ -984,7 +985,7 @@ RigidBody2D::RigidBody2D() :
     contact_monitor = nullptr;
     can_sleep = true;
 
-    PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(),callable_mp(this,&RigidBody2D::_direct_state_changed));
 }
 
 RigidBody2D::~RigidBody2D() {
@@ -1302,11 +1303,11 @@ void KinematicBody2D::set_sync_to_physics(bool p_enable) {
         return;
 
     if (p_enable) {
-        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this,&KinematicBody2D::_direct_state_changed));
         set_only_update_transform_changes(true);
         set_notify_local_transform(true);
     } else {
-        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), nullptr, "");
+        PhysicsServer2D::get_singleton()->body_set_force_integration_callback(get_rid(), {});
         set_only_update_transform_changes(false);
         set_notify_local_transform(false);
     }

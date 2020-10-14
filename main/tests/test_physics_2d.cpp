@@ -30,6 +30,8 @@
 
 #include "test_physics_2d.h"
 
+
+#include "core/callable_method_pointer.h"
 #include "core/map.h"
 #include "core/method_bind.h"
 #include "core/input/input_event.h"
@@ -339,7 +341,9 @@ protected:
         Size2 imgsize(vs->texture_get_width(body_shape_data[p_shape].image), vs->texture_get_height(body_shape_data[p_shape].image));
         vs->canvas_item_add_texture_rect(sprite, Rect2(-imgsize / 2.0, imgsize), body_shape_data[p_shape].image);
 
-        ps->body_set_force_integration_callback(body, this, "_body_moved", sprite);
+        eastl::function<void(Object* ob)> cb = [this, sprite](Object* ob) { _body_moved(ob, sprite); };
+
+        ps->body_set_force_integration_callback(body, callable_gen(this, cb));
         //RID q = ps->query_create(this,"_body_moved",sprite);
         //ps->query_body_state(q,body);
 

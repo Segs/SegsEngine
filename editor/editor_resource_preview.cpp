@@ -468,7 +468,7 @@ void EditorResourcePreview::check_for_invalidation(StringView p_path) {
     preview_mutex->unlock();
 
     if (call_invalidated) { //do outside mutex
-        call_deferred("emit_signal", "preview_invalidated", p_path);
+        call_deferred([this,path=Variant(p_path)] { emit_signal("preview_invalidated", path);});
     }
 }
 

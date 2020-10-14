@@ -64,12 +64,12 @@ void WebRTCPeerConnection::_bind_methods() {
     ADD_SIGNAL(MethodInfo("ice_candidate_created", PropertyInfo(VariantType::STRING, "media"), PropertyInfo(VariantType::INT, "index"), PropertyInfo(VariantType::STRING, "name")));
     ADD_SIGNAL(MethodInfo("data_channel_received", PropertyInfo(VariantType::OBJECT, "channel")));
 
-    BIND_ENUM_CONSTANT(STATE_NEW)
-    BIND_ENUM_CONSTANT(STATE_CONNECTING)
-    BIND_ENUM_CONSTANT(STATE_CONNECTED)
-    BIND_ENUM_CONSTANT(STATE_DISCONNECTED)
-    BIND_ENUM_CONSTANT(STATE_FAILED)
-    BIND_ENUM_CONSTANT(STATE_CLOSED)
+    BIND_ENUM_CONSTANT(STATE_NEW);
+    BIND_ENUM_CONSTANT(STATE_CONNECTING);
+    BIND_ENUM_CONSTANT(STATE_CONNECTED);
+    BIND_ENUM_CONSTANT(STATE_DISCONNECTED);
+    BIND_ENUM_CONSTANT(STATE_FAILED);
+    BIND_ENUM_CONSTANT(STATE_CLOSED);
 }
 
 WebRTCPeerConnection::WebRTCPeerConnection() {

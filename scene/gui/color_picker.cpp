@@ -97,7 +97,7 @@ void ColorPicker::_notification(int p_what) {
 
 void ColorPicker::set_focus_on_line_edit() {
 
-    c_text->call_deferred("grab_focus");
+    c_text->call_deferred([ct=c_text] {ct->grab_focus();});
 }
 
 void ColorPicker::_update_controls() {
@@ -625,7 +625,13 @@ void ColorPicker::_screen_pick_pressed() {
         screen->set_default_cursor_shape(CURSOR_POINTING_HAND);
         screen->connect("gui_input",callable_mp(this, &ClassName::_screen_input));
         // It immediately toggles off in the first press otherwise.
-        screen->call_deferred("connect", "hide", Variant(btn_pick), "set_pressed", Variant::fromVector(Span<const Variant>(varray(false))));
+        //screen->call_deferred("connect", "hide", Variant(btn_pick), "set_pressed", Variant::fromVector(Span<const Variant>(varray(false))));
+
+        screen->call_deferred([sc=screen,pick=btn_pick] {
+            sc->connect("hide", callable_gen(pick,[pick]() {
+                pick->set_pressed(false);}));
+            });
+
     }
     screen->raise();
     screen->show_modal();

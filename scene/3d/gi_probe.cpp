@@ -548,11 +548,11 @@ void GIProbe::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "compress"), "set_compress", "is_compressed");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "data", PropertyHint::ResourceType, "GIProbeData", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_DO_NOT_SHARE_ON_DUPLICATE), "set_probe_data", "get_probe_data");
 
-    BIND_ENUM_CONSTANT(SUBDIV_64)
-    BIND_ENUM_CONSTANT(SUBDIV_128)
-    BIND_ENUM_CONSTANT(SUBDIV_256)
-    BIND_ENUM_CONSTANT(SUBDIV_512)
-    BIND_ENUM_CONSTANT(SUBDIV_MAX)
+    BIND_ENUM_CONSTANT(SUBDIV_64);
+    BIND_ENUM_CONSTANT(SUBDIV_128);
+    BIND_ENUM_CONSTANT(SUBDIV_256);
+    BIND_ENUM_CONSTANT(SUBDIV_512);
+    BIND_ENUM_CONSTANT(SUBDIV_MAX);
 }
 
 GIProbe::GIProbe() {

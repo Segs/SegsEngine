@@ -106,10 +106,10 @@ void AreaBullet::dispatch_callbacks() {
 void AreaBullet::call_event(CollisionObjectBullet *p_otherObject, PhysicsServer3D::AreaBodyStatus p_status) {
 
     InOutEventCallback &event = eventsCallbacks[static_cast<int>(p_otherObject->getType())];
-    Object *areaGodoObject = gObjectDB().get_instance(event.event_callback_id);
+    Object *areaGodoObject = event.get_object();
 
     if (!areaGodoObject) {
-        event.event_callback_id = ObjectID();
+        event = {};
         return;
     }
 
@@ -120,7 +120,8 @@ void AreaBullet::call_event(CollisionObjectBullet *p_otherObject, PhysicsServer3
     call_event_res[4] = 0; // self_shape ID
 
     Callable::CallError outResp;
-    areaGodoObject->call(event.event_callback_method, (const Variant **)call_event_res_ptr, 5, outResp);
+    Variant res;
+    event.call((const Variant**)call_event_res_ptr, 5,res, outResp);
 }
 
 void AreaBullet::scratch() {
@@ -276,13 +277,12 @@ Variant AreaBullet::get_param(PhysicsServer3D::AreaParameter p_param) const {
     }
 }
 
-void AreaBullet::set_event_callback(Type p_callbackObjectType, ObjectID p_id, const StringName &p_method) {
+void AreaBullet::set_event_callback(Type p_callbackObjectType, Callable&& cb) {
     InOutEventCallback &ev = eventsCallbacks[static_cast<int>(p_callbackObjectType)];
-    ev.event_callback_id = p_id;
-    ev.event_callback_method = p_method;
+    ev = eastl::move(cb);
 
     /// Set if monitoring
-    if (eventsCallbacks[0].event_callback_id.is_valid() || eventsCallbacks[1].event_callback_id.is_valid()) {
+    if (eventsCallbacks[0].is_valid() || eventsCallbacks[1].is_valid()) {
         set_godot_object_flags(get_godot_object_flags() | GOF_IS_MONITORING_AREA);
     } else {
         set_godot_object_flags(get_godot_object_flags() & (~GOF_IS_MONITORING_AREA));
@@ -290,7 +290,7 @@ void AreaBullet::set_event_callback(Type p_callbackObjectType, ObjectID p_id, co
 }
 
 bool AreaBullet::has_event_callback(Type p_callbackObjectType) {
-    return eventsCallbacks[static_cast<int>(p_callbackObjectType)].event_callback_id.is_valid();
+    return eventsCallbacks[static_cast<int>(p_callbackObjectType)].is_valid();
 }
 
 void AreaBullet::on_enter_area(AreaBullet *p_area) {

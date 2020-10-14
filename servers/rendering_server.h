@@ -801,7 +801,7 @@ public:
 
     virtual void free_rid(RID p_rid) = 0; ///< free RIDs associated with the visual server
 
-    virtual void request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) = 0;
+    virtual void request_frame_drawn_callback(Callable &&) = 0;
 
     /* EVENT QUEUING */
 

@@ -292,7 +292,7 @@ class GODOT_EXPORT _GodotSharp : public Object {
 
     bool _is_domain_finalizing_for_unload(int32_t p_domain_id);
 
-
+public: // slots  used by godot_icall_Internal_ReloadAssemblies
     void _reload_assemblies(bool p_soft_reload);
 
 protected:

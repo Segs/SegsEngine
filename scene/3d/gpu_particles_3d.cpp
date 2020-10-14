@@ -415,9 +415,9 @@ void GPUParticles3D::_bind_methods() {
         ADD_PROPERTYI(PropertyInfo(VariantType::OBJECT, StringName("draw_pass/" + itos(i + 1) + "/mesh"), PropertyHint::ResourceType, "Mesh"), "set_draw_pass_mesh", "get_draw_pass_mesh", i);
     }
 
-    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME)
-    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH)
+    BIND_ENUM_CONSTANT(DRAW_ORDER_INDEX);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_LIFETIME);
+    BIND_ENUM_CONSTANT(DRAW_ORDER_VIEW_DEPTH);
 
     BIND_CONSTANT(MAX_DRAW_PASSES);
 }

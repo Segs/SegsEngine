@@ -44,9 +44,6 @@
 IMPL_GDCLASS(EditorNetworkProfiler)
 
 void EditorNetworkProfiler::_bind_methods() {
-    MethodBinder::bind_method(D_METHOD("_update_frame"), &EditorNetworkProfiler::_update_frame);
-    MethodBinder::bind_method(D_METHOD("_activate_pressed"), &EditorNetworkProfiler::_activate_pressed);
-    MethodBinder::bind_method(D_METHOD("_clear_pressed"), &EditorNetworkProfiler::_clear_pressed);
     ADD_SIGNAL(MethodInfo("enable_profiling", PropertyInfo(VariantType::BOOL, "enable")));
 }
 

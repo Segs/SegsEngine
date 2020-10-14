@@ -99,12 +99,6 @@ void NavigationMeshEditor::edit(NavigationMeshInstance *p_nav_mesh_instance) {
     node = p_nav_mesh_instance;
 }
 
-void NavigationMeshEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_bake_pressed", &NavigationMeshEditor::_bake_pressed);
-    MethodBinder::bind_method("_clear_pressed", &NavigationMeshEditor::_clear_pressed);
-}
-
 NavigationMeshEditor::NavigationMeshEditor() {
 
     bake_hbox = memnew(HBoxContainer);

@@ -57,7 +57,7 @@ class GODOT_EXPORT NavigationMeshEditor : public Control {
 
 protected:
     void _node_removed(Node *p_node);
-    static void _bind_methods();
+    static void _bind_methods() {}
     void _notification(int p_option);
 
 public:

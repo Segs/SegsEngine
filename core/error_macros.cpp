@@ -32,35 +32,35 @@
 
 #include "core/io/logger.h"
 #include "os/os.h"
-#include "core/string_formatter.h"
 #include "core/string.h"
 #include "core/string_utils.h"
 
 static ErrorHandlerList *error_handler_list = nullptr;
 
-void add_error_handler(ErrorHandlerList *p_handler) {
-
+void add_error_handler(ErrorHandlerList *p_handler)
+{
     _global_lock();
     p_handler->next = error_handler_list;
     error_handler_list = p_handler;
     _global_unlock();
 }
 
-void remove_error_handler(ErrorHandlerList *p_handler) {
-
+void remove_error_handler(ErrorHandlerList *p_handler)
+{
     _global_lock();
 
     ErrorHandlerList *prev = nullptr;
     ErrorHandlerList *l = error_handler_list;
 
-    while (l) {
-
-        if (l == p_handler) {
-
-            if (prev)
+    while (l)
+    {
+        if (l == p_handler)
+        {
+            if (prev) {
                 prev->next = l->next;
-            else
+            } else {
                 error_handler_list = l->next;
+            }
             break;
         }
         prev = l;
@@ -70,14 +70,16 @@ void remove_error_handler(ErrorHandlerList *p_handler) {
     _global_unlock();
 }
 
-void _err_print_error(const char *p_function, const char *p_file, int p_line, StringView p_error, StringView p_message, ErrorHandlerType p_type) {
-
-    OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message, (Logger::ErrorType)p_type);
+void _err_print_error(const char *p_function, const char *p_file, int p_line, StringView p_error, StringView p_message,
+                      ErrorHandlerType p_type)
+{
+    OS::get_singleton()->print_error(p_function, p_file, p_line, p_error, p_message,
+                                     static_cast<Logger::ErrorType>(p_type));
 
     _global_lock();
     ErrorHandlerList *l = error_handler_list;
-    while (l) {
-
+    while (l)
+    {
         l->errfunc(l->userdata, p_function, p_file, p_line, p_error, p_message, p_type);
         l = l->next;
     }
@@ -85,9 +87,13 @@ void _err_print_error(const char *p_function, const char *p_file, int p_line, St
     _global_unlock();
 }
 
-void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size, StringView p_index_str, StringView p_size_str, StringView p_message, bool fatal) {
-    String fstr(fatal ? "FATAL: " : "");
-    String err(fstr + "Index " + p_index_str + " = " + itos(p_index) + " is out of bounds (" + p_size_str + " = " + itos(p_size) + ").");
+void _err_print_index_error(const char *p_function, const char *p_file, int p_line, int64_t p_index, int64_t p_size,
+                            StringView p_index_str, StringView p_size_str, StringView p_message, bool fatal)
+{
+    const String fstr(fatal ? "FATAL: " : "");
+    const String err(
+        fstr + "Index " + p_index_str + " = " + itos(p_index) + " is out of bounds (" + p_size_str + " = " +
+        itos(p_size) + ").");
 
     _err_print_error(p_function, p_file, p_line, err, p_message);
 }

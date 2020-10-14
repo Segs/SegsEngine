@@ -77,6 +77,9 @@ public:
     _FORCE_INLINE_ bool is_null() const {
         return method == StringName() && object == 0;
     }
+    _FORCE_INLINE_ bool is_valid() const {
+        return !is_null();
+    }
     _FORCE_INLINE_ bool is_custom() const {
         return method == StringName() && custom != nullptr;
     }

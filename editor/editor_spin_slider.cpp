@@ -102,7 +102,7 @@ void EditorSpinSlider::_gui_input(const Ref<InputEvent> &p_event) {
         } else if (mb->get_button_index() == BUTTON_WHEEL_UP || mb->get_button_index() == BUTTON_WHEEL_DOWN) {
 
             if (grabber->is_visible())
-                call_deferred("update");
+                call_deferred([this] { update(); });
         }
     }
 
@@ -466,9 +466,12 @@ void EditorSpinSlider::_focus_entered() {
     value_input->set_text_uistring(get_text_value());
     value_input->set_position(gr.position);
     value_input->set_size(gr.size);
-    value_input->call_deferred("show_modal");
-    value_input->call_deferred("grab_focus");
-    value_input->call_deferred("select_all");
+    call_deferred([vi=value_input] {
+        vi->show_modal();
+        vi->grab_focus();
+        vi->select_all();
+    });
+
     value_input->set_focus_next(find_next_valid_focus()->get_path());
     value_input->set_focus_previous(find_prev_valid_focus()->get_path());
 }
@@ -484,12 +487,6 @@ void EditorSpinSlider::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_flat"), &EditorSpinSlider::is_flat);
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorSpinSlider::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_grabber_mouse_entered"), &EditorSpinSlider::_grabber_mouse_entered);
-    MethodBinder::bind_method(D_METHOD("_grabber_mouse_exited"), &EditorSpinSlider::_grabber_mouse_exited);
-    MethodBinder::bind_method(D_METHOD("_grabber_gui_input"), &EditorSpinSlider::_grabber_gui_input);
-    MethodBinder::bind_method(D_METHOD("_value_input_closed"), &EditorSpinSlider::_value_input_closed);
-    MethodBinder::bind_method(D_METHOD("_value_input_entered"), &EditorSpinSlider::_value_input_entered);
-    MethodBinder::bind_method(D_METHOD("_value_focus_exited"), &EditorSpinSlider::_value_focus_exited);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "label"), "set_label", "get_label");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "read_only"), "set_read_only", "is_read_only");

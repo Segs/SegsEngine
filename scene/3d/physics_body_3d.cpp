@@ -896,7 +896,6 @@ void RigidBody::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_direct_state_changed"), &RigidBody::_direct_state_changed);
     MethodBinder::bind_method(D_METHOD("_body_enter_tree"), &RigidBody::_body_enter_tree);
-    MethodBinder::bind_method(D_METHOD("_body_exit_tree"), &RigidBody::_body_exit_tree);
 
     MethodBinder::bind_method(D_METHOD("set_axis_lock", {"axis", "lock"}), &RigidBody::set_axis_lock);
     MethodBinder::bind_method(D_METHOD("get_axis_lock", {"axis"}), &RigidBody::get_axis_lock);
@@ -937,10 +936,10 @@ void RigidBody::_bind_methods() {
     ADD_SIGNAL(MethodInfo("body_exited", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
     ADD_SIGNAL(MethodInfo("sleeping_state_changed"));
 
-    BIND_ENUM_CONSTANT(MODE_RIGID)
-    BIND_ENUM_CONSTANT(MODE_STATIC)
-    BIND_ENUM_CONSTANT(MODE_CHARACTER)
-    BIND_ENUM_CONSTANT(MODE_KINEMATIC)
+    BIND_ENUM_CONSTANT(MODE_RIGID);
+    BIND_ENUM_CONSTANT(MODE_STATIC);
+    BIND_ENUM_CONSTANT(MODE_CHARACTER);
+    BIND_ENUM_CONSTANT(MODE_KINEMATIC);
 }
 
 RigidBody::RigidBody() :
@@ -964,7 +963,7 @@ RigidBody::RigidBody() :
     contact_monitor = nullptr;
     can_sleep = true;
 
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this, &RigidBody::_direct_state_changed));
 }
 
 RigidBody::~RigidBody() {
@@ -2172,12 +2171,12 @@ void PhysicalBone3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "bounce", PropertyHint::Range, "0,1,0.01"), "set_bounce", "get_bounce");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "gravity_scale", PropertyHint::Range, "-10,10,0.01"), "set_gravity_scale", "get_gravity_scale");
 
-    BIND_ENUM_CONSTANT(JOINT_TYPE_NONE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_PIN)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_CONE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_HINGE)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_SLIDER)
-    BIND_ENUM_CONSTANT(JOINT_TYPE_6DOF)
+    BIND_ENUM_CONSTANT(JOINT_TYPE_NONE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_PIN);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_CONE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_HINGE);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_SLIDER);
+    BIND_ENUM_CONSTANT(JOINT_TYPE_6DOF);
 }
 
 Skeleton *PhysicalBone3D::find_skeleton_parent(Node *p_parent) {
@@ -2630,7 +2629,7 @@ void PhysicalBone3D::_start_physics_simulation() {
     PhysicsServer3D::get_singleton()->body_set_mode(get_rid(), PhysicsServer3D::BODY_MODE_RIGID);
     PhysicsServer3D::get_singleton()->body_set_collision_layer(get_rid(), get_collision_layer());
     PhysicsServer3D::get_singleton()->body_set_collision_mask(get_rid(), get_collision_mask());
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), this, "_direct_state_changed");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), callable_mp(this, &PhysicalBone3D::_direct_state_changed));
     _internal_simulate_physics = true;
 }
 
@@ -2641,7 +2640,7 @@ void PhysicalBone3D::_stop_physics_simulation() {
     PhysicsServer3D::get_singleton()->body_set_mode(get_rid(), PhysicsServer3D::BODY_MODE_STATIC);
     PhysicsServer3D::get_singleton()->body_set_collision_layer(get_rid(), 0);
     PhysicsServer3D::get_singleton()->body_set_collision_mask(get_rid(), 0);
-    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), nullptr, "");
+    PhysicsServer3D::get_singleton()->body_set_force_integration_callback(get_rid(), {});
     parent_skeleton->set_bone_global_pose_override(bone_id, Transform(), 0.0, false);
     _internal_simulate_physics = false;
 }

@@ -3354,11 +3354,7 @@
         <method name="request_frame_drawn_callback">
             <return type="void">
             </return>
-            <argument index="0" name="where" type="Object">
-            </argument>
-            <argument index="1" name="method" type="String">
-            </argument>
-            <argument index="2" name="userdata" type="Variant">
+            <argument index="0" name="callback" type="Callable">
             </argument>
             <description>
                 Schedules a callback to the corresponding named [code]method[/code] on [code]where[/code] after a frame has been drawn.

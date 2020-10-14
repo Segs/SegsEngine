@@ -66,7 +66,8 @@ void EditorAutoloadSettings::_notification(int p_what) {
 
         for (AutoLoadInfo &info : autoload_cache) {
             if (info.node && info.in_editor) {
-                get_tree()->get_root()->call_deferred("add_child", Variant(info.node));
+                auto rt=get_tree()->get_root();
+                rt->call_deferred([rt,node=info.node] { rt->add_child(node); });
             }
         }
     }
@@ -475,7 +476,8 @@ void EditorAutoloadSettings::update_autoload() {
         }
         if (info.in_editor) {
             ERR_CONTINUE(!info.node);
-            get_tree()->get_root()->call_deferred("remove_child", Variant(info.node));
+            auto rt=get_tree()->get_root();
+            rt->call_deferred([rt,node=info.node] { rt->remove_child(node); });
         }
 
         if (info.node) {

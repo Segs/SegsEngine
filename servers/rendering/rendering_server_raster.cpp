@@ -86,15 +86,11 @@ void VisualServerRaster::free_rid(RID p_rid) {
 
 /* EVENT QUEUING */
 
-void VisualServerRaster::request_frame_drawn_callback(Object *p_where, const StringName &p_method, const Variant &p_userdata) {
+void VisualServerRaster::request_frame_drawn_callback(Callable&& cb) {
 
-    ERR_FAIL_NULL(p_where);
-    FrameDrawnCallbacks fdc;
-    fdc.object = p_where->get_instance_id();
-    fdc.method = p_method;
-    fdc.param = p_userdata;
+    ERR_FAIL_COND(cb.is_null());
 
-    frame_drawn_callbacks.push_back(fdc);
+    frame_drawn_callbacks.emplace_back(eastl::move(cb));
 }
 
 void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
@@ -117,13 +113,13 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
 
     while (!frame_drawn_callbacks.empty()) {
 
-        Object *obj = gObjectDB().get_instance(frame_drawn_callbacks.front().object);
+        Object *obj = frame_drawn_callbacks.front().get_object();
         if (obj) {
             Callable::CallError ce;
-            const Variant *v = &frame_drawn_callbacks.front().param;
-            obj->call(frame_drawn_callbacks.front().method, &v, 1, ce);
+            Variant ret;
+            frame_drawn_callbacks.front().call(nullptr,0,ret,ce);
             if (ce.error != Callable::CallError::CALL_OK) {
-                String err = Variant::get_call_error_text(obj, frame_drawn_callbacks.front().method, &v, 1, ce);
+                String err = Variant::get_callable_error_text(frame_drawn_callbacks.front(), nullptr, 0, ce);
                 ERR_PRINT("Error calling frame drawn function: " + err);
             }
         }

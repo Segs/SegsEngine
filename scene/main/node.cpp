@@ -1326,9 +1326,11 @@ void Node::add_child(Node *p_child, bool p_legible_unique_name) {
 
     ERR_FAIL_NULL(p_child);
     ERR_FAIL_COND_MSG(p_child == this, "Can't add child '" + String(p_child->get_name()) + "' to itself."); // adding to itself!
-    ERR_FAIL_COND_MSG(p_child->priv_data->parent, "Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() +
-                                                    "', already has a parent '" + p_child->priv_data->parent->get_name() +
-                                                    "'."); // Fail if node has a parent
+    if (unlikely(p_child->priv_data->parent))  // Fail if node has a parent
+    {
+        _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Condition ' \"p_child->priv_data->parent\" ' is true.", DEBUG_STR("Can't add child '" + String(p_child->get_name()) + "' to '" + get_name() + "', already has a parent '" + p_child->priv_data->parent->get_name() + "'."));
+        return;
+    }
     ERR_FAIL_COND_MSG(blocked > 0, "Parent node is busy setting up children, add_node() failed. Consider using "
                                          "call_deferred(\"add_child\", child) instead.");
 

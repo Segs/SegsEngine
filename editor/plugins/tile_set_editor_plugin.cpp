@@ -278,23 +278,6 @@ void TileSetEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, C
 void TileSetEditor::_bind_methods() {
 
     MethodBinder::bind_method("_undo_redo_import_scene", &TileSetEditor::_undo_redo_import_scene);
-    MethodBinder::bind_method("_on_tileset_toolbar_button_pressed", &TileSetEditor::_on_tileset_toolbar_button_pressed);
-    MethodBinder::bind_method("_on_textures_added", &TileSetEditor::_on_textures_added);
-    MethodBinder::bind_method("_on_tileset_toolbar_confirm", &TileSetEditor::_on_tileset_toolbar_confirm);
-    MethodBinder::bind_method("_on_texture_list_selected", &TileSetEditor::_on_texture_list_selected);
-    MethodBinder::bind_method("_on_edit_mode_changed", &TileSetEditor::_on_edit_mode_changed);
-    MethodBinder::bind_method("_on_workspace_mode_changed", &TileSetEditor::_on_workspace_mode_changed);
-    MethodBinder::bind_method("_on_workspace_overlay_draw", &TileSetEditor::_on_workspace_overlay_draw);
-    MethodBinder::bind_method("_on_workspace_process", &TileSetEditor::_on_workspace_process);
-    MethodBinder::bind_method("_on_workspace_draw", &TileSetEditor::_on_workspace_draw);
-    MethodBinder::bind_method("_on_workspace_input", &TileSetEditor::_on_workspace_input);
-    MethodBinder::bind_method("_on_tool_clicked", &TileSetEditor::_on_tool_clicked);
-    MethodBinder::bind_method("_on_priority_changed", &TileSetEditor::_on_priority_changed);
-    MethodBinder::bind_method("_on_z_index_changed", &TileSetEditor::_on_z_index_changed);
-    MethodBinder::bind_method("_on_grid_snap_toggled", &TileSetEditor::_on_grid_snap_toggled);
-    MethodBinder::bind_method("_set_snap_step", &TileSetEditor::_set_snap_step);
-    MethodBinder::bind_method("_set_snap_off", &TileSetEditor::_set_snap_off);
-    MethodBinder::bind_method("_set_snap_sep", &TileSetEditor::_set_snap_sep);
     MethodBinder::bind_method("_validate_current_tile_id", &TileSetEditor::_validate_current_tile_id);
     MethodBinder::bind_method("_select_edited_shape_coord", &TileSetEditor::_select_edited_shape_coord);
 

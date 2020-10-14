@@ -355,11 +355,11 @@ private:
         String sp = PathUtils::simplify_path(p);
         project_path->set_text(sp);
         _path_text_changed(sp);
-        if (StringUtils::ends_with(p,".zip")) {
-            install_path->call_deferred("grab_focus");
-        } else {
-            get_ok()->call_deferred("grab_focus");
+        Control *focus_target = install_path;
+        if (!StringUtils::ends_with(p,".zip")) {
+            focus_target = get_ok();
         }
+        focus_target->call_deferred([focus_target] { focus_target->grab_focus();});
     }
 
     void _path_selected(StringView p_path) {
@@ -367,14 +367,14 @@ private:
         String sp = PathUtils::simplify_path(p_path);
         project_path->set_text(sp);
         _path_text_changed(sp);
-        get_ok()->call_deferred("grab_focus");
+        get_ok()->call_deferred([focus_target=get_ok()] { focus_target->grab_focus();});
     }
 
     void _install_path_selected(StringView p_path) {
         String sp = PathUtils::simplify_path(p_path);
         install_path->set_text(sp);
         _path_text_changed(sp);
-        get_ok()->call_deferred("grab_focus");
+        get_ok()->call_deferred([focus_target=get_ok()] { focus_target->grab_focus();});
     }
 
     void _browse_path() {
@@ -732,7 +732,7 @@ public:
                 _text_changed(proj);
             }
 
-            project_name->call_deferred("grab_focus");
+            project_name->call_deferred([focus_target=project_name] { focus_target->grab_focus();});
 
             create_dir->hide();
 
@@ -777,8 +777,11 @@ public:
                 name_container->show();
                 install_path_container->hide();
                 rasterizer_container->show();
-                project_name->call_deferred("grab_focus");
-                project_name->call_deferred("select_all");
+                project_name->call_deferred([focus_target=project_name] {
+                    focus_target->grab_focus();
+                    focus_target->select_all();
+                });
+
 
             } else if (mode == MODE_INSTALL) {
 
@@ -2372,34 +2375,8 @@ void ProjectManager::_on_filter_option_changed() {
 
 void ProjectManager::_bind_methods() {
 
-    MethodBinder::bind_method("_open_selected_projects_ask", &ProjectManager::_open_selected_projects_ask);
-    MethodBinder::bind_method("_open_selected_projects", &ProjectManager::_open_selected_projects);
     MethodBinder::bind_method(D_METHOD("_global_menu_action"), &ProjectManager::_global_menu_action, {DEFVAL(Variant())});
-    MethodBinder::bind_method("_run_project", &ProjectManager::_run_project);
-    MethodBinder::bind_method("_run_project_confirm", &ProjectManager::_run_project_confirm);
-    MethodBinder::bind_method("_scan_projects", &ProjectManager::_scan_projects);
-    MethodBinder::bind_method("_scan_begin", &ProjectManager::_scan_begin);
-    MethodBinder::bind_method("_import_project", &ProjectManager::_import_project);
-    MethodBinder::bind_method("_new_project", &ProjectManager::_new_project);
-    MethodBinder::bind_method("_rename_project", &ProjectManager::_rename_project);
-    MethodBinder::bind_method("_erase_project", &ProjectManager::_erase_project);
-    MethodBinder::bind_method("_erase_missing_projects", &ProjectManager::_erase_missing_projects);
-    MethodBinder::bind_method("_erase_project_confirm", &ProjectManager::_erase_project_confirm);
-    MethodBinder::bind_method("_erase_missing_projects_confirm", &ProjectManager::_erase_missing_projects_confirm);
-    MethodBinder::bind_method("_language_selected", &ProjectManager::_language_selected);
-    MethodBinder::bind_method("_restart_confirm", &ProjectManager::_restart_confirm);
-    MethodBinder::bind_method("_exit_dialog", &ProjectManager::_exit_dialog);
-    MethodBinder::bind_method("_on_order_option_changed", &ProjectManager::_on_order_option_changed);
-    MethodBinder::bind_method("_on_filter_option_changed", &ProjectManager::_on_filter_option_changed);
-    MethodBinder::bind_method("_on_projects_updated", &ProjectManager::_on_projects_updated);
-    MethodBinder::bind_method("_on_project_created", &ProjectManager::_on_project_created);
     MethodBinder::bind_method("_unhandled_input", &ProjectManager::_unhandled_input);
-    MethodBinder::bind_method("_install_project", &ProjectManager::_install_project);
-    //MethodBinder::bind_method("_files_dropped", &ProjectManager::_files_dropped);
-    MethodBinder::bind_method("_open_asset_library", &ProjectManager::_open_asset_library);
-    MethodBinder::bind_method("_confirm_update_settings", &ProjectManager::_confirm_update_settings);
-    MethodBinder::bind_method("_update_project_buttons", &ProjectManager::_update_project_buttons);
-    MethodBinder::bind_method(D_METHOD("_scan_multiple_folders", {"files"}), &ProjectManager::_scan_multiple_folders);
 }
 
 void ProjectManager::_open_asset_library() {

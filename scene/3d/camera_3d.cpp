@@ -552,16 +552,16 @@ void Camera3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "near", PropertyHint::ExpRange, "0.01,8192,0.01,or_greater"), "set_znear", "get_znear");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "far", PropertyHint::ExpRange, "0.1,8192,0.1,or_greater"), "set_zfar", "get_zfar");
 
-    BIND_ENUM_CONSTANT(PROJECTION_PERSPECTIVE)
-    BIND_ENUM_CONSTANT(PROJECTION_ORTHOGONAL)
-    BIND_ENUM_CONSTANT(PROJECTION_FRUSTUM)
+    BIND_ENUM_CONSTANT(PROJECTION_PERSPECTIVE);
+    BIND_ENUM_CONSTANT(PROJECTION_ORTHOGONAL);
+    BIND_ENUM_CONSTANT(PROJECTION_FRUSTUM);
 
-    BIND_ENUM_CONSTANT(KEEP_WIDTH)
-    BIND_ENUM_CONSTANT(KEEP_HEIGHT)
+    BIND_ENUM_CONSTANT(KEEP_WIDTH);
+    BIND_ENUM_CONSTANT(KEEP_HEIGHT);
 
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED)
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP)
-    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP)
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_DISABLED);
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_IDLE_STEP);
+    BIND_ENUM_CONSTANT(DOPPLER_TRACKING_PHYSICS_STEP);
 }
 
 float Camera3D::get_fov() const {
@@ -930,8 +930,8 @@ void ClippedCamera3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_areas", PropertyHint::Layers3DPhysics), "set_clip_to_areas", "is_clip_to_areas_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "clip_to_bodies", PropertyHint::Layers3DPhysics), "set_clip_to_bodies", "is_clip_to_bodies_enabled");
 
-    BIND_ENUM_CONSTANT(CLIP_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(CLIP_PROCESS_IDLE)
+    BIND_ENUM_CONSTANT(CLIP_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(CLIP_PROCESS_IDLE);
 }
 ClippedCamera3D::ClippedCamera3D() {
     margin = 0;

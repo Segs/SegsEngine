@@ -337,12 +337,6 @@ RenameDialog::RenameDialog(SceneTreeEditor *p_scene_tree_editor, UndoRedo *p_und
 }
 
 void RenameDialog::_bind_methods() {
-
-    MethodBinder::bind_method("_features_toggled", &RenameDialog::_features_toggled);
-    MethodBinder::bind_method("_update_preview", &RenameDialog::_update_preview);
-    MethodBinder::bind_method("_update_preview_int", &RenameDialog::_update_preview_int);
-    MethodBinder::bind_method("_insert_text", &RenameDialog::_insert_text);
-    MethodBinder::bind_method("_update_substitute", &RenameDialog::_update_substitute);
     MethodBinder::bind_method("reset", &RenameDialog::reset);
     MethodBinder::bind_method("rename", &RenameDialog::rename);
 }

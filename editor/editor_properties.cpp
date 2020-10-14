@@ -2543,7 +2543,9 @@ void EditorPropertyResource::_button_input(const Ref<InputEvent> &p_event) {
 void EditorPropertyResource::_open_editor_pressed() {
     RES res(get_edited_object()->get(get_edited_property()));
     if (res) {
-        EditorNode::get_singleton()->call_deferred("edit_item_resource", res); //may clear the editor so do it deferred
+        EditorNode::get_singleton()->call_deferred([res = eastl::move(res)] {
+            EditorNode::get_singleton()->edit_item_resource(res);
+        }); // may clear the editor so do it deferred
     }
 }
 
@@ -2625,7 +2627,8 @@ void EditorPropertyResource::update_property() {
                     //open editor directly and hide other open of these
                     _open_editor_pressed();
                     if (is_inside_tree()) {
-                        get_tree()->call_deferred("call_group", "_editor_resource_properties", "_fold_other_editors", Variant(this));
+                        auto tr=get_tree();
+                        tr->call_deferred([tr,this] { tr->call_group("_editor_resource_properties", "_fold_other_editors", Variant(this)); });
                     }
                     opened_editor = true;
                 }

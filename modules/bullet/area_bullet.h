@@ -45,14 +45,7 @@ class GODOT_EXPORT AreaBullet : public RigidCollisionObjectBullet {
     friend void SpaceBullet::check_ghost_overlaps();
 
 public:
-    struct InOutEventCallback {
-        ObjectID event_callback_id;
-        StringName event_callback_method;
-
-        InOutEventCallback() :
-                event_callback_id(0ULL) {}
-    };
-
+    using InOutEventCallback = Callable;
     enum OverlapState {
         OVERLAP_STATE_DIRTY = 0, // Mark processed overlaps
         OVERLAP_STATE_INSIDE, // Mark old overlap
@@ -162,7 +155,7 @@ public:
     void set_param(PhysicsServer3D::AreaParameter p_param, const Variant &p_value);
     Variant get_param(PhysicsServer3D::AreaParameter p_param) const;
 
-    void set_event_callback(Type p_callbackObjectType, ObjectID p_id, const StringName &p_method);
+    void set_event_callback(Type p_callbackObjectType, Callable&& cb);
     bool has_event_callback(Type p_callbackObjectType);
 
     void on_enter_area(AreaBullet *p_area) override;

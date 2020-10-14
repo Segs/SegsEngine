@@ -1920,7 +1920,7 @@ void RenderingServer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("free_rid", {"rid"}), &RenderingServer::free_rid); // shouldn't conflict with Object::free()
 
-    MethodBinder::bind_method(D_METHOD("request_frame_drawn_callback", {"where", "method", "userdata"}), &RenderingServer::request_frame_drawn_callback);
+    MethodBinder::bind_method(D_METHOD("request_frame_drawn_callback", {"callback"}), &RenderingServer::request_frame_drawn_callback);
     MethodBinder::bind_method(D_METHOD("has_changed"), &RenderingServer::has_changed);
     MethodBinder::bind_method(D_METHOD("init"), &RenderingServer::init);
     MethodBinder::bind_method(D_METHOD("finish"), &RenderingServer::finish);

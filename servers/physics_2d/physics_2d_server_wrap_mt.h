@@ -169,8 +169,22 @@ public:
     FUNC2(area_set_monitorable, RID, bool);
     FUNC2(area_set_pickable, RID, bool);
 
-    FUNC3(area_set_monitor_callback, RID, Object *, const StringName &);
-    FUNC3(area_set_area_monitor_callback, RID, Object *, const StringName &);
+    void area_set_monitor_callback(RID p1, Callable && p2) override
+    {
+        if (Thread::get_caller_id() != server_thread)
+        {
+            command_queue.push([this,p1, p2{ eastl::move(p2) }]() mutable {server_name->area_set_monitor_callback(p1, eastl::move(p2));});
+        } else { server_name->area_set_monitor_callback(p1, eastl::move(p2)); }
+    }
+    void area_set_area_monitor_callback(RID p1, Callable&& p2) override
+    {
+        if (Thread::get_caller_id() != server_thread)
+        {
+            command_queue.push([this,p1,p2{eastl::move(p2)}]()mutable {server_name->area_set_area_monitor_callback(p1, eastl::move(p2));});
+        } else {
+            server_name->area_set_area_monitor_callback(p1, eastl::move(p2));
+        }
+    }
 
     /* BODY API */
 
@@ -247,7 +261,13 @@ public:
     FUNC2(body_set_omit_force_integration, RID, bool);
     FUNC1RC(bool, body_is_omitting_force_integration, RID);
 
-    FUNC4(body_set_force_integration_callback, RID, Object *, const StringName &, const Variant &);
+    void body_set_force_integration_callback(RID p1, Callable && p2) override
+    {
+        if (Thread::get_caller_id() != server_thread)
+        {
+            command_queue.push([this,p1,p2=eastl::move(p2)]() mutable {server_name->body_set_force_integration_callback(p1, eastl::move(p2));});
+        } else { server_name->body_set_force_integration_callback(p1, eastl::move(p2)); }
+    };
 
     bool body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, Vector2 *r_results, int p_result_max, int &r_result_count) override {
         return physics_server_2d->body_collide_shape(p_body, p_body_shape, p_shape, p_shape_xform, p_motion, r_results, p_result_max, r_result_count);

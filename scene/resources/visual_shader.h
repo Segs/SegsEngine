@@ -382,7 +382,7 @@ public:
     VisualShaderNodeUniform();
 };
 
-class VisualShaderNodeUniformRef : public VisualShaderNode {
+class GODOT_EXPORT VisualShaderNodeUniformRef : public VisualShaderNode {
     GDCLASS(VisualShaderNodeUniformRef, VisualShaderNode);
 
 public:

@@ -38,6 +38,10 @@
 #include "scene/gui/tree.h"
 #include "scene/resources/visual_shader.h"
 
+// Interface common to all visual shader editor instances returned by create_editor?
+struct IVisualShaderEditor {
+    virtual void _show_prop_names(bool p_show); // default implementation only tries to call script implementation
+};
 
 class VisualShaderNodePlugin : public RefCounted {
 
@@ -96,9 +100,9 @@ class VisualShaderEditor : public VBoxContainer {
 
     void _tools_menu_option(int p_idx);
     void _show_members_dialog(bool at_mouse_pos);
-
+public: // slots:
     void _update_graph();
-
+private:
     struct AddOption {
         StringName name;
         StringName category;
@@ -229,9 +233,9 @@ class VisualShaderEditor : public VBoxContainer {
     void _mode_selected(int p_id);
     void _rebuild();
 
-    void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
 public:
     // made public for call_deferred lambda
+    void _input_select_item(Ref<VisualShaderNodeInput> input, const StringName &name);
     void _uniform_select_item(Ref<VisualShaderNodeUniformRef> p_uniform_ref, const StringName & p_name);
 private:
     void _add_input_port(int p_node, int p_port, int p_port_type, StringView p_name);
@@ -275,9 +279,9 @@ protected:
     void add_vector_ops();
 
     void add_color_op_nodes();
-    
+
     void add_spatial_input_ops();
-    
+
 public:
     void update_custom_nodes();
     void add_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);

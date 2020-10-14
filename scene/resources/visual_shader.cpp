@@ -369,12 +369,12 @@ void VisualShaderNode::_bind_methods() {
             "_set_default_input_values", "_get_default_input_values");
     ADD_SIGNAL(MethodInfo("editor_refresh_request"));
 
-    BIND_ENUM_CONSTANT(PORT_TYPE_SCALAR)
-    BIND_ENUM_CONSTANT(PORT_TYPE_VECTOR)
-    BIND_ENUM_CONSTANT(PORT_TYPE_BOOLEAN)
-    BIND_ENUM_CONSTANT(PORT_TYPE_TRANSFORM)
-    BIND_ENUM_CONSTANT(PORT_TYPE_SAMPLER)
-    BIND_ENUM_CONSTANT(PORT_TYPE_MAX)
+    BIND_ENUM_CONSTANT(PORT_TYPE_SCALAR);
+    BIND_ENUM_CONSTANT(PORT_TYPE_VECTOR);
+    BIND_ENUM_CONSTANT(PORT_TYPE_BOOLEAN);
+    BIND_ENUM_CONSTANT(PORT_TYPE_TRANSFORM);
+    BIND_ENUM_CONSTANT(PORT_TYPE_SAMPLER);
+    BIND_ENUM_CONSTANT(PORT_TYPE_MAX);
 }
 
 VisualShaderNode::VisualShaderNode() {
@@ -1473,7 +1473,7 @@ void VisualShader::_queue_update() {
     }
 
     dirty = true;
-    call_deferred("_update_shader");
+    call_deferred([this]() { _update_shader(); });
 }
 
 void VisualShader::_input_type_changed(Type p_type, int p_id) {
@@ -1522,18 +1522,13 @@ void VisualShader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_graph_offset", {"offset"}), &VisualShader::set_graph_offset);
     MethodBinder::bind_method(D_METHOD("get_graph_offset"), &VisualShader::get_graph_offset);
 
-    MethodBinder::bind_method(D_METHOD("_queue_update"), &VisualShader::_queue_update);
-    MethodBinder::bind_method(D_METHOD("_update_shader"), &VisualShader::_update_shader);
-
-    MethodBinder::bind_method(D_METHOD("_input_type_changed"), &VisualShader::_input_type_changed);
-
     ADD_PROPERTY(PropertyInfo(VariantType::VECTOR2, "graph_offset", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR), "set_graph_offset", "get_graph_offset");
     ADD_PROPERTY_DEFAULT("code", ""); // Inherited from Shader, prevents showing default code as override in docs.
 
-    BIND_ENUM_CONSTANT(TYPE_VERTEX)
-    BIND_ENUM_CONSTANT(TYPE_FRAGMENT)
-    BIND_ENUM_CONSTANT(TYPE_LIGHT)
-    BIND_ENUM_CONSTANT(TYPE_MAX)
+    BIND_ENUM_CONSTANT(TYPE_VERTEX);
+    BIND_ENUM_CONSTANT(TYPE_FRAGMENT);
+    BIND_ENUM_CONSTANT(TYPE_LIGHT);
+    BIND_ENUM_CONSTANT(TYPE_MAX);
 
     BIND_CONSTANT(NODE_ID_INVALID);
     BIND_CONSTANT(NODE_ID_OUTPUT);

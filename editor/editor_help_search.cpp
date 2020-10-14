@@ -193,7 +193,7 @@ void EditorHelpSearch::_notification(int p_what) {
         } break;
         case NOTIFICATION_POPUP_HIDE: {
 
-            results_tree->call_deferred("clear"); // Wait for the Tree's mouse event propagation.
+            results_tree->call_deferred([rt=results_tree] { rt->clear();}); // Wait for the Tree's mouse event propagation.
             get_ok()->set_disabled(true);
             EditorSettings::get_singleton()->set_project_metadata("dialog_bounds", "search_help", get_rect());
         } break;
@@ -223,11 +223,6 @@ void EditorHelpSearch::_notification(int p_what) {
 }
 
 void EditorHelpSearch::_bind_methods() {
-
-    MethodBinder::bind_method(D_METHOD("_update_results"), &EditorHelpSearch::_update_results);
-    MethodBinder::bind_method(D_METHOD("_search_box_gui_input"), &EditorHelpSearch::_search_box_gui_input);
-    MethodBinder::bind_method(D_METHOD("_search_box_text_changed"), &EditorHelpSearch::_search_box_text_changed);
-    MethodBinder::bind_method(D_METHOD("_filter_combo_item_selected"), &EditorHelpSearch::_filter_combo_item_selected);
     ADD_SIGNAL(MethodInfo("go_to_help"));
 }
 

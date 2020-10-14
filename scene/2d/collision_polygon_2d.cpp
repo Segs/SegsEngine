@@ -322,8 +322,8 @@ void CollisionPolygon2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "one_way_collision"), "set_one_way_collision", "is_one_way_collision_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::FLOAT, "one_way_collision_margin", PropertyHint::Range, "0,128,0.1"), "set_one_way_collision_margin", "get_one_way_collision_margin");
 
-    BIND_ENUM_CONSTANT(BUILD_SOLIDS)
-    BIND_ENUM_CONSTANT(BUILD_SEGMENTS)
+    BIND_ENUM_CONSTANT(BUILD_SOLIDS);
+    BIND_ENUM_CONSTANT(BUILD_SEGMENTS);
 }
 
 CollisionPolygon2D::CollisionPolygon2D() {

@@ -385,32 +385,32 @@ void TextEditor::_edit_option(int p_op) {
         case EDIT_UNDO: {
 
             tx->undo();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_REDO: {
 
             tx->redo();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_CUT: {
 
             tx->cut();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_COPY: {
 
             tx->copy();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_PASTE: {
 
             tx->paste();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_SELECT_ALL: {
 
             tx->select_all();
-            tx->call_deferred("grab_focus");
+            tx->call_deferred([tx] { tx->grab_focus();});
         } break;
         case EDIT_MOVE_LINE_UP: {
 

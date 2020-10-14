@@ -362,7 +362,8 @@ void ShaderEditor::_menu_option(int p_option) {
         } break;
     }
     if (p_option != SEARCH_FIND && p_option != SEARCH_REPLACE && p_option != SEARCH_GOTO_LINE) {
-        shader_editor->get_text_edit()->call_deferred("grab_focus");
+        auto te=shader_editor->get_text_edit();
+        te->call_deferred([te] { te->grab_focus(); });
     }
 }
 
@@ -450,7 +451,8 @@ void ShaderEditor::_check_for_external_edit() {
         if (use_autoreload) {
             _reload_shader_from_disk();
         } else {
-            disk_changed->call_deferred("popup_centered");
+            auto dc=disk_changed;
+            dc->call_deferred([dc] { dc->popup_centered(); });
         }
     }
 }

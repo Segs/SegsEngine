@@ -2102,8 +2102,8 @@ void SceneTreeDock::_create() {
         Node *last_created = editor_selection->get_selected_node_list().front();
         _do_reparent(last_created, -1, nodes, true);
     }
-
-    scene_tree->get_scene_tree()->call_deferred("grab_focus");
+    auto st=scene_tree->get_scene_tree();
+    st->call_deferred([st]() { st->grab_focus(); });
 }
 
 void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_properties, bool p_remove_old) {

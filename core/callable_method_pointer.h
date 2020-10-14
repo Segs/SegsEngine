@@ -361,6 +361,125 @@ public:
     }
 };
 
+template <class... P>
+struct FunctorCallableT : CallableCustom
+{
+private:
+    const uint32_t h;
+    const char* m_filename;
+    int m_line;
+    template <class... P>
+    friend Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method,
+#ifdef DEBUG_METHODS_ENABLED
+        const char* p_file,
+        int line
+#endif
+    );
+public:
+    ObjectID m_holder;
+    eastl::function<void(P...)> m_func;
+
+    FunctorCallableT(ObjectID holder, eastl::function<void(P...)> f, const char* func = nullptr, int line = 0) :
+        // dangerous code
+        h(hash_djb2_buffer((const uint8_t*)&f, sizeof(eastl::function<void()>))),
+        m_filename(func), m_line(line), m_holder(holder), m_func(eastl::move(f))
+    {
+    }
+
+    uint32_t hash() const override
+    {
+        return ((uint64_t)m_holder) ^ h;
+    }
+
+    String get_as_text() const override
+    {
+        if (m_filename)
+            return String(String::CtorSprintf(), "<%s:%d>", m_filename, m_line);
+        return "<LAMBDA>";
+    }
+
+    CompareEqualFunc get_compare_equal_func() const override
+    {
+        return +[](const CallableCustom* a, const CallableCustom* b)-> bool { return a == b; };
+    }
+
+    CompareLessFunc get_compare_less_func() const override
+    {
+        return +[](const CallableCustom* a, const CallableCustom* b)-> bool { return a < b; };
+    }
+
+    ObjectID get_object() const override
+    {
+        return m_holder;
+    }
+    template <std::size_t... Is>
+    void converting_call(const Variant** p_args, int p_arg_count, eastl::index_sequence<Is...>, Callable::CallError& r_call_error) const {
+#ifdef DEBUG_METHODS_ENABLED
+        if ((size_t)p_arg_count > sizeof...(P)) {
+            r_call_error.error = Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+            r_call_error.argument = sizeof...(P);
+            return;
+        }
+
+        if ((size_t)p_arg_count < sizeof...(P)) {
+            r_call_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+            r_call_error.argument = sizeof...(P);
+            return;
+        }
+#endif
+#ifdef DEBUG_METHODS_ENABLED
+        m_func(VariantCasterAndValidate<P>::cast(p_args, Is, r_call_error)...);
+#else
+        m_func(VariantCaster<P>::cast(*p_args[Is])...);
+#endif
+
+    }
+    void call(const Variant** p_arguments, int p_argcount,
+        Variant& r_return_value,
+        Callable::CallError& r_call_error) const override
+    {
+        r_call_error = {};
+        if (!m_func)
+        {
+            r_call_error.error = Callable::CallError::CALL_ERROR_INVALID_METHOD;
+        }
+        else
+        {
+#ifdef DEBUG_METHODS_ENABLED
+            if ((size_t)p_argcount > sizeof...(P)) {
+                r_call_error.error = Callable::CallError::CALL_ERROR_TOO_MANY_ARGUMENTS;
+                r_call_error.argument = sizeof...(P);
+                return;
+            }
+
+            if ((size_t)p_argcount < sizeof...(P)) {
+                r_call_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+                r_call_error.argument = sizeof...(P);
+                return;
+            }
+#endif
+            r_call_error.error = Callable::CallError::CALL_OK;
+            converting_call(p_arguments, p_argcount, eastl::make_index_sequence<sizeof...(P)>{}, r_call_error);
+        }
+    }
+};
+
+template <typename T>
+struct function_traits
+    : public function_traits<decltype(&T::operator())>
+{};
+
+template <typename ClassType, typename ReturnType, typename... Args>
+struct function_traits<ReturnType(ClassType::*)(Args...) const> {
+    typedef eastl::function<ReturnType(Args...)> f_type;
+};
+
+template <typename L>
+typename function_traits<L>::f_type make_function(L l) {
+    return (typename function_traits<L>::f_type)(l);
+}
+
+
 template <class T, class R, class... P>
 Callable create_custom_callable_function_pointer(T *p_instance,
 #ifdef DEBUG_METHODS_ENABLED
@@ -376,10 +495,28 @@ Callable create_custom_callable_function_pointer(T *p_instance,
     return Callable(ccmp);
 }
 
+template <class... P>
+Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method,
+#ifdef DEBUG_METHODS_ENABLED
+    const char* p_file,
+    int line
+#endif
+) {
+
+    typedef FunctorCallableT<P...> CCMP; // Messes with memnew otherwise.
+    CCMP* ccmp = memnew(CCMP(p_instance, p_method));
+#ifdef DEBUG_METHODS_ENABLED
+    ccmp->m_filename = p_file;
+    ccmp->m_line = line;
+#endif
+    return Callable(ccmp);
+}
+
+
 #ifdef DEBUG_METHODS_ENABLED
 #define callable_mp(I, M) create_custom_callable_function_pointer(I, #M, M)
-#define callable_gen(I, M) Callable(memnew_args(FunctorCallable,I->get_instance_id(),M,__FILE__,__LINE__))
+#define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function(M), __FUNCTION__,__LINE__)
 #else
 #define callable_mp(I, M) create_custom_callable_function_pointer(I, M)
-#define callable_gen(I, M) Callable(memnew_args(FunctorCallable,I->get_instance_id(),M))
+#define callable_gen(I, M) create_lambda_callable_function_pointer(I, make_function(M))
 #endif

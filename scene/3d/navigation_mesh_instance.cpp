@@ -181,12 +181,16 @@ void _bake_navigation_mesh(void *p_user_data) {
         Ref<NavigationMesh> nav_mesh((NavigationMesh *)args->nav_mesh_instance->get_navigation_mesh()->duplicate().get());
 
         NavigationServer::get_singleton()->region_bake_navmesh(nav_mesh, args->nav_mesh_instance);
-        args->nav_mesh_instance->call_deferred("_bake_finished", nav_mesh);
+        args->nav_mesh_instance->call_deferred([nmi=args->nav_mesh_instance,nm=eastl::move(nav_mesh)]() mutable {
+            nmi->_bake_finished(eastl::move(nm));
+        } );
         memdelete(args);
     } else {
 
         ERR_PRINT("Can't bake the navigation mesh if the `NavigationMesh` resource doesn't exist");
-        args->nav_mesh_instance->call_deferred("_bake_finished", Ref<NavigationMesh>());
+        args->nav_mesh_instance->call_deferred([nmi=args->nav_mesh_instance]() mutable {
+            nmi->_bake_finished({});
+        } );
         memdelete(args);
     }
 }

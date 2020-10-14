@@ -619,7 +619,16 @@ public:
 
     /* EVENT QUEUING */
 
-    FUNC3(request_frame_drawn_callback, Object *, const StringName &, const Variant &)
+    void request_frame_drawn_callback(Callable && p1) override
+    {
+        if (Thread::get_caller_id() != server_thread)
+        {
+            command_queue.push( [this,p1=eastl::move(p1)]() mutable { server_name->request_frame_drawn_callback(eastl::move(p1)); });
+        } else
+        {
+            server_name->request_frame_drawn_callback(eastl::move(p1));
+        }
+    }
 
     void init() override;
     void finish() override;

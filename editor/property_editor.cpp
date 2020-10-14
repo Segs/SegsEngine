@@ -1231,7 +1231,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
         if (!node) {
             val_variant = p_path;
             emit_signal("variant_changed");
-            call_deferred("hide"); //to not mess with dialogs
+            call_deferred([this] { hide(); }); //to not mess with dialogs
             return;
         }
 
@@ -1243,7 +1243,7 @@ void CustomPropertyEditor::_node_path_selected(NodePath p_path) {
 
     val_variant = p_path;
     emit_signal("variant_changed");
-    call_deferred("hide"); //to not mess with dialogs
+    call_deferred([this] { hide(); }); //to not mess with dialogs
 }
 
 void CustomPropertyEditor::_action_pressed(int p_which) {

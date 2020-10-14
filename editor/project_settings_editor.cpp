@@ -1283,8 +1283,7 @@ void ProjectSettingsEditor::_translation_res_select() {
 
     if (updating_translations)
         return;
-
-    call_deferred("_update_translations");
+    call_deferred([this] { _update_translations(); });
 }
 
 void ProjectSettingsEditor::_translation_res_option_changed() {

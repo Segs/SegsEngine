@@ -158,7 +158,7 @@ void AudioStreamPreviewGenerator::_preview_thread(void *p_preview) {
         }
 
         frames_todo -= to_read;
-        singleton->call_deferred("_update_emit", Variant::from(preview->id));
+        singleton->call_deferred([id=preview->id]() { singleton->_update_emit(id); });
     }
 
     preview->playback->stop();
@@ -205,7 +205,6 @@ Ref<AudioStreamPreview> AudioStreamPreviewGenerator::generate_preview(const Ref<
 }
 
 void AudioStreamPreviewGenerator::_bind_methods() {
-    MethodBinder::bind_method("_update_emit", &AudioStreamPreviewGenerator::_update_emit);
     MethodBinder::bind_method(D_METHOD("generate_preview", {"stream"}), &AudioStreamPreviewGenerator::generate_preview);
 
     ADD_SIGNAL(MethodInfo("preview_updated", PropertyInfo(VariantType::INT, "obj_id")));

@@ -81,33 +81,19 @@ SceneStringNames::SceneStringNames() {
     area_shape_entered = StringName("area_shape_entered");
     area_shape_exited = StringName("area_shape_exited");
 
-    _body_inout = StringName("_body_inout");
-    _area_inout = StringName("_area_inout");
-
     idle = StringName("idle");
     iteration = StringName("iteration");
     update = StringName("update");
     updated = StringName("updated");
-
-    _get_gizmo_geometry = StringName("_get_gizmo_geometry");
-    _can_gizmo_scale = StringName("_can_gizmo_scale");
 
     _physics_process = StringName("_physics_process");
     _process = StringName("_process");
 
     _enter_tree = StringName("_enter_tree");
     _exit_tree = StringName("_exit_tree");
-    _enter_world = StringName("_enter_world");
-    _exit_world = StringName("_exit_world");
     _ready = StringName("_ready");
 
-    _update_scroll = StringName("_update_scroll");
-    _update_xform = StringName("_update_xform");
-
     _clips_input = StringName("_clips_input");
-
-    _proxgroup_add = StringName("_proxgroup_add");
-    _proxgroup_remove = StringName("_proxgroup_remove");
 
     grouped = StringName("grouped");
     ungrouped = StringName("ungrouped");
@@ -120,12 +106,6 @@ SceneStringNames::SceneStringNames() {
 
     camera_entered = StringName("camera_entered");
     camera_exited = StringName("camera_exited");
-
-    _body_enter_tree = StringName("_body_enter_tree");
-    _body_exit_tree = StringName("_body_exit_tree");
-
-    _area_enter_tree = StringName("_area_enter_tree");
-    _area_exit_tree = StringName("_area_exit_tree");
 
     _input = StringName("_input");
     _input_event = StringName("_input_event");
@@ -197,8 +177,6 @@ SceneStringNames::SceneStringNames() {
 
         mesh_materials[i] = StringName("material/" + itos(i));
     }
-
-    _mesh_changed = StringName("_mesh_changed");
 
     parameters_base_path = "parameters/";
 

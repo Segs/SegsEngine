@@ -430,7 +430,7 @@ void AcceptDialog::_cancel_pressed() {
 //        parent_visible = nullptr;
 //    }
 
-    call_deferred("hide");
+    call_deferred([this] { hide();} );
 
     emit_signal("cancelled");
 

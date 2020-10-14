@@ -339,9 +339,9 @@ void Button::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_text_align"), &Button::get_text_align);
     MethodBinder::bind_method(D_METHOD("is_flat"), &Button::is_flat);
 
-    BIND_ENUM_CONSTANT(ALIGN_LEFT)
-    BIND_ENUM_CONSTANT(ALIGN_CENTER)
-    BIND_ENUM_CONSTANT(ALIGN_RIGHT)
+    BIND_ENUM_CONSTANT(ALIGN_LEFT);
+    BIND_ENUM_CONSTANT(ALIGN_CENTER);
+    BIND_ENUM_CONSTANT(ALIGN_RIGHT);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "text", PropertyHint::None, "", PROPERTY_USAGE_DEFAULT_INTL), "set_text", "get_text");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "icon", PropertyHint::ResourceType, "Texture"), "set_button_icon", "get_button_icon");

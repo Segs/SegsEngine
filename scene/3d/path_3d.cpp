@@ -322,11 +322,11 @@ void PathFollow3D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "cubic_interp"), "set_cubic_interpolation", "get_cubic_interpolation");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "loop"), "set_loop", "has_loop");
 
-    BIND_ENUM_CONSTANT(ROTATION_NONE)
-    BIND_ENUM_CONSTANT(ROTATION_Y)
-    BIND_ENUM_CONSTANT(ROTATION_XY)
-    BIND_ENUM_CONSTANT(ROTATION_XYZ)
-    BIND_ENUM_CONSTANT(ROTATION_ORIENTED)
+    BIND_ENUM_CONSTANT(ROTATION_NONE);
+    BIND_ENUM_CONSTANT(ROTATION_Y);
+    BIND_ENUM_CONSTANT(ROTATION_XY);
+    BIND_ENUM_CONSTANT(ROTATION_XYZ);
+    BIND_ENUM_CONSTANT(ROTATION_ORIENTED);
 }
 
 void PathFollow3D::set_offset(float p_offset) {

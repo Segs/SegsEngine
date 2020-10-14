@@ -588,9 +588,9 @@ void DynamicFontData::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "antialiased"), "set_antialiased", "is_antialiased");
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "hinting", PropertyHint::Enum, "None,Light,Normal"), "set_hinting", "get_hinting");
 
-    BIND_ENUM_CONSTANT(HINTING_NONE)
-    BIND_ENUM_CONSTANT(HINTING_LIGHT)
-    BIND_ENUM_CONSTANT(HINTING_NORMAL)
+    BIND_ENUM_CONSTANT(HINTING_NONE);
+    BIND_ENUM_CONSTANT(HINTING_LIGHT);
+    BIND_ENUM_CONSTANT(HINTING_NORMAL);
 
     ADD_PROPERTY(PropertyInfo(VariantType::STRING, "font_path", PropertyHint::File, "*.ttf,*.otf"), "set_font_path", "get_font_path");
 }
@@ -1135,10 +1135,10 @@ void DynamicFont::_bind_methods() {
     ADD_GROUP("Font", "font_");
     ADD_PROPERTY(PropertyInfo(VariantType::OBJECT, "font_data", PropertyHint::ResourceType, "DynamicFontData"), "set_font_data", "get_font_data");
 
-    BIND_ENUM_CONSTANT(SPACING_TOP)
-    BIND_ENUM_CONSTANT(SPACING_BOTTOM)
-    BIND_ENUM_CONSTANT(SPACING_CHAR)
-    BIND_ENUM_CONSTANT(SPACING_SPACE)
+    BIND_ENUM_CONSTANT(SPACING_TOP);
+    BIND_ENUM_CONSTANT(SPACING_BOTTOM);
+    BIND_ENUM_CONSTANT(SPACING_CHAR);
+    BIND_ENUM_CONSTANT(SPACING_SPACE);
 }
 
 Mutex *DynamicFont::dynamic_font_mutex = nullptr;

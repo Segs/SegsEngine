@@ -400,12 +400,12 @@ void Area2D::set_monitoring(bool p_enable) {
 
     if (monitoring) {
 
-        PhysicsServer2D::get_singleton()->area_set_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_body_inout);
-        PhysicsServer2D::get_singleton()->area_set_area_monitor_callback(get_rid(), this, SceneStringNames::get_singleton()->_area_inout);
+        PhysicsServer2D::get_singleton()->area_set_monitor_callback(get_rid(), callable_mp(this, &Area2D::_body_inout));
+        PhysicsServer2D::get_singleton()->area_set_area_monitor_callback(get_rid(), callable_mp(this, &Area2D::_area_inout));
 
     } else {
-        PhysicsServer2D::get_singleton()->area_set_monitor_callback(get_rid(), nullptr, StringName());
-        PhysicsServer2D::get_singleton()->area_set_area_monitor_callback(get_rid(), nullptr, StringName());
+        PhysicsServer2D::get_singleton()->area_set_monitor_callback(get_rid(), Callable());
+        PhysicsServer2D::get_singleton()->area_set_area_monitor_callback(get_rid(), Callable());
         _clear_monitoring();
     }
 }
@@ -581,12 +581,6 @@ void Area2D::_validate_property(PropertyInfo &property) const {
 
 void Area2D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_body_enter_tree", {"id"}), &Area2D::_body_enter_tree);
-    MethodBinder::bind_method(D_METHOD("_body_exit_tree", {"id"}), &Area2D::_body_exit_tree);
-
-    MethodBinder::bind_method(D_METHOD("_area_enter_tree", {"id"}), &Area2D::_area_enter_tree);
-    MethodBinder::bind_method(D_METHOD("_area_exit_tree", {"id"}), &Area2D::_area_exit_tree);
-
     MethodBinder::bind_method(D_METHOD("set_space_override_mode", {"space_override_mode"}), &Area2D::set_space_override_mode);
     MethodBinder::bind_method(D_METHOD("get_space_override_mode"), &Area2D::get_space_override_mode);
 
@@ -641,9 +635,6 @@ void Area2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("set_audio_bus_override", {"enable"}), &Area2D::set_audio_bus_override);
     MethodBinder::bind_method(D_METHOD("is_overriding_audio_bus"), &Area2D::is_overriding_audio_bus);
 
-    MethodBinder::bind_method(D_METHOD("_body_inout"), &Area2D::_body_inout);
-    MethodBinder::bind_method(D_METHOD("_area_inout"), &Area2D::_area_inout);
-
     ADD_SIGNAL(MethodInfo("body_shape_entered", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
     ADD_SIGNAL(MethodInfo("body_shape_exited", PropertyInfo(VariantType::INT, "body_id"), PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node"), PropertyInfo(VariantType::INT, "body_shape"), PropertyInfo(VariantType::INT, "area_shape")));
     ADD_SIGNAL(MethodInfo("body_entered", PropertyInfo(VariantType::OBJECT, "body", PropertyHint::ResourceType, "Node")));
@@ -672,11 +663,11 @@ void Area2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "audio_bus_override"), "set_audio_bus_override", "is_overriding_audio_bus");
     ADD_PROPERTY(PropertyInfo(VariantType::STRING_NAME, "audio_bus_name", PropertyHint::Enum, ""), "set_audio_bus_name", "get_audio_bus_name");
 
-    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_DISABLED)
-    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE)
-    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE_REPLACE)
-    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_REPLACE)
-    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_REPLACE_COMBINE)
+    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_DISABLED);
+    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE);
+    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_COMBINE_REPLACE);
+    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_REPLACE);
+    BIND_ENUM_CONSTANT(SPACE_OVERRIDE_REPLACE_COMBINE);
 }
 
 Area2D::Area2D() :

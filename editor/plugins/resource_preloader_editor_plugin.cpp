@@ -351,7 +351,6 @@ void ResourcePreloaderEditor::drop_data_fw(const Point2 &p_point, const Variant 
 void ResourcePreloaderEditor::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &ResourcePreloaderEditor::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_item_edited"), &ResourcePreloaderEditor::_item_edited);
     MethodBinder::bind_method(D_METHOD("_update_library"), &ResourcePreloaderEditor::_update_library);
 
     MethodBinder::bind_method(D_METHOD("get_drag_data_fw"), &ResourcePreloaderEditor::get_drag_data_fw);

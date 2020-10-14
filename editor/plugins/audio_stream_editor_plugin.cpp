@@ -208,7 +208,6 @@ void AudioStreamEditor::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("_preview_changed"), &AudioStreamEditor::_preview_changed);
     MethodBinder::bind_method(D_METHOD("_play"), &AudioStreamEditor::_play);
     MethodBinder::bind_method(D_METHOD("_stop"), &AudioStreamEditor::_stop);
-    MethodBinder::bind_method(D_METHOD("_on_finished"), &AudioStreamEditor::_on_finished);
     MethodBinder::bind_method(D_METHOD("_draw_preview"), &AudioStreamEditor::_draw_preview);
     MethodBinder::bind_method(D_METHOD("_draw_indicator"), &AudioStreamEditor::_draw_indicator);
     MethodBinder::bind_method(D_METHOD("_on_input_indicator"), &AudioStreamEditor::_on_input_indicator);

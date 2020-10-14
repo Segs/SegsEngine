@@ -470,17 +470,17 @@ void CreateDialog::_notification(int p_what) {
 
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            connect("confirmed",callable_mp(this, &ClassName::_confirmed));
+            connect("confirmed",callable_mp(this, &CreateDialog::_confirmed));
             search_box->set_right_icon(get_theme_icon("Search", "EditorIcons"));
             search_box->set_clear_button_enabled(true);
             favorite->set_button_icon(get_theme_icon("Favorites", "EditorIcons"));
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            disconnect("confirmed",callable_mp(this, &ClassName::_confirmed));
+            disconnect("confirmed",callable_mp(this, &CreateDialog::_confirmed));
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
             if (is_visible_in_tree()) {
-                search_box->call_deferred("grab_focus"); // still not visible
+                search_box->call_deferred([sb=search_box] {sb->grab_focus();}); // still not visible
                 search_box->select_all();
             }
         } break;

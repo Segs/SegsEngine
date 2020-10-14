@@ -679,8 +679,6 @@ void Camera2D::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("clear_current"), &Camera2D::clear_current);
     MethodBinder::bind_method(D_METHOD("_make_current"), &Camera2D::_make_current);
 
-    MethodBinder::bind_method(D_METHOD("_update_scroll"), &Camera2D::_update_scroll);
-
     MethodBinder::bind_method(D_METHOD("set_process_mode", {"mode"}), &Camera2D::set_process_mode);
     MethodBinder::bind_method(D_METHOD("get_process_mode"), &Camera2D::get_process_mode);
 
@@ -776,10 +774,10 @@ void Camera2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_limits"), "set_limit_drawing_enabled", "is_limit_drawing_enabled");
     ADD_PROPERTY(PropertyInfo(VariantType::BOOL, "editor_draw_drag_margin"), "set_margin_drawing_enabled", "is_margin_drawing_enabled");
 
-    BIND_ENUM_CONSTANT(ANCHOR_MODE_FIXED_TOP_LEFT)
-    BIND_ENUM_CONSTANT(ANCHOR_MODE_DRAG_CENTER)
-    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_PHYSICS)
-    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_IDLE)
+    BIND_ENUM_CONSTANT(ANCHOR_MODE_FIXED_TOP_LEFT);
+    BIND_ENUM_CONSTANT(ANCHOR_MODE_DRAG_CENTER);
+    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_PHYSICS);
+    BIND_ENUM_CONSTANT(CAMERA2D_PROCESS_IDLE);
 }
 
 Camera2D::Camera2D() {

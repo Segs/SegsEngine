@@ -149,9 +149,6 @@ void PluginConfigDialog::config(StringView p_config_path) {
 }
 
 void PluginConfigDialog::_bind_methods() {
-    MethodBinder::bind_method("_on_required_text_changed", &PluginConfigDialog::_on_required_text_changed);
-    MethodBinder::bind_method("_on_confirmed", &PluginConfigDialog::_on_confirmed);
-    MethodBinder::bind_method("_on_cancelled", &PluginConfigDialog::_on_cancelled);
     ADD_SIGNAL(MethodInfo("plugin_ready", PropertyInfo(VariantType::STRING, "script_path", PropertyHint::None, ""), PropertyInfo(VariantType::STRING, "activate_name")));
 }
 

@@ -570,20 +570,20 @@ void Physics2DServerSW::area_set_collision_layer(RID p_area, uint32_t p_layer) {
     area->set_collision_layer(p_layer);
 }
 
-void Physics2DServerSW::area_set_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) {
+void Physics2DServerSW::area_set_monitor_callback(RID p_area, Callable&& cb) {
 
     Area2DSW *area = area_owner.get(p_area);
     ERR_FAIL_COND(!area);
 
-    area->set_monitor_callback(p_receiver ? p_receiver->get_instance_id() : ObjectID(0ULL), p_method);
+    area->set_monitor_callback(eastl::move(cb));
 }
 
-void Physics2DServerSW::area_set_area_monitor_callback(RID p_area, Object *p_receiver, const StringName &p_method) {
+void Physics2DServerSW::area_set_area_monitor_callback(RID p_area, Callable&& cb) {
 
     Area2DSW *area = area_owner.get(p_area);
     ERR_FAIL_COND(!area);
 
-    area->set_area_monitor_callback(p_receiver ? p_receiver->get_instance_id() : ObjectID(0ULL), p_method);
+    area->set_area_monitor_callback(eastl::move(cb));
 }
 
 /* BODY API */
@@ -1027,11 +1027,11 @@ int Physics2DServerSW::body_get_max_contacts_reported(RID p_body) const {
     return body->get_max_contacts_reported();
 }
 
-void Physics2DServerSW::body_set_force_integration_callback(RID p_body, Object *p_receiver, const StringName &p_method, const Variant &p_udata) {
+void Physics2DServerSW::body_set_force_integration_callback(RID p_body, Callable &&callback) {
 
     Body2DSW *body = body_owner.get(p_body);
     ERR_FAIL_COND(!body);
-    body->set_force_integration_callback(p_receiver ? p_receiver->get_instance_id() : ObjectID(0), p_method, p_udata);
+    body->set_force_integration_callback(eastl::move(callback));
 }
 
 bool Physics2DServerSW::body_collide_shape(RID p_body, int p_body_shape, RID p_shape, const Transform2D &p_shape_xform, const Vector2 &p_motion, Vector2 *r_results, int p_result_max, int &r_result_count) {

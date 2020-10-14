@@ -1237,7 +1237,7 @@ void EditorHelp::_help_callback(StringView p_topic) {
         }
     }
 
-    class_desc->call_deferred("scroll_to_line", line);
+    class_desc->call_deferred([cd=class_desc,line]  { cd->scroll_to_line(line);});
 }
 
 static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {

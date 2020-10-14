@@ -39,9 +39,9 @@
 IMPL_GDCLASS(ARVRPositionalTracker)
 
 void ARVRPositionalTracker::_bind_methods() {
-    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN)
-    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND)
-    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND)
+    BIND_ENUM_CONSTANT(TRACKER_HAND_UNKNOWN);
+    BIND_ENUM_CONSTANT(TRACKER_LEFT_HAND);
+    BIND_ENUM_CONSTANT(TRACKER_RIGHT_HAND);
 
     // this class is read only from GDScript, so we only have access to getters..
     MethodBinder::bind_method(D_METHOD("get_type"), &ARVRPositionalTracker::get_type);

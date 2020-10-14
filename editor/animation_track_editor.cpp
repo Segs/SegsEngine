@@ -3287,10 +3287,7 @@ void AnimationTrackEditor::set_animation(const Ref<Animation> &p_anim) {
 
         hscroll->show();
         edit->set_disabled(false);
-        step->set_block_signals(true);
-
         _update_step_spinbox();
-        step->set_block_signals(false);
         step->set_read_only(false);
         snap->set_disabled(false);
         snap_mode->set_disabled(false);
@@ -4421,7 +4418,7 @@ void AnimationTrackEditor::_update_step(double p_new_step) {
     float step_value = p_new_step;
     if (timeline->is_using_fps()) {
         if (step_value != 0.0) {
-            step_value = 1.0 / step_value;
+            step_value = 1.0f / step_value;
         }
     }
     undo_redo->add_do_method(animation.get(), "set_step", step_value);

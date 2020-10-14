@@ -320,7 +320,7 @@ void AnimationNodeBlendSpace2D::_queue_auto_triangles() {
     }
 
     trianges_dirty = true;
-    call_deferred("_update_triangles");
+    call_deferred([this] {_update_triangles();});
 }
 
 void AnimationNodeBlendSpace2D::_update_triangles() {
@@ -668,9 +668,9 @@ void AnimationNodeBlendSpace2D::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "blend_mode", PropertyHint::Enum, "Interpolated,Discrete,Carry", PROPERTY_USAGE_NOEDITOR), "set_blend_mode", "get_blend_mode");
 
     ADD_SIGNAL(MethodInfo("triangles_updated"));
-    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE)
-    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY)
+    BIND_ENUM_CONSTANT(BLEND_MODE_INTERPOLATED);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE);
+    BIND_ENUM_CONSTANT(BLEND_MODE_DISCRETE_CARRY);
 }
 
 AnimationNodeBlendSpace2D::AnimationNodeBlendSpace2D() {

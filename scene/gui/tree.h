@@ -89,9 +89,7 @@ private:
 
         Variant meta;
         StringName tooltip;
-
-        ObjectID custom_draw_obj;
-        StringName custom_draw_callback;
+        Callable custom_draw;
 
         struct Button {
             Color color = { 1,1,1,1 };
@@ -105,7 +103,6 @@ private:
 
         Cell() {
 
-            custom_draw_obj = ObjectID(0ULL);
             custom_button = false;
             mode = TreeItem::CELL_MODE_STRING;
             min = 0;
@@ -221,7 +218,7 @@ public:
     void set_metadata(int p_column, const Variant &p_meta);
     Variant get_metadata(int p_column) const;
 
-    void set_custom_draw(int p_column, Object *p_object, const StringName &p_callback);
+    void set_custom_draw(int p_column, Callable &&callback);
 
     void set_collapsed(bool p_collapsed);
     bool is_collapsed();

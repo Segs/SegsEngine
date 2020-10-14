@@ -311,9 +311,9 @@ void BoxContainer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_alignment"), &BoxContainer::get_alignment);
     MethodBinder::bind_method(D_METHOD("set_alignment", {"alignment"}), &BoxContainer::set_alignment);
 
-    BIND_ENUM_CONSTANT(ALIGN_BEGIN)
-    BIND_ENUM_CONSTANT(ALIGN_CENTER)
-    BIND_ENUM_CONSTANT(ALIGN_END)
+    BIND_ENUM_CONSTANT(ALIGN_BEGIN);
+    BIND_ENUM_CONSTANT(ALIGN_CENTER);
+    BIND_ENUM_CONSTANT(ALIGN_END);
 
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "alignment", PropertyHint::Enum, "Begin,Center,End"), "set_alignment", "get_alignment");
 }

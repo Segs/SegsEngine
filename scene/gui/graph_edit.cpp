@@ -278,7 +278,7 @@ void GraphEdit::remove_child_notify(Node *p_child) {
 
     Control::remove_child_notify(p_child);
     if (is_inside_tree()) {
-        top_layer->call_deferred("raise"); //top layer always on top!
+        top_layer->call_deferred([tl=top_layer]() { tl->raise(); }); //top layer always on top!
     }
     GraphNode *gn = object_cast<GraphNode>(p_child);
     if (gn) {

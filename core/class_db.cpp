@@ -1104,7 +1104,7 @@ MethodBind *ClassDB::bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const c
 #ifdef DEBUG_METHODS_ENABLED
 
     if (method_name.parameterCount() > p_bind->get_argument_count()) {
-        memdelete(p_bind);
+        memdelete(p_bind); 
         ERR_FAIL_V_MSG(nullptr, String("Method definition provides more arguments than the method actually has '") + instance_type + "::" + mdname + "'.");
     }
 

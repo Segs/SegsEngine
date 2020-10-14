@@ -671,12 +671,12 @@ void EditorProperty::_gui_input(const Ref<InputEvent> &p_event) {
                         new_coords.y++;
                     }
 
-                    call_deferred("emit_changed", property, new_coords, "", false);
+                    call_deferred([this,new_coords] {  emit_changed(property, new_coords, "", false); });
                 } else {
-                    call_deferred("emit_changed", property, object->get(property).as<int64_t>() + 1, "", false);
+                    call_deferred([this] {  emit_changed(property, object->get(property).as<int64_t>() + 1, "", false); });
                 }
 
-                call_deferred("update_property");
+                call_deferred([this] { update_property(); });
             }
         }
 
@@ -808,7 +808,8 @@ Control *EditorProperty::make_custom_tooltip(StringView p_text) const {
                 text += "\n" + property_doc;
             }
         }
-        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
+        //hack so it uses proper theme once inside scene
+        help_bit->call_deferred([help_bit,text] { help_bit->set_text(text); });
     }
 
     return help_bit;
@@ -842,7 +843,6 @@ void EditorProperty::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_edited_object"), &EditorProperty::get_edited_object);
 
     MethodBinder::bind_method(D_METHOD("_gui_input"), &EditorProperty::_gui_input);
-    MethodBinder::bind_method(D_METHOD("_focusable_focused"), &EditorProperty::_focusable_focused);
 
     MethodBinder::bind_method(D_METHOD("get_tooltip_text"), &EditorProperty::get_tooltip_text);
 
@@ -1042,8 +1042,10 @@ Control *EditorInspectorCategory::make_custom_tooltip(StringView p_text) const {
                 text += "\n" + property_doc;
             }
         }
-        help_bit->call_deferred("set_text", text); //hack so it uses proper theme once inside scene
-    }    return help_bit;
+        //hack so it uses proper theme once inside scene
+        help_bit->call_deferred([help_bit,text] { help_bit->set_text(text); });
+    }
+    return help_bit;
 }
 
 Size2 EditorInspectorCategory::get_minimum_size() const {
@@ -2220,7 +2222,10 @@ void EditorInspector::_notification(int p_what) {
     if (p_what == NOTIFICATION_PROCESS) {
 
         if (update_scroll_request >= 0) {
-            get_v_scrollbar()->call_deferred("set_value", update_scroll_request);
+            auto sb=get_v_scrollbar();
+            sb->call_deferred([sb,req=update_scroll_request] {
+                sb->set_value(req);
+            });
             update_scroll_request = -1;
         }
         if (refresh_countdown > 0) {

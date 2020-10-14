@@ -1259,7 +1259,7 @@ void EditorAudioBuses::_load_default_layout() {
     AudioServer::get_singleton()->set_bus_layout(state);
     _update_buses();
     EditorNode::get_singleton()->get_undo_redo()->clear_history();
-    call_deferred("_select_layout");
+    call_deferred([this] {_select_layout();});
 }
 
 void EditorAudioBuses::_file_dialog_callback(StringView p_string) {
@@ -1276,7 +1276,7 @@ void EditorAudioBuses::_file_dialog_callback(StringView p_string) {
         AudioServer::get_singleton()->set_bus_layout(state);
         _update_buses();
         EditorNode::get_singleton()->get_undo_redo()->clear_history();
-        call_deferred("_select_layout");
+        call_deferred([this] {_select_layout();});
 
     } else if (file_dialog->get_mode() == EditorFileDialog::MODE_SAVE_FILE) {
 
@@ -1296,7 +1296,7 @@ void EditorAudioBuses::_file_dialog_callback(StringView p_string) {
         file->set_text(TTR("Layout") + ": " + PathUtils::get_file(p_string));
         _update_buses();
         EditorNode::get_singleton()->get_undo_redo()->clear_history();
-        call_deferred("_select_layout");
+        call_deferred([this] {_select_layout();});
     }
 }
 
@@ -1400,7 +1400,7 @@ void EditorAudioBuses::open_layout(StringView p_path) {
     AudioServer::get_singleton()->set_bus_layout(state);
     _update_buses();
     EditorNode::get_singleton()->get_undo_redo()->clear_history();
-    call_deferred("_select_layout");
+    call_deferred([this] {_select_layout();});
 }
 
 void AudioBusesEditorPlugin::edit(Object *p_node) {

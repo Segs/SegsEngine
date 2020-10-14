@@ -2474,14 +2474,14 @@ void Node3DEditorViewport::_notification(int p_what) {
         } else {
             set_freelook_active(false);
         }
-        call_deferred("update_transform_gizmo_view");
+        call_deferred([this] {update_transform_gizmo_view();});
         rotation_control->set_visible(EditorSettings::get_singleton()->getT<bool>("editors/3d/navigation/show_viewport_rotation_gizmo"));
 
     }
 
     if (p_what == NOTIFICATION_RESIZED) {
 
-        call_deferred("update_transform_gizmo_view");
+        call_deferred([this] {update_transform_gizmo_view();});
     }
 
     if (p_what == NOTIFICATION_PROCESS) {
@@ -3022,7 +3022,7 @@ void Node3DEditorViewport::_menu_option(int p_option) {
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_ORTHOGONAL), false);
             orthogonal = false;
             auto_orthogonal = false;
-            call_deferred("update_transform_gizmo_view");
+            call_deferred([this] {update_transform_gizmo_view();});
             _update_name();
 
         } break;
@@ -3032,7 +3032,7 @@ void Node3DEditorViewport::_menu_option(int p_option) {
             view_menu->get_popup()->set_item_checked(view_menu->get_popup()->get_item_index(VIEW_ORTHOGONAL), true);
             orthogonal = true;
             auto_orthogonal = false;
-            call_deferred("update_transform_gizmo_view");
+            call_deferred([this] {update_transform_gizmo_view();});
             _update_name();
 
         } break;
