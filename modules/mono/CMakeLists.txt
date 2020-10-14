@@ -207,7 +207,7 @@ foreach(tgt ${global_targets})
 #TODO: only set hot reload on non-release builds
     target_compile_definitions(${tgt}_module_mono PRIVATE GD_MONO_HOT_RELOAD)
     target_sources(${tgt}_module_mono PRIVATE
-            ${source_files} ${${tgt}_source_files}${header_files} ${qrc_files}
+            ${source_files} ${${tgt}_source_files} ${header_files} ${qrc_files}
             ${CMAKE_CURRENT_BINARY_DIR}/glue/cs_glue_version.gen.h)
     target_include_directories(${tgt}_module_mono PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(${tgt}_module_mono PRIVATE ${tgt}_core)

@@ -383,7 +383,6 @@ public:
 #endif
 
 #ifdef TOOLS_ENABLED
-#error "aa"
 #define BIND_VMETHOD(m_method) \
     ClassDB::add_virtual_method(get_class_static_name(), m_method)
 

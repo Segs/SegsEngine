@@ -99,8 +99,7 @@ target_compile_definitions(editor_interface INTERFACE
 
 add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
 target_compile_definitions(client_interface INTERFACE
-#    $<$<CONFIG:Debug>:DEBUG_ENABLED>
-#    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
 )
 
 target_link_libraries(editor_interface INTERFACE common_interface)
@@ -111,14 +110,14 @@ add_library(client_ex_interface INTERFACE) # export client -> thin exe without d
 add_library(server_interface INTERFACE) # serve executable
 target_compile_definitions(server_interface INTERFACE _3D_DISABLED)
 
-#define_target(
-#    NAME editor
-##   MODULES freetype
-#)
 define_target(
-    NAME client
+    NAME editor
 #   MODULES freetype
 )
+#define_target(
+#    NAME client
+#   MODULES freetype
+#)
 
 macro(define_per_target_option name description initial_value)
     foreach(tgt ${global_targets})
