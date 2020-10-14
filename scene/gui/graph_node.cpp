@@ -30,10 +30,11 @@
 
 #include "graph_node.h"
 
-#include "scene/resources/style_box.h"
-#include "scene/resources/font.h"
-#include "core/method_bind.h"
 #include "core/input/input_event.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "scene/resources/font.h"
+#include "scene/resources/style_box.h"
 
 
 IMPL_GDCLASS(GraphNode)

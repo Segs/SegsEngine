@@ -175,6 +175,7 @@ Ref<Shape2D> CollisionShape2D::get_shape() const {
 
     return shape;
 }
+#ifdef TOOLS_ENABLED
 
 bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
@@ -183,7 +184,7 @@ bool CollisionShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p
 
     return shape->_edit_is_selected_on_click(p_point, p_tolerance);
 }
-
+#endif
 String CollisionShape2D::get_configuration_warning() const {
 
     String warning = Node2D::get_configuration_warning();

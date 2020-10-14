@@ -1465,7 +1465,11 @@ Variant::operator ObjectID() const {
         return ObjectID(_data._int);
     }
     else if (type == VariantType::OBJECT) {
+#ifdef DEBUG_ENABLED
         return _get_obj().rc->instance_id;
+#else
+        return _get_obj().obj ? _get_obj().obj->get_instance_id() : ObjectID();
+#endif
     }
     else {
         return ObjectID();

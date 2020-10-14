@@ -315,7 +315,9 @@ public:
     virtual bool validate(StringView p_script, int &r_line_error, int &r_col_error, String &r_test_error,
             StringView p_path = {}, Vector<String> *r_functions = nullptr,
             Vector<ScriptLanguage::Warning> *r_warnings = nullptr, Set<int> *r_safe_lines = nullptr) const = 0;
+#ifdef TOOLS_ENABLED
     virtual String validate_path(StringView /*p_path*/) const { return String(); }
+#endif
     virtual Script *create_script() const = 0;
     virtual bool has_named_classes() const = 0;
     virtual bool supports_builtin_mode() const = 0;

@@ -30,8 +30,9 @@
 
 #include "node_2d.h"
 
-#include "core/method_bind.h"
 #include "core/message_queue.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/gui/control.h"
 #include "scene/main/viewport.h"
 #include "servers/rendering_server.h"

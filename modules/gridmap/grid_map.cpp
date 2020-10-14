@@ -32,6 +32,7 @@
 
 #include "core/io/marshalls.h"
 #include "core/pair.h"
+#include "core/object_tooling.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "scene/3d/light_3d.h"

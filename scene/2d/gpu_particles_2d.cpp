@@ -240,7 +240,7 @@ String GPUParticles2D::get_configuration_warning() const {
     if (!process_material) {
         if (!warning.empty())
             warning += "\n\n";
-        warning += "- " + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
+        warning += String("- ") + TTR("A material to process the particles is not assigned, so no behavior is imprinted.");
     } else {
 
         CanvasItemMaterial *mat = object_cast<CanvasItemMaterial>(get_material().get());
@@ -254,7 +254,7 @@ String GPUParticles2D::get_configuration_warning() const {
                             process->get_param_texture(ParticlesMaterial::PARAM_ANIM_OFFSET))) {
                 if (warning != String())
                     warning += "\n\n";
-                warning += "- " + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+                warning += String("- ") + TTR("Particles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
             }
         }
     }

@@ -123,7 +123,6 @@ set(core_sources
     plugin_interfaces/ResourceImporterInterface.h
     plugin_interfaces/ResourceLoaderInterface.h
     plugin_interfaces/load_params.h
-    reflection_support/reflection_generator.cpp
     resource/manifest.cpp
     resource/manifest.h
     resource/resource_manager.h
@@ -198,7 +197,11 @@ set(core_sources
     variant_parser.cpp
     variant_parser.h
 )
-
+set(editor_core_sources
+    reflection_support/reflection_generator.cpp
+    reflection_support/reflection_data.cpp
+    reflection_support/reflection_data.h
+)
 configure_file(configuration.h.cmake configuration.h)
 #those files are common to all modes editor/projectmanager/client/server/etc.
 set(generic_core_sources
@@ -366,8 +369,6 @@ set(generic_core_sources
 
     doc_support/doc_data.cpp
     doc_support/doc_data.h
-    reflection_support/reflection_data.cpp
-    reflection_support/reflection_data.h
 )
 set(tool_core_sources
     math/math_fieldwise.cpp
@@ -425,7 +426,7 @@ target_link_libraries(se_core PRIVATE EASTL minizip thirdparty_misc )
 target_include_directories(se_core PUBLIC ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 set_common_target_properties(se_core)
 # TODO: this should use interface library common to all targets!
-target_link_libraries(se_core PUBLIC editor_interface)
+target_link_libraries(se_core PUBLIC common_interface)
 
 #add_subdirectory(helper)
 # Build it all as a library
@@ -434,7 +435,7 @@ target_link_libraries(se_core PUBLIC editor_interface)
 foreach(tgt ${global_targets})
     add_library(${tgt}_core STATIC
         ${CMAKE_CURRENT_BINARY_DIR}/script_encryption_key.gen.cpp
-        ${core_sources} ${tool_core_sources}
+        ${core_sources} ${tool_core_sources} ${${tgt}_core_sources}
         service_interfaces/CoreInterface.h
     )
     if(USE_PRECOMPILED_HEADERS)
@@ -444,7 +445,7 @@ foreach(tgt ${global_targets})
     endif()
 
     target_link_libraries(${tgt}_core PRIVATE core_plugin_interfaces )
-    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue)
+    target_link_libraries(${tgt}_core PUBLIC se_core EASTL_Import zlib_interface concurrent_queue ${tgt}_interface)
 
     target_link_libraries(${tgt}_engine PRIVATE EASTL minizip)
     target_link_libraries(${tgt}_engine INTERFACE EASTL_Import minizip_interface)

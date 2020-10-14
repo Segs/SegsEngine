@@ -31,6 +31,7 @@
 #include "base_button.h"
 
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/script_language.h"
 #include "scene/gui/control_enum_casters.h"

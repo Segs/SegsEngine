@@ -84,39 +84,42 @@ function(define_target )
     set(${target_args_NAME}_SOURCES ${${target_args_NAME}_SOURCES} PARENT_SCOPE)
 #    add_executable("${target_args_NAME}")
 endfunction()
+add_library(common_interface INTERFACE)
+target_include_directories(common_interface INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:include/SegsEngine>
 
+)
 add_library(editor_interface INTERFACE)
 target_compile_definitions(editor_interface INTERFACE
     TOOLS_ENABLED
     $<$<CONFIG:Debug>:DEBUG_ENABLED>
     $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
-target_include_directories(editor_interface INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include/SegsEngine>
-
-)
 
 add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
 target_compile_definitions(client_interface INTERFACE
-    $<$<CONFIG:Debug>:DEBUG_ENABLED>
-    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+#    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+#    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
-target_include_directories(client_interface INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:include/SegsEngine>
 
-)
+target_link_libraries(editor_interface INTERFACE common_interface)
+target_link_libraries(client_interface INTERFACE common_interface)
 
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
 
 add_library(server_interface INTERFACE) # serve executable
 target_compile_definitions(server_interface INTERFACE _3D_DISABLED)
 
+#define_target(
+#    NAME editor
+##   MODULES freetype
+#)
 define_target(
-    NAME editor
+    NAME client
 #   MODULES freetype
 )
+
 macro(define_per_target_option name description initial_value)
     foreach(tgt ${global_targets})
         option(${tgt}_${name} ${description} ${initial_value})
@@ -131,10 +134,7 @@ define_per_target_option(DISABLE_3D "Disable 3D nodes for smaller executable" OF
 
 foreach(tgt ${global_targets})
     add_library(${tgt}_engine SHARED)
-    target_compile_definitions(${tgt}_interface INTERFACE
-        $<$<CONFIG:Debug>:DEBUG_ENABLED>
-        $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
-    )
+
     target_link_libraries(${tgt}_engine PUBLIC Qt5::Core EASTL_Import ${tgt}_interface)
     set_target_properties(${tgt}_engine PROPERTIES AUTOMOC TRUE)
 
@@ -274,9 +274,6 @@ endif()
 
 #target_compile_definitions(client_interface INTERACE TOOLS_ENABLED)
 
-if(OPTION_TOOLS)
-    add_definitions(-DTOOLS_ENABLED)
-endif()
 if(OPTION_DISABLE_3D)
     add_definitions(-D_3D_DISABLED)
 endif()
@@ -287,10 +284,6 @@ if(OPTION_MINIZIP)
     add_definitions(-DMINIZIP_ENABLED)
 endif()
 
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
-    $<$<CONFIG:Debug>:DEBUG_ENABLED>
-    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
-)
 #add_custom_target(genexdebug COMMAND ${CMAKE_COMMAND} -E echo "$<$<CONFIG:Debug>:DEBUG_ENABLED>")
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/thirdparty/zstd")
@@ -351,14 +344,14 @@ endif()
 
 foreach(tgt ${global_targets})
     if(WIN32)
-        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+        install(TARGETS ${tgt}_engine ${tgt}_interface common_interface EXPORT SegsEngine
             ARCHIVE DESTINATION lib
             LIBRARY DESTINATION bin
             RUNTIME DESTINATION bin
             INCLUDES DESTINATION include
         )
     else()
-        install(TARGETS ${tgt}_engine ${tgt}_interface EXPORT SegsEngine
+        install(TARGETS ${tgt}_engine ${tgt}_interface common_interface EXPORT SegsEngine
             ARCHIVE DESTINATION lib
             LIBRARY DESTINATION bin
             RUNTIME DESTINATION bin
@@ -373,7 +366,6 @@ foreach(tgt ${global_targets})
     target_link_libraries(${tgt}_engine PRIVATE ${LIBRARIES})
     target_link_libraries(${tgt}_engine PUBLIC EnTT::EnTT)
 endforeach()
-
 
 
 

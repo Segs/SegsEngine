@@ -35,6 +35,7 @@
 #include "core/engine.h"
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/translation_helpers.h"
 #include "scene/2d/animated_sprite_2d.h"
 #include "scene/2d/physics_body_2d.h"

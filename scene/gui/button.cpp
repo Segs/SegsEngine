@@ -32,6 +32,7 @@
 
 #include "core/translation.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"

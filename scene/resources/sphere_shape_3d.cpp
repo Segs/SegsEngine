@@ -29,9 +29,11 @@
 /*************************************************************************/
 
 #include "sphere_shape_3d.h"
-#include "servers/physics_server_3d.h"
-#include "core/method_bind.h"
+
 #include "core/math/vector2.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
+#include "servers/physics_server_3d.h"
 
 
 IMPL_GDCLASS(SphereShape3D)

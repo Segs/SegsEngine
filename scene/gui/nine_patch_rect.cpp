@@ -32,6 +32,7 @@
 
 #include "servers/rendering_server.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 IMPL_GDCLASS(NinePatchRect)
 

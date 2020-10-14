@@ -44,6 +44,8 @@
 #include "core/project_settings.h"
 #include "core/property_info.h"
 #include "core/io/multiplayer_api.h"
+#include "core/translation_helpers.h"
+#include "core/print_string.h"
 
 #ifdef TOOLS_ENABLED
 //#include "editor/bindings_generator.h"
@@ -371,6 +373,7 @@ bool CSharpLanguage::validate(StringView p_script, int &r_line_error, int &r_col
         Set<int> *r_safe_lines) const {
     return true;
 }
+#ifdef TOOLS_ENABLED
 
 String CSharpLanguage::validate_path(StringView p_path) const {
 
@@ -382,7 +385,7 @@ String CSharpLanguage::validate_path(StringView p_path) const {
     }
     return "";
 }
-
+#endif
 Script *CSharpLanguage::create_script() const {
 
     return memnew(CSharpScript);
@@ -500,7 +503,7 @@ String CSharpLanguage::make_function(const String &, const StringName &p_name, c
     return s;
 }
 #else
-String CSharpLanguage::make_function(const String &, const String &, const PoolStringArray &) const {
+String CSharpLanguage::make_function(const String &, const StringName &/*p_name*/, const PoolVector<String> &/*p_args*/) const {
     return String();
 }
 #endif

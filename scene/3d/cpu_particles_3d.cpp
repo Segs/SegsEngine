@@ -235,7 +235,7 @@ String CPUParticles3D::get_configuration_warning() const {
         if (!warnings.empty()) {
             warnings += "\n\n";
         }
-        warnings += "- " + TTR("Nothing is visible because no mesh has been assigned.");
+        warnings += String("- ") + TTR("Nothing is visible because no mesh has been assigned.");
     }
 
     if (!anim_material_found && (get_param(PARAM_ANIM_SPEED) != 0.0 || get_param(PARAM_ANIM_OFFSET) != 0.0 ||
@@ -243,7 +243,7 @@ String CPUParticles3D::get_configuration_warning() const {
         if (!warnings.empty()) {
             warnings += "\n\n";
         }
-        warnings += "- " + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
+        warnings += String("- ") + TTR("CPUParticles3D animation requires the usage of a SpatialMaterial whose Billboard Mode is set to \"Particle Billboard\".");
     }
 
     return warnings;

@@ -139,6 +139,7 @@ HashingContext::HashingContext() {
 }
 
 HashingContext::~HashingContext() {
-    if (ctx != nullptr)
+    if (ctx != nullptr) {
         _delete_ctx();
+}
 }

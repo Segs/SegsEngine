@@ -26,6 +26,8 @@ add_library(thirdparty_misc STATIC
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/triangulator.cpp
         # Used in scene
         ${PROJECT_SOURCE_DIR}/thirdparty/misc/mikktspace.c
+
+        ${PROJECT_SOURCE_DIR}/thirdparty/misc/clipper.cpp
     )
 target_include_directories(thirdparty_misc PUBLIC misc/)
 target_link_libraries(thirdparty_misc PUBLIC zlib)
@@ -48,8 +50,6 @@ if(OPTION_MINIZIP)
         )
     target_include_directories(minizip PUBLIC thirdparty/misc/)
     # export minizip symbols.
-    target_compile_definitions(minizip PUBLIC ZLIB_DLL)
-    target_compile_definitions(minizip PUBLIC ZLIB_INTERNAL)
     target_link_libraries(minizip PUBLIC zlib)
     target_link_libraries(minizip PRIVATE EASTL_Import)
     set_property(TARGET minizip PROPERTY POSITION_INDEPENDENT_CODE ON)

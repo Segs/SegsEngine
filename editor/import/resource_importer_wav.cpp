@@ -41,7 +41,7 @@ IMPL_GDCLASS(ResourceImporterWAV)
 const float TRIM_DB_LIMIT = -50;
 const int TRIM_FADE_OUT_FRAMES = 500;
 
-void ResourceImporterWAV::WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
+void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
 {
     /*p_sample_data->data = (void*)malloc(len);
     xm_s8 *dataptr=(xm_s8*)p_sample_data->data;*/

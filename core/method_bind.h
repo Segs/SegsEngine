@@ -41,8 +41,6 @@
 
 #include "EASTL/type_traits.h"
 
-#include <functional>
-
 namespace ObjectNS
 {
 enum ConnectFlags : uint8_t;
@@ -165,16 +163,7 @@ struct ArgumentWrapper {
         return provided_args[IDX];
     }
 };
-#ifdef DEBUG_METHODS_ENABLED
 
-//struct GetPropertyType {
-//    using Result = RawPropertyInfo;
-//    template<class TS,int IDX>
-//    static constexpr Result doit() noexcept {
-//        return GetTypeInfo<TS>::get_class_info();
-//    }
-//};
-#endif
 template<class T, class RESULT,typename ...Args>
 class MethodBindVA final : public MethodBind {
 
@@ -195,10 +184,10 @@ protected:
             // TODO: SEGS: add assertion p_arg_count==0
             (void)p_arg_count;
             (void)p_args;
-            return std::invoke(method, instance);
+            return (instance->*method)();
         } else {
             ArgumentWrapper wrap{ p_args ? p_args : nullptr, p_arg_count, default_arguments };
-            return std::invoke(method, instance,
+            return (instance->*method)(
                     (eastl::decay_t<typename std::tuple_element<Is, Params>::type>)*visit_at_ce<ArgumentWrapper, Args...>(Is, wrap)...);
         }
     }
@@ -230,13 +219,6 @@ public:
         return s_pass_type;
     }
     PropertyInfo _gen_argument_type_info(int p_arg) const override {
-//        RawPropertyInfo res;
-//        if(p_arg<-1 || size_t(p_arg) >= sizeof...(Args)) {
-//            return res;
-//        }
-//        else if(p_arg>=0 && size_t(p_arg)< sizeof...(Args))
-//            res=visit_at_ce<GetPropertyType,Args...>(p_arg,GetPropertyType());
-//        assert(res==arg_infos[p_arg+1]);
         return arg_infos[p_arg+1];
     }
 #endif
@@ -285,4 +267,5 @@ public:
         _set_returns(!eastl::is_same_v<void,RESULT>);
 
     }
+    ~MethodBindVA()=default;
 };

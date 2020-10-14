@@ -33,12 +33,10 @@
 #include "core/io/resource_importer.h"
 #include "core/vector.h"
 
-class ResourceImporterWAV : public ResourceImporter {
+class GODOT_EXPORT ResourceImporterWAV : public ResourceImporter {
     GDCLASS(ResourceImporterWAV,ResourceImporter)
 
 public:
-    static void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data);
-
     StringName get_importer_name() const override;
     StringName get_visible_name() const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;

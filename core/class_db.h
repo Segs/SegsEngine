@@ -260,6 +260,7 @@ public:
         T::register_custom_data_to_otdb();
     }
     static bool bind_helper(MethodBind *bind,const char * instance_type,const StringName &p_name);
+    static bool can_bind(const StringName &classname, const StringName &p_name);
 
     static void get_class_list(Vector<StringName> *p_classes);
     static void get_inheriters_from_class(const StringName &p_class, Vector<StringName> *p_classes);
@@ -360,11 +361,17 @@ public:
 #define BIND_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
+#define BIND_NS_CONSTANT(ns,m_constant) \
+    ClassDB::bind_integer_constant(#ns, StringName(), #m_constant, int(ns::m_constant));
+
 #define BIND_ENUM_CONSTANT(m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, m_constant);
 
 #define BIND_NS_ENUM_CONSTANT(m_namespace,m_constant) \
     ClassDB::bind_integer_constant(get_class_static_name(), StringName(), #m_constant, int(m_namespace::m_constant));
+
+#define BIND_NS_ENUM_CLASS_CONSTANT(m_namespace,m_eclass,m_constant) \
+    ClassDB::bind_integer_constant(#m_namespace, StringName(), #m_constant, int(m_namespace::m_eclass::m_constant))
 
 #define REGISTER_ENUM(name,type) \
     ClassDB::register_enum_type(get_class_static_name(),#name, #type);
@@ -376,7 +383,7 @@ public:
 #endif
 
 #ifdef TOOLS_ENABLED
-
+#error "aa"
 #define BIND_VMETHOD(m_method) \
     ClassDB::add_virtual_method(get_class_static_name(), m_method)
 

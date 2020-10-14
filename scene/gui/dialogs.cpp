@@ -32,7 +32,8 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/print_string.h"
-#include "core/translation.h"
+#include "core/translation_helpers.h"
+#include "core/ustring.h"
 #include "line_edit.h"
 #include "core/method_bind.h"
 #include "scene/resources/font.h"

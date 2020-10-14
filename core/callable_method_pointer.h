@@ -199,7 +199,7 @@ void call_with_variant_args_helper(T *p_instance, void (T::*p_method)(P...), con
 #ifdef DEBUG_METHODS_ENABLED
       (p_instance->*p_method)(VariantCasterAndValidate<P>::cast(p_args, Is, r_error)...);
 #else
-      (p_instance->*p_method)(VariantCaster<P>::cast(*p_args[Is])...);
+      (p_instance->*p_method)((*p_args[Is]).as<P>()...);
 #endif
 }
 
@@ -296,7 +296,7 @@ void call_with_variant_args_ret_helper(T *p_instance, R (T::*p_method)(P...), co
 #ifdef DEBUG_METHODS_ENABLED
     r_ret = (p_instance->*p_method)(VariantCasterAndValidate<P>::cast(p_args, Is, r_error)...);
 #else
-    (p_instance->*p_method)(VariantCaster<P>::cast(*p_args[Is])...);
+    (p_instance->*p_method)((P)(*p_args[Is])...);
 #endif
 }
 
@@ -368,11 +368,10 @@ private:
     const uint32_t h;
     const char* m_filename;
     int m_line;
-    template <class... P>
-    friend Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method,
+    template <class... Args>
+    friend Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(Args...)> p_method
 #ifdef DEBUG_METHODS_ENABLED
-        const char* p_file,
-        int line
+        ,const char* p_file, int line
 #endif
     );
 public:
@@ -430,7 +429,7 @@ public:
 #ifdef DEBUG_METHODS_ENABLED
         m_func(VariantCasterAndValidate<P>::cast(p_args, Is, r_call_error)...);
 #else
-        m_func(VariantCaster<P>::cast(*p_args[Is])...);
+        m_func((*p_args[Is]).as<P>()...);
 #endif
 
     }
@@ -496,10 +495,9 @@ Callable create_custom_callable_function_pointer(T *p_instance,
 }
 
 template <class... P>
-Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method,
+Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::function<void(P...)> p_method
 #ifdef DEBUG_METHODS_ENABLED
-    const char* p_file,
-    int line
+    ,const char* p_file, int line
 #endif
 ) {
 
@@ -518,5 +516,5 @@ Callable create_lambda_callable_function_pointer(ObjectID p_instance, eastl::fun
 #define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function(M), __FUNCTION__,__LINE__)
 #else
 #define callable_mp(I, M) create_custom_callable_function_pointer(I, M)
-#define callable_gen(I, M) create_lambda_callable_function_pointer(I, make_function(M))
+#define callable_gen(I, M) create_lambda_callable_function_pointer(I->get_instance_id(), make_function(M))
 #endif

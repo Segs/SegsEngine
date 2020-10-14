@@ -36,6 +36,8 @@
 
 IMPL_GDCLASS(ConcavePolygonShape2D)
 
+#ifdef TOOLS_ENABLED
+
 bool ConcavePolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const {
 
     PoolVector<Vector2> s = get_segments();
@@ -52,6 +54,7 @@ bool ConcavePolygonShape2D::_edit_is_selected_on_click(const Point2 &p_point, fl
 
     return false;
 }
+#endif
 
 void ConcavePolygonShape2D::set_segments(const PoolVector<Vector2> &p_segments) {
 

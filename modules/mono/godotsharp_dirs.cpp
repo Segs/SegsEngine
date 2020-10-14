@@ -165,9 +165,9 @@ private:
 
         String data_dir_root = plus_file(exe_dir,"csharp");
         String data_mono_root_dir = plus_file(data_dir_root,"mono");
+#ifdef TOOLS_ENABLED
         data_editor_tools_dir = plus_file(data_dir_root,"assemblies");
         data_editor_prebuilt_api_dir = plus_file(data_dir_root,"assemblies");
-#ifdef TOOLS_ENABLED
 #ifdef OSX_ENABLED
         if (!DirAccess::exists(data_editor_tools_dir)) {
             data_editor_tools_dir = plus_file(exe_dir,"../Frameworks/GodotSharp/Tools");

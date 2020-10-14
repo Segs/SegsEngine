@@ -44,6 +44,7 @@
 #include "editor/script_editor_debugger.h"
 #include "scene/main/scene_tree.h"
 #include "scene/gui/rich_text_label.h"
+#include "scene/resources/font.h"
 
 
 IMPL_GDCLASS(ConnectionInfoDialog)

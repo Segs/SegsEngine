@@ -34,12 +34,12 @@
 #include "core/input/input_event.h"
 #include "core/message_queue.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/label.h"
 #include "scene/gui/texture_rect.h"
 #include "scene/resources/font.h"
 #include "scene/resources/style_box.h"
-
 
 IMPL_GDCLASS(Tabs)
 VARIANT_ENUM_CAST(Tabs::TabAlign);

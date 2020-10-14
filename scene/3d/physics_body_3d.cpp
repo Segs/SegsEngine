@@ -40,6 +40,7 @@
 #include "core/object_tooling.h"
 #include "core/script_language.h"
 #include "core/rid.h"
+#include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
 #include "core/project_settings.h"
 

@@ -35,6 +35,7 @@
 #include "core/method_bind.h"
 #include "core/message_queue.h"
 #include "core/object_tooling.h"
+#include "scene/2d/node_2d.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio/audio_stream.h"
 #include "EASTL/sort.h"

@@ -235,5 +235,4 @@ void EditorLog::deinit() {
     remove_error_handler(&eh);
 }
 
-EditorLog::~EditorLog() {
-}
+EditorLog::~EditorLog() = default;

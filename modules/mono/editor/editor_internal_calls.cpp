@@ -243,13 +243,14 @@ uint32_t godot_icall_ExportPlugin_GetExportedAssemblyDependencies(MonoObject *p_
 
     return GodotSharpExport::get_exported_assembly_dependencies(initial_dependencies, build_config, custom_bcl_dir, assembly_dependencies);
 }
+#ifdef TOOLS_ENABLED
 
 MonoString *godot_icall_Internal_UpdateApiAssembliesFromPrebuilt(MonoString *p_config) {
     String config = GDMonoMarshal::mono_string_to_godot(p_config);
     String error_str = GDMono::get_singleton()->update_api_assemblies_from_prebuilt(config);
     return GDMonoMarshal::mono_string_from_godot(error_str);
 }
-
+#endif
 MonoString *godot_icall_Internal_FullTemplatesDir() {
     String full_templates_dir = PathUtils::plus_file(EditorSettings::get_singleton()->get_templates_dir(),VERSION_FULL_CONFIG);
     return GDMonoMarshal::mono_string_from_godot(full_templates_dir);
@@ -445,7 +446,9 @@ void register_editor_internal_calls() {
     mono_add_internal_call("GodotTools.Export.ExportPlugin::internal_GetExportedAssemblyDependencies", (void *)godot_icall_ExportPlugin_GetExportedAssemblyDependencies);
 
     // Internals
+#ifdef TOOLS_ENABLED
     mono_add_internal_call("GodotTools.Internals.Internal::internal_UpdateApiAssembliesFromPrebuilt", (void *)godot_icall_Internal_UpdateApiAssembliesFromPrebuilt);
+#endif
     mono_add_internal_call("GodotTools.Internals.Internal::internal_FullTemplatesDir", (void *)godot_icall_Internal_FullTemplatesDir);
     mono_add_internal_call("GodotTools.Internals.Internal::internal_SimplifyGodotPath", (void *)godot_icall_Internal_SimplifyGodotPath);
     mono_add_internal_call("GodotTools.Internals.Internal::internal_IsOsxAppBundleInstalled", (void *)godot_icall_Internal_IsOsxAppBundleInstalled);

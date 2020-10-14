@@ -30,21 +30,22 @@
 
 #include "line_edit.h"
 #include "line_edit_enum_casters.h"
+#include "label.h"
 
 #include "core/callable_method_pointer.h"
 #include "core/message_queue.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/os/keyboard.h"
 #include "core/os/os.h"
 #include "core/print_string.h"
+#include "core/string_utils.inl"
 #include "core/translation.h"
 #include "core/translation_helpers.h"
-#include "label.h"
 #include "scene/main/scene_tree.h"
-#include "scene/resources/style_box.h"
-#include "scene/resources/font.h"
 #include "scene/main/timer.h"
-#include "core/method_bind.h"
-#include "core/string_utils.inl"
+#include "scene/resources/font.h"
+#include "scene/resources/style_box.h"
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_scale.h"

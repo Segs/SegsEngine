@@ -844,7 +844,7 @@ static int _get_key_modifier_setting(StringView p_property) {
     return 0;
 }
 
-static int _get_key_modifier(Ref<InputEventWithModifiers> e) {
+static int _get_key_modifier(const Ref<InputEventWithModifiers> &e) {
     if (e->get_shift()) {
         return KEY_SHIFT;
     }

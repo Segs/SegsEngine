@@ -292,7 +292,7 @@ String CPUParticles2D::get_configuration_warning() const {
                 get_param_curve(PARAM_ANIM_SPEED) || get_param_curve(PARAM_ANIM_OFFSET)) {
             if (!warnings.empty())
                 warnings += "\n\n";
-            warnings += "- " + TTR("CPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
+            warnings += String("- ") + TTR("CPUParticles2D animation requires the usage of a CanvasItemMaterial with \"Particles Animation\" enabled.");
         }
     }
 

@@ -30,13 +30,13 @@
 
 #include "area_bullet.h"
 
-#include "core/object_db.h"
-#include "core/string.h"
-#include "core/string_utils.h"
 #include "bullet_physics_server.h"
 #include "bullet_types_converter.h"
 #include "bullet_utilities.h"
 #include "collision_object_bullet.h"
+#include "core/object_db.h"
+#include "core/string.h"
+#include "core/string_utils.h"
 #include "space_bullet.h"
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <btBulletCollisionCommon.h>
@@ -58,7 +58,6 @@ AreaBullet::AreaBullet() :
         spOv_angularDump(1),
         spOv_priority(0),
         isScratched(false) {
-
     btGhost = bulletnew(btGhostObject);
     reload_shapes();
     setupBulletCollisionObject(btGhost);
@@ -66,19 +65,22 @@ AreaBullet::AreaBullet() :
     /// In order to use collision objects as trigger, you have to disable the collision response.
     set_collision_enabled(false);
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 5; ++i) {
         call_event_res_ptr[i] = &call_event_res[i];
+    }
 }
 
 AreaBullet::~AreaBullet() {
     // signal are handled by godot, so just clear without notify
-    for (int i = overlappingObjects.size() - 1; 0 <= i; --i)
+    for (int i = overlappingObjects.size() - 1; 0 <= i; --i) {
         overlappingObjects[i].object->on_exit_area(this);
+    }
 }
 
 void AreaBullet::dispatch_callbacks() {
-    if (!isScratched)
+    if (!isScratched) {
         return;
+    }
     isScratched = false;
 
     // Reverse order because I've to remove EXIT objects
@@ -104,7 +106,6 @@ void AreaBullet::dispatch_callbacks() {
 }
 
 void AreaBullet::call_event(CollisionObjectBullet *p_otherObject, PhysicsServer3D::AreaBodyStatus p_status) {
-
     InOutEventCallback &event = eventsCallbacks[static_cast<int>(p_otherObject->getType())];
     Object *areaGodoObject = event.get_object();
 
@@ -121,19 +122,21 @@ void AreaBullet::call_event(CollisionObjectBullet *p_otherObject, PhysicsServer3
 
     Callable::CallError outResp;
     Variant res;
-    event.call((const Variant**)call_event_res_ptr, 5,res, outResp);
+    event.call((const Variant **)call_event_res_ptr, 5, res, outResp);
 }
 
 void AreaBullet::scratch() {
-    if (isScratched)
+    if (isScratched) {
         return;
+    }
     isScratched = true;
 }
 
 void AreaBullet::clear_overlaps(bool p_notify) {
     for (int i = overlappingObjects.size() - 1; 0 <= i; --i) {
-        if (p_notify)
+        if (p_notify) {
             call_event(overlappingObjects[i].object, PhysicsServer3D::AREA_BODY_REMOVED);
+        }
         overlappingObjects[i].object->on_exit_area(this);
     }
     overlappingObjects.clear();
@@ -142,8 +145,9 @@ void AreaBullet::clear_overlaps(bool p_notify) {
 void AreaBullet::remove_overlap(CollisionObjectBullet *p_object, bool p_notify) {
     for (int i = overlappingObjects.size() - 1; 0 <= i; --i) {
         if (overlappingObjects[i].object == p_object) {
-            if (p_notify)
+            if (p_notify) {
                 call_event(overlappingObjects[i].object, PhysicsServer3D::AREA_BODY_REMOVED);
+            }
             overlappingObjects[i].object->on_exit_area(this);
             overlappingObjects.erase_at(i);
             break;
@@ -277,7 +281,7 @@ Variant AreaBullet::get_param(PhysicsServer3D::AreaParameter p_param) const {
     }
 }
 
-void AreaBullet::set_event_callback(Type p_callbackObjectType, Callable&& cb) {
+void AreaBullet::set_event_callback(Type p_callbackObjectType, Callable &&cb) {
     InOutEventCallback &ev = eventsCallbacks[static_cast<int>(p_callbackObjectType)];
     ev = eastl::move(cb);
 
@@ -293,8 +297,7 @@ bool AreaBullet::has_event_callback(Type p_callbackObjectType) {
     return eventsCallbacks[static_cast<int>(p_callbackObjectType)].is_valid();
 }
 
-void AreaBullet::on_enter_area(AreaBullet *p_area) {
-}
+void AreaBullet::on_enter_area(AreaBullet *p_area) {}
 
 void AreaBullet::on_exit_area(AreaBullet *p_area) {
     CollisionObjectBullet::on_exit_area(p_area);

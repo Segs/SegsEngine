@@ -320,10 +320,11 @@ Error LayeredTextureImpl::import(StringView p_source_file, StringView _save_path
             r_platform_variants->push_back("pvrtc");
             formats_imported.push_back("pvrtc");
         }
-
+#ifdef TOOLS_ENABLED
         if (!ok_on_pc) {
             EditorNode::add_io_error("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture will not display correctly on PC.");
         }
+#endif
     } else {
         //import normally
         _save_tex(slices, p_save_path + "." + extension, compress_mode, ImageCompressMode::COMPRESS_S3TC /*this is ignored */, mipmaps, tex_flags);

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "range.h"
+#include "core/object_tooling.h"
 #include "core/method_bind.h"
 #include "core/translation_helpers.h"
 

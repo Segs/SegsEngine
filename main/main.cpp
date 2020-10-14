@@ -40,6 +40,7 @@
 #include "core/io/image_loader.h"
 #include "core/io/ip.h"
 #include "core/io/resource_loader.h"
+#include "core/string_utils.inl"
 #include "core/message_queue.h"
 #include "core/os/dir_access.h"
 #include "core/os/os.h"
@@ -317,7 +318,9 @@ void Main::print_help(const String &p_binary) {
     OS::get_singleton()->print("\n");
 
     OS::get_singleton()->print("Standalone tools:\n");
+#if defined(DEBUG_ENABLED)
     OS::get_singleton()->print("  --gen-reflection <path>          Generate reflection data.\n");
+#endif
 
     OS::get_singleton()->print("  -s, --script <script>            Run a script.\n");
     OS::get_singleton()->print("  --check-only                     Only parse for errors and quit (use with --script).\n");
@@ -956,7 +959,7 @@ Error Main::setup(bool p_second_phase) {
         editor = false;
 #else
         const String error_msg = "Error: Couldn't load project data at path \"" + project_path + "\". Is the .pck file missing?\nIf you've renamed the executable, the associated .pck file should also be renamed to match the executable's name (without the extension).\n";
-        OS::get_singleton()->print("%s", error_msg.ascii().get_data());
+        OS::get_singleton()->print(error_msg.c_str());
         OS::get_singleton()->alert(error_msg);
 
         goto error;

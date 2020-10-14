@@ -49,6 +49,7 @@ struct StaticCString {
     constexpr StaticCString(StaticCString &&) = default;
     constexpr StaticCString(const StaticCString &) = default;
     constexpr operator bool() const { return ptr!=nullptr;}
+    operator StringView() const { return StringView(ptr); }
 };
 
 class GODOT_EXPORT StringName {

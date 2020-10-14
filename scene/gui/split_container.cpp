@@ -32,8 +32,10 @@
 
 #include "label.h"
 #include "margin_container.h"
-#include "core/method_bind.h"
+
 #include "core/input/input_event.h"
+#include "core/method_bind.h"
+#include "core/object_tooling.h"
 
 
 IMPL_GDCLASS(SplitContainer)

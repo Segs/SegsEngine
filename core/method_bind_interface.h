@@ -224,7 +224,6 @@ struct MethodBinder {
             const Vector<Variant> &p_default_args = null_variant_pvec, bool p_return_nil_is_variant = true) {
 
         GLOBAL_LOCK_FUNCTION
-
         MethodBind *bind = create_vararg_method_bind(p_method, eastl::move(p_info), p_return_nil_is_variant);
         ERR_FAIL_COND_V(!bind, nullptr);
         bind->set_name(p_name);

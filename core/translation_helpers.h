@@ -28,6 +28,7 @@ GODOT_EXPORT StringName DTR(StringView);
 #define DTR(m_value) (String())
 #define TTRC(m_value) (m_value)
 #define TTRGET(m_value) (m_value)
+#define TTRS(m_value) (m_value)
 
 #endif
 

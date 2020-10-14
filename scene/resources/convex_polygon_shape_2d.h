@@ -43,7 +43,9 @@ protected:
     static void _bind_methods();
 
 public:
+#ifdef TOOLS_ENABLED
     bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const override;
+#endif
 
     void set_point_cloud(Span<const Vector2> p_points);
     void set_points(Span<const Vector2> p_points);

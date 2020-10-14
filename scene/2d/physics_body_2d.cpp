@@ -36,14 +36,14 @@
 #include "core/list.h"
 #include "core/math/math_funcs.h"
 #include "core/method_bind.h"
-#include "core/script_language.h"
 #include "core/object.h"
-#include "core/callable_method_pointer.h"
 #include "core/object_db.h"
+#include "core/object_tooling.h"
+#include "core/project_settings.h"
 #include "core/rid.h"
+#include "core/script_language.h"
 #include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"
-#include "core/project_settings.h"
 
 IMPL_GDCLASS(PhysicsBody2D)
 IMPL_GDCLASS(StaticBody2D)

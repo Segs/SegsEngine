@@ -1,6 +1,5 @@
 #include "reflection_generator.h"
 
-
 #include "reflection_data.h"
 #include "core/variant.h"
 #include "core/engine.h"

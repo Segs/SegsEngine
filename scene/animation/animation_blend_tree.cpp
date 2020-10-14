@@ -32,6 +32,7 @@
 
 #include "core/callable_method_pointer.h"
 #include "core/method_bind.h"
+#include "core/object_tooling.h"
 #include "core/string_formatter.h"
 #include "core/translation_helpers.h"
 #include "scene/scene_string_names.h"

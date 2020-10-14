@@ -32,6 +32,7 @@
 #include "scene/2d/canvas_item.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/string_name.h"
 
 #include <climits>
 

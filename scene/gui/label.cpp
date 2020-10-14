@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "label.h"
+#include "core/object_tooling.h"
 #include "core/print_string.h"
 #include "core/project_settings.h"
 #include "core/translation.h"

@@ -31,20 +31,19 @@
 #include "resource_loader.h"
 
 #include "core/hash_map.h"
-#include "core/os/mutex.h"
-#include "core/os/file_access.h"
-#include "core/print_string.h"
-#include "core/translation.h"
-#include "core/script_language.h"
 #include "core/method_bind.h"
+#include "core/os/file_access.h"
+#include "core/os/mutex.h"
+#include "core/print_string.h"
 #include "core/property_info.h"
 #include "core/resource/resource_manager.h"
+#include "core/script_language.h"
+#include "core/translation.h"
 
 IMPL_GDCLASS(ResourceInteractiveLoader);
 IMPL_GDCLASS(ResourceFormatLoader);
 
 Error ResourceInteractiveLoader::wait() {
-
     Error err = poll();
     while (err == OK) {
         err = poll();
@@ -60,7 +59,6 @@ ResourceInteractiveLoader::~ResourceInteractiveLoader() {
 }
 
 bool ResourceFormatLoader::recognize_path(StringView p_path, StringView p_for_type) const {
-
     StringView extension = PathUtils::get_extension(p_path);
 
     Vector<String> extensions;
@@ -70,17 +68,16 @@ bool ResourceFormatLoader::recognize_path(StringView p_path, StringView p_for_ty
         get_recognized_extensions_for_type(p_for_type, extensions);
     }
 
-    for(const String &E : extensions ) {
-
-        if (StringUtils::compare(E,extension,StringUtils::CaseInsensitive) == 0)
+    for (const String &E : extensions) {
+        if (StringUtils::compare(E, extension, StringUtils::CaseInsensitive) == 0) {
             return true;
+        }
     }
 
     return false;
 }
 
 bool ResourceFormatLoader::handles_type(StringView p_type) const {
-
     if (get_script_instance() && get_script_instance()->has_method("handles_type")) {
         // I guess custom loaders for custom resources should use "Resource"
         return get_script_instance()->call("handles_type", p_type).as<bool>();
@@ -90,7 +87,6 @@ bool ResourceFormatLoader::handles_type(StringView p_type) const {
 }
 
 String ResourceFormatLoader::get_resource_type(StringView p_path) const {
-
     if (get_script_instance() && get_script_instance()->has_method("get_resource_type")) {
         return get_script_instance()->call("get_resource_type", p_path).as<String>();
     }
@@ -99,13 +95,12 @@ String ResourceFormatLoader::get_resource_type(StringView p_path) const {
 }
 
 void ResourceFormatLoader::get_recognized_extensions_for_type(StringView p_type, Vector<String> &p_extensions) const {
-
-    if (p_type.empty() || handles_type(p_type))
+    if (p_type.empty() || handles_type(p_type)) {
         get_recognized_extensions(p_extensions);
+    }
 }
 
 void ResourceInteractiveLoader::_bind_methods() {
-
     MethodBinder::bind_method(D_METHOD("get_resource"), &ResourceInteractiveLoader::get_resource);
     MethodBinder::bind_method(D_METHOD("poll"), &ResourceInteractiveLoader::poll);
     MethodBinder::bind_method(D_METHOD("wait"), &ResourceInteractiveLoader::wait);
@@ -113,15 +108,18 @@ void ResourceInteractiveLoader::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("get_stage_count"), &ResourceInteractiveLoader::get_stage_count);
 }
 
-void ResourceInteractiveLoaderDefault::set_translation_remapped(bool p_remapped) { resource->set_as_translation_remapped(p_remapped); }
+void ResourceInteractiveLoaderDefault::set_translation_remapped(bool p_remapped) {
+    resource->set_as_translation_remapped(p_remapped);
+}
 IMPL_GDCLASS(ResourceInteractiveLoaderDefault)
 
-Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(StringView p_path, StringView p_original_path, Error *r_error) {
-
-    //either this
+Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(
+        StringView p_path, StringView p_original_path, Error *r_error) {
+    // either this
     Ref<Resource> res = load(p_path, p_original_path, r_error);
-    if (not res)
+    if (not res) {
         return Ref<ResourceInteractiveLoader>();
+    }
 
     Ref<ResourceInteractiveLoaderDefault> ril(make_ref_counted<ResourceInteractiveLoaderDefault>());
     ril->resource = res;
@@ -129,70 +127,67 @@ Ref<ResourceInteractiveLoader> ResourceFormatLoader::load_interactive(StringView
 }
 
 bool ResourceFormatLoader::exists(StringView p_path) const {
-    return FileAccess::exists(p_path); //by default just check file
+    return FileAccess::exists(p_path); // by default just check file
 }
 
 void ResourceFormatLoader::get_recognized_extensions(Vector<String> &p_extensions) const {
-
     if (get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")) {
         p_extensions = get_script_instance()->call("get_recognized_extensions").as<Vector<String>>();
     }
 }
 
 RES ResourceFormatLoader::load(StringView p_path, StringView p_original_path, Error *r_error) {
-
     if (get_script_instance() && get_script_instance()->has_method("load")) {
         Variant res = get_script_instance()->call("load", p_path, p_original_path);
 
         if (res.get_type() == VariantType::INT) {
-
-            if (r_error)
+            if (r_error) {
                 *r_error = (Error)res.as<int64_t>();
+            }
 
         } else {
-
-            if (r_error)
+            if (r_error) {
                 *r_error = OK;
+            }
             return refFromVariant<Resource>(res);
         }
     }
 
-    //or this must be implemented
+    // or this must be implemented
     Ref<ResourceInteractiveLoader> ril = load_interactive(p_path, p_original_path, r_error);
-    if (not ril)
+    if (not ril) {
         return RES();
+    }
     ril->set_local_path(p_original_path);
 
     while (true) {
-
         Error err = ril->poll();
 
         if (err == ERR_FILE_EOF) {
-            if (r_error)
+            if (r_error) {
                 *r_error = OK;
+            }
             return ril->get_resource();
         }
 
-        if (r_error)
+        if (r_error) {
             *r_error = err;
+        }
 
         ERR_FAIL_COND_V_MSG(err != OK, RES(), "Failed to load resource '" + String(p_path) + "'.");
     }
 }
 
 void ResourceFormatLoader::get_dependencies(StringView p_path, Vector<String> &p_dependencies, bool p_add_types) {
-
     if (get_script_instance() && get_script_instance()->has_method("get_dependencies")) {
         p_dependencies = get_script_instance()->call("get_dependencies", p_path, p_add_types).as<Vector<String>>();
     }
 }
 
 Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap<String, String> &p_map) {
-
     if (get_script_instance() && get_script_instance()->has_method("rename_dependencies")) {
-
         Dictionary deps_dict;
-        for (const eastl::pair<const String,String> &E : p_map) {
+        for (const eastl::pair<const String, String> &E : p_map) {
             deps_dict[E.first] = E.second;
         }
 
@@ -204,17 +199,22 @@ Error ResourceFormatLoader::rename_dependencies(StringView p_path, const HashMap
 }
 
 void ResourceFormatLoader::_bind_methods() {
-
     {
-        MethodInfo info = MethodInfo(VariantType::NIL, "load", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "original_path"));
+        MethodInfo info = MethodInfo(VariantType::NIL, "load", PropertyInfo(VariantType::STRING, "path"),
+                PropertyInfo(VariantType::STRING, "original_path"));
         info.return_val.usage |= PROPERTY_USAGE_NIL_IS_VARIANT;
         ClassDB::add_virtual_method(get_class_static_name(), info);
     }
-
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions"));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING_NAME, "typename")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "add_types")));
-    ClassDB::add_virtual_method(get_class_static_name(), MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"), PropertyInfo(VariantType::STRING, "renames")));
+    auto cname(get_class_static_name());
+    ClassDB::add_virtual_method(cname, MethodInfo(VariantType::POOL_STRING_ARRAY, "get_recognized_extensions"));
+    ClassDB::add_virtual_method(
+            cname, MethodInfo(VariantType::BOOL, "handles_type", PropertyInfo(VariantType::STRING_NAME, "typename")));
+    ClassDB::add_virtual_method(
+            cname, MethodInfo(VariantType::STRING, "get_resource_type", PropertyInfo(VariantType::STRING, "path")));
+    ClassDB::add_virtual_method(cname, MethodInfo("get_dependencies", PropertyInfo(VariantType::STRING, "path"),
+                                               PropertyInfo(VariantType::STRING, "add_types")));
+    ClassDB::add_virtual_method(
+            cname, MethodInfo(VariantType::INT, "rename_dependencies", PropertyInfo(VariantType::STRING, "path"),
+                           PropertyInfo(VariantType::STRING, "renames")));
 }
 ResourceLoaderImport g_import_func;

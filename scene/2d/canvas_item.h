@@ -280,6 +280,8 @@ public:
     virtual Point2 _edit_get_pivot() const { return Point2(); }
 
     virtual Transform2D _edit_get_transform() const;
+#else
+    bool _edit_is_selected_on_click(const Point2 &p_point, float p_tolerance) const { return false; }
 #endif
     /* VISIBILITY */
 
