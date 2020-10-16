@@ -33,7 +33,6 @@
 #include "core/method_ptrcall.h"
 #include "core/method_info.h"
 #include "core/method_bind_interface.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 #include "core/type_info.h"
 #include "core/string_utils.h"
@@ -59,21 +58,12 @@ struct VariantObjectClassChecker {
     }
 };
 
-template <>
-struct VariantObjectClassChecker<Node *> {
+template <typename T>
+struct VariantObjectClassChecker<T *> {
     static bool check(const Variant &p_variant) {
         Object *obj = (Object * )p_variant;
-        Node *node = (Node * )p_variant;
+        T *node = p_variant.as<T *>();
         return node || !obj;
-    }
-};
-
-template <>
-struct VariantObjectClassChecker<Control *> {
-    static bool check(const Variant &p_variant) {
-        Object *obj = (Object * )p_variant;
-        Control *control = (Control * )p_variant;
-        return control || !obj;
     }
 };
 
@@ -163,9 +153,24 @@ struct ArgumentWrapper {
         return provided_args[IDX];
     }
 };
+class MethodBindVABase : public MethodBind {
+protected:
+    MethodBindVABase(const char *classname,int argc,bool returns
+                 #ifdef DEBUG_METHODS_ENABLED
+                     ,bool is_const
+                 #endif
+                     ) {
+        instance_class_name = classname;
+        set_argument_count(argc);
+#ifdef DEBUG_METHODS_ENABLED
+        _set_const(is_const);
+#endif
+        _set_returns(returns);
+    }
+};
 
 template<class T, class RESULT,typename ...Args>
-class MethodBindVA final : public MethodBind {
+class MethodBindVA final : public MethodBindVABase {
 
     using MethodConst = RESULT (T::*)(Args...) const;
     using MethodNonconst = RESULT (T::*)(Args...);
@@ -235,8 +240,8 @@ public:
             return Variant::null_variant;
 
 #endif
-        auto seq = eastl::index_sequence_for<Args...>();
-        static_assert (seq.size()==sizeof... (Args) );
+        constexpr auto seq = eastl::index_sequence_for<Args...>();
+
         if constexpr(!eastl::is_same_v<void,RESULT>) {
             return Variant::from(converting_call(instance,p_args,p_arg_count,seq));
         }
@@ -246,13 +251,14 @@ public:
         return Variant::null_variant;
     }
 
-    MethodBindVA (TFunction f) {
-        method = f; // casting method to a basic Object::method()
-        instance_class_name = T::get_class_static();
-        set_argument_count(sizeof...(Args));
+    MethodBindVA (TFunction f) :
+        MethodBindVABase(T::get_class_static(),sizeof...(Args),!eastl::is_same_v<void,RESULT>,
 #ifdef DEBUG_METHODS_ENABLED
-        _set_const(eastl::is_const_v<T>);
-
+                         eastl::is_const_v<T>
+#endif
+                         ) {
+        method = f; // casting method to a basic Object::method()
+#ifdef DEBUG_METHODS_ENABLED
         VariantType *argt = memnew_arr(VariantType, sizeof...(Args) + 1);
         constexpr VariantType arg_types[sizeof...(Args)+1] = { // +1 is here because vs2017 requires constexpr array of non-zero size
             GetTypeInfo<Args>::VARIANT_TYPE...,
@@ -264,8 +270,6 @@ public:
             argt[0] = GetTypeInfo<RESULT>::VARIANT_TYPE;
         argument_types = argt;
 #endif
-        _set_returns(!eastl::is_same_v<void,RESULT>);
-
     }
     ~MethodBindVA()=default;
 };

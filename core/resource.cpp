@@ -57,7 +57,7 @@ namespace {
 struct Resource::Data {
     Data() {}
 #ifdef TOOLS_ENABLED
-    inline static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
+    static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
     String import_path;
 #endif
     HashSet<ObjectID> owners;
@@ -69,6 +69,9 @@ struct Resource::Data {
     static RWLock* path_cache_lock;
 };
 RWLock *Resource::Data::path_cache_lock;
+#ifdef TOOLS_ENABLED
+HashMap<String, HashMap<String, int> > Resource::Data::resource_path_cache;
+#endif
 
 
 IMPL_GDCLASS(Resource)

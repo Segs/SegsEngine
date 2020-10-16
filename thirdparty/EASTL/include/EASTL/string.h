@@ -142,7 +142,11 @@ EA_RESTORE_ALL_VC_WARNINGS()
     #define EASTL_STRING_EXPLICIT
 #endif
 ///////////////////////////////////////////////////////////////////////////////
-
+#if defined(__GNUC__)
+#define _FORMAT_ATTRIBUTE(fmt,args) __attribute__((format(printf, (fmt), (args))))
+#else
+#define _FORMAT_ATTRIBUTE(fmt,args)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Vsnprintf
@@ -499,7 +503,7 @@ namespace eastl
         basic_string(const this_type& x, const allocator_type& allocator);
         basic_string(const value_type* pBegin, const value_type* pEnd, const allocator_type& allocator = EASTL_BASIC_STRING_DEFAULT_ALLOCATOR);
         basic_string(CtorDoNotInitialize, size_type n, const allocator_type& allocator = EASTL_BASIC_STRING_DEFAULT_ALLOCATOR);
-        basic_string(CtorSprintf, const value_type* pFormat, ...);
+        basic_string(CtorSprintf, const char* pFormat, ...) _FORMAT_ATTRIBUTE(3,4);
         basic_string(std::initializer_list<value_type> init, const allocator_type& allocator = EASTL_BASIC_STRING_DEFAULT_ALLOCATOR);
 
         basic_string(this_type&& x) EA_NOEXCEPT;
@@ -986,17 +990,17 @@ namespace eastl
         {
             const char* strEnd = str.data() + str.size();
             const char *start = str.data();
-        	size_t sep_len = separator.size();
+            size_t sep_len = separator.size();
             for (const char* splitEnd = start; splitEnd <= strEnd-sep_len; )
             {
-            	if(splitEnd+sep_len > strEnd)
+                if(splitEnd+sep_len > strEnd)
                     break;
 
                 if (view_type(splitEnd,sep_len) == separator)
                 {
                     const ptrdiff_t splitLen = splitEnd - start;
                     if (splitLen > 0 || keepEmptyStrings)
-						tgt.emplace_back(start,splitLen);
+                        tgt.emplace_back(start,splitLen);
                     splitEnd += sep_len;
                     start = splitEnd;
                 }
@@ -1006,7 +1010,7 @@ namespace eastl
 
             const ptrdiff_t splitLen = strEnd - start;
             if (splitLen > 0 || keepEmptyStrings)
-				tgt.emplace_back(start, splitLen);
+                tgt.emplace_back(start, splitLen);
         }
 
         eastl::vector<this_type,allocator_type> split(value_type separator, bool keepEmptyStrings = false) const
@@ -1228,7 +1232,7 @@ namespace eastl
     // CtorSprintf exists so that we can create a version that does a variable argument
     // sprintf but also doesn't collide with any other constructor declaration.
     template <typename T, typename Allocator>
-    basic_string<T, Allocator>::basic_string(CtorSprintf /*unused*/, const value_type* pFormat, ...)
+    basic_string<T, Allocator>::basic_string(CtorSprintf /*unused*/, const char* pFormat, ...)
         : mPair()
     {
         const size_type n = (size_type)CharStrlen(pFormat);
@@ -1814,11 +1818,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::reference
     basic_string<T, Allocator>::front()
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::front -- empty string");
-		#else
-			// We allow the user to reference the trailing 0 char without asserting.
+        #else
+            // We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *internalLayout().BeginPtr();
@@ -1829,11 +1833,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::const_reference
     basic_string<T, Allocator>::front() const
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::front -- empty string");
-		#else
-			// We allow the user to reference the trailing 0 char without asserting.
+        #else
+            // We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *internalLayout().BeginPtr();
@@ -1844,11 +1848,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::reference
     basic_string<T, Allocator>::back()
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::back -- empty string");
-		#else
-			// We allow the user to reference the trailing 0 char without asserting.
+        #else
+            // We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *(internalLayout().EndPtr() - 1);
@@ -1859,11 +1863,11 @@ namespace eastl
     inline typename basic_string<T, Allocator>::const_reference
     basic_string<T, Allocator>::back() const
     {
-		#if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
+        #if EASTL_ASSERT_ENABLED && EASTL_EMPTY_REFERENCE_ASSERT_ENABLED
             if(EASTL_UNLIKELY(internalLayout().GetSize() <= 0)) // We assert if the user references the trailing 0 char.
                 EASTL_FAIL_MSG("basic_string::back -- empty string");
-		#else
-			// We allow the user to reference the trailing 0 char without asserting.
+        #else
+            // We allow the user to reference the trailing 0 char without asserting.
         #endif
 
         return *(internalLayout().EndPtr() - 1);
@@ -1938,7 +1942,7 @@ namespace eastl
     template <typename OtherStringType>
     basic_string<T, Allocator>& basic_string<T, Allocator>::append_convert(const OtherStringType& x)
     {
-		return append_convert(x.c_str(), x.length());
+        return append_convert(x.c_str(), x.length());
     }
 
 
@@ -1969,24 +1973,24 @@ namespace eastl
     }
 
 
-	template <typename T, typename Allocator>
-	basic_string<T, Allocator>& basic_string<T, Allocator>::append(size_type n, value_type c)
-	{
-		if (n > 0)
-		{
-			const size_type nSize = internalLayout().GetSize();
-			const size_type nCapacity = capacity();
+    template <typename T, typename Allocator>
+    basic_string<T, Allocator>& basic_string<T, Allocator>::append(size_type n, value_type c)
+    {
+        if (n > 0)
+        {
+            const size_type nSize = internalLayout().GetSize();
+            const size_type nCapacity = capacity();
 
-			if((nSize + n) > nCapacity)
-				reserve(GetNewCapacity(nCapacity, (nSize + n) - nCapacity));
+            if((nSize + n) > nCapacity)
+                reserve(GetNewCapacity(nCapacity, (nSize + n) - nCapacity));
 
-			pointer pNewEnd = CharStringUninitializedFillN(internalLayout().EndPtr(), n, c);
-			*pNewEnd = 0;
-			internalLayout().SetSize(nSize + n);
-		}
+            pointer pNewEnd = CharStringUninitializedFillN(internalLayout().EndPtr(), n, c);
+            *pNewEnd = 0;
+            internalLayout().SetSize(nSize + n);
+        }
 
-		return *this;
-	}
+        return *this;
+    }
 
 
     template <typename T, typename Allocator>
@@ -3363,7 +3367,7 @@ namespace eastl
         ltrim();
         rtrim();
     }
-    	
+
     template <typename T, typename Allocator>
     inline void basic_string<T, Allocator>::ltrim(const value_type* p)
     {
@@ -3590,7 +3594,7 @@ namespace eastl
 
         return nNewCapacity;
     }
-    	
+
 
     template <typename T, typename Allocator>
     inline void basic_string<T, Allocator>::AllocateSelf() EA_NOEXCEPT
@@ -4220,17 +4224,17 @@ namespace eastl
 
     /// string / wstring
     typedef basic_string<char>    string;
-    typedef basic_string<wchar_t> wstring;
+    //typedef basic_string<wchar_t> wstring;
 
-	/// custom string8 / string16 / string32
-	typedef basic_string<char>     string8;
-    typedef basic_string<char16_t> string16;
-    typedef basic_string<char32_t> string32;
+    /// custom string8 / string16 / string32
+//    typedef basic_string<char>     string8;
+//    typedef basic_string<char16_t> string16;
+//    typedef basic_string<char32_t> string32;
 
-	/// ISO mandated string types
-    typedef basic_string<char8_t>  u8string;    // Actually not a C++11 type, but added for consistency.
-    typedef basic_string<char16_t> u16string;
-    typedef basic_string<char32_t> u32string;
+    /// ISO mandated string types
+//    typedef basic_string<char8_t>  u8string;    // Actually not a C++11 type, but added for consistency.
+//    typedef basic_string<char16_t> u16string;
+//    typedef basic_string<char32_t> u32string;
 
 
     /// hash<string>
@@ -4256,46 +4260,46 @@ namespace eastl
         }
     };
 
-    template <>
-    struct hash<string16>
-    {
-        size_t operator()(const string16& x) const
-        {
-            const char16_t* p = x.c_str();
-            unsigned int c, result = 2166136261U;
-            while((c = *p++) != 0)
-                result = (result * 16777619) ^ c;
-            return (size_t)result;
-        }
-    };
+//    template <>
+//    struct hash<string16>
+//    {
+//        size_t operator()(const string16& x) const
+//        {
+//            const char16_t* p = x.c_str();
+//            unsigned int c, result = 2166136261U;
+//            while((c = *p++) != 0)
+//                result = (result * 16777619) ^ c;
+//            return (size_t)result;
+//        }
+//    };
 
-    template <>
-    struct hash<string32>
-    {
-        size_t operator()(const string32& x) const
-        {
-            const char32_t* p = x.c_str();
-            unsigned int c, result = 2166136261U;
-            while((c = (unsigned int)*p++) != 0)
-                result = (result * 16777619) ^ c;
-            return (size_t)result;
-        }
-    };
+//    template <>
+//    struct hash<string32>
+//    {
+//        size_t operator()(const string32& x) const
+//        {
+//            const char32_t* p = x.c_str();
+//            unsigned int c, result = 2166136261U;
+//            while((c = (unsigned int)*p++) != 0)
+//                result = (result * 16777619) ^ c;
+//            return (size_t)result;
+//        }
+//    };
 
-    #if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
-        template <>
-        struct hash<wstring>
-        {
-            size_t operator()(const wstring& x) const
-            {
-                const wchar_t* p = x.c_str();
-                unsigned int c, result = 2166136261U;
-                while((c = (unsigned int)*p++) != 0)
-                    result = (result * 16777619) ^ c;
-                return (size_t)result;
-            }
-        };
-    #endif
+//    #if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
+//        template <>
+//        struct hash<wstring>
+//        {
+//            size_t operator()(const wstring& x) const
+//            {
+//                const wchar_t* p = x.c_str();
+//                unsigned int c, result = 2166136261U;
+//                while((c = (unsigned int)*p++) != 0)
+//                    result = (result * 16777619) ^ c;
+//                return (size_t)result;
+//            }
+//        };
+//    #endif
 
 
     /// to_string
@@ -4334,24 +4338,24 @@ namespace eastl
     ///
     /// http://en.cppreference.com/w/cpp/string/basic_string/to_wstring
     ///
-    inline wstring to_wstring(int value)
-        { return wstring(wstring::CtorSprintf(), L"%d", value); }
-    inline wstring to_wstring(long value)
-        { return wstring(wstring::CtorSprintf(), L"%ld", value); }
-    inline wstring to_wstring(long long value)
-        { return wstring(wstring::CtorSprintf(), L"%lld", value); }
-    inline wstring to_wstring(unsigned value)
-        { return wstring(wstring::CtorSprintf(), L"%u", value); }
-    inline wstring to_wstring(unsigned long value)
-        { return wstring(wstring::CtorSprintf(), L"%lu", value); }
-    inline wstring to_wstring(unsigned long long value)
-        { return wstring(wstring::CtorSprintf(), L"%llu", value); }
-    inline wstring to_wstring(float value)
-        { return wstring(wstring::CtorSprintf(), L"%f", value); }
-    inline wstring to_wstring(double value)
-        { return wstring(wstring::CtorSprintf(), L"%f", value); }
-    inline wstring to_wstring(long double value)
-        { return wstring(wstring::CtorSprintf(), L"%Lf", value); }
+//    inline wstring to_wstring(int value)
+//        { return wstring(wstring::CtorSprintf(), L"%d", value); }
+//    inline wstring to_wstring(long value)
+//        { return wstring(wstring::CtorSprintf(), L"%ld", value); }
+//    inline wstring to_wstring(long long value)
+//        { return wstring(wstring::CtorSprintf(), L"%lld", value); }
+//    inline wstring to_wstring(unsigned value)
+//        { return wstring(wstring::CtorSprintf(), L"%u", value); }
+//    inline wstring to_wstring(unsigned long value)
+//        { return wstring(wstring::CtorSprintf(), L"%lu", value); }
+//    inline wstring to_wstring(unsigned long long value)
+//        { return wstring(wstring::CtorSprintf(), L"%llu", value); }
+//    inline wstring to_wstring(float value)
+//        { return wstring(wstring::CtorSprintf(), L"%f", value); }
+//    inline wstring to_wstring(double value)
+//        { return wstring(wstring::CtorSprintf(), L"%f", value); }
+//    inline wstring to_wstring(long double value)
+//        { return wstring(wstring::CtorSprintf(), L"%Lf", value); }
 
 
     /// user defined literals
@@ -4370,14 +4374,14 @@ namespace eastl
             inline namespace string_literals
             {
                 inline string operator"" s(const char* str, size_t len) EA_NOEXCEPT { return {str, string::size_type(len)}; }
-                inline u16string operator"" s(const char16_t* str, size_t len) EA_NOEXCEPT { return {str, u16string::size_type(len)}; }
-                inline u32string operator"" s(const char32_t* str, size_t len) EA_NOEXCEPT { return {str, u32string::size_type(len)}; }
-                inline wstring operator"" s(const wchar_t* str, size_t len) EA_NOEXCEPT { return {str, wstring::size_type(len)}; }
+//                inline u16string operator"" s(const char16_t* str, size_t len) EA_NOEXCEPT { return {str, u16string::size_type(len)}; }
+//                inline u32string operator"" s(const char32_t* str, size_t len) EA_NOEXCEPT { return {str, u32string::size_type(len)}; }
+//                inline wstring operator"" s(const wchar_t* str, size_t len) EA_NOEXCEPT { return {str, wstring::size_type(len)}; }
 
-				// C++20 char8_t support.
-				#if EA_CHAR8_UNIQUE
-					inline u8string operator"" s(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, u8string::size_type(len)}; }
-				#endif
+                // C++20 char8_t support.
+                #if EA_CHAR8_UNIQUE
+                    inline u8string operator"" s(const char8_t* str, size_t len) EA_NOEXCEPT { return {str, u8string::size_type(len)}; }
+                #endif
             }
         }
         EA_RESTORE_VC_WARNING()  // warning: 4455
@@ -4387,19 +4391,19 @@ namespace eastl
     ///
     /// https://en.cppreference.com/w/cpp/string/basic_string/erase2
     template <class CharT, class Allocator, class U>
-	void erase(basic_string<CharT, Allocator>& c, const U& value)
-	{
-	    // Erases all elements that compare equal to value from the container.
-	    c.erase(eastl::remove(c.begin(), c.end(), value), c.end());
-	}
+    void erase(basic_string<CharT, Allocator>& c, const U& value)
+    {
+        // Erases all elements that compare equal to value from the container.
+        c.erase(eastl::remove(c.begin(), c.end(), value), c.end());
+    }
 
-	template <class CharT, class Allocator, class Predicate>
-	void erase_if(basic_string<CharT, Allocator>& c, Predicate predicate)
-	{
-	    // Erases all elements that satisfy the predicate pred from the container.
-	    c.erase(eastl::remove_if(c.begin(), c.end(), predicate), c.end());
-	}
-    	
+    template <class CharT, class Allocator, class Predicate>
+    void erase_if(basic_string<CharT, Allocator>& c, Predicate predicate)
+    {
+        // Erases all elements that satisfy the predicate pred from the container.
+        c.erase(eastl::remove_if(c.begin(), c.end(), predicate), c.end());
+    }
+
 } // namespace eastl
 
 

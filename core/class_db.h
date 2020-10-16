@@ -176,8 +176,8 @@ public:
     static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const MethodDefinition &method_name, std::initializer_list<Variant> def_vals);
     static void _set_class_header(const StringName &p_class, StringView header_file);
 #else
-    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
-    static void _set_class_header(const StringName &, const char *) {}
+//    static MethodBind *bind_methodfi(uint32_t p_flags, MethodBind *p_bind, const char *method_name, std::initializer_list<Variant> p_defs);
+//    static void _set_class_header(const StringName &, const char *) {}
 #endif
 
     static APIType current_api;
@@ -306,12 +306,12 @@ public:
 
     static void register_enum_type(const StringName &p_class,const StringName &p_enum,const StringName &p_underlying_type);
     static void bind_integer_constant(const StringName &p_class, const StringName &p_enum, const StringName &p_name, int p_constant);
-    static void get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance = false);
+    static void get_integer_constant_list(const StringName &p_class, Vector<String> *p_constants, bool p_no_inheritance = false);
     static int get_integer_constant(const StringName &p_class, const StringName &p_name, bool *p_success = nullptr);
 
     static StringName get_integer_constant_enum(const StringName &p_class, const StringName &p_name, bool p_no_inheritance = false);
-    static void get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance = false);
-    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
+//    static void get_enum_list(const StringName &p_class, Vector<StringName> *p_enums, bool p_no_inheritance = false);
+//    static void get_enum_constants(const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance = false);
 
     static Variant class_get_default_property_value(const StringName &p_class, const StringName &p_property, bool *r_valid = nullptr);
 

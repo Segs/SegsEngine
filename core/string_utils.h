@@ -259,7 +259,6 @@ namespace Inplace {
 [[nodiscard]] GODOT_EXPORT UIString replacen(const UIString &str,const UIString &p_key, const UIString &p_with);
 [[nodiscard]] GODOT_EXPORT UIString rpad(const UIString &str,int min_length, char character = ' ');
 //[[nodiscard]] GODOT_EXPORT String sprintf(const String &str,const Array &values, bool *error);
-[[nodiscard]] GODOT_EXPORT String sprintf(StringView str,const Array &values, bool *error);
 [[nodiscard]] GODOT_EXPORT UIString trim_prefix(const UIString &str,const UIString &p_prefix);
 [[nodiscard]] GODOT_EXPORT UIString trim_suffix(const UIString &str,const UIString &p_suffix);
 

@@ -917,8 +917,7 @@ void ScriptEditorDebugger::_parse_message(const String &p_msg, const Array &p_da
         time_vals.push_back(err[1]);
         time_vals.push_back(err[2]);
         time_vals.push_back(err[3]);
-        bool e;
-        String time = StringUtils::sprintf("%d:%02d:%02d:%03d",time_vals, &e);
+        String time = FormatVE("%d:%02d:%02d:%03d",(int)err[0],(int)err[1],int(err[2]),int(err[3]));
         UIString txt = err[8].is_zero() ? err[7].as<UIString>() : err[8].as<UIString>();
 
         // Rest of the error data.

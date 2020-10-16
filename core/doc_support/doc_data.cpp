@@ -282,7 +282,6 @@ Error DocData::erase_classes(QByteArray p_dir, bool recursively) {
     return OK;
 }
 Error _load(QXmlStreamReader &parser,DocData &tgt) {
-    QString namespace_in_docs;
     Vector<DocData *> target_doc_stack;
     target_doc_stack.emplace_back(&tgt);
     while (!parser.atEnd()) {
@@ -293,11 +292,13 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
             return ERR_FILE_CORRUPT;
         }
 
-        if(tt == QXmlStreamReader::StartDocument)
-            continue;;
+        if(tt == QXmlStreamReader::StartDocument) {
+            continue;
+        }
 
-        if (parser.tokenType() != QXmlStreamReader::StartElement)
+        if (parser.tokenType() != QXmlStreamReader::StartElement) {
             continue; //no idea what this may be, but skipping anyway
+        }
 
         const auto class_attrs(parser.attributes());
         if(parser.name() == "namespace") {
@@ -313,8 +314,9 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
         DocContents::ClassDoc &c = tgt.class_list[name];
 
         c.name = name;
-        if (class_attrs.hasAttribute("inherits"))
+        if (class_attrs.hasAttribute("inherits")) {
             c.inherits = class_attrs.value("inherits").toUtf8().data();
+        }
 
         while (parser.readNext() != QXmlStreamReader::Invalid) {
 

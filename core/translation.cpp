@@ -974,7 +974,7 @@ void TranslationServer::set_locale(StringView p_locale) {
                 trimmed_locale.size(), trimmed_locale));
 
         if (!is_locale_valid(trimmed_locale)) {
-            ERR_PRINT(vformat("Unsupported locale '%s', falling back to 'en'.", trimmed_locale));
+            ERR_PRINT(String(String::CtorSprintf(),"Unsupported locale '%.*s', falling back to 'en'.", trimmed_locale.length(),trimmed_locale.data()));
             locale = "en";
         } else {
             locale = trimmed_locale;

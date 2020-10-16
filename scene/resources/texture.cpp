@@ -45,6 +45,7 @@
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 #include "core/plugin_interfaces/ImageLoaderInterface.h"
 #include "core/resource/resource_manager.h"
 #include "scene/resources/bit_map.h"
@@ -86,7 +87,7 @@ namespace  {
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, vformat(("Can't save using saver wrapper at path: '%s'."), p_path));
+            ERR_FAIL_COND_V_MSG(err, err, FormatVE("Can't save using saver wrapper at path: '%.*s'.", p_path.size(),p_path.data()));
             Vector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 

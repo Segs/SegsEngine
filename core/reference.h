@@ -63,6 +63,22 @@ public:
     RefCounted();
     ~RefCounted() override;
 };
+
+class GODOT_EXPORT EncodedObjectAsID : public RefCounted {
+    GDCLASS(EncodedObjectAsID, RefCounted)
+
+    ObjectID id {0ULL};
+
+protected:
+    static void _bind_methods();
+
+public:
+    void set_object_id(ObjectID p_id);
+    ObjectID get_object_id() const;
+
+    EncodedObjectAsID() = default;
+};
+
 enum RefMode {
     AddRef,
     DoNotAddRef

@@ -10,18 +10,18 @@
 class MethodBind {
 
     int method_id;
-    uint32_t hint_flags;
+    uint32_t hint_flags=METHOD_FLAGS_DEFAULT;
     StringName name;
     Vector<Variant> default_arguments;
-    int default_argument_count;
-    int argument_count;
+    int default_argument_count=0;
+    int argument_count=0;
     template<class T, class RESULT,typename ...Args>
     friend class MethodBindVA;
 protected:
     const char *instance_class_name=nullptr;
-    bool _const;
-    bool _returns;
-    bool _is_vararg=false;
+    bool _const = false;
+    bool _returns = false;
+    bool _is_vararg = false;
 
 #ifdef DEBUG_METHODS_ENABLED
     VariantType *argument_types=nullptr;

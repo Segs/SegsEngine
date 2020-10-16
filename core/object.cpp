@@ -44,7 +44,6 @@
 #include "core/translation.h"
 #include "core/hash_map.h"
 #include "core/pool_vector.h"
-#include "core/vmap.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
 
@@ -58,7 +57,8 @@ struct Object::SignalData  {
     };
 
     MethodInfo user;
-    VMap<Callable, Slot> slot_map;
+    eastl::vector_map<Callable, Slot> slot_map;
+    //VMap<Callable, Slot> slot_map;
 };
 
 struct Object::ObjectPrivate {
@@ -83,10 +83,10 @@ struct Object::ObjectPrivate {
             SignalData *s = &signal_map.begin()->second;
 
             //brute force disconnect for performance
-            const auto *slot_list = s->slot_map.get_array();
+            const auto *slot_list = s->slot_map.data();
             int slot_count = s->slot_map.size();
             for (int i = 0; i < slot_count; i++) {
-                slot_list[i].value.conn.callable.get_object()->private_data->connections.erase(slot_list[i].value.cE);
+                slot_list[i].second.conn.callable.get_object()->private_data->connections.erase(slot_list[i].second.cE);
             }
 
             signal_map.erase(signal_map.begin());
@@ -247,15 +247,6 @@ Object::Connection::operator Variant() const {
     return d;
 }
 
-bool Object::Connection::operator<(const Connection &p_conn) const noexcept {
-
-    if (signal == p_conn.signal) {
-        return callable < p_conn.callable;
-    }
-    else {
-        return signal < p_conn.signal;
-    }
-}
 Object::Connection::Connection(const Variant &p_variant) {
 
     Dictionary d = (Dictionary)p_variant;
@@ -978,7 +969,7 @@ void Object::emit_signal(const StringName &p_name, const Variant **p_args, int p
     //copy on write will ensure that disconnecting the signal or even deleting the object will not affect the signal calling.
     //this happens automatically and will not change the performance of calling.
     //awesome, isn't it?
-    VMap<Callable, SignalData::Slot> slot_map = s->second.slot_map;
+    auto & slot_map = s->second.slot_map;
 
     int ssize = slot_map.size();
 
@@ -990,7 +981,7 @@ void Object::emit_signal(const StringName &p_name, const Variant **p_args, int p
 
     for (int i = 0; i < ssize; i++) {
 
-        const Connection &c = slot_map.getv(i).conn;
+        const Connection &c = slot_map.at(i).second.conn;
 
         Object* target = c.callable.get_object();
         if (!target) {
@@ -1111,7 +1102,7 @@ Array Object::_get_signal_list() const {
 
 Array Object::_get_signal_connection_list(StringName p_signal) const {
 
-    List<Connection> conns;
+    Vector<Connection> conns;
     get_all_signal_connections(&conns);
 
     Array ret;
@@ -1176,27 +1167,28 @@ void Object::get_signal_list(Vector<MethodInfo> *p_signals) const {
     }
 }
 
-void Object::get_all_signal_connections(List<Connection> *p_connections) const {
+void Object::get_all_signal_connections(Vector<Connection> *p_connections) const {
 
     for (const auto & signal : private_data->signal_map) {
 
         const SignalData *s = &signal.second;
 
-        for (int i = 0; i < s->slot_map.size(); i++) {
-
-            p_connections->push_back(s->slot_map.getv(i).conn);
+        for (const auto &entry : s->slot_map) {
+            p_connections->emplace_back(entry.second.conn);
         }
     }
 }
 
-void Object::get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const {
+void Object::get_signal_connection_list(const StringName &p_signal, Vector<Connection> *p_connections) const {
 
     const auto s = private_data->signal_map.find(p_signal);
-    if (s== private_data->signal_map.end())
+    if (s== private_data->signal_map.end()) {
         return; //nothing
+    }
 
-    for (int i = 0; i < s->second.slot_map.size(); i++)
-        p_connections->push_back(s->second.slot_map.getv(i).conn);
+    for (const auto &entry : s->second.slot_map) {
+        p_connections->emplace_back(entry.second.conn);
+    }
 }
 
 int Object::get_persistent_signal_connection_count() const {
@@ -1207,18 +1199,14 @@ int Object::get_persistent_signal_connection_count() const {
 
         const SignalData *s = &signal.second;
 
-        for (int i = 0; i < s->slot_map.size(); i++) {
-
-            if (s->slot_map.getv(i).conn.flags & ObjectNS::CONNECT_PERSIST) {
-                count += 1;
-            }
+        for (const auto &entry : s->slot_map) {
+            count += (0!=(entry.second.conn.flags & ObjectNS::CONNECT_PERSIST));
         }
     }
-
     return count;
 }
 
-void Object::get_signals_connected_to_this(List<Connection> *p_connections) const {
+void Object::get_signals_connected_to_this(Vector<Connection> *p_connections) const {
 
     p_connections->insert(p_connections->end(), private_data->connections.begin(), private_data->connections.end());
 }
@@ -1260,7 +1248,7 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
 
     Callable target = p_callable;
 
-    if (s->second.slot_map.has(target)) {
+    if (s->second.slot_map.contains(target)) {
         if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {
             s->second.slot_map[target].reference_count++;
             return OK;
@@ -1284,7 +1272,7 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
         slot.reference_count = 1;
     }
 
-    s->second.slot_map[target] = slot;
+    s->second.slot_map[target] = eastl::move(slot);
 
     return OK;
 }
@@ -1305,9 +1293,7 @@ bool Object::is_connected(const StringName& p_signal, const Callable& p_callable
         ERR_FAIL_V_MSG(false, "Nonexistent signal: " + p_signal + ".");
     }
 
-    Callable target = p_callable;
-
-    return s->second.slot_map.has(target);
+    return s->second.slot_map.contains(p_callable);
 }
 
 void Object::disconnect(const StringName& p_signal, const Callable& p_callable) {
@@ -1321,9 +1307,9 @@ void Object::_disconnect(const StringName& p_signal, const Callable& p_callable,
     ERR_FAIL_COND(!target_object);
 
     auto per_sig_data = private_data->signal_map.find(p_signal);
-    ERR_FAIL_COND_MSG(per_sig_data== private_data->signal_map.end(), vformat("Nonexistent signal '%s' in %s.", p_signal, to_string()));
+    ERR_FAIL_COND_MSG(per_sig_data== private_data->signal_map.end(), String(String::CtorSprintf(),"Nonexistent signal '%s' in %s.", p_signal.asCString(), to_string().c_str()));
 
-    ERR_FAIL_COND_MSG(!per_sig_data->second.slot_map.has(p_callable), "Signal '" + p_signal + "', is not connected to callable: " + (String)p_callable + ".");
+    ERR_FAIL_COND_MSG(!per_sig_data->second.slot_map.contains(p_callable), "Signal '" + p_signal + "', is not connected to callable: " + (String)p_callable + ".");
 
     SignalData::Slot* slot = &per_sig_data->second.slot_map[p_callable];
 

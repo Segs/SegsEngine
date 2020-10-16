@@ -43,8 +43,8 @@
 #include <cstdint>
 #include "EASTL/type_traits.h"
 
-class Node;
-class Control;
+//class Node;
+//class Control;
 class Object;
 class ObjectRC;
 using UIString = class QString;
@@ -368,6 +368,8 @@ public:
 
     //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
+    static bool evaluate_equal(const Variant &p_a, const Variant &p_b, bool &r_valid);
+
     static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 
         bool valid = true;
@@ -424,7 +426,6 @@ public:
     bool booleanize() const;
     String stringify(Vector<const void *> &stack) const;
 
-    static void get_constructor_list(VariantType p_type, Vector<MethodInfo> *p_list);
     static void get_constants_for_type(VariantType p_type, Vector<StringName> *p_constants);
     static bool has_constant(VariantType p_type, const StringName &p_value);
     static Variant get_constant_value(VariantType p_type, const StringName &p_value, bool *r_valid = nullptr);
@@ -505,14 +506,14 @@ public:
     [[nodiscard]] explicit operator unsigned int() const; // this is the real one
     [[nodiscard]] explicit operator unsigned short() const;
     [[nodiscard]] explicit operator bool() const { return booleanize();  }
-    [[nodiscard]] explicit operator Control *() const;
-    [[nodiscard]] explicit operator Node *() const;
+//    [[nodiscard]] explicit operator Control *() const;
+//    [[nodiscard]] explicit operator Node *() const;
     [[nodiscard]] explicit operator Callable() const;
     [[nodiscard]] explicit operator Signal() const;
     template<typename E, eastl::enable_if_t<eastl::is_enum<E>::value>* = nullptr>
     [[nodiscard]] explicit operator E() const { return (E)((eastl::underlying_type_t<E>)*this); }
     template<typename E, eastl::enable_if_t< eastl::is_pointer_v<E> >* = nullptr>
-    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(this)); }
+    [[nodiscard]] explicit operator E() const { return object_cast<eastl::remove_pointer_t<E>>((Object *)(*this)); }
 
 };
 static constexpr int longest_variant_type_name=16;
@@ -557,8 +558,6 @@ const Variant::ObjData &Variant::_get_obj() const {
     return *reinterpret_cast<const ObjData *>(&_data._mem[0]);
 }
 
-GODOT_EXPORT String vformat(StringView p_text, const Variant &p1 = Variant(), const Variant &p2 = Variant(), const Variant &p3 = Variant(), const Variant &p4 = Variant(), const Variant &p5 = Variant());
-
 // All `as` overloads returing a Span are restricted to no-conversion/no-allocation cases.
 // some core type enums to convert to
 
@@ -585,3 +584,5 @@ struct GODOT_EXPORT VariantOps {
     static Variant duplicate(const Variant& arg,bool deep=false);
     static void remove(Variant& arg, int idx);
 };
+
+extern const Vector<Variant> null_variant_pvec;

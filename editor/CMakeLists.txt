@@ -3,10 +3,7 @@ set(exporter_sources)
 set(editor_sources_gen)
 set(editor_3rdparty)
 
-if(NOT OPTION_TOOLS)
-    return()
-endif()
-if (NOT ("editor" IN_LIST ${global_targets}))
+if (NOT ("editor" IN_LIST global_targets))
     return()
 endif()
 

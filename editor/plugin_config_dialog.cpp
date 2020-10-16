@@ -211,7 +211,8 @@ PluginConfigDialog::PluginConfigDialog() {
         ScriptLanguage *lang = ScriptServer::get_language(i);
         script_option_edit->add_item(lang->get_name());
     }
-    script_option_edit->select(default_lang);
+    if(ScriptServer::get_language_count()>0)
+        script_option_edit->select(default_lang);
     grid->add_child(script_option_edit);
 
     Label *script_lb = memnew(Label);

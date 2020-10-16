@@ -1926,15 +1926,17 @@ void Node::propagate_call(const StringName &p_method, const Array &p_args, const
 
     blocked++;
 
-    if (p_parent_first && has_method(p_method))
+    if (p_parent_first && has_method(p_method)) {
         callv(p_method, p_args);
+    }
 
     for (int i = 0; i < priv_data->children.size(); i++) {
         priv_data->children[i]->propagate_call(p_method, p_args, p_parent_first);
     }
 
-    if (!p_parent_first && has_method(p_method))
+    if (!p_parent_first && has_method(p_method)) {
         callv(p_method, p_args);
+    }
 
     blocked--;
 }
@@ -2365,7 +2367,7 @@ void Node::_duplicate_signals(const Node *p_original, Node *p_copy) const {
     if (this != p_original && (get_owner() != p_original && get_owner() != p_original->get_owner()))
         return;
 
-    List<Connection> conns;
+    Vector<Connection> conns;
     get_all_signal_connections(&conns);
 
     for (const Connection &E : conns) {
@@ -2541,7 +2543,7 @@ void Node::replace_by(Node *p_node, bool p_keep_data) {
 
 void Node::_replace_connections_target(Node *p_new_target) {
 
-    List<Connection> cl;
+    Vector<Connection> cl;
     get_signals_connected_to_this(&cl);
 
     for (Connection &c : cl) {

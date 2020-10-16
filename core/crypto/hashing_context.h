@@ -28,11 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HASHING_CONTEXT_H
-#define HASHING_CONTEXT_H
+#pragma once
 
 #include "core/reference.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 class GODOT_EXPORT HashingContext : public RefCounted {
@@ -62,7 +60,3 @@ public:
     HashingContext();
     ~HashingContext() override;
 };
-
-
-
-#endif // HASHING_CONTEXT_H

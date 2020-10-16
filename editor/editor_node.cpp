@@ -717,11 +717,11 @@ void EditorNode::_fs_changed() {
             preset.unref();
         }
         if (!preset) {
-            export_error = vformat("Invalid export preset name: %s.", preset_name);
+            export_error = FormatVE("Invalid export preset name: %s.", preset_name.c_str());
         } else {
             Ref<EditorExportPlatform> platform = preset->get_platform();
             if (!platform) {
-                export_error = vformat("Export preset '%s' doesn't have a matching platform.", preset_name);
+                export_error = FormatVE("Export preset '%s' doesn't have a matching platform.", preset_name.c_str());
             } else {
                 Error err = OK;
                 if (export_defer.pack_only) { // Only export .pck or .zip data pack.
@@ -744,13 +744,13 @@ void EditorNode::_fs_changed() {
                     case OK:
                         break;
                     case ERR_FILE_NOT_FOUND:
-                        export_error = vformat("Project export failed for preset '%s', the export template appears to be missing.", preset_name);
+                        export_error = FormatVE("Project export failed for preset '%s', the export template appears to be missing.", preset_name.c_str());
                         break;
                     case ERR_FILE_BAD_PATH:
-                        export_error = vformat("Project export failed for preset '%s', the target path '%s' appears to be invalid.", preset_name, export_defer.path);
+                        export_error = FormatVE("Project export failed for preset '%s', the target path '%s' appears to be invalid.", preset_name.c_str(), export_defer.path.c_str());
                         break;
                     default:
-                        export_error = vformat("Project export failed with error code %d for preset '%s'.", (int)err, preset_name);
+                        export_error = FormatVE("Project export failed with error code %d for preset '%s'.", (int)err, preset_name.c_str());
                         break;
                 }
             }

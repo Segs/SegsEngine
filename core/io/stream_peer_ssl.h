@@ -32,7 +32,6 @@
 
 #include "core/crypto/crypto.h"
 #include "core/io/stream_peer.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 class GODOT_EXPORT StreamPeerSSL : public StreamPeer {

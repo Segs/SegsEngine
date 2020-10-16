@@ -40,7 +40,6 @@
 #include "servers/physics_server_2d.h"
 #include "servers/physics_server_3d.h"
 #include "servers/rendering_server.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 Performance *Performance::singleton = nullptr;

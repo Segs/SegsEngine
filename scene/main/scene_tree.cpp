@@ -446,7 +446,7 @@ bool SceneTreeTimer::is_pause_mode_process() {
 
 void SceneTreeTimer::release_connections() {
 
-    List<Connection> connections;
+    Vector<Connection> connections;
     get_all_signal_connections(&connections);
 
     for (Connection const &connection : connections) {

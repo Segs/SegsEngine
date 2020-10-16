@@ -30,7 +30,7 @@
 
 #include "os.h"
 
-#include "core/image.h"
+//#include "core/image.h"
 #include "core/method_enum_caster.h"
 #include "core/object_db.h"
 #include "core/os/dir_access.h"
@@ -134,11 +134,6 @@ void OS::print_error(StringView p_function, StringView p_file, int p_line, Strin
 void OS::print(StringView p_msg) {
     _logger->logv(p_msg, false);
 }
-
-//void OS::print(const String &p_msg)
-//{
-//    _logger->logv(p_msg.constData(), false);
-//};
 
 void OS::printerr(StringView p_format) {
     _logger->logv(p_format, true);

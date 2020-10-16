@@ -100,11 +100,6 @@ void MethodBind::set_default_arguments(const Vector<Variant> &p_defargs) {
 MethodBind::MethodBind() {
     static int last_id = 0;
     method_id = last_id++;
-    hint_flags = METHOD_FLAGS_DEFAULT;
-    argument_count = 0;
-    default_argument_count = 0;
-    _const = false;
-    _returns = false;
 }
 
 MethodBind::~MethodBind() {

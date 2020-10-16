@@ -465,7 +465,7 @@ String _OS::get_executable_path() const {
     return OS::get_singleton()->get_executable_path();
 }
 
-Error _OS::shell_open(String p_uri) {
+Error _OS::shell_open(const String& p_uri) {
     if (p_uri.starts_with("res://")) {
         WARN_PRINT("Attempting to open an URL with the \"res://\" protocol. Use `ProjectSettings.globalize_path()` to "
                    "convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
@@ -1547,9 +1547,9 @@ Array _Geometry::merge_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vec
     Vector<Vector<Point2>> polys(Geometry::merge_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
-
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1558,9 +1558,9 @@ Array _Geometry::clip_polygons_2d(const Vector<Vector2> &p_polygon_a, const Vect
     Vector<Vector<Point2>> polys(Geometry::clip_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
-
-    for (const Vector<Point2> &poly : polys) {
-        ret.push_back(poly);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1569,9 +1569,9 @@ Array _Geometry::intersect_polygons_2d(const Vector<Vector2> &p_polygon_a, const
     Vector<Vector<Point2>> polys(Geometry::intersect_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
-
-    for (const Vector<Point2> &poly : polys) {
-        ret.push_back(poly);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1580,9 +1580,9 @@ Array _Geometry::exclude_polygons_2d(const Vector<Vector2> &p_polygon_a, const V
     Vector<Vector<Point2>> polys(Geometry::exclude_polygons_2d(p_polygon_a, p_polygon_b));
 
     Array ret;
-
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1591,9 +1591,9 @@ Array _Geometry::clip_polyline_with_polygon_2d(const Vector<Vector2> &p_polyline
     Vector<Vector<Point2>> polys(Geometry::clip_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
-
-    for (int i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1603,9 +1603,9 @@ Array _Geometry::intersect_polyline_with_polygon_2d(
     Vector<Vector<Point2>> polys(Geometry::intersect_polyline_with_polygon_2d(p_polyline, p_polygon));
 
     Array ret;
-
-    for (size_t i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1614,9 +1614,9 @@ Array _Geometry::offset_polygon_2d(const Vector<Vector2> &p_polygon, real_t p_de
     Vector<Vector<Point2>> polys(Geometry::offset_polygon_2d(p_polygon, p_delta, Geometry::PolyJoinType(p_join_type)));
 
     Array ret;
-
-    for (size_t i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1627,9 +1627,9 @@ Array _Geometry::offset_polyline_2d(
             p_polygon, p_delta, Geometry::PolyJoinType(p_join_type), Geometry::PolyEndType(p_end_type)));
 
     Array ret;
-
-    for (size_t i = 0; i < polys.size(); ++i) {
-        ret.push_back(polys[i]);
+    ret.reserve(polys.size());
+    for (Vector<Point2> &poly : polys) {
+        ret.emplace_back(eastl::move(poly));
     }
     return ret;
 }
@@ -1638,8 +1638,8 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
     Dictionary ret;
 
     Vector<Size2i> rects;
-    for (int i = 0; i < p_rects.size(); i++) {
-        rects.push_back(p_rects[i]);
+    for (Size2 rect : p_rects) {
+        rects.emplace_back(rect);
     }
 
     Vector<Point2i> result;
@@ -1888,7 +1888,9 @@ uint64_t _File::get_64() const {
 
 float _File::get_float() const {
     ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
-    return f->get_float();
+    MarshallFloat mf;
+    mf.i = f->get_32();
+    return mf.f;
 }
 double _File::get_double() const {
     ERR_FAIL_COND_V_MSG(!f, 0, "File must be opened before use.");
@@ -2680,7 +2682,7 @@ Variant _ClassDB::instance(const StringName &p_class) const {
         return Variant();
     }
 
-    RefCounted *r = object_cast<RefCounted>(obj);
+    auto *r = object_cast<RefCounted>(obj);
     if (r) {
         return REF(r);
     } else {
@@ -2762,7 +2764,7 @@ Array _ClassDB::get_method_list(StringName p_class, bool p_no_inheritance) const
 }
 
 PoolStringArray _ClassDB::get_integer_constant_list(const StringName &p_class, bool p_no_inheritance) const {
-    List<String> constants;
+    Vector<String> constants;
     ClassDB::get_integer_constant_list(p_class, &constants, p_no_inheritance);
 
     PoolStringArray ret;
@@ -2835,7 +2837,7 @@ void _ClassDB::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("is_class_enabled", { "class" }), &_ClassDB::is_class_enabled);
 }
 
-_ClassDB::_ClassDB() {}
+_ClassDB::_ClassDB() = default;
 _ClassDB::~_ClassDB() = default;
 ///////////////////////////////
 
@@ -3063,7 +3065,7 @@ Ref<JSONParseResult> _JSON::parse(const String &p_json) {
 
     result->error = JSON::parse(p_json, result->result, result->error_string, result->error_line);
     if (result->error != OK) {
-        ERR_PRINT(FormatVE("Error parsing JSON at line %s: %s", result->error_line, result->error_string.c_str()));
+        ERR_PRINT(FormatVE("Error parsing JSON at line %d: %s", result->error_line, result->error_string.c_str()));
     }
     return result;
 }

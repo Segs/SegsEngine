@@ -1396,8 +1396,9 @@ void RasterizerStorageGLES3::texture_debug_usage(Vector<RenderingServer::Texture
     for (const RID &E : textures) {
 
         Texture *t = texture_owner.get(E);
-        if (!t)
+        if (!t) {
             continue;
+        }
         RenderingServer::TextureInfo tinfo;
         tinfo.path = t->path;
         tinfo.format = t->format;
@@ -1543,8 +1544,9 @@ RID RasterizerStorageGLES3::texture_create_radiance_cubemap(RID p_source, int p_
 #endif
         }
 
-        if (size > 1)
+        if (size > 1) {
             size >>= 1;
+        }
         lod++;
         mm_level--;
     }

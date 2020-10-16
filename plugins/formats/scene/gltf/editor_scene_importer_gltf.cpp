@@ -39,6 +39,7 @@
 #include "core/math/math_defs.h"
 #include "core/os/file_access.h"
 #include "core/os/os.h"
+#include "core/string_formatter.h"
 #include "core/resource/resource_manager.h"
 #include "scene/3d/bone_attachment_3d.h"
 #include "scene/3d/camera_3d.h"
@@ -3404,7 +3405,7 @@ namespace {
 
 
 Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
-    print_verbose(vformat("glTF: Importing file %s as scene.", p_path));
+    print_verbose(FormatVE("glTF: Importing file %.*s as scene.", p_path.size(),p_path.data()));
 
     GLTFState state;
 

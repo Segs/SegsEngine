@@ -139,12 +139,15 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
             return nullptr;
         } else {
             *s = p_bytes;
+            void *prev_mem=mem;
             mem = (uint8_t *)realloc(mem, p_bytes + PAD_ALIGN);
             TRACE_ALLOC(mem, p_bytes + PAD_ALIGN);
 
             assert(mem);
-            if(unlikely(!mem))
+            if(unlikely(!mem)) {
+                free_static(prev_mem);
                 return nullptr;
+            }
 
             s = (uint64_t *)mem;
 
@@ -155,11 +158,14 @@ void *Memory::realloc_static(void *p_memory, size_t p_bytes, bool p_pad_align) {
     } else {
 
         TRACE_FREE(mem);
+        void *prev_mem=mem;
         mem = (uint8_t *)realloc(mem, p_bytes);
         TRACE_ALLOC(mem, p_bytes);
         assert(mem != nullptr || p_bytes == 0);
-        if(unlikely(mem == nullptr && p_bytes > 0))
+        if(unlikely(mem == nullptr && p_bytes > 0)) {
+            free_static(prev_mem);
             return nullptr;
+        }
 
         return mem;
     }

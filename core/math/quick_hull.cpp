@@ -346,7 +346,7 @@ Error QuickHull::build(Span<const Vector3> p_points, Geometry::MeshData &r_mesh)
 
         //distribute points into new faces
 
-        for (List<QHFace>::iterator F : lit_faces) {
+        for (const List<QHFace>::iterator &F : lit_faces) {
 
             QHFace &lf = *F;
 

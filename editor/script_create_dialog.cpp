@@ -69,7 +69,8 @@ void ScriptCreateDialog::_notification(int p_what) {
                     }
                 }
             } else {
-                language_menu->select(default_language);
+                if(language_menu->get_item_count()>0)
+                    language_menu->select(default_language);
             }
 
             path_button->set_button_icon(get_theme_icon("Folder", "EditorIcons"));

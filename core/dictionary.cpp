@@ -44,18 +44,21 @@ struct DictionaryPrivate {
 
 Vector<Variant> Dictionary::get_key_list() const {
     Vector<Variant> res;
-    if (_p->variant_map.empty())
+    if (_p->variant_map.empty()) {
         return {};
+    }
     res.reserve(_p->variant_map.size());
-    for(const auto &E: _p->variant_map)
+    for(const auto &E: _p->variant_map) {
         res.emplace_back(E.first);
+    }
     return res;
 }
 
 Variant Dictionary::get_key_at_index(int p_index) const {
 
-    if(p_index<0 || p_index > _p->variant_map.size())
+    if(p_index<0 || p_index > _p->variant_map.size()){
         return Variant();
+    }
     auto iter = _p->variant_map.begin();
     eastl::advance(iter,p_index);
     return iter->first;
@@ -63,8 +66,9 @@ Variant Dictionary::get_key_at_index(int p_index) const {
 
 Variant Dictionary::get_value_at_index(int p_index) const {
 
-    if (p_index<0 || p_index > _p->variant_map.size())
+    if (p_index<0 || p_index > _p->variant_map.size()) {
         return Variant();
+    }
     auto iter = _p->variant_map.begin();
     eastl::advance(iter, p_index);
     return iter->second;
@@ -92,8 +96,9 @@ Variant *Dictionary::getptr(const Variant &p_key) {
 
     auto E = _p->variant_map.find(p_key);
 
-    if (_p->variant_map.end()==E)
+    if (_p->variant_map.end()==E) {
         return nullptr;
+    }
     return &E->second;
 }
 
@@ -101,8 +106,9 @@ Variant Dictionary::get_valid(const Variant &p_key) const {
 
     auto E = _p->variant_map.find(p_key);
 
-    if (_p->variant_map.end() == E)
+    if (_p->variant_map.end() == E) {
         return Variant();
+    }
     return E->second;
 }
 

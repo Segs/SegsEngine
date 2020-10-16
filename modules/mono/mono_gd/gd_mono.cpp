@@ -725,7 +725,7 @@ void GDMono::_check_known_glue_api_hashes() {
 
 void GDMono::_init_exception_policy() {
     PropertyInfo exc_policy_prop = PropertyInfo(VariantType::INT, "mono/unhandled_exception_policy", PropertyHint::Enum,
-            vformat("Terminate Application:%s,Log Error:%s", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
+            FormatVE("Terminate Application:%d,Log Error:%d", (int)POLICY_TERMINATE_APP, (int)POLICY_LOG_ERROR));
     unhandled_exception_policy = T_GLOBAL_DEF<UnhandledExceptionPolicy>(exc_policy_prop.name, POLICY_TERMINATE_APP);
     ProjectSettings::get_singleton()->set_custom_property_info(exc_policy_prop.name, exc_policy_prop);
 
@@ -1093,7 +1093,7 @@ bool GDMono::_load_editor_api_assembly(LoadedApiAssembly &r_loaded_api_assembly,
         return false;
     PluginInfo modified = *ifo;
     modified.assembly_path = assembly_path;
-    return load_glue_assembly(&modified, r_loaded_api_assembly, p_refonly);
+    return load_glue_assembly(this,&modified, r_loaded_api_assembly, p_refonly);
 }
 #endif
 

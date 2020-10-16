@@ -669,7 +669,7 @@ void AnimatedSprite2D::_reset_timeout() {
 
 void AnimatedSprite2D::set_animation(const StringName &p_animation) {
 
-    ERR_FAIL_COND_MSG(frames == nullptr, vformat(("There is no animation with name '%s'."), p_animation));
+    ERR_FAIL_COND_MSG(frames == nullptr, FormatVE("There is no animation with name '%s'.", p_animation.asCString()));
     ERR_FAIL_COND_MSG(not frames->animation_name_map().contains(p_animation), FormatVE("There is no animation with name '%s'.",p_animation.asCString()));
 
     if (animation == p_animation)

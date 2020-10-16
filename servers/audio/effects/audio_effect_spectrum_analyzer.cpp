@@ -31,7 +31,6 @@
 #include "audio_effect_spectrum_analyzer.h"
 #include "servers/audio_server.h"
 #include "core/method_bind.h"
-#include "core/method_arg_casters.h"
 #include "core/method_enum_caster.h"
 
 IMPL_GDCLASS(AudioEffectSpectrumAnalyzerInstance)

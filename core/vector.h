@@ -53,7 +53,7 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<String
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<uint8_t,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<int,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<float,wrap_allocator>;
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<class Variant,wrap_allocator>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<Variant,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct PropertyInfo,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector2,wrap_allocator>;
 extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct Vector3,wrap_allocator>;
@@ -61,7 +61,6 @@ extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) eastl::vector<struct
 #endif
 extern const Vector<struct Vector2> null_vec2_pvec;
 extern const Vector<struct Vector3> null_vec3_pvec;
-extern const Vector<Variant> null_variant_pvec;
 extern const Vector<String> null_string_pvec;
 extern const Vector<int> null_int_pvec;
 extern const Vector<float> null_float_pvec;

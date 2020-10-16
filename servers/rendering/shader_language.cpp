@@ -3018,7 +3018,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
                                         }
                                     }
                                     if (error) {
-                                        _set_error(vformat("Constant value cannot be passed for '%s' parameter!", _get_qualifier_str(call_function->arguments[i].qualifier)));
+                                        _set_error(String(String::CtorSprintf(),"Constant value cannot be passed for '%s' parameter!", _get_qualifier_str(call_function->arguments[i].qualifier).c_str()));
                                         return nullptr;
                                     }
                                 }

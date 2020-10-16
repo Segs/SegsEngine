@@ -707,10 +707,10 @@ Error SceneState::_parse_connections(Node *p_owner, Node *p_node, Map<StringName
 
     for (const MethodInfo &E : _signals) {
 
-        List<Node::Connection> conns;
+        Vector<Node::Connection> conns;
         p_node->get_signal_connection_list(E.name, &conns);
 
-        conns.sort();
+        eastl::sort(conns.begin(),conns.end());
 
         for (const Node::Connection &c : conns) {
 

@@ -68,14 +68,14 @@ public:
         return Memory::alloc_static(n, false);
     }
     void* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) {
-        return Memory::alloc_static(n, true);
+        return Memory::alloc_static(n, false);
     }
-    void  deallocate(void* p, size_t /*n*/) {
+    void  deallocate(void* p, size_t n) {
         return Memory::free_static(p, false);
 
     }
-    static void *alloc(size_t p_memory) { return Memory::alloc_static(p_memory, false); }
-    static void free(void *p_ptr) { Memory::free_static(p_ptr, false); }
+
+
     constexpr inline bool operator==(const wrap_allocator&)
     {
         return true; // All allocators are considered equal, as they merely use global new/delete.

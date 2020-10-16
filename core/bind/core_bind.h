@@ -33,7 +33,6 @@
 #include "core/reference.h"
 #include "core/io/compression.h"
 #include "core/method_enum_caster.h"
-#include "core/method_arg_casters.h"
 #include "core/string.h"
 #include "core/math/rect2.h"
 #include "core/math/vector3.h"
@@ -216,7 +215,7 @@ public:
     int execute(StringView p_path, const Vector<String> &p_arguments, bool p_blocking=true, Array p_output = Array(), bool p_read_stderr = false);
 
     Error kill(int p_pid);
-    Error shell_open(String p_uri);
+    Error shell_open(const String& p_uri);
 
     int get_process_id() const;
 

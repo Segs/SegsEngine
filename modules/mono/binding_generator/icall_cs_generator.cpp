@@ -164,7 +164,7 @@ String CsInterfaceVisitor::mapReturnType(const TS_Function *finfo) {
     }
     StringView cname(finfo->return_type.type->c_name());
     if(mapping.empty()) {
-        return String(String::CtorSprintf(), "MissingReturnMap<%*s>", cname.length(), cname.data());
+        return String(String::CtorSprintf(), "MissingReturnMap<%.*s>", cname.length(), cname.data());
     }
     if(mapping.empty()) {
         return String(cname);

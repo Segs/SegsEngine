@@ -1029,7 +1029,7 @@ void ConnectionsDock::update_tree() {
             }
 
             // List existing connections
-            List<Object::Connection> connections;
+            Vector<Object::Connection> connections;
             selectedNode->get_signal_connection_list(signal_name, &connections);
 
             for (Object::Connection &cn : connections) {

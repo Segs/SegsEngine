@@ -60,7 +60,7 @@ void ConnectionInfoDialog::popup_connections(StringView p_method, const Vector<N
     TreeItem *root = tree->create_item();
 
     for (int i = 0; i < p_nodes.size(); i++) {
-        List<Connection> all_connections;
+        Vector<Connection> all_connections;
         p_nodes[i]->get_signals_connected_to_this(&all_connections);
 
         for(const Connection &connection : all_connections) {
@@ -202,7 +202,7 @@ void ScriptTextEditor::_update_member_keywords() {
         code_editor->get_text_edit()->add_member_keyword(name, member_variable_color);
     }
 
-    List<String> clist;
+    Vector<String> clist;
     ClassDB::get_integer_constant_list(instance_base, &clist);
 
     for(const String & E : clist) {
@@ -1040,7 +1040,7 @@ void ScriptTextEditor::_update_connected_methods() {
     HashSet<StringName> methods_found;
 
     for (int i = 0; i < nodes.size(); i++) {
-        List<Connection> connections;
+        Vector<Connection> connections;
         nodes[i]->get_signals_connected_to_this(&connections);
 
         for(const Connection &connection : connections) {

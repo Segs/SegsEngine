@@ -722,7 +722,7 @@ void ProjectSettingsEditor::_update_actions() {
         item->set_custom_bg_color(1, get_theme_color("prop_subsection", "Editor"));
 
         item->add_button(2, get_theme_icon("Add", "EditorIcons"), 1, false, TTR("Add Event"));
-        const List<String> &presets(ProjectSettings::get_singleton()->get_input_presets());
+        const Vector<String> &presets(ProjectSettings::get_singleton()->get_input_presets());
         bool has_pi = eastl::find(presets.begin(),presets.end(),pi.name)!=presets.end();
         if (!has_pi) {
             item->add_button(2, get_theme_icon("Remove", "EditorIcons"), 2, false, TTR("Remove"));
@@ -732,8 +732,9 @@ void ProjectSettingsEditor::_update_actions() {
         for (int i = 0; i < events.size(); i++) {
 
             Ref<InputEvent> event(events[i]);
-            if (not event)
+            if (not event) {
                 continue;
+            }
 
             TreeItem *action2 = input_editor->create_item(item);
 
@@ -749,10 +750,12 @@ void ProjectSettingsEditor::_update_actions() {
             if (jb) {
 
                 String str(_get_device_string(jb->get_device()) + ", " + TTR("Button") + " " + StringUtils::num(jb->get_button_index()));
-                if (jb->get_button_index() >= 0 && jb->get_button_index() < JOY_BUTTON_MAX)
+                if (jb->get_button_index() >= 0 && jb->get_button_index() < JOY_BUTTON_MAX) {
                     str += String(" (") + _button_names[jb->get_button_index()] + ").";
-                else
+                }
+                else {
                     str += '.';
+                }
 
                 action2->set_text(0, StringName(str));
                 action2->set_icon(0, get_theme_icon("JoyButton", "EditorIcons"));
@@ -1076,8 +1079,9 @@ Variant ProjectSettingsEditor::get_drag_data_fw(const Point2 &p_point, Control *
 bool ProjectSettingsEditor::can_drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) const {
 
     Dictionary d = p_data.as<Dictionary>();
-    if (!d.has("type") || d["type"] != "nodes")
+    if (!d.has("type") || d["type"] != "nodes") {
         return false;
+    }
 
     TreeItem *selected = input_editor->get_selected();
     TreeItem *item = input_editor->get_item_at_position(p_point);
@@ -1089,8 +1093,9 @@ bool ProjectSettingsEditor::can_drop_data_fw(const Point2 &p_point, const Varian
 
 void ProjectSettingsEditor::drop_data_fw(const Point2 &p_point, const Variant &p_data, Control *p_from) {
 
-    if (!can_drop_data_fw(p_point, p_data, p_from))
+    if (!can_drop_data_fw(p_point, p_data, p_from)) {
         return;
+    }
 
     TreeItem *selected = input_editor->get_selected();
     TreeItem *item = input_editor->get_item_at_position(p_point);
@@ -1176,8 +1181,9 @@ void ProjectSettingsEditor::_translation_add(StringView p_path) {
 
     for (int i = 0; i < translations.size(); i++) {
 
-        if (translations[i] == p_path)
+        if (translations[i] == p_path) {
             return; //exists
+        }
     }
 
     translations.push_back(String(p_path));

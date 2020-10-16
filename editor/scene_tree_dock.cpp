@@ -782,16 +782,16 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
                         any_children = remove_list[i]->get_child_count() > 0;
                     }
 
-                    msg = vformat(any_children ? TTR("Delete %d nodes and any children?") : TTR("Delete %d nodes?"), remove_list.size());
+                    msg = FormatVE(any_children ? TTR("Delete %d nodes and any children?").asCString() : TTR("Delete %d nodes?").asCString(), remove_list.size());
                 } else {
                     Node *node = remove_list[0];
                     if (node == editor_data->get_edited_scene_root()) {
-                        msg = vformat(TTR("Delete the root node \"%s\"?"), node->get_name());
+                        msg = FormatVE(TTR("Delete the root node \"%s\"?").asCString(), node->get_name().asCString());
                     } else if (node->get_filename() == "" && node->get_child_count() > 0) {
                         // Display this message only for non-instanced scenes
-                        msg = vformat(TTR("Delete node \"%s\" and its children?"), node->get_name());
+                        msg = FormatVE(TTR("Delete node \"%s\" and its children?").asCString(), node->get_name().asCString());
                     } else {
-                        msg = vformat(TTR("Delete node \"%s\"?"), node->get_name());
+                        msg = FormatVE(TTR("Delete node \"%s\"?").asCString(), node->get_name().asCString());
                     }
                 }
 
@@ -2148,7 +2148,7 @@ void SceneTreeDock::replace_node(Node *p_node, Node *p_by_node, bool p_keep_prop
     n->get_signal_list(&sl);
     for (const MethodInfo &E : sl) {
 
-        List<Object::Connection> cl;
+        Vector<Object::Connection> cl;
         n->get_signal_connection_list(E.name, &cl);
 
         for (Object::Connection &c : cl) {

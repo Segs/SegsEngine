@@ -282,8 +282,7 @@ RigidBodyBullet::RigidBodyBullet() :
         areaWhereIamCount(0),
         countGravityPointSpaces(0),
         isScratchedSpaceOverrideModificator(false),
-        previousActiveState(true),
-        force_integration_callback({}) {
+        previousActiveState(true) {
 
     godotMotionState = bulletnew(GodotMotionState(this));
 

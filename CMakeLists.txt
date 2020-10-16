@@ -76,6 +76,7 @@ function(define_target )
     list(REMOVE_DUPLICATES global_targets)
     # store value in global cache
     set(global_targets ${global_targets} CACHE INTERNAL "")
+
     foreach(mod ${target_args_MODULES})
         add_subdirectory(modules/${mod})
     endforeach()
@@ -88,8 +89,12 @@ add_library(common_interface INTERFACE)
 target_include_directories(common_interface INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include/SegsEngine>
-
 )
+target_compile_definitions(common_interface INTERFACE
+    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+    $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
+)
+
 add_library(editor_interface INTERFACE)
 target_compile_definitions(editor_interface INTERFACE
     TOOLS_ENABLED
@@ -97,13 +102,13 @@ target_compile_definitions(editor_interface INTERFACE
     $<$<CONFIG:RelWithDebInfo>:DEBUG_ENABLED>
 )
 
-add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
-target_compile_definitions(client_interface INTERFACE
-    $<$<CONFIG:Debug>:DEBUG_ENABLED>
-)
+#add_library(client_interface INTERFACE) # client cooperating with editor -> non-export debug+profileable
+#target_compile_definitions(client_interface INTERFACE
+#    $<$<CONFIG:Debug>:DEBUG_ENABLED>
+#)
 
 target_link_libraries(editor_interface INTERFACE common_interface)
-target_link_libraries(client_interface INTERFACE common_interface)
+#target_link_libraries(client_interface INTERFACE common_interface)
 
 add_library(client_ex_interface INTERFACE) # export client -> thin exe without debug/profiling support
 
@@ -114,6 +119,7 @@ define_target(
     NAME editor
 #   MODULES freetype
 )
+
 #define_target(
 #    NAME client
 #   MODULES freetype
@@ -170,7 +176,6 @@ foreach(tgt ${global_targets})
     endif()
 endforeach()
 
-message(${global_targets})
 #define_target( NAME client
 #)
 
@@ -258,7 +263,7 @@ save_active_platforms(active_platforms active_platform_ids)
 # # Target build options
 
 LIST(GET platform_list 0 first_platform)
-message(${platform_list})
+
 SET(OPTION_PLATFORM ${first_platform} CACHE STRING "Target platform")
 SET_PROPERTY(CACHE OPTION_PLATFORM PROPERTY STRINGS ${platform_list})
 

@@ -224,7 +224,7 @@ class CoreInterfaceImpl final : public CoreInterface
 public:
     FileAccess * wrapMemoryAsFileAccess(const uint8_t *data,int sz) final
     {
-        FileAccessMemory * result = new FileAccessMemory;
+        auto result = new FileAccessMemory;
         if(OK!=result->open_custom(data,sz))
         {
             delete result;

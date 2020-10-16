@@ -992,7 +992,7 @@ void ProjectExportDialog::_export_project_to_path(StringView p_path) {
                     platform->get_name().c_str()));
         }
 
-        ERR_PRINT(vformat(("Failed to export the project for platform '%s'."), platform->get_name()));
+        ERR_PRINT(FormatVE("Failed to export the project for platform '%s'.", platform->get_name().c_str()));
         error_dialog->show();
         error_dialog->popup_centered_minsize(Size2(300, 80));
     }

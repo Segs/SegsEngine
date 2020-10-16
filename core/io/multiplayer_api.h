@@ -37,6 +37,8 @@
 #include "core/set.h"
 #include "core/string.h"
 
+class Node;
+
 enum MultiplayerAPI_NetworkCommands {
     NETWORK_COMMAND_REMOTE_CALL,
     NETWORK_COMMAND_REMOTE_SET,

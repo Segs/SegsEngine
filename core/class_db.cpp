@@ -529,7 +529,7 @@ void ClassDB::bind_integer_constant(
 #endif
 }
 
-void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> *p_constants, bool p_no_inheritance) {
+void ClassDB::get_integer_constant_list(const StringName &p_class, Vector<String> *p_constants, bool p_no_inheritance) {
     RWLockRead _rw_lockr_(lock);
 
     auto iter = classes.find(p_class);
@@ -538,13 +538,12 @@ void ClassDB::get_integer_constant_list(const StringName &p_class, List<String> 
     while (type) {
 #ifdef DEBUG_METHODS_ENABLED
         for (const StringName &name : type->constant_order) {
-            p_constants->push_back(name.asCString());
+            p_constants->emplace_back(name.asCString());
         }
 #else
         for (const auto &e : type->constant_map) {
             p_constants->emplace_back(e.first);
         }
-
 #endif
         if (p_no_inheritance) {
             break;
@@ -603,48 +602,48 @@ StringName ClassDB::get_integer_constant_enum(
     return StringName();
 }
 
-void ClassDB::get_enum_list(const StringName &p_class, List<StringName> *p_enums, bool p_no_inheritance) {
-    RWLockRead _rw_lockr_(lock);
+//void ClassDB::get_enum_list(const StringName &p_class, Vector<StringName> *p_enums, bool p_no_inheritance) {
+//    RWLockRead _rw_lockr_(lock);
 
-    auto iter = classes.find(p_class);
+//    auto iter = classes.find(p_class);
 
-    ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
-    while (type) {
-        for (const auto &entry : type->enum_map) {
-            p_enums->push_back(entry.first);
-        }
+//    ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
+//    while (type) {
+//        for (const auto &entry : type->enum_map) {
+//            p_enums->emplace_back(entry.first);
+//        }
 
-        if (p_no_inheritance) {
-            break;
-        }
+//        if (p_no_inheritance) {
+//            break;
+//        }
 
-        type = type->inherits_ptr;
-    }
-}
+//        type = type->inherits_ptr;
+//    }
+//}
 
-void ClassDB::get_enum_constants(
-        const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance) {
-    RWLockRead _rw_lockr_(lock);
+//void ClassDB::get_enum_constants(
+//        const StringName &p_class, const StringName &p_enum, List<StringName> *p_constants, bool p_no_inheritance) {
+//    RWLockRead _rw_lockr_(lock);
 
-    auto iter = classes.find(p_class);
+//    auto iter = classes.find(p_class);
 
-    ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
-    while (type) {
-        auto enum_iter = type->enum_map.find(p_enum);
+//    ClassInfo *type = iter != classes.end() ? &iter->second : nullptr;
+//    while (type) {
+//        auto enum_iter = type->enum_map.find(p_enum);
 
-        if (enum_iter != type->enum_map.end()) {
-            for (const StringName &name : enum_iter->second.enumerators) {
-                p_constants->push_back(name);
-            }
-        }
+//        if (enum_iter != type->enum_map.end()) {
+//            for (const StringName &name : enum_iter->second.enumerators) {
+//                p_constants->push_back(name);
+//            }
+//        }
 
-        if (p_no_inheritance) {
-            break;
-        }
+//        if (p_no_inheritance) {
+//            break;
+//        }
 
-        type = type->inherits_ptr;
-    }
-}
+//        type = type->inherits_ptr;
+//    }
+//}
 
 void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
     OBJTYPE_WLOCK;
@@ -1300,14 +1299,13 @@ void ClassDB::cleanup() {
 //
 bool ClassDB::can_bind(const StringName &classname, const StringName &p_name) {
     auto iter = classes.find(classname);
-    if(iter == classes.end())
-        return false;
-    auto type = &iter->second;
-    if (type->method_map.contains(p_name)) {
-        // overloading not supported
+    if(iter == classes.end()) {
         return false;
     }
-    return true;
+
+    auto type = &iter->second;
+    // overloading not supported
+    return !type->method_map.contains(p_name);
 }
 bool ClassDB::bind_helper(MethodBind *bind, const char *instance_type, const StringName &p_name) {
     bool can_bind_method = can_bind(StaticCString(bind->get_instance_class(), true),p_name);

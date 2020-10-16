@@ -233,9 +233,14 @@ public:
         ::Signal signal;
         Callable callable;
 
-        uint32_t flags = 0;
         Vector<Variant> binds;
-        bool operator<(const Connection& p_conn) const noexcept;
+        uint32_t flags = 0;
+        bool operator<(const Connection &p_conn) const noexcept {
+            if (signal == p_conn.signal) {
+                return callable < p_conn.callable;
+            }
+            return signal < p_conn.signal;
+        }
 
         operator Variant() const;
 
@@ -446,10 +451,10 @@ public:
     void emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
     bool has_signal(const StringName &p_name) const;
     void get_signal_list(Vector<MethodInfo> *p_signals) const;
-    void get_signal_connection_list(const StringName &p_signal, List<Connection> *p_connections) const;
-    void get_all_signal_connections(List<Connection> *p_connections) const;
+    void get_signal_connection_list(const StringName &p_signal, Vector<Connection> *p_connections) const;
+    void get_all_signal_connections(Vector<Connection> *p_connections) const;
     int get_persistent_signal_connection_count() const;
-    void get_signals_connected_to_this(List<Connection> *p_connections) const;
+    void get_signals_connected_to_this(Vector<Connection> *p_connections) const;
 
     Error connect(const StringName &p_signal, const Callable &callable, const Vector<Variant> &p_binds = null_variant_pvec, uint32_t p_flags = 0);
     Error connectF(const StringName& p_signal, eastl::function<void(void)> p_to_object, uint32_t p_flags = 0);

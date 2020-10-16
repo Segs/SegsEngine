@@ -3479,17 +3479,5 @@ void Variant::interpolate(const Variant &a, const Variant &b, float c, Variant &
     }
 }
 
-//static const char *_op_names[int8_t(Variant::OP_MAX)] = {
-//    "==",
-//    "!=",
-//    "<",
-//    "<=",
-//    ">",
-//    ">=",
-//};
-
-//const char *Variant::get_operator_name(Operator p_op) {
-
-//    ERR_FAIL_INDEX_V(p_op, OP_MAX, nullptr);
-//    return _op_names[p_op];
-//}
+#undef TYPES
+#undef QT_NO_META_MACROS

@@ -14,6 +14,7 @@
 #include "core/class_db.h"
 
 #include "EASTL/sort.h"
+
 #include <QString>
 #include <QtCore/QXmlStreamReader>
 #include <QDebug>
@@ -482,7 +483,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 if(property.usage & PROPERTY_USAGE_GROUP) {
                     current_group = property.name;
 
-                    StringView new_prefix = property.hint_string;
                     if(!indexed_property.cname.empty()) {
                         current_group_prefix.clear();
                         current_array_prefix.clear();
@@ -653,13 +653,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
 
             if (method_info.name.empty())
                 continue;
-            if(method_info.name=="get_contact_collider_id") {
-                printf("1");
-            }
             auto cname = method_info.name;
-
-            //if(mapper->shouldSkipMethod(qPrintable(itype.cname),cname))
-            //    continue;
 
             MethodInterface imethod { method_info.name.asCString() , {cname.asCString()} };
 
@@ -798,9 +792,10 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
         // Populate signals
         static const HashMap<StringName, MethodInfo> dummy_signals;
         const HashMap<StringName, MethodInfo> * signal_map = ClassDB::get_signal_list(type_cname);
-        if(!signal_map)
+        if(!signal_map) {
             signal_map = &dummy_signals;
-        const StringName *k = nullptr;
+        }
+
         for(auto &e : *signal_map) {
             SignalInterface isignal;
 
@@ -826,7 +821,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
 
         // Populate enums and constants
 
-        List<String> constants;
+        Vector<String> constants;
         ClassDB::get_integer_constant_list(type_cname, &constants, true);
 
         const HashMap<StringName, ClassDB::EnumDescriptor>& enum_map = class_iter->second.enum_map;
@@ -845,7 +840,7 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                 String constant_name(constant_cname.asCString());
                 auto value = class_iter->second.constant_map.find(constant_cname);
                 ERR_FAIL_COND_V(value == class_iter->second.constant_map.end(), false);
-                constants.remove(constant_cname.asCString());
+                constants.erase_first_unsorted(constant_cname.asCString());
 
                 ConstantInterface iconstant(constant_name, value->second);
 

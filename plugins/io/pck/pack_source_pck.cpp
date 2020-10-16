@@ -1,7 +1,7 @@
 #include "pack_source_pck.h"
 
 #include "core/os/file_access.h"
-
+#include "core/string_formatter.h"
 #include "core/io/file_access_pack.h"
 #include "core/version.h"
 
@@ -257,7 +257,7 @@ bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, Str
             if (!dir->dir_exists(destination)) {
                 memdelete(dir);
 
-                ERR_FAIL_V_MSG(false, vformat("The destination path \"%s\" does not exist.", destination));
+                ERR_FAIL_V_MSG(false, FormatVE("The destination path \"%s\" does not exist.", destination.c_str()));
             }
             memdelete(dir);
 

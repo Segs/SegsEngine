@@ -1065,7 +1065,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_accept", action);
-    input_presets.push_back(("input/ui_accept"));
+    input_presets.emplace_back("input/ui_accept");
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1076,7 +1076,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_select", action);
-    input_presets.push_back(("input/ui_select"));
+    input_presets.emplace_back(("input/ui_select"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1087,7 +1087,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_cancel", action);
-    input_presets.push_back(("input/ui_cancel"));
+    input_presets.emplace_back(("input/ui_cancel"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1095,7 +1095,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events,KEY_TAB);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_next", action);
-    input_presets.push_back(("input/ui_focus_next"));
+    input_presets.emplace_back(("input/ui_focus_next"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1106,7 +1106,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(key);
     action["events"] = events;
     GLOBAL_DEF("input/ui_focus_prev", action);
-    input_presets.push_back(("input/ui_focus_prev"));
+    input_presets.emplace_back(("input/ui_focus_prev"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1117,7 +1117,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_left", action);
-    input_presets.push_back(("input/ui_left"));
+    input_presets.emplace_back(("input/ui_left"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1128,7 +1128,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_right", action);
-    input_presets.push_back(("input/ui_right"));
+    input_presets.emplace_back(("input/ui_right"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1139,7 +1139,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_up", action);
-    input_presets.push_back(("input/ui_up"));
+    input_presets.emplace_back(("input/ui_up"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1150,7 +1150,7 @@ ProjectSettings::ProjectSettings() {
     events.push_back(joyb);
     action["events"] = events;
     GLOBAL_DEF("input/ui_down", action);
-    input_presets.push_back(("input/ui_down"));
+    input_presets.emplace_back(("input/ui_down"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1158,7 +1158,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events,KEY_PAGEUP);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_up", action);
-    input_presets.push_back(("input/ui_page_up"));
+    input_presets.emplace_back(("input/ui_page_up"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1166,7 +1166,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events,KEY_PAGEDOWN);
     action["events"] = events;
     GLOBAL_DEF("input/ui_page_down", action);
-    input_presets.push_back(("input/ui_page_down"));
+    input_presets.emplace_back(("input/ui_page_down"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1174,7 +1174,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events,KEY_HOME);
     action["events"] = events;
     GLOBAL_DEF("input/ui_home", action);
-    input_presets.push_back(("input/ui_home"));
+    input_presets.emplace_back(("input/ui_home"));
 
     action = Dictionary();
     action["deadzone"] = Variant(0.5f);
@@ -1182,7 +1182,7 @@ ProjectSettings::ProjectSettings() {
     add_key_event(events,KEY_END);
     action["events"] = events;
     GLOBAL_DEF("input/ui_end", action);
-    input_presets.push_back(("input/ui_end"));
+    input_presets.emplace_back(("input/ui_end"));
 
     custom_prop_info[StaticCString("display/window/handheld/orientation")] = PropertyInfo(VariantType::STRING, "display/window/handheld/orientation", PropertyHint::Enum, "landscape,portrait,reverse_landscape,reverse_portrait,sensor_landscape,sensor_portrait,sensor");
     custom_prop_info[StaticCString("rendering/threads/thread_model")] = PropertyInfo(VariantType::INT, "rendering/threads/thread_model", PropertyHint::Enum, "Single-Unsafe,Single-Safe,Multi-Threaded");

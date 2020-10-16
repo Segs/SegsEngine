@@ -37,7 +37,7 @@
 #include "core/crypto/crypto_core.h"
 #include "core/translation_helpers.h"
 #include "core/vector.h"
-#include "core/variant.h"
+//#include "core/variant.h"
 #include "core/dictionary.h"
 
 #include <QString>
@@ -3671,262 +3671,262 @@ String StringUtils::lpad(const String &src,int min_length, char character)  {
 //   "fish %s pie" % "frog"
 //   "fish %s %d pie" % ["frog", 12]
 // In case of an error, the string returned is the error description and "error" is true.
-String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
-    String formatted;
-    const char *self = str.data();
-    bool in_format = false;
-    int value_index = 0;
-    int min_chars = 0;
-    int min_decimals = 0;
-    bool in_decimals = false;
-    bool pad_with_zeroes = false;
-    bool left_justified = false;
-    bool show_sign = false;
+//String StringUtils::sprintf(StringView str,const Array &values, bool *error) {
+//    String formatted;
+//    const char *self = str.data();
+//    bool in_format = false;
+//    int value_index = 0;
+//    int min_chars = 0;
+//    int min_decimals = 0;
+//    bool in_decimals = false;
+//    bool pad_with_zeroes = false;
+//    bool left_justified = false;
+//    bool show_sign = false;
 
-    *error = true;
+//    *error = true;
 
-    for (size_t idx=0; idx<str.length(); self++,++idx) {
-        const char c = *self;
+//    for (size_t idx=0; idx<str.length(); self++,++idx) {
+//        const char c = *self;
 
-        if (in_format) { // We have % - lets see what else we get.
-            switch (c) {
-                case '%': { // Replace %% with %
-                    formatted += c;
-                    in_format = false;
-                    break;
-                }
-                case 'd': // Integer (signed)
-                case 'o': // Octal
-                case 'x': // Hexadecimal (lowercase)
-                case 'X': { // Hexadecimal (uppercase)
-                    if (value_index >= values.size()) {
-                        return ("not enough arguments for format string");
-                    }
+//        if (in_format) { // We have % - lets see what else we get.
+//            switch (c) {
+//                case '%': { // Replace %% with %
+//                    formatted += c;
+//                    in_format = false;
+//                    break;
+//                }
+//                case 'd': // Integer (signed)
+//                case 'o': // Octal
+//                case 'x': // Hexadecimal (lowercase)
+//                case 'X': { // Hexadecimal (uppercase)
+//                    if (value_index >= values.size()) {
+//                        return ("not enough arguments for format string");
+//                    }
 
-                    if (!values[value_index].is_num()) {
-                        return ("a number is required");
-                    }
+//                    if (!values[value_index].is_num()) {
+//                        return ("a number is required");
+//                    }
 
-                    int64_t value = values[value_index].as<int64_t>();
-                    int base = 16;
-                    bool capitalize = false;
-                    switch (c) {
-                        case 'd': base = 10; break;
-                        case 'o': base = 8; break;
-                        case 'x': break;
-                        case 'X':
-                            base = 16;
-                            capitalize = true;
-                            break;
-                    }
-                    // Get basic number.
-                    String str = num_int64(ABS(value), base, capitalize);
-                    int number_len = str.length();
+//                    int64_t value = values[value_index].as<int64_t>();
+//                    int base = 16;
+//                    bool capitalize = false;
+//                    switch (c) {
+//                        case 'd': base = 10; break;
+//                        case 'o': base = 8; break;
+//                        case 'x': break;
+//                        case 'X':
+//                            base = 16;
+//                            capitalize = true;
+//                            break;
+//                    }
+//                    // Get basic number.
+//                    String str = num_int64(ABS(value), base, capitalize);
+//                    int number_len = str.length();
 
-                    // Padding.
-                    int pad_chars_count = (value < 0 || show_sign) ? min_chars - 1 : min_chars;
-                    char pad_char = pad_with_zeroes ? '0' : ' ';
-                    if (left_justified) {
-                        str = rpad(str,pad_chars_count, pad_char);
-                    } else {
-                        str = lpad(str,pad_chars_count, pad_char);
-                    }
+//                    // Padding.
+//                    int pad_chars_count = (value < 0 || show_sign) ? min_chars - 1 : min_chars;
+//                    char pad_char = pad_with_zeroes ? '0' : ' ';
+//                    if (left_justified) {
+//                        str = rpad(str,pad_chars_count, pad_char);
+//                    } else {
+//                        str = lpad(str,pad_chars_count, pad_char);
+//                    }
 
-                    // Sign.
-                    if (show_sign && value >= 0) {
-                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "+");
-                    } else if (value < 0) {
-                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "-");
-                    }
+//                    // Sign.
+//                    if (show_sign && value >= 0) {
+//                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "+");
+//                    } else if (value < 0) {
+//                        str = str.insert(pad_with_zeroes ? 0 : str.length() - number_len, "-");
+//                    }
 
-                    formatted += str;
-                    ++value_index;
-                    in_format = false;
+//                    formatted += str;
+//                    ++value_index;
+//                    in_format = false;
 
-                    break;
-                }
-                case 'f': { // Float
-                    if (value_index >= values.size()) {
-                        return ("not enough arguments for format string");
-                    }
+//                    break;
+//                }
+//                case 'f': { // Float
+//                    if (value_index >= values.size()) {
+//                        return ("not enough arguments for format string");
+//                    }
 
-                    if (!values[value_index].is_num()) {
-                        return ("a number is required");
-                    }
+//                    if (!values[value_index].is_num()) {
+//                        return ("a number is required");
+//                    }
 
-                    double value = values[value_index].as<float>();
-                    String str = num(value, min_decimals);
+//                    double value = values[value_index].as<float>();
+//                    String str = num(value, min_decimals);
 
-                    // Pad decimals out.
-                    str = pad_decimals(str,min_decimals);
+//                    // Pad decimals out.
+//                    str = pad_decimals(str,min_decimals);
 
-                    // Show sign
-                    if (show_sign && left(str,1) != "-"_sv) {
-                        str = str.insert(0, "+");
-                    }
+//                    // Show sign
+//                    if (show_sign && left(str,1) != "-"_sv) {
+//                        str = str.insert(0, "+");
+//                    }
 
-                    // Padding
-                    if (left_justified) {
-                        str = rpad(str,min_chars);
-                    } else {
-                        str = lpad(str,min_chars);
-                    }
+//                    // Padding
+//                    if (left_justified) {
+//                        str = rpad(str,min_chars);
+//                    } else {
+//                        str = lpad(str,min_chars);
+//                    }
 
-                    formatted += str;
-                    ++value_index;
-                    in_format = false;
+//                    formatted += str;
+//                    ++value_index;
+//                    in_format = false;
 
-                    break;
-                }
-                case 's': { // String
-                    if (value_index >= values.size()) {
-                        return ("not enough arguments for format string");
-                    }
+//                    break;
+//                }
+//                case 's': { // String
+//                    if (value_index >= values.size()) {
+//                        return ("not enough arguments for format string");
+//                    }
 
-                    String str = values[value_index].as<String>();
-                    // Padding.
-                    if (left_justified) {
-                        str = rpad(str,min_chars);
-                    } else {
-                        str = lpad(str,min_chars);
-                    }
+//                    String str = values[value_index].as<String>();
+//                    // Padding.
+//                    if (left_justified) {
+//                        str = rpad(str,min_chars);
+//                    } else {
+//                        str = lpad(str,min_chars);
+//                    }
 
-                    formatted += str;
-                    ++value_index;
-                    in_format = false;
-                    break;
-                }
-                case 'c': {
-                    if (value_index >= values.size()) {
-                        return ("not enough arguments for format string");
-                    }
+//                    formatted += str;
+//                    ++value_index;
+//                    in_format = false;
+//                    break;
+//                }
+//                case 'c': {
+//                    if (value_index >= values.size()) {
+//                        return ("not enough arguments for format string");
+//                    }
 
-                    // Convert to character.
-                    String str;
-                    if (values[value_index].is_num()) {
-                        int value = values[value_index].as<int>();
-                        if (value < 0) {
-                            return ("unsigned byte integer is lower than maximum");
-                        } else if (value > 255) {
-                            return ("unsigned byte integer is greater than maximum");
-                        }
-                        str.push_back(values[value_index].as<int>());
-                    } else if (values[value_index].get_type() == VariantType::STRING) {
-                        str = values[value_index].as<String>();
-                        if (str.length() != 1) {
-                            return ("%c requires number or single-character string");
-                        }
-                    } else {
-                        return ("%c requires number or single-character string");
-                    }
+//                    // Convert to character.
+//                    String str;
+//                    if (values[value_index].is_num()) {
+//                        int value = values[value_index].as<int>();
+//                        if (value < 0) {
+//                            return ("unsigned byte integer is lower than maximum");
+//                        } else if (value > 255) {
+//                            return ("unsigned byte integer is greater than maximum");
+//                        }
+//                        str.push_back(values[value_index].as<int>());
+//                    } else if (values[value_index].get_type() == VariantType::STRING) {
+//                        str = values[value_index].as<String>();
+//                        if (str.length() != 1) {
+//                            return ("%c requires number or single-character string");
+//                        }
+//                    } else {
+//                        return ("%c requires number or single-character string");
+//                    }
 
-                    // Padding.
-                    if (left_justified) {
-                        str = rpad(str,min_chars);
-                    } else {
-                        str = lpad(str,min_chars);
-                    }
+//                    // Padding.
+//                    if (left_justified) {
+//                        str = rpad(str,min_chars);
+//                    } else {
+//                        str = lpad(str,min_chars);
+//                    }
 
-                    formatted += str;
-                    ++value_index;
-                    in_format = false;
-                    break;
-                }
-                case '-': { // Left justify
-                    left_justified = true;
-                    break;
-                }
-                case '+': { // Show + if positive.
-                    show_sign = true;
-                    break;
-                }
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9': {
-                    int n = c-'0';
-                    if (in_decimals) {
-                        min_decimals *= 10;
-                        min_decimals += n;
-                    } else {
-                        if (c == '0' && min_chars == 0) {
-                            pad_with_zeroes = true;
-                        } else {
-                            min_chars *= 10;
-                            min_chars += n;
-                        }
-                    }
-                    break;
-                }
-                case '.': { // Float separator.
-                    if (in_decimals) {
-                        return ("too many decimal points in format");
-                    }
-                    in_decimals = true;
-                    min_decimals = 0; // We want to add the value manually.
-                    break;
-                }
+//                    formatted += str;
+//                    ++value_index;
+//                    in_format = false;
+//                    break;
+//                }
+//                case '-': { // Left justify
+//                    left_justified = true;
+//                    break;
+//                }
+//                case '+': { // Show + if positive.
+//                    show_sign = true;
+//                    break;
+//                }
+//                case '0':
+//                case '1':
+//                case '2':
+//                case '3':
+//                case '4':
+//                case '5':
+//                case '6':
+//                case '7':
+//                case '8':
+//                case '9': {
+//                    int n = c-'0';
+//                    if (in_decimals) {
+//                        min_decimals *= 10;
+//                        min_decimals += n;
+//                    } else {
+//                        if (c == '0' && min_chars == 0) {
+//                            pad_with_zeroes = true;
+//                        } else {
+//                            min_chars *= 10;
+//                            min_chars += n;
+//                        }
+//                    }
+//                    break;
+//                }
+//                case '.': { // Float separator.
+//                    if (in_decimals) {
+//                        return ("too many decimal points in format");
+//                    }
+//                    in_decimals = true;
+//                    min_decimals = 0; // We want to add the value manually.
+//                    break;
+//                }
 
-                case '*': { // Dynamic width, based on value.
-                    if (value_index >= values.size()) {
-                        return ("not enough arguments for format string");
-                    }
+//                case '*': { // Dynamic width, based on value.
+//                    if (value_index >= values.size()) {
+//                        return ("not enough arguments for format string");
+//                    }
 
-                    if (!values[value_index].is_num()) {
-                        return ("* wants number");
-                    }
+//                    if (!values[value_index].is_num()) {
+//                        return ("* wants number");
+//                    }
 
-                    int size = values[value_index].as<int>();
+//                    int size = values[value_index].as<int>();
 
-                    if (in_decimals) {
-                        min_decimals = size;
-                    } else {
-                        min_chars = size;
-                    }
+//                    if (in_decimals) {
+//                        min_decimals = size;
+//                    } else {
+//                        min_chars = size;
+//                    }
 
-                    ++value_index;
-                    break;
-                }
+//                    ++value_index;
+//                    break;
+//                }
 
-                default: {
-                    return ("unsupported format character");
-                }
-            }
-        } else { // Not in format string.
-            switch (c) {
-                case '%':
-                    in_format = true;
-                    // Back to defaults:
-                    min_chars = 0;
-                    min_decimals = 6;
-                    pad_with_zeroes = false;
-                    left_justified = false;
-                    show_sign = false;
-                    in_decimals = false;
-                    break;
-                default:
-                    formatted += c;
-            }
-        }
-    }
+//                default: {
+//                    return ("unsupported format character");
+//                }
+//            }
+//        } else { // Not in format string.
+//            switch (c) {
+//                case '%':
+//                    in_format = true;
+//                    // Back to defaults:
+//                    min_chars = 0;
+//                    min_decimals = 6;
+//                    pad_with_zeroes = false;
+//                    left_justified = false;
+//                    show_sign = false;
+//                    in_decimals = false;
+//                    break;
+//                default:
+//                    formatted += c;
+//            }
+//        }
+//    }
 
-    if (in_format) {
-        return ("incomplete format");
-    }
+//    if (in_format) {
+//        return ("incomplete format");
+//    }
 
-    if (value_index != values.size()) {
-        return ("not all arguments converted during string formatting");
-    }
+//    if (value_index != values.size()) {
+//        return ("not all arguments converted during string formatting");
+//    }
 
-    *error = false;
-    return formatted;
-}
+//    *error = false;
+//    return formatted;
+//}
 
 UIString StringUtils::quote(const UIString &str,char character) {
     return character + str + character;

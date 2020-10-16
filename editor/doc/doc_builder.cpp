@@ -329,7 +329,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             }
         }
 
-        List<String> constant_list;
+        Vector<String> constant_list;
         ClassDB::get_integer_constant_list(name, &constant_list, true);
 
         for (const String & E : constant_list) {
@@ -419,44 +419,6 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
         c.name = cname.asCString();
 
         Variant v = Variant::construct_default(VariantType(i));
-
-        Vector<MethodInfo> method_list;
-        //v.get_method_list(&method_list);
-        //eastl::sort(method_list.begin(),method_list.end());
-        Variant::get_constructor_list(VariantType(i), &method_list);
-
-        for (MethodInfo &mi : method_list) {
-
-            DocContents::MethodDoc method;
-
-            method.name = mi.name.asCString();
-
-            for (size_t j = 0; j < mi.arguments.size(); j++) {
-
-                PropertyInfo arginfo(mi.arguments[j]);
-
-                DocContents::ArgumentDoc ad;
-                argument_doc_from_arginfo(ad, mi.arguments[j]);
-                ad.name = arginfo.name.asCString();
-
-                int darg_idx = mi.default_arguments.size() - mi.arguments.size() + j;
-                if (darg_idx >= 0) {
-                    Variant default_arg = mi.default_arguments[darg_idx];
-                    ad.default_value = default_arg.get_construct_string().c_str();
-                }
-
-                method.arguments.push_back(ad);
-            }
-
-            if (mi.return_val.type == VariantType::NIL) {
-                if (!mi.return_val.name.empty())
-                    method.return_type = "Variant";
-            } else {
-                method.return_type = Variant::get_type_name(mi.return_val.type);
-            }
-
-            c.methods.push_back(method);
-        }
 
         Vector<PropertyInfo> properties;
         v.get_property_list(&properties);

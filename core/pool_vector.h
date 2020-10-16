@@ -30,7 +30,6 @@
 
 #pragma once
 
-
 #include "core/os/memory.h"
 #include "core/os/rw_lock.h"
 

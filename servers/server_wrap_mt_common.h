@@ -260,7 +260,7 @@
     }
 
 #define FUNC3RC(m_r, m_type, m_arg1, m_arg2, m_arg3)                                        \
-    m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {                             \
+    m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {                            \
         if (Thread::get_caller_id() != server_thread) {                                     \
             m_r ret;                                                                        \
             command_queue.push_and_sync( [=,&ret]() { ret=server_name->m_type(p1, p2, p3); }); \
@@ -272,7 +272,7 @@
     }
 
 #define FUNC3S(m_type, m_arg1, m_arg2, m_arg3)                                         \
-    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) override {                             \
+    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) override {                            \
         if (Thread::get_caller_id() != server_thread) {                                \
             command_queue.push_and_sync( [this,=]() { server_name->m_type(p1, p2, p3); }); \
             SYNC_DEBUG                                                                 \
@@ -282,7 +282,7 @@
     }
 
 #define FUNC3SC(m_type, m_arg1, m_arg2, m_arg3)                                        \
-    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {                       \
+    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {                      \
         if (Thread::get_caller_id() != server_thread) {                                \
             command_queue.push_and_sync( [this,=]() { server_name->m_type(p1, p2, p3); }); \
             SYNC_DEBUG                                                                 \
@@ -292,7 +292,7 @@
     }
 
 #define FUNC3(m_type, m_arg1, m_arg2, m_arg3)                                 \
-    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) override {                    \
+    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) override {                   \
         if (Thread::get_caller_id() != server_thread) {                       \
             command_queue.push( [=]() { server_name->m_type(p1, p2, p3); }); \
         } else {                                                              \
@@ -301,7 +301,7 @@
     }
 
 #define FUNC3C(m_type, m_arg1, m_arg2, m_arg3)                                \
-    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {              \
+    void m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3) const override {             \
         if (Thread::get_caller_id() != server_thread) {                       \
             command_queue.push( [=]() { server_name->m_type(p1, p2, p3); }); \
         } else {                                                              \
@@ -310,7 +310,7 @@
     }
 
 #define FUNC4R(m_r, m_type, m_arg1, m_arg2, m_arg3, m_arg4)                                     \
-    m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3, m_arg4 p4) override {                            \
+    m_r m_type(m_arg1 p1, m_arg2 p2, m_arg3 p3, m_arg4 p4) override {                           \
         if (Thread::get_caller_id() != server_thread) {                                         \
             m_r ret;                                                                            \
             command_queue.push_and_sync( [=,&ret]() { ret=server_name->m_type(p1, p2, p3, p4); }); \

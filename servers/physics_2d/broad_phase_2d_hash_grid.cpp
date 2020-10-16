@@ -37,13 +37,11 @@
 #define LARGE_ELEMENT_FI 1.01239812f
 
 void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
-
     auto E = p_elem->paired.find(p_with);
 
     ERR_FAIL_COND(p_elem->_static && p_with->_static);
 
-    if (E==p_elem->paired.end()) {
-
+    if (E == p_elem->paired.end()) {
         PairData *pd = memnew(PairData);
         p_elem->paired[p_with] = pd;
         p_with->paired[p_elem] = pd;
@@ -53,19 +51,18 @@ void BroadPhase2DHashGrid::_pair_attempt(Element *p_elem, Element *p_with) {
 }
 
 void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
-
     auto E = p_elem->paired.find(p_with);
 
-    ERR_FAIL_COND(E==p_elem->paired.end()); //this should really be paired..
+    ERR_FAIL_COND(E == p_elem->paired.end()); // this should really be paired..
 
     E->second->rc--;
 
     if (E->second->rc == 0) {
-
         if (E->second->colliding) {
-            //uncollide
+            // uncollide
             if (unpair_callback) {
-                unpair_callback(p_elem->owner, p_elem->subindex, p_with->owner, p_with->subindex, E->second->ud, unpair_userdata);
+                unpair_callback(p_elem->owner, p_elem->subindex, p_with->owner, p_with->subindex, E->second->ud,
+                        unpair_userdata);
             }
         }
 
@@ -76,23 +73,24 @@ void BroadPhase2DHashGrid::_unpair_attempt(Element *p_elem, Element *p_with) {
 }
 
 void BroadPhase2DHashGrid::_check_motion(Element *p_elem) {
-
-    for (const eastl::pair<Element * const,PairData *> &E : p_elem->paired) {
-
+    for (const eastl::pair<Element *const, PairData *> &E : p_elem->paired) {
         bool physical_collision = p_elem->aabb.intersects(E.first->aabb);
         bool logical_collision = p_elem->owner->test_collision_mask(E.first->owner);
 
         if (physical_collision) {
             if (!E.second->colliding || (logical_collision && !E.second->ud && pair_callback)) {
-                E.second->ud = pair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, pair_userdata);
+                E.second->ud = pair_callback(
+                        p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, pair_userdata);
             } else if (E.second->colliding && !logical_collision && E.second->ud && unpair_callback) {
-                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
+                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud,
+                        unpair_userdata);
                 E.second->ud = nullptr;
             }
             E.second->colliding = true;
         } else { // No physcial_collision
             if (E.second->colliding && unpair_callback) {
-                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud, unpair_userdata);
+                unpair_callback(p_elem->owner, p_elem->subindex, E.first->owner, E.first->subindex, E.second->ud,
+                        unpair_userdata);
             }
             E.second->colliding = false;
         }
@@ -100,17 +98,19 @@ void BroadPhase2DHashGrid::_check_motion(Element *p_elem) {
 }
 
 void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, bool p_static) {
-
-    Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI); //use magic number to avoid floating point issues
+    Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI); // use magic number to avoid floating point issues
     if (sz.width * sz.height > large_object_min_surface) {
-        //large object, do not use grid, must check against all elements
-        for (eastl::pair<const ID,Element> &E : element_map) {
-            if (E.first == p_elem->self)
+        // large object, do not use grid, must check against all elements
+        for (eastl::pair<const ID, Element> &E : element_map) {
+            if (E.first == p_elem->self) {
                 continue; // do not pair against itself
-            if (E.second.owner == p_elem->owner)
+            }
+            if (E.second.owner == p_elem->owner) {
                 continue;
-            if (E.second._static && p_static)
+            }
+            if (E.second._static && p_static) {
                 continue;
+            }
 
             _pair_attempt(p_elem, &E.second);
         }
@@ -142,7 +142,7 @@ void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, boo
             bool entered = false;
 
             if (!pb) {
-                //does not exist, create!
+                // does not exist, create!
                 pb = memnew(PosBin);
                 pb->key = pk;
                 pb->next = hash_table[idx];
@@ -160,20 +160,18 @@ void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, boo
             }
 
             if (entered) {
-
-                for (eastl::pair<Element *,RC> E : pb->object_set) {
-
-                    if (E.first->owner == p_elem->owner)
+                for (eastl::pair<Element *, RC> E : pb->object_set) {
+                    if (E.first->owner == p_elem->owner) {
                         continue;
+                    }
                     _pair_attempt(p_elem, E.first);
                 }
 
                 if (!p_static) {
-
-                    for (eastl::pair<Element *,RC> E : pb->static_object_set) {
-
-                        if (E.first->owner == p_elem->owner)
+                    for (eastl::pair<Element *, RC> E : pb->static_object_set) {
+                        if (E.first->owner == p_elem->owner) {
                             continue;
+                        }
                         _pair_attempt(p_elem, E.first);
                     }
                 }
@@ -181,10 +179,9 @@ void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, boo
         }
     }
 
-    //pair separatedly with large elements
+    // pair separatedly with large elements
 
-    for (eastl::pair<Element *const,RC> &E : large_elements) {
-
+    for (eastl::pair<Element *const, RC> &E : large_elements) {
         if (E.first == p_elem) {
             continue; // do not pair against itself
         }
@@ -200,13 +197,12 @@ void BroadPhase2DHashGrid::_enter_grid(Element *p_elem, const Rect2 &p_rect, boo
 }
 
 void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool p_static) {
-
     Vector2 sz = (p_rect.size / cell_size * LARGE_ELEMENT_FI);
     if (sz.width * sz.height > large_object_min_surface) {
-
-        //unpair all elements, instead of checking all, just check what is already paired, so we at least save from checking static vs static
+        // unpair all elements, instead of checking all, just check what is already paired, so we at least save from
+        // checking static vs static
         auto E = p_elem->paired.begin();
-        while (E!=p_elem->paired.end()) {
+        while (E != p_elem->paired.end()) {
             auto next = E;
             ++next;
             _unpair_attempt(p_elem, E->first);
@@ -239,7 +235,7 @@ void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool
                 pb = pb->next;
             }
 
-            ERR_CONTINUE(!pb); //should exist!!
+            ERR_CONTINUE(!pb); // should exist!!
 
             bool exited = false;
 
@@ -256,20 +252,18 @@ void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool
             }
 
             if (exited) {
-
-                for (eastl::pair<Element *const,RC> &E : pb->object_set) {
-
-                    if (E.first->owner == p_elem->owner)
+                for (eastl::pair<Element *const, RC> &E : pb->object_set) {
+                    if (E.first->owner == p_elem->owner) {
                         continue;
+                    }
                     _unpair_attempt(p_elem, E.first);
                 }
 
                 if (!p_static) {
-
-                    for (eastl::pair<Element *const,RC> &E : pb->static_object_set) {
-
-                        if (E.first->owner == p_elem->owner)
+                    for (eastl::pair<Element *const, RC> &E : pb->static_object_set) {
+                        if (E.first->owner == p_elem->owner) {
                             continue;
+                        }
                         _unpair_attempt(p_elem, E.first);
                     }
                 }
@@ -298,7 +292,7 @@ void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool
         }
     }
 
-    for (const eastl::pair<Element *const,RC> &E : large_elements) {
+    for (const eastl::pair<Element *const, RC> &E : large_elements) {
         if (E.first == p_elem) {
             continue; // do not pair against itself
         }
@@ -309,7 +303,7 @@ void BroadPhase2DHashGrid::_exit_grid(Element *p_elem, const Rect2 &p_rect, bool
             continue;
         }
 
-        //unpair from large elements
+        // unpair from large elements
         _unpair_attempt(p_elem, E.first);
     }
 }
@@ -329,9 +323,8 @@ BroadPhase2DHashGrid::ID BroadPhase2DHashGrid::create(CollisionObject2DSW *p_obj
 }
 
 void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end());
+    ERR_FAIL_COND(E == element_map.end());
 
     Element &e = E->second;
 
@@ -348,9 +341,8 @@ void BroadPhase2DHashGrid::move(ID p_id, const Rect2 &p_aabb) {
     _check_motion(&e);
 }
 void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end());
+    ERR_FAIL_COND(E == element_map.end());
 
     Element &e = E->second;
 
@@ -370,9 +362,8 @@ void BroadPhase2DHashGrid::set_static(ID p_id, bool p_static) {
     }
 }
 void BroadPhase2DHashGrid::remove(ID p_id) {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND(E==element_map.end());
+    ERR_FAIL_COND(E == element_map.end());
 
     Element &e = E->second;
 
@@ -384,27 +375,24 @@ void BroadPhase2DHashGrid::remove(ID p_id) {
 }
 
 CollisionObject2DSW *BroadPhase2DHashGrid::get_object(ID p_id) const {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), nullptr);
+    ERR_FAIL_COND_V(E == element_map.end(), nullptr);
     return E->second.owner;
 }
 bool BroadPhase2DHashGrid::is_static(ID p_id) const {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), false);
+    ERR_FAIL_COND_V(E == element_map.end(), false);
     return E->second._static;
 }
 int BroadPhase2DHashGrid::get_subindex(ID p_id) const {
-
     auto E = element_map.find(p_id);
-    ERR_FAIL_COND_V(E==element_map.end(), -1);
+    ERR_FAIL_COND_V(E == element_map.end(), -1);
     return E->second.subindex;
 }
 
 template <bool use_aabb, bool use_segment>
-void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, const Point2 &p_from, const Point2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices, int &index) {
-
+void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, const Point2 &p_from, const Point2 &p_to,
+        CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices, int &index) {
     PosKey pk;
     pk.x = p_cell.x;
     pk.y = p_cell.y;
@@ -413,7 +401,6 @@ void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, cons
     PosBin *pb = hash_table[idx];
 
     while (pb) {
-
         if (pb->key == pk) {
             break;
         }
@@ -421,42 +408,48 @@ void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, cons
         pb = pb->next;
     }
 
-    if (!pb)
+    if (!pb) {
         return;
+    }
 
-    for (eastl::pair<Element *,RC> E : pb->object_set) {
-
-        if (index >= p_max_results)
+    for (eastl::pair<Element *, RC> E : pb->object_set) {
+        if (index >= p_max_results) {
             break;
-        if (E.first->pass == pass)
+        }
+        if (E.first->pass == pass) {
             continue;
+        }
 
         E.first->pass = pass;
 
-        if (use_aabb && !p_aabb.intersects(E.first->aabb))
+        if (use_aabb && !p_aabb.intersects(E.first->aabb)) {
             continue;
+        }
 
-        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to))
+        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to)) {
             continue;
+        }
 
         p_results[index] = E.first->owner;
         p_result_indices[index] = E.first->subindex;
         index++;
     }
 
-    for (const eastl::pair<Element *const,RC> &E : pb->static_object_set) {
-
-        if (index >= p_max_results)
+    for (const eastl::pair<Element *const, RC> &E : pb->static_object_set) {
+        if (index >= p_max_results) {
             break;
-        if (E.first->pass == pass)
+        }
+        if (E.first->pass == pass) {
             continue;
+        }
 
         if (use_aabb && !p_aabb.intersects(E.first->aabb)) {
             continue;
         }
 
-        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to))
+        if (use_segment && !E.first->aabb.intersects_segment(p_from, p_to)) {
             continue;
+        }
 
         E.first->pass = pass;
         p_results[index] = E.first->owner;
@@ -465,19 +458,22 @@ void BroadPhase2DHashGrid::_cull(const Point2i p_cell, const Rect2 &p_aabb, cons
     }
 }
 
-int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_to, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices) {
-
+int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_to, CollisionObject2DSW **p_results,
+        int p_max_results, int *p_result_indices) {
     pass++;
 
     Vector2 dir = (p_to - p_from);
-    if (dir == Vector2())
+    if (dir == Vector2()) {
         return 0;
-    //avoid divisions by zero
+    }
+    // avoid divisions by zero
     dir.normalize();
-    if (dir.x == 0.0f)
+    if (dir.x == 0.0f) {
         dir.x = 0.000001f;
-    if (dir.y == 0.0f)
+    }
+    if (dir.y == 0.0f) {
         dir.y = 0.000001f;
+    }
     Vector2 delta = dir.abs();
 
     delta.x = cell_size / delta.x;
@@ -490,15 +486,17 @@ int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_t
 
     Vector2 max;
 
-    if (dir.x < 0)
+    if (dir.x < 0) {
         max.x = (Math::floor((double)pos.x) * cell_size - p_from.x) / dir.x;
-    else
+    } else {
         max.x = (Math::floor((double)pos.x + 1) * cell_size - p_from.x) / dir.x;
+    }
 
-    if (dir.y < 0)
+    if (dir.y < 0) {
         max.y = (Math::floor((double)pos.y) * cell_size - p_from.y) / dir.y;
-    else
+    } else {
         max.y = (Math::floor((double)pos.y + 1) * cell_size - p_from.y) / dir.y;
+    }
 
     int cullcount = 0;
     _cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
@@ -507,41 +505,38 @@ int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_t
     bool reached_y = false;
 
     while (true) {
-
         if (max.x < max.y) {
-
             max.x += delta.x;
             pos.x += step.x;
         } else {
-
             max.y += delta.y;
             pos.y += step.y;
         }
 
         if (step.x > 0) {
-            if (pos.x >= end.x)
+            if (pos.x >= end.x) {
                 reached_x = true;
+            }
         } else if (pos.x <= end.x) {
-
             reached_x = true;
         }
 
         if (step.y > 0) {
-            if (pos.y >= end.y)
+            if (pos.y >= end.y) {
                 reached_y = true;
+            }
         } else if (pos.y <= end.y) {
-
             reached_y = true;
         }
 
         _cull<false, true>(pos, Rect2(), p_from, p_to, p_results, p_max_results, p_result_indices, cullcount);
 
-        if (reached_x && reached_y)
+        if (reached_x && reached_y) {
             break;
+        }
     }
 
-    for (const eastl::pair<Element * const,RC> &E : large_elements) {
-
+    for (const eastl::pair<Element *const, RC> &E : large_elements) {
         if (cullcount >= p_max_results) {
             break;
         }
@@ -568,7 +563,8 @@ int BroadPhase2DHashGrid::cull_segment(const Vector2 &p_from, const Vector2 &p_t
     return cullcount;
 }
 
-int BroadPhase2DHashGrid::cull_aabb(const Rect2 &p_aabb, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices) {
+int BroadPhase2DHashGrid::cull_aabb(
+        const Rect2 &p_aabb, CollisionObject2DSW **p_results, int p_max_results, int *p_result_indices) {
     pass++;
 
     Point2i from = (p_aabb.position / cell_size).floor();
@@ -577,12 +573,12 @@ int BroadPhase2DHashGrid::cull_aabb(const Rect2 &p_aabb, CollisionObject2DSW **p
 
     for (int i = from.x; i <= to.x; i++) {
         for (int j = from.y; j <= to.y; j++) {
-            _cull<true, false>(Point2i(i, j), p_aabb, Point2(), Point2(), p_results, p_max_results, p_result_indices, cullcount);
+            _cull<true, false>(
+                    Point2i(i, j), p_aabb, Point2(), Point2(), p_results, p_max_results, p_result_indices, cullcount);
         }
     }
 
-    for (eastl::pair<Element *,RC> E : large_elements) {
-
+    for (eastl::pair<Element *, RC> E : large_elements) {
         if (cullcount >= p_max_results) {
             break;
         }
@@ -618,8 +614,7 @@ void BroadPhase2DHashGrid::set_unpair_callback(UnpairCallback p_unpair_callback,
     unpair_userdata = p_userdata;
 }
 
-void BroadPhase2DHashGrid::update() {
-}
+void BroadPhase2DHashGrid::update() {}
 
 BroadPhase2DSW *BroadPhase2DHashGrid::_create() {
     return memnew(BroadPhase2DHashGrid);
@@ -627,15 +622,20 @@ BroadPhase2DSW *BroadPhase2DHashGrid::_create() {
 
 BroadPhase2DHashGrid::BroadPhase2DHashGrid() {
     hash_table_size = T_GLOBAL_DEF<int>("physics/2d/bp_hash_table_size", 4096);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/bp_hash_table_size", PropertyInfo(VariantType::INT, "physics/2d/bp_hash_table_size", PropertyHint::Range, "0,8192,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info(
+            "physics/2d/bp_hash_table_size", PropertyInfo(VariantType::INT, "physics/2d/bp_hash_table_size",
+                                                     PropertyHint::Range, "0,8192,1,or_greater"));
     hash_table_size = Math::larger_prime(hash_table_size);
     hash_table = memnew_arr(PosBin *, hash_table_size);
 
     cell_size = T_GLOBAL_DEF<int>("physics/2d/cell_size", 128);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size", PropertyInfo(VariantType::INT, "physics/2d/cell_size", PropertyHint::Range, "0,512,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/cell_size",
+            PropertyInfo(VariantType::INT, "physics/2d/cell_size", PropertyHint::Range, "0,512,1,or_greater"));
 
     large_object_min_surface = T_GLOBAL_DEF<int>("physics/2d/large_object_surface_threshold_in_cells", 512);
-    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells", PropertyInfo(VariantType::INT, "physics/2d/large_object_surface_threshold_in_cells", PropertyHint::Range, "0,1024,1,or_greater"));
+    ProjectSettings::get_singleton()->set_custom_property_info("physics/2d/large_object_surface_threshold_in_cells",
+            PropertyInfo(VariantType::INT, "physics/2d/large_object_surface_threshold_in_cells", PropertyHint::Range,
+                    "0,1024,1,or_greater"));
 
     for (uint32_t i = 0; i < hash_table_size; i++) {
         hash_table[i] = nullptr;
@@ -665,7 +665,8 @@ public IEnumerable<Point3D> GetCellsOnRay(Ray ray, int maxDepth)
     // "A Fast Voxel Traversal Algorithm for Ray Tracing"
     // John Amanatides, Andrew Woo
     // http://www.cse.yorku.ca/~amana/research/grid.pdf
-    // https://web.archive.org/web/20100616193049/http://www.devmaster.net/articles/raytracing_series/A%20faster%20voxel%20traversal%20algorithm%20for%20ray%20tracing.pdf
+    //
+https://web.archive.org/web/20100616193049/http://www.devmaster.net/articles/raytracing_series/A%20faster%20voxel%20traversal%20algorithm%20for%20ray%20tracing.pdf
 
     // NOTES:
     // * This code assumes that the ray's position and direction are in 'cell coordinates', which means
@@ -676,10 +677,8 @@ public IEnumerable<Point3D> GetCellsOnRay(Ray ray, int maxDepth)
     // * The Point3D structure is a simple structure having three integer fields (X, Y and Z).
 
     // The cell in which the ray starts.
-    Point3D start = GetCellAt(ray.Position);        // Rounds the position's X, Y and Z down to the nearest integer values.
-    int x = start.X;
-    int y = start.Y;
-    int z = start.Z;
+    Point3D start = GetCellAt(ray.Position);        // Rounds the position's X, Y and Z down to the nearest integer
+values. int x = start.X; int y = start.Y; int z = start.Z;
 
     // Determine which way we go.
     int stepX = Math.Sign(ray.Direction.X);

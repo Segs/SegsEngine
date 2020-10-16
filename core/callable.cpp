@@ -77,13 +77,14 @@ ObjectID Callable::get_object_id() const {
 
 StringName Callable::get_method() const {
     ERR_FAIL_COND_V_MSG(is_custom(), StringName(),
-            vformat("Can't get method on CallableCustom \"%s\".", operator String()));
+            String(String::CtorSprintf(),"Can't get method on CallableCustom \"%s\".", (operator String()).c_str()));
     return method;
 }
 
 CallableCustom *Callable::get_custom() const {
     ERR_FAIL_COND_V_MSG(!is_custom(), nullptr,
-            vformat("Can't get custom on non-CallableCustom \"%s\".", operator String()));
+            String(String::CtorSprintf(),"Can't get custom on non-CallableCustom \"%s\".", (operator String()).c_str())
+            );
     return custom;
 }
 
@@ -340,10 +341,11 @@ Array Signal::get_connections() const {
         return Array();
     }
 
-    List<Object::Connection> connections;
+    Vector<Object::Connection> connections;
     object->get_signal_connection_list(name, &connections);
 
     Array arr;
+    arr.reserve(connections.size());
     for (Object::Connection &E : connections) {
         arr.emplace_back(E);
     }
