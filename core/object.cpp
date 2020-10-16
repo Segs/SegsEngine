@@ -1246,7 +1246,7 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
         s = private_data->signal_map.emplace(p_signal,SignalData()).first;
     }
 
-    Callable target = p_callable;
+    const Callable &target = p_callable;
 
     if (s->second.slot_map.contains(target)) {
         if (p_flags & ObjectNS::CONNECT_REFERENCE_COUNTED) {

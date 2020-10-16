@@ -150,7 +150,9 @@ public:
     [[nodiscard]] ObjectID get_object_id() const;
     [[nodiscard]] StringName get_name() const;
 
-    bool operator==(const Signal &p_signal) const;
+    bool operator==(const Signal &p_signal) const {
+        return object == p_signal.object && name == p_signal.name;
+    }
     bool operator!=(const Signal &p_signal) const;
     bool operator<(const Signal &p_signal) const;
 

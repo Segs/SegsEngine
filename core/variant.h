@@ -368,7 +368,7 @@ public:
 
     //static const char * get_operator_name(Operator p_op);
     static void evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Variant &r_ret, bool &r_valid);
-    static bool evaluate_equal(const Variant &p_a, const Variant &p_b, bool &r_valid);
+    static bool evaluate_equal(const Variant &p_a, const Variant &p_b);
 
     static _FORCE_INLINE_ Variant evaluate(Operator p_op, const Variant &p_a, const Variant &p_b) {
 

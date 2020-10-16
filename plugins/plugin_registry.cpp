@@ -53,6 +53,11 @@ void unload_plugins()
     s_common_plugins.unloadAll();
 }
 
+void remove_all_resolvers()
+{
+    s_common_plugins.removeAllResolvers();
+}
+
 PluginRegistry::~PluginRegistry() {
     unloadAll();
     for(auto r : m_plugin_resolvers)
@@ -113,32 +118,33 @@ void PluginRegistry::add_resolver(ResolverInterface *r)
     resolve_plugins(r);
 }
 
-void PluginRegistry::resolve_plugins(ResolverInterface *specific)
-{
-    if(specific) {
-        ERR_FAIL_COND(!m_plugin_resolvers.contains(specific));
-        for(const QStaticPlugin &plug : static_plugins)
-        {
-            QObject *ob=plug.instance();
-            if(m_loaded.contains({specific,ob}))
-                continue;
-            specific->new_plugin_detected(ob,plug.metaData());
-            m_loaded[{specific,ob}]=true;
-        }
-        for(QPluginLoader *ob : dynamic_plugin_loaders)
-        {
-            if(m_loaded.contains({specific,ob->instance()}))
-                continue;
-            specific->new_plugin_detected(ob->instance(),ob->metaData(),qPrintable(ob->fileName()));
-            m_loaded[{specific,ob->instance()}]=true;
+void PluginRegistry::resolve_plugins(ResolverInterface *specific) {
+    if (!specific) {
+        for (auto r : m_plugin_resolvers) {
+            resolve_plugins(r); // we recursively call ourselves with specific resolver.
         }
         return;
     }
-    else {
-        for(auto r : m_plugin_resolvers)
-        {
-            resolve_plugins(r); // we recursively call ourselves with specific resolver.
-        }
 
+    ERR_FAIL_COND(!m_plugin_resolvers.contains(specific));
+    for (const QStaticPlugin &plug : static_plugins) {
+        QObject *ob = plug.instance();
+        if (m_loaded.contains({ specific, ob }))
+            continue;
+        specific->new_plugin_detected(ob, plug.metaData());
+        m_loaded[{ specific, ob }] = true;
     }
+    for (QPluginLoader *ob : dynamic_plugin_loaders) {
+        if (m_loaded.contains({ specific, ob->instance() }))
+            continue;
+        specific->new_plugin_detected(ob->instance(), ob->metaData(),qPrintable(ob->fileName()));
+        m_loaded[{ specific, ob->instance() }] = true;
+    }
+}
+
+void PluginRegistry::removeAllResolvers() {
+    unloadAll();
+    for (auto r : m_plugin_resolvers)
+        delete r;
+    m_plugin_resolvers.clear();
 }

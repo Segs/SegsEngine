@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "core/callable.h"
 #include "core/engine.h"
 #include "core/io/logger.h"
 #include "core/math/rect2.h"
@@ -484,8 +485,8 @@ public:
 
     virtual bool can_use_threads() const;
 
-    virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName &p_callback);
-    virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
+    //virtual Error dialog_show(UIString p_title, UIString p_description, const Vector<UIString> &p_buttons, const Callable &p_callback);
+    //virtual Error dialog_input_text(const UIString &p_title, const UIString &p_description, const UIString &p_partial, Object *p_obj, const StringName &p_callback);
 
     enum LatinKeyboardVariant {
         LATIN_KEYBOARD_QWERTY,

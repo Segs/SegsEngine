@@ -15,4 +15,5 @@ public:
     void add_static_plugin(const QStaticPlugin &plug) { static_plugins.push_back(plug); }
     void add_resolver(ResolverInterface *);
     void resolve_plugins(ResolverInterface *specific=nullptr);
+    void removeAllResolvers();
 };

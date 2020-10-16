@@ -204,7 +204,7 @@ void SpriteBase3D::_queue_update() {
     update_gizmo();
 
     pending_update = true;
-    call_deferred(SceneStringNames::get_singleton()->_im_update);
+    call_deferred([this] { _im_update(); });
 }
 
 AABB SpriteBase3D::get_aabb() const {

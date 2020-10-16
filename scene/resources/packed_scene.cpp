@@ -517,12 +517,12 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
         Variant default_value = ClassDB::class_get_default_property_value(type, name);
 
         if (default_value.get_type() != VariantType::NIL) {
-            isdefault = Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>();
+            isdefault = Variant::evaluate_equal(value, default_value);
         }
 
         Ref<Script> script(refFromRefPtr<Script>(p_node->get_script()));
         if (!isdefault && script && script->get_property_default_value(name, default_value)) {
-            isdefault = Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>();
+            isdefault = Variant::evaluate_equal(value, default_value);
         }
         // the version above makes more sense, because it does not rely on placeholder or usage flag
         // in the script, just the default value function.
@@ -565,7 +565,7 @@ Error SceneState::_parse_node(Node *p_owner, Node *p_node, int p_parent_idx, Map
 
                     if (Math::is_equal_approx(a, b))
                         continue;
-                } else if (Variant::evaluate(Variant::OP_EQUAL, value, original).as<bool>()) {
+                } else if (Variant::evaluate_equal(value, original)) {
 
                     continue;
                 }

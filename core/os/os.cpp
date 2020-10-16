@@ -394,7 +394,8 @@ Error OS::shell_open(StringView p_uri) {
 };
 
 // implement these with the canvas?
-Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> p_buttons, Object *p_obj, const StringName & p_callback) {
+/*Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> &p_buttons, const
+                      Callable &p_callback) {
     using namespace StringUtils;
     while (true) {
 
@@ -410,8 +411,8 @@ Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIS
         int n = to_int(res);
         if (n < 0 || n >= p_buttons.size())
             continue;
-        if (p_obj && !p_callback.empty())
-            p_obj->call_deferred(p_callback, n);
+        if (p_callback.is_valid())
+            p_callback->ccall_deferred(p_callback, n);
         break;
     }
     return OK;
@@ -432,7 +433,7 @@ Error OS::dialog_input_text(const UIString &p_title, const UIString &p_descripti
     p_obj->call_deferred(p_callback, success, Variant(res));
 
     return OK;
-};
+};*/
 
 uint64_t OS::get_static_memory_usage() const {
 

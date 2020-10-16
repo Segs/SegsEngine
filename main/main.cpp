@@ -1514,6 +1514,7 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
             print_error("Failed to save reflection data json file.");
         }
 #endif
+        cleanup();
         exit(0);
     }
 #endif
@@ -2332,7 +2333,8 @@ void Main::cleanup() {
 
     unregister_driver_types();
     unregister_module_types();
-    unload_plugins();
+    // cleanup plugin registry
+    remove_all_resolvers();
 
     unregister_scene_types();
     unregister_server_types();

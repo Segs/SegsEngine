@@ -25,3 +25,4 @@ void add_plugin_resolver(ResolverInterface *r);
 
 void load_all_plugins(const char *plugin_paths);
 void unload_plugins();
+void remove_all_resolvers();

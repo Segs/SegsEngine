@@ -88,8 +88,8 @@ void SceneTreeDock::_nodes_drag_begin() {
 
 void SceneTreeDock::_quick_open() {
     Vector<String> files(quick_open->get_selected_files());
-    for (int i = 0; i < files.size(); i++) {
-        instance(files[i]);
+    for (const String & file : files) {
+        instance(file);
     }
 }
 
@@ -198,12 +198,12 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
 
     bool error = false;
 
-    for (int i = 0; i < p_files.size(); i++) {
+    for (const String & name : p_files) {
 
-        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(p_files[i]));
+        Ref<PackedScene> sdata = dynamic_ref_cast<PackedScene>(gResourceManager().load(name));
         if (not sdata) {
             current_option = -1;
-            accept->set_text(FormatSN(TTR("Error loading scene from %s").asCString(), p_files[i].c_str()));
+            accept->set_text(FormatSN(TTR("Error loading scene from %s").asCString(), name.c_str()));
             accept->popup_centered_minsize();
             error = true;
             break;
@@ -212,7 +212,7 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
         Node *instanced_scene = sdata->instance(GEN_EDIT_STATE_INSTANCE);
         if (!instanced_scene) {
             current_option = -1;
-            accept->set_text(FormatSN(TTR("Error instancing scene from %s").asCString(), p_files[i].c_str()));
+            accept->set_text(FormatSN(TTR("Error instancing scene from %s").asCString(), name.c_str()));
             accept->popup_centered_minsize();
             error = true;
             break;
@@ -222,14 +222,14 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
 
             if (_cyclical_dependency_exists(edited_scene->get_filename(), instanced_scene)) {
 
-                accept->set_text(FormatSN(TTR("Cannot instance the scene '%s' because the current scene exists within one of its nodes.").asCString(), p_files[i].c_str()));
+                accept->set_text(FormatSN(TTR("Cannot instance the scene '%s' because the current scene exists within one of its nodes.").asCString(), name.c_str()));
                 accept->popup_centered_minsize();
                 error = true;
                 break;
             }
         }
 
-        instanced_scene->set_filename(ProjectSettings::get_singleton()->localize_path(p_files[i]));
+        instanced_scene->set_filename(ProjectSettings::get_singleton()->localize_path(name));
 
         instances.push_back(instanced_scene);
     }
@@ -241,29 +241,30 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
         return;
     }
 
-    editor_data->get_undo_redo().create_action(TTR("Instance Scene(s)"));
+    UndoRedo &undo_redo = editor_data->get_undo_redo();
+    undo_redo.create_action(TTR("Instance Scene(s)"));
 
     for (int i = 0; i < instances.size(); i++) {
 
         Node *instanced_scene = instances[i];
 
-        editor_data->get_undo_redo().add_do_method(parent, "add_child", Variant(instanced_scene));
+        undo_redo.add_do_method(parent, "add_child", Variant(instanced_scene));
         if (p_pos >= 0) {
-            editor_data->get_undo_redo().add_do_method(parent, "move_child", Variant(instanced_scene), p_pos + i);
+            undo_redo.add_do_method(parent, "move_child", Variant(instanced_scene), p_pos + i);
         }
-        editor_data->get_undo_redo().add_do_method(instanced_scene, "set_owner", Variant(edited_scene));
-        editor_data->get_undo_redo().add_do_method(editor_selection, "clear");
-        editor_data->get_undo_redo().add_do_method(editor_selection, "add_node", Variant(instanced_scene));
-        editor_data->get_undo_redo().add_do_reference(instanced_scene);
-        editor_data->get_undo_redo().add_undo_method(parent, "remove_child", Variant(instanced_scene));
+        undo_redo.add_do_method(instanced_scene, "set_owner", Variant(edited_scene));
+        undo_redo.add_do_method(editor_selection, "clear");
+        undo_redo.add_do_method(editor_selection, "add_node", Variant(instanced_scene));
+        undo_redo.add_do_reference(instanced_scene);
+        undo_redo.add_undo_method(parent, "remove_child", Variant(instanced_scene));
 
         String new_name = parent->validate_child_name(instanced_scene);
         ScriptEditorDebugger *sed = ScriptEditor::get_singleton()->get_debugger();
-        editor_data->get_undo_redo().add_do_method(sed, "live_debug_instance_node", edited_scene->get_path_to(parent), p_files[i], new_name);
-        editor_data->get_undo_redo().add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(parent)),new_name)));
+        undo_redo.add_do_method(sed, "live_debug_instance_node", edited_scene->get_path_to(parent), p_files[i], new_name);
+        undo_redo.add_undo_method(sed, "live_debug_remove_node", NodePath(PathUtils::plus_file(String(edited_scene->get_path_to(parent)),new_name)));
     }
 
-    editor_data->get_undo_redo().commit_action();
+    undo_redo.commit_action();
 }
 
 void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
@@ -341,18 +342,18 @@ bool SceneTreeDock::_track_inherit(StringView p_target_scene_path, Node *p_desir
             break;
         }
         Ref<SceneState> ss = p->get_scene_inherited_state();
-        if (ss) {
-            String path = ss->get_path();
-            Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(gResourceManager().load(path));
-            if (data) {
-                p = data->instance(GEN_EDIT_STATE_INSTANCE);
-                if (!p)
-                    continue;
-                instances.push_back(p);
-            } else
-                break;
-        } else
+        if (!ss)
             break;
+
+        String path = ss->get_path();
+        Ref<PackedScene> data = dynamic_ref_cast<PackedScene>(gResourceManager().load(path));
+        if (!data)
+            break;
+
+        p = data->instance(GEN_EDIT_STATE_INSTANCE);
+        if (!p)
+            continue;
+        instances.push_back(p);
     }
     for (int i = 0; i < instances.size(); i++) {
         memdelete(instances[i]);
@@ -855,8 +856,8 @@ void SceneTreeDock::_tool_selected(int p_tool, bool p_confirm_override) {
             Ref<PackedScene> sd(make_ref_counted<PackedScene>());
             gResourceManager().get_recognized_extensions(sd, extensions);
             new_scene_from_dialog->clear_filters();
-            for (size_t i = 0; i < extensions.size(); i++) {
-                new_scene_from_dialog->add_filter("*." + extensions[i] + " ; " + StringUtils::to_upper(extensions[i]));
+            for (const String & extension : extensions) {
+                new_scene_from_dialog->add_filter("*." + extension + " ; " + StringUtils::to_upper(extension));
             }
 
             String existing;
@@ -2245,34 +2246,32 @@ void SceneTreeDock::_new_scene_from(StringView p_file) {
     HashMap<Node *, Node *> reown;
     reown[editor_data->get_edited_scene_root()] = base;
     Node *copy = base->duplicate_and_reown(reown);
-    if (copy) {
-
-        Ref<PackedScene> sdata(make_ref_counted<PackedScene>());
-        Error err = sdata->pack(copy);
-        memdelete(copy);
-
-        if (err != OK) {
-            accept->set_text(TTR("Couldn't save new scene. Likely dependencies (instances) couldn't be satisfied."));
-            accept->popup_centered_minsize();
-            return;
-        }
-
-        int flg = 0;
-        if (EditorSettings::get_singleton()->getT<bool>("filesystem/on_save/compress_binary_resources"))
-            flg |= ResourceManager::FLAG_COMPRESS;
-
-        err = gResourceManager().save(p_file, sdata, flg);
-        if (err != OK) {
-            accept->set_text(TTR("Error saving scene."));
-            accept->popup_centered_minsize();
-            return;
-        }
-        _replace_with_branch_scene(p_file, base);
-    } else {
+    if (!copy) {
         accept->set_text(TTR("Error duplicating scene to save it."));
         accept->popup_centered_minsize();
         return;
     }
+    Ref<PackedScene> sdata(make_ref_counted<PackedScene>());
+    Error err = sdata->pack(copy);
+    memdelete(copy);
+
+    if (err != OK) {
+        accept->set_text(TTR("Couldn't save new scene. Likely dependencies (instances) couldn't be satisfied."));
+        accept->popup_centered_minsize();
+        return;
+    }
+
+    int flg = 0;
+    if (EditorSettings::get_singleton()->getT<bool>("filesystem/on_save/compress_binary_resources"))
+        flg |= ResourceManager::FLAG_COMPRESS;
+
+    err = gResourceManager().save(p_file, sdata, flg);
+    if (err != OK) {
+        accept->set_text(TTR("Error saving scene."));
+        accept->popup_centered_minsize();
+        return;
+    }
+    _replace_with_branch_scene(p_file, base);
 }
 
 static bool _is_node_visible(Node *p_node) {

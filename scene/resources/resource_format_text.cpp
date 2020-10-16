@@ -1718,7 +1718,7 @@ Error ResourceFormatSaverTextInstance::save(StringView p_path, const RES &p_reso
                 }
                 Variant default_value = ClassDB::class_get_default_property_value(res->get_class_name(), name);
 
-                if (default_value.get_type() != VariantType::NIL && Variant::evaluate(Variant::OP_EQUAL, value, default_value).as<bool>()) {
+                if (default_value.get_type() != VariantType::NIL && Variant::evaluate_equal(value, default_value)) {
                     continue;
                 }
 

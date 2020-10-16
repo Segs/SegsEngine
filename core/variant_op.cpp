@@ -928,6 +928,334 @@ void Variant::evaluate(Operator p_op, const Variant &p_a, const Variant &p_b, Va
 
     }
 }
+namespace
+{
+    template<typename T>
+    bool compare(const PoolVector<T> &a, const PoolVector<T>& b)
+    {
+        int a_len = a.size();
+        if (a_len != b.size()) {
+            return false;
+        }
+        typename PoolVector<T>::Read ra = a.read();
+        typename PoolVector<T>::Read rb = b.read();
+        for (int i = 0; i < a_len; i++)
+        {
+            if (ra[i] != rb[i])
+                return false;
+        }
+        return true;
+    }
+}
+
+bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
+    switch (p_a.type) {
+        case VariantType::NIL: {
+            if (p_b.type == VariantType::NIL)
+                return true;
+            if (p_b.type == VariantType::OBJECT)
+                return _UNSAFE_OBJ_PROXY_PTR(p_b) == nullptr;
+            if (p_b.type == VariantType::CALLABLE)
+                return (*reinterpret_cast<const Callable *>(p_b._data._mem)) == Callable();
+            if (p_b.type == VariantType::SIGNAL)
+                return (*reinterpret_cast<const Signal *>(p_b._data._mem)) == Signal();
+
+            return false;
+        }
+
+        case VariantType::BOOL: {
+            if (p_b.type != VariantType::BOOL) {
+                if (p_b.type == VariantType::NIL)
+                    return false;
+
+                break;
+            }
+
+            return p_a._data._bool == p_b._data._bool;
+        }
+
+        case VariantType::OBJECT: {
+            if (p_b.type == VariantType::OBJECT)
+                return (_UNSAFE_OBJ_PROXY_PTR(p_a) == _UNSAFE_OBJ_PROXY_PTR(p_b));
+            if (p_b.type == VariantType::NIL)
+                return _UNSAFE_OBJ_PROXY_PTR(p_a) == nullptr;
+            break;
+        }
+        case VariantType::CALLABLE: {
+            const Callable &ca(*reinterpret_cast<const Callable *>(p_a._data._mem));
+            if (p_b.type == VariantType::NIL)
+                return ca == Callable();
+            if (p_b.type == VariantType::CALLABLE)
+                return ca == *reinterpret_cast<const Callable *>(p_b._data._mem);
+        }
+        case VariantType::SIGNAL: {
+            const Signal &sa(*reinterpret_cast<const Signal *>(p_a._data._mem));
+            if (p_b.type == VariantType::NIL)
+                return sa == Signal();
+            if (p_b.type == VariantType::SIGNAL)
+                return sa == *reinterpret_cast<const Signal *>(p_b._data._mem);
+            break;
+        }
+
+        case VariantType::DICTIONARY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type != VariantType::DICTIONARY) {
+
+                break;
+            }
+
+            const Dictionary *arr_a = reinterpret_cast<const Dictionary *>(p_a._data._mem);
+            const Dictionary *arr_b = reinterpret_cast<const Dictionary *>(p_b._data._mem);
+
+            return *arr_a == *arr_b;
+        }
+
+        case VariantType::ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type != VariantType::ARRAY) {
+                break;
+            }
+            const Array *arr_a = reinterpret_cast<const Array *>(p_a._data._mem);
+            const Array *arr_b = reinterpret_cast<const Array *>(p_b._data._mem);
+
+            int l = arr_a->size();
+            if (arr_b->size() != l)
+                return false;
+            for (int i = 0; i < l; i++) {
+                if (!((*arr_a)[i] == (*arr_b)[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        case VariantType::INT: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::INT)
+                return p_a._data._int == p_b._data._int;;
+            if (p_b.type == VariantType::FLOAT)
+                return p_a._data._int == p_b._data._real;
+
+            break;
+        };
+        case VariantType::FLOAT: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::INT)
+                return p_a._data._real == p_b._data._int;
+            if (p_b.type == VariantType::FLOAT)
+                return p_a._data._real == p_b._data._real;
+            break;
+        };
+        case VariantType::STRING: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            StringView self(*reinterpret_cast<const String *>(p_a._data._mem));
+            if (p_b.type == VariantType::STRING)
+                return self == *reinterpret_cast<const String *>(p_b._data._mem);
+            if (p_b.type == VariantType::NODE_PATH)
+                return self == (String)*reinterpret_cast<const NodePath *>(p_b._data.
+                                                                               _mem);
+            if (p_b.type == VariantType::STRING_NAME)
+                return self == reinterpret_cast<const StringName *>(p_b._data._mem)
+                       ->asCString();
+
+            break;
+        }
+        case VariantType::STRING_NAME: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            StringView self(*reinterpret_cast<const StringName *>(p_a._data._mem));
+            if (p_b.type == VariantType::STRING)
+                return self == *reinterpret_cast<const String *>(p_b._data._mem);
+            if (p_b.type == VariantType::NODE_PATH)
+                return self == (String)*reinterpret_cast<const NodePath *>(p_b._data.
+                                                                               _mem);
+            if (p_b.type == VariantType::STRING_NAME)
+                return self == reinterpret_cast<const StringName *>(p_b._data._mem)
+                       ->asCString();
+
+            break;
+        }
+
+        case VariantType::VECTOR2: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::VECTOR2)
+                return *reinterpret_cast<const Vector2 *>(p_a._data._mem) == *reinterpret_cast<const Vector2 *>(p_b.
+                           _data.
+                           _mem);
+            break;
+        };
+        case VariantType::RECT2: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::RECT2)
+                return *reinterpret_cast<const Rect2 *>(p_a._data._mem) == *
+                       reinterpret_cast<const Rect2 *>(p_b._data._mem);
+            break;
+        };
+        case VariantType::TRANSFORM2D: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::TRANSFORM2D)
+                return *p_a._data._transform2d == *p_b._data._transform2d;
+            break;
+        }
+        case VariantType::VECTOR3: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::VECTOR3)
+                return *reinterpret_cast<const Vector3 *>(p_a._data._mem) == *
+                       reinterpret_cast<const Vector3 *>(p_b._data._mem);
+            break;
+        };
+        case VariantType::PLANE: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::PLANE)
+                return *reinterpret_cast<const Plane *>(p_a._data._mem) == *
+                       reinterpret_cast<const Plane *>(p_b._data._mem);
+            break;
+        };
+        case VariantType::QUAT: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::QUAT)
+                return *reinterpret_cast<const Quat *>(p_a._data._mem) == *
+                       reinterpret_cast<const Quat *>(p_b._data._mem);
+            break;
+        };
+        case VariantType::AABB: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::AABB)
+                return *p_a._data._aabb == *p_b._data._aabb;
+            break;
+        }
+        case VariantType::BASIS: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::BASIS)
+                return *p_a._data._basis == *p_b._data._basis;
+            break;
+        }
+        case VariantType::TRANSFORM: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::TRANSFORM)
+                return *p_a._data._transform == *p_b._data._transform;
+            break;
+        }
+        case VariantType::COLOR: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::COLOR)
+                return *reinterpret_cast<const Color *>(p_a._data._mem) == *
+                       reinterpret_cast<const Color *>(p_b._data._mem);
+            break;
+        };
+        case VariantType::NODE_PATH: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::STRING)
+                return (String)*reinterpret_cast<const NodePath *>(p_a._data._mem) == *
+                       reinterpret_cast<const String *>(p_b._data._mem);
+            if (p_b.type == VariantType::STRING_NAME)
+                return (String)*reinterpret_cast<const NodePath *>(p_a._data._mem)
+                       == (String)*reinterpret_cast<const StringName *>(p_b._data._mem);
+            if (p_b.type == VariantType::NODE_PATH)
+                return (String)*reinterpret_cast<const NodePath *>(p_a._data._mem) ==
+                       (String)*reinterpret_cast<const NodePath *>(p_b._data._mem);
+            break;
+        }
+        case VariantType::_RID: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_b.type == VariantType::_RID)
+                return *reinterpret_cast<const RID *>(p_a._data._mem) == *reinterpret_cast
+                       <const RID *>(p_b._data._mem);
+            break;
+        };
+
+        case VariantType::POOL_BYTE_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const PoolVector<uint8_t> &array_a = *reinterpret_cast<const PoolVector<uint8_t> *>(p_a._data._mem);
+            const PoolVector<uint8_t> &array_b = *reinterpret_cast<const PoolVector<uint8_t> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_INT_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const PoolVector<int> &array_a = *reinterpret_cast<const PoolVector<int> *>(p_a._data._mem);
+            const PoolVector<int> &array_b = *reinterpret_cast<const PoolVector<int> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_REAL_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const PoolVector<float> &array_a = *reinterpret_cast<const PoolVector<float> *>(p_a._data._mem);
+            const PoolVector<float> &array_b = *reinterpret_cast<const PoolVector<float> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_STRING_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const PoolVector<String> &array_a = *reinterpret_cast<const PoolVector<String> *>(p_a._data._mem);
+            const PoolVector<String> &array_b = *reinterpret_cast<const PoolVector<String> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_VECTOR2_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const PoolVector<Vector2> &array_a = *reinterpret_cast<const PoolVector<Vector2> *>(p_a._data._mem);
+            const PoolVector<Vector2> &array_b = *reinterpret_cast<const PoolVector<Vector2> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_VECTOR3_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const auto &array_a = *reinterpret_cast<const PoolVector<Vector3> *>(p_a._data._mem);
+            const auto &array_b = *reinterpret_cast<const PoolVector<Vector3> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+        case VariantType::POOL_COLOR_ARRAY: {
+            if (p_b.type == VariantType::NIL)
+                return false;
+            if (p_a.type != p_b.type) {
+                break;
+            }
+            const auto &array_a = *reinterpret_cast<const PoolVector<Color> *>(p_a._data._mem);
+            const auto &array_b = *reinterpret_cast<const PoolVector<Color> *>(p_b._data._mem);
+            return compare(array_a, array_b);
+        }
+    }
+    return false;
+}
+
 
 void Variant::set_named(const StringName &p_index, const Variant &p_value, bool *r_valid) {
 

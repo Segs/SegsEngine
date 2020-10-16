@@ -724,6 +724,7 @@ void ResourceManager::remove_resource_format_loader(const ResourceLoaderInterfac
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
+    ERR_FAIL_COND_MSG(D() == nullptr, "ResourceManager was already destructed");
     eastl::erase_if(D()->s_loaders,[p_format_loader](const Ref<ResourceFormatLoader> &v)->bool
     {
             Ref<ResourceFormatLoaderWrap> fmt = dynamic_ref_cast<ResourceFormatLoaderWrap>(v);
@@ -738,6 +739,7 @@ void ResourceManager::remove_resource_format_loader(const Ref<ResourceFormatLoad
         _err_print_error(FUNCTION_STR, __FILE__, __LINE__, "Null p_format_loader in remove_resource_format_loader.");
         return;
     }
+    ERR_FAIL_COND_MSG(D()==nullptr,"ResourceManager was already destructed");
     eastl::erase_if(D()->s_loaders, [p_format_loader](const Ref<ResourceFormatLoader>& v)->bool {
             return (v == p_format_loader);
     });

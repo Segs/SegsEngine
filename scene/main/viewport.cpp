@@ -2777,46 +2777,43 @@ void Viewport::_post_gui_grab_click_focus() {
     }
     gui.mouse_click_grabber = nullptr;
 
-    if (gui.mouse_focus) {
+    if (!gui.mouse_focus || gui.mouse_focus == focus_grabber)
+      return;
 
-        if (gui.mouse_focus == focus_grabber)
-            return;
+    int mask = gui.mouse_focus_mask;
+    Point2 click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
 
-        int mask = gui.mouse_focus_mask;
-        Point2 click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
+    for (int i = 0; i < 3; i++) {
 
-        for (int i = 0; i < 3; i++) {
+        if (mask & (1 << i)) {
 
-            if (mask & (1 << i)) {
+            Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 
-                Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
+            //send unclic
 
-                //send unclic
-
-                mb->set_position(click);
-                mb->set_button_index(i + 1);
-                mb->set_pressed(false);
-                gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
-            }
+            mb->set_position(click);
+            mb->set_button_index(i + 1);
+            mb->set_pressed(false);
+            gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
         }
+    }
 
-        gui.mouse_focus = focus_grabber;
-        gui.focus_inv_xform = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse();
-        click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
+    gui.mouse_focus = focus_grabber;
+    gui.focus_inv_xform = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse();
+    click = gui.mouse_focus->get_global_transform_with_canvas().affine_inverse().xform(gui.last_mouse_pos);
 
-        for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++) {
 
-            if (mask & (1 << i)) {
+        if (mask & (1 << i)) {
 
-                Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
+            Ref<InputEventMouseButton> mb(make_ref_counted<InputEventMouseButton>());
 
-                //send clic
+            //send click.
 
-                mb->set_position(click);
-                mb->set_button_index(i + 1);
-                mb->set_pressed(true);
-                gui.mouse_focus->call_deferred(SceneStringNames::get_singleton()->_gui_input, mb);
-            }
+            mb->set_position(click);
+            mb->set_button_index(i + 1);
+            mb->set_pressed(true);
+            gui.mouse_focus->call_deferred(SceneStringNames::get_singleton()->_gui_input, mb);
         }
     }
 }

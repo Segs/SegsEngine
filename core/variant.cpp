@@ -562,20 +562,14 @@ bool Variant::operator==(const Variant &p_variant) const {
     if (type != p_variant.type) { // evaluation of operator== needs to be more strict
         return false;
     }
-    bool v = true;
-    Variant r;
-    evaluate(OP_EQUAL, *this, p_variant, r, v);
-    return r.as<bool>();
+    return evaluate_equal(*this, p_variant);
 }
 
 bool Variant::operator!=(const Variant &p_variant) const {
     if (type != p_variant.type) { // evaluation of operator== needs to be more strict
         return true;
     }
-    bool v;
-    Variant r;
-    evaluate(OP_NOT_EQUAL, *this, p_variant, r, v);
-    return r.as<bool>();
+    return !evaluate_equal(*this, p_variant);
 }
 
 bool Variant::operator<(const Variant &p_variant) const {
@@ -2994,10 +2988,7 @@ bool Variant::hash_compare(const Variant &p_variant) const {
         } break;
 
         default:
-            bool v;
-            Variant r;
-            evaluate(OP_EQUAL, *this, p_variant, r, v);
-            return (bool)r;
+            return evaluate_equal(*this, p_variant);
     }
 
     return false;
