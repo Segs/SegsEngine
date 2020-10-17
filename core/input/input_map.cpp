@@ -274,7 +274,6 @@ void InputMap::load_default() {
     addActionKeys(*this,StaticCString("ui_page_down"),{KEY_PAGEDOWN});
     addActionKeys(*this,StaticCString("ui_home"),{KEY_HOME});
     addActionKeys(*this,StaticCString("ui_end"),{KEY_END});
-    //set("display/window/handheld/orientation", "landscape");
 }
 
 InputMap::InputMap() {

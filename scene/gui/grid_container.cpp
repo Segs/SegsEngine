@@ -186,11 +186,6 @@ void GridContainer::set_columns(int p_columns) {
     minimum_size_changed();
 }
 
-int GridContainer::get_columns() const {
-
-    return columns;
-}
-
 void GridContainer::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("set_columns", {"columns"}), &GridContainer::set_columns);
@@ -250,6 +245,4 @@ Size2 GridContainer::get_minimum_size() const {
     return ms;
 }
 
-GridContainer::GridContainer() {
-    columns = 1;
-}
+GridContainer::GridContainer() = default;

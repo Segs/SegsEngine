@@ -41,7 +41,7 @@
 class AudioDriverPulseAudio : public AudioDriver {
 
     Thread *thread=nullptr;
-    Mutex *mutex=nullptr;
+	Mutex mutex;
 
     pa_mainloop *pa_ml=nullptr;
     pa_context *pa_ctx=nullptr;
@@ -50,8 +50,8 @@ class AudioDriverPulseAudio : public AudioDriver {
     pa_channel_map pa_map;
     pa_channel_map pa_rec_map;
 
-    String device_name;
-    String new_device;
+	String device_name = "Default";
+	String new_device = "Default";
     String default_device;
 
     String capture_device_name;

@@ -183,7 +183,7 @@ Error AudioDriverPulseAudio::init_device() {
             break;
     }
 
-    int latency = GLOBAL_GET("audio/output_latency").as<int>();
+    int latency = T_GLOBAL_GET<int>("audio/output_latency");
     buffer_frames = closest_power_of_2(latency * mix_rate / 1000);
     pa_buffer_size = buffer_frames * pa_map.channels;
 
@@ -292,7 +292,6 @@ Error AudioDriverPulseAudio::init() {
 
     Error err = init_device();
     if (err == OK) {
-        mutex = memnew(Mutex);
         thread = Thread::create(AudioDriverPulseAudio::thread_func, this);
     }
 
@@ -598,16 +597,18 @@ void AudioDriverPulseAudio::set_device(StringView device) {
 
 void AudioDriverPulseAudio::lock() {
 
-    if (!thread || !mutex)
+	if (!thread) {
         return;
-    mutex->lock();
+	}
+	mutex.lock();
 }
 
 void AudioDriverPulseAudio::unlock() {
 
-    if (!thread || !mutex)
+	if (!thread) {
         return;
-    mutex->unlock();
+	}
+	mutex.unlock();
 }
 
 void AudioDriverPulseAudio::finish_device() {
@@ -621,8 +622,9 @@ void AudioDriverPulseAudio::finish_device() {
 
 void AudioDriverPulseAudio::finish() {
 
-    if (!thread)
+	if (!thread) {
         return;
+	}
 
     exit_thread = true;
     Thread::wait_to_finish(thread);
@@ -641,10 +643,6 @@ void AudioDriverPulseAudio::finish() {
     }
 
     memdelete(thread);
-    if (mutex) {
-        memdelete(mutex);
-        mutex = nullptr;
-    }
 
     thread = nullptr;
 }
@@ -799,10 +797,7 @@ String AudioDriverPulseAudio::capture_get_device() {
     return name;
 }
 
-AudioDriverPulseAudio::AudioDriverPulseAudio() :
-        device_name("Default"),
-        new_device("Default"),
-        default_device("") {
+AudioDriverPulseAudio::AudioDriverPulseAudio() {
     samples_in.clear();
     samples_out.clear();
 }

@@ -1224,24 +1224,8 @@ Error Main::setup(bool p_second_phase) {
         audio_driver_idx = 0;
     }
 
-    {
-        String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
-
-        if (orientation == "portrait")
-            os->set_screen_orientation(OS::SCREEN_PORTRAIT);
-        else if (orientation == "reverse_landscape")
-            os->set_screen_orientation(OS::SCREEN_REVERSE_LANDSCAPE);
-        else if (orientation == "reverse_portrait")
-            os->set_screen_orientation(OS::SCREEN_REVERSE_PORTRAIT);
-        else if (orientation == "sensor_landscape")
-            os->set_screen_orientation(OS::SCREEN_SENSOR_LANDSCAPE);
-        else if (orientation == "sensor_portrait")
-            os->set_screen_orientation(OS::SCREEN_SENSOR_PORTRAIT);
-        else if (orientation == "sensor")
-            os->set_screen_orientation(OS::SCREEN_SENSOR);
-        else
-            os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
-    }
+    //String orientation = T_GLOBAL_DEF<String>("display/window/handheld/orientation", "landscape");
+    os->set_screen_orientation(OS::SCREEN_LANDSCAPE);
 
     Engine::get_singleton()->set_iterations_per_second(T_GLOBAL_DEF<int>("physics/common/physics_fps", 60));
     project_settings->set_custom_property_info("physics/common/physics_fps", PropertyInfo(VariantType::INT, "physics/common/physics_fps", PropertyHint::Range, "1,120,1,or_greater"));
@@ -1263,8 +1247,6 @@ Error Main::setup(bool p_second_phase) {
     os->set_low_processor_usage_mode(T_GLOBAL_DEF("application/run/low_processor_mode", false));
     os->set_low_processor_usage_mode_sleep_usec(T_GLOBAL_DEF<int>("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
     project_settings->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(VariantType::INT, "application/run/low_processor_mode_sleep_usec", PropertyHint::Range, "0,33200,1,or_greater")); // No negative numbers
-
-    GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
 
     Engine::get_singleton()->set_frame_delay(frame_delay);
 
