@@ -159,23 +159,18 @@ void LibraryEntryInstance::_notification(int p_what)
 {
     if(p_what== NOTIFICATION_ENTER_WORLD)
     {
-        int idx=get_position_in_parent();
         if(!resolved_library && !lib_name.empty()) {
             set_library_path(lib_name);
         }
-        return;
     }
-    if (p_what == NOTIFICATION_EXIT_WORLD)
+    else if (p_what == NOTIFICATION_EXIT_WORLD)
     {
         if(instantiated_child)
             remove_child(instantiated_child);
-        return;
     }
 }
 
 
-LibraryEntryInstance::LibraryEntryInstance() {
-}
+LibraryEntryInstance::LibraryEntryInstance() = default;
 
-LibraryEntryInstance::~LibraryEntryInstance() {
-}
+LibraryEntryInstance::~LibraryEntryInstance() = default;

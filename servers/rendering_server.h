@@ -208,8 +208,6 @@ class GODOT_EXPORT RenderingServer : public Object {
 
     static RenderingServer *singleton;
 
-    int mm_policy;
-
     void _camera_set_orthogonal(RID p_camera, float p_size, float p_z_near, float p_z_far);
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
     SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data, uint32_t p_vertex_len,
@@ -224,7 +222,6 @@ protected:
 
     Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
-    static RenderingServer *(*create_func)();
     static void _bind_methods();
 public: // scripting glue helpers
     Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
@@ -233,7 +230,6 @@ public: // scripting glue helpers
 
 public:
     static RenderingServer *get_singleton();
-    static RenderingServer *create();
 
     virtual RID texture_create() = 0;
     RID texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags = RS::TEXTURE_FLAGS_DEFAULT); // helper

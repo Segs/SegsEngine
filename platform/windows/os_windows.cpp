@@ -1427,7 +1427,7 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 
     rendering_server = memnew(VisualServerRaster);
     if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        rendering_server = memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+        rendering_server = memnew(RenderingServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
     }
 
     rendering_server->init();

@@ -37,20 +37,9 @@
 
 IMPL_GDCLASS(RenderingServer)
 RenderingServer *RenderingServer::singleton = nullptr;
-RenderingServer *(*RenderingServer::create_func)() = nullptr;
 
 RenderingServer *RenderingServer::get_singleton() {
     return singleton;
-}
-
-RenderingServer *RenderingServer::create() {
-    ERR_FAIL_COND_V(singleton, nullptr);
-
-    if (create_func) {
-        return create_func();
-    }
-
-    return nullptr;
 }
 
 RID RenderingServer::texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags) {

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef VISUAL_SERVER_GLOBALS_H
-#define VISUAL_SERVER_GLOBALS_H
+#pragma once
 
 #include "rasterizer.h"
 
@@ -52,5 +51,3 @@ public:
 };
 
 #define VSG VisualServerGlobals
-
-#endif // VISUAL_SERVER_GLOBALS_H

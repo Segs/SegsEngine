@@ -315,7 +315,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
     rendering_server = memnew(VisualServerRaster);
     if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
         rendering_server =
-                memnew(VisualServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+                memnew(RenderingServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
     }
 
     if (current_videomode.maximized) {

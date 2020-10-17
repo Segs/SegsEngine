@@ -32,39 +32,31 @@
 
 #include "core/command_queue_mt.h"
 #include "core/os/thread.h"
-#include "core/list.h"
 #include "servers/rendering_server.h"
 
-class  VisualServerWrapMT : public RenderingServer {
+class  RenderingServerWrapMT : public RenderingServer {
 
     // the real visual server
     mutable RenderingServer *rendering_server;
-
     mutable CommandQueueMT command_queue;
-
-    static void _thread_callback(void *_instance);
-    void thread_loop();
-
+    Mutex alloc_mutex;
     Thread::ID server_thread;
-    volatile bool exit;
     Thread *thread;
+    uint64_t draw_pending;
+    int pool_max_size;
+    volatile bool exit;
     volatile bool draw_thread_up;
     bool create_thread;
 
-    uint64_t draw_pending;
-    void thread_draw(bool p_swap_buffers, double frame_step);
-    void thread_flush();
-
-    void thread_exit();
-
-    Mutex *alloc_mutex;
-
-    int pool_max_size;
-
     //#define DEBUG_SYNC
 
-    static VisualServerWrapMT *singleton_mt;
+    static RenderingServerWrapMT *singleton_mt;
 
+    static void _thread_callback(void *_instance);
+    void thread_loop();
+    void thread_draw(bool p_swap_buffers, double frame_step);
+    void thread_flush();
+    void thread_exit();
 #ifdef DEBUG_SYNC
 #define SYNC_DEBUG print_line("sync on: " + String(__FUNCTION__));
 #else
@@ -73,7 +65,7 @@ class  VisualServerWrapMT : public RenderingServer {
 
 public:
 //#define ServerName RenderingServer
-#define ServerNameWrapMT VisualServerWrapMT
+#define ServerNameWrapMT RenderingServerWrapMT
 #define server_name rendering_server
 #include "servers/server_wrap_mt_common.h"
 
@@ -668,8 +660,8 @@ public:
 //        return rendering_server->is_low_end();
 //    }
 
-    GODOT_EXPORT VisualServerWrapMT(RenderingServer *p_contained, bool p_create_thread);
-    ~VisualServerWrapMT() override;
+    GODOT_EXPORT RenderingServerWrapMT(RenderingServer *p_contained, bool p_create_thread);
+    ~RenderingServerWrapMT() override;
 
 //#undef ServerName
 #undef ServerNameWrapMT
