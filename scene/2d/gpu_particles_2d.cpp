@@ -43,7 +43,7 @@
 #endif
 
 IMPL_GDCLASS(GPUParticles2D)
-VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder)
+VARIANT_ENUM_CAST(GPUParticles2D::DrawOrder);
 
 void GPUParticles2D::set_emitting(bool p_emitting) {
 

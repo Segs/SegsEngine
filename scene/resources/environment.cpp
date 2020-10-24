@@ -38,12 +38,12 @@
 
 IMPL_GDCLASS(Environment)
 
-VARIANT_ENUM_CAST(Environment::BGMode)
-VARIANT_ENUM_CAST(Environment::ToneMapper)
-VARIANT_ENUM_CAST(Environment::GlowBlendMode)
-VARIANT_ENUM_CAST(Environment::DOFBlurQuality)
-VARIANT_ENUM_CAST(Environment::SSAOQuality)
-VARIANT_ENUM_CAST(Environment::SSAOBlur)
+VARIANT_ENUM_CAST(Environment::BGMode);
+VARIANT_ENUM_CAST(Environment::ToneMapper);
+VARIANT_ENUM_CAST(Environment::GlowBlendMode);
+VARIANT_ENUM_CAST(Environment::DOFBlurQuality);
+VARIANT_ENUM_CAST(Environment::SSAOQuality);
+VARIANT_ENUM_CAST(Environment::SSAOBlur);
 
 
 RID Environment::get_rid() const {
@@ -127,7 +127,7 @@ void Environment::set_ambient_light_sky_contribution(float p_energy) {
 void Environment::set_camera_feed_id(int p_camera_feed_id) {
     camera_feed_id = p_camera_feed_id;
     RenderingServer::get_singleton()->environment_set_camera_feed_id(environment, camera_feed_id);
-};
+}
 
 Environment::BGMode Environment::get_background() const {
 

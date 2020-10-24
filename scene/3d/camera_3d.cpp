@@ -232,7 +232,7 @@ void Camera3D::set_projection(Camera3D::Projection p_mode) {
 RID Camera3D::get_camera_rid() const {
 
     return camera;
-};
+}
 
 void Camera3D::make_current() {
 
@@ -287,7 +287,7 @@ Vector3 Camera3D::project_ray_normal(const Point2 &p_pos) const {
 
     Vector3 ray = project_local_ray_normal(p_pos);
     return get_camera_transform().basis.xform(ray).normalized();
-};
+}
 
 Vector3 Camera3D::project_local_ray_normal(const Point2 &p_pos) const {
 
@@ -311,7 +311,7 @@ Vector3 Camera3D::project_local_ray_normal(const Point2 &p_pos) const {
     }
 
     return ray;
-};
+}
 
 Vector3 Camera3D::project_ray_origin(const Point2 &p_pos) const {
 
@@ -341,7 +341,7 @@ Vector3 Camera3D::project_ray_origin(const Point2 &p_pos) const {
     ray.z = -near;
     ray = get_camera_transform().xform(ray);
     return ray;
-};
+}
 
 bool Camera3D::is_position_behind(const Vector3 &p_pos) const {
 

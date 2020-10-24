@@ -44,10 +44,10 @@ IMPL_GDCLASS(OmniLight3D)
 IMPL_GDCLASS(SpotLight3D)
 VARIANT_ENUM_CAST(Light3D::Param);
 VARIANT_ENUM_CAST(Light3D::BakeMode);
-VARIANT_ENUM_CAST(DirectionalLight3D::ShadowMode)
-VARIANT_ENUM_CAST(DirectionalLight3D::ShadowDepthRange)
-VARIANT_ENUM_CAST(OmniLight3D::ShadowMode)
-VARIANT_ENUM_CAST(OmniLight3D::ShadowDetail)
+VARIANT_ENUM_CAST(DirectionalLight3D::ShadowMode);
+VARIANT_ENUM_CAST(DirectionalLight3D::ShadowDepthRange);
+VARIANT_ENUM_CAST(OmniLight3D::ShadowMode);
+VARIANT_ENUM_CAST(OmniLight3D::ShadowDetail);
 
 bool Light3D::_can_gizmo_scale() const {
 
@@ -184,8 +184,9 @@ Light3D::BakeMode Light3D::get_bake_mode() const {
 
 void Light3D::_update_visibility() {
 
-    if (!is_inside_tree())
+    if (!is_inside_tree()) {
         return;
+    }
 
     bool editor_ok = true;
 
@@ -356,8 +357,9 @@ Light3D::~Light3D() {
 
     RenderingServer::get_singleton()->instance_set_base(get_instance(), RID());
 
-    if (light.is_valid())
+    if (light.is_valid()) {
         RenderingServer::get_singleton()->free_rid(light);
+    }
 }
 /////////////////////////////////////////
 

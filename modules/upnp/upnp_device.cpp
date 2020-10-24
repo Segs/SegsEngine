@@ -36,7 +36,7 @@
 #include <miniupnpc/upnpcommands.h>
 
 IMPL_GDCLASS(UPNPDevice)
-VARIANT_ENUM_CAST(UPNPDevice::IGDStatus)
+VARIANT_ENUM_CAST(UPNPDevice::IGDStatus);
 
 String UPNPDevice::query_external_address() const {
     ERR_FAIL_COND_V(!is_valid_gateway(), null_string);

@@ -120,8 +120,9 @@ void EditorHelpSearch::_update_icons() {
     case_sensitive_button->set_button_icon(get_theme_icon("MatchCase", "EditorIcons"));
     hierarchy_button->set_button_icon(get_theme_icon("ClassList", "EditorIcons"));
 
-    if (is_visible_in_tree())
+    if (is_visible_in_tree()) {
         _update_results();
+    }
 }
 
 void EditorHelpSearch::_update_results() {

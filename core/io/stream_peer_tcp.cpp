@@ -34,7 +34,7 @@
 #include "core/project_settings.h"
 #include "core/method_bind.h"
 
-IMPL_GDCLASS(StreamPeerTCP);
+IMPL_GDCLASS(StreamPeerTCP)
 
 VARIANT_ENUM_CAST(StreamPeerTCP::Status);
 

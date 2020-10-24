@@ -185,33 +185,33 @@ _FORCE_INLINE_ void Vector2::operator-=(const Vector2 &p_v) {
 constexpr _FORCE_INLINE_ Vector2 Vector2::operator*(Vector2 p_v1) const {
 
     return Vector2(x * p_v1.x, y * p_v1.y);
-};
+}
 
 _FORCE_INLINE_ Vector2 Vector2::operator*(real_t rvalue) const {
 
     return Vector2(x * rvalue, y * rvalue);
-};
+}
 _FORCE_INLINE_ void Vector2::operator*=(real_t rvalue) {
 
     x *= rvalue;
     y *= rvalue;
-};
+}
 
 _FORCE_INLINE_ Vector2 Vector2::operator/(const Vector2 &p_v1) const {
 
     return Vector2(x / p_v1.x, y / p_v1.y);
-};
+}
 
 _FORCE_INLINE_ Vector2 Vector2::operator/(real_t rvalue) const {
 
     return Vector2(x / rvalue, y / rvalue);
-};
+}
 
 _FORCE_INLINE_ void Vector2::operator/=(real_t rvalue) {
 
     x /= rvalue;
     y /= rvalue;
-};
+}
 
 _FORCE_INLINE_ Vector2 Vector2::operator-() const {
 
@@ -296,7 +296,9 @@ struct GODOT_EXPORT Vector2i {
     void operator+=(const Vector2i &p_v);
     Vector2i operator-(const Vector2i &p_v) const;
     void operator-=(const Vector2i &p_v);
-    Vector2i operator*(const Vector2i &p_v1) const;
+    constexpr Vector2i operator*(Vector2i p_v1) const {
+        return Vector2i(x * p_v1.x, y * p_v1.y);
+    }
 
     Vector2i operator*(int rvalue) const {
         return Vector2i(x * rvalue, y * rvalue);

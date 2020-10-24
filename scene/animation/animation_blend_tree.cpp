@@ -50,8 +50,8 @@ IMPL_GDCLASS(AnimationNodeTimeSeek)
 IMPL_GDCLASS(AnimationNodeTransition)
 IMPL_GDCLASS(AnimationNodeOutput)
 IMPL_GDCLASS(AnimationNodeBlendTree)
-VARIANT_ENUM_CAST(AnimationNodeOneShot::MixMode)
-VARIANT_ENUM_CAST(AnimationNodeBlendTree::ConnectionError)
+VARIANT_ENUM_CAST(AnimationNodeOneShot::MixMode);
+VARIANT_ENUM_CAST(AnimationNodeBlendTree::ConnectionError);
 
 void AnimationNodeAnimation::set_animation(const StringName &p_name) {
     animation = p_name;

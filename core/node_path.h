@@ -52,6 +52,7 @@ public:
     String asString() const;
 
     bool is_absolute() const;
+    bool is_locator() const;
     int get_name_count() const;
     StringName get_name(int p_idx) const;
     int get_subname_count() const;

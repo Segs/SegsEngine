@@ -41,7 +41,7 @@ class X509Certificate;
 class GODOT_EXPORT WebSocketServer : public WebSocketMultiplayerPeer {
 
     GDCLASS(WebSocketServer,WebSocketMultiplayerPeer)
-    GDCICLASS(WebSocketServer);
+    GDCICLASS(WebSocketServer)
 
     IP_Address bind_ip;
 protected:

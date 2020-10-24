@@ -1432,7 +1432,8 @@ struct PrivateData {
             cursor_set_column(0);
 
             m_owner->begin_complex_operation();
-            _remove_text(0, 0, M_MAX(0, text.size() - 1), M_MAX(get_line(M_MAX(text.size() - 1, 0)).size(), 0));
+            int text_range=eastl::max<int>(0, text.size() - 1);
+            _remove_text(0, 0, text_range, eastl::max<int>(get_line(text_range).size(), 0));
             _insert_text_at_cursor(p_text);
             end_complex_operation();
             selection.active = false;
@@ -1649,9 +1650,9 @@ void PrivateData::_update_selection_mode_word() {
 }
 
 IMPL_GDCLASS(TextEdit)
-VARIANT_ENUM_CAST(TextEdit::MenuItems)
-VARIANT_ENUM_CAST(TextEdit::SearchFlags)
-VARIANT_ENUM_CAST(TextEdit::SearchResult)
+VARIANT_ENUM_CAST(TextEdit::MenuItems);
+VARIANT_ENUM_CAST(TextEdit::SearchFlags);
+VARIANT_ENUM_CAST(TextEdit::SearchResult);
 
 #define D() ((PrivateData *)m_priv)
 void Text::set_font(const Ref<Font> &p_font) {
@@ -5793,7 +5794,7 @@ String TextEdit::get_text() {
     }
 
     return StringUtils::to_utf8(longthing);
-};
+}
 
 String TextEdit::get_text_for_lookup_completion() {
 
@@ -5841,7 +5842,7 @@ UIString TextEdit::get_text_for_completion() {
     }
 
     return longthing;
-};
+}
 String TextEdit::get_text_for_completion_utf8() const {
 
     String longthing;
@@ -5863,7 +5864,7 @@ String TextEdit::get_text_for_completion_utf8() const {
     }
 
     return longthing;
-};
+}
 
 //String TextEdit::get_line(int line) const {
 
@@ -5885,7 +5886,7 @@ void TextEdit::clear() {
     D()->setting_text = true;
     _clear();
     D()->setting_text = false;
-};
+}
 
 void TextEdit::set_readonly(bool p_readonly) {
 

@@ -1602,7 +1602,7 @@ public:
 };
 
 class VisualShaderNodeScalarSwitch : public VisualShaderNodeSwitch {
-    GDCLASS(VisualShaderNodeScalarSwitch, VisualShaderNodeSwitch);
+    GDCLASS(VisualShaderNodeScalarSwitch, VisualShaderNodeSwitch)
 
 public:
     StringView get_caption() const override;

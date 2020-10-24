@@ -678,7 +678,7 @@ void FindInFilesPanel::_on_result_found(StringView fpath, int line_number, int b
     // Do this first because it resets properties of the cell...
     item->set_cell_mode(text_index, TreeItem::CELL_MODE_CUSTOM);
 
-    StringName item_text = FormatSN("%3s:    %s", line_number, StringUtils::replace(text,"\t", "    ").c_str());
+    StringName item_text = FormatSN("%03d:    %s", line_number, StringUtils::replace(text,"\t", "    ").c_str());
 
     item->set_text(text_index, item_text);
     item->set_custom_draw(text_index, callable_mp(this,&FindInFilesPanel::draw_result_text));
@@ -881,7 +881,7 @@ void FindInFilesPanel::apply_replaces_in_file(StringView fpath, const Vector<Fin
         int _;
         if (!find_next(line, search_text, repl_begin, _finder->is_match_case(), _finder->is_whole_words(), _, _)) {
             // Make sure the replace is still valid in case the file was tampered with.
-            print_verbose(FormatVE("Occurrence no longer matches, replace will be ignored in %.*s: line %d, col %d",fpath.size(),fpath.data(), repl_line_number, repl_begin));
+            print_verbose(FormatVE("Occurrence no longer matches, replace will be ignored in %.*s: line %d, col %d",(int)fpath.size(),fpath.data(), repl_line_number, repl_begin));
             continue;
         }
 

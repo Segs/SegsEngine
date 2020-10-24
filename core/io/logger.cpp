@@ -69,11 +69,11 @@ void Logger::log_error(StringView p_function, StringView p_file, int p_line, Str
     else
         err_details = p_code;
 
-    logf_error(FormatVE("%s: %.*s\n",err_type,err_details.size(),err_details.data()));
+    logf_error(FormatVE("%s: %.*s\n",err_type,(int)err_details.size(),err_details.data()));
     logf_error(FormatVE("   at: %.*s (%.*s:%i) - %.*s\n",
-                        p_function.size(),p_function.data(),
-                        p_file.size(),p_file.data(),p_line,
-                        p_code.size(),p_code.data())
+                        (int)p_function.size(),p_function.data(),
+                        (int)p_file.size(),p_file.data(),p_line,
+                        (int)p_code.size(),p_code.data())
                );
 }
 

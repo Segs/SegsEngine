@@ -49,9 +49,9 @@ IMPL_GDCLASS(CSGCylinder)
 IMPL_GDCLASS(CSGTorus)
 IMPL_GDCLASS(CSGPolygon)
 
-VARIANT_ENUM_CAST(CSGShape::Operation)
-VARIANT_ENUM_CAST(CSGPolygon::Mode)
-VARIANT_ENUM_CAST(CSGPolygon::PathRotation)
+VARIANT_ENUM_CAST(CSGShape::Operation);
+VARIANT_ENUM_CAST(CSGPolygon::Mode);
+VARIANT_ENUM_CAST(CSGPolygon::PathRotation);
 
 //TODO: original code was casting Vector3 to string and hashing a string.. yuck
 template<>

@@ -43,10 +43,10 @@
 #include "core/translation_helpers.h"
 
 IMPL_GDCLASS(CPUParticles3D)
-VARIANT_ENUM_CAST(CPUParticles3D::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles3D::Parameter)
-VARIANT_ENUM_CAST(CPUParticles3D::Flags)
-VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape)
+VARIANT_ENUM_CAST(CPUParticles3D::DrawOrder);
+VARIANT_ENUM_CAST(CPUParticles3D::Parameter);
+VARIANT_ENUM_CAST(CPUParticles3D::Flags);
+VARIANT_ENUM_CAST(CPUParticles3D::EmissionShape);
 
 AABB CPUParticles3D::get_aabb() const {
     return AABB();

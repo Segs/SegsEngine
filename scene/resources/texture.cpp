@@ -87,7 +87,7 @@ namespace  {
 
             Ref<Image> img(texture->get_data());
             FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
-            ERR_FAIL_COND_V_MSG(err, err, FormatVE("Can't save using saver wrapper at path: '%.*s'.", p_path.size(),p_path.data()));
+            ERR_FAIL_COND_V_MSG(err, err, FormatVE("Can't save using saver wrapper at path: '%.*s'.", (int)p_path.size(),p_path.data()));
             Vector<uint8_t> buffer;
             err = m_saver->save_image(*img,buffer,{});
 
@@ -475,7 +475,7 @@ void ImageTexture::_set_data(Dictionary p_data) {
     set_lossy_storage_quality(p_data["lossy_quality"].as<float>());
 
     set_size_override(p_data["size"].as<Vector2>());
-};
+}
 
 void ImageTexture::_bind_methods() {
 
@@ -1403,7 +1403,7 @@ void LargeTexture::set_piece_offset(int p_idx, const Point2 &p_offset) {
 
     ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].offset = p_offset;
-};
+}
 
 void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
 
@@ -1411,7 +1411,7 @@ void LargeTexture::set_piece_texture(int p_idx, const Ref<Texture> &p_texture) {
     ERR_FAIL_COND(not p_texture);
     ERR_FAIL_INDEX(p_idx, pieces.size());
     pieces[p_idx].texture = p_texture;
-};
+}
 
 void LargeTexture::set_size(const Size2 &p_size) {
 
@@ -1690,12 +1690,12 @@ bool CubeMap::_get(const StringName &p_name, Variant &r_ret) const {
 
 void CubeMap::_get_property_list(Vector<PropertyInfo> *p_list) const {
 
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/top", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/front", PropertyHint::ResourceType, "Image"));
-    p_list->push_back(PropertyInfo(VariantType::OBJECT, "side/back", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/left", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/right", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/bottom", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/top", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/front", PropertyHint::ResourceType, "Image"));
+    p_list->emplace_back(PropertyInfo(VariantType::OBJECT, "side/back", PropertyHint::ResourceType, "Image"));
 }
 
 void CubeMap::_bind_methods() {

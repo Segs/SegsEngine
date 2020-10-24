@@ -92,7 +92,7 @@ static void _parse_hex(StringView p_string, int p_start, uint8_t *p_dst) {
 
     p_dst[0] = ret >> 8;
     p_dst[1] = ret & 0xff;
-};
+}
 
 void IP_Address::_parse_ipv6(StringView p_string) {
 
@@ -154,7 +154,7 @@ void IP_Address::_parse_ipv6(StringView p_string) {
             _parse_hex(p_string, parts[i], (uint8_t *)&(field16[idx++]));
         }
     }
-};
+}
 
 void IP_Address::_parse_ipv4(StringView p_string, int p_start, uint8_t *p_ret) {
 
@@ -170,14 +170,14 @@ void IP_Address::_parse_ipv4(StringView p_string, int p_start, uint8_t *p_ret) {
     for (int i = 0; i < 4; i++) {
         p_ret[i] = StringUtils::to_int(StringUtils::get_slice(ip,'.', i));
     }
-};
+}
 
 void IP_Address::clear() {
 
     memset(&field8[0], 0, sizeof(field8));
     valid = false;
     wildcard = false;
-};
+}
 
 bool IP_Address::is_ipv4() const {
     return (field32[0] == 0 && field32[1] == 0 && field16[4] == 0 && field16[5] == 0xffff);
@@ -237,7 +237,7 @@ _FORCE_INLINE_ static void _32_to_buf(uint8_t *p_dst, uint32_t p_n) {
     p_dst[1] = (p_n >> 16) & 0xff;
     p_dst[2] = (p_n >> 8) & 0xff;
     p_dst[3] = (p_n >> 0) & 0xff;
-};
+}
 
 IP_Address::IP_Address(uint32_t p_a, uint32_t p_b, uint32_t p_c, uint32_t p_d, bool is_v6) {
 

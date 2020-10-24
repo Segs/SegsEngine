@@ -302,7 +302,10 @@ public:
     Image(const char **p_xpm);
     Image(ImageData &&from) {
         format = from.format;
-        data = from.data;
+        width = from.width;
+        height = from.height;
+        mipmaps = from.mipmaps;
+        data = eastl::move(from.data);
     }
     ~Image() override;
 };

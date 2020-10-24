@@ -111,7 +111,7 @@ bool ArrayPropertyEdit::_set(const StringName &p_name, const Variant &p_value) {
             } else if (newsize > size) {
 
                 Variant init;
-                Callable::CallError ce;
+
                 VariantType new_type = subtype;
                 if (new_type == VariantType::NIL && size) {
                     new_type = arr.get(size - 1).get_type();

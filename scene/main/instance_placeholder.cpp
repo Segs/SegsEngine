@@ -131,7 +131,7 @@ Dictionary InstancePlaceholder::get_stored_values(bool p_with_order) {
         ret[".order"] = order;
 
     return ret;
-};
+}
 
 void InstancePlaceholder::_bind_methods() {
 

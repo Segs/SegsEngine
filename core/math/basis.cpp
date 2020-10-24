@@ -62,7 +62,7 @@ void Basis::from_z(const Vector3 &p_z) {
 
 void Basis::invert() {
 
-    real_t co[3] = {
+    const real_t co[3] = {
         cofac(1, 1, 2, 2), cofac(1, 2, 2, 0), cofac(1, 0, 2, 1)
     };
     real_t det = elements[0][0] * co[0] +

@@ -40,9 +40,9 @@
 IMPL_GDCLASS(Line2D)
 
 // Needed so we can bind functions
-VARIANT_ENUM_CAST(Line2D::LineJointMode)
-VARIANT_ENUM_CAST(Line2D::LineCapMode)
-VARIANT_ENUM_CAST(Line2D::LineTextureMode)
+VARIANT_ENUM_CAST(Line2D::LineJointMode);
+VARIANT_ENUM_CAST(Line2D::LineCapMode);
+VARIANT_ENUM_CAST(Line2D::LineTextureMode);
 
 #ifdef TOOLS_ENABLED
 Rect2 Line2D::_edit_get_rect() const {

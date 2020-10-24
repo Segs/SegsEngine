@@ -71,7 +71,7 @@ TScriptInstance *cast_script_instance(ScriptInstance *p_inst) {
 
 class GODOT_EXPORT CSharpScript : public Script {
 
-    GDCLASS(CSharpScript, Script);
+    GDCLASS(CSharpScript, Script)
 public:
     struct SignalParameter {
         StringName name;
@@ -332,7 +332,7 @@ struct CSharpScriptBinding {
 };
 
 class ManagedCallableMiddleman : public Object {
-    GDCLASS(ManagedCallableMiddleman, Object);
+    GDCLASS(ManagedCallableMiddleman, Object)
 };
 
 class GODOT_EXPORT CSharpLanguage : public ScriptLanguage {

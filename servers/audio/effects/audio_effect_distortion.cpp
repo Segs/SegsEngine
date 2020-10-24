@@ -37,7 +37,7 @@
 IMPL_GDCLASS(AudioEffectDistortionInstance)
 IMPL_GDCLASS(AudioEffectDistortion)
 
-VARIANT_ENUM_CAST(AudioEffectDistortion::Mode)
+VARIANT_ENUM_CAST(AudioEffectDistortion::Mode);
 
 void AudioEffectDistortionInstance::process(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {
 

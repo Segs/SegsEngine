@@ -38,7 +38,7 @@ class GODOT_EXPORT CollisionShape3D : public Node3D {
 
     GDCLASS(CollisionShape3D,Node3D)
 
-    OBJ_CATEGORY("3D Physics Nodes");
+    OBJ_CATEGORY("3D Physics Nodes")
 
     Ref<Shape> shape;
     CollisionObject3D *parent;

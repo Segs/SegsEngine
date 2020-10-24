@@ -106,7 +106,7 @@ constexpr int PACKED_SCENE_VERSION = 2;
 IMPL_GDCLASS(SceneState)
 IMPL_GDCLASS(PackedScene)
 RES_BASE_EXTENSION_IMPL(PackedScene,"scn")
-VARIANT_ENUM_CAST(PackedGenEditState)
+VARIANT_ENUM_CAST(PackedGenEditState);
 
 bool SceneState::can_instance() const {
 
@@ -1565,7 +1565,7 @@ int SceneState::add_value(const Variant &p_value) {
 int SceneState::add_node_path(const NodePath &p_path) {
 
     node_paths.push_back(p_path);
-    return node_paths.size() - 1 | FLAG_ID_IS_PATH;
+    return (node_paths.size() - 1) | FLAG_ID_IS_PATH;
 }
 int SceneState::add_node(int p_parent, int p_owner, int p_type, int p_name, int p_instance, int p_index) {
 

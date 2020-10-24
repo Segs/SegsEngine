@@ -273,10 +273,10 @@ bool PackedSourcePCK::try_open_pack(StringView p_path, bool p_replace_files, Str
     f->close();
     memdelete(f);
     return true;
-};
+}
 
 
 FileAccess *PackedSourcePCK::get_file(StringView p_path, PackedDataFile *p_file) {
 
     return memnew_basic(FileAccessPack(p_path, *p_file));
-};
+}

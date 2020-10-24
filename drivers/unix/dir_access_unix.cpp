@@ -127,7 +127,7 @@ uint64_t DirAccessUnix::get_modified_time(StringView _file) {
         ERR_FAIL_V(0);
     }
     return 0;
-};
+}
 
 bool DirAccessUnix::is_hidden(StringView p_name) {
     return p_name != StringView(".") && p_name != StringView("..") && StringUtils::begins_with(p_name,".");
@@ -415,7 +415,7 @@ size_t DirAccessUnix::get_space_left() {
     // FIXME: Implement this.
     return 0;
 #endif
-};
+}
 
 String DirAccessUnix::get_filesystem_type() const {
     return String(); //TODO this should be implemented

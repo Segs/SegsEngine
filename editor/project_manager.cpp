@@ -2442,11 +2442,9 @@ ProjectManager::ProjectManager() {
     panel->add_child(vb);
     vb->set_anchors_and_margins_preset(Control::PRESET_WIDE, Control::PRESET_MODE_MINSIZE, 8 * EDSCALE);
 
-    String cp;
-    cp.push_back(0xC2);
-    cp.push_back(0xA9);
+    const uint8_t cp[3] = {0xC2,0xA9,0x00};
     OS::get_singleton()->set_window_title(
-            (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + cp +
+            (VERSION_NAME + String(" - ") + TTR("Project Manager") + " - " + (const char *)cp +
                                  " 2007-2019 Juan Linietsky, Ariel Manzur & Godot Contributors"));
 
     Control *center_box = memnew(Control);

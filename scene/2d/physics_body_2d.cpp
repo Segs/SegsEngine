@@ -722,22 +722,22 @@ void RigidBody2D::apply_torque_impulse(float p_torque) {
 void RigidBody2D::set_applied_force(const Vector2 &p_force) {
 
     PhysicsServer2D::get_singleton()->body_set_applied_force(get_rid(), p_force);
-};
+}
 
 Vector2 RigidBody2D::get_applied_force() const {
 
     return PhysicsServer2D::get_singleton()->body_get_applied_force(get_rid());
-};
+}
 
 void RigidBody2D::set_applied_torque(const float p_torque) {
 
     PhysicsServer2D::get_singleton()->body_set_applied_torque(get_rid(), p_torque);
-};
+}
 
 float RigidBody2D::get_applied_torque() const {
 
     return PhysicsServer2D::get_singleton()->body_get_applied_torque(get_rid());
-};
+}
 
 void RigidBody2D::add_central_force(const Vector2 &p_force) {
     PhysicsServer2D::get_singleton()->body_add_central_force(get_rid(), p_force);

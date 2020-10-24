@@ -43,7 +43,7 @@
 
 IMPL_GDCLASS(EditorFeatureProfile)
 IMPL_GDCLASS(EditorFeatureProfileManager)
-VARIANT_ENUM_CAST(EditorFeatureProfile::Feature)
+VARIANT_ENUM_CAST(EditorFeatureProfile::Feature);
 
 const char *EditorFeatureProfile::feature_names[FEATURE_MAX] = {
     TTRC("3D Editor"),

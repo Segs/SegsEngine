@@ -6175,6 +6175,10 @@ void Node3DEditor::_register_all_gizmos() {
 
 void Node3DEditor::_bind_methods() {
 
+#ifdef TOOLS_ENABLED
+    //_request_gizmo is needed b call_group_flags
+    MethodBinder::bind_method("_request_gizmo", &Node3DEditor::_request_gizmo);
+#endif
     MethodBinder::bind_method("_unhandled_key_input", &Node3DEditor::_unhandled_key_input);
     MethodBinder::bind_method("_get_editor_data", &Node3DEditor::_get_editor_data);
     MethodBinder::bind_method("_refresh_menu_icons", &Node3DEditor::_refresh_menu_icons);

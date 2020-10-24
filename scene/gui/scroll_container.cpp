@@ -406,7 +406,7 @@ void ScrollContainer::_notification(int p_what) {
             }
         }
     }
-};
+}
 
 void ScrollContainer::update_scrollbars() {
 
@@ -471,7 +471,7 @@ void ScrollContainer::_scroll_moved(float) {
     queue_sort();
 
     update();
-};
+}
 
 void ScrollContainer::set_enable_h_scroll(bool p_enable) {
     if (scroll_h == p_enable) {
@@ -612,7 +612,7 @@ void ScrollContainer::_bind_methods() {
     ADD_PROPERTY(PropertyInfo(VariantType::INT, "scroll_deadzone"), "set_deadzone", "get_deadzone");
 
     GLOBAL_DEF("gui/common/default_scroll_deadzone", 0);
-};
+}
 
 ScrollContainer::ScrollContainer() {
 
@@ -638,4 +638,4 @@ ScrollContainer::ScrollContainer() {
     follow_focus = false;
 
     set_clip_contents(true);
-};
+}

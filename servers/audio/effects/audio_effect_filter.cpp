@@ -43,7 +43,7 @@ IMPL_GDCLASS(AudioEffectBandLimitFilter)
 IMPL_GDCLASS(AudioEffectLowShelfFilter)
 IMPL_GDCLASS(AudioEffectHighShelfFilter)
 
-VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB)
+VARIANT_ENUM_CAST(AudioEffectFilter::FilterDB);
 
 template <int S>
 void AudioEffectFilterInstance::_process_filter(const AudioFrame *p_src_frames, AudioFrame *p_dst_frames, int p_frame_count) {

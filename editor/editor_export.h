@@ -63,7 +63,7 @@ public:
 
 private:
     Ref<EditorExportPlatform> platform;
-    ExportFilter export_filter;
+    ExportFilter export_filter = EXPORT_ALL_RESOURCES;
     String include_filter;
     String exclude_filter;
     String export_path;
@@ -77,8 +77,8 @@ private:
     Vector<PropertyInfo> properties;
     HashMap<StringName, Variant> values;
 
-    int script_mode;
-    bool runnable;
+    int script_mode = MODE_SCRIPT_COMPILED;
+    bool runnable = false;
 
     friend class EditorExport;
     friend class EditorExportPlatform;

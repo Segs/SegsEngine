@@ -55,8 +55,8 @@
 IMPL_GDCLASS(CanvasItemMaterial)
 IMPL_GDCLASS(CanvasItem)
 
-VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode)
-VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode)
+VARIANT_ENUM_CAST(CanvasItemMaterial::BlendMode);
+VARIANT_ENUM_CAST(CanvasItemMaterial::LightMode);
 VARIANT_ENUM_CAST(CanvasItem::BlendMode);
 
 static Vector<CanvasItemMaterial *> s_dirty_materials;

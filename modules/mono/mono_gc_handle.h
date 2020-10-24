@@ -80,7 +80,7 @@ struct MonoGCHandleData {
 };
 
 class MonoGCHandleRef : public RefCounted {
-    GDCLASS(MonoGCHandleRef, RefCounted);
+    GDCLASS(MonoGCHandleRef, RefCounted)
 
     MonoGCHandleData data;
 

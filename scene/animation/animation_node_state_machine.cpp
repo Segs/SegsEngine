@@ -37,7 +37,7 @@
 IMPL_GDCLASS(AnimationNodeStateMachineTransition)
 IMPL_GDCLASS(AnimationNodeStateMachinePlayback)
 IMPL_GDCLASS(AnimationNodeStateMachine)
-VARIANT_ENUM_CAST(AnimationNodeStateMachineTransition::SwitchMode)
+VARIANT_ENUM_CAST(AnimationNodeStateMachineTransition::SwitchMode);
 
 /////////////////////////////////////////////////
 

@@ -324,12 +324,12 @@ Ref<BitMap> TextureButton::get_click_mask() const {
 Ref<Texture> TextureButton::get_focused_texture() const {
 
     return focused;
-};
+}
 
 void TextureButton::set_focused_texture(const Ref<Texture> &p_focused) {
 
     focused = p_focused;
-};
+}
 
 bool TextureButton::get_expand() const {
     return expand;

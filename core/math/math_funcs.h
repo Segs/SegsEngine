@@ -219,7 +219,7 @@ public:
     static _ALWAYS_INLINE_ double db2linear(double p_db) { return Math::exp(p_db * 0.11512925464970228420089957273422); }
     static _ALWAYS_INLINE_ float db2linear(float p_db) { return Math::exp(p_db * 0.11512925464970228420089957273422f); }
 
-    static _ALWAYS_INLINE_ double round(double p_val) { return (p_val >= 0) ? Math::floor(p_val + 0.5) : -Math::floor(-p_val + 0.5); }
+    //static _ALWAYS_INLINE_ double round(double p_val) { return (p_val >= 0) ? Math::floor(p_val + 0.5) : -Math::floor(-p_val + 0.5); }
     static _ALWAYS_INLINE_ float round(float p_val) { return (p_val >= 0) ? Math::floor(p_val + 0.5f) : -Math::floor(-p_val + 0.5f); }
 
     static _ALWAYS_INLINE_ int64_t wrapi(int64_t value, int64_t min, int64_t max) {
@@ -290,8 +290,7 @@ public:
         return std::abs(a - b) < tolerance;
     }
 
-    static _ALWAYS_INLINE_ bool is_zero_approx(real_t s) { return std::abs(s) < real_t(CMP_EPSILON);
-    }
+    static _ALWAYS_INLINE_ bool is_zero_approx(real_t s) { return std::abs(s) < CMP_EPSILON; }
 
     static _ALWAYS_INLINE_ float absf(float g) {
 
@@ -340,8 +339,8 @@ public:
                     h_sig <<= 1;
                     h_exp++;
                 }
-                f_exp = ((uint32_t)(127 - 15 - h_exp)) << 23;
-                f_sig = ((uint32_t)(h_sig & 0x03ffu)) << 13;
+                f_exp = uint32_t(127 - 15 - h_exp) << 23;
+                f_sig = uint32_t(h_sig & 0x03ffu) << 13;
                 return f_sgn + f_exp + f_sig;
             case 0x7c00u: /* inf or NaN */
                 /* All-ones exponent and a copy of the significand */

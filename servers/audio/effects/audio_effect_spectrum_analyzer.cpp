@@ -36,7 +36,7 @@
 IMPL_GDCLASS(AudioEffectSpectrumAnalyzerInstance)
 IMPL_GDCLASS(AudioEffectSpectrumAnalyzer)
 
-VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzerInstance::MagnitudeMode)
+VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzerInstance::MagnitudeMode);
 VARIANT_ENUM_CAST(AudioEffectSpectrumAnalyzer::FFT_Size);
 
 static void smbFft(float *fftBuffer, long fftFrameSize, long sign)

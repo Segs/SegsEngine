@@ -70,7 +70,7 @@ public:
     void* allocate(size_t n, size_t /*alignment*/, size_t /*offset*/, int /*flags*/ = 0) {
         return Memory::alloc_static(n, false);
     }
-    void  deallocate(void* p, size_t n) {
+    void  deallocate(void* p, size_t /*n*/) {
         return Memory::free_static(p, false);
 
     }

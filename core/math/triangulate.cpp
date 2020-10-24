@@ -80,7 +80,7 @@ bool Triangulate::is_inside_triangle(real_t Ax, real_t Ay,
     } else {
         return ((aCROSSbp >= 0.0f) && (bCROSScp >= 0.0f) && (cCROSSap >= 0.0f));
     }
-};
+}
 
 bool Triangulate::snip(Span<const Vector2> p_contour, int u, int v, int w, int n, Span<const int> V, bool relaxed) {
     int p;

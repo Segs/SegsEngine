@@ -488,7 +488,7 @@ void FileSystemDock::_navigate_to_path(StringView p_path, bool p_select_in_favor
             path = target_path + "/";
         } else {
             memdelete(dirAccess);
-            ERR_FAIL_MSG(FormatVE("Cannot navigate to '%.*s' as it has not been found in the file system!", p_path.size(),p_path.data()));
+            ERR_FAIL_MSG(FormatVE("Cannot navigate to '%.*s' as it has not been found in the file system!", (int)p_path.size(),p_path.data()));
         }
         memdelete(dirAccess);
     }

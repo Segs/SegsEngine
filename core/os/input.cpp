@@ -149,8 +149,9 @@ void Input::get_argument_options(const StringName &p_function, int p_idx, List<S
 
         for(const PropertyInfo &pi : pinfo ) {
 
-            if (!StringUtils::begins_with(pi.name,"input/"))
+            if (!StringUtils::begins_with(pi.name,"input/")) {
                 continue;
+            }
 
             StringView name = pi.name.asCString();
             name = StringUtils::substr(name,StringUtils::find(name,"/") + 1, name.length());

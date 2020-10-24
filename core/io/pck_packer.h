@@ -37,7 +37,7 @@ class FileAccess;
 
 class GODOT_EXPORT PCKPacker : public RefCounted {
 
-    GDCLASS(PCKPacker, RefCounted);
+    GDCLASS(PCKPacker, RefCounted)
 
     FileAccess *file;
     int alignment;

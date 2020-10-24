@@ -37,7 +37,7 @@
 #include "core/os/semaphore.h"
 #include "core/os/thread.h"
 
-IMPL_GDCLASS(IP);
+IMPL_GDCLASS(IP)
 
 VARIANT_ENUM_CAST(IP::ResolverStatus);
 VARIANT_ENUM_CAST(IP::Type);

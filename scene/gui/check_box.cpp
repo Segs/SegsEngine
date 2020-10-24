@@ -44,14 +44,21 @@ Size2 CheckBox::get_icon_size() const {
     Ref<Texture> radio_unchecked = Control::get_theme_icon("radio_unchecked");
 
     Size2 tex_size = Size2(0, 0);
-    if (checked)
+    if (checked) {
         tex_size = Size2(checked->get_width(), checked->get_height());
-    if (unchecked)
-        tex_size = Size2(M_MAX(tex_size.width, unchecked->get_width()), M_MAX(tex_size.height, unchecked->get_height()));
-    if (radio_checked)
-        tex_size = Size2(M_MAX(tex_size.width, radio_checked->get_width()), M_MAX(tex_size.height, radio_checked->get_height()));
-    if (radio_unchecked)
-        tex_size = Size2(M_MAX(tex_size.width, radio_unchecked->get_width()), M_MAX(tex_size.height, radio_unchecked->get_height()));
+    }
+    if (unchecked) {
+        tex_size =
+                Size2(M_MAX(tex_size.width, unchecked->get_width()), M_MAX(tex_size.height, unchecked->get_height()));
+    }
+    if (radio_checked) {
+        tex_size = Size2(
+                M_MAX(tex_size.width, radio_checked->get_width()), M_MAX(tex_size.height, radio_checked->get_height()));
+    }
+    if (radio_unchecked) {
+        tex_size = Size2(M_MAX(tex_size.width, radio_unchecked->get_width()),
+                M_MAX(tex_size.height, radio_unchecked->get_height()));
+    }
     return tex_size;
 }
 
@@ -70,26 +77,25 @@ Size2 CheckBox::get_minimum_size() const {
 }
 
 void CheckBox::_notification(int p_what) {
-
     if (p_what == NOTIFICATION_THEME_CHANGED) {
-
         _set_internal_margin(Margin::Left, get_icon_size().width);
     } else if (p_what == NOTIFICATION_DRAW) {
-
         RID ci = get_canvas_item();
 
         Ref<Texture> on = Control::get_theme_icon(is_radio() ? StringName("radio_checked") : StringName("checked"));
-        Ref<Texture> off = Control::get_theme_icon(is_radio() ? StringName("radio_unchecked") : StringName("unchecked"));
+        Ref<Texture> off =
+                Control::get_theme_icon(is_radio() ? StringName("radio_unchecked") : StringName("unchecked"));
         Ref<StyleBox> sb = get_theme_stylebox("normal");
 
         Vector2 ofs;
         ofs.x = sb->get_margin(Margin::Left);
         ofs.y = int((get_size().height - get_icon_size().height) / 2) + get_theme_constant("check_vadjust");
 
-        if (is_pressed())
+        if (is_pressed()) {
             on->draw(ci, ofs);
-        else
+        } else {
             off->draw(ci, ofs);
+        }
     }
 }
 

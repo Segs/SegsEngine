@@ -2658,14 +2658,14 @@ void CanvasItemEditor::_draw_guides() {
     Color text_color = get_theme_color("font_color", "Editor");
     text_color.a = 0.5;
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_V_GUIDE) {
-        String str = FormatVE("%d px", Math::round(xform.affine_inverse().xform(dragged_guide_pos).x));
+        String str = FormatVE("%d px", (int)Math::round(xform.affine_inverse().xform(dragged_guide_pos).x));
         Ref<Font> font = get_theme_font("font", "Label");
         Size2 text_size = font->get_string_size(str);
         viewport->draw_ui_string(font, Point2(dragged_guide_pos.x + 10, RULER_WIDTH + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);
         viewport->draw_line(Point2(dragged_guide_pos.x, 0), Point2(dragged_guide_pos.x, viewport->get_size().y), guide_color, Math::round(EDSCALE));
     }
     if (drag_type == DRAG_DOUBLE_GUIDE || drag_type == DRAG_H_GUIDE) {
-        String str = FormatVE("%d px", Math::round(xform.affine_inverse().xform(dragged_guide_pos).y));
+        String str = FormatVE("%d px", (int)Math::round(xform.affine_inverse().xform(dragged_guide_pos).y));
         Ref<Font> font = get_theme_font("font", "Label");
         Size2 text_size = font->get_string_size(str);
         viewport->draw_ui_string(font, Point2(RULER_WIDTH + 10, dragged_guide_pos.y + text_size.y / 2 + 10), StringUtils::from_utf8(str), text_color);

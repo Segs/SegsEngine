@@ -91,7 +91,7 @@ void ObjectDB::cleanup() {
                     node_name = FormatVE(" - %s name: %s",e.second->get_class_name().asCString(),name);
                 }
 #endif
-                print_line(FormatVE("Leaked instance: %s:%zu%s", e.second->get_class(), e.second,node_name.c_str()));
+                print_line(FormatVE("Leaked instance: %s:%p:%s", e.second->get_class(), e.second,node_name.c_str()));
             }
         }
     }

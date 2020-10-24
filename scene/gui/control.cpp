@@ -125,11 +125,11 @@ void Control::_edit_set_position(const Point2 &p_position) {
     // Unlikely to happen. TODO: enclose all _edit_ functions into TOOLS_ENABLED
     set_position(p_position);
 #endif
-};
+}
 
 Point2 Control::_edit_get_position() const {
     return get_position();
-};
+}
 
 void Control::_edit_set_scale(const Size2 &p_scale) {
     set_scale(p_scale);
@@ -240,59 +240,59 @@ Transform2D Control::_get_internal_transform() const {
 
 bool Control::_set(const StringName &p_name, const Variant &p_value) {
 
-    StringName name = p_name;
-    if (!StringUtils::begins_with(name,"custom")) {
+    if (!StringUtils::begins_with(p_name,"custom")) {
         return false;
     }
 
-    StringName dname(StringUtils::get_slice(name,'/', 1));
+    StringName dname(StringUtils::get_slice(p_name,'/', 1));
     if (p_value.get_type() == VariantType::NIL) {
 
-        if (StringUtils::begins_with(name,"custom_icons/")) {
+        if (StringUtils::begins_with(p_name,"custom_icons/")) {
             if (data.icon_override.contains(dname)) {
                 data.icon_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.icon_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_shaders/")) {
             if (data.shader_override.contains(dname)) {
                 data.shader_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.shader_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_styles/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_styles/")) {
             if (data.style_override.contains(dname)) {
                 data.style_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.style_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_fonts/")) {
             if (data.font_override.contains(dname)) {
                 data.font_override[dname]->disconnect("changed",callable_mp(this, &ClassName::_override_changed));
             }
             data.font_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_colors/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_colors/")) {
             data.color_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_constants/")) {
             data.constant_override.erase(dname);
             notification(NOTIFICATION_THEME_CHANGED);
-        } else
+        } else {
             return false;
+        }
 
     } else {
-        if (StringUtils::begins_with(name,"custom_icons/")) {
+        if (StringUtils::begins_with(p_name,"custom_icons/")) {
             add_icon_override(dname, refFromVariant<Texture>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_shaders/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_shaders/")) {
             add_shader_override(dname, refFromVariant<Shader>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_styles/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_styles/")) {
             add_theme_style_override(dname, refFromVariant<StyleBox>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_fonts/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_fonts/")) {
             add_font_override(dname, refFromVariant<Font>(p_value));
-        } else if (StringUtils::begins_with(name,"custom_colors/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_colors/")) {
             add_theme_color_override(dname, p_value.as<Color>());
-        } else if (StringUtils::begins_with(name,"custom_constants/")) {
+        } else if (StringUtils::begins_with(p_name,"custom_constants/")) {
             add_constant_override(dname, p_value.as<int>());
         } else
             return false;
@@ -673,8 +673,9 @@ void Control::_notification(int p_notification) {
 
             if (!is_visible_in_tree()) {
 
-                if (get_viewport() != nullptr)
+                if (get_viewport() != nullptr) {
                     get_viewport()->_gui_hid_control(this);
+                }
 
                 if (is_inside_tree()) {
                     _modal_stack_remove();
@@ -1148,10 +1149,11 @@ bool Control::has_icon(const StringName &p_name, const StringName &p_type) const
 
         Control *parent = object_cast<Control>(theme_owner->get_parent());
 
-        if (parent)
+        if (parent) {
             theme_owner = parent->data.theme_owner;
-        else
+        } else {
             theme_owner = nullptr;
+        }
     }
 
     if (Theme::get_project_default()) {
@@ -1263,10 +1265,11 @@ bool Control::has_font(const StringName &p_name, const StringName &p_type) const
 
         Control *parent = object_cast<Control>(theme_owner->get_parent());
 
-        if (parent)
+        if (parent) {
             theme_owner = parent->data.theme_owner;
-        else
+        } else {
             theme_owner = nullptr;
+        }
     }
 
     if (Theme::get_project_default()) {
@@ -2439,7 +2442,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
     points[2] = xform.xform(get_size());
     points[3] = xform.xform(Point2(0, get_size().y));
 
-    const Vector2 dir[4] = {
+    constexpr Vector2 dir[4] = {
         Vector2(-1, 0),
         Vector2(0, -1),
         Vector2(1, 0),
@@ -2448,13 +2451,14 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
     Vector2 vdir = dir[(int)p_margin];
 
-    float maxd = -1e7;
+    float maxd = -1e7f;
 
     for (int i = 0; i < 4; i++) {
 
         float d = vdir.dot(points[i]);
-        if (d > maxd)
+        if (d > maxd) {
             maxd = d;
+        }
     }
 
     Node *base = this;

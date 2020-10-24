@@ -35,8 +35,8 @@
 #include "core/string_utils.inl"
 #include "EASTL/unique_ptr.h"
 
-IMPL_GDCLASS(StreamPeer);
-IMPL_GDCLASS(StreamPeerBuffer);
+IMPL_GDCLASS(StreamPeer)
+IMPL_GDCLASS(StreamPeerBuffer)
 
 Error StreamPeer::_put_data(Span<const uint8_t> p_data) {
 

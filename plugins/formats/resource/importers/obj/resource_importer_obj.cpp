@@ -54,7 +54,7 @@ uint32_t ResourceImporterOBJ::get_import_flags() const {
 static Error _parse_material_library(StringView p_path, Map<String, Ref<SpatialMaterial> > &material_map, Vector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, FormatVE("Couldn't open MTL file '%.*s', it may not exist or not be readable.", p_path.size(),p_path.data()));
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, FormatVE("Couldn't open MTL file '%.*s', it may not exist or not be readable.", (int)p_path.size(),p_path.data()));
 
     Ref<SpatialMaterial> current;
     String current_name;
@@ -216,7 +216,7 @@ static Error _parse_obj(StringView p_path, Vector<Ref<Mesh>> &r_meshes, bool p_s
         bool p_optimize, Vector3 p_scale_mesh, Vector3 p_offset_mesh, Vector<String> *r_missing_deps) {
 
     FileAccessRef f = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, FormatVE("Couldn't open OBJ file '%.*s', it may not exist or not be readable.", p_path.size(),p_path.data()));
+    ERR_FAIL_COND_V_MSG(!f, ERR_CANT_OPEN, FormatVE("Couldn't open OBJ file '%.*s', it may not exist or not be readable.", (int)p_path.size(),p_path.data()));
 
     Ref<ArrayMesh> mesh(make_ref_counted<ArrayMesh>());
 

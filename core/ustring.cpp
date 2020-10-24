@@ -1186,7 +1186,7 @@ bool StringUtils::is_numeric(const String &str) {
     }
 
     return true; // TODO: Use the parser below for this instead
-};
+}
 
 static double built_in_strtod(const CharType *string, /* A decimal ASCII floating-point number,
                  * optionally preceded by white space. Must
@@ -1476,7 +1476,7 @@ Vector<uint8_t> StringUtils::md5_buffer(StringView cs) {
         ret[i] = hash[i];
     }
     return ret;
-};
+}
 
 Vector<uint8_t> StringUtils::sha1_buffer(const UIString &str) {
     String cs = to_utf8(str);
@@ -3085,7 +3085,7 @@ bool StringUtils::is_valid_hex_number(StringView str,bool p_with_prefix) {
     }
 
     return true;
-};
+}
 
 //bool StringUtils::is_valid_float(const String &str) {
 

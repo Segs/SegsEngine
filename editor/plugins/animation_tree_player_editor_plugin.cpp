@@ -230,7 +230,7 @@ void AnimationTreePlayerEditor::_edit_dialog_edit_animation() {
         //TODO: SEGS: the amount of conversion operator calls below looks pretty strange.
         get_tree()->get_root()->get_child(0)->call_va("_resource_selected", Variant(property_editor->get_variant().as<RefPtr>()));
     }
-};
+}
 
 void AnimationTreePlayerEditor::_edit_oneshot_start() {
 
@@ -1104,7 +1104,7 @@ StringName AnimationTreePlayerEditor::_add_node(int p_item) {
     update();
 
     return sn_name;
-};
+}
 
 void AnimationTreePlayerEditor::_file_dialog_selected(StringView p_path) {
 
@@ -1126,7 +1126,7 @@ void AnimationTreePlayerEditor::_file_dialog_selected(StringView p_path) {
         default:
             break;
     }
-};
+}
 
 void AnimationTreePlayerEditor::_add_menu_item(int p_item) {
 

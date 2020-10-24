@@ -38,7 +38,7 @@
 #include <cstdlib>
 
 IMPL_GDCLASS(UPNP)
-VARIANT_ENUM_CAST(UPNP::UPNPResult)
+VARIANT_ENUM_CAST(UPNP::UPNPResult);
 
 bool UPNP::is_common_device(StringView dev) const {
     return dev.empty() ||

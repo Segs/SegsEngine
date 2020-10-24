@@ -320,11 +320,6 @@ void EditorMaterialPreviewPlugin::_preview_done(const Variant &p_udata) {
     preview_done = true;
 }
 
-void EditorMaterialPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorMaterialPreviewPlugin::_preview_done);
-}
-
 bool EditorMaterialPreviewPlugin::handles(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Material"); //any material
@@ -365,7 +360,7 @@ Ref<Texture> EditorMaterialPreviewPlugin::generate(const RES &p_from, const Size
         ptex->create_from_image(img, 0);
         return ptex;
     }
-    
+
     return Ref<Texture>();
 }
 
@@ -706,10 +701,6 @@ void EditorMeshPreviewPlugin::_preview_done(const Variant &p_udata) {
     preview_done = true;
 }
 
-void EditorMeshPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorMeshPreviewPlugin::_preview_done);
-}
 bool EditorMeshPreviewPlugin::handles(StringView p_type) const {
 
     return ClassDB::is_parent_class(StringName(p_type), "Mesh"); //any Mesh
@@ -825,11 +816,6 @@ EditorMeshPreviewPlugin::~EditorMeshPreviewPlugin() {
 void EditorFontPreviewPlugin::_preview_done(const Variant &p_udata) {
 
     preview_done = true;
-}
-
-void EditorFontPreviewPlugin::_bind_methods() {
-
-    MethodBinder::bind_method("_preview_done", &EditorFontPreviewPlugin::_preview_done);
 }
 
 bool EditorFontPreviewPlugin::handles(StringView p_type) const {

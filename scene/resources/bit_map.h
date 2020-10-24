@@ -38,7 +38,7 @@ class GODOT_EXPORT BitMap : public Resource {
 
     GDCLASS(BitMap,Resource)
 
-    OBJ_SAVE_TYPE(BitMap);
+    OBJ_SAVE_TYPE(BitMap)
 
     PoolVector<uint8_t> bitmask;
     int width;

@@ -59,7 +59,7 @@ using namespace eastl; // for string view suffix
 
 IMPL_GDCLASS(AudioServer)
 IMPL_GDCLASS(AudioBusLayout)
-VARIANT_ENUM_CAST(AudioServer::SpeakerMode)
+VARIANT_ENUM_CAST(AudioServer::SpeakerMode);
 
 struct AudioServerBus {
 

@@ -31,14 +31,13 @@
 #include "doc_data.h"
 
 #include "EASTL/sort.h"
-#include <QString>
-#include <QtCore/QXmlStreamReader>
 #include <QDebug>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
-
+#include <QString>
+#include <QtCore/QXmlStreamReader>
 
 #define ERR_FILE_CORRUPT Error(16)
 #define ERR_FILE_CANT_OPEN Error(12)
@@ -46,15 +45,14 @@
 
 using namespace DocContents;
 
-Error _load(QXmlStreamReader &parser,DocData &tgt);
+Error _load(QXmlStreamReader &parser, DocData &tgt);
 
 void DocData::merge_from(const DocData &p_data) {
-
-    for (eastl::pair<const String,ClassDoc> &c : class_list) {
-
+    for (eastl::pair<const String, ClassDoc> &c : class_list) {
         auto iter = p_data.class_list.find(c.second.name);
-        if (iter==p_data.class_list.end())
+        if (iter == p_data.class_list.end()) {
             continue;
+        }
 
         const ClassDoc &cf = iter->second;
 
@@ -63,12 +61,13 @@ void DocData::merge_from(const DocData &p_data) {
         c.second.tutorials = cf.tutorials;
 
         for (MethodDoc &m : c.second.methods) {
-
-            for (const MethodDoc & method_doc : cf.methods) {
-                if (method_doc.name != m.name)
+            for (const MethodDoc &method_doc : cf.methods) {
+                if (method_doc.name != m.name) {
                     continue;
-                if (method_doc.arguments.size() != m.arguments.size())
+                }
+                if (method_doc.arguments.size() != m.arguments.size()) {
                     continue;
+                }
                 // since polymorphic functions are allowed we need to check the type of
                 // the arguments so we make sure they are different.
                 int arg_count = method_doc.arguments.size();
@@ -77,18 +76,22 @@ void DocData::merge_from(const DocData &p_data) {
                 // also there is no guarantee that argument ordering will match, so we
                 // have to check one by one so we make sure we have an exact match
                 for (int k = 0; k < arg_count; ++k) {
-                    for (int l = 0; l < arg_count; ++l)
+                    for (int l = 0; l < arg_count; ++l) {
                         if (method_doc.arguments[k].type == m.arguments[l].type && !arg_used[l]) {
                             arg_used[l] = true;
                             break;
                         }
+                    }
                 }
                 bool not_the_same = false;
-                for (int l = 0; l < arg_count; ++l)
-                    if (!arg_used[l]) // at least one of the arguments was different
+                for (int l = 0; l < arg_count; ++l) {
+                    if (!arg_used[l]) { // at least one of the arguments was different
                         not_the_same = true;
-                if (not_the_same)
+                    }
+                }
+                if (not_the_same) {
                     continue;
+                }
 
                 const MethodDoc &mf = method_doc;
 
@@ -98,13 +101,12 @@ void DocData::merge_from(const DocData &p_data) {
         }
 
         for (int i = 0; i < c.second.defined_signals.size(); i++) {
-
             MethodDoc &m = c.second.defined_signals[i];
 
             for (int j = 0; j < cf.defined_signals.size(); j++) {
-
-                if (cf.defined_signals[j].name != m.name)
+                if (cf.defined_signals[j].name != m.name) {
                     continue;
+                }
                 const MethodDoc &mf = cf.defined_signals[j];
 
                 m.description = mf.description;
@@ -113,11 +115,10 @@ void DocData::merge_from(const DocData &p_data) {
         }
 
         for (ConstantDoc &m : c.second.constants) {
-
             for (int j = 0; j < cf.constants.size(); j++) {
-
-                if (cf.constants[j].name != m.name)
+                if (cf.constants[j].name != m.name) {
                     continue;
+                }
                 const ConstantDoc &mf = cf.constants[j];
 
                 m.description = mf.description;
@@ -126,11 +127,10 @@ void DocData::merge_from(const DocData &p_data) {
         }
 
         for (PropertyDoc &p : c.second.properties) {
-
             for (int j = 0; j < cf.properties.size(); j++) {
-
-                if (cf.properties[j].name != p.name)
+                if (cf.properties[j].name != p.name) {
                     continue;
+                }
                 const PropertyDoc &pf = cf.properties[j];
 
                 p.description = pf.description;
@@ -139,11 +139,10 @@ void DocData::merge_from(const DocData &p_data) {
         }
 
         for (PropertyDoc &p : c.second.theme_properties) {
-
             for (int j = 0; j < cf.theme_properties.size(); j++) {
-
-                if (cf.theme_properties[j].name != p.name)
+                if (cf.theme_properties[j].name != p.name) {
                     continue;
+                }
                 const PropertyDoc &pf = cf.theme_properties[j];
 
                 p.description = pf.description;
@@ -155,20 +154,21 @@ void DocData::merge_from(const DocData &p_data) {
 
 void DocData::remove_from(const DocData &p_data) {
     for (const String &E : p_data.class_list.keys()) {
-        if (class_list.contains(E))
+        if (class_list.contains(E)) {
             class_list.erase(E);
+        }
     }
 }
 
 static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::MethodDoc> &methods) {
-
     auto section = parser.name();
-    const auto element(parser.name().mid(0,parser.name().size()-1));
+    const auto element(parser.name().mid(0, parser.name().size() - 1));
 
     while (!parser.atEnd()) {
         auto tt = parser.readNext();
-        if (tt == QXmlStreamReader::EndElement && parser.name() == section)
+        if (tt == QXmlStreamReader::EndElement && parser.name() == section) {
             break;
+        }
         if (tt != QXmlStreamReader::StartElement) {
             continue;
         }
@@ -184,13 +184,15 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
             return ERR_FILE_CORRUPT;
         }
         method.name = attrs.value("name").toUtf8().data();
-        if (attrs.hasAttribute("qualifiers"))
+        if (attrs.hasAttribute("qualifiers")) {
             method.qualifiers = attrs.value("qualifiers").toUtf8().data();
+        }
 
         while (!parser.atEnd() && !parser.hasError()) {
             parser.readNext();
-            if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == element)
+            if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == element) {
                 break;
+            }
             if (parser.tokenType() != QXmlStreamReader::StartElement) {
                 continue;
             }
@@ -198,7 +200,6 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
             const auto &name(parser.name());
             const auto &attrs(parser.attributes());
             if (name == "return") {
-
                 if (!attrs.hasAttribute("type")) {
                     qCritical("missing 'type' attribute");
                     return ERR_FILE_CORRUPT;
@@ -209,7 +210,6 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
                     method.return_enum = attrs.value("enum").toUtf8().data();
                 }
             } else if (name == "argument") {
-
                 DocContents::ArgumentDoc argument;
                 if (!attrs.hasAttribute("name") || !attrs.hasAttribute("type")) {
                     qCritical("missing 'name' or 'type' attribute");
@@ -225,8 +225,9 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
                 method.arguments.push_back(argument);
 
             } else if (name == "description") {
-                if (parser.readNext() == QXmlStreamReader::Characters)
+                if (parser.readNext() == QXmlStreamReader::Characters) {
                     method.description = parser.text().toUtf8().data();
+                }
             }
         }
 
@@ -236,76 +237,78 @@ static Error _parse_methods(QXmlStreamReader &parser, Vector<DocContents::Method
 }
 
 Error DocData::load_classes(QByteArray p_dir, bool recursively) {
-
-    if(!QFile::exists(p_dir) || !QFileInfo(p_dir).isDir()) {
+    if (!QFile::exists(p_dir) || !QFileInfo(p_dir).isDir()) {
         return ERR_FILE_CANT_OPEN;
     }
 
-    QDirIterator fl(p_dir,{"*.xml"},QDir::NoFilter,recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+    QDirIterator fl(p_dir, { "*.xml" }, QDir::NoFilter,
+            recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
     QDebug inst(qDebug());
     inst.setAutoInsertSpaces(false);
     inst << "Lading docs:";
-    while(fl.hasNext()) {
-        QString name=fl.next();
+    while (fl.hasNext()) {
+        QString name = fl.next();
         auto fi(fl.fileInfo());
 
-        if(!name.contains("doc") || !name.contains("classes"))
+        if (!name.contains("doc") || !name.contains("classes")) {
             continue;
+        }
 
-        if(fi.isFile()) {
+        if (fi.isFile()) {
             inst.noquote() << ".";
             QFile src_file(name);
-            if(!src_file.open(QFile::ReadOnly)) {
-                qCritical() << "Failed to load doc source file"<<name;
+            if (!src_file.open(QFile::ReadOnly)) {
+                qCritical() << "Failed to load doc source file" << name;
             }
             QXmlStreamReader reader(&src_file);
-            _load(reader,*this);
+            _load(reader, *this);
         }
     }
     return OK;
 }
-Error DocData::erase_classes(QByteArray p_dir, bool recursively) {
 
-    if(!QFile::exists(p_dir) || !QFileInfo(p_dir).isDir()) {
+Error DocData::erase_classes(QByteArray p_dir, bool recursively) {
+    if (!QFile::exists(p_dir) || !QFileInfo(p_dir).isDir()) {
         return ERR_FILE_CANT_OPEN;
     }
 
-    QDirIterator fl(p_dir,{"*.xml"},QDir::NoFilter,recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+    QDirIterator fl(p_dir, { "*.xml" }, QDir::NoFilter,
+            recursively ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
 
-    while(fl.hasNext()) {
-        QString name=fl.next();
+    while (fl.hasNext()) {
+        QString name = fl.next();
         auto fi(fl.fileInfo());
-        if(fi.isFile()) {
+        if (fi.isFile()) {
             QFile::remove(name);
         }
     }
     return OK;
 }
-Error _load(QXmlStreamReader &parser,DocData &tgt) {
+
+Error _load(QXmlStreamReader &parser, DocData &tgt) {
     Vector<DocData *> target_doc_stack;
     target_doc_stack.emplace_back(&tgt);
     while (!parser.atEnd()) {
-
         QXmlStreamReader::TokenType tt = parser.readNext();
-        if(tt == QXmlStreamReader::Invalid) {
-            qCritical() << "XML parsing problem" <<parser.errorString();
+        if (tt == QXmlStreamReader::Invalid) {
+            qCritical() << "XML parsing problem" << parser.errorString();
             return ERR_FILE_CORRUPT;
         }
 
-        if(tt == QXmlStreamReader::StartDocument) {
+        if (tt == QXmlStreamReader::StartDocument) {
             continue;
         }
 
         if (parser.tokenType() != QXmlStreamReader::StartElement) {
-            continue; //no idea what this may be, but skipping anyway
+            continue; // no idea what this may be, but skipping anyway
         }
 
         const auto class_attrs(parser.attributes());
-        if(parser.name() == "namespace") {
+        if (parser.name() == "namespace") {
             tgt.namespace_name = class_attrs.value("name").toUtf8().data();
             continue;
         }
-        if(parser.name() != "class" || !class_attrs.hasAttribute("name")) {
+        if (parser.name() != "class" || !class_attrs.hasAttribute("name")) {
             qCritical("Non-class first xml element or missing 'name' attribute");
             return ERR_FILE_CORRUPT;
         }
@@ -319,55 +322,49 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
         }
 
         while (parser.readNext() != QXmlStreamReader::Invalid) {
-
             if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
                 const auto name2 = parser.name();
 
                 if (name2 == "brief_description") {
-
                     parser.readNext();
-                    if (parser.tokenType() == QXmlStreamReader::Characters)
+                    if (parser.tokenType() == QXmlStreamReader::Characters) {
                         c.brief_description = parser.text().trimmed().toUtf8().data();
+                    }
 
                 } else if (name2 == "description") {
                     parser.readNext();
-                    if (parser.tokenType() == QXmlStreamReader::Characters)
+                    if (parser.tokenType() == QXmlStreamReader::Characters) {
                         c.description = parser.text().trimmed().toUtf8().data();
+                    }
                 } else if (name2 == "tutorials") {
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
-
                         if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
                             const QStringRef name3 = parser.name();
 
                             if (name3 == "link") {
-
                                 parser.readNext();
-                                if (parser.tokenType() == QXmlStreamReader::Characters)
+                                if (parser.tokenType() == QXmlStreamReader::Characters) {
                                     c.tutorials.emplace_back(parser.text().trimmed().toUtf8().data());
+                                }
                             } else {
-
-                                qCritical().noquote()<<"Invalid tag in doc file: " + name3 + ".";
+                                qCritical().noquote() << "Invalid tag in doc file: " + name3 + ".";
                                 return ERR_FILE_CORRUPT;
                             }
-                        } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == "tutorials")
+                        } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == "tutorials") {
                             break; // End of <tutorials>.
+                        }
                     }
                 } else if (name2 == "methods") {
                     Error err2 = _parse_methods(parser, c.methods);
                     ERR_FAIL_COND_V(err2, err2);
 
                 } else if (name2 == "signals") {
-
                     Error err2 = _parse_methods(parser, c.defined_signals);
                     ERR_FAIL_COND_V(err2, err2);
                 } else if (name2 == "members") {
-                    bool in_item=false;
+                    bool in_item = false;
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
-
                         if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
                             const QStringRef name3 = parser.name();
 
                             if (name3 == "member") {
@@ -378,33 +375,37 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                                 prop2.name = attrs.value("name").toUtf8().data();
                                 ERR_FAIL_COND_V(!attrs.hasAttribute("type"), ERR_FILE_CORRUPT);
                                 prop2.type = attrs.value("type").toUtf8().data();
-                                if (attrs.hasAttribute("setter"))
+                                if (attrs.hasAttribute("setter")) {
                                     prop2.setter = attrs.value("setter").toUtf8().data();
-                                if (attrs.hasAttribute("getter"))
+                                }
+                                if (attrs.hasAttribute("getter")) {
                                     prop2.getter = attrs.value("getter").toUtf8().data();
-                                if (attrs.hasAttribute("enum"))
+                                }
+                                if (attrs.hasAttribute("enum")) {
                                     prop2.enumeration = attrs.value("enum").toUtf8().data();
+                                }
                                 c.properties.push_back(prop2);
                             } else {
-                                qCritical()<<"Invalid tag in doc file: " << name3 << ".";
+                                qCritical() << "Invalid tag in doc file: " << name3 << ".";
                                 return ERR_FILE_CORRUPT;
                             }
 
                         } else if (parser.tokenType() == QXmlStreamReader::Characters) {
-                            if(in_item)
+                            if (in_item) {
                                 c.properties.back().description = parser.text().trimmed().toUtf8().data();
+                            }
 
                         } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
-                            in_item  = false;
-                            if(parser.name() == "members")
+                            in_item = false;
+                            if (parser.name() == "members") {
                                 break; // End of <members>.
+                            }
                         }
                     }
 
                 } else if (name2 == "theme_items") {
-                    bool in_theme_item=false;
+                    bool in_theme_item = false;
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
-
                         if (parser.tokenType() == QXmlStreamReader::StartElement) {
                             const QStringRef name3 = parser.name();
 
@@ -422,29 +423,27 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                                 qCritical() << "Invalid tag in doc file: " + name3 + ".";
                                 return ERR_FILE_CORRUPT;
                             }
-                        }
-                        else if (parser.tokenType() == QXmlStreamReader::Characters) {
-                            if(in_theme_item)
+                        } else if (parser.tokenType() == QXmlStreamReader::Characters) {
+                            if (in_theme_item) {
                                 c.theme_properties.back().description = parser.text().toUtf8().data();
+                            }
 
-                        }
-                        else if (parser.tokenType() == QXmlStreamReader::EndElement) {
-                            in_theme_item  = false;
-                            if(parser.name() == "theme_items")
+                        } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
+                            in_theme_item = false;
+                            if (parser.name() == "theme_items") {
                                 break; // End of <theme_items>.
+                            }
                         }
                     }
 
                 } else if (name2 == "constants") {
-                    bool in_item=false;
+                    bool in_item = false;
                     while (parser.readNext() != QXmlStreamReader::Invalid) {
-
                         if (parser.tokenType() == QXmlStreamReader::StartElement) {
-
                             const QStringRef name3 = parser.name();
 
                             if (name3 == "constant") {
-                                in_item=true;
+                                in_item = true;
                                 const auto attrs(parser.attributes());
 
                                 DocContents::ConstantDoc constant2;
@@ -462,13 +461,15 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                             }
 
                         } else if (parser.tokenType() == QXmlStreamReader::Characters) {
-                            if(in_item)
+                            if (in_item) {
                                 c.constants.back().description = parser.text().toString().toUtf8().data();
+                            }
 
                         } else if (parser.tokenType() == QXmlStreamReader::EndElement) {
-                            in_item  = false;
-                            if(parser.name() == "constants")
+                            in_item = false;
+                            if (parser.name() == "constants") {
                                 break; // End of <constants>.
+                            }
                         }
                     }
 
@@ -477,18 +478,18 @@ Error _load(QXmlStreamReader &parser,DocData &tgt) {
                     return ERR_FILE_CORRUPT;
                 }
 
-            } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == "class")
+            } else if (parser.tokenType() == QXmlStreamReader::EndElement && parser.name() == "class") {
                 break; // End of <class>.
+            }
         }
     }
 
     return OK;
 }
 
-Error DocData::save_classes(QByteArray p_default_path, const char *version_branch, const HashMap<String, QString> &p_class_path) {
-
-    for (eastl::pair<const String,ClassDoc> &class_entry : class_list) {
-
+Error DocData::save_classes(
+        QByteArray p_default_path, const char *version_branch, const HashMap<String, QString> &p_class_path) {
+    for (eastl::pair<const String, ClassDoc> &class_entry : class_list) {
         ClassDoc &c(class_entry.second);
         QString save_path;
         if (p_class_path.contains_as(c.name)) {
@@ -497,71 +498,73 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
             save_path = p_default_path;
         }
 
-        QString save_file = save_path+"/"+c.name.c_str() + ".xml";
+        QString save_file = save_path + "/" + c.name.c_str() + ".xml";
         QFile f(save_file);
-        if(!f.open(QFile::WriteOnly)) {
-            qWarning()<<"Can't write doc file: " + save_file + ".";
+        if (!f.open(QFile::WriteOnly)) {
+            qWarning() << "Can't write doc file: " + save_file + ".";
             continue;
         }
         QXmlStreamWriter writer(&f);
         writer.writeStartDocument();
         writer.writeStartElement("class");
-        writer.writeAttribute("name",c.name.c_str());
-        if (!c.inherits.empty())
-            writer.writeAttribute("inherits",c.inherits.c_str());
+        writer.writeAttribute("name", c.name.c_str());
+        if (!c.inherits.empty()) {
+            writer.writeAttribute("inherits", c.inherits.c_str());
+        }
 
-        writer.writeAttribute("version",version_branch);
-        writer.writeTextElement("brief_description",c.brief_description.trimmed().c_str());
-        writer.writeTextElement("description",c.description.trimmed().c_str());
+        writer.writeAttribute("version", version_branch);
+        writer.writeTextElement("brief_description", c.brief_description.trimmed().c_str());
+        writer.writeTextElement("description", c.description.trimmed().c_str());
 
         writer.writeStartElement("tutorials");
 
         for (size_t i = 0; i < c.tutorials.size(); i++) {
-            writer.writeTextElement("link",c.tutorials[i].trimmed().c_str());
+            writer.writeTextElement("link", c.tutorials[i].trimmed().c_str());
         }
         writer.writeEndElement();
 
         writer.writeStartElement("methods");
 
-        eastl::sort(c.methods.begin(),c.methods.end());
+        eastl::sort(c.methods.begin(), c.methods.end());
 
         for (int i = 0; i < c.methods.size(); i++) {
-
             const MethodDoc &m = c.methods[i];
             writer.writeStartElement("method");
 
             String qualifiers;
 
-            writer.writeAttribute("name",m.name.c_str());
-            if (!m.qualifiers.empty())
-                writer.writeAttribute("qualifiers",m.qualifiers.c_str());
+            writer.writeAttribute("name", m.name.c_str());
+            if (!m.qualifiers.empty()) {
+                writer.writeAttribute("qualifiers", m.qualifiers.c_str());
+            }
 
             if (!m.return_type.empty()) {
                 writer.writeStartElement("return");
-                writer.writeAttribute("type",m.return_type.c_str());
+                writer.writeAttribute("type", m.return_type.c_str());
                 String enum_text;
                 if (!m.return_enum.empty()) {
-                    writer.writeAttribute("enum",m.return_enum.c_str());
+                    writer.writeAttribute("enum", m.return_enum.c_str());
                 }
                 writer.writeEndElement();
             }
 
             for (int j = 0; j < m.arguments.size(); j++) {
-
                 const ArgumentDoc &a = m.arguments[j];
                 writer.writeStartElement("argument");
 
-                writer.writeAttribute("index",QString::number(j));
-                writer.writeAttribute("name",a.name.c_str());
-                writer.writeAttribute("type",a.type.c_str());
-                if(!a.enumeration.empty())
-                    writer.writeAttribute("enum",a.enumeration.c_str());
-                if(!a.default_value.empty())
-                    writer.writeAttribute("default",a.default_value.c_str());
+                writer.writeAttribute("index", QString::number(j));
+                writer.writeAttribute("name", a.name.c_str());
+                writer.writeAttribute("type", a.type.c_str());
+                if (!a.enumeration.empty()) {
+                    writer.writeAttribute("enum", a.enumeration.c_str());
+                }
+                if (!a.default_value.empty()) {
+                    writer.writeAttribute("default", a.default_value.c_str());
+                }
 
                 writer.writeEndElement();
             }
-            writer.writeTextElement("description",m.description.trimmed().c_str());
+            writer.writeTextElement("description", m.description.trimmed().c_str());
 
             writer.writeEndElement();
         }
@@ -571,30 +574,30 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
         if (!c.properties.empty()) {
             writer.writeStartElement("methods");
 
-            eastl::sort(c.properties.begin(),c.properties.end());
+            eastl::sort(c.properties.begin(), c.properties.end());
 
             for (size_t i = 0; i < c.properties.size(); i++) {
                 writer.writeStartElement("member");
                 const PropertyDoc &a(c.properties[i]);
 
-                writer.writeAttribute("name",a.name.c_str());
-                writer.writeAttribute("type",a.type.c_str());
-                writer.writeAttribute("setter",a.setter.c_str());
-                writer.writeAttribute("getter",a.getter.c_str());
+                writer.writeAttribute("name", a.name.c_str());
+                writer.writeAttribute("type", a.type.c_str());
+                writer.writeAttribute("setter", a.setter.c_str());
+                writer.writeAttribute("getter", a.getter.c_str());
                 if (c.properties[i].overridden) {
-                    writer.writeAttribute("overridden","true");
-}
+                    writer.writeAttribute("overridden", "true");
+                }
 
                 if (!c.properties[i].enumeration.empty()) {
-                    writer.writeAttribute("enum",a.enumeration.c_str());
-}
+                    writer.writeAttribute("enum", a.enumeration.c_str());
+                }
 
                 if (!c.properties[i].default_value.empty()) {
-                    writer.writeAttribute("default",a.default_value.c_str());
-}
+                    writer.writeAttribute("default", a.default_value.c_str());
+                }
                 if (!c.properties[i].overridden) {
                     writer.writeCharacters(a.description.c_str());
-}
+                }
 
                 writer.writeEndElement();
             }
@@ -602,25 +605,23 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
         }
 
         if (!c.defined_signals.empty()) {
-
-            eastl::sort(c.defined_signals.begin(),c.defined_signals.end());
+            eastl::sort(c.defined_signals.begin(), c.defined_signals.end());
 
             writer.writeStartElement("signals");
             for (size_t i = 0; i < c.defined_signals.size(); i++) {
-
                 const MethodDoc &m = c.defined_signals[i];
                 writer.writeStartElement("signal");
-                writer.writeAttribute("name",m.name.c_str());
+                writer.writeAttribute("name", m.name.c_str());
 
                 for (int j = 0; j < m.arguments.size(); j++) {
                     const ArgumentDoc &a = m.arguments[j];
                     writer.writeStartElement("argument");
-                        writer.writeAttribute("index",QString::number(j));
-                        writer.writeAttribute("name",a.name.c_str());
-                        writer.writeAttribute("type",a.type.trimmed().c_str());
+                    writer.writeAttribute("index", QString::number(j));
+                    writer.writeAttribute("name", a.name.c_str());
+                    writer.writeAttribute("type", a.type.trimmed().c_str());
                     writer.writeEndElement();
                 }
-                writer.writeTextElement("description",m.description.trimmed().c_str());
+                writer.writeTextElement("description", m.description.trimmed().c_str());
 
                 writer.writeEndElement();
             }
@@ -632,31 +633,29 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
         for (int i = 0; i < c.constants.size(); i++) {
             const ConstantDoc &k = c.constants[i];
             writer.writeStartElement("constant");
-                writer.writeAttribute("name",k.name.c_str());
-                writer.writeAttribute("value",k.value.c_str());
-                if (!k.enumeration.empty()) {
-                    writer.writeAttribute("enumeration",k.enumeration.c_str());
-}
-                writer.writeCharacters(k.description.trimmed().c_str());
+            writer.writeAttribute("name", k.name.c_str());
+            writer.writeAttribute("value", k.value.c_str());
+            if (!k.enumeration.empty()) {
+                writer.writeAttribute("enumeration", k.enumeration.c_str());
+            }
+            writer.writeCharacters(k.description.trimmed().c_str());
             writer.writeEndElement();
         }
 
         writer.writeEndElement();
 
         if (!c.theme_properties.empty()) {
-
-            eastl::sort(c.theme_properties.begin(),c.theme_properties.end());
+            eastl::sort(c.theme_properties.begin(), c.theme_properties.end());
 
             writer.writeStartElement("theme_items");
             for (size_t i = 0; i < c.theme_properties.size(); i++) {
-
                 const PropertyDoc &p = c.theme_properties[i];
                 writer.writeStartElement("theme_item");
-                writer.writeAttribute("name",p.name.c_str());
-                writer.writeAttribute("type",p.type.c_str());
-                if(!p.default_value.empty()) {
-                    writer.writeAttribute("default_value",p.default_value.c_str());
-}
+                writer.writeAttribute("name", p.name.c_str());
+                writer.writeAttribute("type", p.type.c_str());
+                if (!p.default_value.empty()) {
+                    writer.writeAttribute("default_value", p.default_value.c_str());
+                }
 
                 writer.writeCharacters(p.description.c_str());
 
@@ -670,33 +669,34 @@ Error DocData::save_classes(QByteArray p_default_path, const char *version_branc
 
     return OK;
 }
-inline QByteArray uncompr_zip(const char *comp_data,int size_comprs,uint32_t size_uncom)
-{
+
+inline QByteArray uncompr_zip(const char *comp_data, int size_comprs, uint32_t size_uncom) {
     QByteArray compressed_data;
-    compressed_data.reserve(size_comprs+4);
-    compressed_data.append( char((size_uncom >> 24) & 0xFF));
-    compressed_data.append( char((size_uncom >> 16) & 0xFF));
-    compressed_data.append( char((size_uncom >> 8) & 0xFF));
-    compressed_data.append( char((size_uncom >> 0) & 0xFF));
-    compressed_data.append(comp_data,size_comprs);
+    compressed_data.reserve(size_comprs + 4);
+    compressed_data.append(char((size_uncom >> 24) & 0xFF));
+    compressed_data.append(char((size_uncom >> 16) & 0xFF));
+    compressed_data.append(char((size_uncom >> 8) & 0xFF));
+    compressed_data.append(char((size_uncom >> 0) & 0xFF));
+    compressed_data.append(comp_data, size_comprs);
     return qUncompress(compressed_data);
 }
-Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size) {
 
+Error DocData::load_compressed(const uint8_t *p_data, int p_compressed_size, int p_uncompressed_size) {
     QByteArray data;
     data.resize(p_uncompressed_size);
-    data = uncompr_zip((const char *)p_data,p_compressed_size,p_uncompressed_size);
+    data = uncompr_zip((const char *)p_data, p_compressed_size, p_uncompressed_size);
 
     class_list.clear();
     // convert it to valid xml!
-    if(data.count(R"(<?xml version="1.0" encoding="UTF-8" ?>)")>1) {
-        data.replace(R"(<?xml version="1.0" encoding="UTF-8" ?>)","");
-        data.prepend(R"(<?xml version="1.0" encoding="UTF-8" ?><namespace name=")"+QByteArray::fromRawData(namespace_name.data(), namespace_name.size())+"\">");
+    if (data.count(R"(<?xml version="1.0" encoding="UTF-8" ?>)") > 1) {
+        data.replace(R"(<?xml version="1.0" encoding="UTF-8" ?>)", "");
+        data.prepend(R"(<?xml version="1.0" encoding="UTF-8" ?><namespace name=")" +
+                     QByteArray::fromRawData(namespace_name.data(), namespace_name.size()) + "\">");
         data.append("</namespace>");
     }
     QXmlStreamReader xml_reader(QString::fromUtf8(data));
 
-    _load(xml_reader,*this);
+    _load(xml_reader, *this);
 
     return OK;
 }

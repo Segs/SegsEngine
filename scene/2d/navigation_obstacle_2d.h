@@ -37,7 +37,7 @@
 class Navigation2D;
 
 class GODOT_EXPORT NavigationObstacle2D : public Node {
-    GDCLASS(NavigationObstacle2D, Node);
+    GDCLASS(NavigationObstacle2D, Node)
 
     Navigation2D *navigation;
 

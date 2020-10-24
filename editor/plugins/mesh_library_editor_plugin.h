@@ -61,7 +61,7 @@ class MeshLibraryEditor : public Control {
     static void _import_scene(Node *p_scene, const Ref<MeshLibrary> &p_library, bool p_merge);
 
 protected:
-    static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     MenuButton *get_menu_button() const { return menu; }

@@ -171,7 +171,7 @@ public:
 
     virtual bool free(RID p_rid) = 0;
 
-    virtual ~RasterizerScene();;
+    virtual ~RasterizerScene();
 };
 
 class RasterizerStorage {

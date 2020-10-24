@@ -36,8 +36,8 @@
 IMPL_GDCLASS(AudioStreamPlaybackSample)
 IMPL_GDCLASS(AudioStreamSample)
 RES_BASE_EXTENSION_IMPL(AudioStreamSample,"sample")
-VARIANT_ENUM_CAST(AudioStreamSample::Format)
-VARIANT_ENUM_CAST(AudioStreamSample::LoopMode)
+VARIANT_ENUM_CAST(AudioStreamSample::Format);
+VARIANT_ENUM_CAST(AudioStreamSample::LoopMode);
 
 void AudioStreamPlaybackSample::start(float p_from_pos) {
 

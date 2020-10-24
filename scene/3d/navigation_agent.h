@@ -40,7 +40,7 @@ class Node3D;
 class Navigation3D;
 
 class GODOT_EXPORT NavigationAgent : public Node {
-    GDCLASS(NavigationAgent, Node);
+    GDCLASS(NavigationAgent, Node)
 
     Node3D *agent_parent;
     Navigation3D *navigation;

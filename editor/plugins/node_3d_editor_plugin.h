@@ -147,7 +147,7 @@ public:
 };
 
 class GODOT_EXPORT ViewportRotationControl : public Control {
-    GDCLASS(ViewportRotationControl, Control);
+    GDCLASS(ViewportRotationControl, Control)
 
     struct Axis2D {
         Vector2 screen_point;

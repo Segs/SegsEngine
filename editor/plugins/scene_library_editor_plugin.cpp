@@ -175,10 +175,6 @@ void SceneLibraryEditor::_menu_cbk(int p_option) {
 }
 
 void SceneLibraryEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_menu_cbk", &SceneLibraryEditor::_menu_cbk);
-    MethodBinder::bind_method("_menu_confirm", &SceneLibraryEditor::_menu_confirm);
-    MethodBinder::bind_method("_import_scene_cbk", &SceneLibraryEditor::_import_scene_cbk);
 }
 
 SceneLibraryEditor::SceneLibraryEditor(EditorNode *p_editor) {

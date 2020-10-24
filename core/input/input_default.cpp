@@ -153,7 +153,7 @@ StringName InputDefault::get_joy_name(int p_idx) {
 
     _THREAD_SAFE_METHOD_
     return joy_names[p_idx].name;
-};
+}
 
 Vector2 InputDefault::get_joy_vibration_strength(int p_device) {
     if (joy_vibration.contains(p_device)) {
@@ -188,7 +188,7 @@ static const char *_hex_str(uint8_t p_byte) {
     ret[2] = 0;
 
     return ret;
-};
+}
 
 void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringName p_name, StringName p_guid) {
 
@@ -230,7 +230,7 @@ void InputDefault::joy_connection_changed(int p_idx, bool p_connected, StringNam
     joy_names[p_idx] = js;
 
     emit_signal("joy_connection_changed", p_idx, p_connected);
-};
+}
 
 Vector3 InputDefault::get_gravity() const {
 
@@ -666,13 +666,16 @@ void InputDefault::accumulate_input_event(const Ref<InputEvent> &p_event) {
         return; //event was accumulated, exit
     }
 
-    accumulated_events.push_back(p_event);
+    accumulated_events.emplace_back(p_event);
 }
 void InputDefault::flush_accumulated_events() {
+    if(accumulated_events.empty())
+        return;
 
-    while (!accumulated_events.empty()) {
-        parse_input_event(accumulated_events.front());
-        accumulated_events.pop_front();
+    auto events_to_process=eastl::move(accumulated_events);
+    accumulated_events.clear();
+    for(const auto &e : events_to_process) {
+        parse_input_event(e);
     }
 }
 
@@ -936,7 +939,7 @@ void InputDefault::_axis_event(int p_device, int p_axis, float p_value) {
     ievent->set_axis_value(p_value);
 
     parse_input_event(ievent);
-};
+}
 
 InputDefault::JoyEvent InputDefault::_get_mapped_button_event(const JoyDeviceMapping &mapping, int p_button) {
 
@@ -1174,10 +1177,10 @@ void InputDefault::parse_mapping(StringView p_mapping) {
         }
 
         mapping.bindings.push_back(binding);
-    };
+    }
 
     map_db.push_back(mapping);
-};
+}
 
 void InputDefault::add_joy_mapping(StringView p_mapping, bool p_update_existing) {
     parse_mapping(p_mapping);

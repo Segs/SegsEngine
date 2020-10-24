@@ -65,7 +65,7 @@ class GODOT_EXPORT Node3D : public Node {
 
     GDCLASS(Node3D,Node)
 
-    OBJ_CATEGORY("3D");
+    OBJ_CATEGORY("3D")
 
     enum TransformDirty {
         DIRTY_NONE = 0,

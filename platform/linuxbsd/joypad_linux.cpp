@@ -260,7 +260,7 @@ static const char *_hex_str(uint8_t p_byte) {
     ret[2] = 0;
 
     return ret;
-};
+}
 
 
 void JoypadLinux::setup_joypad_properties(int p_id) {

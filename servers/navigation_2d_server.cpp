@@ -45,8 +45,7 @@ IMPL_GDCLASS(Navigation2DServer)
 Navigation2DServer *Navigation2DServer::singleton = nullptr;
 
 #define FORWARD_0_C(FUNC_NAME)                                 \
-    Navigation2DServer::FUNC_NAME()                            \
-            const {                                            \
+    Navigation2DServer::FUNC_NAME() const {                    \
         return NavigationServer::get_singleton()->FUNC_NAME(); \
     }
 
@@ -167,24 +166,24 @@ Navigation2DServer::~Navigation2DServer() {
     singleton = NULL;
 }
 
-RID FORWARD_0_C(map_create);
+RID FORWARD_0_C(map_create)
 
-void FORWARD_2_C(map_set_active, RID, p_map, bool, p_active, rid_to_rid, bool_to_bool);
+void FORWARD_2_C(map_set_active, RID, p_map, bool, p_active, rid_to_rid, bool_to_bool)
 
-bool FORWARD_1_C(map_is_active, RID, p_map, rid_to_rid);
+bool FORWARD_1_C(map_is_active, RID, p_map, rid_to_rid)
 
-void FORWARD_2_C(map_set_cell_size, RID, p_map, real_t, p_cell_size, rid_to_rid, real_to_real);
-real_t FORWARD_1_C(map_get_cell_size, RID, p_map, rid_to_rid);
+void FORWARD_2_C(map_set_cell_size, RID, p_map, real_t, p_cell_size, rid_to_rid, real_to_real)
+real_t FORWARD_1_C(map_get_cell_size, RID, p_map, rid_to_rid)
 
-void FORWARD_2_C(map_set_edge_connection_margin, RID, p_map, real_t, p_connection_margin, rid_to_rid, real_to_real);
-real_t FORWARD_1_C(map_get_edge_connection_margin, RID, p_map, rid_to_rid);
+void FORWARD_2_C(map_set_edge_connection_margin, RID, p_map, real_t, p_connection_margin, rid_to_rid, real_to_real)
+real_t FORWARD_1_C(map_get_edge_connection_margin, RID, p_map, rid_to_rid)
 
-Vector<Vector2> FORWARD_4_R_C(vector_v3_to_v2, map_get_path, RID, p_map, Vector2, p_origin, Vector2, p_destination, bool, p_optimize, rid_to_rid, v2_to_v3, v2_to_v3, bool_to_bool);
+Vector<Vector2> FORWARD_4_R_C(vector_v3_to_v2, map_get_path, RID, p_map, Vector2, p_origin, Vector2, p_destination, bool, p_optimize, rid_to_rid, v2_to_v3, v2_to_v3, bool_to_bool)
 
-RID FORWARD_0_C(region_create);
-void FORWARD_2_C(region_set_map, RID, p_region, RID, p_map, rid_to_rid, rid_to_rid);
+RID FORWARD_0_C(region_create)
+void FORWARD_2_C(region_set_map, RID, p_region, RID, p_map, rid_to_rid, rid_to_rid)
 
-void FORWARD_2_C(region_set_transform, RID, p_region, Transform2D, p_transform, rid_to_rid, trf2_to_trf3);
+void FORWARD_2_C(region_set_transform, RID, p_region, Transform2D, p_transform, rid_to_rid, trf2_to_trf3)
 
 void Navigation2DServer::region_set_navpoly(RID p_region, Ref<NavigationPolygon> p_nav_mesh) const {
     NavigationServer::get_singleton()->region_set_navmesh(p_region, poly_to_mesh(p_nav_mesh));
@@ -196,31 +195,31 @@ RID Navigation2DServer::agent_create() const {
     return agent;
 }
 
-void FORWARD_2_C(agent_set_map, RID, p_agent, RID, p_map, rid_to_rid, rid_to_rid);
+void FORWARD_2_C(agent_set_map, RID, p_agent, RID, p_map, rid_to_rid, rid_to_rid)
 
-void FORWARD_2_C(agent_set_neighbor_dist, RID, p_agent, real_t, p_dist, rid_to_rid, real_to_real);
+void FORWARD_2_C(agent_set_neighbor_dist, RID, p_agent, real_t, p_dist, rid_to_rid, real_to_real)
 
-void FORWARD_2_C(agent_set_max_neighbors, RID, p_agent, int, p_count, rid_to_rid, int_to_int);
+void FORWARD_2_C(agent_set_max_neighbors, RID, p_agent, int, p_count, rid_to_rid, int_to_int)
 
-void FORWARD_2_C(agent_set_time_horizon, RID, p_agent, real_t, p_time, rid_to_rid, real_to_real);
+void FORWARD_2_C(agent_set_time_horizon, RID, p_agent, real_t, p_time, rid_to_rid, real_to_real)
 
-void FORWARD_2_C(agent_set_radius, RID, p_agent, real_t, p_radius, rid_to_rid, real_to_real);
+void FORWARD_2_C(agent_set_radius, RID, p_agent, real_t, p_radius, rid_to_rid, real_to_real)
 
-void FORWARD_2_C(agent_set_max_speed, RID, p_agent, real_t, p_max_speed, rid_to_rid, real_to_real);
+void FORWARD_2_C(agent_set_max_speed, RID, p_agent, real_t, p_max_speed, rid_to_rid, real_to_real)
 
-void FORWARD_2_C(agent_set_velocity, RID, p_agent, Vector2, p_velocity, rid_to_rid, v2_to_v3);
+void FORWARD_2_C(agent_set_velocity, RID, p_agent, Vector2, p_velocity, rid_to_rid, v2_to_v3)
 
-void FORWARD_2_C(agent_set_target_velocity, RID, p_agent, Vector2, p_velocity, rid_to_rid, v2_to_v3);
+void FORWARD_2_C(agent_set_target_velocity, RID, p_agent, Vector2, p_velocity, rid_to_rid, v2_to_v3)
 
-void FORWARD_2_C(agent_set_position, RID, p_agent, Vector2, p_position, rid_to_rid, v2_to_v3);
+void FORWARD_2_C(agent_set_position, RID, p_agent, Vector2, p_position, rid_to_rid, v2_to_v3)
 
-void FORWARD_2_C(agent_set_ignore_y, RID, p_agent, bool, p_ignore, rid_to_rid, bool_to_bool);
+void FORWARD_2_C(agent_set_ignore_y, RID, p_agent, bool, p_ignore, rid_to_rid, bool_to_bool)
 
-bool FORWARD_1_C(agent_is_map_changed, RID, p_agent, rid_to_rid);
+bool FORWARD_1_C(agent_is_map_changed, RID, p_agent, rid_to_rid)
 
 void Navigation2DServer::agent_set_callback(RID p_agent, Callable&& cb) const
 {
     return NavigationServer::get_singleton()->agent_set_callback(rid_to_rid(p_agent), eastl::move(cb));
-};
+}
 
-void FORWARD_1_C(free, RID, p_object, rid_to_rid);
+void FORWARD_1_C(free, RID, p_object, rid_to_rid)

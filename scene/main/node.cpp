@@ -40,6 +40,7 @@
 #include "core/message_queue.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
+#include "core/resource/resource_manager.h"
 #include "core/print_string.h"
 #include "core/node_path.h"
 #include "core/hash_map.h"
@@ -1470,29 +1471,46 @@ Node *Node::_get_child_by_name(const StringName &p_name) const {
     return nullptr;
 }
 
+static Node *get_by_name(Node *from,StringView name) {
+    if(from->get_name()==name)
+        return from;
+    int cnt=from->get_child_count();
+    for(int idx=0; idx<cnt; ++idx) {
+        auto res = get_by_name(from->get_child(idx),name);
+        if(res)
+            return res;
+    }
+    return nullptr;
+}
+
 Node *Node::get_node_or_null(const NodePath &p_path) const {
 
     if (p_path.is_empty()) {
         return nullptr;
     }
 
-    ERR_FAIL_COND_V_MSG(!inside_tree && p_path.is_absolute(), nullptr, "Can't use get_node() with absolute paths from outside the active scene tree.");
+    ERR_FAIL_COND_V_MSG(!inside_tree && (p_path.is_absolute()||p_path.is_locator()), nullptr, "Can't use get_node() with absolute/locator paths from outside the active scene tree.");
 
     Node *current = nullptr;
     Node *root = nullptr;
 
-    if (!p_path.is_absolute()) {
+    int elem = 0;
+    if (!p_path.is_absolute() && !p_path.is_locator()) {
         current = const_cast<Node *>(this); //start from this
-    } else {
+    } else if(p_path.is_locator()) {
+        current = get_by_name(const_cast<Node *>(this),StringView(p_path.get_name(0)).substr(1));
+        elem = 1; // start from second element;
+    }
+    else {
 
         root = const_cast<Node *>(this);
         while (root->priv_data->parent)
             root = root->priv_data->parent; //start from root
     }
 
-    for (int i = 0; i < p_path.get_name_count(); i++) {
+    for ( ; elem < p_path.get_name_count(); elem++) {
 
-        StringName name = p_path.get_name(i);
+        StringName name = p_path.get_name(elem);
         Node *next = nullptr;
 
         if (name == SceneStringNames::get_singleton()->dot) { // .
@@ -2633,12 +2651,14 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
     if (!node)
         return nullptr;
 
-    if (p_path.get_subname_count()) {
-
-        int j = 0;
-        // If not p_last_is_property, we shouldn't consider the last one as part of the resource
+    if (p_path.get_subname_count()==0) {
+        return node;
+    }
+    // Global resource reference, -> material animations etc.
+    if(StringView(p_path.get_subname(0)).starts_with('@')){
+        int j=0;
         for (; j < p_path.get_subname_count() - (int)p_last_is_property; j++) {
-            Variant new_res_v = j == 0 ? node->get(p_path.get_subname(j)) : r_res->get(p_path.get_subname(j));
+            Variant new_res_v = j == 0 ? Variant(gResourceManager().load(StringView(p_path.get_subname(0)).substr(1))) : r_res->get(p_path.get_subname(j));
 
             if (new_res_v.get_type() == VariantType::NIL) { // Found nothing on that path
                 return nullptr;
@@ -2656,6 +2676,29 @@ Node *Node::get_node_and_resource(const NodePath &p_path, RES &r_res, Vector<Str
             // Put the rest of the subpath in the leftover path
             r_leftover_subpath.push_back(p_path.get_subname(j));
         }
+        return node;
+    }
+
+    int j = 0;
+    // If not p_last_is_property, we shouldn't consider the last one as part of the resource
+    for (; j < p_path.get_subname_count() - (int)p_last_is_property; j++) {
+        Variant new_res_v = j == 0 ? node->get(p_path.get_subname(j)) : r_res->get(p_path.get_subname(j));
+
+        if (new_res_v.get_type() == VariantType::NIL) { // Found nothing on that path
+            return nullptr;
+        }
+
+        RES new_res(refFromVariant<Resource>(new_res_v));
+
+        if (not new_res) { // No longer a resource, assume property
+            break;
+        }
+
+        r_res = new_res;
+    }
+    for (; j < p_path.get_subname_count(); j++) {
+        // Put the rest of the subpath in the leftover path
+        r_leftover_subpath.push_back(p_path.get_subname(j));
     }
 
     return node;

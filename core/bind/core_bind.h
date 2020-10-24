@@ -593,7 +593,7 @@ public:
 
 class GODOT_EXPORT _Mutex : public RefCounted {
 
-    GDCLASS(_Mutex, RefCounted);
+    GDCLASS(_Mutex, RefCounted)
     Mutex *mutex;
 
     static void _bind_methods();
@@ -609,7 +609,7 @@ public:
 
 class GODOT_EXPORT _Semaphore : public RefCounted {
 
-    GDCLASS(_Semaphore, RefCounted);
+    GDCLASS(_Semaphore, RefCounted)
     Semaphore *semaphore;
 
     static void _bind_methods();
@@ -624,7 +624,7 @@ public:
 
 class GODOT_EXPORT _Thread : public RefCounted {
 
-    GDCLASS(_Thread, RefCounted);
+    GDCLASS(_Thread, RefCounted)
 
 protected:
     Variant ret;
@@ -657,7 +657,7 @@ public:
 
 class GODOT_EXPORT _ClassDB : public Object {
 
-    GDCLASS(_ClassDB, Object);
+    GDCLASS(_ClassDB, Object)
 
 protected:
     static void _bind_methods();
@@ -695,7 +695,7 @@ public:
 };
 
 class GODOT_EXPORT _Engine : public Object {
-    GDCLASS(_Engine, Object);
+    GDCLASS(_Engine, Object)
 
 protected:
     static void _bind_methods();
@@ -746,7 +746,7 @@ public:
 class _JSON;
 
 class GODOT_EXPORT JSONParseResult : public RefCounted {
-    GDCLASS(JSONParseResult, RefCounted);
+    GDCLASS(JSONParseResult, RefCounted)
 
     friend class _JSON;
 

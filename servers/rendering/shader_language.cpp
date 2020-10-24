@@ -3720,7 +3720,7 @@ ShaderLanguage::Node *ShaderLanguage::_parse_expression(BlockNode *p_block, cons
             if (!_validate_operator(op, &op->return_cache)) {
 
                 String at = join_args(op->arguments);
-                _set_error(FormatVE("Invalid arguments to operator '%s' :",get_operator_text(op->op),at.c_str()));
+                _set_error(FormatVE("Invalid arguments to operator '%s' : %s",get_operator_text(op->op),at.c_str()));
                 return nullptr;
             }
 

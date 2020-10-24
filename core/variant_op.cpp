@@ -170,7 +170,7 @@ bool Variant::booleanize() const {
         if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type m_op p_b._data._real); \
                                                                               \
         _RETURN_FAIL                                                          \
-    };
+    }
 
 #define DEFAULT_OP_NUM_NULL(m_prefix, m_op_name, m_name, m_op, m_type)        \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                  \
@@ -179,7 +179,7 @@ bool Variant::booleanize() const {
         if (p_b.type == VariantType::NIL) _RETURN(!(p_b.type m_op VariantType::NIL));                   \
                                                                               \
         _RETURN_FAIL                                                          \
-    };
+    }
 
 #ifdef DEBUG_ENABLED
 #define DEFAULT_OP_NUM_DIV(m_prefix, m_op_name, m_name, m_type) \
@@ -200,7 +200,7 @@ bool Variant::booleanize() const {
         }                                                       \
                                                                 \
         _RETURN_FAIL                                            \
-    };
+    }
 #else
 #define DEFAULT_OP_NUM_DIV(m_prefix, m_op_name, m_name, m_type)            \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                               \
@@ -208,18 +208,18 @@ bool Variant::booleanize() const {
         if (p_b.type == VariantType::FLOAT) _RETURN(p_a._data.m_type / p_b._data._real); \
                                                                            \
         _RETURN_FAIL                                                       \
-    };
+    }
 #endif
 
 #define DEFAULT_OP_NUM_NEG(m_prefix, m_op_name, m_name, m_type) \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                    \
         _RETURN(-p_a._data.m_type);                             \
-    };
+    }
 
 #define DEFAULT_OP_NUM_POS(m_prefix, m_op_name, m_name, m_type) \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                    \
         _RETURN(p_a._data.m_type);                              \
-    };
+    }
 
 #define DEFAULT_OP_NUM_VEC(m_prefix, m_op_name, m_name, m_op, m_type)                                               \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                        \
@@ -229,7 +229,7 @@ bool Variant::booleanize() const {
         if (p_b.type == VariantType::VECTOR3) _RETURN(p_a._data.m_type m_op *reinterpret_cast<const Vector3 *>(p_b._data._mem)); \
                                                                                                                     \
         _RETURN_FAIL                                                                                                \
-    };
+    }
 
 #define DEFAULT_OP_STR_REV(m_prefix, m_op_name, m_name, m_op, m_type)                                                              \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                       \
@@ -297,7 +297,7 @@ bool Variant::booleanize() const {
             _RETURN(*reinterpret_cast<const m_type *>(p_b._data._mem) m_op *reinterpret_cast<const m_type *>(p_a._data._mem)); \
                                                                                                                                \
         _RETURN_FAIL                                                                                                           \
-    };
+    }
 
 #define DEFAULT_OP_LOCALMEM(m_prefix, m_op_name, m_name, m_op, m_type)                                                         \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                   \
@@ -305,7 +305,7 @@ bool Variant::booleanize() const {
             _RETURN(*reinterpret_cast<const m_type *>(p_a._data._mem) m_op *reinterpret_cast<const m_type *>(p_b._data._mem)); \
                                                                                                                                \
         _RETURN_FAIL                                                                                                           \
-    };
+    }
 
 #define DEFAULT_OP_LOCALMEM_NULL(m_prefix, m_op_name, m_name, m_op, m_type)                                                    \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                                                                                   \
@@ -315,7 +315,7 @@ bool Variant::booleanize() const {
             _RETURN(!(p_b.type m_op VariantType::NIL));                                                                                     \
                                                                                                                                \
         _RETURN_FAIL                                                                                                           \
-    };
+    }
 
 #define DEFAULT_OP_LOCALMEM_NEG(m_prefix, m_op_name, m_name, m_type) \
     CASE_TYPE(m_prefix, m_op_name, m_name) {                         \
@@ -941,8 +941,9 @@ namespace
         typename PoolVector<T>::Read rb = b.read();
         for (int i = 0; i < a_len; i++)
         {
-            if (ra[i] != rb[i])
+            if (ra[i] != rb[i]) {
                 return false;
+            }
         }
         return true;
     }
@@ -1041,7 +1042,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return p_a._data._int == p_b._data._real;
 
             break;
-        };
+        }
         case VariantType::FLOAT: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1050,7 +1051,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
             if (p_b.type == VariantType::FLOAT)
                 return p_a._data._real == p_b._data._real;
             break;
-        };
+        }
         case VariantType::STRING: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1090,7 +1091,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                            _data.
                            _mem);
             break;
-        };
+        }
         case VariantType::RECT2: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1098,7 +1099,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const Rect2 *>(p_a._data._mem) == *
                        reinterpret_cast<const Rect2 *>(p_b._data._mem);
             break;
-        };
+        }
         case VariantType::TRANSFORM2D: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1113,7 +1114,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const Vector3 *>(p_a._data._mem) == *
                        reinterpret_cast<const Vector3 *>(p_b._data._mem);
             break;
-        };
+        }
         case VariantType::PLANE: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1121,7 +1122,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const Plane *>(p_a._data._mem) == *
                        reinterpret_cast<const Plane *>(p_b._data._mem);
             break;
-        };
+        }
         case VariantType::QUAT: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1129,7 +1130,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const Quat *>(p_a._data._mem) == *
                        reinterpret_cast<const Quat *>(p_b._data._mem);
             break;
-        };
+        }
         case VariantType::AABB: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1158,7 +1159,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const Color *>(p_a._data._mem) == *
                        reinterpret_cast<const Color *>(p_b._data._mem);
             break;
-        };
+        }
         case VariantType::NODE_PATH: {
             if (p_b.type == VariantType::NIL)
                 return false;
@@ -1180,7 +1181,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return *reinterpret_cast<const RID *>(p_a._data._mem) == *reinterpret_cast
                        <const RID *>(p_b._data._mem);
             break;
-        };
+        }
 
         case VariantType::POOL_BYTE_ARRAY: {
             if (p_b.type == VariantType::NIL)

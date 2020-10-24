@@ -97,7 +97,7 @@ static void _setup_clock() {
 void OS_Unix::debug_break() {
 
     assert(false);
-};
+}
 
 static void handle_interrupt(int sig) {
     if (ScriptDebugger::get_singleton() == nullptr)
@@ -173,7 +173,7 @@ String OS_Unix::get_name() const {
 uint64_t OS_Unix::get_unix_time() const {
 
     return time(nullptr);
-};
+}
 
 uint64_t OS_Unix::get_system_time_secs() const {
     struct timeval tv_now;
@@ -379,7 +379,7 @@ Error OS_Unix::kill(const ProcessID &p_pid) {
 int OS_Unix::get_process_id() const {
 
     return getpid();
-};
+}
 
 bool OS_Unix::has_environment(StringView p_var) const {
     if(p_var[p_var.size()]==0)
@@ -524,21 +524,21 @@ void UnixTerminalLogger::log_error(StringView p_function, StringView p_file, int
 
     switch (p_type) {
         case ERR_WARNING:
-            logf_error(FormatVE("%sWARNING: %.*s: %s%s%.*s\n",yellow, p_function.size(),p_function.data(), reset,bold,err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",yellow, p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sWARNING: %.*s: %s%s%.*s\n",yellow, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
+            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",yellow, (int)p_file.size(),p_file.data(), p_line,reset));
             break;
         case ERR_SCRIPT:
-            logf_error(FormatVE("%sSCRIPT ERROR: %.*s: %s%s%.*s\n", magenta,p_function.size(),p_function.data(), reset,bold,err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", magenta,p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sSCRIPT ERROR: %.*s: %s%s%.*s\n", magenta,(int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
+            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", magenta,(int)p_file.size(),p_file.data(), p_line,reset));
             break;
         case ERR_SHADER:
-            logf_error(FormatVE("%sSHADER ERROR: %.*s: %s%s%.*s\n",cyan, p_function.size(),p_function.data(), reset,bold,err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",cyan, p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sSHADER ERROR: %.*s: %s%s%.*s\n",cyan, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
+            logf_error(FormatVE("%s   At: %.*s:%i.%s\n",cyan, (int)p_file.size(),p_file.data(), p_line,reset));
             break;
         case ERR_ERROR:
         default:
-            logf_error(FormatVE("%sERROR: %.*s: %s%s%.*s\n",red, p_function.size(),p_function.data(), reset,bold,err_details.size(), err_details.data()));
-            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", red,p_file.size(),p_file.data(), p_line,reset));
+            logf_error(FormatVE("%sERROR: %.*s: %s%s%.*s\n",red, (int)p_function.size(),p_function.data(), reset,bold,(int)err_details.size(), err_details.data()));
+            logf_error(FormatVE("%s   At: %.*s:%i.%s\n", red,(int)p_file.size(),p_file.data(), p_line,reset));
             break;
     }
 }

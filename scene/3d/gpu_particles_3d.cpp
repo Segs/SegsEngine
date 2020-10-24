@@ -41,7 +41,7 @@
 #include "servers/rendering_server.h"
 
 IMPL_GDCLASS(GPUParticles3D)
-VARIANT_ENUM_CAST(GPUParticles3D::DrawOrder)
+VARIANT_ENUM_CAST(GPUParticles3D::DrawOrder);
 
 AABB GPUParticles3D::get_aabb() const {
 

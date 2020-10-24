@@ -41,8 +41,8 @@
 IMPL_GDCLASS(BaseButton)
 IMPL_GDCLASS(ButtonGroup)
 
-VARIANT_ENUM_CAST(BaseButton::DrawMode)
-VARIANT_ENUM_CAST(BaseButton::ActionMode)
+VARIANT_ENUM_CAST(BaseButton::DrawMode);
+VARIANT_ENUM_CAST(BaseButton::ActionMode);
 
 
 void BaseButton::_unpress_group() {

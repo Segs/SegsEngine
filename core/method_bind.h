@@ -69,20 +69,20 @@ struct VariantObjectClassChecker<T *> {
 
 // some helpers
 
-VARIANT_ENUM_CAST(Vector3::Axis)
+VARIANT_ENUM_CAST(Vector3::Axis);
 
-VARIANT_ENUM_CAST(Error)
-VARIANT_ENUM_CAST(Margin)
-VARIANT_ENUM_CAST(Corner)
-VARIANT_ENUM_CAST(Orientation)
-VARIANT_ENUM_CAST(HAlign)
-VARIANT_ENUM_CAST(VAlign)
-VARIANT_ENUM_CAST(PropertyHint)
-VARIANT_ENUM_CAST(PropertyUsageFlags)
-VARIANT_ENUM_CAST(MethodFlags)
-VARIANT_ENUM_CAST(VariantType)
+VARIANT_ENUM_CAST(Error);
+VARIANT_ENUM_CAST(Margin);
+VARIANT_ENUM_CAST(Corner);
+VARIANT_ENUM_CAST(Orientation);
+VARIANT_ENUM_CAST(HAlign);
+VARIANT_ENUM_CAST(VAlign);
+VARIANT_ENUM_CAST(PropertyHint);
+VARIANT_ENUM_CAST(PropertyUsageFlags);
+VARIANT_ENUM_CAST(MethodFlags);
+VARIANT_ENUM_CAST(VariantType);
 
-VARIANT_ENUM_CAST(Variant::Operator)
+VARIANT_ENUM_CAST(Variant::Operator);
 
 //template <>
 //struct VariantCaster<char16_t> {

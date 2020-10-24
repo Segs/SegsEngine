@@ -804,11 +804,12 @@ int Animation::find_track(const NodePath &p_path) const {
 
     for (int i = 0; i < tracks.size(); i++) {
 
-        if (tracks[i]->path == p_path)
+        if (tracks[i]->path == p_path) {
             return i;
-    };
+        }
+    }
     return -1;
-};
+}
 
 void Animation::track_set_interpolation_type(int p_track, InterpolationType p_interp) {
 

@@ -383,7 +383,7 @@ public:
 };
 
 class GODOT_EXPORT VisualShaderNodeUniformRef : public VisualShaderNode {
-    GDCLASS(VisualShaderNodeUniformRef, VisualShaderNode);
+    GDCLASS(VisualShaderNodeUniformRef, VisualShaderNode)
 
 public:
     enum UniformType {

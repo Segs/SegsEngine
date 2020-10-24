@@ -36,7 +36,7 @@
 #include "core/engine.h"
 
 IMPL_GDCLASS(AudioStreamPlayer)
-VARIANT_ENUM_CAST(AudioStreamPlayer::MixTarget)
+VARIANT_ENUM_CAST(AudioStreamPlayer::MixTarget);
 
 void AudioStreamPlayer::_mix_to_bus(const AudioFrame *p_frames, int p_amount) {
 

@@ -453,12 +453,6 @@ void MeshInstanceEditor::_create_outline_mesh() {
     ur->commit_action();
 }
 
-void MeshInstanceEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_create_outline_mesh", &MeshInstanceEditor::_create_outline_mesh);
-    MethodBinder::bind_method("_debug_uv_draw", &MeshInstanceEditor::_debug_uv_draw);
-}
-
 MeshInstanceEditor::MeshInstanceEditor() {
 
     options = memnew(MenuButton);

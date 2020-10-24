@@ -47,8 +47,8 @@
 IMPL_GDCLASS(AnimationNode)
 IMPL_GDCLASS(AnimationRootNode)
 IMPL_GDCLASS(AnimationTree)
-VARIANT_ENUM_CAST(AnimationNode::FilterAction)
-VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode)
+VARIANT_ENUM_CAST(AnimationNode::FilterAction);
+VARIANT_ENUM_CAST(AnimationTree::AnimationProcessMode);
 
 void AnimationNode::get_parameter_list(Vector<PropertyInfo> *r_list) const {
     if (get_script_instance()) {

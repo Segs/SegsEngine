@@ -34,7 +34,7 @@
 #include "core/method_enum_caster.h"
 
 class GODOT_EXPORT HashingContext : public RefCounted {
-    GDCLASS(HashingContext, RefCounted);
+    GDCLASS(HashingContext, RefCounted)
 
 public:
     enum HashType {

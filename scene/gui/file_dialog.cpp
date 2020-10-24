@@ -125,7 +125,7 @@ void FileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 void FileDialog::set_enable_multiple_selection(bool p_enable) {
 
     tree->set_select_mode(p_enable ? Tree::SELECT_MULTI : Tree::SELECT_SINGLE);
-};
+}
 
 Vector<String> FileDialog::get_selected_files() const {
 

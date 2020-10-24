@@ -2571,14 +2571,14 @@ void OS_X11::set_main_loop(MainLoop *p_main_loop) {
 
 bool OS_X11::can_draw() const {
     return !minimized;
-};
+}
 
 void OS_X11::set_clipboard(StringView p_text) {
     OS::set_clipboard(p_text);
 
     XSetSelectionOwner(x11_display, XA_PRIMARY, x11_window, CurrentTime);
     XSetSelectionOwner(x11_display, XInternAtom(x11_display, "CLIPBOARD", 0), x11_window, CurrentTime);
-};
+}
 
 static String _get_clipboard_impl(
         Atom p_source, Window x11_window, ::Display *x11_display, StringView p_internal_clipboard, Atom target) {

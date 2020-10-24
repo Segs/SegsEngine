@@ -43,8 +43,7 @@ IMPL_GDCLASS(StyleBoxFlat)
 IMPL_GDCLASS(StyleBoxLine)
 RES_BASE_EXTENSION_IMPL(StyleBox,"stylebox")
 
-VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode)
-
+VARIANT_ENUM_CAST(StyleBoxTexture::AxisStretchMode);
 
 bool StyleBox::test_mask(const Point2 &p_point, const Rect2 &p_rect) const {
 

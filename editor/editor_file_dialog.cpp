@@ -198,7 +198,7 @@ void EditorFileDialog::_unhandled_input(const Ref<InputEvent> &p_event) {
 void EditorFileDialog::set_enable_multiple_selection(bool p_enable) {
 
     item_list->set_select_mode(p_enable ? ItemList::SELECT_MULTI : ItemList::SELECT_SINGLE);
-};
+}
 
 Vector<String> EditorFileDialog::get_selected_files() const {
 
@@ -208,7 +208,7 @@ Vector<String> EditorFileDialog::get_selected_files() const {
             list.push_back(item_list->get_item_text(i).asCString());
     }
     return list;
-};
+}
 
 void EditorFileDialog::update_dir() {
 

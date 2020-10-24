@@ -713,7 +713,7 @@ String Object::to_string() {
         if (valid)
             return ret;
     }
-    return FormatVE("[%s:%zd]",get_class(),get_instance_id());
+    return FormatVE("[%s:%zd]",get_class(),(uint64_t)get_instance_id());
 }
 
 void Object::_changed_callback(Object * /*p_changed*/, StringName /*p_prop*/) {

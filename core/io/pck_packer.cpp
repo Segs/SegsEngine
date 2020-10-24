@@ -47,7 +47,7 @@ static uint64_t _align(uint64_t p_n, int p_alignment) {
         return p_n;
     else
         return p_n + (p_alignment - rest);
-};
+}
 
 static void _pad(FileAccess *p_file, int p_bytes) {
 
@@ -55,14 +55,14 @@ static void _pad(FileAccess *p_file, int p_bytes) {
 
         p_file->store_8(0);
     }
-};
+}
 
 void PCKPacker::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("pck_start", {"pck_name", "alignment"}), &PCKPacker::pck_start, {DEFVAL(0)});
     MethodBinder::bind_method(D_METHOD("add_file", {"pck_path", "source_path"}), &PCKPacker::add_file);
     MethodBinder::bind_method(D_METHOD("flush", {"verbose"}), &PCKPacker::flush, {DEFVAL(false)});
-};
+}
 
 Error PCKPacker::pck_start(StringView p_file, int p_alignment) {
 
@@ -90,7 +90,7 @@ Error PCKPacker::pck_start(StringView p_file, int p_alignment) {
     files.clear();
 
     return OK;
-};
+}
 
 Error PCKPacker::add_file(StringView p_file, StringView p_src) {
 
@@ -111,7 +111,7 @@ Error PCKPacker::add_file(StringView p_file, StringView p_src) {
     memdelete(f);
 
     return OK;
-};
+}
 
 Error PCKPacker::flush(bool p_verbose) {
 
@@ -180,16 +180,16 @@ Error PCKPacker::flush(bool p_verbose) {
     memdelete_arr(buf);
 
     return OK;
-};
+}
 
 PCKPacker::PCKPacker() {
 
     file = nullptr;
-};
+}
 
 PCKPacker::~PCKPacker() {
     if (file != nullptr) {
         memdelete(file);
     }
     file = nullptr;
-};
+}

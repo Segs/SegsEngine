@@ -37,7 +37,7 @@
 class GODOT_EXPORT Shape2D : public Resource {
     GDCLASS(Shape2D,Resource)
 
-    OBJ_SAVE_TYPE(Shape2D);
+    OBJ_SAVE_TYPE(Shape2D)
 
     RID shape;
     real_t custom_bias;

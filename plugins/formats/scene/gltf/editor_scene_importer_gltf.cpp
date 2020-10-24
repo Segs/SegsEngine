@@ -3405,7 +3405,7 @@ namespace {
 
 
 Node *EditorSceneImporterGLTF::import_scene(StringView p_path, uint32_t p_flags, int p_bake_fps, Vector<String> *r_missing_deps, Error *r_err) {
-    print_verbose(FormatVE("glTF: Importing file %.*s as scene.", p_path.size(),p_path.data()));
+    print_verbose(FormatVE("glTF: Importing file %.*s as scene.", (int)p_path.size(),p_path.data()));
 
     GLTFState state;
 

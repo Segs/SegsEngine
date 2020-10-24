@@ -70,17 +70,20 @@ void ScriptDebugger::insert_breakpoint(int p_line, const StringName &p_source) {
 
 void ScriptDebugger::remove_breakpoint(int p_line, const StringName &p_source) {
 
-    if (!breakpoints.contains(p_line))
+    if (!breakpoints.contains(p_line)) {
         return;
+    }
 
     breakpoints[p_line].erase(p_source);
-    if (breakpoints[p_line].empty())
+    if (breakpoints[p_line].empty()) {
         breakpoints.erase(p_line);
+    }
 }
 bool ScriptDebugger::is_breakpoint(int p_line, const StringName &p_source) const {
 
-    if (!breakpoints.contains(p_line))
+    if (!breakpoints.contains(p_line)) {
         return false;
+    }
     return breakpoints.at(p_line).contains(p_source);
 }
 bool ScriptDebugger::is_breakpoint_line(int p_line) const {

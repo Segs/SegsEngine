@@ -44,10 +44,10 @@
 
 
 IMPL_GDCLASS(CPUParticles2D)
-VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder)
-VARIANT_ENUM_CAST(CPUParticles2D::Parameter)
-VARIANT_ENUM_CAST(CPUParticles2D::Flags)
-VARIANT_ENUM_CAST(CPUParticles2D::EmissionShape)
+VARIANT_ENUM_CAST(CPUParticles2D::DrawOrder);
+VARIANT_ENUM_CAST(CPUParticles2D::Parameter);
+VARIANT_ENUM_CAST(CPUParticles2D::Flags);
+VARIANT_ENUM_CAST(CPUParticles2D::EmissionShape);
 
 void CPUParticles2D::set_emitting(bool p_emitting) {
 

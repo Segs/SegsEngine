@@ -41,7 +41,7 @@ class NavigationMeshInstance;
 class GODOT_EXPORT NavigationMeshEditor : public Control {
     friend class NavigationMeshEditorPlugin;
 
-    GDCLASS(NavigationMeshEditor, Control);
+    GDCLASS(NavigationMeshEditor, Control)
 
     AcceptDialog *err_dialog;
 
@@ -68,7 +68,7 @@ public:
 
 class NavigationMeshEditorPlugin : public EditorPlugin {
 
-    GDCLASS(NavigationMeshEditorPlugin, EditorPlugin);
+    GDCLASS(NavigationMeshEditorPlugin, EditorPlugin)
 
     NavigationMeshEditor *navigation_mesh_editor;
     EditorNode *editor;

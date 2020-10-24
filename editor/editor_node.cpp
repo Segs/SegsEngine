@@ -6438,7 +6438,7 @@ EditorNode::EditorNode() {
     scene_tab_add->set_tooltip(TTR("Add a new scene."));
     scene_tab_add->set_button_icon(gui_base->get_theme_icon("Add", "EditorIcons"));
     scene_tab_add->add_theme_color_override("icon_color_normal", Color(0.6f, 0.6f, 0.6f, 0.8f));
-    scene_tab_add->connect("pressed",callable_mp(this, &ClassName::_menu_option), make_binds(FILE_NEW_SCENE));
+    scene_tab_add->connect("pressed",callable_gen(this, [this] ()  { _menu_option(FILE_NEW_SCENE); }));
 
     scene_root_parent = memnew(PanelContainer);
     scene_root_parent->set_custom_minimum_size(Size2(0, 80) * EDSCALE);

@@ -162,7 +162,7 @@ String TextEditor::get_name() {
     } else if (!text_file->get_name().empty()) {
         name = text_file->get_name();
     } else {
-        name = FormatVE("%s(%zd)",text_file->get_class(),text_file->get_instance_id());
+        name = FormatVE("%s(%zd)",text_file->get_class(),(uint64_t)text_file->get_instance_id());
     }
 
     return name;

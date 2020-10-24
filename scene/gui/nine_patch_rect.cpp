@@ -36,7 +36,7 @@
 
 IMPL_GDCLASS(NinePatchRect)
 
-VARIANT_ENUM_CAST(NinePatchRect::AxisStretchMode)
+VARIANT_ENUM_CAST(NinePatchRect::AxisStretchMode);
 
 void NinePatchRect::_notification(int p_what) {
 

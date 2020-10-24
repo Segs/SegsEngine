@@ -91,7 +91,7 @@ static const unsigned int MONTH_DAYS_TABLE[2][12] = { { 31, 28, 31, 30, 31, 30, 
 
 _ResourceManager *_ResourceManager::singleton = nullptr;
 
-IMPL_GDCLASS(_ResourceManager);
+IMPL_GDCLASS(_ResourceManager)
 
 Ref<ResourceInteractiveLoader> _ResourceManager::load_interactive(StringView p_path, StringView p_type_hint) {
     return gResourceManager().load_interactive(p_path, p_type_hint);
@@ -124,7 +124,7 @@ Vector<String> _ResourceManager::get_dependencies(StringView p_path) {
     Vector<String> deps;
     gResourceManager().get_dependencies(p_path, deps);
     return deps;
-};
+}
 
 bool _ResourceManager::has_cached(StringView p_path) {
     String local_path = ProjectSettings::get_singleton()->localize_path(p_path);
@@ -474,7 +474,7 @@ Error _OS::shell_open(const String& p_uri) {
                    "convert a Godot-specific path to a system path before opening it with `OS.shell_open()`.");
     }
     return OS::get_singleton()->shell_open(eastl::move(p_uri));
-};
+}
 
 int _OS::execute(
         StringView p_path, const Vector<String> &p_arguments, bool p_blocking, Array p_output, bool p_read_stderr) {
@@ -499,7 +499,7 @@ Error _OS::kill(int p_pid) {
 
 int _OS::get_process_id() const {
     return OS::get_singleton()->get_process_id();
-};
+}
 
 bool _OS::has_environment(const String &p_var) const {
     return OS::get_singleton()->has_environment(p_var);
@@ -556,7 +556,7 @@ bool _OS::is_ok_left_and_cancel_right() const {
 
 Error _OS::set_thread_name(StringView p_name) {
     return Thread::set_name(p_name);
-};
+}
 
 void _OS::set_use_vsync(bool p_enable) {
     OS::get_singleton()->set_use_vsync(p_enable);
@@ -946,7 +946,7 @@ void _OS::print_resources_by_type(const Vector<String> &p_types) {
 
         type_count[r->get_class()]++;
     }
-};
+}
 
 bool _OS::has_virtual_keyboard() const {
     return OS::get_singleton()->has_virtual_keyboard();
@@ -978,27 +978,27 @@ void _OS::dump_resources_to_file(StringView p_file) {
 
 String _OS::get_user_data_dir() const {
     return OS::get_singleton()->get_user_data_dir();
-};
+}
 
 Error _OS::native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track) {
     return OS::get_singleton()->native_video_play(p_path, p_volume, p_audio_track, p_subtitle_track);
-};
+}
 
 bool _OS::native_video_is_playing() {
     return OS::get_singleton()->native_video_is_playing();
-};
+}
 
 void _OS::native_video_pause() {
     OS::get_singleton()->native_video_pause();
-};
+}
 
 void _OS::native_video_unpause() {
     OS::get_singleton()->native_video_unpause();
-};
+}
 
 void _OS::native_video_stop() {
     OS::get_singleton()->native_video_stop();
-};
+}
 
 void _OS::request_attention() {
     OS::get_singleton()->request_attention();
@@ -1065,7 +1065,7 @@ PoolVector<String> _OS::get_granted_permissions() const {
     return OS::get_singleton()->get_granted_permissions();
 }
 
-IMPL_GDCLASS(_OS);
+IMPL_GDCLASS(_OS)
 
 _OS *_OS::singleton = nullptr;
 
@@ -1405,7 +1405,7 @@ Variant _Geometry::segment_intersects_segment_2d(
     } else {
         return Variant();
     }
-};
+}
 
 Variant _Geometry::line_intersects_line_2d(
         const Vector2 &p_from_a, const Vector2 &p_dir_a, const Vector2 &p_from_b, const Vector2 &p_dir_b) {
@@ -1660,13 +1660,13 @@ Dictionary _Geometry::make_atlas(const Vector<Size2> &p_rects) {
     ret["size"] = r_size;
 
     return ret;
-};
+}
 
 int _Geometry::get_uv84_normal_bit(const Vector3 &p_vector) {
     return Geometry::get_uv84_normal_bit(p_vector);
 }
 
-IMPL_GDCLASS(_Geometry);
+IMPL_GDCLASS(_Geometry)
 
 void _Geometry::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("build_box_planes", { "extents" }), &_Geometry::build_box_planes);
@@ -2032,13 +2032,13 @@ void _File::store_pascal_string(StringView p_string) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
 
     f->store_pascal_string(p_string);
-};
+}
 
 String _File::get_pascal_string() {
     ERR_FAIL_COND_V_MSG(!f, String(), "File must be opened before use.");
 
     return f->get_pascal_string();
-};
+}
 
 void _File::store_line(StringView p_string) {
     ERR_FAIL_COND_MSG(!f, "File must be opened before use.");
@@ -2387,7 +2387,7 @@ String _Marshalls::variant_to_base64(const Variant &p_var, bool p_full_objects) 
     ERR_FAIL_COND_V(ret.empty(), ret);
 
     return ret;
-};
+}
 
 Variant _Marshalls::base64_to_variant(StringView p_str, bool p_allow_objects) {
     int strlen = p_str.size();
@@ -2406,13 +2406,13 @@ Variant _Marshalls::base64_to_variant(StringView p_str, bool p_allow_objects) {
     ERR_FAIL_COND_V_MSG(err != OK, Variant(), "Error when trying to decode Variant.");
 
     return v;
-};
+}
 
 String _Marshalls::raw_to_base64(const PoolVector<uint8_t> &p_arr) {
     String ret = CryptoCore::b64_encode_str(p_arr.read().ptr(), p_arr.size());
     ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
-};
+}
 
 PoolVector<uint8_t> _Marshalls::base64_to_raw(StringView p_str) {
     int strlen = p_str.size();
@@ -2430,13 +2430,13 @@ PoolVector<uint8_t> _Marshalls::base64_to_raw(StringView p_str) {
     buf.resize(arr_len);
 
     return buf;
-};
+}
 
 String _Marshalls::utf8_to_base64(StringView p_str) {
     String ret = CryptoCore::b64_encode_str((const unsigned char *)p_str.data(), p_str.length());
     ERR_FAIL_COND_V(ret.empty(), ret);
     return ret;
-};
+}
 
 String _Marshalls::base64_to_utf8(StringView p_str) {
     int strlen = p_str.length();
@@ -2450,7 +2450,7 @@ String _Marshalls::base64_to_utf8(StringView p_str) {
             String());
 
     return String((const char *)&w[0], len);
-};
+}
 
 IMPL_GDCLASS(_Marshalls)
 
@@ -2465,7 +2465,7 @@ void _Marshalls::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("utf8_to_base64", { "utf8_str" }), &_Marshalls::utf8_to_base64);
     MethodBinder::bind_method(D_METHOD("base64_to_utf8", { "base64_str" }), &_Marshalls::base64_to_utf8);
-};
+}
 
 ////////////////
 

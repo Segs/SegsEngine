@@ -500,10 +500,6 @@ void SpriteEditor::_debug_uv_draw() {
 }
 
 void SpriteEditor::_bind_methods() {
-
-    MethodBinder::bind_method("_debug_uv_draw", &SpriteEditor::_debug_uv_draw);
-    MethodBinder::bind_method("_update_mesh_data", &SpriteEditor::_update_mesh_data);
-    MethodBinder::bind_method("_create_node", &SpriteEditor::_create_node);
     MethodBinder::bind_method("_add_as_sibling_or_child", &SpriteEditor::_add_as_sibling_or_child);
 }
 

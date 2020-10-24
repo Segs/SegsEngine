@@ -37,7 +37,7 @@
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(AStar)
-IMPL_GDCLASS(AStar2D);
+IMPL_GDCLASS(AStar2D)
 
 struct AStarPoint {
 

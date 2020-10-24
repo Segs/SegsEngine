@@ -41,7 +41,7 @@
 
 IMPL_GDCLASS(GIProbeData)
 IMPL_GDCLASS(GIProbe)
-VARIANT_ENUM_CAST(GIProbe::Subdiv)
+VARIANT_ENUM_CAST(GIProbe::Subdiv);
 
 void GIProbeData::set_bounds(const AABB &p_bounds) {
 

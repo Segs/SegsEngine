@@ -143,7 +143,7 @@ Error ThreadPosix::set_name_func_posix(StringView p_name) {
     return err == 0 ? OK : ERR_INVALID_PARAMETER;
 
 #endif // PTHREAD_NO_RENAME
-};
+}
 
 void ThreadPosix::make_default() {
 

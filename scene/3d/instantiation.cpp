@@ -97,24 +97,16 @@ void LibraryEntryInstance::update_instance()
         LibraryItemHandle h = resolved_library->find_item_by_name(entry_name);
         ERR_FAIL_COND_MSG(h == LibraryItemHandle(-1), "Library does not contain selected entry:" + entry_name);
 
-        int idx = get_position_in_parent();
-        auto parent=get_parent();
-        parent->remove_child(this);
-        auto transf = get_transform();
+        if(instantiated_child) {
+            remove_child(instantiated_child);
+            instantiated_child->queue_delete();
+        }
         instantiated_child = (Node3D *)resolved_library->get_item_scene(h)->instance();
         instantiated_child->set_name(resolved_library->get_name()+"::"+entry_name);
+        instantiated_child->set_filename(resolved_library->get_path()+"::"+StringUtils::num(h));
+        add_child(instantiated_child);
+        instantiated_child->set_owner(this->get_owner());
         // Not setting owner here, to prevent those nodes from being saved.
-        int children = get_child_count();
-        while(get_child_count()) {
-            auto chld = get_child(0);
-            remove_child(chld);
-            instantiated_child->add_child(chld);
-        }
-        parent->add_child(instantiated_child);
-        parent->move_child(instantiated_child,idx);
-        instantiated_child->set_transform(transf);
-        instantiated_child->set_owner(parent->get_tree()->get_edited_scene_root());
-        this->queue_delete();
     }
     //EditorNode::get_singleton()->get_edited_scene()->set_editable_instance(node, false);
 }

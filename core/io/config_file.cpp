@@ -83,7 +83,7 @@ Variant ConfigFile::get_value(StringView _section, StringView _key, const Varian
     if (iter_section == values.end()) {
         ERR_FAIL_COND_V_MSG(p_default.get_type() == VariantType::NIL, Variant(),
                 FormatSN("Couldn't find the given section \"%.*s\" and key \"%.*s\", and no default was given.",
-                        p_section.size(), p_section.data(), p_key.size(), p_key.data()));
+                        (int)p_section.size(), p_section.data(), (int)p_key.size(), p_key.data()));
         return p_default;
     }
     auto iter_key = iter_section->second.find(p_key);
@@ -119,17 +119,17 @@ Vector<String> ConfigFile::get_section_keys(StringView _section) const {
 void ConfigFile::erase_section(StringView p_section) {
 
     ERR_FAIL_COND_MSG(!values.contains_as(p_section),
-            FormatSN("Cannot erase nonexistent section \"%.*s\".", p_section.size(), p_section.data()));
+            FormatSN("Cannot erase nonexistent section \"%.*s\".", (int)p_section.size(), p_section.data()));
     values.erase(String(p_section));
 }
 void ConfigFile::erase_section_key(StringView p_section, StringView p_key) {
 
     auto iter=values.find_as(p_section);
     ERR_FAIL_COND_MSG(iter == values.end(), FormatSN("Cannot erase key '%.*s' from nonexistent section '%.*s'.",
-                                                    p_key.size(), p_key.data(), p_section.size(), p_section.data()));
+                                                    (int)p_key.size(), p_key.data(), (int)p_section.size(), p_section.data()));
 
-    ERR_FAIL_COND_MSG(!iter->second.contains_as(p_key), FormatSN("Cannot erase nonexistent key \"%s\" from section \"%s\".",
-                                                                 p_key.size(), p_key.data(), p_section.size(), p_section.data()));
+    ERR_FAIL_COND_MSG(!iter->second.contains_as(p_key), FormatSN("Cannot erase nonexistent key \"%.*s\" from section \"%.*s\".",
+                                                                 (int)p_key.size(), p_key.data(), (int)p_section.size(), p_section.data()));
 
     iter->second.erase_as(p_key);
 }

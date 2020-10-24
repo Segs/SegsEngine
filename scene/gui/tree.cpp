@@ -923,7 +923,7 @@ void TreeItem::clear_children() {
     }
 
     children = nullptr;
-};
+}
 
 TreeItem::TreeItem(Tree *p_tree) {
 
@@ -3292,14 +3292,14 @@ void Tree::clear() {
     if (root) {
         memdelete(root);
         root = nullptr;
-    };
+    }
 
     selected_item = nullptr;
     edited_item = nullptr;
     popup_edited_item = nullptr;
 
     update();
-};
+}
 
 void Tree::set_hide_root(bool p_enabled) {
 

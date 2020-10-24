@@ -154,7 +154,7 @@ void CameraMatrix::set_for_hmd(int p_eye, real_t p_aspect, real_t p_intraocular_
         default: { // mono, does not apply here!
         } break;
     }
-};
+}
 
 void CameraMatrix::set_orthogonal(real_t p_left, real_t p_right, real_t p_bottom, real_t p_top, real_t p_znear, real_t p_zfar) {
 
@@ -293,7 +293,7 @@ void CameraMatrix::get_far_plane_size(real_t &r_width, real_t &r_height) const {
 bool CameraMatrix::get_endpoints(const Transform &p_transform, Vector3 *p_8points) const {
 
     Frustum planes = get_projection_planes(Transform());
-    const Planes intersections[8][3] = {
+    constexpr Planes intersections[8][3] = {
         { PLANE_FAR, PLANE_LEFT, PLANE_TOP },
         { PLANE_FAR, PLANE_LEFT, PLANE_BOTTOM },
         { PLANE_FAR, PLANE_RIGHT, PLANE_TOP },

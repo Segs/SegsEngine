@@ -1923,7 +1923,7 @@ void VisualShaderEditor::_dup_paste_nodes(int p_type, int p_pasted_type, Vector<
     undo_redo->add_undo_method(this, "_update_graph");
     undo_redo->commit_action();
 
-    if (!p_select) 
+    if (!p_select)
         return;
 
     // reselect duplicated nodes by excluding the other ones
@@ -3024,7 +3024,7 @@ IMPL_GDCLASS(VisualShaderNodePluginInputEditor)
 ////////////////
 
 class VisualShaderNodePluginUniformRefEditor : public OptionButton, public IVisualShaderEditor {
-    GDCLASS(VisualShaderNodePluginUniformRefEditor, OptionButton);
+    GDCLASS(VisualShaderNodePluginUniformRefEditor, OptionButton)
 
     Ref<VisualShaderNodeUniformRef> uniform_ref;
 

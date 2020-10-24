@@ -36,143 +36,143 @@
 void post_process_preview(Ref<Image> p_image);
 
 class EditorTexturePreviewPlugin : public EditorResourcePreviewGenerator {
-	GDCLASS(EditorTexturePreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorTexturePreviewPlugin,EditorResourcePreviewGenerator)
 
 public:
     bool handles(StringView p_type) const override;
-	bool generate_small_preview_automatically() const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    bool generate_small_preview_automatically() const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorTexturePreviewPlugin();
+    EditorTexturePreviewPlugin();
 };
 
 class EditorImagePreviewPlugin : public EditorResourcePreviewGenerator {
-	GDCLASS(EditorImagePreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorImagePreviewPlugin,EditorResourcePreviewGenerator)
 
 public:
     bool handles(StringView p_type) const override;
-	bool generate_small_preview_automatically() const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    bool generate_small_preview_automatically() const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorImagePreviewPlugin();
+    EditorImagePreviewPlugin();
 };
 
 class EditorBitmapPreviewPlugin : public EditorResourcePreviewGenerator {
-	GDCLASS(EditorBitmapPreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorBitmapPreviewPlugin,EditorResourcePreviewGenerator)
 
 public:
     bool handles(StringView p_type) const override;
-	bool generate_small_preview_automatically() const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    bool generate_small_preview_automatically() const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorBitmapPreviewPlugin();
+    EditorBitmapPreviewPlugin();
 };
 
 class EditorPackedScenePreviewPlugin : public EditorResourcePreviewGenerator {
 
 public:
     bool handles(StringView p_type) const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
-	Ref<Texture> generate_from_path(StringView p_path, const Size2 &p_size) const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    Ref<Texture> generate_from_path(StringView p_path, const Size2 &p_size) const override;
 
-	EditorPackedScenePreviewPlugin();
+    EditorPackedScenePreviewPlugin();
 };
 
 class EditorMaterialPreviewPlugin : public EditorResourcePreviewGenerator {
 
-	GDCLASS(EditorMaterialPreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorMaterialPreviewPlugin,EditorResourcePreviewGenerator)
 
-	RID scenario;
-	RID sphere;
-	RID sphere_instance;
-	RID viewport;
-	RID viewport_texture;
-	RID light;
-	RID light_instance;
-	RID light2;
-	RID light_instance2;
-	RID camera;
-	mutable volatile bool preview_done;
+    RID scenario;
+    RID sphere;
+    RID sphere_instance;
+    RID viewport;
+    RID viewport_texture;
+    RID light;
+    RID light_instance;
+    RID light2;
+    RID light_instance2;
+    RID camera;
+    mutable volatile bool preview_done;
 
-	void _preview_done(const Variant &p_udata);
+    void _preview_done(const Variant &p_udata);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods() {}
 
 public:
     bool handles(StringView p_type) const override;
-	bool generate_small_preview_automatically() const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    bool generate_small_preview_automatically() const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorMaterialPreviewPlugin();
-	~EditorMaterialPreviewPlugin() override;
+    EditorMaterialPreviewPlugin();
+    ~EditorMaterialPreviewPlugin() override;
 };
 
 class EditorScriptPreviewPlugin : public EditorResourcePreviewGenerator {
 public:
     bool handles(StringView p_type) const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorScriptPreviewPlugin();
+    EditorScriptPreviewPlugin();
 };
 
 class EditorAudioStreamPreviewPlugin : public EditorResourcePreviewGenerator {
 public:
     bool handles(StringView p_type) const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorAudioStreamPreviewPlugin();
+    EditorAudioStreamPreviewPlugin();
 };
 
 class EditorMeshPreviewPlugin : public EditorResourcePreviewGenerator {
 
-	GDCLASS(EditorMeshPreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorMeshPreviewPlugin,EditorResourcePreviewGenerator)
 
-	RID scenario;
-	RID mesh_instance;
-	RID viewport;
-	RID viewport_texture;
-	RID light;
-	RID light_instance;
-	RID light2;
-	RID light_instance2;
-	RID camera;
-	mutable volatile bool preview_done;
+    RID scenario;
+    RID mesh_instance;
+    RID viewport;
+    RID viewport_texture;
+    RID light;
+    RID light_instance;
+    RID light2;
+    RID light_instance2;
+    RID camera;
+    mutable volatile bool preview_done;
 
-	void _preview_done(const Variant &p_udata);
+    void _preview_done(const Variant &p_udata);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     bool handles(StringView p_type) const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
 
-	EditorMeshPreviewPlugin();
-	~EditorMeshPreviewPlugin() override;
+    EditorMeshPreviewPlugin();
+    ~EditorMeshPreviewPlugin() override;
 };
 
 class EditorFontPreviewPlugin : public EditorResourcePreviewGenerator {
 
-	GDCLASS(EditorFontPreviewPlugin,EditorResourcePreviewGenerator)
+    GDCLASS(EditorFontPreviewPlugin,EditorResourcePreviewGenerator)
 
-	RID viewport;
-	RID viewport_texture;
-	RID canvas;
-	RID canvas_item;
-	mutable volatile bool preview_done;
+    RID viewport;
+    RID viewport_texture;
+    RID canvas;
+    RID canvas_item;
+    mutable volatile bool preview_done;
 
-	void _preview_done(const Variant &p_udata);
+    void _preview_done(const Variant &p_udata);
 
 protected:
-	static void _bind_methods();
+    static void _bind_methods() { }
 
 public:
     bool handles(StringView p_type) const override;
-	Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
-	Ref<Texture> generate_from_path(StringView p_path, const Size2 &p_size) const override;
+    Ref<Texture> generate(const RES &p_from, const Size2 &p_size) const override;
+    Ref<Texture> generate_from_path(StringView p_path, const Size2 &p_size) const override;
 
-	EditorFontPreviewPlugin();
-	~EditorFontPreviewPlugin() override;
+    EditorFontPreviewPlugin();
+    ~EditorFontPreviewPlugin() override;
 };
 #endif // EDITORPREVIEWPLUGINS_H

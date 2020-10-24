@@ -46,19 +46,19 @@ IMPL_GDCLASS(ShaderMaterial)
 IMPL_GDCLASS(SpatialMaterial)
 RES_BASE_EXTENSION_IMPL(Material,"material")
 
-VARIANT_ENUM_CAST(SpatialMaterial::TextureParam)
-VARIANT_ENUM_CAST(SpatialMaterial::DetailUV)
-VARIANT_ENUM_CAST(SpatialMaterial::Feature)
-VARIANT_ENUM_CAST(SpatialMaterial::BlendMode)
-VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode)
-VARIANT_ENUM_CAST(SpatialMaterial::CullMode)
-VARIANT_ENUM_CAST(SpatialMaterial::Flags)
-VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode)
-VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode)
-VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode)
-VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel)
-VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator)
-VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode)
+VARIANT_ENUM_CAST(SpatialMaterial::TextureParam);
+VARIANT_ENUM_CAST(SpatialMaterial::DetailUV);
+VARIANT_ENUM_CAST(SpatialMaterial::Feature);
+VARIANT_ENUM_CAST(SpatialMaterial::BlendMode);
+VARIANT_ENUM_CAST(SpatialMaterial::DepthDrawMode);
+VARIANT_ENUM_CAST(SpatialMaterial::CullMode);
+VARIANT_ENUM_CAST(SpatialMaterial::Flags);
+VARIANT_ENUM_CAST(SpatialMaterial::DiffuseMode);
+VARIANT_ENUM_CAST(SpatialMaterial::SpecularMode);
+VARIANT_ENUM_CAST(SpatialMaterial::BillboardMode);
+VARIANT_ENUM_CAST(SpatialMaterial::TextureChannel);
+VARIANT_ENUM_CAST(SpatialMaterial::EmissionOperator);
+VARIANT_ENUM_CAST(SpatialMaterial::DistanceFadeMode);
 
 #ifdef TOOLS_ENABLED
 #include "editor/editor_settings.h"

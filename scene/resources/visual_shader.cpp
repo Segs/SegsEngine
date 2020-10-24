@@ -54,8 +54,8 @@ IMPL_GDCLASS(VisualShaderNodeExpression)
 IMPL_GDCLASS(VisualShaderNodeGlobalExpression)
 IMPL_GDCLASS(VisualShaderNodeUniformRef)
 
-VARIANT_ENUM_CAST(VisualShader::Type)
-VARIANT_ENUM_CAST(VisualShaderNode::PortType)
+VARIANT_ENUM_CAST(VisualShader::Type);
+VARIANT_ENUM_CAST(VisualShaderNode::PortType);
 
 namespace {
     Error _write_node(VisualShader::Type type,const VisualShader *vs,StringBuilder &global_code, StringBuilder &global_code_per_node,

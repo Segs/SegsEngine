@@ -45,7 +45,7 @@ class GODOT_EXPORT AnimationTreePlayer : public Node {
 
     GDCLASS(AnimationTreePlayer,Node)
 
-    OBJ_CATEGORY("Animation Nodes");
+    OBJ_CATEGORY("Animation Nodes")
     friend AnimationTreeNodeBase;
     friend AnimationTreeNode;
 

@@ -685,7 +685,7 @@ public:
 
 // External textures as defined by https://www.khronos.org/registry/OpenGL/extensions/OES/OES_EGL_image_external.txt
 class GODOT_EXPORT ExternalTexture : public Texture {
-    GDCLASS(ExternalTexture, Texture);
+    GDCLASS(ExternalTexture, Texture)
 
 private:
     RID texture;

@@ -38,15 +38,15 @@
 IMPL_GDCLASS(SkeletonIKEditorPlugin)
 
 void SkeletonIKEditorPlugin::_play() {
-
-    if (!skeleton_ik)
+    if (!skeleton_ik) {
         return;
+    }
 
-    if (!skeleton_ik->get_parent_skeleton())
+    if (!skeleton_ik->get_parent_skeleton()) {
         return;
+    }
 
     if (play_btn->is_pressed()) {
-
         initial_bone_poses.resize(skeleton_ik->get_parent_skeleton()->get_bone_count());
         for (int i = 0; i < skeleton_ik->get_parent_skeleton()->get_bone_count(); ++i) {
             initial_bone_poses[i] = skeleton_ik->get_parent_skeleton()->get_bone_pose(i);
@@ -60,7 +60,6 @@ void SkeletonIKEditorPlugin::_play() {
 }
 
 void SkeletonIKEditorPlugin::edit(Object *p_object) {
-
     if (p_object != skeleton_ik) {
         if (skeleton_ik) {
             play_btn->set_pressed(false);
@@ -69,39 +68,37 @@ void SkeletonIKEditorPlugin::edit(Object *p_object) {
     }
 
     SkeletonIK3D *s = object_cast<SkeletonIK3D>(p_object);
-    if (!s)
+    if (!s) {
         return;
+    }
 
     skeleton_ik = s;
 }
 
 bool SkeletonIKEditorPlugin::handles(Object *p_object) const {
-
     return p_object->is_class("SkeletonIK3D");
 }
 
 void SkeletonIKEditorPlugin::make_visible(bool p_visible) {
-
-    if (p_visible)
+    if (p_visible) {
         play_btn->show();
-    else
+    } else {
         play_btn->hide();
+    }
 }
 
 void SkeletonIKEditorPlugin::_bind_methods() {
-
     MethodBinder::bind_method("_play", &SkeletonIKEditorPlugin::_play);
 }
 
 SkeletonIKEditorPlugin::SkeletonIKEditorPlugin(EditorNode *p_node) {
-
     editor = p_node;
     play_btn = memnew(Button);
     play_btn->set_button_icon(editor->get_gui_base()->get_theme_icon("Play", "EditorIcons"));
     play_btn->set_text(TTR("Play IK"));
     play_btn->set_toggle_mode(true);
     play_btn->hide();
-    play_btn->connect("pressed",callable_mp(this, &ClassName::_play));
+    play_btn->connect("pressed", callable_mp(this, &ClassName::_play));
     add_control_to_container(CONTAINER_SPATIAL_EDITOR_MENU, play_btn);
     skeleton_ik = nullptr;
 }

@@ -41,8 +41,8 @@ IMPL_GDCLASS(Sky)
 IMPL_GDCLASS(PanoramaSky)
 IMPL_GDCLASS(ProceduralSky)
 
-VARIANT_ENUM_CAST(Sky::RadianceSize)
-VARIANT_ENUM_CAST(ProceduralSky::TextureSize)
+VARIANT_ENUM_CAST(Sky::RadianceSize);
+VARIANT_ENUM_CAST(ProceduralSky::TextureSize);
 
 void Sky::set_radiance_size(RadianceSize p_size) {
     ERR_FAIL_INDEX(p_size, RADIANCE_SIZE_MAX);

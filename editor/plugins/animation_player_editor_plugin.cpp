@@ -1061,7 +1061,7 @@ void AnimationPlayerEditor::_seek_value_changed(float p_value, bool p_set) {
     track_editor->set_anim_pos(pos);
 
     updating = true;
-};
+}
 
 void AnimationPlayerEditor::_animation_player_changed(Object *p_pl) {
 
@@ -1730,11 +1730,11 @@ AnimationPlayerEditor::AnimationPlayerEditor(EditorNode *p_editor, AnimationPlay
     play_bw_from->connect("pressed",callable_mp(this, &ClassName::_play_bw_from_pressed));
     stop->connect("pressed",callable_mp(this, &ClassName::_stop_pressed));
 
-    animation->connect("item_selected",callable_mp(this, &ClassName::_animation_selected), null_variant_pvec, true);
+    animation->connect("item_selected",callable_mp(this, &ClassName::_animation_selected));
 
     file->connect("file_selected",callable_mp(this, &ClassName::_dialog_action));
-    frame->connect("value_changed",callable_mp(this, &ClassName::_seek_value_changed), null_variant_pvec, true);
-    scale->connect("text_entered",callable_mp(this, &ClassName::_scale_changed), null_variant_pvec, true);
+    frame->connect("value_changed",callable_mp(this, &ClassName::_seek_value_changed), make_binds(true));
+    scale->connect("text_entered",callable_mp(this, &ClassName::_scale_changed));
 
     renaming = false;
     last_active = false;

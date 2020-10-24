@@ -1988,7 +1988,7 @@ void VisualServerScene::render_camera(Ref<ARVRInterface> &p_interface, ARVREyes 
 
     // And render our scene...
     _render_scene(cam_transform, camera_matrix, false, camera->env, p_scenario, p_shadow_atlas, RID(), -1);
-};
+}
 
 void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const CameraMatrix &p_cam_projection, bool p_cam_orthogonal, RID p_force_environment, uint32_t p_visible_layers, RID p_scenario, RID p_shadow_atlas, RID p_reflection_probe) {
     SCOPE_AUTONAMED

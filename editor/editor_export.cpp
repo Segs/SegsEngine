@@ -263,8 +263,7 @@ const String &EditorExportPreset::get_script_encryption_key() const {
     return script_key;
 }
 
-EditorExportPreset::EditorExportPreset() :
-        export_filter(EXPORT_ALL_RESOURCES), export_path(""), runnable(false), script_mode(MODE_SCRIPT_COMPILED) {}
+EditorExportPreset::EditorExportPreset() {}
 
 ///////////////////////////////////
 

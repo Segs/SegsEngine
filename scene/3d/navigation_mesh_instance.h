@@ -38,7 +38,7 @@ class Navigation3D;
 
 class GODOT_EXPORT NavigationMeshInstance : public Node3D {
 
-    GDCLASS(NavigationMeshInstance, Node3D);
+    GDCLASS(NavigationMeshInstance, Node3D)
 
     bool enabled;
     RID region;

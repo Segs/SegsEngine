@@ -198,7 +198,7 @@ Error RegEx::compile(const String &p_pattern) {
     if (!code) {
         PCRE2_UCHAR8 buf[256];
         pcre2_get_error_message_8(err, buf, 256);
-        String message = FormatVE("%d: %s",offset,buf);
+        String message = FormatVE("%zu: %s",offset,buf);
         ERR_PRINT(message.c_str());
         return FAILED;
     }

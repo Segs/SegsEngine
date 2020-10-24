@@ -40,8 +40,8 @@
 #include "core/script_language.h"
 #include "core/translation.h"
 
-IMPL_GDCLASS(ResourceInteractiveLoader);
-IMPL_GDCLASS(ResourceFormatLoader);
+IMPL_GDCLASS(ResourceInteractiveLoader)
+IMPL_GDCLASS(ResourceFormatLoader)
 
 Error ResourceInteractiveLoader::wait() {
     Error err = poll();

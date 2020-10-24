@@ -98,7 +98,7 @@ uint64_t OS::get_splash_tick_msec() const {
 uint64_t OS::get_unix_time() const {
 
     return 0;
-};
+}
 uint64_t OS::get_system_time_secs() const {
     return 0;
 }
@@ -108,7 +108,7 @@ uint64_t OS::get_system_time_msecs() const {
 void OS::debug_break(){
 
     // something
-};
+}
 
 void OS::_set_logger(CompositeLogger *p_logger) {
     if (_logger) {
@@ -137,7 +137,7 @@ void OS::print(StringView p_msg) {
 
 void OS::printerr(StringView p_format) {
     _logger->logv(p_format, true);
-};
+}
 
 void OS::set_keep_screen_on(bool p_enabled) {
     _keep_screen_on = p_enabled;
@@ -195,7 +195,7 @@ Error OS::execute_utf8(StringView p_path, const Vector<String> &p_arguments, boo
 int OS::get_process_id() const {
 
     return -1;
-};
+}
 
 void OS::vibrate_handheld(int p_duration_ms) {
 
@@ -224,7 +224,7 @@ static void _OS_printres(Object *p_obj) {
     if (!res)
         return;
 
-    String str = FormatVE("%uz%s:%s - %s",res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
+    String str = FormatVE("%zu%s:%s - %s",(uint64_t)res->get_instance_id(),res->get_class(),res->get_name().c_str(),res->get_path().c_str());
     if (_OSPRF)
         _OSPRF->store_line(str);
     else
@@ -364,7 +364,7 @@ String OS::get_cache_path() const {
 String OS::get_user_data_dir() const {
 
     return ".";
-};
+}
 
 // Absolute path to res://
 String OS::get_resource_dir() const {
@@ -391,7 +391,7 @@ String OS::get_system_dir(SystemDir p_dir) {
 Error OS::shell_open(StringView p_uri) {
     //TODO: use qt desktop services here
     return ERR_UNAVAILABLE;
-};
+}
 
 // implement these with the canvas?
 /*Error OS::dialog_show(UIString p_title, UIString p_description, const Vector<UIString> &p_buttons, const
@@ -509,7 +509,7 @@ void OS::set_cmdline(StringView p_execpath, Vector<String> &&p_args) {
 
     _execpath = p_execpath;
     _cmdline = eastl::move(p_args);
-};
+}
 
 void OS::release_rendering_thread() {
 }
@@ -534,24 +534,24 @@ int OS::get_processor_count() const {
 Error OS::native_video_play(StringView p_path, float p_volume, StringView p_audio_track, StringView p_subtitle_track) {
 
     return FAILED;
-};
+}
 
 bool OS::native_video_is_playing() const {
 
     return false;
-};
+}
 
 void OS::native_video_pause(){
 
-};
+}
 
 void OS::native_video_unpause(){
 
-};
+}
 
 void OS::native_video_stop(){
 
-};
+}
 
 void OS::set_mouse_mode(MouseMode p_mode) {
 }

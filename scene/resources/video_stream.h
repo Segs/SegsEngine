@@ -72,7 +72,7 @@ class VideoStream : public Resource {
 
     GDCLASS(VideoStream,Resource)
 
-    OBJ_SAVE_TYPE(VideoStream); //children are all saved as AudioStream, so they can be exchanged
+    OBJ_SAVE_TYPE(VideoStream) //children are all saved as AudioStream, so they can be exchanged
 
 public:
     virtual void set_audio_track(int p_track) = 0;

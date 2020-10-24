@@ -407,7 +407,7 @@ void EditorAudioBus::_show_value(float slider_value) {
         db = _normalized_volume_to_scaled_db(slider_value);
     }
 
-    StringName text(FormatSN("10.1f dB", db));
+    StringName text(FormatSN("%10.1f dB", db));
 
     slider->set_tooltip(text);
     audio_value_preview_label->set_text(text);

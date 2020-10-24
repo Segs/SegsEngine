@@ -470,7 +470,7 @@ public:
             auto target_iter=target_modules.find(truth_entry.first);
             if(target_iter!=target_modules.end()) {
                 if(target_iter->second->version>truth_entry.second->version) {
-                    ERR_PRINTF("Module %s in target directory (%.*s) is newer.", truth_entry.first.c_str(), target_base_directory.size(),
+                    ERR_PRINTF("Module %s in target directory (%.*s) is newer.", truth_entry.first.c_str(), (int)target_base_directory.size(),
                             target_base_directory.data());
                     continue;
                 }

@@ -59,7 +59,7 @@ class Node2D;
 class GODOT_EXPORT AnimationPlayer : public Node {
     GDCLASS(AnimationPlayer,Node)
 
-    OBJ_CATEGORY("Animation Nodes");
+    OBJ_CATEGORY("Animation Nodes")
 
 public:
     enum AnimationProcessMode {

@@ -74,7 +74,7 @@ void FileAccess::_set_access_type(AccessType p_access) {
 
 const String &FileAccess::get_path() const { return null_string; }
 
-const String &FileAccess::get_path_absolute() const { return null_string; };
+const String &FileAccess::get_path_absolute() const { return null_string; }
 
 FileAccess *FileAccess::create_for_path(StringView p_path) {
 
@@ -97,7 +97,7 @@ FileAccess *FileAccess::create_for_path(StringView p_path) {
 Error FileAccess::reopen(StringView p_path, int p_mode_flags) {
 
     return _open(p_path, p_mode_flags);
-};
+}
 
 FileAccess *FileAccess::open(StringView p_path, int p_mode_flags, Error *r_error) {
 
@@ -130,7 +130,7 @@ FileAccess *FileAccess::open(StringView p_path, int p_mode_flags, Error *r_error
 FileAccess::CreateFunc FileAccess::get_create_func(AccessType p_access) {
 
     return create_func[p_access];
-};
+}
 
 String FileAccess::fix_path(StringView p_path) const {
     //helper used by file accesses that use a single filesystem
@@ -242,7 +242,7 @@ float FileAccess::get_float() const {
     MarshallFloat m;
     m.i = get_32();
     return m.f;
-};
+}
 
 real_t FileAccess::get_real() const {
 
@@ -257,7 +257,7 @@ double FileAccess::get_double() const {
     MarshallDouble m;
     m.l = get_64();
     return m.d;
-};
+}
 
 String FileAccess::get_token() const {
 
@@ -424,14 +424,14 @@ void FileAccess::store_float(float p_dest) {
     MarshallFloat m;
     m.f = p_dest;
     store_32(m.i);
-};
+}
 
 void FileAccess::store_double(double p_dest) {
 
     MarshallDouble m;
     m.d = p_dest;
     store_64(m.l);
-};
+}
 
 uint64_t FileAccess::get_modified_time(StringView p_file) {
 
@@ -481,7 +481,7 @@ void FileAccess::store_pascal_string(StringView p_string) {
 
     store_32(p_string.length());
     store_buffer((const uint8_t *)p_string.data(), p_string.length());
-};
+}
 
 String FileAccess::get_pascal_string() {
 
@@ -490,7 +490,7 @@ String FileAccess::get_pascal_string() {
     cs.resize(sl);
     get_buffer((uint8_t *)cs.data(), sl);
     return cs;
-};
+}
 
 void FileAccess::store_line(StringView p_line) {
 
@@ -650,4 +650,4 @@ FileAccess::FileAccess() {
     endian_swap = false;
     real_is_double = false;
     _access_type = ACCESS_FILESYSTEM;
-};
+}

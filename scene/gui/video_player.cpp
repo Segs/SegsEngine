@@ -186,8 +186,8 @@ void VideoPlayer::_notification(int p_notification) {
             draw_texture_rect(texture, Rect2(Point2(), s), false);
 
         } break;
-    };
-};
+    }
+}
 
 Size2 VideoPlayer::get_minimum_size() const {
 
@@ -253,12 +253,12 @@ void VideoPlayer::set_stream(const Ref<VideoStream> &p_stream) {
         minimum_size_changed();
     }
 
-};
+}
 
 Ref<VideoStream> VideoPlayer::get_stream() const {
 
     return stream;
-};
+}
 
 void VideoPlayer::play() {
 
@@ -271,7 +271,7 @@ void VideoPlayer::play() {
     //	AudioServer::get_singleton()->stream_set_active(stream_rid,true);
     //	AudioServer::get_singleton()->stream_set_volume_scale(stream_rid,volume);
     last_audio_time = 0;
-};
+}
 
 void VideoPlayer::stop() {
 
@@ -285,7 +285,7 @@ void VideoPlayer::stop() {
     resampler.flush();
     set_process_internal(false);
     last_audio_time = 0;
-};
+}
 
 bool VideoPlayer::is_playing() const {
 
@@ -293,7 +293,7 @@ bool VideoPlayer::is_playing() const {
         return false;
 
     return playback->is_playing();
-};
+}
 
 void VideoPlayer::set_paused(bool p_paused) {
 
@@ -301,9 +301,9 @@ void VideoPlayer::set_paused(bool p_paused) {
     if (playback) {
         playback->set_paused(p_paused);
         set_process_internal(!p_paused);
-    };
+    }
     last_audio_time = 0;
-};
+}
 
 bool VideoPlayer::is_paused() const {
 
@@ -332,12 +332,12 @@ int VideoPlayer::get_audio_track() const {
 void VideoPlayer::set_volume(float p_vol) {
 
     volume = p_vol;
-};
+}
 
 float VideoPlayer::get_volume() const {
 
     return volume;
-};
+}
 
 void VideoPlayer::set_volume_db(float p_db) {
 
@@ -345,34 +345,38 @@ void VideoPlayer::set_volume_db(float p_db) {
         set_volume(0);
     else
         set_volume(Math::db2linear(p_db));
-};
+}
 
 float VideoPlayer::get_volume_db() const {
 
-    if (volume == 0)
+    if (volume == 0) {
         return -80;
-    else
+    } else {
         return Math::linear2db(volume);
-};
+    }
+}
 
 StringName VideoPlayer::get_stream_name() const {
 
-    if (not stream)
+    if (not stream) {
         return StringName("<No Stream>");
+    }
     return StringName(stream->get_name());
-};
+}
 
 float VideoPlayer::get_stream_position() const {
 
-    if (not playback)
+    if (not playback) {
         return 0;
+    }
     return playback->get_playback_position();
-};
+}
 
 void VideoPlayer::set_stream_position(float p_position) {
 
-    if (playback)
+    if (playback) {
         playback->seek(p_position);
+    }
 }
 
 Ref<Texture> VideoPlayer::get_video_texture() const {
@@ -386,12 +390,12 @@ Ref<Texture> VideoPlayer::get_video_texture() const {
 void VideoPlayer::set_autoplay(bool p_enable) {
 
     autoplay = p_enable;
-};
+}
 
 bool VideoPlayer::has_autoplay() const {
 
     return autoplay;
-};
+}
 
 void VideoPlayer::set_bus(const StringName &p_bus) {
 
@@ -503,11 +507,11 @@ VideoPlayer::VideoPlayer() {
 
     wait_resampler = 0;
     wait_resampler_limit = 2;
-};
+}
 
 VideoPlayer::~VideoPlayer() {
 
     //	if (stream_rid.is_valid())
     //		AudioServer::get_singleton()->free(stream_rid);
     resampler.clear(); //Not necessary here, but make in consistent with other "stream_player" classes
-};
+}

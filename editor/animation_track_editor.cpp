@@ -1672,7 +1672,7 @@ void AnimationTimelineEdit::_notification(int p_what) {
                 int prev_sc = int(Math::floor(prev * SC_ADJ));
                 bool sub = sc % SC_ADJ;
 
-                if (sc / step != prev_sc / step || prev_sc < 0 && sc >= 0) {
+                if (sc / step != prev_sc / step || (prev_sc < 0 && sc >= 0)) {
 
                     int scd = sc < 0 ? prev_sc : sc;
                     draw_line(Point2(get_name_limit() + i, 0), Point2(get_name_limit() + i, h), linecolor, Math::round(EDSCALE));
@@ -3322,13 +3322,13 @@ void AnimationTrackEditor::_root_removed(Node *p_root) {
 
 void AnimationTrackEditor::set_root(Node *p_root) {
     if (root) {
-        root->disconnect("tree_exiting",callable_mp(this, &ClassName::_root_removed));
+        root->disconnect("tree_exiting",callable_gen(this,[this]() {  _root_removed(nullptr); }));
     }
 
     root = p_root;
 
     if (root) {
-        root->connect("tree_exiting",callable_mp(this, &ClassName::_root_removed), make_binds(), ObjectNS::CONNECT_ONESHOT);
+        root->connect("tree_exiting",callable_gen(this,[this]() {  _root_removed(nullptr); }),{}, ObjectNS::CONNECT_ONESHOT);
     }
 
     _update_tracks();
@@ -5181,91 +5181,91 @@ void AnimationTrackEditor::_bezier_edit(int p_for_track) {
 
 void AnimationTrackEditor::_anim_duplicate_keys(bool transpose) {
     //duplicait!
-    if (!selection.empty() && animation && (!transpose || _get_track_selected() >= 0 && _get_track_selected() < animation->get_track_count())) {
+    if (selection.empty() || !animation || (transpose && (_get_track_selected() < 0 || _get_track_selected() >= animation->get_track_count())))
+        return;
 
-        int top_track = 0x7FFFFFFF;
-        float top_time = 1e10f;
-        for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
+    int top_track = 0x7FFFFFFF;
+    float top_time = 1e10f;
+    for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
 
-            const SelectedKey &sk = E->first;
+        const SelectedKey &sk = E->first;
 
-            float t = animation->track_get_key_time(sk.track, sk.key);
-            if (t < top_time)
-                top_time = t;
-            if (sk.track < top_track)
-                top_track = sk.track;
-        }
-        ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10f);
-
-        //
-
-        int start_track = transpose ? _get_track_selected() : top_track;
-
-        undo_redo->create_action(TTR("Anim Duplicate Keys"));
-
-        Vector<Pair<int, float> > new_selection_values;
-
-        for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
-
-            const SelectedKey &sk = E->first;
-
-            float t = animation->track_get_key_time(sk.track, sk.key);
-
-            float dst_time = t + (timeline->get_play_position() - top_time);
-            int dst_track = sk.track + (start_track - top_track);
-
-            if (dst_track < 0 || dst_track >= animation->get_track_count())
-                continue;
-
-            if (animation->track_get_type(dst_track) != animation->track_get_type(sk.track))
-                continue;
-
-            int existing_idx = animation->track_find_key(dst_track, dst_time, true);
-
-            undo_redo->add_do_method(animation.get(), "track_insert_key", dst_track, dst_time,
-                    animation->track_get_key_value(E->first.track, E->first.key),
-                    animation->track_get_key_transition(E->first.track, E->first.key));
-            undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", dst_track, dst_time);
-
-            Pair<int, float> p;
-            p.first = dst_track;
-            p.second = dst_time;
-            new_selection_values.push_back(p);
-
-            if (existing_idx != -1) {
-
-                undo_redo->add_undo_method(animation.get(), "track_insert_key", dst_track, dst_time, animation->track_get_key_value(dst_track, existing_idx), animation->track_get_key_transition(dst_track, existing_idx));
-            }
-        }
-
-        undo_redo->commit_action();
-
-        //reselect duplicated
-
-        Map<SelectedKey, KeyInfo> new_selection;
-        for (const Pair<int, float> &E : new_selection_values) {
-
-            int track = E.first;
-            float time = E.second;
-
-            int existing_idx = animation->track_find_key(track, time, true);
-
-            if (existing_idx == -1)
-                continue;
-            SelectedKey sk2;
-            sk2.track = track;
-            sk2.key = existing_idx;
-
-            KeyInfo ki;
-            ki.pos = time;
-
-            new_selection[sk2] = ki;
-        }
-
-        selection = new_selection;
-        _update_tracks();
-        _update_key_edit();
+        float t = animation->track_get_key_time(sk.track, sk.key);
+        if (t < top_time)
+            top_time = t;
+        if (sk.track < top_track)
+            top_track = sk.track;
     }
+    ERR_FAIL_COND(top_track == 0x7FFFFFFF || top_time == 1e10f);
+
+    //
+
+    int start_track = transpose ? _get_track_selected() : top_track;
+
+    undo_redo->create_action(TTR("Anim Duplicate Keys"));
+
+    Vector<Pair<int, float> > new_selection_values;
+
+    for (auto E = selection.rbegin(); E != selection.rend(); ++E) {
+
+        const SelectedKey &sk = E->first;
+
+        float t = animation->track_get_key_time(sk.track, sk.key);
+
+        float dst_time = t + (timeline->get_play_position() - top_time);
+        int dst_track = sk.track + (start_track - top_track);
+
+        if (dst_track < 0 || dst_track >= animation->get_track_count())
+            continue;
+
+        if (animation->track_get_type(dst_track) != animation->track_get_type(sk.track))
+            continue;
+
+        int existing_idx = animation->track_find_key(dst_track, dst_time, true);
+
+        undo_redo->add_do_method(animation.get(), "track_insert_key", dst_track, dst_time,
+                animation->track_get_key_value(E->first.track, E->first.key),
+                animation->track_get_key_transition(E->first.track, E->first.key));
+        undo_redo->add_undo_method(animation.get(), "track_remove_key_at_position", dst_track, dst_time);
+
+        Pair<int, float> p;
+        p.first = dst_track;
+        p.second = dst_time;
+        new_selection_values.push_back(p);
+
+        if (existing_idx != -1) {
+
+            undo_redo->add_undo_method(animation.get(), "track_insert_key", dst_track, dst_time, animation->track_get_key_value(dst_track, existing_idx), animation->track_get_key_transition(dst_track, existing_idx));
+        }
+    }
+
+    undo_redo->commit_action();
+
+    //reselect duplicated
+
+    Map<SelectedKey, KeyInfo> new_selection;
+    for (const Pair<int, float> &E : new_selection_values) {
+
+        int track = E.first;
+        float time = E.second;
+
+        int existing_idx = animation->track_find_key(track, time, true);
+
+        if (existing_idx == -1)
+            continue;
+        SelectedKey sk2;
+        sk2.track = track;
+        sk2.key = existing_idx;
+
+        KeyInfo ki;
+        ki.pos = time;
+
+        new_selection[sk2] = ki;
+    }
+
+    selection = new_selection;
+    _update_tracks();
+    _update_key_edit();
 }
 void AnimationTrackEditor::_edit_menu_pressed(int p_option) {
 

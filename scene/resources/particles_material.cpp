@@ -166,9 +166,9 @@ HashMap<ParticlesMaterial::MaterialKey, ParticlesMaterial::ShaderData> Particles
 
 
 IMPL_GDCLASS(ParticlesMaterial)
-VARIANT_ENUM_CAST(ParticlesMaterial::Parameter)
-VARIANT_ENUM_CAST(ParticlesMaterial::Flags)
-VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape)
+VARIANT_ENUM_CAST(ParticlesMaterial::Parameter);
+VARIANT_ENUM_CAST(ParticlesMaterial::Flags);
+VARIANT_ENUM_CAST(ParticlesMaterial::EmissionShape);
 
 void ParticlesMaterial::init_shaders() {
     ERR_FAIL_COND_MSG(material_mutex!=nullptr,"Cannot reinitialize shaders without calling finish_shaders beforehand");

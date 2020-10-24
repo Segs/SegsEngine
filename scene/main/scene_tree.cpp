@@ -1062,7 +1062,7 @@ void SceneTree::_notification(int p_notification) {
         default:
             break;
     }
-};
+}
 
 void SceneTree::set_auto_accept_quit(bool p_enable) {
 

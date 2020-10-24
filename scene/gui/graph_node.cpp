@@ -38,7 +38,7 @@
 
 
 IMPL_GDCLASS(GraphNode)
-VARIANT_ENUM_CAST(GraphNode::Overlay)
+VARIANT_ENUM_CAST(GraphNode::Overlay);
 
 bool GraphNode::_set(const StringName &p_name, const Variant &p_value) {
 

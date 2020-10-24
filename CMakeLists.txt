@@ -11,7 +11,9 @@ project(SegsEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
+if(NOT OUTPUT_DIR)
+    set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/bin)
+endif()
 
 if(MSVC)
     if (CMAKE_GENERATOR MATCHES "Ninja")
@@ -31,8 +33,8 @@ if(MSVC)
       #add_compile_options (/arch:AVX2)
     endif()
 else()
-    #TODO: the disabled warnings below should be re-enabled after EASTL no longers spews them.
-    add_compile_options(-Wno-deprecated-copy)
+    # -pedantic  -Wno-gnu-anonymous-struct -Wno-gnu-zero-variadic-macro-arguments
+    add_compile_options(-Wall -Wextra -Wno-deprecated-copy -Wno-unused-parameter -Wno-sign-compare -Wno-nested-anon-types)
 endif()
 
 include(CMakeParseArguments)

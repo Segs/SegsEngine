@@ -60,7 +60,7 @@ ProjectSettings *ProjectSettings::get_singleton() {
 
 const String &ProjectSettings::get_resource_path() const {
     return resource_path;
-};
+}
 
 String ProjectSettings::localize_path(StringView p_path) const {
     if (resource_path.empty())
@@ -765,7 +765,7 @@ Error ProjectSettings::_save_settings_text(StringView p_file, const HashMap<Stri
 Error ProjectSettings::_save_custom_bnd(StringView p_file) { // add other params as dictionary and array?
 
     return save_custom(p_file);
-};
+}
 
 Error ProjectSettings::save_custom(StringView p_path, const CustomMap &p_custom,
         const Vector<String> &p_custom_features, bool p_merge_with_current) {

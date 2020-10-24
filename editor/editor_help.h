@@ -47,7 +47,7 @@ class RichTextLabel;
 namespace DocContents {
     struct ArgumentDoc;
     struct MethodDoc;
-};
+}
 
 class FindBarPrivate;
 class FindBar : public HBoxContainer {

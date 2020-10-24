@@ -254,7 +254,7 @@ struct UndoRedo::PrivateData
     }
     void add_do_method(eastl::function<void()> f,ObjectID owner) {
         Operation do_op;
-        do_op.type = Operation::TYPE_METHOD;
+        do_op.type = Operation::TYPE_LAMBDA;
         do_op.m_func = eastl::move(f);
         do_op.object = owner;
         actions[current_action + 1].do_ops.emplace_back(eastl::move(do_op));

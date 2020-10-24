@@ -34,7 +34,7 @@
 IMPL_GDCLASS(AudioEffectRecordInstance)
 IMPL_GDCLASS(AudioEffectRecord)
 //TODO: SEGS: AudioStreamSample::Format used.
-VARIANT_ENUM_CAST(AudioStreamSample::Format)
+VARIANT_ENUM_CAST(AudioStreamSample::Format);
 namespace  {
     // copied over from ResourceImporterWAV to remove dependency on optional plugin.
     void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)

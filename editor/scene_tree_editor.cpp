@@ -406,7 +406,7 @@ bool SceneTreeEditor::_add_nodes(Node *p_node, TreeItem *p_parent) {
         item->set_as_cursor(0);
     }
 
-    bool keep = StringUtils::is_subsequence_of(filter,UIString(p_node->get_name()),StringUtils::CaseInsensitive);
+    bool keep = StringUtils::is_subsequence_of(UIString(p_node->get_name()),filter,StringUtils::CaseInsensitive);
 
     for (int i = 0; i < p_node->get_child_count(); i++) {
 

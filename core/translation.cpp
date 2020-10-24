@@ -892,7 +892,7 @@ void Translation::get_message_list(List<StringName> *r_messages) const {
 int Translation::get_message_count() const {
 
     return translation_map.size();
-};
+}
 
 void Translation::_bind_methods() {
 
@@ -970,11 +970,11 @@ void TranslationServer::set_locale(StringView p_locale) {
 
     if (!is_locale_valid(univ_locale)) {
         StringView trimmed_locale = TranslationServer::get_language_code(univ_locale);
-        print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", p_locale.size(), p_locale,
-                trimmed_locale.size(), trimmed_locale));
+        print_verbose(FormatVE("Unsupported locale '%.*s', falling back to '%.*s'.", (int)p_locale.size(), p_locale.data(),
+                (int)trimmed_locale.size(), trimmed_locale.data()));
 
         if (!is_locale_valid(trimmed_locale)) {
-            ERR_PRINT(String(String::CtorSprintf(),"Unsupported locale '%.*s', falling back to 'en'.", trimmed_locale.length(),trimmed_locale.data()));
+            ERR_PRINT(String(String::CtorSprintf(),"Unsupported locale '%.*s', falling back to 'en'.", (int)trimmed_locale.length(),trimmed_locale.data()));
             locale = "en";
         } else {
             locale = trimmed_locale;
@@ -1056,7 +1056,7 @@ void TranslationServer::remove_translation(const Ref<Translation> &p_translation
 void TranslationServer::clear() {
 
     translations.clear();
-};
+}
 
 StringName TranslationServer::translate(StringView p_message) const {
 

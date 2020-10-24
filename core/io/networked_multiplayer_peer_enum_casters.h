@@ -3,5 +3,5 @@
 
 #include "core/method_enum_caster.h"
 
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode)
-VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::ConnectionStatus)
+VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::TransferMode);
+VARIANT_ENUM_CAST(NetworkedMultiplayerPeer::ConnectionStatus);
