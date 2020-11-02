@@ -896,7 +896,7 @@ EditorAutoloadSettings::EditorAutoloadSettings() {
 
 EditorAutoloadSettings::~EditorAutoloadSettings() {
     for (AutoLoadInfo &info : autoload_cache) {
-        if (info.node && !info.in_editor) {
+        if (!info.in_editor) {
             memdelete(info.node);
         }
     }

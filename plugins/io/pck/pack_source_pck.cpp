@@ -170,8 +170,7 @@ FileAccessPack::FileAccessPack(StringView p_path, const PackedDataFile &p_file) 
 }
 
 FileAccessPack::~FileAccessPack() {
-    if (f)
-        memdelete(f);
+    memdelete(f);
 }
 
 

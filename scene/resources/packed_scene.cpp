@@ -298,10 +298,10 @@ Node *SceneState::instance(PackedGenEditState p_edit_state) const {
             //node belongs to this scene and must be created
             Object *obj = ClassDB::instance(snames[n.type]);
             if (!object_cast<Node>(obj)) {
-                if (obj) {
-                    memdelete(obj);
-                    obj = nullptr;
-                }
+
+                memdelete(obj);
+                obj = nullptr;
+
                 WARN_PRINT("Warning node of type " + snames[n.type] + " does not exist.");
                 if (n.parent >= 0 && n.parent < nc && ret_nodes[n.parent]) {
                     if (object_cast<Node3D>(ret_nodes[n.parent])) {

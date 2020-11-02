@@ -309,7 +309,7 @@ NodePath NodePath::get_as_property_path() const {
     }
 }
 
-NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
+NodePath::NodePath(Span<const StringName> p_path, bool p_absolute) {
 
     data = nullptr;
 
@@ -319,7 +319,7 @@ NodePath::NodePath(const Vector<StringName> &p_path, bool p_absolute) {
     data = memnew(NodePathData);
     data->refcount.init();
     data->absolute = p_absolute;
-    data->path = p_path;
+    data->path.assign(p_path.begin(),p_path.end());
     data->has_slashes = true;
 }
 

@@ -41,8 +41,8 @@ template<class T>
 using Vector = eastl::vector<T,wrap_allocator>;
 template<class T,int N,bool GROWING=false>
 using FixedVector = eastl::fixed_vector<T,N,GROWING,wrap_allocator>;
-template <typename T>
-using Span = eastl::span<T,eastl::dynamic_extent>;
+template <typename T,size_t sz=size_t(-1)>
+using Span = eastl::span<T,sz>;
 class Variant;
 
 

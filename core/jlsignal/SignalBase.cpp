@@ -8,9 +8,9 @@
 #include "core/deque.h"
 
 namespace jl {
-jl::SignalObserver::~SignalObserver() {
-    DisconnectAllSignals();
-}
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) SignalT<false>;
+template class EXPORT_TEMPLATE_DEFINE(GODOT_EXPORT) SignalT<true>;
+
 
 void jl::SignalObserver::DisconnectSignal(SignalBase *pSignal) {
     for (SignalBase *sig : m_oSignals) {
@@ -25,8 +25,9 @@ void jl::SignalObserver::DisconnectSignal(SignalBase *pSignal) {
 void jl::SignalObserver::DisconnectAllSignals() {
     JL_SIGNAL_LOG("Observer %p disconnecting all signals\n", this);
 
-    for (SignalBase *sig : m_oSignals)
+    for (SignalBase *sig : m_oSignals) {
         sig->OnObserverDisconnect(this);
+    }
 
     m_oSignals.clear();
 }

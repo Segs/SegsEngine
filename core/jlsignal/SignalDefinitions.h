@@ -28,8 +28,8 @@ namespace jl {
 /**
  * signals with arguments
  */
-template< class ... Types >
-class Signal final : public SignalBase
+template<bool lockable,class ... Types >
+class GODOT_EXPORT SignalT final : public LockableSignal<lockable>
 {
 public:
 
@@ -49,8 +49,8 @@ private:
 
     ConnectionList m_oConnections;
 public:
-    Signal() {}
-    ~Signal() override
+    SignalT() {}
+    ~SignalT() override
     {
         JL_SIGNAL_LOG( "Destroying Signal %p\n", this );
         DisconnectAll();
@@ -97,7 +97,7 @@ public:
 
         Connection c = { Delegate(pObject, fpMethod), pObserver };
         JL_CHECKED_CALL( m_oConnections.Add( c ) );
-        NotifyObserverConnect( pObserver );
+        this->NotifyObserverConnect( pObserver );
     }
 
     // Connects const instance methods. Class X should be equal to Y, or an ancestor type.
@@ -113,7 +113,7 @@ public:
 
         Connection c = { Delegate(pObject,fpMethod), pObserver };
         JL_CHECKED_CALL( m_oConnections.Add( c ) );
-        NotifyObserverConnect( pObserver );
+        this->NotifyObserverConnect( pObserver );
     }
 
     // Returns true if the given observer and non-instance function are connected to this signal.
@@ -138,6 +138,9 @@ public:
 
     void operator()( Types... p1 ) const
     {
+        if(this->is_locked())
+            return;
+
         for ( const Connection &conn : m_oConnections )
         {
             conn.d( eastl::forward<Types>(p1)... );
@@ -233,7 +236,7 @@ public:
 
         if ( nDisconnections > 0 )
         {
-            NotifyObserverDisconnect( pObserver );
+            this->NotifyObserverDisconnect( pObserver );
         }
     }
 
@@ -250,7 +253,7 @@ public:
             // to this signal.
             if ( pObserver )
             {
-                NotifyObserverDisconnect( pObserver );
+                this->NotifyObserverDisconnect( pObserver );
             }
         }
 
@@ -314,7 +317,7 @@ private:
         if ( nDisconnections > 0 && nObserverConnectionCount == 0 )
         {
             JL_SIGNAL_LOG( "\tCompletely disconnected observer %p!", pObserver );
-            NotifyObserverDisconnect( pObserver );
+            this->NotifyObserverDisconnect( pObserver );
         }
     }
 
@@ -339,9 +342,16 @@ private:
 #define G_CONNECT(source,signal,target,handler)\
     source->signal.Connect(target,handler)
 #define G_EMIT
+template<class ... Types >
+using Signal = SignalT<false,Types...>;
+template<class ... Types >
+using BlockableSignal = SignalT<true,Types...>;
+
 } // namespace jl
 
+
 #ifdef GODOT_EXPORTS
-// make a single instantiation of the template available for the engine build, but not to the projects using the engine
-extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) jl::Signal<>;
+// make a void() instantiation of the template available for the engine build, but not to the projects using the engine
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) jl::SignalT<false>;
+extern template class EXPORT_TEMPLATE_DECLARE(GODOT_EXPORT) jl::SignalT<true>;
 #endif

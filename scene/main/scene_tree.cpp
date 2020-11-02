@@ -612,7 +612,7 @@ void SceneTree::call_group_flags(uint32_t p_call_flags, const StringName &p_grou
 
     _update_group_order(g);
 
-    Vector<Node *> nodes_copy = g.nodes;
+    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
     Node **nodes = nodes_copy.data();
     int node_count = nodes_copy.size();
 
@@ -835,6 +835,8 @@ void SceneTree::init() {
 
 bool SceneTree::iteration(float p_time) {
 
+    SCOPE_AUTONAMED;
+
     root_lock++;
 
     current_frame++;
@@ -846,8 +848,8 @@ bool SceneTree::iteration(float p_time) {
 
     emit_signal("physics_frame");
 
-    _notify_group_pause("physics_process_internal", Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
-    _notify_group_pause("physics_process", Node::NOTIFICATION_PHYSICS_PROCESS);
+    _notify_group_pause(SceneStringNames::physics_process_internal, Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
+    _notify_group_pause(SceneStringNames::physics_process, Node::NOTIFICATION_PHYSICS_PROCESS);
     _flush_ugc();
     MessageQueue::get_singleton()->flush(); //small little hack
     flush_transform_notifications();
@@ -1332,9 +1334,9 @@ void SceneTree::_notify_group_pause(const StringName &p_group, int p_notificatio
 
     _update_group_order(g, p_notification == Node::NOTIFICATION_PROCESS || p_notification == Node::NOTIFICATION_INTERNAL_PROCESS || p_notification == Node::NOTIFICATION_PHYSICS_PROCESS || p_notification == Node::NOTIFICATION_INTERNAL_PHYSICS_PROCESS);
 
-    //copy, so copy on write happens in case something is removed from process while being called
-    //performance is not lost because only if something is added/removed the vector is copied.
-    Vector<Node *> nodes_copy = g.nodes;
+    //copy, in case something is removed from process while being called
+    // performance hit should be small for small groups.
+    FixedVector<Node *,32,true> nodes_copy(g.nodes.begin(),g.nodes.end());
 
     call_lock++;
 
@@ -1471,9 +1473,7 @@ void SceneTree::_flush_delete_queue() {
 
     for(ObjectID id : delete_queue) {
         Object *obj = gObjectDB().get_instance(id);
-        if (obj) {
-            memdelete(obj);
-        }
+        memdelete(obj);
     }
     delete_queue.clear();
 }
@@ -1642,10 +1642,8 @@ Node *SceneTree::get_current_scene() const {
 
 void SceneTree::_change_scene(Node *p_to) {
 
-    if (current_scene) {
-        memdelete(current_scene);
-        current_scene = nullptr;
-    }
+    memdelete(current_scene);
+    current_scene = nullptr;
     // If we're quitting, abort.
     if (unlikely(_quit)) {
         if (p_to) { // Prevent memory leak.

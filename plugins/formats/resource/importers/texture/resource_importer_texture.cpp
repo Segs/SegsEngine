@@ -30,6 +30,7 @@
 
 #include "resource_importer_texture.h"
 
+#include "core/dictionary.h"
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/io/resource_importer.h"
@@ -127,12 +128,12 @@ void ResourceImporterTexture::build_reconfigured_list(Vector<String> &to_reimpor
 
 }
 
-StringName ResourceImporterTexture::get_importer_name() const {
+const char *ResourceImporterTexture::get_importer_name() const {
 
     return "texture";
 }
 
-StringName ResourceImporterTexture::get_visible_name() const {
+const char *ResourceImporterTexture::get_visible_name() const {
 
     return "Texture";
 }
@@ -395,7 +396,7 @@ Error ResourceImporterTexture::import(StringView p_source_file, StringView p_sav
     if (err != OK)
         return err;
 
-    Array formats_imported;
+    PoolStringArray formats_imported;
 
     int tex_flags = 0;
     if (repeat > 0)

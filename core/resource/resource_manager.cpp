@@ -18,6 +18,7 @@
 #include "core/variant_parser.h"
 #include "core/translation.h"
 #include "core/pool_vector.h"
+#include "core/dictionary.h"
 
 #include "EASTL/deque.h"
 /// Note: resource manager private data is using default 'new'/'delete'

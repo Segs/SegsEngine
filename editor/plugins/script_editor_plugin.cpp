@@ -3492,7 +3492,7 @@ ScriptEditor::ScriptEditor(EditorNode *p_editor) {
 
     autosave_timer = memnew(Timer);
     autosave_timer->set_one_shot(false);
-    autosave_timer->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &ScriptEditor::_update_autosave_timer));
+    autosave_timer->connect(SceneStringNames::tree_entered, callable_mp(this, &ScriptEditor::_update_autosave_timer));
     autosave_timer->connect("timeout",callable_mp(this, &ClassName::_autosave_scripts));
     add_child(autosave_timer);
 

@@ -98,15 +98,12 @@ tryagain:
 }
 
 CommandQueueMT::CommandQueueMT(bool p_sync) {
-
-    if (p_sync)
+    if (p_sync) {
         sync = memnew(Semaphore);
+    }
 }
 
 CommandQueueMT::~CommandQueueMT() {
-
-    if (sync)
-        memdelete(sync);
-
+    memdelete(sync);
     memfree(command_mem);
 }

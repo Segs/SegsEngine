@@ -459,6 +459,8 @@ void GdNavigationServer::set_active(bool p_active) const {
 }
 
 void GdNavigationServer::step(real_t p_delta_time) {
+    SCOPE_AUTONAMED;
+
     if (!active) {
         return;
     }

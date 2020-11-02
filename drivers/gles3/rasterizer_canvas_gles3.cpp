@@ -457,10 +457,8 @@ void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int 
     glBindVertexArray(data.polygon_buffer_pointer_array);
     glBindBuffer(GL_ARRAY_BUFFER, data.polygon_buffer);
 
-#ifndef GLES_OVER_GL
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
     glBufferData(GL_ARRAY_BUFFER, data.polygon_buffer_size, nullptr, GL_DYNAMIC_DRAW);
-#endif
 
     uint32_t buffer_ofs = 0;
 
@@ -510,14 +508,14 @@ void RasterizerCanvasGLES3::_draw_generic_indices(GLuint p_primitive, const int 
 
     //bind the indices buffer.
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer);
-#ifndef GLES_OVER_GL
+
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, data.polygon_index_buffer_size, nullptr, GL_DYNAMIC_DRAW);
-#endif
+
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(int) * p_index_count, p_indices);
 
     //draw the triangles.
-    glDrawElements(p_primitive, p_index_count, GL_UNSIGNED_INT, 0);
+    glDrawElements(p_primitive, p_index_count, GL_UNSIGNED_INT, nullptr);
 
    storage->info.render._2d_draw_call_count++;
 
@@ -588,10 +586,10 @@ void RasterizerCanvasGLES3::_draw_gui_primitive(int p_points, const Vector2 *p_v
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, data.polygon_buffer);
-#ifndef GLES_OVER_GL
+
     // Orphan the buffer to avoid CPU/GPU sync points caused by glBufferSubData
     glBufferData(GL_ARRAY_BUFFER, data.polygon_buffer_size, nullptr, GL_DYNAMIC_DRAW);
-#endif
+
     //TODO the below call may need to be replaced with: glBufferSubData(GL_ARRAY_BUFFER, 0, p_points * stride * 4 * sizeof(float), &b[0]);
     glBufferSubData(GL_ARRAY_BUFFER, 0, p_points * stride * 4, &b[0]);
     glBindVertexArray(data.polygon_buffer_quad_arrays[version]);
@@ -1250,17 +1248,19 @@ void RasterizerCanvasGLES3::_canvas_item_render_commands(Item *p_item, Item *cur
                 }
 
                 _draw_polygon(polygon->indices.data(), polygon->count, polygon->points.size(), polygon->points.data(), polygon->uvs.read().ptr(), polygon->colors.read().ptr(), polygon->colors.size() == 1, polygon->bones.read().ptr(), polygon->weights.read().ptr());
-#ifdef GLES_OVER_GL
+
                 if (polygon->antialiased) {
                     glEnable(GL_LINE_SMOOTH);
                     if (polygon->antialiasing_use_indices) {
-                        _draw_generic_indices(GL_LINE_STRIP, polygon->indices.ptr(), polygon->count, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1);
+                        _draw_generic_indices(GL_LINE_STRIP, polygon->indices.data(), polygon->count, polygon->points.size(),
+                                polygon->points.data(), polygon->uvs.read().ptr(), polygon->colors.read().ptr(), polygon->colors.size() == 1);
                     } else {
-                        _draw_generic(GL_LINE_LOOP, polygon->points.size(), polygon->points.ptr(), polygon->uvs.ptr(), polygon->colors.ptr(), polygon->colors.size() == 1);
+                        _draw_generic(GL_LINE_LOOP, polygon->points.size(), polygon->points.data(), polygon->uvs.read().ptr(), polygon->colors.read().ptr(),
+                                polygon->colors.size() == 1);
                     }
                     glDisable(GL_LINE_SMOOTH);
                 }
-#endif
+
 
             } break;
             case Item::Command::TYPE_MESH: {

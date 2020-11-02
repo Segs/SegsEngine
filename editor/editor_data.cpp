@@ -1005,8 +1005,7 @@ void EditorSelection::_node_removed(Node *p_node) {
         return;
 
     Object *meta = selection[p_node];
-    if (meta)
-        memdelete(meta);
+    memdelete(meta);
     selection.erase(p_node);
     changed = true;
     nl_changed = true;
@@ -1046,8 +1045,7 @@ void EditorSelection::remove_node(Node *p_node) {
     changed = true;
     nl_changed = true;
     Object *meta = selection[p_node];
-    if (meta)
-        memdelete(meta);
+    memdelete(meta);
     selection.erase(p_node);
     p_node->disconnect("tree_exiting",callable_mp(this, &ClassName::_node_removed));
     //emit_signal("selection_changed");

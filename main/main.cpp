@@ -1270,22 +1270,14 @@ error:
     if (show_help)
         print_help(execpath);
 
-    if (performance)
-        memdelete(performance);
-    if (input_map)
-        memdelete(input_map);
-    if (translation_server)
-        memdelete(translation_server);
-    if (globals)
-        memdelete(globals);
-    if (engine)
-        memdelete(engine);
-    if (script_debugger)
-        memdelete(script_debugger);
-    if (packed_data)
-        memdelete(packed_data);
-    if (file_access_network_client)
-        memdelete(file_access_network_client);
+    memdelete(performance);
+    memdelete(input_map);
+    memdelete(translation_server);
+    memdelete(globals);
+    memdelete(engine);
+    memdelete(script_debugger);
+    memdelete(packed_data);
+    memdelete(file_access_network_client);
 
 
     unregister_core_driver_types();
@@ -1293,8 +1285,7 @@ error:
 
     os->_cmdline.clear();
 
-    if (message_queue)
-        memdelete(message_queue);
+    memdelete(message_queue);
     os->finalize_core();
     locale.clear();
 
@@ -1723,8 +1714,7 @@ bool Main::start() {
             Object *obj = ClassDB::instance(instance_type);
             MainLoop *script_loop = object_cast<MainLoop>(obj);
             if (!script_loop) {
-                if (obj)
-                    memdelete(obj);
+                memdelete(obj);
                 ERR_FAIL_V_MSG(false, "Can't load the script '" + script + "' as it doesn't inherit from SceneTree or MainLoop.");
             }
 
@@ -2334,20 +2324,14 @@ void Main::cleanup() {
     finalize_physics();
     finalize_navigation_server();
 
-    if (packed_data)
-        memdelete(packed_data);
-    if (file_access_network_client)
-        memdelete(file_access_network_client);
-    if (performance)
-        memdelete(performance);
-    if (input_map)
-        memdelete(input_map);
-    if (translation_server)
-        memdelete(translation_server);
-    if (globals)
-        memdelete(globals);
-    if (engine)
-        memdelete(engine);
+    memdelete(packed_data);
+    memdelete(file_access_network_client);
+    memdelete(performance);
+    memdelete(input_map);
+    memdelete(translation_server);
+    memdelete(globals);
+    memdelete(engine);
+
     if (OS::get_singleton()->is_restart_on_exit_set()) {
         //attempt to restart with arguments
         String exec = OS::get_singleton()->get_executable_path();

@@ -268,21 +268,7 @@ enum GroupPropStatus {
     CONTINUE_GROUP,
     FINISHED_GROUP,
 };
-//static int new_group_prop_status(int curr_idx,int prev_idx) {
-//    if (prev_idx == -1 && curr_idx == -1)
-//        return NO_GROUP;
 
-//    if(prev_idx==-1 && curr_idx!=-1)
-//        return STARTED_GROUP;
-
-//    if(curr_idx>=prev_idx) {
-//        return CONTINUE_GROUP;
-//    }
-//    if(curr_idx==-1 && prev_idx!=-1)
-//        return FINISHED_GROUP;
-//    // else (curr_idx<prev_idx)
-//    return STARTED_GROUP;
-//}
 static void add_opaque_types(ReflectionData &rd,ReflectionSource src) {
     if(src!=ReflectionSource::Core)
         return;
@@ -576,8 +562,6 @@ static bool _populate_object_type_interfaces(ReflectionData &rd,ReflectionSource
                     //      automatic group, defined by common_name/field_name
 
                     // a new field or indexed field.
-//                    Vector<StringView> parts;
-//                    String::split_ref(parts,property.name,"/");
 
                     StringView field_name = StringView(property.name).substr(current_group_prefix.size());
                     if(auto_group) {

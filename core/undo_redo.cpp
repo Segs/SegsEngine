@@ -98,8 +98,7 @@ struct UndoRedo::PrivateData
         for (Operation &op : actions[0].undo_ops) {
             if (op.type == Operation::TYPE_REFERENCE) {
                 Object *obj = gObjectDB().get_instance(op.object);
-                if (obj)
-                    memdelete(obj);
+                memdelete(obj);
             }
         }
 
@@ -120,8 +119,7 @@ struct UndoRedo::PrivateData
                 if (E.type == Operation::TYPE_REFERENCE) {
 
                     Object *obj = gObjectDB().get_instance(E.object);
-                    if (obj)
-                        memdelete(obj);
+                    memdelete(obj);
                 }
             }
             //ERASE do data
@@ -211,9 +209,7 @@ struct UndoRedo::PrivateData
                         if(op.type==Operation::TYPE_REFERENCE)
                         {
                             Object *obj = gObjectDB().get_instance(op.object);
-                            if (obj)
-                                memdelete(obj);
-
+                            memdelete(obj);
                         }
                         actions[current_action + 1].do_ops.pop_front();
                     }
@@ -564,10 +560,10 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
         return Variant();
     }
 
-	if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
+    if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-		r_error.expected = VariantType::STRING_NAME;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 
@@ -583,7 +579,7 @@ Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Callabl
         v[i] = *p_args[i + 2];
     }
 
-	static_assert(VARIANT_ARG_MAX == 5, "This code needs to be updated if VARIANT_ARG_MAX != 5");
+    static_assert(VARIANT_ARG_MAX == 5, "This code needs to be updated if VARIANT_ARG_MAX != 5");
     add_do_method(object, method, v[0], v[1], v[2], v[3], v[4]);
     return Variant();
 }
@@ -603,10 +599,10 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Calla
         return Variant();
     }
 
-	if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
+    if (p_args[1]->get_type() != VariantType::STRING_NAME && p_args[1]->get_type() != VariantType::STRING) {
         r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
         r_error.argument = 1;
-		r_error.expected = VariantType::STRING_NAME;
+        r_error.expected = VariantType::STRING_NAME;
         return Variant();
     }
 

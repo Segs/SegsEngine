@@ -85,7 +85,7 @@ bool AnimationPlayer::_set(const StringName &p_name, const Variant &p_value) {
         StringView which = StringUtils::get_slice(name,'/', 1);
         animation_set_next(StringName(which), p_value.as<StringName>());
 
-    } else if (p_name == SceneStringNames::get_singleton()->blend_times) {
+    } else if (p_name == SceneStringNames::blend_times) {
 
         Array array = p_value.as<Array>();
         int len = array.size();
@@ -316,11 +316,11 @@ void AnimationPlayer::_ensure_node_caches(AnimationData *p_anim) {
                 pa.owner = p_anim->node_cache[i];
                 if (false && p_anim->node_cache[i]->node_2d) {
 
-                    if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::get_singleton()->transform_pos)
+                    if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::transform_pos)
                         pa.special = SP_NODE2D_POS;
-                    else if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::get_singleton()->transform_rot)
+                    else if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::transform_rot)
                         pa.special = SP_NODE2D_ROT;
-                    else if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::get_singleton()->transform_scale)
+                    else if (leftover_path.size() == 1 && leftover_path[0] == SceneStringNames::transform_scale)
                         pa.special = SP_NODE2D_SCALE;
                 }
                 p_anim->node_cache[i]->property_anim[a->track_get_path(i).get_concatenated_subnames()] = pa;
@@ -955,13 +955,13 @@ void AnimationPlayer::_animation_process(float p_delta) {
                 const StringName new_name = playback.assigned;
                 queued.pop_front();
                 if (end_notify)
-                    emit_signal(SceneStringNames::get_singleton()->animation_changed, old, new_name);
+                    emit_signal(SceneStringNames::animation_changed, old, new_name);
             } else {
                 //stop();
                 playing = false;
                 _set_process(false);
                 if (end_notify)
-                    emit_signal(SceneStringNames::get_singleton()->animation_finished, playback.assigned);
+                    emit_signal(SceneStringNames::animation_finished, playback.assigned);
             }
             end_reached = false;
         }
@@ -1012,12 +1012,12 @@ void AnimationPlayer::remove_animation(const StringName &p_name) {
 }
 
 void AnimationPlayer::_ref_anim(const Ref<Animation> &p_anim) {
-    Ref<Animation>(p_anim)->connect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
+    Ref<Animation>(p_anim)->connect(SceneStringNames::tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed), varray(), ObjectNS::CONNECT_REFERENCE_COUNTED);
 }
 
 void AnimationPlayer::_unref_anim(const Ref<Animation> &p_anim) {
 
-    Ref<Animation>(p_anim)->disconnect(SceneStringNames::get_singleton()->tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed));
+    Ref<Animation>(p_anim)->disconnect(SceneStringNames::tracks_changed, callable_mp(this, &AnimationPlayer::_animation_changed));
 }
 
 void AnimationPlayer::rename_animation(const StringName &p_name, const StringName &p_new_name) {
@@ -1222,7 +1222,7 @@ void AnimationPlayer::play(const StringName &p_name, float p_custom_blend, float
     _set_process(true); // always process when starting an animation
     playing = true;
 
-    emit_signal(SceneStringNames::get_singleton()->animation_started, c.assigned);
+    emit_signal(SceneStringNames::animation_started, c.assigned);
 
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
         return; // no next in this case
@@ -1713,7 +1713,7 @@ AnimationPlayer::AnimationPlayer() {
     method_call_mode = ANIMATION_METHOD_CALL_DEFERRED;
     processing = false;
     default_blend_time = 0;
-    root = SceneStringNames::get_singleton()->path_pp;
+    root = SceneStringNames::path_pp;
     playing = false;
     active = true;
     playback.seeked = false;

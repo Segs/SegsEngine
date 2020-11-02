@@ -1137,13 +1137,13 @@ void Octree<T, use_pairs>::_cull_segment(Octant *p_octant, const Vector3 &p_from
 }
 
 template <class T, bool use_pairs>
-int Octree<T, use_pairs>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
+int Octree<T, use_pairs>::cull_convex(Span<const Plane,6> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
     if (!root || p_convex.empty() )
         return 0;
 
-    Vector<Vector3> convex_points = Geometry::compute_convex_mesh_points(p_convex);
-    if (convex_points.size() == 0)
+    FixedVector<Vector3,8,false> convex_points = Geometry::compute_convex_mesh_points(p_convex);
+    if (convex_points.empty())
         return 0;
 
     int result_count = 0;

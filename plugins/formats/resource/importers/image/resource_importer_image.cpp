@@ -36,12 +36,12 @@
 #include "core/string_utils.h"
 #include "EASTL/unique_ptr.h"
 
-StringName ResourceImporterImage::get_importer_name() const {
+const char *ResourceImporterImage::get_importer_name() const {
 
     return "image";
 }
 
-StringName ResourceImporterImage::get_visible_name() const {
+const char *ResourceImporterImage::get_visible_name() const {
 
     return "Image";
 }

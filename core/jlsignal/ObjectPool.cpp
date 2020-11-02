@@ -62,7 +62,9 @@ jl::ObjectPool::FreeNode* jl::ObjectPool::InitFreeList( unsigned char* pObjectBu
 unsigned jl::ObjectPool::FreeListSize( ObjectPool::FreeNode* pFreeListHead )
 {
     // Early out for degenerate case
-    if ( ! pFreeListHead ) return 0;
+    if ( ! pFreeListHead ) {
+        return 0;
+    }
 
     unsigned n = 0;
     for ( ; pFreeListHead; pFreeListHead = pFreeListHead->pNextFree )
@@ -90,10 +92,7 @@ bool jl::ObjectPool::IsFree( const void* pObject, const FreeNode* pFreeListHead 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-jl::PreallocatedObjectPool::PreallocatedObjectPool()
-{
-    Reset();
-}
+
 
 jl::PreallocatedObjectPool::PreallocatedObjectPool( void* pBuffer, unsigned nCapacity, unsigned nStride, unsigned nFlags /*= eFlag_Default */ )
 {

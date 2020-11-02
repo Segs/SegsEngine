@@ -42,6 +42,7 @@
 #include "core/color.h"
 #include "core/rid.h"
 #include "core/pool_vector.h"
+#include "core/dictionary.h"
 
 #include "core/string_utils.inl"
 

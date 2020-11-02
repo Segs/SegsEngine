@@ -134,7 +134,7 @@ public:
         return compare_less;
     }
 
-    virtual uint32_t hash() const;
+    uint32_t hash() const final { return h; }
 };
 
 #ifdef DEBUG_METHODS_ENABLED

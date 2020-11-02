@@ -30,6 +30,7 @@
 
 #include "script_language.h"
 
+#include "core/dictionary.h"
 #include "core/core_string_names.h"
 #include "core/project_settings.h"
 #include "core/object_tooling.h"
@@ -68,7 +69,7 @@ Array Script::_get_script_property_list() {
     Vector<PropertyInfo> list;
     get_script_property_list(&list);
     for(PropertyInfo &E : list ) {
-        ret.append(E.operator Dictionary());
+        ret.append((Dictionary)E);
     }
     return ret;
 }
@@ -78,7 +79,7 @@ Array Script::_get_script_method_list() {
     Vector<MethodInfo> list;
     get_script_method_list(&list);
     for(MethodInfo &E : list ) {
-        ret.append(E.operator Dictionary());
+        ret.append((Dictionary)E);
     }
     return ret;
 }
@@ -88,7 +89,7 @@ Array Script::_get_script_signal_list() {
     Vector<MethodInfo> list;
     get_script_signal_list(&list);
     for(MethodInfo &E : list ) {
-        ret.append(E.operator Dictionary());
+        ret.append((Dictionary)E);
     }
     return ret;
 }

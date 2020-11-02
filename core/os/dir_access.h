@@ -129,6 +129,6 @@ struct DirAccessRef {
     DirAccess *f;
     DirAccessRef(DirAccess *fa) { f = fa; }
     ~DirAccessRef() {
-        if (f) memdelete(f);
+        memdelete(f);
     }
 };

@@ -112,140 +112,6 @@ Array RenderingServer::_instances_cull_convex_bind(const Array &p_convex, RID p_
     return to_array(ids);
 }
 
-RID RenderingServer::get_test_texture() {
-    if (test_texture.is_valid()) {
-        return test_texture;
-    }
-
-#define TEST_TEXTURE_SIZE 256
-
-    PoolVector<uint8_t> test_data;
-    test_data.resize(TEST_TEXTURE_SIZE * TEST_TEXTURE_SIZE * 3);
-
-    {
-        PoolVector<uint8_t>::Write w = test_data.write();
-
-        for (int x = 0; x < TEST_TEXTURE_SIZE; x++) {
-            for (int y = 0; y < TEST_TEXTURE_SIZE; y++) {
-                Color c;
-                int r = 255 - (x + y) / 2;
-
-                if ((x % (TEST_TEXTURE_SIZE / 8)) < 2 || (y % (TEST_TEXTURE_SIZE / 8)) < 2) {
-                    c.r = y;
-                    c.g = r;
-                    c.b = x;
-
-                } else {
-                    c.r = r;
-                    c.g = x;
-                    c.b = y;
-                }
-
-                w[(y * TEST_TEXTURE_SIZE + x) * 3 + 0] = uint8_t(CLAMP(c.r * 255, 0, 255));
-                w[(y * TEST_TEXTURE_SIZE + x) * 3 + 1] = uint8_t(CLAMP(c.g * 255, 0, 255));
-                w[(y * TEST_TEXTURE_SIZE + x) * 3 + 2] = uint8_t(CLAMP(c.b * 255, 0, 255));
-            }
-        }
-    }
-
-    Ref<Image> data(
-            make_ref_counted<Image>(TEST_TEXTURE_SIZE, TEST_TEXTURE_SIZE, false, Image::FORMAT_RGB8, test_data));
-
-    test_texture = texture_create_from_image(data);
-
-    return test_texture;
-}
-
-void RenderingServer::_free_internal_rids() {
-    if (test_texture.is_valid()) {
-        free_rid(test_texture);
-    }
-    if (white_texture.is_valid()) {
-        free_rid(white_texture);
-    }
-    if (test_material.is_valid()) {
-        free_rid(test_material);
-    }
-}
-
-RID RenderingServer::_make_test_cube() {
-    Vector<Vector3> vertices;
-    Vector<Vector3> normals;
-    Vector<float> tangents;
-    Vector<Vector2> uvs;
-
-#define ADD_VTX(m_idx)                                                                                                 \
-    vertices.push_back(face_points[m_idx]);                                                                            \
-    normals.push_back(normal_points[m_idx]);                                                                           \
-    tangents.push_back(normal_points[m_idx][1]);                                                                       \
-    tangents.push_back(normal_points[m_idx][2]);                                                                       \
-    tangents.push_back(normal_points[m_idx][0]);                                                                       \
-    tangents.push_back(1.0);                                                                                           \
-    uvs.push_back(Vector2(uv_points[m_idx * 2 + 0], uv_points[m_idx * 2 + 1]));
-
-    for (int i = 0; i < 6; i++) {
-        Vector3 face_points[4];
-        Vector3 normal_points[4];
-        float uv_points[8] = { 0, 0, 0, 1, 1, 1, 1, 0 };
-
-        for (int j = 0; j < 4; j++) {
-            float v[3];
-            v[0] = 1.0;
-            v[1] = 1 - 2 * ((j >> 1) & 1);
-            v[2] = v[1] * (1 - 2 * (j & 1));
-
-            for (int k = 0; k < 3; k++) {
-                if (i < 3) {
-                    face_points[j][(i + k) % 3] = v[k];
-                } else {
-                    face_points[3 - j][(i + k) % 3] = -v[k];
-                }
-            }
-            normal_points[j] = Vector3();
-            normal_points[j][i % 3] = (i >= 3 ? -1 : 1);
-        }
-
-        // tri 1
-        ADD_VTX(0)
-        ADD_VTX(1)
-        ADD_VTX(2)
-        // tri 2
-        ADD_VTX(2)
-        ADD_VTX(3)
-        ADD_VTX(0)
-    }
-
-    RID test_cube = mesh_create();
-
-    Vector<int> indices(vertices.size());
-
-    SurfaceArrays d(eastl::move(vertices));
-    d.m_normals = eastl::move(normals);
-    d.m_tangents = eastl::move(tangents);
-    d.m_uv_1 = eastl::move(uvs);
-
-    for (int i = 0; i < indices.size(); i++) {
-        indices[i] = i;
-    }
-    d.m_indices = eastl::move(indices);
-
-    mesh_add_surface_from_arrays(test_cube, RS::PRIMITIVE_TRIANGLES, d);
-
-    /*
-    test_material = fixed_material_create();
-    //material_set_flag(material, MATERIAL_FLAG_BILLBOARD_TOGGLE,true);
-    fixed_material_set_texture( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, get_test_texture() );
-    fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR_EXP, 70 );
-    fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_EMISSION, Color(0.2,0.2,0.2) );
-
-    fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_DIFFUSE, Color(1, 1, 1) );
-    fixed_material_set_param( test_material, FIXED_MATERIAL_PARAM_SPECULAR, Color(1,1,1) );
-*/
-    mesh_surface_set_material(test_cube, 0, test_material);
-
-    return test_cube;
-}
-
 RID RenderingServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
     Vector<Vector3> vertices;
     Vector<Vector3> normals;
@@ -294,25 +160,6 @@ RID RenderingServer::make_sphere_mesh(int p_lats, int p_lons, float p_radius) {
     return mesh;
 }
 
-RID RenderingServer::get_white_texture() {
-    if (white_texture.is_valid()) {
-        return white_texture;
-    }
-
-    PoolVector<uint8_t> wt;
-    wt.resize(16 * 3);
-    {
-        PoolVector<uint8_t>::Write w = wt.write();
-        for (int i = 0; i < 16 * 3; i++) {
-            w[i] = 255;
-        }
-    }
-    Ref<Image> white(make_ref_counted<Image>(4, 4, 0, Image::FORMAT_RGB8, wt));
-    white_texture = texture_create();
-    texture_allocate(white_texture, 4, 4, 0, Image::FORMAT_RGB8, RS::TEXTURE_TYPE_2D);
-    texture_set_data(white_texture, white);
-    return white_texture;
-}
 namespace {
 constexpr Vector2 SMALL_VEC2(0.00001f, 0.00001f);
 constexpr Vector3 SMALL_VEC3(0.00001f, 0.00001f, 0.00001f);
@@ -2122,10 +1969,7 @@ void RenderingServer::_bind_methods() {
 
     MethodBinder::bind_method(
             D_METHOD("make_sphere_mesh", { "latitudes", "longitudes", "radius" }), &RenderingServer::make_sphere_mesh);
-    MethodBinder::bind_method(D_METHOD("get_test_cube"), &RenderingServer::get_test_cube);
 #endif
-    MethodBinder::bind_method(D_METHOD("get_test_texture"), &RenderingServer::get_test_texture);
-    MethodBinder::bind_method(D_METHOD("get_white_texture"), &RenderingServer::get_white_texture);
 
     MethodBinder::bind_method(D_METHOD("set_boot_image", { "image", "color", "scale", "use_filter" }),
             &RenderingServer::set_boot_image, { DEFVAL(true) });

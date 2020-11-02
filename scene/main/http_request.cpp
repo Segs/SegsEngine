@@ -458,10 +458,8 @@ void HTTPRequest::cancel_request() {
         IMPLD()->thread = nullptr;
     }
 
-    if (IMPLD()->file) {
-        memdelete(IMPLD()->file);
-        IMPLD()->file = nullptr;
-    }
+    memdelete(IMPLD()->file);
+    IMPLD()->file = nullptr;
     IMPLD()->client->close();
     IMPLD()->body.resize(0);
     IMPLD()->got_response = false;
@@ -649,8 +647,7 @@ HTTPRequest::HTTPRequest() {
 
 HTTPRequest::~HTTPRequest() {
     if(IMPLD()) {
-        if (IMPLD()->file)
-            memdelete(IMPLD()->file);
+        memdelete(IMPLD()->file);
         memdelete(IMPLD());
     }
 }

@@ -450,7 +450,7 @@ void EditorNode3DGizmo::add_solid_box(Ref<Material> &p_material, Vector3 p_size,
     add_mesh(m);
 }
 
-bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, Span<const Plane> p_frustum) {
+bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, Span<const Plane,6> p_frustum) {
 
     ERR_FAIL_COND_V(!spatial_node, false);
     ERR_FAIL_COND_V(!valid, false);
@@ -514,7 +514,7 @@ bool EditorNode3DGizmo::intersect_frustum(const Camera3D *p_camera, Span<const P
         transformed_frustum.emplace_back(it.xform(p));
     }
 
-    Vector<Vector3> convex_points = Geometry::compute_convex_mesh_points(p_frustum);
+    FixedVector<Vector3,8,false> convex_points = Geometry::compute_convex_mesh_points(p_frustum);
 
     return collision_mesh->inside_convex_shape(transformed_frustum, convex_points, mesh_scale);
 }

@@ -895,9 +895,9 @@ void CanvasItemEditor::_save_canvas_item_ik_chain(const CanvasItem *p_canvas_ite
             for (const Node2D *parent_bone : bone_ik_list) {
                 bone_xform = bone_xform * bone->get_transform().affine_inverse();
                 if (p_bones_length)
-                    p_bones_length->push_back(parent_bone->get_global_transform().get_origin().distance_to(bone->get_global_position()));
+                    p_bones_length->emplace_back(parent_bone->get_global_transform().get_origin().distance_to(bone->get_global_position()));
                 if (p_bones_state)
-                    p_bones_state->push_back(parent_bone->_edit_get_state());
+                    p_bones_state->emplace_back(parent_bone->_edit_get_state());
                 bone = parent_bone;
             }
         }

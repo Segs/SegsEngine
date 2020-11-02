@@ -30,6 +30,7 @@
 
 #include "resource_loader.h"
 
+#include "core/dictionary.h"
 #include "core/hash_map.h"
 #include "core/method_bind.h"
 #include "core/os/file_access.h"

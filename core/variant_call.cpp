@@ -33,6 +33,7 @@
 #include "core/color_names.inc"
 #include "core/container_tools.h"
 #include "core/crypto/crypto_core.h"
+#include "core/dictionary.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
 #include "core/math/plane.h"

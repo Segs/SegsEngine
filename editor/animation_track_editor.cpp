@@ -6061,12 +6061,8 @@ AnimationTrackEditor::AnimationTrackEditor() {
 }
 
 AnimationTrackEditor::~AnimationTrackEditor() {
-    if (key_edit) {
-        memdelete(key_edit);
-    }
-    if (multi_key_edit) {
-        memdelete(multi_key_edit);
-    }
+    memdelete(key_edit);
+    memdelete(multi_key_edit);
 }
 
 void register_animation_track_editor_classes()

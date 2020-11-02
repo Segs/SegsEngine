@@ -264,16 +264,9 @@ Object::Connection::Connection(const Variant &p_variant) {
     }
 }
 
-bool Object::_predelete() {
-
-    _predelete_ok = 1;
+void Object::_predelete() {
     notification(NOTIFICATION_PREDELETE, true);
-    if (_predelete_ok) {
-        _class_ptr = nullptr; //must restore so destructors can access class ptr correctly
-    }
-    // TODO: SEGS: Only case where _predelete_ok is false here is if something constructed another Object on this one's
-    // memory in the notification handler.
-    return _predelete_ok;
+    _class_ptr = nullptr; //must restore so destructors can access class ptr correctly
 }
 
 void Object::_postinitialize() {
@@ -323,7 +316,18 @@ void Object::set(const StringName &p_name, const Variant &p_value, bool *r_valid
 
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
         //set_meta(p_name,p_value);
-        metadata = p_value.duplicate_t<Dictionary>();
+        auto d = p_value.duplicate_t<Dictionary>();
+        if(metadata) {
+            if(d.empty()) {
+                memdelete(metadata);
+                metadata = nullptr;
+            }
+            else
+                *metadata = eastl::move(d);
+        }
+        else if (!d.empty()) {
+            metadata = memnew(Dictionary(eastl::move(d)));
+        }
         if (r_valid)
             *r_valid = true;
         return;
@@ -384,7 +388,7 @@ Variant Object::get(const StringName &p_name, bool *r_valid) const {
         }
         return ret;
     } else if (p_name == CoreStringNames::get_singleton()->_meta) {
-        ret = metadata;
+        ret = metadata ? *metadata : Variant();
         if (r_valid) {
             *r_valid = true;
         }
@@ -507,7 +511,7 @@ void Object::get_property_list(Vector<PropertyInfo> *p_list, bool p_reversed) co
         Object_add_tool_properties(p_list);
         p_list->push_back(PropertyInfo(VariantType::OBJECT, "script", PropertyHint::ResourceType, "Script", PROPERTY_USAGE_DEFAULT));
     }
-    if (!metadata.empty()) {
+    if (metadata && !metadata->empty()) {
         p_list->push_back(PropertyInfo(VariantType::DICTIONARY, "__meta__", PropertyHint::None, "", PROPERTY_USAGE_NOEDITOR | PROPERTY_USAGE_INTERNAL));
     }
     if (script_instance && !p_reversed) {
@@ -724,11 +728,6 @@ void Object::property_list_changed_notify() {
     Object_change_notify(this);
 }
 
-void Object::cancel_delete() {
-
-    _predelete_ok = true;
-}
-
 #ifdef DEBUG_ENABLED
 ObjectRC *Object::_use_rc() {
 
@@ -777,10 +776,8 @@ void Object::set_script(const RefPtr &p_script) {
     if (script == p_script)
         return;
 
-    if (script_instance) {
-        memdelete(script_instance);
-        script_instance = nullptr;
-    }
+    memdelete(script_instance);
+    script_instance = nullptr;
 
     script = p_script;
     Ref<Script> s(refFromRefPtr<Script>(script));
@@ -804,8 +801,7 @@ void Object::set_script_instance(ScriptInstance *p_instance) {
     if (script_instance == p_instance)
         return;
 
-    if (script_instance)
-        memdelete(script_instance);
+    memdelete(script_instance);
 
     script_instance = p_instance;
 
@@ -822,28 +818,42 @@ RefPtr Object::get_script() const {
 
 bool Object::has_meta(StringView p_name) const {
 
-    return metadata.has(Variant(p_name));
+    return metadata && metadata->has(Variant(p_name));
 }
 
 void Object::set_meta(StringView p_name, const Variant &p_value) {
     Variant key(p_name);
     if (p_value.get_type() == VariantType::NIL) {
-        metadata.erase(key);
+        if(!metadata)
+            return;
+        metadata->erase(key);
+        if(metadata->empty()) {
+            memdelete(metadata);
+            metadata = nullptr;
+        }
+
         return;
     }
-
-    metadata[key] = p_value;
+    if(!metadata)
+        metadata = memnew(Dictionary);
+    (*metadata)[key] = p_value;
 }
 
 Variant Object::get_meta(StringView p_name) const {
 
     Variant key(p_name);
-    ERR_FAIL_COND_V(!metadata.has(key), Variant());
-    return metadata[key];
+    ERR_FAIL_COND_V(!metadata || !metadata->has(key), Variant());
+    return (*metadata)[key];
 }
 
 void Object::remove_meta(StringView p_name) {
-    metadata.erase(Variant(p_name));
+    if(!metadata)
+        return;
+    metadata->erase(Variant(p_name));
+    if(metadata->empty()) {
+        memdelete(metadata);
+        metadata = nullptr;
+    }
 }
 
 Array Object::_get_property_list_bind() const {
@@ -872,8 +882,10 @@ Array Object::_get_method_list_bind() const {
 PoolStringArray Object::_get_meta_list_bind() const {
 
     PoolStringArray _metaret;
+    if(!metadata)
+        return _metaret;
 
-    Vector<Variant> keys(metadata.get_key_list());
+    Vector<Variant> keys(metadata->get_key_list());
     for(const Variant &E : keys ) {
 
         _metaret.push_back(E.as<String>());
@@ -882,8 +894,10 @@ PoolStringArray Object::_get_meta_list_bind() const {
     return _metaret;
 }
 void Object::get_meta_list(List<String> *p_list) const {
+    if(!metadata)
+        return;
 
-    Vector<Variant> keys(metadata.get_key_list());
+    Vector<Variant> keys(metadata->get_key_list());
     for(const Variant &E : keys ) {
 
         p_list->push_back(E.as<String>());
@@ -912,41 +926,42 @@ bool Object::_has_user_signal(const StringName &p_name) const {
     return not private_data->signal_map[p_name].user.name.empty();
 }
 
+
+//Variant Object::_emit_signal(const Variant** p_args, int p_argcount, Callable::CallError& r_error) {
+
+//    r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+
+//    ERR_FAIL_COND_V(p_argcount < 1, Variant());
+//    if (p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING) {
+//        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
+//        r_error.argument = 0;
+//        r_error.expected = VariantType::STRING_NAME;
+//        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING, Variant());
+//    }
+
+//    r_error.error = Callable::CallError::CALL_OK;
+
+//    StringName signal = (StringName)*p_args[0];
+
+//    const Variant** args = nullptr;
+
+//    int argc = p_argcount - 1;
+//    if (argc) {
+//        args = &p_args[1];
+//    }
+
+//    emit_signal(signal, args, argc);
+
+//    return Variant();
+//}
+
 struct _ObjectSignalDisconnectData {
 
     StringName signal;
     Callable callable;
 };
 
-Variant Object::_emit_signal(const Variant** p_args, int p_argcount, Callable::CallError& r_error) {
-
-    r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
-
-    ERR_FAIL_COND_V(p_argcount < 1, Variant());
-    if (p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING) {
-        r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
-        r_error.argument = 0;
-        r_error.expected = VariantType::STRING_NAME;
-        ERR_FAIL_COND_V(p_args[0]->get_type() != VariantType::STRING_NAME && p_args[0]->get_type() != VariantType::STRING, Variant());
-    }
-
-    r_error.error = Callable::CallError::CALL_OK;
-
-    StringName signal = (StringName)*p_args[0];
-
-    const Variant** args = nullptr;
-
-    int argc = p_argcount - 1;
-    if (argc) {
-        args = &p_args[1];
-    }
-
-    emit_signal(signal, args, argc);
-
-    return Variant();
-}
-
-void Object::emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount) {
+void Object::do_emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount) {
 
     if (_block_signals) {
         return ; //ERR_CANT_ACQUIRE_RESOURCE; //no emit, signals blocked
@@ -1046,7 +1061,7 @@ void Object::emit_signal(const StringName &p_name, const Variant **p_args, int p
    // return err;
 }
 
-void Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
+void Object::do_emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
 
     VARIANT_ARGPTRS
 
@@ -1059,7 +1074,7 @@ void Object::emit_signal(const StringName &p_name, VARIANT_ARG_DECLARE) {
         argc++;
     }
 
-    emit_signal(p_name, argptr, argc);
+    do_emit_signal(p_name, argptr, argc);
 }
 
 void Object::_add_user_signal(const StringName &p_name, const Array &p_args) {
@@ -1242,7 +1257,6 @@ Error Object::connect(const StringName& p_signal, const Callable& p_callable, co
                 "': Attempt to connect nonexistent signal '" + p_signal +
                 "' to callable '" + (String)p_callable + "'.");
 
-        private_data->signal_map[p_signal] = SignalData();
         s = private_data->signal_map.emplace(p_signal,SignalData()).first;
     }
 
@@ -1307,7 +1321,7 @@ void Object::_disconnect(const StringName& p_signal, const Callable& p_callable,
     ERR_FAIL_COND(!target_object);
 
     auto per_sig_data = private_data->signal_map.find(p_signal);
-    ERR_FAIL_COND_MSG(per_sig_data== private_data->signal_map.end(), String(String::CtorSprintf(),"Nonexistent signal '%s' in %s.", p_signal.asCString(), to_string().c_str()));
+    ERR_FAIL_COND_MSG(per_sig_data == private_data->signal_map.end(), String(String::CtorSprintf(),"Nonexistent signal '%s' in %s.", p_signal.asCString(), to_string().c_str()));
 
     ERR_FAIL_COND_MSG(!per_sig_data->second.slot_map.contains(p_callable), "Signal '" + p_signal + "', is not connected to callable: " + (String)p_callable + ".");
 
@@ -1462,12 +1476,7 @@ void Object::_bind_methods() {
 
     MethodBinder::bind_method(D_METHOD("add_user_signal", {"signal", "arguments"}), &Object::_add_user_signal, {DEFVAL(Array())});
     MethodBinder::bind_method(D_METHOD("has_user_signal", {"signal"}), &Object::_has_user_signal);
-
-    {
-        MethodInfo mi("emit_signal",PropertyInfo(VariantType::STRING_NAME, "signal"));
-
-        MethodBinder::bind_vararg_method("emit_signal", &Object::_emit_signal, eastl::move(mi), null_variant_pvec, false);
-    }
+    MethodBinder::bind_method(D_METHOD("emit_signal", {"signal","arg1","arg2","arg3","arg4","arg5"}), (void (Object::*)(const StringName &,VARIANT_ARG_DECLARE))&Object::do_emit_signal,{Variant(),Variant(),Variant(),Variant(),Variant()});
 
     {
         MethodInfo mi("call",PropertyInfo(VariantType::STRING_NAME, "method"));
@@ -1646,28 +1655,35 @@ void *Object::get_script_instance_binding(int p_script_language_index) {
     //just return the same pointer.
     //if you want to put a big lock in the entire function and keep allocated pointers in a map or something, feel free to do it
     //as it should not really affect performance much (won't be called too often), as in far most caes the condition below will be false afterwards
-
-    if (!_script_instance_bindings[p_script_language_index]) {
+    if(!_script_instance_bindings) {
+        _script_instance_bindings = new ("script_instance_bindings") eastl::array<void *,MAX_SCRIPT_INSTANCE_BINDINGS>();
+        _script_instance_bindings->fill(nullptr);
+    }
+    if (!(*_script_instance_bindings)[p_script_language_index]) {
         void *script_data = ScriptServer::get_language(p_script_language_index)->alloc_instance_binding_data(this);
         if (script_data) {
             atomic_increment(&instance_binding_count);
-            _script_instance_bindings[p_script_language_index] = script_data;
+            (*_script_instance_bindings)[p_script_language_index] = script_data;
         }
     }
 
-    return _script_instance_bindings[p_script_language_index];
+    return (*_script_instance_bindings)[p_script_language_index];
 }
 
 bool Object::has_script_instance_binding(int p_script_language_index) {
 
-    return _script_instance_bindings[p_script_language_index] != nullptr;
+    return _script_instance_bindings && (*_script_instance_bindings)[p_script_language_index] != nullptr;
 }
 
 void Object::set_script_instance_binding(int p_script_language_index, void *p_data) {
 #ifdef DEBUG_ENABLED
-    CRASH_COND(_script_instance_bindings[p_script_language_index] != nullptr);
+    CRASH_COND(_script_instance_bindings && (*_script_instance_bindings)[p_script_language_index] != nullptr);
 #endif
-    _script_instance_bindings[p_script_language_index] = p_data;
+    if(!_script_instance_bindings) {
+        _script_instance_bindings = new ("script_instance_bindings") eastl::array<void *,MAX_SCRIPT_INSTANCE_BINDINGS>();
+        _script_instance_bindings->fill(nullptr);
+    }
+    (*_script_instance_bindings)[p_script_language_index] = p_data;
 }
 void Object::get_argument_options(const StringName & /*p_function*/, int /*p_idx*/, List<String> * /*r_options*/) const {
 }
@@ -1677,13 +1693,11 @@ Object::Object() {
     private_data = memnew_args_basic(ObjectPrivate,this);
     _class_ptr = nullptr;
     _block_signals = false;
-    _predelete_ok = 0;
     _instance_id = gObjectDB().add_instance(this);
     _can_translate = true;
     _is_queued_for_deletion = false;
     _emitting = false;
     instance_binding_count = 0;
-    memset(_script_instance_bindings, 0, sizeof(void *) * MAX_SCRIPT_INSTANCE_BINDINGS);
     script_instance = nullptr;
 #ifdef DEBUG_ENABLED
     _rc.store(nullptr, std::memory_order_release);
@@ -1694,15 +1708,13 @@ Object::~Object() {
 
 #ifdef DEBUG_ENABLED
     ObjectRC *rc = _rc.load(std::memory_order_acquire);
-    if (rc) {
-        if (rc->invalidate()) {
-            memdelete(rc);
-        }
+    if (rc && rc->invalidate()) {
+        memdelete(rc);
     }
 #endif
+    memdelete(observer_endpoint);
 
-    if (script_instance)
-        memdelete(script_instance);
+    memdelete(script_instance);
     script_instance = nullptr;
 
     if (_emitting) {
@@ -1712,25 +1724,23 @@ Object::~Object() {
                   "'CONNECT_DEFERRED' flag, or use queue_free() to free the object (if this object is a Node) to avoid this "
                   "error and potential crashes.");
     }
-    if(private_data)
-        memdelete(private_data);
+    memdelete(private_data);
 
     gObjectDB().remove_instance(this);
     _instance_id = ObjectID(0ULL);
-    _predelete_ok = 2;
 
-    if (!ScriptServer::are_languages_finished()) {
-        for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
-            if (_script_instance_bindings[i]) {
-                ScriptServer::get_language(i)->free_instance_binding_data(_script_instance_bindings[i]);
-            }
+    if (ScriptServer::are_languages_finished() || !_script_instance_bindings) {
+        return;
+    }
+    for (int i = 0; i < MAX_SCRIPT_INSTANCE_BINDINGS; i++) {
+        if ((*_script_instance_bindings)[i]) {
+            ScriptServer::get_language(i)->free_instance_binding_data((*_script_instance_bindings)[i]);
         }
     }
 }
 
-bool predelete_handler(Object *p_object) {
-
-    return p_object->_predelete();
+void predelete_handler(Object *p_object) {
+    p_object->_predelete();
 }
 
 void postinitialize_handler(Object *p_object) {

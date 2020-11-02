@@ -111,9 +111,7 @@ void OS::debug_break(){
 }
 
 void OS::_set_logger(CompositeLogger *p_logger) {
-    if (_logger) {
-        memdelete(_logger);
-    }
+    memdelete(_logger);
     _logger = p_logger;
 }
 
@@ -739,6 +737,8 @@ void OS::close_midi_inputs() {
 }
 
 void OS::add_frame_delay(bool p_can_draw) {
+    SCOPE_AUTONAMED;
+
     const uint32_t frame_delay = Engine::get_singleton()->get_frame_delay();
     if (frame_delay) {
         // Add fixed frame delay to decrease CPU/GPU usage. This doesn't take

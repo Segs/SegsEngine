@@ -39,6 +39,8 @@
 #include "core/print_string.h"
 #include "core/string_utils.h"
 
+const char * const s_rasterizer = "rasterizer";
+
 RasterizerStorage *RasterizerGLES3::get_storage() {
 
     return storage;
@@ -191,10 +193,8 @@ void RasterizerGLES3::initialize() {
     canvas->initialize();
     scene->initialize();
 }
-
 void RasterizerGLES3::begin_frame(double frame_step) {
-
-    PROFILER_STARTFRAME("rasterizer");
+    PROFILER_STARTFRAME(s_rasterizer);
     time_total += frame_step;
 
     if (frame_step == 0.0) {
@@ -394,7 +394,7 @@ void RasterizerGLES3::end_frame(bool p_swap_buffers) {
     else
         glFinish();
 
-    PROFILER_ENDFRAME("rasterizer");
+    PROFILER_ENDFRAME(s_rasterizer);
 }
 
 void RasterizerGLES3::finalize() {

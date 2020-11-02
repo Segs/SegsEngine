@@ -184,7 +184,7 @@ void Node3D::_notification(int p_what) {
 #ifdef TOOLS_ENABLED
             if (Engine::get_singleton()->is_editor_hint() && get_tree()->is_node_being_edited(this)) {
 
-                //get_scene()->call_group(SceneMainLoop::GROUP_CALL_REALTIME,SceneStringNames::get_singleton()->_spatial_editor_group,SceneStringNames::get_singleton()->_request_gizmo,this);
+                //get_scene()->call_group(SceneMainLoop::GROUP_CALL_REALTIME,SceneStringNames::_spatial_editor_group,SceneStringNames::_request_gizmo,this);
                 get_tree()->call_group_flags(0, "_spatial_editor_group", "_request_gizmo", Variant(this));
                 if (!data.gizmo_disabled) {
 
@@ -520,7 +520,7 @@ Ref<World3D> Node3D::get_world() const {
 void Node3D::_propagate_visibility_changed() {
 
     notification(NOTIFICATION_VISIBILITY_CHANGED);
-    emit_signal(SceneStringNames::get_singleton()->visibility_changed);
+    emit_signal(SceneStringNames::visibility_changed);
     Object_change_notify(this,"visible");
 #ifdef TOOLS_ENABLED
     if (data.gizmo)

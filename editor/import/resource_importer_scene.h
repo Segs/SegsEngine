@@ -116,8 +116,8 @@ public:
     void add_importer(EditorSceneImporterInterface *p_importer) { scene_importers.insert(p_importer); }
     void remove_importer(EditorSceneImporterInterface *p_importer) { scene_importers.erase(p_importer); }
 
-    StringName get_importer_name() const override;
-    StringName get_visible_name() const override;
+    const char *get_importer_name() const override;
+    const char *get_visible_name() const override;
     void get_recognized_extensions(Vector<String> &p_extensions) const override;
     bool can_import(StringView) const override;
     StringName get_save_extension() const override;

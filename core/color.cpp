@@ -402,8 +402,9 @@ bool Color::html_is_valid(StringView p_color) {
         return false;
     }
     int b = _parse_col(color, 4);
-    if (b < 0)
+    if (b < 0) {
         return false;
+    }
     if (alpha) {
         int a = _parse_col(color, 6);
         if (a < 0) {

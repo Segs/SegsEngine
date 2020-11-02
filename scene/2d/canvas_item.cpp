@@ -379,6 +379,9 @@ bool CanvasItem::_edit_is_selected_on_click(const Point2 &p_point, float p_toler
 Transform2D CanvasItem::_edit_get_transform() const {
     return Transform2D(_edit_get_rotation(), _edit_get_position() + _edit_get_pivot());
 }
+Dictionary CanvasItem::_edit_get_state() const {
+    return Dictionary();
+}
 #endif
 bool CanvasItem::is_visible_in_tree() const {
 
@@ -406,7 +409,7 @@ void CanvasItem::_propagate_visibility_changed(bool p_visible) {
     if (p_visible)
         update(); //todo optimize
     else
-        emit_signal(SceneStringNames::get_singleton()->hide);
+        emit_signal(SceneStringNames::hide);
     _block();
 
     for (int i = 0; i < get_child_count(); i++) {
@@ -472,9 +475,9 @@ void CanvasItem::_update_callback() {
         drawing = true;
         current_item_drawn = this;
         notification(NOTIFICATION_DRAW);
-        emit_signal(SceneStringNames::get_singleton()->draw);
+        emit_signal(SceneStringNames::draw);
         if (get_script_instance()) {
-            get_script_instance()->call(SceneStringNames::get_singleton()->_draw);
+            get_script_instance()->call(SceneStringNames::_draw);
         }
         current_item_drawn = nullptr;
         drawing = false;
@@ -632,7 +635,7 @@ void CanvasItem::_notification(int p_what) {
         } break;
         case NOTIFICATION_VISIBILITY_CHANGED: {
 
-            emit_signal(SceneStringNames::get_singleton()->visibility_changed);
+            emit_signal(SceneStringNames::visibility_changed);
         } break;
     }
 }
@@ -733,7 +736,7 @@ void CanvasItem::item_rect_changed(bool p_size_changed) {
 
     if (p_size_changed)
         update();
-    emit_signal(SceneStringNames::get_singleton()->item_rect_changed);
+    emit_signal(SceneStringNames::item_rect_changed);
 }
 
 void CanvasItem::draw_line(const Point2 &p_from, const Point2 &p_to, const Color &p_color, float p_width, bool p_antialiased) {

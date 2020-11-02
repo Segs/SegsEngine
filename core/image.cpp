@@ -28,9 +28,10 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "core/image_enum_casters.h"
 #include "image.h"
 
+#include "core/dictionary.h"
+#include "core/image_enum_casters.h"
 #include "core/io/image_loader.h"
 #include "core/io/image_saver.h"
 #include "core/io/resource_loader.h"
@@ -2760,7 +2761,7 @@ void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const P
     Rect2i dest_rect = Rect2i(0, 0, width, height).clip(Rect2i(p_dest - src_underscan, clipped_src_rect.size));
 
     lock();
-    Ref<Image> img = p_src;
+    Image *img = p_src.get();
     img->lock();
 
     for (int i = 0; i < dest_rect.size.y; i++) {

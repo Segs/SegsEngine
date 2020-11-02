@@ -522,7 +522,7 @@ MainLoop *test() {
 
         for (size_t i=0,fin=tl.size(); i<fin; ++i) {
 
-            Vector<uint8_t> m5b = StringUtils::md5_buffer(tl[i].asCString());
+            auto m5b = StringUtils::md5_buffer(tl[i].asCString());
             hashes.push_back(hashes.size());
         }
 

@@ -1,5 +1,7 @@
 #ifdef _WIN32
 #  include <windows.h>
+#else
+#  include <unistd.h>
 #endif
 
 #include <chrono>
@@ -9,28 +11,27 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
 #include "../../common/TracyProtocol.hpp"
 #include "../../server/TracyFileWrite.hpp"
 #include "../../server/TracyMemory.hpp"
 #include "../../server/TracyPrint.hpp"
+#include "../../server/TracyStackFrames.hpp"
 #include "../../server/TracyWorker.hpp"
-#include "getopt.h"
+#include "../../getopt/getopt.h"
 
-#ifndef _MSC_VER
-struct sigaction oldsigint;
+
 bool disconnect = false;
 
 void SigInt( int )
 {
     disconnect = true;
 }
-#endif
 
-
-void Usage()
+[[noreturn]] void Usage()
 {
-    printf( "Usage: capture -a address -o output.tracy [-p port]\n" );
+    printf( "Usage: capture -o output.tracy [-a address] [-p port] [-f]\n" );
     exit( 1 );
 }
 
@@ -44,12 +45,13 @@ int main( int argc, char** argv )
     }
 #endif
 
-    const char* address = nullptr;
+    bool overwrite = false;
+    const char* address = "127.0.0.1";
     const char* output = nullptr;
     int port = 8086;
 
     int c;
-    while( ( c = getopt( argc, argv, "a:o:p:" ) ) != -1 )
+    while( ( c = getopt( argc, argv, "a:o:p:f" ) ) != -1 )
     {
         switch( c )
         {
@@ -62,6 +64,9 @@ int main( int argc, char** argv )
         case 'p':
             port = atoi( optarg );
             break;
+        case 'f':
+            overwrite = true;
+            break;
         default:
             Usage();
             break;
@@ -69,6 +74,22 @@ int main( int argc, char** argv )
     }
 
     if( !address || !output ) Usage();
+
+    struct stat st;
+    if( stat( output, &st ) == 0 && !overwrite )
+    {
+        printf( "Output file %s already exists! Use -f to force overwrite.\n", output );
+        return 4;
+    }
+
+    FILE* test = fopen( output, "wb" );
+    if( !test )
+    {
+        printf( "Cannot open output file %s for writing!\n", output );
+        return 5;
+    }
+    fclose( test );
+    unlink( output );
 
     printf( "Connecting to %s:%i...", address, port );
     fflush( stdout );
@@ -95,8 +116,10 @@ int main( int argc, char** argv )
     while( !worker.HasData() ) std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
     printf( "\nQueue delay: %s\nTimer resolution: %s\n", tracy::TimeToString( worker.GetDelay() ), tracy::TimeToString( worker.GetResolution() ) );
 
-#ifndef _MSC_VER
-    struct sigaction sigint;
+#ifdef _WIN32
+    signal( SIGINT, SigInt );
+#else
+    struct sigaction sigint, oldsigint;
     memset( &sigint, 0, sizeof( sigint ) );
     sigint.sa_handler = SigInt;
     sigaction( SIGINT, &sigint, &oldsigint );
@@ -107,13 +130,11 @@ int main( int argc, char** argv )
     const auto t0 = std::chrono::high_resolution_clock::now();
     while( worker.IsConnected() )
     {
-#ifndef _MSC_VER
         if( disconnect )
         {
             worker.Disconnect();
             disconnect = false;
         }
-#endif
 
         lock.lock();
         const auto mbps = worker.GetMbpsData().back();
@@ -145,10 +166,80 @@ int main( int argc, char** argv )
     if( failure != tracy::Worker::Failure::None )
     {
         printf( "\n\033[31;1mInstrumentation failure: %s\033[0m", tracy::Worker::GetFailureString( failure ) );
+        auto& fd = worker.GetFailureData();
+        if( fd.callstack != 0 )
+        {
+            printf( "\n\033[1mFailure callstack:\033[0m\n" );
+            auto& cs = worker.GetCallstack( fd.callstack );
+            int fidx = 0;
+            int bidx = 0;
+            for( auto& entry : cs )
+            {
+                auto frameData = worker.GetCallstackFrame( entry );
+                if( !frameData )
+                {
+                    printf( "%3i. %p\n", fidx++, (void*)worker.GetCanonicalPointer( entry ) );
+                }
+                else
+                {
+                    const auto fsz = frameData->size;
+                    for( uint8_t f=0; f<fsz; f++ )
+                    {
+                        const auto& frame = frameData->data[f];
+                        auto txt = worker.GetString( frame.name );
+
+                        if( fidx == 0 && f != fsz-1 )
+                        {
+                            auto test = tracy::s_tracyStackFrames;
+                            bool match = false;
+                            do
+                            {
+                                if( strcmp( txt, *test ) == 0 )
+                                {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            while( *++test );
+                            if( match ) continue;
+                        }
+
+                        bidx++;
+
+                        if( f == fsz-1 )
+                        {
+                            printf( "%3i. ", fidx++ );
+                        }
+                        else
+                        {
+                            printf( "\033[30;1minl. " );
+                        }
+                        printf( "\033[0;36m%s  ", txt );
+                        txt = worker.GetString( frame.file );
+                        if( frame.line == 0 )
+                        {
+                            printf( "\033[33m(%s)", txt );
+                        }
+                        else
+                        {
+                            printf( "\033[33m(%s:%" PRIu32 ")", txt, frame.line );
+                        }
+                        if( frameData->imageName.Active() )
+                        {
+                            printf( "\033[35m %s\033[0m\n", worker.GetString( frameData->imageName ) );
+                        }
+                        else
+                        {
+                            printf( "\033[0m\n" );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     printf( "\nFrames: %" PRIu64 "\nTime span: %s\nZones: %s\nElapsed time: %s\nSaving trace...",
-        worker.GetFrameCount( *worker.GetFramesBase() ), tracy::TimeToString( worker.GetLastTime() ), tracy::RealToString( worker.GetZoneCount(), true ),
+        worker.GetFrameCount( *worker.GetFramesBase() ), tracy::TimeToString( worker.GetLastTime() ), tracy::RealToString( worker.GetZoneCount() ),
         tracy::TimeToString( std::chrono::duration_cast<std::chrono::nanoseconds>( t1 - t0 ).count() ) );
     fflush( stdout );
     auto f = std::unique_ptr<tracy::FileWrite>( tracy::FileWrite::Open( output ) );
@@ -156,6 +247,9 @@ int main( int argc, char** argv )
     {
         worker.Write( *f );
         printf( " \033[32;1mdone!\033[0m\n" );
+        f->Finish();
+        const auto stats = f->GetCompressionStatistics();
+        printf( "Trace size %s (%.2f%% ratio)\n", tracy::MemSizeToString( stats.second ), 100.f * stats.second / stats.first );
     }
     else
     {

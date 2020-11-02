@@ -293,11 +293,11 @@ void RigidBody::_body_enter_tree(ObjectID p_id) {
 
     contact_monitor->locked = true;
 
-    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+    emit_signal(SceneStringNames::body_entered, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_entered, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -316,11 +316,11 @@ void RigidBody::_body_exit_tree(ObjectID p_id) {
 
     contact_monitor->locked = true;
 
-    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+    emit_signal(SceneStringNames::body_exited, Variant(node));
 
     for (size_t i = 0; i < E->second.shapes.size(); i++) {
 
-        emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
+        emit_signal(SceneStringNames::body_shape_exited, Variant::from(p_id), Variant(node), E->second.shapes[i].body_shape, E->second.shapes[i].local_shape);
     }
 
     contact_monitor->locked = false;
@@ -346,11 +346,12 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
             //E->second.rc=0;
             E->second.in_tree = node && node->is_inside_tree();
             if (node) {
-                node->connect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree), make_binds(objid));
-                node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree), make_binds(objid));
+                //node->tree_entered.ConnectL(&observer(),[this,objid]() { _body_enter_tree(objid); });
+                node->connect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree), make_binds(objid));
+                node->connect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree), make_binds(objid));
 
                 if (E->second.in_tree) {
-                    emit_signal(SceneStringNames::get_singleton()->body_entered, Variant(node));
+                    emit_signal(SceneStringNames::body_entered, Variant(node));
                 }
             }
         }
@@ -359,7 +360,7 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
             E->second.shapes.insert(ShapePair(p_body_shape, p_local_shape));
 
         if (E->second.in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_entered, Variant::from(objid), Variant(node), p_body_shape, p_local_shape);
         }
 
     } else {
@@ -374,16 +375,16 @@ void RigidBody::_body_inout(int p_status, ObjectID p_instance, int p_body_shape,
         if (E->second.shapes.empty()) {
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
                 if (in_tree)
-                    emit_signal(SceneStringNames::get_singleton()->body_exited, Variant(node));
+                    emit_signal(SceneStringNames::body_exited, Variant(node));
             }
 
             contact_monitor->body_map.erase(E);
         }
         if (node && in_tree) {
-            emit_signal(SceneStringNames::get_singleton()->body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_local_shape);
+            emit_signal(SceneStringNames::body_shape_exited, Variant::from(objid), Variant(obj), p_body_shape, p_local_shape);
         }
     }
 }
@@ -410,7 +411,7 @@ void RigidBody::_direct_state_changed(Object *p_state) {
     inverse_inertia_tensor = state->get_inverse_inertia_tensor();
     if (sleeping != state->is_sleeping()) {
         sleeping = state->is_sleeping();
-        emit_signal(SceneStringNames::get_singleton()->sleeping_state_changed);
+        emit_signal(SceneStringNames::sleeping_state_changed);
     }
     if (get_script_instance())
         get_script_instance()->call("_integrate_forces", Variant(state));
@@ -774,8 +775,8 @@ void RigidBody::set_contact_monitor(bool p_enabled) {
             Node *node = object_cast<Node>(obj);
 
             if (node) {
-                node->disconnect(SceneStringNames::get_singleton()->tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
-                node->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
+                node->disconnect(SceneStringNames::tree_entered, callable_mp(this, &RigidBody::_body_enter_tree));
+                node->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &RigidBody::_body_exit_tree));
             }
         }
 
@@ -968,9 +969,7 @@ RigidBody::RigidBody() :
 }
 
 RigidBody::~RigidBody() {
-
-    if (contact_monitor)
-        memdelete(contact_monitor);
+    memdelete(contact_monitor);
 }
 
 void RigidBody::_reload_physics_characteristics() {
@@ -2332,9 +2331,9 @@ void PhysicalBone3D::set_joint_type(JointType p_joint_type) {
     if (p_joint_type == get_joint_type())
         return;
 
-    if (joint_data)
-        memdelete(joint_data);
+    memdelete(joint_data);
     joint_data = nullptr;
+
     switch (p_joint_type) {
         case JOINT_TYPE_PIN:
             joint_data = memnew(PinJointData);
@@ -2533,8 +2532,7 @@ PhysicalBone3D::PhysicalBone3D() :
 }
 
 PhysicalBone3D::~PhysicalBone3D() {
-    if (joint_data)
-        memdelete(joint_data);
+    memdelete(joint_data);
 }
 
 void PhysicalBone3D::update_bone_id() {

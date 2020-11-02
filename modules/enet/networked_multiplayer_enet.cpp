@@ -536,8 +536,7 @@ void NetworkedMultiplayerENet::disconnect_peer(int p_peer, bool now) {
                 enet_peer_send(peer_pair.second, SYSCH_CONFIG, packet);
             }
         }
-        if (id)
-            memdelete(id);
+        memdelete(id);
 
         emit_signal("peer_disconnected", p_peer);
         D()->peer_map.erase(p_peer);

@@ -1669,7 +1669,7 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
         if (control) {
 
             if (control->data.mouse_filter != Control::MOUSE_FILTER_IGNORE) {
-                control->emit_signal(SceneStringNames::get_singleton()->gui_input, ev); //signal should be first, so it's possible to override an event (and then accept it)
+                control->emit_signal(SceneStringNames::gui_input, ev); //signal should be first, so it's possible to override an event (and then accept it)
             }
             if (gui.key_event_accepted)
                 break;
@@ -1682,9 +1682,9 @@ void Viewport::_gui_call_input(Control *p_control, const Ref<InputEvent> &p_inpu
                 Variant event = ev;
                 const Variant *args[1] = { &event };
                 if (control->get_script_instance()) {
-                    control->get_script_instance()->call(SceneStringNames::get_singleton()->_gui_input, args, 1, error);
+                    control->get_script_instance()->call(SceneStringNames::_gui_input, args, 1, error);
                 }
-                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::get_singleton()->_gui_input);
+                MethodBind *method = ClassDB::get_method(control->get_class_name(), SceneStringNames::_gui_input);
                 if (method) {
                     method->call(control, args, 1, error);
                 }
@@ -2011,10 +2011,9 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                 gui.drag_data = Variant();
                 gui.dragging = false;
 
-                if (gui.drag_preview) {
-                    memdelete(gui.drag_preview);
-                    gui.drag_preview = nullptr;
-                }
+                memdelete(gui.drag_preview);
+                gui.drag_preview = nullptr;
+
                 _propagate_viewport_notification(this, NOTIFICATION_DRAG_END);
                 //change mouse accordingly
             }
@@ -2033,7 +2032,7 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
                     _gui_drop(gui.mouse_over, pos, false);
                 }
 
-                if (gui.drag_preview && mb->get_button_index() == BUTTON_LEFT) {
+                if (mb->get_button_index() == BUTTON_LEFT) {
                     memdelete(gui.drag_preview);
                     gui.drag_preview = nullptr;
                 }
@@ -2421,9 +2420,9 @@ void Viewport::_gui_input_event(Ref<InputEvent> p_event) {
 
             gui.key_event_accepted = false;
             if (gui.key_focus->can_process()) {
-                gui.key_focus->call_va(SceneStringNames::get_singleton()->_gui_input, p_event);
+                gui.key_focus->call_va(SceneStringNames::_gui_input, p_event);
                 if (gui.key_focus) { //maybe lost it
-                    gui.key_focus->emit_signal(SceneStringNames::get_singleton()->gui_input, p_event);
+                    gui.key_focus->emit_signal(SceneStringNames::gui_input, p_event);
                 }
             }
 
@@ -2580,9 +2579,8 @@ void Viewport::_gui_set_drag_preview(Control *p_base, Control *p_control) {
     ERR_FAIL_COND(p_control->is_inside_tree());
     ERR_FAIL_COND(p_control->get_parent() != nullptr);
 
-    if (gui.drag_preview) {
-        memdelete(gui.drag_preview);
-    }
+    memdelete(gui.drag_preview);
+
     p_control->set_as_top_level(true);
     p_control->set_position(gui.last_mouse_pos);
     p_base->get_root_parent_control()->add_child(p_control); //add as child of viewport
@@ -2713,7 +2711,7 @@ void Viewport::_drop_mouse_focus() {
             mb->set_global_position(c->get_local_mouse_position());
             mb->set_button_index(i + 1);
             mb->set_pressed(false);
-            c->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
+            c->call_va(SceneStringNames::_gui_input, mb);
         }
     }
 }
@@ -2794,7 +2792,7 @@ void Viewport::_post_gui_grab_click_focus() {
             mb->set_position(click);
             mb->set_button_index(i + 1);
             mb->set_pressed(false);
-            gui.mouse_focus->call_va(SceneStringNames::get_singleton()->_gui_input, mb);
+            gui.mouse_focus->call_va(SceneStringNames::_gui_input, mb);
         }
     }
 
@@ -2813,7 +2811,7 @@ void Viewport::_post_gui_grab_click_focus() {
             mb->set_position(click);
             mb->set_button_index(i + 1);
             mb->set_pressed(true);
-            gui.mouse_focus->call_deferred(SceneStringNames::get_singleton()->_gui_input, mb);
+            gui.mouse_focus->call_deferred(SceneStringNames::_gui_input, mb);
         }
     }
 }

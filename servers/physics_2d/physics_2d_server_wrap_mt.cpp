@@ -147,8 +147,8 @@ void Physics2DServerWrapMT::finish() {
     area_free_cached_ids();
     body_free_cached_ids();
 
-    if (step_sem)
-        memdelete(step_sem);
+
+    memdelete(step_sem);
 }
 
 Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool p_create_thread) :

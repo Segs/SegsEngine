@@ -10,7 +10,6 @@ class Array;
 using CharType = QChar;
 using CharString = QByteArray;
 
-
 namespace StringUtils
 {
 
@@ -57,7 +56,7 @@ enum Compare {
 [[nodiscard]] GODOT_EXPORT String sha1_text(const UIString &str);
 [[nodiscard]] GODOT_EXPORT String sha256_text(StringView str);
 //[[nodiscard]] GODOT_EXPORT String sha256_text(const String &str);
-[[nodiscard]] GODOT_EXPORT Vector<uint8_t> md5_buffer(StringView str);
+[[nodiscard]] GODOT_EXPORT FixedVector<uint8_t, 16, false> md5_buffer(StringView str);
 [[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha1_buffer(const UIString &str);
 [[nodiscard]] GODOT_EXPORT Vector<uint8_t> sha256_buffer(const UIString &str);
 

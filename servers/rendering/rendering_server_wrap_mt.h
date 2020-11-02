@@ -645,8 +645,6 @@ public:
     FUNC4(set_boot_image, const Ref<Image> &, const Color &, bool, bool)
     FUNC1(set_default_clear_color, const Color &)
 
-    FUNC0R(RID, get_test_cube)
-
     FUNC1(set_debug_generate_wireframes, bool)
 
     bool has_feature(RS::Features p_feature) const override { return rendering_server->has_feature(p_feature); }

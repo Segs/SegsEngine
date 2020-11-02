@@ -702,9 +702,7 @@ void OS_X11::set_ime_position(const Point2 &p_pos) {
 }
 
 void OS_X11::finalize() {
-    if (main_loop) {
-        memdelete(main_loop);
-    }
+    memdelete(main_loop);
     main_loop = nullptr;
 
     /*
@@ -2558,9 +2556,7 @@ MainLoop *OS_X11::get_main_loop() const {
 }
 
 void OS_X11::delete_main_loop() {
-    if (main_loop) {
-        memdelete(main_loop);
-    }
+    memdelete(main_loop);
     main_loop = nullptr;
 }
 

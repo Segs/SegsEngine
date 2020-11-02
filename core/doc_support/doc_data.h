@@ -77,6 +77,8 @@ struct PropertyDoc {
     bool operator<(const PropertyDoc &p_prop) const {
         return name < p_prop.name;
     }
+    PropertyDoc() = default;
+    PropertyDoc(const String &nm,const char *tp) : name(nm),type(tp) {}
 };
 
 //TODO: allow nested type/namespace docs.

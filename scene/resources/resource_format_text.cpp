@@ -30,6 +30,7 @@
 
 #include "resource_format_text.h"
 
+#include "core/dictionary.h"
 #include "core/io/resource_format_binary.h"
 #include "core/object_tooling.h"
 #include "core/os/dir_access.h"
@@ -804,9 +805,7 @@ Error ResourceInteractiveLoaderText::rename_dependencies(FileAccess *p_f, String
         Error err = VariantParser::parse_tag(stream, lines, error_text, next_tag, &rp);
 
         if (err != OK) {
-            if (fw) {
-                memdelete(fw);
-            }
+            memdelete(fw);
             error = ERR_FILE_CORRUPT;
             ERR_FAIL_V(error);
         }
@@ -977,7 +976,7 @@ static void bs_save_unicode_string(FileAccess *f, const UIString &p_string, bool
 static void bs_save_unicode_string(FileAccess *f, StringView p_string, bool p_bit_on_len = false) {
 
     if (p_bit_on_len) {
-        f->store_32(p_string.length() + 1 | 0x80000000);
+        f->store_32((p_string.length() + 1) | 0x80000000);
     } else {
         f->store_32(p_string.length() + 1);
     }
@@ -985,8 +984,9 @@ static void bs_save_unicode_string(FileAccess *f, StringView p_string, bool p_bi
 }
 Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, StringView p_path) {
 
-    if (error)
+    if (error) {
         return error;
+    }
 
     FileAccessRef wf = FileAccess::open(p_path, FileAccess::WRITE);
     if (!wf) {
@@ -1006,8 +1006,9 @@ Error ResourceInteractiveLoaderText::save_as_binary(FileAccess *p_f, StringView 
 
     bs_save_unicode_string(wf.f, is_scene ? "PackedScene" : resource_type);
     wf->store_64(0); //offset to import metadata, this is no longer used
-    for (int i = 0; i < 14; i++)
+    for (int i = 0; i < 14; i++) {
         wf->store_32(0); // reserved
+    }
 
     wf->store_32(0); //string table size, will not be in use
     size_t ext_res_count_pos = wf->get_position();

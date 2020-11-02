@@ -33,12 +33,12 @@
 #include "core/io/resource_saver.h"
 #include "core/os/file_access.h"
 
-StringName ResourceImporterCSV::get_importer_name() const {
+const char *ResourceImporterCSV::get_importer_name() const {
 
     return "csv";
 }
 
-StringName ResourceImporterCSV::get_visible_name() const {
+const char *ResourceImporterCSV::get_visible_name() const {
 
     return "CSV";
 }

@@ -37,12 +37,12 @@
 #include "core/string_utils.h"
 #include "core/translation.h"
 
-StringName ResourceImporterCSVTranslation::get_importer_name() const {
+const char *ResourceImporterCSVTranslation::get_importer_name() const {
 
     return "csv_translation";
 }
 
-StringName ResourceImporterCSVTranslation::get_visible_name() const {
+const char *ResourceImporterCSVTranslation::get_visible_name() const {
 
     return "CSV Translation";
 }

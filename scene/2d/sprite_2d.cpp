@@ -273,7 +273,7 @@ void Sprite2D::set_frame(int p_frame) {
 
     Object_change_notify(this,"frame");
     Object_change_notify(this,"frame_coords");
-    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+    emit_signal(SceneStringNames::frame_changed);
 }
 
 int Sprite2D::get_frame() const {

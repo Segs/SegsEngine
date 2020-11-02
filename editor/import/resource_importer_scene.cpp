@@ -173,12 +173,12 @@ void EditorScenePostImport::init(StringView p_source_folder, StringView p_source
 
 EditorScenePostImport::EditorScenePostImport() = default;
 
-StringName ResourceImporterScene::get_importer_name() const {
+const char *ResourceImporterScene::get_importer_name() const {
 
     return "scene";
 }
 
-StringName ResourceImporterScene::get_visible_name() const {
+const char *ResourceImporterScene::get_visible_name() const {
 
     return "Scene";
 }

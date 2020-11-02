@@ -353,7 +353,7 @@ void VisualShaderEditor::_update_options_menu() {
                 memdelete(sub_category);
                 --item_count;
             }
-            if (category != nullptr && item_count == 0) {
+            if (item_count == 0) {
                 memdelete(category);
             }
             break;
@@ -365,7 +365,7 @@ void VisualShaderEditor::_update_options_menu() {
                 continue;
 
             if (prev_category != add_options[i].category) {
-                if (category != nullptr && item_count == 0) {
+                if (item_count == 0) {
                     memdelete(category);
                 }
 

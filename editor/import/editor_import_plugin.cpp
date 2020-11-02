@@ -30,6 +30,7 @@
 
 #include "editor_import_plugin.h"
 
+#include "core/dictionary.h"
 #include "core/list.h"
 #include "core/script_language.h"
 #include "core/method_info.h"
@@ -39,14 +40,16 @@ IMPL_GDCLASS(EditorImportPlugin)
 
 EditorImportPlugin::EditorImportPlugin() {
 }
-StringName EditorImportPlugin::get_importer_name() const {
+const char *EditorImportPlugin::get_importer_name() const {
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("get_importer_name")), {});
-    return get_script_instance()->call("get_importer_name").as<StringName>();
+    static String s_last_returned = get_script_instance()->call("get_importer_name").as<String>();
+    return s_last_returned.c_str();
 }
 
-StringName EditorImportPlugin::get_visible_name() const {
+const char *EditorImportPlugin::get_visible_name() const {
     ERR_FAIL_COND_V(!(get_script_instance() && get_script_instance()->has_method("get_visible_name")), {});
-    return get_script_instance()->call("get_visible_name").as<StringName>();
+    static String s_last_returned = get_script_instance()->call("get_visible_name").as<String>();
+    return s_last_returned.c_str();
 }
 
 void EditorImportPlugin::get_recognized_extensions(Vector<String> &p_extensions) const {

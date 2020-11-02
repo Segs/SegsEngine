@@ -911,6 +911,18 @@ void TreeItem::_bind_methods() {
     BIND_ENUM_CONSTANT(ALIGN_RIGHT);
 }
 
+Dictionary TreeItem::_get_range_config(int p_column) {
+    Dictionary d;
+    double min=0.0, max=0.0, step=0.0;
+    get_range_config(p_column, min, max, step);
+    d["min"] = min;
+    d["max"] = max;
+    d["step"] = step;
+    d["expr"] = false;
+
+    return d;
+}
+
 void TreeItem::clear_children() {
 
     TreeItem *c = children;
@@ -3289,11 +3301,8 @@ void Tree::clear() {
         pressing_for_editor = false;
     }
 
-    if (root) {
-        memdelete(root);
-        root = nullptr;
-    }
-
+    memdelete(root);
+    root = nullptr;
     selected_item = nullptr;
     edited_item = nullptr;
     popup_edited_item = nullptr;
@@ -4150,14 +4159,6 @@ Tree::Tree() {
     pressed_button = -1;
     show_column_titles = false;
 
-    cache.click_type = Cache::CLICK_NONE;
-    cache.hover_type = Cache::CLICK_NONE;
-    cache.hover_index = -1;
-    cache.click_index = -1;
-    cache.click_id = -1;
-    cache.click_item = nullptr;
-    cache.click_column = 0;
-    cache.hover_cell = -1;
     last_keypress = 0;
     focus_in_id = 0;
 
@@ -4184,9 +4185,6 @@ Tree::Tree() {
     force_edit_checkbox_only_on_checkbox = false;
 
     set_clip_contents(true);
-
-    cache.hover_item = nullptr;
-    cache.hover_cell = -1;
 
     allow_reselect = false;
     propagate_mouse_activated = false;

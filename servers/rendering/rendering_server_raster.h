@@ -54,7 +54,6 @@ class  VisualServerRaster : public RenderingServer {
     };
 
     static int changes;
-    RID test_cube;
 
     int black_margin[4];
     RID black_image[4];
@@ -685,8 +684,6 @@ public:
     int get_render_info(RS::RenderInfo p_info) override;
     const char * get_video_adapter_name() const override;
     const char * get_video_adapter_vendor() const override;
-
-    RID get_test_cube() override;
 
     /* TESTING */
 

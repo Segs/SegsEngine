@@ -384,8 +384,8 @@ void Node3DEditorViewport::_update_camera(float p_interp_delta) {
 
         update_transform_gizmo_view();
         rotation_control->update();
+        spatial_editor->update_grid();
     }
-    spatial_editor->update_grid();
 }
 
 Transform Node3DEditorViewport::to_camera_transform(const Cursor &p_cursor) const {
@@ -5664,7 +5664,10 @@ void Node3DEditor::_init_grid() {
         division_level_max = (int)(division_level_max / div);
         division_level_min = (int)(division_level_min / div);
     }
-
+    for (int a = 0; a < 3; a++) {
+        grid_points[a].reserve(4*grid_size);
+        grid_colors[a].reserve(4*grid_size);
+    }
     for (int a = 0; a < 3; a++) {
         if (!grid_enable[a]) {
             continue; // If this grid plane is disabled, skip generation.
@@ -5714,10 +5717,10 @@ void Node3DEditor::_init_grid() {
                 line_end[a] = position_a;
                 line_bgn[b] = bgn_b;
                 line_end[b] = end_b;
-                grid_points[c].push_back(line_bgn);
-                grid_points[c].push_back(line_end);
-                grid_colors[c].push_back(line_color);
-                grid_colors[c].push_back(line_color);
+                grid_points[c].emplace_back(line_bgn);
+                grid_points[c].emplace_back(line_end);
+                grid_colors[c].emplace_back(line_color);
+                grid_colors[c].emplace_back(line_color);
             }
 
             if (!(origin_enabled && Math::is_zero_approx(position_b))) {
@@ -5727,10 +5730,10 @@ void Node3DEditor::_init_grid() {
                 line_end[b] = position_b;
                 line_bgn[a] = bgn_a;
                 line_end[a] = end_a;
-                grid_points[c].push_back(line_bgn);
-                grid_points[c].push_back(line_end);
-                grid_colors[c].push_back(line_color);
-                grid_colors[c].push_back(line_color);
+                grid_points[c].emplace_back(line_bgn);
+                grid_points[c].emplace_back(line_end);
+                grid_colors[c].emplace_back(line_color);
+                grid_colors[c].emplace_back(line_color);
             }
         }
 

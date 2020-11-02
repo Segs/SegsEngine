@@ -235,19 +235,17 @@ void SceneTreeDock::_perform_instance_scenes(Span<const String> p_files, Node *p
     }
 
     if (error) {
-        for (int i = 0; i < instances.size(); i++) {
-            memdelete(instances[i]);
+        for (Node *n : instances) {
+            memdelete(n);
         }
         return;
     }
 
     UndoRedo &undo_redo = editor_data->get_undo_redo();
     undo_redo.create_action(TTR("Instance Scene(s)"));
-
-    for (int i = 0; i < instances.size(); i++) {
-
-        Node *instanced_scene = instances[i];
-
+    int i=-1;
+    for (Node *instanced_scene : instances) {
+        ++i;
         undo_redo.add_do_method(parent, "add_child", Variant(instanced_scene));
         if (p_pos >= 0) {
             undo_redo.add_do_method(parent, "move_child", Variant(instanced_scene), p_pos + i);
@@ -283,6 +281,30 @@ void SceneTreeDock::_replace_with_branch_scene(StringView p_file, Node *base) {
     }
 
     UndoRedo *undo_redo = editor->get_undo_redo();
+    /*
+    undo_redo->create_action_pair(TTR("Replace with Branch Scene"),parent->get_instance_id(),
+        [=](){
+            parent->remove_child(base);
+            parent->add_child(instanced_scene);
+            parent->move_child(instanced_scene,pos);
+            instanced_scene->set_owner(edited_scene);
+            editor_selection->clear();
+            editor_selection->add_node(instanced_scene);
+            scene_tree->set_selected(instanced_scene);
+        },
+        [=](){
+            parent->remove_child(instanced_scene);
+            parent->add_child(base);
+            parent->move_child(base,pos);
+            for (Node *n : owned) {
+                n->set_owner(edited_scene);
+            }
+            editor_selection->clear();
+            editor_selection->add_node(base);
+            scene_tree->set_selected(base);
+        }
+    );
+    */
     undo_redo->create_action(TTR("Replace with Branch Scene"));
     Node *parent = base->get_parent();
     int pos = base->get_index();
@@ -355,8 +377,8 @@ bool SceneTreeDock::_track_inherit(StringView p_target_scene_path, Node *p_desir
             continue;
         instances.push_back(p);
     }
-    for (int i = 0; i < instances.size(); i++) {
-        memdelete(instances[i]);
+    for (Node * n : instances) {
+        memdelete(n);
     }
     return result;
 }

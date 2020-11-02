@@ -50,7 +50,6 @@ Error AudioDriverDummy::init() {
 
     samples_in = memnew_arr(int32_t, buffer_frames * channels);
 
-    mutex = memnew(Mutex);
     thread = Thread::create(AudioDriverDummy::thread_func, this);
 
     return OK;
@@ -96,16 +95,16 @@ AudioDriver::SpeakerMode AudioDriverDummy::get_speaker_mode() const {
 
 void AudioDriverDummy::lock() {
 
-    if (!thread || !mutex)
+    if (!thread)
         return;
-    mutex->lock();
+    mutex.lock();
 }
 
 void AudioDriverDummy::unlock() {
 
-    if (!thread || !mutex)
+    if (!thread)
         return;
-    mutex->unlock();
+    mutex.unlock();
 }
 
 void AudioDriverDummy::finish() {
@@ -121,17 +120,12 @@ void AudioDriverDummy::finish() {
     };
 
     memdelete(thread);
-    if (mutex)
-        memdelete(mutex);
     thread = nullptr;
 }
 
 AudioDriverDummy::AudioDriverDummy() {
-
-    mutex = nullptr;
     thread = nullptr;
 }
 
 AudioDriverDummy::~AudioDriverDummy(){
-
 }

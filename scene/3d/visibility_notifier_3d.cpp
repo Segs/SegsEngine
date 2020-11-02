@@ -49,11 +49,11 @@ void VisibilityNotifier3D::_enter_camera(Camera3D *p_camera) {
     ERR_FAIL_COND(cameras.contains(p_camera));
     cameras.insert(p_camera);
     if (cameras.size() == 1) {
-        emit_signal(SceneStringNames::get_singleton()->screen_entered);
+        emit_signal(SceneStringNames::screen_entered);
         _screen_enter();
     }
 
-    emit_signal(SceneStringNames::get_singleton()->camera_entered, Variant(p_camera));
+    emit_signal(SceneStringNames::camera_entered, Variant(p_camera));
 }
 
 void VisibilityNotifier3D::_exit_camera(Camera3D *p_camera) {
@@ -61,9 +61,9 @@ void VisibilityNotifier3D::_exit_camera(Camera3D *p_camera) {
     ERR_FAIL_COND(!cameras.contains(p_camera));
     cameras.erase(p_camera);
 
-    emit_signal(SceneStringNames::get_singleton()->camera_exited, Variant(p_camera));
+    emit_signal(SceneStringNames::camera_exited, Variant(p_camera));
     if (cameras.empty()) {
-        emit_signal(SceneStringNames::get_singleton()->screen_exited);
+        emit_signal(SceneStringNames::screen_exited);
 
         _screen_exit();
     }
@@ -177,7 +177,7 @@ void VisibilityEnabler3D::_find_nodes(Node *p_node) {
     }
 
     if (add) {
-        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
@@ -215,7 +215,7 @@ void VisibilityEnabler3D::_notification(int p_what) {
 
             if (!visible)
                 _change_node_state(E.first, true);
-            E.first->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed));
+            E.first->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler3D::_node_removed));
         }
 
         nodes.clear();

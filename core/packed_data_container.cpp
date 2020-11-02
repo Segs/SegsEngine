@@ -30,6 +30,7 @@
 
 #include "packed_data_container.h"
 
+#include "core/dictionary.h"
 #include "core/map.h"
 #include "core/core_string_names.h"
 #include "core/io/marshalls.h"

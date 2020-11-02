@@ -214,12 +214,6 @@ class GODOT_EXPORT RenderingServer : public Object {
             Span<const uint8_t> p_index_data, int p_index_len) const;
 
 protected:
-    RID _make_test_cube();
-    void _free_internal_rids();
-    RID test_texture;
-    RID white_texture;
-    RID test_material;
-
     Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
     static void _bind_methods();
@@ -812,15 +806,6 @@ public:
     virtual int get_render_info(RS::RenderInfo p_info) = 0;
     virtual const char *get_video_adapter_name() const = 0;
     virtual const char *get_video_adapter_vendor() const = 0;
-
-    /* Materials for 2D on 3D */
-
-    /* TESTING */
-
-    virtual RID get_test_cube() = 0;
-
-    virtual RID get_test_texture();
-    virtual RID get_white_texture();
 
     virtual RID make_sphere_mesh(int p_lats, int p_lons, float p_radius);
 

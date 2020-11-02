@@ -2198,9 +2198,7 @@ AnimatedTexture::AnimatedTexture() {
 
 AnimatedTexture::~AnimatedTexture() {
     RenderingServer::get_singleton()->free_rid(proxy);
-    if (rw_lock) {
-        memdelete(rw_lock);
-    }
+    memdelete(rw_lock);
 }
 ///////////////////////////////
 

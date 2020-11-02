@@ -76,6 +76,11 @@ StringView _get_name_num_separator() {
     }
     return " ";
 }
+struct GroupData {
+    SceneTreeGroup *group=nullptr;
+    bool persistent = false;
+};
+
 struct Node::PrivData {
     struct NetData {
         StringName name;
@@ -173,7 +178,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_process_delta_time();
-                get_script_instance()->call(SceneStringNames::get_singleton()->_process, time);
+                get_script_instance()->call(SceneStringNames::_process, time);
             }
         } break;
         case NOTIFICATION_PHYSICS_PROCESS: {
@@ -181,7 +186,7 @@ void Node::_notification(int p_notification) {
             if (get_script_instance()) {
 
                 Variant time = get_physics_process_delta_time();
-                get_script_instance()->call(SceneStringNames::get_singleton()->_physics_process, time);
+                get_script_instance()->call(SceneStringNames::_physics_process, time);
             }
 
         } break;
@@ -225,43 +230,38 @@ void Node::_notification(int p_notification) {
                 remove_from_group(StringName("_vp_unhandled_key_input" + itos(get_viewport()->get_instance_id())));
 
             priv_data->pause_owner = nullptr;
-            if (priv_data->path_cache) {
-                memdelete(priv_data->path_cache);
-                priv_data->path_cache = nullptr;
-            }
+            memdelete(priv_data->path_cache);
+            priv_data->path_cache = nullptr;
         } break;
         case NOTIFICATION_PATH_CHANGED: {
-
-            if (priv_data->path_cache) {
-                memdelete(priv_data->path_cache);
-                priv_data->path_cache = nullptr;
-            }
+            memdelete(priv_data->path_cache);
+            priv_data->path_cache = nullptr;
         } break;
         case NOTIFICATION_READY: {
 
             if (get_script_instance()) {
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_input)) {
                     set_process_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_unhandled_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_unhandled_input)) {
                     set_process_unhandled_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_unhandled_key_input)) {
+                if (get_script_instance()->has_method(SceneStringNames::_unhandled_key_input)) {
                     set_process_unhandled_key_input(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_process)) {
+                if (get_script_instance()->has_method(SceneStringNames::_process)) {
                     set_process(true);
                 }
 
-                if (get_script_instance()->has_method(SceneStringNames::get_singleton()->_physics_process)) {
+                if (get_script_instance()->has_method(SceneStringNames::_physics_process)) {
                     set_physics_process(true);
                 }
 
-                get_script_instance()->call(SceneStringNames::get_singleton()->_ready);
+                get_script_instance()->call(SceneStringNames::_ready);
             }
 
         } break;
@@ -310,7 +310,7 @@ void Node::_propagate_ready() {
     if (priv_data->ready_first) {
         priv_data->ready_first = false;
         notification(NOTIFICATION_READY);
-        emit_signal(SceneStringNames::get_singleton()->ready);
+        emit_signal(SceneStringNames::ready);
     }
 }
 
@@ -338,10 +338,11 @@ void Node::_propagate_enter_tree() {
     notification(NOTIFICATION_ENTER_TREE);
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_enter_tree);
+        get_script_instance()->call(SceneStringNames::_enter_tree);
     }
 
-    emit_signal(SceneStringNames::get_singleton()->tree_entered);
+    //emit tree_entered();
+    emit_signal(SceneStringNames::tree_entered);
 
     tree->node_added(this);
 
@@ -370,11 +371,11 @@ void Node::_propagate_enter_tree() {
 void Node::_propagate_after_exit_tree() {
 
     blocked++;
-    for (int i = 0; i < priv_data->children.size(); i++) {
-        priv_data->children[i]->_propagate_after_exit_tree();
+    for (Node * child : priv_data->children) {
+        child->_propagate_after_exit_tree();
     }
     blocked--;
-    emit_signal(SceneStringNames::get_singleton()->tree_exited);
+    emit_signal(SceneStringNames::tree_exited);
 }
 
 void Node::_propagate_exit_tree() {
@@ -413,9 +414,9 @@ void Node::_propagate_exit_tree() {
     blocked--;
 
     if (get_script_instance()) {
-        get_script_instance()->call(SceneStringNames::get_singleton()->_exit_tree);
+        get_script_instance()->call(SceneStringNames::_exit_tree);
     }
-    emit_signal(SceneStringNames::get_singleton()->tree_exiting);
+    emit_signal(SceneStringNames::tree_exiting);
 
     notification(NOTIFICATION_EXIT_TREE, true);
     if (tree) {
@@ -515,11 +516,11 @@ void Node::set_physics_process(bool p_process) {
     priv_data->physics_process = p_process;
 
     if (priv_data->physics_process)
-        add_to_group("physics_process", false);
+        add_to_group(SceneStringNames::physics_process, false);
     else
-        remove_from_group("physics_process");
+        remove_from_group(SceneStringNames::physics_process);
 
-    Object_change_notify(this,"physics_process");
+    Object_change_notify(this,SceneStringNames::physics_process);
 }
 
 bool Node::is_physics_processing() const {
@@ -535,11 +536,11 @@ void Node::set_physics_process_internal(bool p_process_internal) {
     priv_data->physics_process_internal = p_process_internal;
 
     if (priv_data->physics_process_internal)
-        add_to_group("physics_process_internal", false);
+        add_to_group(SceneStringNames::physics_process_internal, false);
     else
-        remove_from_group("physics_process_internal");
+        remove_from_group(SceneStringNames::physics_process_internal);
 
-    Object_change_notify(this,"physics_process_internal");
+    Object_change_notify(this,SceneStringNames::physics_process_internal);
 }
 
 bool Node::is_physics_processing_internal() const {
@@ -1003,11 +1004,11 @@ void Node::set_process_priority(int p_priority) {
     }
 
     if (is_physics_processing()) {
-        tree->make_group_changed("physics_process");
+        tree->make_group_changed(SceneStringNames::physics_process);
     }
 
     if (is_physics_processing_internal()) {
-        tree->make_group_changed("physics_process_internal");
+        tree->make_group_changed(SceneStringNames::physics_process_internal);
     }
 }
 
@@ -1217,7 +1218,7 @@ void Node::_generate_serial_child_name(const Node *p_child, StringName &name) co
 
         name = p_child->get_class_name();
         // Adjust casing according to project setting. The current type name is expected to be in PascalCase.
-        switch (ProjectSettings::get_singleton()->get("node/name_casing").as<int>()) {
+        switch (ProjectSettings::get_singleton()->get("node/name_casing").as<NameCasing>()) {
             case NAME_CASING_PASCAL_CASE:
                 break;
             case NAME_CASING_CAMEL_CASE: {
@@ -1513,11 +1514,11 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
         StringName name = p_path.get_name(elem);
         Node *next = nullptr;
 
-        if (name == SceneStringNames::get_singleton()->dot) { // .
+        if (name == SceneStringNames::dot) { // .
 
             next = current;
 
-        } else if (name == SceneStringNames::get_singleton()->doubledot) { // ..
+        } else if (name == SceneStringNames::doubledot) { // ..
 
             if (current == nullptr || !current->priv_data->parent)
                 return nullptr;
@@ -2136,8 +2137,7 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
         Object *obj = ClassDB::instance(get_class_name());
         ERR_FAIL_COND_V(!obj, nullptr);
         node = object_cast<Node>(obj);
-        if (!node)
-            memdelete(obj);
+        memdelete(obj);
         ERR_FAIL_COND_V(!node, nullptr);
     }
 
@@ -2858,7 +2858,7 @@ void Node::update_configuration_warning() {
         return;
     auto edited_root=get_tree()->get_edited_scene_root();
     if (edited_root && (edited_root == this || edited_root->is_a_parent_of(this))) {
-        get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, Variant(this));
+        get_tree()->emit_signal(SceneStringNames::node_configuration_warning_changed, this);
     }
 #endif
 }

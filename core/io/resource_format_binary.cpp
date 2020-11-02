@@ -31,19 +31,20 @@
 #include "resource_format_binary.h"
 
 #include "core/class_db.h"
+#include "core/dictionary.h"
 #include "core/image.h"
 #include "core/io/file_access_compressed.h"
 #include "core/io/marshalls.h"
 #include "core/io/resource_loader.h"
-#include "core/os/dir_access.h"
 #include "core/math/quat.h"
 #include "core/math/transform.h"
 #include "core/math/transform_2d.h"
-#include "core/project_settings.h"
-#include "core/string_utils.h"
-#include "core/rid.h"
-#include "core/version.h"
 #include "core/object_tooling.h"
+#include "core/os/dir_access.h"
+#include "core/project_settings.h"
+#include "core/rid.h"
+#include "core/string_utils.h"
+#include "core/version.h"
 
 #include "EASTL/sort.h"
 #include "core/resource/resource_manager.h"
@@ -876,9 +877,7 @@ String ResourceInteractiveLoaderBinary::recognize(FileAccess *p_f) {
 }
 
 ResourceInteractiveLoaderBinary::~ResourceInteractiveLoaderBinary() {
-
-    if (f)
-        memdelete(f);
+    memdelete(f);
 }
 
 Ref<ResourceInteractiveLoader> ResourceFormatLoaderBinary::load_interactive(StringView p_path, StringView p_original_path, Error *r_error) {

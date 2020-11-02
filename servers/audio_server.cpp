@@ -1053,6 +1053,7 @@ void AudioServer::init() {
 }
 
 void AudioServer::update() {
+    SCOPE_AUTONAMED;
 #ifdef DEBUG_ENABLED
     if (ScriptDebugger::get_singleton() && ScriptDebugger::get_singleton()->is_profiling()) {
 

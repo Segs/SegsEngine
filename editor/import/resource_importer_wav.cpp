@@ -161,14 +161,14 @@ void WAV_compress_ima_adpcm(Span<const float> p_data, Vector<uint8_t>& dst_data)
     }
 }
 
-StringName ResourceImporterWAV::get_importer_name() const {
+const char *ResourceImporterWAV::get_importer_name() const {
 
-    return StringName("wav");
+    return "wav";
 }
 
-StringName ResourceImporterWAV::get_visible_name() const {
+const char *ResourceImporterWAV::get_visible_name() const {
 
-    return StringName("Microsoft WAV");
+    return "Microsoft WAV";
 }
 void ResourceImporterWAV::get_recognized_extensions(Vector<String> &p_extensions) const {
 

@@ -37,12 +37,12 @@
 #include "scene/resources/texture.h"
 #include "core/ustring.h"
 
-StringName ResourceImporterBitMap::get_importer_name() const {
+const char *ResourceImporterBitMap::get_importer_name() const {
 
     return "bitmap";
 }
 
-StringName ResourceImporterBitMap::get_visible_name() const {
+const char *ResourceImporterBitMap::get_visible_name() const {
 
     return "BitMap";
 }

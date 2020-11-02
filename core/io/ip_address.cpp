@@ -43,19 +43,22 @@ IP_Address::operator Variant() const {
 
 IP_Address::operator String() const {
 
-    if (wildcard)
+    if (wildcard) {
         return String("*");
+    }
 
-    if (!valid)
+    if (!valid) {
         return "";
+    }
 
     if (is_ipv4())
         // IPv4 address mapped to IPv6
         return to_string(field8[12]) + "." + to_string(field8[13]) + "." + to_string(field8[14]) + "." + to_string(field8[15]);
     String ret;
     for (int i = 0; i < 8; i++) {
-        if (i > 0)
+        if (i > 0) {
             ret = ret + ":";
+        }
         uint16_t num = (field8[i * 2] << 8) + field8[i * 2 + 1];
         ret = ret + StringUtils::num_int64(num, 16);
     }
@@ -203,8 +206,9 @@ const uint8_t *IP_Address::get_ipv6() const {
 void IP_Address::set_ipv6(const uint8_t *p_buf) {
     clear();
     valid = true;
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 16; i++) {
         field8[i] = p_buf[i];
+    }
 }
 
 IP_Address::IP_Address(StringView _string) {

@@ -425,8 +425,7 @@ void AudioDriverPulseAudio::thread_func(void *p_udata) {
 
             uint32_t msec = OS::get_singleton()->get_ticks_msec();
             if (msec > (default_device_msec + 1000)) {
-                String old_default_device = ad->default_device;
-
+                eastl::fixed_string<char,256,true> old_default_device(ad->default_device);
                 default_device_msec = msec;
 
                 ad->pa_status = 0;
@@ -444,7 +443,7 @@ void AudioDriverPulseAudio::thread_func(void *p_udata) {
                     ERR_PRINT("pa_context_get_server_info error");
                 }
 
-                if (old_default_device != ad->default_device) {
+                if (old_default_device.compare(ad->default_device.c_str())!=0) {
                     ad->finish_device();
 
                     Error err = ad->init_device();
@@ -597,18 +596,18 @@ void AudioDriverPulseAudio::set_device(StringView device) {
 
 void AudioDriverPulseAudio::lock() {
 
-	if (!thread) {
+    if (!thread) {
         return;
-	}
-	mutex.lock();
+    }
+    mutex.lock();
 }
 
 void AudioDriverPulseAudio::unlock() {
 
-	if (!thread) {
+    if (!thread) {
         return;
-	}
-	mutex.unlock();
+    }
+    mutex.unlock();
 }
 
 void AudioDriverPulseAudio::finish_device() {
@@ -622,9 +621,9 @@ void AudioDriverPulseAudio::finish_device() {
 
 void AudioDriverPulseAudio::finish() {
 
-	if (!thread) {
+    if (!thread) {
         return;
-	}
+    }
 
     exit_thread = true;
     Thread::wait_to_finish(thread);

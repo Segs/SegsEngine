@@ -945,7 +945,7 @@ uint32_t GDAPI godot_string_hash_utf8_chars_with_len(const char16_t *p_str, godo
 
 godot_pool_byte_array GDAPI godot_string_md5_buffer(const godot_string *p_self) {
     const String *self = (const String *)p_self;
-    Vector<uint8_t> tmp_result = StringUtils::md5_buffer(*self);
+    FixedVector<uint8_t,16,false> tmp_result = StringUtils::md5_buffer(*self);
 
     godot_pool_byte_array result;
     memnew_placement(&result, PoolByteArray);

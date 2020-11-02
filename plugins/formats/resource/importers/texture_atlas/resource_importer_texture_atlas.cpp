@@ -49,12 +49,12 @@ struct PackData {
 };
 
 
-StringName ResourceImporterTextureAtlas::get_importer_name() const {
+const char *ResourceImporterTextureAtlas::get_importer_name() const {
 
     return "texture_atlas";
 }
 
-StringName ResourceImporterTextureAtlas::get_visible_name() const {
+const char *ResourceImporterTextureAtlas::get_visible_name() const {
 
     return "TextureAtlas";
 }

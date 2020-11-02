@@ -1669,20 +1669,16 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture->target, texture->tex_id);
     glTexParameteri(texture->target, GL_TEXTURE_BASE_LEVEL, 0);
-#ifdef GLES_OVER_GL
+
     glTexParameteri(texture->target, GL_TEXTURE_MAX_LEVEL, int(Math::floor(Math::log(float(texture->width)) / Math::log(2.0f))));
     glGenerateMipmap(texture->target);
-#else
-    glTexParameteri(texture->target, GL_TEXTURE_MAX_LEVEL, 0);
-#endif
+
     // Need Mipmaps regardless of whether they are set in import by user
     glTexParameterf(texture->target, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(texture->target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-#ifdef GLES_OVER_GL
+
     glTexParameterf(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-#else
-    glTexParameterf(texture->target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
+
     glTexParameterf(texture->target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     if (config.srgb_decode_supported && texture->srgb && !texture->using_srgb) {
@@ -1848,11 +1844,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
 
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
 
-#ifdef GLES_OVER_GL
+
             if (j < 3) {
-#else
-            if (j == 0) {
-#endif
 
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_DUAL_PARABOLOID, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_PANORAMA, true);
@@ -1977,12 +1970,8 @@ void RasterizerStorageGLES3::sky_set_texture(RID p_sky, RID p_panorama, int p_ra
             glTexImage2D(GL_TEXTURE_2D, 0, internal_format, size, size * 2, 0, format, type, nullptr);
             glBindFramebuffer(GL_FRAMEBUFFER, tmp_fb2);
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp_tex, 0);
-#ifdef GLES_OVER_GL
-            if (lod < 3) {
-#else
-            if (lod == 0) {
-#endif
 
+            if (lod < 3) {
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_DUAL_PARABOLOID, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_PANORAMA, true);
                 shaders.cubemap_filter.set_conditional(CubemapFilterShaderGLES3::USE_SOURCE_DUAL_PARABOLOID, false);
@@ -7820,10 +7809,9 @@ bool RasterizerStorageGLES3::free(RID p_rid) {
             if (ins->material_override == p_rid) {
                 ins->material_override = RID();
             }
-            auto wr(ins->materials.write());
-            for (int i = 0; i < ins->materials.size(); i++) {
-                if (ins->materials[i] == p_rid) {
-                    wr[i] = RID();
+            for (auto & rid : ins->materials) {
+                if (rid == p_rid) {
+                    rid = RID();
                 }
             }
         }

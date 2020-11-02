@@ -57,11 +57,11 @@ void VisibilityNotifier2D::_enter_viewport(Viewport *p_viewport) {
         return;
 
     if (viewports.size() == 1) {
-        emit_signal(SceneStringNames::get_singleton()->screen_entered);
+        emit_signal(SceneStringNames::screen_entered);
 
         _screen_enter();
     }
-    emit_signal(SceneStringNames::get_singleton()->viewport_entered, Variant(p_viewport));
+    emit_signal(SceneStringNames::viewport_entered, Variant(p_viewport));
 }
 
 void VisibilityNotifier2D::_exit_viewport(Viewport *p_viewport) {
@@ -72,9 +72,9 @@ void VisibilityNotifier2D::_exit_viewport(Viewport *p_viewport) {
     if (is_inside_tree() && Engine::get_singleton()->is_editor_hint())
         return;
 
-    emit_signal(SceneStringNames::get_singleton()->viewport_exited, Variant(p_viewport));
+    emit_signal(SceneStringNames::viewport_exited, Variant(p_viewport));
     if (viewports.empty()) {
-        emit_signal(SceneStringNames::get_singleton()->screen_exited);
+        emit_signal(SceneStringNames::screen_exited);
 
         _screen_exit();
     }
@@ -234,7 +234,7 @@ void VisibilityEnabler2D::_find_nodes(Node *p_node) {
 
     if (add) {
 
-        p_node->connect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler2D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
+        p_node->connect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler2D::_node_removed), varray(Variant(p_node)), ObjectNS::CONNECT_ONESHOT);
         nodes[p_node] = meta;
         _change_node_state(p_node, false);
     }
@@ -273,11 +273,11 @@ void VisibilityEnabler2D::_notification(int p_what) {
         // The ready signal works as it's emitted immediately after NOTIFICATION_READY.
 
         if (enabler[ENABLER_PARENT_PHYSICS_PROCESS] && get_parent()) {
-            get_parent()->connect(SceneStringNames::get_singleton()->ready,
+            get_parent()->connect(SceneStringNames::ready,
                     callable_mp(get_parent(), &Node::set_physics_process), make_binds(false), ObjectNS::CONNECT_ONESHOT);
         }
         if (enabler[ENABLER_PARENT_PROCESS] && get_parent()) {
-            get_parent()->connect(SceneStringNames::get_singleton()->ready,
+            get_parent()->connect(SceneStringNames::ready,
                     callable_mp(get_parent(), &Node::set_process), make_binds(false), ObjectNS::CONNECT_ONESHOT);
         }
 
@@ -292,7 +292,7 @@ void VisibilityEnabler2D::_notification(int p_what) {
 
             if (!visible)
                 _change_node_state(E.first, true);
-            E.first->disconnect(SceneStringNames::get_singleton()->tree_exiting, callable_mp(this, &VisibilityEnabler2D::_node_removed));
+            E.first->disconnect(SceneStringNames::tree_exiting, callable_mp(this, &VisibilityEnabler2D::_node_removed));
         }
 
         nodes.clear();

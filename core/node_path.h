@@ -69,8 +69,9 @@ public:
     NodePath get_parent() const;
 
     _FORCE_INLINE_ uint32_t hash() const {
-        if (!data)
+        if (!data) {
             return 0;
+        }
         if (!hash_cache_valid) {
             _update_hash_cache();
         }
@@ -102,7 +103,7 @@ public:
     void simplify();
     NodePath simplified() const;
 
-    NodePath(const Vector<StringName> &p_path, bool p_absolute);
+    NodePath(Span<const StringName> p_path, bool p_absolute);
     NodePath(const Vector<StringName> &p_path, const Vector<StringName> &p_subpath, bool p_absolute);
     NodePath(Vector<StringName> &&p_path, Vector<StringName> &&p_subpath, bool p_absolute);
     NodePath(const NodePath &p_path);

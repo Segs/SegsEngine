@@ -104,6 +104,7 @@ GLint ShaderGLES3::get_uniform_location(int p_index) const {
 }
 
 bool ShaderGLES3::bind() {
+    SCOPE_AUTONAMED;
 
     if (active != this || !version || new_conditional_version.key != conditional_version.key) {
         conditional_version = new_conditional_version;
@@ -194,18 +195,18 @@ ShaderGLES3::Version *ShaderGLES3::get_current_version() {
     /* SETUP CONDITIONALS */
 
     FixedVector<const char *,128,true> strings;
-    strings.push_back("#version 330\n");
+    strings.emplace_back("#version 330\n");
 
     for (auto & custom_define : custom_defines) {
 
-        strings.push_back(custom_define.data());
-        strings.push_back("\n");
+        strings.emplace_back(custom_define.data());
+        strings.emplace_back("\n");
     }
 
     for (int j = 0; j < conditional_count; j++) {
 
         bool enable = ((1 << j) & conditional_version.version);
-        strings.push_back(enable ? conditional_defines[j] : "");
+        strings.emplace_back(enable ? conditional_defines[j] : "");
 
         if (enable) {
             DEBUG_PRINT(conditional_defines[j]);

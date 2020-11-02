@@ -641,8 +641,7 @@ TileSetEditor::TileSetEditor(EditorNode *p_editor) {
 }
 
 TileSetEditor::~TileSetEditor() {
-    if (helper)
-        memdelete(helper);
+    memdelete(helper);
 }
 
 void TileSetEditor::_on_tileset_toolbar_button_pressed(int p_index) {

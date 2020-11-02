@@ -49,14 +49,14 @@ constexpr const char *compression_formats[] = {
 };
 }
 
-StringName LayeredTextureImpl::get_importer_name() const {
+const char *LayeredTextureImpl::get_importer_name() const {
 
-    return is_3d ? StringName("texture_3d") : StringName("texture_array");
+    return is_3d ? "texture_3d" : "texture_array";
 }
 
-StringName LayeredTextureImpl::get_visible_name() const {
+const char *LayeredTextureImpl::get_visible_name() const {
 
-    return is_3d ? StringName("Texture3D") : StringName("TextureArray");
+    return is_3d ? "Texture3D" : "TextureArray";
 }
 void LayeredTextureImpl::get_recognized_extensions(Vector<String> &p_extensions) const {
 

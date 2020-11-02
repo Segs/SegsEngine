@@ -726,9 +726,7 @@ TextEditor::TextEditor() {
 
 TextEditor::~TextEditor() {
     for (const eastl::pair<const String,SyntaxHighlighter *> &E : highlighters) {
-        if (E.second != nullptr) {
-            memdelete(E.second);
-        }
+        memdelete(E.second);
     }
     highlighters.clear();
 }

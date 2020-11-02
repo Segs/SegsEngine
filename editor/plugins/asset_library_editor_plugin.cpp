@@ -1165,17 +1165,9 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
             library_error->hide();
 
-            if (asset_items) {
-                memdelete(asset_items);
-            }
-
-            if (asset_top_page) {
-                memdelete(asset_top_page);
-            }
-
-            if (asset_bottom_page) {
-                memdelete(asset_bottom_page);
-            }
+            memdelete(asset_items);
+            memdelete(asset_top_page);
+            memdelete(asset_bottom_page);
 
             int page = 0;
             int pages = 1;
@@ -1257,9 +1249,7 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
             ERR_FAIL_COND(!r.has("download_hash"));
             ERR_FAIL_COND(!r.has("browse_url"));
 
-            if (description) {
-                memdelete(description);
-            }
+            memdelete(description);
 
             description = memnew(EditorAssetLibraryItemDescription);
             add_child(description);
@@ -1310,10 +1300,8 @@ void EditorAssetLibrary::_http_request_completed(int p_status, int p_code, const
 
 void EditorAssetLibrary::_asset_file_selected(StringView p_file) {
 
-    if (asset_installer) {
-        memdelete(asset_installer);
-        asset_installer = nullptr;
-    }
+    memdelete(asset_installer);
+    asset_installer = nullptr;
 
     asset_installer = memnew(EditorAssetInstaller);
     add_child(asset_installer);

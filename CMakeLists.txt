@@ -174,7 +174,7 @@ foreach(tgt ${global_targets})
     target_compile_definitions(segs_${tgt} PRIVATE ${godot_${tgt}_DEFINES})
     target_include_directories(segs_${tgt} PRIVATE ${PROJECT_BINARY_DIR})
     if(USE_TRACY_PROFILER)
-        target_sources(segs_${tgt} PRIVATE thirdparty/tracy/TracyClientDLL.cpp)
+        #target_sources(segs_${tgt} PRIVATE thirdparty/tracy/TracyClientDLL.cpp)
     endif()
 endforeach()
 

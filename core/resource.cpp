@@ -55,7 +55,7 @@ namespace {
 } // end of anonymous namespace
 
 struct Resource::Data {
-    Data() {}
+    Data() = default;
 #ifdef TOOLS_ENABLED
     static HashMap<String, HashMap<String, int> > resource_path_cache; // each tscn has a set of resource paths and IDs
     String import_path;
@@ -87,8 +87,9 @@ void Resource::_resource_path_changed() {
 
 void Resource::set_path(StringView p_path, bool p_take_over) {
 
-    if (impl_data->path_cache == p_path)
+    if (impl_data->path_cache == p_path) {
         return;
+    }
 
     if (!impl_data->path_cache.empty()) {
         RWLockWrite write_guard(ResourceCache::lock);
@@ -109,8 +110,9 @@ void Resource::set_path(StringView p_path, bool p_take_over) {
             RWLockWrite write_guard(ResourceCache::lock);
             //TODO: can `lociter` really change between this and previous call ?
             lociter = cached_resources.find_as(p_path);
-            if(lociter!=cached_resources.end())
+            if(lociter!=cached_resources.end()) {
                 lociter->second->set_name("");
+            }
         } else {
             RWLockRead read_guard(ResourceCache::lock);
             bool exists = cached_resources.find_as(p_path)!=cached_resources.end();
@@ -164,13 +166,15 @@ bool Resource::editor_can_reload_from_file() {
 void Resource::reload_from_file() {
 
     String path = get_path();
-    if (!PathUtils::is_resource_file(path))
+    if (!PathUtils::is_resource_file(path)) {
         return;
+    }
 
     Ref<Resource> s = gResourceManager().load(gResourceRemapper().path_remap(path), get_class(), true);
 
-    if (not s)
+    if (not s) {
         return;
+    }
 
     Vector<PropertyInfo> pi;
     s->get_property_list(&pi);

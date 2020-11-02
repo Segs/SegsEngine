@@ -66,9 +66,7 @@ void PCKPacker::_bind_methods() {
 
 Error PCKPacker::pck_start(StringView p_file, int p_alignment) {
 
-    if (file != nullptr) {
-        memdelete(file);
-    }
+    memdelete(file);
 
     file = FileAccess::open(p_file, FileAccess::WRITE);
 
@@ -188,8 +186,6 @@ PCKPacker::PCKPacker() {
 }
 
 PCKPacker::~PCKPacker() {
-    if (file != nullptr) {
-        memdelete(file);
-    }
+    memdelete(file);
     file = nullptr;
 }

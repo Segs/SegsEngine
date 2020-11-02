@@ -30,6 +30,7 @@
 
 #include "cylinder_shape_3d.h"
 
+#include "core/dictionary.h"
 #include "core/math/vector2.h"
 #include "core/method_bind.h"
 #include "core/object_tooling.h"

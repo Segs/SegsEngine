@@ -94,6 +94,7 @@ void VisualServerRaster::request_frame_drawn_callback(Callable&& cb) {
 }
 
 void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
+    SCOPE_AUTONAMED;
 
     //needs to be done before changes is reset to 0, to not force the editor to redraw
     RenderingServer::get_singleton()->emit_signal("frame_pre_draw");
@@ -111,22 +112,28 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
     VSG::rasterizer->end_frame(p_swap_buffers);
     PROFILER_ENDFRAME("viewport");
 
-    while (!frame_drawn_callbacks.empty()) {
+    {
+        SCOPE_PROFILE("frame_drawn_callbacks");
+        while (!frame_drawn_callbacks.empty()) {
 
-        Object *obj = frame_drawn_callbacks.front().get_object();
-        if (obj) {
-            Callable::CallError ce;
-            Variant ret;
-            frame_drawn_callbacks.front().call(nullptr,0,ret,ce);
-            if (ce.error != Callable::CallError::CALL_OK) {
-                String err = Variant::get_callable_error_text(frame_drawn_callbacks.front(), nullptr, 0, ce);
-                ERR_PRINT("Error calling frame drawn function: " + err);
+            Object *obj = frame_drawn_callbacks.front().get_object();
+            if (obj) {
+                Callable::CallError ce;
+                Variant ret;
+                frame_drawn_callbacks.front().call(nullptr,0,ret,ce);
+                if (ce.error != Callable::CallError::CALL_OK) {
+                    String err = Variant::get_callable_error_text(frame_drawn_callbacks.front(), nullptr, 0, ce);
+                    ERR_PRINT("Error calling frame drawn function: " + err);
+                }
             }
-        }
 
-        frame_drawn_callbacks.pop_front();
+            frame_drawn_callbacks.pop_front();
+        }
     }
-    RenderingServer::get_singleton()->emit_signal("frame_post_draw");
+    {
+        SCOPE_PROFILE("frame_post_draw");
+        RenderingServer::get_singleton()->emit_signal("frame_post_draw");
+    }
 }
 void VisualServerRaster::sync() {
 }
@@ -139,10 +146,6 @@ void VisualServerRaster::init() {
     VSG::rasterizer->initialize();
 }
 void VisualServerRaster::finish() {
-
-    if (test_cube.is_valid()) {
-        free_rid(test_cube);
-    }
 
     VSG::rasterizer->finalize();
 }
@@ -176,13 +179,6 @@ void VisualServerRaster::set_default_clear_color(const Color &p_color) {
 bool VisualServerRaster::has_feature(RS::Features p_feature) const {
 
     return false;
-}
-
-RID VisualServerRaster::get_test_cube() {
-    if (!test_cube.is_valid()) {
-        test_cube = _make_test_cube();
-    }
-    return test_cube;
 }
 
 bool VisualServerRaster::has_os_feature(const StringName &p_feature) const {

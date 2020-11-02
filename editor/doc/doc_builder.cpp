@@ -276,7 +276,7 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
 
             if (E.flags & METHOD_FLAG_CONST) {
                 if (!method.qualifiers.empty())
-                    method.qualifiers += ' ';
+                    method.qualifiers.push_back(' ');
                 method.qualifiers += "const";
             } else if (E.flags & METHOD_FLAG_VARARG) {
                 if (!method.qualifiers.empty())
@@ -302,10 +302,10 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
                     argument.default_value = default_arg.get_construct_string().c_str();
                 }
 
-                method.arguments.push_back(argument);
+                method.arguments.emplace_back(eastl::move(argument));
             }
 
-            c.methods.push_back(method);
+            c.methods.emplace_back(eastl::move(method));
         }
 
         Vector<MethodInfo> signal_list;
@@ -322,10 +322,10 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
                     DocContents::ArgumentDoc argument;
                     argument_doc_from_arginfo(argument, arginfo);
 
-                    signal.arguments.push_back(argument);
+                    signal.arguments.emplace_back(argument);
                 }
 
-                c.defined_signals.push_back(signal);
+                c.defined_signals.emplace_back(signal);
             }
         }
 
@@ -334,11 +334,13 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
 
         for (const String & E : constant_list) {
 
-            DocContents::ConstantDoc constant;
-            constant.name = E.c_str();
-            constant.value = itos(ClassDB::get_integer_constant(name, StringName(E))).c_str();
-            constant.enumeration = ClassDB::get_integer_constant_enum(name, StringName(E)).asCString();
-            c.constants.push_back(constant);
+            DocContents::ConstantDoc constant {
+                E.c_str(),
+                itos(ClassDB::get_integer_constant(name, StringName(E))).c_str(),
+                ClassDB::get_integer_constant_enum(name, StringName(E)).asCString(),
+                ""
+            };
+            c.constants.emplace_back(constant);
         }
 
         //theme stuff
@@ -348,49 +350,31 @@ void generate_docs_from_running_program(DocData &tgt,bool p_basic_types) {
             Theme::get_default()->get_constant_list(scname, &l);
             for (const StringName &E : l) {
 
-                DocContents::PropertyDoc pd;
-                pd.name = E.asCString();
-                pd.type = "int";
-                pd.default_value = itos(Theme::get_default()->get_constant(E, scname)).c_str();
-                c.theme_properties.push_back(pd);
+                c.theme_properties.emplace_back(E.asCString(),"int");
+                c.theme_properties.back().default_value = itos(Theme::get_default()->get_constant(E, scname)).c_str();
             }
 
             l.clear();
             Theme::get_default()->get_color_list(scname, &l);
             for (const StringName &E : l) {
 
-                DocContents::PropertyDoc pd;
-                pd.name = E.asCString();
-                pd.type = "Color";
-                pd.default_value = Variant(Theme::get_default()->get_color(E, scname)).get_construct_string().c_str();
-                c.theme_properties.push_back(pd);
+                c.theme_properties.emplace_back(E.asCString(),"Color");
+                c.theme_properties.back().default_value = Variant(Theme::get_default()->get_color(E, scname)).get_construct_string();
             }
 
             l.clear();
             Theme::get_default()->get_icon_list(scname, &l);
             for (const StringName &E : l) {
-
-                DocContents::PropertyDoc pd;
-                pd.name = E.asCString();
-                pd.type = "Texture";
-                c.theme_properties.push_back(pd);
+                c.theme_properties.emplace_back(E.asCString(),"Texture");
             }
             l.clear();
             Theme::get_default()->get_font_list(scname, &l);
             for (const StringName &E : l) {
-
-                DocContents::PropertyDoc pd;
-                pd.name = E.asCString();
-                pd.type = "Font";
-                c.theme_properties.push_back(pd);
+                c.theme_properties.emplace_back(E.asCString(),"Font" );
             }
             l = Theme::get_default()->get_stylebox_list(scname);
             for (const StringName &E : l) {
-
-                DocContents::PropertyDoc pd;
-                pd.name = E.asCString();
-                pd.type = "StyleBox";
-                c.theme_properties.push_back(pd);
+                c.theme_properties.emplace_back(E.asCString(),"StyleBox");
             }
         }
     }

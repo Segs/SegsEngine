@@ -180,9 +180,7 @@ void CSGShape::_make_dirty() {
 CSGBrush *CSGShape::_get_brush() {
 
     if (dirty) {
-        if (brush) {
-            memdelete(brush);
-        }
+        memdelete(brush);
         brush = nullptr;
 
         CSGBrush *n = _build_brush();
@@ -665,10 +663,8 @@ CSGShape::CSGShape() {
 }
 
 CSGShape::~CSGShape() {
-    if (brush) {
-        memdelete(brush);
-        brush = nullptr;
-    }
+    memdelete(brush);
+    brush = nullptr;
 }
 //////////////////////////////////
 

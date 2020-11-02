@@ -6069,6 +6069,7 @@ EditorNode::EditorNode() {
 
     EditorHelp::generate_doc(); // before any editor classes are created
     SceneState::set_disable_placeholders(true);
+
     gResourceRemapper().clear_translation_remaps(); // no remaps using during editor
     gResourceRemapper().clear_path_remaps();
 

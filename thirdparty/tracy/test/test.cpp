@@ -1,7 +1,6 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
-#include <shared_mutex>
 #include <stdlib.h>
 #include "../Tracy.hpp"
 #include "../common/TracySystem.hpp"
@@ -31,6 +30,19 @@ void* operator new( std::size_t count )
 void operator delete( void* ptr ) noexcept
 {
     TracyFreeS( ptr, 10 );
+    free( ptr );
+}
+
+void* CustomAlloc( size_t count )
+{
+    auto ptr = malloc( count );
+    TracyAllocNS( ptr, count, 10, "Custom alloc" );
+    return ptr;
+}
+
+void CustomFree( void* ptr )
+{
+    TracyFreeNS( ptr, 10, "Custom alloc" );
     free( ptr );
 }
 
@@ -177,13 +189,16 @@ void DepthTest()
     tracy::SetThreadName( "Depth test" );
     for(;;)
     {
-        std::this_thread::sleep_for( std::chrono::milliseconds( 20 ) );
         ZoneScoped;
         const auto txt = "Fibonacci (15)";
         ZoneText( txt, strlen( txt ) );
         Fibonacci( 15 );
     }
 }
+
+#ifdef __cpp_lib_shared_mutex
+
+#include <shared_mutex>
 
 static TracySharedLockable( std::shared_mutex, sharedMutex );
 
@@ -231,6 +246,8 @@ void SharedWrite2()
     }
 }
 
+#endif
+
 void CaptureCallstack()
 {
     ZoneScopedS( 10 );
@@ -250,6 +267,16 @@ void OnlyMemory()
 {
     tracy::SetThreadName( "Only memory" );
     new int;
+
+    void* ptrs[16];
+    for( int i=1; i<16; i++ )
+    {
+        ptrs[i] = CustomAlloc( i * 1024 );
+    }
+    for( int i=1; i<16; i++ )
+    {
+        CustomFree( ptrs[i] );
+    }
 }
 
 static TracyLockable( std::mutex, deadlockMutex1 );
@@ -286,11 +313,13 @@ int main()
     auto t11 = std::thread( DepthTest );
     auto t12 = std::thread( RecLock );
     auto t13 = std::thread( RecLock );
+#ifdef __cpp_lib_shared_mutex
     auto t14 = std::thread( SharedRead1 );
     auto t15 = std::thread( SharedRead1 );
     auto t16 = std::thread( SharedRead2 );
     auto t17 = std::thread( SharedWrite1 );
     auto t18 = std::thread( SharedWrite2 );
+#endif
     auto t19 = std::thread( CallstackTime );
     auto t20 = std::thread( OnlyMemory );
     auto t21 = std::thread( DeadlockTest1 );

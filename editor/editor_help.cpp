@@ -347,13 +347,15 @@ void EditorHelp::_add_method(const DocContents::MethodDoc &p_method, bool p_over
         class_desc->pop();
     }
 
-    if (p_overview)
+    if (p_overview) {
         class_desc->pop(); //cell
+    }
 }
 Error EditorHelp::_goto_desc(StringView p_class, int p_vscr) {
 
-    if (!doc->class_list.contains_as(p_class))
+    if (!doc->class_list.contains_as(p_class)) {
         return ERR_DOES_NOT_EXIST;
+    }
 
     select_locked = true;
 
@@ -1410,8 +1412,9 @@ static void _add_text_to_rt(StringView p_bbcode, RichTextLabel *p_rt) {
             StringView image = StringUtils::substr(bbcode,brk_end + 1, end - brk_end - 1);
 
             Ref<Texture> texture = dynamic_ref_cast<Texture>(gResourceManager().load(PathUtils::plus_file(base_path,image), "Texture"));
-            if (texture)
+            if (texture) {
                 p_rt->add_image(texture);
+            }
 
             pos = end;
             tag_stack.push_front(tag);

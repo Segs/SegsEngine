@@ -49,10 +49,8 @@ void EditorSubScene::_path_changed(StringView p_path) {
 
     tree->clear();
 
-    if (scene) {
-        memdelete(scene);
-        scene = nullptr;
-    }
+    memdelete(scene);
+    scene = nullptr;
 
     if (p_path.empty())
         return;

@@ -31,6 +31,7 @@
 #include "ip.h"
 
 #include "core/hash_map.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/method_enum_caster.h"
 #include "core/os/mutex.h"

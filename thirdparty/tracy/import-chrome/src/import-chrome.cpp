@@ -55,6 +55,7 @@ int main( int argc, char** argv )
 
     std::vector<tracy::Worker::ImportEventTimeline> timeline;
     std::vector<tracy::Worker::ImportEventMessages> messages;
+    std::vector<tracy::Worker::ImportEventPlots> plots;
 
     if( j.is_object() && j.contains( "traceEvents" ) )
     {
@@ -70,12 +71,23 @@ int main( int argc, char** argv )
     for( auto& v : j )
     {
         const auto type = v["ph"].get<std::string>();
+
+        std::string zoneText = "";
+        if ( v.contains( "args" ) )
+        {
+            for ( auto& kv : v["args"].items() )
+            {
+                zoneText += kv.key() + ": " + kv.value().dump() + "\n";
+            }
+        }
+
         if( type == "B" )
         {
             timeline.emplace_back( tracy::Worker::ImportEventTimeline {
                 v["tid"].get<uint64_t>(),
                 uint64_t( v["ts"].get<double>() * 1000. ),
                 v["name"].get<std::string>(),
+                std::move(zoneText),
                 false
             } );
         }
@@ -85,6 +97,7 @@ int main( int argc, char** argv )
                 v["tid"].get<uint64_t>(),
                 uint64_t( v["ts"].get<double>() * 1000. ),
                 "",
+                std::move(zoneText),
                 true
             } );
         }
@@ -92,10 +105,10 @@ int main( int argc, char** argv )
         {
             const auto tid = v["tid"].get<uint64_t>();
             const auto ts0 = uint64_t( v["ts"].get<double>() * 1000. );
-            const auto ts1 = v["dur"].is_object() ? ts0 + uint64_t( v["dur"].get<double>() * 1000. ) : ts0;
+            const auto ts1 = ts0 + uint64_t( v["dur"].get<double>() * 1000. );
             const auto name = v["name"].get<std::string>();
-            timeline.emplace_back( tracy::Worker::ImportEventTimeline { tid, ts0, name, false } );
-            timeline.emplace_back( tracy::Worker::ImportEventTimeline { tid, ts1, "", true } );
+            timeline.emplace_back( tracy::Worker::ImportEventTimeline { tid, ts0, name, std::move(zoneText), false } );
+            timeline.emplace_back( tracy::Worker::ImportEventTimeline { tid, ts1, "", "", true } );
         }
         else if( type == "i" || type == "I" )
         {
@@ -105,10 +118,49 @@ int main( int argc, char** argv )
                 v["name"].get<std::string>()
             } );
         }
+        else if( type == "C" )
+        {
+            auto timestamp = int64_t( v["ts"].get<double>() * 1000 );
+            for( auto& kv : v["args"].items() )
+            {
+                bool plotFound = false;
+                auto& metricName = kv.key();
+                auto dataPoint = std::make_pair( timestamp, kv.value().get<double>() );
+
+                // The input file is assumed to have only very few metrics,
+                // so iterating through plots is not a problem.
+                for( auto& plot : plots )
+                {
+                    if( plot.name == metricName )
+                    {
+                        plot.data.emplace_back( dataPoint );
+                        plotFound = true;
+                        break;
+                    }
+                }
+                if( !plotFound )
+                {
+                    auto formatting = tracy::PlotValueFormatting::Number;
+
+                    // NOTE: With C++20 one could say metricName.ends_with( "_bytes" ) instead of rfind
+                    auto metricNameLen = metricName.size();
+                    if ( metricNameLen >= 6 && metricName.rfind( "_bytes" ) == metricNameLen - 6 ) {
+                        formatting = tracy::PlotValueFormatting::Memory;
+                    }
+
+                    plots.emplace_back( tracy::Worker::ImportEventPlots {
+                        std::move( metricName ),
+                        formatting,
+                        { dataPoint }
+                    } );
+                }
+            }
+        }
     }
 
     std::stable_sort( timeline.begin(), timeline.end(), [] ( const auto& l, const auto& r ) { return l.timestamp < r.timestamp; } );
     std::stable_sort( messages.begin(), messages.end(), [] ( const auto& l, const auto& r ) { return l.timestamp < r.timestamp; } );
+    for( auto& v : plots ) std::stable_sort( v.data.begin(), v.data.end(), [] ( const auto& l, const auto& r ) { return l.first < r.first; } );
 
     uint64_t mts = 0;
     if( !timeline.empty() )
@@ -119,8 +171,16 @@ int main( int argc, char** argv )
     {
         if( mts > messages[0].timestamp ) mts = messages[0].timestamp;
     }
+    for( auto& plot : plots )
+    {
+        if( mts > plot.data[0].first ) mts = plot.data[0].first;
+    }
     for( auto& v : timeline ) v.timestamp -= mts;
     for( auto& v : messages ) v.timestamp -= mts;
+    for( auto& plot : plots )
+    {
+        for( auto& v : plot.data ) v.first -= mts;
+    }
 
     printf( "\33[2KProcessing...\r" );
     fflush( stdout );
@@ -129,7 +189,7 @@ int main( int argc, char** argv )
     while( *program ) program++;
     program--;
     while( program > input && ( *program != '/' || *program != '\\' ) ) program--;
-    tracy::Worker worker( program, timeline, messages );
+    tracy::Worker worker( program, timeline, messages, plots );
 
     auto w = std::unique_ptr<tracy::FileWrite>( tracy::FileWrite::Open( output, clev ) );
     if( !w )

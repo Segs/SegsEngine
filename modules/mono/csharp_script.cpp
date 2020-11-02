@@ -154,10 +154,8 @@ void CSharpLanguage::finalize() {
         }
     }
 
-    if (gdmono) {
-        memdelete(gdmono);
-        gdmono = nullptr;
-    }
+    memdelete(gdmono);
+    gdmono = nullptr;
 
     // Clear here, after finalizing all domains to make sure there is nothing else referencing the elements.
     script_bindings.clear();

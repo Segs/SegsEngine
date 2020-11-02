@@ -76,8 +76,7 @@ void *ThreadPosix::thread_callback(void *userdata) {
     ScriptServer::thread_exit();
     void *value = pthread_getspecific(thread_id_key);
 
-    if (value)
-        memdelete(static_cast<ID *>(value));
+    memdelete(static_cast<ID *>(value));
     pthread_setspecific(thread_id_key, nullptr);
     return nullptr;
 }

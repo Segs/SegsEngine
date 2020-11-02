@@ -668,7 +668,7 @@ void Sprite3D::set_frame(int p_frame) {
 
     Object_change_notify(this,"frame");
     Object_change_notify(this,"frame_coords");
-    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+    emit_signal(SceneStringNames::frame_changed);
 }
 
 int Sprite3D::get_frame() const {
@@ -1108,7 +1108,7 @@ void AnimatedSprite3D::set_frame(int p_frame) {
     _reset_timeout();
     _queue_update();
     Object_change_notify(this,"frame");
-    emit_signal(SceneStringNames::get_singleton()->frame_changed);
+    emit_signal(SceneStringNames::frame_changed);
 }
 int AnimatedSprite3D::get_frame() const {
 

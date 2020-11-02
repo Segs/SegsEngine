@@ -335,9 +335,7 @@ bool ExportTemplateManager::_install_from_file(const String &p_file, bool p_use_
         fc++;
     }
 
-    if (p) {
-        memdelete(p);
-    }
+    memdelete(p);
 
     unzClose(pkg);
 

@@ -491,7 +491,6 @@ ConnectDialog::ConnectDialog() {
 }
 
 ConnectDialog::~ConnectDialog() {
-
     memdelete(cdbinds);
 }
 
@@ -787,8 +786,9 @@ void ConnectionsDock::_go_to_script(TreeItem &item) {
 
     Ref<Script> script = refFromRefPtr<Script>(c.target->get_script());
 
-    if (not script)
+    if (not script) {
         return;
+    }
 
     if (script && ScriptEditor::get_singleton()->script_goto_method(script, c.method)) {
         editor->_editor_select(EditorNode::EDITOR_SCRIPT);
@@ -900,8 +900,9 @@ void ConnectionsDock::update_tree() {
 
     tree->clear();
 
-    if (!selectedNode)
+    if (!selectedNode) {
         return;
+    }
 
     TreeItem *root = tree->create_item();
 
@@ -923,10 +924,11 @@ void ConnectionsDock::update_tree() {
             Ref<Script> scr(refFromRefPtr<Script>(selectedNode->get_script()));
             if (scr) {
                 scr->get_script_signal_list(&node_signals2);
-                if (PathUtils::is_resource_file(scr->get_path()))
+                if (PathUtils::is_resource_file(scr->get_path())) {
                     name = PathUtils::get_file(scr->get_path());
-                else
+                } else {
                     name = scr->get_class();
+                }
 
                 if (has_icon(scr->get_class_name(), "EditorIcons")) {
                     icon = get_theme_icon(scr->get_class_name(), "EditorIcons");

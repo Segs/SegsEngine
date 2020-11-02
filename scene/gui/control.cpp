@@ -315,7 +315,7 @@ void Control::_update_minimum_size() {
 
     if (minsize != data.last_minimum_size) {
         data.last_minimum_size = minsize;
-        emit_signal(SceneStringNames::get_singleton()->minimum_size_changed);
+        emit_signal(SceneStringNames::minimum_size_changed);
     }
 }
 
@@ -632,32 +632,32 @@ void Control::_notification(int p_notification) {
         } break;
         case NOTIFICATION_RESIZED: {
 
-            emit_signal(SceneStringNames::get_singleton()->resized);
+            emit_signal(SceneStringNames::resized);
         } break;
         case NOTIFICATION_DRAW: {
 
             _update_canvas_item_transform();
             RenderingServer::get_singleton()->canvas_item_set_custom_rect(get_canvas_item(), !data.disable_visibility_clip, Rect2(Point2(), get_size()));
             RenderingServer::get_singleton()->canvas_item_set_clip(get_canvas_item(), data.clip_contents);
-            //emit_signal(SceneStringNames::get_singleton()->draw);
+            //emit_signal(SceneStringNames::draw);
 
         } break;
         case NOTIFICATION_MOUSE_ENTER: {
 
-            emit_signal(SceneStringNames::get_singleton()->mouse_entered);
+            emit_signal(SceneStringNames::mouse_entered);
         } break;
         case NOTIFICATION_MOUSE_EXIT: {
 
-            emit_signal(SceneStringNames::get_singleton()->mouse_exited);
+            emit_signal(SceneStringNames::mouse_exited);
         } break;
         case NOTIFICATION_FOCUS_ENTER: {
 
-            emit_signal(SceneStringNames::get_singleton()->focus_entered);
+            emit_signal(SceneStringNames::focus_entered);
             update();
         } break;
         case NOTIFICATION_FOCUS_EXIT: {
 
-            emit_signal(SceneStringNames::get_singleton()->focus_exited);
+            emit_signal(SceneStringNames::focus_exited);
             update();
 
         } break;
@@ -700,7 +700,7 @@ void Control::_notification(int p_notification) {
 bool Control::clips_input() const {
 
     if (get_script_instance()) {
-        return get_script_instance()->call(SceneStringNames::get_singleton()->_clips_input).as<bool>();
+        return get_script_instance()->call(SceneStringNames::_clips_input).as<bool>();
     }
     return false;
 }
@@ -710,7 +710,7 @@ bool Control::has_point(const Point2 &p_point) const {
         Variant v = p_point;
         const Variant *p = &v;
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->has_point, &p, 1, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::has_point, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK) {
             return ret.as<bool>();
         }
@@ -744,7 +744,7 @@ Variant Control::get_drag_data(const Point2 &p_point) {
         Variant v = p_point;
         const Variant *p = &v;
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->get_drag_data, &p, 1, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::get_drag_data, &p, 1, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return ret;
     }
@@ -766,7 +766,7 @@ bool Control::can_drop_data(const Point2 &p_point, const Variant &p_data) const 
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->can_drop_data, p, 2, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::can_drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return ret.as<bool>();
     }
@@ -788,7 +788,7 @@ void Control::drop_data(const Point2 &p_point, const Variant &p_data) {
         Variant v = p_point;
         const Variant *p[2] = { &v, &p_data };
         Callable::CallError ce;
-        Variant ret = get_script_instance()->call(SceneStringNames::get_singleton()->drop_data, p, 2, ce);
+        Variant ret = get_script_instance()->call(SceneStringNames::drop_data, p, 2, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return;
     }
@@ -828,7 +828,7 @@ Size2 Control::get_minimum_size() const {
     if (si) {
 
         Callable::CallError ce;
-        Variant s = si->call(SceneStringNames::get_singleton()->_get_minimum_size, nullptr, 0, ce);
+        Variant s = si->call(SceneStringNames::_get_minimum_size, nullptr, 0, ce);
         if (ce.error == Callable::CallError::CALL_OK)
             return s.as<Vector2>();
     }
@@ -1998,13 +1998,13 @@ void Control::set_focus_mode(FocusMode p_focus_mode) {
 
 static Control *_next_control(Control *p_from) {
 
-    if (p_from->is_set_as_top_level())
+    if (p_from->is_set_as_top_level()) {
         return nullptr; // can't go above
+    }
 
     Control *parent = object_cast<Control>(p_from->get_parent());
 
     if (!parent) {
-
         return nullptr;
     }
 
@@ -2168,11 +2168,13 @@ Control *Control::find_prev_valid_focus() const {
             }
         }
 
-        if (prev_child == this) // no prev control->
+        if (prev_child == this) { // no prev control->
             return (get_focus_mode() == FOCUS_ALL) ? prev_child : nullptr;
+        }
 
-        if (prev_child->get_focus_mode() == FOCUS_ALL)
+        if (prev_child->get_focus_mode() == FOCUS_ALL) {
             return prev_child;
+        }
 
         from = prev_child;
     }
@@ -2205,8 +2207,9 @@ void Control::release_focus() {
 
     ERR_FAIL_COND(!is_inside_tree());
 
-    if (!has_focus())
+    if (!has_focus()) {
         return;
+    }
 
     get_viewport()->_gui_remove_focus();
     update();
@@ -2222,8 +2225,9 @@ void Control::show_modal(bool p_exclusive) {
     ERR_FAIL_COND(!is_inside_tree());
     ERR_FAIL_COND(!data.SI);
 
-    if (is_visible_in_tree())
+    if (is_visible_in_tree()) {
         hide();
+    }
 
     ERR_FAIL_COND(data.MI != nullptr);
     show();
@@ -2242,8 +2246,9 @@ void Control::_modal_stack_remove() {
 
     ERR_FAIL_COND(!is_inside_tree());
 
-    if (!data.MI)
+    if (!data.MI) {
         return;
+    }
 
     Control * element = data.MI;
     data.MI = nullptr;
@@ -2284,8 +2289,9 @@ void Control::_theme_changed() {
 
 void Control::set_theme(const Ref<Theme> &p_theme) {
 
-    if (data.theme == p_theme)
+    if (data.theme == p_theme) {
         return;
+    }
 
     if (data.theme) {
         data.theme->disconnect("changed",callable_mp(this, &ClassName::_theme_changed));
@@ -2314,8 +2320,9 @@ void Control::set_theme(const Ref<Theme> &p_theme) {
 
 void Control::accept_event() {
 
-    if (is_inside_tree())
+    if (is_inside_tree()) {
         get_viewport()->_gui_accept_event();
+    }
 }
 
 Ref<Theme> Control::get_theme() const {
@@ -2351,7 +2358,7 @@ Control::CursorShape Control::get_default_cursor_shape() const {
 
     return data.default_cursor;
 }
-Control::CursorShape Control::get_cursor_shape(const Point2 &p_pos) const {
+Control::CursorShape Control::get_cursor_shape(const Point2 & /*p_pos*/) const {
 
     return data.default_cursor;
 }
@@ -2419,9 +2426,7 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
             return nullptr;
         }
         bool valid = true;
-        if (!c->is_visible())
-            valid = false;
-        if (c->get_focus_mode() == FOCUS_NONE)
+        if (!c->is_visible() || c->get_focus_mode() == FOCUS_NONE)
             valid = false;
         if (valid)
             return c;
@@ -2465,12 +2470,9 @@ Control *Control::_get_focus_neighbour(Margin p_margin, int p_count) {
 
     while (base) {
 
-        Control *c = object_cast<Control>(base);
-        if (c) {
-            if (c->data.SI)
-                break;
-            if (c->data.RI)
-                break;
+        auto *c = object_cast<Control>(base);
+        if (c && (c->data.SI || c->data.RI)) {
+            break;
         }
         base = base->get_parent();
     }
@@ -2506,8 +2508,9 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
         for (int i = 0; i < 4; i++) {
 
             float d = p_dir.dot(points[i]);
-            if (d < min)
+            if (d < min) {
                 min = d;
+            }
         }
 
         if (min > (p_min - CMP_EPSILON)) {
@@ -2546,10 +2549,11 @@ void Control::_window_find_focus_neighbour(const Vector2 &p_dir, Node *p_at, con
 
 void Control::set_h_size_flags(int p_flags) {
 
-    if (data.h_size_flags == p_flags)
+    if (data.h_size_flags == p_flags) {
         return;
+    }
     data.h_size_flags = p_flags;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 int Control::get_h_size_flags() const {
@@ -2557,19 +2561,20 @@ int Control::get_h_size_flags() const {
 }
 void Control::set_v_size_flags(int p_flags) {
 
-    if (data.v_size_flags == p_flags)
+    if (data.v_size_flags == p_flags) {
         return;
+    }
     data.v_size_flags = p_flags;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 void Control::set_stretch_ratio(float p_ratio) {
 
-    if (data.expand == p_ratio)
+    if (data.expand == p_ratio){
         return;
-
+    }
     data.expand = p_ratio;
-    emit_signal(SceneStringNames::get_singleton()->size_flags_changed);
+    emit_signal(SceneStringNames::size_flags_changed);
 }
 
 float Control::get_stretch_ratio() const {
@@ -2594,16 +2599,19 @@ void Control::minimum_size_changed() {
     //invalidate cache upwards
     while (invalidate && invalidate->data.minimum_size_valid) {
         invalidate->data.minimum_size_valid = false;
-        if (invalidate->is_set_as_top_level())
+        if (invalidate->is_set_as_top_level()) {
             break; // do not go further up
+        }
         invalidate = invalidate->data.parent;
     }
 
-    if (!is_visible_in_tree())
+    if (!is_visible_in_tree()) {
         return;
+    }
 
-    if (data.updating_last_minimum_size)
+    if (data.updating_last_minimum_size) {
         return;
+    }
 
     data.updating_last_minimum_size = true;
 
@@ -2705,10 +2713,12 @@ void Control::set_scale(const Vector2 &p_scale) {
 
     data.scale = p_scale;
     // Avoid having 0 scale values, can lead to errors in physics and rendering.
-    if (data.scale.x == 0)
+    if (data.scale.x == 0) {
         data.scale.x = CMP_EPSILON;
-    if (data.scale.y == 0)
+    }
+    if (data.scale.y == 0) {
         data.scale.y = CMP_EPSILON;
+    }
 
     update();
     _notify_transform();

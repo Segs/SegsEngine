@@ -29,6 +29,8 @@
 /*************************************************************************/
 
 #include "jsonrpc.h"
+
+#include "core/dictionary.h"
 #include "core/io/json.h"
 #include "core/method_bind.h"
 

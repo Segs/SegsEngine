@@ -1216,9 +1216,9 @@ Vector<Vector<Point2> > Geometry::_polypath_offset(const Vector<Point2> &p_polyp
     }
     return polypaths;
 }
-Vector<Vector3> Geometry::compute_convex_mesh_points(Span<const Plane> p_planes) {
+FixedVector<Vector3,8,false> Geometry::compute_convex_mesh_points(Span<const Plane,6> p_planes) {
 
-    Vector<Vector3> points;
+    FixedVector<Vector3,8,false> points;
 
     // Iterate through every unique combination of any three planes.
     for (int i = p_planes.size() - 1; i >= 0; i--) {

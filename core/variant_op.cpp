@@ -34,6 +34,7 @@
 #include "core/color.h"
 #include "core/core_string_names.h"
 #include "core/debugger/script_debugger.h"
+#include "core/dictionary.h"
 #include "core/list.h"
 #include "core/math/aabb.h"
 #include "core/math/basis.h"
@@ -988,6 +989,7 @@ bool Variant::evaluate_equal(const Variant &p_a, const Variant &p_b) {
                 return ca == Callable();
             if (p_b.type == VariantType::CALLABLE)
                 return ca == *reinterpret_cast<const Callable *>(p_b._data._mem);
+            break;
         }
         case VariantType::SIGNAL: {
             const Signal &sa(*reinterpret_cast<const Signal *>(p_a._data._mem));

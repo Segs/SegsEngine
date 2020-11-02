@@ -144,12 +144,16 @@ class GODOT_EXPORT CommandQueueMT {
     }
 
     bool flush_one(bool p_lock = true) {
-        if (p_lock) lock();
+        if (p_lock) {
+            lock();
+		}
     tryagain:
 
         // tried to read an empty queue
         if (read_ptr == write_ptr) {
-            if (p_lock) unlock();
+            if (p_lock) { 
+                unlock();
+			}
             return false;
         }
 
@@ -218,8 +222,8 @@ public:
 
         //ERR_FAIL_COND();
         lock();
-        while (flush_one(false))
-            ;
+		while (flush_one(false)) {
+		}
         unlock();
     }
 

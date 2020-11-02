@@ -2,7 +2,6 @@
 
 #include "Utils.h"
 
-#include <thread> // for std::thread::id,
 //#define JL_OBJECT_POOL_ENABLE_FREELIST_CHECK
 
 namespace jl {
@@ -102,7 +101,10 @@ public:
         eFlag_Defaults = eFlag_ManageBuffer,
     };
 
-    PreallocatedObjectPool();
+    PreallocatedObjectPool()
+    {
+        Reset();
+    }
     PreallocatedObjectPool( void* pBuffer, unsigned nCapacity, unsigned nStride, unsigned nFlags = eFlag_Defaults );
 
     ~PreallocatedObjectPool();
@@ -160,7 +162,7 @@ private:
     ObjectPool::FreeNode* m_pFreeListHead;
     unsigned m_nCapacity;
     unsigned m_nStride;
-    unsigned m_nAllocations;
+    unsigned m_nAllocations=0;
     unsigned m_nFlags;
 };
 
@@ -225,12 +227,9 @@ public:
 
     bool IsEmpty() const { return m_nAllocations == 0; }
     bool IsFull() const { return m_nAllocations == eCapacity; }
-    std::thread::id GetOwner() const { return owner; }
-    void SetOwner(std::thread::id id) { owner=id; }
 private:
     unsigned char m_pObjectBuffer[ eCapacity * eStride ];
     ObjectPool::FreeNode* m_pFreeListHead;
-    std::thread::id owner;
     unsigned m_nAllocations = 0;
 };
 

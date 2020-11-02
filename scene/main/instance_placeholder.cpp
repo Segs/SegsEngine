@@ -30,10 +30,11 @@
 
 #include "instance_placeholder.h"
 
+#include "core/dictionary.h"
 #include "core/method_bind.h"
-#include "scene/resources/packed_scene.h"
 #include "core/pool_vector.h"
 #include "core/resource/resource_manager.h"
+#include "scene/resources/packed_scene.h"
 
 IMPL_GDCLASS(InstancePlaceholder)
 

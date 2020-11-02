@@ -495,7 +495,7 @@ int RichTextLabel::_process_line(RichTextItemFrame *p_frame, const Vector2 &p_of
             l.space_caches.push_back(spaces);                                                                                                                   \
         }                                                                                                                                                       \
         line_wrapped = false;                                                                                                                                   \
-        y += line_height + get_theme_constant(SceneStringNames::get_singleton()->line_separation);                                                                    \
+        y += line_height + get_theme_constant(SceneStringNames::line_separation);                                                                               \
         line_height = 0;                                                                                                                                        \
         line_ascent = 0;                                                                                                                                        \
         line_descent = 0;                                                                                                                                       \

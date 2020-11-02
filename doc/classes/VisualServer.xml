@@ -1391,20 +1391,6 @@
                 Returns a certain information, see [enum RenderingServerEnums.RenderInfo] for options.
             </description>
         </method>
-        <method name="get_test_cube">
-            <return type="RID">
-            </return>
-            <description>
-                Returns the id of the test cube. Creates one if none exists.
-            </description>
-        </method>
-        <method name="get_test_texture">
-            <return type="RID">
-            </return>
-            <description>
-                Returns the id of the test texture. Creates one if none exists.
-            </description>
-        </method>
         <method name="get_video_adapter_name" qualifiers="const">
             <return type="String">
             </return>
@@ -1419,13 +1405,6 @@
             <description>
                 Returns the vendor of the video adapter (e.g. "NVIDIA Corporation").
                 [b]Note:[/b] When running a headless or server binary, this function returns an empty string.
-            </description>
-        </method>
-        <method name="get_white_texture">
-            <return type="RID">
-            </return>
-            <description>
-                Returns the id of a white texture. Creates one if none exists.
             </description>
         </method>
         <method name="gi_probe_create">

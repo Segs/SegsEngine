@@ -95,12 +95,19 @@ VARIANT_ENUM_CAST(Variant::Operator);
 template <class T>
 MethodBind *create_vararg_method_bind(Variant (T::*p_method)(const Variant **, int, Callable::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
-    MethodBindVarArg<T> *a = memnew((MethodBindVarArg<T>));
+    auto *a = memnew((MethodBindVarArg<Variant,T>));
     a->set_method(p_method);
     a->set_method_info(eastl::move(p_info),p_return_nil_is_variant);
     return a;
 }
+template <class T>
+MethodBind *create_vararg_method_bind(void (T::*p_method)(const Variant **, int, Callable::CallError &), MethodInfo &&p_info, bool p_return_nil_is_variant) {
 
+    auto *a = memnew((MethodBindVarArg<void,T>));
+    a->set_method(p_method);
+    a->set_method_info(eastl::move(p_info),p_return_nil_is_variant);
+    return a;
+}
 /*****************************************************************/
 /// Warning - Lovecraftian horrors ahead
 /*****************************************************************/

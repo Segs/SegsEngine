@@ -317,8 +317,7 @@ void unregister_core_types() {
     gResourceManager().remove_resource_format_loader(resource_format_loader_crypto);
     resource_format_loader_crypto.unref();
 
-    if (ip)
-        memdelete(ip);
+    memdelete(ip);
 
     gResourceManager().finalize();
     ClassDB::cleanup_defaults();
@@ -332,10 +331,8 @@ void unregister_core_types() {
     CoreStringNames::free();
     StringName::cleanup(OS::get_singleton()->is_stdout_verbose());
 
-    if (_global_mutex) {
-        memdelete(_global_mutex);
-        _global_mutex = nullptr; //still needed at a few places
-    }
+    memdelete(_global_mutex);
+    _global_mutex = nullptr; //still needed at a few places
 
     MemoryPool::cleanup();
 }

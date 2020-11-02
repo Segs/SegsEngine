@@ -54,8 +54,8 @@ protected:
 public:
     virtual ConnectionState get_connection_state() const = 0;
 
-    virtual Error initialize(Dictionary p_config = Dictionary()) = 0;
-    virtual Ref<WebRTCDataChannel> create_data_channel(StringView p_label, Dictionary p_options = Dictionary()) = 0;
+    virtual Error initialize(Dictionary p_config) = 0;
+    virtual Ref<WebRTCDataChannel> create_data_channel(StringView p_label, Dictionary p_options) = 0;
     virtual Error create_offer() = 0;
     virtual Error set_remote_description(StringView type, StringView sdp) = 0;
     virtual Error set_local_description(StringView type, StringView sdp) = 0;

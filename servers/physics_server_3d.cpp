@@ -30,6 +30,7 @@
 
 #include "physics_server_3d.h"
 
+#include "core/dictionary.h"
 #include "core/object_db.h"
 #include "core/method_bind.h"
 #include "core/project_settings.h"

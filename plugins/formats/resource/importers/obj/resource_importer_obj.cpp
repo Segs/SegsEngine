@@ -473,10 +473,10 @@ ResourceImporterOBJ::ResourceImporterOBJ() {
 }
 ////////////////////////////////////////////////////
 
-StringName ResourceImporterOBJ::get_importer_name() const {
+const char *ResourceImporterOBJ::get_importer_name() const {
     return "wavefront_obj";
 }
-StringName ResourceImporterOBJ::get_visible_name() const {
+const char *ResourceImporterOBJ::get_visible_name() const {
     return "OBJ As Mesh";
 }
 void ResourceImporterOBJ::get_recognized_extensions(Vector<String> &p_extensions) const {

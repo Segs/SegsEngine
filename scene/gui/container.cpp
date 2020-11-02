@@ -95,7 +95,7 @@ void Container::_sort_children() {
         return;
 
     notification(NOTIFICATION_SORT_CHILDREN);
-    emit_signal(SceneStringNames::get_singleton()->sort_children);
+    emit_signal(SceneStringNames::sort_children);
     pending_sort = false;
 }
 

@@ -29,7 +29,7 @@
 /*************************************************************************/
 
 #include "func_ref.h"
-#include "object_db.h"
+#include "core/object_db.h"
 #include "core/method_bind.h"
 
 IMPL_GDCLASS(FuncRef)

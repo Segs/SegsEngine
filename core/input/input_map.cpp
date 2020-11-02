@@ -30,6 +30,7 @@
 
 #include "input_map.h"
 
+#include "core/dictionary.h"
 #include "core/list.h"
 #include "core/os/keyboard.h"
 #include "core/project_settings.h"

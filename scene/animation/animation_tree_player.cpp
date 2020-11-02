@@ -30,11 +30,12 @@
 
 #include "animation_tree_player.h"
 #include "animation_player.h"
-#include "core/pool_vector.h"
 
-#include "scene/scene_string_names.h"
+#include "core/dictionary.h"
 #include "core/method_bind.h"
+#include "core/pool_vector.h"
 #include "core/translation_helpers.h"
+#include "scene/scene_string_names.h"
 
 IMPL_GDCLASS(AnimationTreePlayer)
 VARIANT_ENUM_CAST(AnimationTreePlayer::NodeType);
@@ -278,7 +279,7 @@ bool AnimationTreePlayer::_set(const StringName &p_name, const Variant &p_value)
         return true;
     }
 
-    if (p_name == SceneStringNames::get_singleton()->playback_active) {
+    if (p_name == SceneStringNames::playback_active) {
         set_active(p_value.as<bool>());
         return true;
     }

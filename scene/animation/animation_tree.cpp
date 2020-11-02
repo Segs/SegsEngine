@@ -844,11 +844,11 @@ void AnimationTree::_process_graph(float p_delta) {
 
         if (started) {
             //if started, seek
-            root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, 0, true, {});
+            root->_pre_process(SceneStringNames::parameters_base_path, nullptr, &state, 0, true, {});
             started = false;
         }
 
-        root->_pre_process(SceneStringNames::get_singleton()->parameters_base_path, nullptr, &state, p_delta, false, {});
+        root->_pre_process(SceneStringNames::parameters_base_path, nullptr, &state, p_delta, false, {});
     }
 
     if (!state.valid) {
@@ -1466,7 +1466,7 @@ void AnimationTree::_update_properties() {
     input_activity_map_get.clear();
 
     if (root) {
-        _update_properties_for_node(SceneStringNames::get_singleton()->parameters_base_path, root);
+        _update_properties_for_node(SceneStringNames::parameters_base_path, root);
     }
 
     properties_dirty = false;

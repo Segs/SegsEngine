@@ -63,9 +63,7 @@ JoypadLinux::Joypad::Joypad() {
 JoypadLinux::Joypad::~Joypad() {
 
     for (int i = 0; i < MAX_ABS; i++) {
-        if (abs_info[i]) {
-            memdelete(abs_info[i]);
-        }
+        memdelete(abs_info[i]);
     }
 }
 

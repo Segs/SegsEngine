@@ -72,8 +72,9 @@ public:
     uint64_t get_seed() const { return current_seed; }
 
     void randomize();
-    uint32_t rand();
 
+    uint32_t rand();
+    uint32_t rand(uint32_t bounds);
     // Obtaining floating point numbers in [0, 1] range with "good enough" uniformity.
     // These functions sample the output of rand() as the fraction part of an infinite binary number,
     // with some tricks applied to reduce ops and branching:

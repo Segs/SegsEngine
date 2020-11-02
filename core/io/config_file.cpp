@@ -140,8 +140,7 @@ Error ConfigFile::save(StringView p_path) {
     FileAccess *file = FileAccess::open(p_path, FileAccess::WRITE, &err);
 
     if (err) {
-        if (file)
-            memdelete(file);
+        memdelete(file);
         return err;
     }
 
@@ -295,7 +294,7 @@ Error ConfigFile::_parse(StringView p_path, VariantParserStream *p_stream) {
             return OK;
         } else if (err != OK) {
             ERR_PRINT(FormatSN(
-                    "ConfigFile parse error at %.*s:%d: %s.", p_path.size(), p_path.data(), lines, error_text.c_str()));
+                    "ConfigFile parse error at %.*s:%d: %s.", (int)p_path.size(), p_path.data(), lines, error_text.c_str()));
             return err;
         }
 

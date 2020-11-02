@@ -1833,8 +1833,8 @@ Ref<Animation> EditorSceneImporterCollada::import_animation(StringView p_path, u
     ERR_FAIL_COND_V_MSG(err != OK, Ref<Animation>(), "Cannot load animation from file '" + p_path + "'.");
 
     state.create_animations(p_flags & IMPORT_ANIMATION_FORCE_ALL_TRACKS_IN_ALL_CLIPS, p_flags & IMPORT_ANIMATION_KEEP_VALUE_TRACKS);
-    if (state.scene)
-        memdelete(state.scene);
+    memdelete(state.scene);
+    state.scene = nullptr;
 
     if (state.animations.empty())
         return Ref<Animation>();

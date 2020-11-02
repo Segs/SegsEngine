@@ -28,9 +28,9 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef EDITOR_PROPERTIES_ARRAY_DICT_H
-#define EDITOR_PROPERTIES_ARRAY_DICT_H
+#pragma once
 
+#include "core/dictionary.h"
 #include "editor/editor_inspector.h"
 #include "editor/editor_spin_slider.h"
 #include "scene/gui/button.h"
@@ -150,5 +150,3 @@ public:
     void update_property() override;
     EditorPropertyDictionary();
 };
-
-#endif // EDITOR_PROPERTIES_ARRAY_DICT_H

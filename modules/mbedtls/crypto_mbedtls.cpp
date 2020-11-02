@@ -173,10 +173,8 @@ void CryptoMbedTLS::initialize_crypto() {
 void CryptoMbedTLS::finalize_crypto() {
     Crypto::_create = nullptr;
     Crypto::_load_default_certificates = nullptr;
-    if (default_certs) {
-        memdelete(default_certs);
-        default_certs = nullptr;
-    }
+    memdelete(default_certs);
+    default_certs = nullptr;
     X509CertificateMbedTLS::finalize();
     CryptoKeyMbedTLS::finalize();
 }

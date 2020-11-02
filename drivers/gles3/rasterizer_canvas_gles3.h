@@ -97,7 +97,7 @@ public:
     } state;
 
     RasterizerStorageGLES3 *storage;
-    bool use_nvidia_rect_workaround;
+    bool use_nvidia_rect_workaround=false;
 
     struct LightInternal : public RID_Data {
 

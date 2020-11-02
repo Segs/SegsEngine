@@ -268,7 +268,7 @@ StringView replaceFunctionName(const TS_Function *finfo, bool in_godot_ns) {
         {"call_group_flags","_call_group_flags"},
         {"cast_motion","_cast_motion"},
         {"collide_shape","_collide_shape"},
-        {"emit_signal","_emit_signal"},
+//        {"emit_signal","_emit_signal"},
         {"force_draw","draw"},
         {"force_sync","sync"},
         {"get_bound_child_nodes_to_bone","_get_bound_child_nodes_to_bone"},

@@ -1,8 +1,12 @@
 #ifndef __TRACYSOCKET_HPP__
 #define __TRACYSOCKET_HPP__
 
-#include <functional>
+#include <atomic>
 #include <stdint.h>
+
+#include "TracyForceInline.hpp"
+
+struct addrinfo;
 struct sockaddr;
 
 namespace tracy
@@ -19,13 +23,28 @@ public:
     Socket( int sock );
     ~Socket();
 
-    bool Connect( const char* addr, int port );
+    bool Connect( const char* addr, uint16_t port );
+    bool ConnectBlocking( const char* addr, uint16_t port );
     void Close();
 
     int Send( const void* buf, int len );
     int GetSendBufSize();
 
-    bool Read( void* buf, int len, int timeout, std::function<bool()> exitCb );
+    int ReadUpTo( void* buf, int len, int timeout );
+    bool Read( void* buf, int len, int timeout );
+
+    template<typename ShouldExit>
+    bool Read( void* buf, int len, int timeout, ShouldExit exitCb )
+    {
+        auto cbuf = (char*)buf;
+        while( len > 0 )
+        {
+            if( exitCb() ) return false;
+            if( !ReadImpl( cbuf, len, timeout ) ) return false;
+        }
+        return true;
+    }
+
     bool ReadRaw( void* buf, int len, int timeout );
     bool HasData();
     bool IsValid() const;
@@ -39,10 +58,16 @@ private:
     int RecvBuffered( void* buf, int len, int timeout );
     int Recv( void* buf, int len, int timeout );
 
+    bool ReadImpl( char*& buf, int& len, int timeout );
+
     char* m_buf;
     char* m_bufPtr;
-    int m_sock;
+    std::atomic<int> m_sock;
     int m_bufLeft;
+
+    struct addrinfo *m_res;
+    struct addrinfo *m_ptr;
+    int m_connSock;
 };
 
 class ListenSocket
@@ -51,7 +76,7 @@ public:
     ListenSocket();
     ~ListenSocket();
 
-    bool Listen( int port, int backlog );
+    bool Listen( uint16_t port, int backlog );
     Socket* Accept();
     void Close();
 
@@ -70,10 +95,10 @@ public:
     UdpBroadcast();
     ~UdpBroadcast();
 
-    bool Open( const char* addr, int port );
+    bool Open( const char* addr, uint16_t port );
     void Close();
 
-    int Send( int port, const void* data, int len );
+    int Send( uint16_t port, const void* data, int len );
 
     UdpBroadcast( const UdpBroadcast& ) = delete;
     UdpBroadcast( UdpBroadcast&& ) = delete;
@@ -111,10 +136,10 @@ public:
     UdpListen();
     ~UdpListen();
 
-    bool Listen( int port );
+    bool Listen( uint16_t port );
     void Close();
 
-    const char* Read( size_t& len, IpAddress& addr );
+    const char* Read( size_t& len, IpAddress& addr, int timeout );
 
     UdpListen( const UdpListen& ) = delete;
     UdpListen( UdpListen&& ) = delete;

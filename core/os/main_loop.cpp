@@ -109,6 +109,7 @@ void MainLoop::init() {
         get_script_instance()->call("_initialize");
 }
 bool MainLoop::iteration(float p_time) {
+    SCOPE_AUTONAMED;
 
     if (get_script_instance())
         return get_script_instance()->call("_iteration", p_time).as<bool>();

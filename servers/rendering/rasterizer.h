@@ -96,10 +96,10 @@ public:
 
         //RID sampled_light;
 
-        PoolVector<RID> materials;
-        PoolVector<RID> light_instances;
-        PoolVector<RID> reflection_probe_instances;
-        PoolVector<RID> gi_probe_instances;
+        Vector<RID> materials;
+        Vector<RID> light_instances;
+        Vector<RID> reflection_probe_instances;
+        Vector<RID> gi_probe_instances;
 
         Vector<float> blend_values;
 
@@ -1065,7 +1065,7 @@ public:
         }
         ~Item() override {
             clear();
-            if (copy_back_buffer) memdelete(copy_back_buffer);
+            memdelete(copy_back_buffer);
         }
     };
 

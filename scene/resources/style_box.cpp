@@ -677,12 +677,10 @@ inline void draw_ring(Vector<Vector2> &verts, Vector<int> &indices, PoolVector<C
 
 inline void adapt_values(int p_index_a, int p_index_b, int *adapted_values, const int *p_values, const real_t p_width, const int p_max_a, const int p_max_b) {
     if (p_values[p_index_a] + p_values[p_index_b] > p_width) {
-        float factor;
-        int newValue;
 
-        factor = (float)p_width / (float)(p_values[p_index_a] + p_values[p_index_b]);
+        float factor = (float)p_width / (float)(p_values[p_index_a] + p_values[p_index_b]);
+        int newValue = (int)(p_values[p_index_a] * factor);
 
-        newValue = (int)(p_values[p_index_a] * factor);
         if (newValue < adapted_values[p_index_a]) {
             adapted_values[p_index_a] = newValue;
         }

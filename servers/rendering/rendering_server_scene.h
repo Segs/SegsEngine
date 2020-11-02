@@ -185,9 +185,7 @@ public:
         }
 
         ~Instance() override {
-
-            if (base_data)
-                memdelete(base_data);
+            memdelete(base_data);
         }
     };
 

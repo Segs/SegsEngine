@@ -1570,6 +1570,8 @@ void BulletPhysicsServer::init() {
 }
 
 void BulletPhysicsServer::step(float p_deltaTime) {
+    SCOPE_AUTONAMED;
+
     if (!active)
         return;
 

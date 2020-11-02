@@ -786,7 +786,7 @@ void VisualServerScene::instance_set_surface_material(RID p_instance, int p_surf
     if (instance->materials[p_surface].is_valid()) {
         VSG::storage->material_remove_instance_owner(instance->materials[p_surface], instance);
     }
-    instance->materials.write()[p_surface] = p_material;
+    instance->materials[p_surface] = p_material;
     instance->base_changed(false, true);
 
     if (instance->materials[p_surface].is_valid()) {
@@ -2119,7 +2119,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when lights AABB enter/exit this geometry
                 ins->light_instances.resize(geom->lighting.size());
-                auto l_wr(ins->light_instances.write());
+                auto &l_wr(ins->light_instances);
                 for (Instance * E : geom->lighting) {
 
                     InstanceLightData *light = static_cast<InstanceLightData *>(E->base_data);
@@ -2134,7 +2134,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->reflection_probe_instances.resize(geom->reflection_probes.size());
-                auto wr(ins->reflection_probe_instances.write());
+                auto &wr(ins->reflection_probe_instances);
                 for (Instance * E : geom->reflection_probes) {
 
                     InstanceReflectionProbeData *reflection_probe = static_cast<InstanceReflectionProbeData *>(E->base_data);
@@ -2149,7 +2149,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 int l = 0;
                 //only called when reflection probe AABB enter/exit this geometry
                 ins->gi_probe_instances.resize(geom->gi_probes.size());
-                auto wr(ins->gi_probe_instances.write());
+                auto &wr(ins->gi_probe_instances);
 
                 for (Instance * E : geom->gi_probes) {
 

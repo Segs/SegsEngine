@@ -14,6 +14,7 @@ namespace jl {
 
 template<size_t _Stride,size_t _Capacity=1024, size_t Watermark=1024>
 struct BlockAllocator {
+    // right now there is no memory pooling here, since thread-safe pool is non-trivial, and didn't seem to pri
     static void *Alloc() {
         return malloc(_Stride);
     }

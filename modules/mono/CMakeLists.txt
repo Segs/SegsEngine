@@ -107,7 +107,7 @@ macro(add_glue_module name tgt)
             ${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/cpp/${name}_plugin.json
             #${CMAKE_CURRENT_SOURCE_DIR}/glue/${name}/${name}.csproj
         DEPENDS
-            bindings_generator ${tgt}_engine
+            bindings_generator ${tgt}_engine reflection_${tgt}_gen
             #${CMAKE_CURRENT_BINARY_DIR}/${name}.json not depending on source json, since reflection_${tgt}_gen depends on them and we depend on reflection_${tgt}_gen
         COMMENT "Generating mono glue for ${name}"
     )

@@ -95,10 +95,8 @@ void Logger::logf_error(StringView p_msg) {
 Logger::~Logger() = default;
 
 void RotatedFileLogger::close_file() {
-    if (file) {
-        memdelete(file);
-        file = nullptr;
-    }
+    memdelete(file);
+    file = nullptr;
 }
 
 void RotatedFileLogger::clear_old_backups() const {

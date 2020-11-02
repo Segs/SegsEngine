@@ -30,6 +30,7 @@
 
 #include "bit_map.h"
 
+#include "core/dictionary.h"
 #include "core/io/image_loader.h"
 #include "core/print_string.h"
 #include "core/method_bind.h"

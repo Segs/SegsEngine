@@ -32,5 +32,4 @@
 
 BroadPhase2DSW::CreateFunction BroadPhase2DSW::create_func = nullptr;
 
-BroadPhase2DSW::~BroadPhase2DSW() {
-}
+BroadPhase2DSW::~BroadPhase2DSW() = default;

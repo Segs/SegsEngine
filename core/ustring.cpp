@@ -1465,12 +1465,12 @@ String StringUtils::sha256_text(StringView cs) {
 //    }
 //    return ret;
 //};
-Vector<uint8_t> StringUtils::md5_buffer(StringView cs) {
+FixedVector<uint8_t,16,false> StringUtils::md5_buffer(StringView cs) {
 
     unsigned char hash[16];
     CryptoCore::md5((unsigned char *)cs.data(), cs.length(), hash);
 
-    Vector<uint8_t> ret;
+    FixedVector<uint8_t,16,false> ret;
     ret.resize(16);
     for (int i = 0; i < 16; i++) {
         ret[i] = hash[i];
@@ -1524,7 +1524,7 @@ StringView StringUtils::substr(StringView s,int p_from, size_t p_chars) {
     StringView res(s);
     if(s.empty())
         return res;
-    ssize_t count = static_cast<ssize_t>(p_chars);
+    auto count = static_cast<ssize_t>(p_chars);
     if ((p_from + count) > ssize_t(s.length())) {
 
         p_chars = s.length() - p_from;

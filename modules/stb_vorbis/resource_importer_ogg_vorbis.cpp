@@ -36,12 +36,12 @@
 
 IMPL_GDCLASS(ResourceImporterOGGVorbis)
 
-StringName ResourceImporterOGGVorbis::get_importer_name() const {
+const char *ResourceImporterOGGVorbis::get_importer_name() const {
 
     return "ogg_vorbis";
 }
 
-StringName ResourceImporterOGGVorbis::get_visible_name() const {
+const char *ResourceImporterOGGVorbis::get_visible_name() const {
 
     return "OGGVorbis";
 }

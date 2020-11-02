@@ -30,6 +30,7 @@
 
 #include "curve.h"
 
+#include "core/dictionary.h"
 #include "core/core_string_names.h"
 #include "core/map.h"
 #include "core/math/plane.h"

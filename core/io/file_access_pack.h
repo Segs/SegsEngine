@@ -93,8 +93,8 @@ private:
             a = b = 0;
         }
 
-        PathMD5(const Vector<uint8_t> &p_buf) {
-            assert(p_buf.size()>=16);
+        PathMD5(const FixedVector<uint8_t,16,false> &p_buf) {
+            assert(p_buf.size()==16);
             a = *((uint64_t *)&p_buf[0]);
             b = *((uint64_t *)&p_buf[8]);
         }

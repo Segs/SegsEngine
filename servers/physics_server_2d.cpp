@@ -30,6 +30,7 @@
 
 #include "physics_server_2d.h"
 
+#include "core/dictionary.h"
 #include "core/method_bind.h"
 #include "core/object_db.h"
 #include "core/print_string.h"

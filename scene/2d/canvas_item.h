@@ -253,7 +253,7 @@ public:
 
     // Save and restore a CanvasItem state
     /*Q_INVOKABLE*/ virtual void _edit_set_state(const Dictionary &/*p_state*/){}
-    virtual Dictionary _edit_get_state() const { return Dictionary(); }
+    virtual Dictionary _edit_get_state() const;
 
     // Used to move the node
     virtual void _edit_set_position(const Point2 &p_position) = 0;

@@ -148,21 +148,7 @@ protected:
     static void _bind_methods();
 public:
     //bind helpers
-    Dictionary _get_range_config(int p_column) {
-        Dictionary d;
-        double min=0.0, max=0.0, step=0.0;
-        get_range_config(p_column, min, max, step);
-        d["min"] = min;
-        d["max"] = max;
-        d["step"] = step;
-        d["expr"] = false;
-
-        return d;
-    }
-//    void remove_child(Object *p_child) {
-//        remove_child(object_cast<TreeItem>(p_child));
-//    }
-
+    Dictionary _get_range_config(int p_column);
     Variant _call_recursive_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
 public:
@@ -389,6 +375,12 @@ private:
     void propagate_set_columns(TreeItem *p_item);
 
     struct Cache {
+        enum ClickType : int8_t {
+            CLICK_NONE,
+            CLICK_TITLE,
+            CLICK_BUTTON,
+
+        };
 
         Ref<Font> font;
         Ref<Font> tb_font;
@@ -405,14 +397,14 @@ private:
         Ref<StyleBox> custom_button_hover;
         Ref<StyleBox> custom_button_pressed;
 
-        Color title_button_color;
-
         Ref<Texture> checked;
         Ref<Texture> unchecked;
         Ref<Texture> arrow_collapsed;
         Ref<Texture> arrow;
         Ref<Texture> select_arrow;
         Ref<Texture> updown;
+
+        Color title_button_color;
 
         Color font_color;
         Color font_color_selected;
@@ -421,36 +413,30 @@ private:
         Color relationship_line_color;
         Color custom_button_font_highlight;
 
+        Point2i text_editor_position;
+        Point2 offset;
+        Point2 click_pos;
+
+        TreeItem *click_item=nullptr;
+        TreeItem *hover_item=nullptr;
+
         int hseparation;
         int vseparation;
         int item_margin;
         int button_margin;
-        Point2 offset;
         int draw_relationship_lines;
         int draw_guides;
         int scroll_border;
         int scroll_speed;
 
-        enum ClickType {
-            CLICK_NONE,
-            CLICK_TITLE,
-            CLICK_BUTTON,
+        int click_index=-1;
+        int click_id=-1;
+        int click_column=0;
+        int hover_index=-1;
+        int hover_cell=-1;
 
-        };
-
-        ClickType click_type;
-        ClickType hover_type;
-        int click_index;
-        int click_id;
-        TreeItem *click_item;
-        int click_column;
-        int hover_index;
-        Point2 click_pos;
-
-        TreeItem *hover_item;
-        int hover_cell;
-
-        Point2i text_editor_position;
+        ClickType click_type=Cache::CLICK_NONE;
+        ClickType hover_type=Cache::CLICK_NONE;
 
     } cache;
 

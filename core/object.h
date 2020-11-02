@@ -36,8 +36,7 @@
 #include "core/variant.h"
 #include "core/string_name.h"
 #include "core/forward_decls.h"
-#include "core/dictionary.h"
-
+#include "core/jlsignal/Signal.h"
 //#include <QObject>
 
 class IObjectTooling;
@@ -192,7 +191,7 @@ private:
         if (!p_reversed) {                                                                                             \
             BaseClassName::_get_property_listv(p_list, p_reversed);                                                    \
         }                                                                                                              \
-        p_list->push_back(PropertyInfo(                                                                                \
+        p_list->emplace_back(PropertyInfo(                                                                             \
                 VariantType::NIL, get_class_static_name(), PropertyHint::None, nullptr, PROPERTY_USAGE_CATEGORY));     \
         if (!_is_gpl_reversed()) ClassDB::get_property_list(#m_class, p_list, true, this);                             \
         if (m_class::_get_get_property_list() != BaseClassName::_get_get_property_list()) {                            \
@@ -256,38 +255,35 @@ private:
 #ifdef DEBUG_ENABLED
     friend struct _ObjectDebugLock;
 #endif
-    //friend void GODOT_EXPORT Object_change_notify(Object *self,StringName p_property);
-    friend bool GODOT_EXPORT predelete_handler(Object *);
+    friend void GODOT_EXPORT predelete_handler(Object *);
     friend void GODOT_EXPORT postinitialize_handler(Object *);
 
     struct SignalData;
     struct ObjectPrivate;
-    Dictionary metadata;
+#ifdef DEBUG_ENABLED
+    std::atomic<ObjectRC *> _rc;
+#endif
+    class Dictionary *metadata = nullptr;
     ObjectPrivate *private_data;
-    void *_script_instance_bindings[MAX_SCRIPT_INSTANCE_BINDINGS];
+    jl::SignalObserver *observer_endpoint = nullptr;
     ScriptInstance *script_instance;
     RefPtr script;
     ObjectID _instance_id;
     mutable StringName _class_name;
     mutable const StringName *_class_ptr;
-
+    eastl::array<void *,MAX_SCRIPT_INSTANCE_BINDINGS> *_script_instance_bindings = nullptr;
     uint32_t instance_binding_count;
-    int _predelete_ok;
+
     bool _block_signals;
     bool _can_translate;
     bool _emitting;
     bool _is_queued_for_deletion; // set to true by SceneTree::queue_delete()
 
-
-#ifdef DEBUG_ENABLED
-    std::atomic<ObjectRC *> _rc;
-#endif
-    bool _predelete();
+    void _predelete();
     void _postinitialize();
 public:
     void _add_user_signal(const StringName &p_name, const Array &p_args = Array());
     bool _has_user_signal(const StringName &p_name) const;
-    Variant _emit_signal(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Array _get_signal_list() const;
     Array _get_signal_connection_list(StringName p_signal) const;
     Array _get_incoming_connections() const;
@@ -330,15 +326,20 @@ protected:
     }
 
 public:
-    void cancel_delete();
+    jl::SignalObserver &observer() {
+        if(!observer_endpoint)
+            observer_endpoint = memnew(jl::SignalObserver);
+        return *observer_endpoint;
+    }
 
     virtual void _changed_callback(Object *p_changed, StringName p_prop);
     Variant _call_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
     Variant _call_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
     virtual const StringName *_get_class_namev() const {
-        if (!_class_name)
+        if (!_class_name) {
             _class_name = get_class_static_name();
+        }
         return &_class_name;
     }
 public:
@@ -371,7 +372,6 @@ public:
     // this is used for editors
 
     enum {
-
         NOTIFICATION_POSTINITIALIZE = 0,
         NOTIFICATION_PREDELETE = 1
     };
@@ -447,8 +447,12 @@ public:
     void set_script_and_instance(const RefPtr &p_script, ScriptInstance *p_instance);
 
     void add_user_signal(MethodInfo &&p_signal);
-    void emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
-    void emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
+    void do_emit_signal(const StringName &p_name, VARIANT_ARG_LIST);
+    void do_emit_signal(const StringName &p_name, const Variant **p_args, int p_argcount);
+    template<typename ...Args>
+    void emit_signal(const StringName &p_name,Args ...params){
+        do_emit_signal(p_name,Variant::from(params)...);
+    }
     bool has_signal(const StringName &p_name) const;
     void get_signal_list(Vector<MethodInfo> *p_signals) const;
     void get_signal_connection_list(const StringName &p_signal, Vector<Connection> *p_connections) const;
@@ -547,5 +551,5 @@ namespace ObjectNS
     }
 } // end of ObjectNS namespace
 
-bool GODOT_EXPORT predelete_handler(Object *p_object);
+void GODOT_EXPORT predelete_handler(Object *p_object);
 void GODOT_EXPORT postinitialize_handler(Object *p_object);

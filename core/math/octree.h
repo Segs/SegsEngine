@@ -328,12 +328,14 @@ private:
 
     _FORCE_INLINE_ void _pair_reference(Element *p_A, Element *p_B) {
 
-        if (p_A == p_B || (p_A->userdata == p_B->userdata && p_A->userdata))
+        if (p_A == p_B || (p_A->userdata == p_B->userdata && p_A->userdata)) {
             return;
+		}
 
         if (!(p_A->pairable_type & p_B->pairable_mask) &&
-                !(p_B->pairable_type & p_A->pairable_mask))
+                !(p_B->pairable_type & p_A->pairable_mask)) {
             return; // none can pair with none
+		}
 
         PairKey key(p_A->_id, p_B->_id);
         typename PairMap::iterator E = pair_map.find(key);
@@ -440,7 +442,7 @@ private:
     struct _CullConvexData {
 
         Span<const Plane> planes;
-        Vector<Vector3> points;
+        Span<Vector3,8> points;
         T **result_array;
         int *result_idx;
         int result_max;
@@ -454,8 +456,9 @@ private:
 
     void _remove_tree(Octant *p_octant) {
 
-        if (!p_octant)
+		if (!p_octant) {
             return;
+		}
 
         for (int i = 0; i < 8; i++) {
 
@@ -481,7 +484,7 @@ public:
     T *get(OctreeElementID p_id) const;
     int get_subindex(OctreeElementID p_id) const;
 
-    int cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF);
+    int cull_convex(Span<const Plane,6> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask = 0xFFFFFFFF);
     int cull_aabb(const AABB &p_aabb, T **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
     int cull_segment(const Vector3 &p_from, const Vector3 &p_to, T **p_result_array, int p_result_max, int *p_subindex_array = nullptr, uint32_t p_mask = 0xFFFFFFFF);
 
@@ -1639,13 +1642,13 @@ if constexpr(cached_lists) {
 }
 
 template <class T, bool cached_lists,bool use_pairs>
-int OctreeTpl<T,cached_lists,use_pairs>::cull_convex(Span<const Plane> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
+int OctreeTpl<T,cached_lists,use_pairs>::cull_convex(Span<const Plane,6> p_convex, T **p_result_array, int p_result_max, uint32_t p_mask) {
 
-    if (!root || p_convex.size() == 0)
+    if (!root || p_convex.empty())
         return 0;
 
-    Vector<Vector3> convex_points = Geometry::compute_convex_mesh_points(p_convex);
-    if (convex_points.size() == 0)
+    FixedVector<Vector3,8,false> convex_points {Geometry::compute_convex_mesh_points(p_convex)};
+    if (convex_points.empty())
         return 0;
 
     int result_count = 0;

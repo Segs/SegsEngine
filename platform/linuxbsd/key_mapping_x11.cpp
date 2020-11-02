@@ -191,14 +191,17 @@ unsigned int KeyMappingX11::get_keycode(KeySym p_keysym) {
 
     // kinda bruteforce.. could optimize.
 
-    if (p_keysym < 0x100) // Latin 1, maps 1-1
+    if (p_keysym < 0x100) {
+        // Latin 1, maps 1-1
         return p_keysym;
+    }
 
     // look for special key
     for (int idx = 0; _xkeysym_to_keycode[idx].keysym != 0; idx++) {
 
-        if (_xkeysym_to_keycode[idx].keysym == p_keysym)
+        if (_xkeysym_to_keycode[idx].keysym == p_keysym) {
             return _xkeysym_to_keycode[idx].keycode;
+        }
     }
 
     return 0;

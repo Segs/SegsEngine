@@ -1826,9 +1826,7 @@ Error _File::open(StringView p_path, ModeFlags p_mode_flags) {
 }
 
 void _File::close() {
-    if (f) {
-        memdelete(f);
-    }
+    memdelete(f);
     f = nullptr;
 }
 
@@ -2182,9 +2180,7 @@ _File::_File() {
 }
 
 _File::~_File() {
-    if (f) {
-        memdelete(f);
-    }
+    memdelete(f);
 }
 
 ///////////////////////////////////////////////////////
@@ -2196,9 +2192,7 @@ Error _Directory::open(StringView p_path) {
     if (!alt) {
         return err;
     }
-    if (d) {
-        memdelete(d);
-    }
+    memdelete(d);
     d = alt;
 
     return OK;
@@ -2360,9 +2354,7 @@ _Directory::_Directory() {
 }
 
 _Directory::~_Directory() {
-    if (d) {
-        memdelete(d);
-    }
+    memdelete(d);
 }
 
 _Marshalls *_Marshalls::singleton = nullptr;
@@ -2606,9 +2598,7 @@ Variant _Thread::wait_to_finish() {
     target_method = StringName();
     target_instance = nullptr;
     userdata = Variant();
-    if (thread) {
-        memdelete(thread);
-    }
+    memdelete(thread);
     thread = nullptr;
 
     return r;
