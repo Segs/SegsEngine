@@ -45,8 +45,6 @@ class GODOT_EXPORT VisualInstance3D : public Node3D {
     RID instance;
     uint32_t layers;
 
-    RID _get_visual_instance_rid() const;
-
 protected:
     void _update_visibility();
 
@@ -58,7 +56,6 @@ public:
         FACES_SOLID = 1, // solid geometry
         FACES_ENCLOSING = 2,
         FACES_DYNAMIC = 4 // dynamic object geometry
-
     };
 
     RID get_instance() const;

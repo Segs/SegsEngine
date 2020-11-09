@@ -1433,29 +1433,24 @@ int Physics2DServerSW::get_process_info(ProcessInfo p_info) {
     switch (p_info) {
 
         case INFO_ACTIVE_OBJECTS: {
-
             return active_objects;
-        } break;
+        }
         case INFO_COLLISION_PAIRS: {
             return collision_pairs;
-        } break;
+        }
         case INFO_ISLAND_COUNT: {
-
             return island_count;
-        } break;
+        }
     }
 
     return 0;
 }
 
-Physics2DServerSW *Physics2DServerSW::singletonsw = nullptr;
-
 Physics2DServerSW::Physics2DServerSW() {
 
-    singletonsw = this;
     BroadPhase2DSW::create_func = BroadPhase2DHashGrid::_create;
     //BroadPhase2DSW::create_func=BroadPhase2DBasic::_create;
-
+    submission_thread_singleton = this;
     active = true;
     island_count = 0;
     active_objects = 0;
@@ -1465,5 +1460,5 @@ Physics2DServerSW::Physics2DServerSW() {
 }
 
 Physics2DServerSW::~Physics2DServerSW(){
-
+    submission_thread_singleton = nullptr;
 }

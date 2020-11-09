@@ -2,8 +2,9 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+#ifdef HAS_CAPSTONE
 #include <capstone/capstone.h>
-
+#endif
 #include "../imgui/imgui.h"
 #include "TracyCharUtil.hpp"
 #include "TracyColor.hpp"
@@ -61,9 +62,10 @@ static constexpr const char* s_regNameX86[] = {
     "xmm30", "xmm31", "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7"
 };
 static_assert( sizeof( s_regNameX86 ) / sizeof( *s_regNameX86 ) == (size_t)SourceView::RegsX86::NUMBER_OF_ENTRIES, "Invalid x86 register name table" );
+#ifdef HAS_CAPSTONE
 
 static SourceView::RegsX86 s_regMapX86[X86_REG_ENDING];
-
+#endif
 
 enum { JumpSeparation = 6 };
 enum { JumpArrowBase = 9 };
@@ -101,6 +103,7 @@ SourceView::SourceView( ImFont* font, GetWindowCallback gwcb )
         m_microArchOpMap.emplace( OpsList[i], i );
     }
 
+#ifdef HAS_CAPSTONE
     memset( s_regMapX86, 0, sizeof( s_regMapX86 ) );
 
     s_regMapX86[X86_REG_EFLAGS] = RegsX86::flags;
@@ -292,6 +295,7 @@ SourceView::SourceView( ImFont* font, GetWindowCallback gwcb )
     s_regMapX86[X86_REG_K5] = RegsX86::k5;
     s_regMapX86[X86_REG_K6] = RegsX86::k6;
     s_regMapX86[X86_REG_K7] = RegsX86::k7;
+#endif
 }
 
 SourceView::~SourceView()
@@ -534,6 +538,8 @@ bool SourceView::Disassemble( uint64_t symAddr, const Worker& worker )
     auto code = worker.GetSymbolCode( symAddr, len );
     if( !code ) return false;
     m_disasmFail = -1;
+#ifdef HAS_CAPSTONE
+
     csh handle;
     cs_err rval = CS_ERR_ARCH;
     switch( m_cpuArch )
@@ -868,6 +874,7 @@ bool SourceView::Disassemble( uint64_t symAddr, const Worker& worker )
     }
     cs_close( &handle );
     m_codeLen = len;
+#endif
     ResetAsm();
     return true;
 }

@@ -38,7 +38,7 @@
 #include "rendering_server_scene.h"
 #include "rendering_server_viewport.h"
 
-class  VisualServerRaster : public RenderingServer {
+class  RenderingServerRaster : public RenderingServer {
 
     enum {
 
@@ -699,8 +699,8 @@ public:
 
     // bool is_low_end() const override;
 
-    GODOT_EXPORT VisualServerRaster();
-    GODOT_EXPORT ~VisualServerRaster() override;
+    GODOT_EXPORT RenderingServerRaster();
+    GODOT_EXPORT ~RenderingServerRaster() override;
 
 #undef DISPLAY_CHANGED
 

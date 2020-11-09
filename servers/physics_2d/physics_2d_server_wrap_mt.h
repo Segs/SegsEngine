@@ -51,7 +51,6 @@ class Physics2DServerWrapMT : public PhysicsServer2D {
     static void _thread_callback(void *_instance);
     void thread_loop();
 
-    Thread::ID server_thread;
     Thread::ID main_thread;
     volatile bool exit;
     Thread *thread;
@@ -345,11 +344,10 @@ public:
 
     template <class T>
     static PhysicsServer2D *init_server() {
-
-        int tm = T_GLOBAL_DEF<int>("physics/2d/thread_model", 1);
-        if (tm == 0) // single unsafe
-            return memnew(T);
-        else if (tm == 1) // single safe
+        
+        auto tm = T_GLOBAL_DEF<OS::RenderThreadMode>("physics/2d/thread_model", OS::RENDER_THREAD_SAFE);
+        assert(tm != 0); // single unsafe
+        if (tm == OS::RENDER_THREAD_SAFE) // single safe
             return memnew(Physics2DServerWrapMT(memnew(T), false));
         else // multi threaded
             return memnew(Physics2DServerWrapMT(memnew(T), true));

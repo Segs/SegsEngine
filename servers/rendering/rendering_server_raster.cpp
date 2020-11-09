@@ -31,23 +31,20 @@
 #include "rendering_server_raster.h"
 
 #include "core/external_profiler.h"
-#include "core/io/marshalls.h"
-#include "core/object_db.h"
 #include "core/os/os.h"
 #include "core/ecs_registry.h"
 #include "core/project_settings.h"
-#include "core/sort_array.h"
 #include "rendering_server_canvas.h"
 #include "rendering_server_globals.h"
 #include "rendering_server_scene.h"
 
 // careful, these may run in different threads than the visual server
 
-int VisualServerRaster::changes = 0;
+int RenderingServerRaster::changes = 0;
 
 /* BLACK BARS */
 
-void VisualServerRaster::black_bars_set_margins(int p_left, int p_top, int p_right, int p_bottom) {
+void RenderingServerRaster::black_bars_set_margins(int p_left, int p_top, int p_right, int p_bottom) {
 
     black_margin[(int8_t)Margin::Left] = p_left;
     black_margin[(int8_t)Margin::Top] = p_top;
@@ -55,7 +52,7 @@ void VisualServerRaster::black_bars_set_margins(int p_left, int p_top, int p_rig
     black_margin[(int8_t)Margin::Bottom] = p_bottom;
 }
 
-void VisualServerRaster::black_bars_set_images(RID p_left, RID p_top, RID p_right, RID p_bottom) {
+void RenderingServerRaster::black_bars_set_images(RID p_left, RID p_top, RID p_right, RID p_bottom) {
 
     black_image[(int8_t)Margin::Left] = p_left;
     black_image[(int8_t)Margin::Top] = p_top;
@@ -63,14 +60,14 @@ void VisualServerRaster::black_bars_set_images(RID p_left, RID p_top, RID p_righ
     black_image[(int8_t)Margin::Bottom] = p_bottom;
 }
 
-void VisualServerRaster::_draw_margins() {
+void RenderingServerRaster::_draw_margins() {
 
     VSG::canvas_render->draw_window_margins(black_margin, black_image);
 }
 
 /* FREE */
 
-void VisualServerRaster::free_rid(RID p_rid) {
+void RenderingServerRaster::free_rid(RID p_rid) {
 
     if (VSG::storage->free(p_rid))
         return;
@@ -86,14 +83,14 @@ void VisualServerRaster::free_rid(RID p_rid) {
 
 /* EVENT QUEUING */
 
-void VisualServerRaster::request_frame_drawn_callback(Callable&& cb) {
+void RenderingServerRaster::request_frame_drawn_callback(Callable&& cb) {
 
     ERR_FAIL_COND(cb.is_null());
 
     frame_drawn_callbacks.emplace_back(eastl::move(cb));
 }
 
-void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
+void RenderingServerRaster::draw(bool p_swap_buffers, double frame_step) {
     SCOPE_AUTONAMED;
 
     //needs to be done before changes is reset to 0, to not force the editor to redraw
@@ -135,71 +132,71 @@ void VisualServerRaster::draw(bool p_swap_buffers, double frame_step) {
         RenderingServer::get_singleton()->emit_signal("frame_post_draw");
     }
 }
-void VisualServerRaster::sync() {
+void RenderingServerRaster::sync() {
 }
-bool VisualServerRaster::has_changed() const {
+bool RenderingServerRaster::has_changed() const {
 
     return changes > 0;
 }
-void VisualServerRaster::init() {
+void RenderingServerRaster::init() {
 
     VSG::rasterizer->initialize();
 }
-void VisualServerRaster::finish() {
+void RenderingServerRaster::finish() {
 
     VSG::rasterizer->finalize();
 }
 
 /* STATUS INFORMATION */
 
-int VisualServerRaster::get_render_info(RS::RenderInfo p_info) {
+int RenderingServerRaster::get_render_info(RS::RenderInfo p_info) {
 
     return VSG::storage->get_render_info(p_info);
 }
-const char *VisualServerRaster::get_video_adapter_name() const {
+const char *RenderingServerRaster::get_video_adapter_name() const {
 
     return VSG::storage->get_video_adapter_name();
 }
 
-const char *VisualServerRaster::get_video_adapter_vendor() const {
+const char *RenderingServerRaster::get_video_adapter_vendor() const {
 
     return VSG::storage->get_video_adapter_vendor();
 }
 /* TESTING */
 
-void VisualServerRaster::set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter) {
+void RenderingServerRaster::set_boot_image(const Ref<Image> &p_image, const Color &p_color, bool p_scale, bool p_use_filter) {
 
     redraw_request();
     VSG::rasterizer->set_boot_image(p_image, p_color, p_scale, p_use_filter);
 }
-void VisualServerRaster::set_default_clear_color(const Color &p_color) {
+void RenderingServerRaster::set_default_clear_color(const Color &p_color) {
     VSG::viewport->set_default_clear_color(p_color);
 }
 
-bool VisualServerRaster::has_feature(RS::Features p_feature) const {
+bool RenderingServerRaster::has_feature(RS::Features p_feature) const {
 
     return false;
 }
 
-bool VisualServerRaster::has_os_feature(const StringName &p_feature) const {
+bool RenderingServerRaster::has_os_feature(const StringName &p_feature) const {
 
     return VSG::storage->has_os_feature(p_feature);
 }
 
-void VisualServerRaster::set_debug_generate_wireframes(bool p_generate) {
+void RenderingServerRaster::set_debug_generate_wireframes(bool p_generate) {
 
     VSG::storage->set_debug_generate_wireframes(p_generate);
 }
 
-void VisualServerRaster::call_set_use_vsync(bool p_enable) {
+void RenderingServerRaster::call_set_use_vsync(bool p_enable) {
     OS::get_singleton()->_set_use_vsync(p_enable);
 }
 
 // bool VisualServerRaster::is_low_end() const {
 //     return VSG::rasterizer->is_low_end();
 // }
-VisualServerRaster::VisualServerRaster() {
-
+RenderingServerRaster::RenderingServerRaster() {
+    submission_thread_singleton = this;
     VSG::canvas = memnew(VisualServerCanvas);
     VSG::viewport = memnew(VisualServerViewport);
     VSG::scene = memnew(VisualServerScene);
@@ -215,7 +212,8 @@ VisualServerRaster::VisualServerRaster() {
     }
 }
 
-VisualServerRaster::~VisualServerRaster() {
+RenderingServerRaster::~RenderingServerRaster() {
+    submission_thread_singleton = nullptr;
 
     memdelete(VSG::canvas);
     memdelete(VSG::viewport);

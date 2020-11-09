@@ -153,7 +153,7 @@ void Physics2DServerWrapMT::finish() {
 
 Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool p_create_thread) :
         command_queue(p_create_thread) {
-
+    queueing_thread_singleton = this;
     physics_server_2d = p_contained;
     create_thread = p_create_thread;
     thread = nullptr;
@@ -176,5 +176,6 @@ Physics2DServerWrapMT::Physics2DServerWrapMT(PhysicsServer2D *p_contained, bool 
 Physics2DServerWrapMT::~Physics2DServerWrapMT() {
 
     memdelete(physics_server_2d);
+    queueing_thread_singleton = nullptr;
     //finish();
 }

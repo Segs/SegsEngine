@@ -35,6 +35,8 @@
 #include "core/reference.h"
 #include "core/resource.h"
 #include "core/rid.h"
+#include "core/os/thread.h"
+
 
 #include <utility>
 
@@ -237,15 +239,21 @@ class GODOT_EXPORT PhysicsServer2D : public Object {
 
     GDCLASS(PhysicsServer2D,Object)
 
-    static PhysicsServer2D *singleton;
 public:
     virtual bool _body_test_motion(RID p_body, const Transform2D &p_from, const Vector2 &p_motion, bool p_infinite_inertia, float p_margin = 0.08, const Ref<Physics2DTestMotionResult> &p_result = Ref<Physics2DTestMotionResult>());
 
 protected:
     static void _bind_methods();
 
+    static Thread::ID server_thread;
+    static PhysicsServer2D* submission_thread_singleton; // gpu operation submission object
+    static PhysicsServer2D* queueing_thread_singleton; // other threads enqueue operations through this object.
+
 public:
-    static PhysicsServer2D *get_singleton();
+    static PhysicsServer2D* get_singleton()
+    {
+        return (Thread::get_caller_id() == server_thread) ? submission_thread_singleton : queueing_thread_singleton;
+    }
 
     enum ShapeType {
         SHAPE_LINE, ///< plane:"plane"

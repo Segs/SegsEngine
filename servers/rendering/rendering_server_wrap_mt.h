@@ -40,7 +40,6 @@ class  RenderingServerWrapMT : public RenderingServer {
     mutable RenderingServer *rendering_server;
     mutable CommandQueueMT command_queue;
     Mutex alloc_mutex;
-    Thread::ID server_thread;
     Thread *thread;
     uint64_t draw_pending;
     int pool_max_size;
@@ -49,8 +48,6 @@ class  RenderingServerWrapMT : public RenderingServer {
     bool create_thread;
 
     //#define DEBUG_SYNC
-
-    static RenderingServerWrapMT *singleton_mt;
 
     static void _thread_callback(void *_instance);
     void thread_loop();
@@ -91,18 +88,15 @@ public:
     FUNC3(texture_set_detect_normal_callback, RID, TextureDetectCallback, void *)
 
     void texture_set_path(RID p1, StringView p2) override {
-        if (Thread::get_caller_id() != server_thread) {
-            String by_val(p2);
-            command_queue.push( [this,p1,by_val]() { server_name->texture_set_path(p1, by_val);});
-        } else {
-            server_name->texture_set_path(p1, p2);
-        }
+        assert(Thread::get_caller_id() != server_thread);
+        String by_val(p2);
+        command_queue.push( [p1,by_val]() { submission_thread_singleton->texture_set_path(p1, by_val);});
     }
 
     const String &texture_get_path(RID p1) const override {
         if (Thread::get_caller_id() != server_thread) {
             const String *ret;
-            command_queue.push_and_sync( [this,p1,&ret]() { ret = &server_name->texture_get_path(p1);});
+            command_queue.push_and_sync( [p1,&ret]() { ret = &submission_thread_singleton->texture_get_path(p1);});
             SYNC_DEBUG
             return *ret;
         } else {
@@ -658,7 +652,7 @@ public:
 //        return rendering_server->is_low_end();
 //    }
 
-    GODOT_EXPORT RenderingServerWrapMT(RenderingServer *p_contained, bool p_create_thread);
+    GODOT_EXPORT RenderingServerWrapMT(bool p_create_thread);
     ~RenderingServerWrapMT() override;
 
 //#undef ServerName

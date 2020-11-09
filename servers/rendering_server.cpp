@@ -36,11 +36,9 @@
 #include "core/project_settings.h"
 
 IMPL_GDCLASS(RenderingServer)
-RenderingServer *RenderingServer::singleton = nullptr;
-
-RenderingServer *RenderingServer::get_singleton() {
-    return singleton;
-}
+RenderingServer *RenderingServer::submission_thread_singleton = nullptr;
+RenderingServer* RenderingServer::queueing_thread_singleton = nullptr;
+Thread::ID RenderingServer::server_thread;
 
 RID RenderingServer::texture_create_from_image(const Ref<Image> &p_image, uint32_t p_flags) {
     ERR_FAIL_COND_V(not p_image, RID());
@@ -850,8 +848,8 @@ void RenderingServer::mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType
             index_array_len, aabb, blend_shape_data, PoolVector(bone_aabb));
 }
 
-SurfaceArrays RenderingServer::_get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data,
-        uint32_t p_vertex_len, Span<const uint8_t> p_index_data, int p_index_len) const {
+static SurfaceArrays _get_array_from_surface(uint32_t p_format, Span<const uint8_t> p_vertex_data,
+        uint32_t p_vertex_len, Span<const uint8_t> p_index_data, int p_index_len) {
     uint32_t offsets[RS::ARRAY_MAX];
 
     uint32_t total_elem_size = 0;
@@ -1239,13 +1237,6 @@ void RenderingServer::_bind_methods() {
     MethodBinder::bind_method(D_METHOD("force_sync"), &RenderingServer::sync);
     MethodBinder::bind_method(D_METHOD("force_draw", { "swap_buffers", "frame_step" }), &RenderingServer::draw,
             { DEFVAL(true), DEFVAL(0.0) });
-
-    // "draw" and "sync" are deprecated duplicates of "force_draw" and "force_sync"
-    // FIXME: Add deprecation messages using GH-4397 once available, and retire
-    // once the warnings have been enabled for a full release cycle
-    MethodBinder::bind_method(D_METHOD("sync"), &RenderingServer::sync);
-    MethodBinder::bind_method(
-            D_METHOD("draw", { "swap_buffers", "frame_step" }), &RenderingServer::draw, { DEFVAL(true), DEFVAL(0.0) });
 
     MethodBinder::bind_method(D_METHOD("texture_create"), &RenderingServer::texture_create);
     MethodBinder::bind_method(D_METHOD("texture_create_from_image", { "image", "flags" }),
@@ -2266,8 +2257,8 @@ void RenderingServer::mesh_add_surface_from_mesh_data(RID p_mesh, const Geometry
     normals.reserve(cnt * 3);
 
 #define _ADD_VERTEX(m_idx)                                                                                             \
-    vertices.push_back(p_mesh_data.vertices[f.indices[m_idx]]);                                                        \
-    normals.push_back(f.plane.normal);
+    vertices.emplace_back(p_mesh_data.vertices[f.indices[m_idx]]);                                                        \
+    normals.emplace_back(f.plane.normal);
 
     for (const Geometry::MeshData::Face &f : p_mesh_data.faces) {
         for (int j = 2; j < f.indices.size(); j++) {
@@ -2301,7 +2292,6 @@ RID RenderingServer::instance_create2(RID p_base, RID p_scenario) {
 
 RenderingServer::RenderingServer() {
     // ERR_FAIL_COND();
-    singleton = this;
     auto ps(ProjectSettings::get_singleton());
     GLOBAL_DEF_RST("rendering/vram_compression/import_bptc", false);
     GLOBAL_DEF_RST("rendering/vram_compression/import_s3tc", true);
@@ -2369,5 +2359,4 @@ RenderingServer::RenderingServer() {
 }
 
 RenderingServer::~RenderingServer() {
-    singleton = nullptr;
 }

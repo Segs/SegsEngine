@@ -18,7 +18,9 @@
 #include <inttypes.h>
 #include <sys/stat.h>
 
+#ifdef HAS_CAPSTONE
 #include <capstone/capstone.h>
+#endif
 
 #include "../common/TracyProtocol.hpp"
 #include "../common/TracySystem.hpp"
@@ -3621,7 +3623,9 @@ void Worker::AddSymbolCode( uint64_t ptr, const char* data, size_t sz )
     m_data.symbolCode.emplace( ptr, MemoryBlock{ code, uint32_t( sz ) } );
     m_data.symbolCodeSize += sz;
 
-    if( m_data.cpuArch == CpuArchUnknown ) return;
+    if( m_data.cpuArch == CpuArchUnknown ) 
+        return;
+#ifdef HAS_CAPSTONE
     csh handle;
     cs_err rval = CS_ERR_ARCH;
     switch( m_data.cpuArch )
@@ -3655,6 +3659,7 @@ void Worker::AddSymbolCode( uint64_t ptr, const char* data, size_t sz )
         cs_free( insn, cnt );
     }
     cs_close( &handle );
+#endif
 }
 
 CallstackFrameId Worker::PackPointer( uint64_t ptr ) const

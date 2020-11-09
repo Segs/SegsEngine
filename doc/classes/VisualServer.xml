@@ -1017,17 +1017,6 @@
                 To place in a scene, attach this directional light to an instance using [method instance_set_base] using the returned RID.
             </description>
         </method>
-        <method name="draw">
-            <return type="void">
-            </return>
-            <argument index="0" name="swap_buffers" type="bool" default="true">
-            </argument>
-            <argument index="1" name="frame_step" type="float" default="0.0">
-            </argument>
-            <description>
-                Draws a frame. [i]This method is deprecated[/i], please use [method force_draw] instead.
-            </description>
-        </method>
         <method name="environment_create">
             <return type="RID">
             </return>
@@ -3595,13 +3584,6 @@
                 Creates a spot light and adds it to the RenderingServer. It can be accessed with the RID that is returned. This RID can be used in most [code]light_*[/code] RenderingServer functions.
                 Once finished with your RID, you will want to free the RID using the RenderingServer's [method free_rid] static method.
                 To place in a scene, attach this spot light to an instance using [method instance_set_base] using the returned RID.
-            </description>
-        </method>
-        <method name="sync">
-            <return type="void">
-            </return>
-            <description>
-                Not implemented in Godot 3.x.
             </description>
         </method>
         <method name="texture_allocate">

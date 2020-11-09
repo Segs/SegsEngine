@@ -754,8 +754,6 @@ Error Main::setup(bool p_second_phase) {
 
                 if (*N == "safe")
                     rtm = OS::RENDER_THREAD_SAFE;
-                else if (*N == "unsafe")
-                    rtm = OS::RENDER_THREAD_UNSAFE;
                 else if (*N == "separate")
                     rtm = OS::RENDER_SEPARATE_THREAD;
 
@@ -1185,7 +1183,7 @@ Error Main::setup(bool p_second_phase) {
         rtm = T_GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
     }
 
-    if (rtm >= 0 && rtm < 3) {
+    if (rtm >= OS::RENDER_THREAD_SAFE && rtm < OS::RENDER_THREAD_MAX) {
         if (editor) {
             rtm = OS::RENDER_THREAD_SAFE;
         }

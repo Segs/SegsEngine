@@ -1131,7 +1131,7 @@ bool RasterizerSceneGLES3::_setup_material(RasterizerStorageGLES3::Material *p_m
         if (t) {
 
             if (t->redraw_if_visible) { //must check before proxy because this is often used with proxies
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             t = t->get_ptr(); //resolve for proxies
@@ -1553,7 +1553,7 @@ void RasterizerSceneGLES3::_render_geometry(RenderList::Element *e) {
                     RasterizerStorageGLES3::Texture *t = storage->texture_owner.get(c.texture);
 
                     if (t->redraw_if_visible) {
-                        VisualServerRaster::redraw_request();
+                        RenderingServerRaster::redraw_request();
                     }
                     t = t->get_ptr(); //resolve for proxies
 
@@ -2362,7 +2362,7 @@ void RasterizerSceneGLES3::_add_geometry_with_material(RasterizerStorageGLES3::G
     }
 
     if (p_material->shader->spatial.uses_time) {
-        VisualServerRaster::redraw_request();
+        RenderingServerRaster::redraw_request();
     }
 }
 
@@ -3812,7 +3812,7 @@ void RasterizerSceneGLES3::_post_process(Environment *env, const CameraMatrix &p
 
         glViewport(0, 0, storage->frame.current_rt->width, storage->frame.current_rt->height);
 
-        VisualServerRaster::redraw_request(); //if using auto exposure, redraw must happen
+        RenderingServerRaster::redraw_request(); //if using auto exposure, redraw must happen
     }
 
     int max_glow_level = -1;

@@ -2100,7 +2100,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
             InstanceGeometryData *geom = get_instance_geometry(ins->self);
             GeometryComponent & gcomp = get_component<GeometryComponent>(ins->self);
             if (ins->redraw_if_visible) {
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             if (ins->base_type == RS::INSTANCE_PARTICLES) {
@@ -2111,7 +2111,7 @@ void VisualServerScene::_prepare_scene(const Transform &p_cam_transform, const C
                 } else {
                     VSG::storage->particles_request_process(ins->base);
                     //particles visible? request redraw
-                    VisualServerRaster::redraw_request();
+                    RenderingServerRaster::redraw_request();
                 }
             }
 
@@ -2360,7 +2360,7 @@ bool VisualServerScene::_render_reflection_probe_step(Instance *p_instance, int 
     Scenario *scenario = p_instance->scenario;
     ERR_FAIL_COND_V(!scenario, true);
 
-    VisualServerRaster::redraw_request(); //update, so it updates in editor
+    RenderingServerRaster::redraw_request(); //update, so it updates in editor
 
     if (p_step == 0) {
 

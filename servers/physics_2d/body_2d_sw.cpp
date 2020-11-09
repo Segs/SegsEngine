@@ -666,10 +666,10 @@ PhysicsDirectSpaceState2D *Physics2DDirectBodyStateSW::get_space_state() {
 Variant Physics2DDirectBodyStateSW::get_contact_collider_shape_metadata(int p_contact_idx) const {
     ERR_FAIL_INDEX_V(p_contact_idx, body->contact_count, Variant());
 
-    if (!Physics2DServerSW::singletonsw->body_owner.owns(body->contacts[p_contact_idx].collider)) {
+    if (!Physics2DServerSW::get()->body_owner.owns(body->contacts[p_contact_idx].collider)) {
         return Variant();
     }
-    Body2DSW *other = Physics2DServerSW::singletonsw->body_owner.get(body->contacts[p_contact_idx].collider);
+    Body2DSW *other = Physics2DServerSW::get()->body_owner.get(body->contacts[p_contact_idx].collider);
 
     int sidx = body->contacts[p_contact_idx].collider_shape;
     if (sidx < 0 || sidx >= other->get_shape_count()) {

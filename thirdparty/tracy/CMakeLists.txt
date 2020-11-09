@@ -111,7 +111,7 @@ add_executable(tracy_profiler
 #    profiler/src/main.cpp
     ${PLATFORM_SOURCES}
 )
-target_link_libraries(tracy_profiler PRIVATE freetype ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} Qt5::Widgets Threads::Threads glfw zstd)
+target_link_libraries(tracy_profiler PRIVATE freetype ${OPENGL_LIBRARIES} ${CMAKE_DL_LIBS} Qt5::Widgets Threads::Threads glfw zstd_internal)
 if(TBB_LIB) # needed for libcpp + clang
     target_link_libraries(tracy_profiler PRIVATE ${TBB_LIB})
 endif()
@@ -127,7 +127,7 @@ if(WIN32)
     target_compile_definitions(tracy_profiler PRIVATE NDEBUG _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE WIN32_LEAN_AND_MEAN NOMINMAX _USE_MATH_DEFINES)
     target_link_libraries(tracy_profiler PRIVATE ws2_32 dbghelp)
 else()
-    target_compile_definitions(tracy_profiler PRIVATE DISPLAY_SERVER_X11)
+    target_compile_definitions(tracy_profiler PRIVATE DISPLAY_SERVER_X11 HAS_CAPSTONE)
     target_link_libraries(tracy_profiler PRIVATE capstone)
 
 endif()

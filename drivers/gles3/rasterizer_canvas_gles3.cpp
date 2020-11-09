@@ -213,7 +213,7 @@ RasterizerStorageGLES3::Texture *RasterizerCanvasGLES3::_bind_canvas_texture(con
         } else {
 
             if (texture->redraw_if_visible) { //check before proxy, because this is usually used with proxies
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             texture = texture->get_ptr();
@@ -254,7 +254,7 @@ RasterizerStorageGLES3::Texture *RasterizerCanvasGLES3::_bind_canvas_texture(con
         } else {
 
             if (normal_map->redraw_if_visible) { //check before proxy, because this is usually used with proxies
-                VisualServerRaster::redraw_request();
+                RenderingServerRaster::redraw_request();
             }
 
             normal_map = normal_map->get_ptr();
@@ -1061,7 +1061,7 @@ void _render_particles(RasterizerCanvasGLES3 *self,RasterizerCanvas::Item::Comma
 
     glVertexAttrib4f(RS::ARRAY_COLOR, 1, 1, 1, 1); //not used, so keep white
 
-    VisualServerRaster::redraw_request();
+    RenderingServerRaster::redraw_request();
 
     self->storage->particles_request_process(particles_cmd->particles);
     //enable instancing
@@ -1575,7 +1575,7 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
                 if (shader_ptr != shader_cache || rebind_shader) {
 
                     if (shader_ptr->canvas_item.uses_time) {
-                        VisualServerRaster::redraw_request();
+                        RenderingServerRaster::redraw_request();
                     }
 
                     state.canvas_shader.set_custom_shader(shader_ptr->custom_code_id);
@@ -1619,7 +1619,7 @@ void RasterizerCanvasGLES3::canvas_render_items(Item *p_item_list, int p_z, cons
                     }
 
                     if (t->redraw_if_visible) { //check before proxy, because this is usually used with proxies
-                        VisualServerRaster::redraw_request();
+                        RenderingServerRaster::redraw_request();
                     }
 
                     t = t->get_ptr();

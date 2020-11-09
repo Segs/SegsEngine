@@ -90,9 +90,10 @@ public:
 
     enum RenderThreadMode {
 
-        RENDER_THREAD_UNSAFE,
-        RENDER_THREAD_SAFE,
-        RENDER_SEPARATE_THREAD
+        //RENDER_THREAD_UNSAFE,
+        RENDER_THREAD_SAFE=1,
+        RENDER_SEPARATE_THREAD,
+        RENDER_THREAD_MAX
     };
     struct VideoMode {
 

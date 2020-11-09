@@ -60,7 +60,9 @@ VARIANT_ENUM_CAST(PhysicsServer2D::DampedStringParam);
 VARIANT_ENUM_CAST(PhysicsServer2D::AreaBodyStatus);
 VARIANT_ENUM_CAST(PhysicsServer2D::ProcessInfo);
 
-PhysicsServer2D *PhysicsServer2D::singleton = nullptr;
+PhysicsServer2D *PhysicsServer2D::queueing_thread_singleton = nullptr;
+PhysicsServer2D* PhysicsServer2D::submission_thread_singleton = nullptr;
+Thread::ID PhysicsServer2D::server_thread;
 
 namespace {
 struct ClassInfo {
@@ -115,11 +117,6 @@ Object *PhysicsDirectBodyState2D::get_contact_collider_object(int p_contact_idx)
     ObjectID objid = get_contact_collider_id(p_contact_idx);
     Object *obj = gObjectDB().get_instance(objid);
     return obj;
-}
-
-PhysicsServer2D *PhysicsServer2D::get_singleton() {
-
-    return singleton;
 }
 
 void PhysicsDirectBodyState2D::_bind_methods() {
@@ -820,13 +817,9 @@ void PhysicsServer2D::_bind_methods() {
 }
 
 PhysicsServer2D::PhysicsServer2D() {
-
-    singleton = this;
 }
 
 PhysicsServer2D::~PhysicsServer2D() {
-
-    singleton = nullptr;
 }
 
 int Physics2DServerManager::default_server_id = -1;

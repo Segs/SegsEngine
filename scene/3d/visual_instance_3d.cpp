@@ -32,10 +32,8 @@
 
 #include "core/method_bind.h"
 #include "core/object_tooling.h"
-#include "scene/scene_string_names.h"
 #include "servers/rendering_server.h"
 #include "scene/resources/world_3d.h"
-#include "skeleton_3d.h"
 
 IMPL_GDCLASS(VisualInstance3D)
 IMPL_GDCLASS(GeometryInstance)
@@ -98,11 +96,6 @@ RID VisualInstance3D::get_instance() const {
     return instance;
 }
 
-RID VisualInstance3D::_get_visual_instance_rid() const {
-
-    return instance;
-}
-
 void VisualInstance3D::set_layer_mask(uint32_t p_mask) {
 
     layers = p_mask;
@@ -130,7 +123,7 @@ bool VisualInstance3D::get_layer_mask_bit(int p_layer) const {
 
 void VisualInstance3D::_bind_methods() {
 
-    MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::_get_visual_instance_rid);
+    MethodBinder::bind_method(D_METHOD("_get_visual_instance_rid"), &VisualInstance3D::get_instance);
     MethodBinder::bind_method(D_METHOD("set_base", {"base"}), &VisualInstance3D::set_base);
     MethodBinder::bind_method(D_METHOD("get_base"), &VisualInstance3D::get_base);
     MethodBinder::bind_method(D_METHOD("get_instance"), &VisualInstance3D::get_instance);
@@ -332,8 +325,8 @@ GeometryInstance::GeometryInstance() {
     lod_min_hysteresis = 0;
     lod_max_hysteresis = 0;
 
-    for (int i = 0; i < FLAG_MAX; i++) {
-        flags[i] = false;
+    for (bool & flag : flags) {
+        flag = false;
     }
 
     shadow_casting_setting = SHADOW_CASTING_SETTING_ON;

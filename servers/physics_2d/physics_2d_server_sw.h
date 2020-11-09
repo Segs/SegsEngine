@@ -67,7 +67,7 @@ class Physics2DServerSW : public PhysicsServer2D {
     mutable RID_Owner<Body2DSW> body_owner;
     mutable RID_Owner<Joint2DSW> joint_owner;
 
-    static Physics2DServerSW *singletonsw;
+    //static Physics2DServerSW *singletonsw;
 
     //void _clear_query(Query2DSW *p_query);
     friend class CollisionObject2DSW;
@@ -77,6 +77,10 @@ class Physics2DServerSW : public PhysicsServer2D {
     RID _shape_create(ShapeType p_shape);
 
 public:
+    static Physics2DServerSW *get()
+    {
+        return (Physics2DServerSW*)submission_thread_singleton;
+    }
     struct CollCbkData {
 
         Vector2 valid_dir;
