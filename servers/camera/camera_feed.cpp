@@ -153,9 +153,9 @@ CameraFeed::CameraFeed() {
     transform = Transform2D(1.0, 0.0, 0.0, -1.0, 0.0, 1.0);
 
     // create a texture object
-    RenderingServer *vs = RenderingServer::get_singleton();
-    texture[CameraServer::FEED_Y_IMAGE] = vs->texture_create(); // also used for RGBA
-    texture[CameraServer::FEED_CBCR_IMAGE] = vs->texture_create();
+    RenderingServer *rs = RenderingServer::get_singleton();
+    texture[CameraServer::FEED_Y_IMAGE] = rs->texture_create(); // also used for RGBA
+    texture[CameraServer::FEED_CBCR_IMAGE] = rs->texture_create();
 }
 
 CameraFeed::CameraFeed(StringView p_name, FeedPosition p_position) {

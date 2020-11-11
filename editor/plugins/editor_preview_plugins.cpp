@@ -894,19 +894,19 @@ Ref<Texture> EditorFontPreviewPlugin::generate(const RES &p_from, const Size2 &p
 }
 
 EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
+    RenderingServer *rs=RenderingServer::get_singleton();
+    viewport = rs->viewport_create();
+    rs->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
+    rs->viewport_set_vflip(viewport, true);
+    rs->viewport_set_size(viewport, 128, 128);
+    rs->viewport_set_active(viewport, true);
+    viewport_texture = rs->viewport_get_texture(viewport);
 
-    viewport = RenderingServer::get_singleton()->viewport_create();
-    RenderingServer::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
-    RenderingServer::get_singleton()->viewport_set_vflip(viewport, true);
-    RenderingServer::get_singleton()->viewport_set_size(viewport, 128, 128);
-    RenderingServer::get_singleton()->viewport_set_active(viewport, true);
-    viewport_texture = RenderingServer::get_singleton()->viewport_get_texture(viewport);
+    canvas = rs->canvas_create();
+    canvas_item = rs->canvas_item_create();
 
-    canvas = RenderingServer::get_singleton()->canvas_create();
-    canvas_item = RenderingServer::get_singleton()->canvas_item_create();
-
-    RenderingServer::get_singleton()->viewport_attach_canvas(viewport, canvas);
-    RenderingServer::get_singleton()->canvas_item_set_parent(canvas_item, canvas);
+    rs->viewport_attach_canvas(viewport, canvas);
+    rs->canvas_item_set_parent(canvas_item, canvas);
 }
 
 EditorFontPreviewPlugin::~EditorFontPreviewPlugin() {

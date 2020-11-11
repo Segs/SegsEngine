@@ -51,9 +51,10 @@ IP_Address::operator String() const {
         return "";
     }
 
-    if (is_ipv4())
+    if (is_ipv4()) {
         // IPv4 address mapped to IPv6
         return to_string(field8[12]) + "." + to_string(field8[13]) + "." + to_string(field8[14]) + "." + to_string(field8[15]);
+    }
     String ret;
     for (int i = 0; i < 8; i++) {
         if (i > 0) {

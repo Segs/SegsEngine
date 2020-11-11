@@ -66,8 +66,9 @@ int Compression::compress(uint8_t *p_dst, const uint8_t *p_src, int p_src_size, 
             strm.opaque = nullptr;
             int level = p_mode == MODE_DEFLATE ? zlib_level : gzip_level;
             int err = deflateInit2(&strm, level, Z_DEFLATED, window_bits, 8, Z_DEFAULT_STRATEGY);
-            if (err != Z_OK)
+            if (err != Z_OK) {
                 return -1;
+            }
 
             strm.avail_in = p_src_size;
             int aout = deflateBound(&strm, p_src_size);
@@ -103,8 +104,9 @@ int Compression::get_max_compressed_buffer_size(int p_src_size, Mode p_mode) {
         case MODE_FASTLZ: {
 
             int ss = p_src_size + p_src_size * 6 / 100;
-            if (ss < 66)
+            if (ss < 66) {
                 ss = 66;
+            }
             return ss;
         }
         case MODE_DEFLATE:
@@ -117,8 +119,9 @@ int Compression::get_max_compressed_buffer_size(int p_src_size, Mode p_mode) {
             strm.zfree = zipio_free;
             strm.opaque = nullptr;
             int err = deflateInit2(&strm, Z_DEFAULT_COMPRESSION, Z_DEFLATED, window_bits, 8, Z_DEFAULT_STRATEGY);
-            if (err != Z_OK)
+            if (err != Z_OK) {
                 return -1;
+            }
             int aout = deflateBound(&strm, p_src_size);
             deflateEnd(&strm);
             return aout;

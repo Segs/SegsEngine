@@ -1315,7 +1315,7 @@ bool AnimationPlayerEditor::_are_onion_layers_valid() {
 }
 
 void AnimationPlayerEditor::_allocate_onion_layers() {
-
+    RenderingServer *rs=RenderingServer::get_singleton();
     _free_onion_layers();
 
     int captures = onion.get_needed_capture_count();
@@ -1328,18 +1328,18 @@ void AnimationPlayerEditor::_allocate_onion_layers() {
         bool is_present = onion.differences_only && i == captures - 1;
 
         // Each capture is a viewport with a canvas item attached that renders a full-size rect with the contents of the main viewport.
-        onion.captures[i] = RenderingServer::get_singleton()->viewport_create();
-        RenderingServer::get_singleton()->viewport_set_usage(onion.captures[i], RS::VIEWPORT_USAGE_2D);
-        RenderingServer::get_singleton()->viewport_set_size(onion.captures[i], capture_size.width, capture_size.height);
-        RenderingServer::get_singleton()->viewport_set_update_mode(onion.captures[i], RS::VIEWPORT_UPDATE_ALWAYS);
-        RenderingServer::get_singleton()->viewport_set_transparent_background(onion.captures[i], !is_present);
-        RenderingServer::get_singleton()->viewport_set_vflip(onion.captures[i], true);
-        RenderingServer::get_singleton()->viewport_attach_canvas(onion.captures[i], onion.capture.canvas);
+        onion.captures[i] = rs->viewport_create();
+        rs->viewport_set_usage(onion.captures[i], RS::VIEWPORT_USAGE_2D);
+        rs->viewport_set_size(onion.captures[i], capture_size.width, capture_size.height);
+        rs->viewport_set_update_mode(onion.captures[i], RS::VIEWPORT_UPDATE_ALWAYS);
+        rs->viewport_set_transparent_background(onion.captures[i], !is_present);
+        rs->viewport_set_vflip(onion.captures[i], true);
+        rs->viewport_attach_canvas(onion.captures[i], onion.capture.canvas);
     }
 
     // Reset the capture canvas item to the current root viewport texture (defensive).
-    RenderingServer::get_singleton()->canvas_item_clear(onion.capture.canvas_item);
-    RenderingServer::get_singleton()->canvas_item_add_texture_rect(onion.capture.canvas_item, Rect2(Point2(), capture_size), get_tree()->get_root()->get_texture()->get_rid());
+    rs->canvas_item_clear(onion.capture.canvas_item);
+    rs->canvas_item_add_texture_rect(onion.capture.canvas_item, Rect2(Point2(), capture_size), get_tree()->get_root()->get_texture()->get_rid());
 
     onion.capture_size = capture_size;
 }

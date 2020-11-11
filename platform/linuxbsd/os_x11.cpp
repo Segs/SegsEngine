@@ -312,11 +312,7 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 
 #endif
 
-    rendering_server = memnew(VisualServerRaster);
-    if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-        rendering_server =
-                memnew(RenderingServerWrapMT(rendering_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
-    }
+    rendering_server = memnew(RenderingServerWrapMT(get_render_thread_mode() == RENDER_SEPARATE_THREAD));
 
     if (current_videomode.maximized) {
         current_videomode.maximized = false;

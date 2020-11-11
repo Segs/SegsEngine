@@ -91,12 +91,12 @@ public:
     float get_lifetime() const;
     bool get_one_shot() const;
     float get_pre_process_time() const;
-    float get_explosiveness_ratio() const;
-    float get_randomness_ratio() const;
+    float get_explosiveness_ratio() const { return explosiveness_ratio; }
+    float get_randomness_ratio() const { return randomness_ratio; }
     Rect2 get_visibility_rect() const;
-    bool get_use_local_coordinates() const;
+    bool get_use_local_coordinates() const { return local_coords; }
     Ref<Material> get_process_material() const;
-    float get_speed_scale() const;
+    float get_speed_scale() const { return speed_scale; }
 
     void set_fixed_fps(int p_count);
     int get_fixed_fps() const;

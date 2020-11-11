@@ -3233,14 +3233,15 @@ void Node3DEditorViewport::_init_gizmo_instance(int p_idx) {
 
 void Node3DEditorViewport::_finish_gizmo_instances() {
 
+    auto rs=RenderingServer::get_singleton();
     for (int i = 0; i < 3; i++) {
-        RenderingServer::get_singleton()->free_rid(move_gizmo_instance[i]);
-        RenderingServer::get_singleton()->free_rid(move_plane_gizmo_instance[i]);
-        RenderingServer::get_singleton()->free_rid(rotate_gizmo_instance[i]);
-        RenderingServer::get_singleton()->free_rid(scale_gizmo_instance[i]);
-        RenderingServer::get_singleton()->free_rid(scale_plane_gizmo_instance[i]);
+        rs->free_rid(move_gizmo_instance[i]);
+        rs->free_rid(move_plane_gizmo_instance[i]);
+        rs->free_rid(rotate_gizmo_instance[i]);
+        rs->free_rid(scale_gizmo_instance[i]);
+        rs->free_rid(scale_plane_gizmo_instance[i]);
     }
-    RenderingServer::get_singleton()->free_rid(rotate_gizmo_instance[3]);
+    rs->free_rid(rotate_gizmo_instance[3]);
 }
 void Node3DEditorViewport::_toggle_camera_preview(bool p_activate) {
 
@@ -3324,20 +3325,20 @@ void Node3DEditorViewport::update_transform_gizmo_view() {
     if (!is_visible_in_tree()) {
         return;
     }
-
+    auto rs=RenderingServer::get_singleton();
     Transform xform = spatial_editor->get_gizmo_transform();
 
     Transform camera_xform = camera->get_transform();
 
     if (xform.origin.distance_squared_to(camera_xform.origin) < 0.01f) {
         for (int i = 0; i < 3; i++) {
-            RenderingServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], false);
-            RenderingServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], false);
-            RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], false);
-            RenderingServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], false);
-            RenderingServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], false);
+            rs->instance_set_visible(move_gizmo_instance[i], false);
+            rs->instance_set_visible(move_plane_gizmo_instance[i], false);
+            rs->instance_set_visible(rotate_gizmo_instance[i], false);
+            rs->instance_set_visible(scale_gizmo_instance[i], false);
+            rs->instance_set_visible(scale_plane_gizmo_instance[i], false);
         }
-        RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[3], false);
+        rs->instance_set_visible(rotate_gizmo_instance[3], false);
         return;
     }
 
@@ -3364,20 +3365,20 @@ void Node3DEditorViewport::update_transform_gizmo_view() {
     xform.basis.scale(scale);
 
     for (int i = 0; i < 3; i++) {
-        RenderingServer::get_singleton()->instance_set_transform(move_gizmo_instance[i], xform);
-        RenderingServer::get_singleton()->instance_set_visible(move_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE));
-        RenderingServer::get_singleton()->instance_set_transform(move_plane_gizmo_instance[i], xform);
-        RenderingServer::get_singleton()->instance_set_visible(move_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE));
-        RenderingServer::get_singleton()->instance_set_transform(rotate_gizmo_instance[i], xform);
-        RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE));
-        RenderingServer::get_singleton()->instance_set_transform(scale_gizmo_instance[i], xform);
-        RenderingServer::get_singleton()->instance_set_visible(scale_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE);
-        RenderingServer::get_singleton()->instance_set_transform(scale_plane_gizmo_instance[i], xform);
-        RenderingServer::get_singleton()->instance_set_visible(scale_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE);
+        rs->instance_set_transform(move_gizmo_instance[i], xform);
+        rs->instance_set_visible(move_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE));
+        rs->instance_set_transform(move_plane_gizmo_instance[i], xform);
+        rs->instance_set_visible(move_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_MOVE));
+        rs->instance_set_transform(rotate_gizmo_instance[i], xform);
+        rs->instance_set_visible(rotate_gizmo_instance[i], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE));
+        rs->instance_set_transform(scale_gizmo_instance[i], xform);
+        rs->instance_set_visible(scale_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE);
+        rs->instance_set_transform(scale_plane_gizmo_instance[i], xform);
+        rs->instance_set_visible(scale_plane_gizmo_instance[i], spatial_editor->is_gizmo_visible() && spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SCALE);
     }
     // Rotation white outline
-    RenderingServer::get_singleton()->instance_set_transform(rotate_gizmo_instance[3], xform);
-    RenderingServer::get_singleton()->instance_set_visible(rotate_gizmo_instance[3], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE));
+    rs->instance_set_transform(rotate_gizmo_instance[3], xform);
+    rs->instance_set_visible(rotate_gizmo_instance[3], spatial_editor->is_gizmo_visible() && (spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_SELECT || spatial_editor->get_tool_mode() == Node3DEditor::TOOL_MODE_ROTATE));
 }
 
 void Node3DEditorViewport::set_state(const Dictionary &p_state) {

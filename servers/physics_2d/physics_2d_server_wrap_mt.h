@@ -32,6 +32,7 @@
 
 #include "core/command_queue_mt.h"
 #include "core/os/thread.h"
+#include "core/os/os.h"
 #include "core/rid.h"
 #include "core/project_settings.h"
 #include "servers/physics_server_2d.h"
@@ -344,7 +345,7 @@ public:
 
     template <class T>
     static PhysicsServer2D *init_server() {
-        
+
         auto tm = T_GLOBAL_DEF<OS::RenderThreadMode>("physics/2d/thread_model", OS::RENDER_THREAD_SAFE);
         assert(tm != 0); // single unsafe
         if (tm == OS::RENDER_THREAD_SAFE) // single safe

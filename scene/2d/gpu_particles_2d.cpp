@@ -178,30 +178,16 @@ float GPUParticles2D::get_pre_process_time() const {
 
     return pre_process_time;
 }
-float GPUParticles2D::get_explosiveness_ratio() const {
 
-    return explosiveness_ratio;
-}
-float GPUParticles2D::get_randomness_ratio() const {
 
-    return randomness_ratio;
-}
 Rect2 GPUParticles2D::get_visibility_rect() const {
 
     return visibility_rect;
 }
-bool GPUParticles2D::get_use_local_coordinates() const {
 
-    return local_coords;
-}
 Ref<Material> GPUParticles2D::get_process_material() const {
 
     return process_material;
-}
-
-float GPUParticles2D::get_speed_scale() const {
-
-    return speed_scale;
 }
 
 void GPUParticles2D::set_draw_order(DrawOrder p_order) {

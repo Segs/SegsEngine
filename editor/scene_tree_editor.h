@@ -165,6 +165,13 @@ public:
 
     SceneTreeEditor(bool p_label = true, bool p_can_rename = false, bool p_can_open_instance = false);
     ~SceneTreeEditor() override;
+private:
+    void on_subscene_pressed(Node *n);
+    void on_script_pressed(Node *n);
+    void on_visibility_pressed(Node *n);
+    void on_lock_pressed(Node *n);
+    void on_group_pressed(Node *n);
+    void on_groups_pressed(Node *n);
 };
 
 class SceneTreeDialog : public ConfirmationDialog {

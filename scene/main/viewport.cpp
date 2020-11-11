@@ -298,6 +298,7 @@ void Viewport::_own_world_changed() {
     _update_listener();
 }
 void Viewport::_notification(int p_what) {
+    auto rs(RenderingServer::get_singleton());
 
     switch (p_what) {
 
@@ -305,14 +306,14 @@ void Viewport::_notification(int p_what) {
 
             if (get_parent()) {
                 parent = get_parent()->get_viewport();
-                RenderingServer::get_singleton()->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
+                rs->viewport_set_parent_viewport(viewport, parent->get_viewport_rid());
             } else {
                 parent = nullptr;
             }
 
             current_canvas = find_world_2d()->get_canvas();
-            RenderingServer::get_singleton()->viewport_set_scenario(viewport, find_world()->get_scenario());
-            RenderingServer::get_singleton()->viewport_attach_canvas(viewport, current_canvas);
+            rs->viewport_set_scenario(viewport, find_world()->get_scenario());
+            rs->viewport_attach_canvas(viewport, current_canvas);
 
             _update_listener();
             _update_listener_2d();
@@ -323,21 +324,21 @@ void Viewport::_notification(int p_what) {
             if (get_tree()->is_debugging_collisions_hint()) {
                 //2D
                 PhysicsServer2D::get_singleton()->space_set_debug_contacts(find_world_2d()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_2d_debug = RenderingServer::get_singleton()->canvas_item_create();
-                RenderingServer::get_singleton()->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
+                contact_2d_debug = rs->canvas_item_create();
+                rs->canvas_item_set_parent(contact_2d_debug, find_world_2d()->get_canvas());
                 //3D
                 PhysicsServer3D::get_singleton()->space_set_debug_contacts(find_world()->get_space(), get_tree()->get_collision_debug_contact_count());
-                contact_3d_debug_multimesh = RenderingServer::get_singleton()->multimesh_create();
-                RenderingServer::get_singleton()->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT);
-                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
-                RenderingServer::get_singleton()->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
-                contact_3d_debug_instance = RenderingServer::get_singleton()->instance_create();
-                RenderingServer::get_singleton()->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
-                RenderingServer::get_singleton()->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
-                //RenderingServer::get_singleton()->instance_geometry_set_flag(contact_3d_debug_instance, RS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
+                contact_3d_debug_multimesh = rs->multimesh_create();
+                rs->multimesh_allocate(contact_3d_debug_multimesh, get_tree()->get_collision_debug_contact_count(), RS::MULTIMESH_TRANSFORM_3D, RS::MULTIMESH_COLOR_8BIT);
+                rs->multimesh_set_visible_instances(contact_3d_debug_multimesh, 0);
+                rs->multimesh_set_mesh(contact_3d_debug_multimesh, get_tree()->get_debug_contact_mesh()->get_rid());
+                contact_3d_debug_instance = rs->instance_create();
+                rs->instance_set_base(contact_3d_debug_instance, contact_3d_debug_multimesh);
+                rs->instance_set_scenario(contact_3d_debug_instance, find_world()->get_scenario());
+                //rs->instance_geometry_set_flag(contact_3d_debug_instance, RS::INSTANCE_FLAG_VISIBLE_IN_ALL_ROOMS, true);
             }
 
-            RenderingServer::get_singleton()->viewport_set_active(viewport, true);
+            rs->viewport_set_active(viewport, true);
         } break;
         case NOTIFICATION_READY: {
 #ifndef _3D_DISABLED
@@ -380,24 +381,24 @@ void Viewport::_notification(int p_what) {
             if (world_2d)
                 world_2d->_remove_viewport(this);
 
-            RenderingServer::get_singleton()->viewport_set_scenario(viewport, RID());
+            rs->viewport_set_scenario(viewport, RID());
             //			SpatialSoundServer::get_singleton()->listener_set_space(internal_listener, RID());
-            RenderingServer::get_singleton()->viewport_remove_canvas(viewport, current_canvas);
+            rs->viewport_remove_canvas(viewport, current_canvas);
             if (contact_2d_debug.is_valid()) {
-                RenderingServer::get_singleton()->free_rid(contact_2d_debug);
+                rs->free_rid(contact_2d_debug);
                 contact_2d_debug = RID();
             }
 
             if (contact_3d_debug_multimesh.is_valid()) {
-                RenderingServer::get_singleton()->free_rid(contact_3d_debug_multimesh);
-                RenderingServer::get_singleton()->free_rid(contact_3d_debug_instance);
+                rs->free_rid(contact_3d_debug_multimesh);
+                rs->free_rid(contact_3d_debug_instance);
                 contact_3d_debug_instance = RID();
                 contact_3d_debug_multimesh = RID();
             }
 
             remove_from_group("_viewports");
 
-            RenderingServer::get_singleton()->viewport_set_active(viewport, false);
+            rs->viewport_set_active(viewport, false);
 
         } break;
         case NOTIFICATION_INTERNAL_PROCESS: {
@@ -414,8 +415,8 @@ void Viewport::_notification(int p_what) {
 
             if (get_tree()->is_debugging_collisions_hint() && contact_2d_debug.is_valid()) {
 
-                RenderingServer::get_singleton()->canvas_item_clear(contact_2d_debug);
-                RenderingServer::get_singleton()->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
+                rs->canvas_item_clear(contact_2d_debug);
+                rs->canvas_item_set_draw_index(contact_2d_debug, 0xFFFFF); //very high index
 
                 const Vector<Vector2> &points = PhysicsServer2D::get_singleton()->space_get_contacts(find_world_2d()->get_space());
                 int point_count = PhysicsServer2D::get_singleton()->space_get_contact_count(find_world_2d()->get_space());
@@ -423,7 +424,7 @@ void Viewport::_notification(int p_what) {
 
                 for (int i = 0; i < point_count; i++) {
 
-                    RenderingServer::get_singleton()->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
+                    rs->canvas_item_add_rect(contact_2d_debug, Rect2(points[i] - Vector2(2, 2), Vector2(5, 5)), ccol);
                 }
             }
 
@@ -432,7 +433,7 @@ void Viewport::_notification(int p_what) {
                 const Vector<Vector3> & points = PhysicsServer3D::get_singleton()->space_get_contacts(find_world()->get_space());
                 int point_count = PhysicsServer3D::get_singleton()->space_get_contact_count(find_world()->get_space());
 
-                RenderingServer::get_singleton()->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
+                rs->multimesh_set_visible_instances(contact_3d_debug_multimesh, point_count);
             }
 
             if (physics_object_picking && (to_screen_rect == Rect2() || Input::get_singleton()->get_mouse_mode() != Input::MOUSE_MODE_CAPTURED)) {
