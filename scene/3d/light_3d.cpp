@@ -178,10 +178,6 @@ void Light3D::set_bake_mode(BakeMode p_mode) {
     RenderingServer::get_singleton()->light_set_use_gi(light, p_mode != BAKE_DISABLED);
 }
 
-Light3D::BakeMode Light3D::get_bake_mode() const {
-    return bake_mode;
-}
-
 void Light3D::_update_visibility() {
 
     if (!is_inside_tree()) {
@@ -316,7 +312,7 @@ Light3D::Light3D(RS::LightType p_type) {
         case RS::LIGHT_OMNI: light = RenderingServer::get_singleton()->omni_light_create(); break;
         case RS::LIGHT_SPOT: light = RenderingServer::get_singleton()->spot_light_create(); break;
         default: {
-        };
+        }
     }
 
     RenderingServer::get_singleton()->instance_set_base(get_instance(), light);

@@ -31,7 +31,6 @@
 #pragma once
 
 #include "scene/3d/visual_instance_3d.h"
-#include "scene/resources/texture.h"
 #include "servers/rendering_server.h"
 
 class GODOT_EXPORT Light3D : public VisualInstance3D {
@@ -60,7 +59,7 @@ public:
         PARAM_MAX = RS::LIGHT_PARAM_MAX
     };
 
-    enum BakeMode {
+    enum BakeMode : int8_t {
         BAKE_DISABLED,
         BAKE_INDIRECT,
         BAKE_ALL
@@ -70,16 +69,15 @@ private:
     Color color;
     float param[PARAM_MAX];
     Color shadow_color;
+    uint32_t cull_mask;
+    RS::LightType type;
+    BakeMode bake_mode;
     bool shadow;
     bool negative;
     bool reverse_cull;
-    uint32_t cull_mask;
-    RS::LightType type;
     bool editor_only;
-    void _update_visibility();
-    BakeMode bake_mode;
 
-    // bind helpers
+    void _update_visibility();
 
 protected:
     RID light;
@@ -120,7 +118,7 @@ public:
     bool get_shadow_reverse_cull_face() const;
 
     void set_bake_mode(BakeMode p_mode);
-    BakeMode get_bake_mode() const;
+    BakeMode get_bake_mode() const { return bake_mode; }
 
     AABB get_aabb() const override;
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;
@@ -173,13 +171,13 @@ class GODOT_EXPORT OmniLight3D : public Light3D {
 
 public:
     // omni light
-    enum ShadowMode {
+    enum ShadowMode : int8_t {
         SHADOW_DUAL_PARABOLOID,
         SHADOW_CUBE,
     };
 
     // omni light
-    enum ShadowDetail {
+    enum ShadowDetail : int8_t {
         SHADOW_DETAIL_VERTICAL,
         SHADOW_DETAIL_HORIZONTAL
     };

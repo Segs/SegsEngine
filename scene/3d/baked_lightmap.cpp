@@ -328,10 +328,6 @@ void BakedLightmap::set_hdr(bool p_enable) {
     hdr = p_enable;
 }
 
-bool BakedLightmap::is_hdr() const {
-    return hdr;
-}
-
 bool BakedLightmap::_bake_time(void *ud, float p_secs, float p_progress) {
 
     uint64_t time = OS::get_singleton()->get_ticks_usec();
@@ -778,10 +774,6 @@ void BakedLightmap::set_bake_quality(BakeQuality p_quality) {
     bake_quality = p_quality;
 }
 
-BakedLightmap::BakeQuality BakedLightmap::get_bake_quality() const {
-    return bake_quality;
-}
-
 void BakedLightmap::set_bake_mode(BakeMode p_mode) {
     bake_mode = p_mode;
 }
@@ -792,10 +784,6 @@ BakedLightmap::BakeMode BakedLightmap::get_bake_mode() const {
 
 void BakedLightmap::set_image_path(StringView p_path) {
     image_path = p_path;
-}
-
-const String &BakedLightmap::get_image_path() const {
-    return image_path;
 }
 
 AABB BakedLightmap::get_aabb() const {

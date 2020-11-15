@@ -91,20 +91,10 @@ void VisualInstance3D::_notification(int p_what) {
     }
 }
 
-RID VisualInstance3D::get_instance() const {
-
-    return instance;
-}
-
 void VisualInstance3D::set_layer_mask(uint32_t p_mask) {
 
     layers = p_mask;
     RenderingServer::get_singleton()->instance_set_layer_mask(instance, p_mask);
-}
-
-uint32_t VisualInstance3D::get_layer_mask() const {
-
-    return layers;
 }
 
 void VisualInstance3D::set_layer_mask_bit(int p_layer, bool p_enable) {
@@ -143,11 +133,6 @@ void VisualInstance3D::set_base(const RID &p_base) {
     base = p_base;
 }
 
-RID VisualInstance3D::get_base() const {
-
-    return base;
-}
-
 VisualInstance3D::VisualInstance3D() {
 
     instance = RenderingServer::get_singleton()->instance_create();
@@ -176,11 +161,6 @@ void GeometryInstance::set_lod_min_distance(float p_dist) {
 
     lod_min_distance = p_dist;
     RenderingServer::get_singleton()->instance_geometry_set_draw_range(get_instance(), lod_min_distance, lod_max_distance, lod_min_hysteresis, lod_max_hysteresis);
-}
-
-float GeometryInstance::get_lod_min_distance() const {
-
-    return lod_min_distance;
 }
 
 void GeometryInstance::set_lod_max_distance(float p_dist) {

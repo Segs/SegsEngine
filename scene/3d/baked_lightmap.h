@@ -189,16 +189,16 @@ public:
     float get_energy() const;
 
     void set_bake_quality(BakeQuality p_quality);
-    BakeQuality get_bake_quality() const;
+    BakeQuality get_bake_quality() const { return bake_quality; }
 
     void set_bake_mode(BakeMode p_mode);
     BakeMode get_bake_mode() const;
 
     void set_hdr(bool p_enable);
-    bool is_hdr() const;
+    bool is_hdr() const { return hdr; }
 
     void set_image_path(StringView p_path);
-    const String &get_image_path() const;
+    const String &get_image_path() const { return image_path; }
 
     AABB get_aabb() const override;
     Vector<Face3> get_faces(uint32_t p_usage_flags) const override;

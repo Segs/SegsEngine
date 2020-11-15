@@ -58,17 +58,17 @@ public:
         FACES_DYNAMIC = 4 // dynamic object geometry
     };
 
-    RID get_instance() const;
+    RID get_instance() const { return instance; }
     virtual AABB get_aabb() const = 0;
     virtual Vector<Face3> get_faces(uint32_t p_usage_flags) const = 0;
 
     virtual AABB get_transformed_aabb() const; // helper
 
     void set_base(const RID &p_base);
-    RID get_base() const;
+    RID get_base() const { return base; }
 
     void set_layer_mask(uint32_t p_mask);
-    uint32_t get_layer_mask() const;
+    uint32_t get_layer_mask() const { return layers; }
 
     void set_layer_mask_bit(int p_layer, bool p_enable);
     bool get_layer_mask_bit(int p_layer) const;
@@ -118,7 +118,7 @@ public:
     ShadowCastingSetting get_cast_shadows_setting() const;
 
     void set_lod_min_distance(float p_dist);
-    float get_lod_min_distance() const;
+    float get_lod_min_distance() const { return lod_min_distance; }
 
     void set_lod_max_distance(float p_dist);
     float get_lod_max_distance() const;
