@@ -35,8 +35,8 @@
 #pragma once
 
 #include "core/undo_redo.h"
+#include "core/map.h"
 #include "editor/editor_inspector.h"
-#include "editor/scene_tree_editor.h"
 #include "scene/gui/button.h"
 #include "scene/gui/check_button.h"
 #include "scene/gui/dialogs.h"
@@ -48,6 +48,7 @@
 class PopupMenu;
 class ConnectDialogBinds;
 class EditorNode;
+class SceneTreeEditor;
 
 class ConnectDialog : public ConfirmationDialog {
     GDCLASS(ConnectDialog,ConfirmationDialog)
