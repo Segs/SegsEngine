@@ -32,13 +32,6 @@
 
 #include "core/os/os.h"
 
-void CommandQueueMT::lock() {
-    mutex.lock();
-}
-
-void CommandQueueMT::unlock() {
-    mutex.unlock();
-}
 
 void CommandQueueMT::wait_for_flush() {
 

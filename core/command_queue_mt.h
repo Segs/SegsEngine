@@ -184,8 +184,14 @@ class GODOT_EXPORT CommandQueueMT {
         return true;
     }
 
-    void lock();
-    void unlock();
+    void lock() {
+        mutex.lock();
+    }
+
+    void unlock() {
+        mutex.unlock();
+    }
+
     void wait_for_flush();
     SyncSemaphore *_alloc_sync_sem();
     bool dealloc_one();
