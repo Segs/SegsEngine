@@ -648,25 +648,25 @@ void SceneTreeEditor::_cell_multi_selected(Object *p_object, int p_cell, bool p_
 }
 
 void SceneTreeEditor::_notification(int p_what) {
-
     switch (p_what) {
         case NOTIFICATION_ENTER_TREE: {
-            ERR_FAIL_COND(!tree);
-            tree->connect("tree_changed",callable_mp(this, &SceneTreeEditor::_tree_changed));
-            tree->connect("node_removed",callable_mp(this, &SceneTreeEditor::_node_removed));
-            tree->connect("node_renamed",callable_mp(this, &SceneTreeEditor::_node_renamed));
-            tree->connect("node_configuration_warning_changed",callable_mp(this, &SceneTreeEditor::_warning_changed));
+            SceneTree* s_tree = get_tree();
+
+            s_tree->connect("tree_changed",callable_mp(this, &SceneTreeEditor::_tree_changed));
+            s_tree->connect("node_removed",callable_mp(this, &SceneTreeEditor::_node_removed));
+            s_tree->connect("node_renamed",callable_mp(this, &SceneTreeEditor::_node_renamed));
+            s_tree->connect("node_configuration_warning_changed",callable_mp(this, &SceneTreeEditor::_warning_changed));
             tree->connect("item_collapsed",callable_mp(this, &SceneTreeEditor::_cell_collapsed));
 
             _update_tree();
         } break;
         case NOTIFICATION_EXIT_TREE: {
-            ERR_FAIL_COND(!tree);
-            tree->disconnect("tree_changed",callable_mp(this, &SceneTreeEditor::_tree_changed));
-            tree->disconnect("node_removed",callable_mp(this, &SceneTreeEditor::_node_removed));
-            tree->disconnect("node_renamed",callable_mp(this, &SceneTreeEditor::_node_renamed));
-            tree->disconnect("item_collapsed",callable_mp(this, &SceneTreeEditor::_cell_collapsed));
-            tree->disconnect("node_configuration_warning_changed",callable_mp(this, &SceneTreeEditor::_warning_changed));
+            SceneTree* s_tree = get_tree();
+            s_tree->disconnect("tree_changed",callable_mp(this, &SceneTreeEditor::_tree_changed));
+            s_tree->disconnect("node_removed",callable_mp(this, &SceneTreeEditor::_node_removed));
+            s_tree->disconnect("node_renamed",callable_mp(this, &SceneTreeEditor::_node_renamed));
+            s_tree->disconnect("node_configuration_warning_changed",callable_mp(this, &SceneTreeEditor::_warning_changed));
+            tree->disconnect("item_collapsed", callable_mp(this, &SceneTreeEditor::_cell_collapsed));
         } break;
         case NOTIFICATION_THEME_CHANGED: {
             _update_tree();

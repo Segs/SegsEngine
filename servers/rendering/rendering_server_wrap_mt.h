@@ -37,7 +37,6 @@
 class  RenderingServerWrapMT : public RenderingServer {
 
     // the real visual server
-    mutable RenderingServer *rendering_server;
     mutable CommandQueueMT command_queue;
     Mutex alloc_mutex;
     Thread *thread;
@@ -63,7 +62,6 @@ class  RenderingServerWrapMT : public RenderingServer {
 public:
 //#define ServerName RenderingServer
 #define ServerNameWrapMT RenderingServerWrapMT
-#define server_name rendering_server
 #include "servers/server_wrap_mt_common.h"
 
     /* EVENT QUEUING */
@@ -94,14 +92,11 @@ public:
     }
 
     const String &texture_get_path(RID p1) const override {
-        if (Thread::get_caller_id() != server_thread) {
-            const String *ret;
-            command_queue.push_and_sync( [p1,&ret]() { ret = &submission_thread_singleton->texture_get_path(p1);});
-            SYNC_DEBUG
-            return *ret;
-        } else {
-            return server_name->texture_get_path(p1);
-        }
+        assert(Thread::get_caller_id() != server_thread);
+        const String *ret;
+        command_queue.push_and_sync( [p1,&ret]() { ret = &submission_thread_singleton->texture_get_path(p1);});
+        SYNC_DEBUG
+        return *ret;
     }
     FUNC1(texture_set_shrink_all_x2_on_set_data, bool)
     FUNC1S(texture_debug_usage, Vector<TextureInfo> *)
@@ -177,17 +172,13 @@ public:
     FUNC2RC(AABB, mesh_surface_get_aabb, RID, int)
     FUNC2RC(Vector<Vector<uint8_t> >, mesh_surface_get_blend_shapes, RID, int)
     const Vector<AABB> & mesh_surface_get_skeleton_aabb(RID p1, int p2) const override {
-        if (Thread::get_caller_id() != server_thread) {
-            using RetType = const Vector<AABB> *;
+        assert(Thread::get_caller_id() != server_thread);
+        using RetType = const Vector<AABB> *;
 
-            RetType ret;
-            command_queue.push_and_sync( [this,p1,p2,&ret]() { ret = &server_name->mesh_surface_get_skeleton_aabb(p1, p2);});
-            SYNC_DEBUG
-            return *ret;
-        }
-        else {
-            return server_name->mesh_surface_get_skeleton_aabb(p1, p2);
-        }
+        RetType ret;
+        command_queue.push_and_sync( [this,p1,p2,&ret]() { ret = &(submission_thread_singleton->mesh_surface_get_skeleton_aabb(p1, p2));});
+        SYNC_DEBUG
+        return *ret;
     }
 
     FUNC2(mesh_remove_surface, RID, int)
@@ -431,7 +422,7 @@ public:
 
     //this passes directly to avoid stalling, but it's pretty dangerous, so don't call after freeing a viewport
     int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfo p_info) override {
-        return rendering_server->viewport_get_render_info(p_viewport, p_info);
+        return submission_thread_singleton->viewport_get_render_info(p_viewport, p_info);
     }
 
     FUNC2(viewport_set_debug_draw, RID, RS::ViewportDebugDraw)
@@ -607,13 +598,8 @@ public:
 
     void request_frame_drawn_callback(Callable && p1) override
     {
-        if (Thread::get_caller_id() != server_thread)
-        {
-            command_queue.push( [this,p1=eastl::move(p1)]() mutable { server_name->request_frame_drawn_callback(eastl::move(p1)); });
-        } else
-        {
-            server_name->request_frame_drawn_callback(eastl::move(p1));
-        }
+        assert (Thread::get_caller_id() != server_thread);
+        command_queue.push( [this,p1=eastl::move(p1)]() mutable { submission_thread_singleton->request_frame_drawn_callback(eastl::move(p1)); });
     }
 
     void init() override;
@@ -626,14 +612,14 @@ public:
 
     //this passes directly to avoid stalling
     int get_render_info(RS::RenderInfo p_info) override {
-        return rendering_server->get_render_info(p_info);
+        return submission_thread_singleton->get_render_info(p_info);
     }
     const char * get_video_adapter_name() const override{
-        return rendering_server->get_video_adapter_name();
+        return submission_thread_singleton->get_video_adapter_name();
     }
 
     const char * get_video_adapter_vendor() const override {
-        return rendering_server->get_video_adapter_vendor();
+        return submission_thread_singleton->get_video_adapter_vendor();
     }
 
     FUNC4(set_boot_image, const Ref<Image> &, const Color &, bool, bool)
@@ -641,8 +627,8 @@ public:
 
     FUNC1(set_debug_generate_wireframes, bool)
 
-    bool has_feature(RS::Features p_feature) const override { return rendering_server->has_feature(p_feature); }
-    bool has_os_feature(const StringName &p_feature) const override { return rendering_server->has_os_feature(p_feature); }
+    bool has_feature(RS::Features p_feature) const override { return submission_thread_singleton->has_feature(p_feature); }
+    bool has_os_feature(const StringName &p_feature) const override { return submission_thread_singleton->has_os_feature(p_feature); }
 
     FUNC1(call_set_use_vsync, bool)
 
@@ -654,6 +640,16 @@ public:
 
     GODOT_EXPORT RenderingServerWrapMT(bool p_create_thread);
     ~RenderingServerWrapMT() override;
+    static RenderingServerWrapMT *get() { return (RenderingServerWrapMT*)queueing_thread_singleton; }
+
+    static void queue_operation(eastl::function<void()> func)
+    {
+        get()->command_queue.push(func);
+    }
+    static void queue_synced_operation(eastl::function<void()> func)
+    {
+        get()->command_queue.push_and_sync(func);
+    }
 
 //#undef ServerName
 #undef ServerNameWrapMT

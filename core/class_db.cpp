@@ -662,8 +662,7 @@ void ClassDB::add_signal(StringName p_class, MethodInfo &&p_signal) {
         check = check->inherits_ptr;
     }
 #endif
-
-    class_signal_map(*type)[sname] = eastl::move(p_signal);
+    type->class_signal_map()[sname] = eastl::move(p_signal);
 }
 
 void ClassDB::get_signal_list(StringName p_class, Vector<MethodInfo> *p_signals, bool p_no_inheritance) {

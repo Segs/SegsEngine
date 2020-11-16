@@ -43,7 +43,7 @@ void RenderingServerWrapMT::thread_draw(bool p_swap_buffers, double frame_step) 
 
     if (!atomic_decrement(&draw_pending)) {
 
-        rendering_server->draw(p_swap_buffers, frame_step);
+        submission_thread_singleton->draw(p_swap_buffers, frame_step);
     }
 }
 
@@ -65,7 +65,7 @@ void RenderingServerWrapMT::thread_loop() {
 
     OS::get_singleton()->make_rendering_thread();
 
-    rendering_server->init();
+    submission_thread_singleton->init();
 
     exit = false;
     draw_thread_up = true;
@@ -76,7 +76,7 @@ void RenderingServerWrapMT::thread_loop() {
 
     command_queue.flush_all(); // flush all
 
-    rendering_server->finish();
+    submission_thread_singleton->finish();
 }
 
 /* EVENT QUEUING */
@@ -101,14 +101,14 @@ void RenderingServerWrapMT::draw(bool p_swap_buffers, double frame_step) {
         command_queue.push([this,p_swap_buffers,frame_step]() {thread_draw(p_swap_buffers,frame_step); });
     } else {
 
-        rendering_server->draw(p_swap_buffers, frame_step);
+        submission_thread_singleton->draw(p_swap_buffers, frame_step);
     }
 }
 
 void RenderingServerWrapMT::init() {
 
     if (!create_thread) {
-        rendering_server->init();
+        submission_thread_singleton->init();
         return;
     }
 
@@ -134,7 +134,7 @@ void RenderingServerWrapMT::finish() {
 
         thread = nullptr;
     } else {
-        rendering_server->finish();
+        submission_thread_singleton->finish();
     }
 
     texture_free_cached_ids();
@@ -174,7 +174,7 @@ RenderingServerWrapMT::RenderingServerWrapMT(bool p_create_thread) :
 
     OS::switch_vsync_function = set_use_vsync_callback; //as this goes to another thread, make sure it goes properly
 
-    rendering_server = memnew(RenderingServerRaster);
+    memnew(RenderingServerRaster);
     create_thread = p_create_thread;
     thread = nullptr;
     draw_pending = 0;
@@ -190,6 +190,6 @@ RenderingServerWrapMT::RenderingServerWrapMT(bool p_create_thread) :
 
 RenderingServerWrapMT::~RenderingServerWrapMT() {
     queueing_thread_singleton = nullptr;
-    memdelete(rendering_server);
+    memdelete(submission_thread_singleton);
     //finish();
 }

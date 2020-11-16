@@ -213,14 +213,17 @@ class GODOT_EXPORT RenderingServer : public Object {
     void _canvas_item_add_style_box(RID p_item, const Rect2 &p_rect, const Rect2 &p_source, RID p_texture, const Vector<float> &p_margins, const Color &p_modulate = Color(1, 1, 1));
 
 protected:
-    static Thread::ID server_thread;
-    static RenderingServer* submission_thread_singleton; // gpu operation submission object
-    static RenderingServer* queueing_thread_singleton; // other threads enqueue operations through this object.
 
     Error _surface_set_data(const SurfaceArrays &p_arrays, uint32_t p_format, uint32_t *p_offsets, uint32_t p_stride, Vector<uint8_t> &r_vertex_array, int p_vertex_array_len, Vector<uint8_t> &r_index_array, int p_index_array_len, AABB &r_aabb, Vector<AABB> &r_bone_aabb);
 
     static void _bind_methods();
 public: // scripting glue helpers
+
+    static Thread::ID server_thread;
+    static RenderingServer* submission_thread_singleton; // gpu operation submission object
+    static RenderingServer* queueing_thread_singleton; // other threads enqueue operations through this object.
+
+
     Array _mesh_surface_get_arrays(RID p_mesh, int p_surface) const;
     void _mesh_add_surface_from_arrays(RID p_mesh, RS::PrimitiveType p_primitive, const Array &p_arrays, const Array &p_blend_shapes = Array(), uint32_t p_compress_format = RS::ARRAY_COMPRESS_DEFAULT);
     Array _mesh_surface_get_blend_shape_arrays(RID p_mesh, int p_surface) const;

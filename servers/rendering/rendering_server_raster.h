@@ -78,7 +78,6 @@ public:
 #define DISPLAY_CHANGED \
     changes++;          \
     _changes_changed();
-
 #else
     _FORCE_INLINE_ static void redraw_request() { changes++; }
 
@@ -701,9 +700,9 @@ public:
 
     GODOT_EXPORT RenderingServerRaster();
     GODOT_EXPORT ~RenderingServerRaster() override;
+    static RenderingServerRaster *get() { (RenderingServerRaster*)submission_thread_singleton;}
 
 #undef DISPLAY_CHANGED
-
 #undef BIND0R
 #undef BIND1RC
 #undef BIND2RC
@@ -721,4 +720,3 @@ public:
 #undef BIND9
 #undef BIND10
 };
-
